@@ -675,8 +675,6 @@ bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific s
     switch(spellSpec1)
     {
         case SPELL_SPECIFIC_SEAL:
-        case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
-        case SPELL_SPECIFIC_BLESSING:
         case SPELL_SPECIFIC_HAND:
         case SPELL_SPECIFIC_AURA:
         case SPELL_SPECIFIC_STING:
@@ -687,6 +685,12 @@ bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific s
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
             return spellSpec1==spellSpec2;
+        case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
+            return spellSpec2==SPELL_SPECIFIC_BLESSING
+            || spellSpec2 == SPELL_SPECIFIC_BLESSING_OF_MIGHT;
+        case SPELL_SPECIFIC_BLESSING:
+            return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT
+            || spellSpec2==SPELL_SPECIFIC_BLESSING;
         default:
             return false;
     }
@@ -731,15 +735,14 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
                 || spellSpec2==SPELL_SPECIFIC_GUARDIAN_ELIXIR
                 || spellSpec2==SPELL_SPECIFIC_FLASK_ELIXIR;
         case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
-            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT
-                || spellSpec2==SPELL_SPECIFIC_BLESSING;
+            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT;
         case SPELL_SPECIFIC_BATTLE_SHOUT:
             return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT
-                || spellSpec2==SPELL_SPECIFIC_POSITIVE_SHOUT;
+                || spellSpec2==SPELL_SPECIFIC_POSITIVE_SHOUT
+                || spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT;
         case SPELL_SPECIFIC_POSITIVE_SHOUT:
-            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT;
-        case SPELL_SPECIFIC_BLESSING:
-            return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT;
+            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT
+            || spellSpec2==SPELL_SPECIFIC_POSITIVE_SHOUT;
         default:
             return false;
     }
