@@ -78,7 +78,7 @@ class AuraApplication
 class TRINITY_DLL_SPEC Aura
 {
     public:
-        typedef UNORDERED_MAP<uint64, AuraApplication *> ApplicationMap;
+        typedef std::map<uint64, AuraApplication *> ApplicationMap;
 
         static Aura * TryCreate(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount = NULL, Item * castItem = NULL, uint64 casterGUID = 0);
         static Aura * TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit * caster, int32 *baseAmount = NULL, Item * castItem = NULL, uint64 casterGUID = 0);
