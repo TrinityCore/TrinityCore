@@ -81,12 +81,34 @@ struct TRINITY_DLL_DECL instance_gnomeregan : public ScriptedInstance
         {
             case GO_CAVE_IN_LEFT:
                 uiCaveInLeftGUID = pGo->GetGUID();
-                HandleGameObject(NULL,false,pGo);
+                if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
+                    HandleGameObject(NULL,false,pGo);
                 break;
             case GO_CAVE_IN_RIGHT:
                 uiCaveInRightGUID = pGo->GetGUID();
-                HandleGameObject(NULL,false,pGo);
+                if (m_auiEncounter[0] == DONE || m_auiEncounter[0] == NOT_STARTED)
+                    HandleGameObject(NULL,false,pGo);
                 break;
+        }
+    }
+
+    void SetData(uint32 uiType, uint32 uiData)
+    {
+        switch(uiType)
+        {
+            case TYPE_EVENT:
+                m_auiEncounter[0] = uiData; break;
+                if (uiData == DONE)
+                    SaveToDB();
+                break;
+        }
+    }
+
+    uint32 GetData(uint32 uiType, uint32 uiData)
+    {
+        switch(uiType)
+        {
+            case TYPE_EVENT:    return m_auiEncounter[0];
         }
     }
 
