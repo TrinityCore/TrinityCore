@@ -899,7 +899,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     // part of positive spell if casted at self
                     if(spellproto->EffectImplicitTargetA[effIndex] != TARGET_UNIT_CASTER)
                         return false;
-                    // but not this if this first effect (didn't find batter check)
+                    // but not this if this first effect (didn't find better check)
                     if(spellproto->Attributes & 0x4000000 && effIndex==0)
                         return false;
                     break;
