@@ -678,7 +678,10 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature, bool add)
             break;
         }
         case CREATURE_QUESTGIVER:
-            m_questgivers[creature->GetDBTableGUIDLow()] = creature;
+            if (add)
+                m_questgivers[creature->GetDBTableGUIDLow()] = creature;
+            else
+                m_questgivers.erase(creature->GetDBTableGUIDLow());
             break;
         case CREATURE_ENGINEER:
             for (OutdoorPvP::OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
