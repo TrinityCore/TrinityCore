@@ -3755,6 +3755,7 @@ void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
         else
             ++iter;
     }
+    assert(false);
 }
 
 void Unit::_RemoveNoStackAuraApplicationsDueToAura(Aura * aura)
