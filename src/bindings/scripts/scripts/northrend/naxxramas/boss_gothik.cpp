@@ -375,8 +375,8 @@ struct TRINITY_DLL_DECL boss_gothikAI : public BossAI
                             }
                         }
 
-                        ++waveCount;
                         events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
+                        ++waveCount;
                     }
                     else
                     {
