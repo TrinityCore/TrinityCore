@@ -1283,7 +1283,10 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
                 Creature* pCreature = new Creature;
                 //sLog.outDebug("Spawning creature %u",*itr);
                 if (!pCreature->LoadFromDB(*itr, map))
+                {
+                    pCreature->CleanupsBeforeDelete();
                     delete pCreature;
+                }
                 else
                     map->Add(pCreature);
             }
