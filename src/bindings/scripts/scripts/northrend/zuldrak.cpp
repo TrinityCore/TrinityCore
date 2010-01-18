@@ -475,8 +475,7 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
 
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -548,8 +547,7 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
 
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
     }
 };
 
@@ -596,8 +594,7 @@ struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public npc_escortAI
     {
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
     void WaypointReached(uint32 uiI)
@@ -653,8 +650,7 @@ struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public npc_escortAI
 
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
     }
 };
 
@@ -691,8 +687,7 @@ struct TRINITY_DLL_DECL npc_yggdrasAI : public ScriptedAI
     {
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
     void EnterCombat(Unit* pWho)
@@ -733,8 +728,7 @@ struct TRINITY_DLL_DECL npc_yggdrasAI : public ScriptedAI
 
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
     }
 };
 
@@ -785,8 +779,7 @@ struct TRINITY_DLL_DECL npc_stinkbeardAI : public npc_escortAI
     {
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->RemoveSummons();
     }
 
     void WaypointReached(uint32 uiI)
@@ -846,8 +839,7 @@ struct TRINITY_DLL_DECL npc_stinkbeardAI : public npc_escortAI
     {
         if (m_creature->isSummon())
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
-                if (pSummoner)
-                    CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
+                CAST_AI(npc_gurgthockAI,CAST_CRE(pSummoner)->AI())->bEventInProgress = false;
 
         if (pKiller->GetTypeId() == TYPEID_PLAYER)
            CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, CAST_PLR(pKiller));
