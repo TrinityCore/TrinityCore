@@ -15902,7 +15902,7 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         // FIXME: this interrupts spell visual
         DestroyForNearbyPlayers();
 
-        GetMap()->CreatureRelocation((Creature*)this, x, y, z, orientation);
+        SetPosition(x, y, z, orientation, true);
         //ObjectAccessor::UpdateObjectVisibility(this);
 
         //WorldPacket data;
@@ -15911,6 +15911,40 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         //BuildHeartBeatMsg(&data);
         //SendMessageToSet(&data, false);
     }
+}
+
+bool Unit::SetPosition(float x, float y, float z, float orientation, bool teleport)
+{
+    // prevent crash when a bad coord is sent by the client
+    if (!Trinity::IsValidMapCoord(x,y))
+    {
+        sLog.outDebug("Unit::SetPosition(%f, %f, %f) .. bad coordinates!",x,y,z);
+        return false;
+    }
+
+    bool turn = (GetOrientation() != orientation);
+    bool relocated = (teleport || GetPositionX() != x || GetPositionY() != y || GetPositionZ() != z);
+
+    if (turn)
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
+
+    if (relocated)
+    {
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
+
+        // move and update visible state if need
+        if(GetTypeId() == TYPEID_PLAYER)
+            GetMap()->PlayerRelocation((Player*)this, x, y, z, orientation);
+        else
+            GetMap()->CreatureRelocation((Creature*)this, x, y, z, orientation);
+    }
+    else if(turn)
+        SetOrientation(orientation);
+
+    if ((relocated || turn) && IsVehicle())
+        GetVehicleKit()->RelocatePassengers(x,y,z,orientation);
+
+    return true;
 }
 
 void Unit::SendThreatListUpdate()

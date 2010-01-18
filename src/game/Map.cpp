@@ -1048,9 +1048,6 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
         AddNotifier<Creature>(creature);
     }
 
-    if (creature->IsVehicle())
-        creature->GetVehicleKit()->RelocatePassengers(x,y,z,ang);
-
     assert(CheckGridIntegrity(creature,true));
 }
 

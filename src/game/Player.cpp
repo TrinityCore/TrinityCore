@@ -5978,12 +5978,8 @@ void Player::removeActionButton(uint8 button)
 
 bool Player::SetPosition(float x, float y, float z, float orientation, bool teleport)
 {
-    // prevent crash when a bad coord is sent by the client
-    if (!Trinity::IsValidMapCoord(x,y,z,orientation))
-    {
-        sLog.outDebug("Player::SetPosition(%f, %f, %f, %f, %d) .. bad coordinates for player %d!",x,y,z,orientation,teleport,GetGUIDLow());
+    if (!Unit::SetPosition(x, y, z, orientation, teleport))
         return false;
-    }
 
     //if(movementInfo.flags & MOVEMENTFLAG_MOVING)
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
@@ -5991,22 +5987,10 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
     //AURA_INTERRUPT_FLAG_JUMP not sure
 
-    bool turn = (GetOrientation() != orientation);
     bool move2d = (teleport || GetPositionX() != x || GetPositionY() != y);
-
-    if (turn)
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
 
     if (move2d || GetPositionZ() != z)
     {
-        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOVE);
-
-        // move and update visible state if need
-        GetMap()->PlayerRelocation(this, x, y, z, orientation);
-
-        // reread after Map::Relocation
-        GetPosition(x, y, z);
-
         // group update
         if (move2d && GetGroup())
             SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
@@ -6014,13 +5998,11 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         // code block for underwater state update
         UpdateUnderwaterState(GetMap(), x, y, z);
 
-        if(GetTrader() && !IsWithinDistInMap(GetTrader(), 5))
+        if(GetTrader() && !IsWithinDistInMap(GetTrader(), INTERACTION_DISTANCE))
             GetSession()->SendCancelTrade();
 
         CheckExploreSystem();
     }
-    else if(turn)
-        SetOrientation(orientation);
 
     return true;
 }

@@ -1790,8 +1790,8 @@ class TRINITY_DLL_SPEC Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
         void SendResetFailedNotify(uint32 mapid);
 
+        virtual bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
         bool SetPosition(const Position &pos, bool teleport = false) { return SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
-        bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
         void UpdateUnderwaterState( Map * m, float x, float y, float z );
 
         void SendMessageToSet(WorldPacket *data, bool self);// overwrite Object::SendMessageToSet
