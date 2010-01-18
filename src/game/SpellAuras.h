@@ -46,7 +46,7 @@ class AuraApplication
         AuraRemoveMode m_removeMode:8;                  // Store info for know remove aura reason
         bool m_needClientUpdate:1;
         bool m_isNeedManyNegativeEffects:1;
-        bool m_canBeRemoved:1;                            // used only in aura list update of AuraBase
+        bool m_canBeRemoved:1;                            // used only in aura list update of Aura
 
         explicit AuraApplication(Unit * target, Unit * caster, Aura * base);
         void _Remove();

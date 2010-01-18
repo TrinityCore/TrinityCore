@@ -794,6 +794,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     if(!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam(), x, y, z, o))
     {
+        v->CleanupsBeforeDelete();
         delete v;
         return false;
     }
