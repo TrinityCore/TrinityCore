@@ -16462,10 +16462,7 @@ void Player::LoadPet()
     {
         Pet *pet = new Pet(this);
         if (!pet->LoadPetFromDB(this,0,0,true))
-        {
-            pet->CleanupsBeforeDelete();
             delete pet;
-        }
     }
 }
 
@@ -22458,10 +22455,7 @@ void Player::ResummonPetTemporaryUnSummonedIfAny()
 
     Pet* NewPet = new Pet(this);
     if(!NewPet->LoadPetFromDB(this, 0, m_temporaryUnsummonedPetNumber, true))
-    {
-        NewPet->CleanupsBeforeDelete();
         delete NewPet;
-    }
 
     m_temporaryUnsummonedPetNumber = 0;
 }

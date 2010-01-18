@@ -4855,10 +4855,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                                 }
                             }
                             else
-                            {
-                                NewPet->CleanupsBeforeDelete();
                                 delete NewPet;
-                            }
                         }
                     }
                     return;
