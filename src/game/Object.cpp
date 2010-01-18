@@ -1828,6 +1828,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     // petentry==0 for hunter "call pet" (current pet summoned if any)
     if(!entry)
     {
+        pet->CleanupsBeforeDelete();
         delete pet;
         return NULL;
     }
@@ -1836,6 +1837,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if(!pet->IsPositionValid())
     {
         sLog.outError("ERROR: Pet (guidlow %d, entry %d) not summoned. Suggested coordinates isn't valid (X: %f Y: %f)",pet->GetGUIDLow(),pet->GetEntry(),pet->GetPositionX(),pet->GetPositionY());
+        pet->CleanupsBeforeDelete();
         delete pet;
         return NULL;
     }
@@ -1845,6 +1847,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     if(!pet->Create(objmgr.GenerateLowGuid(HIGHGUID_PET), map, GetPhaseMask(), entry, pet_number))
     {
         sLog.outError("no such creature entry %u", entry);
+        pet->CleanupsBeforeDelete();
         delete pet;
         return NULL;
     }
