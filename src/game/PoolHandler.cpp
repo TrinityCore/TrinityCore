@@ -255,6 +255,7 @@ bool PoolGroup<Creature>::Spawn1Object(uint32 guid)
             //sLog.outDebug("Spawning creature %u",guid);
             if (!pCreature->LoadFromDB(guid, map))
             {
+                pCreature->CleanupsBeforeDelete();
                 delete pCreature;
                 return false;
             }
