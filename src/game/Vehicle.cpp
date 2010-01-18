@@ -321,8 +321,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
             if(((Creature*)me)->IsAIEnabled)
                 ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, true);
 
-            // move self = move all passengers
-            me->GetMap()->CreatureRelocation((Creature*)me, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+            // update all passenger's positions
+            RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
         }
     }
 
@@ -385,18 +385,12 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
     for (SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if (Unit *passenger = itr->second.passenger)
         {
-            if (passenger->GetTypeId() == TYPEID_PLAYER)
-                map->PlayerRelocation((Player*)passenger,
-                x + passenger->m_movementInfo.t_x,
-                y + passenger->m_movementInfo.t_y,
-                z + passenger->m_movementInfo.t_z,
-                ang + passenger->m_movementInfo.t_o);
-            else
-                map->CreatureRelocation((Creature*)passenger,
-                x + passenger->m_movementInfo.t_x,
-                y + passenger->m_movementInfo.t_y,
-                z + passenger->m_movementInfo.t_z,
-                ang + passenger->m_movementInfo.t_o);
+            float px = x + passenger->m_movementInfo.t_x;
+            float py = y + passenger->m_movementInfo.t_y;
+            float pz = z + passenger->m_movementInfo.t_z;
+            float po = ang + passenger->m_movementInfo.t_o;
+
+            passenger->SetPosition(px, py, pz, po);
         }
 }
 
