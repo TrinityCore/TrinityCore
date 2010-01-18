@@ -182,6 +182,8 @@ Unit::Unit()
     // remove aurastates allowing special moves
     for (uint8 i = 0; i < MAX_REACTIVE; ++i)
         m_reactiveTimer[i] = 0;
+
+    m_cleanupDone = false;
 }
 
 Unit::~Unit()
@@ -205,6 +207,7 @@ Unit::~Unit()
     if (m_vehicleKit)
         delete m_vehicleKit;
 
+    assert(m_cleanupDone);
     assert(!m_attacking);
     assert(m_attackers.empty());
     assert(m_sharedVision.empty());
@@ -3234,8 +3237,7 @@ void Unit::_UpdateSpells( uint32 time )
         }
     }
 
-    // update auraBases
-    // m_auraBaseUpdateIterator can be updated in indirect called code at aura remove to skip next planned to update but removed auras
+    // m_auraUpdateIterator can be updated in indirect called code at aura remove to skip next planned to update but removed auras
     for (m_auraUpdateIterator = m_ownedAuras.begin(); m_auraUpdateIterator != m_ownedAuras.end();)
     {
         Aura * i_aura = m_auraUpdateIterator->second;
@@ -3529,6 +3531,7 @@ void Unit::DeMorph()
 
 void Unit::_AddAura(UnitAura * aura, Unit * caster)
 {
+    assert(!m_cleanupDone);
     m_ownedAuras.insert(AuraMap::value_type(aura->GetId(), aura));
 
     // passive and Incanter's Absorption and auras with different type can stack with themselves any number of times
@@ -3579,7 +3582,8 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
 
 AuraApplication * Unit::__ApplyAura(Aura * aura)
 {
-    // auraBase musn't be removed
+    assert(!m_cleanupDone);
+    // aura musn't be removed
     assert(!aura->IsRemoved());
 
     SpellEntry const* aurSpellInfo = aura->GetSpellProto();
@@ -12965,6 +12969,7 @@ void Unit::CleanupsBeforeDelete()
     //A unit may be in removelist and not in world, but it is still in grid
     //and may have some references during delete
     RemoveAllAuras();
+    m_cleanupDone = true;
     InterruptNonMeleeSpells(true);
     m_Events.KillAllEvents(false);                      // non-delatable (currently casted spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     CombatStop();

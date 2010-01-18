@@ -1759,6 +1759,7 @@ TempSummon *Map::SummonCreature(uint32 entry, const Position &pos, SummonPropert
 
     if(!summon->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), this, phase, entry, vehId, team, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation()))
     {
+        summon->CleanupsBeforeDelete();
         delete summon;
         return NULL;
     }

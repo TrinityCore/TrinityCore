@@ -2069,6 +2069,8 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         uint32 m_reducedThreatPercent;
         uint64 m_misdirectionTargetGUID;
+
+        bool m_cleanupDone;
 };
 
 namespace Trinity
