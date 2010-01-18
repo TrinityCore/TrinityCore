@@ -3,4 +3,3 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (23861,-1000469,'It is too late for us, living one. Take yourself and your friend away from here before you both are... claimed...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (23861,-1000470,'Go away, whoever you are! Witch Hill is mine... mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (23861,-1000471,'It was... terrible... the demon...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'');
-
