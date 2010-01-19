@@ -16,10 +16,6 @@
 
 INSTANTIATE_SINGLETON_1(ScriptMgr);
 
-//#ifndef _TRINITY_SCRIPT_CONFIG
-//# define _TRINITY_SCRIPT_CONFIG  "trinitycore.conf"
-//#endif _TRINITY_SCRIPT_CONFIG
-
 int num_sc_scripts;
 Script *m_scripts[MAX_SCRIPTS];
 
@@ -228,9 +224,6 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
     }
 }
 
-//*********************************
-//*** Functions used internally ***
-
 void Script::RegisterSelf()
 {
     int id = GetScriptId(Name.c_str());
@@ -246,10 +239,6 @@ void Script::RegisterSelf()
     }
 }
 
-//********************************
-//*** Functions to be Exported ***
-
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnLogin(Player *pPlayer)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -257,7 +246,6 @@ void ScriptMgr::OnLogin(Player *pPlayer)
     tmpscript->pOnLogin(pPlayer);
 }
 
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnLogout(Player *pPlayer)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -265,7 +253,6 @@ void ScriptMgr::OnLogout(Player *pPlayer)
     tmpscript->pOnLogout(pPlayer);
 }
 
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnPVPKill(Player *killer, Player *killed)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -273,7 +260,6 @@ void ScriptMgr::OnPVPKill(Player *killer, Player *killed)
     tmpscript->pOnPVPKill(killer, killed);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::OnSpellCast (Unit *pUnitTarget, Item *pItemTarget, GameObject *pGoTarget, uint32 i, SpellEntry const *spell)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -281,7 +267,6 @@ bool ScriptMgr::OnSpellCast (Unit *pUnitTarget, Item *pItemTarget, GameObject *p
     return tmpscript->pOnSpellCast(pUnitTarget,pItemTarget,pGoTarget,i,spell);
 }
 
-//TRINITY_DLL_EXPORT
 uint32 ScriptMgr::OnGetXP(Player *pPlayer, uint32 amount)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -289,7 +274,6 @@ uint32 ScriptMgr::OnGetXP(Player *pPlayer, uint32 amount)
     return tmpscript->pOnGetXP(pPlayer,amount);
 }
 
-//TRINITY_DLL_EXPORT
 uint32 ScriptMgr::OnGetMoney(Player *pPlayer, int32 amount)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -297,7 +281,6 @@ uint32 ScriptMgr::OnGetMoney(Player *pPlayer, int32 amount)
     return tmpscript->pOnGetMoney(pPlayer,amount);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::OnPlayerChat(Player *pPlayer, const char *text)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -305,7 +288,6 @@ bool ScriptMgr::OnPlayerChat(Player *pPlayer, const char *text)
     return tmpscript->pOnPlayerChat(pPlayer,text);
 }
 
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnServerStartup()
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -313,7 +295,6 @@ void ScriptMgr::OnServerStartup()
     tmpscript->pOnServerStartup();
 }
 
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnServerShutdown()
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -321,7 +302,6 @@ void ScriptMgr::OnServerShutdown()
     tmpscript->pOnServerShutdown();
 }
 
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnAreaChange(Player *pPlayer, AreaTableEntry const *pArea)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -329,7 +309,6 @@ void ScriptMgr::OnAreaChange(Player *pPlayer, AreaTableEntry const *pArea)
     tmpscript->pOnAreaChange(pPlayer, pArea);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::OnItemClick (Player *pPlayer, Item *pItem)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -337,7 +316,6 @@ bool ScriptMgr::OnItemClick (Player *pPlayer, Item *pItem)
     return tmpscript->pOnItemClick(pPlayer,pItem);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::OnItemOpen (Player *pPlayer, Item *pItem)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -345,7 +323,6 @@ bool ScriptMgr::OnItemOpen (Player *pPlayer, Item *pItem)
     return tmpscript->pOnItemOpen(pPlayer,pItem);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::OnGoClick (Player *pPlayer, GameObject *pGameObject)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -353,7 +330,6 @@ bool ScriptMgr::OnGoClick (Player *pPlayer, GameObject *pGameObject)
     return tmpscript->pOnGoClick(pPlayer,pGameObject);
 }
 
-//TRINITY_DLL_EXPORT
 void ScriptMgr::OnCreatureKill (Player *pPlayer, Creature *pCreature)
 {
     Script *tmpscript = m_scripts[GetScriptId("scripted_on_events")];
@@ -361,13 +337,11 @@ void ScriptMgr::OnCreatureKill (Player *pPlayer, Creature *pCreature)
     tmpscript->pOnCreatureKill(pPlayer,pCreature);
 }
 
-//TRINITY_DLL_EXPORT
 char const* ScriptMgr::ScriptsVersion()
 {
     return "Integrated Trinity Scripts";
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GossipHello (Player * pPlayer, Creature* pCreature)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -377,7 +351,6 @@ bool ScriptMgr::GossipHello (Player * pPlayer, Creature* pCreature)
     return tmpscript->pGossipHello(pPlayer, pCreature);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
     debug_log("TSCR: Gossip selection, sender: %d, action: %d", uiSender, uiAction);
@@ -389,7 +362,6 @@ bool ScriptMgr::GossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSend
     return tmpscript->pGossipSelect(pPlayer, pCreature, uiSender, uiAction);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GossipSelectWithCode(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* sCode)
 {
     debug_log("TSCR: Gossip selection with code, sender: %d, action: %d", uiSender, uiAction);
@@ -401,7 +373,6 @@ bool ScriptMgr::GossipSelectWithCode(Player* pPlayer, Creature* pCreature, uint3
     return tmpscript->pGossipSelectWithCode(pPlayer, pCreature, uiSender, uiAction, sCode);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GOSelect(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint32 uiAction)
 {
     if(!pGO)
@@ -415,7 +386,6 @@ bool ScriptMgr::GOSelect(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint
     return tmpscript->pGOSelect(pPlayer, pGO, uiSender, uiAction);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GOSelectWithCode(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint32 uiAction, const char* sCode)
 {
     if(!pGO)
@@ -429,7 +399,6 @@ bool ScriptMgr::GOSelectWithCode(Player* pPlayer, GameObject* pGO, uint32 uiSend
     return tmpscript->pGOSelectWithCode(pPlayer, pGO, uiSender ,uiAction, sCode);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::QuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -439,7 +408,6 @@ bool ScriptMgr::QuestAccept(Player* pPlayer, Creature* pCreature, Quest const* p
     return tmpscript->pQuestAccept(pPlayer, pCreature, pQuest);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::QuestSelect(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -449,7 +417,6 @@ bool ScriptMgr::QuestSelect(Player* pPlayer, Creature* pCreature, Quest const* p
     return tmpscript->pQuestSelect(pPlayer, pCreature, pQuest);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::QuestComplete(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -459,7 +426,6 @@ bool ScriptMgr::QuestComplete(Player* pPlayer, Creature* pCreature, Quest const*
     return tmpscript->pQuestComplete(pPlayer, pCreature, pQuest);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::ChooseReward(Player* pPlayer, Creature* pCreature, Quest const* pQuest, uint32 opt)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -469,7 +435,6 @@ bool ScriptMgr::ChooseReward(Player* pPlayer, Creature* pCreature, Quest const* 
     return tmpscript->pChooseReward(pPlayer, pCreature, pQuest, opt);
 }
 
-//TRINITY_DLL_EXPORT
 uint32 ScriptMgr::NPCDialogStatus(Player* pPlayer, Creature* pCreature)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -479,7 +444,6 @@ uint32 ScriptMgr::NPCDialogStatus(Player* pPlayer, Creature* pCreature)
     return tmpscript->pNPCDialogStatus(pPlayer, pCreature);
 }
 
-//TRINITY_DLL_EXPORT
 uint32 ScriptMgr::GODialogStatus(Player* pPlayer, GameObject* pGO)
 {
     Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
@@ -489,7 +453,6 @@ uint32 ScriptMgr::GODialogStatus(Player* pPlayer, GameObject* pGO)
     return tmpscript->pGODialogStatus(pPlayer, pGO);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::ItemHello(Player* pPlayer, Item* pItem, Quest const* pQuest)
 {
     Script *tmpscript = m_scripts[pItem->GetProto()->ScriptId];
@@ -499,7 +462,6 @@ bool ScriptMgr::ItemHello(Player* pPlayer, Item* pItem, Quest const* pQuest)
     return tmpscript->pItemHello(pPlayer, pItem, pQuest);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::ItemQuestAccept(Player* pPlayer, Item* pItem, Quest const* pQuest)
 {
     Script *tmpscript = m_scripts[pItem->GetProto()->ScriptId];
@@ -509,7 +471,6 @@ bool ScriptMgr::ItemQuestAccept(Player* pPlayer, Item* pItem, Quest const* pQues
     return tmpscript->pItemQuestAccept(pPlayer, pItem, pQuest);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GOHello(Player* pPlayer, GameObject* pGO)
 {
     Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
@@ -519,7 +480,6 @@ bool ScriptMgr::GOHello(Player* pPlayer, GameObject* pGO)
     return tmpscript->pGOHello(pPlayer, pGO);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GOQuestAccept(Player* pPlayer, GameObject* pGO, Quest const* pQuest)
 {
     Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
@@ -529,7 +489,6 @@ bool ScriptMgr::GOQuestAccept(Player* pPlayer, GameObject* pGO, Quest const* pQu
     return tmpscript->pGOQuestAccept(pPlayer, pGO, pQuest);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::GOChooseReward(Player* pPlayer, GameObject* pGO, Quest const* pQuest, uint32 opt)
 {
     Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
@@ -539,7 +498,6 @@ bool ScriptMgr::GOChooseReward(Player* pPlayer, GameObject* pGO, Quest const* pQ
     return tmpscript->pGOChooseReward(pPlayer, pGO, pQuest, opt);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::AreaTrigger(Player* pPlayer, AreaTriggerEntry const* atEntry)
 {
     Script *tmpscript = m_scripts[GetAreaTriggerScriptId(atEntry->id)];
@@ -548,7 +506,6 @@ bool ScriptMgr::AreaTrigger(Player* pPlayer, AreaTriggerEntry const* atEntry)
     return tmpscript->pAreaTrigger(pPlayer, atEntry);
 }
 
-//TRINITY_DLL_EXPORT
 CreatureAI* ScriptMgr::GetAI(Creature* pCreature)
 {
     Script *tmpscript = m_scripts[pCreature->GetScriptId()];
@@ -557,7 +514,6 @@ CreatureAI* ScriptMgr::GetAI(Creature* pCreature)
     return tmpscript->GetAI(pCreature);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::ItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
 {
     Script *tmpscript = m_scripts[pItem->GetProto()->ScriptId];
@@ -566,7 +522,6 @@ bool ScriptMgr::ItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& ta
     return tmpscript->pItemUse(pPlayer, pItem, targets);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::ItemExpire(Player* pPlayer, ItemPrototype const * pItemProto)
 {
     Script *tmpscript = m_scripts[pItemProto->ScriptId];
@@ -575,7 +530,6 @@ bool ScriptMgr::ItemExpire(Player* pPlayer, ItemPrototype const * pItemProto)
     return tmpscript->pItemExpire(pPlayer, pItemProto);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::EffectDummyCreature(Unit *caster, uint32 spellId, uint32 effIndex, Creature *crTarget)
 {
     Script *tmpscript = m_scripts[crTarget->GetScriptId()];
@@ -585,7 +539,6 @@ bool ScriptMgr::EffectDummyCreature(Unit *caster, uint32 spellId, uint32 effInde
     return tmpscript->pEffectDummyCreature(caster, spellId, effIndex, crTarget);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::EffectDummyGameObj(Unit *caster, uint32 spellId, uint32 effIndex, GameObject *gameObjTarget)
 {
     Script *tmpscript = m_scripts[gameObjTarget->GetGOInfo()->ScriptId];
@@ -595,7 +548,6 @@ bool ScriptMgr::EffectDummyGameObj(Unit *caster, uint32 spellId, uint32 effIndex
     return tmpscript->pEffectDummyGameObj(caster, spellId, effIndex, gameObjTarget);
 }
 
-//TRINITY_DLL_EXPORT
 bool ScriptMgr::EffectDummyItem(Unit *caster, uint32 spellId, uint32 effIndex, Item *itemTarget)
 {
     Script *tmpscript = m_scripts[itemTarget->GetProto()->ScriptId];
@@ -605,7 +557,6 @@ bool ScriptMgr::EffectDummyItem(Unit *caster, uint32 spellId, uint32 effIndex, I
     return tmpscript->pEffectDummyItem(caster, spellId, effIndex, itemTarget);
 }
 
-//TRINITY_DLL_EXPORT
 InstanceData* ScriptMgr::CreateInstanceData(Map *map)
 {
     if (!map->IsDungeon()) return NULL;

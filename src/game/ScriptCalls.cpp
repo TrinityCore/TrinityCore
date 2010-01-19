@@ -29,10 +29,9 @@
 #include "Config/ConfigEnv.h"
 #include "ScriptMgr.h"
 
-bool LoadScriptingModule()
+void LoadScriptingModule()
 {
     sScriptMgr.ScriptsInit();
     sWorld.SetScriptsVersion(sScriptMgr.ScriptsVersion());
-    return true;
 }
 
