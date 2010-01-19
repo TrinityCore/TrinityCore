@@ -38,6 +38,7 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
+#include "ScriptMgr.h"
 
 class Aura;
 //
@@ -2189,7 +2190,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             triggerTarget = target;    //for druid dispel poison
         target->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this, GetCasterGUID());
     }
-    else if(target->GetTypeId()!=TYPEID_UNIT || !Script->EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)target))
+    else if(target->GetTypeId()!=TYPEID_UNIT || !sScriptMgr.EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)target))
         sLog.outError("AuraEffect::TriggerSpell: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",GetId(),GetEffIndex());
 }
 
@@ -6007,13 +6008,13 @@ void AuraEffect::HandleAuraModFaction(AuraApplication const * aurApp, uint8 mode
     if(apply)
     {
         target->setFaction(GetMiscValue());
-		if(target->GetTypeId()==TYPEID_PLAYER)
+        if(target->GetTypeId()==TYPEID_PLAYER)
             target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
     else
     {
         target->RestoreFaction();
-		if(target->GetTypeId()==TYPEID_PLAYER)
+        if(target->GetTypeId()==TYPEID_PLAYER)
             target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
     }
 }

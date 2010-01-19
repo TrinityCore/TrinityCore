@@ -32,6 +32,7 @@
 #include "TemporarySummon.h"
 #include "SpellAuras.h"
 #include "CreatureAI.h"
+#include "ScriptMgr.h"
 
 void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
 {
@@ -146,7 +147,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     }
 
     //Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
-    if(!Script->ItemUse(pUser,pItem,targets))
+    if(!sScriptMgr.ItemUse(pUser,pItem,targets))
     {
         // no script or script not process request by self
         pUser->CastItemUseSpell(pItem,targets,cast_count,glyphIndex);
@@ -257,7 +258,7 @@ void WorldSession::HandleGameObjectUseOpcode( WorldPacket & recv_data )
     if(!obj)
         return;
 
-    if (Script->GOHello(_player, obj))
+    if (sScriptMgr.GOHello(_player, obj))
         return;
 
     obj->Use(_player);

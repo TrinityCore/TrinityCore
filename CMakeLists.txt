@@ -88,17 +88,6 @@ IF(DO_MYSQL)
     ADD_DEFINITIONS(-DDO_MYSQL)
 ENDIF(DO_MYSQL)
 
-if(DO_SCRIPTS)
-message("* With Trinity Scripts")
-SET(SCRIPT_LIB trinityscript)
-SET(SCRIPT_INCLUDE src/bindings/scripts/include)
-ADD_DEFINITIONS(-DDO_SCRIPTS)
-else (DO_SCRIPTS)
-message("* Without Trinity Scripts")
-SET(SCRIPT_LIB trinityinterface)
-SET(SCRIPT_INCLUDE src/bindings/interface)
-endif(DO_SCRIPTS)
-
 message("-- Miscellaneus options:")
 
 if(DO_CLI)
@@ -180,9 +169,7 @@ src/framework
 src/shared/Database 
 src/shared/vmap
 src/game 
-src/bindings/scripts/base
 ${CMAKE_BINARY_DIR}
-${SCRIPT_INCLUDE}
 ${MYSQL_INCLUDE_DIR} 
 ${POSTGRESQL_INCLUDE_DIR}
 ${POSTGRESQL_INCLUDE_DIR}/libpq-4/

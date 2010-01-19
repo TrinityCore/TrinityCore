@@ -38,6 +38,7 @@
 #include "GridNotifiersImpl.h"
 #include "SpellMgr.h"
 #include "ScriptCalls.h"
+#include "ScriptMgr.h"
 
 bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
 {
@@ -898,7 +899,7 @@ bool ChatHandler::HandleDebugItemExpireCommand(const char* args)
         return false;
 
     m_session->GetPlayer()->DestroyItem( i->GetBagSlot(),i->GetSlot(), true);
-    Script->ItemExpire(m_session->GetPlayer(),i->GetProto());
+    sScriptMgr.ItemExpire(m_session->GetPlayer(),i->GetProto());
 
     return true;
 }

@@ -37,6 +37,7 @@
 #include "BattleGroundMgr.h"
 #include "BattleGround.h"
 #include "Guild.h"
+#include "ScriptMgr.h"
 
 void WorldSession::HandleTabardVendorActivateOpcode( WorldPacket & recv_data )
 {
@@ -291,7 +292,7 @@ void WorldSession::HandleGossipHelloOpcode( WorldPacket & recv_data )
         }
     }
 
-    if(!Script->GossipHello(_player, unit))
+    if(!sScriptMgr.GossipHello(_player, unit))
     {
         _player->TalkedToCreature(unit->GetEntry(), unit->GetGUID());
         _player->PrepareGossipMenu(unit, unit->GetCreatureInfo()->GossipMenuId);

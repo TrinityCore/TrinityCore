@@ -27,6 +27,7 @@
 #include "Pet.h"
 #include "TemporarySummon.h"
 #include "CreatureAIFactory.h"
+#include "ScriptMgr.h"
 
 INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
 INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);
@@ -43,7 +44,7 @@ namespace FactorySelector
 
         //scriptname in db
         if(!ai_factory)
-            if(CreatureAI* scriptedAI = Script->GetAI(creature))
+            if(CreatureAI* scriptedAI = sScriptMgr.GetAI(creature))
                 return scriptedAI;
 
         // AIname in db

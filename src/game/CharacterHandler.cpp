@@ -44,6 +44,7 @@
 #include "Util.h"
 #include "ScriptCalls.h"
 #include "SpellId.h"
+#include "ScriptMgr.h"
 
 class LoginQueryHolder : public SqlQueryHolder
 {
@@ -817,8 +818,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     m_playerLoading = false;
 
     //Hook for OnLogin Event
-    Script->OnLogin(pCurrChar);
-
+    sScriptMgr.OnLogin(pCurrChar);
     delete holder;
 }
 
@@ -1381,45 +1381,45 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
 void WorldSession::HandleOnPVPKill(Player *killed)
 {
-    Script->OnPVPKill(GetPlayer(), killed);
+    sScriptMgr.OnPVPKill(GetPlayer(), killed);
 }
 
 bool WorldSession::HandleOnPlayerChat(const char *text)
 {
-    return Script->OnPlayerChat(GetPlayer(), text);
+    return sScriptMgr.OnPlayerChat(GetPlayer(), text);
 }
 
 uint32 WorldSession::HandleOnGetXP(uint32 amount)
 {
-    return Script->OnGetXP(GetPlayer(), amount);
+    return sScriptMgr.OnGetXP(GetPlayer(), amount);
 }
 
 int32 WorldSession::HandleOnGetMoney(int32 amount)
 {
-    return Script->OnGetMoney(GetPlayer(), amount);
+    return sScriptMgr.OnGetMoney(GetPlayer(), amount);
 }
 
 void WorldSession::HandleOnAreaChange(AreaTableEntry const *pArea)
 {
-    Script->OnAreaChange(GetPlayer(), pArea);
+    sScriptMgr.OnAreaChange(GetPlayer(), pArea);
 }
 
 bool WorldSession::HandleOnItemClick(Item *pItem)
 {
-    return Script->OnItemClick(GetPlayer(), pItem);
+    return sScriptMgr.OnItemClick(GetPlayer(), pItem);
 }
 
 bool WorldSession::HandleOnItemOpen(Item *pItem)
 {
-    return Script->OnItemOpen(GetPlayer(), pItem);
+    return sScriptMgr.OnItemOpen(GetPlayer(), pItem);
 }
 
 bool WorldSession::HandleOnGoClick(GameObject *pGameObject)
 {
-    return Script->OnGoClick(GetPlayer(), pGameObject);
+    return sScriptMgr.OnGoClick(GetPlayer(), pGameObject);
 }
 
 void WorldSession::HandleOnCreatureKill(Creature *pCreature)
 {
-    Script->OnCreatureKill(GetPlayer(), pCreature);
+    sScriptMgr.OnCreatureKill(GetPlayer(), pCreature);
 }
