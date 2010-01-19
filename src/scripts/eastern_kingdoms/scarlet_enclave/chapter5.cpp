@@ -577,6 +577,12 @@ struct TRINITY_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         }
     }
 
+    void EnterEvadeMode()
+    {
+        if(!bIsBattle)//do not reset self if we are in battle
+            npc_escortAI::EnterEvadeMode();
+    }
+
     void UpdateAI(const uint32 diff)
     {
         npc_escortAI::UpdateAI(diff);
