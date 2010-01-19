@@ -115,8 +115,6 @@ void PetAI::UpdateAI(const uint32 diff)
     if(!me->GetCharmInfo())
         return;
 
-    bool inCombat = me->getVictim();
-
     // Autocast (casted only in combat or persistent spells in any state)
     if (m_creature->GetGlobalCooldown() == 0 && !m_creature->hasUnitState(UNIT_STAT_CASTING))
     {
@@ -134,7 +132,7 @@ void PetAI::UpdateAI(const uint32 diff)
                 continue;
 
             // ignore some combinations of combat state and combat/noncombat spells
-            if (!inCombat)
+            if (!me->getVictim())
             {
                 // ignore attacking spells, and allow only self/around spells
                 if (!IsPositiveSpell(spellInfo->Id))
@@ -166,7 +164,7 @@ void PetAI::UpdateAI(const uint32 diff)
             Spell *spell = new Spell(m_creature, spellInfo, false, 0);
 
             // Fix to allow pets on STAY to autocast
-            if (inCombat && _CanAttack(me->getVictim()) && spell->CanAutoCast(me->getVictim()))
+            if (me->getVictim() && _CanAttack(me->getVictim()) && spell->CanAutoCast(me->getVictim()))
             {
                 targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(m_creature->getVictim(), spell));
                 continue;
