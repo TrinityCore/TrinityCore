@@ -34,6 +34,7 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
 
     void Reset()
     {
+        me->setActive(true);
         m_creature->SetVisibility(VISIBILITY_OFF);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlying(true);
@@ -84,7 +85,11 @@ struct TRINITY_DLL_DECL npc_valkyr_battle_maidenAI : public PassiveAI
                     FlyBackTimer = 5000;
                     break;
                 case 3:
-                    me->DisappearAndDie();
+                    me->SetVisibility(VISIBILITY_OFF);        
+                    FlyBackTimer = 3000;  
+                    break;
+                case 4:
+                    me->DisappearAndDie();                                      
                     break;
                 default:
                     //Nothing To DO
