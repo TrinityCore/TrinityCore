@@ -34,7 +34,7 @@ class SpellCastTargets;
 class Map;
 class InstanceData;
 
-bool LoadScriptingModule();
+void LoadScriptingModule();
 
 //On Event Handlers
 typedef void(TRINITY_IMPORT * scriptCallOnLogin) (Player *pPlayer);
@@ -51,10 +51,6 @@ typedef bool(TRINITY_IMPORT * scriptCallOnItemClick) (Player *pPlayer, Item *pIt
 typedef bool(TRINITY_IMPORT * scriptCallOnItemOpen) (Player *pPlayer, Item *pItem);
 typedef bool(TRINITY_IMPORT * scriptCallOnGoClick) (Player *pPlayer, GameObject *pGameObject);
 typedef void(TRINITY_IMPORT * scriptCallOnCreatureKill) (Player *pPlayer, Creature *pCreature);
-
-typedef void(TRINITY_IMPORT * scriptCallScriptsInit) (char const*);
-typedef void(TRINITY_IMPORT * scriptCallScriptsFree) ();
-typedef char const* (TRINITY_IMPORT * scriptCallScriptsVersion) ();
 
 typedef bool(TRINITY_IMPORT * scriptCallGossipHello) (Player *player, Creature *_Creature );
 typedef bool(TRINITY_IMPORT * scriptCallQuestAccept) (Player *player, Creature *_Creature, Quest const *);
@@ -83,10 +79,6 @@ typedef InstanceData* (TRINITY_IMPORT * scriptCallCreateInstanceData) (Map *map)
 
 typedef struct
 {
-    scriptCallScriptsInit ScriptsInit;
-    scriptCallScriptsFree ScriptsFree;
-    scriptCallScriptsVersion ScriptsVersion;
-
     scriptCallOnLogin OnLogin;
     scriptCallOnLogout OnLogout;
     scriptCallOnPVPKill OnPVPKill;
@@ -128,7 +120,5 @@ typedef struct
 
     TRINITY_LIBRARY_HANDLE hScriptsLib;
 }_ScriptSet,*ScriptsSet;
-
-//extern ScriptsSet Script;
 #endif
 
