@@ -1699,6 +1699,14 @@
 					RelativePath="..\..\src\game\ScriptedSimpleAI.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\src\game\ScriptedSmartAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\game\ScriptedSmartAI.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

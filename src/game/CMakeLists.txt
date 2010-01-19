@@ -241,6 +241,8 @@ SET(game_STAT_SRCS
    ScriptedPch.h
    ScriptedSimpleAI.cpp
    ScriptedSimpleAI.h
+   ScriptedSmartAI.cpp
+   ScriptedSmartAI.h
    ScriptLoader.cpp
    ScriptLoader.h
    ScriptMgr.cpp
