@@ -34,8 +34,7 @@ class SpellCastTargets;
 class Map;
 class InstanceData;
 
-bool LoadScriptingModule(char const* libName = "");
-void UnloadScriptingModule();
+bool LoadScriptingModule();
 
 //On Event Handlers
 typedef void(TRINITY_IMPORT * scriptCallOnLogin) (Player *pPlayer);
@@ -130,6 +129,6 @@ typedef struct
     TRINITY_LIBRARY_HANDLE hScriptsLib;
 }_ScriptSet,*ScriptsSet;
 
-extern ScriptsSet Script;
+//extern ScriptsSet Script;
 #endif
 

@@ -52,6 +52,7 @@
 #include "ScriptCalls.h"
 #include "SpellAuraEffects.h"
 #include "SpellId.h"
+#include "ScriptMgr.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILISECONDS)
 
@@ -4297,7 +4298,7 @@ void Spell::HandleThreatSpells(uint32 spellId)
 void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i)
 {
 
-    if (!Script->OnSpellCast(pUnitTarget,pItemTarget,pGOTarget,i,m_spellInfo))
+    if (!sScriptMgr.OnSpellCast(pUnitTarget,pItemTarget,pGOTarget,i,m_spellInfo))
         return;
 
     //effect has been handled, skip it
@@ -4467,7 +4468,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 {
                      if (target->GetTypeId() == TYPEID_PLAYER)
                          return SPELL_FAILED_BAD_TARGETS;
-    			     else if ((target->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
+                     else if ((target->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                          return SPELL_FAILED_TARGET_NO_POCKETS;
                 }
 

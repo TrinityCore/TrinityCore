@@ -402,7 +402,7 @@ int Master::Run()
 
     // for some unknown reason, unloading scripts here and not in worldrunnable
     // fixes a memory leak related to detaching threads from the module
-    UnloadScriptingModule();
+    //UnloadScriptingModule();
 
     // Exit the process with specified return value
     return World::GetExitCode();

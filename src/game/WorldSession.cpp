@@ -42,6 +42,7 @@
 #include "SocialMgr.h"
 #include "zlib/zlib.h"
 #include "ScriptCalls.h"
+#include "ScriptMgr.h"
 
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale) :
@@ -457,7 +458,7 @@ void WorldSession::LogoutPlayer(bool Save)
     }
 
     //Hook for OnLogout Event
-    Script->OnLogout(_player);
+    sScriptMgr.OnLogout(_player);
 
     m_playerLogout = false;
     m_playerSave = false;

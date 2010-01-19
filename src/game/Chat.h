@@ -495,8 +495,6 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleWhispersCommand(const char* args);
         bool HandleModifyDrunkCommand(const char* args);
 
-        bool HandleLoadScriptsCommand(const char* args);
-
         bool HandleGUIDCommand(const char* args);
         bool HandleItemMoveCommand(const char* args);
         bool HandleDeMorphCommand(const char* args);
