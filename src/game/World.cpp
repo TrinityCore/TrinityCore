@@ -68,6 +68,7 @@
 #include "CreatureGroups.h"
 #include "Transports.h"
 #include "ProgressBar.h"
+#include "ScriptMgr.h"
 
 INSTANTIATE_SINGLETON_1(World);
 
@@ -1680,9 +1681,7 @@ void World::SetInitialWorldSettings()
         sLog.SetLogDB(false);
         sLog.SetLogDBLater(false);
     }
-
-    Script->OnServerStartup();
-
+    sScriptMgr.OnServerStartup();
     sLog.outString("WORLD: World initialized");
 }
 
@@ -2298,7 +2297,7 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
         ShutdownMsg(true);
     }
 
-    Script->OnServerShutdown();
+    sScriptMgr.OnServerShutdown();
 }
 
 /// Display a shutdown message to the user(s)

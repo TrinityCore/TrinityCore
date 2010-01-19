@@ -1383,14 +1383,6 @@ bool ChatHandler::HandleReloadMailLevelRewardCommand(const char* /*arg*/)
     return true;
 }
 
-bool ChatHandler::HandleLoadScriptsCommand(const char *args)
-{
-    if(!LoadScriptingModule(args)) return true;
-
-    sWorld.SendGMText(LANG_SCRIPTS_RELOADED);
-    return true;
-}
-
 bool ChatHandler::HandleReloadAuctionsCommand(const char *args)
 {
     ///- Reload dynamic data tables from the database

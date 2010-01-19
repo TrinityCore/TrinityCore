@@ -1,7 +1,0 @@
-= Trinity Core -- Implementing scripts =
-
-To compile this properly, you need to get the scripts from:
-
-http://svn.assembla.com/svn/trinityscripts
-
-Simply put them in a folder called "scripts" in this folder.
