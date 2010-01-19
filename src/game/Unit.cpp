@@ -12964,6 +12964,9 @@ void Unit::RemoveFromWorld()
 
 void Unit::CleanupsBeforeDelete()
 {
+    if (IsInWorld())
+        RemoveFromWorld();
+
     assert(GetGUID());
 
     //A unit may be in removelist and not in world, but it is still in grid
@@ -12977,9 +12980,6 @@ void Unit::CleanupsBeforeDelete()
     DeleteThreatList();
     getHostilRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
-
-    if (IsInWorld())
-        RemoveFromWorld();
 }
 
 void Unit::UpdateCharmAI()
