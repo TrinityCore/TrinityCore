@@ -537,6 +537,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\AddonMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\AddonMgr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
 				>
 			</File>

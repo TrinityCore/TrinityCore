@@ -27,6 +27,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "AddonMgr.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -70,28 +71,6 @@ struct AccountData
     time_t Time;
     std::string Data;
 };
-
-struct AddonInfo
-{
-    AddonInfo(const std::string& name, uint8 enabled, uint32 crc, uint8 state, bool crcOrPubKey)
-    {
-        Name = name;
-        Enabled = enabled;
-        CRC = crc;
-        State = state;
-        UsePublicKeyOrCRC = crcOrPubKey;
-    }
-
-    std::string Name;
-    uint8 Enabled;
-    uint32 CRC;
-    uint8 State;
-    bool UsePublicKeyOrCRC;
-};
-
-typedef std::list<AddonInfo> AddonsList;
-
-#define STANDARD_ADDON_CRC 0x4c1c776d
 
 enum PartyOperation
 {
