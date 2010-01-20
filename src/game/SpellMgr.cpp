@@ -2993,7 +2993,14 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     if (auraSpell)                               // not have expected aura
         if (!player || auraSpell > 0 && !player->HasAura(auraSpell) || auraSpell < 0 && player->HasAura(-auraSpell))
             return false;
-
+    // Extra conditions -- leaving the possibility add extra conditions...
+    switch(spellId)
+    {
+        case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran (Krasus Landing exception)
+            if (!player || player->GetAreaId() == 4564 || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY) || player->HasAura(44795))
+                return false;
+            break;
+    }
 }
 
 //-----------TRINITY-------------
