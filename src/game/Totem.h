@@ -54,7 +54,7 @@ class Totem : public Minion
         void UpdateAttackPowerAndDamage(bool /*ranged*/ ) {}
         void UpdateDamagePhysical(WeaponAttackType /*attType*/) {}
 
-        bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index, bool checkMechanic) const;
+        bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;
 
     protected:
         TotemType m_type;
