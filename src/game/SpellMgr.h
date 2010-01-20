@@ -187,7 +187,7 @@ enum SpellLinkedType
     SPELL_LINK_REMOVE   = 0,
 };
 
-SpellSpecific GetSpellSpecific(uint32 spellId);
+SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo);
 AuraState GetSpellAuraState(SpellEntry const * spellInfo);
 
 // Different spell properties
