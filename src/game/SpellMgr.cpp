@@ -2994,27 +2994,6 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
         if (!player || auraSpell > 0 && !player->HasAura(auraSpell) || auraSpell < 0 && player->HasAura(-auraSpell))
             return false;
 
-    // Extra conditions
-    switch(spellId)
-    {
-        case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran (Krasus Landing exception)
-            if (!player || player->GetAreaId() == 4564 || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)
-                || player->HasAura(44795))
-                return false;
-            break;
-        case SPELL_RESTRICTED_FLIGHT_AREA_58730: // No fly Zone - Wintergrasp
-            if (!player || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)
-                || player->HasAura(45472) || player->HasAura(44795))
-                return false;
-            break;
-        case SPELL_ESSENCE_OF_WINTERGRASP_58045: // Essence of Wintergrasp - Wintergrasp
-        case SPELL_ESSENCE_OF_WINTERGRASP_57940: // Essence of Wintergrasp - Northrend
-            if (!player || player->GetTeamId() != sWorld.getState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
-                return false;
-            break;
-    }
-
-    return true;
 }
 
 //-----------TRINITY-------------

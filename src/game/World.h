@@ -89,7 +89,6 @@ enum WorldTimers
 // States than may change after server started
 enum WorldStates
 {
-    WORLDSTATE_WINTERGRASP_CONTROLING_FACTION,
     WORLDSTATE_VALUE_COUNT,
 };
 
@@ -248,17 +247,6 @@ enum WorldConfigs
     CONFIG_PVP_TOKEN_MAP_TYPE,
     CONFIG_PVP_TOKEN_ID,
     CONFIG_PVP_TOKEN_COUNT,
-    CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED,
-    CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME,
-    CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME,
-    CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL,
-    CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR,
-    CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE,
-    CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE,
-    CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER,
-    CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER,
-    CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING,
-    CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING,
     CONFIG_NO_RESET_TALENT_COST,
     CONFIG_SHOW_KICK_IN_WORLD,
     CONFIG_INTERVAL_LOG_UPDATE,
@@ -618,18 +606,6 @@ class World
         static int32 GetVisibilityNotifyPeriodOnContinents(){ return m_visibility_notify_periodOnContinents; }
         static int32 GetVisibilityNotifyPeriodInInstances() { return m_visibility_notify_periodInInstances;  }
         static int32 GetVisibilityNotifyPeriodInBGArenas()  { return m_visibility_notify_periodInBGArenas;   }
-
-     void SetWintergrapsTimer(uint32 timer, uint32 state)
-     {
-           m_WintergrapsTimer = timer;
-        m_WintergrapsState = state;
-     }
-
-     uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
-     uint32 GetWintergrapsState() { return m_WintergrapsState; }
-
-     uint32 m_WintergrapsTimer;
-     uint32 m_WintergrapsState;
 
         void ProcessCliCommands();
         void QueueCliCommand( CliCommandHolder::Print* zprintf, char const* input ) { cliCmdQueue.add(new CliCommandHolder(input, zprintf)); }

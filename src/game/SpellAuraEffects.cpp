@@ -1702,7 +1702,6 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     }
                 }
                 break;
-            case SPELL_RESTRICTED_FLIGHT_AREA_58730: // No Fly Zone - Wintergrasp
             case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran
                 if (GetTickNumber() == 10)
                 {
