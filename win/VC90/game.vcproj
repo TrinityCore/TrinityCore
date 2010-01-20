@@ -3232,10 +3232,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\scripts\northrend\wintergrasp.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\scripts\northrend\zuldrak.cpp"
 					>
 				</File>
