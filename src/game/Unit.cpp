@@ -6768,7 +6768,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         chance = 15.0f;
                     }
                     // Judgement (any)
-                    else if (GetSpellSpecific(procSpell->Id) == SPELL_SPECIFIC_JUDGEMENT)
+                    else if (GetSpellSpecific(procSpell) == SPELL_SPECIFIC_JUDGEMENT)
                     {
                         triggered_spell_id = 40472;
                         chance = 50.0f;
@@ -13828,7 +13828,15 @@ void Unit::SetStandState(uint8 state)
 
 bool Unit::IsPolymorphed() const
 {
-    return GetSpellSpecific(getTransForm())==SPELL_SPECIFIC_MAGE_POLYMORPH;
+    uint32 transformId = getTransForm();
+    if (!transformId)
+        return false;
+
+    const SpellEntry *spellInfo=sSpellStore.LookupEntry(transformId);
+    if (!spellInfo)
+        return false;
+
+    return GetSpellSpecific(spellInfo)==SPELL_SPECIFIC_MAGE_POLYMORPH;
 }
 
 void Unit::SetDisplayId(uint32 modelId)
