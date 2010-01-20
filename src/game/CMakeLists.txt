@@ -198,8 +198,6 @@ SET(game_STAT_SRCS
    OutdoorPvPTF.h
    OutdoorPvPZM.cpp
    OutdoorPvPZM.h
-   OutdoorPvPWG.cpp
-   OutdoorPvPWG.h
    Path.h
    PetAI.cpp
    PetAI.h
@@ -745,7 +743,6 @@ if (DO_SCRIPTS)
    ../scripts/northrend/icecrown.cpp
    ../scripts/northrend/sholazar_basin.cpp
    ../scripts/northrend/storm_peaks.cpp
-   ../scripts/northrend/wintergrasp.cpp
    ../scripts/northrend/zuldrak.cpp
    ../scripts/outland/auchindoun/auchenai_crypts/boss_exarch_maladaar.cpp
    ../scripts/outland/auchindoun/auchenai_crypts/boss_shirrak_the_dead_watcher.cpp
