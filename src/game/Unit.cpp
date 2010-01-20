@@ -10743,9 +10743,10 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
     for (int i=0;i<3;++i)
     {
         // State/effect immunities applied by aura expect full spell immunity
-        // However function also check for mechanic, so ignore that for now
-        if (IsImmunedToSpellEffect(spellInfo, i, false))
-            return true;
+        // Ignore effects with mechanic, they are supposed to be checked separately
+        if (!spellInfo->EffectMechanic[i])
+            if (IsImmunedToSpellEffect(spellInfo, i))
+                return true;
     }
 
     if (spellInfo->Id != 42292 && spellInfo->Id !=59752)
@@ -10761,7 +10762,7 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
     return false;
 }
 
-bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index, bool checkMechanic) const
+bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
 {
     if (!spellInfo)
         return false;
@@ -10772,15 +10773,12 @@ bool Unit::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index, boo
         if (itr->type == effect)
             return true;
 
-    if (checkMechanic)
+    if (uint32 mechanic = spellInfo->EffectMechanic[index])
     {
-        if (uint32 mechanic = spellInfo->EffectMechanic[index])
-        {
-            SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
-            for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
-                if (itr->type == spellInfo->EffectMechanic[index])
-                    return true;
-        }
+        SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
+        for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
+            if (itr->type == spellInfo->EffectMechanic[index])
+                return true;
     }
 
     if (uint32 aura = spellInfo->EffectApplyAuraName[index])
