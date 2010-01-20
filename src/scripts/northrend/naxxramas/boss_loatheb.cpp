@@ -18,15 +18,16 @@
 
 #include "ScriptedPch.h"
 #include "naxxramas.h"
+#include "SpellId.h"
 
 enum Spells
 {
-    SPELL_NECROTIC_AURA                                    = 55593,
-    SPELL_SUMMON_SPORE                                     = 29234,
-    SPELL_DEATHBLOOM                                       = 29865,
-    H_SPELL_DEATHBLOOM                                     = 55053,
-    SPELL_INEVITABLE_DOOM                                  = 29204,
-    H_SPELL_INEVITABLE_DOOM                                = 55052
+    SPELL_NECROTIC_AURA                                    = SPELL_NECROTIC_AURA_55593,
+    SPELL_SUMMON_SPORE                                     = SPELL_SUMMON_SPORE_29234,
+    SPELL_DEATHBLOOM                                       = SPELL_DEATHBLOOM_29865,
+    H_SPELL_DEATHBLOOM                                     = SPELL_DEATHBLOOM_55053,
+    SPELL_INEVITABLE_DOOM                                  = SPELL_INEVITABLE_DOOM_29204,
+    H_SPELL_INEVITABLE_DOOM                                = SPELL_INEVITABLE_DOOM_55052
 };
 
 enum Events
@@ -44,8 +45,8 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
-        events.ScheduleEvent(EVENT_AURA, 0);
-        events.ScheduleEvent(EVENT_BLOOM, 30000);
+        events.ScheduleEvent(EVENT_AURA, 10000);
+        events.ScheduleEvent(EVENT_BLOOM, 5000);
         events.ScheduleEvent(EVENT_DOOM, 120000);
     }
 
@@ -63,16 +64,17 @@ struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
                 case EVENT_AURA:
                     DoCastAOE(SPELL_NECROTIC_AURA);
                     events.ScheduleEvent(EVENT_AURA, 20000);
-                    return;
+                    break;
                 case EVENT_BLOOM:
+                    // TODO : Add missing text
                     DoCastAOE(SPELL_SUMMON_SPORE, true);
                     DoCastAOE(RAID_MODE(SPELL_DEATHBLOOM,H_SPELL_DEATHBLOOM));
                     events.ScheduleEvent(EVENT_BLOOM, 30000);
-                    return;
+                    break;
                 case EVENT_DOOM:
                     DoCastAOE(RAID_MODE(SPELL_INEVITABLE_DOOM,H_SPELL_INEVITABLE_DOOM));
                     events.ScheduleEvent(EVENT_DOOM, events.GetTimer() < 5*60000 ? 30000 : 15000);
-                    return;
+                    break;
             }
         }
 
