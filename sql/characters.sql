@@ -60,6 +60,26 @@ LOCK TABLES `account_data` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `addons`
+--
+
+DROP TABLE IF EXISTS `addons`;
+CREATE TABLE `addons` (
+  `name` varchar(120) NOT NULL default '',
+  `crc` mediumint(32) unsigned NOT NULL default '0',
+  PRIMARY KEY (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Addons';
+
+--
+-- Dumping data for table `addons`
+--
+
+LOCK TABLES `addons` WRITE;
+/*!40000 ALTER TABLE `addons` DISABLE KEYS */;
+/*!40000 ALTER TABLE `addons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `arena_team`
 --
 
