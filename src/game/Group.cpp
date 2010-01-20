@@ -737,14 +737,14 @@ void Group::CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 N
     {
         case ROLL_PASS:                                     // Player choose pass
         {
-            SendLootRoll(0, playerGUID, 0, ROLL_PASS, *roll);
+            SendLootRoll(0, playerGUID, 128, ROLL_PASS, *roll);
             ++roll->totalPass;
             itr->second = PASS;
         }
         break;
         case ROLL_NEED:                                     // player choose Need
         {
-            SendLootRoll(0, playerGUID, 0, ROLL_NEED, *roll);
+            SendLootRoll(0, playerGUID, 0, 0, *roll);
             ++roll->totalNeed;
             itr->second = NEED;
         }
