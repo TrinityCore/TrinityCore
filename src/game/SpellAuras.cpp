@@ -1209,7 +1209,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
-            if (GetSpellSpecific(GetId()) == SPELL_SPECIFIC_PRESENCE)
+            if (GetSpellSpecific(GetSpellProto()) == SPELL_SPECIFIC_PRESENCE)
             {
                 AuraEffect *bloodPresenceAura=0;  // healing by damage done
                 AuraEffect *frostPresenceAura=0;  // increased health

@@ -464,12 +464,8 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo)
     return AURA_STATE_NONE;
 }
 
-SpellSpecific GetSpellSpecific(uint32 spellId)
+SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
 {
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
-    if(!spellInfo)
-        return SPELL_SPECIFIC_NORMAL;
-
     switch(spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
@@ -1013,7 +1009,7 @@ bool IsSingleTargetSpell(SpellEntry const *spellInfo)
     if ( spellInfo->AttributesEx5 & SPELL_ATTR_EX5_SINGLE_TARGET_SPELL )
         return true;
 
-    switch(GetSpellSpecific(spellInfo->Id))
+    switch(GetSpellSpecific(spellInfo))
     {
         case SPELL_SPECIFIC_JUDGEMENT:
             return true;
@@ -1033,13 +1029,13 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
         return true;
 
     // TODO - need found Judgements rule
-    SpellSpecific spec1 = GetSpellSpecific(spellInfo1->Id);
+    SpellSpecific spec1 = GetSpellSpecific(spellInfo1);
     // spell with single target specific types
     switch(spec1)
     {
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_MAGE_POLYMORPH:
-            if(GetSpellSpecific(spellInfo2->Id) == spec1)
+            if(GetSpellSpecific(spellInfo2) == spec1)
                 return true;
             break;
         default:
@@ -3025,8 +3021,8 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 
 bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *spellInfo_2, bool sameCaster) const
 {
-    SpellSpecific spellSpec_1 = GetSpellSpecific(spellInfo_1->Id);
-    SpellSpecific spellSpec_2 = GetSpellSpecific(spellInfo_2->Id);
+    SpellSpecific spellSpec_1 = GetSpellSpecific(spellInfo_1);
+    SpellSpecific spellSpec_2 = GetSpellSpecific(spellInfo_2);
     if (spellSpec_1 && spellSpec_2)
         if (IsSingleFromSpellSpecificPerTarget(spellSpec_1, spellSpec_2)
             || sameCaster && IsSingleFromSpellSpecificPerCaster(spellSpec_1, spellSpec_2))
