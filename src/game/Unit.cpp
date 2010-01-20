@@ -15943,7 +15943,7 @@ bool Unit::SetPosition(float x, float y, float z, float orientation, bool telepo
     if ((relocated || turn) && IsVehicle())
         GetVehicleKit()->RelocatePassengers(x,y,z,orientation);
 
-    return true;
+    return (relocated || turn);
 }
 
 void Unit::SendThreatListUpdate()

@@ -5987,22 +5987,17 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
     //    mover->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TURNING);
     //AURA_INTERRUPT_FLAG_JUMP not sure
 
-    bool move2d = (teleport || GetPositionX() != x || GetPositionY() != y);
+    // group update
+    if (GetGroup())
+        SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
-    if (move2d || GetPositionZ() != z)
-    {
-        // group update
-        if (move2d && GetGroup())
-            SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
+    // code block for underwater state update
+    UpdateUnderwaterState(GetMap(), x, y, z);
 
-        // code block for underwater state update
-        UpdateUnderwaterState(GetMap(), x, y, z);
+    if(GetTrader() && !IsWithinDistInMap(GetTrader(), INTERACTION_DISTANCE))
+        GetSession()->SendCancelTrade();
 
-        if(GetTrader() && !IsWithinDistInMap(GetTrader(), INTERACTION_DISTANCE))
-            GetSession()->SendCancelTrade();
-
-        CheckExploreSystem();
-    }
+    CheckExploreSystem();
 
     return true;
 }
