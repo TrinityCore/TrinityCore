@@ -5402,14 +5402,6 @@ bool ChatHandler::HandleServerShutDownCommand(const char *args)
     char* time_str = strtok ((char*) args, " ");
     char* exitcode_str = strtok (NULL, "");
 
-    char* tailStr = *args!='"' ? strtok(NULL, "") : (char*)args;
-    if(!tailStr)
-        return false;
-
-    char* reason = extractQuotedArg(tailStr);
-    if(!reason)
-        return false;
-
     int32 time = atoi (time_str);
 
     ///- Prevent interpret wrong arg value as 0 secs shutdown time
