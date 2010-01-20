@@ -833,10 +833,32 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
             addonInfo >> enabled >> crc >> unk1;
 
-            sLog.outDebug("ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk1);
+            sLog.outDetail("ADDON: Name: %s, Enabled: 0x%x, CRC: 0x%x, Unknown2: 0x%x", addonName.c_str(), enabled, crc, unk1);
+
+            AddonInfo addon(addonName, enabled, crc, 2, true);
+
+            SavedAddon const* savedAddon = sAddonMgr.GetAddonInfo(addonName);
+            if (savedAddon)
+            {
+                bool match = true;
+
+                if (addon.CRC != savedAddon->CRC)
+                    match = false;
+
+                if (!match)
+                    sLog.outDetail("ADDON: %s was known, but didn't match known CRC (0x%x)!", addon.Name.c_str(), savedAddon->CRC);
+                else
+                    sLog.outDetail("ADDON: %s was known, CRC is correct (0x%x)", addon.Name.c_str(), savedAddon->CRC);
+            }
+            else
+            {
+                sAddonMgr.SaveAddon(addon);
+
+                sLog.outDetail("ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
+            }
 
             // TODO: Find out when to not use CRC/pubkey, and other possible states.
-            m_addonsList.push_back(AddonInfo(addonName, enabled, crc, 2, true));
+            m_addonsList.push_back(addon);
         }
 
         uint32 currentTime;
@@ -844,7 +866,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
         sLog.outDebug("ADDON: CurrentTime: %u", currentTime);
 
         if(addonInfo.rpos() != addonInfo.size())
-            sLog.outDebug("packet under read!");
+            sLog.outDebug("packet under-read!");
     }
     else
         sLog.outError("Addon packet uncompress error!");
@@ -886,7 +908,7 @@ void WorldSession::SendAddonsInfo()
             data << uint8(usepk);
             if (usepk)                                      // if CRC is wrong, add public key (client need it)
             {
-                sLog.outError("ADDON: CRC (0x%x) for addon %s is wrong (does not match expected 0x%x), sending pubkey",
+                sLog.outDetail("ADDON: CRC (0x%x) for addon %s is wrong (does not match expected 0x%x), sending pubkey",
                     itr->CRC, itr->Name.c_str(), STANDARD_ADDON_CRC);
 
                 data.append(addonPublicKey, sizeof(addonPublicKey));
@@ -913,6 +935,7 @@ void WorldSession::SendAddonsInfo()
         uint32
         string (16 bytes)
         string (16 bytes)
+        uint32
         uint32
     }*/
 

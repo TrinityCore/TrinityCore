@@ -69,6 +69,7 @@
 #include "Transports.h"
 #include "ProgressBar.h"
 #include "ScriptMgr.h"
+#include "AddonMgr.h"
 
 INSTANTIATE_SINGLETON_1(World);
 

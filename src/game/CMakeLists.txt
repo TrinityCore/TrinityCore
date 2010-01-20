@@ -4,6 +4,8 @@
 SET(game_STAT_SRCS
    AccountMgr.cpp
    AccountMgr.h
+   AddonMgr.cpp
+   AddonMgr.h
    AchievementMgr.h
    AchievementMgr.cpp
    AddonHandler.cpp
