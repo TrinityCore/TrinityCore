@@ -853,6 +853,8 @@ if (DO_SCRIPTS)
    ../scripts/world/npcs_special.cpp
    ../scripts/world/npc_taxi.cpp
    )
+
+add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
 endif (DO_SCRIPTS)
 
 add_library(game STATIC ${game_STAT_SRCS})
