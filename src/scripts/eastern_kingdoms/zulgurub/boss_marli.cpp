@@ -145,8 +145,11 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                 DoScriptText(SAY_TRANSFORM, m_creature);
                 DoCast(m_creature, SPELL_SPIDER_FORM);
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                const CreatureBaseStats *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), cinfo->unit_class);
+                float mindmg = stats->GenerateMinDmg(cinfo);
+                float maxdmg = stats->GenerateMaxDmg(cinfo);
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (mindmg +((mindmg/100) * 35)));
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (maxdmg +((maxdmg/100) * 35)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
                 DoCast(m_creature->getVictim(), SPELL_ENVOLWINGWEB);
 
@@ -185,8 +188,11 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
                 {
                     m_creature->SetDisplayId(15220);
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
+                    const CreatureBaseStats *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), cinfo->unit_class);
+                    float mindmg = stats->GenerateMinDmg(cinfo);
+                    float maxdmg = stats->GenerateMaxDmg(cinfo);
+                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (mindmg +((mindmg/100) * 1)));
+                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (maxdmg +((maxdmg/100) * 1)));
                     m_creature->UpdateDamagePhysical(BASE_ATTACK);
 
                     PhaseTwo = false;
