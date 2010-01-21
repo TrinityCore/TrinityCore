@@ -18186,7 +18186,7 @@ void Player::VehicleSpellInitialize()
             data << uint16(0) << uint8(0) << uint8(i+8);
         }
         else
-            data << uint16(spellId) << uint8(0) << uint8(i+8);
+            data << uint32(MAKE_UNIT_ACTION_BUTTON(spellId,i+8));
     }
 
     for (uint32 i = CREATURE_MAX_SPELLS; i < MAX_SPELL_CONTROL_BAR; ++i)
