@@ -42,14 +42,6 @@ AddonMgr::~AddonMgr()
 
 void AddonMgr::LoadFromDB()
 {
-    QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(name) FROM addons");
-    if (!result)
-    {
-        sLog.outError("an error occured while loading the table `addons`");
-        exit(1);
-    }
-    delete result;
-
     result = CharacterDatabase.PQuery("SELECT name, crc FROM addons");
     if(!result)
     {
