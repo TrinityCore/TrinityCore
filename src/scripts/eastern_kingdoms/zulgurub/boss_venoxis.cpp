@@ -148,8 +148,11 @@ struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
                     DoCast(m_creature, SPELL_SNAKE_FORM);
                     m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
                     const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 25)));
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 25)));
+                    const CreatureBaseStats *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), cinfo->unit_class);
+                    float mindmg = stats->GenerateMinDmg(cinfo);
+                    float maxdmg = stats->GenerateMaxDmg(cinfo);
+                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (mindmg +((mindmg/100) * 25)));
+                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (maxdmg +((maxdmg/100) * 25)));
                     m_creature->UpdateDamagePhysical(BASE_ATTACK);
                     DoResetThreat();
                     PhaseTwo = true;

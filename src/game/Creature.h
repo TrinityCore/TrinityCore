@@ -89,10 +89,7 @@ struct CreatureInfo
     float   speed;
     float   scale;
     uint32  rank;
-    float   mindmg;
-    float   maxdmg;
     uint32  dmgschool;
-    uint32  attackpower;
     float   dmg_multiplier;
     uint32  baseattacktime;
     uint32  rangeattacktime;
@@ -104,9 +101,6 @@ struct CreatureInfo
     uint32  trainer_spell;
     uint32  trainer_class;
     uint32  trainer_race;
-    float   minrangedmg;
-    float   maxrangedmg;
-    uint32  rangedattackpower;
     uint32  type;                                           // enum CreatureType values
     uint32  type_flags;                                     // enum CreatureTypeFlags mask values
     uint32  lootid;
@@ -129,6 +123,8 @@ struct CreatureInfo
     float   ModHealth;
     float   ModMana;
     float   ModArmor;
+    float   ModDmg;
+    float   ModRangedDmg;
     bool    RacialLeader;
     uint32  questItems[6];
     uint32  movementId;
@@ -175,6 +171,8 @@ struct TRINITY_DLL_SPEC CreatureBaseStats
     uint32 BaseHealth[MAX_CREATURE_BASE_HP];
     uint32 BaseMana;
     uint32 BaseArmor;
+    uint32 BaseDmg;
+    uint32 BaseRangedDmg;
 
     // Helpers
 
@@ -195,6 +193,26 @@ struct TRINITY_DLL_SPEC CreatureBaseStats
     uint32 GenerateArmor(CreatureInfo const* info) const
     {
         return uint32((BaseArmor * info->ModArmor) + 0.5f);
+    }
+
+    uint32 GenerateMinDmg(CreatureInfo const* info) const
+    {
+        return uint32((BaseDmg * (info->baseattacktime / 1000.0f) / 2.5f) * info->ModDmg + 0.5f);
+    }
+
+    uint32 GenerateMaxDmg(CreatureInfo const* info) const
+    {
+        return uint32((BaseDmg * (info->baseattacktime / 1000) - GenerateMinDmg(info)) * info->ModDmg + 0.5f);
+    }
+
+    uint32 GenerateAttackPower(CreatureInfo const* info) const
+    {
+        return uint32(((GenerateMinDmg(info) + GenerateMaxDmg(info)) / 2.0f * 0.3f) * info->ModDmg + 0.5f);
+    }
+
+    uint32 GenerateRangedDmg(CreatureInfo const* info) const
+    {
+        return uint32((BaseDmg * (info->baseattacktime / 1000.0f) * info->ModRangedDmg) + 0.5f);
     }
 
     static CreatureBaseStats const* GetBaseStats(uint32 level, uint8 unitClass);

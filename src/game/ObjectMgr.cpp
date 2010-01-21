@@ -8917,7 +8917,7 @@ CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint32 level, uint8 uni
 
 void ObjectMgr::LoadCreatureClassLevelStats()
 {
-    QueryResult *result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor FROM creature_classlevelstats");
+    QueryResult *result = WorldDatabase.Query("SELECT level, class, basehp0, basehp1, basehp2, basemana, basearmor, basedmg, baserangeddmg FROM creature_classlevelstats");
 
     if (!result)
     {
@@ -8941,6 +8941,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             stats.BaseHealth[i] = fields[i + 2].GetUInt32();
         stats.BaseMana = fields[5].GetUInt32();
         stats.BaseArmor = fields[6].GetUInt32();
+        stats.BaseDmg = fields[7].GetUInt32();
+        stats.BaseRangedDmg = fields[8].GetUInt32();
 
         if (stats.Level > STRONG_MAX_LEVEL)
         {
@@ -8987,6 +8989,8 @@ void ObjectMgr::LoadCreatureClassLevelStats()
             CreatureBaseStats new_stats = CreatureBaseStats();
 
             new_stats.BaseArmor = 1;
+            new_stats.BaseDmg = 1;
+            new_stats.BaseRangedDmg = 1;
             for (uint8 j = 0; j < MAX_CREATURE_BASE_HP; ++j)
                 new_stats.BaseHealth[j] = 1;
             new_stats.BaseMana = 0;
