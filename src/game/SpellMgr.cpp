@@ -2993,6 +2993,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     if (auraSpell)                               // not have expected aura
         if (!player || auraSpell > 0 && !player->HasAura(auraSpell) || auraSpell < 0 && player->HasAura(-auraSpell))
             return false;
+    
     // Extra conditions -- leaving the possibility add extra conditions...
     switch(spellId)
     {
@@ -3001,6 +3002,8 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             break;
     }
+
+    return true;
 }
 
 //-----------TRINITY-------------
