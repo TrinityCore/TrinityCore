@@ -413,212 +413,16 @@
 				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
 			/>
 		</Configuration>
-		<Configuration
-			Name="Debug_NoPCH|Win32"
-			OutputDirectory=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.tlb"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\TrinityRealm;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE"
-				IgnoreStandardIncludePath="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.pch"
-				AssemblerListingLocation=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_debug"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
-				GenerateMapFile="true"
-				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
-				SubSystem="1"
-				LargeAddressAware="2"
-				RandomizedBaseAddress="1"
-				FixedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug_NoPCH|x64"
-			OutputDirectory=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-				TypeLibraryName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.tlb"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\TrinityRealm;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE"
-				IgnoreStandardIncludePath="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.pch"
-				AssemblerListingLocation=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_debug"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
-				GenerateMapFile="true"
-				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
-				SubSystem="1"
-				RandomizedBaseAddress="1"
-				FixedBaseAddress="1"
-				DataExecutionPrevention="0"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthCodes.h"
+			RelativePath="..\..\src\trinityrealm\AuthCodes.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthCodes.cpp"
+			RelativePath="..\..\src\trinityrealm\AuthCodes.h"
 			>
 		</File>
 		<File
@@ -634,15 +438,15 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
-			>
-		</File>
-		<File
 			RelativePath="..\..\src\trinityrealm\RealmList.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\..\src\trinityrealm\RealmList.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
 			>
 		</File>
 		<File
