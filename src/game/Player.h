@@ -2590,7 +2590,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 {
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo) return 0;
-    int32 totalpct = 0;
+    float totalmul = 1.0f;
     int32 totalflat = 0;
 
     // Drop charges for triggering spells instead of triggered ones
@@ -2620,12 +2620,12 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
             if( mod->op==SPELLMOD_CASTING_TIME  && basevalue >= T(10000) && mod->value <= -100)
                 continue;
 
-            totalpct += mod->value;
+            totalmul *= 1.0f + (float)mod->value / 100.0f;
         }
 
         DropModCharge(mod, spell);
     }
-    float diff = (float)basevalue*(float)totalpct/100.0f + (float)totalflat;
+    float diff = (float)basevalue * (totalmul - 1.0f) + (float)totalflat;
     basevalue = T((float)basevalue + diff);
     return T(diff);
 }
