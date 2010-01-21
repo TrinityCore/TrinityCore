@@ -89,7 +89,8 @@ enum WorldTimers
 // States than may change after server started
 enum WorldStates
 {
-    WORLDSTATE_VALUE_COUNT,
+    WORLDSTATE_WINTERGRASP_CONTROLING_FACTION,
+    WORLDSTATE_VALUE_COUNT
 };
 
 /// Configuration elements
