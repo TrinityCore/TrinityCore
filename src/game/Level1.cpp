@@ -1074,42 +1074,6 @@ bool ChatHandler::HandleRecallCommand(const char* args)
     return true;
 }
 
-//Edit Player KnownTitles
-bool ChatHandler::HandleModifyKnownTitlesCommand(const char* args)
-{
-    if(!*args)
-        return false;
-
-    uint64 titles = 0;
-
-    sscanf((char*)args, UI64FMTD, &titles);
-
-    Player *chr = getSelectedPlayer();
-    if (!chr)
-    {
-        SendSysMessage(LANG_NO_CHAR_SELECTED);
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    // check online security
-    if (HasLowerSecurity(chr, 0))
-        return false;
-
-    uint64 titles2 = titles;
-
-    for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
-        if(CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
-            titles2 &= ~(uint64(1) << tEntry->bit_index);
-
-    titles &= ~titles2;                                     // remove not existed titles
-
-    chr->SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES, titles);
-    SendSysMessage(LANG_DONE);
-
-    return true;
-}
-
 //Edit Player HP
 bool ChatHandler::HandleModifyHPCommand(const char* args)
 {

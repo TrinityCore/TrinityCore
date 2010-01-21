@@ -330,7 +330,15 @@ enum TrinityStrings
     LANG_CUSTOMIZE_PLAYER_GUID          = 346,
     LANG_COMMAND_GOTAXINODENOTFOUND     = 347,
     LANG_GAMEOBJECT_HAVE_INVALID_DATA   = 348,
-    // Room for more level 2              349-399 not used
+    LANG_TITLE_LIST_CHAT                = 349,
+    LANG_TITLE_LIST_CONSOLE             = 350,
+    LANG_COMMAND_NOTITLEFOUND           = 351,
+    LANG_INVALID_TITLE_ID               = 352,
+    LANG_TITLE_ADD_RES                  = 353,
+    LANG_TITLE_REMOVE_RES               = 354,
+    LANG_TITLE_CURRENT_RES              = 355,
+    LANG_CURRENT_TITLE_RESET            = 356,
+    // Room for more level 2              357-399 not used
 
     // level 3 chat
     LANG_SCRIPTS_RELOADED               = 400,
