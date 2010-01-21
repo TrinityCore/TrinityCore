@@ -84,7 +84,7 @@ Some events such as EVENT_T_AGGRO, EVENT_T_DEATH, EVENT_T_SPAWNED, and EVENT_T_E
 22   EVENT_T_RECEIVE_EMOTE       EmoteId, Condition, CondValue1, CondValue2              Expires when a creature receives an emote with emote text id (enum TextEmotes) in (Param1). Conditions can be defined (Param2) with optional values (Param3,Param4), see enum ConditionType.
 23   EVENT_T_BUFFED              SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when a creature has spell (Param1) auras applied in a stack greater or equal to value provided in (Param2). Will repeat every (Param3) and (Param4).
 24   EVENT_T_TARGET_BUFFED       SpellID, AmmountInStack, RepeatMin, RepeatMax           Expires when a target unit has spell (Param1) auras applied in a stack greater or equal to value provided in (Param2). Will repeat every (Param3) and (Param4).
-
+35   EVENT_T_RESET               NONE                                                    Expires when creature leaves combat, spawns or respawns.
 
 =========================================
 Action Types

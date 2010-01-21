@@ -1,0 +1,87 @@
+=========================================
+Texts Documentation
+=========================================
+
+Scriptdev2 Revision 695 introduces a new format for using texts in EventAI and SD2 Scripts.
+This information relates to the *_texts tables located in the ScriptDev Database.
+
+Any script can at any time access and use text from any of the three text tables, as long as the entry does in fact exist.
+Custom scripters are adviced to store their text data in custom_texts.
+
+The different tables has ranges of entries allowed for that table.
+Reserved EventAI in Mangos     entry -1       -> -999999
+script_texts:  entry -1000000 -> -1999999
+custom_texts:  entry -2000000 -> -2999999
+Any entry out of range for that table will display a startup error.
+
+
+=========================================
+Basic Structure of script_texts and custom_texts
+=========================================
+Below is a the list of current fields within the texts tables.
+
+Field_Name            Description
+-----------------------------------------------------------
+entry                 This value is mearly an NEGATIVE identifier of the current text number. Required for sql queries.
+content_default       This is the actual text presented in the default language (English).
+
+content_loc1          This is the actual text presented in the Localization #1 Clients (Korean)
+content_loc2          This is the actual text presented in the Localization #2 Clients (French)
+content_loc3          This is the actual text presented in the Localization #3 Clients (German)
+content_loc4          This is the actual text presented in the Localization #4 Clients (Chinese)
+content_loc5          This is the actual text presented in the Localization #5 Clients (Taiwanese)
+content_loc6          This is the actual text presented in the Localization #6 Clients (Spanish)
+content_loc7          This is the actual text presented in the Localization #7 Clients (Spanish Mexico)
+content_loc8          This is the actual text presented in the Localization #8 Clients (Russian)
+
+sound                 This value is the Sound ID that corresponds to the actual text used (Defined in SoundEntries.dbc).
+type                  Variables used to define type of text (Say/Yell/Textemote/Whisper).
+language              This value is the Language that the text is native in (Defined in Languages.dbc).
+emote                 Value from enum Emote (defined in Emotes.dbc). Only source of text will play this emote (not target, if target are defined in DoScriptText)
+comment               This is a comment regarding the text entry (For ACID, accepted format is to use Creature ID of NPC using it).
+
+Note: Fields `content_loc1` to `content_loc8` are NULL values by default and are handled by seperate localization projects.
+
+
+=========================================
+Text Types (type)
+=========================================
+Below is the list of current Text types that texts tables can handle. These were previously seperate Actions in ACID.
+
+#    Internal Name                 Description
+-----------------------------------------------------------
+0    CHAT_TYPE_SAY                 This type sets the text to be displayed as a Say (Speech Bubble).
+1    CHAT_TYPE_YELL                This type sets the text to be displayed as a Yell (Red Speech Bubble) and usually has a matching Sound ID.
+2    CHAT_TYPE_TEXT_EMOTE          This type sets the text to be displayed as a text emote in orange in the chat log.
+3    CHAT_TYPE_BOSS_EMOTE          This type sets the text to be displayed as a text emote in orange in the chat log (Used only for specific Bosses).
+4    CHAT_TYPE_WHISPER             This type sets the text to be displayed as a whisper to the player in the chat log.
+5    CHAT_TYPE_BOSS_WHISPER        This type sets the text to be displayed as a whisper to the player in the chat log (Used only for specific Bosses).
+6    CHAT_TYPE_ZONE_YELL           Same as CHAT_TYPE_YELL but will display to all players in current zone.
+
+
+=========================================
+Language Types (language)
+=========================================
+Below is the list of current Language types that are allowed.
+This is the Race Language that the text is native to (So it will display properly)
+
+#    Internal Name                Description
+-----------------------------------------------------------
+0    UNIVERSAL                    Text in this language is understood by ALL Races.
+1    ORCISH                       Text in this language is understood ONLY by Horde Races.
+2    DARNASSIAN                   Text in this language is understood ONLY by the Night Elf Race.
+3    TAURAHE                      Text in this language is understood ONLY by the Tauren Race.
+6    DWARVISH                     Text in this language is understood ONLY by the Dwarf Race.
+7    COMMON                       Text in this language is understood ONLY by Alliance Races.
+8    DEMONIC                      Text in this language is understood ONLY by the Demon Race (Not Implimented).
+9    TITAN                        This language was used by Sargeras to speak with other Titians (Not Implemented).
+10   THALASSIAN                   Text in this language is understood ONLY by the Blood Elf Race.
+11   DRACONIC                     Text in this language is understood ONLY by the Dragon Race.
+12   KALIMAG                      Text will display as Kalimag (not readable by players, language of all elementals)
+13   GNOMISH                      Text in this language is understood ONLY by the Gnome Race.
+14   TROLL                        Text in this language is understood ONLY by the Troll Race.
+33   GUTTERSPEAK                  Text in this language is understood ONLY by the Undead Race.
+35   DRAENEI                      Text in this language is understood ONLY by the Draenai Race.
+36   ZOMBIE                       (not currently used?)
+37   GNOMISH BINARY               Binary language used by Alliance when drinking Binary Brew
+38   GOBLIN BINARY                Binary language used by Horce when drinking Binary Brew
