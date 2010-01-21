@@ -20,6 +20,7 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
+#include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Item.h"
@@ -4240,5 +4241,306 @@ bool ChatHandler::HandleNpcSetLinkCommand(const char* args)
     }
 
     PSendSysMessage("LinkGUID '%u' added to creature with DBTableGUID: '%u'", linkguid, pCreature->GetDBTableGUIDLow());
+    return true;
+}
+
+bool ChatHandler::HandleLookupTitleCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    // can be NULL in console call
+    Player* target = getSelectedPlayer();
+
+    // title name have single string arg for player name
+    char const* targetName = target ? target->GetName() : "NAME";
+
+    std::string namepart = args;
+    std::wstring wnamepart;
+
+    if(!Utf8toWStr(namepart,wnamepart))
+        return false;
+
+    // converting string that we try to find to lower case
+    wstrToLower( wnamepart );
+
+    uint32 counter = 0;                                     // Counter for figure out that we found smth.
+
+    // Search in CharTitles.dbc
+    for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
+    {
+        CharTitlesEntry const *titleInfo = sCharTitlesStore.LookupEntry(id);
+        if(titleInfo)
+        {
+            int loc = GetSessionDbcLocale();
+            std::string name = titleInfo->name[loc];
+            if(name.empty())
+                continue;
+
+            if (!Utf8FitTo(name, wnamepart))
+            {
+                loc = 0;
+                for(; loc < MAX_LOCALE; ++loc)
+                {
+                    if(loc==GetSessionDbcLocale())
+                        continue;
+
+                    name = titleInfo->name[loc];
+                    if(name.empty())
+                        continue;
+
+                    if (Utf8FitTo(name, wnamepart))
+                        break;
+                }
+            }
+
+            if(loc < MAX_LOCALE)
+            {
+                char const* knownStr = target && target->HasTitle(titleInfo) ? GetTrinityString(LANG_KNOWN) : "";
+
+                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE)==titleInfo->bit_index
+                    ? GetTrinityString(LANG_ACTIVE)
+                    : "";
+
+                char titleNameStr[80];
+                snprintf(titleNameStr,80,name.c_str(),targetName);
+
+                // send title in "id (idx:idx) - [namedlink locale]" format
+                if (m_session)
+                    PSendSysMessage(LANG_TITLE_LIST_CHAT,id,titleInfo->bit_index,id,titleNameStr,localeNames[loc],knownStr,activeStr);
+                else
+                    PSendSysMessage(LANG_TITLE_LIST_CONSOLE,id,titleInfo->bit_index,titleNameStr,localeNames[loc],knownStr,activeStr);
+
+                ++counter;
+            }
+        }
+    }
+    if (counter == 0)                                       // if counter == 0 then we found nth
+        SendSysMessage(LANG_COMMAND_NOTITLEFOUND);
+    return true;
+}
+
+bool ChatHandler::HandleTitlesAddCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
+    char* id_p = extractKeyFromLink((char*)args,"Htitle");
+    if(!id_p)
+        return false;
+
+    int32 id = atoi(id_p);
+    if (id <= 0)
+    {
+        PSendSysMessage(LANG_INVALID_TITLE_ID, id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    Player * target = getSelectedPlayer();
+    if(!target)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+    if(!titleInfo)
+    {
+        PSendSysMessage(LANG_INVALID_TITLE_ID, id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    std::string tNameLink = GetNameLink(target);
+
+    char const* targetName = target->GetName();
+    char titleNameStr[80];
+    snprintf(titleNameStr,80,titleInfo->name[GetSessionDbcLocale()],targetName);
+
+    target->SetTitle(titleInfo);
+    PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
+
+    return true;
+}
+
+bool ChatHandler::HandleTitlesRemoveCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
+    char* id_p = extractKeyFromLink((char*)args,"Htitle");
+    if(!id_p)
+        return false;
+
+    int32 id = atoi(id_p);
+    if (id <= 0)
+    {
+        PSendSysMessage(LANG_INVALID_TITLE_ID, id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    Player * target = getSelectedPlayer();
+    if(!target)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+    if(!titleInfo)
+    {
+        PSendSysMessage(LANG_INVALID_TITLE_ID, id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    target->SetTitle(titleInfo,true);
+
+    std::string tNameLink = GetNameLink(target);
+
+    char const* targetName = target->GetName();
+    char titleNameStr[80];
+    snprintf(titleNameStr,80,titleInfo->name[GetSessionDbcLocale()],targetName);
+
+    PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
+
+    if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
+    {
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE,0);
+        PSendSysMessage(LANG_CURRENT_TITLE_RESET, tNameLink.c_str());
+    }
+
+    return true;
+}
+
+//Edit Player KnownTitles
+bool ChatHandler::HandleTitlesSetMaskCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    uint64 titles = 0;
+
+    sscanf((char*)args, UI64FMTD, &titles);
+
+    Player *target = getSelectedPlayer();
+    if (!target)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    uint64 titles2 = titles;
+
+    for(uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
+        if(CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
+            titles2 &= ~(uint64(1) << tEntry->bit_index);
+
+    titles &= ~titles2;                                     // remove not existed titles
+
+    target->SetUInt64Value(PLAYER__FIELD_KNOWN_TITLES, titles);
+    SendSysMessage(LANG_DONE);
+
+    if (!target->HasTitle(target->GetInt32Value(PLAYER_CHOSEN_TITLE)))
+    {
+        target->SetUInt32Value(PLAYER_CHOSEN_TITLE,0);
+        PSendSysMessage(LANG_CURRENT_TITLE_RESET,GetNameLink(target).c_str());
+    }
+
+    return true;
+}
+
+bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
+{
+    Player* target;
+    if(!extractPlayerTarget((char*)args,&target))
+        return false;
+
+    LocaleConstant loc = GetSessionDbcLocale();
+    char const* targetName = target->GetName();
+    char const* knownStr = GetTrinityString(LANG_KNOWN);
+
+    // Search in CharTitles.dbc
+    for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
+    {
+        CharTitlesEntry const *titleInfo = sCharTitlesStore.LookupEntry(id);
+        if (titleInfo && target->HasTitle(titleInfo))
+        {
+            std::string name = titleInfo->name[loc];
+            if(name.empty())
+                continue;
+
+            char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE)==titleInfo->bit_index
+                ? GetTrinityString(LANG_ACTIVE)
+                : "";
+
+            char titleNameStr[80];
+            snprintf(titleNameStr,80,name.c_str(),targetName);
+
+            // send title in "id (idx:idx) - [namedlink locale]" format
+            if (m_session)
+                PSendSysMessage(LANG_TITLE_LIST_CHAT,id,titleInfo->bit_index,id,titleNameStr,localeNames[loc],knownStr,activeStr);
+            else
+                PSendSysMessage(LANG_TITLE_LIST_CONSOLE,id,titleInfo->bit_index,name.c_str(),localeNames[loc],knownStr,activeStr);
+        }
+    }
+    return true;
+}
+
+bool ChatHandler::HandleTitlesCurrentCommand(const char* args)
+{
+    // number or [name] Shift-click form |color|Htitle:title_id|h[name]|h|r
+    char* id_p = extractKeyFromLink((char*)args,"Htitle");
+    if(!id_p)
+        return false;
+
+    int32 id = atoi(id_p);
+    if (id <= 0)
+    {
+        PSendSysMessage(LANG_INVALID_TITLE_ID, id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    Player * target = getSelectedPlayer();
+    if(!target)
+    {
+        SendSysMessage(LANG_NO_CHAR_SELECTED);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // check online security
+    if (HasLowerSecurity(target, 0))
+        return false;
+
+    CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
+    if(!titleInfo)
+    {
+        PSendSysMessage(LANG_INVALID_TITLE_ID, id);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    std::string tNameLink = GetNameLink(target);
+
+    target->SetTitle(titleInfo);                            // to be sure that title now known
+    target->SetUInt32Value(PLAYER_CHOSEN_TITLE,titleInfo->bit_index);
+
+    PSendSysMessage(LANG_TITLE_CURRENT_RES, id, titleInfo->name[GetSessionDbcLocale()], tNameLink.c_str());
+
     return true;
 }
