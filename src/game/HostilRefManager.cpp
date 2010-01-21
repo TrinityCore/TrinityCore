@@ -53,6 +53,27 @@ void HostilRefManager::threatAssist(Unit *pVictim, float fThreat, SpellEntry con
 
 //=================================================
 
+void HostilRefManager::addTempThreat(float fThreat, bool apply)
+{
+    HostilReference* ref = getFirst();
+
+    while(ref != NULL)
+    {
+        if (apply)
+        {
+            if (ref->getTempThreatModifier() == 0.0f)
+                ref->addTempThreat(fThreat);
+        }
+        else
+            ref->resetTempThreat();
+
+        ref = ref->next();
+    }
+}
+
+
+//=================================================
+
 void HostilRefManager::addThreatPercent(int32 iPercent)
 {
     HostilReference* ref;
