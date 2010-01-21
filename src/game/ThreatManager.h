@@ -76,7 +76,12 @@ class TRINITY_DLL_SPEC HostilReference : public Reference<Unit, ThreatManager>
         // the threat modification is stored
         void setTempThreat(float fThreat)
         {
-            iTempThreatModifier = fThreat - getThreat();
+            addTempThreat(fThreat - getThreat());
+        }
+
+        void addTempThreat(float fThreat)
+        {
+            iTempThreatModifier = fThreat;
             if (iTempThreatModifier != 0.0f)
                 addThreat(iTempThreatModifier);
         }

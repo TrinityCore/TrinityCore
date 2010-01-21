@@ -46,6 +46,8 @@ class HostilRefManager : public RefManager<Unit, ThreatManager>
         // use for buffs and healing threat functionality
         void threatAssist(Unit *pVictim, float fThreat, SpellEntry const *threatSpell = 0, bool pSingleTarget = false);
 
+        void addTempThreat(float fThreat, bool apply);
+
         void addThreatPercent(int32 iPercent);
 
         // The references are not needed anymore

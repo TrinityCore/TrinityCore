@@ -3662,9 +3662,7 @@ void AuraEffect::HandleAuraModTotalThreat(AuraApplication const * aurApp, uint8 
     if (!caster || !caster->isAlive())
         return;
 
-    float threatMod = (apply) ? float(GetAmount()) : float(-GetAmount());
-
-    target->getHostilRefManager().threatAssist(caster, threatMod);
+    target->getHostilRefManager().addTempThreat(GetAmount(), apply);
 }
 
 void AuraEffect::HandleModTaunt(AuraApplication const * aurApp, uint8 mode, bool apply) const
