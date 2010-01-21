@@ -1,6 +1,7 @@
-DELETE FROM mangos_string WHERE entry in (349, 350, 351, 352, 353, 354, 355, 356);
+DELETE FROM trinity_string WHERE entry in (349, 350, 351, 352, 353, 354, 355, 356);
 
-INSERT INTO mangos_string VALUES
+INSERT INTO trinity_string  (`entry`,`content_default`,`content_loc1`,`content_loc2`,`content_loc3`,`content_loc4`,`content_loc5`,`content_loc6`,`content_loc7`,`content_loc8`)
+VALUES
  (349,'%d (idx:%d) - |cffffffff|Htitle:%d|h[%s %s]|h|r %s %s ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
  (350,'%d (idx:%d) - [%s %s] %s %s ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
  (351,'No titles found!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL),
