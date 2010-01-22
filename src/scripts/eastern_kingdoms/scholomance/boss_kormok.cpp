@@ -51,13 +51,13 @@ struct TRINITY_DLL_DECL boss_kormokAI : public ScriptedAI
 
     void SummonMinions(Unit* victim)
     {
-        if (Creature *SummonedMinion = DoSpawnCreature(16119, RAND(irand(0,-7),irand(0,7)), RAND(irand(0,-7),irand(0,7)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+        if (Creature *SummonedMinion = DoSpawnCreature(16119, irand(-7,7), irand(-7,7), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
             SummonedMinion->AI()->AttackStart(victim);
     }
 
     void SummonMages(Unit* victim)
     {
-        if (Creature *SummonedMage = DoSpawnCreature(16120, RAND(irand(0,-9),irand(0,9)), RAND(irand(0,-9),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
+        if (Creature *SummonedMage = DoSpawnCreature(16120, irand(-9,9), irand(-9,9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 120000))
             SummonedMage->AI()->AttackStart(victim);
     }
 
