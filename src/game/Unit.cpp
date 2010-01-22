@@ -3885,6 +3885,7 @@ void Unit::RemoveOwnedAura(AuraMap::iterator &i, AuraRemoveMode removeMode)
         ++m_auraUpdateIterator;
 
     m_ownedAuras.erase(i);
+    m_removedAuras.push_back(aura);
 
     // Unregister single target aura
     if (aura->IsSingleTarget())
