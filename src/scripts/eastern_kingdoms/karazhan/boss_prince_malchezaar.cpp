@@ -270,11 +270,8 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
         //damage
         const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-        const CreatureBaseStats *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), cinfo->unit_class);
-        float mindmg = stats->GenerateMinDmg(cinfo);
-        float maxdmg = stats->GenerateMaxDmg(cinfo);
-        m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, mindmg);
-        m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxdmg);
+        m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+        m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
         m_creature->UpdateDamagePhysical(BASE_ATTACK);
     }
 
@@ -396,18 +393,15 @@ struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
 
                 //damage
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                const CreatureBaseStats *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), cinfo->unit_class);
-                float mindmg = stats->GenerateMinDmg(cinfo);
-                float maxdmg = stats->GenerateMaxDmg(cinfo);
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2 * mindmg);
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2 * maxdmg);
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
 
-                m_creature->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, mindmg);
-                m_creature->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, maxdmg);
+                m_creature->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
+                m_creature->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
                 //Sigh, updating only works on main attack, do it manually ....
-                m_creature->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, mindmg);
-                m_creature->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, maxdmg);
+                m_creature->SetFloatValue(UNIT_FIELD_MINOFFHANDDAMAGE, cinfo->mindmg);
+                m_creature->SetFloatValue(UNIT_FIELD_MAXOFFHANDDAMAGE, cinfo->maxdmg);
 
                 m_creature->SetAttackTime(OFF_ATTACK, (m_creature->GetAttackTime(BASE_ATTACK)*150)/100);
             }

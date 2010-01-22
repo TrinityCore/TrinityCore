@@ -1107,24 +1107,15 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
 
     //damage
     float damagemod = 1.0f;//_GetDamageMod(rank);
-    float mindmg = stats->GenerateMinDmg(cinfo);
-    float maxdmg = stats->GenerateMaxDmg(cinfo);
-    float attackpower = stats->GenerateAttackPower(cinfo);
 
-    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, mindmg * damagemod);
-    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, maxdmg * damagemod);
+    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg * damagemod);
+    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg * damagemod);
 
-    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, attackpower * damagemod);
+    SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE,cinfo->minrangedmg * damagemod);
+    SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE,cinfo->maxrangedmg * damagemod);
 
-    // ranged damage
-    float minrangeddmg = stats->GenerateRangedDmg(cinfo) / 2.5f;
-    float maxrangeddmg = stats->GenerateRangedDmg(cinfo) - mindmg;
-    float rangedattackpower = (minrangeddmg + maxrangeddmg) / 2 * 0.3;
+    SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, cinfo->attackpower * damagemod);
 
-    SetFloatValue(UNIT_FIELD_MINRANGEDDAMAGE, minrangeddmg * damagemod);
-    SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, maxrangeddmg * damagemod);
-
-    SetModifierValue(UNIT_MOD_ATTACK_POWER_RANGED, BASE_VALUE, rangedattackpower * damagemod);
 }
 
 float Creature::_GetHealthMod(int32 Rank)
