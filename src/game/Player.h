@@ -970,7 +970,7 @@ class TRINITY_DLL_SPEC Player : public Unit, public GridObject<Player>
         explicit Player (WorldSession *session);
         ~Player ( );
 
-        void CleanupsBeforeDelete();
+        void CleanupsBeforeDelete(bool finalCleanup = true);
 
         static UpdateMask updateVisualBits;
         static void InitVisibleBits();
