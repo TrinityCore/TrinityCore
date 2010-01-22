@@ -33,6 +33,9 @@ class AuraEffect;
 class Aura;
 class DynamicObject;
 
+// update aura target map every 500 ms instead of every update - reduce amount of grid searcher calls
+#define UPDATE_TARGET_MAP_INTERVAL 500
+
 class AuraApplication
 {
     friend AuraApplication * Unit::__ApplyAura(Aura * aura);
@@ -172,6 +175,7 @@ class TRINITY_DLL_SPEC Aura
         int32 m_maxDuration;                                // Max aura duration
         int32 m_duration;                                   // Current time
         int32 m_timeCla;                                    // Timer for power per sec calcultion
+        int32 m_updateTargetMapInterval;                    // Timer for UpdateTargetMapOfEffect
 
         uint8 const m_casterLevel;                          // Aura level (store caster level for correct show level dep amount)
         uint8 m_procCharges;                                // Aura charges (0 for infinite)
