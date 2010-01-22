@@ -66,7 +66,7 @@ struct TRINITY_DLL_DECL boss_kruulAI : public ScriptedAI
 
     void SummonHounds(Unit* pVictim)
     {
-        if (Creature *Hound = DoSpawnCreature(19207, RAND(irand(0,-9),irand(0,9)), RAND(irand(0,-9),irand(0,9)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+        if (Creature *Hound = DoSpawnCreature(19207, irand(-9,9), irand(-9,9), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
             Hound->AI()->AttackStart(pVictim);
     }
 
