@@ -542,12 +542,12 @@ Player::~Player ()
     sWorld.DecreasePlayerCount();
 }
 
-void Player::CleanupsBeforeDelete()
+void Player::CleanupsBeforeDelete(bool finalCleanup)
 {
     TradeCancel(false);
     DuelComplete(DUEL_INTERUPTED);
 
-    Unit::CleanupsBeforeDelete();
+    Unit::CleanupsBeforeDelete(finalCleanup);
 
     if (m_transport)
         m_transport->RemovePassenger(this);
