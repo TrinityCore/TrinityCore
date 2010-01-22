@@ -234,11 +234,8 @@ struct TRINITY_DLL_DECL boss_arlokkAI : public ScriptedAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                const CreatureBaseStats *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), cinfo->unit_class);
-                float mindmg = stats->GenerateMinDmg(cinfo);
-                float maxdmg = stats->GenerateMaxDmg(cinfo);
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (mindmg +((mindmg/100) * 35)));
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (maxdmg +((maxdmg/100) * 35)));
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
 
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
