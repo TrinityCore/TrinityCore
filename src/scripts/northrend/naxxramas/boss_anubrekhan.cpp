@@ -16,67 +16,107 @@
 
 #include "ScriptedPch.h"
 #include "naxxramas.h"
+#include "SpellId.h"
 
 #define SAY_GREET           RAND(-1533000,-1533004,-1533005,-1533006,-1533007)
 #define SAY_AGGRO           RAND(-1533001,-1533002,-1533003)
 #define SAY_SLAY            -1533008
 
-#define SPELL_IMPALE        RAID_MODE(28783,56090)
-#define SPELL_LOCUSTSWARM   RAID_MODE(28785,54021)
-
-#define SPELL_SELF_SPAWN_5  29105                           //This spawns 5 corpse scarabs ontop of us (most likely the player casts this on death)
-
-#define EVENT_IMPALE        1
-#define EVENT_LOCUST        2
-
 #define MOB_CRYPT_GUARD     16573
+
+const Position GuardSummonPos = {3333.72, -3476.30, 287.1, 6.2801};
+
+enum Events
+{
+    EVENT_NONE,
+    EVENT_IMPALE,
+    EVENT_LOCUST,
+    EVENT_SPAWN_GUARDIAN_NORMAL,
+    EVENT_BERSERK,
+};
+
+enum Spells
+{
+    SPELL_IMPALE_10                 = SPELL_IMPALE_28783,
+    SPELL_IMPALE_25                 = SPELL_IMPALE_56090,
+    SPELL_LOCUST_SWARM_10           = SPELL_LOCUST_SWARM_28785,
+    SPELL_LOCUST_SWARM_25           = SPELL_LOCUST_SWARM_54021,
+    SPELL_SUMMON_CORPSE_SCARABS_PLR = SPELL_SUMMON_CORPSE_SCARABS_5_29105,    // This spawns 5 corpse scarabs on top of player
+    SPELL_SUMMON_CORPSE_SCARABS_MOB = SPELL_SUMMON_CORPSE_SCARABS_10_28864,   // This spawns 10 corpse scarabs on top of dead guards 
+    SPELL_BERSERK                   = SPELL_BERSERK_27680,
+};
 
 struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
 {
-    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) { Prepare(); }
+    boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
 
-    bool HasTaunted;
+    bool hasTaunted;
 
-    void Prepare()
+    void Reset()
     {
-        HasTaunted = false;
+        _Reset();
 
-        if (IsHeroic())
+        hasTaunted = false;
+
+        if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
         {
-            DoSpawnCreature(MOB_CRYPT_GUARD, 0, -10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-            DoSpawnCreature(MOB_CRYPT_GUARD, 0, 10, 0, me->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
+            Position pos;
+
+            // respawn guard using home position, 
+            // otherwise, after a wipe, they respawn where boss was at wipe moment.
+            pos = m_creature->GetHomePosition();
+            pos.m_positionY -= 10.0f;
+            m_creature->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+
+            pos = m_creature->GetHomePosition();
+            pos.m_positionY += 10.0f;
+            m_creature->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
         }
     }
 
-    void InitializeAI() { Prepare(); BossAI::InitializeAI(); }
-    void JustReachedHome() { Prepare(); _JustReachedHome(); }
-
     void KilledUnit(Unit* victim)
     {
-        //Force the player to spawn corpse scarabs via spell
-        victim->CastSpell(victim, SPELL_SELF_SPAWN_5, true, NULL, NULL, me->GetGUID());
-
+        //Force the player to spawn corpse scarabs via spell, TODO: Check percent chance for scarabs, 20% at the moment
         if (!(rand()%5))
-            DoScriptText(SAY_SLAY, me);
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
+
+        DoScriptText(SAY_SLAY, me);
     }
 
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
-        events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
-        events.ScheduleEvent(EVENT_LOCUST, 80000 + rand()%40000, 1);
+        events.ScheduleEvent(EVENT_IMPALE, 10000 + rand()%10000);
+        events.ScheduleEvent(EVENT_LOCUST, 90000);
+        events.ScheduleEvent(EVENT_BERSERK, 600000);
+
+        if (getDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+            events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000,20000));
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!HasTaunted && me->IsWithinDistInMap(who, 60.0f))
+        if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
         {
             DoScriptText(SAY_GREET, me);
-            HasTaunted = true;
+            hasTaunted = true;
         }
         ScriptedAI::MoveInLineOfSight(who);
     }
+
+    void SummonedCreatureDespawn(Creature *summon)
+    {
+        BossAI::SummonedCreatureDespawn(summon);
+
+        // check if it is an actual killed guard
+        if (!m_creature->isAlive() || summon->isAlive() || summon->GetEntry() != MOB_CRYPT_GUARD)
+            return;
+
+        summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, NULL, NULL, me->GetGUID());
+    }
+
 
     void UpdateAI(const uint32 diff)
     {
@@ -92,17 +132,25 @@ struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
                 case EVENT_IMPALE:
                     //Cast Impale on a random target
                     //Do NOT cast it when we are afflicted by locust swarm
-                    if (!me->HasAura(SPELL_LOCUSTSWARM))
+                    if (!me->HasAura(RAID_MODE(SPELL_LOCUST_SWARM_10,SPELL_LOCUST_SWARM_25)))
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                            DoCast(pTarget, SPELL_IMPALE);
-                    events.ScheduleEvent(EVENT_IMPALE, 15000, 1);
-                    events.DelayEvents(1500, 1);
-                    return;
+                            DoCast(pTarget, RAID_MODE(SPELL_IMPALE_10,SPELL_IMPALE_25));
+                    events.ScheduleEvent(EVENT_IMPALE, urand(10000,20000));
+                    break;
                 case EVENT_LOCUST:
-                    DoCast(m_creature, SPELL_LOCUSTSWARM);
-                    DoSpawnCreature(MOB_CRYPT_GUARD, 5, 5, 0, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
-                    events.ScheduleEvent(EVENT_LOCUST, 90000, 1);
-                    return;
+                    // TODO : Add Text
+                    DoCast(m_creature, RAID_MODE(SPELL_LOCUST_SWARM_10,SPELL_LOCUST_SWARM_25));
+                    DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                    events.ScheduleEvent(EVENT_LOCUST, 90000);
+                    break;
+                case EVENT_SPAWN_GUARDIAN_NORMAL:
+                    // TODO : Add Text
+                    DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                    break;
+                case EVENT_BERSERK:
+                    DoCast(m_creature, SPELL_BERSERK, true);
+                    events.ScheduleEvent(EVENT_BERSERK, 600000);
+                    break;
             }
         }
 
@@ -123,4 +171,3 @@ void AddSC_boss_anubrekhan()
     newscript->GetAI = &GetAI_boss_anubrekhan;
     newscript->RegisterSelf();
 }
-
