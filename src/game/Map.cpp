@@ -665,9 +665,8 @@ void Map::Update(const uint32 &t_diff)
                     Cell cell(pair);
                     cell.data.Part.reserved = CENTER_DISTRICT;
                     //cell.SetNoCreate();
-                    CellLock<NullGuard> cell_lock(cell, pair);
-                    cell_lock->Visit(cell_lock, grid_object_update,  *this);
-                    cell_lock->Visit(cell_lock, world_object_update, *this);
+                    cell.Visit(pair, grid_object_update,  *this);
+                    cell.Visit(pair, world_object_update, *this);
                 }
             }
         }
@@ -714,9 +713,8 @@ void Map::Update(const uint32 &t_diff)
                         Cell cell(pair);
                         cell.data.Part.reserved = CENTER_DISTRICT;
                         //cell.SetNoCreate();
-                        CellLock<NullGuard> cell_lock(cell, pair);
-                        cell_lock->Visit(cell_lock, grid_object_update,  *this);
-                        cell_lock->Visit(cell_lock, world_object_update, *this);
+                        cell.Visit(pair, grid_object_update,  *this);
+                        cell.Visit(pair, world_object_update, *this);
                     }
                 }
             }
@@ -785,8 +783,7 @@ void Map::ProcesssPlayersVisibility()
         cell.data.Part.reserved = ALL_DISTRICT;
         //cell.SetNoCreate();
         TypeContainerVisitor<Trinity::Player2PlayerNotifier, WorldTypeMapContainer > world_notifier(notifier);
-        CellLock<ReadGuard> cell_lock(cell, cellpair);
-        cell_lock->Visit(cell_lock, world_notifier, *this, *viewPoint, GetVisibilityDistance());
+        cell.Visit(cellpair, world_notifier, *this, *viewPoint, GetVisibilityDistance());
 
         // send data
         notifier.SendToSelf();
@@ -821,9 +818,8 @@ void Map::ProcessObjectsVisibility()
 
         TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
         TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
-        CellLock<ReadGuard> cell_lock(cell, cellpair);
-        cell_lock->Visit(cell_lock, world_notifier, *this, *viewPoint, GetVisibilityDistance());
-        cell_lock->Visit(cell_lock, grid_notifier,  *this, *viewPoint, GetVisibilityDistance());
+        cell.Visit(cellpair, world_notifier, *this, *viewPoint, GetVisibilityDistance());
+        cell.Visit(cellpair, grid_notifier,  *this, *viewPoint, GetVisibilityDistance());
 
         // send data
         notifier.SendToSelf();
@@ -858,12 +854,11 @@ void Map::ProcessRelocationNotifies()
                 cell.data.Part.reserved = CENTER_DISTRICT;
                 cell.SetNoCreate();
 
-                CellLock<ReadGuard> cell_lock(cell, pair);
-                Trinity::DelayedUnitRelocation cell_relocation(cell_lock, *this, GetVisibilityDistance());
+                Trinity::DelayedUnitRelocation cell_relocation(cell, pair, *this, GetVisibilityDistance());
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, GridTypeMapContainer  > grid_object_relocation(cell_relocation);
                 TypeContainerVisitor<Trinity::DelayedUnitRelocation, WorldTypeMapContainer > world_object_relocation(cell_relocation);
-                cell_lock->Visit(cell_lock, grid_object_relocation,  *this);
-                cell_lock->Visit(cell_lock, world_object_relocation,  *this);
+                cell.Visit(pair, grid_object_relocation,  *this);
+                cell.Visit(pair, world_object_relocation,  *this);
             }
         }
     }
@@ -906,9 +901,8 @@ void Map::ResetNotifies(uint16 notify_mask)
                 Cell cell(pair);
                 cell.data.Part.reserved = CENTER_DISTRICT;
                 cell.SetNoCreate();
-                CellLock<NullGuard> cell_lock(cell, pair);
-                cell_lock->Visit(cell_lock, grid_notifier,  *this);
-                cell_lock->Visit(cell_lock, world_notifier,  *this);
+                cell.Visit(pair, grid_notifier,  *this);
+                cell.Visit(pair, world_notifier,  *this);
             }
         }
     }
@@ -2181,8 +2175,7 @@ void Map::UpdateObjectVisibility( WorldObject* obj, Cell cell, CellPair cellpair
     cell.SetNoCreate();
     Trinity::VisibleChangesNotifier notifier(*obj);
     TypeContainerVisitor<Trinity::VisibleChangesNotifier, WorldTypeMapContainer > player_notifier(notifier);
-    CellLock<GridReadGuard> cell_lock(cell, cellpair);
-    cell_lock->Visit(cell_lock, player_notifier, *this, *obj, GetVisibilityDistance());
+    cell.Visit(cellpair, player_notifier, *this, *obj, GetVisibilityDistance());
 }
 
 
@@ -2193,8 +2186,7 @@ void Map::UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair )
     Trinity::Player2PlayerNotifier pl_notifier(*player);
     TypeContainerVisitor<Trinity::Player2PlayerNotifier, WorldTypeMapContainer > player_notifier(pl_notifier);
 
-    CellLock<ReadGuard> cell_lock(cell, cellpair);
-    cell_lock->Visit(cell_lock, player_notifier, *this, *player, GetVisibilityDistance());
+    cell.Visit(cellpair, player_notifier, *this, *player, GetVisibilityDistance());
     pl_notifier.SendToSelf();
 }
 
@@ -2206,9 +2198,8 @@ void Map::UpdateObjectsVisibilityFor( Player* player, Cell cell, CellPair cellpa
     cell.SetNoCreate();
     TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
     TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
-    CellLock<GridReadGuard> cell_lock(cell, cellpair);
-    cell_lock->Visit(cell_lock, world_notifier, *this, *player, GetVisibilityDistance());
-    cell_lock->Visit(cell_lock, grid_notifier,  *this, *player, GetVisibilityDistance());
+    cell.Visit(cellpair, world_notifier, *this, *player, GetVisibilityDistance());
+    cell.Visit(cellpair, grid_notifier,  *this, *player, GetVisibilityDistance());
 
     // send data
     notifier.SendToSelf();
@@ -2216,20 +2207,18 @@ void Map::UpdateObjectsVisibilityFor( Player* player, Cell cell, CellPair cellpa
 /*
 void Map::PlayerRelocationNotify( Player* player, Cell cell, CellPair cellpair )
 {
-    CellLock<ReadGuard> cell_lock(cell, cellpair);
     Trinity::PlayerRelocationNotifier relocationNotifier(*player);
     cell.data.Part.reserved = ALL_DISTRICT;
 
     TypeContainerVisitor<Trinity::PlayerRelocationNotifier, GridTypeMapContainer >  p2grid_relocation(relocationNotifier);
     TypeContainerVisitor<Trinity::PlayerRelocationNotifier, WorldTypeMapContainer > p2world_relocation(relocationNotifier);
 
-    cell_lock->Visit(cell_lock, p2grid_relocation, *this, *player, MAX_CREATURE_ATTACK_RADIUS);
-    cell_lock->Visit(cell_lock, p2world_relocation, *this, *player, MAX_CREATURE_ATTACK_RADIUS);
+    cell.Visit(cellpair, p2grid_relocation, *this, *player, MAX_CREATURE_ATTACK_RADIUS);
+    cell.Visit(cellpair, p2world_relocation, *this, *player, MAX_CREATURE_ATTACK_RADIUS);
 }
 
 void Map::CreatureRelocationNotify(Creature *creature, Cell cell, CellPair cellpair)
 {
-    CellLock<ReadGuard> cell_lock(cell, cellpair);
     Trinity::CreatureRelocationNotifier relocationNotifier(*creature);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();                                     // not trigger load unloaded grids at notifier call
@@ -2237,8 +2226,8 @@ void Map::CreatureRelocationNotify(Creature *creature, Cell cell, CellPair cellp
     TypeContainerVisitor<Trinity::CreatureRelocationNotifier, WorldTypeMapContainer > c2world_relocation(relocationNotifier);
     TypeContainerVisitor<Trinity::CreatureRelocationNotifier, GridTypeMapContainer >  c2grid_relocation(relocationNotifier);
 
-    cell_lock->Visit(cell_lock, c2world_relocation, *this, *creature, MAX_CREATURE_ATTACK_RADIUS);
-    cell_lock->Visit(cell_lock, c2grid_relocation, *this, *creature, MAX_CREATURE_ATTACK_RADIUS);
+    cell.Visit(cellpair, c2world_relocation, *this, *creature, MAX_CREATURE_ATTACK_RADIUS);
+    cell.Visit(cellpair, c2grid_relocation, *this, *creature, MAX_CREATURE_ATTACK_RADIUS);
 }
 */
 
@@ -3390,8 +3379,7 @@ void Map::ScriptsProcess()
                 Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(summoner, go,go_check);
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
-                CellLock<GridReadGuard> cell_lock(cell, p);
-                cell_lock->Visit(cell_lock, object_checker, *summoner->GetMap());
+                cell.Visit(p, object_checker, *summoner->GetMap());
 
                 if ( !go )
                 {
@@ -3450,8 +3438,7 @@ void Map::ScriptsProcess()
                 Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
-                CellLock<GridReadGuard> cell_lock(cell, p);
-                cell_lock->Visit(cell_lock, object_checker, *caster->GetMap());
+                cell.Visit(p, object_checker, *caster->GetMap());
 
                 if (!door)
                 {
@@ -3506,8 +3493,7 @@ void Map::ScriptsProcess()
                 Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(caster,door,go_check);
 
                 TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > object_checker(checker);
-                CellLock<GridReadGuard> cell_lock(cell, p);
-                cell_lock->Visit(cell_lock, object_checker, *caster->GetMap());
+                cell.Visit(p, object_checker, *caster->GetMap());
 
                 if ( !door )
                 {
@@ -3726,8 +3712,7 @@ void Map::ScriptsProcess()
                     Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(((Unit*)source), target, target_check);
 
                     TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-                    CellLock<GridReadGuard> cell_lock(cell, p);
-                    cell_lock->Visit(cell_lock, unit_checker, *(((Unit*)source)->GetMap()));
+                    cell.Visit(p, unit_checker, *(((Unit*)source)->GetMap()));
                 }
                 else //check hashmap holders
                 {

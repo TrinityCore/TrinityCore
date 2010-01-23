@@ -99,8 +99,8 @@ Trinity::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
         TypeContainerVisitor<VISITOR, WorldTypeMapContainer > c2world_relocation(relocate);
         TypeContainerVisitor<VISITOR, GridTypeMapContainer >  c2grid_relocation(relocate);
 
-        i_lock->Visit(i_lock, c2world_relocation, i_map, *unit, i_radius);
-        i_lock->Visit(i_lock, c2grid_relocation, i_map, *unit, i_radius);
+        i_cell.Visit(i_cellPair, c2world_relocation, i_map, *unit, i_radius);
+        i_cell.Visit(i_cellPair, c2grid_relocation, i_map, *unit, i_radius);
 
         unit->SetNotified(NOTIFY_AI_RELOCATION);
     }

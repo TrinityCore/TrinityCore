@@ -883,8 +883,7 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
         Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO,go_check);
 
         TypeContainerVisitor<Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck>, GridTypeMapContainer > object_checker(checker);
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, object_checker, *GetMap(), *target, range);
+        cell.Visit(p, object_checker, *GetMap(), *target, range);
     }
 
     // found correct GO
@@ -903,10 +902,8 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
     Trinity::NearestGameObjectFishingHole u_check(*this, range);
     Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole> checker(this, ok, u_check);
 
-    CellLock<GridReadGuard> cell_lock(cell, p);
-
     TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole>, GridTypeMapContainer > grid_object_checker(checker);
-    cell_lock->Visit(cell_lock, grid_object_checker, *GetMap(), *this, range);
+    cell.Visit(p, grid_object_checker, *GetMap(), *this, range);
 
     return ok;
 }
