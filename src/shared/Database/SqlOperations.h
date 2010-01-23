@@ -27,6 +27,7 @@
 #include "LockedQueue.h"
 #include <queue>
 #include "Utilities/Callback.h"
+#include "QueryResult.h"
 
 /// ---- BASE ---
 
@@ -95,7 +96,7 @@ class SqlQueryHolder
 {
     friend class SqlQueryHolderEx;
     private:
-        typedef std::pair<const char*, QueryResult*> SqlResultPair;
+        typedef std::pair<const char*, QueryResult_AutoPtr> SqlResultPair;
         std::vector<SqlResultPair> m_queries;
     public:
         SqlQueryHolder() {}
@@ -103,8 +104,8 @@ class SqlQueryHolder
         bool SetQuery(size_t index, const char *sql);
         bool SetPQuery(size_t index, const char *format, ...) ATTR_PRINTF(3,4);
         void SetSize(size_t size);
-        QueryResult* GetResult(size_t index);
-        void SetResult(size_t index, QueryResult *result);
+        QueryResult_AutoPtr GetResult(size_t index);
+        void SetResult(size_t index, QueryResult_AutoPtr result);
         bool Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue);
 };
 

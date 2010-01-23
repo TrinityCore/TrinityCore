@@ -238,7 +238,7 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
     int res = vsnprintf( szQueryTail, MAX_QUERY_LEN, queryTail, ap );
     va_end(ap);
 
-    QueryResult *result = db.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
+    QueryResult_AutoPtr result = db.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
     if(result)
     {
         do
@@ -253,7 +253,6 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
             }
             db.DirectPExecute("DELETE FROM %s WHERE %s", table, ss.str().c_str());
         } while (result->NextRow());
-        delete result;
     }
 }
 
@@ -281,7 +280,7 @@ void InstanceSaveManager::CleanupInstances()
     // creature_respawn and gameobject_respawn are in another database
     // first, obtain total instance set
     std::set<uint32> InstanceSet;
-    QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT id FROM instance");
     if (result)
     {
         do
@@ -290,7 +289,6 @@ void InstanceSaveManager::CleanupInstances()
             InstanceSet.insert(fields[0].GetUInt32());
         }
         while (result->NextRow());
-        delete result;
     }
 
     // creature_respawn
@@ -304,7 +302,6 @@ void InstanceSaveManager::CleanupInstances()
                 WorldDatabase.DirectPExecute("DELETE FROM creature_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
-        delete result;
     }
 
     // gameobject_respawn
@@ -318,7 +315,6 @@ void InstanceSaveManager::CleanupInstances()
                 WorldDatabase.DirectPExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
-        delete result;
     }
 
     // characters
@@ -332,7 +328,6 @@ void InstanceSaveManager::CleanupInstances()
                 CharacterDatabase.PExecute("UPDATE characters SET instance_id = '0' WHERE instance_id = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
-        delete result;
     }
 
     // corpse
@@ -346,7 +341,6 @@ void InstanceSaveManager::CleanupInstances()
                 CharacterDatabase.PExecute("UPDATE corpse SET instance = '0' WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
-        delete result;
     }
 
     bar.step();
@@ -365,7 +359,7 @@ void InstanceSaveManager::PackInstances()
     // all valid ids are in the instance table
     // any associations to ids not in this table are assumed to be
     // cleaned already in CleanupInstances
-    QueryResult *result = CharacterDatabase.Query("SELECT id FROM instance");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT id FROM instance");
     if (result)
     {
         do
@@ -374,7 +368,6 @@ void InstanceSaveManager::PackInstances()
             InstanceSet.insert(fields[0].GetUInt32());
         }
         while (result->NextRow());
-        delete result;
     }
 
     barGoLink bar(InstanceSet.size() + 1);
@@ -422,7 +415,7 @@ void InstanceSaveManager::LoadResetTimes()
     typedef std::multimap<uint32 /*PAIR32(map,difficulty)*/, uint32 /*instanceid*/ > ResetTimeMapDiffInstances;
     ResetTimeMapDiffInstances mapDiffResetInstances;
 
-    QueryResult *result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance WHERE resettime > 0");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance WHERE resettime > 0");
     if( result )
     {
         do
@@ -437,7 +430,6 @@ void InstanceSaveManager::LoadResetTimes()
             }
         }
         while (result->NextRow());
-        delete result;
 
         // update reset time for normal instances with the max creature respawn time + X hours
         result = WorldDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
@@ -456,7 +448,6 @@ void InstanceSaveManager::LoadResetTimes()
                 }
             }
             while (result->NextRow());
-            delete result;
         }
 
         // schedule the reset times
@@ -492,7 +483,6 @@ void InstanceSaveManager::LoadResetTimes()
 
             SetResetTimeFor(mapid,difficulty,newresettime);
         } while(result->NextRow());
-        delete result;
     }
 
     // clean expired instances, references to them will be deleted in CleanupInstances

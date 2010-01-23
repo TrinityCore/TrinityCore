@@ -108,7 +108,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     uint32 ownerid = owner->GetGUIDLow();
 
-    QueryResult *result;
+    QueryResult_AutoPtr result;
 
     if (petnumber)
         // known petnumber entry                  0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15                 16                 17              18
@@ -141,10 +141,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     // update for case of current pet "slot = 0"
     petentry = fields[1].GetUInt32();
     if (!petentry)
-    {
-        delete result;
         return false;
-    }
 
     uint32 summon_spell_id = fields[17].GetUInt32();
     SpellEntry const* spellInfo = sSpellStore.LookupEntry(summon_spell_id);
@@ -153,20 +150,14 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     // check temporary summoned pets like mage water elemental
     if (current && is_temporary_summoned)
-    {
-        delete result;
         return false;
-    }
 
     PetType pet_type = PetType(fields[18].GetUInt8());
     if(pet_type==HUNTER_PET)
     {
         CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(petentry);
         if(!creatureInfo || !creatureInfo->isTameable(owner->CanTameExoticPets()))
-        {
-            delete result;
             return false;
-        }
     }
 
     uint32 pet_number = fields[0].GetUInt32();
@@ -174,17 +165,13 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     if (current && owner->IsPetNeedBeTemporaryUnsummoned())
     {
         owner->SetTemporaryUnsummonedPetNumber(pet_number);
-        delete result;
         return false;
     }
 
     Map *map = owner->GetMap();
     uint32 guid = objmgr.GenerateLowGuid(HIGHGUID_PET);
     if (!Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
-    {
-        delete result;
         return false;
-    }
 
     float px, py, pz;
     owner->GetClosePoint(px, py, pz, GetObjectSize(), PET_FOLLOW_DIST, GetFollowAngle());
@@ -194,7 +181,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     {
         sLog.outError("Pet (guidlow %d, entry %d) not loaded. Suggested coordinates isn't valid (X: %f Y: %f)",
             GetGUIDLow(), GetEntry(), GetPositionX(), GetPositionY());
-        delete result;
         return false;
     }
 
@@ -206,7 +192,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     if (cinfo->type == CREATURE_TYPE_CRITTER)
     {
         map->Add((Creature*)this);
-        delete result;
         return true;
     }
 
@@ -324,7 +309,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     CleanupActionBar();                                     // remove unknown spells from action bar after load
 
-    delete result;
     sLog.outDebug("New Pet has guid %u", GetGUIDLow());
 
     owner->PetSpellInitialize();
@@ -349,7 +333,6 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
             {
                 m_declinedname->name[i] = fields2[i].GetCppString();
             }
-            delete result;
         }
     }
 
@@ -1067,7 +1050,7 @@ void Pet::_LoadSpellCooldowns()
     m_CreatureSpellCooldowns.clear();
     m_CreatureCategoryCooldowns.clear();
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT spell,time FROM pet_spell_cooldown WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT spell,time FROM pet_spell_cooldown WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if(result)
     {
@@ -1103,8 +1086,6 @@ void Pet::_LoadSpellCooldowns()
         }
         while (result->NextRow());
 
-        delete result;
-
         if(!m_CreatureSpellCooldowns.empty() && GetOwner())
             ((Player*)GetOwner())->GetSession()->SendPacket(&data);
     }
@@ -1131,7 +1112,7 @@ void Pet::_SaveSpellCooldowns()
 
 void Pet::_LoadSpells()
 {
-    QueryResult *result = CharacterDatabase.PQuery("SELECT spell,active FROM pet_spell WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT spell,active FROM pet_spell WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if (result)
     {
@@ -1142,8 +1123,6 @@ void Pet::_LoadSpells()
             addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
         }
         while (result->NextRow());
-
-        delete result;
     }
 }
 
@@ -1182,7 +1161,7 @@ void Pet::_LoadAuras(uint32 timediff)
 {
     sLog.outDebug("Loading auras for pet %u",GetGUIDLow());
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if (result)
     {
@@ -1244,8 +1223,6 @@ void Pet::_LoadAuras(uint32 timediff)
             }
         }
         while (result->NextRow());
-
-        delete result;
     }
 }
 
@@ -1669,7 +1646,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     // now need only reset for offline pets (all pets except online case)
     uint32 except_petnumber = online_pet ? online_pet->GetCharmInfo()->GetPetNumber() : 0;
 
-    QueryResult *resultPets = CharacterDatabase.PQuery(
+    QueryResult_AutoPtr resultPets = CharacterDatabase.PQuery(
         "SELECT id FROM character_pet WHERE owner = '%u' AND id <> '%u'",
         owner->GetGUIDLow(),except_petnumber);
 
@@ -1677,16 +1654,13 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     if (!resultPets)
         return;
 
-    QueryResult *result = CharacterDatabase.PQuery(
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery(
         "SELECT DISTINCT pet_spell.spell FROM pet_spell, character_pet "
         "WHERE character_pet.owner = '%u' AND character_pet.id = pet_spell.guid AND character_pet.id <> %u",
         owner->GetGUIDLow(),except_petnumber);
 
     if (!result)
-    {
-        delete resultPets;
         return;
-    }
 
     bool need_comma = false;
     std::ostringstream ss;
@@ -1706,8 +1680,6 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
         need_comma = true;
     }
     while (resultPets->NextRow());
-
-    delete resultPets;
 
     ss << ") AND spell IN (";
 
@@ -1729,8 +1701,6 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
         need_execute = true;
     }
     while (result->NextRow());
-
-    delete result;
 
     if (!need_execute)
         return;

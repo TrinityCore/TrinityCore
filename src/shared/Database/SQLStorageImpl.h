@@ -122,7 +122,7 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
 {
     uint32 maxi;
     Field *fields;
-    QueryResult *result  = WorldDatabase.PQuery("SELECT MAX(%s) FROM %s", store.entry_field, store.table);
+    QueryResult_AutoPtr result  = WorldDatabase.PQuery("SELECT MAX(%s) FROM %s", store.entry_field, store.table);
     if(!result)
     {
         sLog.outError("Error loading %s table (not exist?)\n", store.table);
@@ -130,14 +130,12 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
     }
 
     maxi = (*result)[0].GetUInt32()+1;
-    delete result;
 
     result = WorldDatabase.PQuery("SELECT COUNT(*) FROM %s", store.table);
     if(result)
     {
         fields = result->Fetch();
         store.RecordCount = fields[0].GetUInt32();
-        delete result;
     }
     else
         store.RecordCount = 0;
@@ -158,7 +156,6 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
     {
         store.RecordCount = 0;
         sLog.outError("Error in %s table, probably sql file format was updated (there should be %d fields in sql).\n", store.table, store.iNumFields);
-        delete result;
         exit(1);                                            // Stop server at loading broken or non-compatible table.
     }
 
@@ -205,8 +202,6 @@ void SQLStorageLoaderBase<T>::Load(SQLStorage &store)
             }
         ++count;
     }while( result->NextRow() );
-
-    delete result;
 
     store.pIndex = newIndex;
     store.MaxEntry = maxi;
