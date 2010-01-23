@@ -1329,6 +1329,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Aggro Spells Definitions...");
     spellmgr.LoadSpellThreats();
 
+    sLog.outString("Loading Spell Stacking masks...");
+    spellmgr.LoadSpellStackMasks();
+
     sLog.outString("Loading NPC Texts...");
     objmgr.LoadGossipText();
 
