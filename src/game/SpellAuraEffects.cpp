@@ -5344,7 +5344,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
             if (caster && m_spellProto->SpellFamilyName == SPELLFAMILY_WARRIOR &&
                 m_spellProto->SpellFamilyFlags[0] & 0x4)
             {
-                // Must be casting target
+                // In addition, if you strike a player..
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    return;
+                //  ..while they are casting
                 if (target->IsNonMeleeSpellCasted(false, false, true))
                 {
                     if (AuraEffect * aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_FLAT_MODIFIER, SPELLFAMILY_WARRIOR, 2775, 0))
