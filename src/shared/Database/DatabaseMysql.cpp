@@ -235,7 +235,7 @@ bool DatabaseMysql::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **p
     return true;
 }
 
-QueryResult* DatabaseMysql::Query(const char *sql)
+QueryResult_AutoPtr DatabaseMysql::Query(const char *sql)
 {
     MYSQL_RES *result = NULL;
     MYSQL_FIELD *fields = NULL;
@@ -243,13 +243,13 @@ QueryResult* DatabaseMysql::Query(const char *sql)
     uint32 fieldCount = 0;
 
     if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
-        return NULL;
+        return QueryResult_AutoPtr(NULL);
 
     QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
 
     queryResult->NextRow();
 
-    return queryResult;
+    return QueryResult_AutoPtr(queryResult);
 }
 
 QueryNamedResult* DatabaseMysql::QueryNamed(const char *sql)

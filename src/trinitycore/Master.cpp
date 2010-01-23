@@ -135,9 +135,9 @@ public:
         {
             loopCounter = 0;
             sLog.outDetail ("Ping MySQL to keep connection alive");
-            delete WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
-            delete loginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
-            delete CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
+            WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
+            loginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
+            CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
         }
     }
 

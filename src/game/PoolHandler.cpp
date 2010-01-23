@@ -350,7 +350,7 @@ PoolHandler::PoolHandler()
 
 void PoolHandler::LoadFromDB()
 {
-    QueryResult *result = WorldDatabase.Query("SELECT MAX(entry) FROM pool_template");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT MAX(entry) FROM pool_template");
     if (!result)
     {
         sLog.outString(">> Table pool_template is empty.");
@@ -361,7 +361,6 @@ void PoolHandler::LoadFromDB()
     {
         Field *fields = result->Fetch();
         max_pool_id = fields[0].GetUInt16();
-        delete result;
     }
 
     mPoolTemplate.resize(max_pool_id + 1);
@@ -391,8 +390,6 @@ void PoolHandler::LoadFromDB()
         pPoolTemplate.MaxLimit  = fields[1].GetUInt32();
 
     } while (result->NextRow());
-
-    delete result;
 
     sLog.outString();
     sLog.outString( ">> Loaded %u objects pools", count );
@@ -458,7 +455,6 @@ void PoolHandler::LoadFromDB()
         } while (result->NextRow());
         sLog.outString();
         sLog.outString( ">> Loaded %u creatures in pools", count );
-        delete result;
     }
 
     // Gameobjects
@@ -530,7 +526,6 @@ void PoolHandler::LoadFromDB()
         } while( result->NextRow() );
         sLog.outString();
         sLog.outString( ">> Loaded %u gameobject in pools", count );
-        delete result;
     }
 
     // Pool of pools
@@ -619,7 +614,6 @@ void PoolHandler::LoadFromDB()
                 }
             }
         }
-        delete result;
 
         sLog.outString();
         sLog.outString( ">> Loaded %u pools in mother pools", count );
@@ -629,7 +623,7 @@ void PoolHandler::LoadFromDB()
 // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
 void PoolHandler::Initialize()
 {
-    QueryResult *result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry FROM pool_template LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL AND pool_pool.pool_id IS NULL");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry FROM pool_template LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL AND pool_pool.pool_id IS NULL");
     uint32 count=0;
     if (result)
     {
@@ -647,7 +641,6 @@ void PoolHandler::Initialize()
             SpawnPool(pool_entry, 0, TYPEID_UNIT);
             count++;
         } while (result->NextRow());
-        delete result;
     }
 
     sLog.outBasic("Pool handling system initialized, %u pools spawned.", count);

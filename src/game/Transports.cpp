@@ -33,7 +33,7 @@
 
 void MapManager::LoadTransports()
 {
-    QueryResult *result = WorldDatabase.Query("SELECT entry, name, period FROM transports");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, name, period FROM transports");
 
     uint32 count = 0;
 
@@ -111,7 +111,6 @@ void MapManager::LoadTransports()
         //t->GetMap()->Add<GameObject>((GameObject *)t);
         ++count;
     } while(result->NextRow());
-    delete result;
 
     sLog.outString();
     sLog.outString( ">> Loaded %u transports", count );
@@ -130,8 +129,6 @@ void MapManager::LoadTransports()
             sLog.outErrorDb("Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports DON'T must have any records in `gameobject` or its behavior will be unpredictable/bugged.",entry,name.c_str(),guid);
         }
         while(result->NextRow());
-
-        delete result;
     }
 }
 

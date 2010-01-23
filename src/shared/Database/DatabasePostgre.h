@@ -45,7 +45,7 @@ class DatabasePostgre : public Database
         bool Initialize(const char *infoString);
         void InitDelayThread();
         void HaltDelayThread();
-        QueryResult* Query(const char *sql);
+        QueryResult_AutoPtr Query(const char *sql);
         QueryNamedResult* QueryNamed(const char *sql);
         bool Execute(const char *sql);
         bool DirectExecute(const char* sql);

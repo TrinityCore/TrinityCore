@@ -216,7 +216,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
     if(pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED))// wrapped?
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT entry, flags FROM character_gifts WHERE item_guid = '%u'", pItem->GetGUIDLow());
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT entry, flags FROM character_gifts WHERE item_guid = '%u'", pItem->GetGUIDLow());
         if (result)
         {
             Field *fields = result->Fetch();
@@ -227,7 +227,6 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
             pItem->SetEntry(entry);
             pItem->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
             pItem->SetState(ITEM_CHANGED, pUser);
-            delete result;
         }
         else
         {

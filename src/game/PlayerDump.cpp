@@ -198,7 +198,7 @@ bool changetokGuid(std::string &str, int n, std::map<uint32, uint32> &guidMap, u
     return changetoknth(str, n, chritem, false, nonzero);
 }
 
-std::string CreateDumpString(char const* tableName, QueryResult *result)
+std::string CreateDumpString(char const* tableName, QueryResult_AutoPtr result)
 {
     if(!tableName || !result) return "";
     std::ostringstream ss;
@@ -248,7 +248,7 @@ std::string PlayerDumpWriter::GenerateWhereStr(char const* field, GUIDs const& g
     return wherestr.str();
 }
 
-void StoreGUID(QueryResult *result,uint32 field,std::set<uint32>& guids)
+void StoreGUID(QueryResult_AutoPtr result,uint32 field,std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
     uint32 guid = fields[field].GetUInt32();
@@ -256,7 +256,7 @@ void StoreGUID(QueryResult *result,uint32 field,std::set<uint32>& guids)
         guids.insert(guid);
 }
 
-void StoreGUID(QueryResult *result,uint32 data,uint32 field, std::set<uint32>& guids)
+void StoreGUID(QueryResult_AutoPtr result,uint32 data,uint32 field, std::set<uint32>& guids)
 {
     Field* fields = result->Fetch();
     std::string dataStr = fields[data].GetCppString();
@@ -301,7 +301,7 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         else                                                // not set case, get single guid string
             wherestr = GenerateWhereStr(fieldname,guid);
 
-        QueryResult *result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT * FROM %s WHERE %s", tableFrom, wherestr.c_str());
         if(!result)
             return;
 
@@ -329,8 +329,6 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
             dump += "\n";
         }
         while (result->NextRow());
-
-        delete result;
     }
     while(guids && guids_itr != guids->end());              // not set case iterate single time, set case iterate for all guids
 }
@@ -400,13 +398,12 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 {
     // check character count
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters WHERE account = '%d'", account);
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters WHERE account = '%d'", account);
         uint8 charcount = 0;
         if (result)
         {
             Field *fields=result->Fetch();
             charcount = fields[0].GetUInt8();
-            delete result;
 
             if (charcount >= 10)
                 return DUMP_TOO_MANY_CHARS;
@@ -417,7 +414,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     if (!fin)
         return DUMP_FILE_OPEN_ERROR;
 
-    QueryResult * result = NULL;
+    QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL);
     char newguid[20], chraccount[20], newpetid[20], currpetid[20], lastpetid[20];
 
     // make sure the same guid doesn't already exist and is safe to use
@@ -426,10 +423,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     {
         result = CharacterDatabase.PQuery("SELECT * FROM characters WHERE guid = '%d'", guid);
         if (result)
-        {
             guid = objmgr.m_hiCharGuid;                     // use first free if exists
-            delete result;
-        }
         else incHighest = false;
     }
     else
@@ -444,10 +438,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         CharacterDatabase.escape_string(name);              // for safe, we use name only for sql quearies anyway
         result = CharacterDatabase.PQuery("SELECT * FROM characters WHERE name = '%s'", name.c_str());
         if (result)
-        {
             name = "";                                      // use the one from the dump
-            delete result;
-        }
     }
     else
         name = "";
@@ -557,8 +548,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     result = CharacterDatabase.PQuery("SELECT * FROM characters WHERE name = '%s'", name.c_str());
                     if (result)
                     {
-                        delete result;
-
                         if(!changenth(line, 37, "1"))       // rename on login: `at_login` field 37 in raw field list
                             ROLLBACK(DUMP_FILE_BROKEN);
                     }

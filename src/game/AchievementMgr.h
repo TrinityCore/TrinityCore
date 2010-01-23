@@ -232,7 +232,7 @@ class AchievementMgr
 
         void Reset();
         static void DeleteFromDB(uint32 lowguid);
-        void LoadFromDB(QueryResult *achievementResult, QueryResult *criteriaResult);
+        void LoadFromDB(QueryResult_AutoPtr achievementResult, QueryResult_AutoPtr criteriaResult);
         void SaveToDB();
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1=0, uint32 miscvalue2=0);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1=0, uint32 miscvalue2=0, Unit *unit=NULL, uint32 time=0);

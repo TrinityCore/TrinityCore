@@ -1645,7 +1645,7 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
     uint32 count = 0;
 
     //                                                0   1                 2                 3      4      5                6              7             8
-    QueryResult *result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO FROM battleground_template");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO FROM battleground_template");
 
     if (!result)
     {
@@ -1747,8 +1747,6 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         ++count;
     } while (result->NextRow());
 
-    delete result;
-
     sLog.outString();
     sLog.outString( ">> Loaded %u battlegrounds", count );
 }
@@ -1758,7 +1756,7 @@ void BattleGroundMgr::InitAutomaticArenaPointDistribution()
     if (sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
     {
         sLog.outDebug("Initializing Automatic Arena Point Distribution");
-        QueryResult * result = CharacterDatabase.Query("SELECT NextArenaPointDistributionTime FROM saved_variables");
+        QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT NextArenaPointDistributionTime FROM saved_variables");
         if (!result)
         {
             sLog.outDebug("Battleground: Next arena point distribution time not found in SavedVariables, reseting it now.");
@@ -1766,10 +1764,7 @@ void BattleGroundMgr::InitAutomaticArenaPointDistribution()
             CharacterDatabase.PExecute("INSERT INTO saved_variables (NextArenaPointDistributionTime) VALUES ('"UI64FMTD"')", m_NextAutoDistributionTime);
         }
         else
-        {
             m_NextAutoDistributionTime = time_t((*result)[0].GetUInt64());
-            delete result;
-        }
         sLog.outDebug("Automatic Arena Point Distribution initialized.");
     }
 }
@@ -2054,7 +2049,7 @@ void BattleGroundMgr::LoadBattleMastersEntry()
 {
     mBattleMastersMap.clear();                              // need for reload case
 
-    QueryResult *result = WorldDatabase.Query( "SELECT entry,bg_template FROM battlemaster_entry" );
+    QueryResult_AutoPtr result = WorldDatabase.Query( "SELECT entry,bg_template FROM battlemaster_entry" );
 
     uint32 count = 0;
 
@@ -2088,8 +2083,6 @@ void BattleGroundMgr::LoadBattleMastersEntry()
         mBattleMastersMap[entry] = BattleGroundTypeId(bgTypeId);
 
     } while( result->NextRow() );
-
-    delete result;
 
     sLog.outString();
     sLog.outString( ">> Loaded %u battlemaster entries", count );

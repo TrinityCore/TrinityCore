@@ -537,7 +537,7 @@ void WorldSession::HandleAddFriendOpcode( WorldPacket & recv_data )
     CharacterDatabase.AsyncPQuery(&WorldSession::HandleAddFriendOpcodeCallBack, GetAccountId(), friendNote, "SELECT guid, race, account FROM characters WHERE name = '%s'", friendName.c_str());
 }
 
-void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 accountId, std::string friendNote)
+void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, uint32 accountId, std::string friendNote)
 {
     uint64 friendGuid;
     uint64 friendAcctid;
@@ -557,8 +557,6 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 acc
         friendGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
         team = Player::TeamForRace((*result)[1].GetUInt8());
         friendAcctid = (*result)[2].GetUInt32();
-
-        delete result;
 
         if ( session->GetSecurity() >= SEC_MODERATOR || sWorld.getConfig(CONFIG_ALLOW_GM_FRIEND) || accmgr.GetSecurity(friendAcctid) < SEC_MODERATOR)
         {
@@ -627,7 +625,7 @@ void WorldSession::HandleAddIgnoreOpcode( WorldPacket & recv_data )
     CharacterDatabase.AsyncPQuery(&WorldSession::HandleAddIgnoreOpcodeCallBack, GetAccountId(), "SELECT guid FROM characters WHERE name = '%s'", IgnoreName.c_str());
 }
 
-void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 accountId)
+void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult_AutoPtr result, uint32 accountId)
 {
     uint64 IgnoreGuid;
     FriendsResult ignoreResult;
@@ -643,8 +641,6 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 acc
     if(result)
     {
         IgnoreGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-
-        delete result;
 
         if(IgnoreGuid)
         {
@@ -1306,7 +1302,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 
     uint32 accid = plr->GetSession()->GetAccountId();
 
-    QueryResult *result = loginDatabase.PQuery("SELECT username,email,last_ip FROM account WHERE id=%u", accid);
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT username,email,last_ip FROM account WHERE id=%u", accid);
     if(!result)
     {
         SendNotification(LANG_ACCOUNT_FOR_PLAYER_NOT_FOUND, charname.c_str());
@@ -1329,8 +1325,6 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
     WorldPacket data(SMSG_WHOIS, msg.size()+1);
     data << msg;
     _player->GetSession()->SendPacket(&data);
-
-    delete result;
 
     sLog.outDebug("Received whois command from player %s for character %s", GetPlayer()->GetName(), charname.c_str());
 }
