@@ -1814,10 +1814,8 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                         TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, GridTypeMapContainer > grid_object_checker(checker);
                         TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyUnfriendlyVisibleUnitInObjectRangeCheck>, WorldTypeMapContainer > world_object_checker(checker);
 
-                        CellLock<GridReadGuard> cell_lock(cell, p);
-
-                        cell_lock->Visit(cell_lock, grid_object_checker,  *GetBase()->GetOwner()->GetMap(), *caster, radius);
-                        cell_lock->Visit(cell_lock, world_object_checker, *GetBase()->GetOwner()->GetMap(), *caster, radius);
+                        cell.Visit(p, grid_object_checker,  *GetBase()->GetOwner()->GetMap(), *caster, radius);
+                        cell.Visit(p, world_object_checker, *GetBase()->GetOwner()->GetMap(), *caster, radius);
                     }
 
                     if(targets.empty())

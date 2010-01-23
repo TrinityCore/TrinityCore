@@ -161,8 +161,7 @@ struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
-            CellLock<GridReadGuard> cell_lock(cell, pair);
-            cell_lock->Visit(cell_lock, cSearcher, *(m_creature->GetMap()));
+            cell.Visit(pair, cSearcher, *(m_creature->GetMap()));
         }
 
         if (!templist.size())

@@ -101,12 +101,12 @@ namespace Trinity
 
     struct TRINITY_DLL_DECL DelayedUnitRelocation
     {
-        typedef GridReadGuard ReadGuard;
         Map &i_map;
-        CellLock<ReadGuard> &i_lock;
+        const Cell& i_cell;
+        const CellPair& i_cellPair;
         const float i_radius;
-        DelayedUnitRelocation(CellLock<ReadGuard> &lock, Map &map, float radius) :
-        i_lock(lock), i_map(map), i_radius(radius) {}
+        DelayedUnitRelocation(const Cell& cell, const CellPair& cellp, Map &map, float radius) :
+        i_cell(cell), i_cellPair(cellp), i_map(map), i_radius(radius) {}
         template<class T> void Visit(GridRefManager<T> &) {}
         void Visit(CreatureMapType &m) { Notify<Creature,CreatureRelocationNotifier >(m); }
         void Visit(PlayerMapType   &m) { Notify<Player,PlayerRelocationNotifier >(m); }

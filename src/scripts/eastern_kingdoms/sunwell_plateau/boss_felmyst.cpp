@@ -530,8 +530,7 @@ struct TRINITY_DLL_DECL boss_felmystAI : public ScriptedAI
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
 
-            CellLock<GridReadGuard> cell_lock(cell, pair);
-            cell_lock->Visit(cell_lock, cSearcher, *(m_creature->GetMap()));
+            cell.Visit(pair, cSearcher, *(m_creature->GetMap()));
         }
 
         for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
