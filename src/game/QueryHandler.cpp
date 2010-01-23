@@ -77,17 +77,14 @@ void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
         GUID_LOPART(guid));
 }
 
-void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32 accountId)
+void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult_AutoPtr result, uint32 accountId)
 {
     if(!result)
         return;
 
     WorldSession * session = sWorld.FindSession(accountId);
     if(!session)
-    {
-        delete result;
         return;
-    }
 
     Field *fields = result->Fetch();
     uint32 guid      = fields[0].GetUInt32();
@@ -122,7 +119,6 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32
         data << uint8(0);                                   // is not declined
 
     session->SendPacket( &data );
-    delete result;
 }
 
 void WorldSession::HandleNameQueryOpcode( WorldPacket & recv_data )

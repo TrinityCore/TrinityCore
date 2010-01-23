@@ -1580,7 +1580,6 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
         SpellTimer = 0;
 
         CreatureInfo const *Info = m_creature->GetCreatureInfo();
-        CreatureBaseStats const *stats = ((CreatureBaseStats*)m_creature)->GetBaseStats(m_creature->getLevel(), Info->unit_class);
 
         if (Info->Entry == C_VIPER)
             IsViper = true;
@@ -1589,9 +1588,8 @@ struct TRINITY_DLL_DECL npc_snake_trap_serpentsAI : public ScriptedAI
 
         //Add delta to make them not all hit the same time
         uint32 delta = (rand() % 7) * 100;
-        float attackpower = stats->GenerateAttackPower(Info);
         m_creature->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, Info->baseattacktime + delta);
-        m_creature->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , attackpower);
+        m_creature->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , Info->attackpower);
     }
 
     //Redefined for random target selection:

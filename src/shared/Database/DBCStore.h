@@ -83,7 +83,7 @@ class DBCStorage
             uint32 sqlRecordCount = 0;
             uint32 sqlHighestIndex = 0;
             Field *fields = NULL;
-            QueryResult *result = NULL;
+            QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL);
             // Load data from sql
             if (sql)
             {
@@ -188,7 +188,6 @@ class DBCStorage
                                         break;
                                     case FT_STRING:
                                         sLog.outError("Unsupported data type in table '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
-                                        delete result;
                                         return false;
                                     case FT_SORT:
                                         break;
@@ -201,14 +200,12 @@ class DBCStorage
                             else
                             {
                                 sLog.outError("Incorrect sql format string '%s' at char %d", sql->sqlTableName.c_str(), columnNumber);
-                                delete result;
                                 return false;
                             }
                         }
                         if (sqlColumnNumber != (result->GetFieldCount()-1))
                         {
                             sLog.outError("SQL and DBC format strings are not matching for table: '%s'", sql->sqlTableName.c_str());
-                            delete result;
                             return false;
                         }
 
@@ -216,7 +213,6 @@ class DBCStorage
                         ++rowIndex;
                     }while (result->NextRow());
                 }
-                delete result;
             }
 
             // error in dbc file at loading if NULL

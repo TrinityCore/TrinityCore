@@ -213,8 +213,8 @@ struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
         float dx, dy;
         for (int i(0); i < 40; ++i)
         {
-            dx =(rand()%(area_dx))-(area_dx/2);
-            dy =(rand()%(area_dy))-(area_dy/2);
+            dx = irand(-area_dx/2, area_dx/2);
+            dy = irand(-area_dy/2, area_dy/2);
 
             Creature* bomb = DoSpawnCreature(MOB_FIRE_BOMB, dx, dy, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
             if (bomb) FireBombGUIDs[i] = bomb->GetGUID();

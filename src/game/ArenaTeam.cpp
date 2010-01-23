@@ -116,13 +116,12 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     else
     {
         //                                                     0     1
-        QueryResult *result = CharacterDatabase.PQuery("SELECT name, class FROM characters WHERE guid='%u'", GUID_LOPART(PlayerGuid));
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name, class FROM characters WHERE guid='%u'", GUID_LOPART(PlayerGuid));
         if(!result)
             return false;
 
         plName = (*result)[0].GetCppString();
         plClass = (*result)[1].GetUInt8();
-        delete result;
 
         // check if player already in arenateam of that size
         if(Player::GetArenaTeamIdFromDB(PlayerGuid, GetType()) != 0)
@@ -175,7 +174,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
 
 bool ArenaTeam::LoadArenaTeamFromDB(uint32 ArenaTeamId)
 {
-    QueryResult *result = CharacterDatabase.PQuery("SELECT arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,EmblemColor,BorderStyle,BorderColor FROM arena_team WHERE arenateamid = '%u'", ArenaTeamId);
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,EmblemColor,BorderStyle,BorderColor FROM arena_team WHERE arenateamid = '%u'", ArenaTeamId);
 
     if(!result)
         return false;
@@ -191,8 +190,6 @@ bool ArenaTeam::LoadArenaTeamFromDB(uint32 ArenaTeamId)
     m_EmblemColor = fields[6].GetUInt32();
     m_BorderStyle = fields[7].GetUInt32();
     m_BorderColor = fields[8].GetUInt32();
-
-    delete result;
 
     // only load here, so additional checks can be made
     LoadStatsFromDB(ArenaTeamId);
@@ -215,7 +212,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(uint32 ArenaTeamId)
 void ArenaTeam::LoadStatsFromDB(uint32 ArenaTeamId)
 {
     //                                                     0      1     2    3      4     5
-    QueryResult *result = CharacterDatabase.PQuery("SELECT rating,games,wins,played,wins2,rank FROM arena_team_stats WHERE arenateamid = '%u'", ArenaTeamId);
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT rating,games,wins,played,wins2,rank FROM arena_team_stats WHERE arenateamid = '%u'", ArenaTeamId);
 
     if(!result)
         return;
@@ -228,14 +225,12 @@ void ArenaTeam::LoadStatsFromDB(uint32 ArenaTeamId)
     m_stats.games_season  = fields[3].GetUInt32();
     m_stats.wins_season   = fields[4].GetUInt32();
     m_stats.rank          = fields[5].GetUInt32();
-
-    delete result;
 }
 
 void ArenaTeam::LoadMembersFromDB(uint32 ArenaTeamId)
 {
     //                                                           0                1           2         3             4        5        6    7
-    QueryResult *result = CharacterDatabase.PQuery("SELECT member.guid,played_week,wons_week,played_season,wons_season,personal_rating,name,class "
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT member.guid,played_week,wons_week,played_season,wons_season,personal_rating,name,class "
                                                    "FROM arena_team_member member "
                                                    "INNER JOIN characters chars on member.guid = chars.guid "
                                                    "WHERE member.arenateamid = '%u'", ArenaTeamId);
@@ -256,7 +251,6 @@ void ArenaTeam::LoadMembersFromDB(uint32 ArenaTeamId)
         newmember.Class         = fields[7].GetUInt8();
         m_members.push_back(newmember);
     }while( result->NextRow() );
-    delete result;
 }
 
 void ArenaTeam::SetCaptain(const uint64& guid)

@@ -71,7 +71,7 @@ GameObject::~GameObject()
     //    CleanupsBeforeDelete();
 }
 
-void GameObject::CleanupsBeforeDelete()
+void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 {
     if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     {
