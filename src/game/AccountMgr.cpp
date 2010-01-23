@@ -59,10 +59,9 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
 
 AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
     if(!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
-    delete result;
 
     result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account='%d'",accid);
     if (result)
@@ -83,8 +82,6 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
 
             Player::DeleteFromDB(guid, accid, false);       // no need to update realm characters
         } while (result->NextRow());
-
-        delete result;
     }
 
     // table realm specific but common for all characters of account for realm
@@ -108,10 +105,9 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
 
 AccountOpResult AccountMgr::ChangeUsername(uint32 accid, std::string new_uname, std::string new_passwd)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accid);
     if(!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
-    delete result;
 
     if(utf8length(new_uname) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;
@@ -156,24 +152,22 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accid, std::string new_passwd)
 uint32 AccountMgr::GetId(std::string username)
 {
     loginDatabase.escape_string(username);
-    QueryResult *result = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
     if(!result)
         return 0;
     else
     {
         uint32 id = (*result)[0].GetUInt32();
-        delete result;
         return id;
     }
 }
 
 uint32 AccountMgr::GetSecurity(uint32 acc_id)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u'", acc_id);
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u'", acc_id);
     if(result)
     {
         uint32 sec = (*result)[0].GetUInt32();
-        delete result;
         return sec;
     }
 
@@ -182,13 +176,12 @@ uint32 AccountMgr::GetSecurity(uint32 acc_id)
 
 uint32 AccountMgr::GetSecurity(uint32 acc_id, int32 realm_id)
 {
-    QueryResult *result = (realm_id == -1)
+    QueryResult_AutoPtr result = (realm_id == -1)
         ? loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND RealmID = '%d'", acc_id, realm_id)
         : loginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", acc_id, realm_id);
     if(result)
     {
         uint32 sec = (*result)[0].GetUInt32();
-        delete result;
         return sec;
     }
 
@@ -197,11 +190,10 @@ uint32 AccountMgr::GetSecurity(uint32 acc_id, int32 realm_id)
 
 bool AccountMgr::GetName(uint32 acc_id, std::string &name)
 {
-    QueryResult *result = loginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", acc_id);
     if(result)
     {
         name = (*result)[0].GetCppString();
-        delete result;
         return true;
     }
 
@@ -217,12 +209,9 @@ bool AccountMgr::CheckPassword(uint32 accid, std::string passwd)
     normalizeString(username);
     normalizeString(passwd);
 
-    QueryResult *result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d' AND sha_pass_hash='%s'", accid, CalculateShaPassHash(username, passwd).c_str());
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d' AND sha_pass_hash='%s'", accid, CalculateShaPassHash(username, passwd).c_str());
     if (result)
-    {
-        delete result;
         return true;
-    }
 
     return false;
 }

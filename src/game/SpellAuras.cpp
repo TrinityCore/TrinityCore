@@ -332,7 +332,7 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
 
 Aura::Aura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID) :
 m_spellProto(spellproto), m_owner(owner), m_casterGuid(casterGUID ? casterGUID : caster->GetGUID()), m_castItemGuid(castItem ? castItem->GetGUID() : 0),
-    m_applyTime(time(NULL)), m_timeCla(0), m_isSingleTarget(false),
+    m_applyTime(time(NULL)), m_timeCla(0), m_isSingleTarget(false), m_updateTargetMapInterval(0),
     m_procCharges(0), m_stackAmount(1), m_isRemoved(false), m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel)
 {
     if(m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
@@ -453,6 +453,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
 
 void Aura::UpdateTargetMap(Unit * caster)
 {
+    m_updateTargetMapInterval = UPDATE_TARGET_MAP_INTERVAL;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if(m_effects[i] && !IsRemoved())
             UpdateTargetMapForEffect(caster, i);
@@ -474,7 +475,10 @@ void Aura::UpdateOwner(uint32 diff, WorldObject * owner)
 
     Update(diff, caster);
 
-    UpdateTargetMap(caster);
+    if (m_updateTargetMapInterval <= diff)
+        UpdateTargetMap(caster);
+    else
+        m_updateTargetMapInterval -= diff;
 
     // update aura effects
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
@@ -1126,6 +1130,21 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 }
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
+                // Blood of the North
+                // Reaping
+                // Death Rune Mastery
+                if (GetSpellProto()->SpellIconID == 3041 || GetSpellProto()->SpellIconID == 22 || GetSpellProto()->SpellIconID == 2622)
+                {
+                    if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
+                        break;
+                    if (target->GetTypeId() != TYPEID_PLAYER)
+                        break;
+                    if(((Player*)target)->getClass() != CLASS_DEATH_KNIGHT)
+                        break;
+
+                     // aura removed - remove death runes
+                    ((Player*)target)->RemoveRunesByAuraEffect(GetEffect(0));
+                }
                 switch(GetId())
                 {
                     case 50514: // Summon Gargoyle

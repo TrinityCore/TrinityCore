@@ -459,7 +459,7 @@ void ReputationMgr::SetInactive(FactionState* faction, bool inactive)
     faction->Changed = true;
 }
 
-void ReputationMgr::LoadFromDB(QueryResult *result)
+void ReputationMgr::LoadFromDB(QueryResult_AutoPtr result)
 {
     // Set initial reputations (so everything is nifty before DB data load)
     Initialize();
@@ -513,8 +513,6 @@ void ReputationMgr::LoadFromDB(QueryResult *result)
             }
         }
         while( result->NextRow() );
-
-        delete result;
     }
 }
 

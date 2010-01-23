@@ -32,7 +32,7 @@
 #include "ObjectDefines.h"
 #include "Corpse.h"
 
-static void CorpsesEraseCallBack(QueryResult *result, bool bones)
+static void CorpsesEraseCallBack(QueryResult_AutoPtr result, bool bones)
 {
     if(!result)
         return;
@@ -68,8 +68,6 @@ static void CorpsesEraseCallBack(QueryResult *result, bool bones)
             CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%u'",guidlow);
         }
     } while (result->NextRow());
-
-    delete result;
 }
 
 /// Handle periodic erase of corpses and bones

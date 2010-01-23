@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "AddonMgr.h"
+#include "QueryResult.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -162,7 +163,7 @@ class TRINITY_DLL_SPEC WorldSession
         //void SendTestCreatureQueryOpcode( uint32 entry, uint64 guid, uint32 testvalue );
         void SendNameQueryOpcode(Player* p);
         void SendNameQueryOpcodeFromDB(uint64 guid);
-        static void SendNameQueryOpcodeFromDBCallBack(QueryResult *result, uint32 accountId);
+        static void SendNameQueryOpcodeFromDBCallBack(QueryResult_AutoPtr result, uint32 accountId);
 
         void SendTrainerList( uint64 guid );
         void SendTrainerList( uint64 guid, const std::string& strTitle );
@@ -191,7 +192,7 @@ class TRINITY_DLL_SPEC WorldSession
         void SetAccountData(AccountDataType type, time_t time_, std::string data);
         void SendAccountDataTimes(uint32 mask);
         void LoadGlobalAccountData();
-        void LoadAccountData(QueryResult* result, uint32 mask);
+        void LoadAccountData(QueryResult_AutoPtr result, uint32 mask);
         void LoadTutorialsData();
         void SendTutorialsData();
         void SaveTutorialsData();
@@ -269,7 +270,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleCharDeleteOpcode(WorldPacket& recvPacket);
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
-        void HandleCharEnum(QueryResult * result);
+        void HandleCharEnum(QueryResult_AutoPtr result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
 
         // played time
@@ -338,10 +339,10 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleEmoteOpcode(WorldPacket& recvPacket);
         void HandleContactListOpcode(WorldPacket& recvPacket);
         void HandleAddFriendOpcode(WorldPacket& recvPacket);
-        static void HandleAddFriendOpcodeCallBack(QueryResult *result, uint32 accountId, std::string friendNote);
+        static void HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, uint32 accountId, std::string friendNote);
         void HandleDelFriendOpcode(WorldPacket& recvPacket);
         void HandleAddIgnoreOpcode(WorldPacket& recvPacket);
-        static void HandleAddIgnoreOpcodeCallBack(QueryResult *result, uint32 accountId);
+        static void HandleAddIgnoreOpcodeCallBack(QueryResult_AutoPtr result, uint32 accountId);
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
         void HandleBugOpcode(WorldPacket& recvPacket);
@@ -610,7 +611,7 @@ class TRINITY_DLL_SPEC WorldSession
         void HandleSetActionBarToggles(WorldPacket& recv_data);
 
         void HandleCharRenameOpcode(WorldPacket& recv_data);
-        static void HandleChangePlayerNameOpcodeCallBack(QueryResult *result, uint32 accountId, std::string newname);
+        static void HandleChangePlayerNameOpcodeCallBack(QueryResult_AutoPtr result, uint32 accountId, std::string newname);
         void HandleSetPlayerDeclinedNames(WorldPacket& recv_data);
 
         void HandleTotemDestroyed(WorldPacket& recv_data);

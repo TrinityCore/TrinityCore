@@ -158,22 +158,22 @@ bool DatabasePostgre::_Query(const char *sql, PGresult** pResult, uint64* pRowCo
     return true;
 }
 
-QueryResult* DatabasePostgre::Query(const char *sql)
+QueryResult_AutoPtr DatabasePostgre::Query(const char *sql)
 {
     if (!mPGconn)
-        return 0;
+        return QueryResult_AutoPtr(NULL);
 
     PGresult* result = NULL;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if(!_Query(sql,&result,&rowCount,&fieldCount))
-        return NULL;
+        return QueryResult_AutoPtr(NULL);
 
     QueryResultPostgre * queryResult = new QueryResultPostgre(result, rowCount, fieldCount);
     queryResult->NextRow();
 
-    return queryResult;
+    return QueryResult_AutoPtr(queryResult);
 }
 
 QueryNamedResult* DatabasePostgre::QueryNamed(const char *sql)

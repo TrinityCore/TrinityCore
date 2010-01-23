@@ -535,7 +535,7 @@ void AchievementMgr::SaveToDB()
     }
 }
 
-void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *criteriaResult)
+void AchievementMgr::LoadFromDB(QueryResult_AutoPtr achievementResult, QueryResult_AutoPtr criteriaResult)
 {
     if(achievementResult)
     {
@@ -553,7 +553,6 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
             ca.date = time_t(fields[1].GetUInt64());
             ca.changed = false;
         } while(achievementResult->NextRow());
-        delete achievementResult;
     }
 
     if(criteriaResult)
@@ -583,7 +582,6 @@ void AchievementMgr::LoadFromDB(QueryResult *achievementResult, QueryResult *cri
             progress.date    = date;
             progress.changed = false;
         } while(criteriaResult->NextRow());
-        delete criteriaResult;
     }
 
 }
@@ -1937,7 +1935,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 {
     m_criteriaDataMap.clear();                              // need for reload case
 
-    QueryResult *result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2 FROM achievement_criteria_data");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT criteria_id, type, value1, value2 FROM achievement_criteria_data");
 
     if(!result)
     {
@@ -1987,8 +1985,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         // counting data by and data types
         ++count;
     } while(result->NextRow());
-
-    delete result;
 
     // post loading checks
     for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
@@ -2061,7 +2057,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
 {
-    QueryResult *result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
     if(!result)
     {
@@ -2091,8 +2087,6 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         m_allCompletedAchievements.insert(achievement_id);
     } while(result->NextRow());
 
-    delete result;
-
     sLog.outString();
     sLog.outString(">> Loaded %lu realm completed achievements.",(unsigned long)m_allCompletedAchievements.size());
 }
@@ -2102,7 +2096,7 @@ void AchievementGlobalMgr::LoadRewards()
     m_achievementRewards.clear();                           // need for reload case
 
     //                                                0      1        2        3     4       5        6
-    QueryResult *result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, title_A, title_H, item, sender, subject, text FROM achievement_reward");
 
     if(!result)
     {
@@ -2203,8 +2197,6 @@ void AchievementGlobalMgr::LoadRewards()
 
     } while (result->NextRow());
 
-    delete result;
-
     sLog.outString();
     sLog.outString( ">> Loaded %u achievement rewards", count );
 }
@@ -2213,7 +2205,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 {
     m_achievementRewardLocales.clear();                       // need for reload case
 
-    QueryResult *result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry,subject_loc1,text_loc1,subject_loc2,text_loc2,subject_loc3,text_loc3,subject_loc4,text_loc4,subject_loc5,text_loc5,subject_loc6,text_loc6,subject_loc7,text_loc7,subject_loc8,text_loc8 FROM locales_achievement_reward");
 
     if (!result)
     {
@@ -2272,8 +2264,6 @@ void AchievementGlobalMgr::LoadRewardLocales()
             }
         }
     } while (result->NextRow());
-
-    delete result;
 
     sLog.outString();
     sLog.outString( ">> Loaded %lu achievement reward locale strings", (unsigned long)m_achievementRewardLocales.size() );
