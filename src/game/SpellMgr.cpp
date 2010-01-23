@@ -546,8 +546,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags[0] & 0x10000)
-                return SPELL_SPECIFIC_BATTLE_SHOUT;
             if (spellInfo->SpellFamilyFlags[1] & 0x000080)
                 return SPELL_SPECIFIC_POSITIVE_SHOUT;
             if (spellInfo->Id == 12292) // Death Wish
@@ -600,9 +598,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
         {
             if (IsSealSpell(spellInfo))
                 return SPELL_SPECIFIC_SEAL;
-
-            if (spellInfo->SpellFamilyFlags[0] & 0x00000002)
-                return SPELL_SPECIFIC_BLESSING_OF_MIGHT;
 
             if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
                 return SPELL_SPECIFIC_BLESSING;
@@ -676,17 +671,11 @@ bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific s
         case SPELL_SPECIFIC_STING:
         case SPELL_SPECIFIC_CURSE:
         case SPELL_SPECIFIC_ASPECT:
-        case SPELL_SPECIFIC_BATTLE_SHOUT:
         case SPELL_SPECIFIC_POSITIVE_SHOUT:
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
-            return spellSpec1==spellSpec2;
-        case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
-            return spellSpec2==SPELL_SPECIFIC_BLESSING
-            || spellSpec2 == SPELL_SPECIFIC_BLESSING_OF_MIGHT;
         case SPELL_SPECIFIC_BLESSING:
-            return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT
-            || spellSpec2==SPELL_SPECIFIC_BLESSING;
+            return spellSpec1==spellSpec2;
         default:
             return false;
     }
@@ -709,6 +698,7 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
         case SPELL_SPECIFIC_WARRIOR_ENRAGE:
         case SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE:
         case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
+        case SPELL_SPECIFIC_POSITIVE_SHOUT:
             return spellSpec1==spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2==SPELL_SPECIFIC_FOOD
@@ -730,15 +720,6 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
             return spellSpec2==SPELL_SPECIFIC_BATTLE_ELIXIR
                 || spellSpec2==SPELL_SPECIFIC_GUARDIAN_ELIXIR
                 || spellSpec2==SPELL_SPECIFIC_FLASK_ELIXIR;
-        case SPELL_SPECIFIC_BLESSING_OF_MIGHT:
-            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT;
-        case SPELL_SPECIFIC_BATTLE_SHOUT:
-            return spellSpec2==SPELL_SPECIFIC_BLESSING_OF_MIGHT
-                || spellSpec2==SPELL_SPECIFIC_POSITIVE_SHOUT
-                || spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT;
-        case SPELL_SPECIFIC_POSITIVE_SHOUT:
-            return spellSpec2==SPELL_SPECIFIC_BATTLE_SHOUT
-            || spellSpec2==SPELL_SPECIFIC_POSITIVE_SHOUT;
         default:
             return false;
     }
@@ -1521,6 +1502,54 @@ void SpellMgr::LoadSpellElixirs()
 
     sLog.outString();
     sLog.outString( ">> Loaded %u spell elixir definitions", count );
+}
+
+void SpellMgr::LoadSpellStackMasks()
+{
+    mSpellStackMasks.clear();                                  // need for reload case
+
+    uint32 count = 0;
+
+    //                                                0      1
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, mask FROM spell_stack_masks");
+    if( !result )
+    {
+
+        barGoLink bar( 1 );
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString( ">> Loaded %u spell stacking masks definitions", count );
+        return;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    do
+    {
+        Field *fields = result->Fetch();
+
+        bar.step();
+
+        uint32 id = fields[0].GetUInt32();
+        uint8 mask = fields[1].GetUInt32();
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(id);
+
+        if (!spellInfo)
+        {
+            sLog.outErrorDb("Spell %u listed in `spell_stack_masks` does not exist", id);
+            continue;
+        }
+
+        mSpellStackMasks[id] = mask;
+
+        ++count;
+    } while( result->NextRow() );
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u spell stacking masks definitions", count );
 }
 
 void SpellMgr::LoadSpellThreats()
@@ -2997,6 +3026,13 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
     if (spellSpec_1 && spellSpec_2)
         if (IsSingleFromSpellSpecificPerTarget(spellSpec_1, spellSpec_2)
             || sameCaster && IsSingleFromSpellSpecificPerCaster(spellSpec_1, spellSpec_2))
+            return false;
+
+    // Stacking Checks by family masks
+    uint32 spellSpecMask_1 = GetSpellStackMask(spellInfo_1->Id);
+    uint32 spellSpecMask_2 = GetSpellStackMask(spellInfo_2->Id);
+    if (spellSpecMask_1 && spellSpecMask_2)
+        if ((spellSpecMask_1 & spellSpecMask_2) != 0)
             return false;
 
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
