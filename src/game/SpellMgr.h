@@ -642,6 +642,7 @@ typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
 typedef std::map<uint32, uint8> SpellElixirMap;
 typedef std::map<uint32, uint16> SpellThreatMap;
+typedef std::map<uint32, uint32> SpellStackMaskMap;
 
 // Spell script target related declarations (accessed using SpellMgr functions)
 enum SpellScriptTargetType
@@ -880,6 +881,25 @@ class SpellMgr
                 return SPELL_SPECIFIC_WELL_FED;
             else
                 return SPELL_SPECIFIC_NORMAL;
+        }
+
+        // Used for stacking in spellmgr, and possibly in cancast checks
+        SpellStackMaskMap const& GetSpellStackMasksMap() const { return mSpellStackMasks; }
+        uint32 GetSpellStackMask(uint32 spellid) const
+        {
+            SpellStackMaskMap::const_iterator itr = mSpellStackMasks.find(spellid);
+            if(itr!=mSpellStackMasks.end())
+                return itr->second;
+
+            // Not found, try lookup for 1 spell rank if exist
+            if (uint32 rank_1 = GetFirstSpellInChain(spellid))
+            {
+                SpellStackMaskMap::const_iterator itr2 = mSpellStackMasks.find(rank_1);
+                if(itr2 != mSpellStackMasks.end())
+                    return itr2->second;
+            }
+
+            return 0x0;
         }
 
         uint16 GetSpellThreat(uint32 spellid) const
@@ -1206,6 +1226,7 @@ class SpellMgr
         void LoadPetLevelupSpellMap();
         void LoadPetDefaultSpells();
         void LoadSpellAreas();
+        void LoadSpellStackMasks();
 
     private:
         bool _isPositiveSpell(uint32 spellId, bool deep) const;
@@ -1226,6 +1247,7 @@ class SpellMgr
         SpellPetAuraMap     mSpellPetAuraMap;
         SpellCustomAttribute  mSpellCustomAttr;
         SpellLinkedMap      mSpellLinkedMap;
+        SpellStackMaskMap   mSpellStackMasks;
         SpellEnchantProcEventMap     mSpellEnchantProcEventMap;
         EnchantCustomAttribute  mEnchantCustomAttr;
         PetLevelupSpellMap  mPetLevelupSpellMap;
