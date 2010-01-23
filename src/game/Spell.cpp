@@ -2936,25 +2936,24 @@ void Spell::cast(bool skipCheck)
 
     // CAST SPELL
     SendSpellCooldown();
-    //SendCastResult(castResult);
-    SendSpellGo();                                          // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
 
-    if(m_customAttr & SPELL_ATTR_CU_CHARGE)
+    for (uint32 i = 0; i < 3; ++i)
     {
-        for (uint32 i = 0; i < 3; ++i)
+        switch(m_spellInfo->Effect[i])
         {
-            switch(m_spellInfo->Effect[i])
-            {
-                case SPELL_EFFECT_CHARGE:
-                case SPELL_EFFECT_JUMP:
-                case SPELL_EFFECT_JUMP2:
-                case SPELL_EFFECT_LEAP_BACK:
-                    HandleEffects(NULL,NULL,NULL,i);
-                    m_effectMask |= (1<<i);
-                    break;
-            }
+            case SPELL_EFFECT_CHARGE:
+            case SPELL_EFFECT_JUMP:
+            case SPELL_EFFECT_JUMP2:
+            case SPELL_EFFECT_LEAP_BACK:
+            case SPELL_EFFECT_ACTIVATE_RUNE:
+                HandleEffects(NULL,NULL,NULL,i);
+                m_effectMask |= (1<<i);
+                break;
         }
     }
+
+    // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
+    SendSpellGo();                                          
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo) || m_spellInfo->Id == 14157)
@@ -3495,7 +3494,7 @@ void Spell::SendSpellStart()
 
     //sLog.outDebug("Sending SMSG_SPELL_START id=%u", m_spellInfo->Id);
 
-    uint32 castFlags = CAST_FLAG_UNKNOWN1;
+    uint32 castFlags = CAST_FLAG_UNKNOWN_2;
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
@@ -3504,7 +3503,7 @@ void Spell::SendSpellStart()
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
     if(m_spellInfo->runeCostID && m_spellInfo->powerType == POWER_RUNE)
-        castFlags |= CAST_FLAG_UNKNOWN10;
+        castFlags |= CAST_FLAG_UNKNOWN_19;
 
     WorldPacket data(SMSG_SPELL_START, (8+8+4+4+2));
     if(m_CastItem)
@@ -3526,7 +3525,7 @@ void Spell::SendSpellStart()
     if ( castFlags & CAST_FLAG_AMMO )
         WriteAmmoToPacket(&data);
 
-    if ( castFlags & CAST_FLAG_UNKNOWN21 )
+    if ( castFlags & CAST_FLAG_UNKNOWN_23 )
     {
         data << uint32(0);
         data << uint32(0);
@@ -3543,11 +3542,11 @@ void Spell::SendSpellGo()
 
     //sLog.outDebug("Sending SMSG_SPELL_GO id=%u", m_spellInfo->Id);
 
-    uint32 castFlags = CAST_FLAG_UNKNOWN3;
+    uint32 castFlags = CAST_FLAG_UNKNOWN_9;
 
     // triggered spells with spell visual != 0
     if((m_IsTriggeredSpell && !IsAutoRepeatRangedSpell(m_spellInfo)) || m_triggeredByAuraSpell)
-        castFlags |= CAST_FLAG_UNKNOWN0;
+        castFlags |= CAST_FLAG_PENDING;
 
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
@@ -3556,10 +3555,20 @@ void Spell::SendSpellGo()
         && m_spellInfo->powerType != POWER_HEALTH )
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
-    if((m_caster->GetTypeId() == TYPEID_PLAYER) && (m_caster->getClass() == CLASS_DEATH_KNIGHT) && m_spellInfo->runeCostID && m_spellInfo->powerType == POWER_RUNE)
+    if((m_caster->GetTypeId() == TYPEID_PLAYER) 
+        && (m_caster->getClass() == CLASS_DEATH_KNIGHT) 
+        && m_spellInfo->runeCostID 
+        && m_spellInfo->powerType == POWER_RUNE)
     {
-        castFlags |= CAST_FLAG_UNKNOWN10;                   // same as in SMSG_SPELL_START
-        castFlags |= CAST_FLAG_UNKNOWN7;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
+        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_UNKNOWN_9;                    // ??
+    }
+
+    if (IsSpellHaveEffect(m_spellInfo, SPELL_EFFECT_ACTIVATE_RUNE))
+    {
+        castFlags |= CAST_FLAG_RUNE_LIST;                    // rune cooldowns list
+        castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
     }
 
     WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
@@ -3582,7 +3591,7 @@ void Spell::SendSpellGo()
     if(castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->powerType));
 
-    if ( castFlags & CAST_FLAG_UNKNOWN7 )                   // rune cooldowns list
+    if ( castFlags & CAST_FLAG_RUNE_LIST )                   // rune cooldowns list
     {
         uint8 v1 = m_runesState;
         uint8 v2 = ((Player*)m_caster)->GetRunesState();
@@ -3597,7 +3606,7 @@ void Spell::SendSpellGo()
         }
     }
 
-    if ( castFlags & CAST_FLAG_UNKNOWN4 )                   // unknown wotlk
+    if ( castFlags & CAST_FLAG_UNKNOWN_18 )                   // unknown wotlk
     {
         data << float(0);
         data << uint32(0);
@@ -3606,7 +3615,7 @@ void Spell::SendSpellGo()
     if ( castFlags & CAST_FLAG_AMMO )
         WriteAmmoToPacket(&data);
 
-    if ( castFlags & CAST_FLAG_UNKNOWN5 )                   // unknown wotlk
+    if ( castFlags & CAST_FLAG_UNKNOWN_20 )                   // unknown wotlk
     {
         data << uint32(0);
         data << uint32(0);
@@ -4167,13 +4176,6 @@ void Spell::TakeRunePower()
 
     if(!src || (src->NoRuneCost() && src->NoRunicPowerGain()))
         return;
-
-    // Freezing Fog makes Howling Blast cost no runes
-    if (m_caster->HasAura(59052) && m_spellInfo->SpellFamilyFlags[1] & 0x2)
-    {
-        m_caster->RemoveAurasDueToSpell(59052, m_caster->GetGUID());
-        return;
-    }
 
     m_runesState = plr->GetRunesState();                    // store previous state
 

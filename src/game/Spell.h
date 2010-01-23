@@ -56,29 +56,29 @@ enum SpellCastTargetFlags
 enum SpellCastFlags
 {
     CAST_FLAG_NONE               = 0x00000000,
-    CAST_FLAG_UNKNOWN0           = 0x00000001,              // may be pending spell cast
-    CAST_FLAG_UNKNOWN1           = 0x00000002,
-    CAST_FLAG_UNKNOWN11          = 0x00000004,
-    CAST_FLAG_UNKNOWN12          = 0x00000008,
-    CAST_FLAG_UNKNOWN2           = 0x00000010,
+    CAST_FLAG_PENDING            = 0x00000001,              // Pending == 1
+    CAST_FLAG_UNKNOWN_2          = 0x00000002,
+    CAST_FLAG_UNKNOWN_3          = 0x00000004,
+    CAST_FLAG_UNKNOWN_4          = 0x00000008,
+    CAST_FLAG_UNKNOWN_5          = 0x00000010,
     CAST_FLAG_AMMO               = 0x00000020,              // Projectiles visual
-    CAST_FLAG_UNKNOWN8           = 0x00000040,
-    CAST_FLAG_UNKNOWN9           = 0x00000080,
-    CAST_FLAG_UNKNOWN3           = 0x00000100,
-    CAST_FLAG_UNKNOWN13          = 0x00000200,
-    CAST_FLAG_UNKNOWN14          = 0x00000400,
-    CAST_FLAG_POWER_LEFT_SELF    = 0x00000800,              // wotlk
-    CAST_FLAG_UNKNOWN15          = 0x00001000,
-    CAST_FLAG_UNKNOWN16          = 0x00002000,
-    CAST_FLAG_UNKNOWN17          = 0x00004000,
-    CAST_FLAG_UNKNOWN18          = 0x00008000,
-    CAST_FLAG_UNKNOWN19          = 0x00010000,
-    CAST_FLAG_UNKNOWN4           = 0x00020000,              // wotlk
-    CAST_FLAG_UNKNOWN10          = 0x00040000,
-    CAST_FLAG_UNKNOWN5           = 0x00080000,              // wotlk
-    CAST_FLAG_UNKNOWN20          = 0x00100000,
-    CAST_FLAG_UNKNOWN7           = 0x00200000,              // wotlk, rune cooldown list
-    CAST_FLAG_UNKNOWN21          = 0x04000000
+    CAST_FLAG_UNKNOWN_7          = 0x00000040,
+    CAST_FLAG_UNKNOWN_8          = 0x00000080,
+    CAST_FLAG_UNKNOWN_9          = 0x00000100,
+    CAST_FLAG_UNKNOWN_10         = 0x00000200,
+    CAST_FLAG_UNKNOWN_11         = 0x00000400,
+    CAST_FLAG_POWER_LEFT_SELF    = 0x00000800,
+    CAST_FLAG_UNKNOWN_13         = 0x00001000,
+    CAST_FLAG_UNKNOWN_14         = 0x00002000,
+    CAST_FLAG_UNKNOWN_15         = 0x00004000,
+    CAST_FLAG_UNKNOWN_16         = 0x00008000,
+    CAST_FLAG_UNKNOWN_17         = 0x00010000,
+    CAST_FLAG_UNKNOWN_18         = 0x00020000,
+    CAST_FLAG_UNKNOWN_19         = 0x00040000,
+    CAST_FLAG_UNKNOWN_20         = 0x00080000,
+    CAST_FLAG_UNKNOWN_21         = 0x00100000,
+    CAST_FLAG_RUNE_LIST          = 0x00200000,
+    CAST_FLAG_UNKNOWN_23         = 0x04000000
 };
 
 enum SpellRangeFlag
