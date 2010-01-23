@@ -25,7 +25,6 @@
 #include "SharedDefines.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "ObjectMgr.h"
 
 /*#######################################
 ########                         ########
@@ -866,8 +865,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
     /* difference in AP between current attack power and base value from DB */
-    CreatureBaseStats const* stats = objmgr.GetCreatureBaseStats(getLevel(), GetCreatureInfo()->unit_class);
-    float att_pwr_change = GetTotalAttackPowerValue(attType) - stats->GenerateAttackPower(GetCreatureInfo());
+    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureInfo()->attackpower;
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + (att_pwr_change * GetAPMultiplier(attType, false) / 14.0f);
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);

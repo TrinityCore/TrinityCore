@@ -1165,7 +1165,7 @@ void WorldObject::setActive( bool on )
     }
 }
 
-void WorldObject::CleanupsBeforeDelete()
+void WorldObject::CleanupsBeforeDelete(bool finalCleanup)
 {
 }
 

@@ -2680,7 +2680,18 @@ void Spell::EffectSendEvent(uint32 EffectIndex)
     we do not handle a flag dropping or clicking on flag in battleground by sendevent system
     */
     sLog.outDebug("Spell ScriptStart %u for spellid %u in EffectSendEvent ", m_spellInfo->EffectMiscValue[EffectIndex], m_spellInfo->Id);
-    m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[EffectIndex], m_caster, focusObject);
+
+    Object *pTarget;
+    if (focusObject)
+        pTarget = focusObject;
+    else if (unitTarget)
+        pTarget = unitTarget;
+    else if (gameObjTarget)
+        pTarget = gameObjTarget;
+    else
+        pTarget = NULL;
+
+    m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->EffectMiscValue[EffectIndex], m_caster, pTarget);
 }
 
 void Spell::EffectPowerBurn(uint32 i)

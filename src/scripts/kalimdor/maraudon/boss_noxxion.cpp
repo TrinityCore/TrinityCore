@@ -51,7 +51,7 @@ struct TRINITY_DLL_DECL boss_noxxionAI : public ScriptedAI
 
     void SummonAdds(Unit* pVictim)
     {
-        if (Creature *Add = DoSpawnCreature(13456, RAND(irand(0,-7),irand(0,7)), RAND(irand(0,-7),irand(0,7)), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000))
+        if (Creature *Add = DoSpawnCreature(13456, irand(-7,7), irand(-7,7), 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000))
             Add->AI()->AttackStart(pVictim);
     }
 

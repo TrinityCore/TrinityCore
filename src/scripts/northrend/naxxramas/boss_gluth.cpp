@@ -138,7 +138,7 @@ struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
             }
         }
 
-        if (me->getVictim()->GetEntry() == MOB_ZOMBIE)
+        if (me->getVictim() && me->getVictim()->GetEntry() == MOB_ZOMBIE)
         {
             if (me->IsWithinMeleeRange(me->getVictim()))
             {

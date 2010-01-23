@@ -117,9 +117,9 @@ void Database::SetResultQueue(SqlResultQueue * queue)
 
 }
 
-QueryResult* Database::PQuery(const char *format,...)
+QueryResult_AutoPtr Database::PQuery(const char *format,...)
 {
-    if(!format) return NULL;
+    if(!format) return QueryResult_AutoPtr(NULL);
 
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
@@ -130,7 +130,7 @@ QueryResult* Database::PQuery(const char *format,...)
     if(res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
-        return false;
+        return QueryResult_AutoPtr(NULL);
     }
 
     return Query(szQuery);
@@ -217,12 +217,9 @@ bool Database::DirectPExecute(const char * format,...)
 bool Database::CheckRequiredField( char const* table_name, char const* required_name )
 {
     // check required field
-    QueryResult* result = PQuery("SELECT %s FROM %s LIMIT 1",required_name,table_name);
+    QueryResult_AutoPtr result = PQuery("SELECT %s FROM %s LIMIT 1",required_name,table_name);
     if(result)
-    {
-        delete result;
         return true;
-    }
 
     // check fail, prepare readabale error message
 

@@ -23,6 +23,7 @@
 #include "SharedDefines.h"
 #include "Language.h"
 #include "DBCStructure.h"
+#include "QueryResult.h"
 #include <map>
 
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =
@@ -68,7 +69,7 @@ class ReputationMgr
         ~ReputationMgr() {}
 
         void SaveToDB();
-        void LoadFromDB(QueryResult *result);
+        void LoadFromDB(QueryResult_AutoPtr result);
     public:                                                 // statics
         static const int32 PointsInRank[MAX_REPUTATION_RANK];
         static const int32 Reputation_Cap    =  42999;

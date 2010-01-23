@@ -215,7 +215,7 @@ bool ChatHandler::HandleServerExitCommand(const char* /*args*/)
 bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
 {
     ///- Get the list of accounts ID logged to the realm
-    QueryResult *resultDB = CharacterDatabase.Query("SELECT name,account FROM characters WHERE online > 0");
+    QueryResult_AutoPtr resultDB = CharacterDatabase.Query("SELECT name,account FROM characters WHERE online > 0");
     if (!resultDB)
     {
         SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
@@ -236,7 +236,7 @@ bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
 
         ///- Get the username, last IP and GM level of each account
         // No SQL injection. account is uint32.
-        QueryResult *resultLogin = 
+        QueryResult_AutoPtr resultLogin = 
             loginDatabase.PQuery("SELECT a.username, a.last_ip, aa.gmlevel, a.expansion "
                                  "FROM account a "
                                  "LEFT JOIN account_access aa "
@@ -247,15 +247,11 @@ bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
             Field *fieldsLogin = resultLogin->Fetch();
             PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
                 fieldsLogin[0].GetString(),name.c_str(),fieldsLogin[1].GetString(),fieldsLogin[2].GetUInt32(),fieldsLogin[3].GetUInt32());
-
-            delete resultLogin;
         }
         else
             PSendSysMessage(LANG_ACCOUNT_LIST_ERROR,name.c_str());
 
     }while(resultDB->NextRow());
-
-    delete resultDB;
 
     SendSysMessage(LANG_ACCOUNT_LIST_BAR);
     return true;

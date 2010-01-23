@@ -751,7 +751,7 @@ ChatCommand * ChatHandler::getCommandTable()
     {
         load_command_table = false;
 
-        QueryResult *result = WorldDatabase.Query("SELECT name,security,help FROM command");
+        QueryResult_AutoPtr result = WorldDatabase.Query("SELECT name,security,help FROM command");
         if (result)
         {
             do
@@ -762,7 +762,6 @@ ChatCommand * ChatHandler::getCommandTable()
                 SetDataForCommandInTable(commandTable, name.c_str(), fields[1].GetUInt16(), fields[2].GetCppString(), name);
 
             } while(result->NextRow());
-            delete result;
         }
     }
 

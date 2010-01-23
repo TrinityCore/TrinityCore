@@ -30,6 +30,7 @@
 #include "Policies/Singleton.h"
 #include "SharedDefines.h"
 #include "ace/Atomic_Op.h"
+#include "QueryResult.h"
 
 #include <map>
 #include <set>
@@ -645,7 +646,7 @@ class World
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
-        void _UpdateRealmCharCount(QueryResult *resultCharCount, uint32 accountId);
+        void _UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 accountId);
 
         void InitDailyQuestResetTime();
         void ResetDailyQuests();

@@ -55,7 +55,7 @@ void LoadSkillDiscoveryTable()
     uint32 count = 0;
 
     //                                                0        1         2              3
-    QueryResult *result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
 
     if (!result)
     {
@@ -137,8 +137,6 @@ void LoadSkillDiscoveryTable()
 
         ++count;
     } while (result->NextRow());
-
-    delete result;
 
     sLog.outString();
     sLog.outString( ">> Loaded %u skill discovery definitions", count );

@@ -2357,7 +2357,7 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     assert(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
 
-    obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
+    obj->CleanupsBeforeDelete(false);                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
     //sLog.outDebug("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
@@ -2761,7 +2761,7 @@ void InstanceMap::CreateInstanceData(bool load)
     if (load)
     {
         // TODO: make a global storage for this
-        QueryResult* result = CharacterDatabase.PQuery("SELECT data FROM instance WHERE map = '%u' AND id = '%u'", GetId(), i_InstanceId);
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT data FROM instance WHERE map = '%u' AND id = '%u'", GetId(), i_InstanceId);
         if (result)
         {
             Field* fields = result->Fetch();
@@ -2771,7 +2771,6 @@ void InstanceMap::CreateInstanceData(bool load)
                 sLog.outDebug("Loading instance data for `%s` with id %u", objmgr.GetScriptName(i_script_id), i_InstanceId);
                 i_data->Load(data);
             }
-            delete result;
         }
     }
 }

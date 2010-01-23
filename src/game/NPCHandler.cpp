@@ -522,7 +522,7 @@ void WorldSession::SendStablePet(uint64 guid )
     }
 
     //                                                     0      1   2      3      4
-    QueryResult* result = CharacterDatabase.PQuery("SELECT owner, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot >= '%u' AND slot <= '%u' ORDER BY slot",
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT owner, id, entry, level, name FROM character_pet WHERE owner = '%u' AND slot >= '%u' AND slot <= '%u' ORDER BY slot",
         _player->GetGUIDLow(),PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
 
     if(result)
@@ -539,8 +539,6 @@ void WorldSession::SendStablePet(uint64 guid )
 
             ++num;
         }while( result->NextRow() );
-
-        delete result;
     }
 
     data.put<uint8>(wpos, num);                             // set real data to placeholder
@@ -581,7 +579,7 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
     uint32 free_slot = 1;
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT owner,slot,id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT owner,slot,id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
         _player->GetGUIDLow(),PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
     if(result)
     {
@@ -598,8 +596,6 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
             // this slot not free, skip
             ++free_slot;
         }while( result->NextRow() );
-
-        delete result;
     }
 
     WorldPacket data(SMSG_STABLE_RESULT, 1);
@@ -636,13 +632,12 @@ void WorldSession::HandleUnstablePet( WorldPacket & recv_data )
     uint32 creature_id = 0;
 
     {
-        QueryResult *result = CharacterDatabase.PQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot >='%u' AND slot <= '%u'",
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT entry FROM character_pet WHERE owner = '%u' AND id = '%u' AND slot >='%u' AND slot <= '%u'",
             _player->GetGUIDLow(),petnumber,PET_SAVE_FIRST_STABLE_SLOT,PET_SAVE_LAST_STABLE_SLOT);
         if(result)
         {
             Field *fields = result->Fetch();
             creature_id = fields[0].GetUInt32();
-            delete result;
         }
     }
 
@@ -762,7 +757,7 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
         return;
 
     // find swapped pet slot in stable
-    QueryResult *result = CharacterDatabase.PQuery("SELECT slot,entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT slot,entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
         _player->GetGUIDLow(),pet_number);
     if(!result)
         return;
@@ -771,7 +766,6 @@ void WorldSession::HandleStableSwapPet( WorldPacket & recv_data )
 
     uint32 slot        = fields[0].GetUInt32();
     uint32 creature_id = fields[1].GetUInt32();
-    delete result;
 
     if(!creature_id)
     {

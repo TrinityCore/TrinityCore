@@ -55,7 +55,7 @@ void LoadRandomEnchantmentsTable()
     float chance;
     uint32 count = 0;
 
-    QueryResult *result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, ench, chance FROM item_enchantment_template");
 
     if (result)
     {
@@ -75,8 +75,6 @@ void LoadRandomEnchantmentsTable()
 
             ++count;
         } while (result->NextRow());
-
-        delete result;
 
         sLog.outString();
         sLog.outString( ">> Loaded %u Item Enchantment definitions", count );

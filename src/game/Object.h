@@ -571,7 +571,7 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
 
         bool IsInBetween(const WorldObject *obj1, const WorldObject *obj2, float size = 0) const;
 
-        virtual void CleanupsBeforeDelete();                // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
+        virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
         virtual void SendMessageToSet(WorldPacket *data, bool self);
         virtual void SendMessageToSetInRange(WorldPacket *data, float dist, bool self);

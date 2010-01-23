@@ -339,18 +339,14 @@ void Item::SaveToDB()
     SetState(ITEM_UNCHANGED);
 }
 
-bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
+bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result)
 {
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
     Object::_Create(guid, 0, HIGHGUID_ITEM);
 
-    bool delete_result = false;
     if(!result)
-    {
         result = CharacterDatabase.PQuery("SELECT data FROM item_instance WHERE guid = '%u'", guid);
-        delete_result = true;
-    }
 
     if (!result)
     {
@@ -363,7 +359,6 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
     if(!LoadValues(fields[0].GetString()))
     {
         sLog.outError("Item #%d have broken data in `data` field. Can't be loaded.",guid);
-        if (delete_result) delete result;
         return false;
     }
 
@@ -376,8 +371,6 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult *result)
         SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid,0, HIGHGUID_ITEM));
         need_save = true;
     }
-
-    if (delete_result) delete result;
 
     ItemPrototype const* proto = GetProto();
     if(!proto)
