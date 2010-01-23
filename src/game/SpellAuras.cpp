@@ -1130,6 +1130,21 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 }
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
+                // Blood of the North
+                // Reaping
+                // Death Rune Mastery
+                if (GetSpellProto()->SpellIconID == 3041 || GetSpellProto()->SpellIconID == 22 || GetSpellProto()->SpellIconID == 2622)
+                {
+                    if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
+                        break;
+                    if (target->GetTypeId() != TYPEID_PLAYER)
+                        break;
+                    if(((Player*)target)->getClass() != CLASS_DEATH_KNIGHT)
+                        break;
+
+                     // aura removed - remove death runes
+                    ((Player*)target)->RemoveRunesByAuraEffect(GetEffect(0));
+                }
                 switch(GetId())
                 {
                     case 50514: // Summon Gargoyle
