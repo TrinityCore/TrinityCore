@@ -234,7 +234,7 @@ void Script::RegisterSelf()
     }
     else if(Name.find("example") == std::string::npos)
     {
-        error_db_log("CRASH ALERT! TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
+        //error_db_log("CRASH ALERT! TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
         delete this;
     }
 }
