@@ -4184,6 +4184,8 @@ void Spell::TakeRunePower()
     for (uint32 i = 0; i < RUNE_DEATH; ++i)
     {
         runeCost[i] = src->RuneCost[i];
+        if(Player* modOwner = m_caster->GetSpellModOwner())
+            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_COST, runeCost[i], this);
     }
 
     runeCost[RUNE_DEATH] = 0;                               // calculated later
