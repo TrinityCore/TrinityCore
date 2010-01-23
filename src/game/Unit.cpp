@@ -1090,8 +1090,10 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
 
     SpellSchoolMask damageSchoolMask = SpellSchoolMask(damageInfo->schoolMask);
     uint32 crTypeMask = pVictim->GetCreatureTypeMask();
-    // Check spell crit chance
-    //bool crit = isSpellCrit(pVictim, spellInfo, damageSchoolMask, attackType);
+
+    if (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+        damage = CalcArmorReducedDamage(pVictim, damage, spellInfo, attackType);
+
     bool blocked = false;
     // Per-school calc
     switch (spellInfo->DmgClass)
@@ -1167,9 +1169,6 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
         }
         break;
     }
-
-    if (damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
-        damage = CalcArmorReducedDamage(pVictim, damage, spellInfo, attackType);
 
     // only from players
     if (GetTypeId() == TYPEID_PLAYER)
