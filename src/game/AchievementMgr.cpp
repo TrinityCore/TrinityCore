@@ -626,8 +626,7 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
         Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> say_do(say_builder);
         Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> > say_worker(GetPlayer(),sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY),say_do);
         TypeContainerVisitor<Trinity::PlayerDistWorker<Trinity::LocalizedPacketDo<Trinity::AchievementChatBuilder> >, WorldTypeMapContainer > message(say_worker);
-        CellLock<GridReadGuard> cell_lock(cell, p);
-        cell_lock->Visit(cell_lock, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
+        cell.Visit(p, message, *GetPlayer()->GetMap(), *GetPlayer(), sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY));
     }
 
     WorldPacket data(SMSG_ACHIEVEMENT_EARNED, 8+4+8);

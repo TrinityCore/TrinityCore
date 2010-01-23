@@ -341,10 +341,11 @@ struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
         AllOrbsInGrid check;
         Trinity::GameObjectListSearcher<AllOrbsInGrid> searcher(me, orbList, check);
         TypeContainerVisitor<Trinity::GameObjectListSearcher<AllOrbsInGrid>, GridTypeMapContainer> visitor(searcher);
-        CellLock<GridReadGuard> cell_lock(cell, pair);
-        cell_lock->Visit(cell_lock, visitor, *(m_creature->GetMap()));
+        cell.Visit(pair, visitor, *(m_creature->GetMap()));
+
         if (orbList.empty())
             return;
+
         uint8 i = 0;
         for (std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
             Orb[i] = pInstance ? pInstance->instance->GetGameObject(pInstance->GetData64((*itr)->GetGUID())) : NULL;

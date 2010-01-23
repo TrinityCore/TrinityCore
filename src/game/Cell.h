@@ -45,8 +45,6 @@ enum District
     ALL_DISTRICT = (UPPER_DISTRICT | LOWER_DISTRICT | LEFT_DISTRICT | RIGHT_DISTRICT | CENTER_DISTRICT)
 };
 
-template<class T> struct CellLock;
-
 struct TRINITY_DLL_DECL CellArea
 {
     CellArea() : right_offset(0), left_offset(0), upper_offset(0), lower_offset(0) {}
@@ -164,33 +162,16 @@ struct TRINITY_DLL_DECL Cell
         uint32 All;
     } data;
 
-    template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &visitor, Map &) const;
-    template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m, const WorldObject &obj, float radius) const;
-    template<class LOCK_TYPE, class T, class CONTAINER> void Visit(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, float radius, float x_off, float y_off) const;
+    template<class T, class CONTAINER> void Visit(const CellPair&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &) const;
+    template<class T, class CONTAINER> void Visit(const CellPair&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, const WorldObject&, float) const;
+    template<class T, class CONTAINER> void Visit(const CellPair&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, float, float, float) const;
 
     static CellArea CalculateCellArea(const WorldObject &obj, float radius);
     static CellArea CalculateCellArea(float x, float y, float radius);
 
 private:
-    template<class LOCK_TYPE, class T, class CONTAINER> void VisitCircle(const CellLock<LOCK_TYPE> &, TypeContainerVisitor<T, CONTAINER> &, Map &, const CellPair& , const CellPair& ) const;
+    template<class T, class CONTAINER> void VisitCircle(TypeContainerVisitor<T, CONTAINER> &, Map &, const CellPair&, const CellPair&) const;
 };
 
-template<class T>
-struct TRINITY_DLL_DECL CellLock
-{
-    const Cell& i_cell;
-    const CellPair &i_cellPair;
-    CellLock(const Cell &c, const CellPair &p) : i_cell(c), i_cellPair(p) {}
-    CellLock(const CellLock<T> &cell) : i_cell(cell.i_cell), i_cellPair(cell.i_cellPair) {}
-    const Cell* operator->(void) const { return &i_cell; }
-    const Cell* operator->(void) { return &i_cell; }
-    operator const Cell &(void) const { return i_cell; }
-    CellLock<T>& operator=(const CellLock<T> &cell)
-    {
-        this->~CellLock();
-        new (this) CellLock<T>(cell);
-        return *this;
-    }
-};
 #endif
 
