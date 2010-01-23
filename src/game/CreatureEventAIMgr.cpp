@@ -39,7 +39,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
     objmgr.LoadTrinityStrings(WorldDatabase,"creature_ai_texts",MIN_CREATURE_AI_TEXT_STRING_ID,MAX_CREATURE_AI_TEXT_STRING_ID);
 
     // Gather Additional data from EventAI Texts
-    QueryResult *result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, sound, type, language, emote FROM creature_ai_texts");
 
     sLog.outString("Loading EventAI Texts additional data...");
     if (result)
@@ -95,8 +95,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Texts()
             ++count;
         } while (result->NextRow());
 
-        delete result;
-
         sLog.outString();
         sLog.outString(">> Loaded %u additional CreatureEventAI Texts data.", count);
     }
@@ -118,7 +116,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
     m_CreatureEventAI_Summon_Map.clear();
 
     // Gather additional data for EventAI
-    QueryResult *result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, spawntimesecs FROM creature_ai_summons");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, spawntimesecs FROM creature_ai_summons");
     if (result)
     {
         barGoLink bar(result->GetRowCount());
@@ -149,8 +147,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
             ++Count;
         } while (result->NextRow());
 
-        delete result;
-
         sLog.outString();
         sLog.outString(">> Loaded %u CreatureEventAI summon definitions", Count);
     }
@@ -171,7 +167,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
     m_CreatureEventAI_Event_Map.clear();
 
     // Gather event data
-    QueryResult *result = WorldDatabase.Query("SELECT id, creature_id, event_type, event_inverse_phase_mask, event_chance, event_flags, "
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, creature_id, event_type, event_inverse_phase_mask, event_chance, event_flags, "
         "event_param1, event_param2, event_param3, event_param4, "
         "action1_type, action1_param1, action1_param2, action1_param3, "
         "action2_type, action2_param1, action2_param2, action2_param3, "
@@ -728,8 +724,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 }
             }
         } while (result->NextRow());
-
-        delete result;
 
         sLog.outString();
         sLog.outString(">> Loaded %u CreatureEventAI scripts", Count);

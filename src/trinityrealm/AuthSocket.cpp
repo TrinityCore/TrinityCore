@@ -399,12 +399,11 @@ bool AuthSocket::_HandleLogonChallenge()
 
     std::string address = GetRemoteAddress();
     loginDatabase.escape_string(address);
-    QueryResult *result = loginDatabase.PQuery("SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
     if (result)
     {
         pkt << (uint8)REALM_AUTH_ACCOUNT_BANNED;
         sLog.outBasic("[AuthChallenge] Banned ip %s tries to login!",GetRemoteAddress().c_str ());
-        delete result;
     }
     else
     {
@@ -446,7 +445,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 //set expired bans to inactive
                 loginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
                 ///- If the account is banned, reject the logon attempt
-                QueryResult *banresult = loginDatabase.PQuery("SELECT bandate,unbandate FROM account_banned WHERE id = %u AND active = 1", (*result)[1].GetUInt32());
+                QueryResult_AutoPtr banresult = loginDatabase.PQuery("SELECT bandate,unbandate FROM account_banned WHERE id = %u AND active = 1", (*result)[1].GetUInt32());
                 if (banresult)
                 {
                     if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
@@ -459,8 +458,6 @@ bool AuthSocket::_HandleLogonChallenge()
                         pkt << (uint8) REALM_AUTH_ACCOUNT_FREEZED;
                         sLog.outBasic("[AuthChallenge] Temporarily banned account %s tries to login!",_login.c_str ());
                     }
-
-                    delete banresult;
                 }
                 else
                 {
@@ -535,7 +532,6 @@ bool AuthSocket::_HandleLogonChallenge()
                     sLog.outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
                 }
             }
-            delete result;
         }
         else                                            //no account
         {
@@ -737,7 +733,7 @@ bool AuthSocket::_HandleLogonProof()
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
             loginDatabase.PExecute("UPDATE account SET failed_logins = failed_logins + 1 WHERE username = '%s'",_safelogin.c_str());
 
-            if (QueryResult *loginfail = loginDatabase.PQuery("SELECT id, failed_logins FROM account WHERE username = '%s'", _safelogin.c_str()))
+            if (QueryResult_AutoPtr loginfail = loginDatabase.PQuery("SELECT id, failed_logins FROM account WHERE username = '%s'", _safelogin.c_str()))
             {
                 Field* fields = loginfail->Fetch();
                 uint32 failed_logins = fields[1].GetUInt32();
@@ -765,7 +761,6 @@ bool AuthSocket::_HandleLogonProof()
                             current_ip.c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
                     }
                 }
-                delete loginfail;
             }
         }
     }
@@ -805,7 +800,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     _login = (const char*)ch->I;
     _safelogin = _login;
 
-    QueryResult *result = loginDatabase.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
+    QueryResult_AutoPtr result = loginDatabase.PQuery ("SELECT sessionkey FROM account WHERE username = '%s'", _safelogin.c_str ());
 
     // Stop if the account is not found
     if (!result)
@@ -817,7 +812,6 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     Field* fields = result->Fetch ();
     K.SetHexStr (fields[0].GetString ());
-    delete result;
 
     ///- Sending response
     ByteBuffer pkt;
@@ -885,7 +879,7 @@ bool AuthSocket::_HandleRealmList()
     ///- Get the user id (else close the connection)
     // No SQL injection (escaped user name)
 
-    QueryResult *result = loginDatabase.PQuery("SELECT id,sha_pass_hash FROM account WHERE username = '%s'",_safelogin.c_str());
+    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT id,sha_pass_hash FROM account WHERE username = '%s'",_safelogin.c_str());
     if (!result)
     {
         sLog.outError("[ERROR] user %s tried to login and we cannot find him in the database.",_login.c_str());
@@ -895,7 +889,6 @@ bool AuthSocket::_HandleRealmList()
 
     uint32 id = (*result)[0].GetUInt32();
     std::string rI = (*result)[1].GetCppString();
-    delete result;
 
     ///- Update realm list if need
     m_realmList.UpdateIfNeed();
@@ -935,7 +928,6 @@ bool AuthSocket::_HandleRealmList()
         {
             Field *fields = result->Fetch();
             AmountOfCharacters = fields[0].GetUInt8();
-            delete result;
         }
         else
             AmountOfCharacters = 0;

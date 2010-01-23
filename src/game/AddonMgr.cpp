@@ -42,7 +42,7 @@ AddonMgr::~AddonMgr()
 
 void AddonMgr::LoadFromDB()
 {
-    QueryResult* result = CharacterDatabase.PQuery("SELECT name, crc FROM addons");
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name, crc FROM addons");
     if(!result)
     {
         sLog.outErrorDb("The table `addons` is empty");
@@ -67,8 +67,6 @@ void AddonMgr::LoadFromDB()
         SavedAddon addon(name, crc);
         m_knownAddons.push_back(addon);
     } while(result->NextRow());
-
-    delete result;
 
     sLog.outString();
     sLog.outString(">> Loaded %u known addons", count);

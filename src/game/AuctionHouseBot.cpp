@@ -485,19 +485,13 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         return;
     }
 
-    QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE itemowner<>%u AND buyguid<>%u", AHBplayerGUID, AHBplayerGUID);
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE itemowner<>%u AND buyguid<>%u", AHBplayerGUID, AHBplayerGUID);
 
     if (!result)
-    {
-        delete result;
         return;
-    }
 
     if (result->GetRowCount() == 0)
-    {
-        delete result;
         return;
-    }
 
     // Fetches content of selected AH
     AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap(config->GetAHFID());
@@ -508,7 +502,6 @@ void AuctionHouseBot::addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *con
         uint32 tmpdata = result->Fetch()->GetUInt32();
         possibleBids.push_back(tmpdata);
     }while (result->NextRow());
-    delete result;
 
     for (uint32 count = 1; count <= config->GetBidsPerInterval(); ++count)
     {
@@ -701,7 +694,7 @@ void AuctionHouseBot::Update()
 
     WorldSession _session(AHBplayerAccount, NULL, SEC_PLAYER, true, 0, LOCALE_enUS);
     Player _AHBplayer(&_session);
-    _AHBplayer.MinimalLoadFromDB(NULL, AHBplayerGUID);
+    _AHBplayer.MinimalLoadFromDB(QueryResult_AutoPtr(NULL), AHBplayerGUID);
     ObjectAccessor::Instance().AddObject(&_AHBplayer);
 
     // Only for testing, this can likely be removed, once I know it's working as expected.
@@ -832,7 +825,7 @@ void AuctionHouseBot::Initialize()
 
     if (AHBSeller)
     {
-        QueryResult* results = (QueryResult*) NULL;
+        QueryResult_AutoPtr results = QueryResult_AutoPtr(NULL);
         char npcQuery[] = "SELECT distinct item FROM npc_vendor";
         results = WorldDatabase.PQuery(npcQuery);
         if (results != NULL)
@@ -843,8 +836,6 @@ void AuctionHouseBot::Initialize()
                 npcItems.push_back(fields[0].GetUInt32());
 
             } while (results->NextRow());
-
-            delete results;
         }
         else
         {
@@ -872,8 +863,6 @@ void AuctionHouseBot::Initialize()
                 lootItems.push_back(fields[0].GetUInt32());
 
             } while (results->NextRow());
-
-            delete results;
         }
         else
         {

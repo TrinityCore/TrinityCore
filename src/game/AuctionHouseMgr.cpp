@@ -267,7 +267,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction)
 void AuctionHouseMgr::LoadAuctionItems()
 {
     // data needs to be at first place for Item::LoadFromDB
-    QueryResult *result = CharacterDatabase.Query("SELECT data,itemguid,item_template FROM auctionhouse JOIN item_instance ON itemguid = guid");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT data,itemguid,item_template FROM auctionhouse JOIN item_instance ON itemguid = guid");
 
     if (!result)
     {
@@ -310,7 +310,6 @@ void AuctionHouseMgr::LoadAuctionItems()
 
         ++count;
     } while (result->NextRow());
-    delete result;
 
     sLog.outString();
     sLog.outString(">> Loaded %u auction items", count);
@@ -318,7 +317,7 @@ void AuctionHouseMgr::LoadAuctionItems()
 
 void AuctionHouseMgr::LoadAuctions()
 {
-    QueryResult *result = CharacterDatabase.Query("SELECT COUNT(*) FROM auctionhouse");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT COUNT(*) FROM auctionhouse");
     if (!result)
     {
         barGoLink bar(1);
@@ -330,7 +329,6 @@ void AuctionHouseMgr::LoadAuctions()
 
     Field *fields = result->Fetch();
     uint32 AuctionCount=fields[0].GetUInt32();
-    delete result;
 
     if (!AuctionCount)
     {
@@ -415,7 +413,6 @@ void AuctionHouseMgr::LoadAuctions()
         GetAuctionsMap(auctioneerInfo->faction_A)->AddAuction(aItem);
 
     } while (result->NextRow());
-    delete result;
 
     sLog.outString();
     sLog.outString(">> Loaded %u auctions", AuctionCount);
@@ -506,19 +503,13 @@ void AuctionHouseObject::Update()
     if (AuctionsMap.empty())
         return;
 
-    QueryResult* result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id FROM auctionhouse WHERE time <= %u ORDER BY TIME ASC", (uint32)curTime+60);
 
     if (!result)
-    {
-        delete result;
         return;
-    }
 
     if (result->GetRowCount() == 0)
-    {
-        delete result;
         return;
-    }
 
     vector<uint32> expiredAuctions;
 
@@ -527,7 +518,6 @@ void AuctionHouseObject::Update()
         uint32 tmpdata = result->Fetch()->GetUInt32();
         expiredAuctions.push_back(tmpdata);
     } while (result->NextRow());
-    delete result;
 
     while (!expiredAuctions.empty())
     {
