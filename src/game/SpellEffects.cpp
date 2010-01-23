@@ -2362,6 +2362,9 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
                 pet->CastSpell(pet, 28305, true);
             return;
         }
+        // Empower Rune Weapon
+        case 53258:
+            return; // skip, hack-added in spell effect
     }
 
     // normal case
@@ -7249,11 +7252,30 @@ void Spell::EffectActivateRune(uint32  eff_idx)
     if(plr->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
-    for (uint32 j = 0; j < MAX_RUNES; ++j)
+    // needed later
+    m_runesState = ((Player*)m_caster)->GetRunesState();
+
+    uint32 count = damage;
+    if (count == 0) count = 1;
+    for(uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
     {
         if(plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == RuneType(m_spellInfo->EffectMiscValue[eff_idx]))
         {
             plr->SetRuneCooldown(j, 0);
+            --count;
+        }
+    }
+    // Empower rune weapon
+    if (m_spellInfo->Id == 47568)
+    {
+        // Need to do this just once
+        if (eff_idx != 0)
+            return;
+
+        for(uint32 i = 0; i < MAX_RUNES; ++i)
+        {
+            if(plr->GetRuneCooldown(i) && (plr->GetCurrentRune(i) == RUNE_FROST ||  plr->GetCurrentRune(i) == RUNE_DEATH))
+                plr->SetRuneCooldown(i, 0);
         }
     }
 }
