@@ -48,13 +48,9 @@ enum SpellInterruptFlags
     //SPELL_INTERRUPT_UNK             = 0x20                // unk, 564 of 727 spells having this spell start with "Glyph"
 };
 
+// See SpellAuraInterruptFlags for other values definitions
 enum SpellChannelInterruptFlags
 {
-    CHANNEL_FLAG_DAMAGE      = 0x0002,
-    CHANNEL_FLAG_MOVEMENT    = 0x0008,
-    CHANNEL_FLAG_TURNING     = 0x0010,
-    CHANNEL_FLAG_DAMAGE2     = 0x0080,
-    CHANNEL_FLAG_ONLY_IN_WATER = 0x0100,
     CHANNEL_FLAG_DELAY       = 0x4000
 };
 
