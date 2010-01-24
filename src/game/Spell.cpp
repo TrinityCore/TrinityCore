@@ -1292,12 +1292,11 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
         if( !m_caster->IsFriendlyTo(unit) )
         {
-            // reset damage to 0 if target has Invisibility or Vanish aura (_only_ vanish, not stealth) and isn't visible for caster
+            // reset damage to 0 if target has Invisibility and isn't visible for caster
             // I do not think this is a correct way to fix it. Sanctuary effect should make all delayed spells invalid
             // for delayed spells ignore not visible explicit target
             if(m_spellInfo->speed > 0.0f && unit == m_targets.getUnitTarget()
-                && (unit->m_invisibilityMask || m_caster->m_invisibilityMask
-                || unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, SPELLFAMILYFLAG_ROGUE_VANISH))
+                && (unit->m_invisibilityMask || m_caster->m_invisibilityMask)
                 && !m_caster->canSeeOrDetect(unit, true))
             {
                 // that was causing CombatLog errors
