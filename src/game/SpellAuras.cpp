@@ -444,12 +444,13 @@ void Aura::_Remove(AuraRemoveMode removeMode)
 {
     assert (!m_isRemoved);
     m_isRemoved = true;
-    for (ApplicationMap::iterator appItr = m_applications.begin() ; appItr != m_applications.end() ;)
+    ApplicationMap::iterator appItr = m_applications.begin();
+    while(!m_applications.empty())
     {
         AuraApplication * aurApp =  appItr->second;
         Unit * target = aurApp->GetTarget();
-        ++appItr;
         target->_UnapplyAura(aurApp, removeMode);
+        appItr = m_applications.begin();
     }
 }
 
@@ -592,10 +593,13 @@ void Aura::UpdateOwner(uint32 diff, WorldObject * owner)
 
     Update(diff, caster);
 
-    if (m_updateTargetMapInterval <= diff)
-        UpdateTargetMap(caster);
-    else
-        m_updateTargetMapInterval -= diff;
+    if (!IsRemoved())
+    {
+        if (m_updateTargetMapInterval <= diff)
+            UpdateTargetMap(caster);
+        else
+            m_updateTargetMapInterval -= diff;
+    }
 
     // update aura effects
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
