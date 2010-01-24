@@ -6737,6 +6737,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     triggered_spell_id = 31803;
+                    // On target with 5 stacks of Holy Vengeance direct damage is done
+                    if (Aura * aur = pVictim->GetAura(triggered_spell_id, GetGUID()))
+                    {
+                        if (aur->GetStackAmount() == 5)
+                        {
+                            aur->RefreshDuration();
+                            CastSpell(pVictim, 42463, true);
+                            return true;
+                        }
+                    }
+
+                    // Only Autoattack can stack debuff
+                    if (procFlag & PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT)
+                        return false;
                     break;
                 }
                 // Seal of Corruption
@@ -6746,6 +6760,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
 
                     triggered_spell_id = 53742;
+                    // On target with 5 stacks of Blood Corruption direct damage is done
+                    if (Aura * aur = pVictim->GetAura(triggered_spell_id, GetGUID()))
+                    {
+                        if (aur->GetStackAmount() == 5)
+                        {
+                            aur->RefreshDuration();
+                            CastSpell(pVictim, 53739, true);
+                            return true;
+                        }
+                    }
+
+                    // Only Autoattack can stack debuff
+                    if (procFlag & PROC_FLAG_SUCCESSFUL_MELEE_SPELL_HIT)
+                        return false;
                     break;
                 }
                 // Spiritual Attunement
