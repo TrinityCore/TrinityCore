@@ -34,6 +34,12 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 SET_TARGET_PROPERTIES(trinity-core PROPERTIES LINK_FLAGS "${trinity-core_LINK_FLAGS}")
 
+if(DO_SCRIPTS)
+    SET(SCRIPT_LIB "scripts")
+else(DO_SCRIPTS)
+    SET(SCRIPT_LIB "")
+endif(DO_SCRIPTS)
+
 target_link_libraries(
 trinity-core
 game
@@ -46,9 +52,9 @@ trinityauth
 trinityconfig
 vmaps
 g3dlite
+${SCRIPT_LIB}
 ${READLINE_LIBRARY}
 ${TERMCAP_LIBRARY}
-${SCRIPT_LIB}
 ${MYSQL_LIBRARIES}
 ${POSTGRESQL_LIBRARIES}
 ${SSLLIB}
