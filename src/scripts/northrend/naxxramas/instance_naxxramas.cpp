@@ -42,6 +42,7 @@ const DoorData doorData[] =
     {181119,    BOSS_GOTHIK,    DOOR_TYPE_PASSAGE,  0},
     {181119,    BOSS_HORSEMEN,  DOOR_TYPE_ROOM,     BOUNDARY_NE},
     {181225,    BOSS_SAPPHIRON, DOOR_TYPE_PASSAGE,  BOUNDARY_W},
+    {181228,    BOSS_KELTHUZAD, DOOR_TYPE_ROOM,     BOUNDARY_S},
     {0,         0,              DOOR_TYPE_ROOM,     0}, // EOF
 };
 

@@ -15,8 +15,8 @@
  */
 
 /* ScriptData
-SDName: Boss_KelThuzud
-SD%Complete: 0
+SDName: Boss_KelThuzad
+SD%Complete: 80%
 SDComment: VERIFY SCRIPT
 SDCategory: Naxxramas
 EndScriptData */
@@ -83,7 +83,7 @@ enum Spells
     SPELL_MANA_DETONATION                                  = 27819,
     SPELL_FROST_BLAST                                      = 27808,
     SPELL_CHAINS_OF_KELTHUZAD                              = 28410, //28408 script effect
-    SPELL_BERSERK                                          = 28498
+    SPELL_KELTHUZAD_CHANNEL                                = 29423
 };
 
 enum Creatures
@@ -118,16 +118,21 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
 
     uint32 Phase;
     uint32 GuardiansOfIcecrown_Timer;
+    uint8  nAbomination;
+    uint8  nWeaver;
 
     void Reset()
     {
         _Reset();
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
         GuardiansOfIcecrown_Count = 0;
 
         GuardiansOfIcecrown_Timer = 5000;                   //5 seconds for summoning each Guardian of Icecrown in phase 3
 
         Phase=0;
+        nAbomination=0;
+        nWeaver=0;
     }
 
     void KilledUnit()
@@ -144,13 +149,14 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
     void EnterCombat(Unit* who)
     {
         _EnterCombat();
+        DoCast(me, SPELL_KELTHUZAD_CHANNEL);
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
         Phase=1;
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_PASSIVE);
-        events.ScheduleEvent(EVENT_WASTE, 5000);
-        events.ScheduleEvent(EVENT_ABOMIN, 25000);
-        events.ScheduleEvent(EVENT_WEAVER, 20000);
+        events.ScheduleEvent(EVENT_WASTE,  30000);
+        events.ScheduleEvent(EVENT_ABOMIN, 60000);
+        events.ScheduleEvent(EVENT_WEAVER, 80000);
         events.ScheduleEvent(EVENT_PHASE, 228000);
     }
 
@@ -169,29 +175,46 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 {
                     case EVENT_WASTE:
                         DoSummon(NPC_WASTE, Pos[RAND(0,3,6,9)]);
-                        events.RepeatEvent(5000);
+                        events.RepeatEvent(urand(2000,5000));
                         break;
                     case EVENT_ABOMIN:
-                        DoSummon(NPC_ABOMINATION, Pos[RAND(1,4,7,10)]);
-                        events.RepeatEvent(25000);
+                        if (nAbomination < 8)
+                        {
+                            DoSummon(NPC_ABOMINATION, Pos[RAND(1,4,7,10)]);
+                            nAbomination++;
+                            events.RepeatEvent(20000);
+                        }
+                        else
+                        {
+                            events.PopEvent();
+                        }
                         break;
                     case EVENT_WEAVER:
-                        DoSummon(NPC_WEAVER, Pos[RAND(0,3,6,9)]);
-                        events.RepeatEvent(20000);
+                        if (nWeaver < 8)
+                        {
+                            DoSummon(NPC_WEAVER, Pos[RAND(0,3,6,9)]);
+                            nWeaver++;
+                            events.RepeatEvent(25000);
+                        }
+                        else
+                        {
+                            events.PopEvent();
+                        }
                         break;
                     case EVENT_PHASE:
+                        // TODO : Add missing text
                         events.Reset();
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        events.ScheduleEvent(EVENT_BOLT, urand(1000,10000));
-                        events.ScheduleEvent(EVENT_NOVA, urand(10000,15000));
-                        events.ScheduleEvent(EVENT_DETONATE, 20000);
-                        events.ScheduleEvent(EVENT_FISSURE, 25000);
-                        events.ScheduleEvent(EVENT_BLAST, urand(30000,60000));
+                        events.ScheduleEvent(EVENT_BOLT, urand(5000,10000));
+                        events.ScheduleEvent(EVENT_NOVA, 15000);
+                        events.ScheduleEvent(EVENT_DETONATE, urand(30000,40000));
+                        events.ScheduleEvent(EVENT_FISSURE, urand(10000,30000));
+                        events.ScheduleEvent(EVENT_BLAST, urand(60000,120000));
                         if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
                             events.ScheduleEvent(EVENT_CHAIN, urand(30000,60000));
                         Phase = 2;
-                        return;
+                        break;
                     default:
                         events.PopEvent();
                         break;
@@ -200,10 +223,10 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
         }
         else
         {
-            //start phase 3 when we are 40% health
+            //start phase 3 when we are 45% health
             if (Phase != 3)
             {
-                if (HealthBelowPct(40))
+                if (HealthBelowPct(45))
                 {
                     Phase = 3 ;
                     DoScriptText(SAY_REQUEST_AID, m_creature);
@@ -212,10 +235,11 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                     DoScriptText(SAY_ANSWER_REQUEST, m_creature);
                 }
             }
-            else if (GuardiansOfIcecrown_Count < RAID_MODE(2,5))
+            else if (GuardiansOfIcecrown_Count < RAID_MODE(2,4))
             {
                 if (GuardiansOfIcecrown_Timer <= diff)
                 {
+                    // TODO : Add missing text
                     DoSummon(NPC_ICECROWN, Pos[RAND(2,5,8)]);
                     ++GuardiansOfIcecrown_Count;
                     GuardiansOfIcecrown_Timer = 5000;
@@ -232,18 +256,18 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                 {
                     case EVENT_BOLT:
                         DoCastVictim(RAID_MODE(SPELL_FROST_BOLT,H_SPELL_FROST_BOLT));
-                        events.RepeatEvent(urand(1000,10000));
-                        return;
+                        events.RepeatEvent(urand(5000,10000));
+                        break;
                     case EVENT_NOVA:
                         DoCastAOE(RAID_MODE(SPELL_FROST_BOLT_AOE,H_SPELL_FROST_BOLT_AOE));
-                        events.RepeatEvent(urand(10000,20000));
-                        return;
+                        events.RepeatEvent(urand(15000,30000));
+                        break;
                     case EVENT_CHAIN:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
                             DoCast(pTarget, SPELL_CHAINS_OF_KELTHUZAD);
                         DoScriptText(RAND(SAY_CHAIN_1,SAY_CHAIN_2), me);
-                        events.RepeatEvent(urand(30000,60000));
-                        return;
+                        events.RepeatEvent(urand(100000,180000));
+                        break;
                     case EVENT_DETONATE:
                     {
                         std::vector<Unit*> unitList;
@@ -264,24 +288,24 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                             DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2,SAY_SPECIAL_3), me);
                         }
 
-                        events.RepeatEvent(20000);
-                        return;
+                        events.RepeatEvent(urand(20000,50000));
+                        break;
                     }
                     case EVENT_FISSURE:
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                             DoCast(pTarget, SPELL_SHADOW_FISURE);
-                        events.RepeatEvent(25000);
-                        return;
+                        events.RepeatEvent(urand(10000,45000));
+                        break;
                     case EVENT_BLAST:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                             DoCast(pTarget, SPELL_FROST_BLAST);
                         if (rand()%2)
                             DoScriptText(SAY_FROST_BLAST, m_creature);
-                        events.RepeatEvent(urand(30000,60000));
-                        return;
+                        events.RepeatEvent(urand(30000,90000));
+                        break;
                     default:
                         events.PopEvent();
-                        return;
+                        break;
                 }
             }
 
