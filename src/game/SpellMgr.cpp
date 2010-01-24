@@ -3849,6 +3849,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENTRY_SRC;
             count++;
             break;
+        case 13810:     // Frost Trap Aura
+            spellInfo->Effect[1] = 0;
+            count++;
+            break;
         default:
             break;
         }
