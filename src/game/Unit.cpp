@@ -4552,6 +4552,8 @@ bool Unit::HasAuraTypeWithValue(AuraType auratype, uint32 value) const
 
 bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag)
 {
+    if (!(m_interruptMask & flag))
+        return false;
     for (AuraApplicationList::iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); ++iter)
     {
         if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellProto()->AuraInterruptFlags & flag)
