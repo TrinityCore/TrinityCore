@@ -456,6 +456,9 @@ void Aura::_Remove(AuraRemoveMode removeMode)
 
 void Aura::UpdateTargetMap(Unit * caster, bool apply)
 {
+    if (IsRemoved())
+        return;
+
     m_updateTargetMapInterval = UPDATE_TARGET_MAP_INTERVAL;
 
     // fill up to date target list
@@ -593,13 +596,10 @@ void Aura::UpdateOwner(uint32 diff, WorldObject * owner)
 
     Update(diff, caster);
 
-    if (!IsRemoved())
-    {
-        if (m_updateTargetMapInterval <= diff)
-            UpdateTargetMap(caster);
-        else
-            m_updateTargetMapInterval -= diff;
-    }
+    if (m_updateTargetMapInterval <= diff)
+        UpdateTargetMap(caster);
+    else
+        m_updateTargetMapInterval -= diff;
 
     // update aura effects
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
