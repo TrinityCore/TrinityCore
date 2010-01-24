@@ -23,7 +23,6 @@ Config TScriptConfig;
 
 void FillSpellSummary();
 void LoadOverridenSQLData();
-void LoadOverridenDBCData();
 
 void ScriptMgr::LoadDatabase()
 {
@@ -110,8 +109,6 @@ void ScriptMgr::ScriptsInit(char const* cfg_file)
 
     outstring_log(">> Load Overriden SQL Data.");
     LoadOverridenSQLData();
-    outstring_log(">> Load Overriden DBC Data.");
-    LoadOverridenDBCData();
 }
 
 //*********************************
