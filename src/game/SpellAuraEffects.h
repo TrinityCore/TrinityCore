@@ -67,6 +67,8 @@ class TRINITY_DLL_SPEC AuraEffect
         bool IsPeriodic() const { return m_isPeriodic; }
         bool IsAffectedOnSpell(SpellEntry const *spell) const;
 
+        void SendTickImmune(Unit * target, Unit *caster) const;
+
         void PeriodicTick(Unit * target, Unit * caster) const;
         void PeriodicDummyTick(Unit * target, Unit * caster) const;
         Unit* GetTriggerTarget(Unit * target) const;

@@ -1133,10 +1133,26 @@ bool AuraEffect::IsPeriodicTickCrit(Unit * target, Unit const * caster) const
     return false;
 }
 
+void AuraEffect::SendTickImmune(Unit * target, Unit *caster) const
+{
+    WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8+8+4+1);
+    data << uint64(caster ? caster->GetGUID() : target->GetGUID());
+    data << uint64(target->GetGUID());
+    data << uint32(m_spellProto->Id);
+    data << uint8(1);
+    target->SendMessageToSet(&data,true);
+}
+
 void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 {
-    if(!target->isAlive() || target->hasUnitState(UNIT_STAT_ISOLATED))
+    if(!target->isAlive())
         return;
+
+    if (target->hasUnitState(UNIT_STAT_ISOLATED))
+    {
+        SendTickImmune(target, caster);
+        return;
+    }
 
     switch(GetAuraType())
     {
@@ -1153,7 +1169,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             // Check for immune (not use charges)
             if (target->IsImmunedToDamage(GetSpellProto()))
+            {
+                SendTickImmune(target, caster);
                 break;
+            }
 
             // some auras remove at specific health level or more
             if (GetAuraType() == SPELL_AURA_PERIODIC_DAMAGE)
@@ -1276,7 +1295,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             // Check for immune
             if(target->IsImmunedToDamage(GetSpellProto()))
+            {
+                SendTickImmune(target, caster);
                 return;
+            }
 
             uint32 absorb=0;
             uint32 resist=0;
@@ -1456,7 +1478,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             // Check for immune (not use charges)
             if(target->IsImmunedToDamage(GetSpellProto()))
+            {
+                SendTickImmune(target, caster);
                 break;
+            }
 
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 damage = m_amount > 0 ? m_amount : 0;
@@ -1607,7 +1632,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             // Check for immune (not use charges)
             if(target->IsImmunedToDamage(GetSpellProto()))
+            {
+                SendTickImmune(target, caster);
                 return;
+            }
 
             int32 damage = m_amount > 0 ? m_amount : 0;
 
