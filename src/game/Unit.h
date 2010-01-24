@@ -1536,10 +1536,9 @@ class TRINITY_DLL_SPEC Unit : public WorldObject
 
         // aura apply/remove helpers - you should better not use these
         void _AddAura(UnitAura * aura, Unit * caster);
-        AuraApplication * __ApplyAura(Aura * aura);
-        void __UnapplyAura(AuraApplicationMap::iterator &i);
-        bool _ApplyAuraEffect(Aura * aura, uint8 effIndex);
-        void _UnapplyAuraEffect(AuraApplication * aurApp, uint8 effIndex, AuraRemoveMode removeMode);
+        AuraApplication * _CreateAuraApplication(Aura * aura, uint8 effMask);
+        void _ApplyAuraEffect(Aura * aura, uint8 effIndex);
+        void _ApplyAura(AuraApplication * aurApp, uint8 effMask);
         void _UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode);
         void _UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode);
         void _RemoveNoStackAuraApplicationsDueToAura(Aura * aura);

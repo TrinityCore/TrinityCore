@@ -2601,8 +2601,7 @@ void Spell::EffectApplyAura(uint32 i)
     if (!m_spellAura)
         return;
     assert (unitTarget == m_spellAura->GetOwner());
-    if (!m_spellAura->IsRemoved())
-        m_spellAura->ApplyEffectForTargets(i);
+    m_spellAura->_ApplyEffectForTargets(i);
 }
 
 void Spell::EffectApplyAreaAura(uint32 i)
@@ -2610,8 +2609,7 @@ void Spell::EffectApplyAreaAura(uint32 i)
     if (!m_spellAura)
         return;
     assert (unitTarget == m_spellAura->GetOwner());
-    if (!m_spellAura->IsRemoved())
-        m_spellAura->ApplyEffectForTargets(i);
+    m_spellAura->_ApplyEffectForTargets(i);
 }
 
 void Spell::EffectUnlearnSpecialization( uint32 i )
@@ -3140,10 +3138,10 @@ void Spell::EffectPersistentAA(uint32 i)
             assert(false);
             return;
         }
+        m_spellAura->_RegisterForTargets();
     }
     assert(m_spellAura->GetDynobjOwner());
-    if (!m_spellAura->IsRemoved())
-        m_spellAura->ApplyEffectForTargets(i);
+    m_spellAura->_ApplyEffectForTargets(i);
 }
 
 void Spell::EffectEnergize(uint32 i)
