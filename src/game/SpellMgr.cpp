@@ -3830,6 +3830,25 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx5 |= SPELL_ATTR_EX5_START_PERIODIC_AT_APPLY;
             count++;
             break;
+        case 41013:     // Parasitic Shadowfiend Passive
+            spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
+            count++;
+            break;
+        case 27892:     // To Anchor 1
+        case 27928:     // To Anchor 1
+        case 27935:     // To Anchor 1
+        case 27915:     // Anchor to Skulls
+        case 27931:     // Anchor to Skulls
+        case 27937:     // Anchor to Skulls
+            spellInfo->rangeIndex = 13;
+            count++;
+            break;
+        case 62374:     // Pursued
+            spellInfo->MaxAffectedTargets = 1;
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENTRY_SRC;
+            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENTRY_SRC;
+            count++;
+            break;
         default:
             break;
         }

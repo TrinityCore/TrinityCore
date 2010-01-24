@@ -718,40 +718,6 @@ void LoadOverridenSQLData()
             goInfo->trap.radius = 50;
 }
 
-void LoadOverridenDBCData()
-{
-    SpellEntry *spellInfo;
-    for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
-    {
-        spellInfo = GET_SPELL(i);
-        if(!spellInfo)
-            continue;
-
-        switch(i)
-        {
-            // Black Temple : Illidan : Parasitic Shadowfiend Passive
-            case 41013:
-                spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
-                break;
-            // Naxxramas : Gothik : Inform Inf range
-            case 27892:
-            case 27928:
-            case 27935:
-            case 27915:
-            case 27931:
-            case 27937:
-                spellInfo->rangeIndex = 13;
-                break;
-            // Ulduar : Flame Leviathan : Pursued
-            case 62374:
-                spellInfo->MaxAffectedTargets = 1;
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENTRY_SRC;
-                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENTRY_SRC;
-                break;
-        }
-    }
-}
-
 // SD2 grid searchers.
 Creature *GetClosestCreatureWithEntry(WorldObject *pSource, uint32 uiEntry, float fMaxSearchRange, bool bAlive)
 {
