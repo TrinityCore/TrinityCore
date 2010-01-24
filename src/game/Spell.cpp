@@ -3369,11 +3369,24 @@ void Spell::finish(bool ok)
 
     if (IsMeleeAttackResetSpell())
     {
-        m_caster->resetAttackTimer(BASE_ATTACK);
-        if(m_caster->haveOffhandWeapon())
-            m_caster->resetAttackTimer(OFF_ATTACK);
-        if(!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
-            m_caster->resetAttackTimer(RANGED_ATTACK);
+        bool found = false;
+        Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
+        for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
+        {
+            if ((*i)->IsAffectedOnSpell(m_spellInfo))
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            m_caster->resetAttackTimer(BASE_ATTACK);
+            if(m_caster->haveOffhandWeapon())
+                m_caster->resetAttackTimer(OFF_ATTACK);
+            if(!(m_spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_RESET_AUTOSHOT))
+                m_caster->resetAttackTimer(RANGED_ATTACK);
+        }
     }
 
     // potions disabled by client, send event "not in combat" if need
