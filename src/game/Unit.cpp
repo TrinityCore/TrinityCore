@@ -15731,6 +15731,11 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         ((Player*)this)->StopCastingBindSight();
         ((Player*)this)->Unmount();
         ((Player*)this)->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+        // drop flag at invisible in bg
+        if(((Player*)this)->InBattleGround())
+            if(BattleGround *bg = ((Player*)this)->GetBattleGround())
+                bg->EventPlayerDroppedFlag((Player*)this);
     }
 
     assert(!m_vehicle);
