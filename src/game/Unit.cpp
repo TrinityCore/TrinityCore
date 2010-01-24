@@ -3578,8 +3578,11 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
     }
 }
 
-AuraApplication * Unit::__ApplyAura(Aura * aura)
+// creates aura application instance and registers it in lists
+// aura application effects are handled separately to prevent aura list corruption
+AuraApplication * Unit::_CreateAuraApplication(Aura * aura, uint8 effMask)
 {
+    // can't apply aura on unit which is going to be deleted - to not create a memory leak
     assert(!m_cleanupDone);
     // aura musn't be removed
     assert(!aura->IsRemoved());
@@ -3594,9 +3597,7 @@ AuraApplication * Unit::__ApplyAura(Aura * aura)
 
     Unit * caster = aura->GetCaster();
 
-    // Add all pointers to lists here to prevent possible pointer invalidation on spellcast/auraapply/auraremove
-
-    AuraApplication * aurApp = new AuraApplication(this, caster, aura);
+    AuraApplication * aurApp = new AuraApplication(this, caster, aura, effMask);
     m_appliedAuras.insert(AuraApplicationMap::value_type(aurId, aurApp));
 
     if(aurSpellInfo->AuraInterruptFlags)
@@ -3605,35 +3606,72 @@ AuraApplication * Unit::__ApplyAura(Aura * aura)
         AddInterruptMask(aurSpellInfo->AuraInterruptFlags);
     }
 
-    AuraState aState = GetSpellAuraState(aura->GetSpellProto());
-    if(aState)
+    if(AuraState aState = GetSpellAuraState(aura->GetSpellProto()))
         m_auraStateAuras.insert(AuraStateAurasMap::value_type(aState, aurApp));
 
     aura->_ApplyForTarget(this, caster, aurApp);
-
-    _RemoveNoStackAurasDueToAura(aura);
-
-    // Update target aura state flag
-    if(aState)
-        ModifyAuraState(aState, true);
-
-    // Sitdown on apply aura req seated
-    if (aurSpellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
-        SetStandState(UNIT_STAND_STATE_SIT);
-
-    aura->HandleAuraSpecificMods(aurApp, caster, true);
-
-    if (aurApp->GetRemoveMode())
-        return NULL;
-
     return aurApp;
 }
 
-void Unit::__UnapplyAura(AuraApplicationMap::iterator &i)
+void Unit::_ApplyAuraEffect(Aura * aura, uint8 effIndex)
+{
+    assert(aura);
+    assert(aura->HasEffect(effIndex));
+    AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
+    assert(aurApp);
+    if (!aurApp->GetEffectMask())
+        _ApplyAura(aurApp, 1<<effIndex);
+    else
+        aurApp->_HandleEffect(effIndex, true);
+}
+
+// handles effects of aura application
+// should be done after registering aura in lists
+void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
+{
+    Aura * aura = aurApp->GetBase();
+
+    _RemoveNoStackAurasDueToAura(aura);
+
+    if (aurApp->GetRemoveMode())
+        return;
+
+    // Update target aura state flag
+    if(AuraState aState = GetSpellAuraState(aura->GetSpellProto()))
+        ModifyAuraState(aState, true);
+
+    if (aurApp->GetRemoveMode())
+        return;
+
+    // Sitdown on apply aura req seated
+    if (aura->GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED && !IsSitState())
+        SetStandState(UNIT_STAND_STATE_SIT);
+
+    Unit * caster = aura->GetCaster();
+
+    if (aurApp->GetRemoveMode())
+        return;
+
+    aura->HandleAuraSpecificMods(aurApp, caster, true);
+
+    // apply effects of the aura
+    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (effMask & 1<<i && (!aurApp->GetRemoveMode()))
+            aurApp->_HandleEffect(i, true);
+    }
+}
+
+// removes aura application from lists and unapplies effects
+void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode)
 {
     AuraApplication * aurApp = i->second;
+    assert(aurApp);
+    assert(!aurApp->GetRemoveMode());
     assert(aurApp->GetTarget() == this);
+    aurApp->SetRemoveMode(removeMode);
     Aura * aura = aurApp->GetBase();
+    sLog.outDebug("Aura %u now is remove mode %d", aura->GetId(), removeMode);
 
     // dead loop is killing the server probably
     assert(m_removedAurasCount < 0xFFFFFFFF);
@@ -3700,42 +3738,6 @@ void Unit::__UnapplyAura(AuraApplicationMap::iterator &i)
     // only way correctly remove all auras from list
     //if(removedAuras != m_removedAurasCount) new aura may be added
         i = m_appliedAuras.begin();
-}
-
-bool Unit::_ApplyAuraEffect(Aura * aura, uint8 effIndex)
-{
-    // check if aura has requested effect - should always do
-    assert(aura);
-    assert(aura->HasEffect(effIndex));
-    AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
-    if (!aurApp)
-    {
-        // real aura apply
-        aurApp = __ApplyAura(aura);
-        if (!aurApp)
-            return false;
-    }
-    // add effect to unit
-    aurApp->_HandleEffect(effIndex, true);
-    return true;
-}
-
-// Not implemented - afaik there should be no way to remove effects separately
-void Unit::_UnapplyAuraEffect(AuraApplication * aurApp, uint8 effIndex, AuraRemoveMode removeMode)
-{
-    assert(aurApp);
-    assert(aurApp->HasEffect(effIndex));
-    _UnapplyAura(aurApp, removeMode);
-}
-
-void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode)
-{
-    AuraApplication * aurApp = i->second;
-    assert(aurApp);
-    assert(!aurApp->GetRemoveMode());
-    aurApp->SetRemoveMode(removeMode);
-    sLog.outDebug("Aura %u now is remove mode %d", aurApp->GetBase()->GetId(), removeMode);
-    __UnapplyAura(i);
 }
 
 void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
