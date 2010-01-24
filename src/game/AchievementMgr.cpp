@@ -1192,23 +1192,48 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+            {
+                // miscvalue1 = itemid
+                // miscvalue2 = itemSlot
+                if (!miscvalue1)
+                    continue;
+
+                if (miscvalue2 != achievementCriteria->equip_epic_item.itemSlot)
+                    continue;
+
+                ItemPrototype const *pProto = objmgr.GetItemPrototype(miscvalue1);
+                if (!pProto || pProto->Quality != ITEM_QUALITY_EPIC)
+                    continue;
+
+                // check item level via achievement_criteria_data
+                AchievementCriteriaDataSet const* data = achievementmgr.GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(), 0, pProto->ItemLevel))
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, 1);
+                break;
+            }
+
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
             case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
             {
                 // miscvalue1 = itemid
                 // miscvalue2 = diced value
-                if(!miscvalue1)
+                if (!miscvalue1)
                     continue;
-                if(miscvalue2 != achievementCriteria->roll_greed_on_loot.rollValue)
+                if (miscvalue2 != achievementCriteria->roll_greed_on_loot.rollValue)
                     continue;
-                ItemPrototype const *pProto = objmgr.GetItemPrototype( miscvalue1 );
 
-                uint32 requiredItemLevel = 0;
-                if (achievementCriteria->ID == 2412 || achievementCriteria->ID == 2358)
-                    requiredItemLevel = 185;
-
-                if(!pProto || pProto->ItemLevel <requiredItemLevel)
+                ItemPrototype const *pProto = objmgr.GetItemPrototype(miscvalue1);
+                if (!pProto)
                     continue;
+
+                // check item level via achievement_criteria_data
+                AchievementCriteriaDataSet const* data = achievementmgr.GetCriteriaDataSet(achievementCriteria);
+                if (!data || !data->Meets(GetPlayer(), 0, pProto->ItemLevel))
+                    continue;
+
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
@@ -1377,7 +1402,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING:
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_TEAM_RATING:
             case ACHIEVEMENT_CRITERIA_TYPE_OWN_RANK:
-            case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
             case ACHIEVEMENT_CRITERIA_TYPE_GET_KILLING_BLOWS:
             case ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS:
             case ACHIEVEMENT_CRITERIA_TYPE_SPECIAL_PVP_KILL:
@@ -1499,6 +1523,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->gain_exalted_reputation.numberOfExaltedFactions;
         case ACHIEVEMENT_CRITERIA_TYPE_VISIT_BARBER_SHOP:
             return progress->counter >= achievementCriteria->visit_barber.numberOfVisits;
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+            return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
             return progress->counter >= achievementCriteria->roll_greed_on_loot.count;

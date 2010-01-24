@@ -11269,6 +11269,7 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
 
     // only for full equip instead adding to stack
     GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
 
     return pItem;
 }
@@ -11290,6 +11291,7 @@ void Player::QuickEquipItem( uint16 pos, Item *pItem)
         }
 
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, pItem->GetEntry(), slot);
     }
 }
 
