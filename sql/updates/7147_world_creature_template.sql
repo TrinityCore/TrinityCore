@@ -7,4 +7,3 @@ ADD COLUMN `attackpower` int(10) unsigned NOT NULL DEFAULT '0' AFTER `dmgschool`
 ADD COLUMN `minrangedmg` float NOT NULL DEFAULT '0' AFTER `trainer_race`,
 ADD COLUMN `maxrangedmg` float NOT NULL DEFAULT '0' AFTER `minrangedmg`,
 ADD COLUMN `rangedattackpower` smallint(5) unsigned NOT NULL DEFAULT '0' AFTER `maxrangedmg`;
-

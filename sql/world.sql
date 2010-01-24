@@ -6732,7 +6732,30 @@ LOCK TABLES `spell_scripts` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `spell_target_position`
+-- Table structure for table `spell_stack_masks`
+--
+
+DROP TABLE IF EXISTS `spell_stack_masks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spell_stack_masks` (
+  `id` int(32) unsigned NOT NULL default '0',
+  `mask` int(64) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `spell_stack_masks`
+--
+
+LOCK TABLES `spell_stack_masks` WRITE;
+/*!40000 ALTER TABLE `spell_stack_masks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spell_stack_masks` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping data for table `spell_target_position`
 --
 
 DROP TABLE IF EXISTS `spell_target_position`;
@@ -7456,15 +7479,6 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (753, 'The battle for Warsong Gulch begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (754, 'The battle for Arathi Basin begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (755, 'The battle for Eye of the Storm begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(756, 'Battle begins!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(757, '%s has successfully defended the fortress!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(758, '%s has taken over the fortress!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(759, 'The %s siege workshop has been damaged by the %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(760, 'The %s siege workshop has been destroyed by the %s!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(761, 'The %s tower has been damaged!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(762, 'The %s tower has been destroyed!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(771, 'You have reached Rank 1: Corporal', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(772, 'You have reached Rank 2: First Lieutenant', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (785, 'Arena testing turned %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (786, '|cffff0000[Automatic]:|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (787, '|cffffff00[|c1f40af20Announce by|r |cffff0000%s|cffffff00]:|r %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
