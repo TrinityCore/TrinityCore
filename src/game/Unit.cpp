@@ -4369,7 +4369,16 @@ void Unit::RemoveAllAurasOnDeath()
     {
         Aura const * aura = iter->second->GetBase();
         if (!aura->IsPassive() && !aura->IsDeathPersistent())
-            RemoveAura(iter, AURA_REMOVE_BY_DEATH);
+            _UnapplyAura(iter, AURA_REMOVE_BY_DEATH);
+        else
+            ++iter;
+    }
+
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    {
+        Aura * aura = iter->second;
+        if (!aura->IsPassive() && !aura->IsDeathPersistent())
+            RemoveOwnedAura(iter, AURA_REMOVE_BY_DEATH);
         else
             ++iter;
     }
