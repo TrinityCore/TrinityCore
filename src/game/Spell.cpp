@@ -814,8 +814,9 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const * triggeredByAura)
     }
     m_procEx= PROC_EX_NONE;
 
-    // Hunter traps Entrapment trigger: Frost Trap and Snake Trap initial activation
-    if (m_spellInfo->Id == 13810 || m_spellInfo->Id == 57879)
+    // Hunter traps spells (for Entrapment trigger)
+    // Gives your Immolation Trap, Frost Trap, Explosive Trap, and Snake Trap ....
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (m_spellInfo->SpellFamilyFlags[1] & 0x00002000 || m_spellInfo->SpellFamilyFlags[0] & 0x1C))
     {
         m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
         // Trigger only from spells originally casted by hunter(trap activation) to prevent multiple trigger from trap triggered spells
