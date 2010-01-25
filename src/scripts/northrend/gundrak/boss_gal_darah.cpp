@@ -25,7 +25,8 @@ enum Spells
     H_SPELL_PUNCTURE                              = 59826,
     SPELL_STAMPEDE                                = 55218,
     SPELL_WHIRLING_SLASH                          = 55249,
-    H_SPELL_WHIRLING_SLASH                        = 55825
+    H_SPELL_WHIRLING_SLASH                        = 55825,
+    SPELL_ECK_RESIDUE                             = 55817
 };
 
 //Yells
@@ -42,6 +43,13 @@ enum Yells
     SAY_TRANSFORM_1                            = -1604008,  //Phase change
     SAY_TRANSFORM_2                            = -1604009
 };
+
+enum Achievements
+{
+    ACHIEVEMENT_WHAT_THE_ECK      = 1864,
+    ACHIEVEMENT_SHARE_THE_LOVE    = 2152
+};
+
 
 enum CombatPhase
 {
@@ -62,6 +70,7 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
     uint32 uiEnrageTimer;
     uint32 uiImpalingChargeTimer;
     uint32 uiStompTimer;
+    std::set<uint64> lImpaledPlayers;
 
     CombatPhase Phase;
 
@@ -77,6 +86,9 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
         uiEnrageTimer = 15000;
         uiImpalingChargeTimer = 20000;
         uiStompTimer = 25000;
+        uiPhaseCounter = 0;
+
+        lImpaledPlayers.clear();
 
         Phase = TROLL;
 
@@ -155,8 +167,11 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
 
                     if (uiImpalingChargeTimer <= diff)
                     {
-                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                        if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
+                        {
                             DoCast(pTarget, DUNGEON_MODE(SPELL_IMPALING_CHARGE, H_SPELL_IMPALING_CHARGE));
+                            lImpaledPlayers.insert(pTarget->GetGUID());
+                        }
                         uiImpalingChargeTimer = 30000;
                         ++uiPhaseCounter;
                     } else uiImpalingChargeTimer -= diff;
@@ -170,6 +185,25 @@ struct TRINITY_DLL_DECL boss_gal_darahAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
+
+        if (IsHeroic())
+        {
+            AchievementEntry const *achievWhatTheEck = GetAchievementStore()->LookupEntry(ACHIEVEMENT_WHAT_THE_ECK);
+            if (achievWhatTheEck)
+            {
+                Map* pMap = m_creature->GetMap();
+                if (pMap && pMap->IsDungeon())
+                {
+                    Map::PlayerList const &players = pMap->GetPlayers();
+                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                        if (itr->getSource()->HasAura(SPELL_ECK_RESIDUE))
+                            itr->getSource()->CompletedAchievement(achievWhatTheEck);
+                }
+            }
+        }
+
+        if (pInstance && IsHeroic() && lImpaledPlayers.size() == 5)
+            pInstance->DoCompleteAchievement(ACHIEVEMENT_SHARE_THE_LOVE);
 
         if (pInstance)
             pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
