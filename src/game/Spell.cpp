@@ -1864,9 +1864,16 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     if(Unit *vehicle = m_caster->GetVehicleBase())
                         AddUnitTarget(vehicle, i);
                     break;
-                case TARGET_UNIT_PASSENGER:
+                case TARGET_UNIT_PASSENGER_0:
+                case TARGET_UNIT_PASSENGER_1:
+                case TARGET_UNIT_PASSENGER_2:
+                case TARGET_UNIT_PASSENGER_3:
+                case TARGET_UNIT_PASSENGER_4:
+                case TARGET_UNIT_PASSENGER_5:
+                case TARGET_UNIT_PASSENGER_6:
+                case TARGET_UNIT_PASSENGER_7:
                     if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsVehicle())
-                        if(Unit *unit = m_caster->GetVehicleKit()->GetPassenger(1)) // maybe not right
+                        if(Unit *unit = m_caster->GetVehicleKit()->GetPassenger(cur - TARGET_UNIT_PASSENGER_0))
                             AddUnitTarget(unit, i);
                     break;
             }
@@ -1904,6 +1911,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 case TARGET_UNIT_TARGET_RAID:
                 case TARGET_UNIT_TARGET_PARTY:
                 case TARGET_UNIT_MINIPET:
+                case TARGET_UNIT_UNK_92:
                     AddUnitTarget(target, i);
                     break;
                 case TARGET_UNIT_PARTY_TARGET:
@@ -2090,7 +2098,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             float dist;
             dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
-            if (cur == TARGET_DEST_DEST_RANDOM)
+            if (cur == TARGET_DEST_DEST_RANDOM || cur == TARGET_DEST_DEST_RANDOM_DIR_DIST)
                 dist *= rand_norm();
 
             // must has dst, no need to set flag

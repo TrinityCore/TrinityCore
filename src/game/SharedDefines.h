@@ -965,12 +965,11 @@ enum AuraState
     AURA_STATE_JUDGEMENT                    = 5,            // C   |
     //AURA_STATE_UNKNOWN6                   = 6,            //     | not used
     AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
-    AURA_STATE_ROGUE_ATTACK_FROM_STEALTH    = 7,            // C   | FIX ME: not implemented yet!
-    //AURA_STATE_UNKNOWN7                   = 7,            //  c  | random/focused bursts spells (?)
-    //AURA_STATE_UNKNOWN8                   = 8,            //     | not used
-    //AURA_STATE_UNKNOWN9                   = 9,            //     | not used
+    //AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
+    //AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
+    //AURA_STATE_UNKNOWN9                   = 9,            //     | 
     AURA_STATE_WARRIOR_VICTORY_RUSH         = 10,           // C   | warrior victory rush
-    //AURA_STATE_UNKNOWN11                  = 11,           //    t|
+    //AURA_STATE_UNKNOWN11                  = 11,           // C  t| 60348 - Maelstrom Ready!, test spells
     AURA_STATE_FAERIE_FIRE                  = 12,           //  c t|
     AURA_STATE_HEALTHLESS_35_PERCENT        = 13,           // C T |
     AURA_STATE_CONFLAGRATE                  = 14,           //   T |
@@ -981,7 +980,7 @@ enum AuraState
     //AURA_STATE_UNKNOWN19                  = 19,           //     | not used
     //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
     //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
-    //AURA_STATE_UNKNOWN22                  = 22,           // C   | not implemented yet (Requires Evasive Charges to use)
+    //AURA_STATE_UNKNOWN22                  = 22,           // C  t| varius spells (63884, 50240)
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
 };
 
@@ -1092,7 +1091,6 @@ enum Targets
     TARGET_UNIT_AREA_ENEMY_DST         = 16,
     TARGET_DST_DB                      = 17, // uses in teleport spells and some other
     TARGET_DST_CASTER                  = 18,
-    TARGET_PREV_EFFECT_SUMMON          = 18,
     TARGET_UNIT_PARTY_CASTER           = 20,
     TARGET_UNIT_TARGET_ALLY            = 21,
     TARGET_SRC_CASTER                  = 22,
@@ -1167,13 +1165,22 @@ enum Targets
     TARGET_DEST_DYNOBJ_NONE            = 88,
     TARGET_DEST_TRAJ                   = 89,
     TARGET_UNIT_MINIPET                = 90,
-    TARGET_UNK_91                      = 91,
-    TARGET_UNK_92                      = 92,
-    TARGET_CORPSE_AREA_ENEMY_PLAYER    = 93,
+    TARGET_DEST_DEST_RANDOM_DIR_DIST   = 91,
+    TARGET_UNIT_UNK_92                 = 92,
+    TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93,
     TARGET_UNIT_VEHICLE                = 94,
-    TARGET_UNIT_DRIVER                 = 95, //?
-    TARGET_UNIT_PASSENGER              = 97,
+    TARGET_UNIT_DRIVER                 = 95,
+    TARGET_UNIT_PASSENGER_0            = 96,
+    TARGET_UNIT_PASSENGER_1            = 97,
+    TARGET_UNIT_PASSENGER_2            = 98,
+    TARGET_UNIT_PASSENGER_3            = 99,
+    TARGET_UNIT_PASSENGER_4            = 100,
+    TARGET_UNIT_PASSENGER_5            = 101,
+    TARGET_UNIT_PASSENGER_6            = 102,
+    TARGET_UNIT_PASSENGER_7            = 103,
     TARGET_UNIT_AREA_PATH              = 104,
+    TARGET_UNIT_UNK_105                = 105, // 1 spell
+    TARGET_DEST_UNK_110                = 110, // some kind of traj?
 };
 
 #define TOTAL_SPELL_TARGETS              105
