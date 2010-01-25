@@ -33,10 +33,10 @@ class Aura;
 enum SpellCastTargetFlags
 {
     TARGET_FLAG_SELF            = 0x00000000,
-    TARGET_FLAG_UNUSED1         = 0x00000001,               // not used in any spells as of 3.0.3 (can be set dynamically)
+    TARGET_FLAG_UNUSED1         = 0x00000001,               // not used in any spells as of 3.2.2a (can be set dynamically)
     TARGET_FLAG_UNIT            = 0x00000002,               // pguid
-    TARGET_FLAG_UNUSED2         = 0x00000004,               // not used in any spells as of 3.0.3 (can be set dynamically)
-    TARGET_FLAG_UNUSED3         = 0x00000008,               // not used in any spells as of 3.0.3 (can be set dynamically)
+    TARGET_FLAG_UNUSED2         = 0x00000004,               // not used in any spells as of 3.2.2a (can be set dynamically)
+    TARGET_FLAG_UNUSED3         = 0x00000008,               // not used in any spells as of 3.2.2a (can be set dynamically)
     TARGET_FLAG_ITEM            = 0x00000010,               // pguid
     TARGET_FLAG_SOURCE_LOCATION = 0x00000020,               // 3 float
     TARGET_FLAG_DEST_LOCATION   = 0x00000040,               // 3 float
@@ -49,7 +49,7 @@ enum SpellCastTargetFlags
     TARGET_FLAG_STRING          = 0x00002000,               // string, 0 spells
     TARGET_FLAG_UNK1            = 0x00004000,               // 199 spells, opening object/lock
     TARGET_FLAG_CORPSE          = 0x00008000,               // pguid, resurrection spells
-    TARGET_FLAG_UNK2            = 0x00010000,               // pguid, not used in any spells as of 3.0.3 (can be set dynamically)
+    TARGET_FLAG_UNK2            = 0x00010000,               // pguid, not used in any spells as of 3.2.2a (can be set dynamically)
     TARGET_FLAG_GLYPH           = 0x00020000                // used in glyph spells
 };
 
