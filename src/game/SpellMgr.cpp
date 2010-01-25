@@ -110,7 +110,14 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_PARTY_CASTER:
             case TARGET_UNIT_RAID_CASTER:
             case TARGET_UNIT_VEHICLE:
-            case TARGET_UNIT_PASSENGER:
+            case TARGET_UNIT_PASSENGER_0:
+            case TARGET_UNIT_PASSENGER_1:
+            case TARGET_UNIT_PASSENGER_2:
+            case TARGET_UNIT_PASSENGER_3:
+            case TARGET_UNIT_PASSENGER_4:
+            case TARGET_UNIT_PASSENGER_5:
+            case TARGET_UNIT_PASSENGER_6:
+            case TARGET_UNIT_PASSENGER_7:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_CASTER;
                 break;
             case TARGET_UNIT_MINIPET:
@@ -122,6 +129,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_PARTY_TARGET:
             case TARGET_UNIT_CLASS_TARGET:
             case TARGET_UNIT_CHAINHEAL:
+            case TARGET_UNIT_UNK_92:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
             case TARGET_UNIT_NEARBY_ENEMY:
@@ -196,6 +204,7 @@ SpellMgr::SpellMgr()
             case TARGET_DEST_DEST_RIGHT:
             case TARGET_DEST_DEST_LEFT:
             case TARGET_DEST_DEST_RANDOM:
+            case TARGET_DEST_DEST_RANDOM_DIR_DIST:
                 SpellTargetType[i] = TARGET_TYPE_DEST_DEST;
                 break;
             case TARGET_DST_DB:
