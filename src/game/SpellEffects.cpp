@@ -6601,13 +6601,17 @@ void Spell::EffectReputation(uint32 i)
 
 void Spell::EffectQuestComplete(uint32 i)
 {
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+    Player *pPlayer;
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        pPlayer = (Player*)m_caster;
+    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER) 
+        pPlayer = (Player*)unitTarget;
+    else
         return;
 
-    Player *_player = (Player*)m_caster;
-
     uint32 quest_id = m_spellInfo->EffectMiscValue[i];
-    _player->AreaExploredOrEventHappens(quest_id);
+    pPlayer->AreaExploredOrEventHappens(quest_id);
 }
 
 void Spell::EffectForceDeselect(uint32 i)
