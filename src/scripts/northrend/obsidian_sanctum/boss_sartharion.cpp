@@ -274,12 +274,12 @@ struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
     // AddDrakeLootMode() should only ever be called from FetchDragons(), which is called from Aggro()
     void AddDrakeLootMode()
     {
-        if (m_creature->HasLootMode(4))      // Has two Drake loot modes
-            m_creature->AddLootMode(8);      // Add 3rd Drake loot mode
-        else if (m_creature->HasLootMode(2)) // Has one Drake loot mode
-            m_creature->AddLootMode(4);      // Add 2nd Drake loot mode
-        else                                 // Has no Drake loot modes
-            m_creature->AddLootMode(2);      // Add 1st Drake loot mode
+        if (m_creature->HasLootMode(LOOT_MODE_HARD_MODE_2))      // Has two Drake loot modes
+            m_creature->AddLootMode(LOOT_MODE_HARD_MODE_3);      // Add 3rd Drake loot mode
+        else if (m_creature->HasLootMode(LOOT_MODE_HARD_MODE_1)) // Has one Drake loot mode
+            m_creature->AddLootMode(LOOT_MODE_HARD_MODE_2);      // Add 2nd Drake loot mode
+        else                                                     // Has no Drake loot modes
+            m_creature->AddLootMode(LOOT_MODE_HARD_MODE_1);      // Add 1st Drake loot mode
     }
 
     void FetchDragons()

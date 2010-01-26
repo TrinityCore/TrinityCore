@@ -24,8 +24,15 @@
 #include "Platform/Define.h"
 #include <cassert>
 
-// default loot mode for creatures and gameobjects
-#define DEFAULT_LOOT_MODE 1
+// loot modes for creatures and gameobjects, bitmask!
+enum LootModes
+{
+    LOOT_MODE_DEFAULT                  = 1,
+    LOOT_MODE_HARD_MODE_1              = 2,
+    LOOT_MODE_HARD_MODE_2              = 4,
+    LOOT_MODE_HARD_MODE_3              = 8,
+    LOOT_MODE_HARD_MODE_4              = 16
+};
 
 enum Gender
 {
