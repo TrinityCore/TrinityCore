@@ -814,15 +814,14 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const * triggeredByAura)
     }
     m_procEx= PROC_EX_NONE;
 
-    // Hunter traps spells (for Entrapment trigger)
-    // Gives your Immolation Trap, Frost Trap, Explosive Trap, and Snake Trap ....
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && (m_spellInfo->SpellFamilyFlags[1] & 0x00002000 || m_spellInfo->SpellFamilyFlags[0] & 0x1C))
-    {
+    // Hunter trap spells - activation proc for Lock and Load, Entrapment and Misdirection
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && 
+        (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||     // Freezing and Frost Trap, Freezing Arrow
+        m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
+        m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
+        
         m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
-        // Trigger only from spells originally casted by hunter(trap activation) to prevent multiple trigger from trap triggered spells
-        if (m_originalCasterGUID != m_caster->GetGUID() && m_originalCasterGUID)
-            return;
-    }
+
     /*
         Effects which are result of aura proc from triggered spell cannot proc
         to prevent chain proc of these spells
