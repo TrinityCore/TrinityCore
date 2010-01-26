@@ -1,3 +1,5 @@
+-- Remove the following line to import this
++++DO NOT IMPORT THIS UNLESS YOU WANT A *BLANK* DATABASE.+++
 -- MySQL dump 10.13  Distrib 5.1.36, for redhat-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: world
