@@ -551,7 +551,7 @@ class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
-        void ResetLootMode() { m_LootMode = DEFAULT_LOOT_MODE; }
+        void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
         SpellEntry const *reachWithSpellAttack(Unit *pVictim);
         SpellEntry const *reachWithSpellCure(Unit *pVictim);
@@ -709,7 +709,7 @@ class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
         CreatureInfo const* m_creatureInfo;                 // in difficulty mode > 0 can different from ObjMgr::GetCreatureTemplate(GetEntry())
         CreatureData const* m_creatureData;
 
-        uint16 m_LootMode;                                  // bitmask, default DEFAULT_LOOT_MODE, determines what loot will be lootable
+        uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
 
     private:
         //WaypointMovementGenerator vars
