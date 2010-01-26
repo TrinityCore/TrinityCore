@@ -445,8 +445,6 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->SetReactState(REACT_PASSIVE);
-        pAffected = NULL;
-        pWhisker  = NULL;
     }
 
     bool bSummoned;
@@ -457,7 +455,7 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
     uint32 uiFishyScentTimer;
 
     Unit* pAffected;
-    Creature* pWhisker;
+    uint64 uiWhisker;
 
     void Reset()
     {
@@ -466,12 +464,15 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
         bFishyScent         = false;
         uiBattleShoutTimer  = 0;
         uiFishyScentTimer   = 20000;
+        uiWhisker           = 0;
+        pAffected           = NULL;
     }
 
     void EnterEvadeMode()
     {
-        if (pWhisker)
-            pWhisker->RemoveFromWorld();
+        if (uiWhisker)
+            if (Creature *pWhisker = m_creature->GetCreature(*m_creature, uiWhisker))
+                pWhisker->RemoveFromWorld();
 
         if (m_creature->isSummon())
             if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
@@ -517,7 +518,9 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
         {
             DoScriptText(SAY_CALL_FOR_HELP ,m_creature);
             //DoCast(m_creature->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
-            pWhisker = m_creature->SummonCreature(NPC_WHISKER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
+            
+            if (Creature *pWhisker = m_creature->SummonCreature(NPC_WHISKER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                uiWhisker = pWhisker->GetGUID();
             bSummoned = true;
         }
 
@@ -540,8 +543,9 @@ struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        if (pWhisker)
-            pWhisker->RemoveFromWorld();
+        if (uiWhisker)
+            if (Creature *pWhisker = m_creature->GetCreature(*m_creature, uiWhisker))
+                pWhisker->RemoveFromWorld();
 
         if (pKiller->GetTypeId() == TYPEID_PLAYER)
             CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, CAST_PLR(pKiller));
