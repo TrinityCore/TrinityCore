@@ -386,7 +386,7 @@ void Loot::AddItem(LootStoreItem const & item)
 }
 
 // Calls processor of corresponding LootTemplate (which handles everything including references)
-bool Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, bool noEmptyError, uint16 lootMode /*= DEFAULT_LOOT_MODE*/)
+bool Loot::FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, bool noEmptyError, uint16 lootMode /*= LOOT_MODE_DEFAULT*/)
 {
     // Must be provided
     if (!loot_owner)

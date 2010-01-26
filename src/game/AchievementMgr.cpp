@@ -95,6 +95,9 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
         case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
         case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+        case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+        case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
             break;
         default:
             sLog.outErrorDb( "Table `achievement_criteria_data` have data for not supported criteria type (Entry: %u Type: %u), ignore.", criteria->ID, criteria->requiredType);
