@@ -1140,7 +1140,7 @@ uint32 GameEventMgr::Update()                               // return the next e
 
 void GameEventMgr::UnApplyEvent(uint16 event_id)
 {
-    sLog.outString("GameEvent %u \"%s\" removed.", event_id, mGameEvent[event_id].description.c_str());
+    sLog.outDetaiDetail("GameEvent %u \"%s\" removed.", event_id, mGameEvent[event_id].description.c_str());
     // un-spawn positive event tagged objects
     GameEventUnspawn(event_id);
     // spawn negative event tagget objects
@@ -1169,7 +1169,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
             break;
     }
 
-    sLog.outString("GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
+    sLog.outDetail("GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
 
     // spawn positive event tagget objects
     GameEventSpawn(event_id);
