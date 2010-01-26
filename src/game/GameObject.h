@@ -687,7 +687,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject, public GridObject<GameOb
         void SetLootMode(uint16 lootMode) { m_LootMode = lootMode; }
         void AddLootMode(uint16 lootMode) { m_LootMode |= lootMode; }
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
-        void ResetLootMode() { m_LootMode = DEFAULT_LOOT_MODE; }
+        void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
         void AddToSkillupList(uint32 PlayerGuidLow) { m_SkillupList.push_back(PlayerGuidLow); }
         bool IsInSkillupList(uint32 PlayerGuidLow) const
@@ -754,7 +754,7 @@ class TRINITY_DLL_SPEC GameObject : public WorldObject, public GridObject<GameOb
 
         uint64 m_rotation;
 
-        uint16 m_LootMode;                                  // bitmask, default DEFAULT_LOOT_MODE, determines what loot will be lootable
+        uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
 };

@@ -289,7 +289,7 @@ struct Loot
     void RemoveLooter(uint64 GUID) { PlayersLooting.erase(GUID); }
 
     void generateMoneyLoot(uint32 minAmount, uint32 maxAmount);
-    bool FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, bool noEmptyError = false, uint16 lootMode = DEFAULT_LOOT_MODE);
+    bool FillLoot(uint32 loot_id, LootStore const& store, Player* loot_owner, bool personal, bool noEmptyError = false, uint16 lootMode = LOOT_MODE_DEFAULT);
 
     // Inserts the item into the loot (called by LootTemplate processors)
     void AddItem(LootStoreItem const & item);
