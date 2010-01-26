@@ -340,7 +340,7 @@ void npc_escortAI::MovementInform(uint32 uiMoveType, uint32 uiPointId)
         //Make sure that we are still on the right waypoint
         if (CurrentWP->id != uiPointId)
         {
-            error_log("TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u", uiPointId, CurrentWP->id);
+            error_log("TSCR ERROR: EscortAI reached waypoint out of order %u, expected %u, creature entry %u", uiPointId, CurrentWP->id, m_creature->GetEntry());
             return;
         }
 
