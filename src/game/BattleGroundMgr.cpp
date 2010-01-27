@@ -1278,7 +1278,7 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
             *data << uint32(bg->GetMapId());                // map id
             *data << uint32(Time1);                         // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
             *data << uint32(Time2);                         // time from bg start, milliseconds
-            *data << uint8(bg->isArena() ? 0 : 1);          // unk, 0 for arena matches, 1 for bg matches
+            *data << uint8(/*bg->isArena() ? 0 :*/ 1);      // unk, possibly 0 == preparation phase, 1 == battle
             break;
         default:
             sLog.outError("Unknown BG status!");
@@ -1344,8 +1344,8 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             Player *plr = objmgr.GetPlayer(itr->first);
             uint32 team = bg->GetPlayerTeam(itr->first);
             if (!team && plr)
-                team = plr->GetTeam();
-            *data << uint8(team == ALLIANCE ? 0 : 1); // green or yellow
+                team = plr->GetBGTeam();
+            *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
 
         }
         *data << (int32)itr->second->DamageDone;             // damage done
