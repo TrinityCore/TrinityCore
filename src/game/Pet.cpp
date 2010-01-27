@@ -886,7 +886,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     if (GetEntry() == 29264)
     {
         float apbonus=0.35f;
- 
+
         // Glyph of Feral Spirit
         if (AuraEffect *aurEff = m_owner->GetAuraEffect(63271, 0))
             apbonus += aurEff->GetAmount() / 100.0f;
@@ -974,6 +974,25 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetCreateMana(0);
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel / 2 - 10));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel / 2));
+                    break;
+                }
+                case 29264: // Feral Spirit
+                {
+                    if (!pInfo)
+                        SetCreateHealth(30*petlevel);
+
+					float dmg_multiplier = 0.3f;
+                    if (HasAura(63271)) // Glyph of Feral Spirit
+                        dmg_multiplier = 0.6f;
+
+
+                    SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
+
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE,float((petlevel * 4 - petlevel) + (m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier)));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE,float((petlevel * 4 + petlevel) + (m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier)));
+
+                    SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(m_owner->GetArmor()) * 0.35f);  //  Bonus Armor (35% of player armor)
+                    SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE,float(m_owner->GetStat(STAT_STAMINA)) * 0.3f);  //  Bonus Stamina (30% of player stamina)
                     break;
                 }
                 case 31216: // Mirror Image
@@ -1260,7 +1279,7 @@ void Pet::_SaveAuras()
 
         CharacterDatabase.PExecute("INSERT INTO pet_aura (guid,caster_guid,spell,effect_mask,recalculate_mask,stackcount,amount0,amount1,amount2,base_amount0,base_amount1,base_amount2,maxduration,remaintime,remaincharges) "
             "VALUES ('%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
-            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(), itr->second->GetId(), effMask, recalculateMask, 
+            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(), itr->second->GetId(), effMask, recalculateMask,
             itr->second->GetStackAmount(), damage[0], damage[1], damage[2], baseDamage[0], baseDamage[1], baseDamage[2],
             itr->second->GetMaxDuration(), itr->second->GetDuration(),itr->second->GetCharges());
     }
