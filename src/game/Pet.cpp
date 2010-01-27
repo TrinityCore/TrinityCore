@@ -981,10 +981,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     if (!pInfo)
                         SetCreateHealth(30*petlevel);
 
-					float dmg_multiplier = 0.3f;
+                    float dmg_multiplier = 0.3f;
                     if (HasAura(63271)) // Glyph of Feral Spirit
                         dmg_multiplier = 0.6f;
-
 
                     SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
 
