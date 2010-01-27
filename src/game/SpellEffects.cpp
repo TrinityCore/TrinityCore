@@ -3289,7 +3289,14 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry,m_caster);
                 return;
 
-            case GAMEOBJECT_TYPE_GOOBER:
+             case GAMEOBJECT_TYPE_GOOBER:
+				// goober_scripts can be triggered if the player don't have the quest
+                if (gameObjTarget->GetGOInfo()->goober.eventId)
+				{
+					sLog.outDebug("Goober ScriptStart id %u for GO %u",gameObjTarget->GetGOInfo()->goober.eventId,gameObjTarget->GetDBTableGUIDLow());
+					player->GetMap()->ScriptsStart(sEventScripts, gameObjTarget->GetGOInfo()->goober.eventId, player, gameObjTarget);
+					gameObjTarget->EventInform(gameObjTarget->GetGOInfo()->goober.eventId);
+				}
                 gameObjTarget->Use(m_caster);
                 return;
 
@@ -3746,7 +3753,7 @@ void Spell::EffectDispel(uint32 i)
             }
 
             bool dispel_charges = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES;
-            
+
             for (uint8 i = dispel_charges ? aura->GetCharges() : aura->GetStackAmount(); i; --i)
                 dispel_list.push_back(aura);
         }
@@ -3867,7 +3874,7 @@ void Spell::EffectPickPocket(uint32 /*i*/)
 
     // victim have to be alive and humanoid or undead
     if (unitTarget->isAlive() && (unitTarget->GetCreatureTypeMask() &CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) != 0)
-        ((Player*)m_caster)->SendLoot(unitTarget->GetGUID(),LOOT_PICKPOCKETING); 
+        ((Player*)m_caster)->SendLoot(unitTarget->GetGUID(),LOOT_PICKPOCKETING);
 }
 
 void Spell::EffectAddFarsight(uint32 i)
@@ -6605,7 +6612,7 @@ void Spell::EffectQuestComplete(uint32 i)
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         pPlayer = (Player*)m_caster;
-    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER) 
+    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
         pPlayer = (Player*)unitTarget;
     else
         return;
@@ -7176,7 +7183,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
                 continue;
 
             bool dispel_charges = aura->GetSpellProto()->AttributesEx7 & SPELL_ATTR_EX7_DISPEL_CHARGES;
-            
+
             for (uint8 i = dispel_charges ? aura->GetCharges() : aura->GetStackAmount(); i; --i)
                 steal_list.push_back(aura);
         }
