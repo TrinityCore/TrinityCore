@@ -11,9 +11,10 @@
 #include "Common.h"
 #include "Platform/CompilerDefs.h"
 #include "DBCStructure.h"
+#include "Config/ConfigEnv.h"
 
 #ifndef _TRINITY_SCRIPT_CONFIG
-# define _TRINITY_SCRIPT_CONFIG  "trinitycore.conf"
+# define _TRINITY_SCRIPT_CONFIG  sConfig.GetFilename().c_str()
 #endif _TRINITY_SCRIPT_CONFIG
 
 class Player;
