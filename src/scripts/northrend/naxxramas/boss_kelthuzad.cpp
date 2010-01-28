@@ -206,6 +206,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.Reset();
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
+                        me->InterruptNonMeleeSpells(false);
                         events.ScheduleEvent(EVENT_BOLT, urand(5000,10000));
                         events.ScheduleEvent(EVENT_NOVA, 15000);
                         events.ScheduleEvent(EVENT_DETONATE, urand(30000,40000));
