@@ -1999,14 +1999,14 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                         return;
                     // Frost Blast
                     case 27808:
-                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, (float)target->GetMaxHealth()*0.26f, target, true, NULL, this);
+                        caster->CastCustomSpell(29879, SPELLVALUE_BASE_POINT0, (float)target->GetMaxHealth()*0.21f, target, true, NULL, this);
                         return;
                     // Detonate Mana
                     case 27819:
-                        if(int32 mana = (int32)(target->GetMaxPower(POWER_MANA) / 4))
+                        if(int32 mana = (int32)(target->GetMaxPower(POWER_MANA) / 10))
                         {
                             mana = target->ModifyPower(POWER_MANA, -mana);
-                            target->CastCustomSpell(27820, SPELLVALUE_BASE_POINT0, -mana*4, NULL, true, NULL, this, caster->GetGUID());
+                            target->CastCustomSpell(27820, SPELLVALUE_BASE_POINT0, -mana*10, target, true, NULL, this);
                         }
                         return;
                     // Inoculate Nestlewood Owlkin
