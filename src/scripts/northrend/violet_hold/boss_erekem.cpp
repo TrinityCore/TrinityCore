@@ -11,18 +11,19 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "ScriptedPch.h"
 #include "violet_hold.h"
+#include "SpellId.h"
 
 enum Spells
 {
-    SPELL_BLOODLUST                                = 54516,
-    SPELL_BREAK_BONDS                              = 59463,
-    SPELL_CHAIN_HEAL                               = 54481,
-    H_SPELL_CHAIN_HEAL                             = 59473,
-    SPELL_EARTH_SHIELD                             = 54479,
-    H_SPELL_EARTH_SHIELD                           = 59471,
-    SPELL_EARTH_SHOCK                              = 54511,
-    SPELL_LIGHTNING_BOLT                           = 53044,
-    SPELL_STORMSTRIKE                              = 51876
+    SPELL_BLOODLUST                             = SPELL_BLOODLUST_54516,
+    SPELL_BREAK_BONDS                           = SPELL_BREAK_BONDS_59463,
+    SPELL_CHAIN_HEAL                            = SPELL_CHAIN_HEAL_54481,
+    H_SPELL_CHAIN_HEAL                          = SPELL_CHAIN_HEAL_59473,
+    SPELL_EARTH_SHIELD                          = SPELL_EARTH_SHIELD_54479,
+    H_SPELL_EARTH_SHIELD                        = SPELL_EARTH_SHIELD_59471,
+    SPELL_EARTH_SHOCK                           = SPELL_EARTH_SHOCK_54511,
+    SPELL_LIGHTNING_BOLT                        = SPELL_LIGHTNING_BOLT_53044,
+    SPELL_STORMSTRIKE                           = SPELL_STORMSTRIKE_51876
 };
 
 //not in db
@@ -65,13 +66,19 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
         uiEarthShieldTimer = 20000;
         if (pInstance)
         {
-            pGuard1 = pInstance->instance->GetCreature(pInstance->GetData(DATA_EREKEM_GUARD_1));
-            pGuard2 = pInstance->instance->GetCreature(pInstance->GetData(DATA_EREKEM_GUARD_2));
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
             else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
+
+        pGuard1 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_1));
+        if (pGuard1 && !pGuard1->isAlive())
+            pGuard1->Respawn();
+
+        pGuard2 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_2));
+        if (pGuard2 && !pGuard2->isAlive())
+            pGuard2->Respawn();
     }
 
     void AttackStart(Unit* pWho)
@@ -85,16 +92,36 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
             m_creature->SetInCombatWith(pWho);
             pWho->SetInCombatWith(m_creature);
             DoStartMovement(pWho);
+
+            if (pInstance)
+            {
+                if (pGuard1)
+                {
+                    pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    if (!pGuard1->getVictim() && pGuard1->AI())
+                        pGuard1->AI()->AttackStart(pWho);
+                }
+     
+                if (pGuard2)
+                {
+                    pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    if (!pGuard2->getVictim() && pGuard2->AI())
+                        pGuard2->AI()->AttackStart(pWho);
+                }
+            }
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCast(m_creature, DUNGEON_MODE(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
 
         if (pInstance)
         {
+            pGuard1 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_1));
+            pGuard2 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_2));
+
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
@@ -185,11 +212,11 @@ struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
 
     Creature* GetChainHealTarget()
     {
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 85)
+        if (HealthBelowPct(85))
             return m_creature;
-        if (pGuard1 && pGuard1->isAlive() && (pGuard1->GetHealth()*100 / pGuard1->GetMaxHealth() <= 75))
+        if (pGuard1 && pGuard1->isAlive() && (pGuard1->GetHealth()*100 <= pGuard1->GetMaxHealth() * 75))
             return pGuard1;
-        if (pGuard2 && pGuard2->isAlive() && (pGuard2->GetHealth()*100 / pGuard2->GetMaxHealth() <= 75))
+        if (pGuard2 && pGuard2->isAlive() && (pGuard2->GetHealth()*100 <= pGuard2->GetMaxHealth() * 75))
             return pGuard2;
         return NULL;
     }

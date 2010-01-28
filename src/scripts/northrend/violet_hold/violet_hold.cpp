@@ -3,7 +3,7 @@
 
 #define GOSSIP_START_EVENT  "Get your people to safety, we'll keep the Blue Dragonflight's forces at bay."
 #define GOSSIP_ITEM_1       "Activate the crystals when we get in trouble, right"
-#define SPAWN_TIME          15000
+#define SPAWN_TIME          20000
 
 enum PortalCreatures
 {
@@ -15,6 +15,11 @@ enum PortalCreatures
     CREATURE_AZURE_SORCEROR           = 30667,
     CREATURE_AZURE_RAIDER             = 30668,
     CREATURE_AZURE_STALKER            = 32191
+};
+
+enum Spells
+{
+    SPELL_PORTAL_CHANNEL              = 58012
 };
 
 enum eSinclari
@@ -69,7 +74,10 @@ struct TRINITY_DLL_DECL npc_sinclariAI : public ScriptedAI
             return;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_WAVE_COUNT,1);
+            pInstance->SetData(DATA_REMOVE_NPC,0); // might not have been reset after a wipe on a boss.
+        }
 
         //She should not be despawned, she will be used by the instance to summon some npcs
         m_creature->SetVisibility(VISIBILITY_OFF);
@@ -178,12 +186,14 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
     }
 
     uint32 uiSpawnTimer;
+    bool bPortalGuardianOrKeeperSpawn;
 
     ScriptedInstance *pInstance;
 
     void Reset()
     {
-        uiSpawnTimer = 3000;
+        uiSpawnTimer = 10000;
+        bPortalGuardianOrKeeperSpawn = false;
     }
 
     void EnterCombat(Unit *who) {}
@@ -199,19 +209,27 @@ struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
 
         if (uiSpawnTimer <= diff)
         {
-            uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
-            for (uint8 i = 0; i < k; ++i)
+            if (bPortalGuardianOrKeeperSpawn)
             {
-                if (Creature* pSummon = m_creature->SummonCreature(RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR),
-                                                       m_creature->GetPositionX()+urand(0,2), m_creature->GetPositionY()+urand(0,2),
-                                                       m_creature->GetPositionZ(),m_creature->GetOrientation(),
-                                                       TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                    pSummon->GetMotionMaster()->MovePoint(0, DoorPosition);
+                uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 2 : 3;
+                for (uint8 i = 0; i < k; ++i)
+                {
+                    uint32 entry = RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR);
+                    if (Creature* pSummon = DoSummon(entry, m_creature, 2.0f, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+                        pSummon->GetMotionMaster()->MovePoint(0, DoorPosition);
+                }
+            }
+            else 
+            {
+                bPortalGuardianOrKeeperSpawn = true;
+                uint32 entry = RAND(CREATURE_PORTAL_GUARDIAN, CREATURE_PORTAL_KEEPER);
+                if (Creature *pPortalKeeper = DoSummon(entry, m_creature, 2.0f, 0, TEMPSUMMON_DEAD_DESPAWN))
+                    m_creature->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL, false);
             }
             uiSpawnTimer = SPAWN_TIME;
         } else uiSpawnTimer -= diff;
 
-        if (!m_creature->IsNonMeleeSpellCasted(false))
+        if (bPortalGuardianOrKeeperSpawn && !m_creature->IsNonMeleeSpellCasted(false))
         {
             m_creature->Kill(m_creature, false);
             m_creature->RemoveCorpse();
