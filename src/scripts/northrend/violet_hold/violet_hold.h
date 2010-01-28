@@ -49,9 +49,23 @@ enum Data64
     DATA_SINCLARI
 };
 
+enum Bosses
+{
+    BOSS_NONE,              // 0 used as marker for not yet randomized
+    BOSS_MORAGG,
+    BOSS_EREKEM,
+    BOSS_ICHORON,
+    BOSS_LAVANTHOR,
+    BOSS_XEVOZZ,
+    BOSS_ZURAMAT,
+    BOSS_CYANIGOSA
+};
+
 enum WorldStates
 {
-    WORLD_STATE_VH          = 3816
+    WORLD_STATE_VH              = 3816,
+    WORLD_STATE_VH_PRISON_STATE = 3815,
+    WORLD_STATE_VH_WAVE_COUNT   = 3810,
 };
 
 #endif
