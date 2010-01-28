@@ -9,13 +9,14 @@
 2 - Cyanigosa*/
 
 /* Violet hold bosses:
-0 - Moragg
-1 - Erekem
-2 - Ichoron
-3 - Lavanthor
-4 - Xevozz
-5 - Zuramat
-6 - Cyanigosa */
+1 - Moragg
+2 - Erekem
+3 - Ichoron
+4 - Lavanthor
+5 - Xevozz
+6 - Zuramat
+7 - Cyanigosa */
+
 enum GameObjects
 {
     GO_MAIN_DOOR                                    = 191723,
@@ -30,20 +31,14 @@ enum GameObjects
     GO_INTRO_ACTIVATION_CRYSTAL                     = 193615,
     GO_ACTIVATION_CRYSTAL                           = 193611
 };
-enum Spells
-{
-    SPELL_PORTAL_CHANNEL                            = 58012
-};
-struct Location
-{
-    float x,y,z,orientation;
-};
-const Location PortalLocation[] =
+
+const Position PortalLocation[] =
 {
   {1936.07, 803.198, 53.3749, 3.12414},
   {1877.51, 850.104, 44.6599, 4.7822 },
   {1890.64, 753.471, 48.7224, 1.71042}
 };
+
 struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 {
     instance_violet_hold(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
@@ -81,8 +76,6 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     uint8 uiCountErekemGuards;
     uint8 uiCountActivationCrystals;
-    uint8 uiPlayersDead;
-    uint8 uiMaxPlayerCount;
 
     bool bActive;
     bool bWiped;
@@ -112,13 +105,11 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         uiRemoveNpc = 0;
 
         uiWaveCount = 0;
-        uiLocation = 0;
+        uiLocation = urand(0,2);
         uiFirstBoss = 0;
         uiSecondBoss = 0;
         uiCountErekemGuards = 0;
         uiCountActivationCrystals = 0;
-        uiPlayersDead = 0;
-        uiMaxPlayerCount = 0;
 
         uiActivationTimer = 5000;
 
@@ -157,7 +148,10 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 break;
             case CREATURE_EREKEM_GUARD:
                 if (uiCountErekemGuards < 2)
+                {
                     uiErekemGuard[uiCountErekemGuards++] = pCreature->GetGUID();
+                    pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                }
                 break;
             case CREATURE_MORAGG:
                 uiMoragg = pCreature->GetGUID();
@@ -168,6 +162,12 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
             case CREATURE_SINCLARI:
                 uiSinclari = pCreature->GetGUID();
                 break;
+        }
+
+        if (add && (pCreature->GetGUID() == uiFirstBoss || pCreature->GetGUID() == uiSecondBoss))
+        {
+            pCreature->AllLootRemovedFromCorpse();
+            pCreature->RemoveLootMode(1);
         }
     }
 
@@ -258,126 +258,109 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
 
     void SpawnPortal()
     {
-        Creature *pSinclari = instance->GetCreature(uiSinclari);
-        if (pSinclari)
-        {
-            if (Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation].x,PortalLocation[uiLocation].y,
-                PortalLocation[uiLocation].z,PortalLocation[uiLocation].orientation,
-                                                              TEMPSUMMON_CORPSE_DESPAWN,900000))
-            {
-                uint32 entry = urand(0, 1) ? CREATURE_PORTAL_GUARDIAN : CREATURE_PORTAL_KEEPER;
-                if (Creature *pPortalKeeper = pPortal->SummonCreature(entry,PortalLocation[uiLocation].x, PortalLocation[uiLocation].y,
-                    PortalLocation[uiLocation].z, PortalLocation[uiLocation].orientation,
-                                                                      TEMPSUMMON_DEAD_DESPAWN,900000))
-                    pPortal->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL,false);
-                uiLocation = (++uiLocation)%3;
-            }
-        }
+        if (Creature *pSinclari = instance->GetCreature(uiSinclari))
+            if (Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation],TEMPSUMMON_CORPSE_DESPAWN))
+                uiLocation = (uiLocation+urand(1,2))%3;
     }
 
     void StartBossEncounter(uint8 uiBoss, bool bForceRespawn = true)
     {
         Creature* pBoss = NULL;
+
         switch(uiBoss)
         {
-            case 0:               //Moragg
+            case BOSS_MORAGG:
                 HandleGameObject(uiMoraggCell,bForceRespawn);
-
                 if (pBoss = instance->GetCreature(uiMoragg))
-                {
-                        pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                        pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-
-                }
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
-            case 1:               //Erekem
-                HandleGameObject(uiErekemCell,bForceRespawn);
-                HandleGameObject(uiErekemRightGuardCell,bForceRespawn);
-                HandleGameObject(uiErekemLeftGuardCell,bForceRespawn);
+            case BOSS_EREKEM:
+                HandleGameObject(uiErekemCell, bForceRespawn);
+                HandleGameObject(uiErekemRightGuardCell, bForceRespawn);
+                HandleGameObject(uiErekemLeftGuardCell, bForceRespawn);
 
                 if (pBoss = instance->GetCreature(uiErekem))
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+
+                if (Creature* pGuard1 = instance->GetCreature(uiErekemGuard[0]))
                 {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    if (bForceRespawn)
+                        pGuard1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    else
+                        pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 }
-                if (pBoss = instance->GetCreature(uiErekemGuard[0]))
+
+                if (Creature* pGuard2 = instance->GetCreature(uiErekemGuard[1]))
                 {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
-                if (pBoss = instance->GetCreature(uiErekemGuard[1]))
-                {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    if (bForceRespawn)
+                        pGuard2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    else
+                        pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 }
                 break;
-            case 2:               //Ichoron
+            case BOSS_ICHORON:
                 HandleGameObject(uiIchoronCell,bForceRespawn);
                 if (pBoss = instance->GetCreature(uiIchoron))
-                {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
-            case 3:               //Lavanthor
+            case BOSS_LAVANTHOR:
                 HandleGameObject(uiLavanthorCell,bForceRespawn);
                 if (pBoss = instance->GetCreature(uiLavanthor))
-                {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
-            case 4:               //Xevozz
+            case BOSS_XEVOZZ:
                 HandleGameObject(uiXevozzCell,bForceRespawn);
                 if (pBoss = instance->GetCreature(uiXevozz))
-                {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
-            case 5:               //Zuramat
+            case BOSS_ZURAMAT:
                 HandleGameObject(uiZuramatCell,bForceRespawn);
                 if (pBoss = instance->GetCreature(uiZuramat))
-                {
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                }
+                    pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
         }
-            if (!bForceRespawn && pBoss)
+
+        if (!bForceRespawn && pBoss)
+        {
+            if (pBoss->isDead())
             {
-                pBoss->AllLootRemovedFromCorpse();
+                // respawn but avoid to be looted again
                 pBoss->Respawn();
                 pBoss->RemoveLootMode(1);
-                pBoss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                pBoss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                SetData(DATA_WAVE_COUNT,0);
-                uiWaveCount = 0;
             }
+            pBoss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+            SetData(DATA_WAVE_COUNT,0);
+            uiWaveCount = 0;
+        }
     }
 
     void AddWave()
     {
-        DoUpdateWorldState(WORLD_STATE_VH, uiWaveCount);
+        DoUpdateWorldState(WORLD_STATE_VH, 1);
+        DoUpdateWorldState(WORLD_STATE_VH_WAVE_COUNT, uiWaveCount);
+        DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, 100); // TODO
+
         switch(uiWaveCount)
         {
             case 6:
-                uiFirstBoss = rand()%6;
+                if (uiFirstBoss == 0)
+                    uiFirstBoss = urand(1,6);
                 StartBossEncounter(uiFirstBoss);
                 break;
             case 12:
-                uiSecondBoss = rand()%6;
-                while (uiSecondBoss == uiFirstBoss)
-                    uiSecondBoss = rand()%6;
+                if (uiSecondBoss == 0)
+                    do 
+                    {
+                        uiSecondBoss = urand(1,6);
+                    } while (uiSecondBoss == uiFirstBoss);
                 StartBossEncounter(uiSecondBoss);
                 break;
             case 18:
             {
                 Creature *pSinclari = instance->GetCreature(uiSinclari);
                 if (pSinclari)
-                    pSinclari->SummonCreature(CREATURE_CYANIGOSA,PortalLocation[0].x,PortalLocation[0].y,
-                                              PortalLocation[0].z,PortalLocation[0].orientation,TEMPSUMMON_DEAD_DESPAWN,0);
-                                              break;
+                    pSinclari->SummonCreature(CREATURE_CYANIGOSA,PortalLocation[0],TEMPSUMMON_DEAD_DESPAWN);
+                break;
             }
             case 1:
             {
@@ -388,8 +371,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
                 if (!bWiped)
                     SpawnPortal();
                 bWiped = false;
+                break;
         }
-        bActive = true;
     }
 
     uint64 GetData64(uint32 identifier)
@@ -425,8 +408,11 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         OUT_SAVE_INST_DATA;
 
         std::ostringstream saveStream;
-        saveStream << "V H " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-            << m_auiEncounter[2] << " " << uiFirstBoss << " " << uiSecondBoss;
+        saveStream << "V H " << (uint16)m_auiEncounter[0] 
+            << " " << (uint16)m_auiEncounter[1]
+            << " " << (uint16)m_auiEncounter[2]
+            << " " << (uint16)uiFirstBoss
+            << " " << (uint16)uiSecondBoss;
 
         str_data = saveStream.str();
 
@@ -467,28 +453,20 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 
-    void CountPlayers(bool bCheckState = false)
+    bool CheckWipe()
     {
-        if (!bCheckState)
+        Map::PlayerList const &players = instance->GetPlayers();
+        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
-            uiMaxPlayerCount = 0;
-            Map::PlayerList const &players = instance->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                ++uiMaxPlayerCount;
-        }else
-        {
-            Map::PlayerList const &players = instance->GetPlayers();
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-            {
-                Player* pPlayer = itr->getSource();
+            Player* pPlayer = itr->getSource();
+            if (pPlayer->isGameMaster())
+                continue;
 
-                if (pPlayer->isDead() && !pPlayer->isGameMaster())
-                    ++uiPlayersDead;
-                else if (pPlayer->isAlive() && !pPlayer->isGameMaster())
-                    uiPlayersDead = 0;
-            }
-
+            if (pPlayer->isAlive())
+                return false;
         }
+
+        return true;
     }
 
     void Update(uint32 diff)
@@ -506,11 +484,8 @@ struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
             } else uiActivationTimer -= diff;
         }
 
-        CountPlayers(true);
-        CountPlayers(false);
-
         if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
-            if (pMainDoor->GetGoState() != GO_STATE_ACTIVE && uiPlayersDead >= uiMaxPlayerCount)
+            if (pMainDoor->GetGoState() != GO_STATE_ACTIVE && CheckWipe())
             {
                 SetData(DATA_REMOVE_NPC, 1);
                 StartBossEncounter(uiFirstBoss, false);
