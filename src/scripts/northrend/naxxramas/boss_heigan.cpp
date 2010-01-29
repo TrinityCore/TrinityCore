@@ -41,9 +41,6 @@ enum Phases
     PHASE_DANCE,
 };
 
-//Spell by eye stalks
-#define SPELL_MIND_FLAY     26143
-
 struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
 {
     boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
@@ -78,10 +75,10 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
         eruptSection = 3;
         if (phase == PHASE_FIGHT)
         {
-            events.ScheduleEvent(EVENT_DISRUPT, 0);
-            events.ScheduleEvent(EVENT_FEVER, 20000);
-            events.ScheduleEvent(EVENT_PHASE, 85000);
-            events.ScheduleEvent(EVENT_ERUPT, 10000);
+            events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+            events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+            events.ScheduleEvent(EVENT_PHASE, 90000);
+            events.ScheduleEvent(EVENT_ERUPT, 15000);
         }
         else
         {
@@ -90,7 +87,7 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
             me->NearTeleportTo(x, y, z, o);
             DoCastAOE(SPELL_PLAGUE_CLOUD);
             events.ScheduleEvent(EVENT_PHASE, 45000);
-            events.ScheduleEvent(EVENT_ERUPT, 5000);
+            events.ScheduleEvent(EVENT_ERUPT, 8000);
         }
     }
 
@@ -107,15 +104,16 @@ struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
             {
                 case EVENT_DISRUPT:
                     DoCastAOE(SPELL_SPELL_DISRUPTION);
-                    events.ScheduleEvent(EVENT_DISRUPT, 5000);
-                    return;
+                    events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
+                    break;
                 case EVENT_FEVER:
                     DoCastAOE(SPELL_DECREPIT_FEVER);
-                    events.ScheduleEvent(EVENT_FEVER, 20000);
-                    return;
+                    events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
+                    break;
                 case EVENT_PHASE:
+                    // TODO : Add missing texts for both phase switches
                     EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
-                    return;
+                    break;
                 case EVENT_ERUPT:
                     instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
                     TeleportCheaters();
