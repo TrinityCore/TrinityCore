@@ -1,3 +1,12 @@
+DROP TABLE IF EXISTS `spell_ranks`;
+CREATE TABLE `spell_ranks` (
+  `first_spell_id` INT UNSIGNED NOT NULL DEFAULT 0,
+  `spell_id` INT UNSIGNED NOT NULL DEFAULT 0,
+  `rank` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY  (`first_spell_id`, `rank`),
+  UNIQUE (`spell_id`)
+) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Rank Data';
+
 INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
  -- Abomination's Might
 (53137, 53137, 1),
