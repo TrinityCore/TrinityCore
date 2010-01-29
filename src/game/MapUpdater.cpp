@@ -18,6 +18,8 @@ class  WDBThreadStartReq1 : public ACE_Method_Request
     call (void)
     {
         WorldDatabase.ThreadStart();
+        CharacterDatabase.ThreadStart();
+        loginDatabase.ThreadStart();
         return 0;
     }
 };
@@ -31,6 +33,8 @@ class  WDBThreadEndReq1 : public ACE_Method_Request
     call (void)
     {
         WorldDatabase.ThreadEnd();
+        CharacterDatabase.ThreadEnd();
+        loginDatabase.ThreadEnd();
         return 0;
     }
 };
