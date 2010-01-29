@@ -1421,41 +1421,41 @@ struct SpellEntry
     int32     EffectMiscValueB[MAX_SPELL_EFFECTS];          // 119-121  m_effectMiscValueB
     uint32    EffectTriggerSpell[MAX_SPELL_EFFECTS];        // 122-124  m_effectTriggerSpell
     float     EffectPointsPerComboPoint[MAX_SPELL_EFFECTS]; // 125-127  m_effectPointsPerCombo
-    flag96    EffectSpellClassMask[MAX_SPELL_EFFECTS];      // 127-133
-    uint32    SpellVisual[2];                               // 134-135  m_spellVisualID
-    uint32    SpellIconID;                                  // 136      m_spellIconID
-    uint32    activeIconID;                                 // 137      m_activeIconID
-    //uint32    spellPriority;                              // 138 not used
-    char*     SpellName[16];                                // 139-154  m_name_lang
-    //uint32    SpellNameFlag;                              // 155 not used
-    char*     Rank[16];                                     // 156-171  m_nameSubtext_lang
-    //uint32    RankFlags;                                  // 172 not used
-    //char*     Description[16];                            // 173-188  m_description_lang not used
-    //uint32    DescriptionFlags;                           // 189 not used
-    //char*     ToolTip[16];                                // 190-205  m_auraDescription_lang not used
-    //uint32    ToolTipFlags;                               // 206 not used
-    uint32    ManaCostPercentage;                           // 207      m_manaCostPct
-    uint32    StartRecoveryCategory;                        // 208      m_startRecoveryCategory
-    uint32    StartRecoveryTime;                            // 209      m_startRecoveryTime
-    uint32    MaxTargetLevel;                               // 210      m_maxTargetLevel
-    uint32    SpellFamilyName;                              // 211      m_spellClassSet
-    flag96    SpellFamilyFlags;                             // 212-214
-    uint32    MaxAffectedTargets;                           // 215      m_maxTargets
-    uint32    DmgClass;                                     // 216      m_defenseType
-    uint32    PreventionType;                               // 217      m_preventionType
-    //uint32    StanceBarOrder;                             // 218      m_stanceBarOrder not used
-    float     DmgMultiplier[3];                             // 219-221  m_effectChainAmplitude
-    //uint32    MinFactionId;                               // 222      m_minFactionID not used
-    //uint32    MinReputation;                              // 223      m_minReputation not used
-    //uint32    RequiredAuraVision;                         // 224      m_requiredAuraVision not used
-    uint32    TotemCategory[2];                             // 225-226  m_requiredTotemCategoryID
-    int32     AreaGroupId;                                  // 227      m_requiredAreaGroupId
-    uint32    SchoolMask;                                   // 228      m_schoolMask
-    uint32    runeCostID;                                   // 229      m_runeCostID
-    //uint32    spellMissileID;                             // 230      m_spellMissileID not used
-    //uint32  PowerDisplayId;                               // 231      PowerDisplay.dbc, new in 3.1
-    //float   unk_320_4[3];                                 // 232-234  3.2.0
-    //uint32  spellDescriptionVariableID;                   // 235      3.2.0
+    flag96    EffectSpellClassMask[MAX_SPELL_EFFECTS];      // 127-136
+    uint32    SpellVisual[2];                               // 137-138  m_spellVisualID
+    uint32    SpellIconID;                                  // 139      m_spellIconID
+    uint32    activeIconID;                                 // 140      m_activeIconID
+    //uint32    spellPriority;                              // 141 not used
+    char*     SpellName[16];                                // 142-157  m_name_lang
+    //uint32    SpellNameFlag;                              // 158 not used
+    char*     Rank[16];                                     // 159-174  m_nameSubtext_lang
+    //uint32    RankFlags;                                  // 175 not used
+    //char*     Description[16];                            // 176-191  m_description_lang not used
+    //uint32    DescriptionFlags;                           // 192 not used
+    //char*     ToolTip[16];                                // 193-208  m_auraDescription_lang not used
+    //uint32    ToolTipFlags;                               // 209 not used
+    uint32    ManaCostPercentage;                           // 210      m_manaCostPct
+    uint32    StartRecoveryCategory;                        // 211      m_startRecoveryCategory
+    uint32    StartRecoveryTime;                            // 212      m_startRecoveryTime
+    uint32    MaxTargetLevel;                               // 213      m_maxTargetLevel
+    uint32    SpellFamilyName;                              // 214      m_spellClassSet
+    flag96    SpellFamilyFlags;                             // 215-217
+    uint32    MaxAffectedTargets;                           // 218      m_maxTargets
+    uint32    DmgClass;                                     // 219      m_defenseType
+    uint32    PreventionType;                               // 220      m_preventionType
+    //uint32    StanceBarOrder;                             // 221      m_stanceBarOrder not used
+    float     DmgMultiplier[3];                             // 222-224  m_effectChainAmplitude
+    //uint32    MinFactionId;                               // 225      m_minFactionID not used
+    //uint32    MinReputation;                              // 226      m_minReputation not used
+    //uint32    RequiredAuraVision;                         // 227      m_requiredAuraVision not used
+    uint32    TotemCategory[2];                             // 228-229  m_requiredTotemCategoryID
+    int32     AreaGroupId;                                  // 230      m_requiredAreaGroupId
+    uint32    SchoolMask;                                   // 231      m_schoolMask
+    uint32    runeCostID;                                   // 232      m_runeCostID
+    //uint32    spellMissileID;                             // 233      m_spellMissileID not used
+    //uint32  PowerDisplayId;                               // 234      PowerDisplay.dbc, new in 3.1
+    //float   unk_320_4[3];                                 // 235-237  3.2.0
+    //uint32  spellDescriptionVariableID;                   // 238      3.2.0
 
     // helpers
     int32 CalculateSimpleValue(uint8 eff) const { return EffectBasePoints[eff]+int32(EffectBaseDice[eff]); }
