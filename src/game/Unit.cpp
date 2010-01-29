@@ -4300,33 +4300,43 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemo
 
 void Unit::RemoveAreaAurasDueToLeaveWorld()
 {
-    // make sure that all area auras not applied on self are removed - prevent access to deleted pointer later
-    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+    bool cleanRun;
+    do
     {
-        Aura * aura = iter->second;
-        ++iter;
-        Aura::ApplicationMap const & appMap = aura->GetApplicationMap();
-        for(Aura::ApplicationMap::const_iterator itr = appMap.begin(); itr!= appMap.end();)
+        cleanRun = true;
+        // make sure that all area auras not applied on self are removed - prevent access to deleted pointer later
+        for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
         {
-            AuraApplication * aurApp = itr->second;
-            ++itr;
-            Unit * target = aurApp->GetTarget();
-            if (target == this)
-                continue;
-            target->RemoveAura(aurApp);
-            // things linked on aura remove may apply new area aura - so start from the beginning
-            iter = m_ownedAuras.begin();
+            Aura * aura = iter->second;
+            ++iter;
+            Aura::ApplicationMap const & appMap = aura->GetApplicationMap();
+            for(Aura::ApplicationMap::const_iterator itr = appMap.begin(); itr!= appMap.end();)
+            {
+                AuraApplication * aurApp = itr->second;
+                ++itr;
+                Unit * target = aurApp->GetTarget();
+                if (target == this)
+                    continue;
+                target->RemoveAura(aurApp);
+                cleanRun = false;
+                // things linked on aura remove may apply new area aura - so start from the beginning
+                iter = m_ownedAuras.begin();
+            }
+        }
+
+        // remove area auras owned by others
+        for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+        {
+            if (iter->second->GetBase()->GetOwner()!=this)
+            {
+                RemoveAura(iter);
+                cleanRun = false;
+            }
+            else
+                ++iter;
         }
     }
-
-    // remove area auras owned by others
-    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
-    {
-        if (iter->second->GetBase()->GetOwner()!=this)
-            RemoveAura(iter);
-        else
-            ++iter;
-    }
+    while (!cleanRun);
 }
 
 void Unit::RemoveAllAuras()
