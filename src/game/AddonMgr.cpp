@@ -49,9 +49,7 @@ void AddonMgr::LoadFromDB()
         return;
     }
 
-    uint32 total_records = result->GetRowCount();
-
-    barGoLink bar(total_records);
+    barGoLink bar(result->GetRowCount());
     uint32 count = 0;
     Field *fields;
 
@@ -61,7 +59,7 @@ void AddonMgr::LoadFromDB()
         bar.step();
         count++;
 
-        std::string name = fields[0].GetString();
+        std::string name = fields[0].GetCppString();
         uint32 crc = fields[1].GetUInt32();
 
         SavedAddon addon(name, crc);

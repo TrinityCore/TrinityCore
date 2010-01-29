@@ -1549,6 +1549,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading GM tickets...");
     objmgr.LoadGMTickets();
 
+    sLog.outString("Loading client addons...");
+    sAddonMgr.LoadFromDB();
+
     ///- Handle outdated emails (delete/return)
     sLog.outString("Returning old mails...");
     objmgr.ReturnOrDeleteOldMails(false);
