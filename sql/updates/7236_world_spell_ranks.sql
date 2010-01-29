@@ -1200,9 +1200,6 @@ INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
 (1160, 25202, 6),
 (1160, 25203, 7),
 (1160, 47437, 8),
- -- Desecration
-(55666, 55666, 1),
-(55666, 55667, 2),
  -- Desperate Prayer
 (19236, 19236, 1),
 (19236, 19238, 2),
