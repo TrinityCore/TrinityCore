@@ -18,22 +18,33 @@
 
 #include "ScriptedPch.h"
 #include "naxxramas.h"
+#include "SpellId.h"
 
-#define SPELL_WEB_WRAP          28622
-#define SPELL_WEB_SPRAY         RAID_MODE(29484,54125)
-#define SPELL_POISON_SHOCK      RAID_MODE(28741,54122)
-#define SPELL_NECROTIC_POISON   RAID_MODE(54121,28776)
-#define SPELL_FRENZY            RAID_MODE(54123,54124)
+enum Spells 
+{
+    SPELL_WEB_WRAP              = SPELL_WEB_WRAP_28622,
+    SPELL_WEB_SPRAY_10          = SPELL_WEB_SPRAY_29484,
+    SPELL_WEB_SPRAY_25          = SPELL_WEB_SPRAY_54125,
+    SPELL_POISON_SHOCK_10       = SPELL_POISON_SHOCK_28741,
+    SPELL_POISON_SHOCK_25       = SPELL_POISON_SHOCK_54122,
+    SPELL_NECROTIC_POISON_10    = SPELL_NECROTIC_POISON_28776,
+    SPELL_NECROTIC_POISON_25    = SPELL_NECROTIC_POISON_54121,
+    SPELL_FRENZY_10             = SPELL_FRENZY_54123,
+    SPELL_FRENZY_25             = SPELL_FRENZY_54124,
+};
 
-#define MOB_WEB_WRAP            16486
-#define MOB_SPIDERLING          17055
+enum Creatures
+{
+    MOB_WEB_WRAP                = 16486,
+    MOB_SPIDERLING              = 17055,
+};
 
 #define MAX_POS_WRAP            3
-const float PosWrap[MAX_POS_WRAP][3] =
+const Position PosWrap[MAX_POS_WRAP] =
 {
-    {3546.796, -3869.082, 296.450},
-    {3531.271, -3847.424, 299.450},
-    {3497.067, -3843.384, 302.384},
+    {3546.796, -3869.082, 296.450, 0.0},
+    {3531.271, -3847.424, 299.450, 0.0},
+    {3497.067, -3843.384, 302.384, 0.0},
 };
 
 enum Events
@@ -44,6 +55,7 @@ enum Events
     EVENT_POISON,
     EVENT_WRAP,
     EVENT_SUMMON,
+    EVENT_FRENZY,
 };
 
 struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
@@ -58,15 +70,21 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
         enraged = false;
         events.ScheduleEvent(EVENT_WRAP, 20000);
         events.ScheduleEvent(EVENT_SPRAY, 40000);
-        events.ScheduleEvent(EVENT_SHOCK, 10000);
-        events.ScheduleEvent(EVENT_POISON, 5000);
-        events.ScheduleEvent(EVENT_SUMMON, 40000);
+        events.ScheduleEvent(EVENT_SHOCK, urand(5000,10000));
+        events.ScheduleEvent(EVENT_POISON, urand(10000,15000));
+        events.ScheduleEvent(EVENT_SUMMON, 30000);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim() || !CheckInRoom())
             return;
+
+        if (!enraged && HealthBelowPct(30))
+        {
+            enraged = true;
+            events.ScheduleEvent(EVENT_FRENZY, 0); // will be cast immediately
+        }
 
         events.Update(diff);
 
@@ -75,58 +93,80 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
             switch(eventId)
             {
                 case EVENT_WRAP:
+                    // TODO : Add missing text
                     for (uint8 i = 0; i < RAID_MODE(1,2); ++i)
                     {
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true, -SPELL_WEB_WRAP))
                         {
-                            pTarget->RemoveAura(SPELL_WEB_SPRAY);
+                            pTarget->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10,SPELL_WEB_SPRAY_25));
                             uint8 pos = rand()%MAX_POS_WRAP;
-                            pTarget->GetMotionMaster()->MoveJump(PosWrap[pos][0], PosWrap[pos][1], PosWrap[pos][2], 20, 20);
-                            if (Creature *wrap = DoSummon(MOB_WEB_WRAP, pTarget, 0, 60000))
-                            {
+                            pTarget->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
+                            if (Creature *wrap = DoSummon(MOB_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
                                 wrap->AI()->SetGUID(pTarget->GetGUID());
-                                wrap->GetMotionMaster()->MoveJump(PosWrap[pos][0], PosWrap[pos][1], PosWrap[pos][2], 20, 20);
-                            }
                         }
                     }
                     events.ScheduleEvent(EVENT_WRAP, 40000);
-                    return;
+                    break;
                 case EVENT_SPRAY:
-                    DoCastAOE(SPELL_WEB_SPRAY);
+                    DoCastAOE(RAID_MODE(SPELL_WEB_SPRAY_10,SPELL_WEB_SPRAY_25));
                     events.ScheduleEvent(EVENT_SPRAY, 40000);
-                    return;
+                    break;
                 case EVENT_SHOCK:
-                    DoCastAOE(SPELL_POISON_SHOCK);
-                    events.ScheduleEvent(EVENT_SHOCK, 10000);
-                    return;
+                    DoCastAOE(RAID_MODE(SPELL_POISON_SHOCK_10,SPELL_POISON_SHOCK_25));
+                    events.ScheduleEvent(EVENT_SHOCK, urand(10000,20000));
+                    break;
                 case EVENT_POISON:
-                    DoCast(me->getVictim(), SPELL_NECROTIC_POISON);
-                    events.ScheduleEvent(EVENT_POISON, 30000);
-                    return;
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_NECROTIC_POISON_10,SPELL_NECROTIC_POISON_25));
+                    events.ScheduleEvent(EVENT_POISON, urand(10000, 20000));
+                    break;
+                case EVENT_FRENZY:
+                    DoCast(me, RAID_MODE(SPELL_FRENZY_10,SPELL_FRENZY_25), true);
+                    events.ScheduleEvent(EVENT_FRENZY, 600000);
+                    break;
                 case EVENT_SUMMON:
-                {
+                    // TODO : Add missing text
                     uint8 amount = urand(8,10);
                     for (uint8 i = 0; i < amount; ++i)
-                        DoSummon(MOB_SPIDERLING, me);
+                        DoSummon(MOB_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);
                     events.ScheduleEvent(EVENT_SUMMON, 40000);
                     break;
-                }
             }
         }
 
-        if (!enraged && HealthBelowPct(30))
-        {
-            DoCast(me, SPELL_FRENZY);
-            enraged = true;
-        }
-        else
-            DoMeleeAttackIfReady();
+        DoMeleeAttackIfReady();
+    }
+};
+
+struct TRINITY_DLL_DECL mob_webwrapAI : public NullCreatureAI
+{
+    mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
+
+    uint64 victimGUID;
+
+    void SetGUID(const uint64 &guid, int32 param)
+    {
+        victimGUID = guid;
+        if (me->m_spells[0] && victimGUID)
+            if (Unit *victim = Unit::GetUnit(*me, victimGUID))
+                victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
+    }
+
+    void JustDied(Unit *killer)
+    {
+        if (me->m_spells[0] && victimGUID)
+            if (Unit *victim = Unit::GetUnit(*me, victimGUID))
+                victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
     }
 };
 
 CreatureAI* GetAI_boss_maexxna(Creature* pCreature)
 {
     return new boss_maexxnaAI (pCreature);
+}
+
+CreatureAI* GetAI_mob_webwrap(Creature* pCreature)
+{
+    return new mob_webwrapAI (pCreature);
 }
 
 void AddSC_boss_maexxna()
@@ -137,5 +177,11 @@ void AddSC_boss_maexxna()
     newscript->Name = "boss_maexxna";
     newscript->GetAI = &GetAI_boss_maexxna;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_webwrap";
+    newscript->GetAI = &GetAI_mob_webwrap;
+    newscript->RegisterSelf();
+
 }
 
