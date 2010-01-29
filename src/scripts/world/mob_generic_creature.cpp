@@ -1,3 +1,4 @@
+
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -196,28 +197,6 @@ struct TRINITY_DLL_DECL trigger_deathAI : public NullCreatureAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_webwrapAI : public NullCreatureAI
-{
-    mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
-
-    uint64 victimGUID;
-
-    void SetGUID(const uint64 &guid, int32 param)
-    {
-        victimGUID = guid;
-        if (me->m_spells[0] && victimGUID)
-            if (Unit *victim = Unit::GetUnit(*me, victimGUID))
-                victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
-    }
-
-    void JustDied(Unit *killer)
-    {
-        if (me->m_spells[0] && victimGUID)
-            if (Unit *victim = Unit::GetUnit(*me, victimGUID))
-                victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
-    }
-};
-
 CreatureAI* GetAI_trigger_periodic(Creature* pCreature)
 {
     return new trigger_periodicAI (pCreature);
@@ -226,11 +205,6 @@ CreatureAI* GetAI_trigger_periodic(Creature* pCreature)
 CreatureAI* GetAI_trigger_death(Creature* pCreature)
 {
     return new trigger_deathAI (pCreature);
-}
-
-CreatureAI* GetAI_mob_webwrap(Creature* pCreature)
-{
-    return new mob_webwrapAI (pCreature);
 }
 
 void AddSC_generic_creature()
@@ -250,10 +224,5 @@ void AddSC_generic_creature()
     newscript->Name = "trigger_death";
     newscript->GetAI = &GetAI_trigger_death;
     newscript->RegisterSelf();*/
-
-    newscript = new Script;
-    newscript->Name = "mob_webwrap";
-    newscript->GetAI = &GetAI_mob_webwrap;
-    newscript->RegisterSelf();
 }
 
