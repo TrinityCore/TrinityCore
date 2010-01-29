@@ -369,6 +369,8 @@ void CliRunnable::run()
 {
     ///- Init new SQL thread for the world database (one connection call enough)
     WorldDatabase.ThreadStart();                                // let thread do safe mySQL requests
+    CharacterDatabase.ThreadStart();
+    loginDatabase.ThreadStart();
 
     char commandbuf[256];
     bool canflush = true;
@@ -438,4 +440,6 @@ void CliRunnable::run()
 
     ///- End the database thread
     WorldDatabase.ThreadEnd();                                  // free mySQL thread resources
+    CharacterDatabase.ThreadEnd();
+    loginDatabase.ThreadEnd();
 }
