@@ -1207,7 +1207,7 @@ class SpellMgr
         static SpellMgr& Instance();
 
         // Loading data at server startup
-        void LoadSpellChains();
+        void LoadSpellRanks();
         void LoadSpellRequired();
         void LoadSpellLearnSkills();
         void LoadSpellLearnSpells();
