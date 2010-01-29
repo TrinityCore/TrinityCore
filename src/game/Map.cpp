@@ -388,7 +388,6 @@ Map::EnsureGridLoadedAtEnter(const Cell &cell, Player *player)
 
     if (player)
     {
-        player->SendDelayResponse(MAX_GRID_LOAD_TIME);
         DEBUG_LOG("Player %s enter cell[%u,%u] triggers of loading grid[%u,%u] on map %u", player->GetName(), cell.CellX(), cell.CellY(), cell.GridX(), cell.GridY(), GetId());
     }
     else
