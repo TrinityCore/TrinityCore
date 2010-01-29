@@ -3256,7 +3256,7 @@ void SpellMgr::LoadSpellRanks()
     do
     {
                         // spellid, rank
-        std::list<std::pair<int32, int32>> rankChain;
+        std::list < std::pair < int32, int32 > > rankChain;
         int32 currentSpell = -1;
         int32 lastSpell = -1;
         
@@ -3299,7 +3299,7 @@ void SpellMgr::LoadSpellRanks()
         int32 curRank = 0;
         bool valid = true;
         // check spells in chain
-        for (std::list<std::pair<int32, int32>>::iterator itr = rankChain.begin() ; itr!= rankChain.end(); ++itr)
+        for (std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin() ; itr!= rankChain.end(); ++itr)
         {
             SpellEntry const * spell = sSpellStore.LookupEntry(itr->first);
             if (!spell)
@@ -3320,7 +3320,7 @@ void SpellMgr::LoadSpellRanks()
             continue;
         int32 prevRank = 0;
         // insert the chain
-        std::list<std::pair<int32, int32>>::iterator itr = rankChain.begin();
+        std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin();
         do
         {
             int32 addedSpell = itr->first;
