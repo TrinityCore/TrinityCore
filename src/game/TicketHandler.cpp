@@ -39,6 +39,8 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
     float x, y, z;
     std::string ticketText, ticketText2;
 
+    SendQueryTimeResponse();
+
     WorldPacket data(SMSG_GMTICKET_CREATE, 4);
     recv_data >> map;
     recv_data >> x;
@@ -116,10 +118,7 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
 
 void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 {
-    WorldPacket data( SMSG_QUERY_TIME_RESPONSE, 4+4 );
-    data << (uint32)time(NULL);
-    data << (uint32)0;
-    SendPacket( &data );
+    SendQueryTimeResponse();
 
     GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
     if(ticket)
