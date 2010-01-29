@@ -6412,8 +6412,6 @@ INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
 (19386, 27068, 4),
 (19386, 49011, 5),
 (19386, 49012, 6),
- -- Arantir's Deception
-(9736, 9736, 1),
  -- First Aid
 (746, 746, 1),
 (746, 1159, 2),

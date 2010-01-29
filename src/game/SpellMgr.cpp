@@ -3313,7 +3313,7 @@ void SpellMgr::LoadSpellRanks()
             {
                 sLog.outErrorDb("Spell %u (rank %u) listed in `spell_ranks` for chain %u does not have proper rank value(should be %u)!", itr->first, itr->second, lastSpell, curRank);
                 valid = false;
-                continue;
+                break;
             }
         }
         if (!valid)
