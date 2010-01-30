@@ -10890,12 +10890,6 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
             if (getLevel() < pProto->RequiredLevel)
                 return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
-            if (getLevel() < pItem->GetEnchantRequiredLevel()) 
-                return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
-
-            if (!pItem->HasEnchantRequiredSkill(this)) 
-                return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-
             return EQUIP_ERR_OK;
         }
     }
