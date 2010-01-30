@@ -3441,10 +3441,9 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         removeSpell(node->next,disabled, false);
     }
     //unlearn spells dependent from recently removed spells
-    SpellsRequiringSpellMap const &reqMap = spellmgr.GetSpellsRequiringSpell();
-    SpellsRequiringSpellMap::const_iterator itr2 = reqMap.find(spell_id);
-    for (uint32 i = reqMap.count(spell_id); i > 0; --i, ++itr2)
-        removeSpell(itr2->second,disabled,false);
+    SpellsRequiringSpellMapBounds spellsRequiringSpell = spellmgr.GetSpellsRequiringSpellBounds(spell_id);
+    for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
+        removeSpell(itr2->second,disabled);
 
     // re-search, it can be corrupted in prev loop
     itr = m_spells.find(spell_id);
@@ -4116,10 +4115,11 @@ TrainerSpellState Player::GetTrainerSpellState(TrainerSpell const* trainer_spell
             return TRAINER_SPELL_RED;
     }
 
-    if(uint32 spell_req = spellmgr.GetSpellRequired(trainer_spell->spell))
+    SpellsRequiringSpellMapBounds spellsRequired = spellmgr.GetSpellsRequiredForSpellBounds(trainer_spell->spell);
+    for (SpellsRequiringSpellMap::const_iterator itr = spellsRequired.first; itr != spellsRequired.second; ++itr)
     {
         // check additional spell requirement
-        if(!HasSpell(spell_req))
+        if(!HasSpell(itr->second))
             return TRAINER_SPELL_RED;
     }
 
@@ -20404,28 +20404,32 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
         if(!learnedInfo)
             return;
 
-        uint32 profSpell = spellmgr.GetSpellRequired(learned_0);
-
-        // specialization
-        if(learnedInfo->Effect[0]==SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effect[1]==0 && profSpell)
+        SpellsRequiringSpellMapBounds spellsRequired = spellmgr.GetSpellsRequiredForSpellBounds(learned_0);
+        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second; ++itr2)
         {
-            // search other specialization for same prof
-            for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+            uint32 profSpell = itr2->second;
+
+            // specialization
+            if(learnedInfo->Effect[0]==SPELL_EFFECT_TRADE_SKILL && learnedInfo->Effect[1]==0 && profSpell)
             {
-                if(itr->second->state == PLAYERSPELL_REMOVED || itr->first==learned_0)
-                    continue;
+                // search other specialization for same prof
+                for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
+                {
+                    if(itr->second->state == PLAYERSPELL_REMOVED || itr->first==learned_0)
+                        continue;
 
-                SpellEntry const *itrInfo = sSpellStore.LookupEntry(itr->first);
-                if(!itrInfo)
-                    return;
+                    SpellEntry const *itrInfo = sSpellStore.LookupEntry(itr->first);
+                    if(!itrInfo)
+                        return;
 
-                // compare only specializations
-                if(itrInfo->Effect[0]!=SPELL_EFFECT_TRADE_SKILL || itrInfo->Effect[1]!=0)
-                    continue;
+                    // compare only specializations
+                    if(itrInfo->Effect[0]!=SPELL_EFFECT_TRADE_SKILL || itrInfo->Effect[1]!=0)
+                        continue;
 
-                // compare same chain spells
-                if (spellmgr.GetSpellRequired(itr->first) == profSpell)
-                    return;
+                    // compare same chain spells
+                    if (spellmgr.IsSpellRequiringSpell(itr->first, profSpell))
+                        return;
+                }
             }
         }
     }
