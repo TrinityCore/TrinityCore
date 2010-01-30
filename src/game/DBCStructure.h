@@ -1152,6 +1152,16 @@ struct MapEntry
             MapID==616 || MapID==595;                       // Eye Of Eternity, The Culling of Stratholme
     }
 
+    bool GetEntrancePos(int32 &mapid, float &x, float &y) const
+    {
+        if(entrance_map < 0)
+            return false;
+        mapid = entrance_map;
+        x = entrance_x;
+        y = entrance_y;
+        return true;
+    }
+
     bool IsContinent() const
     {
         return MapID == 0 || MapID == 1 || MapID == 530 || MapID == 571;
