@@ -729,6 +729,8 @@ CREATE TABLE `creature` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+ALTER TABLE `creature` AUTO_INCREMENT=250001;
+
 --
 -- Dumping data for table `creature`
 --
@@ -2309,6 +2311,8 @@ CREATE TABLE `gameobject` (
   PRIMARY KEY (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Gameobject System';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+ALTER TABLE `gameobject` AUTO_INCREMENT=200001;
 
 --
 -- Dumping data for table `gameobject`
@@ -6772,8 +6776,8 @@ CREATE TABLE `spell_ranks` (
 -- Dumping data for table `spell_stack_masks`
 --
 
-LOCK TABLES `spell_required` WRITE;
-/*!40000 ALTER TABLE `spell_required` DISABLE KEYS */;
+LOCK TABLES `spell_ranks` WRITE;
+/*!40000 ALTER TABLE `spell_ranks` DISABLE KEYS */;
 INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
  -- Abomination's Might
 (53137, 53137, 1),
@@ -7967,9 +7971,6 @@ INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
 (1160, 25202, 6),
 (1160, 25203, 7),
 (1160, 47437, 8),
- -- Desecration
-(55666, 55666, 1),
-(55666, 55667, 2),
  -- Desperate Prayer
 (19236, 19236, 1),
 (19236, 19238, 2),
@@ -13673,7 +13674,7 @@ INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
 (5729, 58586, 8),
 (5729, 58587, 9),
 (5729, 58588, 10);
-/*!40000 ALTER TABLE `spell_required` ENABLE KEYS */;
+/*!40000 ALTER TABLE `spell_ranks` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
