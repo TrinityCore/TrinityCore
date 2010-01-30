@@ -320,7 +320,7 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
     data << float(y);
     data << float(z);
     data << int32(corpsemapid);
-    data << uint32(corpse->GetGUIDLow());
+    data << uint32(0);                                      // unknown
     SendPacket(&data);
 }
 
@@ -461,75 +461,13 @@ void WorldSession::HandleCorpseMapPositionQuery( WorldPacket & recv_data )
 {
     sLog.outDebug( "WORLD: Recv CMSG_CORPSE_MAP_POSITION_QUERY" );
 
-    uint32 lowGuid;
-    recv_data >> lowGuid;                                   // not needed
-
-    Player* player = _player;
-    Corpse* corpse = player->GetCorpse();
-    if (!corpse)
-        return;
+    uint32 unk;
+    recv_data >> unk;
 
     WorldPacket data(CMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
-
-    float cx, cy, cz;
-
-    int32 mapId = corpse->GetMapId();
-    MapEntry const * corpseMapEntry = sMapStore.LookupEntry(mapId);
-    if (corpseMapEntry->IsDungeon())
-    {
-        float mx, my;
-        bool entranceFound = corpseMapEntry->GetEntrancePos(mapId, mx, my);
-        if (!entranceFound)
-            return;
-
-        Map const * newMap = MapManager::Instance().CreateBaseMap(mapId);
-        uint32 zoneId = newMap->GetZoneId(mx, my, 0);
-
-        float _mx = mx;
-        float _my = my;
-        Map2ZoneCoordinates(mx, my, zoneId);
-
-        float x = corpse->GetPositionX();
-        float y = corpse->GetPositionY();
-        Map2ZoneCoordinates(x, y, zoneId);
-
-        cx = x - mx;
-        cy = y - my;
-        cz = corpse->GetPositionZ() - newMap->GetHeight(_mx, _my, MAX_HEIGHT);
-    }
-    else
-    {
-        WorldSafeLocsEntry const *ClosestGrave = NULL;
-
-        // Special handle for battleground maps
-        if (BattleGround *bg = player->GetBattleGround())
-            ClosestGrave = bg->GetClosestGraveYard(player);
-        else
-            ClosestGrave = objmgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
-
-        if (!ClosestGrave)
-            return;
-
-        float x = corpse->GetPositionX();
-        float y = corpse->GetPositionY();
-
-        Map const * newMap = MapManager::Instance().CreateBaseMap(mapId);
-        uint32 zoneId = newMap->GetZoneId(x, y, 0);
-
-        float gx = ClosestGrave->x;
-        float gy = ClosestGrave->y;
-        Map2ZoneCoordinates(gx, gy, zoneId);
-        Map2ZoneCoordinates(x, y, zoneId);
-
-        cx = x - gx;
-        cy = y - gy;
-        cz = corpse->GetPositionZ() - ClosestGrave->z;
-    }
-
-    data << float(cx);
-    data << float(cy);
-    data << float(cz);
-    data << float(0);                                       // unknown
-
+    data << float(0);
+    data << float(0);
+    data << float(0);
+    data << float(0);
     SendPacket(&data);
 }
