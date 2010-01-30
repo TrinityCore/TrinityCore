@@ -91,6 +91,11 @@ void BattleGroundWS::Update(uint32 diff)
             else
                 EndBattleGround(ALLIANCE);
         }
+        else if (GetStartTime() > m_minutesElapsed*MINUTE*IN_MILISECONDS)
+        {
+            ++m_minutesElapsed;
+            UpdateWorldState(BG_WS_STATE_TIMER, 25-m_minutesElapsed);
+        }
 
         if (m_FlagState[BG_TEAM_ALLIANCE] == BG_WS_FLAG_STATE_WAIT_RESPAWN)
         {
@@ -177,6 +182,9 @@ void BattleGroundWS::StartingEventCloseDoors()
     }
     for (uint32 i = BG_WS_OBJECT_A_FLAG; i <= BG_WS_OBJECT_BERSERKBUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
+
+    UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 1);
+    UpdateWorldState(BG_WS_STATE_TIMER, 25);
 }
 
 void BattleGroundWS::StartingEventOpenDoors()
@@ -332,6 +340,7 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
         UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 0);
         UpdateWorldState(BG_WS_FLAG_STATE_ALLIANCE, 1);
         UpdateWorldState(BG_WS_FLAG_STATE_HORDE, 1);
+        UpdateWorldState(BG_WS_STATE_TIMER_ACTIVE, 0);
 
         RewardHonorToTeam(BG_WSG_Honor[m_HonorMode][BG_WSG_WIN], winner);
         EndBattleGround(winner);
@@ -709,6 +718,8 @@ void BattleGroundWS::Reset()
     m_ReputationCapture = (isBGWeekend) ? 45 : 35;
     m_HonorWinKills = (isBGWeekend) ? 3 : 1;
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
+    // For WorldState
+    m_minutesElapsed                    = 0;
 
     /* Spirit nodes is static at this BG and then not required deleting at BG reset.
     if (m_BgCreatures[WS_SPIRIT_MAIN_ALLIANCE])
@@ -806,6 +817,14 @@ void BattleGroundWS::FillInitialWorldStates(WorldPacket& data)
         data << uint32(BG_WS_FLAG_UNK_HORDE) << uint32(0);
 
     data << uint32(BG_WS_FLAG_CAPTURES_MAX) << uint32(BG_WS_MAX_TEAM_SCORE);
+
+    if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(1);
+        data << uint32(BG_WS_STATE_TIMER) << uint32(25-m_minutesElapsed);
+    }
+    else
+        data << uint32(BG_WS_STATE_TIMER_ACTIVE) << uint32(0);
 
     if (m_FlagState[BG_TEAM_HORDE] == BG_WS_FLAG_STATE_ON_PLAYER)
         data << uint32(BG_WS_FLAG_STATE_ALLIANCE) << uint32(2);
