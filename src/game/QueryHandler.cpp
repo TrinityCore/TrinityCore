@@ -479,7 +479,8 @@ void WorldSession::HandleCorpseMapPositionQuery( WorldPacket & recv_data )
     {
         float mx, my;
         bool entranceFound = corpseMapEntry->GetEntrancePos(mapId, mx, my);
-        assert(entranceFound);
+        if (!entranceFound)
+            return;
 
         Map const * newMap = MapManager::Instance().CreateBaseMap(mapId);
         uint32 zoneId = newMap->GetZoneId(mx, my, 0);
@@ -509,14 +510,15 @@ void WorldSession::HandleCorpseMapPositionQuery( WorldPacket & recv_data )
         if (!ClosestGrave)
             return;
 
-        uint32 zoneId = corpse->GetZoneId();
+        float x = corpse->GetPositionX();
+        float y = corpse->GetPositionY();
+
+        Map const * newMap = MapManager::Instance().CreateBaseMap(mapId);
+        uint32 zoneId = newMap->GetZoneId(x, y, 0);
 
         float gx = ClosestGrave->x;
         float gy = ClosestGrave->y;
         Map2ZoneCoordinates(gx, gy, zoneId);
-
-        float x = corpse->GetPositionX();
-        float y = corpse->GetPositionY();
         Map2ZoneCoordinates(x, y, zoneId);
 
         cx = x - gx;
