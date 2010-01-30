@@ -3221,9 +3221,32 @@ void SpellMgr::LoadSpellRequired()
 
         uint32 spell_id =  fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
+        // check if chain is made with valid first spell
+        SpellEntry const * spell = sSpellStore.LookupEntry(spell_id);
+        if (!spell)
+        {
+            sLog.outErrorDb("spell_id %u in `spell_required` table is not found in dbcs, skipped", spell_id);
+            continue;
+        }
+        SpellEntry const * req_spell = sSpellStore.LookupEntry(spell_req);
+        if (!req_spell)
+        {
+            sLog.outErrorDb("req_spell %u in `spell_required` table is not found in dbcs, skipped", spell_req);
+            continue;
+        }
+        if (GetFirstSpellInChain(spell_id) == GetFirstSpellInChain(spell_req))
+        {
+            sLog.outErrorDb("req_spell %u and spell_id %u in `spell_required` table are ranks of the same spell, entry not needed, skipped", spell_req, spell_id);
+            continue;
+        }
+        if (IsSpellRequiringSpell(spell_id, spell_req))
+        {
+            sLog.outErrorDb("duplicated entry of req_spell %u and spell_id %u in `spell_required`, skipped", spell_req, spell_id);
+            continue;
+        }
 
+        mSpellReq.insert (std::pair<uint32, uint32>(spell_id, spell_req));
         mSpellsReqSpell.insert (std::pair<uint32, uint32>(spell_req, spell_id));
-        mSpellReq[spell_id] = spell_req;
         ++rows;
     } while (result->NextRow());
 

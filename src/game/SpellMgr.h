@@ -762,10 +762,13 @@ struct SpellChainNode
 
 typedef UNORDERED_MAP<uint32, SpellChainNode> SpellChainMap;
 
-//                 spell_id  req_spell
-typedef UNORDERED_MAP<uint32, uint32> SpellRequiredMap;
+//                   spell_id  req_spell
+typedef std::multimap<uint32, uint32> SpellRequiredMap;
+typedef std::pair<SpellRequiredMap::const_iterator,SpellRequiredMap::const_iterator> SpellRequiredMapBounds;
 
+//                   req_spell spell_id
 typedef std::multimap<uint32, uint32> SpellsRequiringSpellMap;
+typedef std::pair<SpellsRequiringSpellMap::const_iterator,SpellsRequiringSpellMap::const_iterator> SpellsRequiringSpellMapBounds;
 
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
@@ -966,15 +969,6 @@ class SpellMgr
             return &itr->second;
         }
 
-        uint32 GetSpellRequired(uint32 spell_id) const
-        {
-            SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
-            if(itr == mSpellReq.end())
-                return NULL;
-
-            return itr->second;
-        }
-
         uint32 GetFirstSpellInChain(uint32 spell_id) const
         {
             if(SpellChainNode const* node = GetSpellChainNode(spell_id))
@@ -1009,7 +1003,25 @@ class SpellMgr
             return 0;
         }
 
-        SpellsRequiringSpellMap const& GetSpellsRequiringSpell() const { return mSpellsReqSpell; }
+        SpellRequiredMapBounds GetSpellsRequiredForSpellBounds(uint32 spell_id) const 
+        { 
+            return SpellRequiredMapBounds(mSpellReq.lower_bound(spell_id),mSpellReq.upper_bound(spell_id));
+        }
+
+        SpellsRequiringSpellMapBounds GetSpellsRequiringSpellBounds(uint32 spell_id) const 
+        { 
+            return SpellsRequiringSpellMapBounds(mSpellsReqSpell.lower_bound(spell_id),mSpellsReqSpell.upper_bound(spell_id));
+        }
+        bool IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const 
+        {
+            SpellsRequiringSpellMapBounds spellsRequiringSpell = GetSpellsRequiringSpellBounds(req_spellid);
+            for (SpellsRequiringSpellMap::const_iterator itr = spellsRequiringSpell.first; itr != spellsRequiringSpell.second; ++itr)
+            {
+                if (itr->second == spellid)
+                    return true;
+            }
+            return false;
+        }
 
         uint8 GetSpellRank(uint32 spell_id) const
         {

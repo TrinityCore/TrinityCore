@@ -164,7 +164,6 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
 
         bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->learnedSpell);
         SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->learnedSpell);
-        uint32 req_spell = spellmgr.GetSpellRequired(tSpell->spell);
         TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
 
         data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
@@ -178,9 +177,23 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
         data << uint32(tSpell->reqSkill);
         data << uint32(tSpell->reqSkillValue);
         //prev + req or req + 0
-        data << uint32(!tSpell->IsCastable() && chain_node && chain_node->prev ? chain_node->prev : req_spell);
-        data << uint32(!tSpell->IsCastable() && chain_node && chain_node->prev ? req_spell : 0);
-        data << uint32(0);
+        uint8 maxReq = 0;
+        if (!tSpell->IsCastable() && chain_node && chain_node->prev)
+        {
+            data << uint32(chain_node->prev);
+            ++maxReq;
+        }
+        SpellsRequiringSpellMapBounds spellsRequired = spellmgr.GetSpellsRequiredForSpellBounds(tSpell->spell);
+        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
+        {
+            data << uint32(itr2->second);
+            ++maxReq;
+        }
+        while (maxReq < 3)
+        {
+            data << uint32(0);
+            ++maxReq;
+        }
 
         ++count;
     }
