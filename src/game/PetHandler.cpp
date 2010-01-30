@@ -360,7 +360,7 @@ void WorldSession::SendPetNameQuery( uint64 petguid, uint32 petnumber)
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid);
     if(!pet)
     {
-        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+name.size()+1));
+        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+7+1));
         data << uint32(petnumber);
         data << "Unknown";
         data << uint32(0);
