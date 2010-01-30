@@ -98,7 +98,12 @@ void utf8print(const char* str)
     CharToOemBuffW(&wtemp_buf[0],&temp_buf[0],wtemp_len+1);
     printf(temp_buf);
 #else
-    printf(str);
+{
+    va_list v;
+    vprintf(str, v);
+    va_end(v);
+    fflush(stdout);
+}
 #endif
 }
 
