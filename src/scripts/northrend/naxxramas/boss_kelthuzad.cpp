@@ -298,7 +298,7 @@ struct TRINITY_DLL_DECL boss_kelthuzadAI : public BossAI
                         events.RepeatEvent(urand(10000,45000));
                         break;
                     case EVENT_BLAST:
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1,0), 0, true))
                             DoCast(pTarget, SPELL_FROST_BLAST);
                         if (rand()%2)
                             DoScriptText(SAY_FROST_BLAST, m_creature);
