@@ -369,12 +369,7 @@ class TRINITY_DLL_SPEC Map : public GridRefManager<NGridType>, public Trinity::O
         {
             if(!i_mapEntry)
                 return false;
-            if(i_mapEntry->entrance_map < 0)
-                return false;
-            mapid = i_mapEntry->entrance_map;
-            x = i_mapEntry->entrance_x;
-            y = i_mapEntry->entrance_y;
-            return true;
+            return i_mapEntry->GetEntrancePos(mapid, x, y);
         }
 
         void AddObjectToRemoveList(WorldObject *obj);

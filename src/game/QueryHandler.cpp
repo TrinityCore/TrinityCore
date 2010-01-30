@@ -471,17 +471,17 @@ void WorldSession::HandleCorpseMapPositionQuery( WorldPacket & recv_data )
 
     WorldPacket data(CMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE, 4+4+4+4);
 
-    Map* map = corpse->GetMap();
-
     float cx, cy, cz;
 
-    if (map->IsDungeon())
+    int32 mapId = corpse->GetMapId();
+    MapEntry const * corpseMapEntry = sMapStore.LookupEntry(mapId);
+    if (corpseMapEntry->IsDungeon())
     {
-        int32 mapId;
         float mx, my;
-        map->GetEntrancePos(mapId, mx, my);
+        bool entranceFound = corpseMapEntry->GetEntrancePos(mapId, mx, my);
+        assert(entranceFound);
 
-        const Map* newMap = MapManager::Instance().CreateBaseMap(mapId);
+        Map const * newMap = MapManager::Instance().CreateBaseMap(mapId);
         uint32 zoneId = newMap->GetZoneId(mx, my, 0);
 
         float _mx = mx;
@@ -494,7 +494,7 @@ void WorldSession::HandleCorpseMapPositionQuery( WorldPacket & recv_data )
 
         cx = x - mx;
         cy = y - my;
-        cz = corpse->GetPositionZ() - map->GetHeight(_mx, _my, MAX_HEIGHT);
+        cz = corpse->GetPositionZ() - newMap->GetHeight(_mx, _my, MAX_HEIGHT);
     }
     else
     {
