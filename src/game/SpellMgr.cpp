@@ -1945,13 +1945,19 @@ void SpellMgr::LoadSpellScriptTarget()
             continue;
         }
 
-        /*bool targetfound = false;
+        bool targetfound = false;
         for (uint8 i = 0; i < 3; ++i)
         {
-            if( spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_NEARBY_ENTRY ||
+            if(spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_AREA_ENTRY_SRC ||
+                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_AREA_ENTRY_SRC ||
+                spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_AREA_ENTRY_DST ||
+                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_AREA_ENTRY_DST ||
+                spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_NEARBY_ENTRY ||
                 spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_NEARBY_ENTRY ||
                 spellProto->EffectImplicitTargetA[i]==TARGET_DST_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_DST_NEARBY_ENTRY )
+                spellProto->EffectImplicitTargetB[i]==TARGET_DST_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_CONE_ENTRY ||
+                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_CONE_ENTRY)
             {
                 targetfound = true;
                 break;
@@ -1961,7 +1967,7 @@ void SpellMgr::LoadSpellScriptTarget()
         {
             sLog.outErrorDb("Table `spell_script_target`: spellId %u listed for TargetEntry %u does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46).",spellId,targetEntry);
             continue;
-        }*/
+        }
 
         if (type >= MAX_SPELL_TARGET_TYPE)
         {
