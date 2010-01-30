@@ -358,8 +358,16 @@ void WorldSession::HandlePetNameQuery( WorldPacket & recv_data )
 void WorldSession::SendPetNameQuery( uint64 petguid, uint32 petnumber)
 {
     Creature* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, petguid);
-    if(!pet || !pet->GetCharmInfo() || pet->GetCharmInfo()->GetPetNumber() != petnumber)
+    if(!pet)
+    {
+        WorldPacket data(SMSG_PET_NAME_QUERY_RESPONSE, (4+4+name.size()+1));
+        data << uint32(petnumber);
+        data << "Unknown";
+        data << uint32(0);
+        data << uint8(0);
+        _player->GetSession()->SendPacket(&data);
         return;
+    }
 
     std::string name = pet->GetName();
 
