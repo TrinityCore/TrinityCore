@@ -1895,13 +1895,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     Unit* caster = (*i)->GetCaster();
                     if (!caster)
                         break;
-                    // Glyph of Power Word: Shield
-                    if (AuraEffect *glyph = pVictim->GetAuraEffect(55672, 0))
-                    {
-                        int32 heal = int32(glyph->GetAmount() *
-                            (RemainingDamage >= currentAbsorb ? currentAbsorb : RemainingDamage) / 100);
-                        pVictim->CastCustomSpell(pVictim, 56160, &heal, NULL, NULL, true, 0, *i);
-                    }
                     // Reflective Shield
                     if (AuraEffect const * aurEff = caster->GetDummyAuraEffect(SPELLFAMILY_PRIEST, 566, 0))
                     {
