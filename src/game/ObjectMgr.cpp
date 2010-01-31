@@ -8015,20 +8015,33 @@ void ObjectMgr::LoadTrainerSpell()
             trainerSpell.reqLevel = spellinfo->spellLevel;
 
         // calculate learned spell for profession case when stored cast-spell
-        trainerSpell.learnedSpell = spell;
-        for (uint8 i = 0; i <3; ++i)
+        trainerSpell.learnedSpell[0] = spell;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
                 continue;
-            if(SpellMgr::IsProfessionOrRidingSpell(spellinfo->EffectTriggerSpell[i]))
+            // player must be able to cast spell on himself
+            if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ANY)
             {
-                trainerSpell.learnedSpell = spellinfo->EffectTriggerSpell[i];
+                sLog.outErrorDb("Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
+                continue;
+            }
+            if (trainerSpell.learnedSpell[0] == spell)
+                trainerSpell.learnedSpell[0] = 0;
+
+            trainerSpell.learnedSpell[i] = spellinfo->EffectTriggerSpell[i];
+        }
+
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (!trainerSpell.learnedSpell[i])
+                continue;
+            if(SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell[i]))
+            {
+                data.trainerType = 2;
                 break;
             }
         }
-
-        if(SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell))
-            data.trainerType = 2;
 
         ++count;
 
