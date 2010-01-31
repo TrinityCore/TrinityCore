@@ -6635,30 +6635,6 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 UNLOCK TABLES;
 
 --
--- Table structure for table `spell_proc_item_enchant`
---
-
-DROP TABLE IF EXISTS `spell_proc_item_enchant`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `spell_proc_item_enchant` (
-  `entry` mediumint(8) unsigned NOT NULL,
-  `ppmRate` float NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `spell_proc_item_enchant`
---
-
-LOCK TABLES `spell_proc_item_enchant` WRITE;
-/*!40000 ALTER TABLE `spell_proc_item_enchant` DISABLE KEYS */;
-INSERT INTO `spell_proc_item_enchant` VALUES (8034,9),(8680,8.5714),(13218,21.4286);
-/*!40000 ALTER TABLE `spell_proc_item_enchant` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `spell_required`
 --
 
