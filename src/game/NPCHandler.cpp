@@ -159,11 +159,23 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
     {
         TrainerSpell const* tSpell = &itr->second;
 
-        if(!_player->IsSpellFitByClassAndRace(tSpell->learnedSpell))
+        bool valid = true;
+        bool primary_prof_first_rank = false;
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
+        {
+            if (!tSpell->learnedSpell[i])
+                continue;
+            if(!_player->IsSpellFitByClassAndRace(tSpell->learnedSpell[i]))
+            {
+                valid = false;
+                break;
+            }
+            if (spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->learnedSpell[i]))
+                primary_prof_first_rank = true;
+        }
+        if (!valid)
             continue;
 
-        bool primary_prof_first_rank = spellmgr.IsPrimaryProfessionFirstRankSpell(tSpell->learnedSpell);
-        SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->learnedSpell);
         TrainerSpellState state = _player->GetTrainerSpellState(tSpell);
 
         data << uint32(tSpell->spell);                      // learned spell (or cast-spell in profession case)
@@ -178,16 +190,28 @@ void WorldSession::SendTrainerList( uint64 guid, const std::string& strTitle )
         data << uint32(tSpell->reqSkillValue);
         //prev + req or req + 0
         uint8 maxReq = 0;
-        if (!tSpell->IsCastable() && chain_node && chain_node->prev)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS ; ++i)
         {
-            data << uint32(chain_node->prev);
-            ++maxReq;
-        }
-        SpellsRequiringSpellMapBounds spellsRequired = spellmgr.GetSpellsRequiredForSpellBounds(tSpell->spell);
-        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
-        {
-            data << uint32(itr2->second);
-            ++maxReq;
+            if (!tSpell->learnedSpell[i])
+                continue;
+            if (SpellChainNode const* chain_node = spellmgr.GetSpellChainNode(tSpell->learnedSpell[i]))
+            {
+                if (chain_node->prev)
+                {
+                    data << uint32(chain_node->prev);
+                    ++maxReq;
+                }
+            }
+            if (maxReq == 3)
+                break;
+            SpellsRequiringSpellMapBounds spellsRequired = spellmgr.GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
+            for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
+            {
+                data << uint32(itr2->second);
+                ++maxReq;
+            }
+            if (maxReq == 3)
+                break;
         }
         while (maxReq < 3)
         {
@@ -258,7 +282,7 @@ void WorldSession::HandleTrainerBuySpellOpcode( WorldPacket & recv_data )
     SendPacket(&data);
 
     // learn explicitly or cast explicitly
-    if(trainer_spell->IsCastable ())
+    if(trainer_spell->IsCastable())
         //FIXME: prof. spell entry in trainer list not marked gray until list re-open.
         _player->CastSpell(_player,trainer_spell->spell,true);
     else
