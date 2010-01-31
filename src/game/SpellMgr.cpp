@@ -1660,12 +1660,18 @@ bool SpellMgr::IsProfessionOrRidingSpell(uint32 spellId)
     if(!spellInfo)
         return false;
 
-    if(spellInfo->Effect[1] != SPELL_EFFECT_SKILL)
-        return false;
+    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS ; ++i)
+    {
+        if(spellInfo->Effect[i] == SPELL_EFFECT_SKILL)
+        {
+            uint32 skill = spellInfo->EffectMiscValue[i];
 
-    uint32 skill = spellInfo->EffectMiscValue[1];
-
-    return IsProfessionOrRidingSkill(skill);
+            bool found = IsProfessionOrRidingSkill(skill);
+            if (found)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool SpellMgr::IsProfessionSpell(uint32 spellId)
@@ -1674,12 +1680,18 @@ bool SpellMgr::IsProfessionSpell(uint32 spellId)
     if(!spellInfo)
         return false;
 
-    if(spellInfo->Effect[1] != SPELL_EFFECT_SKILL)
-        return false;
+    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS ; ++i)
+    {
+        if(spellInfo->Effect[i] == SPELL_EFFECT_SKILL)
+        {
+            uint32 skill = spellInfo->EffectMiscValue[i];
 
-    uint32 skill = spellInfo->EffectMiscValue[1];
-
-    return IsProfessionSkill(skill);
+            bool found = IsProfessionSkill(skill);
+            if (found)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool SpellMgr::IsPrimaryProfessionSpell(uint32 spellId)
@@ -1688,12 +1700,18 @@ bool SpellMgr::IsPrimaryProfessionSpell(uint32 spellId)
     if(!spellInfo)
         return false;
 
-    if(spellInfo->Effect[1] != SPELL_EFFECT_SKILL)
-        return false;
+    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS ; ++i)
+    {
+        if(spellInfo->Effect[i] == SPELL_EFFECT_SKILL)
+        {
+            uint32 skill = spellInfo->EffectMiscValue[i];
 
-    uint32 skill = spellInfo->EffectMiscValue[1];
-
-    return IsPrimaryProfessionSkill(skill);
+            bool found = IsPrimaryProfessionSkill(skill);
+            if (found)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool SpellMgr::IsPrimaryProfessionFirstRankSpell(uint32 spellId) const
@@ -1965,7 +1983,8 @@ void SpellMgr::LoadSpellScriptTarget()
         }
         if (!targetfound)
         {
-            sLog.outErrorDb("Table `spell_script_target`: spellId %u listed for TargetEntry %u does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46).",spellId,targetEntry);
+            sLog.outErrorDb("Table `spell_script_target`: spellId %u listed for TargetEntry %u does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)\
+                ,TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60)",spellId,targetEntry);
             continue;
         }
 
@@ -3227,7 +3246,7 @@ void SpellMgr::LoadSpellRequired()
 
         uint32 spell_id =  fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
-        // check if chain is made with valid first spell
+        // validate table
         SpellEntry const * spell = sSpellStore.LookupEntry(spell_id);
         if (!spell)
         {
