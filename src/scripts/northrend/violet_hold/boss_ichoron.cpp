@@ -17,25 +17,26 @@
 /* Script Data Start
 SDName: Boss ichoron
 SDAuthor: ckegg
-SD%Complete:
-SDComment:
+SD%Complete: 80%
+SDComment: TODO: better spawn location for adds
 SDCategory:
 Script Data End */
 
 #include "ScriptedPch.h"
 #include "violet_hold.h"
+#include "SpellId.h"
 
 enum Spells
 {
-    SPELL_DRAINED                               = 59820,
-    SPELL_FRENZY                                = 54312,
-    SPELL_FRENZY_H                              = 59522,
-    SPELL_PROTECTIVE_BUBBLE                     = 54306,
-    SPELL_WATER_BLAST                           = 54237,
-    SPELL_WATER_BLAST_H                         = 59520,
-    SPELL_WATER_BOLT_VOLLEY                     = 54241,
-    SPELL_WATER_BOLT_VOLLEY_H                   = 59521,
-    SPELL_SPLASH                                = 59516,
+    SPELL_DRAINED                               = SPELL_DRAINED_59820,
+    SPELL_FRENZY                                = SPELL_FRENZY_54312,
+    SPELL_FRENZY_H                              = SPELL_FRENZY_59522,
+    SPELL_PROTECTIVE_BUBBLE                     = SPELL_PROTECTIVE_BUBBLE_54306,
+    SPELL_WATER_BLAST                           = SPELL_WATER_BLAST_54237,
+    SPELL_WATER_BLAST_H                         = SPELL_WATER_BLAST_59520,
+    SPELL_WATER_BOLT_VOLLEY                     = SPELL_WATER_BOLT_VOLLEY_54241,
+    SPELL_WATER_BOLT_VOLLEY_H                   = SPELL_WATER_BOLT_VOLLEY_59521,
+    SPELL_SPLASH                                = SPELL_SPLASH_59516,
 };
 
 enum IchoronCreatures
@@ -57,47 +58,53 @@ enum Yells
     SAY_BUBBLE                                  = -1608026
 };
 
-struct Locations
+enum Achievements
 {
-    float x, y, z;
-    uint32 id;
+    ACHIEVEMENT_DEHYDRATION                     = 2041,
 };
 
-static Locations PortalLoc[]=
+enum Actions
 {
-    {1857.125, 763.295, 38.654},
-    {1925.480, 849.981, 47.174},
-    {1892.737, 744.589, 47.666},
-    {1878.198, 850.005, 43.333},
-    {1909.381, 806.796, 38.645},
-    {1936.101, 802.950, 52.417},
+    ACTION_WATER_ELEMENT_HIT                    = 1,
+    ACTION_WATER_ELEMENT_KILLED                 = 2,
+};
+
+// TODO get those positions from spawn of creature 29326
+#define MAX_SPAWN_LOC 5
+static Position SpawnLoc[MAX_SPAWN_LOC]=
+{
+    {1840.64, 795.407, 44.079, 1.676},
+    {1886.24, 757.733, 47.750, 5.201},
+    {1877.91, 845.915, 43.417, 3.560},
+    {1918.97, 850.645, 47.225, 4.136},
+    {1935.50, 796.224, 52.492, 4.224},
 };
 
 struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
 {
-    boss_ichoronAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_ichoronAI(Creature* pCreature) : ScriptedAI(pCreature), m_waterElements(pCreature)
     {
         pInstance  = pCreature->GetInstanceData();
     }
 
     bool bIsExploded;
     bool bIsFrenzy;
+    bool bAchievement;
 
-    uint32 uiBuubleChecker_Timer;
-    uint32 uiWaterBoltVolley_Timer;
-    uint32 uiShowup_Counter;
+    uint32 uiBubbleCheckerTimer;
+    uint32 uiWaterBoltVolleyTimer;
 
     ScriptedInstance* pInstance;
 
-    std::list<uint64> m_lWaterElementsGUIDList;
+    SummonList m_waterElements;
 
     void Reset()
     {
         bIsExploded = false;
         bIsFrenzy = false;
-        uiBuubleChecker_Timer = 1000;
-        uiWaterBoltVolley_Timer = urand(10000, 15000);
-        uiShowup_Counter = 0;
+        bAchievement = true;
+        uiBubbleCheckerTimer = 1000;
+        uiWaterBoltVolleyTimer = urand(10000, 15000);
 
         m_creature->SetVisibility(VISIBILITY_ON);
         DespawnWaterElements();
@@ -140,32 +147,45 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
         }
     }
 
-    void WaterElementHit()
+    void DoAction(const int32 param)
     {
-        m_creature->SetHealth(m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.01);
-        if (bIsExploded)
+        if (!m_creature->isAlive())
+            return;
+
+        switch(param)
         {
-            DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
-            bIsExploded = false;
-            m_creature->SetVisibility(VISIBILITY_ON);
-            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+            case ACTION_WATER_ELEMENT_HIT:
+                m_creature->SetHealth(m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.01);
+
+                if (bIsExploded)
+                    DoExplodeCompleted();
+
+                bAchievement = false;
+                break;
+            case ACTION_WATER_ELEMENT_KILLED:
+                uint32 damage = (m_creature->GetMaxHealth()*3)/100;
+                m_creature->SetHealth(m_creature->GetHealth() - damage);
+                m_creature->LowerPlayerDamageReq(damage);
+                break;
         }
     }
 
     void DespawnWaterElements()
     {
-        if (m_lWaterElementsGUIDList.empty())
-            return;
+        m_waterElements.DespawnAll();
+    }
 
-        for(std::list<uint64>::iterator itr = m_lWaterElementsGUIDList.begin(); itr != m_lWaterElementsGUIDList.end(); ++itr)
-        {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
-            {
-                if (pTemp->isAlive())
-                    pTemp->Kill(pTemp, false);
-            }
-        }
-        m_lWaterElementsGUIDList.clear();
+    // call when explode shall stop.
+    // either when "hit" by a bubble, or when there is no bubble left.
+    void DoExplodeCompleted()
+    {
+        bIsExploded = false;
+
+        if (!HealthBelowPct(25))
+            DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE, true);
+
+        m_creature->SetVisibility(VISIBILITY_ON);
+        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
     }
 
     void MoveInLineOfSight(Unit* pWho) {}
@@ -176,70 +196,64 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
+        if (!bIsFrenzy && HealthBelowPct(25) && !bIsExploded)
+        {
+            DoCast(m_creature, DUNGEON_MODE(SPELL_FRENZY, SPELL_FRENZY_H), true);
+            bIsFrenzy = true;
+        }
+
         if (!bIsFrenzy)
         {
-            if (uiBuubleChecker_Timer < uiDiff)
+            if (uiBubbleCheckerTimer <= uiDiff)
             {
                 if (!bIsExploded)
                 {
                     if (!m_creature->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                     {
                         DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BLAST, SPELL_WATER_BLAST_H));
-                        //DoCast(m_creature, SPELL_DRAINED);
+                        DoCast(m_creature, SPELL_DRAINED);
                         bIsExploded = true;
-                        uiShowup_Counter = 0;
                         m_creature->AttackStop();
                         m_creature->SetVisibility(VISIBILITY_OFF);
                         for(uint8 i = 0; i < 10; i++)
                         {
-                            //int tmp = urand(0, 5);
-                            //m_creature->SummonCreature(NPC_ICHOR_GLOBULE, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                            m_creature->SummonCreature(NPC_ICHOR_GLOBULE, m_creature->GetPositionX()-10+rand()%20, m_creature->GetPositionY()-10+rand()%20, m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            int tmp = urand(0, MAX_SPAWN_LOC-1);
+                            m_creature->SummonCreature(NPC_ICHOR_GLOBULE, SpawnLoc[tmp], TEMPSUMMON_CORPSE_DESPAWN);
                         }
                     }
-                    uiBuubleChecker_Timer = 3000;
                 }
                 else
                 {
                     bool bIsWaterElementsAlive = false;
-                    ++uiShowup_Counter;
-                    if (!m_lWaterElementsGUIDList.empty())
+                    if (!m_waterElements.empty())
                     {
-                        for(std::list<uint64>::iterator itr = m_lWaterElementsGUIDList.begin(); itr != m_lWaterElementsGUIDList.end(); ++itr)
-                            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+                        for (std::list<uint64>::iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
+                            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
                                 if (pTemp->isAlive())
+                                {
                                     bIsWaterElementsAlive = true;
+                                    break;
+                                }
                     }
-                    if (!bIsWaterElementsAlive || uiShowup_Counter > 20)
-                    {
-                        DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
-                        bIsExploded = false;
-                        uiShowup_Counter = 0;
-                        m_creature->SetVisibility(VISIBILITY_ON);
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    }
-                    uiBuubleChecker_Timer = 1000;
+
+                    if (!bIsWaterElementsAlive)
+                        DoExplodeCompleted();
                 }
+                uiBubbleCheckerTimer = 1000;
             }
-            else uiBuubleChecker_Timer -= uiDiff;
+            else uiBubbleCheckerTimer -= uiDiff;
         }
 
         if (!bIsExploded)
         {
-            if (uiWaterBoltVolley_Timer < uiDiff)
+            if (uiWaterBoltVolleyTimer <= uiDiff)
             {
                 DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BOLT_VOLLEY, SPELL_WATER_BOLT_VOLLEY_H));
-                uiWaterBoltVolley_Timer = urand(10000, 15000);
+                uiWaterBoltVolleyTimer = urand(10000, 15000);
             }
-            else uiWaterBoltVolley_Timer -= uiDiff;
+            else uiWaterBoltVolleyTimer -= uiDiff;
 
-            if (!bIsFrenzy && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
-            {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_FRENZY, SPELL_FRENZY_H));
-                bIsFrenzy = true;
-            }
-
-        DoMeleeAttackIfReady();
+            DoMeleeAttackIfReady();
         }
     }
 
@@ -247,10 +261,19 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
+        if (bIsExploded)
+        {
+            bIsExploded = false;
+            m_creature->SetVisibility(VISIBILITY_ON);
+        }
+
         DespawnWaterElements();
 
         if (pInstance)
         {
+            if (IsHeroic() && bAchievement)
+                pInstance->DoCompleteAchievement(ACHIEVEMENT_DEHYDRATION);
+
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
             {
                 pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
@@ -266,9 +289,15 @@ struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->SetSpeed(MOVE_RUN, 0.2f);
+        pSummoned->SetSpeed(MOVE_RUN, 0.3f);
         pSummoned->GetMotionMaster()->MoveFollow(m_creature, 0, 0);
-        m_lWaterElementsGUIDList.push_back(pSummoned->GetGUID());
+        m_waterElements.push_back(pSummoned->GetGUID());
+    }
+
+
+    void SummonedCreatureDespawn(Creature *pSummoned) 
+    {
+        m_waterElements.remove(pSummoned->GetGUID());
     }
 
     void KilledUnit(Unit *victim)
@@ -313,12 +342,11 @@ struct TRINITY_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
             {
                 if (Creature* pIchoron = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ICHORON))))
                 {
-                    //maybe 12.0f is not offlike, maybe 2.00f ?
-                    float fDistance = m_creature->GetDistance(pIchoron);
-                    if (m_creature->IsWithinDist(pIchoron, fDistance <= 12.0f , false))
+                    if (m_creature->IsWithinDist(pIchoron, 2.0f , false))
                     {
-                        ((boss_ichoronAI*)pIchoron->AI())->WaterElementHit();
-                        m_creature->Kill(m_creature, false);
+                        if (pIchoron->AI())
+                            pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_HIT);
+                        m_creature->ForcedDespawn();
                     }
                 }
             }
@@ -330,6 +358,9 @@ struct TRINITY_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoCast(m_creature, SPELL_SPLASH);
+        if (Creature* pIchoron = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ICHORON))))
+            if (pIchoron->AI())
+                pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
     }
 };
 
