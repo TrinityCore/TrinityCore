@@ -6654,6 +6654,10 @@ CREATE TABLE `spell_required` (
 
 LOCK TABLES `spell_required` WRITE;
 /*!40000 ALTER TABLE `spell_required` DISABLE KEYS */;
+INSERT INTO `spell_required` (`spell_id`,`req_spell`) VALUES
+(57720,30706), -- Totem of Wrath rank 2 (must know rank 1)
+(57721,57720), -- Totem of Wrath rank 3 (must know rank 2)
+(57722,57721); -- Totem of Wrath rank 4 (must know rank 3)
 /*!40000 ALTER TABLE `spell_required` ENABLE KEYS */;
 UNLOCK TABLES;
 
