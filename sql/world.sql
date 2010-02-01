@@ -2743,14 +2743,14 @@ CREATE TABLE `item_template` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `displayid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Quality` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `Flags` int(10) signed NOT NULL DEFAULT '0',
+  `Flags` bigint(20) signed NOT NULL DEFAULT '0',
   `Faction` int(11) unsigned NOT NULL DEFAULT '0',
   `BuyCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
-  `BuyPrice` int(10) signed NOT NULL DEFAULT '0',
+  `BuyPrice` bigint(20) signed NOT NULL DEFAULT '0',
   `SellPrice` int(10) unsigned NOT NULL DEFAULT '0',
   `InventoryType` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `AllowableClass` int(11) NOT NULL,
-  `AllowableRace` int(11) NOT NULL,
+  `AllowableClass` int(11) NOT NULL DEFAULT '-1',
+  `AllowableRace` int(11) NOT NULL DEFAULT '-1',
   `ItemLevel` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `RequiredSkill` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -2760,7 +2760,7 @@ CREATE TABLE `item_template` (
   `RequiredCityRank` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `RequiredReputationFaction` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredReputationRank` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `maxcount` int(11) signed NOT NULL DEFAULT '-1',
+  `maxcount` int(11) signed NOT NULL DEFAULT '0',
   `stackable` int(11) signed NOT NULL DEFAULT '1',
   `ContainerSlots` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `StatsCount` tinyint(3) unsigned NOT NULL DEFAULT '0',
@@ -4051,8 +4051,8 @@ CREATE TABLE `pool_creature` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
-  `comment` varchar(255) NOT NULL,
-  `description` varchar(255) NOT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`pool_entry`,`guid`),
   KEY `idx_guid` (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -4078,7 +4078,7 @@ CREATE TABLE `pool_gameobject` (
   `guid` int(10) unsigned NOT NULL DEFAULT '0',
   `pool_entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float unsigned NOT NULL DEFAULT '0',
-  `description` varchar(255) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`guid`,`pool_entry`),
   KEY `idx_guid` (`guid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -4104,7 +4104,7 @@ CREATE TABLE `pool_pool` (
   `pool_id` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `mother_pool` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `chance` float NOT NULL DEFAULT '0',
-  `description` varchar(255) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`pool_id`,`mother_pool`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4128,8 +4128,8 @@ DROP TABLE IF EXISTS `pool_template`;
 CREATE TABLE `pool_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Pool entry',
   `max_limit` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Max number of objects (0) is no limit',
-  `comment` varchar(255) NOT NULL,
-  `description` varchar(255) NOT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4247,7 +4247,7 @@ CREATE TABLE `quest_template` (
   `ZoneOrSort` smallint(6) NOT NULL DEFAULT '0',
   `SkillOrClass` smallint(6) NOT NULL DEFAULT '0',
   `MinLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `QuestLevel` smallint(3) DEFAULT NULL,
+  `QuestLevel` smallint(3) NOT NULL DEFAULT '1',
   `Type` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredRaces` smallint(5) unsigned NOT NULL DEFAULT '0',
   `RequiredSkillValue` smallint(5) unsigned NOT NULL DEFAULT '0',
