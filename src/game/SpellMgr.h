@@ -633,14 +633,23 @@ struct SpellEnchantProcEntry
 typedef UNORDERED_MAP<uint32, SpellEnchantProcEntry> SpellEnchantProcEventMap;
 typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
-#define ELIXIR_BATTLE_MASK    0x01
-#define ELIXIR_GUARDIAN_MASK  0x02
-#define ELIXIR_FLASK_MASK     (ELIXIR_BATTLE_MASK|ELIXIR_GUARDIAN_MASK)
-#define ELIXIR_UNSTABLE_MASK  0x04
-#define ELIXIR_SHATTRATH_MASK 0x08
-#define ELIXIR_WELL_FED       0x10                          // Some foods have SPELLFAMILY_POTION
+enum SpellGroup
+{
+    SPELL_GROUP_ELIXIR_BATTLE = 1,
+    SPELL_GROUP_ELIXIR_GUARDIAN = 2,
+    SPELL_GROUP_ELIXIR_UNSTABLE = 3,
+    SPELL_GROUP_ELIXIR_SHATTRATH = 4,
+    SPELL_GROUP_WELL_FED = 5,
+};
 
-typedef std::map<uint32, uint8> SpellElixirMap;
+//                  spell_id, group_id
+typedef std::multimap<uint32, SpellGroup> SpellSpellGroupMap;
+typedef std::pair<SpellSpellGroupMap::const_iterator,SpellSpellGroupMap::const_iterator> SpellSpellGroupMapBounds;
+
+//                      group_id, spell_id
+typedef std::multimap<SpellGroup, uint32> SpellGroupSpellMap;
+typedef std::pair<SpellGroupSpellMap::const_iterator,SpellGroupSpellMap::const_iterator> SpellGroupSpellMapBounds;
+
 typedef std::map<uint32, uint16> SpellThreatMap;
 typedef std::map<uint32, uint32> SpellStackMaskMap;
 
@@ -860,30 +869,47 @@ class SpellMgr
 
         bool IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const;
 
-        SpellElixirMap const& GetSpellElixirMap() const { return mSpellElixirs; }
-
-        uint32 GetSpellElixirMask(uint32 spellid) const
+        SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const 
         {
-            SpellElixirMap::const_iterator itr = mSpellElixirs.find(spellid);
-            if(itr==mSpellElixirs.end())
-                return 0x0;
-
-            return itr->second;
+            spell_id = GetFirstSpellInChain(spell_id);
+            return SpellSpellGroupMapBounds(mSpellSpellGroup.lower_bound(spell_id),mSpellSpellGroup.upper_bound(spell_id));
+        }
+        uint32 IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) const
+        {
+            SpellSpellGroupMapBounds spellGroup = GetSpellSpellGroupMapBounds(spellid);
+            for ( SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
+            {
+                if (itr->second == groupid)
+                    return true;
+            }
+            return false;
         }
 
+        SpellGroupSpellMapBounds GetSpellGroupSpellMapBounds(SpellGroup group_id) const 
+        {
+            return SpellGroupSpellMapBounds(mSpellGroupSpell.lower_bound(group_id),mSpellGroupSpell.upper_bound(group_id));
+        }
         SpellSpecific GetSpellElixirSpecific(uint32 spellid) const
         {
-            uint32 mask = GetSpellElixirMask(spellid);
-            if((mask & ELIXIR_FLASK_MASK)==ELIXIR_FLASK_MASK)
-                return SPELL_SPECIFIC_FLASK_ELIXIR;
-            else if(mask & ELIXIR_BATTLE_MASK)
-                return SPELL_SPECIFIC_BATTLE_ELIXIR;
-            else if(mask & ELIXIR_GUARDIAN_MASK)
-                return SPELL_SPECIFIC_GUARDIAN_ELIXIR;
-            else if(mask & ELIXIR_WELL_FED)
-                return SPELL_SPECIFIC_WELL_FED;
-            else
-                return SPELL_SPECIFIC_NORMAL;
+            SpellSpecific spec = SPELL_SPECIFIC_NORMAL;
+            SpellSpellGroupMapBounds spellGroup = GetSpellSpellGroupMapBounds(spellid);
+            for ( SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
+            {
+                if (itr->second == SPELL_GROUP_ELIXIR_BATTLE
+                    || itr->second == SPELL_GROUP_ELIXIR_GUARDIAN)
+                {
+                    if (spec)
+                    {
+                        spec = SPELL_SPECIFIC_FLASK_ELIXIR;
+                        break;
+                    }
+                    else if (itr->second == SPELL_GROUP_ELIXIR_BATTLE)
+                        spec = SPELL_SPECIFIC_BATTLE_ELIXIR;
+                    else if (itr->second == SPELL_GROUP_ELIXIR_GUARDIAN)
+                        spec = SPELL_SPECIFIC_GUARDIAN_ELIXIR;
+                }
+            }
+            return spec;
         }
 
         // Used for stacking in spellmgr, and possibly in cancast checks
@@ -1224,7 +1250,7 @@ class SpellMgr
         void LoadSpellLearnSkills();
         void LoadSpellLearnSpells();
         void LoadSpellScriptTarget();
-        void LoadSpellElixirs();
+        void LoadSpellGroups();
         void LoadSpellProcEvents();
         void LoadSpellBonusess();
         void LoadSpellTargetPositions();
@@ -1251,7 +1277,8 @@ class SpellMgr
         SpellLearnSkillMap mSpellLearnSkills;
         SpellLearnSpellMap mSpellLearnSpells;
         SpellTargetPositionMap mSpellTargetPositions;
-        SpellElixirMap     mSpellElixirs;
+        SpellSpellGroupMap mSpellSpellGroup;
+        SpellGroupSpellMap mSpellGroupSpell;
         SpellThreatMap     mSpellThreatMap;
         SpellProcEventMap  mSpellProcEventMap;
         SpellBonusMap      mSpellBonusMap;
