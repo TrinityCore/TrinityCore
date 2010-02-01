@@ -5928,7 +5928,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 if (!target || target == pVictim)
                     return false;
 
-                CastSpell(target, 58567, true); 
+                CastSpell(target, 58567, true);
                 return true;
             }
             break;
@@ -6625,7 +6625,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             {
                 if (procFlag & PROC_FLAG_TAKEN_POSITIVE_MAGIC_SPELL)
                 {
-                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN 
+                    if (procSpell->SpellFamilyName == SPELLFAMILY_PALADIN
                         && (procSpell->SpellFamilyFlags[0] & 0x40000000))
                     {
                         basepoints0 = int32(float(damage)/12.0f);
@@ -7152,7 +7152,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 else if (procSpell->SpellFamilyFlags[0] & 0x100)
                     // Chain heal - 0.3 of default
                     chance *= 0.3f;
-                
+
                 if (!roll_chance_f(chance))
                     return false;
 
@@ -15013,8 +15013,10 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     if (GetTypeId() == TYPEID_UNIT)
     {
         ((Creature*)this)->AI()->OnCharmed(false);
-        if (isAlive() && charmer && !IsFriendlyTo(charmer))
-            ((Creature*)this)->AddThreat(charmer, 10000.0f);
+        ((Creature*)this)->AIM_Initialize();
+
+        if (((Creature*)this)->AI() && charmer && charmer->isAlive())
+            ((Creature*)this)->AI()->AttackStart(charmer);
         /*if (isAlive() && ((Creature*)this)->IsAIEnabled)
         {
             if (charmer && !IsFriendlyTo(charmer))
