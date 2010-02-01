@@ -29,16 +29,19 @@ update creature_template set scriptname = 'boss_trollgore' where entry = '';
 *** SQL END ***/
 #include "ScriptedPch.h"
 #include "drak_tharon_keep.h"
+#include "SpellId.h"
 
 enum Spells
 {
-    SPELL_INFECTED_WOUND                                   = 49637,
-    SPELL_CRUSH                                            = 49639,
-    SPELL_CORPSE_EXPLODE                                   = 49555,
-    SPELL_CONSUME                                          = 49380,
+    SPELL_INFECTED_WOUND                                   = SPELL_INFECTED_WOUND_49637,
+    SPELL_CRUSH                                            = SPELL_CRUSH_49639,
+    SPELL_CORPSE_EXPLODE                                   = SPELL_CORPSE_EXPLODE_49555,
+    SPELL_CONSUME                                          = SPELL_CONSUME_49380,
+    SPELL_CONSUME_AURA                                     = SPELL_CONSUME_49381,
     //Heroic spells
-    H_SPELL_CORPSE_EXPLODE                                 = 59807,
-    H_SPELL_CONSUME                                        = 59803
+    H_SPELL_CORPSE_EXPLODE                                 = SPELL_CORPSE_EXPLODE_59807,
+    H_SPELL_CONSUME                                        = SPELL_CONSUME_59803,
+    H_SPELL_CONSUME_AURA                                   = SPELL_CONSUME_59805,
 };
 //not in db
 enum Yells
@@ -94,8 +97,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         lSummons.DespawnAll();
 
-        if (m_creature->HasAura(DUNGEON_MODE(SPELL_CONSUME,H_SPELL_CONSUME)))
-            m_creature->RemoveAura(DUNGEON_MODE(SPELL_CONSUME,H_SPELL_CONSUME));
+        m_creature->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
         
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
@@ -119,7 +121,7 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
         {
             uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
             for (uint8 i = 0; i < spawnNumber; ++i)
-                DoSpawnCreature(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint.GetPositionX(), AddSpawnPoint.GetPositionY(), AddSpawnPoint.GetPositionZ(), AddSpawnPoint.GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 90000);
+                DoSummon(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
             uiSpawnTimer = urand(30000,40000);
         } else uiSpawnTimer -= diff;
 
@@ -132,15 +134,9 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         if (bAchiev)
         {
-            if (uiAuraCountTimer <= diff)
-            {
-                if (Aura *pConsumeAura = m_creature->GetAura(DUNGEON_MODE(SPELL_CONSUME,H_SPELL_CONSUME)))
-                {
-                    if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
-                        bAchiev = false;
-                }
-                uiAuraCountTimer = 16000;
-            } else uiAuraCountTimer -= diff;
+            Aura *pConsumeAura = m_creature->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+            if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
+                bAchiev = false;
         }
 
         if (uiCrushTimer <= diff)
@@ -188,7 +184,9 @@ struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
     void JustSummoned(Creature* summon)
     {
-        summon->AI()->AttackStart(m_creature);
+        lSummons.push_back(summon->GetGUID());
+        if (summon->AI())
+            summon->AI()->AttackStart(m_creature);
     }
 };
 
