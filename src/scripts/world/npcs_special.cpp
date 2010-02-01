@@ -1982,6 +1982,77 @@ CreatureAI* GetAI_npc_shadowfiend(Creature* pCreature)
     return new npc_shadowfiendAI(pCreature);
 }
 
+/*######
+# npc_wormhole
+######*/
+
+#define GOSSIP_ENGINEERING1   "Borean Tundra."
+#define GOSSIP_ENGINEERING2   "Howling Fjord."
+#define GOSSIP_ENGINEERING3   "Sholazar Basin."
+#define GOSSIP_ENGINEERING4   "Icecrown."
+#define GOSSIP_ENGINEERING5   "Storm Peaks."
+
+enum eWormhole
+{
+    SPELL_HOWLING_FJORD         = 67838,
+    SPELL_SHOLAZAR_BASIN        = 67835,
+    SPELL_ICECROWN              = 67836,
+    SPELL_STORM_PEAKS           = 67837,
+
+    TEXT_WORMHOLE               = 907
+};
+
+bool GossipHello_npc_wormhole(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isSummon())
+	{
+        if (pPlayer == CAST_SUM(pCreature)->GetSummoner())
+		{
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+
+            pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_WORMHOLE, pCreature->GetGUID());
+		}
+	}
+    return true;
+}
+
+bool GossipSelect_npc_wormhole(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    bool roll = urand(0,1);
+
+    switch(uiAction)
+	{
+		case GOSSIP_ACTION_INFO_DEF + 1: //Borean Tundra
+			pPlayer->CLOSE_GOSSIP_MENU();
+			if (roll) //At the moment we don't have chance on spell_target_position table so we hack this
+                pPlayer->TeleportTo(571, 4305.505859, 5450.839844, 63.005806, 0.627286);
+			else
+                pPlayer->TeleportTo(571, 3201.936279, 5630.123535, 133.658798, 3.855272);
+        break;
+		case GOSSIP_ACTION_INFO_DEF + 2: //Howling Fjord
+			pPlayer->CLOSE_GOSSIP_MENU();
+			pPlayer->CastSpell(pPlayer, SPELL_HOWLING_FJORD, true);
+        break;
+		case GOSSIP_ACTION_INFO_DEF + 3: //Sholazar Basin
+			pPlayer->CLOSE_GOSSIP_MENU();
+			pPlayer->CastSpell(pPlayer, SPELL_SHOLAZAR_BASIN, true);
+        break;
+		case GOSSIP_ACTION_INFO_DEF + 4: //Icecrown
+			pPlayer->CLOSE_GOSSIP_MENU();
+			pPlayer->CastSpell(pPlayer, SPELL_ICECROWN, true);
+        break;
+		case GOSSIP_ACTION_INFO_DEF + 5: //Storm peaks
+			pPlayer->CLOSE_GOSSIP_MENU();
+			pPlayer->CastSpell(pPlayer, SPELL_STORM_PEAKS, true);
+        break;
+	}
+    return true;
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -2107,6 +2178,12 @@ void AddSC_npcs_special()
     newscript = new Script;
     newscript->Name = "npc_shadowfiend";
     newscript->GetAI = &GetAI_npc_shadowfiend;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_wormhole";
+    newscript->pGossipHello =  &GossipHello_npc_wormhole;
+    newscript->pGossipSelect = &GossipSelect_npc_wormhole;
     newscript->RegisterSelf();
 }
 
