@@ -1813,7 +1813,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (25165,-1580064,'%s directs Shadow Nova at $N',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'eredar - emote shadow nova'),
    (25166,-1580065,'%s directs Conflagration at $N',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'eredar - emote conflagration'),
    (25608,-1580066,'All my plans have led to this!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12495,1,0,0,'KJ - SAY_KJ_OFFCOMBAT1'),
-   (25608,-1580067,'Stay on task! Do not waste tim!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12496,1,0,0,'KJ - SAY_KJ_OFFCOMBAT2'),
+   (25608,-1580067,'Stay on task! Do not waste time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12496,1,0,0,'KJ - SAY_KJ_OFFCOMBAT2'),
    (25608,-1580068,'I have waited long enough!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12497,1,0,0,'KJ - SAY_KJ_OFFCOMBAT3'),
    (25608,-1580069,'Fail me and suffer for eternity!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12498,1,0,0,'KJ - SAY_KJ_OFFCOMBAT4'),
    (25608,-1580070,'Drain the girl! Drain her power until there is nothing but a vacant shell!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12499,1,0,0,'KJ - SAY_KJ_OFFCOMBAT5'),
