@@ -3196,44 +3196,66 @@ void Spell::EffectEnergize(uint32 i)
     m_caster->EnergizeBySpell(unitTarget, m_spellInfo->Id, damage, power);
 
     // Mad Alchemist's Potion
-    if (m_spellInfo->Id == 45051)
+    if (m_spellInfo->Id == SPELL_MAD_ALCHEMISTS_POTION_45051)
     {
         // find elixirs on target
-        uint32 elixir_mask = 0;
+        bool guardianFound = false;
+        bool battleFound = false;
         Unit::AuraApplicationMap& Auras = unitTarget->GetAppliedAuras();
         for (Unit::AuraApplicationMap::iterator itr = Auras.begin(); itr != Auras.end(); ++itr)
         {
             uint32 spell_id = itr->second->GetBase()->GetId();
-            if(uint32 mask = spellmgr.GetSpellElixirMask(spell_id))
-                elixir_mask |= mask;
+            if (!guardianFound)
+                if(spellmgr.IsSpellMemberOfSpellGroup(spell_id, SPELL_GROUP_ELIXIR_GUARDIAN))
+                    guardianFound = true;
+            if (!battleFound)
+                if(spellmgr.IsSpellMemberOfSpellGroup(spell_id, SPELL_GROUP_ELIXIR_BATTLE))
+                    battleFound = true;
+            if (battleFound && guardianFound)
+                break;
         }
-
-        // get available elixir mask any not active type from battle/guardian (and flask if no any)
-        elixir_mask = (elixir_mask & ELIXIR_FLASK_MASK) ^ ELIXIR_FLASK_MASK;
 
         // get all available elixirs by mask and spell level
-        std::vector<uint32> elixirs;
-        SpellElixirMap const& m_spellElixirs = spellmgr.GetSpellElixirMap();
-        for (SpellElixirMap::const_iterator itr = m_spellElixirs.begin(); itr != m_spellElixirs.end(); ++itr)
+        std::list<uint32> avalibleElixirs;
+        if (!guardianFound)
         {
-            if (itr->second & elixir_mask)
+            SpellGroupSpellMapBounds guardianGroup = spellmgr.GetSpellGroupSpellMapBounds(SPELL_GROUP_ELIXIR_GUARDIAN);
+            for ( SpellGroupSpellMap::const_iterator itr = guardianGroup.first; itr != guardianGroup.second ; ++itr)
             {
-                if (itr->second & (ELIXIR_UNSTABLE_MASK | ELIXIR_SHATTRATH_MASK))
-                    continue;
-
-                SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->second);
                 if (spellInfo && (spellInfo->spellLevel < m_spellInfo->spellLevel || spellInfo->spellLevel > unitTarget->getLevel()))
                     continue;
-
-                elixirs.push_back(itr->first);
+                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_SHATTRATH))
+                    continue;
+                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_UNSTABLE))
+                    continue;
+                avalibleElixirs.push_back(itr->second);
             }
         }
+        if (!battleFound)
+        {
+            SpellGroupSpellMapBounds battleGroup = spellmgr.GetSpellGroupSpellMapBounds(SPELL_GROUP_ELIXIR_BATTLE);
+            for ( SpellGroupSpellMap::const_iterator itr = battleGroup.first; itr != battleGroup.second ; ++itr)
+            {
+                SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->second);
+                if (spellInfo && (spellInfo->spellLevel < m_spellInfo->spellLevel || spellInfo->spellLevel > unitTarget->getLevel()))
+                    continue;
+                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_SHATTRATH))
+                    continue;
+                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_UNSTABLE))
+                    continue;
+                avalibleElixirs.push_back(itr->second);
+            }
+        }
+        avalibleElixirs.unique();
 
-        if (!elixirs.empty())
+        if (!avalibleElixirs.empty())
         {
             // cast random elixir on target
-            uint32 rand_spell = urand(0,elixirs.size()-1);
-            m_caster->CastSpell(unitTarget,elixirs[rand_spell],true,m_CastItem);
+            uint32 rand_spell = urand(0,avalibleElixirs.size()-1);
+            std::list<uint32>::iterator itr = avalibleElixirs.begin();
+            std::advance(itr, rand_spell);
+            m_caster->CastSpell(unitTarget,*itr,true,m_CastItem);
         }
     }
 }

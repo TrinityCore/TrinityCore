@@ -410,7 +410,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleReloadSkillFishingBaseLevelCommand(const char* args);
         bool HandleReloadSpellRequiredCommand(const char* args);
         bool HandleReloadSpellAreaCommand(const char* args);
-        bool HandleReloadSpellElixirCommand(const char* args);
+        bool HandleReloadSpellGroupsCommand(const char* args);
         bool HandleReloadSpellLearnSpellCommand(const char* args);
         bool HandleReloadSpellLinkedSpellCommand(const char* args);
         bool HandleReloadSpellProcEventCommand(const char* args);
