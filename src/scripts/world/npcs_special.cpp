@@ -2005,18 +2005,18 @@ enum eWormhole
 bool GossipHello_npc_wormhole(Player* pPlayer, Creature* pCreature)
 {
     if (pCreature->isSummon())
-	{
+    {
         if (pPlayer == CAST_SUM(pCreature)->GetSummoner())
-		{
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-			pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
 
             pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_WORMHOLE, pCreature->GetGUID());
-		}
-	}
+        }
+    }
     return true;
 }
 
@@ -2025,31 +2025,31 @@ bool GossipSelect_npc_wormhole(Player* pPlayer, Creature* pCreature, uint32 uiSe
     bool roll = urand(0,1);
 
     switch(uiAction)
-	{
-		case GOSSIP_ACTION_INFO_DEF + 1: //Borean Tundra
-			pPlayer->CLOSE_GOSSIP_MENU();
-			if (roll) //At the moment we don't have chance on spell_target_position table so we hack this
+    {
+        case GOSSIP_ACTION_INFO_DEF + 1: //Borean Tundra
+            pPlayer->CLOSE_GOSSIP_MENU();
+            if (roll) //At the moment we don't have chance on spell_target_position table so we hack this
                 pPlayer->TeleportTo(571, 4305.505859, 5450.839844, 63.005806, 0.627286);
-			else
+            else
                 pPlayer->TeleportTo(571, 3201.936279, 5630.123535, 133.658798, 3.855272);
-        break;
-		case GOSSIP_ACTION_INFO_DEF + 2: //Howling Fjord
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->CastSpell(pPlayer, SPELL_HOWLING_FJORD, true);
-        break;
-		case GOSSIP_ACTION_INFO_DEF + 3: //Sholazar Basin
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->CastSpell(pPlayer, SPELL_SHOLAZAR_BASIN, true);
-        break;
-		case GOSSIP_ACTION_INFO_DEF + 4: //Icecrown
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->CastSpell(pPlayer, SPELL_ICECROWN, true);
-        break;
-		case GOSSIP_ACTION_INFO_DEF + 5: //Storm peaks
-			pPlayer->CLOSE_GOSSIP_MENU();
-			pPlayer->CastSpell(pPlayer, SPELL_STORM_PEAKS, true);
-        break;
-	}
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2: //Howling Fjord
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_HOWLING_FJORD, true);
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 3: //Sholazar Basin
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_SHOLAZAR_BASIN, true);
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 4: //Icecrown
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_ICECROWN, true);
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 5: //Storm peaks
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_STORM_PEAKS, true);
+            break;
+    }
     return true;
 }
 
