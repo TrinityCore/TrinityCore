@@ -24,7 +24,6 @@
 #include "Common.h"
 
 #include "ace/Thread_Mutex.h"
-#include "ace/Recursive_Thread_Mutex.h"
 #include "LockedQueue.h"
 #include <queue>
 #include "Utilities/Callback.h"
@@ -57,7 +56,7 @@ class SqlStatement : public SqlOperation
 
 class SqlTransaction : public SqlOperation
 {
-    typedef ACE_Based::LockedQueue<const char *, ACE_Recursive_Thread_Mutex> LockedQueue;
+    typedef ACE_Based::LockedQueue<const char *, ACE_Thread_Mutex> LockedQueue;
 
     private:
         LockedQueue m_queue;
