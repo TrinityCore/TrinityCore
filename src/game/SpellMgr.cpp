@@ -1465,14 +1465,15 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
     return false;
 }
 
-void SpellMgr::LoadSpellElixirs()
+void SpellMgr::LoadSpellGroups()
 {
-    mSpellElixirs.clear();                                  // need for reload case
+    mSpellSpellGroup.clear();                                  // need for reload case
+    mSpellGroupSpell.clear();
 
     uint32 count = 0;
 
-    //                                                0      1
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, mask FROM spell_elixir");
+    //                                                       0   1
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
     if( !result )
     {
 
@@ -1481,7 +1482,7 @@ void SpellMgr::LoadSpellElixirs()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell elixir definitions", count );
+        sLog.outString( ">> Loaded %u spell group definitions", count );
         return;
     }
 
@@ -1493,24 +1494,36 @@ void SpellMgr::LoadSpellElixirs()
 
         bar.step();
 
-        uint32 entry = fields[0].GetUInt32();
-        uint8 mask = fields[1].GetUInt8();
+        uint32 group_id = fields[0].GetUInt32();
+        uint32 spell_id = fields[1].GetUInt32();
 
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(entry);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell_id);
 
         if (!spellInfo)
         {
-            sLog.outErrorDb("Spell %u listed in `spell_elixir` does not exist", entry);
+            sLog.outErrorDb("Spell %u listed in `spell_group` does not exist", spell_id);
             continue;
         }
 
-        mSpellElixirs[entry] = mask;
+        if (GetSpellRank(spell_id) > 1)
+        {
+            sLog.outErrorDb("Spell %u listed in `spell_group` is not first rank of spell", spell_id);
+            continue;
+        }
+
+        if (IsSpellMemberOfSpellGroup(spell_id, (SpellGroup)group_id))
+        {
+            sLog.outErrorDb("Spell %u listed in `spell_group` is added twice to one group %u", spell_id, group_id);
+            continue;
+        }
+        mSpellSpellGroup.insert(SpellSpellGroupMap::value_type(spell_id, (SpellGroup)group_id));
+        mSpellGroupSpell.insert(SpellGroupSpellMap::value_type((SpellGroup)group_id, spell_id));
 
         ++count;
     } while( result->NextRow() );
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell elixir definitions", count );
+    sLog.outString( ">> Loaded %u spell group definitions", count );
 }
 
 void SpellMgr::LoadSpellStackMasks()
@@ -3311,8 +3324,6 @@ void SpellMgr::LoadSpellRanks()
         // fill one chain
         while(currentSpell == lastSpell && !finished)
         {
-            bar.step();
-
             Field *fields = result->Fetch();
 
             currentSpell = fields[0].GetUInt32();
@@ -3324,6 +3335,7 @@ void SpellMgr::LoadSpellRanks()
             // don't drop the row if we're moving to the next rank
             if (currentSpell == lastSpell)
             {
+                bar.step();
                 rankChain.push_back(std::make_pair(spell_id, rank));
                 if (!result->NextRow())
                     finished = true;
@@ -3371,6 +3383,7 @@ void SpellMgr::LoadSpellRanks()
         std::list<std::pair<int32, int32> >::iterator itr = rankChain.begin();
         do
         {
+            ++rows;
             int32 addedSpell = itr->first;
             mSpellChains[addedSpell].first = lastSpell;
             mSpellChains[addedSpell].last = rankChain.back().first;
@@ -3387,8 +3400,6 @@ void SpellMgr::LoadSpellRanks()
                 mSpellChains[addedSpell].next = itr->first;
         }
         while (true);
-
-        ++rows;
     } while (!finished);
 
     sLog.outString();

@@ -1312,7 +1312,7 @@ void World::SetInitialWorldSettings()
     spellmgr.LoadSpellRequired();
 
     sLog.outString("Loading Spell Elixir types...");
-    spellmgr.LoadSpellElixirs();
+    spellmgr.LoadSpellGroups();
 
     sLog.outString("Loading Spell Learn Skills...");
     spellmgr.LoadSpellLearnSkills();                        // must be after LoadSpellRanks

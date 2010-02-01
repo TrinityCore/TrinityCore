@@ -8020,14 +8020,15 @@ void ObjectMgr::LoadTrainerSpell()
         {
             if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
                 continue;
+            if (trainerSpell.learnedSpell[0] == spell)
+                trainerSpell.learnedSpell[0] = 0;
             // player must be able to cast spell on himself
-            if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ANY)
+            if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY 
+                && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ANY && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_CASTER)
             {
                 sLog.outErrorDb("Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
                 continue;
             }
-            if (trainerSpell.learnedSpell[0] == spell)
-                trainerSpell.learnedSpell[0] = 0;
 
             trainerSpell.learnedSpell[i] = spellinfo->EffectTriggerSpell[i];
         }
