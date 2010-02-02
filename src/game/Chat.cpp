@@ -508,7 +508,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "spell_target_position",       SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellTargetPositionCommand,     "", NULL },
         { "spell_threats",               SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellThreatsCommand,            "", NULL },
         { "spell_disabled",              SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellDisabledCommand,           "", NULL },
-        { "spell_stack_masks",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellStackMasksCommand,         "", NULL },
+        { "spell_group_stack_rules",     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadSpellGroupStackRulesCommand,         "", NULL },
         { "trinity_string",              SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadTrinityStringCommand,           "", NULL },
         { "auctions",                    SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAuctionsCommand,                "", NULL },
         { "waypoint_scripts",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadWpScriptsCommand,               "", NULL },

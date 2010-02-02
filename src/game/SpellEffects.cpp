@@ -3216,44 +3216,29 @@ void Spell::EffectEnergize(uint32 i)
         }
 
         // get all available elixirs by mask and spell level
-        std::list<uint32> avalibleElixirs;
+        std::set<uint32> avalibleElixirs;
         if (!guardianFound)
-        {
-            SpellGroupSpellMapBounds guardianGroup = spellmgr.GetSpellGroupSpellMapBounds(SPELL_GROUP_ELIXIR_GUARDIAN);
-            for ( SpellGroupSpellMap::const_iterator itr = guardianGroup.first; itr != guardianGroup.second ; ++itr)
-            {
-                SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->second);
-                if (spellInfo && (spellInfo->spellLevel < m_spellInfo->spellLevel || spellInfo->spellLevel > unitTarget->getLevel()))
-                    continue;
-                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_SHATTRATH))
-                    continue;
-                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_UNSTABLE))
-                    continue;
-                avalibleElixirs.push_back(itr->second);
-            }
-        }
+            spellmgr.GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_GUARDIAN, avalibleElixirs);
         if (!battleFound)
+            spellmgr.GetSetOfSpellsInSpellGroup(SPELL_GROUP_ELIXIR_BATTLE, avalibleElixirs);
+        for (std::set<uint32>::iterator itr = avalibleElixirs.begin(); itr != avalibleElixirs.end() ;)
         {
-            SpellGroupSpellMapBounds battleGroup = spellmgr.GetSpellGroupSpellMapBounds(SPELL_GROUP_ELIXIR_BATTLE);
-            for ( SpellGroupSpellMap::const_iterator itr = battleGroup.first; itr != battleGroup.second ; ++itr)
-            {
-                SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->second);
-                if (spellInfo && (spellInfo->spellLevel < m_spellInfo->spellLevel || spellInfo->spellLevel > unitTarget->getLevel()))
-                    continue;
-                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_SHATTRATH))
-                    continue;
-                if(spellmgr.IsSpellMemberOfSpellGroup(itr->second, SPELL_GROUP_ELIXIR_UNSTABLE))
-                    continue;
-                avalibleElixirs.push_back(itr->second);
-            }
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(*itr);
+            if (spellInfo->spellLevel < m_spellInfo->spellLevel || spellInfo->spellLevel > unitTarget->getLevel())
+                avalibleElixirs.erase(itr++);
+            else if(spellmgr.IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_SHATTRATH))
+                avalibleElixirs.erase(itr++);
+            else if(spellmgr.IsSpellMemberOfSpellGroup(*itr, SPELL_GROUP_ELIXIR_UNSTABLE))
+                avalibleElixirs.erase(itr++);
+            else
+                ++itr;
         }
-        avalibleElixirs.unique();
 
         if (!avalibleElixirs.empty())
         {
             // cast random elixir on target
             uint32 rand_spell = urand(0,avalibleElixirs.size()-1);
-            std::list<uint32>::iterator itr = avalibleElixirs.begin();
+            std::set<uint32>::iterator itr = avalibleElixirs.begin();
             std::advance(itr, rand_spell);
             m_caster->CastSpell(unitTarget,*itr,true,m_CastItem);
         }
