@@ -421,7 +421,7 @@ class TRINITY_DLL_SPEC ChatHandler
         bool HandleReloadSpellThreatsCommand(const char* args);
         bool HandleReloadSpellPetAurasCommand(const char* args);
         bool HandleReloadSpellDisabledCommand(const char* args);
-        bool HandleReloadSpellStackMasksCommand(const char* args);
+        bool HandleReloadSpellGroupStackRulesCommand(const char* args);
         bool HandleReloadAuctionsCommand(const char* args);
         bool HandleReloadWpScriptsCommand(const char* args);
 

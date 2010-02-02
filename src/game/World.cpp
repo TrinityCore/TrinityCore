@@ -1311,7 +1311,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Spell Required Data...");
     spellmgr.LoadSpellRequired();
 
-    sLog.outString("Loading Spell Elixir types...");
+    sLog.outString("Loading Spell Group types...");
     spellmgr.LoadSpellGroups();
 
     sLog.outString("Loading Spell Learn Skills...");
@@ -1329,8 +1329,8 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Aggro Spells Definitions...");
     spellmgr.LoadSpellThreats();
 
-    sLog.outString("Loading Spell Stacking masks...");
-    spellmgr.LoadSpellStackMasks();
+    sLog.outString("Loading Spell Group Stack Rules...");
+    spellmgr.LoadSpellGroupStackRules();
 
     sLog.outString("Loading NPC Texts...");
     objmgr.LoadGossipText();
