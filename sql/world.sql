@@ -607,6 +607,7 @@ INSERT INTO `command` VALUES
 ('reload spell_bonus_data','3','Syntax: .reload spell_bonus_data\nReload spell_bonus_data table.'),
 ('reload spell_disabled','3','Syntax: .reload spell_disabled\nReload spell_disabled table.'),
 ('reload spell_group','3','Syntax: .reload spell_group\nReload spell_group table.'),
+('reload spell_group_stack_rules','3','Syntax: .reload spell_group\nReload spell_group_stack_rules table.'),
 ('reload spell_learn_spell','3','Syntax: .reload spell_learn_spell\nReload spell_learn_spell table.'),
 ('reload spell_linked_spell','3','Usage: .reload spell_linked_spell\r\nReloads the spell_linked_spell DB table.'),
 ('reload spell_loot_template','3','Syntax: .reload spell_loot_template\nReload spell_loot_template table.'),
@@ -5100,17 +5101,17 @@ DROP TABLE IF EXISTS `spell_group`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spell_group` (
   `id` int(11) unsigned NOT NULL DEFAULT 0,
-  `spell_id` int(11) unsigned NOT NULL DEFAULT 0,
+  `spell_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`, `spell_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `spell_elixir`
+-- Dumping data for table `spell_group`
 --
 
 LOCK TABLES `spell_group` WRITE;
-/*!40000 ALTER TABLE `spell_elixir` DISABLE KEYS */;
+/*!40000 ALTER TABLE `spell_group` DISABLE KEYS */;
 INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
  -- SPELL_GROUP_ELIXIR_BATTLE
 (1, 2367),
@@ -5284,14 +5285,128 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (4, 41611),
 (4, 46837),
 (4, 46839),
- -- SPELL_GROUP_WELL_FED
-(5, 18191),
-(5, 18192),
-(5, 18193),
-(5, 18194),
-(5, 18222),
-(5, 22730),
-(5, 25661);
+ -- Well Fed
+(1001, 19705),
+(1001, 19706),
+(1001, 19708),
+(1001, 19709),
+(1001, 19710),
+(1001, 19711),
+(1001, 24799),
+(1001, 24870),
+(1001, 25694),
+(1001, 25941),
+(1001, 33254),
+(1001, 33256),
+(1001, 33257),
+(1001, 33259),
+(1001, 33261),
+(1001, 33263),
+(1001, 33265),
+(1001, 33268),
+(1001, 33272),
+(1001, 35272),
+(1001, 40323),
+(1001, 42293),
+(1001, 43764),
+(1001, 43771),
+(1001, 44097),
+(1001, 44098),
+(1001, 44099),
+(1001, 44100),
+(1001, 44101),
+(1001, 44102),
+(1001, 44104),
+(1001, 44105),
+(1001, 44106),
+(1001, 45245),
+(1001, 45619),
+(1001, 46682),
+(1001, 46687),
+(1001, 46899),
+(1001, 53284),
+(1001, 57079),
+(1001, 57097),
+(1001, 57100),
+(1001, 57102),
+(1001, 57107),
+(1001, 57111),
+(1001, 57139),
+(1001, 57286),
+(1001, 57288),
+(1001, 57291),
+(1001, 57294),
+(1001, 57325),
+(1001, 57327),
+(1001, 57329),
+(1001, 57332),
+(1001, 57334),
+(1001, 57356),
+(1001, 57358),
+(1001, 57360),
+(1001, 57363),
+(1001, 57365),
+(1001, 57367),
+(1001, 57371),
+(1001, 57373),
+(1001, 57399),
+(1001, 58468),
+(1001, 58479),
+(1001, 59230),
+(1001, 59690),
+(1001, 59699),
+(1001, 62349),
+(1001, 64057),
+(1001, 65247),
+(1001, 65365),
+(1001, 65410),
+(1001, 65412),
+(1001, 65414),
+(1001, 65415),
+(1001, 65416),
+(1001, 66623),
+(1001, 66624),
+(1001, 69559),
+(1001, 18125),
+(1001, 18141),
+(1001, 23697),
+ -- Blessing of Might
+(1002, 19740),
+(1002, 25782),
+(1002, 56520),
+-- Battle Shout
+(1003, 6673),
+-- Blessing of Might, Battle Shout
+(1004, -1002),
+(1004, -1003),
+-- Blessing of Wisdom
+(1005, 19742),
+(1005, 25894),
+(1005, 56521),
+-- Blessing of Kings
+(1006, 20217),
+(1006, 25898),
+(1006, 43223),
+(1006, 56525),
+(1006, 58054),
+-- Blessing of Sanctuary
+(1007, 20911),
+(1007, 25899),
+-- Blessing of Protection
+(1008, 41450),
+(1008, 23415),
+-- Blessing of Light
+(1009, 32770),
+-- Blessings
+(1010, -1002),
+(1010, -1005),
+(1010, -1006),
+(1010, -1007),
+(1010, -1008),
+(1010, -1009),
+-- Commanding shout, Battle Shout
+(1011, 469),
+(1011, -1003);
 /*!40000 ALTER TABLE `spell_group` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -6761,26 +6876,41 @@ LOCK TABLES `spell_scripts` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `spell_stack_masks`
+-- Table structure for table `spell_group_stack_rules`
 --
 
-DROP TABLE IF EXISTS `spell_stack_masks`;
+DROP TABLE IF EXISTS `spell_group_stack_rules`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `spell_stack_masks` (
-  `id` int(32) unsigned NOT NULL default '0',
-  `mask` int(64) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`id`)
+DROP TABLE IF EXISTS `spell_group_stack_rules`;
+CREATE TABLE `spell_group_stack_rules` (
+  `group_id` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+  `stack_rule` TINYINT(3) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `spell_stack_masks`
+-- Dumping data for table `spell_group_stack_rules`
 --
 
-LOCK TABLES `spell_stack_masks` WRITE;
-/*!40000 ALTER TABLE `spell_stack_masks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `spell_stack_masks` ENABLE KEYS */;
+LOCK TABLES `spell_group_stack_rules` WRITE;
+/*!40000 ALTER TABLE `spell_group_stack_rules` DISABLE KEYS */;
+INSERT INTO spell_group_stack_rules (`group_id`, `stack_rule`) VALUES
+(1, 1),
+(2, 1),
+(1001, 1),
+(1002, 1),
+(1003, 1),
+(1004, 1),
+(1005, 1),
+(1006, 1),
+(1007, 1),
+(1008, 1),
+(1009, 1),
+(1010, 2),
+(1011, 1);
+/*!40000 ALTER TABLE `spell_group_stack_rules` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -6797,7 +6927,7 @@ CREATE TABLE `spell_ranks` (
 ) ENGINE=MYISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Spell Rank Data';
 
 --
--- Dumping data for table `spell_stack_masks`
+-- Dumping data for table `spell_ranks`
 --
 
 LOCK TABLES `spell_ranks` WRITE;

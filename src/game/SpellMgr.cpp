@@ -510,14 +510,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
                 else if(drink)
                     return SPELL_SPECIFIC_DRINK;
             }
-            // Well Fed buffs (must be exclusive with Food / Drink replenishment effects, or else Well Fed will cause them to be removed)
-            // SpellIcon 2560 is Spell 46687, does not have this flag
-            else if ((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD_BUFF) || spellInfo->SpellIconID == 2560)
-                return SPELL_SPECIFIC_WELL_FED;
-            // this may be a hack
-            //else if((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_FOOD_BUFF)
-            //    && !spellInfo->Category)
-            //    return SPELL_WELL_FED;
             // scrolls effects
             else
             {
@@ -555,8 +547,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
         }
         case SPELLFAMILY_WARRIOR:
         {
-            if (spellInfo->SpellFamilyFlags[1] & 0x000080)
-                return SPELL_SPECIFIC_POSITIVE_SHOUT;
             if (spellInfo->Id == 12292) // Death Wish
                 return SPELL_SPECIFIC_WARRIOR_ENRAGE;
 
@@ -579,12 +569,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
         }
         case SPELLFAMILY_PRIEST:
         {
-            // "Well Fed" buff from Blessed Sunfruit, Blessed Sunfruit Juice, Alterac Spring Water
-            if ((spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_SITTING) &&
-                (spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_AUTOATTACK) &&
-                (spellInfo->SpellIconID == 52 || spellInfo->SpellIconID == 79))
-                return SPELL_SPECIFIC_WELL_FED;
-
             // Divine Spirit and Prayer of Spirit
             if (spellInfo->SpellFamilyFlags[0] & 0x20)
                 return SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT;
@@ -608,9 +592,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             if (IsSealSpell(spellInfo))
                 return SPELL_SPECIFIC_SEAL;
 
-            if (spellInfo->SpellFamilyFlags[0] & 0x11010002)
-                return SPELL_SPECIFIC_BLESSING;
-
             if (spellInfo->SpellFamilyFlags[0] & 0x00002190)
                 return SPELL_SPECIFIC_HAND;
 
@@ -631,9 +612,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
 
             break;
         }
-
-        case SPELLFAMILY_POTION:
-            return spellmgr.GetSpellElixirSpecific(spellInfo->Id);
 
         case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo->Id == SPELL_BLOOD_PRESENCE_48266 || spellInfo->Id == SPELL_FROST_PRESENCE_48263 || spellInfo->Id == SPELL_UNHOLY_PRESENCE_48265)
@@ -662,9 +640,6 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             }
         }
     }
-    // elixirs can have different families, but potion most ofc.
-    if(SpellSpecific sp = spellmgr.GetSpellElixirSpecific(spellInfo->Id))
-        return sp;
 
     return SPELL_SPECIFIC_NORMAL;
 }
@@ -680,10 +655,8 @@ bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific s
         case SPELL_SPECIFIC_STING:
         case SPELL_SPECIFIC_CURSE:
         case SPELL_SPECIFIC_ASPECT:
-        case SPELL_SPECIFIC_POSITIVE_SHOUT:
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
-        case SPELL_SPECIFIC_BLESSING:
             return spellSpec1==spellSpec2;
         default:
             return false;
@@ -701,13 +674,11 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
         case SPELL_SPECIFIC_ELEMENTAL_SHIELD:
         case SPELL_SPECIFIC_MAGE_POLYMORPH:
         case SPELL_SPECIFIC_PRESENCE:
-        case SPELL_SPECIFIC_WELL_FED:
         case SPELL_SPECIFIC_CHARM:
         case SPELL_SPECIFIC_SCROLL:
         case SPELL_SPECIFIC_WARRIOR_ENRAGE:
         case SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE:
         case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
-        case SPELL_SPECIFIC_POSITIVE_SHOUT:
             return spellSpec1==spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2==SPELL_SPECIFIC_FOOD
@@ -719,16 +690,6 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
             return spellSpec2==SPELL_SPECIFIC_FOOD
                 || spellSpec2==SPELL_SPECIFIC_DRINK
                 || spellSpec2==SPELL_SPECIFIC_FOOD_AND_DRINK;
-        case SPELL_SPECIFIC_BATTLE_ELIXIR:
-            return spellSpec2==SPELL_SPECIFIC_BATTLE_ELIXIR
-                || spellSpec2==SPELL_SPECIFIC_FLASK_ELIXIR;
-        case SPELL_SPECIFIC_GUARDIAN_ELIXIR:
-            return spellSpec2==SPELL_SPECIFIC_GUARDIAN_ELIXIR
-                || spellSpec2==SPELL_SPECIFIC_FLASK_ELIXIR;
-        case SPELL_SPECIFIC_FLASK_ELIXIR:
-            return spellSpec2==SPELL_SPECIFIC_BATTLE_ELIXIR
-                || spellSpec2==SPELL_SPECIFIC_GUARDIAN_ELIXIR
-                || spellSpec2==SPELL_SPECIFIC_FLASK_ELIXIR;
         default:
             return false;
     }
@@ -1488,6 +1449,8 @@ void SpellMgr::LoadSpellGroups()
 
     barGoLink bar( result->GetRowCount() );
 
+    std::set<uint32> groups;
+
     do
     {
         Field *fields = result->Fetch();
@@ -1495,45 +1458,73 @@ void SpellMgr::LoadSpellGroups()
         bar.step();
 
         uint32 group_id = fields[0].GetUInt32();
-        uint32 spell_id = fields[1].GetUInt32();
-
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell_id);
-
-        if (!spellInfo)
+        if (group_id <= SPELL_GROUP_DB_RANGE_MIN && group_id >= SPELL_GROUP_CORE_RANGE_MAX)
         {
-            sLog.outErrorDb("Spell %u listed in `spell_group` does not exist", spell_id);
+            sLog.outErrorDb("SpellGroup id %u listed in `spell_groups` is in core range, but is not defined in core!", group_id);
             continue;
         }
+        int32 spell_id = fields[1].GetInt32();
 
-        if (GetSpellRank(spell_id) > 1)
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_group` is not first rank of spell", spell_id);
-            continue;
-        }
-
-        if (IsSpellMemberOfSpellGroup(spell_id, (SpellGroup)group_id))
-        {
-            sLog.outErrorDb("Spell %u listed in `spell_group` is added twice to one group %u", spell_id, group_id);
-            continue;
-        }
-        mSpellSpellGroup.insert(SpellSpellGroupMap::value_type(spell_id, (SpellGroup)group_id));
+        groups.insert(std::set<uint32>::value_type(group_id));
         mSpellGroupSpell.insert(SpellGroupSpellMap::value_type((SpellGroup)group_id, spell_id));
 
-        ++count;
     } while( result->NextRow() );
+
+    for (SpellGroupSpellMap::iterator itr = mSpellGroupSpell.begin(); itr!= mSpellGroupSpell.end() ; )
+    {
+        if (itr->second < 0)
+        {
+            if (groups.find(abs(itr->second)) == groups.end())
+            {
+                sLog.outErrorDb("SpellGroup id %u listed in `spell_groups` does not exist", abs(itr->second));
+                mSpellGroupSpell.erase(itr++);
+            }
+            else
+                ++itr;
+        }
+        else
+        {
+            SpellEntry const* spellInfo = sSpellStore.LookupEntry(itr->second);
+
+            if (!spellInfo)
+            {
+                sLog.outErrorDb("Spell %u listed in `spell_group` does not exist", itr->second);
+                mSpellGroupSpell.erase(itr++);
+            }
+            else if (GetSpellRank(itr->second) > 1)
+            {
+                sLog.outErrorDb("Spell %u listed in `spell_group` is not first rank of spell", itr->second);
+                mSpellGroupSpell.erase(itr++);
+            }
+            else
+                ++itr;
+        }
+    }
+
+    for (std::set<uint32>::iterator groupItr = groups.begin() ; groupItr != groups.end() ; ++groupItr)
+    {
+        std::set<uint32> spells;
+        GetSetOfSpellsInSpellGroup(SpellGroup(*groupItr), spells);
+
+        for (std::set<uint32>::iterator spellItr = spells.begin() ; spellItr != spells.end() ; ++spellItr)
+        {
+            ++count;
+            mSpellSpellGroup.insert(SpellSpellGroupMap::value_type(*spellItr, SpellGroup(*groupItr)));
+        }
+    }
 
     sLog.outString();
     sLog.outString( ">> Loaded %u spell group definitions", count );
 }
 
-void SpellMgr::LoadSpellStackMasks()
+void SpellMgr::LoadSpellGroupStackRules()
 {
-    mSpellStackMasks.clear();                                  // need for reload case
+    mSpellGroupStack.clear();                                  // need for reload case
 
     uint32 count = 0;
 
-    //                                                0      1
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, mask FROM spell_stack_masks");
+    //                                                       0         1
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
     if( !result )
     {
 
@@ -1542,7 +1533,7 @@ void SpellMgr::LoadSpellStackMasks()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell stacking masks definitions", count );
+        sLog.outString( ">> Loaded %u spell group stack rules", count );
         return;
     }
 
@@ -1554,24 +1545,29 @@ void SpellMgr::LoadSpellStackMasks()
 
         bar.step();
 
-        uint32 id = fields[0].GetUInt32();
-        uint8 mask = fields[1].GetUInt32();
-
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(id);
-
-        if (!spellInfo)
+        uint32 group_id = fields[0].GetUInt32();
+        uint8 stack_rule = fields[1].GetUInt32();
+        if (stack_rule >= SPELL_GROUP_STACK_RULE_MAX)
         {
-            sLog.outErrorDb("Spell %u listed in `spell_stack_masks` does not exist", id);
+            sLog.outErrorDb("SpellGroupStackRule %u listed in `spell_group_stack_rules` does not exist", stack_rule);
             continue;
         }
 
-        mSpellStackMasks[id] = mask;
+        SpellGroupSpellMapBounds spellGroup = GetSpellGroupSpellMapBounds((SpellGroup)group_id);
+
+        if (spellGroup.first == spellGroup.second)
+        {
+            sLog.outErrorDb("SpellGroup id %u listed in `spell_group_stack_rules` does not exist", group_id);
+            continue;
+        }
+
+        mSpellGroupStack[(SpellGroup)group_id] = (SpellGroupStackRule)stack_rule;
 
         ++count;
     } while( result->NextRow() );
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell stacking masks definitions", count );
+    sLog.outString( ">> Loaded %u spell group stack rules", count );
 }
 
 void SpellMgr::LoadSpellThreats()
@@ -3075,12 +3071,14 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
             || sameCaster && IsSingleFromSpellSpecificPerCaster(spellSpec_1, spellSpec_2))
             return false;
 
-    // Stacking Checks by family masks
-    uint32 spellSpecMask_1 = GetSpellStackMask(spellInfo_1->Id);
-    uint32 spellSpecMask_2 = GetSpellStackMask(spellInfo_2->Id);
-    if (spellSpecMask_1 && spellSpecMask_2)
-        if ((spellSpecMask_1 & spellSpecMask_2) != 0)
+    SpellGroupStackRule stackRule = CheckSpellGroupStackRules(spellInfo_1->Id, spellInfo_2->Id);
+    if (stackRule)
+    {
+        if (stackRule == SPELL_GROUP_STACK_RULE_EXCLUSIVE)
             return false;
+        if (sameCaster && stackRule == SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER)
+            return false;
+    }
 
     if(spellInfo_1->SpellFamilyName != spellInfo_2->SpellFamilyName)
         return true;
@@ -3092,18 +3090,8 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
             return true;
 
         // check same periodic auras
-        for (uint32 i = 0; i < 3; ++i)
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            // area auras should not stack (shaman totem)
-            if(spellInfo_1->Effect[i] != SPELL_EFFECT_APPLY_AURA
-                && spellInfo_1->Effect[i] != SPELL_EFFECT_PERSISTENT_AREA_AURA)
-                continue;
-
-            // not channeled AOE effects should not stack (blizzard should, but Consecration should not)
-            if((IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetA[i]] || IsAreaEffectTarget[spellInfo_1->EffectImplicitTargetB[i]])
-                && !IsChanneledSpell(spellInfo_1))
-                continue;
-
             switch(spellInfo_1->EffectApplyAuraName[i])
             {
                 // DOT or HOT from different casters will stack
@@ -3157,7 +3145,7 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
     spellInfo_2 = sSpellStore.LookupEntry(spellId_2);
 
     //if spells do not have the same effect or aura or miscvalue, they will stack
-    for (uint32 i = 0; i < 3; ++i)
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if(spellInfo_1->Effect[i] != spellInfo_2->Effect[i]
             || spellInfo_1->EffectApplyAuraName[i] != spellInfo_2->EffectApplyAuraName[i]
             || spellInfo_1->EffectMiscValue[i] != spellInfo_2->EffectMiscValue[i]) // paladin resist aura

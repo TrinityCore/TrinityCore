@@ -659,7 +659,7 @@ bool ChatHandler::HandleReloadAllSpellCommand(const char*)
     HandleReloadSpellScriptTargetCommand("a");
     HandleReloadSpellTargetPositionCommand("a");
     HandleReloadSpellThreatsCommand("a");
-    HandleReloadSpellStackMasksCommand("a");
+    HandleReloadSpellGroupStackRulesCommand("a");
     HandleReloadSpellPetAurasCommand("a");
     HandleReloadSpellDisabledCommand("a");
     return true;
@@ -1094,11 +1094,11 @@ bool ChatHandler::HandleReloadSpellThreatsCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadSpellStackMasksCommand(const char*)
+bool ChatHandler::HandleReloadSpellGroupStackRulesCommand(const char*)
 {
-    sLog.outString( "Re-Loading Spell stacking masks..." );
-    spellmgr.LoadSpellStackMasks();
-    SendGlobalGMSysMessage("DB table `spell_stack_masks` (spell stacking masks) reloaded.");
+    sLog.outString( "Re-Loading Spell Group Stack Rules..." );
+    spellmgr.LoadSpellGroupStackRules();
+    SendGlobalGMSysMessage("DB table `spell_group_stack_rules` (spell stacking definitions) reloaded.");
     return true;
 }
 
