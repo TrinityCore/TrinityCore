@@ -125,6 +125,17 @@ void Vehicle::InstallAllAccessories()
         case 35640:InstallAccessory(35571,0,false);break;
         case 35641:InstallAccessory(35570,0,false);break;
         case 35634:InstallAccessory(35617,0,false);break;
+        case 33298:InstallAccessory(35332,0);break; //Darnassian Nightsaber
+        case 33416:InstallAccessory(35330,0);break; //Exodar Elekk
+        case 33297:InstallAccessory(35328,0);break; //Stormwind Steed
+        case 33414:InstallAccessory(35327,0);break; //Forsaken Warhorse
+        case 33301:InstallAccessory(35331,0);break; //Gnomeregan Mechanostrider
+        case 33408:InstallAccessory(35329,0);break; //Ironforge Ram
+        case 33300:InstallAccessory(35325,0);break; //Thunder Bluff Kodo
+        case 33409:InstallAccessory(35314,0);break; //Orgrimmar Wolf
+        case 33418:InstallAccessory(35326,0);break; //Silvermoon Hawkstrider
+        case 33299:InstallAccessory(35323,0);break; //Darkspear Raptor
+        case 35491:InstallAccessory(35451,0,false);break; //Black Knight
     }
 }
 
@@ -307,7 +318,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     unit->m_movementInfo.t_seat = seat->first;
 
     if(me->GetTypeId() == TYPEID_UNIT
-        && unit->GetTypeId() == TYPEID_PLAYER 
+        && unit->GetTypeId() == TYPEID_PLAYER
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             assert(false);
@@ -365,7 +376,7 @@ void Vehicle::RemovePassenger(Unit *unit)
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
     if(me->GetTypeId() == TYPEID_UNIT
-        && unit->GetTypeId() == TYPEID_PLAYER 
+        && unit->GetTypeId() == TYPEID_PLAYER
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
         me->RemoveCharmedBy(unit);
 

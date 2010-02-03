@@ -1221,17 +1221,21 @@ UPDATE `creature_template` SET `ScriptName`='npc_cairne_bloodhoof' WHERE `entry`
 
 /* TRIAL OF THE CHAMPION */
 UPDATE `instance_template` SET `script`='instance_trial_of_the_champion' WHERE `map`=650;
-UPDATE `creature_template` SET `Scriptname`='npc_toc5_announcer',`npcflag`=1 WHERE entry IN (35004, 35005);
-UPDATE `creature_template` SET `ScriptName`='mob_toc5_warrior' WHERE entry IN (34705, 35572);
-UPDATE `creature_template` SET `ScriptName`='mob_toc5_mage' WHERE entry IN (34702, 35569);
-UPDATE `creature_template` SET `ScriptName`='mob_toc5_shaman' WHERE entry IN (34701, 35571);
-UPDATE `creature_template` SET `ScriptName`='mob_toc5_hunter' WHERE entry IN (34657, 35570);
-UPDATE `creature_template` SET `ScriptName`='mob_toc5_rogue' WHERE entry IN (34703, 35617);
+UPDATE `creature_template` SET `ScriptName`='generic_vehicleAI_toc5' WHERE `entry` IN (35637,35633,35768,34658,35636,35638,35635,35640,35641,35634,33298,33416,33297,33414,33301,33408,33300,33409,33418);
+UPDATE `creature_template` SET `ScriptName`='boss_warrior_toc5' WHERE `entry` IN (34705,35572);
+UPDATE `creature_template` SET `ScriptName`='boss_mage_toc5' WHERE `entry` IN (34702,35569);
+UPDATE `creature_template` SET `ScriptName`='boss_shaman_toc5' WHERE `entry` IN (35571,34701);
+UPDATE `creature_template` SET `ScriptName`='boss_hunter_toc5' WHERE `entry` IN (35570,34657);
+UPDATE `creature_template` SET `ScriptName`='boss_rouge_toc5' WHERE `entry` IN (35617,34703);
+UPDATE `creature_template` SET `ScriptName`='npc_announcer_toc5' WHERE `entry`IN (35004,35005);
 UPDATE `creature_template` SET `ScriptName`='npc_risen_ghoul' WHERE `entry` IN (35545,35564);
 UPDATE `creature_template` SET `ScriptName`='boss_black_knight' WHERE `entry`=35451;
 UPDATE `creature_template` SET `ScriptName`='boss_eadric' WHERE `entry`=35119;
 UPDATE `creature_template` SET `ScriptName`='boss_paletress' WHERE `entry`=34928;
 UPDATE `creature_template` SET `ScriptName`='npc_memory' WHERE `entry` IN (35052,35041,35033,35046,35043,35047,35044,35039, 35034, 35049, 35030, 34942, 35050, 35042, 35045, 35037, 35031, 35038, 35029,35048,35032,35028,35040,35036,35051);
+UPDATE `creature_template` SET `ScriptName`='npc_argent_soldier'  WHERE `entry` IN (35309,35305,35307);
+UPDATE `creature_template` SET `ScriptName`='npc_black_knight_skeletal_gryphon' WHERE `entry`=35491;
+UPDATE `creature_template` SET `AIName`='PassiveAI' WHERE `entry` IN (35332,35330,35328,35327,35331,35329,35325,35314,35326,35323);
 
 /* TIRISFAL GLADES */
 UPDATE `creature_template` SET `ScriptName`='npc_calvin_montague' WHERE `entry`=6784;
