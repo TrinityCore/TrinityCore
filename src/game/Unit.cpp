@@ -14192,7 +14192,7 @@ void Unit::SetContestedPvP(Player *attackedPlayer)
         player->addUnitState(UNIT_STAT_ATTACK_PLAYER);
         player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_CONTESTED_PVP);
         // call MoveInLineOfSight for nearby contested guards
-        player->SetVisibility(GetVisibility());
+        player->SetVisibility(player->GetVisibility());
     }
     if (!hasUnitState(UNIT_STAT_ATTACK_PLAYER))
     {
