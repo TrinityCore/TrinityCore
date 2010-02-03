@@ -478,7 +478,7 @@ void GameObject::Update(uint32 /*p_time*/)
             if(!m_spawnedByDefault)
             {
                 m_respawnTime = 0;
-                ObjectAccessor::UpdateObjectVisibility(this);
+                UpdateObjectVisibility();
                 return;
             }
 
@@ -488,7 +488,7 @@ void GameObject::Update(uint32 /*p_time*/)
             if(sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
                 SaveRespawnTime();
 
-            ObjectAccessor::UpdateObjectVisibility(this);
+            UpdateObjectVisibility();
 
             break;
         }

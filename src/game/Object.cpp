@@ -233,12 +233,6 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) c
     data->AddUpdateBlock(buf);
 }
 
-void Object::BuildUpdate(UpdateDataMapType &update_players)
-{
-    ObjectAccessor::_buildUpdateObject(this,update_players);
-    ClearUpdateMask(true);
-}
-
 void Object::SendUpdateToPlayer(Player* player)
 {
     // send create update to player
@@ -275,7 +269,7 @@ void Object::DestroyForPlayer( Player *target, bool anim ) const
 {
     ASSERT(target);
 
-    WorldPacket data(SMSG_DESTROY_OBJECT, 8);
+    WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
     data << uint64(GetGUID());
     data << uint8(anim ? 1 : 0);                            // WotLK (bool), may be despawn animation
     target->GetSession()->SendPacket( &data );
@@ -726,18 +720,18 @@ void Object::ClearUpdateMask(bool remove)
     }
 }
 
-// Send current value fields changes to all viewers
-void Object::SendUpdateObjectToAllExcept(Player* exceptPlayer)
+void Object::BuildFieldsUpdate(Player *pl, UpdateDataMapType &data_map) const
 {
-    // changes will be send in create packet
-    if(!IsInWorld())
-        return;
+    UpdateDataMapType::iterator iter = data_map.find(pl);
 
-    // nothing do
-    if(!m_objectUpdated)
-        return;
+    if( iter == data_map.end() )
+    {
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert( UpdateDataMapType::value_type(pl, UpdateData()) );
+        assert(p.second);
+        iter = p.first;
+    }
 
-    ObjectAccessor::UpdateObject(this,exceptPlayer);
+    BuildValuesUpdateBlockForPlayer(&iter->second, iter->first);
 }
 
 bool Object::LoadValues(const char* data)
@@ -2224,7 +2218,7 @@ void WorldObject::SetPhaseMask(uint32 newPhaseMask, bool update)
     m_phaseMask = newPhaseMask;
 
     if(update && IsInWorld())
-        ObjectAccessor::UpdateObjectVisibility(this);
+        UpdateObjectVisibility();
 }
 
 void WorldObject::PlayDistanceSound( uint32 sound_id, Player* target /*= NULL*/ )
@@ -2275,4 +2269,86 @@ void WorldObject::DestroyForNearbyPlayers()
         DestroyForPlayer(plr);
         plr->m_clientGUIDs.erase(GetGUID());
     }
+}
+
+void WorldObject::UpdateObjectVisibility()
+{
+    CellPair p = Trinity::ComputeCellPair(GetPositionX(), GetPositionY());
+    Cell cell(p);
+
+    GetMap()->UpdateObjectVisibility(this, cell, p);
+}
+
+struct WorldObjectChangeAccumulator
+{
+    UpdateDataMapType &i_updateDatas;
+    WorldObject &i_object;
+    std::set<uint64> plr_list;
+    WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) {}
+    void Visit(PlayerMapType &m)
+    {
+        for (PlayerMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        {
+            BuildPacket(iter->getSource());
+            if (!iter->getSource()->GetSharedVisionList().empty())
+            {
+                SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
+                for (; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+                    BuildPacket(*it);
+            }
+        }
+    }
+
+    void Visit(CreatureMapType &m)
+    {
+        for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        {
+            if (!iter->getSource()->GetSharedVisionList().empty())
+            {
+                SharedVisionList::const_iterator it = iter->getSource()->GetSharedVisionList().begin();
+                for (; it != iter->getSource()->GetSharedVisionList().end(); ++it)
+                    BuildPacket(*it);
+            }
+        }
+    }
+    void Visit(DynamicObjectMapType &m)
+    {
+        for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+        {
+            uint64 guid = iter->getSource()->GetCasterGUID();
+            if(IS_PLAYER_GUID(guid))
+            {
+                //Caster may be NULL if DynObj is in removelist
+                if(Player *caster = ObjectAccessor::FindPlayer(guid))
+                    if (caster->GetUInt64Value(PLAYER_FARSIGHT) == iter->getSource()->GetGUID())
+                        BuildPacket(caster);
+            }
+        }
+    }
+    void BuildPacket(Player* plr)
+    {
+        // Only send update once to a player
+        if (plr_list.find(plr->GetGUID()) == plr_list.end() && plr->HaveAtClient(&i_object))
+        {
+            i_object.BuildFieldsUpdate(plr, i_updateDatas);
+            plr_list.insert(plr->GetGUID());
+        }
+    }
+
+    template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
+};
+
+void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
+{
+    CellPair p = Trinity::ComputeCellPair(GetPositionX(), GetPositionY());
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+    WorldObjectChangeAccumulator notifier(*this, data_map);
+    TypeContainerVisitor<WorldObjectChangeAccumulator, WorldTypeMapContainer > player_notifier(notifier);
+    Map& map = *GetMap();
+    //we must build packets for all visible players
+    cell.Visit(p, player_notifier, map, *this, map.GetVisibilityDistance());
+
+    ClearUpdateMask(false);
 }

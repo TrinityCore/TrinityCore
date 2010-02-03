@@ -290,7 +290,6 @@ void OPvPCapturePointTF::ChangeState()
     if(flag)
     {
         flag->SetGoArtKit(artkit);
-        flag->SendUpdateObjectToAllExcept(NULL);
     }
 
     UpdateTowerState();

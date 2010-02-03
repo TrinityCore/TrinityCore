@@ -718,7 +718,6 @@ bool ChatHandler::HandleDebugSetVehicleId(const char *args)
 
     uint32 id = (uint32)atoi(i);
     //target->SetVehicleId(id);
-    target->SendUpdateObjectToAllExcept(NULL);
     PSendSysMessage("Vehicle id set to %u", id);
     return true;
 }
