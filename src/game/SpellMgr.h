@@ -636,7 +636,7 @@ enum SpellGroup
 
 #define SPELL_GROUP_DB_RANGE_MIN 1000
 
-//                  spell_id, group_id              // native if true, inherited if false
+//                  spell_id, group_id
 typedef std::multimap<uint32, SpellGroup > SpellSpellGroupMap;
 typedef std::pair<SpellSpellGroupMap::const_iterator,SpellSpellGroupMap::const_iterator> SpellSpellGroupMapBounds;
 
@@ -1104,9 +1104,11 @@ class SpellMgr
         {
             SpellChainMap::const_iterator itr1 = mSpellChains.find(spell1);
             SpellChainMap::const_iterator itr2 = mSpellChains.find(spell2);
+            if (itr1 == mSpellChains.end() || itr2 == mSpellChains.end())
+                return false;
 
             if (itr1->second.first == itr2->second.first)
-                if (itr1->second.rank <= itr2->second.rank)
+                if (itr1->second.rank > itr2->second.rank)
                     return true;
             return false;
         }
