@@ -1754,8 +1754,8 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                             if ((*itr)->GetEntry() == i_spellST->second.targetEntry && (*itr)->IsWithinDistInMap(m_caster, range))
                             {
                                 goScriptTarget = NULL;
-                                range = m_caster->GetDistance(creatureScriptTarget);
                                 creatureScriptTarget = ((Creature *)*itr);
+                                range = m_caster->GetDistance(creatureScriptTarget);
                             }
                         break;
                     case SPELL_TARGET_TYPE_GAMEOBJECT:
@@ -1941,6 +1941,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     target = SearchNearbyTarget(range, SPELL_TARGETS_ALLY);
                     break;
                 case TARGET_UNIT_NEARBY_ENTRY:
+                case TARGET_GAMEOBJECT_NEARBY_ENTRY:
                     range = GetSpellMaxRange(m_spellInfo, IsPositiveSpell(m_spellInfo->Id));
                     if(modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
                     target = SearchNearbyTarget(range, SPELL_TARGETS_ENTRY);
@@ -2180,7 +2181,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             switch (cur)
             {
                 case TARGET_GAMEOBJECT:
-                case TARGET_OBJECT_USE:
                     if(m_targets.getGOTarget())
                         AddGOTarget(m_targets.getGOTarget(), i);
                     break;

@@ -1121,7 +1121,7 @@ enum Targets
     TARGET_UNIT_PARTY_TARGET           = 37,
     TARGET_UNIT_NEARBY_ENTRY           = 38,
     TARGET_UNIT_CASTER_FISHING         = 39,
-    TARGET_OBJECT_USE                  = 40,
+    TARGET_GAMEOBJECT_NEARBY_ENTRY     = 40,
     TARGET_DEST_CASTER_FRONT_LEFT      = 41, //earth totem
     TARGET_DEST_CASTER_BACK_LEFT       = 42, //water totem
     TARGET_DEST_CASTER_BACK_RIGHT      = 43, //air totem
