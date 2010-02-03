@@ -18971,7 +18971,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
     }
     else if (!pProto->RequiredReputationFaction && pProto->RequiredReputationRank > 0)
     {
-        if (uint32(GetReputationRank(pCreature->getFaction())) < pProto->RequiredReputationRank)
+        if (uint32(GetReputationRank(pCreature->getFactionTemplateEntry()->faction)) < pProto->RequiredReputationRank)
         {
             SendBuyError( BUY_ERR_REPUTATION_REQUIRE, pCreature, item, 0);
             return false;
