@@ -332,6 +332,8 @@ class TRINITY_DLL_SPEC Item : public Object
             m_paidExtendedCostCount[pos] = count;
         }
 
+        void BuildUpdate(UpdateDataMapType& );
+
     private:
         uint8 m_slot;
         Bag *m_container;

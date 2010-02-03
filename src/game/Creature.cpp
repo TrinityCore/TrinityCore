@@ -246,7 +246,7 @@ void Creature::RemoveCorpse()
 
     m_deathTimer = 0;
     setDeathState(DEAD);
-    ObjectAccessor::UpdateObjectVisibility(this);
+    UpdateObjectVisibility();
     loot.clear();
     uint32 respawnDelay = m_respawnDelay;
     if (IsAIEnabled)

@@ -1206,8 +1206,6 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
                 cr->SetUInt32Value(UNIT_NPC_FLAGS,npcflag);
                 // reset gossip options, since the flag change might have added / removed some
                 //cr->ResetGossipOptions();
-                // update to world
-                cr->SendUpdateObjectToAllExcept(NULL);
             }
             // if we didn't find it, then the npcflag will be updated when the creature is loaded
         }

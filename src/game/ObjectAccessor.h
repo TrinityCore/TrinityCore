@@ -232,26 +232,9 @@ class TRINITY_DLL_DECL ObjectAccessor : public Trinity::Singleton<ObjectAccessor
         void AddCorpsesToGrid(GridPair const& gridpair,GridType& grid,Map* map);
         Corpse* ConvertCorpseForPlayer(uint64 player_guid, bool insignia = false);
 
-        static void UpdateObject(Object* obj, Player* exceptPlayer);
-        static void _buildUpdateObject(Object* obj, UpdateDataMapType &);
-
-        static void UpdateObjectVisibility(WorldObject* obj);
         //static void UpdateVisibilityForPlayer(Player* player);
     private:
-        struct WorldObjectChangeAccumulator
-        {
-            UpdateDataMapType &i_updateDatas;
-            WorldObject &i_object;
-            std::set<uint64> plr_list;
-            WorldObjectChangeAccumulator(WorldObject &obj, UpdateDataMapType &d) : i_updateDatas(d), i_object(obj) {}
-            void Visit(PlayerMapType &);
-            void Visit(CreatureMapType &);
-            void Visit(DynamicObjectMapType &);
-            void BuildPacket(Player* plr);
-            template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
-        };
 
-        friend struct WorldObjectChangeAccumulator;
         Player2CorpsesMapType   i_player2corpse;
 
         typedef ACE_Thread_Mutex LockType;

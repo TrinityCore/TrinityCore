@@ -4528,7 +4528,7 @@ void Player::KillPlayer()
     // don't create corpse at this moment, player might be falling
 
     // update visibility
-    ObjectAccessor::UpdateObjectVisibility(this);
+    UpdateObjectVisibility();
 }
 
 void Player::CreateCorpse()
