@@ -249,18 +249,18 @@ template<class T>
 void Map::AddToGrid(T* obj, NGridType *grid, Cell const& cell)
 {
     if(obj->m_isWorldObject)
-        (*grid)(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
     else
-        (*grid)(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
 }
 
 template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     if(obj->m_isWorldObject)
-        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
-        (*grid)(cell.CellX(), cell.CellY()).AddGridObject(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).AddGridObject(obj);
 
     obj->SetCurrentCell(cell);
 }
@@ -269,9 +269,9 @@ template<class T>
 void Map::RemoveFromGrid(T* obj, NGridType *grid, Cell const& cell)
 {
     if(obj->m_isWorldObject)
-        (*grid)(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj);
     else
-        (*grid)(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj, obj->GetGUID());
+        (*grid)(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj);
 }
 
 template<class T>
@@ -296,8 +296,8 @@ void Map::SwitchGridContainers(T* obj, bool on)
 
     if(on)
     {
-        grid.RemoveGridObject<T>(obj, obj->GetGUID());
-        grid.AddWorldObject<T>(obj, obj->GetGUID());
+        grid.RemoveGridObject<T>(obj);
+        grid.AddWorldObject<T>(obj);
         /*if(!grid.RemoveGridObject<T>(obj, obj->GetGUID())
             || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
         {
@@ -306,8 +306,8 @@ void Map::SwitchGridContainers(T* obj, bool on)
     }
     else
     {
-        grid.RemoveWorldObject<T>(obj, obj->GetGUID());
-        grid.AddGridObject<T>(obj, obj->GetGUID());
+        grid.RemoveWorldObject<T>(obj);
+        grid.AddGridObject<T>(obj);
         /*if(!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
             || !grid.AddGridObject<T>(obj, obj->GetGUID()))
         {

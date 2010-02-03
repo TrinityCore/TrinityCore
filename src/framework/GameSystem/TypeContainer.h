@@ -102,22 +102,17 @@ class TRINITY_DLL_DECL TypeMapContainer
     public:
         template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)NULL); }
 
-        template<class SPECIFIC_TYPE> SPECIFIC_TYPE* find(OBJECT_HANDLE hdl, SPECIFIC_TYPE *fake) { return Trinity::Find(i_elements, hdl,fake); }
-
-        /// find a specific type of object in the container
-        template<class SPECIFIC_TYPE> const SPECIFIC_TYPE* find(OBJECT_HANDLE hdl, SPECIFIC_TYPE *fake) const { return Trinity::Find(i_elements, hdl,fake); }
-
         /// inserts a specific object into the container
-        template<class SPECIFIC_TYPE> bool insert(OBJECT_HANDLE hdl, SPECIFIC_TYPE *obj)
+        template<class SPECIFIC_TYPE> bool insert(SPECIFIC_TYPE *obj)
         {
-            SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj, hdl);
+            SPECIFIC_TYPE* t = Trinity::Insert(i_elements, obj);
             return (t != NULL);
         }
 
         ///  Removes the object from the container, and returns the removed object
-        template<class SPECIFIC_TYPE> bool remove(SPECIFIC_TYPE* obj, OBJECT_HANDLE hdl)
+        template<class SPECIFIC_TYPE> bool remove(SPECIFIC_TYPE* obj)
         {
-            SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj, hdl);
+            SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
             return (t != NULL);
         }
 
