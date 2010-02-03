@@ -1018,3 +1018,10 @@ bool ItemRequiredTarget::IsFitToRequirements( Unit* pUnitTarget ) const
             return false;
     }
 }
+
+void Item::BuildUpdate(UpdateDataMapType& data_map)
+{
+    if(Player *owner = GetOwner())
+        BuildFieldsUpdate(owner, data_map);
+    ClearUpdateMask(false);
+}

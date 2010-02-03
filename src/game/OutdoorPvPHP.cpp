@@ -249,12 +249,10 @@ void OPvPCapturePointHP::ChangeState()
     if(flag)
     {
         flag->SetGoArtKit(artkit);
-        flag->SendUpdateObjectToAllExcept(NULL);
     }
     if(flag2)
     {
         flag2->SetGoArtKit(artkit2);
-        flag2->SendUpdateObjectToAllExcept(NULL);
     }
 
     // send world state update

@@ -93,12 +93,10 @@ void OPvPCapturePointEP_EWT::ChangeState()
         if(flag)
         {
             flag->SetGoArtKit(artkit);
-            flag->SendUpdateObjectToAllExcept(NULL);
         }
         if(flag2)
         {
             flag2->SetGoArtKit(artkit);
-            flag2->SendUpdateObjectToAllExcept(NULL);
         }
 
         UpdateTowerState();
@@ -248,12 +246,10 @@ void OPvPCapturePointEP_NPT::ChangeState()
         if(flag)
         {
             flag->SetGoArtKit(artkit);
-            flag->SendUpdateObjectToAllExcept(NULL);
         }
         if(flag2)
         {
             flag2->SetGoArtKit(artkit);
-            flag2->SendUpdateObjectToAllExcept(NULL);
         }
 
         UpdateTowerState();
@@ -395,12 +391,10 @@ void OPvPCapturePointEP_CGT::ChangeState()
         if(flag)
         {
             flag->SetGoArtKit(artkit);
-            flag->SendUpdateObjectToAllExcept(NULL);
         }
         if(flag2)
         {
             flag2->SetGoArtKit(artkit);
-            flag2->SendUpdateObjectToAllExcept(NULL);
         }
 
         UpdateTowerState();
@@ -541,12 +535,10 @@ void OPvPCapturePointEP_PWT::ChangeState()
         if(flag)
         {
             flag->SetGoArtKit(artkit);
-            flag->SendUpdateObjectToAllExcept(NULL);
         }
         if(flag2)
         {
             flag2->SetGoArtKit(artkit);
-            flag2->SendUpdateObjectToAllExcept(NULL);
         }
 
         UpdateTowerState();

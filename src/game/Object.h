@@ -165,7 +165,6 @@ class TRINITY_DLL_SPEC Object
         void BuildValuesUpdateBlockForPlayer( UpdateData *data, Player *target ) const;
         void BuildOutOfRangeUpdateBlock( UpdateData *data ) const;
         void BuildMovementUpdateBlock( UpdateData * data, uint32 flags = 0 ) const;
-        void BuildUpdate(UpdateDataMapType &);
 
         virtual void DestroyForPlayer( Player *target, bool anim = false ) const;
 
@@ -307,7 +306,6 @@ class TRINITY_DLL_SPEC Object
         }
 
         void ClearUpdateMask(bool remove);
-        void SendUpdateObjectToAllExcept(Player* exceptPlayer);
 
         bool LoadValues(const char* data);
 
@@ -315,6 +313,8 @@ class TRINITY_DLL_SPEC Object
 
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
+        virtual void BuildUpdate(UpdateDataMapType& ) {}
+        void BuildFieldsUpdate(Player *, UpdateDataMapType &) const;
 
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
@@ -637,6 +637,8 @@ class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
         void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange);
 
         void DestroyForNearbyPlayers();
+        void UpdateObjectVisibility();
+        void BuildUpdate(UpdateDataMapType& );
 
         //new relocation and visibility system functions
         void AddToNotify(uint16 f) { m_notifyflags |= f;}
