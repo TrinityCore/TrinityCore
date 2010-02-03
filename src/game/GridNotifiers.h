@@ -180,33 +180,6 @@ namespace Trinity
         void Visit(CreatureMapType &);
     };
 
-    template<class T>
-        struct TRINITY_DLL_DECL ObjectAccessorNotifier
-    {
-        T *& i_object;
-
-        uint64 i_id;
-        ObjectAccessorNotifier(T * &obj, uint64 id) : i_object(obj), i_id(id)
-        {
-            i_object = NULL;
-        }
-
-        void Visit(GridRefManager<T> &m )
-        {
-            if( i_object == NULL )
-            {
-                GridRefManager<T> *iter = m.find(i_id);
-                if( iter != m.end() )
-                {
-                    assert( iter->second != NULL );
-                    i_object = iter->second;
-                }
-            }
-        }
-
-        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
-    };
-
     // SEARCHERS & LIST SEARCHERS & WORKERS
 
     // WorldObject searchers & workers
