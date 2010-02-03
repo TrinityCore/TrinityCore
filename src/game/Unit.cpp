@@ -10738,6 +10738,9 @@ bool Unit::IsImmunedToDamage(SpellSchoolMask shoolMask)
 
 bool Unit::IsImmunedToDamage(SpellEntry const* spellInfo)
 {
+    if (spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
+
     uint32 shoolMask = GetSpellSchoolMask(spellInfo);
     if (spellInfo->Id != 42292 && spellInfo->Id !=59752)
     {
@@ -10767,6 +10770,9 @@ bool Unit::IsImmunedToSpell(SpellEntry const* spellInfo)
     for (SpellImmuneList::const_iterator itr = idList.begin(); itr != idList.end(); ++itr)
         if (itr->type == spellInfo->Id)
             return true;
+
+    if (spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
 
     if (spellInfo->Dispel)
     {
