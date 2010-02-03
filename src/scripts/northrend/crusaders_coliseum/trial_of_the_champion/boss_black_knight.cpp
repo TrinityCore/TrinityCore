@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2010 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ SDCategory: Trial of the Champion
 EndScriptData */
 
 #include "ScriptedPch.h"
+#include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
 
 enum eSpells
@@ -132,7 +133,7 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
         {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
                 if (pTemp)
                     pTemp->DisappearAndDie();
         }
@@ -276,6 +277,12 @@ struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
             bEventInProgress = true;
         }
     }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pInstance)
+            pInstance->SetData(BOSS_BLACK_KNIGHT,DONE);
+    }
 };
 
 CreatureAI* GetAI_boss_black_knight(Creature *pCreature)
@@ -318,6 +325,33 @@ CreatureAI* GetAI_npc_risen_ghoul(Creature* pCreature)
     return new npc_risen_ghoulAI(pCreature);
 }
 
+struct TRINITY_DLL_DECL npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+{
+    npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        Start(false,true,0,NULL);
+    }
+
+    void WaypointReached(uint32 i)
+    {
+
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+
+        if (!UpdateVictim())
+            return;
+    }
+
+};
+
+CreatureAI* GetAI_npc_black_knight_skeletal_gryphon(Creature* pCreature)
+{
+    return new npc_black_knight_skeletal_gryphonAI(pCreature);
+}
+
 void AddSC_boss_black_knight()
 {
     Script* NewScript;
@@ -330,5 +364,10 @@ void AddSC_boss_black_knight()
     NewScript = new Script;
     NewScript->Name = "npc_risen_ghoul";
     NewScript->GetAI = &GetAI_npc_risen_ghoul;
+    NewScript->RegisterSelf();
+
+    NewScript = new Script;
+    NewScript->Name = "npc_black_knight_skeletal_gryphon";
+    NewScript->GetAI = &GetAI_npc_black_knight_skeletal_gryphon;
     NewScript->RegisterSelf();
 }

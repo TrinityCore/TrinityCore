@@ -18,13 +18,14 @@
 
 /* ScriptData
 SDName: Argent Challenge Encounter.
-SD%Complete: 90 %
-SDComment: Texts are not implemented.
+SD%Complete: 50 %
+SDComment: AI for Argent Soldiers are not implemented. AI from bosses need more improvements.
 SDCategory: Trial of the Champion
 EndScriptData */
 
 #include "ScriptedPch.h"
 #include "trial_of_the_champion.h"
+#include "ScriptedEscortAI.h"
 
 enum eSpells
 {
@@ -58,21 +59,62 @@ enum eSpells
 
 struct TRINITY_DLL_DECL boss_eadricAI : public ScriptedAI
 {
-    boss_eadricAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+    boss_eadricAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pInstance = pCreature->GetInstanceData();
+        pCreature->SetReactState(REACT_PASSIVE);
+        pCreature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+    }
+
+    ScriptedInstance* pInstance;
 
     uint32 uiVenganceTimer;
     uint32 uiRadianceTimer;
     uint32 uiHammerJusticeTimer;
+    uint32 uiResetTimer;
+
+    bool bDone;
 
     void Reset()
     {
         uiVenganceTimer = 10000;
         uiRadianceTimer = 16000;
         uiHammerJusticeTimer = 25000;
+        uiResetTimer = 5000;
+
+        bDone = false;
+    }
+
+    void DamageTaken(Unit *done_by, uint32 &damage)
+    {
+        if (damage >= m_creature->GetHealth())
+        {
+            damage = 0;
+            EnterEvadeMode();
+            m_creature->setFaction(35);
+            bDone = true;
+        }
+    }
+
+    void MovementInform(uint32 MovementType, uint32 Data)
+    {
+        if (MovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (pInstance)
+            pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+
+        m_creature->DisappearAndDie();
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (bDone && uiResetTimer <= uiDiff)
+        {
+            m_creature->GetMotionMaster()->MovePoint(0,746.87,665.87,411.75);
+            bDone = false;
+        } else uiResetTimer -= uiDiff;
+
         if (!UpdateVictim())
             return;
 
@@ -118,7 +160,12 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
 {
     boss_paletressAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
+        pInstance = pCreature->GetInstanceData();
+
         pMemory = NULL;
+        pCreature->SetReactState(REACT_PASSIVE);
+        pCreature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+        pCreature->RestoreFaction();
     }
 
     ScriptedInstance* pInstance;
@@ -126,12 +173,12 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
     Creature* pMemory;
 
     bool bHealth;
+    bool bDone;
 
     uint32 uiHolyFireTimer;
     uint32 uiHolySmiteTimer;
     uint32 uiRenewTimer;
-
-    uint32 uiRandomSpell;
+    uint32 uiResetTimer;
 
     void Reset()
     {
@@ -140,9 +187,11 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
         uiHolyFireTimer     = urand(9000,12000);
         uiHolySmiteTimer    = urand(5000,7000);
         uiRenewTimer        = urand(2000,5000);
-        uiRandomSpell       = 0;
+
+        uiResetTimer        = 7000;
 
         bHealth = false;
+        bDone = false;
 
         if (pMemory && pMemory->isAlive())
             pMemory->RemoveFromWorld();
@@ -154,8 +203,36 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
             m_creature->RemoveAura(SPELL_SHIELD);
     }
 
+    void DamageTaken(Unit *done_by, uint32 &damage)
+    {
+        if (damage >= m_creature->GetHealth())
+        {
+            damage = 0;
+            EnterEvadeMode();
+            m_creature->setFaction(35);
+            bDone = true;
+        }
+    }
+
+    void MovementInform(uint32 MovementType, uint32 Data)
+    {
+        if (MovementType != POINT_MOTION_TYPE)
+            return;
+
+        if (pInstance)
+            pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+
+        m_creature->DisappearAndDie();
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
+        if (bDone && uiResetTimer <= uiDiff)
+        {
+            m_creature->GetMotionMaster()->MovePoint(0,746.87,665.87,411.75);
+            bDone = false;
+        } else uiResetTimer -= uiDiff;
+
         if (!UpdateVictim())
             return;
 
@@ -207,7 +284,6 @@ struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
         if (!bHealth && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25)
         {
             m_creature->InterruptNonMeleeSpells(true);
-            uiRandomSpell = urand(1,26);
             DoCastAOE(SPELL_HOLY_NOVA,false);
             DoCast(m_creature, SPELL_SHIELD);
             DoCastAOE(SPELL_SUMMON_MEMORY,false);
@@ -282,17 +358,129 @@ struct TRINITY_DLL_DECL npc_memoryAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         if (m_creature->isSummon())
+        {
             if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
             {
                 if (pSummoner && pSummoner->isAlive())
                     CAST_CRE(pSummoner)->AI()->SetData(1,0);
             }
+        }
     }
 };
 
 CreatureAI* GetAI_npc_memory(Creature* pCreature)
 {
     return new npc_memoryAI(pCreature);
+}
+
+// THIS AI NEEDS MORE IMPROVEMENTS
+struct TRINITY_DLL_DECL npc_argent_soldierAI : public npc_escortAI
+{
+    npc_argent_soldierAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        pInstance = pCreature->GetInstanceData();
+        m_creature->SetReactState(REACT_DEFENSIVE);
+        SetDespawnAtEnd(false);
+        uiWaypoint = 0;
+    }
+
+    ScriptedInstance* pInstance;
+
+    uint8 uiWaypoint;
+
+    void WaypointReached(uint32 uiPoint)
+    {
+        if (uiPoint == 0)
+        {
+            switch(uiWaypoint)
+            {
+                case 0:
+                    m_creature->SetOrientation(5.81);
+                    break;
+                case 1:
+                    m_creature->SetOrientation(4.60);
+                    break;
+                case 2:
+                    m_creature->SetOrientation(2.79);
+                    break;
+            }
+
+            m_creature->SendMovementFlagUpdate();
+        }
+    }
+
+    void SetData(uint32 uiType, uint32 uiData)
+    {
+        switch(m_creature->GetEntry())
+        {
+            case NPC_ARGENT_LIGHWIELDER:
+                switch(uiType)
+                {
+                    case 0:
+                        AddWaypoint(0,712.14,628.42,411.88);
+                        break;
+                    case 1:
+                        AddWaypoint(0,742.44,650.29,411.79);
+                        break;
+                    case 2:
+                        AddWaypoint(0,783.33,615.29,411.84);
+                        break;
+                }
+                break;
+            case NPC_ARGENT_MONK:
+                switch(uiType)
+                {
+                    case 0:
+                        AddWaypoint(0,713.12,632.97,411.90);
+                        break;
+                    case 1:
+                        AddWaypoint(0,746.73,650.24,411.56);
+                        break;
+                    case 2:
+                        AddWaypoint(0,781.32,610.54,411.82);
+                        break;
+                }
+                break;
+            case NPC_PRIESTESS:
+                switch(uiType)
+                {
+                    case 0:
+                        AddWaypoint(0,715.06,637.07,411.91);
+                        break;
+                    case 1:
+                        AddWaypoint(0,750.72,650.20,411.77);
+                        break;
+                    case 2:
+                        AddWaypoint(0,779.77,607.03,411.81);
+                        break;
+                }
+                break;
+        }
+
+        Start(false,true,0);
+        uiWaypoint = uiType;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (pInstance)
+            pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+    }
+};
+
+CreatureAI* GetAI_npc_argent_soldier(Creature* pCreature)
+{
+    return new npc_argent_soldierAI(pCreature);
 }
 
 void AddSC_boss_argent_challenge()
@@ -312,5 +500,10 @@ void AddSC_boss_argent_challenge()
     NewScript = new Script;
     NewScript->Name = "npc_memory";
     NewScript->GetAI = &GetAI_npc_memory;
+    NewScript->RegisterSelf();
+
+    NewScript = new Script;
+    NewScript->Name = "npc_argent_soldier";
+    NewScript->GetAI = &GetAI_npc_argent_soldier;
     NewScript->RegisterSelf();
 }
