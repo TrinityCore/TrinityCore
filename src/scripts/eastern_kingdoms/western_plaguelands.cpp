@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Western_Plaguelands
 SD%Complete: 90
-SDComment: Quest support: 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235. To obtain Vitreous Focuser (could use more spesifics about gossip items)
+SDComment: Quest support: 5097, 5098, 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235. To obtain Vitreous Focuser (could use more spesifics about gossip items)
 SDCategory: Western Plaguelands
 EndScriptData */
 
@@ -25,6 +25,7 @@ EndScriptData */
 npcs_dithers_and_arbington
 npc_myranda_the_hag
 npc_the_scourge_cauldron
+npc_andorhal_tower 
 EndContentData */
 
 #include "ScriptedPch.h"
@@ -205,6 +206,34 @@ CreatureAI* GetAI_npc_the_scourge_cauldron(Creature* pCreature)
 }
 
 /*######
+##	npcs_andorhal_tower 
+######*/
+
+enum eAndorhalTower
+{
+    GO_BEACON_TORCH                             = 176093
+};
+
+struct TRINITY_DLL_DECL npc_andorhal_towerAI : public Scripted_NoMovementAI
+{
+    npc_andorhal_towerAI(Creature *c) : Scripted_NoMovementAI(c) {}
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        if (m_creature->FindNearestGameObject(GO_BEACON_TORCH, 10.0f))
+            CAST_PLR(pWho)->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID());
+    }
+};
+
+CreatureAI* GetAI_npc_andorhal_tower(Creature* pCreature)
+{
+    return new npc_andorhal_towerAI (pCreature);
+}
+
+/*######
 ##
 ######*/
 
@@ -227,5 +256,10 @@ void AddSC_western_plaguelands()
     newscript = new Script;
     newscript->Name = "npc_the_scourge_cauldron";
     newscript->GetAI = &GetAI_npc_the_scourge_cauldron;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_andorhal_tower";
+    newscript->GetAI = &GetAI_npc_andorhal_tower;
     newscript->RegisterSelf();
 }
