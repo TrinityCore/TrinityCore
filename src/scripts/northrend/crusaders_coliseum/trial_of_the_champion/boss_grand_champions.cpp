@@ -278,7 +278,7 @@ struct TRINITY_DLL_DECL generic_vehicleAI_toc5AI : public npc_escortAI
                 }
             }
             uiShieldBreakerTimer = 7000;
-        }else uiShieldBreakerTimer <= uiDiff;
+        }else uiShieldBreakerTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
