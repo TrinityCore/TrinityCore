@@ -137,6 +137,7 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_NEARBY_ALLY_UNK:
             case TARGET_UNIT_NEARBY_ENTRY:
             case TARGET_UNIT_NEARBY_RAID:
+            case TARGET_GAMEOBJECT_NEARBY_ENTRY:
                 SpellTargetType[i] = TARGET_TYPE_UNIT_NEARBY;
                 break;
             case TARGET_UNIT_AREA_ENEMY_SRC:
@@ -1981,6 +1982,8 @@ void SpellMgr::LoadSpellScriptTarget()
                 spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_AREA_ENTRY_DST ||
                 spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_NEARBY_ENTRY ||
                 spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetA[i]==TARGET_GAMEOBJECT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetB[i]==TARGET_GAMEOBJECT_NEARBY_ENTRY ||
                 spellProto->EffectImplicitTargetA[i]==TARGET_DST_NEARBY_ENTRY ||
                 spellProto->EffectImplicitTargetB[i]==TARGET_DST_NEARBY_ENTRY ||
                 spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_CONE_ENTRY ||
@@ -1993,7 +1996,7 @@ void SpellMgr::LoadSpellScriptTarget()
         if (!targetfound)
         {
             sLog.outErrorDb("Table `spell_script_target`: spellId %u listed for TargetEntry %u does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)\
-                ,TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60)",spellId,targetEntry);
+                ,TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)",spellId,targetEntry);
             continue;
         }
 
@@ -2064,6 +2067,7 @@ void SpellMgr::LoadSpellScriptTarget()
                 case TARGET_UNIT_AREA_ENTRY_SRC:
                 case TARGET_UNIT_AREA_ENTRY_DST:
                 case TARGET_UNIT_NEARBY_ENTRY:
+                case TARGET_GAMEOBJECT_NEARBY_ENTRY:
                 case TARGET_DST_NEARBY_ENTRY:
                 case TARGET_UNIT_CONE_ENTRY:
                     found = true;
@@ -2077,6 +2081,7 @@ void SpellMgr::LoadSpellScriptTarget()
                 case TARGET_UNIT_AREA_ENTRY_SRC:
                 case TARGET_UNIT_AREA_ENTRY_DST:
                 case TARGET_UNIT_NEARBY_ENTRY:
+                case TARGET_GAMEOBJECT_NEARBY_ENTRY:
                 case TARGET_DST_NEARBY_ENTRY:
                 case TARGET_UNIT_CONE_ENTRY:
                     found = true;
