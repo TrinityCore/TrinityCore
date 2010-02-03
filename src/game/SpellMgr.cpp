@@ -3161,7 +3161,8 @@ bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool de
     SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
     if (!spellproto) return false;
 
-    if (spellproto->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+    // Cyclone etc..
+    if (spellproto->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
         return false;
 
     if(dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
