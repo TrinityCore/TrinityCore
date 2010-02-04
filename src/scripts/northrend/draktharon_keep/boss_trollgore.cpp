@@ -29,7 +29,6 @@ update creature_template set scriptname = 'boss_trollgore' where entry = '';
 *** SQL END ***/
 #include "ScriptedPch.h"
 #include "drak_tharon_keep.h"
-#include "SpellId.h"
 
 enum Spells
 {

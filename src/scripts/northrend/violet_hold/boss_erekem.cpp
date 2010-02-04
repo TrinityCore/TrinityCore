@@ -11,7 +11,6 @@ update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
 #include "ScriptedPch.h"
 #include "violet_hold.h"
-#include "SpellId.h"
 
 enum Spells
 {

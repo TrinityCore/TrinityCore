@@ -16,7 +16,6 @@
 
 #include "ScriptedPch.h"
 #include "naxxramas.h"
-#include "SpellId.h"
 
 #define SAY_GREET           RAND(-1533000,-1533004,-1533005,-1533006,-1533007)
 #define SAY_AGGRO           RAND(-1533001,-1533002,-1533003)

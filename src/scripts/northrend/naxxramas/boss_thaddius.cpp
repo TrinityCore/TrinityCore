@@ -18,7 +18,6 @@
 
 #include "ScriptedPch.h"
 #include "naxxramas.h"
-#include "SpellId.h"
 
 //Stalagg
 enum StalaggYells

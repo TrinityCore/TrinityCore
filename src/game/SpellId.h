@@ -1,5 +1,8 @@
 /* This file is auto-generated. */
 
+#ifndef _SPELLID_H
+#define _SPELLID_H
+
 enum SpellId
 {
     // 1: Word of Recall (OLD)
@@ -140134,3 +140137,4 @@ enum SpellId
 
 };
 
+#endif
