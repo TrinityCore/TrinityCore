@@ -922,6 +922,8 @@ class SpellMgr
         {
             spellid_1 = GetFirstSpellInChain(spellid_1);
             spellid_2 = GetFirstSpellInChain(spellid_2);
+            if (spellid_1 == spellid_2)
+                return SPELL_GROUP_STACK_RULE_DEFAULT;
             // find SpellGroups which are common for both spells
             SpellSpellGroupMapBounds spellGroup1 = GetSpellSpellGroupMapBounds(spellid_1);
             std::set<SpellGroup> groups;
