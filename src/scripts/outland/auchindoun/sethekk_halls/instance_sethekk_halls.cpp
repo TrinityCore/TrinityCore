@@ -30,7 +30,7 @@ enum eEnums
     IKISS_DOOR = 177203,
 };
 
-struct TRINITY_DLL_DECL instance_sethekk_halls : public ScriptedInstance
+struct instance_sethekk_halls : public ScriptedInstance
 {
     instance_sethekk_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

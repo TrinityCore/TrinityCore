@@ -37,7 +37,7 @@ enum Yells
     SAY_DEATH       = -1509027
 };
 
-struct TRINITY_DLL_DECL boss_ossirianAI : public ScriptedAI
+struct boss_ossirianAI : public ScriptedAI
 {
     boss_ossirianAI(Creature *c) : ScriptedAI(c)
     {

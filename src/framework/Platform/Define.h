@@ -40,21 +40,9 @@
 #endif //TRINITY_ENDIAN
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define TRINITY_EXPORT __declspec(dllexport)
-#  define TRINITY_LIBRARY_HANDLE HMODULE
-#  define TRINITY_LOAD_LIBRARY(a) LoadLibrary(a)
-#  define TRINITY_CLOSE_LIBRARY FreeLibrary
-#  define TRINITY_GET_PROC_ADDR GetProcAddress
 #  define TRINITY_IMPORT __cdecl
-#  define TRINITY_SCRIPT_EXT ".dll"
-#  define TRINITY_SCRIPT_NAME "TrinityScript"
 #  define TRINITY_PATH_MAX MAX_PATH
 #else //PLATFORM != PLATFORM_WINDOWS
-#  define TRINITY_LIBRARY_HANDLE void*
-#  define TRINITY_EXPORT export
-#  define TRINITY_LOAD_LIBRARY(a) dlopen(a,RTLD_NOW)
-#  define TRINITY_CLOSE_LIBRARY dlclose
-#  define TRINITY_GET_PROC_ADDR dlsym
 #  if defined(__APPLE_CC__) && defined(BIG_ENDIAN)
 #    define TRINITY_IMPORT __attribute__ ((longcall))
 #  elif defined(__x86_64__)
@@ -62,45 +50,15 @@
 #  else
 #    define TRINITY_IMPORT __attribute__ ((cdecl))
 #  endif //__APPLE_CC__ && BIG_ENDIAN
-#  if defined(__APPLE_CC__)
-#    define TRINITY_SCRIPT_EXT ".dylib"
-#    if defined(DO_SCRIPTS)
-#      define TRINITY_SCRIPT_NAME "../lib/libtrinityscript"
-#    else
-#      define TRINITY_SCRIPT_NAME "../lib/libtrinityinterface"
-#    endif // DO_SCRIPTS
-#  else
-#    define TRINITY_SCRIPT_EXT ".so"
-#    if defined(DO_SCRIPTS)
-#      define TRINITY_SCRIPT_NAME "libtrinityscript"
-#    else
-#      define TRINITY_SCRIPT_NAME "libtrinityinterface"
-#    endif // DO_SCRIPTS
-#  endif //__APPLE_CC__
 #  define TRINITY_PATH_MAX PATH_MAX
 #endif //PLATFORM
 
-#if PLATFORM == PLATFORM_WINDOWS
-#  ifdef TRINITY_WIN32_DLL_IMPORT
-#    define TRINITY_DLL_DECL __declspec(dllimport)
-#  else //!TRINITY_WIN32_DLL_IMPORT
-#    ifdef TRINITY_WIND_DLL_EXPORT
-#      define TRINITY_DLL_DECL __declspec(dllexport)
-#    else //!TRINITY_WIND_DLL_EXPORT
-#      define TRINITY_DLL_DECL
-#    endif //TRINITY_WIND_DLL_EXPORT
-#  endif //TRINITY_WIN32_DLL_IMPORT
-#else //PLATFORM != PLATFORM_WINDOWS
-#  define TRINITY_DLL_DECL
-#endif //PLATFORM
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define TRINITY_DLL_SPEC __declspec(dllexport)
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
 #  endif //DECLSPEC_NORETURN
 #else //PLATFORM != PLATFORM_WINDOWS
-#  define TRINITY_DLL_SPEC
 #  define DECLSPEC_NORETURN
 #endif //PLATFORM
 
@@ -137,26 +95,8 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
-//commented out
-//so all future merges with invalid style will drop build errors
-//this way devs will at least read thru what they merge to find the error
-
-//#define MaNGOS              Trinity
-//#define MANGOS_DLL_DECL     TRINITY_DLL_DECL
-//#define MANGOS_DLL_SPEC     TRINITY_DLL_SPEC
-//#define GetMangosString     GetTrinityString
-
-#if defined(MANGOS_DEBUG) || defined(TRINITY_DEBUG)
-#  ifndef TRINITY_DEBUG
-#    define TRINITY_DEBUG
-#  endif
-#  ifndef MANGOS_DEBUG
-#    define MANGOS_DEBUG
-#  endif
-#endif
-
 #ifndef CLIENT_VER
-#define CLIENT_VER 313
+#define CLIENT_VER 322
 #endif
 
 #endif //TRINITY_DEFINE_H

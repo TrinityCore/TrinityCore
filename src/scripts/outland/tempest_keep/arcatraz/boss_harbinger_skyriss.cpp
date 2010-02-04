@@ -53,7 +53,7 @@ EndContentData */
 #define SPELL_66_ILLUSION       36931                       //entry 21466
 #define SPELL_33_ILLUSION       36932                       //entry 21467
 
-struct TRINITY_DLL_DECL boss_harbinger_skyrissAI : public ScriptedAI
+struct boss_harbinger_skyrissAI : public ScriptedAI
 {
     boss_harbinger_skyrissAI(Creature *c) : ScriptedAI(c)
     {
@@ -260,7 +260,7 @@ CreatureAI* GetAI_boss_harbinger_skyriss(Creature* pCreature)
 #define SPELL_MIND_REND_IMAGE   36929
 #define H_SPELL_MIND_REND_IMAGE 39021
 
-struct TRINITY_DLL_DECL boss_harbinger_skyriss_illusionAI : public ScriptedAI
+struct boss_harbinger_skyriss_illusionAI : public ScriptedAI
 {
     boss_harbinger_skyriss_illusionAI(Creature *c) : ScriptedAI(c)
     {

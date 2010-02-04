@@ -42,7 +42,7 @@ EndScriptData */
 #define SPELL_ASPECT_OF_THEKAL       24689
 #define SPELL_ASPECT_OF_ARLOKK       24690
 
-struct TRINITY_DLL_DECL boss_hakkarAI : public ScriptedAI
+struct boss_hakkarAI : public ScriptedAI
 {
     boss_hakkarAI(Creature *c) : ScriptedAI(c)
     {

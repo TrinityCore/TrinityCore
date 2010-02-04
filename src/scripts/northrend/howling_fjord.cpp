@@ -61,7 +61,7 @@ bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, Ques
     return true;
 }
 
-struct TRINITY_DLL_DECL npc_Apothecary_HanesAI : public npc_escortAI
+struct npc_Apothecary_HanesAI : public npc_escortAI
 {
     npc_Apothecary_HanesAI(Creature* pCreature) : npc_escortAI(pCreature){}
     uint32 PotTimer;
@@ -154,7 +154,7 @@ enum ePlaguehound
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
 
-struct TRINITY_DLL_DECL npc_plaguehound_trackerAI : public npc_escortAI
+struct npc_plaguehound_trackerAI : public npc_escortAI
 {
     npc_plaguehound_trackerAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 

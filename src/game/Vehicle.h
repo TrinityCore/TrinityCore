@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOSSERVER_VEHICLE_H
-#define MANGOSSERVER_VEHICLE_H
+#ifndef __TRINITY_VEHICLE_H
+#define __TRINITY_VEHICLE_H
 
 #include "ObjectDefines.h"
 
@@ -40,7 +40,7 @@ struct VehicleSeat
 
 typedef std::map<int8, VehicleSeat> SeatMap;
 
-class TRINITY_DLL_SPEC Vehicle
+class Vehicle
 {
     public:
         explicit Vehicle(Unit *unit, VehicleEntry const *vehInfo);

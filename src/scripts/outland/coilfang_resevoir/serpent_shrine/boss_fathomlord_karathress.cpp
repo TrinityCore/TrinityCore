@@ -92,7 +92,7 @@ EndScriptData */
 #define OLUM_O                     0.401581f
 
 //Fathom-Lord Karathress AI
-struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
+struct boss_fathomlord_karathressAI : public ScriptedAI
 {
     boss_fathomlord_karathressAI(Creature *c) : ScriptedAI(c)
     {
@@ -294,7 +294,7 @@ struct TRINITY_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 };
 
 //Fathom-Guard Sharkkis AI
-struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
+struct boss_fathomguard_sharkkisAI : public ScriptedAI
 {
     boss_fathomguard_sharkkisAI(Creature *c) : ScriptedAI(c)
     {
@@ -437,7 +437,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_sharkkisAI : public ScriptedAI
 };
 
 //Fathom-Guard Tidalvess AI
-struct TRINITY_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
+struct boss_fathomguard_tidalvessAI : public ScriptedAI
 {
     boss_fathomguard_tidalvessAI(Creature *c) : ScriptedAI(c)
     {
@@ -552,7 +552,7 @@ struct TRINITY_DLL_DECL boss_fathomguard_tidalvessAI : public ScriptedAI
 };
 
 //Fathom-Guard Caribdis AI
-struct TRINITY_DLL_DECL boss_fathomguard_caribdisAI : public ScriptedAI
+struct boss_fathomguard_caribdisAI : public ScriptedAI
 {
     boss_fathomguard_caribdisAI(Creature *c) : ScriptedAI(c)
     {

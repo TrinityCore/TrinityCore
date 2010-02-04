@@ -63,7 +63,7 @@ enum Creatures
 
 Position AddSpawnPoint = { -260.493011, -622.968018, 26.605301, 3.036870 };
 
-struct TRINITY_DLL_DECL boss_trollgoreAI : public ScriptedAI
+struct boss_trollgoreAI : public ScriptedAI
 {
     boss_trollgoreAI(Creature *c) : ScriptedAI(c), lSummons(me)
     {

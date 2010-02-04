@@ -8,7 +8,7 @@
 2 - Emalon the Storm Watcher event
 */
 
-struct TRINITY_DLL_DECL instance_archavon : public ScriptedInstance
+struct instance_archavon : public ScriptedInstance
 {
     instance_archavon(Map *Map) : ScriptedInstance(Map) {Initialize();};
 

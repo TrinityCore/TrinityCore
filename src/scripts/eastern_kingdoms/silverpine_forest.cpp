@@ -37,7 +37,7 @@ EndContentData */
 #define GOSSIP_HAH "You're Astor Hadren, right?"
 #define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
 
-struct TRINITY_DLL_DECL npc_astor_hadrenAI : public ScriptedAI
+struct npc_astor_hadrenAI : public ScriptedAI
 {
     npc_astor_hadrenAI(Creature *c) : ScriptedAI(c) {}
 
@@ -115,7 +115,7 @@ enum eErland
     NPC_QUINN           = 1951
 };
 
-struct TRINITY_DLL_DECL npc_deathstalker_erlandAI : public npc_escortAI
+struct npc_deathstalker_erlandAI : public npc_escortAI
 {
     npc_deathstalker_erlandAI(Creature *c) : npc_escortAI(c) {}
 
@@ -203,7 +203,7 @@ static float PyrewoodSpawnPoints[3][4] =
 
 #define WAIT_SECS 6000
 
-struct TRINITY_DLL_DECL pyrewood_ambushAI : public ScriptedAI
+struct pyrewood_ambushAI : public ScriptedAI
 {
     pyrewood_ambushAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {

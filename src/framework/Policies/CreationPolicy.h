@@ -30,7 +30,7 @@ namespace Trinity
      * OperatorNew policy creates an object on the heap using new.
      */
     template <class T>
-        class TRINITY_DLL_DECL OperatorNew
+        class OperatorNew
     {
         public:
             static T* Create(void) { return (new T); }
@@ -42,7 +42,7 @@ namespace Trinity
      * the first time call Create.
      */
     template <class T>
-        class TRINITY_DLL_DECL LocalStaticCreation
+        class LocalStaticCreation
     {
         union MaxAlign
         {
@@ -71,7 +71,7 @@ namespace Trinity
      * CreateUsingMalloc by pass the memory manger.
      */
     template<class T>
-        class TRINITY_DLL_DECL CreateUsingMalloc
+        class CreateUsingMalloc
     {
         public:
             static T* Create()
@@ -92,7 +92,7 @@ namespace Trinity
      * CreateOnCallBack creates the object base on the call back.
      */
     template<class T, class CALL_BACK>
-        class TRINITY_DLL_DECL CreateOnCallBack
+        class CreateOnCallBack
     {
         public:
             static T* Create()

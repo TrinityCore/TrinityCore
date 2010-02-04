@@ -73,7 +73,7 @@ static Say PeonDies[]=
 #define SPELL_CONSUMPTION           30497
 #define SPELL_TEMPORARY_VISUAL      39312                   // this is wrong, a temporary solution. spell consumption already has the purple visual, but doesn't display as it should
 
-struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
+struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 {
     boss_grand_warlock_nethekurseAI(Creature *c) : ScriptedAI(c)
     {
@@ -281,7 +281,7 @@ struct TRINITY_DLL_DECL boss_grand_warlock_nethekurseAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
+struct mob_fel_orc_convertAI : public ScriptedAI
 {
     mob_fel_orc_convertAI(Creature *c) : ScriptedAI(c)
     {
@@ -349,7 +349,7 @@ struct TRINITY_DLL_DECL mob_fel_orc_convertAI : public ScriptedAI
 };
 
 //NOTE: this Creature are also summoned by other spells, for different creatures
-struct TRINITY_DLL_DECL mob_lesser_shadow_fissureAI : public ScriptedAI
+struct mob_lesser_shadow_fissureAI : public ScriptedAI
 {
     mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {}
 

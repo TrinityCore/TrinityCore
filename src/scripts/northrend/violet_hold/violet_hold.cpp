@@ -32,7 +32,7 @@ enum eSinclari
 const Position DoorPosition = { 1828.300049, 797.309021, 46.135502, 1.48353};
 const Position MovePosition = { 1806.955566, 803.851807, 44.363323};
 
-struct TRINITY_DLL_DECL npc_sinclariAI : public ScriptedAI
+struct npc_sinclariAI : public ScriptedAI
 {
     npc_sinclariAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -178,7 +178,7 @@ bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSe
     return true;
 }
 
-struct TRINITY_DLL_DECL npc_teleportation_portalAI : public ScriptedAI
+struct npc_teleportation_portalAI : public ScriptedAI
 {
     npc_teleportation_portalAI(Creature *c) : ScriptedAI(c)
     {

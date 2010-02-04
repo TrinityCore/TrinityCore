@@ -41,7 +41,7 @@ EndScriptData */
 #define SPELL_KNOCKBACK                 37317
 #define SPELL_SOLARBURN                 35267
 
-struct TRINITY_DLL_DECL boss_nethermancer_sepethreaAI : public ScriptedAI
+struct boss_nethermancer_sepethreaAI : public ScriptedAI
 {
     boss_nethermancer_sepethreaAI(Creature *c) : ScriptedAI(c)
     {
@@ -151,7 +151,7 @@ CreatureAI* GetAI_boss_nethermancer_sepethrea(Creature* pCreature)
 #define H_SPELL_INFERNO                 39346
 #define SPELL_FIRE_TAIL                 35278
 
-struct TRINITY_DLL_DECL mob_ragin_flamesAI : public ScriptedAI
+struct mob_ragin_flamesAI : public ScriptedAI
 {
     mob_ragin_flamesAI(Creature *c) : ScriptedAI(c)
     {

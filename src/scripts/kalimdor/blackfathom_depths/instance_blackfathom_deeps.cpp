@@ -49,7 +49,7 @@ const Position SpawnsLocation[] =
     {-863.895, -458.899, -33.891, 5.637}
 };
 
-struct TRINITY_DLL_DECL instance_blackfathom_deeps : public ScriptedInstance
+struct instance_blackfathom_deeps : public ScriptedInstance
 {
     instance_blackfathom_deeps(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

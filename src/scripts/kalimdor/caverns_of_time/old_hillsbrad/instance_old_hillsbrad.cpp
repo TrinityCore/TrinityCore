@@ -35,7 +35,7 @@ EndScriptData */
 #define QUEST_ENTRY_DIVERSION   10283
 #define LODGE_QUEST_TRIGGER     20155
 
-struct TRINITY_DLL_DECL instance_old_hillsbrad : public ScriptedInstance
+struct instance_old_hillsbrad : public ScriptedInstance
 {
     instance_old_hillsbrad(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

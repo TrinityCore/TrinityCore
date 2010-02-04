@@ -20,7 +20,7 @@ enum Spells
     SPELL_ECK_SPRING_1                      = 55815, //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
     SPELL_ECK_SPRING_2                      = 55837  //Eck leaps at a distant target.
 };
-struct TRINITY_DLL_DECL boss_eckAI : public ScriptedAI
+struct boss_eckAI : public ScriptedAI
 {
     boss_eckAI(Creature *c) : ScriptedAI(c)
     {

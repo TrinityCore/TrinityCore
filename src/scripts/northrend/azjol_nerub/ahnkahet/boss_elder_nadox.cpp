@@ -53,7 +53,7 @@ bool DeadAhnkaharGuardian; // needed for achievement: Respect Your Elders(2038)
 
 #define EMOTE_HATCHES                       "An Ahn'kahar Guardian hatches!"
 
-struct TRINITY_DLL_DECL boss_elder_nadoxAI : public ScriptedAI
+struct boss_elder_nadoxAI : public ScriptedAI
 {
     boss_elder_nadoxAI(Creature *c) : ScriptedAI(c)
     {
@@ -188,7 +188,7 @@ CreatureAI* GetAI_boss_elder_nadox(Creature* pCreature)
 
 #define SPELL_SPRINT            56354
 
-struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
+struct mob_ahnkahar_nerubianAI : public ScriptedAI
 {
     mob_ahnkahar_nerubianAI(Creature *c) : ScriptedAI(c)
     {
@@ -240,7 +240,7 @@ struct TRINITY_DLL_DECL mob_ahnkahar_nerubianAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_nadox_eggsAI : public Scripted_NoMovementAI
+struct mob_nadox_eggsAI : public Scripted_NoMovementAI
 {
     mob_nadox_eggsAI(Creature* c) : Scripted_NoMovementAI(c)
     {

@@ -33,7 +33,7 @@ EndScriptData */
 #define SPELL_CLEAVE              8255                      //Perhaps not right ID
 #define SPELL_ENRAGE             23537
 
-struct TRINITY_DLL_DECL boss_azuregosAI : public ScriptedAI
+struct boss_azuregosAI : public ScriptedAI
 {
     boss_azuregosAI(Creature *c) : ScriptedAI(c) {}
 

@@ -26,7 +26,7 @@
 #include "Traveller.h"
 #include "FollowerReference.h"
 
-class TRINITY_DLL_SPEC TargetedMovementGeneratorBase
+class TargetedMovementGeneratorBase
 {
     public:
         TargetedMovementGeneratorBase(Unit &target) { i_target.link(&target, this); }
@@ -36,7 +36,7 @@ class TRINITY_DLL_SPEC TargetedMovementGeneratorBase
 };
 
 template<class T>
-class TRINITY_DLL_SPEC TargetedMovementGenerator
+class TargetedMovementGenerator
 : public MovementGeneratorMedium< T, TargetedMovementGenerator<T> >, public TargetedMovementGeneratorBase
 {
     public:

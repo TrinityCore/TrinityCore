@@ -56,7 +56,7 @@ const uint32 PlayerBuff[3] = {30421,30422,30423};
 const uint32 NetherBuff[3] = {30466,30467,30468};
 const uint32 PlayerDebuff[3] = {38637,38638,38639};
 
-struct TRINITY_DLL_DECL boss_netherspiteAI : public ScriptedAI
+struct boss_netherspiteAI : public ScriptedAI
 {
     boss_netherspiteAI(Creature* c) : ScriptedAI(c)
     {

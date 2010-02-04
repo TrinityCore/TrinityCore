@@ -65,7 +65,7 @@ enum WaitEventType
     WE_SUMMON   = 10
 };
 
-struct TRINITY_DLL_DECL boss_alarAI : public ScriptedAI
+struct boss_alarAI : public ScriptedAI
 {
     boss_alarAI(Creature *c) : ScriptedAI(c)
     {
@@ -426,7 +426,7 @@ CreatureAI* GetAI_boss_alar(Creature* pCreature)
     return new boss_alarAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_ember_of_alarAI : public ScriptedAI
+struct mob_ember_of_alarAI : public ScriptedAI
 {
     mob_ember_of_alarAI(Creature *c) : ScriptedAI(c)
     {
@@ -486,7 +486,7 @@ CreatureAI* GetAI_mob_ember_of_alar(Creature* pCreature)
     return new mob_ember_of_alarAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_flame_patch_alarAI : public ScriptedAI
+struct mob_flame_patch_alarAI : public ScriptedAI
 {
     mob_flame_patch_alarAI(Creature *c) : ScriptedAI(c) {}
     void Reset() {}

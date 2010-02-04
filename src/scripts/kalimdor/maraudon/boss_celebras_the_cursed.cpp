@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_ENTANGLINGROOTS       12747
 #define SPELL_CORRUPT_FORCES        21968
 
-struct TRINITY_DLL_DECL celebras_the_cursedAI : public ScriptedAI
+struct celebras_the_cursedAI : public ScriptedAI
 {
     celebras_the_cursedAI(Creature *c) : ScriptedAI(c) {}
 

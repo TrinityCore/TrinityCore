@@ -23,7 +23,7 @@
 
 #include "MovementGenerator.h"
 
-class TRINITY_DLL_SPEC IdleMovementGenerator : public MovementGenerator
+class IdleMovementGenerator : public MovementGenerator
 {
     public:
 
@@ -36,7 +36,7 @@ class TRINITY_DLL_SPEC IdleMovementGenerator : public MovementGenerator
 
 extern IdleMovementGenerator si_idleMovement;
 
-class TRINITY_DLL_SPEC RotateMovementGenerator : public MovementGenerator
+class RotateMovementGenerator : public MovementGenerator
 {
     public:
         explicit RotateMovementGenerator(uint32 time, RotateDirection direction) : m_duration(time), m_maxDuration(time), m_direction(direction) {}
@@ -52,7 +52,7 @@ class TRINITY_DLL_SPEC RotateMovementGenerator : public MovementGenerator
         RotateDirection m_direction;
 };
 
-class TRINITY_DLL_SPEC DistractMovementGenerator : public MovementGenerator
+class DistractMovementGenerator : public MovementGenerator
 {
     public:
         explicit DistractMovementGenerator(uint32 timer) : m_timer(timer) {}
@@ -67,7 +67,7 @@ class TRINITY_DLL_SPEC DistractMovementGenerator : public MovementGenerator
         uint32 m_timer;
 };
 
-class TRINITY_DLL_SPEC AssistanceDistractMovementGenerator : public DistractMovementGenerator
+class AssistanceDistractMovementGenerator : public DistractMovementGenerator
 {
     public:
         AssistanceDistractMovementGenerator(uint32 timer) :

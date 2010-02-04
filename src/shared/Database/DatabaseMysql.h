@@ -36,7 +36,7 @@
 #include <mysql.h>
 #endif
 
-class TRINITY_DLL_SPEC DatabaseMysql : public Database
+class DatabaseMysql : public Database
 {
     friend class Trinity::OperatorNew<DatabaseMysql>;
 

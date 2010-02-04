@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_FREEZE             18763
 #define SPELL_FLAMEBREATH        20712
 
-struct TRINITY_DLL_DECL boss_gythAI : public ScriptedAI
+struct boss_gythAI : public ScriptedAI
 {
     boss_gythAI(Creature *c) : ScriptedAI(c) {}
 

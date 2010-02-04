@@ -65,7 +65,7 @@ static Locations PipeLocations[] =
 
 static Locations CenterPoint = {1295.21, 667.157, 189.691};
 
-struct TRINITY_DLL_DECL boss_sjonnirAI : public ScriptedAI
+struct boss_sjonnirAI : public ScriptedAI
 {
     boss_sjonnirAI(Creature *c) : ScriptedAI(c), lSummons(me)
     {
@@ -221,7 +221,7 @@ CreatureAI* GetAI_boss_sjonnir(Creature* pCreature)
     return new boss_sjonnirAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_malformed_oozeAI : public ScriptedAI
+struct mob_malformed_oozeAI : public ScriptedAI
 {
     mob_malformed_oozeAI(Creature *c) : ScriptedAI(c) {}
 
@@ -257,7 +257,7 @@ CreatureAI* GetAI_mob_malformed_ooze(Creature* pCreature)
     return new mob_malformed_oozeAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_iron_sludgeAI : public ScriptedAI
+struct mob_iron_sludgeAI : public ScriptedAI
 {
     mob_iron_sludgeAI(Creature *c) : ScriptedAI(c)
     {

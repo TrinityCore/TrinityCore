@@ -169,7 +169,7 @@ Waypoint m_aDragonCommon[MAX_WAYPOINT]=
 ## Boss Sartharion
 ######*/
 
-struct TRINITY_DLL_DECL boss_sartharionAI : public ScriptedAI
+struct boss_sartharionAI : public ScriptedAI
 {
     boss_sartharionAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -544,7 +544,7 @@ enum VespText
 };
 
 //to control each dragons common abilities
-struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
+struct dummy_dragonAI : public ScriptedAI
 {
     dummy_dragonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -720,7 +720,7 @@ struct TRINITY_DLL_DECL dummy_dragonAI : public ScriptedAI
 ## Mob Tenebron
 ######*/
 
-struct TRINITY_DLL_DECL mob_tenebronAI : public dummy_dragonAI
+struct mob_tenebronAI : public dummy_dragonAI
 {
     mob_tenebronAI(Creature* pCreature) : dummy_dragonAI(pCreature) {}
 
@@ -790,7 +790,7 @@ CreatureAI* GetAI_mob_tenebron(Creature* pCreature)
 ## Mob Shadron
 ######*/
 
-struct TRINITY_DLL_DECL mob_shadronAI : public dummy_dragonAI
+struct mob_shadronAI : public dummy_dragonAI
 {
     mob_shadronAI(Creature* pCreature) : dummy_dragonAI(pCreature) {}
 
@@ -866,7 +866,7 @@ CreatureAI* GetAI_mob_shadron(Creature* pCreature)
 ## Mob Vesperon
 ######*/
 
-struct TRINITY_DLL_DECL mob_vesperonAI : public dummy_dragonAI
+struct mob_vesperonAI : public dummy_dragonAI
 {
     mob_vesperonAI(Creature* pCreature) : dummy_dragonAI(pCreature) {}
 
@@ -936,7 +936,7 @@ CreatureAI* GetAI_mob_vesperon(Creature* pCreature)
 ## Mob Acolyte of Shadron
 ######*/
 
-struct TRINITY_DLL_DECL mob_acolyte_of_shadronAI : public ScriptedAI
+struct mob_acolyte_of_shadronAI : public ScriptedAI
 {
     mob_acolyte_of_shadronAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -1000,7 +1000,7 @@ CreatureAI* GetAI_mob_acolyte_of_shadron(Creature* pCreature)
 ## Mob Acolyte of Vesperon
 ######*/
 
-struct TRINITY_DLL_DECL mob_acolyte_of_vesperonAI : public ScriptedAI
+struct mob_acolyte_of_vesperonAI : public ScriptedAI
 {
     mob_acolyte_of_vesperonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -1044,7 +1044,7 @@ CreatureAI* GetAI_mob_acolyte_of_vesperon(Creature* pCreature)
 ## Mob Twilight Eggs
 ######*/
 
-struct TRINITY_DLL_DECL mob_twilight_eggsAI : public ScriptedAI
+struct mob_twilight_eggsAI : public ScriptedAI
 {
     mob_twilight_eggsAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -1068,7 +1068,7 @@ CreatureAI* GetAI_mob_twilight_eggs(Creature* pCreature)
 ## Mob Twilight Whelps
 ######*/
 
-struct TRINITY_DLL_DECL mob_twilight_whelpAI : public ScriptedAI
+struct mob_twilight_whelpAI : public ScriptedAI
 {
     mob_twilight_whelpAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 

@@ -34,7 +34,7 @@ EndScriptData */
 #define SPELL_CURSEOFTONGUES    12889
 #define SPELL_CALLOFTHEGRAVE    17831
 
-struct TRINITY_DLL_DECL boss_postmaster_malownAI : public ScriptedAI
+struct boss_postmaster_malownAI : public ScriptedAI
 {
     boss_postmaster_malownAI(Creature *c) : ScriptedAI(c) {}
 

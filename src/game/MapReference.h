@@ -22,7 +22,7 @@
 #include "Utilities/LinkedReference/Reference.h"
 #include "Map.h"
 
-class TRINITY_DLL_SPEC MapReference : public Reference<Map, Player>
+class MapReference : public Reference<Map, Player>
 {
     protected:
         void targetObjectBuildLink()

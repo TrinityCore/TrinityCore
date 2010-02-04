@@ -26,7 +26,7 @@
 #include "Traveller.h"
 
 template<class T>
-class TRINITY_DLL_SPEC RandomMovementGenerator
+class RandomMovementGenerator
 : public MovementGeneratorMedium< T, RandomMovementGenerator<T> >
 {
     public:

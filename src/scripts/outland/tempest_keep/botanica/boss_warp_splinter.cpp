@@ -29,7 +29,7 @@ EndScriptData */
 
 #define SPELL_HEAL_FATHER   6262
 
-struct TRINITY_DLL_DECL mob_treantAI  : public ScriptedAI
+struct mob_treantAI  : public ScriptedAI
 {
     mob_treantAI (Creature *c) : ScriptedAI(c)
     {
@@ -104,7 +104,7 @@ float treant_pos[6][3] =
     {106.780159, 355.582581, -27.593357}
 };
 
-struct TRINITY_DLL_DECL boss_warp_splinterAI : public ScriptedAI
+struct boss_warp_splinterAI : public ScriptedAI
 {
     boss_warp_splinterAI(Creature *c) : ScriptedAI(c)
     {

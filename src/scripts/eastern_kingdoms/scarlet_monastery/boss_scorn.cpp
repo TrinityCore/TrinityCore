@@ -28,7 +28,7 @@ EndScriptData */
 #define SPELL_MINDFLAY                  17313
 #define SPELL_FROSTNOVA                 15531
 
-struct TRINITY_DLL_DECL boss_scornAI : public ScriptedAI
+struct boss_scornAI : public ScriptedAI
 {
     boss_scornAI(Creature *c) : ScriptedAI(c) {}
 

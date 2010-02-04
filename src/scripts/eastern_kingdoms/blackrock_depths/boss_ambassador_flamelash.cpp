@@ -28,7 +28,7 @@ enum Spells
     SPELL_FIREBLAST                                        = 15573
 };
 
-struct TRINITY_DLL_DECL boss_ambassador_flamelashAI : public ScriptedAI
+struct boss_ambassador_flamelashAI : public ScriptedAI
 {
     boss_ambassador_flamelashAI(Creature *c) : ScriptedAI(c) {}
 

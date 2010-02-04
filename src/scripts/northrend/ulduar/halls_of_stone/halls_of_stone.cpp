@@ -115,7 +115,7 @@ static Locations SpawnLocations[]=
     {960.748, 382.944, 208.374},
 };
 
-struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
+struct mob_tribuna_controllerAI : public ScriptedAI
 {
     mob_tribuna_controllerAI(Creature *c) : ScriptedAI(c)
     {
@@ -223,7 +223,7 @@ struct TRINITY_DLL_DECL mob_tribuna_controllerAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL npc_brann_hosAI : public npc_escortAI
+struct npc_brann_hosAI : public npc_escortAI
 {
     npc_brann_hosAI(Creature *c) : npc_escortAI(c)
     {

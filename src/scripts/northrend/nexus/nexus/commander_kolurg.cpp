@@ -23,7 +23,7 @@ update creature_template set scriptname = 'boss_commander_kolurg' where entry = 
 #define SAY_KILL                                           -1576025
 #define SAY_DEATH                                          -1576026
 
-struct TRINITY_DLL_DECL boss_commander_kolurgAI : public ScriptedAI
+struct boss_commander_kolurgAI : public ScriptedAI
 {
     boss_commander_kolurgAI(Creature *c) : ScriptedAI(c) {}
 

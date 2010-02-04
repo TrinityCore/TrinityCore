@@ -42,7 +42,7 @@ enum eEnums
     SPELL_ENRAGE            = 34970
 };
 
-struct TRINITY_DLL_DECL boss_ambassador_hellmawAI : public npc_escortAI
+struct boss_ambassador_hellmawAI : public npc_escortAI
 {
     boss_ambassador_hellmawAI(Creature* pCreature) : npc_escortAI(pCreature)
     {

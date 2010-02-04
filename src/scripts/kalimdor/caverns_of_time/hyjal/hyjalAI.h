@@ -153,7 +153,7 @@ static Yells ThrallQuotes[]=
     {DEATH, -1534017},
 };
 
-struct TRINITY_DLL_DECL hyjalAI : public npc_escortAI
+struct hyjalAI : public npc_escortAI
 {
     hyjalAI(Creature *c);
 

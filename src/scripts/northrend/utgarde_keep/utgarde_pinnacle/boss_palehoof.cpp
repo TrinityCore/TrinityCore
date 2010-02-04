@@ -68,7 +68,7 @@ enum Phase
     PHASE_NONE
 };
 
-struct TRINITY_DLL_DECL boss_palehoofAI : public ScriptedAI
+struct boss_palehoofAI : public ScriptedAI
 {
     boss_palehoofAI(Creature *c) : ScriptedAI(c)
     {
@@ -252,7 +252,7 @@ enum RavenousSpells
     SPELL_TERRIFYING_ROAR                       = 48144
 };
 
-struct TRINITY_DLL_DECL mob_ravenous_furbolgAI : public ScriptedAI
+struct mob_ravenous_furbolgAI : public ScriptedAI
 {
     mob_ravenous_furbolgAI(Creature *c) : ScriptedAI(c)
     {
@@ -358,7 +358,7 @@ enum FrenziedSpells
     SPELL_ENRAGE_2                              = 48142
 };
 
-struct TRINITY_DLL_DECL mob_frenzied_worgenAI : public ScriptedAI
+struct mob_frenzied_worgenAI : public ScriptedAI
 {
     mob_frenzied_worgenAI(Creature *c) : ScriptedAI(c)
     {
@@ -467,7 +467,7 @@ enum FerociousSpells
     SPELL_STOMP                                 = 48131
 };
 
-struct TRINITY_DLL_DECL mob_ferocious_rhinoAI : public ScriptedAI
+struct mob_ferocious_rhinoAI : public ScriptedAI
 {
     mob_ferocious_rhinoAI(Creature *c) : ScriptedAI(c)
     {
@@ -580,7 +580,7 @@ enum MassiveAdds
   CREATURE_JORMUNGAR_WORM                     = 27228
 };
 
-struct TRINITY_DLL_DECL mob_massive_jormungarAI : public ScriptedAI
+struct mob_massive_jormungarAI : public ScriptedAI
 {
     mob_massive_jormungarAI(Creature *c) : ScriptedAI(c)
     {
@@ -680,7 +680,7 @@ CreatureAI* GetAI_mob_massive_jormungar(Creature* pCreature)
 }
 
 
-struct TRINITY_DLL_DECL mob_palehoof_orbAI : public ScriptedAI
+struct mob_palehoof_orbAI : public ScriptedAI
 {
     mob_palehoof_orbAI(Creature *c) : ScriptedAI(c)
     {

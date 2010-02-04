@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_HEX               16708
 #define SPELL_CLEAVE            20691
 
-struct TRINITY_DLL_DECL boss_shadowvoshAI : public ScriptedAI
+struct boss_shadowvoshAI : public ScriptedAI
 {
     boss_shadowvoshAI(Creature *c) : ScriptedAI(c) {}
 

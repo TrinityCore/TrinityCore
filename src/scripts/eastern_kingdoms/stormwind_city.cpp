@@ -75,7 +75,7 @@ enum eBartleby
     QUEST_BEAT          = 1640
 };
 
-struct TRINITY_DLL_DECL npc_bartlebyAI : public ScriptedAI
+struct npc_bartlebyAI : public ScriptedAI
 {
     npc_bartlebyAI(Creature *c) : ScriptedAI(c)
     {
@@ -140,7 +140,7 @@ enum eDashel
     FACTION_HOSTILE             = 168
 };
 
-struct TRINITY_DLL_DECL npc_dashel_stonefistAI : public ScriptedAI
+struct npc_dashel_stonefistAI : public ScriptedAI
 {
     npc_dashel_stonefistAI(Creature *c) : ScriptedAI(c)
     {
@@ -262,7 +262,7 @@ enum eLordGregorLescovar
     QUEST_THE_ATTACK    = 434
 };
 
-struct TRINITY_DLL_DECL npc_lord_gregor_lescovarAI : public npc_escortAI
+struct npc_lord_gregor_lescovarAI : public npc_escortAI
 {
     npc_lord_gregor_lescovarAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
@@ -403,7 +403,7 @@ CreatureAI* GetAI_npc_lord_gregor_lescovar(Creature* pCreature)
 ## npc_marzon_silent_blade
 ######*/
 
-struct TRINITY_DLL_DECL npc_marzon_silent_bladeAI : public ScriptedAI
+struct npc_marzon_silent_bladeAI : public ScriptedAI
 {
     npc_marzon_silent_bladeAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -492,7 +492,7 @@ enum eTyrionSpybot
     NPC_LORD_GREGOR_LESCOVAR = 1754,
 };
 
-struct TRINITY_DLL_DECL npc_tyrion_spybotAI : public npc_escortAI
+struct npc_tyrion_spybotAI : public npc_escortAI
 {
     npc_tyrion_spybotAI(Creature* pCreature) : npc_escortAI(pCreature) {}
 

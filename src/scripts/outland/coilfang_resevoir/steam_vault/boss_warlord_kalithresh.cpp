@@ -40,7 +40,7 @@ EndScriptData */
 
 #define SPELL_WARLORDS_RAGE_PROC    36453
 
-struct TRINITY_DLL_DECL mob_naga_distillerAI : public ScriptedAI
+struct mob_naga_distillerAI : public ScriptedAI
 {
     mob_naga_distillerAI(Creature *c) : ScriptedAI(c)
     {
@@ -86,7 +86,7 @@ struct TRINITY_DLL_DECL mob_naga_distillerAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_warlord_kalithreshAI : public ScriptedAI
+struct boss_warlord_kalithreshAI : public ScriptedAI
 {
     boss_warlord_kalithreshAI(Creature *c) : ScriptedAI(c)
     {

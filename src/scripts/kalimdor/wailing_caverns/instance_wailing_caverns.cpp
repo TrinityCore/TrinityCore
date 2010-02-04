@@ -26,7 +26,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER   9
 
-struct TRINITY_DLL_DECL instance_wailing_caverns : public ScriptedInstance
+struct instance_wailing_caverns : public ScriptedInstance
 {
     instance_wailing_caverns(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

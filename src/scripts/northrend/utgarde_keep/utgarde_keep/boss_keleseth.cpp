@@ -61,7 +61,7 @@ float AttackLoc[3]={197.636, 194.046, 40.8164};
 
 bool ShatterFrostTomb; // needed for achievement: On The Rocks(1919)
 
-struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
+struct mob_frost_tombAI : public ScriptedAI
 {
     mob_frost_tombAI(Creature *c) : ScriptedAI(c)
     {
@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL mob_frost_tombAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
+struct boss_kelesethAI : public ScriptedAI
 {
     boss_kelesethAI(Creature *c) : ScriptedAI(c)
     {
@@ -229,7 +229,7 @@ struct TRINITY_DLL_DECL boss_kelesethAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
+struct mob_vrykul_skeletonAI : public ScriptedAI
 {
     mob_vrykul_skeletonAI(Creature *c) : ScriptedAI(c)
     {

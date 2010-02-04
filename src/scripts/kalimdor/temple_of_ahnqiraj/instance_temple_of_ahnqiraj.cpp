@@ -24,7 +24,7 @@ EndScriptData */
 #include "ScriptedPch.h"
 #include "temple_of_ahnqiraj.h"
 
-struct TRINITY_DLL_DECL instance_temple_of_ahnqiraj : public ScriptedInstance
+struct instance_temple_of_ahnqiraj : public ScriptedInstance
 {
     instance_temple_of_ahnqiraj(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

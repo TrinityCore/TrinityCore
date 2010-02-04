@@ -40,7 +40,7 @@ enum Yells
     SAY_SUMMON_3                          = -1578021
 };
 
-struct TRINITY_DLL_DECL boss_uromAI : public ScriptedAI
+struct boss_uromAI : public ScriptedAI
 {
     boss_uromAI(Creature *c) : ScriptedAI(c)
     {

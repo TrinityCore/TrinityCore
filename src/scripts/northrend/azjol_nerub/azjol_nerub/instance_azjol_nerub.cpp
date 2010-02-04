@@ -34,7 +34,7 @@ EndScriptData */
 2 - Anub'arak
 */
 
-struct TRINITY_DLL_DECL instance_azjol_nerub : public ScriptedInstance
+struct instance_azjol_nerub : public ScriptedInstance
 {
     instance_azjol_nerub(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

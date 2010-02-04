@@ -32,7 +32,7 @@ EndScriptData */
 #define SPELL_ERUPTION              19497
 #define SPELL_IMMOLATE              20294
 
-struct TRINITY_DLL_DECL boss_garrAI : public ScriptedAI
+struct boss_garrAI : public ScriptedAI
 {
     boss_garrAI(Creature *c) : ScriptedAI(c) {}
 
@@ -76,7 +76,7 @@ struct TRINITY_DLL_DECL boss_garrAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_fireswornAI : public ScriptedAI
+struct mob_fireswornAI : public ScriptedAI
 {
     mob_fireswornAI(Creature *c) : ScriptedAI(c) {}
 

@@ -38,7 +38,7 @@ enum eSpels
     SAY_AGGRO               = -1036001
 };
 
-struct TRINITY_DLL_DECL boss_mr_smiteAI : public ScriptedAI
+struct boss_mr_smiteAI : public ScriptedAI
 {
     boss_mr_smiteAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

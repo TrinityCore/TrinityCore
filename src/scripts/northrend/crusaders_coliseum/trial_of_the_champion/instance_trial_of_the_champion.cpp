@@ -28,7 +28,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER  4
 
-struct TRINITY_DLL_DECL instance_trial_of_the_champion : public ScriptedInstance
+struct instance_trial_of_the_champion : public ScriptedInstance
 {
     instance_trial_of_the_champion(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 

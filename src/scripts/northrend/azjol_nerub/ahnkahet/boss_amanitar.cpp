@@ -49,7 +49,7 @@ enum Creatures
 #define NPC_POISONOUS_MUSHROOM   30435
 };
 
-struct TRINITY_DLL_DECL boss_amanitarAI : public ScriptedAI
+struct boss_amanitarAI : public ScriptedAI
 {
     boss_amanitarAI(Creature *c) : ScriptedAI(c)
     {
@@ -158,7 +158,7 @@ struct TRINITY_DLL_DECL boss_amanitarAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
+struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
 {
     mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c)
     {

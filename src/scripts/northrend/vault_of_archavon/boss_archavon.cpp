@@ -35,7 +35,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define EVENT_SHIELD_CRUSH       6  //set = 30s cd
 #define EVENT_WHIRL              8  //set= 10s cd
 
-struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
+struct boss_archavonAI : public ScriptedAI
 {
     boss_archavonAI(Creature *c) : ScriptedAI(c)
     {
@@ -121,7 +121,7 @@ struct TRINITY_DLL_DECL boss_archavonAI : public ScriptedAI
 /*######
 ##  Mob Archavon Warder
 ######*/
-struct TRINITY_DLL_DECL mob_warderAI : public ScriptedAI //npc 32353
+struct mob_warderAI : public ScriptedAI //npc 32353
 {
     mob_warderAI(Creature *c) : ScriptedAI(c) {}
 

@@ -64,7 +64,7 @@ enum Yells
     SAY_SUMMON_ENERGY                           = -1608036
 };
 
-struct TRINITY_DLL_DECL boss_xevozzAI : public ScriptedAI
+struct boss_xevozzAI : public ScriptedAI
 {
     boss_xevozzAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -216,7 +216,7 @@ CreatureAI* GetAI_boss_xevozz(Creature* pCreature)
     return new boss_xevozzAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
+struct mob_ethereal_sphereAI : public ScriptedAI
 {
     mob_ethereal_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

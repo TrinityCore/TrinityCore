@@ -30,7 +30,7 @@
 #define SAY_ONAGGRO "The Legion's final conquest has begun! Once again the subjugation of this world is within our grasp. Let none survive!"
 #define SOUND_ONAGGRO 11022
 
-struct TRINITY_DLL_DECL boss_rage_winterchillAI : public hyjal_trashAI
+struct boss_rage_winterchillAI : public hyjal_trashAI
 {
     boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
     {

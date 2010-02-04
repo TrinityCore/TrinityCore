@@ -44,7 +44,7 @@ EndContentData */
 #define SPELL_AQUA_JET      13586
 #define SPELL_FROST_SHOCK   15089
 
-struct TRINITY_DLL_DECL mob_aquementasAI : public ScriptedAI
+struct mob_aquementasAI : public ScriptedAI
 {
     mob_aquementasAI(Creature *c) : ScriptedAI(c) {}
 
@@ -148,7 +148,7 @@ CreatureAI* GetAI_mob_aquementas(Creature* pCreature)
 #define WHISPER_CUSTODIAN_13    -1000162
 #define WHISPER_CUSTODIAN_14    -1000163
 
-struct TRINITY_DLL_DECL npc_custodian_of_timeAI : public npc_escortAI
+struct npc_custodian_of_timeAI : public npc_escortAI
 {
     npc_custodian_of_timeAI(Creature *c) : npc_escortAI(c) {}
 
@@ -357,7 +357,7 @@ enum e00X17
     SPAWN_SECOND_2          = 7805
 };
 
-struct TRINITY_DLL_DECL npc_OOX17AI : public npc_escortAI
+struct npc_OOX17AI : public npc_escortAI
 {
     npc_OOX17AI(Creature *c) : npc_escortAI(c) {}
 
@@ -453,7 +453,7 @@ enum eTooga
 
 const float m_afToWaterLoc[] = {-7032.664551, -4906.199219, -1.606446};
 
-struct TRINITY_DLL_DECL npc_toogaAI : public FollowerAI
+struct npc_toogaAI : public FollowerAI
 {
     npc_toogaAI(Creature* pCreature) : FollowerAI(pCreature) { }
 

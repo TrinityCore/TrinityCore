@@ -24,7 +24,7 @@
 #define SAY_SLAY -1
 */
 
-struct TRINITY_DLL_DECL boss_thorimAI : public BossAI
+struct boss_thorimAI : public BossAI
 {
     boss_thorimAI(Creature* pCreature) : BossAI(pCreature, TYPE_THORIM)
     {

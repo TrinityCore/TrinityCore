@@ -48,7 +48,7 @@ enum eRainspeaker
     FACTION_ESCORTEE_H                  = 775
 };
 
-struct TRINITY_DLL_DECL npc_injured_rainspeaker_oracleAI : public npc_escortAI
+struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
 {
     npc_injured_rainspeaker_oracleAI(Creature* c) : npc_escortAI(c) { c_guid = c->GetGUID(); }
 
@@ -269,7 +269,7 @@ bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint
 ## npc_geezle
 ######*/
 
-struct TRINITY_DLL_DECL npc_bushwhackerAI : public ScriptedAI
+struct npc_bushwhackerAI : public ScriptedAI
 {
     npc_bushwhackerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

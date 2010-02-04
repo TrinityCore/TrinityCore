@@ -105,7 +105,7 @@ static Location BrokenWP[]=
 
 const uint32 spawnEntries[4]= { 23523, 23318, 23524 };
 
-struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
+struct mob_ashtongue_channelerAI : public ScriptedAI
 {
     mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
 
@@ -119,7 +119,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_channelerAI : public ScriptedAI
     void UpdateAI(const uint32 diff) {}
 };
 
-struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
+struct mob_ashtongue_sorcererAI : public ScriptedAI
 {
     mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
 
@@ -162,7 +162,7 @@ struct TRINITY_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
+struct boss_shade_of_akamaAI : public ScriptedAI
 {
     boss_shade_of_akamaAI(Creature* c) : ScriptedAI(c), summons(m_creature)
     {
@@ -496,7 +496,7 @@ void mob_ashtongue_sorcererAI::JustDied(Unit* killer)
     else error_log("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
-struct TRINITY_DLL_DECL npc_akamaAI : public ScriptedAI
+struct npc_akamaAI : public ScriptedAI
 {
     npc_akamaAI(Creature* c) : ScriptedAI(c), summons(m_creature)
     {

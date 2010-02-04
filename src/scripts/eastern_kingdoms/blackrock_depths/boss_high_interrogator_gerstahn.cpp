@@ -31,7 +31,7 @@ enum Spells
     SPELL_SHADOWSHIELD                                     = 22417
 };
 
-struct TRINITY_DLL_DECL boss_high_interrogator_gerstahnAI : public ScriptedAI
+struct boss_high_interrogator_gerstahnAI : public ScriptedAI
 {
     boss_high_interrogator_gerstahnAI(Creature *c) : ScriptedAI(c) {}
 

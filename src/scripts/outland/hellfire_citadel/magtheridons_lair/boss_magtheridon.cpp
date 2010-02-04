@@ -88,7 +88,7 @@ static Yell RandomTaunt[]=
 
 typedef std::map<uint64, uint64> CubeMap;
 
-struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
+struct mob_abyssalAI : public ScriptedAI
 {
     mob_abyssalAI(Creature *c) : ScriptedAI(c)
     {
@@ -165,7 +165,7 @@ struct TRINITY_DLL_DECL mob_abyssalAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
+struct boss_magtheridonAI : public ScriptedAI
 {
     boss_magtheridonAI(Creature *c) : ScriptedAI(c)
     {
@@ -411,7 +411,7 @@ struct TRINITY_DLL_DECL boss_magtheridonAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_hellfire_channelerAI : public ScriptedAI
+struct mob_hellfire_channelerAI : public ScriptedAI
 {
     mob_hellfire_channelerAI(Creature *c) : ScriptedAI(c)
     {

@@ -67,7 +67,7 @@ enum CombatPhase
     SKADI
 };
 
-struct TRINITY_DLL_DECL boss_skadiAI : public ScriptedAI
+struct boss_skadiAI : public ScriptedAI
 {
     boss_skadiAI(Creature *c) : ScriptedAI(c)
     {

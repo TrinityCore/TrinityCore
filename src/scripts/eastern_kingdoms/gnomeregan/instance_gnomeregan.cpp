@@ -21,7 +21,7 @@
 
 #define    MAX_ENCOUNTER  1
 
-struct TRINITY_DLL_DECL instance_gnomeregan : public ScriptedInstance
+struct instance_gnomeregan : public ScriptedInstance
 {
     instance_gnomeregan(Map* pMap) : ScriptedInstance(pMap)
     {

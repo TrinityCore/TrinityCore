@@ -24,7 +24,7 @@ enum Spells
     SPELL_NET                                              = 6533
 };
 
-struct TRINITY_DLL_DECL boss_gelihastAI : public ScriptedAI
+struct boss_gelihastAI : public ScriptedAI
 {
     boss_gelihastAI(Creature *c) : ScriptedAI(c)
     {

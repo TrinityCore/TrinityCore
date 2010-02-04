@@ -25,7 +25,7 @@
 #include "InstanceSaveMgr.h"
 #include "DBCEnums.h"
 
-class TRINITY_DLL_DECL MapInstanced : public Map
+class MapInstanced : public Map
 {
     friend class MapManager;
     public:

@@ -26,7 +26,7 @@ uint32 entry_search[3] =
     186611
 };
 
-struct TRINITY_DLL_DECL npc_dragonflayer_forge_masterAI : public ScriptedAI
+struct npc_dragonflayer_forge_masterAI : public ScriptedAI
 {
     npc_dragonflayer_forge_masterAI(Creature *c) : ScriptedAI(c)
     {

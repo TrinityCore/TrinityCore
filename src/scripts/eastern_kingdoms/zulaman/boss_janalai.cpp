@@ -100,7 +100,7 @@ float hatcherway[2][5][3] =
     }
 };
 
-struct TRINITY_DLL_DECL boss_janalaiAI : public ScriptedAI
+struct boss_janalaiAI : public ScriptedAI
 {
     boss_janalaiAI(Creature *c) : ScriptedAI(c)
     {
@@ -434,7 +434,7 @@ CreatureAI* GetAI_boss_janalaiAI(Creature* pCreature)
     return new boss_janalaiAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_janalai_firebombAI : public ScriptedAI
+struct mob_janalai_firebombAI : public ScriptedAI
 {
     mob_janalai_firebombAI(Creature *c) : ScriptedAI(c){}
 
@@ -460,7 +460,7 @@ CreatureAI* GetAI_mob_janalai_firebombAI(Creature* pCreature)
     return new mob_janalai_firebombAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_amanishi_hatcherAI : public ScriptedAI
+struct mob_amanishi_hatcherAI : public ScriptedAI
 {
     mob_amanishi_hatcherAI(Creature *c) : ScriptedAI(c)
     {
@@ -583,7 +583,7 @@ CreatureAI* GetAI_mob_amanishi_hatcherAI(Creature* pCreature)
     return new mob_amanishi_hatcherAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_hatchlingAI : public ScriptedAI
+struct mob_hatchlingAI : public ScriptedAI
 {
     mob_hatchlingAI(Creature *c) : ScriptedAI(c)
     {
@@ -632,7 +632,7 @@ CreatureAI* GetAI_mob_hatchlingAI(Creature* pCreature)
     return new mob_hatchlingAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_eggAI : public ScriptedAI
+struct mob_eggAI : public ScriptedAI
 {
     mob_eggAI(Creature *c) : ScriptedAI(c){}
     void Reset() {}

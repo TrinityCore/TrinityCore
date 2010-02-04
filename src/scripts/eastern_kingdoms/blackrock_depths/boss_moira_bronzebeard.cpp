@@ -33,7 +33,7 @@ enum Spells
     SPELL_SMITE                                            = 10934
 };
 
-struct TRINITY_DLL_DECL boss_moira_bronzebeardAI : public ScriptedAI
+struct boss_moira_bronzebeardAI : public ScriptedAI
 {
     boss_moira_bronzebeardAI(Creature *c) : ScriptedAI(c) {}
 

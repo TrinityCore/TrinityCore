@@ -41,7 +41,7 @@ enum eSays
     EMOTE_TRANSFORM             =   -1604017
 };
 
-struct TRINITY_DLL_DECL boss_moorabiAI : public ScriptedAI
+struct boss_moorabiAI : public ScriptedAI
 {
     boss_moorabiAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

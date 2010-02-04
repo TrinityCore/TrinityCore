@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_IMMOLATE             20294                    // Old ID  was 15570
 #define SPELL_VEILOFSHADOW         17820
 
-struct TRINITY_DLL_DECL boss_lordalexeibarovAI : public ScriptedAI
+struct boss_lordalexeibarovAI : public ScriptedAI
 {
     boss_lordalexeibarovAI(Creature *c) : ScriptedAI(c) {}
 

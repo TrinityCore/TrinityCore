@@ -39,7 +39,7 @@ EndScriptData */
 4 - Amanitar (Heroic only)
 */
 
-struct TRINITY_DLL_DECL instance_ahnkahet : public ScriptedInstance
+struct instance_ahnkahet : public ScriptedInstance
 {
     instance_ahnkahet(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

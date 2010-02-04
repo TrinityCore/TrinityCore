@@ -29,7 +29,7 @@ enum Spells
     SPELL_WARSTOMP                                         = 24375
 };
 
-struct TRINITY_DLL_DECL boss_magmusAI : public ScriptedAI
+struct boss_magmusAI : public ScriptedAI
 {
     boss_magmusAI(Creature *c) : ScriptedAI(c) {}
 

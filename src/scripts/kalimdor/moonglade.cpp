@@ -257,7 +257,7 @@ float Clintar_spirit_WP[41][5] =
 #define CLINTAR_SPIRIT_SAY_GET_THREE -1000291
 #define CLINTAR_SPIRIT_SAY_GET_FINAL -1000292
 
-struct TRINITY_DLL_DECL npc_clintar_spiritAI : public npc_escortAI
+struct npc_clintar_spiritAI : public npc_escortAI
 {
 public:
     npc_clintar_spiritAI(Creature *c) : npc_escortAI(c) {}

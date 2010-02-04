@@ -51,7 +51,7 @@ EndScriptData */
 
 #define GCD_CAST    1
 
-struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
+struct molten_flameAI : public NullCreatureAI
 {
     molten_flameAI(Creature *c) : NullCreatureAI(c) {}
 
@@ -65,7 +65,7 @@ struct TRINITY_DLL_DECL molten_flameAI : public NullCreatureAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
+struct boss_supremusAI : public ScriptedAI
 {
     boss_supremusAI(Creature *c) : ScriptedAI(c), summons(m_creature)
     {
@@ -225,7 +225,7 @@ struct TRINITY_DLL_DECL boss_supremusAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL npc_volcanoAI : public Scripted_NoMovementAI
+struct npc_volcanoAI : public Scripted_NoMovementAI
 {
     npc_volcanoAI(Creature *c) : Scripted_NoMovementAI(c) {}
 

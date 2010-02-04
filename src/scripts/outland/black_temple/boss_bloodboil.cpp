@@ -53,7 +53,7 @@ EndScriptData */
 
 //This is used to sort the players by distance in preparation for the Bloodboil cast.
 
-struct TRINITY_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
+struct boss_gurtogg_bloodboilAI : public ScriptedAI
 {
     boss_gurtogg_bloodboilAI(Creature *c) : ScriptedAI(c)
     {

@@ -49,7 +49,7 @@ EndScriptData */
 
 #define CREATURE_FEL_CRYSTAL            24722
 
-struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
+struct boss_selin_fireheartAI : public ScriptedAI
 {
     boss_selin_fireheartAI(Creature* c) : ScriptedAI(c)
     {
@@ -96,7 +96,7 @@ struct TRINITY_DLL_DECL boss_selin_fireheartAI : public ScriptedAI
                 if (pUnit)
                 {
                     if (!pUnit->isAlive())
-                        CAST_CRE(pUnit)->Respawn();      // Let MaNGOS handle setting death state, etc.
+                        CAST_CRE(pUnit)->Respawn();      // Let the core handle setting death state, etc.
 
                     // Only need to set unselectable flag. You can't attack unselectable units so non_attackable flag is not necessary here.
                     pUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -310,7 +310,7 @@ CreatureAI* GetAI_boss_selin_fireheart(Creature* pCreature)
     return new boss_selin_fireheartAI (pCreature);
 };
 
-struct TRINITY_DLL_DECL mob_fel_crystalAI : public ScriptedAI
+struct mob_fel_crystalAI : public ScriptedAI
 {
     mob_fel_crystalAI(Creature *c) : ScriptedAI(c) {}
 

@@ -75,7 +75,7 @@ EndScriptData */
 #define SPELL_RAISE_DEAD5   17479
 #define SPELL_RAISE_DEAD6   17480
 
-struct TRINITY_DLL_DECL boss_baron_rivendareAI : public ScriptedAI
+struct boss_baron_rivendareAI : public ScriptedAI
 {
     boss_baron_rivendareAI(Creature *c) : ScriptedAI(c)
     {

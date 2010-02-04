@@ -41,7 +41,7 @@ EndScriptData */
 11 - Nightbane
 */
 
-struct TRINITY_DLL_DECL instance_karazhan : public ScriptedInstance
+struct instance_karazhan : public ScriptedInstance
 {
     instance_karazhan(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 

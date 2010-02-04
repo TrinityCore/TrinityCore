@@ -57,7 +57,7 @@ enum eEnums
     INTERVAL_SWITCH                 = 6
 };
 
-struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
+struct boss_vexallusAI : public ScriptedAI
 {
     boss_vexallusAI(Creature *c) : ScriptedAI(c)
     {
@@ -142,7 +142,7 @@ struct  TRINITY_DLL_DECL boss_vexallusAI : public ScriptedAI
                 else
                     DoCast(m_creature, SPELL_SUMMON_PURE_ENERGY, false);
 
-                //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in Mangos
+                //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in the core
                 m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                 if (IsHeroic())
@@ -185,7 +185,7 @@ CreatureAI* GetAI_boss_vexallus(Creature* pCreature)
     return new boss_vexallusAI (pCreature);
 };
 
-struct  TRINITY_DLL_DECL mob_pure_energyAI : public ScriptedAI
+struct mob_pure_energyAI : public ScriptedAI
 {
     mob_pure_energyAI(Creature *c) : ScriptedAI(c) {}
 

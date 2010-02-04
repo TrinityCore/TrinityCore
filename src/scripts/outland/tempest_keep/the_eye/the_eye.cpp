@@ -31,7 +31,7 @@ EndContentData */
 #define SPELL_COUNTERCHARGE     35035
 #define SPELL_KNOCKAWAY         22893
 
-struct TRINITY_DLL_DECL mob_crystalcore_devastatorAI : public ScriptedAI
+struct mob_crystalcore_devastatorAI : public ScriptedAI
 {
     mob_crystalcore_devastatorAI(Creature *c) : ScriptedAI(c) {}
 

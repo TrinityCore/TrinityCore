@@ -29,7 +29,7 @@ EndScriptData */
 
  #define C_MINDLESS_UNDEAD   11030
 
-struct TRINITY_DLL_DECL boss_ramstein_the_gorgerAI : public ScriptedAI
+struct boss_ramstein_the_gorgerAI : public ScriptedAI
 {
     boss_ramstein_the_gorgerAI(Creature *c) : ScriptedAI(c)
     {

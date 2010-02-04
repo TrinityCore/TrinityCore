@@ -14,7 +14,7 @@
 #define ENTRY_KING_YMIRON_DOOR             192174
 #define ENTRY_GORK_PALEHOOF_SPHERE         188593
 
-struct TRINITY_DLL_DECL instance_pinnacle : public ScriptedInstance
+struct instance_pinnacle : public ScriptedInstance
 {
     instance_pinnacle(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

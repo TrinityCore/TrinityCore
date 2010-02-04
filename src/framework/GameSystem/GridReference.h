@@ -27,7 +27,7 @@ template<class OBJECT>
 class GridRefManager;
 
 template<class OBJECT>
-class TRINITY_DLL_SPEC GridReference : public Reference<GridRefManager<OBJECT>, OBJECT>
+class GridReference : public Reference<GridRefManager<OBJECT>, OBJECT>
 {
     protected:
         void targetObjectBuildLink()

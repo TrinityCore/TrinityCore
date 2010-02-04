@@ -56,7 +56,7 @@ enum CombatPhases
     COMBAT
 };
 
-struct TRINITY_DLL_DECL boss_epochAI : public ScriptedAI
+struct boss_epochAI : public ScriptedAI
 {
     boss_epochAI(Creature *c) : ScriptedAI(c)
     {

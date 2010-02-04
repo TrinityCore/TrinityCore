@@ -48,7 +48,7 @@ EndScriptData */
 #define ADD_4Z 104.732
 #define ADD_4O 3.16
 
-struct TRINITY_DLL_DECL boss_darkmaster_gandlingAI : public ScriptedAI
+struct boss_darkmaster_gandlingAI : public ScriptedAI
 {
     boss_darkmaster_gandlingAI(Creature *c) : ScriptedAI(c)
     {

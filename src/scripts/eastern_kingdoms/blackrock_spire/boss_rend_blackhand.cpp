@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_CLEAVE                    20691
 #define SPELL_THUNDERCLAP               23931               //Not sure if he cast this spell
 
-struct TRINITY_DLL_DECL boss_rend_blackhandAI : public ScriptedAI
+struct boss_rend_blackhandAI : public ScriptedAI
 {
     boss_rend_blackhandAI(Creature *c) : ScriptedAI(c) {}
 

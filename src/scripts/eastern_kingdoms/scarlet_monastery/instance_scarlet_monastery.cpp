@@ -31,7 +31,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER 2
 
-struct TRINITY_DLL_DECL instance_scarlet_monastery : public ScriptedInstance
+struct instance_scarlet_monastery : public ScriptedInstance
 {
     instance_scarlet_monastery(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

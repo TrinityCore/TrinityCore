@@ -88,7 +88,7 @@ float NalorakkWay[8][3] =
 #define YELL_SHIFTEDTOBEAR      "You call on da beast, you gonna get more dan you bargain for!"
 #define SOUND_YELL_TOBEAR       12072
 
-struct TRINITY_DLL_DECL boss_nalorakkAI : public ScriptedAI
+struct boss_nalorakkAI : public ScriptedAI
 {
     boss_nalorakkAI(Creature *c) : ScriptedAI(c)
     {

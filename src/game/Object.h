@@ -119,7 +119,7 @@ class Unit;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
-class TRINITY_DLL_SPEC Object
+class Object
 {
     public:
         virtual ~Object ( );
@@ -361,7 +361,7 @@ class TRINITY_DLL_SPEC Object
         Object& operator=(Object const&);                   // prevent generation assigment operator
 };
 
-struct TRINITY_DLL_SPEC Position
+struct Position
 {
     float m_positionX;
     float m_positionY;
@@ -457,7 +457,7 @@ class GridObject
         GridReference<T> m_gridRef;
 };
 
-class TRINITY_DLL_SPEC WorldObject : public Object, public WorldLocation
+class WorldObject : public Object, public WorldLocation
 {
     public:
         virtual ~WorldObject();

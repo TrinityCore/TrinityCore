@@ -35,7 +35,7 @@ enum eEnums
     SPELL_ARCANEBUBBLE          = 9438,
 };
 
-struct TRINITY_DLL_DECL boss_arcanist_doanAI : public ScriptedAI
+struct boss_arcanist_doanAI : public ScriptedAI
 {
     boss_arcanist_doanAI(Creature *c) : ScriptedAI(c) {}
 

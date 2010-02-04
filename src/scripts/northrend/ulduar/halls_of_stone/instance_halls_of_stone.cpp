@@ -10,7 +10,7 @@
 3- Sjonnir The Ironshaper
 */
 
-struct TRINITY_DLL_DECL instance_halls_of_stone : public ScriptedInstance
+struct instance_halls_of_stone : public ScriptedInstance
 {
     instance_halls_of_stone(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

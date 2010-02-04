@@ -79,7 +79,7 @@ static Locations RitualChannelerLocations[]=
     {291.39, -350.89, 90.54}
 };
 
-struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
+struct boss_svalaAI : public ScriptedAI
 {
     boss_svalaAI(Creature *c) : ScriptedAI(c)
     {
@@ -184,7 +184,7 @@ struct TRINITY_DLL_DECL boss_svalaAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_ritual_channelerAI : public Scripted_NoMovementAI
+struct mob_ritual_channelerAI : public Scripted_NoMovementAI
 {
     mob_ritual_channelerAI(Creature *c) :Scripted_NoMovementAI(c)
     {
@@ -206,7 +206,7 @@ struct TRINITY_DLL_DECL mob_ritual_channelerAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_svala_sorrowgraveAI : public ScriptedAI
+struct boss_svala_sorrowgraveAI : public ScriptedAI
 {
     boss_svala_sorrowgraveAI(Creature *c) : ScriptedAI(c)
     {

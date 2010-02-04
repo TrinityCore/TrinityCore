@@ -49,7 +49,7 @@ EndScriptData */
 2 - Ingvar the Plunderer
 */
 
-struct TRINITY_DLL_DECL instance_utgarde_keep : public ScriptedInstance
+struct instance_utgarde_keep : public ScriptedInstance
 {
     instance_utgarde_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

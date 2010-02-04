@@ -109,7 +109,7 @@ bool IsEncounterComplete(ScriptedInstance* pInstance, Creature* m_creature)
     return true;
 }
 
-struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
+struct boss_steelbreakerAI : public ScriptedAI
 {
     boss_steelbreakerAI(Creature *c) : ScriptedAI(c)
     {
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL boss_steelbreakerAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
+struct boss_runemaster_molgeimAI : public ScriptedAI
 {
     boss_runemaster_molgeimAI(Creature *c) : ScriptedAI(c)
     {
@@ -339,7 +339,7 @@ struct TRINITY_DLL_DECL boss_runemaster_molgeimAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_lightning_elementalAI : public ScriptedAI
+struct mob_lightning_elementalAI : public ScriptedAI
 {
     mob_lightning_elementalAI(Creature *c) : ScriptedAI(c)
     {
@@ -371,7 +371,7 @@ struct TRINITY_DLL_DECL mob_lightning_elementalAI : public ScriptedAI
 
 };
 
-struct TRINITY_DLL_DECL mob_rune_of_summoningAI : public ScriptedAI
+struct mob_rune_of_summoningAI : public ScriptedAI
 {
     mob_rune_of_summoningAI(Creature *c) : ScriptedAI(c)
     {
@@ -385,7 +385,7 @@ struct TRINITY_DLL_DECL mob_rune_of_summoningAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_stormcaller_brundirAI : public ScriptedAI
+struct boss_stormcaller_brundirAI : public ScriptedAI
 {
     boss_stormcaller_brundirAI(Creature *c) : ScriptedAI(c)
     {

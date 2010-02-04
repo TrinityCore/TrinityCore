@@ -25,7 +25,7 @@ enum Spells
     SPELL_VOID_STRIKE                 = 60590
 };
 
-struct TRINITY_DLL_DECL boss_infiniteAI : public ScriptedAI
+struct boss_infiniteAI : public ScriptedAI
 {
     boss_infiniteAI(Creature *c) : ScriptedAI(c)
     {

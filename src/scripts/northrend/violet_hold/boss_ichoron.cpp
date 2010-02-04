@@ -79,7 +79,7 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
     {1935.50, 796.224, 52.492, 4.224},
 };
 
-struct TRINITY_DLL_DECL boss_ichoronAI : public ScriptedAI
+struct boss_ichoronAI : public ScriptedAI
 {
     boss_ichoronAI(Creature* pCreature) : ScriptedAI(pCreature), m_waterElements(pCreature)
     {
@@ -312,7 +312,7 @@ CreatureAI* GetAI_boss_ichoron(Creature* pCreature)
     return new boss_ichoronAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
+struct mob_ichor_globuleAI : public ScriptedAI
 {
     mob_ichor_globuleAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

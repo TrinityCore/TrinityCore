@@ -31,7 +31,7 @@ EndScriptData */
 
 #define SPELL_DIRTMOUND_PASSIVE 26092
 
-struct TRINITY_DLL_DECL boss_ouroAI : public ScriptedAI
+struct boss_ouroAI : public ScriptedAI
 {
     boss_ouroAI(Creature *c) : ScriptedAI(c) {}
 

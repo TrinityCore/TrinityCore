@@ -79,7 +79,7 @@ enum eEnums
 ## boss_bjarngrim
 ######*/
 
-struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
+struct boss_bjarngrimAI : public ScriptedAI
 {
     boss_bjarngrimAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
@@ -179,7 +179,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
             m_pInstance->SetData(TYPE_BJARNGRIM, DONE);
     }
 
-    //TODO: remove when removal is done by mangos
+    //TODO: remove when removal is done by the core
     void DoRemoveStanceAura(uint8 uiStance)
     {
         switch(uiStance)
@@ -343,7 +343,7 @@ struct TRINITY_DLL_DECL boss_bjarngrimAI : public ScriptedAI
 ## mob_stormforged_lieutenant
 ######*/
 
-struct TRINITY_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
+struct mob_stormforged_lieutenantAI : public ScriptedAI
 {
     mob_stormforged_lieutenantAI(Creature *pCreature) : ScriptedAI(pCreature)
     {

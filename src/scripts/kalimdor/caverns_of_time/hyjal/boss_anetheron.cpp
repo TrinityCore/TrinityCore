@@ -36,7 +36,7 @@
 #define SAY_ONAGGRO "You are defenders of a doomed world! Flee here, and perhaps you will prolong your pathetic lives!"
 #define SOUND_ONAGGRO 10977
 
-struct TRINITY_DLL_DECL boss_anetheronAI : public hyjal_trashAI
+struct boss_anetheronAI : public hyjal_trashAI
 {
     boss_anetheronAI(Creature *c) : hyjal_trashAI(c)
     {
@@ -219,7 +219,7 @@ CreatureAI* GetAI_boss_anetheron(Creature* pCreature)
 #define SPELL_IMMOLATION     31303
 #define SPELL_INFERNO_EFFECT 31302
 
-struct TRINITY_DLL_DECL mob_towering_infernalAI : public ScriptedAI
+struct mob_towering_infernalAI : public ScriptedAI
 {
     mob_towering_infernalAI(Creature *c) : ScriptedAI(c)
     {

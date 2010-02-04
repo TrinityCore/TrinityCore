@@ -51,7 +51,7 @@ enum Creatures
     NPC_RAPTOR_2                                           = 26628
 };
 
-struct TRINITY_DLL_DECL boss_dredAI : public ScriptedAI
+struct boss_dredAI : public ScriptedAI
 {
     boss_dredAI(Creature *c) : ScriptedAI(c)
     {
@@ -157,7 +157,7 @@ CreatureAI* GetAI_boss_dred(Creature* pCreature)
     return new boss_dredAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_drakkari_gutripperAI : public ScriptedAI
+struct npc_drakkari_gutripperAI : public ScriptedAI
 {
     npc_drakkari_gutripperAI(Creature *c) : ScriptedAI(c)
     {
@@ -205,7 +205,7 @@ CreatureAI* GetAI_npc_drakkari_gutripper(Creature* pCreature)
     return new npc_drakkari_gutripperAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_drakkari_scytheclawAI : public ScriptedAI
+struct npc_drakkari_scytheclawAI : public ScriptedAI
 {
     npc_drakkari_scytheclawAI(Creature *c) : ScriptedAI(c)
     {

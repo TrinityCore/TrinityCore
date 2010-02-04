@@ -61,7 +61,7 @@ float RiftLocation[6][3]=
     {651.72, -297.44, -9.37}
 };
 
-struct TRINITY_DLL_DECL boss_anomalusAI : public ScriptedAI
+struct boss_anomalusAI : public ScriptedAI
 {
     boss_anomalusAI(Creature *c) : ScriptedAI(c)
     {
@@ -228,7 +228,7 @@ CreatureAI* GetAI_boss_anomalus(Creature* pCreature)
     return new boss_anomalusAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_chaotic_riftAI : public Scripted_NoMovementAI
+struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 {
     mob_chaotic_riftAI(Creature *c) : Scripted_NoMovementAI(c)
     {

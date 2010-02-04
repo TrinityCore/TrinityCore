@@ -69,7 +69,7 @@ const float PORTAL_Z                    = 17.005f;
                             // x,          y,      z,         o
 static float SolarianPos[4] = {432.909, -373.424, 17.9608, 1.06421};
 
-struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
+struct boss_high_astromancer_solarianAI : public ScriptedAI
 {
     boss_high_astromancer_solarianAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
@@ -373,7 +373,7 @@ struct TRINITY_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_solarium_priestAI : public ScriptedAI
+struct mob_solarium_priestAI : public ScriptedAI
 {
     mob_solarium_priestAI(Creature *c) : ScriptedAI(c)
     {

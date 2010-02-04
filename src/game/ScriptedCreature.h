@@ -40,7 +40,7 @@ class SummonList : public std::list<uint64>
         Creature *m_creature;
 };
 
-struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
+struct ScriptedAI : public CreatureAI
 {
     explicit ScriptedAI(Creature* pCreature);
     virtual ~ScriptedAI() {}
@@ -233,7 +233,7 @@ struct TRINITY_DLL_DECL ScriptedAI : public CreatureAI
         Difficulty m_difficulty;
 };
 
-struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
+struct Scripted_NoMovementAI : public ScriptedAI
 {
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
     virtual ~Scripted_NoMovementAI() {}
@@ -242,7 +242,7 @@ struct TRINITY_DLL_DECL Scripted_NoMovementAI : public ScriptedAI
     void AttackStart(Unit* who);
 };
 
-struct TRINITY_DLL_DECL BossAI : public ScriptedAI
+struct BossAI : public ScriptedAI
 {
     BossAI(Creature *c, uint32 id);
     virtual ~BossAI() {}

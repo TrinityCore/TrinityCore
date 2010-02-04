@@ -33,7 +33,7 @@ enum eDrakuruShackles
     NPC_RAGECLAW               = 29686
 };
 
-struct TRINITY_DLL_DECL npc_drakuru_shacklesAI : public ScriptedAI
+struct npc_drakuru_shacklesAI : public ScriptedAI
 {
     npc_drakuru_shacklesAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -108,7 +108,7 @@ const char * SAY_RAGECLAW_3 =      "No more mister nice wolvar!";
 
 #define SAY_RAGECLAW RAND(SAY_RAGECLAW_1,SAY_RAGECLAW_2,SAY_RAGECLAW_3)
 
-struct TRINITY_DLL_DECL npc_captured_rageclawAI : public ScriptedAI
+struct npc_captured_rageclawAI : public ScriptedAI
 {
     npc_captured_rageclawAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -236,7 +236,7 @@ const Position SpawnPosition[] =
   {5762.054199, -2954.385010, 273.826955, 5.108289}  //yggdras
 };
 
-struct TRINITY_DLL_DECL npc_gurgthockAI : public ScriptedAI
+struct npc_gurgthockAI : public ScriptedAI
 {
     npc_gurgthockAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -439,7 +439,7 @@ enum eOrinokoTuskbreaker
     SAY_CALL_FOR_HELP       = -1571032
 };
 
-struct TRINITY_DLL_DECL npc_orinoko_tuskbreakerAI : public ScriptedAI
+struct npc_orinoko_tuskbreakerAI : public ScriptedAI
 {
     npc_orinoko_tuskbreakerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -574,7 +574,7 @@ enum eKorrakBloodrager
     SPELL_ENRAGE   = 42745
 };
 
-struct TRINITY_DLL_DECL npc_korrak_bloodragerAI : public npc_escortAI
+struct npc_korrak_bloodragerAI : public npc_escortAI
 {
     npc_korrak_bloodragerAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
@@ -678,7 +678,7 @@ enum eYggdras
     SPELL_JORMUNGAR_SPAWN   = 55859
 };
 
-struct TRINITY_DLL_DECL npc_yggdrasAI : public ScriptedAI
+struct npc_yggdrasAI : public ScriptedAI
 {
     npc_yggdrasAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -760,7 +760,7 @@ enum eStinkbeard
 ## npc_stinkbeard
 ####*/
 
-struct TRINITY_DLL_DECL npc_stinkbeardAI : public npc_escortAI
+struct npc_stinkbeardAI : public npc_escortAI
 {
     npc_stinkbeardAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
@@ -867,7 +867,7 @@ CreatureAI* GetAI_npc_stinkbeard(Creature* pCreature)
 ## npc_released_offspring_harkoa
 ####*/
 
-struct TRINITY_DLL_DECL npc_released_offspring_harkoaAI : public ScriptedAI
+struct npc_released_offspring_harkoaAI : public ScriptedAI
 {
     npc_released_offspring_harkoaAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 

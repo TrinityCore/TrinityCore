@@ -50,7 +50,7 @@ This is the timed gauntlet - waves of non-elite spiders
 #define SPELL_LEECH_POISON_H    59417
 #define SPELL_WEB_GRAB_H        59421
 
-struct TRINITY_DLL_DECL boss_hadronoxAI : public ScriptedAI
+struct boss_hadronoxAI : public ScriptedAI
 {
     boss_hadronoxAI(Creature* c) : ScriptedAI(c)
     {

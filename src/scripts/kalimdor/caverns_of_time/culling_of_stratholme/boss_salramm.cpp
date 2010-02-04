@@ -59,7 +59,7 @@ enum Yells
     SAY_SUMMON_GHOULS_2                      = -1595044
 };
 
-struct TRINITY_DLL_DECL boss_salrammAI : public ScriptedAI
+struct boss_salrammAI : public ScriptedAI
 {
     boss_salrammAI(Creature *c) : ScriptedAI(c)
     {

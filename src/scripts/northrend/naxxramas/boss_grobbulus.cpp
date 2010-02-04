@@ -32,7 +32,7 @@
 
 #define MOB_FALLOUT_SLIME   16290
 
-struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
+struct boss_grobbulusAI : public BossAI
 {
     boss_grobbulusAI(Creature *c) : BossAI(c, BOSS_GROBBULUS)
     {
@@ -92,7 +92,7 @@ struct TRINITY_DLL_DECL boss_grobbulusAI : public BossAI
     }
 };
 
-struct TRINITY_DLL_DECL npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
+struct npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
 {
     npc_grobbulus_poison_cloudAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {

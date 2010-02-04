@@ -97,7 +97,7 @@ template<class VISITOR, class OBJECT_TYPES> void VisitorHelper(VISITOR &v, TypeM
 }
 
 template<class VISITOR, class TYPE_CONTAINER>
-class TRINITY_DLL_DECL TypeContainerVisitor
+class TypeContainerVisitor
 {
     public:
         TypeContainerVisitor(VISITOR &v) : i_visitor(v) {}

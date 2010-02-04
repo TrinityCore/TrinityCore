@@ -45,7 +45,7 @@ EndScriptData */
 #define SPELL_CAPTURESOUL               32966
 #define SPELL_TWISTEDREFLECTION         21063
 
-struct TRINITY_DLL_DECL boss_doomlordkazzakAI : public ScriptedAI
+struct boss_doomlordkazzakAI : public ScriptedAI
 {
     boss_doomlordkazzakAI(Creature *c) : ScriptedAI(c) {}
 
