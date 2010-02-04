@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: GO_Scripts
 SD%Complete: 100
-SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843,12982, 2936
+SDComment: Quest support: 4285,4287,4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089,12843,12982, 2936. Soulwell
 SDCategory: Game Objects
 EndScriptData */
 
@@ -46,6 +46,7 @@ go_table_theka
 EndContentData */
 
 #include "ScriptedPch.h"
+#include "SpellId.h"
 
 /*######
 ## go_cat_figurine
@@ -677,8 +678,8 @@ bool GOHello_go_table_theka(Player* pPlayer, GameObject* pGO)
 }
 
 /*######
- * ## go_inconspicuous_landmark
- * ######*/
+## go_inconspicuous_landmark
+######*/
 
 enum eInconspicuousLandmark
 {
@@ -693,6 +694,45 @@ bool GOHello_go_inconspicuous_landmark(Player *pPlayer, GameObject* pGO)
 
     pPlayer->CastSpell(pPlayer,SPELL_SUMMON_PIRATES_TREASURE_AND_TRIGGER_MOB,true);
 
+    return true;
+}
+
+/*######
+## go_soulwell
+######*/
+
+bool GOHello_go_soulwell(Player *pPlayer, GameObject* pGO)
+{
+    Unit *caster = pGO->GetOwner(false);
+    if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
+        return true;
+
+    if (!pPlayer->IsInSameRaidWith(static_cast<Player *>(caster)))
+        return true;
+
+    // Repeating this at every use is ugly and inefficient. But as long as we don't have proper  
+    // GO scripting with at least On Create and On Update events, the other options are no less 
+    // ugly and hacky.
+    uint32 newSpell = 0;
+    if (pGO->GetEntry() == 193169)                                  // Soulwell for rank 2
+    {
+        if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18693))      // Improved Healthstone rank 2
+            newSpell = SPELL_CREATE_FEL_HEALTHSTONE_58898;
+        else if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18692)) // Improved Healthstone rank 1
+            newSpell = SPELL_CREATE_FEL_HEALTHSTONE_58896;
+        else newSpell = SPELL_CREATE_FEL_HEALTHSTONE_58890;
+    }
+    else if (pGO->GetEntry() == 181621)                             // Soulwell for rank 1
+    {
+        if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18693))      // Improved Healthstone rank 2
+            newSpell = SPELL_CREATE_MASTER_HEALTHSTONE_34150;
+        else if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18692)) // Improved Healthstone rank 1
+            newSpell = SPELL_CREATE_MASTER_HEALTHSTONE_34149;
+        else newSpell = SPELL_CREATE_MASTER_HEALTHSTONE_34130;
+    }
+
+    pGO->AddUse();
+    pPlayer->CastSpell(pPlayer, newSpell, true);
     return true;
 }
 
@@ -845,5 +885,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_inconspicuous_landmark";
     newscript->pGOHello =           &GOHello_go_inconspicuous_landmark;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_soulwell";
+    newscript->pGOHello =           &GOHello_go_soulwell;
     newscript->RegisterSelf();
 }
