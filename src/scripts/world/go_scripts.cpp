@@ -43,10 +43,10 @@ go_rusty_cage
 go_scourge_cage
 go_jotunheim_cage
 go_table_theka
+go_soulwell
 EndContentData */
 
 #include "ScriptedPch.h"
-#include "SpellId.h"
 
 /*######
 ## go_cat_figurine

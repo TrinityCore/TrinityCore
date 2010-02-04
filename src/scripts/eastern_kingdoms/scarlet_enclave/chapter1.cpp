@@ -20,7 +20,6 @@
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "ScriptedEscortAI.h"
-#include "SpellId.h"
 
 /*######
 ##Quest 12848

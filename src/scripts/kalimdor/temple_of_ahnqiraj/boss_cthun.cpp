@@ -23,7 +23,6 @@ EndScriptData */
 
 #include "ScriptedPch.h"
 #include "temple_of_ahnqiraj.h"
-#include "SpellId.h"
 
 /*
  * This is a 2 phases events. Here follows an explanation of the main events and transition between phases and sub-phases.

@@ -24,7 +24,6 @@ Script Data End */
 
 #include "ScriptedPch.h"
 #include "violet_hold.h"
-#include "SpellId.h"
 
 enum Spells
 {
