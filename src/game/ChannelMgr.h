@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef MANGOSSERVER_CHANNELMGR_H
-#define MANGOSSERVER_CHANNELMGR_H
+#ifndef __TRINITY_CHANNELMGR_H
+#define __TRINITY_CHANNELMGR_H
 
 #include "Common.h"
 #include "Channel.h"

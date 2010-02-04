@@ -31,7 +31,7 @@ EndScriptData */
 #define SPELL_LAVABOMB              19411                   //This calls a dummy server side effect that isn't implemented yet
 #define SPELL_LAVABOMB_ALT          19428                   //This is the spell that the lava bomb casts
 
-struct TRINITY_DLL_DECL boss_magmadarAI : public ScriptedAI
+struct boss_magmadarAI : public ScriptedAI
 {
     boss_magmadarAI(Creature *c) : ScriptedAI(c) {}
 

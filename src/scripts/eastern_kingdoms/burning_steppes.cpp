@@ -44,7 +44,7 @@ EndContentData */
 #define GOSSIP_SELECT10 "Ahh... Ironfoe"
 #define GOSSIP_SELECT11 "Thanks, Ragged John. Your story was very uplifting and informative"
 
-struct TRINITY_DLL_DECL npc_ragged_johnAI : public ScriptedAI
+struct npc_ragged_johnAI : public ScriptedAI
 {
     npc_ragged_johnAI(Creature *c) : ScriptedAI(c) {}
 

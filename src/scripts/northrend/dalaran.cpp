@@ -42,7 +42,7 @@ enum NPCs // All outdoor guards are within 35.0f of these NPCs
     NPC_SWEETBERRY_H = 29715,
 };
 
-struct TRINITY_DLL_DECL npc_mageguard_dalaranAI : public Scripted_NoMovementAI
+struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 {
     npc_mageguard_dalaranAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
     {

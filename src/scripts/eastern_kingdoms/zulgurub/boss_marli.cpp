@@ -38,7 +38,7 @@ EndScriptData */
 //The Spider Spells
 #define SPELL_LEVELUP             24312                     //Not right Spell.
 
-struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
+struct boss_marliAI : public ScriptedAI
 {
     boss_marliAI(Creature *c) : ScriptedAI(c)
     {
@@ -201,7 +201,7 @@ struct TRINITY_DLL_DECL boss_marliAI : public ScriptedAI
 };
 
 //Spawn of Marli
-struct TRINITY_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
+struct mob_spawn_of_marliAI : public ScriptedAI
 {
     mob_spawn_of_marliAI(Creature *c) : ScriptedAI(c) {}
 

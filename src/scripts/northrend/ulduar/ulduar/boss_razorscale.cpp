@@ -48,7 +48,7 @@ enum Mobs
     NPC_DARK_RUNE_SENTINEL = 33846
 };
 
-struct TRINITY_DLL_DECL boss_razorscaleAI : public BossAI
+struct boss_razorscaleAI : public BossAI
 {
     boss_razorscaleAI(Creature *pCreature) : BossAI(pCreature, TYPE_RAZORSCALE) {}
 

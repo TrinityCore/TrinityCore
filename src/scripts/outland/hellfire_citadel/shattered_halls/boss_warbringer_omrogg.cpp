@@ -98,7 +98,7 @@ static Yell KillingDelay[]=
     {-1000000, NPC_LEFT_HEAD},
 };
 
-struct TRINITY_DLL_DECL mob_omrogg_headsAI : public ScriptedAI
+struct mob_omrogg_headsAI : public ScriptedAI
 {
     mob_omrogg_headsAI(Creature *c) : ScriptedAI(c) {}
 
@@ -131,7 +131,7 @@ struct TRINITY_DLL_DECL mob_omrogg_headsAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_warbringer_omroggAI : public ScriptedAI
+struct boss_warbringer_omroggAI : public ScriptedAI
 {
     boss_warbringer_omroggAI(Creature *c) : ScriptedAI(c)
     {

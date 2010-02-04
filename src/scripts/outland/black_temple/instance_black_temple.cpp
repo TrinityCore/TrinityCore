@@ -38,7 +38,7 @@ EndScriptData */
 8 - Illidan Stormrage Event
 */
 
-struct TRINITY_DLL_DECL instance_black_temple : public ScriptedInstance
+struct instance_black_temple : public ScriptedInstance
 {
     instance_black_temple(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

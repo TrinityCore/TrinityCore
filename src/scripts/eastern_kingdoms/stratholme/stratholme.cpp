@@ -77,7 +77,7 @@ bool GOHello_go_gauntlet_gate(Player* pPlayer, GameObject* pGo)
 #define SAY_ZAPPED2 -1329002
 #define SAY_ZAPPED3 -1329003
 
-struct TRINITY_DLL_DECL mob_freed_soulAI : public ScriptedAI
+struct mob_freed_soulAI : public ScriptedAI
 {
     mob_freed_soulAI(Creature *c) : ScriptedAI(c) {}
 
@@ -104,7 +104,7 @@ CreatureAI* GetAI_mob_freed_soul(Creature* pCreature)
 #define ENTRY_RESTLESS      11122
 #define ENTRY_FREED         11136
 
-struct TRINITY_DLL_DECL mob_restless_soulAI : public ScriptedAI
+struct mob_restless_soulAI : public ScriptedAI
 {
     mob_restless_soulAI(Creature *c) : ScriptedAI(c) {}
 
@@ -175,7 +175,7 @@ enum eGhostlyCitizenSpells
     SPELL_SLAP              = 6754
 };
 
-struct TRINITY_DLL_DECL mobs_spectral_ghostly_citizenAI : public ScriptedAI
+struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
 {
     mobs_spectral_ghostly_citizenAI(Creature *c) : ScriptedAI(c) {}
 

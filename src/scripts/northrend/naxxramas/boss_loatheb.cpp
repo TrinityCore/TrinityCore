@@ -37,7 +37,7 @@ enum Events
     EVENT_DOOM,
 };
 
-struct TRINITY_DLL_DECL boss_loathebAI : public BossAI
+struct boss_loathebAI : public BossAI
 {
     boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
 
@@ -91,7 +91,7 @@ enum SporeSpells
     SPELL_FUNGAL_CREEP                                     = 29232
 };
 
-struct TRINITY_DLL_DECL mob_loatheb_sporeAI : public ScriptedAI
+struct mob_loatheb_sporeAI : public ScriptedAI
 {
     mob_loatheb_sporeAI(Creature *c) : ScriptedAI(c) {}
 

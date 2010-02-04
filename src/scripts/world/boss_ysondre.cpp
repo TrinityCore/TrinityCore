@@ -42,7 +42,7 @@ enum eEnums
 };
 
 // Ysondre script
-struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
+struct boss_ysondreAI : public ScriptedAI
 {
     boss_ysondreAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -147,7 +147,7 @@ struct TRINITY_DLL_DECL boss_ysondreAI : public ScriptedAI
 };
 
 // Summoned druid script
-struct TRINITY_DLL_DECL mob_dementeddruidsAI : public ScriptedAI
+struct mob_dementeddruidsAI : public ScriptedAI
 {
     mob_dementeddruidsAI(Creature *c) : ScriptedAI(c) {}
 

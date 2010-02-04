@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_AVARTAR                24646                  //The Enrage Spell
 #define SPELL_GROUNDTREMOR            6524
 
-struct TRINITY_DLL_DECL boss_grilekAI : public ScriptedAI
+struct boss_grilekAI : public ScriptedAI
 {
     boss_grilekAI(Creature *c) : ScriptedAI(c) {}
 

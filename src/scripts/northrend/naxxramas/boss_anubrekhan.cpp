@@ -45,7 +45,7 @@ enum Spells
     SPELL_BERSERK                   = SPELL_BERSERK_27680,
 };
 
-struct TRINITY_DLL_DECL boss_anubrekhanAI : public BossAI
+struct boss_anubrekhanAI : public BossAI
 {
     boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
 

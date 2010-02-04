@@ -61,7 +61,7 @@ float CenterOfRoom[1][4] =
     {504.80, 89.07, -16.12, 6.27}
 };
 
-struct TRINITY_DLL_DECL boss_magus_telestraAI : public ScriptedAI
+struct boss_magus_telestraAI : public ScriptedAI
 {
     boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
     {

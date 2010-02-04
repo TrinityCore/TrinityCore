@@ -64,7 +64,7 @@ enum Spells
 
 #define FELMYST 25038
 
-struct TRINITY_DLL_DECL boss_brutallusAI : public ScriptedAI
+struct boss_brutallusAI : public ScriptedAI
 {
     boss_brutallusAI(Creature *c) : ScriptedAI(c)
     {

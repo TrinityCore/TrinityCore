@@ -44,7 +44,7 @@ EndContentData */
 
 #define QUEST_THE_DWARVEN_SPY 8483
 
-struct TRINITY_DLL_DECL npc_prospector_anvilwardAI : public npc_escortAI
+struct npc_prospector_anvilwardAI : public npc_escortAI
 {
     // CreatureAI functions
     npc_prospector_anvilwardAI(Creature *c) : npc_escortAI(c) {}
@@ -164,7 +164,7 @@ static uint32 PaladinEntry[] = {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPIO
 ## npc_second_trial_paladin
 ######*/
 
-struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
+struct npc_secondTrialAI : public ScriptedAI
 {
     npc_secondTrialAI(Creature *c) : ScriptedAI(c) {}
 
@@ -296,7 +296,7 @@ struct TRINITY_DLL_DECL npc_secondTrialAI : public ScriptedAI
 ## npc_second_trial_controller
 ######*/
 
-struct TRINITY_DLL_DECL master_kelerun_bloodmournAI : public ScriptedAI
+struct master_kelerun_bloodmournAI : public ScriptedAI
 {
     master_kelerun_bloodmournAI(Creature *c) : ScriptedAI(c) {}
 
@@ -496,7 +496,7 @@ bool GOHello_go_second_trial(Player* pPlayer, GameObject* pGO)
 #define MOB_GHARZUL     15958
 #define MOB_ANGERSHADE  15656
 
-struct TRINITY_DLL_DECL npc_apprentice_mirvedaAI : public ScriptedAI
+struct npc_apprentice_mirvedaAI : public ScriptedAI
 {
     npc_apprentice_mirvedaAI(Creature* c) : ScriptedAI(c), Summons(m_creature) {}
 
@@ -590,7 +590,7 @@ static Location SpawnLocations[] =
     {8267.97, -7239.17, 139.517}
 };
 
-struct TRINITY_DLL_DECL npc_infused_crystalAI : public Scripted_NoMovementAI
+struct npc_infused_crystalAI : public Scripted_NoMovementAI
 {
     npc_infused_crystalAI(Creature* c) : Scripted_NoMovementAI(c) {}
 

@@ -39,7 +39,7 @@ enum Yells
     SAY_SPECIAL_ATTACK_2                        = -1608009
 };
 
-struct TRINITY_DLL_DECL boss_cyanigosaAI : public ScriptedAI
+struct boss_cyanigosaAI : public ScriptedAI
 {
     boss_cyanigosaAI(Creature *c) : ScriptedAI(c)
     {

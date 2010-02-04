@@ -29,7 +29,7 @@ enum Yells
     EMOTE_TARGET               = -1509002
 };
 
-struct TRINITY_DLL_DECL boss_buruAI : public ScriptedAI
+struct boss_buruAI : public ScriptedAI
 {
     boss_buruAI(Creature *c) : ScriptedAI(c)
     {

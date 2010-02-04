@@ -43,24 +43,24 @@ inline uint32 secsToTimeBitFields(time_t secs)
 }
 
 /* Return a random number in the range min..max; (max-min) must be smaller than 32768. */
-TRINITY_DLL_SPEC int32 irand(int32 min, int32 max);
+ int32 irand(int32 min, int32 max);
 
 /* Return a random number in the range min..max (inclusive). For reliable results, the difference
 * between max and min should be less than RAND32_MAX. */
-TRINITY_DLL_SPEC uint32 urand(uint32 min, uint32 max);
+ uint32 urand(uint32 min, uint32 max);
 
 /* Return a random number in the range 0 .. RAND32_MAX. */
-TRINITY_DLL_SPEC int32 rand32();
+ int32 rand32();
 
 /* Return a random double from 0.0 to 1.0 (exclusive). Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
-TRINITY_DLL_SPEC double rand_norm(void);
+ double rand_norm(void);
 
 /* Return a random double from 0.0 to 99.9999999999999. Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internaly (RAND32_MAX has 10 digits).
  * With an FPU, there is usually no difference in performance between float and double. */
-TRINITY_DLL_SPEC double rand_chance(void);
+ double rand_chance(void);
 
 /* Return true if a random roll fits in the specified chance (range 0-100). */
 inline bool roll_chance_f(float chance)

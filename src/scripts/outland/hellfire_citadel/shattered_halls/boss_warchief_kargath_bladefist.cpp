@@ -48,7 +48,7 @@ float AssassEntrance[3] = {275.136,-84.29,2.3}; // y -8
 float AssassExit[3] = {184.233,-84.29,2.3}; // y -8
 float AddsEntrance[3] = {306.036,-84.29,1.93};
 
-struct TRINITY_DLL_DECL boss_warchief_kargath_bladefistAI : public ScriptedAI
+struct boss_warchief_kargath_bladefistAI : public ScriptedAI
 {
     boss_warchief_kargath_bladefistAI(Creature *c) : ScriptedAI(c)
     {

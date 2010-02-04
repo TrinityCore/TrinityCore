@@ -55,7 +55,7 @@ float HighborneLoc[4][3]=
 #define HIGHBORNE_LOC_Y             -61.00
 #define HIGHBORNE_LOC_Y_NEW         -55.50
 
-struct TRINITY_DLL_DECL npc_lady_sylvanas_windrunnerAI : public ScriptedAI
+struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
 {
     npc_lady_sylvanas_windrunnerAI(Creature *c) : ScriptedAI(c) {}
 
@@ -136,7 +136,7 @@ bool ChooseReward_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature* pCreat
 ## npc_highborne_lamenter
 ######*/
 
-struct TRINITY_DLL_DECL npc_highborne_lamenterAI : public ScriptedAI
+struct npc_highborne_lamenterAI : public ScriptedAI
 {
     npc_highborne_lamenterAI(Creature *c) : ScriptedAI(c) {}
 

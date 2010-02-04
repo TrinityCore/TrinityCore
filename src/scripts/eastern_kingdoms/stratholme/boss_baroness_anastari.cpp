@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_SILENCE    18327
 //#define SPELL_POSSESS   17244
 
-struct TRINITY_DLL_DECL boss_baroness_anastariAI : public ScriptedAI
+struct boss_baroness_anastariAI : public ScriptedAI
 {
     boss_baroness_anastariAI(Creature *c) : ScriptedAI(c)
     {

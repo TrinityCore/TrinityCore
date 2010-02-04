@@ -34,7 +34,7 @@ enum Spells
     SPELL_FRENZY                                           = 28371
 };
 
-struct TRINITY_DLL_DECL boss_grizzleAI : public ScriptedAI
+struct boss_grizzleAI : public ScriptedAI
 {
     boss_grizzleAI(Creature *c) : ScriptedAI(c) {}
 

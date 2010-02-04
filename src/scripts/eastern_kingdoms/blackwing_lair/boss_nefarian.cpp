@@ -58,7 +58,7 @@ EndScriptData */
 #define SPELL_HUNTER                23436                   //bow broke
 #define SPELL_ROGUE                 23414                   //Paralise
 
-struct TRINITY_DLL_DECL boss_nefarianAI : public ScriptedAI
+struct boss_nefarianAI : public ScriptedAI
 {
     boss_nefarianAI(Creature *c) : ScriptedAI(c) {}
 

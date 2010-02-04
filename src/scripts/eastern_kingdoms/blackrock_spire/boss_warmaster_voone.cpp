@@ -30,7 +30,7 @@ EndScriptData */
 #define SPELL_PUMMEL            15615
 #define SPELL_THROWAXE          16075
 
-struct TRINITY_DLL_DECL boss_warmastervooneAI : public ScriptedAI
+struct boss_warmastervooneAI : public ScriptedAI
 {
     boss_warmastervooneAI(Creature *c) : ScriptedAI(c) {}
 

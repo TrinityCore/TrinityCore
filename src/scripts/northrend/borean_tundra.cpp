@@ -203,7 +203,7 @@ enum eSinkhole
     SPELL_SUMMON_WORM             = 46800,
 };
 
-struct TRINITY_DLL_DECL npc_sinkhole_kill_creditAI : public ScriptedAI
+struct npc_sinkhole_kill_creditAI : public ScriptedAI
 {
     npc_sinkhole_kill_creditAI(Creature* c) : ScriptedAI(c){}
 
@@ -307,7 +307,7 @@ CreatureAI* GetAI_npc_sinkhole_kill_credit(Creature* pCreature)
 ## npc_khunok_the_behemoth
 ######*/
 
-struct TRINITY_DLL_DECL npc_khunok_the_behemothAI : public ScriptedAI
+struct npc_khunok_the_behemothAI : public ScriptedAI
 {
     npc_khunok_the_behemothAI(Creature *c) : ScriptedAI(c) {}
 
@@ -458,7 +458,7 @@ const uint32 nerubarVictims[3] =
 {
     45526, 45527, 45514
 };
-struct TRINITY_DLL_DECL mob_nerubar_victimAI : public ScriptedAI
+struct mob_nerubar_victimAI : public ScriptedAI
 {
     mob_nerubar_victimAI(Creature *c) : ScriptedAI(c) {}
 
@@ -497,7 +497,7 @@ enum eScourgePrisoner
     GO_SCOURGE_CAGE = 187867
 };
 
-struct TRINITY_DLL_DECL npc_scourge_prisonerAI : public ScriptedAI
+struct npc_scourge_prisonerAI : public ScriptedAI
 {
     npc_scourge_prisonerAI(Creature* pCreature) : ScriptedAI (pCreature){}
 
@@ -531,7 +531,7 @@ enum eJenny
     SPELL_DROP_CRATE            = 46342
 };
 
-struct TRINITY_DLL_DECL npc_jennyAI : public ScriptedAI
+struct npc_jennyAI : public ScriptedAI
 {
     npc_jennyAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -586,7 +586,7 @@ CreatureAI* GetAI_npc_jenny(Creature *pCreature)
 ## npc_fezzix_geartwist
 ######*/
 
-struct TRINITY_DLL_DECL npc_fezzix_geartwistAI : public ScriptedAI
+struct npc_fezzix_geartwistAI : public ScriptedAI
 {
     npc_fezzix_geartwistAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -649,7 +649,7 @@ enum eNesingwaryTrapper
 
 //#define SAY_NESINGWARY_1 -1571008
 
-struct TRINITY_DLL_DECL npc_nesingwary_trapperAI : public ScriptedAI
+struct npc_nesingwary_trapperAI : public ScriptedAI
 {
     npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisibility(VISIBILITY_OFF); }
 
@@ -775,7 +775,7 @@ enum eLurgglbr
 #define SAY_WP_41_LUR_START -1571006
 #define SAY_WP_41_LUR_END   -1571007*/
 
-struct TRINITY_DLL_DECL npc_lurgglbrAI : public npc_escortAI
+struct npc_lurgglbrAI : public npc_escortAI
 {
     npc_lurgglbrAI(Creature* pCreature) : npc_escortAI(pCreature){}
 
@@ -914,7 +914,7 @@ enum eNexusDrakeHatchling
     QUEST_DRAKE_HUNT_D              = 11940
 };
 
-struct TRINITY_DLL_DECL npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
+struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
 {
     npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c)
     {
@@ -1036,7 +1036,7 @@ enum eThassarian
 
 #define GOSSIP_ITEM_T   "Let's do this, Thassarian. It's now or never."
 
-struct TRINITY_DLL_DECL npc_thassarianAI : public npc_escortAI
+struct npc_thassarianAI : public npc_escortAI
 {
     npc_thassarianAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
@@ -1328,7 +1328,7 @@ CreatureAI* GetAI_npc_thassarian(Creature *pCreature)
 ## npc_image_lich_king
 ######*/
 
-struct TRINITY_DLL_DECL npc_image_lich_kingAI : public ScriptedAI
+struct npc_image_lich_kingAI : public ScriptedAI
 {
     npc_image_lich_kingAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -1357,7 +1357,7 @@ CreatureAI* GetAI_npc_image_lich_king(Creature* pCreature)
 ## npc_general_arlos
 ######*/
 
-struct TRINITY_DLL_DECL npc_general_arlosAI : public ScriptedAI
+struct npc_general_arlosAI : public ScriptedAI
 {
     npc_general_arlosAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -1389,7 +1389,7 @@ enum eCounselotTalbot
     SPELL_SOUL_BLAST    = 50992,
 };
 
-struct TRINITY_DLL_DECL npc_counselor_talbotAI : public ScriptedAI
+struct npc_counselor_talbotAI : public ScriptedAI
 {
     npc_counselor_talbotAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -1490,7 +1490,7 @@ CreatureAI* GetAI_npc_counselor_talbot(Creature* pCreature)
 ## npc_leryssa
 ######*/
 
-struct TRINITY_DLL_DECL npc_leryssaAI : public ScriptedAI
+struct npc_leryssaAI : public ScriptedAI
 {
     npc_leryssaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -1619,7 +1619,7 @@ enum eBerylSorcerer
     SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
 };
 
-struct TRINITY_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
+struct npc_beryl_sorcererAI : public FollowerAI
 {
     npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) {}
 
@@ -1696,7 +1696,7 @@ enum eImprisionedBerylSorcerer
     SAY_IMPRISIONED_BERYL_7         = -1571030,
 };
 
-struct TRINITY_DLL_DECL npc_imprisoned_beryl_sorcererAI : public ScriptedAI
+struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
 {
     npc_imprisoned_beryl_sorcererAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -1846,7 +1846,7 @@ bool QuestAccept_npc_mootoo_the_younger(Player* pPlayer, Creature* pCreature, Qu
     }
     return true;
 }
-struct TRINITY_DLL_DECL npc_mootoo_the_youngerAI : public npc_escortAI
+struct npc_mootoo_the_youngerAI : public npc_escortAI
 {
     npc_mootoo_the_youngerAI(Creature *c) : npc_escortAI(c) {}
 
@@ -1931,7 +1931,7 @@ bool QuestAccept_npc_bonker_togglevolt(Player* pPlayer, Creature* pCreature, Que
     }
     return true;
 }
-struct TRINITY_DLL_DECL npc_bonker_togglevoltAI : public npc_escortAI
+struct npc_bonker_togglevoltAI : public npc_escortAI
 {
     npc_bonker_togglevoltAI(Creature *c) : npc_escortAI(c) {}
     uint32 Bonker_agro;

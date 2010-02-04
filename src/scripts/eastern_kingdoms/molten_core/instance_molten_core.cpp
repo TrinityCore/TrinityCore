@@ -38,7 +38,7 @@ EndScriptData */
 #define ID_RAGNAROS     11502
 #define ID_FLAMEWAKERPRIEST     11662
 
-struct TRINITY_DLL_DECL instance_molten_core : public ScriptedInstance
+struct instance_molten_core : public ScriptedInstance
 {
     instance_molten_core(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

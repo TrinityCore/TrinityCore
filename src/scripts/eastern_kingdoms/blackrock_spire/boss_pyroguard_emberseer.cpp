@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_FLAMEBUFFET       23341
 #define SPELL_PYROBLAST         17274
 
-struct TRINITY_DLL_DECL boss_pyroguard_emberseerAI : public ScriptedAI
+struct boss_pyroguard_emberseerAI : public ScriptedAI
 {
     boss_pyroguard_emberseerAI(Creature *c) : ScriptedAI(c) {}
 

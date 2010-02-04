@@ -44,7 +44,7 @@ EndScriptData */
 //Attumen (TODO: Use the summoning spell instead of Creature id. It works , but is not convenient for us)
 #define SUMMON_ATTUMEN 15550
 
-struct TRINITY_DLL_DECL boss_midnightAI : public ScriptedAI
+struct boss_midnightAI : public ScriptedAI
 {
     boss_midnightAI(Creature *c) : ScriptedAI(c) {}
 
@@ -155,7 +155,7 @@ CreatureAI* GetAI_boss_midnight(Creature* pCreature)
     return new boss_midnightAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL boss_attumenAI : public ScriptedAI
+struct boss_attumenAI : public ScriptedAI
 {
     boss_attumenAI(Creature *c) : ScriptedAI(c)
     {

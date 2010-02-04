@@ -428,7 +428,7 @@ class Spell
         void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
         void CheckDst() { if(!m_targets.HasDst()) m_targets.setDst(m_caster); }
 
-        static void TRINITY_DLL_SPEC SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
+        static void  SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
         void SendCastResult(SpellCastResult result);
         void SendSpellStart();
         void SendSpellGo();
@@ -664,7 +664,7 @@ class Spell
 
 namespace Trinity
 {
-    struct TRINITY_DLL_DECL SpellNotifierCreatureAndPlayer
+    struct SpellNotifierCreatureAndPlayer
     {
         std::list<Unit*> *i_data;
         SpellNotifyPushType i_push_type;

@@ -62,7 +62,7 @@ static float SpawnLocations[4][3]=
     {17.372, -190.840, -85.2810},
 };
 
-struct TRINITY_DLL_DECL boss_onyxiaAI : public ScriptedAI
+struct boss_onyxiaAI : public ScriptedAI
 {
     boss_onyxiaAI(Creature* c) : ScriptedAI(c) {}
 

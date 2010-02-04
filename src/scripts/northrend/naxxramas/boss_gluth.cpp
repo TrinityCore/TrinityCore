@@ -44,7 +44,7 @@ enum Events
 
 #define EMOTE_NEARBY    " spots a nearby zombie to devour!"
 
-struct TRINITY_DLL_DECL boss_gluthAI : public BossAI
+struct boss_gluthAI : public BossAI
 {
     boss_gluthAI(Creature *c) : BossAI(c, BOSS_GLUTH)
     {

@@ -363,7 +363,7 @@ static Animation DemonTransformation[]=
 #define EMOTE_UNABLE_TO_SUMMON "is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter."
 
 /************************************** Illidan's AI ***************************************/
-struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
+struct boss_illidan_stormrageAI : public ScriptedAI
 {
     boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(m_creature)
     {
@@ -886,7 +886,7 @@ struct TRINITY_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
 
 /********************************** End of Illidan AI ******************************************/
 
-struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
+struct flame_of_azzinothAI : public ScriptedAI
 {
     flame_of_azzinothAI(Creature *c) : ScriptedAI(c) {}
 
@@ -966,7 +966,7 @@ struct TRINITY_DLL_DECL flame_of_azzinothAI : public ScriptedAI
 };
 
 /******* Functions and vars for Akama's AI ******/
-struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
+struct npc_akama_illidanAI : public ScriptedAI
 {
     npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
     {
@@ -1396,7 +1396,7 @@ struct TRINITY_DLL_DECL npc_akama_illidanAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_maievAI : public ScriptedAI
+struct boss_maievAI : public ScriptedAI
 {
     boss_maievAI(Creature *c) : ScriptedAI(c) {};
 
@@ -1622,7 +1622,7 @@ bool GossipHello_npc_akama_at_illidan(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-struct TRINITY_DLL_DECL cage_trap_triggerAI : public ScriptedAI
+struct cage_trap_triggerAI : public ScriptedAI
 {
     cage_trap_triggerAI(Creature *c) : ScriptedAI(c) {}
 
@@ -1698,7 +1698,7 @@ bool GOHello_cage_trap(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
-struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
+struct shadow_demonAI : public ScriptedAI
 {
     shadow_demonAI(Creature *c) : ScriptedAI(c) {}
 
@@ -1738,7 +1738,7 @@ struct TRINITY_DLL_DECL shadow_demonAI : public ScriptedAI
 };
 
 // Shadowfiends interact with Illidan, setting more targets in Illidan's hashmap
-struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
+struct mob_parasitic_shadowfiendAI : public ScriptedAI
 {
     mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
     {
@@ -1807,7 +1807,7 @@ struct TRINITY_DLL_DECL mob_parasitic_shadowfiendAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL blade_of_azzinothAI : public NullCreatureAI
+struct blade_of_azzinothAI : public NullCreatureAI
 {
     blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
 

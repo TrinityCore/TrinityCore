@@ -38,7 +38,7 @@ enum Yells
     SAY_SPAWN                              = -1578029
 };
 
-struct TRINITY_DLL_DECL boss_varosAI : public ScriptedAI
+struct boss_varosAI : public ScriptedAI
 {
     boss_varosAI(Creature *c) : ScriptedAI(c)
     {

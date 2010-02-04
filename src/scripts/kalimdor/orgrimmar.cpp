@@ -74,7 +74,7 @@ enum eShenthul
     QUEST_SHATTERED_SALUTE  = 2460
 };
 
-struct TRINITY_DLL_DECL npc_shenthulAI : public ScriptedAI
+struct npc_shenthulAI : public ScriptedAI
 {
     npc_shenthulAI(Creature* c) : ScriptedAI(c) {}
 
@@ -172,7 +172,7 @@ bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* pCreature, Quest const*
 #define GOSSIP_STW6 "Of course, Warchief!"
 
 //TODO: verify abilities/timers
-struct TRINITY_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
+struct npc_thrall_warchiefAI : public ScriptedAI
 {
     npc_thrall_warchiefAI(Creature* c) : ScriptedAI(c) {}
 

@@ -32,7 +32,7 @@ enum Spells
     SPELL_ENVELOPINGWEB                                    = 15471
 };
 
-struct TRINITY_DLL_DECL boss_anubshiahAI : public ScriptedAI
+struct boss_anubshiahAI : public ScriptedAI
 {
     boss_anubshiahAI(Creature *c) : ScriptedAI(c) {}
 

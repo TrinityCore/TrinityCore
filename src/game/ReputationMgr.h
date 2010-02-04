@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __MANGOS_REPUTATION_MGR_H
-#define __MANGOS_REPUTATION_MGR_H
+#ifndef __TRINITY_REPUTATION_MGR_H
+#define __TRINITY_REPUTATION_MGR_H
 
 #include "Common.h"
 #include "SharedDefines.h"

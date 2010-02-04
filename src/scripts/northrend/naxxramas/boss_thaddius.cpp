@@ -95,7 +95,7 @@ enum Events
     EVENT_BERSERK,
 };
 
-struct TRINITY_DLL_DECL boss_thaddiusAI : public BossAI
+struct boss_thaddiusAI : public BossAI
 {
     boss_thaddiusAI(Creature *c) : BossAI(c, BOSS_THADDIUS)
     {
@@ -248,7 +248,7 @@ CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
     return new boss_thaddiusAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_stalaggAI : public ScriptedAI
+struct mob_stalaggAI : public ScriptedAI
 {
     mob_stalaggAI(Creature *c) : ScriptedAI(c) 
     {
@@ -327,7 +327,7 @@ CreatureAI* GetAI_mob_stalagg(Creature* pCreature)
     return new mob_stalaggAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_feugenAI : public ScriptedAI
+struct mob_feugenAI : public ScriptedAI
 {
     mob_feugenAI(Creature *c) : ScriptedAI(c) 
     {

@@ -138,7 +138,7 @@ static TransformStruct Transform[] =
     {SOUND_TRANSFORM_TO_DRAGONHAWK, YELL_TRANSFORM_TO_DRAGONHAWK, SPELL_SHAPE_OF_THE_DRAGONHAWK, SPELL_SHAPE_OF_THE_LYNX}
 };
 
-struct TRINITY_DLL_DECL boss_zuljinAI : public ScriptedAI
+struct boss_zuljinAI : public ScriptedAI
 {
     boss_zuljinAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {
@@ -580,7 +580,7 @@ CreatureAI* GetAI_boss_zuljin(Creature* pCreature)
     return new boss_zuljinAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL feather_vortexAI : public ScriptedAI
+struct feather_vortexAI : public ScriptedAI
 {
     feather_vortexAI(Creature *c) : ScriptedAI(c) {}
 

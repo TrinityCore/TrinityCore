@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Boss_Gruul
 SD%Complete: 60
-SDComment: Ground Slam need further development (knock back effect and shatter effect must be added to mangos)
+SDComment: Ground Slam need further development (knock back effect and shatter effect must be added to the core)
 SDCategory: Gruul's Lair
 EndScriptData */
 
@@ -52,7 +52,7 @@ enum eEnums
     SPELL_KNOCK_BACK            = 24199,                    //Knockback spell until correct implementation is made
 };
 
-struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
+struct boss_gruulAI : public ScriptedAI
 {
     boss_gruulAI(Creature *c) : ScriptedAI(c)
     {
@@ -124,10 +124,10 @@ struct TRINITY_DLL_DECL boss_gruulAI : public ScriptedAI
             }
         }
 
-        //this part should be in mangos
+        //this part should be in the core
         if (pSpell->Id == SPELL_SHATTER)
         {
-            //this spell must have custom handling in mangos, dealing damage based on distance
+            //this spell must have custom handling in the core, dealing damage based on distance
             pTarget->CastSpell(pTarget, SPELL_SHATTER_EFFECT, true);
 
             if (pTarget->HasAura(SPELL_STONED))

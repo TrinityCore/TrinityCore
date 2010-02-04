@@ -60,7 +60,7 @@ float VoidPortalCoords[5][3] =
     {-261.4533, -297.3298, 17.1}
 };
 
-struct TRINITY_DLL_DECL mob_voidtravelerAI : public ScriptedAI
+struct mob_voidtravelerAI : public ScriptedAI
 {
     mob_voidtravelerAI(Creature *c) : ScriptedAI(c)
     {
@@ -118,7 +118,7 @@ CreatureAI* GetAI_mob_voidtraveler(Creature* pCreature)
     return new mob_voidtravelerAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL boss_grandmaster_vorpilAI : public ScriptedAI
+struct boss_grandmaster_vorpilAI : public ScriptedAI
 {
     boss_grandmaster_vorpilAI(Creature *c) : ScriptedAI(c)
     {

@@ -56,7 +56,7 @@ float IntroWay[8][3] =
     {-11163   , -1903  ,91.473}
 };
 
-struct TRINITY_DLL_DECL boss_nightbaneAI : public ScriptedAI
+struct boss_nightbaneAI : public ScriptedAI
 {
     boss_nightbaneAI(Creature* c) : ScriptedAI(c)
     {

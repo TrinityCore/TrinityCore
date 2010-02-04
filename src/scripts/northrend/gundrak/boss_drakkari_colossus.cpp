@@ -45,7 +45,7 @@ enum Spells
     H_SPELL_MOJO_WAVE   = 58993
 };
 
-struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
+struct boss_drakkari_colossusAI : public ScriptedAI
 {
     boss_drakkari_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -145,7 +145,7 @@ struct TRINITY_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
+struct boss_drakkari_elementalAI : public ScriptedAI
 {
     boss_drakkari_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -218,7 +218,7 @@ struct TRINITY_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL npc_living_mojoAI : public ScriptedAI
+struct npc_living_mojoAI : public ScriptedAI
 {
     npc_living_mojoAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

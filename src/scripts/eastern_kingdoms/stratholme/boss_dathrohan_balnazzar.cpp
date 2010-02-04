@@ -63,7 +63,7 @@ SummonDef m_aSummonPoint[]=
     {3457.338, -3073.979, 135.002, 3.784}                   //G2 back, right
 };
 
-struct TRINITY_DLL_DECL boss_dathrohan_balnazzarAI : public ScriptedAI
+struct boss_dathrohan_balnazzarAI : public ScriptedAI
 {
     boss_dathrohan_balnazzarAI(Creature *c) : ScriptedAI(c) {}
 

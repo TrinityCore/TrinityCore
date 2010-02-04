@@ -39,7 +39,7 @@ enum Achievements
     ACHIEVEMENT_GOOD_GRIEF                           = 1866
 };
 
-struct TRINITY_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
+struct boss_maiden_of_griefAI : public ScriptedAI
 {
     boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c)
     {

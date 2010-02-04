@@ -97,7 +97,7 @@ template<class H, class T> struct ContainerList<TypeList<H, T> >
  */
 
 template<class OBJECT_TYPES>
-class TRINITY_DLL_DECL TypeMapContainer
+class TypeMapContainer
 {
     public:
         template<class SPECIFIC_TYPE> size_t Count() const { return Trinity::Count(i_elements, (SPECIFIC_TYPE*)NULL); }

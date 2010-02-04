@@ -38,7 +38,7 @@ enum Yells
     SAY_WHISPER                                 = -1608044
 };
 
-struct TRINITY_DLL_DECL boss_zuramatAI : public ScriptedAI
+struct boss_zuramatAI : public ScriptedAI
 {
     boss_zuramatAI(Creature *c) : ScriptedAI(c)
     {

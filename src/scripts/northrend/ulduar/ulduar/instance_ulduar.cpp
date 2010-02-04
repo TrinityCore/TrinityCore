@@ -31,7 +31,7 @@ enum eGameObjects
     GO_Freya_CHEST          = 194324,
 };
 
-struct TRINITY_DLL_DECL instance_ulduar : public ScriptedInstance
+struct instance_ulduar : public ScriptedInstance
 {
     instance_ulduar(Map* pMap) : ScriptedInstance(pMap), KologarnChest(NULL), ThorimChest(NULL), HodirChest(NULL), FreyaChest(NULL) { Initialize(); };
 

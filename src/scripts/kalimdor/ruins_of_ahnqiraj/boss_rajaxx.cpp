@@ -43,7 +43,7 @@ enum Yells
     SAY_COMPLETE_QUEST        = -1509017                        //Yell when realm complete quest 8743 for world event
 };
 
-struct TRINITY_DLL_DECL boss_rajaxxAI : public ScriptedAI
+struct boss_rajaxxAI : public ScriptedAI
 {
     boss_rajaxxAI(Creature *c) : ScriptedAI(c)
     {

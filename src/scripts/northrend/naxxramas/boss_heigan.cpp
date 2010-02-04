@@ -41,7 +41,7 @@ enum Phases
     PHASE_DANCE,
 };
 
-struct TRINITY_DLL_DECL boss_heiganAI : public BossAI
+struct boss_heiganAI : public BossAI
 {
     boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
 

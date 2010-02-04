@@ -11,7 +11,7 @@
 4 - Eck the Ferocious
 */
 
-struct TRINITY_DLL_DECL instance_gundrak : public ScriptedInstance
+struct instance_gundrak : public ScriptedInstance
 {
     instance_gundrak(Map* pMap) : ScriptedInstance(pMap)
     {

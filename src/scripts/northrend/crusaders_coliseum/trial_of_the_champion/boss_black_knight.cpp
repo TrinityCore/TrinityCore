@@ -72,7 +72,7 @@ enum ePhases
     PHASE_GHOST     = 3
 };
 
-struct TRINITY_DLL_DECL boss_black_knightAI : public ScriptedAI
+struct boss_black_knightAI : public ScriptedAI
 {
     boss_black_knightAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -290,7 +290,7 @@ CreatureAI* GetAI_boss_black_knight(Creature *pCreature)
     return new boss_black_knightAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_risen_ghoulAI : public ScriptedAI
+struct npc_risen_ghoulAI : public ScriptedAI
 {
     npc_risen_ghoulAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -325,7 +325,7 @@ CreatureAI* GetAI_npc_risen_ghoul(Creature* pCreature)
     return new npc_risen_ghoulAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_black_knight_skeletal_gryphonAI : public npc_escortAI
+struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
 {
     npc_black_knight_skeletal_gryphonAI(Creature* pCreature) : npc_escortAI(pCreature)
     {

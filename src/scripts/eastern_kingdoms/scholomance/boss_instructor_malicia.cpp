@@ -30,7 +30,7 @@ EndScriptData */
 #define SPELL_RENEW                10929
 #define SPELL_HEALINGTOUCH         9889
 
-struct TRINITY_DLL_DECL boss_instructormaliciaAI : public ScriptedAI
+struct boss_instructormaliciaAI : public ScriptedAI
 {
     boss_instructormaliciaAI(Creature *c) : ScriptedAI(c) {}
 

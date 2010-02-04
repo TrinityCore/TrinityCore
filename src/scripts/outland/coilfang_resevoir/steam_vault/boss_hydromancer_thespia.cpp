@@ -41,7 +41,7 @@ EndContentData */
 #define SPELL_LUNG_BURST            31481
 #define SPELL_ENVELOPING_WINDS      31718
 
-struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
+struct boss_thespiaAI : public ScriptedAI
 {
     boss_thespiaAI(Creature *c) : ScriptedAI(c)
     {
@@ -132,7 +132,7 @@ struct TRINITY_DLL_DECL boss_thespiaAI : public ScriptedAI
 #define SPELL_WATER_BOLT_VOLLEY     34449
 #define H_SPELL_WATER_BOLT_VOLLEY   37924
 
-struct TRINITY_DLL_DECL mob_coilfang_waterelementalAI : public ScriptedAI
+struct mob_coilfang_waterelementalAI : public ScriptedAI
 {
     mob_coilfang_waterelementalAI(Creature *c) : ScriptedAI(c) {}
 

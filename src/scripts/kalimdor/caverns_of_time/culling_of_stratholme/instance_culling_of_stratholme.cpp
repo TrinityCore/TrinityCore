@@ -29,7 +29,7 @@
 4 - Infinite Corruptor (Heroic only)
 */
 
-struct TRINITY_DLL_DECL instance_culling_of_stratholme : public ScriptedInstance
+struct instance_culling_of_stratholme : public ScriptedInstance
 {
     instance_culling_of_stratholme(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
     

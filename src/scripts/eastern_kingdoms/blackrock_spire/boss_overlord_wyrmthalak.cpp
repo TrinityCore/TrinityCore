@@ -38,7 +38,7 @@ EndScriptData */
 #define ADD_2Z 88.195160
 #define ADD_2O 4.613114
 
-struct TRINITY_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
+struct boss_overlordwyrmthalakAI : public ScriptedAI
 {
     boss_overlordwyrmthalakAI(Creature *c) : ScriptedAI(c) {}
 

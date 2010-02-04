@@ -34,7 +34,7 @@ enum Spells
     SPELL_WIDE_SLASH             = 25814
 };
 
-struct TRINITY_DLL_DECL boss_kurinnaxxAI : public ScriptedAI
+struct boss_kurinnaxxAI : public ScriptedAI
 {
     boss_kurinnaxxAI(Creature *c) : ScriptedAI(c)
     {

@@ -27,7 +27,7 @@
 class Creature;
 class Spell;
 
-class TRINITY_DLL_DECL PetAI : public CreatureAI
+class PetAI : public CreatureAI
 {
     public:
 

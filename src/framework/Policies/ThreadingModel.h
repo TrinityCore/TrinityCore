@@ -32,7 +32,7 @@ namespace Trinity
 {
     inline void Guard(void *) {}
 
-    template<typename MUTEX> class TRINITY_DLL_DECL GeneralLock
+    template<typename MUTEX> class GeneralLock
     {
         public:
             GeneralLock(MUTEX &m) : i_mutex(m)
@@ -51,7 +51,7 @@ namespace Trinity
     };
 
     template <class T>
-        class TRINITY_DLL_DECL SingleThreaded
+        class SingleThreaded
     {
         public:
 
@@ -69,7 +69,7 @@ namespace Trinity
 
     // object level lockable
     template<class T, class MUTEX>
-        class TRINITY_DLL_DECL ObjectLevelLockable
+        class ObjectLevelLockable
     {
         public:
             ObjectLevelLockable() : i_mtx() {}
@@ -98,7 +98,7 @@ namespace Trinity
     };
 
     template<class T, class MUTEX>
-        class TRINITY_DLL_DECL ClassLevelLockable
+        class ClassLevelLockable
     {
         public:
             class Lock;
@@ -125,6 +125,6 @@ namespace Trinity
 template<class T, class MUTEX> MUTEX Trinity::ClassLevelLockable<T, MUTEX>::si_mtx;
 
 #define INSTANTIATE_CLASS_MUTEX(CTYPE,MUTEX) \
-    template class TRINITY_DLL_DECL Trinity::ClassLevelLockable<CTYPE, MUTEX >
+    template class Trinity::ClassLevelLockable<CTYPE, MUTEX >
 #endif
 

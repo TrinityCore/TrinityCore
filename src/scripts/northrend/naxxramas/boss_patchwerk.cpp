@@ -36,7 +36,7 @@
 #define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  RAID_MODE(1856, 1857)
 #define MAX_ENCOUNTER_TIME                    3 * 60 * 1000
 
-struct TRINITY_DLL_DECL boss_patchwerkAI : public BossAI
+struct boss_patchwerkAI : public BossAI
 {
     boss_patchwerkAI(Creature *c) : BossAI(c, BOSS_PATCHWERK) {}
 

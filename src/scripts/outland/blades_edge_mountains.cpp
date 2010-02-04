@@ -46,7 +46,7 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 ######*/
 
 //TODO: add support for quest 10512 + Creature abilities
-struct TRINITY_DLL_DECL mobs_bladespire_ogreAI : public ScriptedAI
+struct mobs_bladespire_ogreAI : public ScriptedAI
 {
     mobs_bladespire_ogreAI(Creature *c) : ScriptedAI(c) {}
 
@@ -90,7 +90,7 @@ enum eNetherdrake
     SPELL_INTANGIBLE_PRESENCE   = 36513
 };
 
-struct TRINITY_DLL_DECL mobs_nether_drakeAI : public ScriptedAI
+struct mobs_nether_drakeAI : public ScriptedAI
 {
     mobs_nether_drakeAI(Creature *c) : ScriptedAI(c) {}
 
@@ -248,7 +248,7 @@ enum eDaranelle
     SPELL_LASHHAN_CHANNEL   = 36904
 };
 
-struct TRINITY_DLL_DECL npc_daranelleAI : public ScriptedAI
+struct npc_daranelleAI : public ScriptedAI
 {
     npc_daranelleAI(Creature *c) : ScriptedAI(c) {}
 

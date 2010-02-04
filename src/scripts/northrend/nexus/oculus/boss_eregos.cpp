@@ -70,7 +70,7 @@ enum EmeraldDrake
     SPELL_EMERALD_DREAM_FUNNEL                 = 50344         //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
 
-struct TRINITY_DLL_DECL boss_eregosAI : public ScriptedAI
+struct boss_eregosAI : public ScriptedAI
 {
     boss_eregosAI(Creature *c) : ScriptedAI(c)
     {

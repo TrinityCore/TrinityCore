@@ -723,12 +723,12 @@ uint32 const* GetTalentTabPages(uint8 cls)
 }
 
 // script support functions
-TRINITY_DLL_SPEC DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
-TRINITY_DLL_SPEC DBCStorage <SpellEntry>         const* GetSpellStore()          { return &sSpellStore;          }
-TRINITY_DLL_SPEC DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
-TRINITY_DLL_SPEC DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
-TRINITY_DLL_SPEC DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
-TRINITY_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
-TRINITY_DLL_SPEC DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
-TRINITY_DLL_SPEC DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
-TRINITY_DLL_SPEC DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }
+ DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
+ DBCStorage <SpellEntry>         const* GetSpellStore()          { return &sSpellStore;          }
+ DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
+ DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
+ DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
+ DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
+ DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
+ DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
+ DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }

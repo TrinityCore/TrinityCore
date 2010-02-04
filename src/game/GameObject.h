@@ -581,7 +581,7 @@ class Unit;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
-class TRINITY_DLL_SPEC GameObject : public WorldObject, public GridObject<GameObject>
+class GameObject : public WorldObject, public GridObject<GameObject>
 {
     public:
         explicit GameObject();

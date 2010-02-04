@@ -68,7 +68,7 @@ enum eEnums
     SPELL_SHADOW_AXE_SUMMON                     = 42749
 };
 
-struct TRINITY_DLL_DECL boss_ingvar_the_plundererAI : public ScriptedAI
+struct boss_ingvar_the_plundererAI : public ScriptedAI
 {
     boss_ingvar_the_plundererAI(Creature *c) : ScriptedAI(c)
     {
@@ -286,7 +286,7 @@ enum eSpells
     SPELL_INGVAR_TRANSFORM                      = 42796
 };
 
-struct TRINITY_DLL_DECL mob_annhylde_the_callerAI : public ScriptedAI
+struct mob_annhylde_the_callerAI : public ScriptedAI
 {
     mob_annhylde_the_callerAI(Creature *c) : ScriptedAI(c)
     {
@@ -392,7 +392,7 @@ enum eShadowAxe
     H_SPELL_SHADOW_AXE_DAMAGE                   = 59719
 };
 
-struct TRINITY_DLL_DECL mob_ingvar_throw_dummyAI : public ScriptedAI
+struct mob_ingvar_throw_dummyAI : public ScriptedAI
 {
     mob_ingvar_throw_dummyAI(Creature *c) : ScriptedAI(c)
     {

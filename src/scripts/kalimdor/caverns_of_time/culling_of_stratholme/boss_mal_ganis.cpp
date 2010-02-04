@@ -69,7 +69,7 @@ enum CombatPhases
     OUTRO
 };
 
-struct TRINITY_DLL_DECL boss_mal_ganisAI : public ScriptedAI
+struct boss_mal_ganisAI : public ScriptedAI
 {
     boss_mal_ganisAI(Creature *c) : ScriptedAI(c)
     {

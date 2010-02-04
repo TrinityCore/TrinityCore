@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOS_CREATURE_EAI_MGR_H
-#define MANGOS_CREATURE_EAI_MGR_H
+#ifndef TRINITY_CREATURE_EAI_MGR_H
+#define TRINITY_CREATURE_EAI_MGR_H
 
 #include "Common.h"
 #include "CreatureEventAI.h"

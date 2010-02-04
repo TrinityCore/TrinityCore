@@ -35,7 +35,7 @@ EndScriptData */
 
 #define EMOTE_BONDS_WEAKEN          "'s bonds begin to weaken!"
 
-struct TRINITY_DLL_DECL instance_magtheridons_lair : public ScriptedInstance
+struct instance_magtheridons_lair : public ScriptedInstance
 {
     instance_magtheridons_lair(Map* pMap) : ScriptedInstance(pMap)
     {

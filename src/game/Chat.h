@@ -41,7 +41,7 @@ class ChatCommand
         ChatCommand *      ChildCommands;
 };
 
-class TRINITY_DLL_SPEC ChatHandler
+class ChatHandler
 {
     public:
         explicit ChatHandler(WorldSession* session) : m_session(session) {}

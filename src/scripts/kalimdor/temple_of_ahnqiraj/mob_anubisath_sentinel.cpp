@@ -53,7 +53,7 @@ EndScriptData */
 #define SPELL_STORM_BUFF        2148
 #define SPELL_STORM             26546
 
-struct TRINITY_DLL_DECL aqsentinelAI : public ScriptedAI
+struct aqsentinelAI : public ScriptedAI
 {
     uint32 ability;
     int abselected;

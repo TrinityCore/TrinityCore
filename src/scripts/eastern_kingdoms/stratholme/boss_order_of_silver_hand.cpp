@@ -41,7 +41,7 @@ EndScriptData */
 #define SPELL_HOLY_LIGHT    25263
 #define SPELL_DIVINE_SHIELD 13874
 
-struct TRINITY_DLL_DECL boss_silver_hand_bossesAI : public ScriptedAI
+struct boss_silver_hand_bossesAI : public ScriptedAI
 {
     boss_silver_hand_bossesAI(Creature* c) : ScriptedAI(c)
     {

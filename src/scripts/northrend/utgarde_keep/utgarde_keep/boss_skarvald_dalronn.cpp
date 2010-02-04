@@ -58,7 +58,7 @@ enum eEnums
     MOB_DALRONN_GHOST                           = 27389
 };
 
-struct TRINITY_DLL_DECL boss_skarvald_the_constructorAI : public ScriptedAI
+struct boss_skarvald_the_constructorAI : public ScriptedAI
 {
     boss_skarvald_the_constructorAI(Creature *c) : ScriptedAI(c)
     {
@@ -201,7 +201,7 @@ CreatureAI* GetAI_boss_skarvald_the_constructor(Creature* pCreature)
     return new boss_skarvald_the_constructorAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL boss_dalronn_the_controllerAI : public ScriptedAI
+struct boss_dalronn_the_controllerAI : public ScriptedAI
 {
     boss_dalronn_the_controllerAI(Creature *c) : ScriptedAI(c)
     {

@@ -19,7 +19,7 @@ enum Spells
     SPELL_OPTIC_LINK                           = 54396
 };
 
-struct TRINITY_DLL_DECL boss_moraggAI : public ScriptedAI
+struct boss_moraggAI : public ScriptedAI
 {
     boss_moraggAI(Creature *c) : ScriptedAI(c)
     {

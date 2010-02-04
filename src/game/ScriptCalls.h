@@ -117,8 +117,6 @@ typedef struct
     scriptCallEffectDummyItem     EffectDummyItem;
     scriptCallGetAI GetAI;
     scriptCallCreateInstanceData CreateInstanceData;
-
-    TRINITY_LIBRARY_HANDLE hScriptsLib;
 }_ScriptSet,*ScriptsSet;
 #endif
 

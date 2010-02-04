@@ -109,7 +109,7 @@ struct MinionInfo
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
 typedef std::map<uint32 /*entry*/, MinionInfo> MinionInfoMap;
 
-class TRINITY_DLL_SPEC InstanceData : public ZoneScript
+class InstanceData : public ZoneScript
 {
     public:
 

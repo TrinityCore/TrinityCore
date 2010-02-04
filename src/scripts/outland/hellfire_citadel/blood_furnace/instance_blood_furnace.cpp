@@ -28,7 +28,7 @@ EndScriptData */
 #define ENTRY_SEWER2                 181766
 #define MAX_ENCOUNTER                   3
 
-struct TRINITY_DLL_DECL instance_blood_furnace : public ScriptedInstance
+struct instance_blood_furnace : public ScriptedInstance
 {
     instance_blood_furnace(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

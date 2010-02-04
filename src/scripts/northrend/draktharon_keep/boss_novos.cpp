@@ -80,7 +80,7 @@ static Location AddSpawnPoint = { -379.20, -816.76, 59.70};
 static Location CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
 static Location AddDestinyPoint = { -379.314545, -772.577637, 28.58837 };
 
-struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
+struct boss_novosAI : public Scripted_NoMovementAI
 {
     boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
     {
@@ -221,7 +221,7 @@ struct TRINITY_DLL_DECL boss_novosAI : public Scripted_NoMovementAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_crystal_handlerAI : public ScriptedAI
+struct mob_crystal_handlerAI : public ScriptedAI
 {
     mob_crystal_handlerAI(Creature *c) : ScriptedAI(c)
     {
@@ -237,7 +237,7 @@ struct TRINITY_DLL_DECL mob_crystal_handlerAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_novos_minionAI : public ScriptedAI
+struct mob_novos_minionAI : public ScriptedAI
 {
     mob_novos_minionAI(Creature *c) : ScriptedAI(c)
     {

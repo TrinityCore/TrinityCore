@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_TRAMPLE           5568
 #define SPELL_LANDSLIDE         21808
 
-struct TRINITY_DLL_DECL boss_landslideAI : public ScriptedAI
+struct boss_landslideAI : public ScriptedAI
 {
     boss_landslideAI(Creature *c) : ScriptedAI(c) {}
 

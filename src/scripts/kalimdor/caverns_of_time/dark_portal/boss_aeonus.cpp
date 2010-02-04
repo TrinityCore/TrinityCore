@@ -41,7 +41,7 @@ enum eEnums
     H_SPELL_SAND_BREATH = 39049
 };
 
-struct TRINITY_DLL_DECL boss_aeonusAI : public ScriptedAI
+struct boss_aeonusAI : public ScriptedAI
 {
     boss_aeonusAI(Creature *c) : ScriptedAI(c)
     {

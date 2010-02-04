@@ -29,7 +29,7 @@
 
 class ObjectWorldLoader;
 
-class TRINITY_DLL_DECL ObjectGridLoader
+class ObjectGridLoader
 {
     friend class ObjectWorldLoader;
 
@@ -56,7 +56,7 @@ class TRINITY_DLL_DECL ObjectGridLoader
         uint32 i_corpses;
 };
 
-class TRINITY_DLL_DECL ObjectGridUnloader
+class ObjectGridUnloader
 {
     public:
         ObjectGridUnloader(NGridType &grid) : i_grid(grid) {}
@@ -80,7 +80,7 @@ class TRINITY_DLL_DECL ObjectGridUnloader
         NGridType &i_grid;
 };
 
-class TRINITY_DLL_DECL ObjectGridStoper
+class ObjectGridStoper
 {
     public:
         ObjectGridStoper(NGridType &grid) : i_grid(grid) {}
@@ -105,7 +105,7 @@ class TRINITY_DLL_DECL ObjectGridStoper
         NGridType &i_grid;
 };
 
-class TRINITY_DLL_DECL ObjectGridCleaner
+class ObjectGridCleaner
 {
     public:
         ObjectGridCleaner(NGridType &grid) : i_grid(grid) {}

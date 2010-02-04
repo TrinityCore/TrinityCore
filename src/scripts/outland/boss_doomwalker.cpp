@@ -41,7 +41,7 @@ EndScriptData */
 #define SPELL_MARK_DEATH            37128
 #define SPELL_AURA_DEATH            37131
 
-struct TRINITY_DLL_DECL boss_doomwalkerAI : public ScriptedAI
+struct boss_doomwalkerAI : public ScriptedAI
 {
     boss_doomwalkerAI(Creature *c) : ScriptedAI(c) {}
 

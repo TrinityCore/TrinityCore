@@ -38,7 +38,7 @@ enum eCorporalKeeshan
     SPELL_SHIELD_BASH   = 11972,
 };
 
-struct TRINITY_DLL_DECL npc_corporal_keeshanAI : public npc_escortAI
+struct npc_corporal_keeshanAI : public npc_escortAI
 {
     npc_corporal_keeshanAI(Creature* pCreature) : npc_escortAI(pCreature) {}
 

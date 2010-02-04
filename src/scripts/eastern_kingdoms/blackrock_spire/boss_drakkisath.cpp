@@ -28,7 +28,7 @@ EndScriptData */
 #define SPELL_CONFLIGURATION            16805
 #define SPELL_THUNDERCLAP               15548               //Not sure if right ID. 23931 would be a harder possibility.
 
-struct TRINITY_DLL_DECL boss_drakkisathAI : public ScriptedAI
+struct boss_drakkisathAI : public ScriptedAI
 {
     boss_drakkisathAI(Creature *c) : ScriptedAI(c) {}
 

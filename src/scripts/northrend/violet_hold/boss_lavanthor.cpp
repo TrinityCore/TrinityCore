@@ -23,7 +23,7 @@ enum Spells
   H_SPELL_LAVA_BURN                             = 59594
 };
 
-struct TRINITY_DLL_DECL boss_lavanthorAI : public ScriptedAI
+struct boss_lavanthorAI : public ScriptedAI
 {
     boss_lavanthorAI(Creature *c) : ScriptedAI(c)
     {

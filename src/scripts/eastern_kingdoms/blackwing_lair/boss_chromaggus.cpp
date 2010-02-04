@@ -57,7 +57,7 @@ enum Spells
     SPELL_ENRAGE                                           = 28747
 };
 
-struct TRINITY_DLL_DECL boss_chromaggusAI : public ScriptedAI
+struct boss_chromaggusAI : public ScriptedAI
 {
     boss_chromaggusAI(Creature *c) : ScriptedAI(c)
     {

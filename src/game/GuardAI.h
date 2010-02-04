@@ -26,7 +26,7 @@
 
 class Creature;
 
-class TRINITY_DLL_DECL GuardAI : public CreatureAI
+class GuardAI : public CreatureAI
 {
     enum GuardState
     {

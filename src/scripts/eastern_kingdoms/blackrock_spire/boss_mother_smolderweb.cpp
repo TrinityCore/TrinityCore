@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_MOTHERSMILK               16468
 #define SPELL_SUMMON_SPIRE_SPIDERLING   16103
 
-struct TRINITY_DLL_DECL boss_mothersmolderwebAI : public ScriptedAI
+struct boss_mothersmolderwebAI : public ScriptedAI
 {
     boss_mothersmolderwebAI(Creature *c) : ScriptedAI(c) {}
 

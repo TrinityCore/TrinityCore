@@ -36,7 +36,7 @@ EndContentData */
 #define SPELL_PUSH_MOJO             43923
 #define ENTRY_FOREST_FROG           24396
 
-struct TRINITY_DLL_DECL npc_forest_frogAI : public ScriptedAI
+struct npc_forest_frogAI : public ScriptedAI
 {
     npc_forest_frogAI(Creature* c) : ScriptedAI(c)
     {
@@ -105,7 +105,7 @@ CreatureAI* GetAI_npc_forest_frog(Creature* pCreature)
 static uint32 HostageEntry[] = {23790, 23999, 24024, 24001};
 static uint32 ChestEntry[] = {186648, 187021, 186672, 186667};
 
-struct TRINITY_DLL_DECL npc_zulaman_hostageAI : public ScriptedAI
+struct npc_zulaman_hostageAI : public ScriptedAI
 {
     npc_zulaman_hostageAI(Creature *c) : ScriptedAI(c) {IsLoot = false;}
     bool IsLoot;

@@ -38,7 +38,7 @@ namespace Trinity
         class CreatePolicy = Trinity::OperatorNew<T>,
         class LifeTimePolicy = Trinity::ObjectLifeTime<T>
         >
-        class TRINITY_DLL_DECL Singleton
+        class Singleton
     {
         public:
             static T& Instance();

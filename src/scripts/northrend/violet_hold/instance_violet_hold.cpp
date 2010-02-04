@@ -39,7 +39,7 @@ const Position PortalLocation[] =
   {1890.64, 753.471, 48.7224, 1.71042}
 };
 
-struct TRINITY_DLL_DECL instance_violet_hold : public ScriptedInstance
+struct instance_violet_hold : public ScriptedInstance
 {
     instance_violet_hold(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

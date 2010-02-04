@@ -7,7 +7,7 @@
 
 #define MINRAIDDAMAGE  700000//minimal damage before trash can drop loot and reputation, resets if faction leader dies
 
-struct TRINITY_DLL_DECL hyjal_trashAI : public npc_escortAI
+struct hyjal_trashAI : public npc_escortAI
 {
     hyjal_trashAI(Creature *c);
 

@@ -27,7 +27,7 @@
 #define SAY_AGGRO                   -10000002
 #define SAY_SLAY                    -1000003
 
-struct TRINITY_DLL_DECL boss_ignis_AI : public BossAI
+struct boss_ignis_AI : public BossAI
 {
     boss_ignis_AI(Creature *pCreature) : BossAI(pCreature, TYPE_IGNIS) {}
 

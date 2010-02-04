@@ -24,7 +24,7 @@
 #include "CreatureAI.h"
 //#include "CreatureAIImpl.h"
 
-class TRINITY_DLL_SPEC PassiveAI : public CreatureAI
+class PassiveAI : public CreatureAI
 {
     public:
         explicit PassiveAI(Creature *c);
@@ -36,7 +36,7 @@ class TRINITY_DLL_SPEC PassiveAI : public CreatureAI
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
-class TRINITY_DLL_DECL PossessedAI : public CreatureAI
+class PossessedAI : public CreatureAI
 {
     public:
         explicit PossessedAI(Creature *c);
@@ -52,7 +52,7 @@ class TRINITY_DLL_DECL PossessedAI : public CreatureAI
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
-class TRINITY_DLL_SPEC NullCreatureAI : public CreatureAI
+class NullCreatureAI : public CreatureAI
 {
     public:
         explicit NullCreatureAI(Creature *c);
@@ -66,7 +66,7 @@ class TRINITY_DLL_SPEC NullCreatureAI : public CreatureAI
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };
 
-class TRINITY_DLL_DECL CritterAI : public PassiveAI
+class CritterAI : public PassiveAI
 {
     public:
         explicit CritterAI(Creature *c) : PassiveAI(c) {}
@@ -75,7 +75,7 @@ class TRINITY_DLL_DECL CritterAI : public PassiveAI
         void EnterEvadeMode();
 };
 
-class TRINITY_DLL_SPEC TriggerAI : public NullCreatureAI
+class TriggerAI : public NullCreatureAI
 {
     public:
         explicit TriggerAI(Creature *c) : NullCreatureAI(c) {}

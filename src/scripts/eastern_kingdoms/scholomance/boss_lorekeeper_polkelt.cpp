@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_CORROSIVEACID          23313
 #define SPELL_NOXIOUSCATALYST        18151
 
-struct TRINITY_DLL_DECL boss_lorekeeperpolkeltAI : public ScriptedAI
+struct boss_lorekeeperpolkeltAI : public ScriptedAI
 {
     boss_lorekeeperpolkeltAI(Creature *c) : ScriptedAI(c) {}
 
