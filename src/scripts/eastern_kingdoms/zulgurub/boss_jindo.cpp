@@ -39,7 +39,7 @@ EndScriptData */
 #define SPELL_SHADOWSHOCK               19460
 #define SPELL_INVISIBLE                 24699
 
-struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
+struct boss_jindoAI : public ScriptedAI
 {
     boss_jindoAI(Creature *c) : ScriptedAI(c) {}
 
@@ -159,7 +159,7 @@ struct TRINITY_DLL_DECL boss_jindoAI : public ScriptedAI
 };
 
 //Healing Ward
-struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
+struct mob_healing_wardAI : public ScriptedAI
 {
     mob_healing_wardAI(Creature *c) : ScriptedAI(c)
     {
@@ -198,7 +198,7 @@ struct TRINITY_DLL_DECL mob_healing_wardAI : public ScriptedAI
 };
 
 //Shade of Jindo
-struct TRINITY_DLL_DECL mob_shade_of_jindoAI : public ScriptedAI
+struct mob_shade_of_jindoAI : public ScriptedAI
 {
     mob_shade_of_jindoAI(Creature *c) : ScriptedAI(c) {}
 

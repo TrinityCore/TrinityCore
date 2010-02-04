@@ -64,7 +64,7 @@ float AddPos[9][3] =
     {42.471519, -445.115295, -19.769423}    //MOVE_GUARDIAN_3 X, Y, Z
 };
 
-struct TRINITY_DLL_DECL boss_the_lurker_belowAI : public Scripted_NoMovementAI
+struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
 {
     boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c), Summons(m_creature)
     {
@@ -368,7 +368,7 @@ CreatureAI* GetAI_mob_coilfang_guardian(Creature* pCreature)
     return ai;
 }
 
-struct TRINITY_DLL_DECL mob_coilfang_ambusherAI : public Scripted_NoMovementAI
+struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 {
     mob_coilfang_ambusherAI(Creature *c) : Scripted_NoMovementAI(c)
     {

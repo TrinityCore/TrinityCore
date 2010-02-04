@@ -33,7 +33,7 @@ enum eSpells
     SPELL_SLEEP                     = 8399
 };
 
-struct TRINITY_DLL_DECL boss_high_inquisitor_fairbanksAI : public ScriptedAI
+struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
 {
     boss_high_inquisitor_fairbanksAI(Creature *c) : ScriptedAI(c) {}
 

@@ -41,7 +41,7 @@ enum eEnums
     SPELL_ATTRACTION            = 38540                       //Not Implemented (Heroic mode)
 };
 
-struct TRINITY_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
+struct boss_chrono_lord_dejaAI : public ScriptedAI
 {
     boss_chrono_lord_dejaAI(Creature *c) : ScriptedAI(c)
     {

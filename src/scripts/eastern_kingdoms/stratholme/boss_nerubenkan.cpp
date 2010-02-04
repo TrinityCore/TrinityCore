@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_CRYPT_SCARABS         31602
 #define SPELL_RAISEUNDEADSCARAB     17235
 
-struct TRINITY_DLL_DECL boss_nerubenkanAI : public ScriptedAI
+struct boss_nerubenkanAI : public ScriptedAI
 {
     boss_nerubenkanAI(Creature *c) : ScriptedAI(c)
     {

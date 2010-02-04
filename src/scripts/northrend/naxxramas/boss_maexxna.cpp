@@ -57,7 +57,7 @@ enum Events
     EVENT_FRENZY,
 };
 
-struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
+struct boss_maexxnaAI : public BossAI
 {
     boss_maexxnaAI(Creature *c) : BossAI(c, BOSS_MAEXXNA) {}
 
@@ -136,7 +136,7 @@ struct TRINITY_DLL_DECL boss_maexxnaAI : public BossAI
     }
 };
 
-struct TRINITY_DLL_DECL mob_webwrapAI : public NullCreatureAI
+struct mob_webwrapAI : public NullCreatureAI
 {
     mob_webwrapAI(Creature *c) : NullCreatureAI(c), victimGUID(0) {}
 

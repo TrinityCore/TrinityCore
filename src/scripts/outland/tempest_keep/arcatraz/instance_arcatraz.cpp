@@ -45,7 +45,7 @@ EndScriptData */
 4 - Harbinger Skyriss event, 5 sub-events
 */
 
-struct TRINITY_DLL_DECL instance_arcatraz : public ScriptedInstance
+struct instance_arcatraz : public ScriptedInstance
 {
     instance_arcatraz(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

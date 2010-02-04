@@ -53,7 +53,7 @@ enum Events
     EVENT_COMMAND,
 };
 
-struct TRINITY_DLL_DECL boss_razuviousAI : public BossAI
+struct boss_razuviousAI : public BossAI
 {
     boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
 

@@ -29,7 +29,7 @@
 /** FactoryHolder holds a factory object of a specific type
  */
 template<class T, class Key = std::string>
-class TRINITY_DLL_DECL FactoryHolder
+class FactoryHolder
 {
     public:
         typedef ObjectRegistry<FactoryHolder<T, Key >, Key > FactoryHolderRegistry;

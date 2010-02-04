@@ -27,7 +27,7 @@
 class Creature;
 class Totem;
 
-class TRINITY_DLL_DECL TotemAI : public CreatureAI
+class TotemAI : public CreatureAI
 {
     public:
 

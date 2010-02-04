@@ -15,8 +15,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef __MANGOS_ACHIEVEMENTMGR_H
-#define __MANGOS_ACHIEVEMENTMGR_H
+#ifndef __TRINITY_ACHIEVEMENTMGR_H
+#define __TRINITY_ACHIEVEMENTMGR_H
 
 #include <map>
 #include <string>

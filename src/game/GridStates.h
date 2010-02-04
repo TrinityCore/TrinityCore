@@ -24,7 +24,7 @@
 #include "Map.h"
 #include "Object.h"
 
-class TRINITY_DLL_DECL GridState
+class GridState
 {
     public:
 #ifdef TRINITY_DEBUG
@@ -45,28 +45,28 @@ class TRINITY_DLL_DECL GridState
         virtual void Update(Map &, NGridType&, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const = 0;
 };
 
-class TRINITY_DLL_DECL InvalidState : public GridState
+class InvalidState : public GridState
 {
     public:
 
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
 
-class TRINITY_DLL_DECL ActiveState : public GridState
+class ActiveState : public GridState
 {
     public:
 
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
 
-class TRINITY_DLL_DECL IdleState : public GridState
+class IdleState : public GridState
 {
     public:
 
         void Update(Map &, NGridType &, GridInfo &, const uint32 &x, const uint32 &y, const uint32 &t_diff) const;
 };
 
-class TRINITY_DLL_DECL RemovalState : public GridState
+class RemovalState : public GridState
 {
     public:
 

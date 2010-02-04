@@ -35,7 +35,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER          2
 
-struct TRINITY_DLL_DECL instance_scholomance : public ScriptedInstance
+struct instance_scholomance : public ScriptedInstance
 {
     instance_scholomance(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

@@ -45,7 +45,7 @@ enum win_friends
     SPELL_PERSUASIVE_STRIKE           = 52781
 };
 
-struct TRINITY_DLL_DECL npc_crusade_persuadedAI : public ScriptedAI
+struct npc_crusade_persuadedAI : public ScriptedAI
 {
     npc_crusade_persuadedAI(Creature *pCreature) : ScriptedAI(pCreature) {}
 
@@ -166,7 +166,7 @@ enum eKoltira
     MODEL_DEATH_KNIGHT_MOUNT        = 25278
 };
 
-struct TRINITY_DLL_DECL npc_koltira_deathweaverAI : public npc_escortAI
+struct npc_koltira_deathweaverAI : public npc_escortAI
 {
     npc_koltira_deathweaverAI(Creature *pCreature) : npc_escortAI(pCreature)
     {
@@ -338,7 +338,7 @@ enum ScarletCourierEnum
     NPC_SCARLET_COURIER                = 29076
 };
 
-struct TRINITY_DLL_DECL mob_scarlet_courierAI : public ScriptedAI
+struct mob_scarlet_courierAI : public ScriptedAI
 {
     mob_scarlet_courierAI(Creature *pCreature) : ScriptedAI(pCreature) {}
 
@@ -425,7 +425,7 @@ enum valroth
     SPELL_SUMMON_VALROTH_REMAINS      = 52929
 };
 
-struct TRINITY_DLL_DECL mob_high_inquisitor_valrothAI : public ScriptedAI
+struct mob_high_inquisitor_valrothAI : public ScriptedAI
 {
     mob_high_inquisitor_valrothAI(Creature *pCreature) : ScriptedAI(pCreature) {}
 
@@ -554,7 +554,7 @@ enum SpecialSurprise
     NPC_PLAGUEFIST              = 29053
 };
 
-struct TRINITY_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
+struct npc_a_special_surpriseAI : public ScriptedAI
 {
     npc_a_special_surpriseAI(Creature *pCreature) : ScriptedAI(pCreature) {}
 

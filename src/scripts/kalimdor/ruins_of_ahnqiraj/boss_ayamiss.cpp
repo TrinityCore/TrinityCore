@@ -37,7 +37,7 @@ enum Spells
     SPELL_PARALYZE                     = 23414   //doesnt work correct (core)
 };
 
-struct TRINITY_DLL_DECL boss_ayamissAI : public ScriptedAI
+struct boss_ayamissAI : public ScriptedAI
 {
     boss_ayamissAI(Creature *c) : ScriptedAI(c)
     {

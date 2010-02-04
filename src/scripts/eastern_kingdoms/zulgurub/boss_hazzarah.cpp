@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_MANABURN         26046
 #define SPELL_SLEEP            24664
 
-struct TRINITY_DLL_DECL boss_hazzarahAI : public ScriptedAI
+struct boss_hazzarahAI : public ScriptedAI
 {
     boss_hazzarahAI(Creature *c) : ScriptedAI(c) {}
 

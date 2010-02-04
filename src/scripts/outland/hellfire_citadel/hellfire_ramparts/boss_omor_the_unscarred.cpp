@@ -41,7 +41,7 @@ EndScriptData */
 #define H_SPELL_SHADOW_BOLT         39297
 #define SPELL_SUMMON_FIENDISH_HOUND 30707
 
-struct TRINITY_DLL_DECL boss_omor_the_unscarredAI : public ScriptedAI
+struct boss_omor_the_unscarredAI : public ScriptedAI
 {
     boss_omor_the_unscarredAI(Creature *c) : ScriptedAI(c)
     {

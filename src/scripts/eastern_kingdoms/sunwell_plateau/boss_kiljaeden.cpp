@@ -300,7 +300,7 @@ bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
 }
 
 //AI for Kalecgos
-struct TRINITY_DLL_DECL boss_kalecgos_kjAI : public ScriptedAI
+struct boss_kalecgos_kjAI : public ScriptedAI
 {
     boss_kalecgos_kjAI(Creature* c) : ScriptedAI(c)
     {
@@ -431,7 +431,7 @@ CreatureAI* GetAI_boss_kalecgos_kj(Creature* pCreature)
 }
 
 //AI for Kil'jaeden
-struct TRINITY_DLL_DECL boss_kiljaedenAI : public Scripted_NoMovementAI
+struct boss_kiljaedenAI : public Scripted_NoMovementAI
 {
     boss_kiljaedenAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature)
     {
@@ -780,7 +780,7 @@ CreatureAI* GetAI_boss_kiljaeden(Creature* pCreature)
 }
 
 //AI for Kil'jaeden Event Controller
-struct TRINITY_DLL_DECL mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
+struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 {
     mob_kiljaeden_controllerAI(Creature* c) : Scripted_NoMovementAI(c), Summons(m_creature)
     {
@@ -875,7 +875,7 @@ CreatureAI* GetAI_mob_kiljaeden_controller(Creature* pCreature)
 }
 
 //AI for Hand of the Deceiver
-struct TRINITY_DLL_DECL mob_hand_of_the_deceiverAI : public ScriptedAI
+struct mob_hand_of_the_deceiverAI : public ScriptedAI
 {
     mob_hand_of_the_deceiverAI(Creature* c) : ScriptedAI(c)
     {
@@ -965,7 +965,7 @@ CreatureAI* GetAI_mob_hand_of_the_deceiver(Creature* pCreature)
 }
 
 //AI for Felfire Portal
-struct TRINITY_DLL_DECL mob_felfire_portalAI : public Scripted_NoMovementAI
+struct mob_felfire_portalAI : public Scripted_NoMovementAI
 {
     mob_felfire_portalAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
@@ -1010,7 +1010,7 @@ CreatureAI* GetAI_mob_felfire_portal(Creature* pCreature)
 }
 
 //AI for Felfire Fiend
-struct TRINITY_DLL_DECL mob_volatile_felfire_fiendAI : public ScriptedAI
+struct mob_volatile_felfire_fiendAI : public ScriptedAI
 {
     mob_volatile_felfire_fiendAI(Creature* c) : ScriptedAI(c) {}
 
@@ -1061,7 +1061,7 @@ CreatureAI* GetAI_mob_volatile_felfire_fiend(Creature* pCreature)
 }
 
 //AI for Armageddon target
-struct TRINITY_DLL_DECL mob_armageddonAI : public Scripted_NoMovementAI
+struct mob_armageddonAI : public Scripted_NoMovementAI
 {
     mob_armageddonAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
@@ -1109,7 +1109,7 @@ CreatureAI* GetAI_mob_armageddon(Creature* pCreature)
 }
 
 //AI for Shield Orbs
-struct TRINITY_DLL_DECL mob_shield_orbAI : public ScriptedAI
+struct mob_shield_orbAI : public ScriptedAI
 {
     mob_shield_orbAI(Creature* c) : ScriptedAI(c)
     {
@@ -1193,7 +1193,7 @@ CreatureAI* GetAI_mob_shield_orb(Creature* pCreature)
 }
 
 //AI for Sinister Reflection
-struct TRINITY_DLL_DECL mob_sinster_reflectionAI : public ScriptedAI
+struct mob_sinster_reflectionAI : public ScriptedAI
 {
     mob_sinster_reflectionAI(Creature* c) : ScriptedAI(c) {}
 

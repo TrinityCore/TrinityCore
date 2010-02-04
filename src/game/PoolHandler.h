@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOS_POOLHANDLER_H
-#define MANGOS_POOLHANDLER_H
+#ifndef TRINITY_POOLHANDLER_H
+#define TRINITY_POOLHANDLER_H
 
 #include "Platform/Define.h"
 #include "Policies/Singleton.h"

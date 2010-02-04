@@ -50,7 +50,7 @@ enum CombatPhase
     STONE
 };
 
-struct TRINITY_DLL_DECL boss_moamAI : public ScriptedAI
+struct boss_moamAI : public ScriptedAI
 {
     boss_moamAI(Creature *c) : ScriptedAI(c)
     {

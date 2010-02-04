@@ -24,7 +24,7 @@
 #define SAY_ONAGGRO "Cry for mercy! Your meaningless lives will soon be forfeit."
 #define SOUND_ONAGGRO 11015
 
-struct TRINITY_DLL_DECL boss_kazrogalAI : public hyjal_trashAI
+struct boss_kazrogalAI : public hyjal_trashAI
 {
     boss_kazrogalAI(Creature *c) : hyjal_trashAI(c)
     {

@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOS_CREATURE_EAI_H
-#define MANGOS_CREATURE_EAI_H
+#ifndef TRINITY_CREATURE_EAI_H
+#define TRINITY_CREATURE_EAI_H
 
 #include "Common.h"
 #include "Creature.h"
@@ -580,7 +580,7 @@ struct CreatureEventAIHolder
     bool UpdateRepeatTimer(Creature* creature, uint32 repeatMin, uint32 repeatMax);
 };
 
-class TRINITY_DLL_SPEC CreatureEventAI : public CreatureAI
+class CreatureEventAI : public CreatureAI
 {
 
     public:

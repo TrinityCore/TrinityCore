@@ -59,7 +59,7 @@ enum Achievements
     ACHIEVEMENT_QUICK_DEMISE                = 1862
 };
 
-struct TRINITY_DLL_DECL boss_volazjAI : public ScriptedAI
+struct boss_volazjAI : public ScriptedAI
 {
     boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature),Summons(m_creature)
     {

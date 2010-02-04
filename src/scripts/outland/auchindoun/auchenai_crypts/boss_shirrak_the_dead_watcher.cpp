@@ -38,7 +38,7 @@ EndScriptData */
 
 #define EMOTE_FOCUSES_ON            "focuses on "
 
-struct TRINITY_DLL_DECL boss_shirrak_the_dead_watcherAI : public ScriptedAI
+struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
 {
     boss_shirrak_the_dead_watcherAI(Creature *c) : ScriptedAI(c)
     {
@@ -151,7 +151,7 @@ CreatureAI* GetAI_boss_shirrak_the_dead_watcher(Creature* pCreature)
     return new boss_shirrak_the_dead_watcherAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_focus_fireAI : public ScriptedAI
+struct mob_focus_fireAI : public ScriptedAI
 {
     mob_focus_fireAI(Creature *c) : ScriptedAI(c)
     {

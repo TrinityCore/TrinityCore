@@ -24,7 +24,7 @@
 #define SAY_SLAY -1
 */
 
-struct TRINITY_DLL_DECL boss_hodirAI : public BossAI
+struct boss_hodirAI : public BossAI
 {
     boss_hodirAI(Creature *pCreature) : BossAI(pCreature, TYPE_HODIR)
     {

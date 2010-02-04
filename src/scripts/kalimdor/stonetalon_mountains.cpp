@@ -95,7 +95,7 @@ enum eKaya
     QUEST_PROTECT_KAYA          = 6523
 };
 
-struct TRINITY_DLL_DECL npc_kaya_flathoofAI : public npc_escortAI
+struct npc_kaya_flathoofAI : public npc_escortAI
 {
     npc_kaya_flathoofAI(Creature* c) : npc_escortAI(c) {}
 

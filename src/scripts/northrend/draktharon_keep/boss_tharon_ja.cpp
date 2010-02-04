@@ -85,7 +85,7 @@ enum CombatPhase
     GOING_SKELETAL
 };
 
-struct TRINITY_DLL_DECL boss_tharon_jaAI : public ScriptedAI
+struct boss_tharon_jaAI : public ScriptedAI
 {
     boss_tharon_jaAI(Creature *c) : ScriptedAI(c)
     {

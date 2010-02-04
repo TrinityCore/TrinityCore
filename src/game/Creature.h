@@ -168,7 +168,7 @@ struct CreatureInfo
 #define MAX_CREATURE_BASE_HP 3
 
 // Defines base stats for creatures (used to calculate HP/mana/armor).
-struct TRINITY_DLL_SPEC CreatureBaseStats
+struct CreatureBaseStats
 {
     uint32 Level;
     uint8 Class;
@@ -407,7 +407,7 @@ typedef std::map<uint32,time_t> CreatureSpellCooldowns;
 
 #define MAX_VENDOR_ITEMS 150                                // Limitation in 3.x.x item count in SMSG_LIST_INVENTORY
 
-class TRINITY_DLL_SPEC Creature : public Unit, public GridObject<Creature>
+class Creature : public Unit, public GridObject<Creature>
 {
     public:
 

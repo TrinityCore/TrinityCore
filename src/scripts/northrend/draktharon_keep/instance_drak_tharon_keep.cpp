@@ -43,7 +43,7 @@ enum GameObjects
     GO_NOVOS_CRYSTAL_4                                     = 189302
 };
 
-struct TRINITY_DLL_DECL instance_drak_tharon : public ScriptedInstance
+struct instance_drak_tharon : public ScriptedInstance
 {
     instance_drak_tharon(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

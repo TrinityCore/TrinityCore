@@ -107,7 +107,7 @@ static CouncilYells CouncilEnrage[]=
 
 #define SPELL_BERSERK              45078
 
-struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedAI
+struct mob_blood_elf_council_voice_triggerAI : public ScriptedAI
 {
     mob_blood_elf_council_voice_triggerAI(Creature* c) : ScriptedAI(c)
     {
@@ -190,7 +190,7 @@ struct TRINITY_DLL_DECL mob_blood_elf_council_voice_triggerAI : public ScriptedA
     }
 };
 
-struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
+struct mob_illidari_councilAI : public ScriptedAI
 {
     mob_illidari_councilAI(Creature *c) : ScriptedAI(c)
     {
@@ -348,7 +348,7 @@ struct TRINITY_DLL_DECL mob_illidari_councilAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
+struct boss_illidari_councilAI : public ScriptedAI
 {
     boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
     {
@@ -435,7 +435,7 @@ struct TRINITY_DLL_DECL boss_illidari_councilAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_councilAI
+struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
 {
     boss_gathios_the_shattererAI(Creature *c) : boss_illidari_councilAI(c) {}
 
@@ -550,7 +550,7 @@ struct TRINITY_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_coun
     }
 };
 
-struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
+struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
 {
     boss_high_nethermancer_zerevorAI(Creature *c) : boss_illidari_councilAI(c) {}
 
@@ -642,7 +642,7 @@ struct TRINITY_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_
     }
 };
 
-struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
+struct boss_lady_malandeAI : public boss_illidari_councilAI
 {
     boss_lady_malandeAI(Creature *c) : boss_illidari_councilAI(c) {}
 
@@ -708,7 +708,7 @@ struct TRINITY_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
+struct boss_veras_darkshadowAI : public boss_illidari_councilAI
 {
     boss_veras_darkshadowAI(Creature *c) : boss_illidari_councilAI(c) {}
 

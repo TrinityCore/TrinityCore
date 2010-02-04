@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_SILENCE           15487
 #define SPELL_FEAR              6215
 
-struct TRINITY_DLL_DECL boss_illuciabarovAI : public ScriptedAI
+struct boss_illuciabarovAI : public ScriptedAI
 {
     boss_illuciabarovAI(Creature *c) : ScriptedAI(c) {}
 

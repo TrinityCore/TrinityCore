@@ -3061,7 +3061,7 @@ void ObjectMgr::LoadPlayerInfo()
                     sLog.outErrorDb("Wrong (> %u) level %u in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL,current_level);
                 else
                 {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in mangosd.conf) level %u in `player_xp_for_levels` table, ignoring.",current_level);
+                    sLog.outDetail("Unused (> MaxPlayerLevel in TrinityCore.conf) level %u in `player_xp_for_levels` table, ignoring.",current_level);
                     ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                 }
                 continue;
@@ -8570,14 +8570,14 @@ bool LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value, i
     // start/end reversed for negative values
     if (start_value > MAX_DB_SCRIPT_STRING_ID || end_value >= start_value)
     {
-        sLog.outErrorDb("Table '%s' attempt loaded with reserved by mangos range (%d - %d), strings not loaded.",table,start_value,end_value+1);
+        sLog.outErrorDb("Table '%s' load attempted with range (%d - %d) reserved by Trinity, strings not loaded.",table,start_value,end_value+1);
         return false;
     }
 
     return objmgr.LoadTrinityStrings(db,table,start_value,end_value);
 }
 
-uint32 TRINITY_DLL_SPEC GetScriptId(const char *name)
+uint32  GetScriptId(const char *name)
 {
     return objmgr.GetScriptId(name);
 }

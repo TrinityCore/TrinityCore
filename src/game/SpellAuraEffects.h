@@ -20,7 +20,7 @@ class Aura;
 
 typedef void(AuraEffect::*pAuraEffectHandler)(AuraApplication const * aurApp, uint8 mode, bool apply) const;
 
-class TRINITY_DLL_SPEC AuraEffect
+class AuraEffect
 {
     friend Aura::Aura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID);
     friend Aura::~Aura();

@@ -54,7 +54,7 @@ EndContentData */
 
 #define C_COUNCIL_ENFORCER      17023
 
-struct TRINITY_DLL_DECL npc_medivh_bmAI : public ScriptedAI
+struct npc_medivh_bmAI : public ScriptedAI
 {
     npc_medivh_bmAI(Creature *c) : ScriptedAI(c)
     {
@@ -240,7 +240,7 @@ static Wave PortalWaves[]=
     {C_EXECU, C_VANQU, C_CHRON, C_ASSAS}
 };
 
-struct TRINITY_DLL_DECL npc_time_riftAI : public ScriptedAI
+struct npc_time_riftAI : public ScriptedAI
 {
     npc_time_riftAI(Creature *c) : ScriptedAI(c)
     {

@@ -94,7 +94,7 @@ static InfernalPoint InfernalPoints[] =
 #define EQUIP_ID_AXE                33542                      //Axes info
 
 //---------Infernal code first
-struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
+struct netherspite_infernalAI : public ScriptedAI
 {
     netherspite_infernalAI(Creature *c) : ScriptedAI(c) ,
         malchezaar(0), HellfireTimer(0), CleanupTimer(0), point(NULL) {}
@@ -153,7 +153,7 @@ struct TRINITY_DLL_DECL netherspite_infernalAI : public ScriptedAI
     void Cleanup();                                         //below ...
 };
 
-struct TRINITY_DLL_DECL boss_malchezaarAI : public ScriptedAI
+struct boss_malchezaarAI : public ScriptedAI
 {
     boss_malchezaarAI(Creature *c) : ScriptedAI(c)
     {

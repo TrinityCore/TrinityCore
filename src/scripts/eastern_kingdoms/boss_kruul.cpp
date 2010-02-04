@@ -31,7 +31,7 @@ EndScriptData */
 #define SPELL_RAGE                  21340
 #define SPELL_CAPTURESOUL           21054
 
-struct TRINITY_DLL_DECL boss_kruulAI : public ScriptedAI
+struct boss_kruulAI : public ScriptedAI
 {
     boss_kruulAI(Creature *c) : ScriptedAI(c) {}
 

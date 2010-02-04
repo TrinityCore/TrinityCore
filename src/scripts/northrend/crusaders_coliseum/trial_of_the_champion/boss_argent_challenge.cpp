@@ -57,7 +57,7 @@ enum eSpells
     SPELL_WAKING_NIGHTMARE_H    = 67677
 };
 
-struct TRINITY_DLL_DECL boss_eadricAI : public ScriptedAI
+struct boss_eadricAI : public ScriptedAI
 {
     boss_eadricAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -156,7 +156,7 @@ CreatureAI* GetAI_boss_eadric(Creature* pCreature)
     return new boss_eadricAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL boss_paletressAI : public ScriptedAI
+struct boss_paletressAI : public ScriptedAI
 {
     boss_paletressAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -306,7 +306,7 @@ CreatureAI* GetAI_boss_paletress(Creature* pCreature)
     return new boss_paletressAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_memoryAI : public ScriptedAI
+struct npc_memoryAI : public ScriptedAI
 {
     npc_memoryAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -374,7 +374,7 @@ CreatureAI* GetAI_npc_memory(Creature* pCreature)
 }
 
 // THIS AI NEEDS MORE IMPROVEMENTS
-struct TRINITY_DLL_DECL npc_argent_soldierAI : public npc_escortAI
+struct npc_argent_soldierAI : public npc_escortAI
 {
     npc_argent_soldierAI(Creature* pCreature) : npc_escortAI(pCreature)
     {

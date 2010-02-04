@@ -58,7 +58,7 @@ enum Achievements
     ACHIEVEMENT_MOMMA_SAID_KNOCK_YOU_OUT_25 = 2140
 };
 
-struct TRINITY_DLL_DECL boss_faerlinaAI : public BossAI
+struct boss_faerlinaAI : public BossAI
 {
     boss_faerlinaAI(Creature *c) : BossAI(c, BOSS_FAERLINA), greet(false) {}
 
@@ -169,7 +169,7 @@ CreatureAI* GetAI_boss_faerlina(Creature* pCreature)
     return new boss_faerlinaAI (pCreature);
 }
 
-struct TRINITY_DLL_DECL mob_faerlina_addAI : public ScriptedAI
+struct mob_faerlina_addAI : public ScriptedAI
 {
     mob_faerlina_addAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

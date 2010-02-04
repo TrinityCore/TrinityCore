@@ -35,7 +35,7 @@ enum eEnums
     SPELL_POISON            = 30914
 };
 
-struct TRINITY_DLL_DECL boss_broggokAI : public ScriptedAI
+struct boss_broggokAI : public ScriptedAI
 {
     boss_broggokAI(Creature *c) : ScriptedAI(c)
     {

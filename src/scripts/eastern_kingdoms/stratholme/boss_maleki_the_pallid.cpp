@@ -29,7 +29,7 @@ EndScriptData */
 #define SPELL_DRAIN_MANA    17243
 #define SPELL_ICETOMB    16869
 
-struct TRINITY_DLL_DECL boss_maleki_the_pallidAI : public ScriptedAI
+struct boss_maleki_the_pallidAI : public ScriptedAI
 {
     boss_maleki_the_pallidAI(Creature *c) : ScriptedAI(c)
     {

@@ -42,7 +42,7 @@
 #define STOP_TIME_FOR_PLAYER  3 * MINUTE * IN_MILISECONDS           // 3 Minutes
 
 template<class T, class P = Path>
-class TRINITY_DLL_SPEC PathMovementBase
+class PathMovementBase
 {
     public:
         PathMovementBase() : i_currentNode(0) {}
@@ -62,7 +62,7 @@ class TRINITY_DLL_SPEC PathMovementBase
 
 template<class T>
 
-class TRINITY_DLL_SPEC WaypointMovementGenerator
+class WaypointMovementGenerator
     : public MovementGeneratorMedium< T, WaypointMovementGenerator<T> >, public PathMovementBase<T>
 {
     public:
@@ -90,7 +90,7 @@ class TRINITY_DLL_SPEC WaypointMovementGenerator
 /** FlightPathMovementGenerator generates movement of the player for the paths
  * and hence generates ground and activities for the player.
  */
-class TRINITY_DLL_SPEC FlightPathMovementGenerator
+class FlightPathMovementGenerator
 : public MovementGeneratorMedium< Player, FlightPathMovementGenerator >,
 public PathMovementBase<Player>
 {

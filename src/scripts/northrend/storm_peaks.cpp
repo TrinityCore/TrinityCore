@@ -30,7 +30,7 @@ enum eAgnetta
     FACTION_HOSTILE_AT1             = 45
 };
 
-struct TRINITY_DLL_DECL npc_agnetta_tyrsdottarAI : public ScriptedAI
+struct npc_agnetta_tyrsdottarAI : public ScriptedAI
 {
     npc_agnetta_tyrsdottarAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
@@ -178,7 +178,7 @@ enum eGoblinPrisoner
     GO_RUSTY_CAGE = 191544
 };
 
-struct TRINITY_DLL_DECL npc_goblin_prisonerAI : public ScriptedAI
+struct npc_goblin_prisonerAI : public ScriptedAI
 {
     npc_goblin_prisonerAI(Creature* pCreature) : ScriptedAI (pCreature){}
 
@@ -215,7 +215,7 @@ enum eVictoriousChallenger
     SPELL_REND_VC                   = 11977
 };
 
-struct TRINITY_DLL_DECL npc_victorious_challengerAI : public ScriptedAI
+struct npc_victorious_challengerAI : public ScriptedAI
 {
     npc_victorious_challengerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 

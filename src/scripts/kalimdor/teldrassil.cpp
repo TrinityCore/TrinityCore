@@ -41,7 +41,7 @@ enum eMist
     FACTION_DARNASSUS       = 79
 };
 
-struct TRINITY_DLL_DECL npc_mistAI : public FollowerAI
+struct npc_mistAI : public FollowerAI
 {
     npc_mistAI(Creature* pCreature) : FollowerAI(pCreature) { }
 

@@ -30,7 +30,7 @@ enum eEnums
     SPELL_BLOODLUST                 = 6742
 };
 
-struct TRINITY_DLL_DECL boss_houndmaster_lokseyAI : public ScriptedAI
+struct boss_houndmaster_lokseyAI : public ScriptedAI
 {
     boss_houndmaster_lokseyAI(Creature *c) : ScriptedAI(c) {}
 

@@ -37,7 +37,7 @@ enum Events
     EVENT_SWEEP,
 };
 
-struct TRINITY_DLL_DECL boss_kologarnAI : public BossAI
+struct boss_kologarnAI : public BossAI
 {
     boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(me->GetVehicleKit()),
         left(false), right(false)

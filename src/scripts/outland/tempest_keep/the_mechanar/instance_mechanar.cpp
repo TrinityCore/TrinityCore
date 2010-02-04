@@ -26,7 +26,7 @@ EndScriptData */
 
 #define MAX_ENCOUNTER      1
 
-struct TRINITY_DLL_DECL instance_mechanar : public ScriptedInstance
+struct instance_mechanar : public ScriptedInstance
 {
     instance_mechanar(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

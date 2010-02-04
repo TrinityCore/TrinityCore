@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_RAINOFFIRE            19717
 #define SPELL_GEHENNASCURSE         19716
 
-struct TRINITY_DLL_DECL boss_gehennasAI : public ScriptedAI
+struct boss_gehennasAI : public ScriptedAI
 {
     boss_gehennasAI(Creature *c) : ScriptedAI(c) {}
 

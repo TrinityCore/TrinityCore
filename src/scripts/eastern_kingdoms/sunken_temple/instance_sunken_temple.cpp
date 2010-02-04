@@ -37,7 +37,7 @@ EndScriptData */
 
 #define NPC_MALFURION_STORMRAGE 15362
 
-struct TRINITY_DLL_DECL instance_sunken_temple : public ScriptedInstance
+struct instance_sunken_temple : public ScriptedInstance
 {
     instance_sunken_temple(Map* pMap) : ScriptedInstance(pMap)
     {

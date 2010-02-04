@@ -46,7 +46,7 @@ EndContentData */
 
 #define ENTRY_STREAMRIGGER_MECHANIC 17951
 
-struct TRINITY_DLL_DECL boss_mekgineer_steamriggerAI : public ScriptedAI
+struct boss_mekgineer_steamriggerAI : public ScriptedAI
 {
     boss_mekgineer_steamriggerAI(Creature *c) : ScriptedAI(c)
     {
@@ -183,7 +183,7 @@ CreatureAI* GetAI_boss_mekgineer_steamrigger(Creature* pCreature)
 #define MAX_REPAIR_RANGE            (13.0f)                 //we should be at least at this range for repair
 #define MIN_REPAIR_RANGE            (7.0f)                  //we can stop movement at this range to repair but not required
 
-struct TRINITY_DLL_DECL mob_steamrigger_mechanicAI : public ScriptedAI
+struct mob_steamrigger_mechanicAI : public ScriptedAI
 {
     mob_steamrigger_mechanicAI(Creature *c) : ScriptedAI(c)
     {

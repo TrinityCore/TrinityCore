@@ -141,7 +141,7 @@ bool GrandChampionsOutVehicle(Creature* m_creature)
 * Script Complete: 25%.                                                     *
 */
 
-struct TRINITY_DLL_DECL generic_vehicleAI_toc5AI : public npc_escortAI
+struct generic_vehicleAI_toc5AI : public npc_escortAI
 {
     generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature), pVehicle(pCreature->GetVehicleKit())
     {
@@ -290,7 +290,7 @@ CreatureAI* GetAI_generic_vehicleAI_toc5(Creature* pCreature)
 }
 
 // Marshal Jacob Alerius && Mokra the Skullcrusher || Warrior
-struct TRINITY_DLL_DECL boss_warrior_toc5AI : public ScriptedAI
+struct boss_warrior_toc5AI : public ScriptedAI
 {
     boss_warrior_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -417,7 +417,7 @@ CreatureAI* GetAI_boss_warrior_toc5(Creature* pCreature)
 }
 
 // Ambrose Boltspark && Eressea Dawnsinger || Mage
-struct TRINITY_DLL_DECL boss_mage_toc5AI : public ScriptedAI
+struct boss_mage_toc5AI : public ScriptedAI
 {
     boss_mage_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -551,7 +551,7 @@ CreatureAI* GetAI_boss_mage_toc5(Creature* pCreature)
 }
 
 // Colosos && Runok Wildmane || Shaman
-struct TRINITY_DLL_DECL boss_shaman_toc5AI : public ScriptedAI
+struct boss_shaman_toc5AI : public ScriptedAI
 {
     boss_shaman_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -692,7 +692,7 @@ CreatureAI* GetAI_boss_shaman_toc5(Creature* pCreature)
 }
 
 // Jaelyne Evensong && Zul'tore || Hunter
-struct TRINITY_DLL_DECL boss_hunter_toc5AI : public ScriptedAI
+struct boss_hunter_toc5AI : public ScriptedAI
 {
     boss_hunter_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -841,7 +841,7 @@ CreatureAI* GetAI_boss_hunter_toc5(Creature* pCreature)
 }
 
 // Lana Stouthammer Evensong && Deathstalker Visceri || Rouge
-struct TRINITY_DLL_DECL boss_rouge_toc5AI : public ScriptedAI
+struct boss_rouge_toc5AI : public ScriptedAI
 {
     boss_rouge_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
     {

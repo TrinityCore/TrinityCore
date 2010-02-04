@@ -32,7 +32,7 @@ EndScriptData */
 #define MODEL_NORMAL            10433
 #define MODEL_HUMAN             3637
 
-struct TRINITY_DLL_DECL boss_magistrate_barthilasAI : public ScriptedAI
+struct boss_magistrate_barthilasAI : public ScriptedAI
 {
     boss_magistrate_barthilasAI(Creature *c) : ScriptedAI(c) {}
 

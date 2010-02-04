@@ -73,7 +73,7 @@ enum eEnums
 #define GOSSIP_ITEM_NARALEX     "Let the event begin!"
 #define ACHIEVEMENT_WAILING_CAVERNS 630
 
-struct TRINITY_DLL_DECL npc_disciple_of_naralexAI : public npc_escortAI
+struct npc_disciple_of_naralexAI : public npc_escortAI
 {
     npc_disciple_of_naralexAI(Creature *c) : npc_escortAI(c)
     {

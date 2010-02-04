@@ -58,7 +58,7 @@ const uint32 Adds[6]=
     19876,
 };
 
-struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
+struct boss_moroesAI : public ScriptedAI
 {
     boss_moroesAI(Creature *c) : ScriptedAI(c)
     {
@@ -302,7 +302,7 @@ struct TRINITY_DLL_DECL boss_moroesAI : public ScriptedAI
     }
 };
 
-struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
+struct boss_moroes_guestAI : public ScriptedAI
 {
     ScriptedInstance* pInstance;
 
@@ -367,7 +367,7 @@ struct TRINITY_DLL_DECL boss_moroes_guestAI : public ScriptedAI
 #define SPELL_SWPAIN         34441
 #define SPELL_SHADOWFORM     29406
 
-struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
+struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
 {
     //Shadow Priest
     boss_baroness_dorothea_millstipeAI(Creature *c) : boss_moroes_guestAI(c) {}
@@ -423,7 +423,7 @@ struct TRINITY_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_
 #define SPELL_JUDGEMENTOFCOMMAND    29386
 #define SPELL_SEALOFCOMMAND         29385
 
-struct TRINITY_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
+struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 {
     //Retr Pally
     boss_baron_rafe_dreugerAI(Creature *c) : boss_moroes_guestAI(c){}
@@ -474,7 +474,7 @@ struct TRINITY_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 #define SPELL_HOLYFIRE              29563
 #define SPELL_PWSHIELD              29408
 
-struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
+struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
 {
     //Holy Priest
     boss_lady_catriona_von_indiAI(Creature *c) : boss_moroes_guestAI(c) {}
@@ -538,7 +538,7 @@ struct TRINITY_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guest
 #define SPELL_HOLYLIGHT             29562                   //Self or other guest+Moroes
 #define SPELL_DIVINESHIELD          41367
 
-struct TRINITY_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
+struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 {
     //Holy Pally
     boss_lady_keira_berrybuckAI(Creature *c) : boss_moroes_guestAI(c)  {}
@@ -605,7 +605,7 @@ struct TRINITY_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 #define SPELL_MORTALSTRIKE      29572
 #define SPELL_WHIRLWIND         29573
 
-struct TRINITY_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
+struct boss_lord_robin_darisAI : public boss_moroes_guestAI
 {
     //Arms Warr
     boss_lord_robin_darisAI(Creature *c) : boss_moroes_guestAI(c) {}
@@ -655,7 +655,7 @@ struct TRINITY_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 #define SPELL_SHIELDBASH        11972
 #define SPELL_SHIELDWALL        29390
 
-struct TRINITY_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
+struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 {
     //Arms Warr
     boss_lord_crispin_ferenceAI(Creature *c) : boss_moroes_guestAI(c) {}

@@ -90,7 +90,7 @@ static Location DrakeWP[]=
     {18, 2128.20, 70.9763, 64.4221}
 };
 
-struct TRINITY_DLL_DECL boss_lieutenant_drakeAI : public ScriptedAI
+struct boss_lieutenant_drakeAI : public ScriptedAI
 {
     boss_lieutenant_drakeAI(Creature *c) : ScriptedAI(c) {}
 

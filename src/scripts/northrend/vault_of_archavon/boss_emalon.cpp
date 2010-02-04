@@ -40,7 +40,7 @@ struct Position TempestMinions[MAX_TEMPEST_MINIONS] =
 /*######
 ##  Emalon the Storm Watcher
 ######*/
-struct TRINITY_DLL_DECL boss_emalonAI : public BossAI
+struct boss_emalonAI : public BossAI
 {
     boss_emalonAI(Creature *c) : BossAI(c, DATA_EMALON_EVENT)
     {
@@ -135,7 +135,7 @@ struct TRINITY_DLL_DECL boss_emalonAI : public BossAI
 /*######
 ##  Tempest Minion
 ######*/
-struct TRINITY_DLL_DECL mob_tempest_minionAI : public ScriptedAI
+struct mob_tempest_minionAI : public ScriptedAI
 {
     mob_tempest_minionAI(Creature *c) : ScriptedAI(c)
     {

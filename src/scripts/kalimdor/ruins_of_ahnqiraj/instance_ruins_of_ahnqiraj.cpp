@@ -34,7 +34,7 @@ EndScriptData */
 4 - Ayamiss the Hunter
 5 - Ossirian the Unscarred */
 
-struct TRINITY_DLL_DECL instance_ruins_of_ahn_qiraj : public ScriptedInstance
+struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
 {
     instance_ruins_of_ahn_qiraj(Map* pMap) : ScriptedInstance(pMap) { Initialize(); }
     

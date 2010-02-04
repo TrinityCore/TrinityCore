@@ -43,7 +43,7 @@ enum eTapokeSlim
     NPC_TAPOKE_SLIM_JAHN        = 4962
 };
 
-struct TRINITY_DLL_DECL npc_tapoke_slim_jahnAI : public npc_escortAI
+struct npc_tapoke_slim_jahnAI : public npc_escortAI
 {
     npc_tapoke_slim_jahnAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 

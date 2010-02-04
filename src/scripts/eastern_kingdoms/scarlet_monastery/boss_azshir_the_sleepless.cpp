@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_TERRIFY                   7399
 #define SPELL_SOULSIPHON                7290
 
-struct TRINITY_DLL_DECL boss_azshir_the_sleeplessAI : public ScriptedAI
+struct boss_azshir_the_sleeplessAI : public ScriptedAI
 {
     boss_azshir_the_sleeplessAI(Creature *c) : ScriptedAI(c) {}
 

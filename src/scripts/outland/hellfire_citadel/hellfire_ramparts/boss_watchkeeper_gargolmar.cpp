@@ -38,7 +38,7 @@ EndScriptData */
 #define SPELL_SURGE             34645
 #define SPELL_RETALIATION       22857
 
-struct TRINITY_DLL_DECL boss_watchkeeper_gargolmarAI : public ScriptedAI
+struct boss_watchkeeper_gargolmarAI : public ScriptedAI
 {
     boss_watchkeeper_gargolmarAI(Creature *c) : ScriptedAI(c)
     {

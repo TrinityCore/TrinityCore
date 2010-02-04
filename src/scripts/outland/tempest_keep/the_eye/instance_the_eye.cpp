@@ -33,7 +33,7 @@ EndScriptData */
 3 - Void Reaver event
 */
 
-struct TRINITY_DLL_DECL instance_the_eye : public ScriptedInstance
+struct instance_the_eye : public ScriptedInstance
 {
     instance_the_eye(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

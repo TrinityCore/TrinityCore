@@ -86,7 +86,7 @@ const Position SpawnPosition[] =
     {-494.195,-89.553,-149.131,3.254}
 };
 
-struct TRINITY_DLL_DECL npc_blastmaster_emi_shortfuseAI : public npc_escortAI
+struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
 {
     npc_blastmaster_emi_shortfuseAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
@@ -536,7 +536,7 @@ bool GossipSelect_npc_blastmaster_emi_shortfuse(Player* pPlayer, Creature* pCrea
     return true;
 }
 
-struct TRINITY_DLL_DECL boss_grubbisAI : public ScriptedAI
+struct boss_grubbisAI : public ScriptedAI
 {
     boss_grubbisAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef MANGOS_DBCSTORES_H
-#define MANGOS_DBCSTORES_H
+#ifndef TRINITY_DBCSTORES_H
+#define TRINITY_DBCSTORES_H
 
 #include "Common.h"
 #include "Database/DBCStore.h"
@@ -155,13 +155,13 @@ extern DBCStorage <WorldSafeLocsEntry>           sWorldSafeLocsStore;
 void LoadDBCStores(const std::string& dataPath);
 
 // script support functions
-TRINITY_DLL_SPEC DBCStorage <SoundEntriesEntry>          const* GetSoundEntriesStore();
-TRINITY_DLL_SPEC DBCStorage <SpellEntry>                 const* GetSpellStore();
-TRINITY_DLL_SPEC DBCStorage <SpellRangeEntry>            const* GetSpellRangeStore();
-TRINITY_DLL_SPEC DBCStorage <FactionEntry>               const* GetFactionStore();
-TRINITY_DLL_SPEC DBCStorage <ItemEntry>                  const* GetItemDisplayStore();
-TRINITY_DLL_SPEC DBCStorage <CreatureDisplayInfoEntry>   const* GetCreatureDisplayStore();
-TRINITY_DLL_SPEC DBCStorage <EmotesEntry>                const* GetEmotesStore();
-TRINITY_DLL_SPEC DBCStorage <EmotesTextEntry>            const* GetEmotesTextStore();
-TRINITY_DLL_SPEC DBCStorage <AchievementEntry>           const* GetAchievementStore();
+ DBCStorage <SoundEntriesEntry>          const* GetSoundEntriesStore();
+ DBCStorage <SpellEntry>                 const* GetSpellStore();
+ DBCStorage <SpellRangeEntry>            const* GetSpellRangeStore();
+ DBCStorage <FactionEntry>               const* GetFactionStore();
+ DBCStorage <ItemEntry>                  const* GetItemDisplayStore();
+ DBCStorage <CreatureDisplayInfoEntry>   const* GetCreatureDisplayStore();
+ DBCStorage <EmotesEntry>                const* GetEmotesStore();
+ DBCStorage <EmotesTextEntry>            const* GetEmotesTextStore();
+ DBCStorage <AchievementEntry>           const* GetAchievementStore();
 #endif

@@ -104,7 +104,7 @@ bool CheckAllBossDied(ScriptedInstance* pInstance, Creature* m_creature)
 }
 
 //High King Maulgar AI
-struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
+struct boss_high_king_maulgarAI : public ScriptedAI
 {
     boss_high_king_maulgarAI(Creature *c) : ScriptedAI(c)
     {
@@ -291,7 +291,7 @@ struct TRINITY_DLL_DECL boss_high_king_maulgarAI : public ScriptedAI
 };
 
 //Olm The Summoner AI
-struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
+struct boss_olm_the_summonerAI : public ScriptedAI
 {
     boss_olm_the_summonerAI(Creature *c) : ScriptedAI(c)
     {
@@ -407,7 +407,7 @@ struct TRINITY_DLL_DECL boss_olm_the_summonerAI : public ScriptedAI
 };
 
 //Kiggler The Crazed AI
-struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
+struct boss_kiggler_the_crazedAI : public ScriptedAI
 {
     boss_kiggler_the_crazedAI(Creature *c) : ScriptedAI(c)
     {
@@ -517,7 +517,7 @@ struct TRINITY_DLL_DECL boss_kiggler_the_crazedAI : public ScriptedAI
 };
 
 //Blindeye The Seer AI
-struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
+struct boss_blindeye_the_seerAI : public ScriptedAI
 {
     boss_blindeye_the_seerAI(Creature *c) : ScriptedAI(c)
     {
@@ -615,7 +615,7 @@ struct TRINITY_DLL_DECL boss_blindeye_the_seerAI : public ScriptedAI
 };
 
 //Krosh Firehand AI
-struct TRINITY_DLL_DECL boss_krosh_firehandAI : public ScriptedAI
+struct boss_krosh_firehandAI : public ScriptedAI
 {
     boss_krosh_firehandAI(Creature *c) : ScriptedAI(c)
     {

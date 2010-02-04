@@ -83,7 +83,7 @@ After all of the NPCs riding on the disks die, the players on the disks need to 
 #define SAY_PHASE3_SLAY_3                          -1616027
 #define SAY_PHASE3_BIG_ATTACK                      -1616028
 
-struct TRINITY_DLL_DECL boss_malygosAI : public ScriptedAI
+struct boss_malygosAI : public ScriptedAI
 {
     boss_malygosAI(Creature *c) : ScriptedAI(c) {}
 

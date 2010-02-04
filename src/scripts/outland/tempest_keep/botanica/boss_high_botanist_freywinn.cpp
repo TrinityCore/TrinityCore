@@ -41,7 +41,7 @@ EndScriptData */
 #define SPELL_PLANT_BLUE            34762
 #define SPELL_PLANT_RED             34763
 
-struct TRINITY_DLL_DECL boss_high_botanist_freywinnAI : public ScriptedAI
+struct boss_high_botanist_freywinnAI : public ScriptedAI
 {
     boss_high_botanist_freywinnAI(Creature *c) : ScriptedAI(c) {}
 

@@ -49,7 +49,7 @@ EndContentData */
 #define ENTRY_SILVERWING_SENTINEL   12896
 #define ENTRY_SILVERWING_WARRIOR    12897
 
-struct TRINITY_DLL_DECL npc_torekAI : public npc_escortAI
+struct npc_torekAI : public npc_escortAI
 {
     npc_torekAI(Creature *c) : npc_escortAI(c) {}
 
@@ -131,7 +131,7 @@ bool QuestAccept_npc_torek(Player* pPlayer, Creature* pCreature, Quest const* qu
 {
     if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
     {
-        //TODO: find companions, make them follow Torek, at any time (possibly done by mangos/database in future?)
+        //TODO: find companions, make them follow Torek, at any time (possibly done by core/database in future?)
         DoScriptText(SAY_READY, pCreature, pPlayer);
         pCreature->setFaction(113);
 
@@ -154,7 +154,7 @@ CreatureAI* GetAI_npc_torek(Creature* pCreature)
 #define QUEST_FREEDOM_TO_RUUL    6482
 #define GO_CAGE                  178147
 
-struct TRINITY_DLL_DECL npc_ruul_snowhoofAI : public npc_escortAI
+struct npc_ruul_snowhoofAI : public npc_escortAI
 {
     npc_ruul_snowhoofAI(Creature *c) : npc_escortAI(c) {}
 

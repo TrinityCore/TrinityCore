@@ -67,7 +67,7 @@ EndScriptData */
 //If nefarian dies then he will kill himself then he will kill himself in his hiding place
 //To prevent players from doing the event twice
 
-struct TRINITY_DLL_DECL boss_victor_nefariusAI : public ScriptedAI
+struct boss_victor_nefariusAI : public ScriptedAI
 {
     boss_victor_nefariusAI(Creature *c) : ScriptedAI(c)
     {

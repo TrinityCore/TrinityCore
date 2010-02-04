@@ -76,7 +76,7 @@ const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
 #define SAY_BARON_AGGRO     RAND(-1533065,-1533066,-1533067)
 #define SAY_BARON_SLAY      RAND(-1533068,-1533069)
 
-struct TRINITY_DLL_DECL boss_four_horsemenAI : public BossAI
+struct boss_four_horsemenAI : public BossAI
 {
     boss_four_horsemenAI(Creature *c) : BossAI(c, BOSS_HORSEMEN)
     {

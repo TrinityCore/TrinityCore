@@ -36,7 +36,7 @@ EndScriptData */
 4 - Murmur event
 */
 
-struct TRINITY_DLL_DECL instance_shadow_labyrinth : public ScriptedInstance
+struct instance_shadow_labyrinth : public ScriptedInstance
 {
     instance_shadow_labyrinth(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

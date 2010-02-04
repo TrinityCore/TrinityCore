@@ -49,7 +49,7 @@ static SHostageInfo HostageInfo[] =
 
 };
 
-struct TRINITY_DLL_DECL instance_zulaman : public ScriptedInstance
+struct instance_zulaman : public ScriptedInstance
 {
     instance_zulaman(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

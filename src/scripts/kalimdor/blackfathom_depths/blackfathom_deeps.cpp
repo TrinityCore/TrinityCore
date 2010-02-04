@@ -54,7 +54,7 @@ bool GoHello_blackfathom_fire(Player *pPlayer, GameObject* pGo)
     return false;
 }
 
-struct TRINITY_DLL_DECL npc_blackfathom_deeps_eventAI : public ScriptedAI
+struct npc_blackfathom_deeps_eventAI : public ScriptedAI
 {
     npc_blackfathom_deeps_eventAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -176,7 +176,7 @@ enum eMorridune
     SAY_MORRIDUNE_2 = -1048004
 };
 
-struct TRINITY_DLL_DECL npc_morriduneAI : public npc_escortAI
+struct npc_morriduneAI : public npc_escortAI
 {
     npc_morriduneAI(Creature* pCreature) : npc_escortAI(pCreature)
     {

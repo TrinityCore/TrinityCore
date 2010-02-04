@@ -32,7 +32,7 @@ enum Yells
     SAY_SHATTER                                 = -1603010
 };
 
-struct TRINITY_DLL_DECL boss_krystallusAI : public ScriptedAI
+struct boss_krystallusAI : public ScriptedAI
 {
     boss_krystallusAI(Creature *c) : ScriptedAI(c)
     {

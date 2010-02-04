@@ -180,7 +180,7 @@ class LootStore
 
 class LootTemplate
 {
-    class  LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
+    class LootGroup;                                       // A set of loot definitions for items (refs are not allowed inside)
     typedef std::vector<LootGroup> LootGroups;
 
     public:

@@ -80,7 +80,7 @@ static ActiveBoatStruct ActiveBot[4] =
     {CREATURE_TORGYN_VISUAL, SAY_SUMMON_TORGYN, 404.310, -314.761, 104.756, 413.992, -314.703, 107.995, 3.157}
 };
 
-struct TRINITY_DLL_DECL boss_ymironAI : public ScriptedAI
+struct boss_ymironAI : public ScriptedAI
 {
     boss_ymironAI(Creature *c) : ScriptedAI(c)
     {

@@ -9,7 +9,7 @@
 //the reason this things are here is that i want to make
 //the netcode patch and the multithreaded maps independant
 //once they are merged 1 class should be used
-class  WDBThreadStartReq1 : public ACE_Method_Request
+class WDBThreadStartReq1 : public ACE_Method_Request
 {
     public:
         WDBThreadStartReq1(){}
@@ -24,7 +24,7 @@ class  WDBThreadStartReq1 : public ACE_Method_Request
     }
 };
 
-class  WDBThreadEndReq1 : public ACE_Method_Request
+class WDBThreadEndReq1 : public ACE_Method_Request
 {
     public:
         WDBThreadEndReq1(){}

@@ -65,7 +65,7 @@ EndScriptData */
 #define SAY_FREE                -1548019
 #define SAY_DEATH               -1548020
 
-struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
+struct mob_inner_demonAI : public ScriptedAI
 {
     mob_inner_demonAI(Creature *c) : ScriptedAI(c)
     {
@@ -143,7 +143,7 @@ struct TRINITY_DLL_DECL mob_inner_demonAI : public ScriptedAI
     }
 };
 //Original Leotheras the Blind AI
-struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
+struct boss_leotheras_the_blindAI : public ScriptedAI
 {
     boss_leotheras_the_blindAI(Creature *c) : ScriptedAI(c)
     {
@@ -557,7 +557,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 };
 
 //Leotheras the Blind Demon Form AI
-struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
+struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
 {
     boss_leotheras_the_blind_demonformAI(Creature *c) : ScriptedAI(c) {}
 
@@ -618,7 +618,7 @@ struct TRINITY_DLL_DECL boss_leotheras_the_blind_demonformAI : public ScriptedAI
         //Do NOT deal any melee damage to the target.
     }
 };
-struct TRINITY_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
+struct mob_greyheart_spellbinderAI : public ScriptedAI
 {
     mob_greyheart_spellbinderAI(Creature *c) : ScriptedAI(c)
     {

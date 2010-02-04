@@ -50,7 +50,7 @@ enum eHuskSpirit
     NPC_RESTLESS_APPARITION             = 23861
 };
 
-struct TRINITY_DLL_DECL mobs_risen_husk_spiritAI : public ScriptedAI
+struct mobs_risen_husk_spiritAI : public ScriptedAI
 {
     mobs_risen_husk_spiritAI(Creature *c) : ScriptedAI(c) {}
 
@@ -118,7 +118,7 @@ enum eRestlessApparition
     SAY_RESTLESS_3      = -1000471
 };
 
-struct TRINITY_DLL_DECL npc_restless_apparitionAI : public ScriptedAI
+struct npc_restless_apparitionAI : public ScriptedAI
 {
     npc_restless_apparitionAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
@@ -143,7 +143,7 @@ enum eAgitator
     FACTION_THER_DESERTER   = 1883
 };
 
-struct TRINITY_DLL_DECL npc_deserter_agitatorAI : public ScriptedAI
+struct npc_deserter_agitatorAI : public ScriptedAI
 {
     npc_deserter_agitatorAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
@@ -261,7 +261,7 @@ enum eHendel
 };
 
 //TODO: develop this further, end event not created
-struct TRINITY_DLL_DECL npc_private_hendelAI : public ScriptedAI
+struct npc_private_hendelAI : public ScriptedAI
 {
     npc_private_hendelAI(Creature* pCreature) : ScriptedAI(pCreature) { }
 
@@ -321,7 +321,7 @@ enum eZelfrax
     SAY_ZELFRAX_2   = -1000473
 };
 
-struct TRINITY_DLL_DECL npc_zelfraxAI : public ScriptedAI
+struct npc_zelfraxAI : public ScriptedAI
 {
     npc_zelfraxAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

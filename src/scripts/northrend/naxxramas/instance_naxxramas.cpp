@@ -96,7 +96,7 @@ inline uint32 GetEruptionSection(float x, float y)
     return 3;
 }
 
-struct TRINITY_DLL_DECL instance_naxxramas : public InstanceData
+struct instance_naxxramas : public InstanceData
 {
     instance_naxxramas(Map* pMap) : InstanceData(pMap)
         , Sapphiron(NULL), pGothikGate(NULL), HorsemenChest(NULL), HorsemenNum(0)

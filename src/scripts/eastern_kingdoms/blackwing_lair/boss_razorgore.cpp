@@ -35,7 +35,7 @@ EndScriptData */
 #define SPELL_FIREBALLVOLLEY    22425
 #define SPELL_CONFLAGRATION     23023
 
-struct TRINITY_DLL_DECL boss_razorgoreAI : public ScriptedAI
+struct boss_razorgoreAI : public ScriptedAI
 {
     boss_razorgoreAI(Creature *c) : ScriptedAI(c) {}
 

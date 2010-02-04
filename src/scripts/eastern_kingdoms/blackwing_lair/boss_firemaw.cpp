@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_WINGBUFFET        23339
 #define SPELL_FLAMEBUFFET       23341
 
-struct TRINITY_DLL_DECL boss_firemawAI : public ScriptedAI
+struct boss_firemawAI : public ScriptedAI
 {
     boss_firemawAI(Creature *c) : ScriptedAI(c) {}
 

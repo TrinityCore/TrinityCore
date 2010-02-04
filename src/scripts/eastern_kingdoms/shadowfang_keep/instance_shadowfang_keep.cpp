@@ -52,7 +52,7 @@ const Position SpawnLocation[] =
     {-140.794,2178.037,128.448,4.090},
     {-138.640,2170.159,136.577,2.737}
 };
-struct TRINITY_DLL_DECL instance_shadowfang_keep : public ScriptedInstance
+struct instance_shadowfang_keep : public ScriptedInstance
 {
     instance_shadowfang_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 

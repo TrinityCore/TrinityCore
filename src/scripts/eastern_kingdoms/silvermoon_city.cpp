@@ -37,7 +37,7 @@ EndContentData */
 #define SPELL_SHIMMERING_VESSEL         31225
 #define SPELL_REVIVE_SELF               32343
 
-struct TRINITY_DLL_DECL npc_blood_knight_stillbladeAI : public ScriptedAI
+struct npc_blood_knight_stillbladeAI : public ScriptedAI
 {
     npc_blood_knight_stillbladeAI(Creature *c) : ScriptedAI(c) {}
 

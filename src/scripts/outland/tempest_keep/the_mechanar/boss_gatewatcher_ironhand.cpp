@@ -40,7 +40,7 @@ EndScriptData */
 #define SPELL_STREAM_OF_MACHINE_FLUID   35311
 
 // Gatewatcher Iron-Hand AI
-struct TRINITY_DLL_DECL boss_gatewatcher_iron_handAI : public ScriptedAI
+struct boss_gatewatcher_iron_handAI : public ScriptedAI
 {
     boss_gatewatcher_iron_handAI(Creature *c) : ScriptedAI(c)
     {

@@ -62,7 +62,7 @@ enum Events
     EVENT_GROUND,
 };
 
-struct TRINITY_DLL_DECL boss_nothAI : public BossAI
+struct boss_nothAI : public BossAI
 {
     boss_nothAI(Creature *c) : BossAI(c, BOSS_NOTH) {}
 

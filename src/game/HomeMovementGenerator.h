@@ -28,10 +28,10 @@
 class Creature;
 
 template < class T >
-class TRINITY_DLL_SPEC HomeMovementGenerator;
+class HomeMovementGenerator;
 
 template <>
-class TRINITY_DLL_SPEC HomeMovementGenerator<Creature>
+class HomeMovementGenerator<Creature>
 : public MovementGeneratorMedium< Creature, HomeMovementGenerator<Creature> >
 {
     public:

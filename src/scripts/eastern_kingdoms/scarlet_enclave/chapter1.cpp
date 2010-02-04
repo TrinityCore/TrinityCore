@@ -91,7 +91,7 @@ enum UnworthyInitiatePhase
     PHASE_ATTACKING,
 };
 
-struct TRINITY_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
+struct npc_unworthy_initiateAI : public ScriptedAI
 {
     npc_unworthy_initiateAI(Creature *c) : ScriptedAI(c)
     {
@@ -170,7 +170,7 @@ CreatureAI* GetAI_npc_unworthy_initiate(Creature* pCreature)
     return new npc_unworthy_initiateAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_unworthy_initiate_anchorAI : public PassiveAI
+struct npc_unworthy_initiate_anchorAI : public PassiveAI
 {
     npc_unworthy_initiate_anchorAI(Creature *c) : PassiveAI(c), prisonerGUID(0) {}
 
@@ -337,7 +337,7 @@ int32 m_auiRandomSay[] =
     SAY_DUEL_A, SAY_DUEL_B, SAY_DUEL_C, SAY_DUEL_D, SAY_DUEL_E, SAY_DUEL_F, SAY_DUEL_G, SAY_DUEL_H, SAY_DUEL_I
 };
 
-struct TRINITY_DLL_DECL npc_death_knight_initiateAI : public CombatAI
+struct npc_death_knight_initiateAI : public CombatAI
 {
     npc_death_knight_initiateAI(Creature* pCreature) : CombatAI(pCreature)
     {
@@ -492,7 +492,7 @@ bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature
 #define DESPAWN_HORSE 52267
 #define SAY_DARK_RIDER      "The realm of shadows awaits..."
 
-struct TRINITY_DLL_DECL npc_dark_rider_of_acherusAI : public ScriptedAI
+struct npc_dark_rider_of_acherusAI : public ScriptedAI
 {
     npc_dark_rider_of_acherusAI(Creature *c) : ScriptedAI(c) {}
 
@@ -576,7 +576,7 @@ enum eSalanar
     SPELL_EFFECT_OVERTAKE       = 52349
 };
 
-struct TRINITY_DLL_DECL npc_salanar_the_horsemanAI : public ScriptedAI
+struct npc_salanar_the_horsemanAI : public ScriptedAI
 {
     npc_salanar_the_horsemanAI(Creature *c) : ScriptedAI(c) {}
 
@@ -635,7 +635,7 @@ CreatureAI* GetAI_npc_salanar_the_horseman(Creature* pCreature)
 ## npc_ros_dark_rider
 ######*/
 
-struct TRINITY_DLL_DECL npc_ros_dark_riderAI : public ScriptedAI
+struct npc_ros_dark_riderAI : public ScriptedAI
 {
     npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
 
@@ -679,7 +679,7 @@ enum SG
     GHOULS = 28845,
     GHOSTS = 28846,
 };
-struct TRINITY_DLL_DECL npc_dkc1_gothikAI : public ScriptedAI
+struct npc_dkc1_gothikAI : public ScriptedAI
 {
     npc_dkc1_gothikAI(Creature *c) : ScriptedAI(c) {}
 
@@ -716,7 +716,7 @@ CreatureAI* GetAI_npc_dkc1_gothik(Creature* pCreature)
     return new npc_dkc1_gothikAI(pCreature);
 }
 
-struct TRINITY_DLL_DECL npc_scarlet_ghoulAI : public ScriptedAI
+struct npc_scarlet_ghoulAI : public ScriptedAI
 {
     npc_scarlet_ghoulAI(Creature *c) : ScriptedAI(c)
     {
@@ -799,7 +799,7 @@ CreatureAI* GetAI_npc_scarlet_ghoul(Creature* pCreature)
 #define SPELL_CART_CHECK     54173
 #define SPELL_CART_DRAG      52465
 
-struct TRINITY_DLL_DECL npc_scarlet_miner_cartAI : public PassiveAI
+struct npc_scarlet_miner_cartAI : public PassiveAI
 {
     npc_scarlet_miner_cartAI(Creature *c) : PassiveAI(c), minerGUID(0)
     {
@@ -846,7 +846,7 @@ CreatureAI* GetAI_npc_scarlet_miner_cart(Creature *_Creature)
 #define SAY_SCARLET_MINER1  "Where'd this come from? I better get this down to the ships before the foreman sees it!"
 #define SAY_SCARLET_MINER2  "Now I can have a rest!"
 
-struct TRINITY_DLL_DECL npc_scarlet_minerAI : public npc_escortAI
+struct npc_scarlet_minerAI : public npc_escortAI
 {
     npc_scarlet_minerAI(Creature *c) : npc_escortAI(c)
     {

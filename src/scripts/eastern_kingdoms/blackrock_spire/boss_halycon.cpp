@@ -31,7 +31,7 @@ EndScriptData */
 #define ADD_1Z                  64.401443
 #define ADD_1O                  3.124724
 
-struct TRINITY_DLL_DECL boss_halyconAI : public ScriptedAI
+struct boss_halyconAI : public ScriptedAI
 {
     boss_halyconAI(Creature *c) : ScriptedAI(c) {}
 

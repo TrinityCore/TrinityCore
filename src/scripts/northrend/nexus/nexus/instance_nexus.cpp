@@ -26,7 +26,7 @@ EndScriptData */
 
 #define NUMBER_OF_ENCOUNTERS      4
 
-struct TRINITY_DLL_DECL instance_nexus : public ScriptedInstance
+struct instance_nexus : public ScriptedInstance
 {
     instance_nexus(Map *pMap) : ScriptedInstance(pMap) { Initialize(); }
 

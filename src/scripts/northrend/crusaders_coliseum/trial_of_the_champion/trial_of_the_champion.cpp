@@ -42,7 +42,7 @@ EndContentData */
 
 const Position SpawnPosition = {746.261,657.401,411.681,4.65};
 
-struct TRINITY_DLL_DECL npc_announcer_toc5AI : public ScriptedAI
+struct npc_announcer_toc5AI : public ScriptedAI
 {
     npc_announcer_toc5AI(Creature* pCreature) : ScriptedAI(pCreature)
     {

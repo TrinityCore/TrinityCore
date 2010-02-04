@@ -29,7 +29,7 @@ EndScriptData */
 
 #define EQUIP_ID_MAIN_HAND      0           //was item display id 31818, but this id does not exist
 
-struct TRINITY_DLL_DECL boss_renatakiAI : public ScriptedAI
+struct boss_renatakiAI : public ScriptedAI
 {
     boss_renatakiAI(Creature *c) : ScriptedAI(c) {}
 

@@ -72,7 +72,7 @@ float SpawnPoint[2][2] =
     {551.1, 229.4},
 };
 
-struct TRINITY_DLL_DECL boss_anub_arakAI : public ScriptedAI
+struct boss_anub_arakAI : public ScriptedAI
 {
     boss_anub_arakAI(Creature *c) : ScriptedAI(c)
     {

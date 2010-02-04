@@ -28,7 +28,7 @@ EndScriptData */
 #define SPELL_THRASH                3391
 #define SPELL_REPULSIVEGAZE         21869
 
-struct TRINITY_DLL_DECL boss_ptheradrasAI : public ScriptedAI
+struct boss_ptheradrasAI : public ScriptedAI
 {
     boss_ptheradrasAI(Creature *c) : ScriptedAI(c) {}
 

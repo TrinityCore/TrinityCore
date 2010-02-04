@@ -26,7 +26,7 @@
 
 class DOTCONFDocument;
 
-class TRINITY_DLL_SPEC Config
+class Config
 {
     public:
         Config();

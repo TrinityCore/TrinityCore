@@ -51,7 +51,7 @@ enum eEnums
 
 #define GOSSIP_ITEM_DOOR        "Thanks, I'll follow you to the door."
 
-struct TRINITY_DLL_DECL npc_shadowfang_prisonerAI : public npc_escortAI
+struct npc_shadowfang_prisonerAI : public npc_escortAI
 {
     npc_shadowfang_prisonerAI(Creature *c) : npc_escortAI(c)
     {
@@ -131,7 +131,7 @@ bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, 
     return true;
 }
 
-struct TRINITY_DLL_DECL npc_arugal_voidwalkerAI : public ScriptedAI
+struct npc_arugal_voidwalkerAI : public ScriptedAI
 {
     npc_arugal_voidwalkerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {

@@ -74,7 +74,7 @@ typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
 typedef TypeMapContainer<AllWorldObjectTypes> WorldTypeMapContainer;
 
 template<const unsigned int LIMIT>
-struct TRINITY_DLL_DECL CoordPair
+struct CoordPair
 {
     CoordPair(uint32 x=0, uint32 y=0) : x_coord(x), y_coord(y) {}
     CoordPair(const CoordPair<LIMIT> &obj) : x_coord(obj.x_coord), y_coord(obj.y_coord) {}

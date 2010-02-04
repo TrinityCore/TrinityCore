@@ -27,7 +27,7 @@ EndScriptData */
 #define SPELL_MASSIVEGEYSER          22421                  //Not working. Cause its a summon...
 #define SPELL_SLAM                   24326
 
-struct TRINITY_DLL_DECL boss_gahzrankaAI : public ScriptedAI
+struct boss_gahzrankaAI : public ScriptedAI
 {
     boss_gahzrankaAI(Creature *c) : ScriptedAI(c) {}
     uint32 Frostbreath_Timer;

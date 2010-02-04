@@ -100,7 +100,7 @@ float Spawns[6][2]=
 #define SPAWN_Y             -1758
 #define SPAWN_O             4.738
 
-struct TRINITY_DLL_DECL npc_barnesAI : public npc_escortAI
+struct npc_barnesAI : public npc_escortAI
 {
     npc_barnesAI(Creature* c) : npc_escortAI(c)
     {
@@ -444,7 +444,7 @@ bool GossipSelect_npc_berthold(Player* pPlayer, Creature* pCreature, uint32 uiSe
 static float MedivPos[4] = {-11161.49,-1902.24,91.48,1.94};
 static float ArcanagosPos[4] = {-11169.75,-1881.48,95.39,4.83};
 
-struct TRINITY_DLL_DECL npc_image_of_medivhAI : public ScriptedAI
+struct npc_image_of_medivhAI : public ScriptedAI
 {
     npc_image_of_medivhAI(Creature* c) : ScriptedAI(c)
     {

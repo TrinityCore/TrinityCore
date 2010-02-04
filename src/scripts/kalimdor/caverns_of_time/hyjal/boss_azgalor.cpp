@@ -27,7 +27,7 @@
 #define SAY_ONAGGRO "Abandon all hope! The legion has returned to finish what was begun so many years ago. This time there will be no escape!"
 #define SOUND_ONAGGRO 10999
 
-struct TRINITY_DLL_DECL boss_azgalorAI : public hyjal_trashAI
+struct boss_azgalorAI : public hyjal_trashAI
 {
     boss_azgalorAI(Creature *c) : hyjal_trashAI(c)
     {
@@ -183,7 +183,7 @@ CreatureAI* GetAI_boss_azgalor(Creature* pCreature)
 #define SPELL_CRIPPLE 31406
 #define SPELL_WARSTOMP 31408
 
-struct TRINITY_DLL_DECL mob_lesser_doomguardAI : public hyjal_trashAI
+struct mob_lesser_doomguardAI : public hyjal_trashAI
 {
     mob_lesser_doomguardAI(Creature *c) : hyjal_trashAI(c)
     {

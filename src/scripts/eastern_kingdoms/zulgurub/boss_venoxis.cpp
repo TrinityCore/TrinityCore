@@ -37,7 +37,7 @@ EndScriptData */
 #define SPELL_BERSERK       23537
 #define SPELL_DISPELL       23859
 
-struct TRINITY_DLL_DECL boss_venoxisAI : public ScriptedAI
+struct boss_venoxisAI : public ScriptedAI
 {
     boss_venoxisAI(Creature *c) : ScriptedAI(c)
     {

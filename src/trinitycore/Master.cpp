@@ -155,9 +155,9 @@ public:
             std::string stringip = sConfig.GetStringDefault ("Ra.IP", "0.0.0.0");
             ipaddr_t raip;
             if (!Utility::u2ip (stringip, raip))
-                sLog.outError ("MaNGOS RA can not bind to ip %s", stringip.c_str ());
+                sLog.outError ("Trinity RA can not bind to ip %s", stringip.c_str ());
             else if (RAListenSocket.Bind (raip, raport))
-                sLog.outError ("MaNGOS RA can not bind to port %d on %s", raport, stringip.c_str ());
+                sLog.outError ("Trinity RA can not bind to port %d on %s", raport, stringip.c_str ());
             else
             {
                 h.Add (&RAListenSocket);

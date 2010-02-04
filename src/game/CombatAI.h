@@ -26,7 +26,7 @@
 
 class Creature;
 
-class TRINITY_DLL_DECL AggressorAI : public CreatureAI
+class AggressorAI : public CreatureAI
 {
     public:
         explicit AggressorAI(Creature *c) : CreatureAI(c) {}
@@ -37,7 +37,7 @@ class TRINITY_DLL_DECL AggressorAI : public CreatureAI
 
 typedef std::vector<uint32> SpellVct;
 
-class TRINITY_DLL_SPEC CombatAI : public CreatureAI
+class CombatAI : public CreatureAI
 {
     public:
         explicit CombatAI(Creature *c) : CreatureAI(c) {}
@@ -53,7 +53,7 @@ class TRINITY_DLL_SPEC CombatAI : public CreatureAI
         SpellVct spells;
 };
 
-class TRINITY_DLL_SPEC CasterAI : public CombatAI
+class CasterAI : public CombatAI
 {
     public:
         explicit CasterAI(Creature *c) : CombatAI(c) { m_attackDist = MELEE_RANGE; }
@@ -65,7 +65,7 @@ class TRINITY_DLL_SPEC CasterAI : public CombatAI
         float m_attackDist;
 };
 
-struct TRINITY_DLL_SPEC ArchorAI : public CreatureAI
+struct ArchorAI : public CreatureAI
 {
     public:
         explicit ArchorAI(Creature *c);
@@ -77,7 +77,7 @@ struct TRINITY_DLL_SPEC ArchorAI : public CreatureAI
         float m_minRange;
 };
 
-struct TRINITY_DLL_SPEC TurretAI : public CreatureAI
+struct TurretAI : public CreatureAI
 {
     public:
         explicit TurretAI(Creature *c);
@@ -90,7 +90,7 @@ struct TRINITY_DLL_SPEC TurretAI : public CreatureAI
         float m_minRange;
 };
 
-struct TRINITY_DLL_SPEC AOEAI : public CreatureAI
+struct AOEAI : public CreatureAI
 {
     public:
         explicit AOEAI(Creature *c);

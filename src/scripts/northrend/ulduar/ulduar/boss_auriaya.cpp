@@ -29,7 +29,7 @@
 #define SAY_AGGRO                   -2615016
 #define SAY_SLAY_1                  -2615017
 
-struct TRINITY_DLL_DECL boss_auriaya_AI : public BossAI
+struct boss_auriaya_AI : public BossAI
 {
     boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, TYPE_AURIAYA)
     {

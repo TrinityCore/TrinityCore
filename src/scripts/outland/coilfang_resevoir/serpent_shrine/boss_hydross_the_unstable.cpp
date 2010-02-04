@@ -74,7 +74,7 @@ EndScriptData */
 #define SPAWN_X_DIFF4               12.577011
 #define SPAWN_Y_DIFF4               4.72702
 
-struct TRINITY_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
+struct boss_hydross_the_unstableAI : public ScriptedAI
 {
     boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
     {

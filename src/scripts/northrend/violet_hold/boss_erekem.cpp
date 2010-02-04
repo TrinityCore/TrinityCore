@@ -38,7 +38,7 @@ enum Yells
     SAY_BOTH_ADDS_KILLED                        = -1608017
 };
 
-struct TRINITY_DLL_DECL boss_erekemAI : public ScriptedAI
+struct boss_erekemAI : public ScriptedAI
 {
     boss_erekemAI(Creature *c) : ScriptedAI(c)
     {
@@ -233,7 +233,7 @@ enum GuardSpells
     SPELL_STRIKE                          = 14516
 };
 
-struct TRINITY_DLL_DECL mob_erekem_guardAI : public ScriptedAI
+struct mob_erekem_guardAI : public ScriptedAI
 {
     mob_erekem_guardAI(Creature *c) : ScriptedAI(c)
     {

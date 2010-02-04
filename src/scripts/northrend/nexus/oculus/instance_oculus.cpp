@@ -9,7 +9,7 @@
 2 - Mage-Lord Urom
 3 - Ley-Guardian Eregos */
 
-struct TRINITY_DLL_DECL instance_oculus : public ScriptedInstance
+struct instance_oculus : public ScriptedInstance
 {
     instance_oculus(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
     

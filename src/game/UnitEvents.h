@@ -69,7 +69,7 @@ enum UNIT_EVENT_TYPE
 
 //==============================================================
 
-class TRINITY_DLL_SPEC UnitBaseEvent
+class UnitBaseEvent
 {
     private:
         uint32 iType;
@@ -84,7 +84,7 @@ class TRINITY_DLL_SPEC UnitBaseEvent
 
 //==============================================================
 
-class TRINITY_DLL_SPEC ThreatRefStatusChangeEvent : public UnitBaseEvent
+class ThreatRefStatusChangeEvent : public UnitBaseEvent
 {
     private:
         HostilReference* iHostilReference;
@@ -121,7 +121,7 @@ class TRINITY_DLL_SPEC ThreatRefStatusChangeEvent : public UnitBaseEvent
 
 //==============================================================
 
-class TRINITY_DLL_SPEC ThreatManagerEvent : public ThreatRefStatusChangeEvent
+class ThreatManagerEvent : public ThreatRefStatusChangeEvent
 {
     private:
         ThreatContainer* iThreatContainer;

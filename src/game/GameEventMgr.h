@@ -172,8 +172,8 @@ class GameEventMgr
 
 #define gameeventmgr Trinity::Singleton<GameEventMgr>::Instance()
 
-TRINITY_DLL_SPEC bool IsHolidayActive(HolidayIds id);
-TRINITY_DLL_SPEC bool IsEventActive(uint16 event_id);
+ bool IsHolidayActive(HolidayIds id);
+ bool IsEventActive(uint16 event_id);
 
 #endif
 

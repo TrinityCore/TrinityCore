@@ -129,7 +129,7 @@ enum eCooshhooosh
     FACTION_HOSTILE_CO      = 45
 };
 
-struct TRINITY_DLL_DECL npc_cooshcooshAI : public ScriptedAI
+struct npc_cooshcooshAI : public ScriptedAI
 {
     npc_cooshcooshAI(Creature* c) : ScriptedAI(c)
     {
@@ -278,7 +278,7 @@ enum eKayra
     NPC_SLAVEBINDER     = 18042
 };
 
-struct TRINITY_DLL_DECL npc_kayra_longmaneAI : public npc_escortAI
+struct npc_kayra_longmaneAI : public npc_escortAI
 {
     npc_kayra_longmaneAI(Creature* c) : npc_escortAI(c) {}
 
