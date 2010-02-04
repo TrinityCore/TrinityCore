@@ -60,7 +60,6 @@ enum PlayerSkills
     SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE                      = 49617
 };
 */
-//not in db
 enum Yells
 {
     SAY_AGGRO                                              = -1600011,
