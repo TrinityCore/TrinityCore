@@ -1934,20 +1934,35 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
 
 Unit* AuraEffect::GetTriggerTarget(Unit * target) const
 {
-    Unit * triggerTarget = NULL;
     if (target->GetTypeId() == TYPEID_UNIT)
-        triggerTarget = ((Creature*)target)->AI()->GetAuraEffectTriggerTarget(GetId(), GetEffIndex());
-    return triggerTarget ? triggerTarget : ObjectAccessor::GetUnit(*target, target->GetUInt64Value(UNIT_FIELD_TARGET));
+    {
+        if (Unit * trigger = ((Creature*)target)->AI()->GetAuraEffectTriggerTarget(GetId(), GetEffIndex()))
+            return trigger;
+    }
+    return target;
+}
+
+Unit* AuraEffect::GetTriggerCaster(Unit * target, Unit * caster, SpellEntry const * triggeredSpell) const
+{
+    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (SpellTargetType[triggeredSpell->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET
+            || SpellTargetType[triggeredSpell->EffectImplicitTargetB[i]] == TARGET_TYPE_UNIT_TARGET
+            || SpellTargetType[triggeredSpell->EffectImplicitTargetA[i]] == TARGET_TYPE_CHANNEL
+            || SpellTargetType[triggeredSpell->EffectImplicitTargetB[i]] == TARGET_TYPE_CHANNEL
+            || SpellTargetType[triggeredSpell->EffectImplicitTargetA[i]] == TARGET_TYPE_DEST_TARGET
+            || SpellTargetType[triggeredSpell->EffectImplicitTargetB[i]] == TARGET_TYPE_DEST_TARGET)
+            return caster;
+    }
+    return target;
 }
 
 void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
 {
-    Unit* triggerTarget = GetTriggerTarget(target);
-    if (!triggerTarget)
-        triggerTarget = target;
-
     if(!caster || !target)
         return;
+
+    Unit* triggerTarget = GetTriggerTarget(target);
 
     // generic casting code with custom spells and target/caster customs
     uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[GetEffIndex()];
@@ -1971,9 +1986,10 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                         break;
                     // Brood Affliction: Bronze
                     case 23170:
-                        target->CastSpell(target, 23171, true, 0, this);
+                        triggerSpellId = 23171;
                         return;
                     // Restoration
+                    case 24379:
                     case 23493:
                     {
                         int32 heal = caster->GetMaxHealth() / 10;
@@ -2041,6 +2057,8 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     // Quake
                     case 30576: triggerSpellId = 30571; break;
                     // Doom
+                    // TODO: effect trigger spell may be independant on spell targets, and executed in spell finish phase
+                    // so instakill will be naturally done before trigger spell
                     case 31347:
                     {
                         target->CastSpell(target,31350,true, NULL, this);
@@ -2182,7 +2200,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             // Mana Tide
             case 16191:
             {
-                caster->CastCustomSpell(triggerTarget, triggerSpellId, &m_amount, NULL, NULL, true, NULL, this);
+                target->CastCustomSpell(triggerTarget, triggerSpellId, &m_amount, NULL, NULL, true, NULL, this);
                 return;
             }
             // Negative Energy Periodic
@@ -2194,45 +2212,38 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             case 54362:
                 target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000), NULL, true, NULL, this);
                 return;
-            // Mind Sear (target 76/16) if let target cast, will damage caster
-            case 48045:
-            case 53023:
-            // Curse of the Plaguebringer (22/15)
-            case 29213:
-            case 54835:
-                caster->CastSpell(target, triggerSpellId, true, NULL, this);
-                return;
-            // Ground Slam
-            case 33525:
-                target->CastSpell(triggerTarget, triggerSpellId, true);
-                return;
         }
     }
 
     if(triggeredSpellInfo)
     {
-        if(!caster->GetSpellMaxRangeForTarget(target,sSpellRangeStore.LookupEntry(triggeredSpellInfo->rangeIndex)))
-            triggerTarget = target;    //for druid dispel poison
-        target->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this, GetCasterGUID());
+        Unit * triggerCaster = GetTriggerCaster(triggerTarget, caster, triggeredSpellInfo);
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this, GetCasterGUID());
+        sLog.outDebug("AuraEffect::TriggerSpell: Spell %u Trigger %u",GetId(), triggeredSpellInfo->Id);
     }
-    else if(target->GetTypeId()!=TYPEID_UNIT || !sScriptMgr.EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)target))
+    else if(target->GetTypeId()!=TYPEID_UNIT || !sScriptMgr.EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)triggerTarget))
         sLog.outError("AuraEffect::TriggerSpell: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",GetId(),GetEffIndex());
 }
 
 void AuraEffect::TriggerSpellWithValue(Unit * target, Unit * caster) const
 {
-    Unit* triggerTarget = GetTriggerTarget(target);
-    if (!triggerTarget)
-        triggerTarget = target;
-
     if(!caster || !target)
         return;
 
-    // generic casting code with custom spells and target/caster customs
-    uint32 trigger_spell_id = GetSpellProto()->EffectTriggerSpell[m_effIndex];
-    int32  basepoints0 = GetAmount();
+    Unit* triggerTarget = GetTriggerTarget(target);
 
-    caster->CastCustomSpell(triggerTarget, trigger_spell_id, &basepoints0, 0, 0, true, 0, this);
+    uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[m_effIndex];
+    SpellEntry const *triggeredSpellInfo = sSpellStore.LookupEntry(triggerSpellId);
+    if(triggeredSpellInfo)
+    {
+        Unit * triggerCaster = GetTriggerCaster(triggerTarget, caster, triggeredSpellInfo);
+
+        // generic casting code with custom spells and target/caster customs
+        int32  basepoints0 = GetAmount();
+        triggerCaster->CastCustomSpell(triggerTarget, triggerSpellId, &basepoints0, 0, 0, true, 0, this);
+    }
+    else
+        sLog.outError("AuraEffect::TriggerSpellWithValue: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",GetId(),GetEffIndex());
 }
 
 bool AuraEffect::IsAffectedOnSpell(SpellEntry const *spell) const

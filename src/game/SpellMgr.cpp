@@ -3725,12 +3725,14 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 62374:     // Pursued
             spellInfo->MaxAffectedTargets = 1;
-            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENTRY_SRC;
-            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENTRY_SRC;
             count++;
             break;
-        case 13810:     // Frost Trap Aura
-            spellInfo->Effect[1] = 0;
+        // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
+        // this is the only known exception, probably just wrong data
+        case SPELL_WRATH_OF_THE_PLAGUEBRINGER_29214: // Wrath of the Plaguebringer
+        case SPELL_WRATH_OF_THE_PLAGUEBRINGER_54836: // Wrath of the Plaguebringer
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ALLY_SRC;
+            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ALLY_SRC;
             count++;
             break;
         default:
