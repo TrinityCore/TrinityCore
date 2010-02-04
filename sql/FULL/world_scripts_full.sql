@@ -48,7 +48,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_shrine_of_the_birds' WHERE `en
 UPDATE `gameobject_template` SET `ScriptName`='go_matrix_punchograph' WHERE `entry` IN (142345,142475,142476,142696);
 UPDATE `gameobject_template` SET `ScriptName`='go_jotunheim_cage' WHERE `entry`=192135;
 UPDATE `gameobject_template` SET `scriptname` = 'go_inconspicuous_landmark' WHERE `entry`=142189;
-
+UPDATE `gameobject_template` SET `ScriptName` = 'go_soulwell' WHERE `entry` IN (181621,193169);
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
@@ -1338,6 +1338,7 @@ UPDATE `instance_template` SET `script`='instance_wailing_caverns' WHERE map=43;
 UPDATE `creature_template` SET `ScriptName`='npcs_dithers_and_arbington' WHERE `entry` IN (11056,11057);
 UPDATE `creature_template` SET `ScriptName`='npc_the_scourge_cauldron' WHERE `entry`=11152;
 UPDATE `creature_template` SET `ScriptName`='npc_myranda_the_hag' WHERE `entry`=11872;
+UPDATE `creature_template` SET `ScriptName`='npc_andorhal_tower' WHERE `entry` in (10902,10903,10904,10905);
 
 /* WESTFALL */
 UPDATE `creature_template` SET `ScriptName`='npc_defias_traitor' WHERE `entry`=467;
