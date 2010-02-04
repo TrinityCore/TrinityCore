@@ -42,7 +42,6 @@ enum Spells
     H_SPELL_CONSUME                                        = SPELL_CONSUME_59803,
     H_SPELL_CONSUME_AURA                                   = SPELL_CONSUME_59805,
 };
-//not in db
 enum Yells
 {
     SAY_AGGRO                                              = -1600006,
