@@ -1103,6 +1103,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 
 bool Position::HasInLine(const Unit * const target, float distance, float width) const
 {
+    assert(target);
     if(!HasInArc(M_PI, target) || !target->IsWithinDist3d(m_positionX, m_positionY, m_positionZ, distance)) return false;
     width += target->GetObjectSize();
     float angle = GetRelativeAngle(target);
@@ -1192,6 +1193,7 @@ InstanceData* WorldObject::GetInstanceData()
 
 float WorldObject::GetDistanceZ(const WorldObject* obj) const
 {
+    assert(obj);
     float dz = fabs(GetPositionZ() - obj->GetPositionZ());
     float sizefactor = GetObjectSize() + obj->GetObjectSize();
     float dist = dz - sizefactor;
@@ -1200,6 +1202,7 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
 
 bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
 {
+    assert(obj);
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float distsq = dx*dx + dy*dy;
@@ -1357,6 +1360,7 @@ void Position::GetSinCos(const float x, const float y, float &vsin, float &vcos)
 
 bool Position::HasInArc(float arc, const Position *obj) const
 {
+    assert(obj);
     // always have self in arc
     if(obj == this)
         return true;
