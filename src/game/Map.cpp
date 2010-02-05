@@ -33,7 +33,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "ScriptCalls.h"
 #include "Group.h"
 #include "MapRefManager.h"
 #include "Vehicle.h"

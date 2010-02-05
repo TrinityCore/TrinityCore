@@ -36,7 +36,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Player.h"
-#include "ScriptCalls.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Util.h"

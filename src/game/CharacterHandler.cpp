@@ -42,7 +42,6 @@
 #include "SocialMgr.h"
 #include "UpdateMask.h"
 #include "Util.h"
-#include "ScriptCalls.h"
 #include "SpellId.h"
 #include "ScriptMgr.h"
 

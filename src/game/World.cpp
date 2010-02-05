@@ -47,7 +47,6 @@
 #include "LootMgr.h"
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
-#include "ScriptCalls.h"
 #include "CreatureAIRegistry.h"
 #include "Policies/SingletonImp.h"
 #include "BattleGroundMgr.h"
@@ -1584,7 +1583,7 @@ void World::SetInitialWorldSettings()
     CreatureEAI_Mgr.LoadCreatureEventAI_Scripts();
 
     sLog.outString("Initializing Scripts...");
-    LoadScriptingModule();
+    sScriptMgr.ScriptsInit();
 
     ///- Initialize game time and timers
     sLog.outDebug("DEBUG:: Initialize game time and timers");
