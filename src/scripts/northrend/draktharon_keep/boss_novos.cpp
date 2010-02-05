@@ -159,7 +159,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
                 } else uiTimer -= diff;
                 if (uiCrystalHandlerTimer <= diff)
                 {
-                    //TODO: say
+                    DoScriptText(SAY_NECRO_ADD, m_creature);
                     Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint.x, CrystalHandlerSpawnPoint.y , CrystalHandlerSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                     pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
                     uiCrystalHandlerTimer = urand(20000,30000);
@@ -178,6 +178,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
     }
     void JustDied(Unit* killer)
     {
+        DoScriptText(SAY_DEATH, m_creature);
         if (pInstance)
         {
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
