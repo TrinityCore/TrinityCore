@@ -377,7 +377,7 @@ struct Position
     void Relocate(const Position &pos)
         { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; m_orientation = pos.m_orientation; }
     void Relocate(const Position *pos)
-        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
+        { assert(pos); m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
     void SetOrientation(float orientation)
         { m_orientation = orientation; }
 
@@ -393,7 +393,10 @@ struct Position
     void GetPosition(float &x, float &y, float &z, float &o) const
         { x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation; }
     void GetPosition(Position *pos) const
-        { pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation); }
+    { 
+        if (pos) 
+            pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation); 
+    }
 
     bool IsPositionValid() const;
 
@@ -402,32 +405,33 @@ struct Position
     float GetExactDist2d(const float x, const float y) const
         { return sqrt(GetExactDist2dSq(x, y)); }
     float GetExactDist2dSq(const Position *pos) const
-        { float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy; }
+        { assert(pos); float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy; }
     float GetExactDist2d(const Position *pos) const
-        { return sqrt(GetExactDist2dSq(pos)); }
+        { assert(pos); return sqrt(GetExactDist2dSq(pos)); }
     float GetExactDistSq(float x, float y, float z) const
         { float dz = m_positionZ - z; return GetExactDist2dSq(x, y) + dz*dz; }
     float GetExactDist(float x, float y, float z) const
         { return sqrt(GetExactDistSq(x, y, z)); }
     float GetExactDistSq(const Position *pos) const
-        { float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz; }
+        { assert(pos); float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz; }
     float GetExactDist(const Position *pos) const
-        { return sqrt(GetExactDistSq(pos)); }
+        { assert(pos); return sqrt(GetExactDistSq(pos)); }
 
     float GetAngle(const Position *pos) const;
     float GetAngle(float x, float y) const;
-    float GetRelativeAngle(const Position *pos) const { return GetAngle(pos) - m_orientation; }
+    float GetRelativeAngle(const Position *pos) const 
+        { assert(pos); return GetAngle(pos) - m_orientation; }
     float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - m_orientation; }
     void GetSinCos(float x, float y, float &vsin, float &vcos) const;
 
     bool IsInDist2d(float x, float y, float dist) const
         { return GetExactDist2dSq(x, y) < dist * dist; }
     bool IsInDist2d(const Position *pos, float dist) const
-        { return GetExactDist2dSq(pos) < dist * dist; }
+        { assert(pos); return GetExactDist2dSq(pos) < dist * dist; }
     bool IsInDist(float x, float y, float z, float dist) const
         { return GetExactDistSq(x, y, z) < dist * dist; }
     bool IsInDist(const Position *pos, float dist) const
-        { return GetExactDistSq(pos) < dist * dist; }
+        { assert(pos); return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position *pos) const;
     bool HasInLine(const Unit *target, float distance, float width) const;
 };
@@ -509,7 +513,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
+        bool InSamePhase(WorldObject const* obj) const { assert(obj); return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
 
         uint32 GetZoneId() const;
@@ -524,15 +528,32 @@ class WorldObject : public Object, public WorldLocation
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 
         float GetDistance(const WorldObject *obj) const
-            { return GetExactDist(obj) + GetObjectSize() + obj->GetObjectSize(); }
+        { 
+            assert(obj); 
+            float d = GetExactDist(obj) - GetObjectSize() - obj->GetObjectSize();
+            return d > 0.0f ? d : 0.0f;
+        }
         float GetDistance(const Position &pos) const
-            { return GetExactDist(&pos) + GetObjectSize(); }
+        { 
+            float d = GetExactDist(&pos) - GetObjectSize();
+            return d > 0.0f ? d : 0.0f;
+        }
         float GetDistance(float x, float y, float z) const
-            { return GetExactDist(x, y, z) + GetObjectSize(); }
+        { 
+            float d = GetExactDist(x, y, z) - GetObjectSize();
+            return d > 0.0f ? d : 0.0f;
+        }
         float GetDistance2d(const WorldObject* obj) const
-            { return GetExactDist2d(obj) + GetObjectSize() + obj->GetObjectSize(); }
+        { 
+            assert(obj); 
+            float d = GetExactDist2d(obj) - GetObjectSize() - obj->GetObjectSize();
+            return d > 0.0f ? d : 0.0f;
+        }
         float GetDistance2d(float x, float y) const
-            { return GetExactDist2d(x, y) + GetObjectSize(); }
+        { 
+            float d = GetExactDist2d(x, y) - GetObjectSize();
+            return d > 0.0f ? d : 0.0f;
+        }
         float GetDistanceZ(const WorldObject* obj) const;
 
         bool IsInMap(const WorldObject* obj) const
@@ -551,8 +572,8 @@ class WorldObject : public Object, public WorldLocation
         bool IsWithinDist2d(const Position *pos, float dist) const
             { return IsInDist2d(pos, dist + GetObjectSize()); }
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
+        // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const
-                                                            // use only if you will sure about placing both object at same map
         {
             return obj && _IsWithinDist(obj,dist2compare,is3D);
         }
