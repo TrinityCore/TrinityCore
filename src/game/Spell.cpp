@@ -49,7 +49,6 @@
 #include "Util.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
-#include "ScriptCalls.h"
 #include "SpellAuraEffects.h"
 #include "SpellId.h"
 #include "ScriptMgr.h"

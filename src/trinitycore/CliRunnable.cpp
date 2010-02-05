@@ -35,7 +35,6 @@
 #include "Log.h"
 #include "MapManager.h"
 #include "Player.h"
-#include "ScriptCalls.h"
 #include "Util.h"
 
 #if PLATFORM != WINDOWS

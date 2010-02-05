@@ -37,7 +37,6 @@
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "SpellMgr.h"
-#include "ScriptCalls.h"
 #include "ScriptMgr.h"
 
 bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)

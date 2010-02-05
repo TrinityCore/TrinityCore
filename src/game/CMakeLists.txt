@@ -225,8 +225,6 @@ SET(game_STAT_SRCS
    ReactorAI.h
    ReputationMgr.cpp
    ReputationMgr.h
-   ScriptCalls.cpp
-   ScriptCalls.h
    ScriptedSmartAI.cpp
    ScriptedSmartAI.h
    ScriptLoader.cpp

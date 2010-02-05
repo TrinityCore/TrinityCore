@@ -23,7 +23,6 @@
 #include "PassiveAI.h"
 #include "Policies/SingletonImp.h"
 #include "MovementGenerator.h"
-#include "ScriptCalls.h"
 #include "Pet.h"
 #include "TemporarySummon.h"
 #include "CreatureAIFactory.h"

@@ -41,7 +41,6 @@
 #include "MapManager.h"
 #include "SocialMgr.h"
 #include "zlib/zlib.h"
-#include "ScriptCalls.h"
 #include "ScriptMgr.h"
 
 /// WorldSession constructor

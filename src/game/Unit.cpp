@@ -54,7 +54,6 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "Transports.h"
-#include "ScriptCalls.h"
 #include "SpellId.h"
 
 #include <math.h>
