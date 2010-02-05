@@ -501,7 +501,9 @@ void InstanceSaveManager::LoadResetTimes()
             continue;
 
         // the reset_delay must be at least one day
-        uint32 period =  (mapDiff->resetTime / DAY * sWorld.getRate(RATE_INSTANCE_RESET_TIME)) * DAY;
+        uint32 period = ((mapDiff->resetTime * sWorld.getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY;
+        if (period < DAY)
+            period = DAY;
 
         time_t t = GetResetTimeFor(mapid,difficulty);
         if(!t)
@@ -528,6 +530,8 @@ void InstanceSaveManager::LoadResetTimes()
         for(; type < 4; type++)
             if(t - tim[type-1] > now)
                 break;
+
+        ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, -1));
 
         for(ResetTimeMapDiffInstances::const_iterator in_itr = mapDiffResetInstances.lower_bound(map_diff_pair);
             in_itr != mapDiffResetInstances.upper_bound(map_diff_pair); ++in_itr)
@@ -662,8 +666,16 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 
         // calculate the next reset time
         uint32 diff = sWorld.getConfig(CONFIG_INSTANCE_RESET_TIME_HOUR) * HOUR;
-        uint32 period = mapDiff->resetTime * DAY;
+
+        uint32 period = ((mapDiff->resetTime * sWorld.getRate(RATE_INSTANCE_RESET_TIME))/DAY) * DAY;
+        if (period < DAY)
+            period = DAY;
+
         uint64 next_reset = ((now + timeLeft + MINUTE) / DAY * DAY) + period + diff;
+
+        SetResetTimeFor(mapid, difficulty, next_reset);
+        ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, -1));
+ 
         // update it in the DB
         CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%d' AND difficulty = '%d'", next_reset, mapid, difficulty);
     }
