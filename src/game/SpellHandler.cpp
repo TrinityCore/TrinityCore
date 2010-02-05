@@ -27,7 +27,6 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "Spell.h"
-#include "ScriptCalls.h"
 #include "Totem.h"
 #include "TemporarySummon.h"
 #include "SpellAuras.h"

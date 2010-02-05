@@ -34,7 +34,6 @@
 #include "BattleGround.h"
 #include "OutdoorPvPMgr.h"
 #include "Formulas.h"
-#include "ScriptCalls.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"

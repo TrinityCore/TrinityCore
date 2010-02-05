@@ -40,25 +40,12 @@
 #endif //TRINITY_ENDIAN
 
 #if PLATFORM == PLATFORM_WINDOWS
-#  define TRINITY_IMPORT __cdecl
 #  define TRINITY_PATH_MAX MAX_PATH
-#else //PLATFORM != PLATFORM_WINDOWS
-#  if defined(__APPLE_CC__) && defined(BIG_ENDIAN)
-#    define TRINITY_IMPORT __attribute__ ((longcall))
-#  elif defined(__x86_64__)
-#    define TRINITY_IMPORT
-#  else
-#    define TRINITY_IMPORT __attribute__ ((cdecl))
-#  endif //__APPLE_CC__ && BIG_ENDIAN
-#  define TRINITY_PATH_MAX PATH_MAX
-#endif //PLATFORM
-
-
-#if PLATFORM == PLATFORM_WINDOWS
 #  ifndef DECLSPEC_NORETURN
 #    define DECLSPEC_NORETURN __declspec(noreturn)
 #  endif //DECLSPEC_NORETURN
 #else //PLATFORM != PLATFORM_WINDOWS
+#  define TRINITY_PATH_MAX PATH_MAX
 #  define DECLSPEC_NORETURN
 #endif //PLATFORM
 

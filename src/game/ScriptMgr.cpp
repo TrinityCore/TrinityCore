@@ -12,48 +12,20 @@
 #include "ScriptSystem.h"
 #include "Policies/SingletonImp.h"
 
-#define _FULLVERSION "TrinityScript"
-
 INSTANTIATE_SINGLETON_1(ScriptMgr);
 
 int num_sc_scripts;
 Script *m_scripts[MAX_SCRIPTS];
-
-Config TScriptConfig;
 
 void FillSpellSummary();
 void LoadOverridenSQLData();
 
 void ScriptMgr::LoadDatabase()
 {
-    //Get db string from file
-    std::string dbstring = TScriptConfig.GetStringDefault("WorldDatabaseInfo", "");
-
-    if (dbstring.empty())
-    {
-        error_log("TSCR: Missing world database info from configuration file. Load database aborted.");
-        return;
-    }
-
-    //Initialize connection to DB
-    if (!dbstring.empty() && TScriptDB.Initialize(dbstring.c_str()))
-    {
-        outstring_log("TSCR: TrinityScript database initialized successfully.");
-        outstring_log("");
-
-        pSystemMgr.LoadVersion();
-        pSystemMgr.LoadScriptTexts();
-        pSystemMgr.LoadScriptTextsCustom();
-        pSystemMgr.LoadScriptWaypoints();
-    }
-    else
-    {
-        error_log("TSCR: Unable to connect to database at %s. Load database aborted.", dbstring.c_str());
-        return;
-    }
-
-    TScriptDB.HaltDelayThread();
-
+    pSystemMgr.LoadVersion();
+    pSystemMgr.LoadScriptTexts();
+    pSystemMgr.LoadScriptTextsCustom();
+    pSystemMgr.LoadScriptWaypoints();
 }
 
 struct TSpellSummary {
@@ -70,7 +42,7 @@ ScriptMgr::~ScriptMgr()
     
 }
 
-void ScriptMgr::ScriptsInit(char const* cfg_file)
+void ScriptMgr::ScriptsInit()
 {
     //Trinity Script startup
     outstring_log(" _____     _       _ _         ____            _       _");
@@ -79,15 +51,7 @@ void ScriptMgr::ScriptsInit(char const* cfg_file)
     outstring_log("  | || |  | | | | | | |_| |_| |___) | (__| |  | | |_) | |_ ");
     outstring_log("  |_||_|  |_|_| |_|_|\\__|\\__, |____/ \\___|_|  |_| .__/ \\__|");
     outstring_log("                         |___/                  |_|        ");
-    outstring_log("Trinity Script initializing %s", _FULLVERSION);
     outstring_log("");
-
-    //Get configuration file
-    if (!TScriptConfig.SetSource(cfg_file))
-        error_log("TSCR: Unable to open configuration file. Database will be unaccessible. Configuration values will use default.");
-    else
-        outstring_log("TSCR: Using configuration file %s",cfg_file);
-
     outstring_log("");
 
     //Load database (must be called after SD2Config.SetSource).
@@ -113,35 +77,6 @@ void ScriptMgr::ScriptsInit(char const* cfg_file)
 
 //*********************************
 //*** Functions used globally ***
-
-std::string ScriptMgr:: GetConfigValueStr(char const* option)
-{
-    //Get db string from file
-    std::string dbstring = TScriptConfig.GetStringDefault(option, "");
-
-    if (dbstring.empty())
-    {
-        error_log("TSCR: %s is not a valid option.", option);
-        return "error";
-    }
-    return dbstring;
-}
-
-int32 ScriptMgr::GetConfigValueInt32(char const* option)
-{
-    //Get db int from file
-    int32 dbint = TScriptConfig.GetIntDefault(option, 0);
-
-    return dbint;
-}
-
-float ScriptMgr::GetConfigValueFloat(char const* option)
-{
-    //Get db int from file
-    float dbfloat = TScriptConfig.GetFloatDefault(option, 0);
-
-    return dbfloat;
-}
 
 void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 {
