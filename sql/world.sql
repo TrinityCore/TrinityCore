@@ -14354,7 +14354,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (500, 'Player already has a guild!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (501, 'Guild not created! (already exists?)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (502, 'No items from itemset ''%u'' found.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(503, 'The distance is: (3D) %f (2D) %f yards.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(503, 'The distance is: (3D) %f (2D) %f (Exact 3D) %f (Exact 2D) %f yards.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (504, 'Item ''%i'' ''%s'' Item Slot %i', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (505, 'Item ''%i'' doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (506, 'Item ''%i'' ''%s'' Added to Slot %i', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
