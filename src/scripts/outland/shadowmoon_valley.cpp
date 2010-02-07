@@ -692,6 +692,7 @@ struct npc_overlord_morghorAI : public ScriptedAI
         Step = 0;
 
         Event = false;
+        m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 2);
     }
 
     void StartEvent()
