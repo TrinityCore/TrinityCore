@@ -39,10 +39,12 @@ EndContentData */
 #define GOSSIP_HELLO    "I need a moment of your time, sir."
 #define GOSSIP_SELECT   "Why... yes, of course. I've something to show you right inside this building, Mr. Anvilward."
 
-#define SAY_PR_1 -1000281
-#define SAY_PR_2 -1000282
-
-#define QUEST_THE_DWARVEN_SPY 8483
+enum eProspectorAnvilward
+{
+    SAY_ANVIL1                                  = -1000209,
+    SAY_ANVIL2                                  = -1000210,
+    QUEST_THE_DWARVEN_SPY                       = 8483,
+};
 
 struct npc_prospector_anvilwardAI : public npc_escortAI
 {
@@ -59,8 +61,8 @@ struct npc_prospector_anvilwardAI : public npc_escortAI
 
         switch (i)
         {
-            case 0: DoScriptText(SAY_PR_1, m_creature, pPlayer); break;
-            case 5: DoScriptText(SAY_PR_2, m_creature, pPlayer); break;
+            case 0: DoScriptText(SAY_ANVIL1, m_creature, pPlayer); break;
+            case 5: DoScriptText(SAY_ANVIL2, m_creature, pPlayer); break;
             case 6: m_creature->setFaction(24); break;
         }
     }
