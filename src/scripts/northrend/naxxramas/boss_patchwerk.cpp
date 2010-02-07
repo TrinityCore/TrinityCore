@@ -17,22 +17,33 @@
 #include "ScriptedPch.h"
 #include "naxxramas.h"
 
-#define SAY_AGGRO               RAND(-1533017,-1533018)
-#define SAY_SLAY                -1533019
-#define SAY_DEATH               -1533020
+enum Spells
+{
+    SPELL_HATEFUL_STRIKE                        = SPELL_HATEFUL_STRIKE_41926,
+    H_SPELL_HATEFUL_STRIKE                      = SPELL_HATEFUL_STRIKE_59192,
+    SPELL_FRENZY                                = SPELL_FRENZY_28131,
+    SPELL_BERSERK                               = SPELL_BERSERK_26662,
+    SPELL_SLIME_BOLT                            = SPELL_SLIME_BOLT_32309,
+};
 
-#define EMOTE_BERSERK           -1533021
-#define EMOTE_ENRAGE            -1533022
+enum Yells
+{
+    SAY_AGGRO_1                                 = -1533017,
+    SAY_AGGRO_2                                 = -1533018,
+    SAY_SLAY                                    = -1533019,
+    SAY_DEATH                                   = -1533020,
+    EMOTE_BERSERK                               = -1533021,
+    EMOTE_ENRAGE                                = -1533022,
+};
 
-#define SPELL_HATEFULSTRIKE     RAID_MODE(41926,59192)
-#define SPELL_FRENZY            28131
-#define SPELL_BERSERK           26662
-#define SPELL_SLIMEBOLT         32309
-
-#define EVENT_BERSERK   1
-#define EVENT_HATEFUL   2
-#define EVENT_SLIME     3
-
+enum Events
+{
+    EVENT_NONE,
+    EVENT_BERSERK,
+    EVENT_HATEFUL,
+    EVENT_SLIME
+};
+ 
 #define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  RAID_MODE(1856, 1857)
 #define MAX_ENCOUNTER_TIME                    3 * 60 * 1000
 
@@ -76,7 +87,7 @@ struct boss_patchwerkAI : public BossAI
         _EnterCombat();
         Enraged = false;
         EncounterTime = 0;
-        DoScriptText(SAY_AGGRO, me);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me);
         events.ScheduleEvent(EVENT_HATEFUL, 1200);
         events.ScheduleEvent(EVENT_BERSERK, 360000);
     }
@@ -112,29 +123,28 @@ struct boss_patchwerkAI : public BossAI
                     }
 
                     if (pMostHPTarget)
-                        DoCast(pMostHPTarget, SPELL_HATEFULSTRIKE, true);
+                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE,H_SPELL_HATEFUL_STRIKE), true);
 
                     events.ScheduleEvent(EVENT_HATEFUL, 1200);
-                    return;
+                    break;
                 }
                 case EVENT_BERSERK:
-                    DoCast(m_creature, SPELL_BERSERK);
+                    DoCast(m_creature, SPELL_BERSERK, true);
                     DoScriptText(EMOTE_BERSERK, m_creature);
                     events.ScheduleEvent(EVENT_SLIME, 2000);
-                    return;
+                    break;
                 case EVENT_SLIME:
-                    DoCast(m_creature->getVictim(), SPELL_SLIMEBOLT);
+                    DoCast(m_creature->getVictim(), SPELL_SLIME_BOLT);
                     events.ScheduleEvent(EVENT_SLIME, 2000);
-                    return;
+                    break;
             }
         }
 
         if (!Enraged && HealthBelowPct(5))
         {
-            DoCast(m_creature, SPELL_FRENZY);
-            DoScriptText(EMOTE_ENRAGE, NULL);
+            DoCast(m_creature, SPELL_FRENZY, true);
+            DoScriptText(EMOTE_ENRAGE, m_creature);
             Enraged = true;
-            return;
         }
 
         DoMeleeAttackIfReady();
