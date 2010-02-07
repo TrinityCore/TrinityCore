@@ -26,7 +26,7 @@ enum eSinclari
 {
     NPC_VIOLET_HOLD_GUARD             = 30659,
 
-    SAY_SINCLARI_1                    = -1608000,
+    SAY_SINCLARI_1                    = -1608045,
 };
 
 const Position DoorPosition = { 1828.300049, 797.309021, 46.135502, 1.48353};

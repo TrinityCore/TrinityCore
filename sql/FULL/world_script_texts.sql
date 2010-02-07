@@ -2015,7 +2015,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (28070,-1603042,'Alert! Security fail safes deactivated. Beginning memory purge...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13768,1,0,0,'brann SAY_EVENT_D_2_ABED'),
    (28070,-1603043,'Purge? No no no no no! Where did I-- Aha, this should do the trick...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14256,1,0,0,'brann SAY_EVENT_D_3'),
    (28070,-1603044,'System online. Life form pattern recognized. Welcome Branbronzan. Query?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13769,1,0,0,'brann SAY_EVENT_D_4_ABED'),
-   (28070,-1603045,'Query? What do you think I&#65533;m here for? Tea and biscuits? Spill the beans already!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14263,1,0,0,'brann SAY_EVENT_END_01'),
+   (28070,-1603045,'Query? What do you think I''m here for? Tea and biscuits? Spill the beans already!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14263,1,0,0,'brann SAY_EVENT_END_01'),
    (28070,-1603046,'Tell me how that dwarfs came to be! And start at the beginning!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14264,1,0,0,'brann SAY_EVENT_END_02'),
    (28070,-1603047,'Accessing prehistoric data. Retrieved. In the beginning Earthen were created to-',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13770,1,0,0,'brann SAY_EVENT_END_03_ABED'),
    (28070,-1603048,'Right, right! I know that the Earthen were made of stone to shape the deep reaches of the world but what about the anomalies? Matrix non-stabilizing and whatnot.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14265,1,0,0,'brann SAY_EVENT_END_04'),
@@ -2032,9 +2032,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (28070,-1603059,'Additional background is relevant to your query. Following global combat between-',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13762,1,0,0,'brann SAY_EVENT_END_15_MARN'),
    (28070,-1603060,'Hold everything! The Aesir and Vanir went to war? Why?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14271,1,0,0,'brann SAY_EVENT_END_16'),
    (28070,-1603061,'Unknown. Data suggests that impetus for global combat originated with prime designate Loken who neutralized all remaining Aesir and Vanir affecting termination of conflict. Prime designate Loken then initiated stasis of several seed races including Earthen, Giant and Vrykul at designated holding facilities.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13763,1,0,0,'brann SAY_EVENT_END_17_MARN'),
-   (28070,-1603062,'This Loken sounds like a nasty character. Glad we don&#65533;t have to worry about the likes of him anymore. So if I&#65533;m understanding you lads the original Earthen eventually woke up from this statis. And by that time this destabily-whatever had turned them into our brother dwarfs. Or at least dwarf ancestors. Hm?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14272,1,0,0,'brann SAY_EVENT_END_18'),
+   (28070,-1603062,'This Loken sounds like a nasty character. Glad we don''t have to worry about the likes of him anymore. So if I''m understanding you lads the original Earthen eventually woke up from this statis. And by that time this destabily-whatever had turned them into our brother dwarfs. Or at least dwarf ancestors. Hm?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14272,1,0,0,'brann SAY_EVENT_END_18'),
    (28070,-1603063,'Essentially that is correct.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13764,1,0,0,'brann SAY_EVENT_END_19_MARN'),
-   (28070,-1603064,'Well now. That&#65533;s a lot to digest. I&#65533;m gonna need some time to take all of this in. Thank you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14273,1,0,0,'brann SAY_EVENT_END_20'),
+   (28070,-1603064,'Well now. That''s a lot to digest. I''m gonna need some time to take all of this in. Thank you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14273,1,0,0,'brann SAY_EVENT_END_20'),
    (28070,-1603065,'Acknowledged Branbronzan. Session terminated.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13773,1,0,0,'brann SAY_EVENT_END_21_ABED'),
    (28070,-1603066,'Loken?! That''s downright bothersome... We might''ve neutralized the iron dwarves, but I''d lay odds there''s another machine somewhere else churnin'' out a whole mess o'' these iron vrykul!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14278,1,0,0,'brann SAY_VICTORY_SJONNIR_1'),
    (28070,-1603067,'I''ll use the forge to make badtches o'' earthen to stand guard... But our greatest challenge still remains: find and stop Loken!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14279,1,0,0,'brann SAY_VICTORY_SJONNIR_2'),
@@ -2051,7 +2051,63 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29305,-1604017,'%s begins to transform!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'EMOTE_TRANSFORM boss_moorabi'),
 
 -- -1 608 000 VIOLET HOLD
-   (30658,-1608000,'Prision guards, we are leaving! These adventurers are taking over! Go go go',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+/* Cyanigosa */
+   (31134,-1608000,'We finish this now, champions of Kirin Tor!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13947,1,0,0,'cyanigosa SAY_AGGRO'),
+   (31134,-1608001,'I will end the Kirin Tor!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13952,1,0,0,'cyanigosa SAY_SLAY_1'),
+   (31134,-1608002,'Dalaran will fall!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13953,1,0,0,'cyanigosa SAY_SLAY_2'),
+   (31134,-1608003,'So ends your defiance of the Spell-Weaver!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13954,1,0,0,'cyanigosa SAY_SLAY_3'),
+   (31134,-1608004,'Perhaps... we have... underestimated... you.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13955,1,0,0,'cyanigosa SAY_DEATH'),
+   (31134,-1608005,'A valiant defense, but this city must be razed. I will fulfill Malygos''s wishes myself!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13946,1,0,0,'cyanigosa SAY_SPAWN'),
+   (31134,-1608006,'Am I interrupting?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13951,1,0,0,'cyanigosa SAY_DISRUPTION'),
+   (31134,-1608007,'Shiver and die!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13948,1,0,0,'cyanigosa SAY_BREATH_ATTACK'),
+   (31134,-1608008,'The world has forgotten what true magic is! Let this be a reminder!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13949,1,0,0,'cyanigosa SAY_SPECIAL_ATTACK_1'),
+   (31134,-1608009,'Who among you can withstand my power?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13950,1,0,0,'cyanigosa SAY_SPECIAL_ATTACK_2'),
+
+/* Erekem */
+   (29315,-1608010,'Not--caww--get in way of--rrak-rrak--flee!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14219,1,0,0,'erekem SAY_AGGRO'),
+   (29315,-1608011,'Ya ya ya yaaaa',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14222,1,0,0,'erekem SAY_SLAY_1'),
+   (29315,-1608012,'Preeciouuss life---Ra-aak---Wasted!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14223,1,0,0,'erekem SAY_SLAY_2'),
+   (29315,-1608013,'Only the strong---Ra-aak---Survive!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14224,1,0,0,'erekem SAY_SLAY_3'),
+   (29315,-1608014,'No--kaw, kaw--flee...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14225,1,0,0,'erekem SAY_DEATH'),
+   (29315,-1608015,'Free to--mm--fly now. Ra-aak... Not find us--ekh-ekh! Escape!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14218,1,0,0,'erekem SAY_SPAWN'),
+   (29315,-1608016,'My---raaak--favorite! Awk awk awk! Raa-kaa!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14220,1,0,0,'erekem SAY_ADD_KILLED'),
+   (29315,-1608017,'Nasty little...A-ak, kaw! Kill! Yes, kill you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14221,1,0,0,'erekem SAY_BOTH_ADDS_KILLED'),
+
+/* Ichoron */
+   (29313,-1608018,'Stand aside, mortals!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14230,1,0,0,'ichoron SAY_AGGRO'),
+   (29313,-1608019,'I am a force of nature!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14234,1,0,0,'ichoron SAY_SLAY_1'),
+   (29313,-1608020,'I shall pass!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14235,1,0,0,'ichoron SAY_SLAY_2'),
+   (29313,-1608021,'You can not stop the tide!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14236,1,0,0,'ichoron SAY_SLAY_3'),
+   (29313,-1608022,'I... recede.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14237,1,0,0,'ichoron SAY_DEATH'),
+   (29313,-1608023,'I... am fury... unrestrained!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14229,1,0,0,'ichoron SAY_SPAWN'),
+   (29313,-1608024,'I shall consume, decimate, devastate, and destroy! Yield now to the wrath of the pounding sea!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14231,1,0,0,'ichoron SAY_ENRAGE'),
+   (29313,-1608025,'I will not be contained! Ngyah!!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14233,1,0,0,'ichoron SAY_SHATTER'),
+   (29313,-1608026,'Water can hold any form, take any shape... overcome any obstacle.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14232,1,0,0,'ichoron SAY_BUBBLE'),
+
+/* Xevozz */
+   (29266,-1608027,'It seems my freedom must be bought with blood...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14498,1,0,0,'Xevozz SAY_AGGRO'),
+   (29266,-1608028,'Nothing personal.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14504,1,0,0,'Xevozz SAY_SLAY_1'),
+   (29266,-1608029,'Business concluded.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14505,1,0,0,'Xevozz SAY_SLAY_2'),
+   (29266,-1608030,'Profit!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14506,1,0,0,'Xevozz SAY_SLAY_3'),
+   (29266,-1608031,'This is an... unrecoverable... loss.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14507,1,0,0,'Xevozz SAY_DEATH'),
+   (29266,-1608032,'Back in business! Now to execute an exit strategy.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14498,1,0,0,'Xevozz SAY_SPAWN'),
+   (29266,-1608033,'It would seem that a renegotiation is in order.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14503,1,0,0,'Xevozz SAY_CHARGED'),
+   (29266,-1608034,'The air teems with latent energy... quite the harvest!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14501,1,0,0,'Xevozz SAY_REPEAT_SUMMON_1'),
+   (29266,-1608035,'Plentiful, exploitable resources... primed for acquisition!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14502,1,0,0,'Xevozz SAY_REPEAT_SUMMON_2'),
+   (29266,-1608036,'Intriguing... a high quantity of arcane energy is near. Time for some prospecting...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14500,1,0,0,'Xevozz SAY_SUMMON_ENERGY'),
+
+/* Zuramat */
+   (29314,-1608037,'Eradicate.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13996,1,0,0,'zuramat SAY_AGGRO'),
+   (29314,-1608038,'More... energy.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13999,1,0,0,'zuramat SAY_SLAY_1'),
+   (29314,-1608039,'Relinquish.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14000,1,0,0,'zuramat SAY_SLAY_2'),
+   (29314,-1608040,'Fall... to shadow.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14001,1,0,0,'zuramat SAY_SLAY_3'),
+   (29314,-1608041,'Disperse.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14002,1,0,0,'zuramat SAY_DEATH'),
+   (29314,-1608042,'I am... renewed.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13995,1,0,0,'zuramat SAY_SPAWN'),
+   (29314,-1608043,'Know... my... pain.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13997,1,0,0,'zuramat SAY_SHIELD'),
+   (29314,-1608044,'Gaze... into the void.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13998,1,0,0,'zuramat SAY_WHISPER'),
+
+/* Sinclari */
+   (30658,-1608045,'Prison guards, we are leaving! These adventurers are taking over! Go go go',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'sinclari SAY_SINCLARI_1'),
   
 -- -1 615 000 OBSIDIAN SANCTUM
    (30451,-1615000,'I fear nothing! Least of all you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14111,1,0,0,'shadron SAY_SHADRON_AGGRO'),

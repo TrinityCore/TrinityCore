@@ -49,7 +49,6 @@ enum CreatureSpells
     SPELL_POWER_BALL_VISUAL                        = 54141,
 };
 
-//not in db
 enum Yells
 {
     SAY_AGGRO                                   = -1608027,
