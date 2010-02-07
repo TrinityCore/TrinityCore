@@ -54,19 +54,18 @@ struct npc_forest_frogAI : public ScriptedAI
         if (pInstance)
         {
             uint32 cEntry = 0;
-            switch(rand()%11)
+            switch(rand()%10)
             {
-                case 0: cEntry = 24024; break;          //Kraz
-                case 1: cEntry = 24397; break;          //Mannuth
-                case 2: cEntry = 24403; break;          //Deez
-                case 3: cEntry = 24404; break;          //Galathryn
-                case 4: cEntry = 24405; break;          //Adarrah
-                case 5: cEntry = 24406; break;          //Fudgerick
-                case 6: cEntry = 24407; break;          //Darwen
-                case 7: cEntry = 24445; break;          //Mitzi
-                case 8: cEntry = 24448; break;          //Christian
-                case 9: cEntry = 24453; break;          //Brennan
-                case 10: cEntry = 24455; break;         //Hollee
+                case 0: cEntry = 24397; break;          //Mannuth
+                case 1: cEntry = 24403; break;          //Deez
+                case 2: cEntry = 24404; break;          //Galathryn
+                case 3: cEntry = 24405; break;          //Adarrah
+                case 4: cEntry = 24406; break;          //Fudgerick
+                case 5: cEntry = 24407; break;          //Darwen
+                case 6: cEntry = 24445; break;          //Mitzi
+                case 7: cEntry = 24448; break;          //Christian
+                case 8: cEntry = 24453; break;          //Brennan
+                case 9: cEntry = 24455; break;          //Hollee
             }
 
             if (!pInstance->GetData(TYPE_RAND_VENDOR_1))
