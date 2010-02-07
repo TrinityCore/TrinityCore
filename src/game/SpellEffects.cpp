@@ -2593,15 +2593,15 @@ void Spell::EffectTeleportUnits(uint32 i)
 
 void Spell::EffectApplyAura(uint32 i)
 {
-    if (!m_spellAura)
+    if (!m_spellAura || !unitTarget)
         return;
-    assert (unitTarget == m_spellAura->GetOwner());
+    assert(unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(i);
 }
 
 void Spell::EffectApplyAreaAura(uint32 i)
 {
-    if (!m_spellAura)
+    if (!m_spellAura || !unitTarget)
         return;
     assert (unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(i);
