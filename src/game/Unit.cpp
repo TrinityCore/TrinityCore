@@ -6242,15 +6242,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     triggered_spell_id = 28810;
                     break;
                 }
-                // Improved Fire Nova (Rank 2)
-                case 16544:
-                    triggered_spell_id = 51880;
-                    break;
-                // Earthen Power (Rank 1, 2)
-                case 51523:
-                case 51524:
-                    triggered_spell_id = 63532;
-                    break;
             }
             break;
         }
@@ -6859,12 +6850,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             switch(dummySpell->Id)
             {
                 // Improved fire nova totem
-                case 16544:
                 case 16086:
-                {
+                case 16544:
                     triggered_spell_id = 51880;
                     break;
-                }
+                // Earthen Power (Rank 1, 2)
+                case 51523:
+                case 51524:
+                    triggered_spell_id = 63532;
+                    break;
                 // Tidal Force
                 case 55198:
                 {
