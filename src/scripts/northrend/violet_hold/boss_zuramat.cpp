@@ -10,22 +10,21 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_SHROUD_OF_DARKNESS                       = 54524,
-    H_SPELL_SHROUD_OF_DARKNESS                     = 59745,
-    SPELL_SUMMON_VOID_SENTRY                       = 54369,
-    SPELL_VOID_SHIFT                               = 54361,
-    H_SPELL_VOID_SHIFT                             = 59743,
+    SPELL_SHROUD_OF_DARKNESS                    = SPELL_SHROUD_OF_DARKNESS_54524,
+    H_SPELL_SHROUD_OF_DARKNESS                  = SPELL_SHROUD_OF_DARKNESS_59745,
+    SPELL_SUMMON_VOID_SENTRY                    = SPELL_SUMMON_VOID_SENTRY_54369,
+    SPELL_VOID_SHIFT                            = SPELL_VOID_SHIFT_54361,
+    H_SPELL_VOID_SHIFT                          = SPELL_VOID_SHIFT_59743,
 
-    SPELL_ZUMARAT_ADD_2                            = 59747,
-    H_SPELL_ZUMARAT_ADD_2                          = 59747
+    SPELL_ZURAMAT_ADD_2                         = SPELL_ZURAMAT_ADD_2_54342,
+    H_SPELL_ZURAMAT_ADD_2                       = SPELL_ZURAMAT_ADD_2_59747
 };
 
 enum ZuramatCreatures
 {
-    CREATURE_VOID_SENTRY                           = 29364
+    CREATURE_VOID_SENTRY                        = 29364
 };
 
-//not in db
 enum Yells
 {
     SAY_AGGRO                                   = -1608037,
@@ -152,7 +151,7 @@ struct boss_zuramatAI : public ScriptedAI
     void JustSummoned(Creature* summon)
     {
         summon->AI()->AttackStart(m_creature->getVictim());
-        summon->AI()->DoCastAOE(DUNGEON_MODE(SPELL_ZUMARAT_ADD_2, H_SPELL_ZUMARAT_ADD_2));
+        summon->AI()->DoCastAOE(DUNGEON_MODE(SPELL_ZURAMAT_ADD_2, H_SPELL_ZURAMAT_ADD_2));
         summon->SetPhaseMask(17,true);
     }
 };

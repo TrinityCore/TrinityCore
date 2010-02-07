@@ -43,7 +43,6 @@ enum IchoronCreatures
     NPC_ICHOR_GLOBULE                           = 29321,
 };
 
-//not in db
 enum Yells
 {
     SAY_AGGRO                                   = -1608018,
@@ -181,7 +180,10 @@ struct boss_ichoronAI : public ScriptedAI
         bIsExploded = false;
 
         if (!HealthBelowPct(25))
+        {
+            DoScriptText(SAY_BUBBLE, m_creature);
             DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE, true);
+        }
 
         m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -197,6 +199,7 @@ struct boss_ichoronAI : public ScriptedAI
 
         if (!bIsFrenzy && HealthBelowPct(25) && !bIsExploded)
         {
+            DoScriptText(SAY_ENRAGE, m_creature);
             DoCast(m_creature, DUNGEON_MODE(SPELL_FRENZY, SPELL_FRENZY_H), true);
             bIsFrenzy = true;
         }
@@ -209,6 +212,7 @@ struct boss_ichoronAI : public ScriptedAI
                 {
                     if (!m_creature->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                     {
+                        DoScriptText(SAY_SHATTER, m_creature);
                         DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BLAST, SPELL_WATER_BLAST_H));
                         DoCast(m_creature, SPELL_DRAINED);
                         bIsExploded = true;

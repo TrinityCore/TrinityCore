@@ -25,7 +25,6 @@ enum Spells
     SPELL_STORMSTRIKE                           = SPELL_STORMSTRIKE_51876
 };
 
-//not in db
 enum Yells
 {
     SAY_AGGRO                                   = -1608010,
