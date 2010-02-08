@@ -145,6 +145,14 @@ struct mob_tribuna_controllerAI : public ScriptedAI
         bMarnakActivated = false;
         bAbedneumActivated = false;
 
+        if (pInstance)
+        {
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_KADDRAK),false);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_MARNAK),false);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM),false);
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR),false);
+        }
+    
         lKaddrakGUIDList.clear();
     }
 
@@ -393,6 +401,7 @@ struct npc_brann_hosAI : public npc_escortAI
                     JumpToNextStep(5000);
                     break;
                 case 9:
+                    m_creature->SetReactState(REACT_PASSIVE);
                     SpawnDwarf(1);
                     JumpToNextStep(20000);
                     break;
@@ -492,6 +501,7 @@ struct npc_brann_hosAI : public npc_escortAI
                     JumpToNextStep(10000);
                     break;
                 case 28:
+                    m_creature->SetReactState(REACT_DEFENSIVE);
                     DoScriptText(SAY_EVENT_END_01, m_creature);
                     m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                     if (pInstance)
@@ -606,17 +616,16 @@ struct npc_brann_hosAI : public npc_escortAI
                 {
                     if (pInstance)
                     {
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_KADDRAK),true);
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_MARNAK),true);
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM),true);
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR),true);
+                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_KADDRAK),false);
+                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_MARNAK),false);
+                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM),false);
+                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR),false);
                         pInstance->SetData(DATA_BRANN_EVENT, DONE);
                     }
                     Player* pPlayer = GetPlayerForEscort();
                     if (pPlayer)
                         pPlayer->GroupEventHappens(QUEST_HALLS_OF_STONE, m_creature);
-                    m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     JumpToNextStep(180000);
                     break;
                 }
@@ -626,11 +635,12 @@ struct npc_brann_hosAI : public npc_escortAI
             }
         } else uiPhaseTimer -= uiDiff;
 
-        if (!bIsLowHP && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 30)
+        if (!bIsLowHP && HealthBelowPct(30))
         {
             DoScriptText(SAY_LOW_HEALTH, m_creature);
             bIsLowHP = true;
-        } else if (bIsLowHP && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 30)
+        } 
+        else if (bIsLowHP && !HealthBelowPct(30))
             bIsLowHP = false;
 
         if (!UpdateVictim())
