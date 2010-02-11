@@ -3125,7 +3125,6 @@ void Spell::EffectPersistentAA(uint32 i)
             delete dynObj;
             return;
         }
-        dynObj->SetUInt32Value(DYNAMICOBJECT_BYTES, 0x01eeeeee);
         caster->AddDynObject(dynObj);
         dynObj->GetMap()->Add(dynObj);
 
