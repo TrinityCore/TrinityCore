@@ -110,7 +110,8 @@ m_OutBufferSize (65536),
 m_OutActive (false),
 m_Seed (static_cast<uint32> (rand32 ())),
 m_OverSpeedPings (0),
-m_LastPingTime (ACE_Time_Value::zero)
+m_LastPingTime (ACE_Time_Value::zero),
+m_TimeOutTime (0)
 {
     reference_counting_policy ().value (ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 }
@@ -407,6 +408,10 @@ int WorldSocket::Update (void)
     if (closing_)
         return -1;
 
+    if (m_TimeOutTime &&
+        time(NULL) >= m_TimeOutTime)
+        return -1;
+    
     if (m_OutActive || m_OutBuffer->length () == 0)
         return 0;
 
@@ -655,6 +660,20 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
             default:
             {
                 ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
+
+                /* The m_TimeOutTime measure is put in to be able to automatically disconnect connections
+                that are sitting idle on the character select screen. After a period of being AFK in the realm,
+                the client will be automatically sent back to the character selection screen. In order to pick up
+                the idle connections and prevent they are sitting there, taking up slots for the realm, we'll check if the packet
+                that was sent is CMSG_CHAR_ENUM and initiate the timeout timer that will be checked on WorldSocket::Update.
+                */
+                if (opcode == CMSG_CHAR_ENUM)
+                    m_TimeOutTime = time(NULL) + sWorld.getConfig(CONFIG_SOCKET_TIMEOUTTIME) / IN_MILISECONDS;
+                /* If the packet is CMSG_PLAYER_LOGIN opcode, it means our connection is not idle, we're logging into the world.
+                   Until we receive our next CMSG_CHAR_ENUM packet, we can disregard the timeout timer.
+                */
+                else if (opcode == CMSG_PLAYER_LOGIN)
+                    m_TimeOutTime = 0;
 
                 if (m_Session != NULL)
                 {
