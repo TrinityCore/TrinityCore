@@ -124,6 +124,11 @@ EAIErrorLevel = 2
 #        Socket select time (in milliseconds)
 #        Default: 10000 (10 secs)
 #
+#    SocketTimeOutTime
+#        Time in milliseconds afer which a connection sitting idle on the character
+#        selection screen is disconnected.
+#        Default: 900000 (15 minutes)
+#
 #    GridCleanUpDelay
 #        Grid clean up delay (in milliseconds)
 #        Default: 300000 (5 min)
@@ -217,6 +222,7 @@ SaveRespawnTimeImmediately = 1
 MaxOverspeedPings = 2
 GridUnload = 1
 SocketSelectTime = 10000
+SocketTimeOutTime = 900000
 GridCleanUpDelay = 300000
 MapUpdateInterval = 100
 ChangeWeatherInterval = 600000
