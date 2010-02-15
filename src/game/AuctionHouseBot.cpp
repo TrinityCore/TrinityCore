@@ -1362,8 +1362,7 @@ void AuctionHouseBot::Initialize()
         sLog.outString("loaded %u orange items", orangeItemsBin.size());
         sLog.outString("loaded %u yellow items", yellowItemsBin.size());
     }
-    sLog.outString("AuctionHouseBot by Paradox (original by ChrisK) has been loaded.");
-    sLog.outString("AuctionHouseBot now includes AHBuyer by Kerbe and Paradox");
+    sLog.outString("AuctionHouseBot and AuctionHouseBuyer have been loaded.");
 }
 
 void AuctionHouseBot::IncrementItemCounts(AuctionEntry* ah)
