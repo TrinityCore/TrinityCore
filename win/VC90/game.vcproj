@@ -3165,6 +3165,17 @@
 					</File>
 				</Filter>
 				<Filter
+					Name="Pit of Saron"
+					>
+					<File
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\pit_of_saron.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
+					</File>
+				</Filter>
+				<Filter
 					Name="Gundrak"
 					>
 					<File

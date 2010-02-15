@@ -328,6 +328,8 @@ SET(scripts_STAT_SRCS
    northrend/draktharon_keep/drak_tharon_keep.h
    northrend/frozen_halls/forge_of_souls/instance_forge_of_souls.cpp
    northrend/frozen_halls/forge_of_souls/forge_of_souls.h
+   northrend/frozen_halls/pit_of_saron/instance_pit_of_saron.cpp
+   northrend/frozen_halls/pit_of_saron/pit_of_saron.h
    northrend/gundrak/instance_gundrak.cpp
    northrend/gundrak/boss_slad_ran.cpp
    northrend/gundrak/boss_moorabi.cpp
