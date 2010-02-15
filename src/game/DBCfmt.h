@@ -81,6 +81,7 @@ const char MovieEntryfmt[]="nxx";
 const char QuestSortEntryfmt[]="nxxxxxxxxxxxxxxxxx";
 const char QuestXPfmt[]="niiiiiiiiii";
 const char QuestFactionRewardfmt[]="niiiiiiiiii";
+const char PvPDifficultyfmt[]="diiiii";
 const char RandomPropertiesPointsfmt[]="niiiiiiiiiiiiiii";
 const char ScalingStatDistributionfmt[]="niiiiiiiiiiiiiiiiiiiii";
 const char ScalingStatValuesfmt[]="iniiiiiiiiiiiiiiiiixiiii";
