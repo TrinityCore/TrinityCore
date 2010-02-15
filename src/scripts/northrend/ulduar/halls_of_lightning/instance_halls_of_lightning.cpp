@@ -91,21 +91,29 @@ struct instance_halls_of_lightning : public ScriptedInstance
                 m_uiBjarngrimDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[0] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                else
+                    pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_VOLKHAN_DOOR:
                 m_uiVolkhanDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[1] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                else
+                    pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_IONAR_DOOR:
                 m_uiIonarDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[2] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                else
+                    pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_LOKEN_DOOR:
                 m_uiLokenDoorGUID = pGo->GetGUID();
                 if (m_auiEncounter[3] == DONE)
                     pGo->SetGoState(GO_STATE_ACTIVE);
+                else
+                    pGo->SetGoState(GO_STATE_READY);
                 break;
             case GO_LOKEN_THRONE:
                 m_uiLokenGlobeGUID = pGo->GetGUID();
