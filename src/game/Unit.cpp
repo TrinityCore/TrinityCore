@@ -523,8 +523,7 @@ void Unit::UpdateInterruptMask()
 {
     m_interruptMask = 0;
     for(AuraApplicationList::const_iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
-        if (*i && (*i)->GetBase() && (*i)->GetBase()->GetSpellProto())
-            m_interruptMask |= (*i)->GetBase()->GetSpellProto()->AuraInterruptFlags;
+        m_interruptMask |= (*i)->GetBase()->GetSpellProto()->AuraInterruptFlags;
 
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
         if (spell->getState() == SPELL_STATE_CASTING)

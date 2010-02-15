@@ -1982,10 +1982,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
         {
             if (cur == TARGET_SRC_CASTER)
             {
-                // Earthen Power
-                if (m_spellInfo->Id == 3600)
-                    AddUnitTarget(m_caster, i);
-
                 m_targets.setSrc(m_caster);
                 break;
             }
