@@ -1518,6 +1518,17 @@ void Spell::EffectDummy(uint32 i)
                     }
                     return;
                 }
+                case 31687: // Summon Water Elemental
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // Glyph of Eternal Water
+                    if (unitTarget->HasAura(70937))
+                        unitTarget->CastSpell(unitTarget, 70908, true);
+                    else 
+                        unitTarget->CastSpell(unitTarget, 70907, true);
+                }
             }
             break;
         case SPELLFAMILY_WARRIOR:

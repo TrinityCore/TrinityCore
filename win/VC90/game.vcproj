@@ -3172,6 +3172,7 @@
 						RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\instance_halls_of_reflection.cpp"
 						>
 					</File>
+				</Filter>
 				<Filter
 					Name="Pit of Saron"
 					>
