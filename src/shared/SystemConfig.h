@@ -27,8 +27,8 @@
 #include "Platform/Define.h"
 #include "revision.h"
 
-#define _PACKAGENAME "TrinityCore2 "
-#define _CODENAME "YUME"
+#define _PACKAGENAME "TrinityCore "
+#define _CODENAME "LONG_COLD_WINTER"
 
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 # define _ENDIAN_STRING "big-endian"
