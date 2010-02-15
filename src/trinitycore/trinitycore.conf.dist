@@ -2152,5 +2152,5 @@ Guild.AllowMultipleGuildMaster = 0
 NoResetTalentsCost = 0
 ShowKickInWorld = 0
 RecordUpdateTimeDiffInterval = 60000
-MinRecordUpdateTimeDiff = 10
+MinRecordUpdateTimeDiff = 100
 PlayerStart.String = ""
