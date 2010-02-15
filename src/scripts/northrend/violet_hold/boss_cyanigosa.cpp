@@ -14,15 +14,15 @@ update creature_template set scriptname = '' where entry = '';
 
 enum Spells
 {
-    SPELL_ARCANE_VACUUM                         = SPELL_ARCANE_VACUUM_58694,
-    SPELL_BLIZZARD                              = SPELL_BLIZZARD_58693,
-    H_SPELL_BLIZZARD                            = SPELL_BLIZZARD_59369,
-    SPELL_MANA_DESTRUCTION                      = SPELL_MANA_DESTRUCTION_59374,
-    SPELL_TAIL_SWEEP                            = SPELL_TAIL_SWEEP_58690,
-    H_SPELL_TAIL_SWEEP                          = SPELL_TAIL_SWEEP_59283,
-    SPELL_UNCONTROLLABLE_ENERGY                 = SPELL_UNCONTROLLABLE_ENERGY_58688,
-    H_SPELL_UNCONTROLLABLE_ENERGY               = SPELL_UNCONTROLLABLE_ENERGY_59281,
-    SPELL_TRANSFORM                             = SPELL_CYANIGOSA_TRANSFORM_58668
+    SPELL_ARCANE_VACUUM                         = 58694,
+    SPELL_BLIZZARD                              = 58693,
+    H_SPELL_BLIZZARD                            = 59369,
+    SPELL_MANA_DESTRUCTION                      = 59374,
+    SPELL_TAIL_SWEEP                            = 58690,
+    H_SPELL_TAIL_SWEEP                          = 59283,
+    SPELL_UNCONTROLLABLE_ENERGY                 = 58688,
+    H_SPELL_UNCONTROLLABLE_ENERGY               = 59281,
+    SPELL_TRANSFORM                             = 58668
 };
 
 enum Yells

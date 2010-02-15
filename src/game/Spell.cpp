@@ -50,7 +50,6 @@
 #include "TemporarySummon.h"
 #include "Vehicle.h"
 #include "SpellAuraEffects.h"
-#include "SpellId.h"
 #include "ScriptMgr.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILISECONDS)

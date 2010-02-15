@@ -387,7 +387,7 @@ struct npc_death_knight_initiateAI : public CombatAI
                     pDoneBy->AttackStop();
                     me->CastSpell(pDoneBy, SPELL_DUEL_VICTORY, true);
                     lose = true;
-                    me->CastSpell(me, SPELL_GROVEL_7267, true);
+                    me->CastSpell(me, 7267, true);
                     me->RestoreFaction();
                 }
             }
@@ -417,14 +417,14 @@ struct npc_death_knight_initiateAI : public CombatAI
         {
             if (lose)
             {
-                if (!me->HasAura(SPELL_GROVEL_7267))
+                if (!me->HasAura(7267))
                     EnterEvadeMode();
                 return;
             }
             else if (me->getVictim()->GetTypeId() == TYPEID_PLAYER
                 && me->getVictim()->GetHealth() * 10 < me->getVictim()->GetMaxHealth())
             {
-                me->getVictim()->CastSpell(me->getVictim(), SPELL_GROVEL_7267, true); // beg
+                me->getVictim()->CastSpell(me->getVictim(), 7267, true); // beg
                 me->getVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
                 EnterEvadeMode();
                 return;

@@ -30,7 +30,6 @@
 #include "Util.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellId.h"
 #include "BattleGround.h"
 #include "OutdoorPvPMgr.h"
 #include "Formulas.h"
@@ -1760,7 +1759,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     }
                 }
                 break;
-            case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran
+            case 58600: // No fly Zone - Dalaran
                 if (GetTickNumber() == 10)
                 {
                     target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);

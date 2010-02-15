@@ -94,40 +94,40 @@ enum Spells
 {
     //***** Main Phase 1 ********
     //Eye Spells
-    SPELL_FREEZE_ANIM                           = SPELL_FREEZE_ANIM_16245,                    
-    SPELL_GREEN_BEAM                            = SPELL_EYE_BEAM_26134,
-    SPELL_DARK_GLARE                            = SPELL_DARK_GLARE_26029,
-    SPELL_RED_COLORATION                        = SPELL_GLOWY_RED_22518,        //Probably not the right spell but looks similar
+    SPELL_FREEZE_ANIM                           = 16245,                    
+    SPELL_GREEN_BEAM                            = 26134,
+    SPELL_DARK_GLARE                            = 26029,
+    SPELL_RED_COLORATION                        = 22518,        //Probably not the right spell but looks similar
 
     //Eye Tentacles Spells
-    SPELL_MIND_FLAY                             = SPELL_MIND_FLAY_26143,
+    SPELL_MIND_FLAY                             = 26143,
 
     //Claw Tentacles Spells
-    SPELL_GROUND_RUPTURE                        = SPELL_GROUND_RUPTURE_26139,
-    SPELL_HAMSTRING                             = SPELL_HAMSTRING_26141,
+    SPELL_GROUND_RUPTURE                        = 26139,
+    SPELL_HAMSTRING                             = 26141,
 
     //***** Main Phase 2 ******
     //Body spells
     //#define SPELL_CARAPACE_CTHUN                26156   //Was removed from client dbcs
-    SPELL_TRANSFORM                             = SPELL_TRANSFORM_CTHUN___PHASE_2_26232,
-    SPELL_PURPLE_COLORATION                     = SPELL_GLOWY_PURPLE_22581,     //Probably not the right spell but looks similar
+    SPELL_TRANSFORM                             = 26232,
+    SPELL_PURPLE_COLORATION                     = 22581,     //Probably not the right spell but looks similar
 
     //Eye Tentacles Spells
     //SAME AS PHASE1
 
     //Giant Claw Tentacles
-    SPELL_MASSIVE_GROUND_RUPTURE                = SPELL_GROUND_RUPTURE_26100,
+    SPELL_MASSIVE_GROUND_RUPTURE                = 26100,
 
     //Also casts Hamstring
-    SPELL_THRASH                                = SPELL_THRASH_3391,
+    SPELL_THRASH                                = 3391,
 
     //Giant Eye Tentacles
     //CHAIN CASTS "SPELL_GREEN_BEAM"
 
     //Stomach Spells
-    SPELL_MOUTH_TENTACLE                        = SPELL_SUMMON_MOUTH_TENTACLE_26332,
-    SPELL_EXIT_STOMACH_KNOCKBACK                = SPELL_SPIT_OUT_25383,
-    SPELL_DIGESTIVE_ACID                        = SPELL_DIGESTIVE_ACID_26476,
+    SPELL_MOUTH_TENTACLE                        = 26332,
+    SPELL_EXIT_STOMACH_KNOCKBACK                = 25383,
+    SPELL_DIGESTIVE_ACID                        = 26476,
 };
 
 enum Actions

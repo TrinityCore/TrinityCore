@@ -32,15 +32,15 @@ update creature_template set scriptname = 'boss_trollgore' where entry = '';
 
 enum Spells
 {
-    SPELL_INFECTED_WOUND                                   = SPELL_INFECTED_WOUND_49637,
-    SPELL_CRUSH                                            = SPELL_CRUSH_49639,
-    SPELL_CORPSE_EXPLODE                                   = SPELL_CORPSE_EXPLODE_49555,
-    SPELL_CONSUME                                          = SPELL_CONSUME_49380,
-    SPELL_CONSUME_AURA                                     = SPELL_CONSUME_49381,
+    SPELL_INFECTED_WOUND                                   = 49637,
+    SPELL_CRUSH                                            = 49639,
+    SPELL_CORPSE_EXPLODE                                   = 49555,
+    SPELL_CONSUME                                          = 49380,
+    SPELL_CONSUME_AURA                                     = 49381,
     //Heroic spells
-    H_SPELL_CORPSE_EXPLODE                                 = SPELL_CORPSE_EXPLODE_59807,
-    H_SPELL_CONSUME                                        = SPELL_CONSUME_59803,
-    H_SPELL_CONSUME_AURA                                   = SPELL_CONSUME_59805,
+    H_SPELL_CORPSE_EXPLODE                                 = 59807,
+    H_SPELL_CONSUME                                        = 59803,
+    H_SPELL_CONSUME_AURA                                   = 59805,
 };
 enum Yells
 {

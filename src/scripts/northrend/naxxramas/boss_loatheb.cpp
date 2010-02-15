@@ -21,12 +21,12 @@
 
 enum Spells
 {
-    SPELL_NECROTIC_AURA                                    = SPELL_NECROTIC_AURA_55593,
-    SPELL_SUMMON_SPORE                                     = SPELL_SUMMON_SPORE_29234,
-    SPELL_DEATHBLOOM                                       = SPELL_DEATHBLOOM_29865,
-    H_SPELL_DEATHBLOOM                                     = SPELL_DEATHBLOOM_55053,
-    SPELL_INEVITABLE_DOOM                                  = SPELL_INEVITABLE_DOOM_29204,
-    H_SPELL_INEVITABLE_DOOM                                = SPELL_INEVITABLE_DOOM_55052
+    SPELL_NECROTIC_AURA                                    = 55593,
+    SPELL_SUMMON_SPORE                                     = 29234,
+    SPELL_DEATHBLOOM                                       = 29865,
+    H_SPELL_DEATHBLOOM                                     = 55053,
+    SPELL_INEVITABLE_DOOM                                  = 29204,
+    H_SPELL_INEVITABLE_DOOM                                = 55052
 };
 
 enum Events

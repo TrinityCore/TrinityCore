@@ -36,13 +36,13 @@ enum Events
 
 enum Spells
 {
-    SPELL_IMPALE_10                 = SPELL_IMPALE_28783,
-    SPELL_IMPALE_25                 = SPELL_IMPALE_56090,
-    SPELL_LOCUST_SWARM_10           = SPELL_LOCUST_SWARM_28785,
-    SPELL_LOCUST_SWARM_25           = SPELL_LOCUST_SWARM_54021,
-    SPELL_SUMMON_CORPSE_SCARABS_PLR = SPELL_SUMMON_CORPSE_SCARABS_5_29105,    // This spawns 5 corpse scarabs on top of player
-    SPELL_SUMMON_CORPSE_SCARABS_MOB = SPELL_SUMMON_CORPSE_SCARABS_10_28864,   // This spawns 10 corpse scarabs on top of dead guards 
-    SPELL_BERSERK                   = SPELL_BERSERK_27680,
+    SPELL_IMPALE_10                 = 28783,
+    SPELL_IMPALE_25                 = 56090,
+    SPELL_LOCUST_SWARM_10           = 28785,
+    SPELL_LOCUST_SWARM_25           = 54021,
+    SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
+    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards 
+    SPELL_BERSERK                   = 27680,
 };
 
 struct boss_anubrekhanAI : public BossAI

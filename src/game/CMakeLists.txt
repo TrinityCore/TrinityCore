@@ -242,7 +242,6 @@ SET(game_STAT_SRCS
    SpellAuraEffects.h
    Spell.cpp
    SpellEffects.cpp
-   SpellId.h
    Spell.h
    SkillDiscovery.cpp
    SkillDiscovery.h

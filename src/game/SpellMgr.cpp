@@ -26,7 +26,6 @@
 #include "World.h"
 #include "Chat.h"
 #include "Spell.h"
-#include "SpellId.h"
 #include "BattleGroundMgr.h"
 #include "CreatureAI.h"
 
@@ -615,7 +614,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
         }
 
         case SPELLFAMILY_DEATHKNIGHT:
-            if (spellInfo->Id == SPELL_BLOOD_PRESENCE_48266 || spellInfo->Id == SPELL_FROST_PRESENCE_48263 || spellInfo->Id == SPELL_UNHOLY_PRESENCE_48265)
+            if (spellInfo->Id == 48266 || spellInfo->Id == 48263 || spellInfo->Id == 48265)
             //if (spellInfo->Category == 47)
                 return SPELL_SPECIFIC_PRESENCE;
             break;
@@ -3088,7 +3087,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     // Extra conditions -- leaving the possibility add extra conditions...
     switch(spellId)
     {
-        case SPELL_RESTRICTED_FLIGHT_AREA_58600: // No fly Zone - Dalaran (Krasus Landing exception)
+        case 58600: // No fly Zone - Dalaran (Krasus Landing exception)
             if (!player || player->GetAreaId() == 4564 || !player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY) || player->HasAura(44795))
                 return false;
             break;
@@ -3675,11 +3674,11 @@ void SpellMgr::LoadSpellCustomAttr()
         case 39805:    // Lightning Overload
         case 52437:    // Sudden Death
         case 64823:    // Item - Druid T8 Balance 4P Bonus
-        case SPELL_MISSILE_BARRAGE_44401:
+        case 44401:
             spellInfo->procCharges = 1;
             count++;
             break;
-        case SPELL_TIDAL_WAVES_53390: // Tidal Wave
+        case 53390: // Tidal Wave
             spellInfo->procCharges = 2;
             count++;
             break;
@@ -3761,8 +3760,8 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
         // this is the only known exception, probably just wrong data
-        case SPELL_WRATH_OF_THE_PLAGUEBRINGER_29214: // Wrath of the Plaguebringer
-        case SPELL_WRATH_OF_THE_PLAGUEBRINGER_54836: // Wrath of the Plaguebringer
+        case 29214: // Wrath of the Plaguebringer
+        case 54836: // Wrath of the Plaguebringer
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ALLY_SRC;
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ALLY_SRC;
             count++;
