@@ -280,7 +280,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_DISMISS_PET                 0x00000001            // 0 dismiss pet and not allow to summon new one?
 #define SPELL_ATTR_EX_DRAIN_ALL_POWER             0x00000002            // 1 use all power (Only paladin Lay of Hands and Bunyanize)
 #define SPELL_ATTR_EX_CHANNELED_1                 0x00000004            // 2 channeled target
-#define SPELL_ATTR_EX_UNK3                        0x00000008            // 3
+#define SPELL_ATTR_EX_PUT_CASTER_IN_COMBAT        0x00000008            // 3 spells that cause a caster to enter a combat
 #define SPELL_ATTR_EX_UNK4                        0x00000010            // 4 stealth and whirlwind
 #define SPELL_ATTR_EX_NOT_BREAK_STEALTH           0x00000020            // 5 Not break stealth
 #define SPELL_ATTR_EX_CHANNELED_2                 0x00000040            // 6 channeled self
@@ -303,11 +303,11 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_UNK23                       0x00800000            // 23
 #define SPELL_ATTR_EX_UNK24                       0x01000000            // 24 Req fishing pole??
 #define SPELL_ATTR_EX_UNK25                       0x02000000            // 25
-#define SPELL_ATTR_EX_UNK26                       0x04000000            // 26
+#define SPELL_ATTR_EX_UNK26                       0x04000000            // 26 works correctly with [target=focus] and [target=mouseover] macros?
 #define SPELL_ATTR_EX_UNK27                       0x08000000            // 27
-#define SPELL_ATTR_EX_UNK28                       0x10000000            // 28
+#define SPELL_ATTR_EX_IGNORE_IMMUNITY             0x10000000            // 28 removed from Chains of Ice 3.3.0
 #define SPELL_ATTR_EX_UNK29                       0x20000000            // 29
-#define SPELL_ATTR_EX_UNK30                       0x40000000            // 30 overpower
+#define SPELL_ATTR_EX_ENABLE_AT_DODGE             0x40000000            // 30 Overpower, Wolverine Bite
 #define SPELL_ATTR_EX_UNK31                       0x80000000            // 31
 
 #define SPELL_ATTR_EX2_UNK0                       0x00000001            // 0
@@ -361,7 +361,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_UNK15                      0x00008000            // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
 #define SPELL_ATTR_EX3_UNK16                      0x00010000            // 16 no triggers effects that trigger on casting a spell?? (15290 - 2.2ptr change)
 #define SPELL_ATTR_EX3_NO_INITIAL_AGGRO           0x00020000            // 17 Soothe Animal, 39758, Mind Soothe
-#define SPELL_ATTR_EX3_UNK18                      0x00040000            // 18
+#define SPELL_ATTR_EX3_UNK18                      0x00040000            // 18 added to Explosive Trap Effect 3.3.0, removed from Mutilate 3.3.0
 #define SPELL_ATTR_EX3_DISABLE_PROC               0x00080000            // 19 during aura proc no spells can trigger (20178, 20375)
 #define SPELL_ATTR_EX3_DEATH_PERSISTENT           0x00100000            // 20 Death persistent spells
 #define SPELL_ATTR_EX3_UNK21                      0x00200000            // 21
@@ -372,8 +372,8 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_CAN_PROC_TRIGGERED         0x04000000            // 26
 #define SPELL_ATTR_EX3_DRAIN_SOUL                 0x08000000            // 27 only drain soul has this flag
 #define SPELL_ATTR_EX3_UNK28                      0x10000000            // 28
-#define SPELL_ATTR_EX3_UNK29                      0x20000000            // 29
-#define SPELL_ATTR_EX3_UNK30                      0x40000000            // 30
+#define SPELL_ATTR_EX3_UNK29                      0x20000000            // 29 Ignite 3.3.0
+#define SPELL_ATTR_EX3_UNK30                      0x40000000            // 30 Shaman's Fire Nova 3.3.0, Sweeping Strikes 3.3.0
 #define SPELL_ATTR_EX3_UNK31                      0x80000000            // 31
 
 #define SPELL_ATTR_EX4_UNK0                       0x00000001            // 0
@@ -396,7 +396,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX4_USABLE_IN_ARENA            0x00020000            // 17 usable in arena
 #define SPELL_ATTR_EX4_UNK18                      0x00040000            // 18
 #define SPELL_ATTR_EX4_UNK19                      0x00080000            // 19
-#define SPELL_ATTR_EX4_UNK20                      0x00100000            // 20
+#define SPELL_ATTR_EX4_NOT_CHECK_SELFCAST_POWER   0x00100000            // 20 supersedes message "More powerful spell applied" for self casts.
 #define SPELL_ATTR_EX4_UNK21                      0x00200000            // 21
 #define SPELL_ATTR_EX4_UNK22                      0x00400000            // 22
 #define SPELL_ATTR_EX4_UNK23                      0x00800000            // 23
@@ -463,7 +463,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX6_UNK18                      0x00040000            // 18
 #define SPELL_ATTR_EX6_UNK19                      0x00080000            // 19
 #define SPELL_ATTR_EX6_UNK20                      0x00100000            // 20
-#define SPELL_ATTR_EX6_UNK21                      0x00200000            // 21
+#define SPELL_ATTR_EX6_CLIENT_UI_TARGET_EFFECTS   0x00200000            // 21 it's only client-side attribute
 #define SPELL_ATTR_EX6_UNK22                      0x00400000            // 22
 #define SPELL_ATTR_EX6_UNK23                      0x00800000            // 23 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK24                      0x01000000            // 24 not set in 3.0.3
@@ -974,7 +974,7 @@ enum AuraState
     AURA_STATE_HUNTER_PARRY                 = 7,            // C   |
     //AURA_STATE_UNKNOWN7                   = 7,            //  c  | creature cheap shot / focused bursts spells
     //AURA_STATE_UNKNOWN8                   = 8,            //    t| test spells
-    //AURA_STATE_UNKNOWN9                   = 9,            //     | 
+    //AURA_STATE_UNKNOWN9                   = 9,            //     |
     AURA_STATE_WARRIOR_VICTORY_RUSH         = 10,           // C   | warrior victory rush
     //AURA_STATE_UNKNOWN11                  = 11,           // C  t| 60348 - Maelstrom Ready!, test spells
     AURA_STATE_FAERIE_FIRE                  = 12,           //  c t|
@@ -2359,13 +2359,15 @@ enum TotemCategory
 
 enum UnitDynFlags
 {
-    UNIT_DYNFLAG_LOOTABLE          = 0x0001,
-    UNIT_DYNFLAG_TRACK_UNIT        = 0x0002,
-    UNIT_DYNFLAG_OTHER_TAGGER      = 0x0004,
-    UNIT_DYNFLAG_ROOTED            = 0x0008,
-    UNIT_DYNFLAG_SPECIALINFO       = 0x0010,
-    UNIT_DYNFLAG_DEAD              = 0x0020,
-    UNIT_DYNFLAG_REFER_A_FRIEND    = 0x0040
+    UNIT_DYNFLAG_NONE                       = 0x0000,
+    UNIT_DYNFLAG_LOOTABLE                   = 0x0001,
+    UNIT_DYNFLAG_TRACK_UNIT                 = 0x0002,
+    UNIT_DYNFLAG_TAPPED                     = 0x0004,       // Lua_UnitIsTapped
+    UNIT_DYNFLAG_TAPPED_BY_PLAYER           = 0x0008,       // Lua_UnitIsTappedByPlayer
+    UNIT_DYNFLAG_SPECIALINFO                = 0x0010,
+    UNIT_DYNFLAG_DEAD                       = 0x0020,
+    UNIT_DYNFLAG_REFER_A_FRIEND             = 0x0040,
+    UNIT_DYNFLAG_TAPPED_BY_ALL_THREAT_LIST  = 0x0080        // Lua_UnitIsTappedByAllThreatList
 };
 
 enum CorpseDynFlags
@@ -2396,8 +2398,8 @@ enum ChatMsg
     CHAT_MSG_OFFICER                = 0x05,
     CHAT_MSG_YELL                   = 0x06,
     CHAT_MSG_WHISPER                = 0x07,
-    CHAT_MSG_WHISPER_INFORM         = 0x08, // WHISPER_FOREIGN?
-    CHAT_MSG_REPLY                  = 0x09, // WHISPER_INFORM?
+    CHAT_MSG_WHISPER_FOREIGN        = 0x08,
+    CHAT_MSG_WHISPER_INFORM         = 0x09,
     CHAT_MSG_EMOTE                  = 0x0A,
     CHAT_MSG_TEXT_EMOTE             = 0x0B,
     CHAT_MSG_MONSTER_SAY            = 0x0C,
@@ -2429,18 +2431,20 @@ enum ChatMsg
     CHAT_MSG_BG_SYSTEM_HORDE        = 0x26,
     CHAT_MSG_RAID_LEADER            = 0x27,
     CHAT_MSG_RAID_WARNING           = 0x28,
-    CHAT_MSG_RAID_BOSS_WHISPER      = 0x29,
-    CHAT_MSG_RAID_BOSS_EMOTE        = 0x2A,
+    CHAT_MSG_RAID_BOSS_EMOTE        = 0x29,
+    CHAT_MSG_RAID_BOSS_WHISPER      = 0x2A,
     CHAT_MSG_FILTERED               = 0x2B,
     CHAT_MSG_BATTLEGROUND           = 0x2C,
     CHAT_MSG_BATTLEGROUND_LEADER    = 0x2D,
     CHAT_MSG_RESTRICTED             = 0x2E,
-    CHAT_MSG_BN                     = 0x2F,
+    CHAT_MSG_BATTLENET              = 0x2F,
     CHAT_MSG_ACHIEVEMENT            = 0x30,
-    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31
+    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31,
+    CHAT_MSG_ARENA_POINTS           = 0x32,
+    CHAT_MSG_PARTY_LEADER           = 0x33
 };
 
-#define MAX_CHAT_MSG_TYPE 0x32
+#define MAX_CHAT_MSG_TYPE 0x33
 
 enum ChatLinkColors
 {
@@ -2632,41 +2636,43 @@ enum ResponseCodes
 
     CHAR_CREATE_CHARACTER_GOLD_LIMIT                       = 0x44,
 
-    CHAR_DELETE_IN_PROGRESS                                = 0x45,
-    CHAR_DELETE_SUCCESS                                    = 0x46,
-    CHAR_DELETE_FAILED                                     = 0x47,
-    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 0x48,
-    CHAR_DELETE_FAILED_GUILD_LEADER                        = 0x49,
-    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 0x4A,
+    CHAR_CREATE_FORCE_LOGIN                                = 0x45,
 
-    CHAR_LOGIN_IN_PROGRESS                                 = 0x4B,
-    CHAR_LOGIN_SUCCESS                                     = 0x4C,
-    CHAR_LOGIN_NO_WORLD                                    = 0x4D,
-    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 0x4E,
-    CHAR_LOGIN_NO_INSTANCES                                = 0x4F,
-    CHAR_LOGIN_FAILED                                      = 0x50,
-    CHAR_LOGIN_DISABLED                                    = 0x51,
-    CHAR_LOGIN_NO_CHARACTER                                = 0x52,
-    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 0x53,
-    CHAR_LOGIN_LOCKED_BY_BILLING                           = 0x54,
+    CHAR_DELETE_IN_PROGRESS                                = 0x46,
+    CHAR_DELETE_SUCCESS                                    = 0x47,
+    CHAR_DELETE_FAILED                                     = 0x48,
+    CHAR_DELETE_FAILED_LOCKED_FOR_TRANSFER                 = 0x49,
+    CHAR_DELETE_FAILED_GUILD_LEADER                        = 0x4A,
+    CHAR_DELETE_FAILED_ARENA_CAPTAIN                       = 0x4B,
 
-    CHAR_NAME_SUCCESS                                      = 0x55,
-    CHAR_NAME_FAILURE                                      = 0x56,
-    CHAR_NAME_NO_NAME                                      = 0x57,
-    CHAR_NAME_TOO_SHORT                                    = 0x58,
-    CHAR_NAME_TOO_LONG                                     = 0x59,
-    CHAR_NAME_INVALID_CHARACTER                            = 0x5A,
-    CHAR_NAME_MIXED_LANGUAGES                              = 0x5B,
-    CHAR_NAME_PROFANE                                      = 0x5C,
-    CHAR_NAME_RESERVED                                     = 0x5D,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 0x5E,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 0x5F,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 0x60,
-    CHAR_NAME_INVALID_SPACE                                = 0x61,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 0x62,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x63,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x64,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x65
+    CHAR_LOGIN_IN_PROGRESS                                 = 0x4C,
+    CHAR_LOGIN_SUCCESS                                     = 0x4D,
+    CHAR_LOGIN_NO_WORLD                                    = 0x4E,
+    CHAR_LOGIN_DUPLICATE_CHARACTER                         = 0x4F,
+    CHAR_LOGIN_NO_INSTANCES                                = 0x50,
+    CHAR_LOGIN_FAILED                                      = 0x51,
+    CHAR_LOGIN_DISABLED                                    = 0x52,
+    CHAR_LOGIN_NO_CHARACTER                                = 0x53,
+    CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 0x54,
+    CHAR_LOGIN_LOCKED_BY_BILLING                           = 0x55,
+
+    CHAR_NAME_SUCCESS                                      = 0x56,
+    CHAR_NAME_FAILURE                                      = 0x57,
+    CHAR_NAME_NO_NAME                                      = 0x58,
+    CHAR_NAME_TOO_SHORT                                    = 0x59,
+    CHAR_NAME_TOO_LONG                                     = 0x5A,
+    CHAR_NAME_INVALID_CHARACTER                            = 0x5B,
+    CHAR_NAME_MIXED_LANGUAGES                              = 0x5C,
+    CHAR_NAME_PROFANE                                      = 0x5D,
+    CHAR_NAME_RESERVED                                     = 0x5E,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 0x5F,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 0x60,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 0x61,
+    CHAR_NAME_INVALID_SPACE                                = 0x62,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 0x63,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x64,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x65,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x66
 };
 
 /// Ban function modes

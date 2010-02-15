@@ -726,6 +726,9 @@ class WorldSession
         void HandleEquipmentSetDelete(WorldPacket& recv_data);
         void HandleEquipmentSetUse(WorldPacket& recv_data);
         void HandleWorldStateUITimerUpdate(WorldPacket& recv_data);
+        void HandleReadyForAccountDataTimes(WorldPacket& recv_data);
+        void HandleQueryQuestsCompleted(WorldPacket& recv_data);
+        void HandleQuestPOIQuery(WorldPacket& recv_data);
         void HandleOnPVPKill(Player *killed);
         bool HandleOnPlayerChat(const char *text);
         uint32 HandleOnGetXP(uint32 amount);

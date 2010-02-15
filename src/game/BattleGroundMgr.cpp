@@ -1239,18 +1239,18 @@ void BattleGroundMgr::Update(uint32 diff)
 
 void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGround *bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype)
 {
-    // we can be in 3 queues in same time...
+    // we can be in 2 queues in same time...
 
     if (StatusID == 0 || !bg)
     {
-        data->Initialize(SMSG_BATTLEFIELD_STATUS, 4*3);
-        *data << uint32(QueueSlot);                         // queue id (0...2)
+        data->Initialize(SMSG_BATTLEFIELD_STATUS, 4+8);
+        *data << uint32(QueueSlot);                         // queue id (0...1)
         *data << uint64(0);
         return;
     }
 
-    data->Initialize(SMSG_BATTLEFIELD_STATUS, (4+1+1+4+2+4+1+4+4+4));
-    *data << uint32(QueueSlot);                             // queue id (0...2) - player can be in 3 queues in time
+    data->Initialize(SMSG_BATTLEFIELD_STATUS, (4+8+1+1+4+1+4+4+4));
+    *data << uint32(QueueSlot);                             // queue id (0...1) - player can be in 2 queues in time
     // The following segment is read as uint64 in client but can be appended as their original type.
     *data << uint8(arenatype);
     sLog.outDebug("BattleGroundMgr::BuildBattleGroundStatusPacket: arenatype = %u for bg instanceID %u, TypeID %u.", arenatype, bg->GetClientInstanceID(), bg->GetTypeID());
@@ -1258,6 +1258,8 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
     *data << uint32(bg->GetTypeID());
     *data << uint16(0x1F90);
     // End of uint64 segment, decomposed this way for simplicity
+    *data << uint8(0);                                      // 3.3.0
+    *data << uint8(0);                                      // 3.3.0
     *data << uint32(bg->GetClientInstanceID());
     // alliance/horde for BG and skirmish/rated for Arenas
     // following displays the minimap-icon 0 = faction icon 1 = arenaicon
@@ -1378,7 +1380,11 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             case BATTLEGROUND_BE:
             case BATTLEGROUND_AA:
             case BATTLEGROUND_RL:
-            case BATTLEGROUND_SA:                           // wotlk
+            case BATTLEGROUND_SA:
+	      *data << uint32(2);
+	      *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);   
+	      *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);                           
+	      break;  
             case BATTLEGROUND_DS:                           // wotlk
             case BATTLEGROUND_RV:                           // wotlk
             case BATTLEGROUND_IC:                           // wotlk
@@ -1514,8 +1520,16 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     //for arenas there is random map used
     if (bg_template->isArena())
     {
-        BattleGroundTypeId arenas[] = {BATTLEGROUND_RV, BATTLEGROUND_NA, BATTLEGROUND_BE, BATTLEGROUND_RL};
-        uint32 arena_num = urand(1,3); // Disable Ring of Valor due to LoS problems
+	// for type enter in arenas
+	uint32 arenaswitch = urand(1, 3);
+    
+	if (sWorld.getConfig(CONFIG_ARENA_LK_ARENAS_ENABLE) == 1)
+	    arenaswitch = urand(0, 4); // Enable Ring of Valor and Dalaran Sewers arenas - in these arenas problem with LoS
+	else
+	    arenaswitch = urand(1, 3); // Disable WoTLK Arenas (Ring of Valor, Dalaran Sewers)
+    
+        BattleGroundTypeId arenas[] = {BATTLEGROUND_RV, BATTLEGROUND_NA, BATTLEGROUND_BE, BATTLEGROUND_RL, BATTLEGROUND_DS};
+        uint32 arena_num = arenaswitch;
         bgTypeId = arenas[arena_num];
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
@@ -1691,8 +1705,9 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         }
         if (MinLvl == 0 || MaxLvl == 0 || MinLvl > MaxLvl)
         {
-            MinLvl = bl->minlvl;
-            MaxLvl = bl->maxlvl;
+            //TO-DO: FIX ME
+            MinLvl = 0;//bl->minlvl;
+            MaxLvl = 80;//bl->maxlvl;
         }
 
         start1 = fields[5].GetUInt32();
@@ -1838,15 +1853,17 @@ void BattleGroundMgr::BuildBattleGroundListPacket(WorldPacket *data, const uint6
     if(bgTypeId == BATTLEGROUND_AA)                         // arena
     {
         *data << uint8(4);                                  // unk
+        *data << uint8(0);                                  // unk
         *data << uint32(0);                                 // unk (count?)
     }
     else                                                    // battleground
     {
-        *data << uint8(0x00);                               // unk, different for each bg type
+        *data << uint8(0);                                  // unk, different for each bg type
+        *data << uint8(0);                                  // unk
 
         size_t count_pos = data->wpos();
         uint32 count = 0;
-        *data << uint32(0x00);                              // number of bg instances
+        *data << uint32(0);                                 // number of bg instances
 
         uint32 queue_id = plr->GetBattleGroundQueueIdFromLevel(bgTypeId);
         for (std::set<uint32>::iterator itr = m_ClientBattleGroundIds[bgTypeId][queue_id].begin(); itr != m_ClientBattleGroundIds[bgTypeId][queue_id].end(); ++itr)

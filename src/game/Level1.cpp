@@ -495,7 +495,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
         SendSysMessage(LANG_COMMAND_TICKETNOTEXIST);
         return true;
     }
-    
+
     uint64 tarGUID = objmgr.GetPlayerGUIDByName(targm.c_str());
     uint64 accid = objmgr.GetPlayerAccountIdByGUID(tarGUID);
     uint32 gmlevel = accmgr.GetSecurity(accid, realmID);
@@ -2201,6 +2201,13 @@ bool ChatHandler::HandleTeleCommand(const char * args)
     if (!tele)
     {
         SendSysMessage(LANG_COMMAND_TELE_NOTFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (_player->isInCombat())
+    {
+        SendSysMessage(LANG_YOU_IN_COMBAT);
         SetSentErrorMessage(true);
         return false;
     }

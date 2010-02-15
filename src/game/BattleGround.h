@@ -201,8 +201,10 @@ enum ScoreType
     SCORE_TOWERS_DEFENDED       = 14,
     SCORE_MINES_CAPTURED        = 15,
     SCORE_LEADERS_KILLED        = 16,
-    SCORE_SECONDARY_OBJECTIVES  = 17
-    // TODO : implement them
+    SCORE_SECONDARY_OBJECTIVES  = 17,
+    //SOTA
+    SCORE_DESTROYED_DEMOLISHER  = 18,
+    SCORE_DESTROYED_WALL        = 19
 };
 
 enum ArenaType
@@ -503,6 +505,8 @@ class BattleGround
         virtual void EventPlayerCapturedFlag(Player* /*player*/) {}
         void EventPlayerLoggedIn(Player* player, uint64 plr_guid);
         void EventPlayerLoggedOut(Player* player);
+	virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*target_obj*/, uint32 /*eventId*/) {}
+	virtual void EventPlayerUsedGO(Player* player, GameObject* go){}
 
         /* Death related */
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);

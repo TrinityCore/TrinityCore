@@ -364,8 +364,9 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
             }
             else
             {
-                data.Initialize(SMSG_GROUP_LIST, 24);
-                data << uint64(0) << uint64(0) << uint64(0);
+                data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
+                data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
+                data << uint64(0) << uint32(0) << uint32(0) << uint64(0);
                 player->GetSession()->SendPacket(&data);
             }
 
@@ -447,8 +448,9 @@ void Group::Disband(bool hideDestroy)
         }
         else
         {
-            data.Initialize(SMSG_GROUP_LIST, 24);
-            data << uint64(0) << uint64(0) << uint64(0);
+            data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
+            data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
+            data << uint64(0) << uint32(0) << uint32(0) << uint64(0);
             player->GetSession()->SendPacket(&data);
         }
 
@@ -479,7 +481,7 @@ void Group::Disband(bool hideDestroy)
 
 void Group::SendLootStartRoll(uint32 CountDown, const Roll &r)
 {
-    WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4));
+    WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     data << uint64(r.itemGUID);                             // guid of rolled item
     data << uint32(r.totalPlayersRolling);                  // maybe the number of players rolling for it???
     data << uint32(r.itemid);                               // the itemEntryId for the item that shall be rolled for
@@ -487,6 +489,7 @@ void Group::SendLootStartRoll(uint32 CountDown, const Roll &r)
     data << uint32(r.itemRandomPropId);                     // item random property ID
     data << uint32(r.itemCount);                            // items in stack
     data << uint32(CountDown);                              // the countdown time to choose "need" or "greed"
+    data << uint8(ALL_ROLL_TYPE_MASK);                      // roll type mask
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr!=r.playerVote.end(); ++itr)
     {
@@ -751,8 +754,15 @@ void Group::CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 N
             itr->second = GREED;
         }
         break;
+        case ROLL_DISENCHANT:                               // player choose Disenchant
+        {
+            SendLootRoll(0, playerGUID, 128, ROLL_DISENCHANT, *roll);
+            ++roll->totalGreed;
+            itr->second = DISENCHANT;
+        }
+        break;
     }
-    if (roll->totalPass + roll->totalGreed + roll->totalNeed >= roll->totalPlayersRolling)
+    if (roll->totalPass + roll->totalNeed + roll->totalGreed >= roll->totalPlayersRolling)
     {
         CountTheRoll(rollI, NumberOfPlayers);
     }
@@ -833,42 +843,56 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
             uint8 maxresul = 0;
             uint64 maxguid = (*roll->playerVote.begin()).first;
             Player *player;
+            RollVote rollvote;
 
             Roll::PlayerVote::iterator itr;
             for (itr=roll->playerVote.begin(); itr!=roll->playerVote.end(); ++itr)
             {
-                if (itr->second != GREED)
+                if (itr->second != GREED && itr->second != DISENCHANT)
                     continue;
 
                 uint8 randomN = urand(1, 99);
-                SendLootRoll(0, itr->first, randomN, ROLL_GREED, *roll);
+                SendLootRoll(0, itr->first, randomN, itr->second, *roll);
                 if (maxresul < randomN)
                 {
                     maxguid  = itr->first;
                     maxresul = randomN;
+                    rollvote = itr->second;
                 }
             }
-            SendLootRollWon(0, maxguid, maxresul, ROLL_GREED, *roll);
+            SendLootRollWon(0, maxguid, maxresul, rollvote, *roll);
             player = objmgr.GetPlayer(maxguid);
 
             if(player && player->GetSession())
             {
                 player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT, roll->itemid, maxresul);
 
-                ItemPosCountVec dest;
                 LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
-                uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count );
-                if ( msg == EQUIP_ERR_OK )
+
+                if(rollvote == GREED)
+                {
+                    ItemPosCountVec dest;
+                    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, roll->itemid, item->count );
+                    if ( msg == EQUIP_ERR_OK )
+                    {
+                        item->is_looted = true;
+                        roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
+                        --roll->getLoot()->unlootedCount;
+                        player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId);
+                    }
+                    else
+                    {
+                        item->is_blocked = false;
+                        player->SendEquipError( msg, NULL, NULL );
+                    }
+                }
+                else if(rollvote == DISENCHANT)
                 {
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     --roll->getLoot()->unlootedCount;
-                    player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId);
-                }
-                else
-                {
-                    item->is_blocked = false;
-                    player->SendEquipError( msg, NULL, NULL );
+                    ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(roll->itemid);
+                    player->AutoStoreLoot(pProto->DisenchantID, LootTemplates_Disenchant, true);
                 }
             }
         }
@@ -883,23 +907,24 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
     delete roll;
 }
 
-void Group::SetTargetIcon(uint8 id, uint64 guid)
+void Group::SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid)
 {
     if(id >= TARGETICONCOUNT)
         return;
 
     // clean other icons
-    if( guid != 0 )
+    if( targetGuid != 0 )
         for (int i=0; i<TARGETICONCOUNT; ++i)
-            if( m_targetIcons[i] == guid )
-                SetTargetIcon(i, 0);
+            if( m_targetIcons[i] == targetGuid )
+                SetTargetIcon(i, 0, 0);
 
-    m_targetIcons[id] = guid;
+    m_targetIcons[id] = targetGuid;
 
-    WorldPacket data(MSG_RAID_TARGET_UPDATE, (2+8));
-    data << (uint8)0;
-    data << id;
-    data << guid;
+    WorldPacket data(MSG_RAID_TARGET_UPDATE, (1+8+1+8));
+    data << uint8(0);                                       // set targets
+    data << uint64(whoGuid);
+    data << uint8(id);
+    data << uint64(targetGuid);
     BroadcastPacket(&data, true);
 }
 
@@ -932,15 +957,15 @@ void Group::SendTargetIconList(WorldSession *session)
         return;
 
     WorldPacket data(MSG_RAID_TARGET_UPDATE, (1+TARGETICONCOUNT*9));
-    data << (uint8)1;
+    data << uint8(1);                                       // list targets
 
     for (int i=0; i<TARGETICONCOUNT; ++i)
     {
         if(m_targetIcons[i] == 0)
             continue;
 
-        data << (uint8)i;
-        data << m_targetIcons[i];
+        data << uint8(i);
+        data << uint64(m_targetIcons[i]);
     }
 
     session->SendPacket(&data);
@@ -957,18 +982,24 @@ void Group::SendUpdate()
             continue;
                                                             // guess size
         WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+8+4+GetMembersCount()*20));
-        data << uint8(m_groupType);                         // group type
+        data << uint8(m_groupType);                         // group type (flags in 3.3)
         data << uint8(isBGGroup() ? 1 : 0);                 // 2.0.x, isBattleGroundGroup?
         data << uint8(citr->group);                         // groupid
         data << uint8(0);                                   // unk
+        if(m_groupType & GROUPTYPE_LFD)
+        {
+            data << uint8(0);
+            data << uint32(0);
+        }
         data << uint64(0x50000000FFFFFFFELL);               // related to voice chat?
+        data << uint32(0);                                  // 3.3, may be some kind of time
         data << uint32(GetMembersCount()-1);
         for (member_citerator citr2 = m_memberSlots.begin(); citr2 != m_memberSlots.end(); ++citr2)
         {
             if(citr->guid == citr2->guid)
                 continue;
             Player* member = objmgr.GetPlayer(citr2->guid);
-            
+
             // Sometimes objmgr can't find player when he is teleporting between maps, causing him to show up as offline
             uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
             onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
@@ -978,6 +1009,7 @@ void Group::SendUpdate()
             data << uint8(onlineState);                     // online-state
             data << uint8(citr2->group);                    // groupid
             data << uint8(citr2->flags);                    // See enum GroupMemberFlags
+            data << uint8(0);                               // 3.3
         }
 
         data << uint64(m_leaderGuid);                       // leader guid
@@ -988,6 +1020,7 @@ void Group::SendUpdate()
             data << uint8(m_lootThreshold);                 // loot threshold
             data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
             data << uint8(m_raidDifficulty);                // Raid Difficulty
+            data << uint8(0);                               // 3.3
         }
         player->GetSession()->SendPacket( &data );
     }
@@ -1232,7 +1265,7 @@ void Group::_removeRolls(const uint64 &guid)
         if(itr2 == roll->playerVote.end())
             continue;
 
-        if (itr2->second == GREED) --roll->totalGreed;
+        if (itr2->second == GREED || itr2->second == DISENCHANT) --roll->totalGreed;
         if (itr2->second == NEED) --roll->totalNeed;
         if (itr2->second == PASS) --roll->totalPass;
         if (itr2->second != NOT_VALID) --roll->totalPlayersRolling;
@@ -1279,7 +1312,7 @@ bool Group::_setMainTank(const uint64 &guid, const bool &apply)
 
     RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);          // Remove main tank flag from current if any.
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINTANK, apply);   // And apply main tank flag on new main tank.
-   
+
     if (!isBGGroup())
         CharacterDatabase.PExecute("UPDATE groups SET mainTank='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainTank), GUID_LOPART(m_leaderGuid));
     return true;
@@ -1293,7 +1326,7 @@ bool Group::_setMainAssistant(const uint64 &guid, const bool &apply)
 
     RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINASSIST, apply);  // Apply main assist flag on new main assist.
-   
+
     if (!isBGGroup())
         CharacterDatabase.PExecute("UPDATE groups SET mainAssistant='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainAssistant), GUID_LOPART(m_leaderGuid));
     return true;

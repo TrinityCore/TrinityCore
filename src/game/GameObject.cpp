@@ -73,6 +73,9 @@ GameObject::~GameObject()
 
 void GameObject::CleanupsBeforeDelete(bool finalCleanup)
 {
+    if (IsInWorld())
+        RemoveFromWorld();
+
     if(m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     {
         // Possible crash at access to deleted GO in Unit::m_gameobj
@@ -224,9 +227,15 @@ void GameObject::Update(uint32 /*p_time*/)
                 case GAMEOBJECT_TYPE_TRAP:
                 {
                     // Arming Time for GAMEOBJECT_TYPE_TRAP (6)
-                    Unit* owner = GetOwner();
-                    if (owner && owner->isInCombat())
-                        m_cooldownTime = time(NULL) + GetGOInfo()->trap.startDelay;
+                    GameObjectInfo const* goInfo = GetGOInfo();
+                    // Bombs
+                    if (goInfo->trap.charges == 2)
+                        m_cooldownTime = time(NULL) + 10;   // Hardcoded tooltip value
+                    else if (Unit* owner = GetOwner())
+                    {
+                        if (owner->isInCombat())
+                            m_cooldownTime = time(NULL) + goInfo->trap.startDelay;
+                    }
                     m_lootState = GO_READY;
                     break;
                 }
@@ -301,9 +310,9 @@ void GameObject::Update(uint32 /*p_time*/)
                                 return;
                             }
                                                             // respawn timer
-                            uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), TYPEID_GAMEOBJECT);
+                            uint16 poolid = GetDBTableGUIDLow() ? poolhandler.IsPartOfAPool<GameObject>(GetDBTableGUIDLow()) : 0;
                             if (poolid)
-                                poolhandler.UpdatePool(poolid, GetGUIDLow(), TYPEID_GAMEOBJECT);
+                                poolhandler.UpdatePool<GameObject>(poolid, GetDBTableGUIDLow());
                             else
                                 GetMap()->Add(this);
                             break;
@@ -320,7 +329,15 @@ void GameObject::Update(uint32 /*p_time*/)
                     if(m_cooldownTime >= time(NULL))
                         return;
 
-                    // traps
+                    // Type 2 - Bomb ( will go away after casting it's spell )
+                    if(goInfo->trap.charges == 2)
+                    {
+                        if(goInfo->trap.spellId)
+                            CastSpell(NULL, goInfo->trap.spellId);  // FIXME: null target won't work for target type 1
+                        SetLootState(GO_JUST_DEACTIVATED);
+                        break;
+                    }
+                    // Type 0 and 1 - trap ( type 0 will not get removed after casting a spell )
                     Unit* owner = GetOwner();
                     Unit* ok = NULL;                            // pointer to appropriate target if found any
 
@@ -373,11 +390,7 @@ void GameObject::Update(uint32 /*p_time*/)
 
                         m_cooldownTime = time(NULL) + 4;        // 4 seconds
 
-                        // count charges
-                        //if(goInfo->trap.charges > 0)
-                        //    AddUse();
-
-                        if(owner)
+                        if(owner)  // || goInfo->trap.charges == 1)
                             SetLootState(GO_JUST_DEACTIVATED);
 
                         if(IsBattleGroundTrap && ok->GetTypeId() == TYPEID_PLAYER)
@@ -524,9 +537,9 @@ void GameObject::Delete()
     SetGoState(GO_STATE_READY);
     SetUInt32Value(GAMEOBJECT_FLAGS, GetGOInfo()->flags);
 
-    uint16 poolid = poolhandler.IsPartOfAPool(GetGUIDLow(), TYPEID_GAMEOBJECT);
+    uint16 poolid = GetDBTableGUIDLow() ? poolhandler.IsPartOfAPool<GameObject>(GetDBTableGUIDLow()) : 0;
     if (poolid)
-        poolhandler.UpdatePool(poolid, GetGUIDLow(), TYPEID_GAMEOBJECT);
+        poolhandler.UpdatePool<GameObject>(poolid, GetDBTableGUIDLow());
     else
         AddObjectToRemoveList();
 }
@@ -1118,6 +1131,11 @@ void GameObject::Use(Unit* user)
                         break;
                 }
 
+		if (BattleGround* bg = player->GetBattleGround())
+		  {
+		    bg->EventPlayerUsedGO(player, this);
+		  }
+
                 player->CastedCreatureOrGO(info->id, GetGUID(), 0);
             }
 
@@ -1489,14 +1507,14 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     if(Unit *owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
-        trigger->CastSpell(target, spellInfo, true, 0, 0, owner->GetGUID());
+        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
     }
     else
     {
         trigger->setFaction(14);
         // Set owner guid for target if no owner avalible - needed by trigger auras
         // - trigger gets despawned and there's no caster avalible (see AuraEffect::TriggerSpell())
-        trigger->CastSpell(target, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
+        trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, target ? target->GetGUID() : 0);
     }
     //trigger->setDeathState(JUST_DIED);
     //trigger->RemoveCorpse();
@@ -1531,10 +1549,17 @@ bool GameObject::IsInRange(float x, float y, float z, float radius) const
         && dz < info->maxZ + radius && dz > info->minZ - radius;
 }
 
-void GameObject::TakenDamage(uint32 damage)
+void GameObject::TakenDamage(uint32 damage, Unit *who)
 {
     if (!m_goValue->building.health)
         return;
+
+    Player* pwho = NULL;
+    if(who && who->GetTypeId() == TYPEID_PLAYER)
+      pwho = (Player*)who;
+
+    if(who && who->IsVehicle())
+      pwho = (Player*)who->GetCharmerOrOwner();
 
     if (m_goValue->building.health > damage)
         m_goValue->building.health -= damage;
@@ -1550,7 +1575,12 @@ void GameObject::TakenDamage(uint32 damage)
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.destroyedDisplayId);
             EventInform(m_goInfo->building.destroyedEvent);
-        }
+	    if(pwho)
+	      {
+		if(BattleGround* bg = pwho->GetBattleGround())
+		  bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.destroyedEvent);
+	      }
+	}
     }
     else // from intact to damaged
     {

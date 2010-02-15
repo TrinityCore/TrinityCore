@@ -725,7 +725,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void CastSpell(Unit *target, uint32 spell);
         void SendCustomAnim();
         bool IsInRange(float x, float y, float z, float radius) const;
-        void TakenDamage(uint32 damage);
+        void TakenDamage(uint32 damage, Unit* who = NULL);
         void Rebuild();
 
         void EventInform(uint32 eventId);

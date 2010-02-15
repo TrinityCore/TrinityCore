@@ -492,7 +492,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     {
                         uint32 pdamage = aura->GetAmount() > 0 ? aura->GetAmount() : 0;
                         pdamage = m_caster->SpellDamageBonus(unitTarget, aura->GetSpellProto(), pdamage, DOT, aura->GetBase()->GetStackAmount());
-                        damage += pdamage * 4; // 4 ticks of 3 seconds = 12 secs
+                        damage += pdamage * aura->GetTotalTicks() * 60 / 100;
                         apply_direct_bonus = false;
                         // Glyph of Conflagrate
                         if (!m_caster->HasAura(56235))
@@ -1979,6 +1979,37 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(unitTarget, 39609, &EffectBasePoints0, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
             }
+            // Fire Nova
+            if (m_spellInfo->SpellIconID == 33)
+            {
+                if (!m_caster)
+                    return;
+
+                uint32 triggered_spell_id;
+                switch(m_spellInfo->Id)
+                {
+                    case 1535:  triggered_spell_id = 8349; break;
+                    case 8498:  triggered_spell_id = 8502; break;
+                    case 8499:  triggered_spell_id = 8503; break;
+                    case 11314: triggered_spell_id = 11306; break;
+                    case 11315: triggered_spell_id = 11307; break;
+                    case 25546: triggered_spell_id = 25535; break;
+                    case 25547: triggered_spell_id = 25537; break;
+                    case 61649: triggered_spell_id = 61650; break;
+                    case 61657: triggered_spell_id = 61654; break;
+                    default:
+                        break;
+                }
+                // fire slot
+                if (triggered_spell_id && m_caster->m_SummonSlot[1])
+                {
+                    Creature* totem = m_caster->GetMap()->GetCreature(m_caster->m_SummonSlot[1]);
+                    if (totem && totem->isTotem())
+                        totem->CastSpell(totem, triggered_spell_id, true);
+                    return;
+                }
+                return;
+            }
             // Lava Lash
             if (m_spellInfo->SpellFamilyFlags[2] & SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH)
             {
@@ -3351,12 +3382,10 @@ void Spell::EffectOpenLock(uint32 effIndex)
             //CanUseBattleGroundObject() already called in CheckCast()
             // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
-            {
-                // check if it's correct bg
-                if(bg->GetTypeID() == BATTLEGROUND_AB || bg->GetTypeID() == BATTLEGROUND_AV)
-                    bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-                return;
-            }
+	      {
+		bg->EventPlayerClickedOnFlag(player, gameObjTarget);
+		return;
+	      }
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
@@ -4525,15 +4554,6 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 spell_bonus += int32(0.13f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
             }
             break;
-            // Judgement of Blood/of the Martyr backlash damage (33%)
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x0000000800000000LL && m_spellInfo->SpellIconID==153)
-            {
-                int32 damagePoint  = m_damage * 33 / 100;
-                if (m_spellInfo->Id == 31898)
-                    m_caster->CastCustomSpell(m_caster, 32220, &damagePoint, NULL, NULL, true);
-                else
-                    m_caster->CastCustomSpell(m_caster, 53725, &damagePoint, NULL, NULL, true);
-            }
         }
         case SPELLFAMILY_SHAMAN:
         {
@@ -4552,7 +4572,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                     ((Player*)m_caster)->AddComboPoints(unitTarget,1, this);
             }
             // Shred, Maul - Rend and Tear
-            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING, m_spellInfo, m_caster))
+            else if (m_spellInfo->SpellFamilyFlags[0] & 0x00008800 && unitTarget->HasAuraState(AURA_STATE_BLEEDING))
             {
                 if (AuraEffect const* rendAndTear = m_caster->GetDummyAuraEffect(SPELLFAMILY_DRUID, 2859, 0))
                 {
@@ -4723,11 +4743,19 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
 
     int32 addhealth;
     if(m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
+    {
+        if (m_caster && m_caster->GetGUID() == unitTarget->GetGUID())
+            m_caster->CastSpell(m_caster, 25771, true);
+
         addhealth = m_caster->GetMaxHealth();
+    }
     else
         addhealth = unitTarget->GetMaxHealth() - unitTarget->GetHealth();
     if(m_originalCaster)
-        m_originalCaster->DealHeal(unitTarget, addhealth, m_spellInfo);
+    {
+         addhealth=m_originalCaster->SpellHealingBonus(unitTarget,m_spellInfo, addhealth, HEAL);
+         m_originalCaster->DealHeal(unitTarget, addhealth, m_spellInfo);
+    }
 }
 
 void Spell::EffectInterruptCast(uint32 i)
@@ -7321,7 +7349,7 @@ void Spell::EffectWMODamage(uint32 /*i*/)
         goft = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
         // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls)
         if (casterft && goft && !casterft->IsFriendlyTo(*goft))
-            gameObjTarget->TakenDamage((uint32)damage);
+	  gameObjTarget->TakenDamage((uint32)damage, caster);
     }
 }
 
@@ -7442,7 +7470,7 @@ void Spell::EffectRenamePet(uint32 /*eff_idx*/)
         !((Creature*)unitTarget)->isPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
 
-    unitTarget->SetByteValue(UNIT_FIELD_BYTES_2, 2, UNIT_RENAME_ALLOWED);
+    unitTarget->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 }
 
 void Spell::EffectPlayMusic(uint32 i)
