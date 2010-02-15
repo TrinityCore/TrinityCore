@@ -2449,6 +2449,9 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
             switch(GetMiscValue())
             {
                 case FORM_CAT:
+		      // Savage Roar
+                    if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0 , 0x10000000, 0))
+                        target->CastSpell(target, 62071, true);
                     // Nurturing Instinct
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254,0))
                     {
@@ -5875,11 +5878,26 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 break;
             switch(GetId())
             {
+                case 52610:                                 // Savage Roar
+                {
+                    uint32 spellId = 62071;
+                    if (apply)
+                    {
+                        if (target->m_form != FORM_CAT)
+                            break;
+                        
+                        target->CastSpell(target, spellId, true, NULL, NULL, GetCasterGUID());
+                        break;
+                    }
+                    target->RemoveAurasDueToSpell(spellId);
+                    break;
+                }
                 case 61336:                                 // Survival Instincts
                 {
                     if (!(mode & AURA_EFFECT_HANDLE_REAL))
                         break;
-                    if(apply)
+
+                    if (apply)
                     {
                         if (!target->IsInFeralForm())
                             break;
@@ -5893,7 +5911,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                 }
             }
             // Predatory Strikes
-            if(target->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->SpellIconID == 1563)
+            if (target->GetTypeId() == TYPEID_PLAYER && GetSpellProto()->SpellIconID == 1563)
             {
                 ((Player*)target)->UpdateAttackPowerAndDamage();
             }
