@@ -117,15 +117,16 @@ enum GuildEvents
     GE_LEADER_CHANGED   = 0x07,
     GE_DISBANDED        = 0x08,
     GE_TABARDCHANGE     = 0x09,
-    GE_UNK1             = 0x0A,                             // string, string
-    GE_UNK2             = 0x0B,
-    GE_SIGNED_ON        = 0x0C,
-    GE_SIGNED_OFF       = 0x0D,
-    GE_UNK3             = 0x0E,
-    GE_BANKTAB_PURCHASED= 0x0F,
-    GE_UNK5             = 0x10,
-    GE_UNK6             = 0x11,                             // string 0000000000002710 is 1 gold
-    GE_UNK7             = 0x12
+    GE_UNK1             = 0x0A,                             // string, string EVENT_GUILD_ROSTER_UPDATE
+    GE_UNK2             = 0x0B,                             // EVENT_GUILD_ROSTER_UPDATE
+    GE_SIGNED_ON        = 0x0C,                             // ERR_FRIEND_ONLINE_SS
+    GE_SIGNED_OFF       = 0x0D,                             // ERR_FRIEND_OFFLINE_S
+    GE_UNK3             = 0x0E,                             // EVENT_GUILDBANKBAGSLOTS_CHANGED
+    GE_BANKTAB_PURCHASED= 0x0F,                             // EVENT_GUILDBANK_UPDATE_TABS
+    GE_UNK5             = 0x10,                             // EVENT_GUILDBANK_UPDATE_TABS
+    GE_UNK6             = 0x11,                             // EVENT_GUILDBANK_UPDATE_MONEY, string 0000000000002710 is 1 gold
+    GE_UNK7             = 0x12,                             // MSG_GUILD_BANK_MONEY_WITHDRAWN
+    GE_UNK8             = 0x13                              // EVENT_GUILDBANK_TEXT_CHANGED
 };
 
 enum PetitionTurns
@@ -382,14 +383,13 @@ class Guild
         void   UpdateLogoutTime(uint64 guid);
         // Guild EventLog
         void   LoadGuildEventLogFromDB();
-        void   UnloadGuildEventLog();
         void   DisplayGuildEventLog(WorldSession *session);
         void   LogGuildEvent(uint8 EventType, uint32 PlayerGuid1, uint32 PlayerGuid2, uint8 NewRank);
 
         // ** Guild bank **
         // Content & item deposit/withdraw
         void   DisplayGuildBankContent(WorldSession *session, uint8 TabId);
-        void   DisplayGuildBankMoneyUpdate();
+        void   DisplayGuildBankMoneyUpdate(WorldSession *session);
 
         void   SwapItems( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankTabDst, uint8 BankTabSlotDst, uint32 SplitedAmount);
         void   MoveFromBankToChar( Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 PlayerBag, uint8 PlayerSlot, uint32 SplitedAmount);
@@ -405,11 +405,8 @@ class Guild
         uint32 GetBankRights(uint32 rankId, uint8 TabId) const;
         bool   IsMemberHaveRights(uint32 LowGuid, uint8 TabId,uint32 rights) const;
         bool   CanMemberViewTab(uint32 LowGuid, uint8 TabId) const;
-        // Load/unload
+        // Load
         void   LoadGuildBankFromDB();
-        void   UnloadGuildBank();
-        bool   IsGuildBankLoaded() const { return m_GuildBankLoaded; }
-        void   IncOnlineMemberCount() { ++m_OnlineMembers; }
         // Money deposit/withdraw
         void   SendMoneyInfo(WorldSession *session, uint32 LowGuid);
         bool   MemberMoneyWithdraw(uint32 amount, uint32 LowGuid);
@@ -427,7 +424,6 @@ class Guild
         void   LoadBankRightsFromDB(uint32 GuildId);
         // Guild Bank Event Logs
         void   LoadGuildBankEventLogFromDB();
-        void   UnloadGuildBankEventLog();
         void   DisplayGuildBankLogs(WorldSession *session, uint8 TabId);
         void   LogBankEvent(uint8 EventType, uint8 TabId, uint32 PlayerGuidLow, uint32 ItemOrMoney, uint8 ItemStackCount=0, uint8 DestTabId=0);
         bool   AddGBankItemToDB(uint32 GuildId, uint32 BankTab , uint32 BankTabSlot , uint32 GUIDLow, uint32 Entry );
@@ -468,9 +464,6 @@ class Guild
         uint32 m_GuildBankEventLogNextGuid_Money;
         uint32 m_GuildBankEventLogNextGuid_Item[GUILD_BANK_MAX_TABS];
 
-        bool m_GuildBankLoaded;
-        bool m_EventLogLoaded;
-        uint32 m_OnlineMembers;
         uint64 m_GuildBankMoney;
         uint8 m_PurchasedTabs;
 
