@@ -3181,6 +3181,7 @@
 					</File>
 					<File
 						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
+					>
 					</File>
 				</Filter>
 				<Filter
