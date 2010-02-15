@@ -27,15 +27,15 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_DRAINED                               = SPELL_DRAINED_59820,
-    SPELL_FRENZY                                = SPELL_FRENZY_54312,
-    SPELL_FRENZY_H                              = SPELL_FRENZY_59522,
-    SPELL_PROTECTIVE_BUBBLE                     = SPELL_PROTECTIVE_BUBBLE_54306,
-    SPELL_WATER_BLAST                           = SPELL_WATER_BLAST_54237,
-    SPELL_WATER_BLAST_H                         = SPELL_WATER_BLAST_59520,
-    SPELL_WATER_BOLT_VOLLEY                     = SPELL_WATER_BOLT_VOLLEY_54241,
-    SPELL_WATER_BOLT_VOLLEY_H                   = SPELL_WATER_BOLT_VOLLEY_59521,
-    SPELL_SPLASH                                = SPELL_SPLASH_59516,
+    SPELL_DRAINED                               = 59820,
+    SPELL_FRENZY                                = 54312,
+    SPELL_FRENZY_H                              = 59522,
+    SPELL_PROTECTIVE_BUBBLE                     = 54306,
+    SPELL_WATER_BLAST                           = 54237,
+    SPELL_WATER_BLAST_H                         = 59520,
+    SPELL_WATER_BOLT_VOLLEY                     = 54241,
+    SPELL_WATER_BOLT_VOLLEY_H                   = 59521,
+    SPELL_SPLASH                                = 59516,
 };
 
 enum IchoronCreatures

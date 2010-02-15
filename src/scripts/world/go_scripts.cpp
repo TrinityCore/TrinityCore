@@ -716,19 +716,19 @@ bool GOHello_go_soulwell(Player *pPlayer, GameObject* pGO)
     uint32 newSpell = 0;
     if (pGO->GetEntry() == 193169)                                  // Soulwell for rank 2
     {
-        if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18693))      // Improved Healthstone rank 2
-            newSpell = SPELL_CREATE_FEL_HEALTHSTONE_58898;
-        else if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18692)) // Improved Healthstone rank 1
-            newSpell = SPELL_CREATE_FEL_HEALTHSTONE_58896;
-        else newSpell = SPELL_CREATE_FEL_HEALTHSTONE_58890;
+        if (caster->HasAura(18693))      // Improved Healthstone rank 2
+            newSpell = 58898;
+        else if (caster->HasAura(18692)) // Improved Healthstone rank 1
+            newSpell = 58896;
+        else newSpell = 58890;
     }
     else if (pGO->GetEntry() == 181621)                             // Soulwell for rank 1
     {
-        if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18693))      // Improved Healthstone rank 2
-            newSpell = SPELL_CREATE_MASTER_HEALTHSTONE_34150;
-        else if (caster->HasAura(SPELL_IMPROVED_HEALTHSTONE_18692)) // Improved Healthstone rank 1
-            newSpell = SPELL_CREATE_MASTER_HEALTHSTONE_34149;
-        else newSpell = SPELL_CREATE_MASTER_HEALTHSTONE_34130;
+        if (caster->HasAura(18693))      // Improved Healthstone rank 2
+            newSpell = 34150;
+        else if (caster->HasAura(18692)) // Improved Healthstone rank 1
+            newSpell = 34149;
+        else newSpell = 34130;
     }
 
     pGO->AddUse();

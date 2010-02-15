@@ -22,7 +22,6 @@ SDCategory: Script Examples
 EndScriptData */
 
 #include "ScriptedPch.h"
-#include "SpellId.h"
 
 // **** This script is designed as an example for others to build on ****
 // **** Please modify whatever you'd like to as this script is only for developement ****
@@ -58,13 +57,13 @@ enum Spells
 {
     // List of spells. 
     // Not required to define them in this way, but will make it easier to maintain in case spellId change
-    SPELL_BUFF                                  = SPELL_INCREASED_STAMINA_25661,
-    SPELL_ONE                                   = SPELL_PUMMEL_12555,
-    SPELL_ONE_ALT                               = SPELL_POISON_BOLT_VOLLEY_24099,
-    SPELL_TWO                                   = SPELL_FROST_HOLD_10017,
-    SPELL_THREE                                 = SPELL_KNOCKBACK_26027,
-    SPELL_FRENZY                                = SPELL_FRENZY_23537,
-    SPELL_BERSERK                               = SPELL_BERSERK_32965,
+    SPELL_BUFF                                  = 25661,
+    SPELL_ONE                                   = 12555,
+    SPELL_ONE_ALT                               = 24099,
+    SPELL_TWO                                   = 10017,
+    SPELL_THREE                                 = 26027,
+    SPELL_FRENZY                                = 23537,
+    SPELL_BERSERK                               = 32965,
 };
 
 enum eEnums

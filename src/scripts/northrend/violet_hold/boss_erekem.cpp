@@ -14,15 +14,15 @@ update creature_template set scriptname = '' where entry = '';
 
 enum Spells
 {
-    SPELL_BLOODLUST                             = SPELL_BLOODLUST_54516,
-    SPELL_BREAK_BONDS                           = SPELL_BREAK_BONDS_59463,
-    SPELL_CHAIN_HEAL                            = SPELL_CHAIN_HEAL_54481,
-    H_SPELL_CHAIN_HEAL                          = SPELL_CHAIN_HEAL_59473,
-    SPELL_EARTH_SHIELD                          = SPELL_EARTH_SHIELD_54479,
-    H_SPELL_EARTH_SHIELD                        = SPELL_EARTH_SHIELD_59471,
-    SPELL_EARTH_SHOCK                           = SPELL_EARTH_SHOCK_54511,
-    SPELL_LIGHTNING_BOLT                        = SPELL_LIGHTNING_BOLT_53044,
-    SPELL_STORMSTRIKE                           = SPELL_STORMSTRIKE_51876
+    SPELL_BLOODLUST                             = 54516,
+    SPELL_BREAK_BONDS                           = 59463,
+    SPELL_CHAIN_HEAL                            = 54481,
+    H_SPELL_CHAIN_HEAL                          = 59473,
+    SPELL_EARTH_SHIELD                          = 54479,
+    H_SPELL_EARTH_SHIELD                        = 59471,
+    SPELL_EARTH_SHOCK                           = 54511,
+    SPELL_LIGHTNING_BOLT                        = 53044,
+    SPELL_STORMSTRIKE                           = 51876
 };
 
 enum Yells
