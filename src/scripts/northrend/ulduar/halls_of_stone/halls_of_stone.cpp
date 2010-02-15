@@ -104,12 +104,7 @@ enum Quests
 #define GOSSIP_ITEM_START               "Brann, it would be our honor!"
 #define GOSSIP_ITEM_PROGRESS            "Let's move Brann, enough of the history lessons!"
 
-struct Locations
-{
-    float x, y, z;
-};
-
-static Locations SpawnLocations[]=
+static Position SpawnLocations[]=
 {
     {946.992, 397.016, 208.374},
     {960.748, 382.944, 208.374},
@@ -295,7 +290,6 @@ struct npc_brann_hosAI : public npc_escortAI
             case 13:
                 DoScriptText(SAY_EVENT_INTRO_1, m_creature);
                 SetEscortPaused(true);
-                SetRun(true);
                 JumpToNextStep(20000);
                 break;
             case 17:
@@ -320,16 +314,16 @@ struct npc_brann_hosAI : public npc_escortAI
            {
                uint32 uiSpawnNumber = DUNGEON_MODE(2,3);
                for (uint8 i = 0; i < uiSpawnNumber; ++i)
-                   m_creature->SummonCreature(CREATURE_DARK_RUNE_PROTECTOR, SpawnLocations[0].x, SpawnLocations[0].y, SpawnLocations[0].z, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
-               m_creature->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[0].x, SpawnLocations[0].y, SpawnLocations[0].z, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                   m_creature->SummonCreature(CREATURE_DARK_RUNE_PROTECTOR, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+               m_creature->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                break;
            }
            case 2:
                for (uint8 i = 0; i < 2; ++i)
-                   m_creature->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[1].x, SpawnLocations[1].y, SpawnLocations[1].z, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                   m_creature->SummonCreature(CREATURE_DARK_RUNE_STORMCALLER, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                break;
            case 3:
-               m_creature->SummonCreature(CREATURE_IRON_GOLEM_CUSTODIAN, SpawnLocations[1].x, SpawnLocations[1].y, SpawnLocations[1].z, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+               m_creature->SummonCreature(CREATURE_IRON_GOLEM_CUSTODIAN, SpawnLocations[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                break;
        }
      }
@@ -370,6 +364,7 @@ struct npc_brann_hosAI : public npc_escortAI
                     }
                     bIsBattle = false;
                     DoScriptText(SAY_ESCORT_START, m_creature);
+                    SetRun(true);
                     JumpToNextStep(0);
                     break;
                 case 3:

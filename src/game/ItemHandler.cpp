@@ -1341,7 +1341,7 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
 {
-    sLog.outDebug("WORLD: CMSG_ITEM_REFUND_INFO_REQUEST");
+    sLog.outDebug("WORLD: CMSG_ITEM_REFUND_INFO");
 
     uint64 guid;
 
@@ -1362,7 +1362,7 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
     }
 
     // item refund system not implemented yet
-    WorldPacket data(SMSG_ITEM_REFUND_TIMER, 8+4+4+4+4*4+4*4+4+4); // guess size
+    WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4); // guess size
     data << uint64(guid);                               // item guid
     data << uint32(1);                                  // unknown
     data << uint32(item->GetPaidHonorPoints());         // honor point cost
@@ -1398,13 +1398,13 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
 
     if(item->GetRefundExpiryTime() <= time(NULL))    // item refund has expired
     {
-        WorldPacket data(SMSG_ITEM_REFUND);
+        WorldPacket data(SMSG_ITEM_REFUND_RESULT);
         data << uint64(guid);                       // guid
         data << uint32(1);                          // error, abort refund
         return;
     }
 
-    WorldPacket data(SMSG_ITEM_REFUND);
+    WorldPacket data(SMSG_ITEM_REFUND_RESULT);
     data << uint64(guid);                            // guid?
     data << uint32(0);                               // must be 0 or client side error in refund
     data << uint32(0);                               // unk - message sent to client?

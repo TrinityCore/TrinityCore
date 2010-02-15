@@ -23,15 +23,15 @@ EndScriptData */
 
 #include "ScriptedPch.h"
 
-#define SAY_AGGRO                   -1000387 //signed for 21027
-#define SAY_EARTHQUAKE_1            -1000388 //signed for 21027
-#define SAY_EARTHQUAKE_2            -1000389 //signed for 21027
-#define SAY_OVERRUN_1               -1000390 //signed for 21027
-#define SAY_OVERRUN_2               -1000391 //signed for 5955
-#define SAY_SLAY_1                  -1000392 //signed for 5955
-#define SAY_SLAY_2                  -1000393 //signed for 5955
-#define SAY_SLAY_3                  -1000394 //signed for 5955
-#define SAY_DEATH                   -1000395 //signed for 5955
+#define SAY_AGGRO                   -1000159
+#define SAY_EARTHQUAKE_1            -1000160 
+#define SAY_EARTHQUAKE_2            -1000161 
+#define SAY_OVERRUN_1               -1000162
+#define SAY_OVERRUN_2               -1000163 
+#define SAY_SLAY_1                  -1000164
+#define SAY_SLAY_2                  -1000165
+#define SAY_SLAY_3                  -1000166
+#define SAY_DEATH                   -1000167
 
 #define SPELL_EARTHQUAKE            32686
 #define SPELL_SUNDER_ARMOR          33661

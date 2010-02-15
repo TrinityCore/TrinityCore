@@ -34,8 +34,11 @@ enum RollType
     ROLL_PASS         = 0,
     ROLL_NEED         = 1,
     ROLL_GREED        = 2,
-    MAX_ROLL_TYPE     = 3
+    ROLL_DISENCHANT   = 3,
+    MAX_ROLL_TYPE     = 4
 };
+
+#define ALL_ROLL_TYPE_MASK 0x0F
 
 #define MAX_NR_LOOT_ITEMS 16
 // note: the client cannot show more than 16 items total

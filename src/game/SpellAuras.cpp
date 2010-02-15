@@ -916,7 +916,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     case 48020: // Demonic Circle
                         if(target->GetTypeId() == TYPEID_PLAYER)
                             if(GameObject* obj = target->GetGameObject(48018))
+			    {
                                 ((Player*)target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+				((Player*)target)->RemoveMovementImpairingAuras();
+			    }
                         break;
                 }
                 break;

@@ -360,7 +360,18 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //303 17 spells
     &AuraEffect::HandleNULL,                                      //304 2 spells (alcohol effect?)
     &AuraEffect::HandleAuraModIncreaseSpeed,                      //305 SPELL_AURA_MOD_MINIMUM_SPEED
-    &AuraEffect::HandleNULL                                       //306 1 spell
+    &AuraEffect::HandleNULL,                                      //306 1 spell
+    &AuraEffect::HandleNULL,                                      //307 absorb healing?
+    &AuraEffect::HandleNULL,                                      //308 new aura for hunter traps
+    &AuraEffect::HandleNULL,                                      //309 absorb healing?
+    &AuraEffect::HandleNoImmediateEffect,                         //310 5 spells SPELL_AURA_RANGED_AP_ATTACKER_CREATURES_BONUS implemented in Unit::MeleeDamageBonus
+    &AuraEffect::HandleNULL,                                      //311 0 spells in 3.3
+    &AuraEffect::HandleNULL,                                      //312 0 spells in 3.3
+    &AuraEffect::HandleNULL,                                      //313 0 spells in 3.3
+    &AuraEffect::HandleNULL,                                      //314 1 test spell (reduce duration of silince/magic)
+    &AuraEffect::HandleNULL,                                      //315 underwater walking
+    &AuraEffect::HandleNoImmediateEffect,                         //316 SPELL_AURA_PERIODIC_HASTE implemented in AuraEffect::CalculatePeriodic
+    &AuraEffect::HandleNULL
 };
 
 AuraEffect::AuraEffect(Aura * base, uint8 effIndex, int32 *baseAmount, Unit * caster) :
@@ -725,9 +736,29 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
         return;
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : NULL;
-    //apply casting time mods for channeled spells
-    if(modOwner && m_amplitude && IsChanneledSpell(m_spellProto))
-        modOwner->ModSpellCastTime(m_spellProto, m_amplitude);
+    // Apply casting time mods
+    if(modOwner && m_amplitude)
+    {
+        // For channeled spells
+        if (IsChanneledSpell(m_spellProto)) {
+            modOwner->ModSpellCastTime(m_spellProto, m_amplitude);
+        }
+        // For spells that can benefit from haste
+        else if (modOwner->HasAuraType(SPELL_AURA_PERIODIC_HASTE)) {
+            const Unit::AuraEffectList &effList = modOwner->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HASTE);
+            for (Unit::AuraEffectList::const_iterator itr = effList.begin(), end = effList.end(); itr != end; ++itr)
+            {
+                if ((*itr)->IsAffectedOnSpell(m_spellProto))
+                {
+                    float hasteMod = modOwner->GetFloatValue(UNIT_MOD_CAST_SPEED);
+                    m_amplitude *= hasteMod;
+                    GetBase()->SetMaxDuration(GetBase()->GetMaxDuration() * hasteMod);
+                    GetBase()->SetDuration(GetBase()->GetDuration() * hasteMod);
+                    break;
+                }
+            }
+        }
+    }
 
     // Apply periodic time mod
     if(modOwner && m_amplitude)
@@ -989,7 +1020,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
                     break;
                 case 46394: // Brutallus Burn
                     if (m_tickNumber % 11 == 0)
-                        SetAmount(GetAmount() * 2); ;
+                        SetAmount(GetAmount() * 2);
                     break;
             }
             break;

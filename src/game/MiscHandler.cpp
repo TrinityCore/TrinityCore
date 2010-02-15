@@ -1115,7 +1115,9 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
     recv_data.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recv_data, &movementInfo);
+    recv_data.read_skip<float>();                           // unk2
 */
 }
 
@@ -1498,10 +1500,27 @@ void WorldSession::HandleSetDungeonDifficultyOpcode( WorldPacket & recv_data )
     if(_player->getLevel() < LEVELREQUIREMENT_HEROIC)
         return;
 
-    if(Group *pGroup = _player->GetGroup())
+    Group *pGroup = _player->GetGroup();
+    if(pGroup)
     {
         if(pGroup->IsLeader(_player->GetGUID()))
         {
+            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* pGroupGuy = itr->getSource();
+                if(!pGroupGuy)
+                    continue;
+
+                if(!pGroupGuy->IsInMap(pGroupGuy))
+                    return;
+
+                map = pGroupGuy->GetMap();
+                if(map && map->IsRaidOrHeroicDungeon() )
+                {
+                    sLog.outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+                    return;
+                }
+            }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
@@ -1547,6 +1566,22 @@ void WorldSession::HandleSetRaidDifficultyOpcode( WorldPacket & recv_data )
     {
         if(pGroup->IsLeader(_player->GetGUID()))
         {
+            for(GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* pGroupGuy = itr->getSource();
+                if(!pGroupGuy)
+                    continue;
+
+                if(!pGroupGuy->IsInMap(pGroupGuy))
+                    return;
+
+                map = pGroupGuy->GetMap();
+                if(map && map->IsRaidOrHeroicDungeon() )
+                {
+                    sLog.outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+                    return;
+                }
+            }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
@@ -1594,9 +1629,10 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode( WorldPacket & recv_data )
     recv_data.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
+    movementInfo.guid = guid;
     ReadMovementInfo(recv_data, &movementInfo);
 
-    recv_data.read_skip<uint32>();                          // unk2
+    recv_data.read_skip<float>();                           // unk2
 
     _player->m_mover->m_movementInfo.flags = movementInfo.GetMovementFlags();
 }
@@ -1638,6 +1674,14 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& recv_data)
     WorldPacket data(SMSG_WORLD_STATE_UI_TIMER_UPDATE, 4);
     data << uint32(time(NULL));
     SendPacket(&data);
+}
+
+void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& recv_data)
+{
+    // empty opcode
+    sLog.outDebug("WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");
+
+    SendAccountDataTimes(GLOBAL_CACHE_MASK);
 }
 
 void WorldSession::SendSetPhaseShift(uint32 PhaseShift)

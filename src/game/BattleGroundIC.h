@@ -21,6 +21,12 @@
 
 class BattleGround;
 
+enum Buffs
+{
+    OIL_REFINERY		= 68719,
+    QUARRY			= 68720
+};
+
 class BattleGroundICScore : public BattleGroundScore
 {
     public:
@@ -44,7 +50,11 @@ class BattleGroundIC : public BattleGround
 
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        //bool SetupBattleGround();
+        bool SetupBattleGround();
+        void SpawnLeader(uint32 teamid);
+        void HandleKillUnit(Creature *unit, Player *killer);
+        void EndBattleGround(uint32 winner);
+        void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
 
         /* Scorekeeping */
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);

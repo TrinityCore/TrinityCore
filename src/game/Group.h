@@ -39,8 +39,9 @@ enum RollVote
     PASS              = 0,
     NEED              = 1,
     GREED             = 2,
-    NOT_EMITED_YET    = 3,
-    NOT_VALID         = 4
+    DISENCHANT        = 3,
+    NOT_EMITED_YET    = 4,
+    NOT_VALID         = 5
 };
 
 enum GroupMemberOnlineStatus
@@ -65,8 +66,13 @@ enum GroupMemberFlags
 
 enum GroupType
 {
-    GROUPTYPE_NORMAL = 0,
-    GROUPTYPE_RAID   = 1
+    GROUPTYPE_NORMAL = 0x00,
+    GROUPTYPE_BG     = 0x01,
+    GROUPTYPE_RAID   = 0x02,
+    GROUPTYPE_BGRAID = GROUPTYPE_BG | GROUPTYPE_RAID,       // mask
+    // 0x04?
+    GROUPTYPE_LFD    = 0x08,
+    // 0x10, leave/change group?, I saw this flag when leaving group and after leaving BG while in group
 };
 
 class BattleGround;
@@ -289,7 +295,7 @@ class Group
                 SendUpdate();
         }
 
-        void SetTargetIcon(uint8 id, uint64 guid);
+        void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid);
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -407,7 +413,7 @@ class Group
             if (m_subGroupsCounts)
                 --m_subGroupsCounts[subgroup];
         }
-        
+
         void RemoveUniqueGroupMemberFlag(GroupMemberFlags flag)
         {
             for (member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
@@ -416,14 +422,14 @@ class Group
                     itr->flags &= ~flag;
             }
         }
-        
+
         void ToggleGroupMemberFlag(member_witerator slot, uint8 flag, bool apply)
         {
             if (apply)
                 slot->flags |= flag;
             else
                 slot->flags &= ~flag;
-        } 
+        }
 
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;

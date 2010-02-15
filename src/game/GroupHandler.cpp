@@ -126,7 +126,7 @@ void WorldSession::HandleGroupInviteOpcode( WorldPacket & recv_data )
     if(group)
     {
         // not have permissions for invite
-        if(!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+        if(group->isRaidGroup() && !group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
         {
             SendPartyResult(PARTY_OP_INVITE, "", PARTY_RESULT_YOU_NOT_LEADER);
             return;
@@ -428,9 +428,9 @@ void WorldSession::HandleMinimapPingOpcode(WorldPacket& recv_data)
 
     // everything's fine, do it
     WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
-    data << GetPlayer()->GetGUID();
-    data << x;
-    data << y;
+    data << uint64(GetPlayer()->GetGUID());
+    data << float(x);
+    data << float(y);
     GetPlayer()->GetGroup()->BroadcastPacket(&data, true, -1, GetPlayer()->GetGUID());
 }
 
@@ -451,10 +451,10 @@ void WorldSession::HandleRandomRollOpcode(WorldPacket& recv_data)
     //sLog.outDebug("ROLL: MIN: %u, MAX: %u, ROLL: %u", minimum, maximum, roll);
 
     WorldPacket data(MSG_RANDOM_ROLL, 4+4+4+8);
-    data << minimum;
-    data << maximum;
-    data << roll;
-    data << GetPlayer()->GetGUID();
+    data << uint32(minimum);
+    data << uint32(maximum);
+    data << uint32(roll);
+    data << uint64(GetPlayer()->GetGUID());
     if(GetPlayer()->GetGroup())
         GetPlayer()->GetGroup()->BroadcastPacket(&data, false);
     else
@@ -485,7 +485,7 @@ void WorldSession::HandleRaidTargetUpdateOpcode( WorldPacket & recv_data )
 
         uint64 guid;
         recv_data >> guid;
-        group->SetTargetIcon(x, guid);
+        group->SetTargetIcon(x, _player->GetGUID(), guid);
     }
 }
 
@@ -535,11 +535,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
 
     //Do not allow leader to change group of player in combat
     if (movedPlayer->isInCombat())
-    {
-        WorldPacket data(SMSG_GROUP_SWAP_FAILED, (0));
-        SendPacket(&data);
         return;
-    }
 
     // everything's fine, do it
     group->ChangeMembersGroup(movedPlayer, groupNr);
@@ -586,7 +582,7 @@ void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
     // everything's fine, do it
     if (flag == MEMBER_FLAG_MAINTANK)
         group->SetMainTank(guid, apply);
-        
+
     else if (flag == MEMBER_FLAG_MAINASSIST)
         group->SetMainAssistant(guid, apply);
 }

@@ -73,6 +73,24 @@ void Totem::InitStats(uint32 duration)
                     display_id = cinfo->Modelid3;
                 else
                     display_id = cinfo->Modelid1;
+
+                switch (((Player*)m_owner)->getRace())
+                {
+                    case RACE_ORC:
+                        if (cinfo->Modelid2)
+                            display_id = cinfo->Modelid2;
+                        else
+                            display_id = cinfo->Modelid1;
+                        break;
+                    case RACE_TROLL:
+                        if (cinfo->Modelid4)
+                            display_id = cinfo->Modelid4;
+                        else
+                            display_id = cinfo->Modelid1;
+                        break;
+                    default:
+                        break;
+                }
                 break;
             default:
                 break;

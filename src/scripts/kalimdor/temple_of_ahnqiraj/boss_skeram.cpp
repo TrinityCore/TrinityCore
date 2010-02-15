@@ -233,7 +233,7 @@ struct boss_skeramAI : public ScriptedAI
                     for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                     {
                         //if (grp->m_targetIcons[ico] == m_creature->GetGUID()) -- private member :(
-                        pGrp->SetTargetIcon(ico, 0);
+                        pGrp->SetTargetIcon(ico, 0, 0);
                     }
 
                 break;

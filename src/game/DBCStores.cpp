@@ -108,7 +108,8 @@ MapDifficultyMap sMapDifficultyMap;
 DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
 DBCStorage <QuestSortEntry> sQuestSortStore(QuestSortEntryfmt);
-
+DBCStorage <QuestXPEntry>   sQuestXPStore(QuestXPfmt);
+DBCStorage <QuestFactionRewEntry>  sQuestFactionRewardStore(QuestFactionRewardfmt);
 DBCStorage <RandomPropertiesPointsEntry> sRandomPropertiesPointsStore(RandomPropertiesPointsfmt);
 DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore(ScalingStatDistributionfmt);
 DBCStorage <ScalingStatValuesEntry> sScalingStatValuesStore(ScalingStatValuesfmt);
@@ -215,7 +216,7 @@ void LoadDBCStores(const std::string& dataPath)
 {
     std::string dbcPath = dataPath+"dbc/";
 
-    const uint32 DBCFilesCount = 82;
+    const uint32 DBCFilesCount = 83;
 
     barGoLink bar(DBCFilesCount);
 
@@ -328,6 +329,8 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sMovieStore,               dbcPath,"Movie.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestSortStore,           dbcPath,"QuestSort.dbc");
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestXPStore,             dbcPath,"QuestXP.dbc"); 
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestFactionRewardStore,  dbcPath,"QuestFactionReward.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sRandomPropertiesPointsStore, dbcPath,"RandPropPoints.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sScalingStatDistributionStore, dbcPath,"ScalingStatDistribution.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sScalingStatValuesStore,   dbcPath,"ScalingStatValues.dbc");
@@ -523,13 +526,13 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if( !sSpellStore.LookupEntry(69599)             ||       // last added spell in 3.2.2
-        !sMapStore.LookupEntry(650)                 ||       // last map added in 3.2.2
-        !sGemPropertiesStore.LookupEntry(1629)      ||       // last gem property added in 3.2.2
-        !sItemExtendedCostStore.LookupEntry(2723)   ||       // last item extended cost added in 3.2.2
-        !sCharTitlesStore.LookupEntry(171)          ||       // last char title added in 3.2.2
-        !sAreaStore.LookupEntry(3091)               ||       // last area (areaflag) added in 3.2.2
-        !sItemStore.LookupEntry(49667)             )         // last client known item added in 3.2.2
+    if( !sSpellStore.LookupEntry(74445)            ||       // last added spell in 3.3.2
+        !sMapStore.LookupEntry(718)                ||       // last map added in 3.3.2
+        !sGemPropertiesStore.LookupEntry(1629)     ||       // last gem property added in 3.3.2
+        !sItemExtendedCostStore.LookupEntry(2982)  ||       // last item extended cost added in 3.3.2
+        !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.2
+        !sAreaStore.LookupEntry(3461)              ||       // last area (areaflag) added in 3.3.2
+        !sItemStore.LookupEntry(52686)             )        // last client known item added in 3.3.2
     {
         sLog.outError("\nYou have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);

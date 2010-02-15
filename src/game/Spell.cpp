@@ -2899,6 +2899,13 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 11196;                                // Recently Bandaged
             break;
         }
+	case SPELLFAMILY_MAGE:
+	{
+	     // Permafrost
+	     if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
+		  m_preCastSpell = 68391;
+	     break;
+	}
     }
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
@@ -4621,7 +4628,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // - with greater than 15 min CD without SPELL_ATTR_EX4_USABLE_IN_ARENA flag
     // - with SPELL_ATTR_EX4_NOT_USABLE_IN_ARENA flag
     if ((m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_NOT_USABLE_IN_ARENA) ||
-        GetSpellRecoveryTime(m_spellInfo) > 15 * MINUTE * IN_MILISECONDS && !(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_USABLE_IN_ARENA))
+        GetSpellRecoveryTime(m_spellInfo) > 10 * MINUTE * IN_MILISECONDS && !(m_spellInfo->AttributesEx4 & SPELL_ATTR_EX4_USABLE_IN_ARENA))
         if(MapEntry const* mapEntry = sMapStore.LookupEntry(m_caster->GetMapId()))
             if(mapEntry->IsBattleArena())
                 return SPELL_FAILED_NOT_IN_ARENA;
@@ -4824,6 +4831,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                     // hurt version required facing
                     if(m_targets.getUnitTarget() && !m_caster->IsFriendlyTo(m_targets.getUnitTarget()) && !m_caster->HasInArc( M_PI, m_targets.getUnitTarget() ))
                         return SPELL_FAILED_UNIT_NOT_INFRONT;
+                }
+                else if(m_spellInfo->SpellIconID == 33 && m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA)
+                {
+                    if (!m_caster->m_SummonSlot[1])
+                        return SPELL_FAILED_SUCCESS;
                 }
                 else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] == 0x2000) // Death Coil (DeathKnight)
                 {
@@ -5288,6 +5300,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (m_originalCaster->GetZoneId() == 4197 || m_originalCaster->GetZoneId() == 4395 && m_originalCaster->GetAreaId() != 4564)
                         return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                 }
+                break;
+            }
+            case SPELL_AURA_RANGED_AP_ATTACKER_CREATURES_BONUS:
+            {
+                if (!m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetTypeId() != TYPEID_UNIT)
+                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+
+                // can be casted at non-friendly unit or own pet/charm
+                if (m_caster->IsFriendlyTo(m_targets.getUnitTarget()))
+                    return SPELL_FAILED_TARGET_FRIENDLY;
+
                 break;
             }
             case SPELL_AURA_PERIODIC_MANA_LEECH:
@@ -6609,6 +6632,13 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
                 {
                     if(int32 reducedPct = unit->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE))
                         m_damage = m_damage * (100 + reducedPct) / 100;
+
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    {
+                        uint32 targetAmount = m_UniqueTargetInfo.size();
+                        if (targetAmount > 10)
+                            m_damage = m_damage * 10/targetAmount;
+                    }
                 }
             }
             if(m_applyMultiplierMask & (1 << i))

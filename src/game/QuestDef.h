@@ -122,6 +122,7 @@ enum __QuestGiverStatus
 enum __QuestFlags
 {
     // Flags used at server and sent to client
+    QUEST_FLAGS_NONE           = 0x00000000,
     QUEST_FLAGS_STAY_ALIVE     = 0x00000001,                // Not used currently
     QUEST_FLAGS_PARTY_ACCEPT   = 0x00000002,                // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
     QUEST_FLAGS_EXPLORATION    = 0x00000004,                // Not used currently
@@ -136,6 +137,10 @@ enum __QuestFlags
     QUEST_FLAGS_TBC_RACES      = 0x00000800,                // Not used currently: Blood elf/Draenei starting zone quests
     QUEST_FLAGS_DAILY          = 0x00001000,                // Used to know quest is Daily one
     QUEST_FLAGS_WEEKLY         = 0x00008000,
+    QUEST_FLAGS_AUTOCOMPLETE   = 0x00010000,                // auto complete
+    QUEST_FLAGS_UNK5           = 0x00020000,                // has something to do with ReqItemId and SrcItemId
+    QUEST_FLAGS_UNK6           = 0x00040000,                // use Objective text as Complete text
+    QUEST_FLAGS_LOW_LEVEL      = 0x00080000,                // quests in starting areas
 
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_TRINITY_FLAGS_REPEATABLE           = 0x010000,     // Set by 1 in SpecialFlags from DB
@@ -246,6 +251,7 @@ class Quest
         uint32 RewItemId[QUEST_REWARDS_COUNT];
         uint32 RewItemCount[QUEST_REWARDS_COUNT];
         uint32 RewRepFaction[QUEST_REPUTATIONS_COUNT];
+        int32 RewRepValueId[QUEST_REPUTATIONS_COUNT];
         int32  RewRepValue[QUEST_REPUTATIONS_COUNT];
         uint32 DetailsEmote[QUEST_EMOTE_COUNT];
         uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
@@ -276,7 +282,7 @@ class Quest
         int32  ZoneOrSort;
         int32  SkillOrClass;
         uint32 MinLevel;
-        uint32 QuestLevel;
+        int32 QuestLevel;
         uint32 Type;
         uint32 RequiredRaces;
         uint32 RequiredSkillValue;
@@ -298,6 +304,7 @@ class Quest
         int32  NextQuestId;
         int32  ExclusiveGroup;
         uint32 NextQuestInChain;
+	uint32 XPId;
         uint32 SrcItemId;
         uint32 SrcItemCount;
         uint32 SrcSpell;
@@ -308,6 +315,7 @@ class Quest
         std::string RequestItemsText;
         std::string EndText;
         uint32 RewHonorableKills;
+        float RewHonorMultiplier;
         int32  RewOrReqMoney;
         uint32 RewMoneyMaxLevel;
         uint32 RewSpell;

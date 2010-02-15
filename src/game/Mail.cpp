@@ -546,7 +546,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
 
         uint8 item_count = (*itr)->items.size();            // max count is MAX_MAIL_ITEMS (12)
 
-        size_t next_mail_size = 2+4+1+8+4*8+((*itr)->subject.size()+1)+1+item_count*(1+4+4+6*3*4+4+4+1+4+4+4);
+        size_t next_mail_size = 2+4+1+((*itr)->messageType == MAIL_NORMAL ? 8 : 4)+4*8+((*itr)->subject.size()+1)+1+item_count*(1+4+4+7*3*4+4+4+4+4+4+4+1);
 
         if (data.wpos()+next_mail_size > maxPacketSize)
         {

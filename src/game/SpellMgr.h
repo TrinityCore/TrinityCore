@@ -127,6 +127,7 @@ enum SpellFamilyFlag
     SPELLFAMILYFLAG_SHAMAN_MANA_SPRING      = 0x00004000,
     SPELLFAMILYFLAG2_SHAMAN_LAVA_LASH       = 0x00000004,
     SPELLFAMILYFLAG_SHAMAN_FLAMETONGUE      = 0x00200000,
+    SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA        = 0x28000000,
 
     // Deathknight
     SPELLFAMILYFLAG_DK_DEATH_STRIKE         = 0x00000010,
@@ -503,6 +504,7 @@ inline uint32 GetDispellMask(DispelType dispel)
 DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto, bool triggered);
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
+DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry const* spellproto);
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
@@ -574,6 +576,8 @@ enum ProcFlagsEx
    PROC_EX_ABSORB              = 0x0000400,
    PROC_EX_REFLECT             = 0x0000800,
    PROC_EX_INTERRUPT           = 0x0001000,                 // Melee hit result can be Interrupt (not used)
+   PROC_EX_FULL_BLOCK          = 0x0002000,                 // block al attack damage
+   PROC_EX_RESERVED2           = 0x0004000,
    PROC_EX_NOT_ACTIVE_SPELL    = 0x0008000,                 // Spell mustn't do damage/heal to proc
    PROC_EX_EX_TRIGGER_ALWAYS   = 0x0010000,                 // If set trigger always no matter of hit result
    PROC_EX_EX_ONE_TIME_TRIGGER = 0x0020000,                 // If set trigger always but only one time (not implemented yet)
@@ -1266,6 +1270,22 @@ class SpellMgr
                         return false;
             return true;
         }
+
+	const SpellsRequiringSpellMap GetSpellsRequiringSpell()
+	{
+	  return this->mSpellsReqSpell;
+	}
+
+	uint32 GetSpellRequired(uint32 spell_id) const
+	{
+	  SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
+	  
+	  if(itr == mSpellReq.end())
+	    return NULL;
+	  
+	  return itr->second;
+	}
+
 
     // Modifiers
     public:

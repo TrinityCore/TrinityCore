@@ -244,8 +244,8 @@ enum UnitPVPStateFlags
 // byte (2 from 0..3) of UNIT_FIELD_BYTES_2
 enum UnitRename
 {
-    UNIT_RENAME_NOT_ALLOWED = 0x02,
-    UNIT_RENAME_ALLOWED     = 0x03
+    UNIT_CAN_BE_RENAMED     = 0x01,
+    UNIT_CAN_BE_ABANDONED   = 0x02,
 };
 
 #define CREATURE_MAX_SPELLS     8
@@ -775,7 +775,9 @@ enum DiminishingLevels
     DIMINISHING_LEVEL_1             = 0,
     DIMINISHING_LEVEL_2             = 1,
     DIMINISHING_LEVEL_3             = 2,
-    DIMINISHING_LEVEL_IMMUNE        = 3
+    DIMINISHING_LEVEL_IMMUNE        = 3,
+    DIMINISHING_LEVEL_4             = 3,
+    DIMINISHING_LEVEL_TAUNT_IMMUNE  = 4,
 };
 
 struct DiminishingReturn
