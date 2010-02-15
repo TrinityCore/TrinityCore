@@ -751,7 +751,10 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
             if (now < m->deliver_time)
                 continue;
 
-            data << uint64(m->sender);                     // sender guid
+            if (m->messageType)
+                data << uint64(m->sender); // player guid
+            else
+                data << uint32(m->sender); // creature entry
 
             switch(m->messageType)
             {
