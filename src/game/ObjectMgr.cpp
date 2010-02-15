@@ -3250,9 +3250,12 @@ void ObjectMgr::LoadGuilds()
             delete newguild;
             continue;
         }
+        newguild->LoadGuildEventLogFromDB();
+        newguild->LoadGuildBankEventLogFromDB();
+        newguild->LoadGuildBankFromDB();
         AddGuild(newguild);
 
-    }while (result->NextRow());
+    } while (result->NextRow());
 
     //delete unused LogGuid records in guild_eventlog and guild_bank_eventlog table
     //you can comment these lines if you don't plan to change CONFIG_GUILD_EVENT_LOG_COUNT and CONFIG_GUILD_BANK_EVENT_LOG_COUNT
