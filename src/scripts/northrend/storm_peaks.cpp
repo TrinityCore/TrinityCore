@@ -163,7 +163,7 @@ bool GossipSelect_npc_thorim(Player* pPlayer, Creature* pCreature, uint32 uiSend
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->AreaExploredOrEventHappens(QUEST_SIBLING_RIVALRY);
+            pPlayer->CompleteQuest(QUEST_SIBLING_RIVALRY);
             break;
     }
     return true;
