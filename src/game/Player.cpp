@@ -3676,10 +3676,10 @@ void Player::RemoveArenaSpellCooldowns()
         next = itr;
         ++next;
         SpellEntry const * entry = sSpellStore.LookupEntry(itr->first);
-        // check if spellentry is present and if the cooldown is less than 15 mins
+        // check if spellentry is present and if the cooldown is less than 10 mins
         if( entry &&
-            entry->RecoveryTime <= 15 * MINUTE * IN_MILISECONDS &&
-            entry->CategoryRecoveryTime <= 15 * MINUTE * IN_MILISECONDS )
+            entry->RecoveryTime <= 10 * MINUTE * IN_MILISECONDS &&
+            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILISECONDS )
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
