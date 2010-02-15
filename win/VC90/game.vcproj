@@ -3166,6 +3166,17 @@
 					</File>
 				</Filter>
 				<Filter
+					Name="Halls of Reflection"
+					>
+					<File
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\instance_halls_of_reflection.cpp"
+						>
+					</File>
+				<Filter
 					Name="Pit of Saron"
 					>
 					<File
