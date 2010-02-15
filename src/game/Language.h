@@ -953,6 +953,13 @@ enum TrinityStrings
     LANG_OPVP_ZM_GOSSIP_ALLIANCE        = 10054,
     LANG_OPVP_ZM_GOSSIP_HORDE           = 10055,
 
+    LANG_BG_SA_START_TWO_MINUTES        = 10056,
+    LANG_BG_SA_START_ONE_MINUTE         = 10057,
+    LANG_BG_SA_START_HALF_MINUTE        = 10058,
+    LANG_BG_SA_HAS_BEGUN                = 10059,
+    LANG_BG_SA_IS_UNDER_ATTACK          = 10060,
+    LANG_BG_SA_IS_DESTROYED             = 10061,
+
     // Use for custom patches             11000-11999
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,

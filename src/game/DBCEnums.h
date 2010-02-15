@@ -196,8 +196,11 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE= 112,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL = 113,
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS = 114,
-    // 0..114 => 115 criteria types total
-    ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 115,
+    // 0..115 => 116 criteria types total
+    ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS = 115,
+    ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
+    // 0..119 => 120 criteria types total
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 120,
 };
 
 enum AreaFlags
@@ -283,13 +286,13 @@ enum FactionMasks
     // if none flags set then non-aggressive creature
 };
 
-enum MapTypes
+enum MapTypes                                               // Lua_IsInInstance
 {
-    MAP_COMMON          = 0,
-    MAP_INSTANCE        = 1,
-    MAP_RAID            = 2,
-    MAP_BATTLEGROUND    = 3,
-    MAP_ARENA           = 4
+    MAP_COMMON          = 0,                                // none
+    MAP_INSTANCE        = 1,                                // party
+    MAP_RAID            = 2,                                // raid
+    MAP_BATTLEGROUND    = 3,                                // pvp
+    MAP_ARENA           = 4                                 // arena
 };
 
 enum AbilytyLearnType

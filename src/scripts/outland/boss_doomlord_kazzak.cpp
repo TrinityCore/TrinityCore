@@ -23,18 +23,18 @@ EndScriptData */
 
 #include "ScriptedPch.h"
 
-#define SAY_INTRO                       -1000375 //signed for 3465
-#define SAY_AGGRO1                      -1000376 //signed for 3465
-#define SAY_AGGRO2                      -1000377 //signed for 3465
-#define SAY_SURPREME1                   -1000378 //signed for 3465
-#define SAY_SURPREME2                   -1000379 //signed for 3465
-#define SAY_KILL1                       -1000380 //signed for 3465
-#define SAY_KILL2                       -1000381 //signed for 21027
-#define SAY_KILL3                       -1000382 //signed for 21027
-#define SAY_DEATH                       -1000383 //signed for 21027
-#define EMOTE_FRENZY                    -1000384 //signed for 21027
-#define SAY_RAND1                       -1000385 //signed for 21027
-#define SAY_RAND2                       -1000386 //signed for 21027
+#define SAY_INTRO                       -1000147
+#define SAY_AGGRO1                      -1000148
+#define SAY_AGGRO2                      -1000149
+#define SAY_SURPREME1                   -1000154 
+#define SAY_SURPREME2                   -1000149
+#define SAY_KILL1                       -1000150
+#define SAY_KILL2                       -1000151
+#define SAY_KILL3                       -1000152 
+#define SAY_DEATH                       -1000155 
+#define EMOTE_FRENZY                    -1000151 
+#define SAY_RAND1                       -1000158
+#define SAY_RAND2                       -1000157
 
 #define SPELL_SHADOWVOLLEY              32963
 #define SPELL_CLEAVE                    31779

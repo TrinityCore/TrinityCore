@@ -117,6 +117,8 @@ extern DBCStorage <MapEntry>                     sMapStore;
 extern MapDifficultyMap                          sMapDifficultyMap;
 extern DBCStorage <MovieEntry>                   sMovieStore;
 extern DBCStorage <QuestSortEntry>               sQuestSortStore;
+extern DBCStorage <QuestXPEntry>                 sQuestXPStore;
+extern DBCStorage <QuestFactionRewEntry>         sQuestFactionRewardStore;
 extern DBCStorage <RandomPropertiesPointsEntry>  sRandomPropertiesPointsStore;
 extern DBCStorage <ScalingStatDistributionEntry> sScalingStatDistributionStore;
 extern DBCStorage <ScalingStatValuesEntry>       sScalingStatValuesStore;

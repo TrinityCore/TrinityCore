@@ -2692,7 +2692,6 @@ bool InstanceMap::Add(Player *player)
             }
         }
 
-        if(i_data) i_data->OnPlayerEnter(player);
         // for normal instances cancel the reset schedule when the
         // first player enters (no players yet)
         SetResetSchedule(false);
@@ -2706,6 +2705,10 @@ bool InstanceMap::Add(Player *player)
 
     // this will acquire the same mutex so it cannot be in the previous block
     Map::Add(player);
+
+    if (i_data)
+        i_data->OnPlayerEnter(player);
+
     return true;
 }
 

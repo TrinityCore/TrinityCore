@@ -377,7 +377,7 @@ struct Position
     void Relocate(const Position &pos)
         { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; m_orientation = pos.m_orientation; }
     void Relocate(const Position *pos)
-        { assert(pos); m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
+        { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
     void SetOrientation(float orientation)
         { m_orientation = orientation; }
 
@@ -405,33 +405,33 @@ struct Position
     float GetExactDist2d(const float x, const float y) const
         { return sqrt(GetExactDist2dSq(x, y)); }
     float GetExactDist2dSq(const Position *pos) const
-        { assert(pos); float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy; }
+        { float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; return dx*dx + dy*dy; }
     float GetExactDist2d(const Position *pos) const
-        { assert(pos); return sqrt(GetExactDist2dSq(pos)); }
+        { return sqrt(GetExactDist2dSq(pos)); }
     float GetExactDistSq(float x, float y, float z) const
         { float dz = m_positionZ - z; return GetExactDist2dSq(x, y) + dz*dz; }
     float GetExactDist(float x, float y, float z) const
         { return sqrt(GetExactDistSq(x, y, z)); }
     float GetExactDistSq(const Position *pos) const
-        { assert(pos); float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz; }
+        { float dx = m_positionX - pos->m_positionX; float dy = m_positionY - pos->m_positionY; float dz = m_positionZ - pos->m_positionZ; return dx*dx + dy*dy + dz*dz; }
     float GetExactDist(const Position *pos) const
-        { assert(pos); return sqrt(GetExactDistSq(pos)); }
+        { return sqrt(GetExactDistSq(pos)); }
 
     float GetAngle(const Position *pos) const;
     float GetAngle(float x, float y) const;
     float GetRelativeAngle(const Position *pos) const 
-        { assert(pos); return GetAngle(pos) - m_orientation; }
+        { return GetAngle(pos) - m_orientation; }
     float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - m_orientation; }
     void GetSinCos(float x, float y, float &vsin, float &vcos) const;
 
     bool IsInDist2d(float x, float y, float dist) const
         { return GetExactDist2dSq(x, y) < dist * dist; }
     bool IsInDist2d(const Position *pos, float dist) const
-        { assert(pos); return GetExactDist2dSq(pos) < dist * dist; }
+        { return GetExactDist2dSq(pos) < dist * dist; }
     bool IsInDist(float x, float y, float z, float dist) const
         { return GetExactDistSq(x, y, z) < dist * dist; }
     bool IsInDist(const Position *pos, float dist) const
-        { assert(pos); return GetExactDistSq(pos) < dist * dist; }
+        { return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position *pos) const;
     bool HasInLine(const Unit *target, float distance, float width) const;
 };
@@ -513,7 +513,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
         uint32 GetPhaseMask() const { return m_phaseMask; }
-        bool InSamePhase(WorldObject const* obj) const { assert(obj); return InSamePhase(obj->GetPhaseMask()); }
+        bool InSamePhase(WorldObject const* obj) const { return InSamePhase(obj->GetPhaseMask()); }
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
 
         uint32 GetZoneId() const;
@@ -529,7 +529,6 @@ class WorldObject : public Object, public WorldLocation
 
         float GetDistance(const WorldObject *obj) const
         { 
-            assert(obj); 
             float d = GetExactDist(obj) - GetObjectSize() - obj->GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }
@@ -545,7 +544,6 @@ class WorldObject : public Object, public WorldLocation
         }
         float GetDistance2d(const WorldObject* obj) const
         { 
-            assert(obj); 
             float d = GetExactDist2d(obj) - GetObjectSize() - obj->GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }

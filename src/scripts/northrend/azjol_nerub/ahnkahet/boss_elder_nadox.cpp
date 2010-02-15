@@ -66,6 +66,8 @@ struct boss_elder_nadoxAI : public ScriptedAI
     uint32 swarmer_spawn_Timer;
     uint32 guard_spawn_Timer;
     uint32 enrage_Timer;
+    
+    bool GuardSpawned;
 
     ScriptedInstance *pInstance;
 
@@ -80,6 +82,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
         enrage_Timer = 5000;
 
         DeadAhnkaharGuardian = false;
+        GuardSpawned = false;
 
         if (pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
@@ -156,11 +159,11 @@ struct boss_elder_nadoxAI : public ScriptedAI
             swarmer_spawn_Timer = 10000;
         } else swarmer_spawn_Timer -= diff;
 
-        if (guard_spawn_Timer <= diff)
+        if (!GuardSpawned && guard_spawn_Timer <= diff)
         {
             m_creature->MonsterTextEmote(EMOTE_HATCHES,m_creature->GetGUID(),true);
             DoCast(m_creature, SPELL_SUMMON_SWARM_GUARD);
-            guard_spawn_Timer = 25000;
+            GuardSpawned = true; 
         } else guard_spawn_Timer -= diff;
 
         if (enrage_Timer <= diff)

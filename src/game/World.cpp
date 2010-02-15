@@ -264,8 +264,6 @@ World::AddSession_ (WorldSession* s)
     pkt << uint32(sWorld.getConfig(CONFIG_CLIENTCACHE_VERSION));
     s->SendPacket(&pkt);
 
-    s->SendAccountDataTimes(GLOBAL_CACHE_MASK);
-
     s->SendTutorialsData();
 
     UpdateMaxSessionCounters ();
@@ -1044,7 +1042,10 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE]              = sConfig.GetBoolDefault("Arena.QueueAnnouncer.Enable", false);
     m_configs[CONFIG_ARENA_QUEUE_ANNOUNCER_PLAYERONLY]          = sConfig.GetBoolDefault("Arena.QueueAnnouncer.PlayerOnly", false);
     m_configs[CONFIG_ARENA_SEASON_ID]                           = sConfig.GetIntDefault ("Arena.ArenaSeason.ID", 1);
+    m_configs[CONFIG_ARENA_START_RATING]                        = sConfig.GetIntDefault ("Arena.ArenaStartRating", 0);
+    m_configs[CONFIG_ARENA_START_PERSONAL_RATING]               = sConfig.GetIntDefault ("Arena.ArenaStartPersonalRating", 0);
     m_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfig.GetBoolDefault("Arena.ArenaSeason.InProgress", true);
+    m_configs[CONFIG_ARENA_LK_ARENAS_ENABLE] 			= sConfig.GetIntDefault ("Arena.LK.ArenasEnable", 0);
 
     m_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN] = sConfig.GetBoolDefault("OffhandCheckAtSpellUnlearn", false);
 
@@ -1406,6 +1407,11 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Quests...");
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
+
+    sLog.outString( "Loading Quest POI" );
+    objmgr.LoadQuestPOI();
+
+    sLog.outString("Loading Quests Relations...");
     objmgr.LoadQuestRelations();                            // must be after quest load
 
     sLog.outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");

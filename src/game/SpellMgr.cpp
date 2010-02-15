@@ -2382,7 +2382,24 @@ bool SpellMgr::IsSpellValid(SpellEntry const *spellInfo, Player *pl, bool msg)
             case SPELL_EFFECT_CREATE_ITEM:
             case SPELL_EFFECT_CREATE_ITEM_2:
             {
-                if(!ObjectMgr::GetItemPrototype(spellInfo->EffectItemType[i]))
+                if (spellInfo->EffectItemType[i] == 0)
+                {
+                    // skip auto-loot crafting spells, its not need explicit item info (but have special fake items sometime)
+                    if (!IsLootCraftingSpell(spellInfo))
+                    {
+                        if(msg)
+                        {
+                            if(pl)
+                                ChatHandler(pl).PSendSysMessage("Craft spell %u not have create item entry.",spellInfo->Id);
+                            else
+                                sLog.outErrorDb("Craft spell %u not have create item entry.",spellInfo->Id);
+                        }
+                        return false;
+                    }
+
+                }
+                // also possible IsLootCraftingSpell case but fake item must exist anyway
+                else if (!ObjectMgr::GetItemPrototype(spellInfo->EffectItemType[i]))
                 {
                     if (msg)
                     {
@@ -2814,6 +2831,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Frostbite
             if (spellproto->SpellFamilyFlags[1] & 0x80000000)
                 return DIMINISHING_TRIGGER_ROOT;
+	     // Frost Nova, Shatterd Barrier
+	     if (spellproto->SpellFamilyFlags[0] & 0x00080040)
+		  return DIMINISHING_CONTROL_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:
@@ -2998,6 +3018,18 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
     return false;
 }
 
+DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
+{
+    switch(group)
+    {
+        case DIMINISHING_TAUNT:
+            return DIMINISHING_LEVEL_TAUNT_IMMUNE;
+        default:
+            return DIMINISHING_LEVEL_IMMUNE;
+    }
+    return DIMINISHING_LEVEL_IMMUNE;
+}
+
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)
 {
     switch(group)
@@ -3052,7 +3084,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
     if (auraSpell)                               // not have expected aura
         if (!player || auraSpell > 0 && !player->HasAura(auraSpell) || auraSpell < 0 && player->HasAura(-auraSpell))
             return false;
-    
+
     // Extra conditions -- leaving the possibility add extra conditions...
     switch(spellId)
     {
@@ -3253,7 +3285,7 @@ void SpellMgr::LoadSpellRequired()
 
         uint32 spell_id =  fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
-        // validate table
+        // check if chain is made with valid first spell
         SpellEntry const * spell = sSpellStore.LookupEntry(spell_id);
         if (!spell)
         {
@@ -3314,7 +3346,7 @@ void SpellMgr::LoadSpellRanks()
         std::list < std::pair < int32, int32 > > rankChain;
         int32 currentSpell = -1;
         int32 lastSpell = -1;
-        
+
         // fill one chain
         while(currentSpell == lastSpell && !finished)
         {

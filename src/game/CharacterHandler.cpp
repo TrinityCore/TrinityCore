@@ -456,6 +456,8 @@ void WorldSession::HandleCharCreateOpcode( WorldPacket & recv_data )
     if ((have_same_race && skipCinematics == 1) || skipCinematics == 2)
         pNewChar->setCinematic(1);                          // not show intro
 
+    pNewChar->SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
+
     // Player created, save it now
     pNewChar->SaveToDB();
     charcount+=1;
@@ -659,22 +661,21 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         if(guild)
         {
             data.Initialize(SMSG_GUILD_EVENT, (2+guild->GetMOTD().size()+1));
-            data << (uint8)GE_MOTD;
-            data << (uint8)1;
+            data << uint8(GE_MOTD);
+            data << uint8(1);
             data << guild->GetMOTD();
             SendPacket(&data);
             DEBUG_LOG( "WORLD: Sent guild-motd (SMSG_GUILD_EVENT)" );
 
+            guild->DisplayGuildBankTabsInfo(this);
+
             data.Initialize(SMSG_GUILD_EVENT, (5+10));      // we guess size
-            data<<(uint8)GE_SIGNED_ON;
-            data<<(uint8)1;
-            data<<pCurrChar->GetName();
-            data<<pCurrChar->GetGUID();
+            data<<uint8(GE_SIGNED_ON);
+            data<<uint8(1);
+            data<< pCurrChar->GetName();
+            data<< pCurrChar->GetGUID();
             guild->BroadcastPacket(&data);
             DEBUG_LOG( "WORLD: Sent guild-signed-on (SMSG_GUILD_EVENT)" );
-
-            // Increment online members of the guild
-            guild->IncOnlineMemberCount();
         }
         else
         {
@@ -688,9 +689,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     data << uint32(0);
     data << uint32(0);
     SendPacket(&data);
-
-    if(!pCurrChar->isAlive())
-        pCurrChar->SendCorpseReclaimDelay(true);
 
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
@@ -783,6 +781,9 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         pCurrChar->SendTalentsInfoData(false);              // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
         SendNotification(LANG_RESET_TALENTS);
     }
+
+    if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+        pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
     // show time before shutdown if shutdown planned.
     if(sWorld.IsShutdowning())

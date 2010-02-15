@@ -259,7 +259,7 @@ void WorldSession::HandleLookingForGroup(WorldPacket& recv_data)
 }
 
 void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
-{
+{/*
     uint32 number = 0;
 
     WorldPacket data(MSG_LOOKING_FOR_GROUP);
@@ -267,18 +267,18 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
     data << uint32(entry);                                  // entry from LFGDungeons.dbc
 
     data << uint8(0);
-    /*if(uint8)
+    if(uint8)
     {
         uint32 count1;
         for(count1)
         {
             uint64; // player guid
         }
-    }*/
+    }
 
     data << uint32(0);                                      // count2
     data << uint32(0);
-    /*for(count2)
+    for(count2)
     {
         uint64 // not player guid
         uint32 flags;
@@ -297,7 +297,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
                 uint8
             }
         }
-    }*/
+    }
 
     size_t count3_pos = data.wpos();
     data << uint32(0);                                      // count3
@@ -389,6 +389,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
     data.put<uint32>(count3_pos, number);                   // fill count placeholder
 
     SendPacket(&data);
+*/
 }
 
 void WorldSession::HandleSetLfgOpcode( WorldPacket & recv_data )
@@ -429,10 +430,5 @@ void WorldSession::HandleLfgSetRoles(WorldPacket &recv_data)
 
 void WorldSession::SendLfgUpdate(uint8 unk1, uint8 unk2, uint8 unk3)
 {
-    WorldPacket data(SMSG_LFG_UPDATE, 3);
-    data << uint8(unk1);
-    data << uint8(unk2);
-    data << uint8(unk3);
-    SendPacket(&data);
-}
 
+}

@@ -2458,7 +2458,10 @@ bool ChatHandler::HandleLearnAllMyTalentsCommand(const char* /*args*/)
 
         // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
         player->learnSpellHighRank(spellId);
+        player->AddTalent(spellId, player->GetActiveSpec(), true);
     }
+
+    player->SetFreeTalentPoints(0);
 
     SendSysMessage(LANG_COMMAND_LEARN_CLASS_TALENTS);
     return true;
@@ -2535,6 +2538,8 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
         // learn highest rank of talent and learn all non-talent spell ranks (recursive by tree)
         pet->learnSpellHighRank(spellid);
     }
+
+    pet->SetFreeTalentPoints(0);
 
     SendSysMessage(LANG_COMMAND_LEARN_PET_TALENTS);
     return true;

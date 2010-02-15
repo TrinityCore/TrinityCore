@@ -2325,6 +2325,29 @@ void ObjectMgr::LoadItemPrototypes()
             const_cast<ItemPrototype*>(proto)->HolidayId = 0;
         }
     }
+
+    // check some dbc referecned items (avoid duplicate reports)
+    std::set<uint32> notFoundOutfit;
+    for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+    {
+        CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i);
+        if (!entry)
+            continue;
+
+        for(int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        {
+            if(entry->ItemId[j] <= 0)
+                continue;
+
+            uint32 item_id = entry->ItemId[j];
+
+            if(!GetItemPrototype(item_id))
+                notFoundOutfit.insert(item_id);
+        }
+    }
+
+    for(std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
+        sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dnc`", *itr);
 }
 
 void ObjectMgr::LoadItemRequiredTarget()
@@ -3451,7 +3474,7 @@ void ObjectMgr::LoadQuests()
     //   9                    10                 11                    12                  13                     14                   15                     16                   17                18
         "RepObjectiveFaction, RepObjectiveValue, RepObjectiveFaction2, RepObjectiveValue2, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime,"
     //   19          20            21           22            23            24           25           26              27                28         29            30
-        "QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, SrcItemId, SrcItemCount, SrcSpell,"
+        "QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, RewXPId, SrcItemId, SrcItemCount, SrcSpell,"
     //   31     32       33          34               35                36       37              38              39              40
         "Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,"
     //   41          42          43          44          45          46          47             48             49             50             51             52
@@ -3469,9 +3492,10 @@ void ObjectMgr::LoadQuests()
     //   85          86          87          88          89             90             91             92
         "RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4,"
     //   93              94              95              96              97              98            99            100           101           102
-        "RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5,"
+        "RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValueId1, RewRepValueId2, RewRepValueId3, RewRepValueId4, RewRepValueId5,"
+        "RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5,"
     //   103                104            105               106       107           108                109               110         111     112     113
-        "RewHonorableKills, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt,"
+        "RewHonorAddition, RewHonorMultiplier, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt,"
     //   114            115            116            117            118                 119                 120                 121
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4,"
     //   122              123            124                125                126                127
@@ -3938,29 +3962,28 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_REPUTATIONS_COUNT; ++j)
         {
-            if(qinfo->RewRepFaction[j])
+            if (qinfo->RewRepFaction[j])
             {
-                if(!qinfo->RewRepValue[j])
+                if (abs(qinfo->RewRepValueId[j]) > 9)
                 {
-                    sLog.outErrorDb("Quest %u has `RewRepFaction%d` = %u but `RewRepValue%d` = 0, quest will not reward this reputation.",
-                        qinfo->GetQuestId(),j+1,qinfo->RewRepValue[j],j+1);
-                    // no changes
+               sLog.outErrorDb("Quest %u has RewRepValueId%d = %i. That is outside the range of valid values (-9 to 9).", qinfo->GetQuestId(), j+1, qinfo->RewRepValueId[j]);
                 }
-
                 if(!sFactionStore.LookupEntry(qinfo->RewRepFaction[j]))
                 {
-                    sLog.outErrorDb("Quest %u has `RewRepFaction%d` = %u but raw faction (faction.dbc) %u does not exist, quest will not reward reputation for this faction.",
-                        qinfo->GetQuestId(),j+1,qinfo->RewRepFaction[j] ,qinfo->RewRepFaction[j] );
+                    sLog.outErrorDb("Quest %u has `RewRepFaction%d` = %u but raw faction (faction.dbc) %u does not exist, quest will not reward reputation for this faction.", qinfo->GetQuestId(),j+1,qinfo->RewRepFaction[j] ,qinfo->RewRepFaction[j] );
                     qinfo->RewRepFaction[j] = 0;            // quest will not reward this
                 }
-            }
+            } 
+        
+
             else if(qinfo->RewRepValue[j]!=0)
             {
-                sLog.outErrorDb("Quest %u has `RewRepFaction%d` = 0 but `RewRepValue%d` = %u.",
+                sLog.outErrorDb("Quest %u has `RewRepFaction%d` = 0 but `RewRepValue%d` = %i.",
                     qinfo->GetQuestId(),j+1,j+1,qinfo->RewRepValue[j]);
                 // no changes, quest ignore this data
             }
         }
+
 
         if(qinfo->RewSpell)
         {
@@ -6593,6 +6616,65 @@ void ObjectMgr::LoadPointsOfInterest()
 
     sLog.outString();
     sLog.outString(">> Loaded %u Points of Interest definitions", count);
+}
+
+void ObjectMgr::LoadQuestPOI()
+{
+    uint32 count = 0;
+ 
+    // 0 1 2 3
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT questId, id, objIndex, mapid, WorldMapAreaId, FloorId, unk3, unk4 FROM quest_poi order by questId");
+ 
+    if(!result)
+    {
+        barGoLink bar(1);
+ 
+        bar.step();
+ 
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
+        return;
+    }
+ 
+    barGoLink bar(result->GetRowCount());
+ 
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+ 
+        uint32 questId            = fields[0].GetUInt32();
+        uint32 id                 = fields[1].GetUInt32();
+        int32 objIndex            = fields[2].GetInt32();
+        uint32 mapId              = fields[3].GetUInt32();
+        uint32 WorldMapAreaId     = fields[4].GetUInt32();
+        uint32 FloorId            = fields[5].GetUInt32();
+        uint32 unk3               = fields[6].GetUInt32();
+        uint32 unk4               = fields[7].GetUInt32();
+
+        QuestPOI POI(objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
+ 
+        QueryResult_AutoPtr points = WorldDatabase.PQuery("SELECT x, y FROM quest_poi_points WHERE questId='%u' AND id='%i'", questId, id);
+ 
+        if(points)
+        {
+            do
+            {
+                Field *pointFields = points->Fetch();
+                int32 x = pointFields[0].GetInt32();
+                int32 y = pointFields[1].GetInt32();
+                QuestPOIPoint point(x, y);
+                POI.points.push_back(point);
+            } while (points->NextRow());
+        }
+ 
+        mQuestPOIMap[questId].push_back(POI);
+ 
+        ++count;
+    } while (result->NextRow());
+ 
+    sLog.outString();
+    sLog.outString(">> Loaded %u quest POI definitions", count);
 }
 
 void ObjectMgr::LoadNPCSpellClickSpells()
