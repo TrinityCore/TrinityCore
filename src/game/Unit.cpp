@@ -6262,13 +6262,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     return false;
                 }
-                // Savage Roar (aura recast on return to cat form)
-                case 52610:
-                {
-                    target = this;
-                    triggered_spell_id = 62071;
-                    break;
-                }
                 // Leader of the Pack
                 case 24932:
                 {
