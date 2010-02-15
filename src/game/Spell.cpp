@@ -1980,12 +1980,16 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
         case TARGET_TYPE_DEST_CASTER: //4+8+2
         {
-            if(cur == TARGET_SRC_CASTER)
+            if (cur == TARGET_SRC_CASTER)
             {
+                // Earthen Power
+                if (m_spellInfo->Id == 3600)
+                    AddUnitTarget(m_caster, i);
+
                 m_targets.setSrc(m_caster);
                 break;
             }
-            else if(cur == TARGET_DST_CASTER)
+            else if (cur == TARGET_DST_CASTER)
             {
                 m_targets.setDst(m_caster);
                 break;
