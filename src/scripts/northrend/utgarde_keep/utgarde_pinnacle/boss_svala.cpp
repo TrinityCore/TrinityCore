@@ -222,6 +222,8 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
     Creature* pRitualChanneler[3];
     Unit* pSacrificeTarget;
+    
+    bool bSacrificed;
 
     ScriptedInstance* pInstance;
 
@@ -231,6 +233,8 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         uiCallFlamesTimer = 10000;
         uiRitualOfSwordTimer = 20000;
         uiSacrificeTimer = 8000;
+        
+        bSacrificed = false;
 
         Phase = NORMAL;
 
@@ -276,7 +280,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 }
             } else uiCallFlamesTimer -= diff;
 
-            if (uiRitualOfSwordTimer <= diff)
+            if (!bSacrificed && uiRitualOfSwordTimer <= diff)
             {
                 pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (pSacrificeTarget)
@@ -294,7 +298,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                             if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]->AI()))
                                 pChannelerAI->AttackStartNoMove(pSacrificeTarget);
 
-                    uiRitualOfSwordTimer = urand(18000,22000);
+                    bSacrificed = true;
                 }
             } else uiRitualOfSwordTimer -= diff;
 
