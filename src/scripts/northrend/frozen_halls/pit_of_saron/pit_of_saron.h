@@ -1,5 +1,5 @@
-#ifndef DEF_FORGE_OF_SOULS_H
-#define DEF_FORGE_OF_SOULS_H
+#ifndef DEF_PIT_OF_SARON_H
+#define DEF_PIT_OF_SARON_H
 enum Data
 {
     DATA_FORGEMASTER_EVENT,
