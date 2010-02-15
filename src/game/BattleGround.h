@@ -23,6 +23,7 @@
 
 #include "Common.h"
 #include "SharedDefines.h"
+#include "DBCEnums.h"
 
 class Creature;
 class GameObject;
@@ -31,6 +32,7 @@ class Player;
 class WorldPacket;
 class BattleGroundMap;
 
+struct PvPDifficultyEntry;
 struct WorldSafeLocsEntry;
 
 enum BattleGroundSounds
@@ -165,19 +167,6 @@ enum BattleGroundQueueTypeId
     BATTLEGROUND_QUEUE_5v5      = 9,
     MAX_BATTLEGROUND_QUEUE_TYPES
 };
-
-enum BGQueueIdBasedOnLevel                        // queue_id for level ranges
-{
-    QUEUE_ID_MAX_LEVEL_19   = 0,
-    QUEUE_ID_MAX_LEVEL_29   = 1,
-    QUEUE_ID_MAX_LEVEL_39   = 2,
-    QUEUE_ID_MAX_LEVEL_49   = 3,
-    QUEUE_ID_MAX_LEVEL_59   = 4,
-    QUEUE_ID_MAX_LEVEL_69   = 5,
-    QUEUE_ID_MAX_LEVEL_79   = 6,
-    QUEUE_ID_MAX_LEVEL_80   = 7
-};
-#define MAX_BATTLEGROUND_QUEUES 8
 
 enum ScoreType
 {
@@ -325,7 +314,7 @@ class BattleGround
         // Get methods:
         char const* GetName() const         { return m_Name; }
         BattleGroundTypeId GetTypeID() const { return m_TypeID; }
-        BGQueueIdBasedOnLevel GetQueueId() const { return m_QueueId; }
+        BattleGroundBracketId GetBracketId() const { return m_BracketId; }
         uint32 GetInstanceID() const        { return m_InstanceID; }
         BattleGroundStatus GetStatus() const { return m_Status; }
         uint32 GetClientInstanceID() const  { return m_ClientInstanceID; }
@@ -351,12 +340,7 @@ class BattleGround
         void SetName(char const* Name)      { m_Name = Name; }
         void SetTypeID(BattleGroundTypeId TypeID) { m_TypeID = TypeID; }
         //here we can count minlevel and maxlevel for players
-        void SetQueueId(BGQueueIdBasedOnLevel ID)
-        {
-            m_QueueId = ID;
-            uint8 diff = (m_TypeID == BATTLEGROUND_AV) ? 1 : 0;
-            this->SetLevelRange((ID + 1) * 10 + diff, (ID + 2) * 10 - ((diff + 1) % 2));
-        }
+        void SetBracket(PvPDifficultyEntry const* bracketEntry);
         void SetInstanceID(uint32 InstanceID) { m_InstanceID = InstanceID; }
         void SetStatus(BattleGroundStatus Status) { m_Status = Status; }
         void SetClientInstanceID(uint32 InstanceID) { m_ClientInstanceID = InstanceID; }
@@ -588,7 +572,7 @@ class BattleGround
         uint32 m_StartTime;
         int32 m_EndTime;                                    // it is set to 120000 when bg is ending and it decreases itself
         uint32 m_LastResurrectTime;
-        BGQueueIdBasedOnLevel m_QueueId;
+        BattleGroundBracketId m_BracketId;
         uint8  m_ArenaType;                                 // 2=2v2, 3=3v3, 5=5v5
         bool   m_InBGFreeSlotQueue;                         // used to make sure that BG is only once inserted into the BattleGroundMgr.BGFreeSlotQueue[bgTypeId] deque
         bool   m_SetDeleteThis;                             // used for safe deletion of the bg after end / all players leave

@@ -59,6 +59,9 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty);
 
 uint32 const* /*[3]*/ GetTalentTabPages(uint8 cls);
 
+PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level);
+PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattleGroundBracketId id);
+
 extern DBCStorage <AchievementEntry>             sAchievementStore;
 extern DBCStorage <AchievementCriteriaEntry>     sAchievementCriteriaStore;
 extern DBCStorage <AreaTableEntry>               sAreaStore;// recommend access using functions

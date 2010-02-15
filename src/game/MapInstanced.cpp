@@ -219,10 +219,10 @@ BattleGroundMap* MapInstanced::CreateBattleGround(uint32 InstanceId, BattleGroun
 
     sLog.outDebug("MapInstanced::CreateBattleGround: map bg %d for %d created.", InstanceId, GetId());
 
-    // 0-59 normal spawn 60-69 difficulty_1, 70-79 difficulty_2, 80 dufficulty_3
-    uint8 spawnMode = (bg->GetQueueId() > QUEUE_ID_MAX_LEVEL_59) ? (bg->GetQueueId() - QUEUE_ID_MAX_LEVEL_59) : 0;
-    while (!GetMapDifficultyData(GetId(), Difficulty(spawnMode)))
-        spawnMode--;
+    PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(),bg->GetMinLevel());
+
+    uint8 spawnMode = bracketEntry ? bracketEntry->difficulty : REGULAR_DIFFICULTY;
+
     BattleGroundMap *map = new BattleGroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattleGroundOrArena());
     map->SetBG(bg);

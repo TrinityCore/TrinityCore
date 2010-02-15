@@ -3676,10 +3676,10 @@ void Player::RemoveArenaSpellCooldowns()
         next = itr;
         ++next;
         SpellEntry const * entry = sSpellStore.LookupEntry(itr->first);
-        // check if spellentry is present and if the cooldown is less than 15 mins
+        // check if spellentry is present and if the cooldown is less than 10 mins
         if( entry &&
-            entry->RecoveryTime <= 15 * MINUTE * IN_MILISECONDS &&
-            entry->CategoryRecoveryTime <= 15 * MINUTE * IN_MILISECONDS )
+            entry->RecoveryTime <= 10 * MINUTE * IN_MILISECONDS &&
+            entry->CategoryRecoveryTime <= 10 * MINUTE * IN_MILISECONDS )
         {
             // remove & notify
             RemoveSpellCooldown(itr->first, true);
@@ -20687,22 +20687,15 @@ bool Player::GetBGAccessByLevel(BattleGroundTypeId bgTypeId) const
     if(!bg)
         return false;
 
-    if(getLevel() < bg->GetMinLevel() || getLevel() > bg->GetMaxLevel())
+    // limit check leel to dbc compatible level range
+    uint32 level = getLevel();
+    if (level > DEFAULT_MAX_LEVEL)
+        level = DEFAULT_MAX_LEVEL;
+
+    if(level < bg->GetMinLevel() || level > bg->GetMaxLevel())
         return false;
 
     return true;
-}
-
-BGQueueIdBasedOnLevel Player::GetBattleGroundQueueIdFromLevel(BattleGroundTypeId bgTypeId) const
-{
-    // for ranges 0 - 19, 20 - 29, 30 - 39, 40 - 49, 50 - 59, 60 - 69, 70 - 79, 80
-    uint32 queue_id = ( getLevel() / 10) - 1;
-    if (queue_id >= MAX_BATTLEGROUND_QUEUES)
-    {
-        sLog.outError("BattleGround: too high queue_id %u this shouldn't happen", queue_id);
-        return QUEUE_ID_MAX_LEVEL_80;
-    }
-    return BGQueueIdBasedOnLevel(queue_id);
 }
 
 float Player::GetReputationPriceDiscount( Creature const* pCreature ) const
