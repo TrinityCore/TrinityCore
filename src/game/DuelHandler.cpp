@@ -25,7 +25,6 @@
 #include "Opcodes.h"
 #include "UpdateData.h"
 #include "Player.h"
-#include "SpellId.h"
 
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
@@ -71,7 +70,7 @@ void WorldSession::HandleDuelCancelledOpcode(WorldPacket& recvPacket)
         if(GetPlayer()->duel->opponent)
             GetPlayer()->duel->opponent->CombatStopWithPets(true);
 
-        GetPlayer()->CastSpell(GetPlayer(), SPELL_GROVEL_7267, true);    // beg
+        GetPlayer()->CastSpell(GetPlayer(), 7267, true);    // beg
         GetPlayer()->DuelComplete(DUEL_WON);
         return;
     }

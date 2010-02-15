@@ -19,11 +19,11 @@
 
 enum Spells
 {
-    SPELL_HATEFUL_STRIKE                        = SPELL_HATEFUL_STRIKE_41926,
-    H_SPELL_HATEFUL_STRIKE                      = SPELL_HATEFUL_STRIKE_59192,
-    SPELL_FRENZY                                = SPELL_FRENZY_28131,
-    SPELL_BERSERK                               = SPELL_BERSERK_26662,
-    SPELL_SLIME_BOLT                            = SPELL_SLIME_BOLT_32309,
+    SPELL_HATEFUL_STRIKE                        = 41926,
+    H_SPELL_HATEFUL_STRIKE                      = 59192,
+    SPELL_FRENZY                                = 28131,
+    SPELL_BERSERK                               = 26662,
+    SPELL_SLIME_BOLT                            = 32309,
 };
 
 enum Yells

@@ -28,7 +28,6 @@
 #include "Unit.h"
 #include "Spell.h"
 #include "SpellAuraEffects.h"
-#include "SpellId.h"
 #include "DynamicObject.h"
 #include "ObjectAccessor.h"
 #include "Util.h"
@@ -1360,23 +1359,23 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 if (apply)
                 {
                     // Blood Presence bonus
-                    if (presence == SPELL_BLOOD_PRESENCE_48266)
-                        target->CastSpell(target,63611,true);
+                    if (presence == 48266)
+                        target->CastSpell(target, 63611, true);
                     else if (bloodPresenceAura)
                     {
                         int32 basePoints1=bloodPresenceAura->GetAmount();
                         target->CastCustomSpell(target,63611,NULL,&basePoints1,NULL,true,0,bloodPresenceAura);
                     }
                     // Frost Presence bonus
-                    if (presence == SPELL_FROST_PRESENCE_48263)
-                        target->CastSpell(target,61261,true);
+                    if (presence == 48263)
+                        target->CastSpell(target, 61261, true);
                     else if (frostPresenceAura)
                     {
                         int32 basePoints0=frostPresenceAura->GetAmount();
                         target->CastCustomSpell(target,61261,&basePoints0,NULL,NULL,true,0,frostPresenceAura);
                     }
                     // Unholy Presence bonus
-                    if (presence == SPELL_UNHOLY_PRESENCE_48265)
+                    if (presence == 48265)
                     {
                         if(unholyPresenceAura)
                         {
@@ -1396,13 +1395,13 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 else
                 {
                     // Remove passive auras
-                    if (presence == SPELL_BLOOD_PRESENCE_48266 || bloodPresenceAura)
+                    if (presence == 48266 || bloodPresenceAura)
                         target->RemoveAurasDueToSpell(63611);
-                    if (presence == SPELL_FROST_PRESENCE_48263 || frostPresenceAura)
+                    if (presence == 48263 || frostPresenceAura)
                         target->RemoveAurasDueToSpell(61261);
-                    if (presence == SPELL_UNHOLY_PRESENCE_48265 || unholyPresenceAura)
+                    if (presence == 48265 || unholyPresenceAura)
                     {
-                        if(presence == SPELL_UNHOLY_PRESENCE_48265 && unholyPresenceAura)
+                        if(presence == 48265 && unholyPresenceAura)
                         {
                             //target->RemoveAurasDueToSpell(63622);
                             target->RemoveAurasDueToSpell(65095);

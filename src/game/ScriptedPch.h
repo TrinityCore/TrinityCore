@@ -21,7 +21,6 @@
 #include "Chat.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
-#include "SpellId.h"
 
 #ifdef WIN32
 #include <windows.h>
