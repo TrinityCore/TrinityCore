@@ -1232,7 +1232,6 @@ class Player : public Unit, public GridObject<Player>
         Player* GetTrader() const { return pTrader; }
         void ClearTrade();
         void TradeCancel(bool sendback);
-        uint16 GetItemPosByTradeSlot(uint32 slot) const { return tradeItems[slot]; }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateItemDuration(uint32 time, bool realtimeonly=false);
@@ -2463,7 +2462,7 @@ Spell * m_spellModTakingSpell;
 
         Player *pTrader;
         bool acceptTrade;
-        uint16 tradeItems[TRADE_SLOT_COUNT];
+        uint64 tradeItems[TRADE_SLOT_COUNT];
         uint32 tradeGold;
 
         bool   m_DailyQuestChanged;
