@@ -3001,7 +3001,7 @@ void Spell::cast(bool skipCheck)
                     m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
     }
     // Summon Water Elemental - handling for Glyph of Eternal Water
-    if (m_spellInfo->id == 31687)
+    if (m_spellInfo->Id == 31687)
         if (m_caster->HasAura(70937))
             m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, 70908, true);
         else
