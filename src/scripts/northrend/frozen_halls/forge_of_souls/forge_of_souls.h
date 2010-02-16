@@ -5,6 +5,10 @@ enum Data
     DATA_BRONJAHM_EVENT,
     DATA_DEVOURER_EVENT
 };
+enum Data64
+{
+    DATA_BRONJAHM
+};
 enum Creatures
 {
     CREATURE_BRONJAHM                             = 36497,
