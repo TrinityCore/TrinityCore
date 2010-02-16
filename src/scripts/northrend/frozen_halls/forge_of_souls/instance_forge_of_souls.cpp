@@ -72,16 +72,17 @@ struct instance_forge_of_souls : public ScriptedInstance
 
         return 0;
     }
-/*
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
         {
+            case DATA_BRONJAHM:         return uiBronjahm;
         }
 
         return 0;
     }
-*/
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;

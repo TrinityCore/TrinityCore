@@ -3157,6 +3157,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\boss_bronjahm.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\instance_forge_of_souls.cpp"
 						>
 					</File>
