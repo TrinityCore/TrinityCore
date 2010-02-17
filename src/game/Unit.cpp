@@ -7288,6 +7288,19 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             if (dummySpell->Id == 49194)
             {
                 basepoints0 = triggerAmount * damage / 100;
+                // Glyph of Unholy Blight
+                if (AuraEffect *glyph=GetAuraEffect(63332,0))
+                    basepoints0 += basepoints0 * glyph->GetAmount() / 100;
+                // Find replaced aura to use it's remaining amount
+                AuraEffectList const& DoTAuras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+                for (Unit::AuraEffectList::const_iterator i = DoTAuras.begin(); i != DoTAuras.end(); ++i)
+                {
+                     if ((*i)->GetCasterGUID() != GetGUID() || (*i)->GetId() != 50536)
+                         continue;
+                     basepoints0 += ((*i)->GetAmount() * ((*i)->GetTotalTicks() - ((*i)->GetTickNumber()))) / (*i)->GetTotalTicks();
+                     break;
+                }
+
                 triggered_spell_id = 50536;
                 break;
             }
