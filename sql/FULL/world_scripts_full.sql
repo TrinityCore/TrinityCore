@@ -397,6 +397,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_imprisoned_beryl_sorcerer' WHER
 UPDATE `creature_template` SET `ScriptName`='npc_mootoo_the_younger' WHERE `entry`= 25504;
 UPDATE `creature_template` SET `ScriptName`='npc_bonker_togglevolt' WHERE `entry`= 25589;
 UPDATE `creature_template` SET `ScriptName`='npc_fezzix_geartwist' WHERE `entry`=25849;
+UPDATE `creature_template` SET `scriptname`='npc_trapped_mammoth_calf' WHERE `entry`=25850;
+UPDATE `item_template` SET `scriptname`='item_dehta_trap_smasher' WHERE `entry`=35228;
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
