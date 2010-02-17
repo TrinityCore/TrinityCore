@@ -316,6 +316,76 @@ bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const Spell
     return false;
 }
 
+/*######
+# item_dehta_trap_smasher
+# For quest 11876, Help Those That Cannot Help Themselves
+######*/
+enum eHelpThemselves
+{
+    QUEST_CANNOT_HELP_THEMSELVES                  =  11876,
+    NPC_TRAPPED_MAMMOTH_CALF                      =  25850,
+    GO_MAMMOTH_TRAP_1                             = 188022,
+    GO_MAMMOTH_TRAP_2                             = 188024,
+    GO_MAMMOTH_TRAP_3                             = 188025,
+    GO_MAMMOTH_TRAP_4                             = 188026,
+    GO_MAMMOTH_TRAP_5                             = 188027,
+    GO_MAMMOTH_TRAP_6                             = 188028,
+    GO_MAMMOTH_TRAP_7                             = 188029,
+    GO_MAMMOTH_TRAP_8                             = 188030,
+    GO_MAMMOTH_TRAP_9                             = 188031,
+    GO_MAMMOTH_TRAP_10                            = 188032,
+    GO_MAMMOTH_TRAP_11                            = 188033,
+    GO_MAMMOTH_TRAP_12                            = 188034,
+    GO_MAMMOTH_TRAP_13                            = 188035,
+    GO_MAMMOTH_TRAP_14                            = 188036,
+    GO_MAMMOTH_TRAP_15                            = 188037,
+    GO_MAMMOTH_TRAP_16                            = 188038,
+    GO_MAMMOTH_TRAP_17                            = 188039,
+    GO_MAMMOTH_TRAP_18                            = 188040,
+    GO_MAMMOTH_TRAP_19                            = 188041,
+    GO_MAMMOTH_TRAP_20                            = 188042,
+    GO_MAMMOTH_TRAP_21                            = 188043,
+    GO_MAMMOTH_TRAP_22                            = 188044,
+};
+
+bool ItemUse_item_dehta_trap_smasher(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    Creature* pMammoth;
+    GameObject* pTrap;
+    
+    if (pPlayer->GetQuestStatus(QUEST_CANNOT_HELP_THEMSELVES) == QUEST_STATUS_INCOMPLETE &&
+        (pMammoth = pPlayer->FindNearestCreature(NPC_TRAPPED_MAMMOTH_CALF,5.0f)) &&
+        ((pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_1,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_2,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_3,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_4,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_5,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_6,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_7,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_8,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_9,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_10,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_11,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_12,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_13,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_14,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_15,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_16,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_17,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_18,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_19,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_20,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_21,5.0f)) ||
+        (pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_22,5.0f))))
+    {
+        pMammoth->AI()->DoAction(1);
+        pTrap->SetGoState(GO_STATE_READY);
+        pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH_CALF,0);
+    }
+
+    return false;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -373,5 +443,10 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_petrov_cluster_bombs";
     newscript->pItemUse = &ItemUse_item_petrov_cluster_bombs;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_dehta_trap_smasher";
+    newscript->pItemUse = &ItemUse_item_dehta_trap_smasher;
     newscript->RegisterSelf();
 }
