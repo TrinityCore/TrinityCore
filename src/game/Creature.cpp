@@ -810,7 +810,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
 
 bool Creature::isCanTrainingOf(Player* pPlayer, bool msg) const
 {
-    if(!isTrainer())
+    if(!isTrainer() || GetCreatureInfo()->trainer_type == TRAINER_TYPE_PETS)
         return false;
 
     TrainerSpellData const* trainer_spells = GetTrainerSpells();
