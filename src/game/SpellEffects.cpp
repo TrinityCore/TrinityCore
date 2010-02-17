@@ -6832,7 +6832,7 @@ void Spell::EffectPlayerPull(uint32 i)
         speedZ = float(m_spellInfo->EffectMiscValueB[i])/10;
     else
         speedZ = 10.0f;
-    float speedXY = m_caster->GetExactDist2d(x, y) * 10.0f / speedZ;
+    float speedXY = m_caster->GetExactDist2d(unitTarget) * 10.0f / speedZ;
     unitTarget->GetMotionMaster()->MoveJump(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), speedXY, speedZ);
 }
 
