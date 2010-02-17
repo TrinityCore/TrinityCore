@@ -7612,6 +7612,11 @@ bool PlayerCondition::Meets(Player const * player) const
             QuestStatus status = player->GetQuestStatus(value1);
             return (status == QUEST_STATUS_INCOMPLETE);
         }
+        case CONDITION_QUEST_NONE:
+        {
+            QuestStatus status = player->GetQuestStatus(value1);
+            return (status == QUEST_STATUS_NONE);
+        }
         case CONDITION_AD_COMMISSION_AURA:
         {
             Unit::AuraApplicationMap const& auras = player->GetAppliedAuras();
