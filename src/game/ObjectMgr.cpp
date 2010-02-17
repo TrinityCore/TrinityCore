@@ -730,6 +730,13 @@ void ObjectMgr::LoadCreatureTemplates()
             const_cast<CreatureInfo*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
         }
 
+        if (cInfo->VehicleId)
+        {
+            VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->Entry);
+            if (!vehId)
+                 sLog.outErrorDb("Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
+        }
+
         if(cInfo->PetSpellDataId)
         {
             CreatureSpellDataEntry const* spellDataId = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
