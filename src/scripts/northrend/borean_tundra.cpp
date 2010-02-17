@@ -1987,6 +1987,135 @@ CreatureAI* GetAI_npc_bonker_togglevolt(Creature* pCreature)
     return new npc_bonker_togglevoltAI(pCreature);
 }
 
+/*######
+## Help Those That Cannot Help Themselves, Quest 11876
+######*/
+
+enum eHelpThemselves
+{
+    QUEST_CANNOT_HELP_THEMSELVES                  =  11876,
+    GO_MAMMOTH_TRAP_1                             = 188022,
+    GO_MAMMOTH_TRAP_2                             = 188024,
+    GO_MAMMOTH_TRAP_3                             = 188025,
+    GO_MAMMOTH_TRAP_4                             = 188026,
+    GO_MAMMOTH_TRAP_5                             = 188027,
+    GO_MAMMOTH_TRAP_6                             = 188028,
+    GO_MAMMOTH_TRAP_7                             = 188029,
+    GO_MAMMOTH_TRAP_8                             = 188030,
+    GO_MAMMOTH_TRAP_9                             = 188031,
+    GO_MAMMOTH_TRAP_10                            = 188032,
+    GO_MAMMOTH_TRAP_11                            = 188033,
+    GO_MAMMOTH_TRAP_12                            = 188034,
+    GO_MAMMOTH_TRAP_13                            = 188035,
+    GO_MAMMOTH_TRAP_14                            = 188036,
+    GO_MAMMOTH_TRAP_15                            = 188037,
+    GO_MAMMOTH_TRAP_16                            = 188038,
+    GO_MAMMOTH_TRAP_17                            = 188039,
+    GO_MAMMOTH_TRAP_18                            = 188040,
+    GO_MAMMOTH_TRAP_19                            = 188041,
+    GO_MAMMOTH_TRAP_20                            = 188042,
+    GO_MAMMOTH_TRAP_21                            = 188043,
+    GO_MAMMOTH_TRAP_22                            = 188044,
+};
+
+struct npc_trapped_mammoth_calfAI : public ScriptedAI
+{
+    npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) {}
+
+    uint32 uiTimer;
+    bool bStarted;
+
+    void Reset()
+    {
+        GameObject *pTrap;
+        
+        uiTimer = 1500;
+        bStarted = false;
+
+        if ((pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_1,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_2,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_3,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_4,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_5,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_6,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_7,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_8,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_9,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_10,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_11,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_12,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_13,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_14,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_15,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_16,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_17,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_18,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_19,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_20,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_21,1.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_22,1.0f)))
+            pTrap->SetGoState(GO_STATE_ACTIVE);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (bStarted)
+        {
+            if (uiTimer <= diff)
+            {
+                Position pos;
+                m_creature->GetRandomNearPosition(pos, 10.0f);
+                m_creature->GetMotionMaster()->MovePoint(0,pos);
+                bStarted = false;
+            }
+            else uiTimer -= diff;
+        }
+    }
+
+    void DoAction(const int32 param)
+    {
+        if (param == 1)
+            bStarted = true;
+    }
+    
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        GameObject* pTrap;
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+        m_creature->DisappearAndDie();
+
+        if ((pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_1,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_2,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_3,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_4,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_5,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_6,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_7,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_8,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_9,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_10,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_11,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_12,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_13,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_14,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_15,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_16,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_17,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_18,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_19,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_20,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_21,11.0f)) ||
+            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_22,11.0f)))
+            pTrap->SetLootState(GO_JUST_DEACTIVATED);
+    }
+};
+
+CreatureAI* GetAI_npc_trapped_mammoth_calf(Creature* pCreature)
+{
+    return new npc_trapped_mammoth_calfAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -2121,5 +2250,10 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_bonker_togglevolt";
     newscript->GetAI = &GetAI_npc_bonker_togglevolt;
     newscript->pQuestAccept=&QuestAccept_npc_bonker_togglevolt;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_trapped_mammoth_calf";
+    newscript->GetAI = &GetAI_npc_trapped_mammoth_calf;
     newscript->RegisterSelf();
 }
