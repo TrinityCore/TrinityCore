@@ -261,6 +261,12 @@ struct generic_vehicleAI_toc5AI : public npc_escortAI
         //dosen't work at all
         if (uiShieldBreakerTimer <= uiDiff)
         {
+            if (!pVehicle)
+            {
+                pVehicle = m_creature->GetVehicleKit();
+                return;
+            }
+
             if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
             {
                 Map::PlayerList const& players = m_creature->GetMap()->GetPlayers();
