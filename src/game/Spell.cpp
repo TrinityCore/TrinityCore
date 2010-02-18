@@ -4229,7 +4229,7 @@ void Spell::TakeRunePower()
         RuneType rune = plr->GetCurrentRune(i);
         if((plr->GetRuneCooldown(i) == 0) && (runeCost[rune] > 0))
         {
-            plr->SetRuneCooldown(i, RUNE_COOLDOWN);         // 5*2=10 sec
+            plr->SetRuneCooldown(i, plr->GetRuneBaseCooldown(i));
             plr->SetLastUsedRune(RuneType(rune));
             runeCost[rune]--;
         }
@@ -4244,7 +4244,7 @@ void Spell::TakeRunePower()
             RuneType rune = plr->GetCurrentRune(i);
             if((plr->GetRuneCooldown(i) == 0) && (rune == RUNE_DEATH))
             {
-                plr->SetRuneCooldown(i, RUNE_COOLDOWN);     // 5*2=10 sec
+                plr->SetRuneCooldown(i, plr->GetRuneBaseCooldown(i));
                 plr->SetLastUsedRune(RuneType(rune));
                 runeCost[rune]--;
 
