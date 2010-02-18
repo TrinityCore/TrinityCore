@@ -3223,10 +3223,14 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
 
 void ObjectMgr::LoadGuilds()
 {
-    Guild *newguild;
+    Guild *newGuild;
     uint32 count = 0;
-
-    QueryResult_AutoPtr result = CharacterDatabase.Query( "SELECT guildid FROM guild" );
+	
+    //                                                    0             1          2          3           4           5           6
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
+    //   7               8    9    10         11        12
+        "BackgroundColor,info,motd,createdate,BankMoney,COUNT(guild_bank_tab.guildid) "
+        "FROM guild LEFT JOIN guild_bank_tab ON guild.guildid = guild_bank_tab.guildid GROUP BY guild.guildid ORDER BY guildid ASC");
 
     if (!result)
     {
@@ -3240,26 +3244,50 @@ void ObjectMgr::LoadGuilds()
         return;
     }
 
+    // load guild ranks
+    //                                                                0       1   2     3      4
+    QueryResult_AutoPtr guildRanksResult   = CharacterDatabase.Query("SELECT guildid,rid,rname,rights,BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
+
+    // load guild members
+    //                                                                0       1                 2    3     4       5                  6
+    QueryResult_AutoPtr guildMembersResult = CharacterDatabase.Query("SELECT guildid,guild_member.guid,rank,pnote,offnote,BankResetTimeMoney,BankRemMoney,"
+    //   7                 8                9                 10               11                12
+        "BankResetTimeTab0,BankRemSlotsTab0,BankResetTimeTab1,BankRemSlotsTab1,BankResetTimeTab2,BankRemSlotsTab2,"
+    //   13                14               15                16               17                18
+        "BankResetTimeTab3,BankRemSlotsTab3,BankResetTimeTab4,BankRemSlotsTab4,BankResetTimeTab5,BankRemSlotsTab5,"
+    //   19               20                21                22               23
+        "characters.name, characters.level, characters.class, characters.zone, characters.logout_time "
+        "FROM guild_member LEFT JOIN characters ON characters.guid = guild_member.guid ORDER BY guildid ASC");
+
+    // load guild bank tab rights
+    //                                                                      0       1     2   3       4
+    QueryResult_AutoPtr guildBankTabRightsResult = CharacterDatabase.Query("SELECT guildid,TabId,rid,gbright,SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
+
     barGoLink bar(result->GetRowCount());
 
     do
     {
-        Field *fields = result->Fetch();
+        //Field *fields = result->Fetch();
 
         bar.step();
         ++count;
 
-        newguild = new Guild;
-        if (!newguild->LoadGuildFromDB(fields[0].GetUInt32()))
-        {
-            newguild->Disband();
-            delete newguild;
+        newGuild = new Guild;
+        if (!newGuild->LoadGuildFromDB(result) ||
+            !newGuild->LoadRanksFromDB(guildRanksResult) ||
+            !newGuild->LoadMembersFromDB(guildMembersResult) ||
+            !newGuild->LoadBankRightsFromDB(guildBankTabRightsResult) ||
+            !newGuild->CheckGuildStructure()
+            )
+		{
+            newGuild->Disband();
+            delete newGuild;
             continue;
         }
-        newguild->LoadGuildEventLogFromDB();
-        newguild->LoadGuildBankEventLogFromDB();
-        newguild->LoadGuildBankFromDB();
-        AddGuild(newguild);
+        newGuild->LoadGuildEventLogFromDB();
+        newGuild->LoadGuildBankEventLogFromDB();
+        newGuild->LoadGuildBankFromDB();
+        AddGuild(newGuild);
 
     } while (result->NextRow());
 
@@ -3276,7 +3304,11 @@ void ObjectMgr::LoadArenaTeams()
 {
     uint32 count = 0;
 
-    QueryResult_AutoPtr result = CharacterDatabase.Query( "SELECT arenateamid FROM arena_team" );
+    //                                                     0                      1    2           3    4               5
+    QueryResult_AutoPtr result = CharacterDatabase.Query( "SELECT arena_team.arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,"
+    //   6           7           8            9      10    11   12     13    14
+        "EmblemColor,BorderStyle,BorderColor, rating,games,wins,played,wins2,rank "
+        "FROM arena_team LEFT JOIN arena_team_stats ON arena_team.arenateamid = arena_team_stats.arenateamid ORDER BY arena_team.arenateamid ASC" );
 
     if( !result )
     {
@@ -3290,6 +3322,12 @@ void ObjectMgr::LoadArenaTeams()
         return;
     }
 
+    // load arena_team members
+    QueryResult_AutoPtr arenaTeamMembersResult = CharacterDatabase.Query(
+    //          0           1           2           3         4             5           6               7    8
+        "SELECT arenateamid,member.guid,played_week,wons_week,played_season,wons_season,personal_rating,name,class "
+        "FROM arena_team_member member LEFT JOIN characters chars on member.guid = chars.guid ORDER BY member.arenateamid ASC");
+
     barGoLink bar( result->GetRowCount() );
 
     do
@@ -3299,13 +3337,15 @@ void ObjectMgr::LoadArenaTeams()
         bar.step();
         ++count;
 
-        ArenaTeam *newarenateam = new ArenaTeam;
-        if(!newarenateam->LoadArenaTeamFromDB(fields[0].GetUInt32()))
+        ArenaTeam *newArenaTeam = new ArenaTeam;
+        if (!newArenaTeam->LoadArenaTeamFromDB(result) ||
+            !newArenaTeam->LoadMembersFromDB(arenaTeamMembersResult))
         {
-            delete newarenateam;
+            newArenaTeam->Disband(NULL);
+            delete newArenaTeam;
             continue;
         }
-        AddArenaTeam(newarenateam);
+        AddArenaTeam(newArenaTeam);
     }while( result->NextRow() );
 
     sLog.outString();
