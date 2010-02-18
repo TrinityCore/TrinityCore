@@ -732,7 +732,7 @@ void ObjectMgr::LoadCreatureTemplates()
 
         if (cInfo->VehicleId)
         {
-            VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->Entry);
+            VehicleEntry const* vehId = sVehicleStore.LookupEntry(cInfo->VehicleId);
             if (!vehId)
                  sLog.outErrorDb("Creature (Entry: %u) has a non-existing VehicleId (%u). This *WILL* cause the client to freeze!", cInfo->Entry, cInfo->VehicleId);
         }
