@@ -7723,7 +7723,7 @@ bool Unit::HandleAuraProc(Unit *pVictim, uint32 damage, Aura * triggeredByAura, 
                                 ((Player*)this)->GetBaseRune(i) != RUNE_BLOOD )
                                 continue;
                         }
-                        if (((Player*)this)->GetRuneCooldown(i) != RUNE_COOLDOWN)
+                        if (((Player*)this)->GetRuneCooldown(i) != ((Player*)this)->GetRuneBaseCooldown(i))
                             continue;
 
                         --runesLeft;
