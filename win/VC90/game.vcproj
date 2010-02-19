@@ -104,6 +104,87 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="4"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP /Zm200"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;..\..\src\game\"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="2"
+				PrecompiledHeaderThrough="pchdef.h"
+				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
+				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\game__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+				ForcedIncludeFiles="pchdef.h"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;_SECURE_SCL=0"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLibrarianTool"
+				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
+				SuppressStartupBanner="true"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Debug|x64"
 			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
@@ -168,87 +249,6 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib"
-				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\game__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="4"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP /Zm200"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;..\..\src\game\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="1"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pchdef.h"
-				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
-				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\game__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-				ForcedIncludeFiles="pchdef.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_SECURE_SCL=0"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
 				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
 				SuppressStartupBanner="true"
 			/>
@@ -2889,7 +2889,15 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\src\scripts\kalimdor\razorfen_downs\instance_razorfen_downs.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\src\scripts\kalimdor\razorfen_downs\razorfen_downs.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\kalimdor\razorfen_downs\razorfen_downs.h"
 						>
 					</File>
 				</Filter>
@@ -3149,15 +3157,15 @@
 						>
 					</File>
 				</Filter>
-				<Filter 
+				<Filter
 					Name="Forge of Souls"
 					>
 					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\forge_of_souls.h"
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\boss_bronjahm.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\boss_bronjahm.cpp"
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\forge_of_souls.h"
 						>
 					</File>
 					<File
@@ -3181,11 +3189,11 @@
 					Name="Pit of Saron"
 					>
 					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\pit_of_saron.h"
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
+						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\pit_of_saron.h"
 						>
 					</File>
 				</Filter>
@@ -4152,7 +4160,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|x64"
+				Name="Release|Win32"
 				>
 				<Tool
 					Name="VCCLCompilerTool"
@@ -4161,7 +4169,7 @@
 				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Release|Win32"
+				Name="Debug|x64"
 				>
 				<Tool
 					Name="VCCLCompilerTool"

@@ -253,6 +253,8 @@ SET(scripts_STAT_SRCS
    kalimdor/onyxias_lair/boss_onyxia.cpp
    kalimdor/razorfen_downs/boss_amnennar_the_coldbringer.cpp
    kalimdor/razorfen_downs/razorfen_downs.cpp
+   kalimdor/razorfen_downs/instance_razorfen_downs.cpp
+   kalimdor/razorfen_downs/razorfen_downs.h
    kalimdor/razorfen_kraul/razorfen_kraul.h
    kalimdor/razorfen_kraul/instance_razorfen_kraul.cpp
    kalimdor/razorfen_kraul/razorfen_kraul.cpp
