@@ -253,6 +253,8 @@ SET(scripts_STAT_SRCS
    kalimdor/onyxias_lair/boss_onyxia.cpp
    kalimdor/razorfen_downs/boss_amnennar_the_coldbringer.cpp
    kalimdor/razorfen_downs/razorfen_downs.cpp
+   kalimdor/razorfen_downs/instance_razorfen_downs.cpp
+   kalimdor/razorfen_downs/razorfen_downs.h
    kalimdor/razorfen_kraul/razorfen_kraul.h
    kalimdor/razorfen_kraul/instance_razorfen_kraul.cpp
    kalimdor/razorfen_kraul/razorfen_kraul.cpp
@@ -327,6 +329,7 @@ SET(scripts_STAT_SRCS
    northrend/draktharon_keep/boss_tharon_ja.cpp
    northrend/draktharon_keep/drak_tharon_keep.h
    northrend/frozen_halls/forge_of_souls/instance_forge_of_souls.cpp
+   northrend/frozen_halls/forge_of_souls/boss_bronjahm.cpp
    northrend/frozen_halls/forge_of_souls/forge_of_souls.h
    northrend/frozen_halls/halls_of_reflection/instance_halls_of_reflection.cpp
    northrend/frozen_halls/halls_of_reflection/halls_of_reflection.h

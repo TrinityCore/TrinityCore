@@ -2995,8 +2995,8 @@ void Spell::cast(bool skipCheck)
                     m_caster->RemoveAurasDueToSpell(-(*i));
                 else
                     m_caster->CastSpell(m_targets.getUnitTarget() ? m_targets.getUnitTarget() : m_caster, *i, true);
-    }
 
+        }
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_caster)->SetSpellModTakingSpell(this, false);
 
@@ -4076,7 +4076,7 @@ void Spell::TakePower()
 
     Powers powerType = Powers(m_spellInfo->powerType);
 
-    if(powerType == POWER_RUNE)
+    if(hit && powerType == POWER_RUNE)
     {
         TakeRunePower();
         return;
@@ -4219,7 +4219,7 @@ void Spell::TakeRunePower()
         RuneType rune = plr->GetCurrentRune(i);
         if((plr->GetRuneCooldown(i) == 0) && (runeCost[rune] > 0))
         {
-            plr->SetRuneCooldown(i, RUNE_COOLDOWN);         // 5*2=10 sec
+            plr->SetRuneCooldown(i, plr->GetRuneBaseCooldown(i));
             plr->SetLastUsedRune(RuneType(rune));
             runeCost[rune]--;
         }
@@ -4234,7 +4234,7 @@ void Spell::TakeRunePower()
             RuneType rune = plr->GetCurrentRune(i);
             if((plr->GetRuneCooldown(i) == 0) && (rune == RUNE_DEATH))
             {
-                plr->SetRuneCooldown(i, RUNE_COOLDOWN);     // 5*2=10 sec
+                plr->SetRuneCooldown(i, plr->GetRuneBaseCooldown(i));
                 plr->SetLastUsedRune(RuneType(rune));
                 runeCost[rune]--;
 

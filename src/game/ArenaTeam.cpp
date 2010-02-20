@@ -176,85 +176,91 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     return true;
 }
 
-bool ArenaTeam::LoadArenaTeamFromDB(uint32 ArenaTeamId)
+bool ArenaTeam::LoadArenaTeamFromDB(QueryResult_AutoPtr arenaTeamDataResult)
 {
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT arenateamid,name,captainguid,type,BackgroundColor,EmblemStyle,EmblemColor,BorderStyle,BorderColor FROM arena_team WHERE arenateamid = '%u'", ArenaTeamId);
-
-    if(!result)
+    if(!arenaTeamDataResult)
         return false;
 
-    Field *fields = result->Fetch();
+    Field *fields = arenaTeamDataResult->Fetch();
 
-    m_TeamId = fields[0].GetUInt32();
-    m_Name = fields[1].GetCppString();
-    m_CaptainGuid  = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
-    m_Type = fields[3].GetUInt32();
-    m_BackgroundColor = fields[4].GetUInt32();
-    m_EmblemStyle = fields[5].GetUInt32();
-    m_EmblemColor = fields[6].GetUInt32();
-    m_BorderStyle = fields[7].GetUInt32();
-    m_BorderColor = fields[8].GetUInt32();
+    m_TeamId             = fields[0].GetUInt32();
+    m_Name               = fields[1].GetCppString();
+    m_CaptainGuid        = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
+    m_Type               = fields[3].GetUInt32();
+    m_BackgroundColor    = fields[4].GetUInt32();
+    m_EmblemStyle        = fields[5].GetUInt32();
+    m_EmblemColor        = fields[6].GetUInt32();
+    m_BorderStyle        = fields[7].GetUInt32();
+    m_BorderColor        = fields[8].GetUInt32();
+    //load team stats
+    m_stats.rating       = fields[9].GetUInt32();
+    m_stats.games_week   = fields[10].GetUInt32();
+    m_stats.wins_week    = fields[11].GetUInt32();
+    m_stats.games_season = fields[12].GetUInt32();
+    m_stats.wins_season  = fields[13].GetUInt32();
+    m_stats.rank         = fields[14].GetUInt32();
+		
+    return true;
+}
 
-    // only load here, so additional checks can be made
-    LoadStatsFromDB(ArenaTeamId);
-    LoadMembersFromDB(ArenaTeamId);
+bool ArenaTeam::LoadMembersFromDB(QueryResult_AutoPtr arenaTeamMembersResult)
+{
+    if(!arenaTeamMembersResult)
+        return false;
 
-    if(Empty())
+    bool captainPresentInTeam = false;
+
+    do
     {
-        // arena team is empty, delete from db
-        CharacterDatabase.BeginTransaction();
-        CharacterDatabase.PExecute("DELETE FROM arena_team WHERE arenateamid = '%u'", ArenaTeamId);
-        CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u'", ArenaTeamId);
-        CharacterDatabase.PExecute("DELETE FROM arena_team_stats WHERE arenateamid = '%u'", ArenaTeamId);
-        CharacterDatabase.CommitTransaction();
+        Field *fields = arenaTeamMembersResult->Fetch();
+        //prevent crash if db records are broken, when all members in result are already processed and current team hasn't got any members
+        if (!fields)
+            break;
+		uint32 arenaTeamId        = fields[0].GetUInt32();
+        if (arenaTeamId < m_TeamId)
+        {
+            //there is in table arena_team_member record which doesn't have arenateamid in arena_team table, report error
+            sLog.outErrorDb("ArenaTeam %u does not exist but it has record in arena_team_member table, deleting it!", arenaTeamId);
+            CharacterDatabase.PExecute("DELETE FROM arena_team_member WHERE arenateamid = '%u'", arenaTeamId);
+            continue;
+        }
+
+        if (arenaTeamId > m_TeamId)
+            //we loaded all members for this arena_team already, break cycle
+            break;
+
+        ArenaTeamMember newmember;
+        newmember.guid            = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
+        newmember.games_week      = fields[2].GetUInt32();
+        newmember.wins_week       = fields[3].GetUInt32();
+        newmember.games_season    = fields[4].GetUInt32();
+        newmember.wins_season     = fields[5].GetUInt32();
+        newmember.personal_rating = fields[6].GetUInt32();
+        newmember.name            = fields[7].GetCppString();
+        newmember.Class           = fields[8].GetUInt8();
+
+        //check if member exists in characters table
+        if (newmember.name.empty())
+        {
+            sLog.outErrorDb("ArenaTeam %u has member with empty name - probably player %u doesn't exist, deleting him from memberlist!", arenaTeamId, GUID_LOPART(newmember.guid));
+            this->DelMember(newmember.guid);
+            continue;
+        }
+
+        if (newmember.guid == GetCaptain())
+            captainPresentInTeam = true;
+
+        m_members.push_back(newmember);
+    }while (arenaTeamMembersResult->NextRow());
+
+    if(Empty() || !captainPresentInTeam)
+    {
+        // arena team is empty or captain is not in team, delete from db
+        sLog.outErrorDb("ArenaTeam %u does not have any members or its captain is not in team, disbanding it...", m_TeamId);
         return false;
     }
 
     return true;
-}
-
-void ArenaTeam::LoadStatsFromDB(uint32 ArenaTeamId)
-{
-    //                                                     0      1     2    3      4     5
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT rating,games,wins,played,wins2,rank FROM arena_team_stats WHERE arenateamid = '%u'", ArenaTeamId);
-
-    if(!result)
-        return;
-
-    Field *fields = result->Fetch();
-
-    m_stats.rating        = fields[0].GetUInt32();
-    m_stats.games_week    = fields[1].GetUInt32();
-    m_stats.wins_week     = fields[2].GetUInt32();
-    m_stats.games_season  = fields[3].GetUInt32();
-    m_stats.wins_season   = fields[4].GetUInt32();
-    m_stats.rank          = fields[5].GetUInt32();
-}
-
-void ArenaTeam::LoadMembersFromDB(uint32 ArenaTeamId)
-{
-    //                                                           0                1           2         3             4        5        6    7
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT member.guid,played_week,wons_week,played_season,wons_season,personal_rating,name,class "
-                                                   "FROM arena_team_member member "
-                                                   "INNER JOIN characters chars on member.guid = chars.guid "
-                                                   "WHERE member.arenateamid = '%u'", ArenaTeamId);
-    if(!result)
-        return;
-
-    do
-    {
-        Field *fields = result->Fetch();
-        ArenaTeamMember newmember;
-        newmember.guid          = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-        newmember.games_week    = fields[1].GetUInt32();
-        newmember.wins_week     = fields[2].GetUInt32();
-        newmember.games_season  = fields[3].GetUInt32();
-        newmember.wins_season   = fields[4].GetUInt32();
-        newmember.personal_rating = fields[5].GetUInt32();
-        newmember.name          = fields[6].GetCppString();
-        newmember.Class         = fields[7].GetUInt8();
-        m_members.push_back(newmember);
-    }while( result->NextRow() );
 }
 
 void ArenaTeam::SetCaptain(const uint64& guid)
@@ -304,18 +310,24 @@ void ArenaTeam::DelMember(uint64 guid)
 void ArenaTeam::Disband(WorldSession *session)
 {
     // event
-    WorldPacket data;
-    session->BuildArenaTeamEventPacket(&data, ERR_ARENA_TEAM_DISBANDED_S, 2, session->GetPlayerName(), GetName(), "");
-    BroadcastPacket(&data);
+    if (session)
+    {
+        WorldPacket data;
+        session->BuildArenaTeamEventPacket(&data, ERR_ARENA_TEAM_DISBANDED_S, 2, session->GetPlayerName(), GetName(), "");
+        BroadcastPacket(&data);
+    }
 
     while (!m_members.empty())
     {
         // Removing from members is done in DelMember.
         DelMember(m_members.front().guid);
     }
-
-    if(Player *player = session->GetPlayer())
-        sLog.outArena("Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
+	
+    if (session)
+    {
+        if(Player *player = session->GetPlayer())
+            sLog.outArena("Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
+    }
 
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("DELETE FROM arena_team WHERE arenateamid = '%u'", m_TeamId);

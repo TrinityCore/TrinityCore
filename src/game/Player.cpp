@@ -2023,6 +2023,12 @@ void Player::RegenerateAll()
 
     Regenerate(POWER_MANA);
 
+    // Runes act as cooldowns, and they don't need to send any data
+    if(getClass() == CLASS_DEATH_KNIGHT)
+        for (uint32 i = 0; i < MAX_RUNES; ++i)
+            if(uint32 cd = GetRuneCooldown(i))
+                SetRuneCooldown(i, (cd > m_regenTimer) ? cd - m_regenTimer : 0);
+
     if (m_regenTimerCount >= 2000)
     {
         // Not in combat or they have regeneration
@@ -2036,9 +2042,6 @@ void Player::RegenerateAll()
         if (getClass() == CLASS_DEATH_KNIGHT)
             Regenerate(POWER_RUNIC_POWER);
 
-        if(getClass() == CLASS_DEATH_KNIGHT)
-            Regenerate(POWER_RUNE);
-
         m_regenTimerCount -= 2000;
     }
 
@@ -2047,11 +2050,6 @@ void Player::RegenerateAll()
 
 void Player::Regenerate(Powers power)
 {
-    if (power == POWER_RUNE)
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
-            if (uint8 cd = GetRuneCooldown(i))           // if we have cooldown, reduce it...
-                SetRuneCooldown(i, cd - 1);              // ... by 2 sec (because update is every 2 sec)
-
     uint32 maxValue = GetMaxPower(power);
     if (!maxValue)
         return;
@@ -21783,6 +21781,21 @@ void Player::UpdateCharmedAI()
         GetMotionMaster()->MoveChase(target);
         Attack(target, true);
     }
+}
+
+uint32 Player::GetRuneBaseCooldown(uint8 index)
+{
+    uint8 rune = GetBaseRune(index);
+    uint32 cooldown = RUNE_COOLDOWN;
+
+    AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
+    for(AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
+    {
+        if((*i)->GetMiscValue() == POWER_RUNE && (*i)->GetMiscValueB() == rune)
+            cooldown = cooldown*(100-(*i)->GetAmount())/100;
+    }
+
+    return cooldown;
 }
 
 void Player::RemoveRunesByAuraEffect(AuraEffect const * aura)
