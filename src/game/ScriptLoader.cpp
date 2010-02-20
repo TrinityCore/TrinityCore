@@ -238,6 +238,7 @@ void AddSC_boss_ptheradras();
 void AddSC_boss_onyxia();                    //Onyxia's Lair
 void AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
 void AddSC_razorfen_downs();
+void AddSC_instance_razorfen_downs();
 void AddSC_razorfen_kraul();                 //Razorfen Kraul
 void AddSC_boss_kurinnaxx();                 //Ruins of ahn'qiraj
 void AddSC_boss_rajaxx();
@@ -702,6 +703,7 @@ void AddScripts()
     AddSC_boss_onyxia();                    //Onyxia's Lair
     AddSC_boss_amnennar_the_coldbringer();  //Razorfen Downs
     AddSC_razorfen_downs();
+    AddSC_instance_razorfen_downs();
     AddSC_razorfen_kraul();                 //Razorfen Kraul
     AddSC_boss_kurinnaxx();                 //Ruins of ahn'qiraj
     AddSC_boss_rajaxx();

@@ -736,6 +736,30 @@ bool GOHello_go_soulwell(Player *pPlayer, GameObject* pGO)
     return true;
 }
 
+/*######
+## Quest 11560: Oh Noes, the Tadpoles!
+## go_tadpole_cage
+######*/
+
+enum eTadpoles
+{
+    QUEST_OH_NOES_THE_TADPOLES                    = 11560,
+    NPC_WINTERFIN_TADPOLE                         = 25201
+};
+
+bool GOHello_go_tadpole_cage(Player *pPlayer, GameObject *pGO)
+{
+    Creature *pTadpole;
+    if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE &&
+        (pTadpole = pGO->FindNearestCreature(NPC_WINTERFIN_TADPOLE,1.0f)))
+        {
+            pGO->UseDoorOrButton();
+            pTadpole->DisappearAndDie();
+            pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE,0);
+            //FIX: Summon minion tadpole
+        }
+    return true;
+}
 
 void AddSC_go_scripts()
 {
@@ -890,5 +914,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_soulwell";
     newscript->pGOHello =           &GOHello_go_soulwell;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_tadpole_cage";
+    newscript->pGOHello =           &GOHello_go_tadpole_cage;
     newscript->RegisterSelf();
 }
