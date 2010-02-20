@@ -24,24 +24,9 @@
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
 
-/*
-  The crap needs shitload of DB data fixed, will paste it here:
-
-  Cannons:
-  update creature_template set IconName = "Gunner" where entry = 27894;
-  UPDATE `creature_template` SET `vehicleid`=160 WHERE `entry`=27894;
-  ^^ Sniffed by el manuel, should be good.
-  UPDATE `creature_template` SET `spell1`=49872 WHERE `entry`=27894;
-  UPDATE `creature_template` set `unit_flags`=`unit_flags`|4 WHERE `entry`=27894;
-
-  UPDATE `creature_template` SET `vehicleid`=158 WHERE `entry`=28781;
-  UPDATE `creature_template` set `spell1=49872 where `entry`=32795;
-  UPDATE `creature_template` set `spell1=52338,`spell2`=60206 where `entry`=32796;
- */
 
 BattleGroundSA::BattleGroundSA()
 {
-    //TODO FIX ME!
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_SA_START_TWO_MINUTES;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_SA_START_ONE_MINUTE;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_SA_START_HALF_MINUTE;
@@ -53,7 +38,7 @@ BattleGroundSA::BattleGroundSA()
 
 BattleGroundSA::~BattleGroundSA()
 {
-  sLog.outError("SOTA ZDYCHA: \n%u %u\n %u %u",BG_SA_MAXOBJ,m_BgObjects.size(),BG_SA_MAXNPC,m_BgCreatures.size());
+
 }
 
 void BattleGroundSA::Reset()
@@ -79,7 +64,7 @@ bool BattleGroundSA::ResetObjs()
 
   uint32 atF = BG_SA_Factions[attackers];
   uint32 defF = BG_SA_Factions[attackers ? TEAM_ALLIANCE : TEAM_HORDE];
-  sLog.outError("SOTA: Attacking team: %u %u %u",attackers,atF,defF);
+
 
   for(uint8 i = 0; i <BG_SA_MAXOBJ; i++)
     DelObject(i);
@@ -100,8 +85,7 @@ bool BattleGroundSA::ResetObjs()
 		    BG_SA_ObjSpawnlocs[i][2],BG_SA_ObjSpawnlocs[i][3],
 		    0,0,0,0,RESPAWN_ONE_DAY))
 	return false;
-      else
-	sLog.outError("SOTA: object %u spawned",i);
+
     }
 
   GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
@@ -159,7 +143,6 @@ bool BattleGroundSA::ResetObjs()
       else
 	{
 	  GraveyardStatus[i] = ((attackers == TEAM_HORDE )? TEAM_ALLIANCE : TEAM_HORDE);
-	  sLog.outError("SOTA: Spawning GY %u %f %f %f team %u",i,sg->x,sg->y,sg->z,GraveyardStatus[i]);
 	  if(!AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((attackers == TEAM_HORDE )? ALLIANCE : HORDE)  ))
 	    {
 	      sLog.outError("SOTA: couldn't spawn GY: %u",i);
@@ -231,7 +214,6 @@ void BattleGroundSA::StartShips()
 {
   if(ShipsStarted)
     return;
-  sLog.outError("SOTA: Starting boats!");
   DoorOpen(BG_SA_BOAT_ONE);
   DoorOpen(BG_SA_BOAT_TWO);
 
@@ -321,9 +303,6 @@ void BattleGroundSA::FillInitialWorldStates(WorldPacket& data)
 {
   uint32 ally_attacks = uint32(attackers == TEAM_ALLIANCE ? 1 : 0);
   uint32 horde_attacks = uint32(attackers == TEAM_HORDE ? 1 : 0);
-
-  for(uint8 i = 0; i < BG_SA_MAX_GY; i++)
-    sLog.outError("UWS: %u",GraveyardStatus[i]);
 
   data << uint32(BG_SA_ANCIENT_GATEWS) << uint32(GateStatus[BG_SA_ANCIENT_GATE]);
   data << uint32(BG_SA_YELLOW_GATEWS) << uint32(GateStatus[BG_SA_YELLOW_GATE]);
@@ -441,7 +420,6 @@ void BattleGroundSA::TeleportPlayers()
 
 void BattleGroundSA::EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 event)
 {
-  sLog.outError("SOTA: EventGO %u",event);
   
   switch(event)
     {
@@ -540,7 +518,6 @@ void BattleGroundSA::DestroyGate(uint32 i, Player* pl)
 	  
 	  if(i < 5)
 		DelObject(i+9);
-	  sLog.outError("SOTA: gate %u destroyed!",i+1);
 	  UpdateWorldState(uws, GateStatus[i]);
 	  UpdatePlayerScore(pl,SCORE_DESTROYED_WALL, 1);
 	}
@@ -625,7 +602,6 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i)
   switch(i)
     {
     case BG_SA_LEFT_CAPTURABLE_GY:
-      sLog.outError("LEFT GY");
       SpawnBGObject(BG_SA_LEFT_FLAG,RESPAWN_ONE_DAY);
       npc = BG_SA_NPC_RIGSPARK;
       AddCreature(BG_SA_NpcEntries[npc], npc, attackers, 
@@ -635,7 +611,6 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i)
       UpdateWorldState(BG_SA_LEFT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE? 0:1));
       break;
     case BG_SA_RIGHT_CAPTURABLE_GY:
-      sLog.outError("RIGHT GY"); 
       SpawnBGObject(BG_SA_RIGHT_FLAG, RESPAWN_ONE_DAY);
       npc = BG_SA_NPC_SPARKLIGHT;
       AddCreature(BG_SA_NpcEntries[npc], npc, attackers, 
@@ -662,7 +637,6 @@ void BattleGroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
 
   if(object->GetEntry() == BG_SA_ObjEntries[BG_SA_TITAN_RELIC])
     {
-      sLog.outError("SOTA: Match ended.");
       if(Source->GetTeamId() == attackers)
 	{
 

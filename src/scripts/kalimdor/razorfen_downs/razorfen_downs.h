@@ -1,4 +1,6 @@
-/* Copyright (C) 2006 - 2010 TrinityCore <https://www.trinitycore.org/>
+/*
+ * Copyright (C) 2010 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,20 +16,30 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#ifndef DEF_FORGE_OF_SOULS_H
-#define DEF_FORGE_OF_SOULS_H
-enum Data
+#ifndef DEF_RAZORFEN_DOWNS_H
+#define DEF_RAZORFEN_DOWNS_H
+
+enum eData
 {
-    DATA_BRONJAHM_EVENT,
-    DATA_DEVOURER_EVENT
+    BOSS_TUTEN_KASH,
+    DATA_GONG_WAVES
 };
-enum Data64
+
+enum eData64
 {
-    DATA_BRONJAHM
+    DATA_GONG
 };
-enum Creatures
+
+enum eGameObject
 {
-    CREATURE_BRONJAHM                             = 36497,
-    CREATURE_DEVOURER                             = 36502
+	GO_GONG										= 148917
 };
+
+enum eCreature
+{
+    CREATURE_TOMB_FIEND                         = 7349,
+    CREATURE_TOMB_REAVER                        = 7351,
+    CREATURE_TUTEN_KASH                         = 7355
+};
+
 #endif

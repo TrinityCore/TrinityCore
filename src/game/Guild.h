@@ -327,9 +327,10 @@ class Guild
 
         uint32 GetMemberSize() const { return members.size(); }
 
-        bool LoadGuildFromDB(uint32 GuildId);
-        bool LoadRanksFromDB(uint32 GuildId);
-        bool LoadMembersFromDB(uint32 GuildId);
+        bool LoadGuildFromDB(QueryResult_AutoPtr guildDataResult);
+        bool CheckGuildStructure();
+        bool LoadRanksFromDB(QueryResult_AutoPtr guildRanksResult);
+        bool LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult);
 
         void SetMemberStats(uint64 guid);
 
@@ -421,7 +422,7 @@ class Guild
         uint32 GetBankMoneyPerDay(uint32 rankId);
         uint32 GetBankSlotPerDay(uint32 rankId, uint8 TabId);
         // rights per day
-        void   LoadBankRightsFromDB(uint32 GuildId);
+        bool   LoadBankRightsFromDB(QueryResult_AutoPtr guildBankTabRightsResult);
         // Guild Bank Event Logs
         void   LoadGuildBankEventLogFromDB();
         void   DisplayGuildBankLogs(WorldSession *session, uint8 TabId);
