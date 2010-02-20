@@ -4086,7 +4086,7 @@ void Spell::TakePower()
 
     Powers powerType = Powers(m_spellInfo->powerType);
 
-    if(powerType == POWER_RUNE)
+    if(hit && powerType == POWER_RUNE)
     {
         TakeRunePower();
         return;
