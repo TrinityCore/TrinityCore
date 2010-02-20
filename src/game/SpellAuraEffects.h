@@ -72,7 +72,6 @@ class AuraEffect
         void PeriodicTick(Unit * target, Unit * caster) const;
         void PeriodicDummyTick(Unit * target, Unit * caster) const;
         Unit* GetTriggerTarget(Unit * target) const;
-        Unit* GetTriggerCaster(Unit * target, Unit * caster, SpellEntry const * triggeredSpell) const;
         void TriggerSpell(Unit * target, Unit * caster) const;
         void TriggerSpellWithValue(Unit * target, Unit * caster) const;
 

@@ -1971,21 +1971,6 @@ Unit* AuraEffect::GetTriggerTarget(Unit * target) const
     return target;
 }
 
-Unit* AuraEffect::GetTriggerCaster(Unit * target, Unit * caster, SpellEntry const * triggeredSpell) const
-{
-    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (SpellTargetType[triggeredSpell->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET
-            || SpellTargetType[triggeredSpell->EffectImplicitTargetB[i]] == TARGET_TYPE_UNIT_TARGET
-            || SpellTargetType[triggeredSpell->EffectImplicitTargetA[i]] == TARGET_TYPE_CHANNEL
-            || SpellTargetType[triggeredSpell->EffectImplicitTargetB[i]] == TARGET_TYPE_CHANNEL
-            || SpellTargetType[triggeredSpell->EffectImplicitTargetA[i]] == TARGET_TYPE_DEST_TARGET
-            || SpellTargetType[triggeredSpell->EffectImplicitTargetB[i]] == TARGET_TYPE_DEST_TARGET)
-            return caster;
-    }
-    return target;
-}
-
 void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
 {
     if(!caster || !target)
@@ -2246,8 +2231,8 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
 
     if(triggeredSpellInfo)
     {
-        Unit * triggerCaster = GetTriggerCaster(triggerTarget, caster, triggeredSpellInfo);
-        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this, GetCasterGUID());
+        Unit * triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, triggerTarget);
+        triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this);
         sLog.outDebug("AuraEffect::TriggerSpell: Spell %u Trigger %u",GetId(), triggeredSpellInfo->Id);
     }
     else if(target->GetTypeId()!=TYPEID_UNIT || !sScriptMgr.EffectDummyCreature(caster, GetId(), GetEffIndex(), (Creature*)triggerTarget))
@@ -2265,7 +2250,7 @@ void AuraEffect::TriggerSpellWithValue(Unit * target, Unit * caster) const
     SpellEntry const *triggeredSpellInfo = sSpellStore.LookupEntry(triggerSpellId);
     if(triggeredSpellInfo)
     {
-        Unit * triggerCaster = GetTriggerCaster(triggerTarget, caster, triggeredSpellInfo);
+        Unit * triggerCaster = GetTriggeredSpellCaster(triggeredSpellInfo, caster, triggerTarget);
 
         // generic casting code with custom spells and target/caster customs
         int32  basepoints0 = GetAmount();

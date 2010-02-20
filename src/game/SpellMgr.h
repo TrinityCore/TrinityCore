@@ -180,6 +180,7 @@ enum SpellLinkedType
     SPELL_LINK_REMOVE   = 0,
 };
 
+Unit * GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit * target);
 SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo);
 AuraState GetSpellAuraState(SpellEntry const * spellInfo);
 
