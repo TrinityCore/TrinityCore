@@ -2203,7 +2203,9 @@ void Spell::EffectTriggerSpellWithValue(uint32 i)
     }
 
     int32 bp = damage;
-    m_caster->CastCustomSpell(unitTarget,triggered_spell_id,&bp,&bp,&bp,true,NULL,NULL,m_originalCasterGUID);
+    Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
+    
+    caster->CastCustomSpell(unitTarget,triggered_spell_id,&bp,&bp,&bp,true);
 }
 
 void Spell::EffectTriggerRitualOfSummoning(uint32 i)
@@ -2240,22 +2242,23 @@ void Spell::EffectForceCast(uint32 i)
 
     if (damage)
     {
-        if(m_spellInfo->EffectBasePoints[i] > 0)
+        switch(m_spellInfo->Id)
         {
-            switch(m_spellInfo->Id)
-            {
-                // 52463 also use custom damage and the summon veh spell use that damamge and cast mount aura?
-                case 52588: unitTarget->RemoveAura(damage); break;
-            }
-        }
-        else // this was for 52463, need further study
-        {
-            unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
-            return;
+            case 52588: // Skeletal Gryphon Escape
+            case 48598: // Ride Flamebringer Cue
+                unitTarget->RemoveAura(damage); 
+                break;
+            case 52463: // Hide In Mine Car
+            case 52349: // Overtake
+                unitTarget->CastCustomSpell(unitTarget, spellInfo->Id, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
+                return;
+            //case 72378: // Blood Nova
+            //case 73058: // Blood Nova
         }
     }
+    Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    unitTarget->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
+    caster->CastSpell(unitTarget, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectTriggerSpell(uint32 effIndex)
@@ -2349,7 +2352,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
                 return;
 
             for (int j=0; j < spell->StackAmount; ++j)
-                m_caster->CastSpell(unitTarget, spell->Id, true, m_CastItem, NULL, m_originalCasterGUID);
+                m_caster->CastSpell(unitTarget, spell->Id, true);
             return;
         }
         // Mercurial Shield - (need add max stack of 26464 Mercurial Shield)
@@ -2361,13 +2364,13 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
                 return;
 
             for (int j=0; j < spell->StackAmount; ++j)
-                m_caster->CastSpell(unitTarget, spell->Id, true, m_CastItem, NULL, m_originalCasterGUID);
+                m_caster->CastSpell(unitTarget, spell->Id, true);
             return;
         }
         // Righteous Defense
         case 31980:
         {
-            m_caster->CastSpell(unitTarget, 31790, true, m_CastItem, NULL, m_originalCasterGUID);
+            m_caster->CastSpell(unitTarget, 31790, true);
             return;
         }
         // Cloak of Shadows
@@ -2419,9 +2422,9 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
 
     // Note: not exist spells with weapon req. and IsSpellHaveCasterSourceTargets == true
     // so this just for speedup places in else
-    Unit *caster = IsSpellWithCasterSourceTargetsOnly(spellInfo) ? unitTarget : m_caster;
+    Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastSpell(unitTarget,spellInfo,true,NULL,NULL,m_originalCasterGUID);
+    caster->CastSpell(unitTarget,spellInfo,true);
 }
 
 void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
@@ -3392,10 +3395,10 @@ void Spell::EffectOpenLock(uint32 effIndex)
             //CanUseBattleGroundObject() already called in CheckCast()
             // in battleground check
             if(BattleGround *bg = player->GetBattleGround())
-	      {
-		bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-		return;
-	      }
+          {
+        bg->EventPlayerClickedOnFlag(player, gameObjTarget);
+        return;
+          }
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
@@ -7367,7 +7370,7 @@ void Spell::EffectWMODamage(uint32 /*i*/)
         goft = sFactionTemplateStore.LookupEntry(gameObjTarget->GetUInt32Value(GAMEOBJECT_FACTION));
         // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls)
         if (casterft && goft && !casterft->IsFriendlyTo(*goft))
-	  gameObjTarget->TakenDamage((uint32)damage, caster);
+      gameObjTarget->TakenDamage((uint32)damage, caster);
     }
 }
 

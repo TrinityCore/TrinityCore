@@ -419,6 +419,21 @@ uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, Spe
     return powerCost;
 }
 
+Unit* GetTriggeredSpellCaster(SpellEntry const * spellInfo, Unit * caster, Unit * target)
+{
+    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_UNIT_TARGET
+            || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_UNIT_TARGET
+            || SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_CHANNEL
+            || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_CHANNEL
+            || SpellTargetType[spellInfo->EffectImplicitTargetA[i]] == TARGET_TYPE_DEST_TARGET
+            || SpellTargetType[spellInfo->EffectImplicitTargetB[i]] == TARGET_TYPE_DEST_TARGET)
+            return caster;
+    }
+    return target;
+}
+
 AuraState GetSpellAuraState(SpellEntry const * spellInfo)
 {
     // Seals
