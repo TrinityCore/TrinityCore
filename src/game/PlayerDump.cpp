@@ -421,7 +421,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     bool incHighest = true;
     if (guid != 0 && guid < objmgr.m_hiCharGuid)
     {
-        result = CharacterDatabase.PQuery("SELECT * FROM characters WHERE guid = '%d'", guid);
+        result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE guid = '%d'", guid);
         if (result)
             guid = objmgr.m_hiCharGuid;                     // use first free if exists
         else incHighest = false;
@@ -436,7 +436,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     if (ObjectMgr::CheckPlayerName(name,true) == CHAR_NAME_SUCCESS)
     {
         CharacterDatabase.escape_string(name);              // for safe, we use name only for sql quearies anyway
-        result = CharacterDatabase.PQuery("SELECT * FROM characters WHERE name = '%s'", name.c_str());
+        result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
         if (result)
             name = "";                                      // use the one from the dump
     }
@@ -545,7 +545,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     name = getnth(line, 4);
                     CharacterDatabase.escape_string(name);
 
-                    result = CharacterDatabase.PQuery("SELECT * FROM characters WHERE name = '%s'", name.c_str());
+                    result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
                     if (result)
                     {
                         if(!changenth(line, 37, "1"))       // rename on login: `at_login` field 37 in raw field list
