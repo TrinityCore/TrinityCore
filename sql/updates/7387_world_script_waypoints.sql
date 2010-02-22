@@ -1,4 +1,4 @@
-DELETE FROM `script_waypoint` wHERE `entry`=26588;
+DELETE FROM `script_waypoint` WHERE `entry`=26588;
 INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) VALUES
 (26588, 1, 4333.18, -3688.4, 263.857, 0, '0'),
 (26588, 2, 4341.38, -3683.77, 257.422, 0, '0'),

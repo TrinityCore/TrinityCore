@@ -4786,21 +4786,22 @@ LOCK TABLES `spell_bonus_data` WRITE;
 /*!40000 ALTER TABLE `spell_bonus_data` DISABLE KEYS */;
 INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`ap_dot_bonus`,`comments`) VALUES
 (49941, -1, -1, 0.04, -1, 'Death Knight - Blood Boil'),
-(48721, -1, -1, 0.04, -1, 'Death Knight - Blood Boil'),
-(55078, -1, 1.15, -1, 0.055, 'Death Knight - Blood Plague'),
+(48721, 0, -1, 0.04, -1, 'Death Knight - Blood Boil'),
+(55078, 0, 0, -1, 0.06325, 'Death Knight - Blood Plague'),
 (50444, -1, -1, 0.105, -1, 'Death Knight - Corpse Explosion Triggered'),
-(52212, -1, -1, 0.0475, -1, 'Death Knight - Death and Decay'),
+(52212, 0, -1, 0.0475, -1, 'Death Knight - Death and Decay'),
 (47632, -1, -1, 0.15, -1, 'Death Knight - Death Coil'),
 (47633, -1, -1, 0.15, -1, 'Death Knight - Death Coil Heal'),
-(55095, -1, 1.15, -1, 0.055, 'Death Knight - Frost Fever'),
+(55095, -1, 0, -1, 0.06325, 'Death Knight - Frost Fever'),
 (58621, -1, -1, 0.08, -1, 'Death Knight - Glyph of Chains of Ice'),
 (49184, -1, -1, 0.1, -1, 'Death Knight - Howling Blast'),
-(45477, -1, -1, 0.1, -1, 'Death Knight - Icy Touch'),
+(45477, 0, -1, 0.1, -1, 'Death Knight - Icy Touch'),
 (56903, 0, 0, 0, 0, 'Death Knight - Lichflame'),
+(51460, 0, -1, -1, -1, 'Death Knight - Necrosis'),
 (50842, -1, -1, 0.04, -1, 'Death Knight - Pestilence'),
 (50401, 0, 0, 0, 0, 'Death Knight - Razor Frost'),
 (47476, -1, -1, 0.06, -1, 'Death Knight - Strangulate'),
-(50536, -1, -1, 0.013, -1, 'Death Knight - Unholy Blight (Rank1)'),
+(50536, -1, 0, -1, -1, 'Death Knight - Unholy Blight (Rank 1)'),
 (339, -1, 0.1, -1, -1, 'Druid - Entangling Roots'),
 (60089, -1, -1, 0.15, -1, 'Druid - Faerie Fire (feral)'),
 (5185, 1.611, -1, -1, -1, 'Druid - Healing Touch'),
@@ -4910,6 +4911,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (34861, 0.402, -1, -1, -1, 'Priest - Circle of Healing'),
 (19236, 0.8068, -1, -1, -1, 'Priest - Desperate Prayer'),
 (2944, -1, 0.1849, -1, -1, 'Priest - Devouring Plague'),
+(63544, 0, -1, -1, -1, 'Priest - Empowered Renew'),
 (2061, 0.8068, -1, -1, -1, 'Priest - Flash Heal'),
 (2060, 1.6135, -1, -1, -1, 'Priest - Greater Heal'),
 (14914, 0.5711, 0.024, -1, -1, 'Priest - Holy Fire'),
@@ -5028,6 +5030,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (1120, -1, 0.429, -1, -1, 'Warlock - Drain Soul'),
 (28176, 0, 0, 0, 0, 'Warlock - Fel Armor'),
 (18790, 0, 0, 0, 0, 'Warlock - Fel Stamina'),
+(54181, 0, -1, -1, -1, 'Warlock - Fel Synergy'),
 (48181, 0.4793, -1, -1, -1, 'Warlock - Haunt'),
 (755, -1, 0.4485, -1, -1, 'Warlock - Health Funnel'),
 (1949, -1, 0.0949, -1, -1, 'Warlock - Hellfire'),
@@ -5053,7 +5056,12 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (61491, -1, -1, 0.12, -1, 'Warrior - Intercept'),
 (6572, -1, -1, 0.207, -1, 'Warrior - Revenge'),
 (64382, -1, -1, 0.5, -1, 'Warrior - Shattering Throw'),
-(6343, -1, -1, 0.12, -1, 'Warrior - Thunder Clap');
+(6343, -1, -1, 0.12, -1, 'Warrior - Thunder Clap'),
+(54757, 0, -1, -1, -1, 'Hand-Mounted Pyro Rocket - Pyro Rocket'),
+(45055, 0, -1, -1, -1, 'Timbal''s Focusing Crystal - Shadow Bolt'),
+(60203, 0, -1, -1, -1, 'Darkmoon Card: Death'),
+(60488, 0, -1, -1, -1, 'Extract of Necromatic Power'),
+(45429, 0, -1, -1, -1, 'Shattered Sun Pendant of Acumen - Arcane Bolt');
 /*!40000 ALTER TABLE `spell_bonus_data` ENABLE KEYS */;
 UNLOCK TABLES;
 
