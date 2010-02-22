@@ -168,6 +168,8 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
         bool m_dbGM;
         bool m_dbChat;
         bool m_charLog_Dump;
+        bool m_charLog_Dump_Separate;
+        std::string m_dumpsDir;
 };
 
 #define sLog Trinity::Singleton<Log>::Instance()

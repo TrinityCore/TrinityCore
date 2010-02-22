@@ -321,6 +321,14 @@ MapUpdate.Threads = 1
 #         and load it using the loadpdump command
 #        Default: 0 - don't include dumping chars to log
 #                 1 - include dumping chars to log
+#    CharLogDump.Separate
+#        Write character dump to separate file
+#        Default: 0 - don't write dump to separate file
+#                 1 - write each dump to separate file
+#
+#    CharLogDump.SeparateDir
+#        Subdirectory within logs dir for separate char dumps.
+#
 #
 #    GmLogFile
 #        Log file of gm commands
@@ -378,7 +386,14 @@ MapUpdate.Threads = 1
 #    DBLogLevel
 #        Log level of DB logging.
 #                 0 = Minimum
-#                 1 = Basic
+#                 1 = Basic+#    CharLogDump.Separate
++#        Write character dump to separate file
++#        Default: 0 - don't write dump to separate file
++#                 1 - write each dump to separate file
++#
++#    CharLogDump.SeparateDir
++#        Subdirectory within logs dir for separate char dumps.
++#
 #                 2 = Detail
 #        Default: 3 = Full/Debug
 #
@@ -471,6 +486,8 @@ DBErrorLogFile = "db_errors.log"
 CharLogFile = "characters.log"
 CharLogTimestamp = 0
 CharLogDump = 0
+CharLogDump.Separate = 0
+CharLogDump.SeparateDir = ""
 GmLogFile = "gm_commands.log"
 GmLogTimestamp = 0
 GmLogPerAccount = 0
