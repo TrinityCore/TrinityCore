@@ -1393,13 +1393,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
                     m_spellAura->SetMaxDuration(duration);
                     m_spellAura->SetDuration(duration);
                 }
-
-                // Prayer of Mending (jump animation), we need formal caster instead original for correct animation
-                if(aurSpellInfo->SpellFamilyName == SPELLFAMILY_PRIEST)
-                {
-                    if(aurSpellInfo->SpellFamilyFlags[1] & 0x000020)
-                        m_caster->CastSpell(unit, 41637, true, NULL, NULL, m_originalCasterGUID);
-                }
                 m_spellAura->_RegisterForTargets();
             }
         }
