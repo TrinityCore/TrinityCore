@@ -7028,7 +7028,7 @@ INSERT INTO spell_group_stack_rules (`group_id`, `stack_rule`) VALUES
 (1008, 1),
 (1009, 1),
 (1010, 2),
-(1011, 1);
+(1011, 2);
 /*!40000 ALTER TABLE `spell_group_stack_rules` ENABLE KEYS */;
 UNLOCK TABLES;
 
