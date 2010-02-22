@@ -111,11 +111,9 @@ void Log::Initialize()
 
     /// Common log files data
     m_logsDir = sConfig.GetStringDefault("LogsDir","");
-    if(!m_logsDir.empty())
-    {
-        if((m_logsDir.at(m_logsDir.length()-1)!='/') && (m_logsDir.at(m_logsDir.length()-1)!='\\'))
+    if (!m_logsDir.empty())
+        if ((m_logsDir.at(m_logsDir.length() - 1) != '/') && (m_logsDir.at(m_logsDir.length() - 1) != '\\'))
             m_logsDir.append("/");
-    }
 
     m_logsTimestamp = "_" + GetTimestampStr();
 
@@ -179,7 +177,14 @@ void Log::Initialize()
 
     // Char log settings
     m_charLog_Dump = sConfig.GetBoolDefault("CharLogDump", false);
-
+    m_charLog_Dump_Separate = sConfig.GetBoolDefault("CharLogDump.Separate", false);
+    if (m_charLog_Dump_Separate)
+    {
+        m_dumpsDir = sConfig.GetStringDefault("CharLogDump.SeparateDir", "");
+        if (!m_dumpsDir.empty())
+            if ((m_dumpsDir.at(m_dumpsDir.length() - 1) != '/') && (m_dumpsDir.at(m_dumpsDir.length() - 1) != '\\'))
+                m_dumpsDir.append("/");
+    }
 }
 
 FILE* Log::openLogFile(char const* configFileName,char const* configTimeStampFlag, char const* mode)
@@ -850,10 +855,24 @@ void Log::outChar(const char * str, ...)
 
 void Log::outCharDump(const char * str, uint32 account_id, uint32 guid, const char * name)
 {
-    if (charLogfile)
+    FILE *file = NULL;
+    if (m_charLog_Dump_Separate)
     {
-        fprintf(charLogfile, "== START DUMP == (account: %u guid: %u name: %s )\n%s\n== END DUMP ==\n",account_id,guid,name,str );
-        fflush(charLogfile);
+        char fileName[29]; // Max length: name(12) + guid(11) + _.log (5) + \0
+        snprintf(fileName, 29, "%d_%s.log", guid, name);
+        std::string sFileName(m_dumpsDir);
+        sFileName.append(fileName);
+        file = fopen((m_logsDir + sFileName).c_str(), "w");
+    }
+    else
+        file = charLogfile;
+    if (file)
+    {
+        fprintf(file, "== START DUMP == (account: %u guid: %u name: %s )\n%s\n== END DUMP ==\n",
+            account_id, guid, name, str);
+        fflush(file);
+        if (m_charLog_Dump_Separate)
+            fclose(file);
     }
 }
 
