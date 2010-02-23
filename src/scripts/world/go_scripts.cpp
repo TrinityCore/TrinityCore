@@ -737,6 +737,38 @@ bool GOHello_go_soulwell(Player *pPlayer, GameObject* pGO)
 }
 
 /*######
+## Quest 11255: Prisoners of Wyrmskull
+## go_dragonflayer_cage
+######*/
+
+enum ePrisonersOfWyrmskull
+{
+    QUEST_PRISONERS_OF_WYRMSKULL                  = 11255,
+    NPC_PRISONER_PRIEST                           = 24086,
+    NPC_PRISONER_MAGE                             = 24088,
+    NPC_PRISONER_WARRIOR                          = 24089,
+    NPC_PRISONER_PALADIN                          = 24090
+};
+
+bool GOHello_go_dragonflayer_cage(Player *pPlayer, GameObject *pGO)
+{
+    Creature *pPrisoner = NULL;
+    Quest const* qInfo = objmgr.GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
+
+    if (pPlayer->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) == QUEST_STATUS_INCOMPLETE &&
+        ((pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PRIEST,2.0f)) ||
+        (pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_MAGE,2.0f)) ||
+        (pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_WARRIOR,2.0f)) ||
+        (pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PALADIN,2.0f))) && pPrisoner->isAlive())
+    {
+        //TODO: prisoner should help player for a short period of time
+        pPlayer->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0],0);
+        pPrisoner->DisappearAndDie();
+    }
+    return true;
+}
+
+/*######
 ## Quest 11560: Oh Noes, the Tadpoles!
 ## go_tadpole_cage
 ######*/
@@ -919,5 +951,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_tadpole_cage";
     newscript->pGOHello =           &GOHello_go_tadpole_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_dragonflayer_cage";
+    newscript->pGOHello =           &GOHello_go_dragonflayer_cage;
     newscript->RegisterSelf();
 }
