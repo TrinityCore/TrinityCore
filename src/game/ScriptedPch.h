@@ -21,6 +21,7 @@
 #include "Chat.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
+#include "ObjectMgr.h"
 
 #ifdef WIN32
 #include <windows.h>
