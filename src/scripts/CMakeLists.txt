@@ -289,6 +289,7 @@ SET(scripts_STAT_SRCS
    kalimdor/boss_azuregos.cpp
    kalimdor/darkshore.cpp
    kalimdor/desolace.cpp
+   kalimdor/durotar.cpp
    kalimdor/dustwallow_marsh.cpp
    kalimdor/felwood.cpp
    kalimdor/feralas.cpp
