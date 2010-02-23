@@ -2622,6 +2622,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\scripts\kalimdor\durotar.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\scripts\kalimdor\dustwallow_marsh.cpp"
 					>
 				</File>
