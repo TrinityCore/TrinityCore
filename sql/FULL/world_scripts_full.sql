@@ -47,8 +47,8 @@ UPDATE `gameobject_template` SET `ScriptName`='go_acherus_soul_prison' WHERE `en
 UPDATE `gameobject_template` SET `ScriptName`='go_shrine_of_the_birds' WHERE `entry` IN (185547,185553,185551);
 UPDATE `gameobject_template` SET `ScriptName`='go_matrix_punchograph' WHERE `entry` IN (142345,142475,142476,142696);
 UPDATE `gameobject_template` SET `ScriptName`='go_jotunheim_cage' WHERE `entry`=192135;
-UPDATE `gameobject_template` SET `scriptname` = 'go_inconspicuous_landmark' WHERE `entry`=142189;
-UPDATE `gameobject_template` SET `ScriptName` = 'go_soulwell' WHERE `entry` IN (181621,193169);
+UPDATE `gameobject_template` SET `scriptname`='go_inconspicuous_landmark' WHERE `entry`=142189;
+UPDATE `gameobject_template` SET `ScriptName`='go_soulwell' WHERE `entry` IN (181621,193169);
 UPDATE `gameobject_template` SET `ScriptName`='go_dragonflayer_cage' WHERE entry IN (186566,186567,186568,186569,186570,186571,186572,186573,186574,186575);
 
 /* GUARD */
