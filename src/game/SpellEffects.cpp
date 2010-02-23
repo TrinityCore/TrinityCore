@@ -1387,25 +1387,6 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 54586, true);
                     return;
                 }
-                // Great Feast
-                case 57337:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58067, true);
-                    break;
-                }
-                //Fish Feast
-                case 57397:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58648, true);
-                    unitTarget->CastSpell(unitTarget, 57398, true);
-                    break;
-                }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                     return;                                 // implemented in EffectScript[0]
@@ -5525,6 +5506,25 @@ void Spell::EffectScriptEffect(uint32 effIndex)
 
                     unitTarget->CastSpell(unitTarget, 58648, true);
                     unitTarget->CastSpell(unitTarget, 58477, true);
+                    break;
+                }
+                // Great Feast
+                case 57337:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58067, true);
+                    break;
+                }
+                //Fish Feast
+                case 57397:
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->CastSpell(unitTarget, 58648, true);
+                    unitTarget->CastSpell(unitTarget, 57398, true);
                     break;
                 }
                 case 58941:                                 // Rock Shards
