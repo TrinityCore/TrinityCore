@@ -535,6 +535,7 @@ UPDATE `gameobject_template` SET `ScriptName` = 'go_iruxos' WHERE `entry` = 1765
 UPDATE `creature_template` SET `ScriptName`='npc_narm_faulk' WHERE `entry`=6177;
 
 /* DUROTAR */
+UPDATE `creature_template` SET `ScriptName`='npc_lazy_peon' WHERE `entry`=10556;
 
 /* DUSKWOOD */
 DELETE FROM `areatrigger_scripts` WHERE `entry`=4017;
