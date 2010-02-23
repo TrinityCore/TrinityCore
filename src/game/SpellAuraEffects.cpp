@@ -715,7 +715,15 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
         case SPELL_AURA_PERIODIC_MANA_LEECH:
         case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
         case SPELL_AURA_POWER_BURN_MANA:
+            m_isPeriodic = true;
+            break;
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+            if (GetId() == 51912)
+            {
+                m_amplitude = 3000;
+            }
+            m_isPeriodic = true;
+            break;
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
         case SPELL_AURA_PERIODIC_DUMMY:
             m_isPeriodic = true;
