@@ -8587,7 +8587,7 @@ bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, int32 ma
         return false;
     }
 
-    if(vItems->GetItemCount() >= MAX_VENDOR_ITEMS)
+    if(vItems->GetItemCount() > MAX_VENDOR_ITEMS)
     {
         if(pl)
             ChatHandler(pl).SendSysMessage(LANG_COMMAND_ADDVENDORITEMITEMS);
