@@ -720,6 +720,7 @@ void BattleGroundWS::Reset()
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
     // For WorldState
     m_minutesElapsed                    = 0;
+    m_FirstFlagCaptureTeam              = 0;
 
     /* Spirit nodes is static at this BG and then not required deleting at BG reset.
     if (m_BgCreatures[WS_SPIRIT_MAIN_ALLIANCE])
