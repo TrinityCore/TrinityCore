@@ -153,6 +153,7 @@ class Channel
     BannedList  banned;
     bool        m_announce;
     bool        m_moderate;
+    bool        m_public;
     std::string m_name;
     std::string m_password;
     uint8       m_flags;
