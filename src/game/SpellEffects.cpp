@@ -402,6 +402,13 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage = (distance > radius) ? 0 : int32(m_spellInfo->EffectBasePoints[0]*((radius - distance)/radius));
                         break;
                     }
+                    // TODO: add spell specific target requirement hook for spells
+                    // Shadowbolts only affects targets with Shadow Mark (Gothik)
+                    case 27831:
+                    case 55638:
+                        if(!unitTarget->HasAura(27825))
+                            return;
+                        break;
                     // Cataclysmic Bolt
                     case 38441:
                     {
