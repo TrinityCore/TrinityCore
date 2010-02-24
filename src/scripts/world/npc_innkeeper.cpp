@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Npc_Innkeeper
 SDAuthor: WarHead
-SD%Complete: 99% - SendBindPoint(pCreature); needs question if you really want to bind before the real bind is done (don't know how atm)
+SD%Complete: 99%
 SDComment: Complete
 SDCategory: NPCs
 EndScriptData */
@@ -114,7 +114,7 @@ bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiS
     switch (uiAction)
     {
         case GOSSIP_ACTION_TRADE: pPlayer->SEND_VENDORLIST(pCreature->GetGUID()); break;
-        case GOSSIP_ACTION_INN: pPlayer->GetSession()->SendBindPoint(pCreature); break;
+        case GOSSIP_ACTION_INN: pPlayer->SetBindPoint(pCreature->GetGUID()); break;
     }
     return true;
 }
