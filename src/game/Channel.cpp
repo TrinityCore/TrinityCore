@@ -19,6 +19,7 @@
  */
 
 #include "Channel.h"
+#include "Chat.h"
 #include "ObjectMgr.h"
 #include "SocialMgr.h"
 #include "World.h"
@@ -367,11 +368,13 @@ void Channel::Password(uint64 p, const char *pass)
     if(plr)
         sec = plr->GetSession()->GetSecurity();
 
+    ChatHandler chat(plr);
+
     if(!m_public && sec <= SEC_MODERATOR)
     {
         plName = plr->GetName();
         normalizePlayerName(plName);
-        PSendSysMessage(LANG_CHANNEL_NOT_PUBLIC, plName.c_str());
+        chat.PSendSysMessage(LANG_CHANNEL_NOT_PUBLIC, plName.c_str());
         return;
     }
 
