@@ -749,7 +749,10 @@ void BattleGround::EndBattleGround(uint32 winner)
         }
         Player *plr = objmgr.GetPlayer(itr->first);
         if (!plr)
+        {
             sLog.outError("BattleGround:EndBattleGround Player (GUID: %u) not found!", GUID_LOPART(itr->first));
+            continue;
+        }
 
         // should remove spirit of redemption
         if(plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
@@ -759,7 +762,8 @@ void BattleGround::EndBattleGround(uint32 winner)
         {
             plr->ResurrectPlayer(1.0f);
             plr->SpawnCorpseBones();
-        }else
+        }
+        else
         {
             //needed cause else in av some creatures will kill the players at the end
             plr->CombatStop();
