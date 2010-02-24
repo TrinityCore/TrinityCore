@@ -14787,6 +14787,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (5019, '[Mountable]', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5020, 'Phasemask: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5021, 'Armor: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5022, 'Channel password not changed due to channel being marked public. GM Powers required.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6613, '|cfff00000[GM Announcement]: %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6614, 'Notification to GM''s - ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6615, '|cffffff00[|c1f40af20GM Announce by|r |cffff0000%s|cffffff00]:|r %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

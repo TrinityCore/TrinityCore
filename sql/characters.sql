@@ -301,6 +301,7 @@ CREATE TABLE `channels` (
   `m_team` int(10) unsigned NOT NULL,
   `m_announce` tinyint(1) unsigned NOT NULL default '0',
   `m_moderate` tinyint(1) unsigned NOT NULL default '0',
+  `m_public` tinyint(1) unsigned NOT NULL default '1',
   `m_password` text,
   `BannedList` longtext,
   PRIMARY KEY  (`m_name`(10),`m_team`)
