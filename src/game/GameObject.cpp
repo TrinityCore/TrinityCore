@@ -1344,10 +1344,10 @@ void GameObject::Use(Unit* user)
 
             //required lvl checks!
             uint8 level = player->getLevel();
-            if (level < info->meetingstone.minLevel || level > info->meetingstone.maxLevel)
+            if (level < info->meetingstone.minLevel)
                 return;
             level = targetPlayer->getLevel();
-            if (level < info->meetingstone.minLevel || level > info->meetingstone.maxLevel)
+            if (level < info->meetingstone.minLevel)
                 return;
 
             if(info->id==194097)
