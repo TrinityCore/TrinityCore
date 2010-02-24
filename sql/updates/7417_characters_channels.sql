@@ -1,0 +1,1 @@
+ALTER TABLE channels ADD COLUMN m_public tinyint(1) NOT NULL DEFAULT 1 AFTER m_moderate;
