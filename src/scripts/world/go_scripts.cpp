@@ -793,6 +793,33 @@ bool GOHello_go_tadpole_cage(Player *pPlayer, GameObject *pGO)
     return true;
 }
 
+/*######
+## Quest 14096 & 14142: You've Really Done It This Time, Kul
+## go_black_cage
+######*/
+
+enum eReallyDoneItThisTime
+{
+    QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL      = 14096,
+    QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL         = 14142,
+    NPC_CAPTIVE_ASPIRANT                                    = 34716,
+    NPC_KUL                                                 = 34956
+};
+
+bool GOHello_go_black_cage(Player *pPlayer, GameObject *pGO)
+{
+    Creature *pPrisoner;
+    if (((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
+        (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE)) &&
+        ((pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT,1.0f)) || (pPrisoner = pGO->FindNearestCreature(NPC_KUL,1.0f))))
+    {
+        pGO->UseDoorOrButton();
+        pPrisoner->DisappearAndDie();
+        pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
+    }
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
