@@ -2116,6 +2116,42 @@ CreatureAI* GetAI_npc_trapped_mammoth_calf(Creature* pCreature)
     return new npc_trapped_mammoth_calfAI(pCreature);
 }
 
+/*######
+## Quest 11653: Hah... You're Not So Big Now!
+######*/
+
+enum eNotSoBig
+{
+    QUEST_YOU_RE_NOT_SO_BIG_NOW                   = 11653,
+    SPELL_AURA_NOTSOBIG_1                         = 45672,
+    SPELL_AURA_NOTSOBIG_2                         = 45673,
+    SPELL_AURA_NOTSOBIG_3                         = 45677,
+    SPELL_AURA_NOTSOBIG_4                         = 45681
+};
+
+struct npc_magmoth_crusherAI : public ScriptedAI
+{
+    npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) {}
+
+    void JustDied(Unit *pKiller)
+    {
+        if (pKiller->GetTypeId() == TYPEID_PLAYER &&
+            CAST_PLR(pKiller)->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
+            (m_creature->HasAura(SPELL_AURA_NOTSOBIG_1) || m_creature->HasAura(SPELL_AURA_NOTSOBIG_2) ||
+            m_creature->HasAura(SPELL_AURA_NOTSOBIG_3) || m_creature->HasAura(SPELL_AURA_NOTSOBIG_4)))
+        {
+            Quest const* qInfo = objmgr.GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
+            if (qInfo)
+                CAST_PLR(pKiller)->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0],0);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_magmoth_crusher(Creature* pCreature)
+{
+    return new npc_magmoth_crusherAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -2255,5 +2291,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_trapped_mammoth_calf";
     newscript->GetAI = &GetAI_npc_trapped_mammoth_calf;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_magmoth_crusher";
+    newscript->GetAI = &GetAI_npc_magmoth_crusher;
     newscript->RegisterSelf();
 }
