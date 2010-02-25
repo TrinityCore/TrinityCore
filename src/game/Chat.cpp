@@ -130,6 +130,16 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand channelSetCommandTable[] =
+    {
+        { "public",      SEC_ADMINISTRATOR,     true,  &ChatHandler::HandleChannelSetPublic,  "", NULL },
+    };
+
+    static ChatCommand channelCommandTable[] =
+    {
+        { "set",      SEC_ADMINISTRATOR,     true,  NULL,  "", channelSetCommandTable },
+    };
+
     static ChatCommand debugPlayCommandTable[] =
     {
         { "cinematic",      SEC_MODERATOR,      false, &ChatHandler::HandleDebugPlayCinematicCommand,       "", NULL },
@@ -669,6 +679,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "reset",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", resetCommandTable    },
         { "instance",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", instanceCommandTable },
         { "server",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", serverCommandTable   },
+
+        { "channel",        SEC_ADMINISTRATOR, true, NULL,                                             "", channelCommandTable  },
 
         { "pet",            SEC_GAMEMASTER,     false, NULL,                                           "", petCommandTable },
         { "loadpath",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleReloadAllPaths,             "", NULL },

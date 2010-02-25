@@ -878,7 +878,8 @@ enum TrinityStrings
     LANG_NPCINFO_PHASEMASK              = 5020,
     LANG_NPCINFO_ARMOR                  = 5021,
     LANG_CHANNEL_NOT_PUBLIC             = 5022,
-    // Room for more Trinity strings      5023-9999
+    LANG_CHANNEL_PUBLIC_CHANGED         = 5023,
+    // Room for more Trinity strings      5024-9999
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,
