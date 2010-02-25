@@ -5739,8 +5739,8 @@ void ObjectMgr::LoadAccessRequirements()
 
     uint32 count = 0;
 
-    //                                                0       1          2       3      4        5           6             7              8                   9                  10                         11
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text, heroic_level_min FROM access_requirement");
+    //                                                0       1          2       3      4        5           6             7              8                   9                  10                         11              12
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text, heroic_level_min, status FROM access_requirement");
     if( !result )
     {
 
@@ -5778,6 +5778,7 @@ void ObjectMgr::LoadAccessRequirements()
         ar.questFailedText          = fields[8].GetCppString();
         ar.heroicQuest              = fields[9].GetUInt32();
         ar.heroicQuestFailedText    = fields[10].GetCppString();
+        ar.status                   = fields[12].GetUInt8();
 
         if(ar.item)
         {
