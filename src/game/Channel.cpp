@@ -374,7 +374,7 @@ void Channel::Password(uint64 p, const char *pass)
     {
         plName = plr->GetName();
         normalizePlayerName(plName);
-        chat.PSendSysMessage(LANG_CHANNEL_NOT_PUBLIC, plName.c_str());
+        chat.PSendSysMessage(LANG_CHANNEL_NOT_PUBLIC);
         return;
     }
 
