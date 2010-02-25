@@ -891,6 +891,111 @@ CreatureAI* GetAI_npc_released_offspring_harkoa(Creature* pCreature)
     return new npc_released_offspring_harkoaAI(pCreature);
 }
 
+/*######
+## npc_crusade_recruit
+######*/
+
+enum eCrusade_recruit
+{
+    SPELL_QUEST_CREDIT                            = 50633,
+
+    QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE       = 12509,
+
+    GOSSIP_CRUSADE_TEXT                           = 13069,
+
+    SAY_RECRUIT_1                                 = -1571036,
+    SAY_RECRUIT_2                                 = -1571037,
+    SAY_RECRUIT_3                                 = -1571038
+};
+
+#define GOSSIP_ITEM_1 "Get out there and make those Scourge wish they were never reborn!"
+
+struct npc_crusade_recruitAI : public ScriptedAI
+{
+    npc_crusade_recruitAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    uint8 m_uiPhase;                  //The current phase we are in
+    uint32 m_uiTimer;                 //Timer until phase transition
+    float m_heading;                  //Store creature heading
+	
+    void Reset()
+    {
+        m_uiTimer = 0;
+        m_uiPhase = 0;
+        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+        m_heading = m_creature->GetOrientation();		
+    }
+	
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiPhase)
+        {
+            if (m_uiTimer <= uiDiff)
+            {
+                switch(m_uiPhase)
+                {
+                    case 1:
+                        // say random text
+                        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);                        
+                        DoScriptText(RAND(SAY_RECRUIT_1,SAY_RECRUIT_2,SAY_RECRUIT_3), m_creature);						
+                        m_uiTimer = 3000;
+                        m_uiPhase = 2;
+                        break;						
+                    case 2:
+                        // walk forward
+                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        m_creature->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX() + (cos(m_heading) * 10), m_creature->GetPositionY() + (sin(m_heading) * 10), m_creature->GetPositionZ());
+                        m_uiTimer = 5000;
+                        m_uiPhase = 3;
+                        break;
+                    case 3:
+                        // despawn
+                        m_creature->DisappearAndDie();
+                        m_uiTimer = 0;
+                        m_uiPhase = 0;
+                        break;
+                }
+            }
+            else
+            m_uiTimer -= uiDiff;
+        }
+        ScriptedAI::UpdateAI(uiDiff);		
+        
+        if (!UpdateVictim())
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_crusade_recruit(Creature* pCreature)
+{
+    return new npc_crusade_recruitAI (pCreature);
+}
+
+bool GossipHello_npc_crusade_recruit(Player* pPlayer, Creature* pCreature)
+{	
+    if (pPlayer->GetQuestStatus(QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_CRUSADE_TEXT, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_crusade_recruit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pCreature->CastSpell(pPlayer, SPELL_QUEST_CREDIT, true);
+        CAST_AI(npc_crusade_recruitAI, (pCreature->AI()))->m_uiPhase = 1;
+        pCreature->SetInFront(pPlayer);
+        pCreature->SendMovementFlagUpdate();
+    }
+
+    return true;
+}
+
 void AddSC_zuldrak()
 {
     Script *newscript;
@@ -940,5 +1045,11 @@ void AddSC_zuldrak()
     newscript = new Script;
     newscript->Name = "npc_released_offspring_harkoa";
     newscript->GetAI = &GetAI_npc_released_offspring_harkoa;
+    newscript->RegisterSelf();
+
+    newscript->Name = "npc_crusade_recruit";
+    newscript->GetAI = &GetAI_npc_crusade_recruit;
+    newscript->pGossipHello = &GossipHello_npc_crusade_recruit;
+    newscript->pGossipSelect = &GossipSelect_npc_crusade_recruit;
     newscript->RegisterSelf();
 }
