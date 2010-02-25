@@ -15213,8 +15213,8 @@ Unit *Unit::GetVehicleBase() const
 Creature *Unit::GetVehicleCreatureBase() const
 {
     Unit *veh = GetVehicleBase();
-    if (veh->GetTypeId() == TYPEID_UNIT)
-        return (Creature*)veh;
+    if (veh && veh->GetTypeId() == TYPEID_UNIT)
+        return dynamic_cast<Creature*>(veh);
     return NULL;
 }
 
