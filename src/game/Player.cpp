@@ -16980,6 +16980,30 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
         if(!mapEntry)
             return false;
 
+        bool closed = false;
+
+        switch(mapEntry->IsRaid() ? GetRaidDifficulty() : GetDungeonDifficulty())
+        {
+            case DUNGEON_DIFFICULTY_NORMAL:
+                closed = (ar->status & DUNGEON_STATUSFLAG_NORMAL) == 0;
+                break;
+            case DUNGEON_DIFFICULTY_HEROIC:
+                closed = (ar->status & DUNGEON_STATUSFLAG_HEROIC) == 0;
+                break;
+            case RAID_DIFFICULTY_10MAN_HEROIC:
+                closed = (ar->status & RAID_STATUSFLAG_10MAN_HEROIC) == 0;
+                break;
+            case RAID_DIFFICULTY_25MAN_HEROIC:
+                closed = (ar->status & RAID_STATUSFLAG_25MAN_HEROIC) == 0;
+                break;
+        }
+
+        if (closed)
+        {
+            GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
+            return false;
+        }
+
         bool isNormalTargetMap = mapEntry->IsRaid()
             ? (GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
             : (GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
