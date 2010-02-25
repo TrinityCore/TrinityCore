@@ -14775,6 +14775,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (5005, 'Following players are frozen on the server:', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5006, '- %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5007, 'You must be in a raid group to enter this instance.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5008, 'This instance is closed.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5009, 'Sound %u Played to server', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5010, 'linkGUID: %u, Entry: %u (%s)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5011, 'You can''t teleport self to self!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
