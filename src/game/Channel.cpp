@@ -372,8 +372,6 @@ void Channel::Password(uint64 p, const char *pass)
 
     if(!m_public && sec <= SEC_MODERATOR)
     {
-        plName = plr->GetName();
-        normalizePlayerName(plName);
         chat.PSendSysMessage(LANG_CHANNEL_NOT_PUBLIC);
         return;
     }

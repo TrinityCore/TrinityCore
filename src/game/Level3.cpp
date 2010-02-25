@@ -7243,12 +7243,12 @@ bool ChatHandler::HandleChannelSetPublic(const char *args)
 
     if(val)
     {
-        CharacterDatabase.PExecute("UPDATE channels SET m_public = 1 WHERE n_name LIKE '%s'", channel);
+        CharacterDatabase.PExecute("UPDATE channels SET m_public = 1 WHERE m_name LIKE '%s'", channel);
         val = 1;
     }
     else
     {
-        CharacterDatabase.PExecute("UPDATE channels SET m_public = 0 WHERE n_name LIKE '%s'", channel);
+        CharacterDatabase.PExecute("UPDATE channels SET m_public = 0 WHERE m_name LIKE '%s'", channel);
         val = 0;
     }
 
