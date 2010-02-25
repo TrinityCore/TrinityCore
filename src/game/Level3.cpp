@@ -7234,6 +7234,30 @@ bool ChatHandler::HandleModifyGenderCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleChannelSetPublic(const char *args)
+{
+    if(!*args)
+        return false;
+    std::string channel = strtok((char*)args, " ");
+    uint32 val = atoi((char*)args);
+
+    if(val)
+    {
+        CharacterDatabase.PExecute("UPDATE channels SET m_public = 1 WHERE n_name LIKE '%s'", channel);
+        val = 1;
+    }
+    else
+    {
+        CharacterDatabase.PExecute("UPDATE channels SET m_public = 0 WHERE n_name LIKE '%s'", channel);
+        val = 0;
+    }
+
+    PSendSysMessage(LANG_CHANNEL_PUBLIC_CHANGED, channel.c_str(), val);
+
+    return true;
+}
+
+
 /*------------------------------------------
  *-------------TRINITY----------------------
  *-------------------------------------*/
