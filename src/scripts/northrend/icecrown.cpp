@@ -106,19 +106,6 @@ bool GossipSelect_npc_arete(Player* pPlayer, Creature* pCreature, uint32 uiSende
 }
 
 /*######
-## The Valiant's Challenge Quest 13699
-######*/
-
-bool GossipHello_valiant_challenge(Player* player, Creature* _Creature)
-{
-     if (player->GetQuestStatus(13699) == QUEST_STATUS_INCOMPLETE)
-     {
-         player->SummonCreature(30675, player->GetInnPosX(),player->GetInnPosY(),player->GetInnPosZ(),0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,1000000);
-     }
-     return true;
-}
-
-/*######
 ## npc_dame_evniki_kapsalis
 ######*/
 
@@ -151,11 +138,6 @@ void AddSC_icecrown()
     newscript->Name = "npc_arete";
     newscript->pGossipHello = &GossipHello_npc_arete;
     newscript->pGossipSelect = &GossipSelect_npc_arete;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "valiant_challenge";
-    newscript->pGossipHello = &GossipHello_valiant_challenge;
     newscript->RegisterSelf();
 
     newscript = new Script;
