@@ -172,6 +172,78 @@ bool GossipSelect_npc_squire_david(Player* pPlayer, Creature* pCreature, uint32 
     return true;
 }
 
+enum eArgentValiant
+{
+    SPELL_CHARGE                = 63010,
+    SPELL_SHIELD_BREAKER        = 65147,
+
+    NPC_ARGENT_VALIANT_CREDIT   = 24108
+};
+
+struct npc_argent_valiantAI : public ScriptedAI
+{
+    npc_argent_valiantAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pCreature->GetMotionMaster()->MovePoint(0,8599.258,963.951,547.553);
+        pCreature->setFaction(35); //wrong faction in db?
+    }
+	
+    uint32 uiChargeTimer;
+    uint32 uiShieldBreakerTimer;
+
+    void Reset()
+    {
+        uiChargeTimer = 7000;
+        uiShieldBreakerTimer = 10000;
+    }
+	
+    void MovementInform(uint32 uiType, uint32 uiId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+
+        m_creature->setFaction(14);
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    {
+        if (uiDamage > m_creature->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        {
+            uiDamage = 0;
+            CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
+            m_creature->setFaction(35);
+            m_creature->ForcedDespawn(5000);
+            m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
+            EnterEvadeMode();
+        }
+    }          
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (uiChargeTimer <= uiDiff)
+        {
+            DoCastVictim(SPELL_CHARGE);
+            uiChargeTimer = 7000;
+        } else uiChargeTimer -= uiDiff;
+
+        if (uiShieldBreakerTimer <= uiDiff)
+        {
+            DoCastVictim(SPELL_SHIELD_BREAKER);
+            uiShieldBreakerTimer = 10000;
+        } else uiShieldBreakerTimer -= uiDiff;
+                
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_argent_valiant(Creature* pCreature)
+{
+    return new npc_argent_valiantAI (pCreature);
+}
+
 void AddSC_icecrown()
 {
     Script *newscript;
@@ -192,4 +264,10 @@ void AddSC_icecrown()
     newscript->Name = "npc_squire_david";
     newscript->pGossipHello = &GossipHello_npc_squire_david;
     newscript->pGossipSelect = &GossipSelect_npc_squire_david;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_argent_valiant";
+    newscript->GetAI = &GetAI_npc_argent_valiant;
+    newscript->RegisterSelf();
 }
