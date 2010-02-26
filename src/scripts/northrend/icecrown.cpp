@@ -130,6 +130,48 @@ bool GossipSelect_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature,
     return true;
 }
 
+/*######
+## npc_squire_david
+######*/
+
+enum eSquireDavid
+{
+    QUEST_THE_ASPIRANT_S_CHALLENGE_H                    = 13680,
+    QUEST_THE_ASPIRANT_S_CHALLENGE_A                    = 13679,
+
+    NPC_ARGENT_VALIANT                                  = 33448,
+
+    GOSSIP_TEXTID_SQUIRE                                = 14407
+};
+
+#define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
+#define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
+
+bool GossipHello_npc_squire_david(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE ||
+        pPlayer->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE )//We need more info about it.
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    }
+
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_squire_david(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+        pCreature->SummonCreature(NPC_ARGENT_VALIANT,8575.451,952.472,547.554,0.38);
+    }
+    //else
+        //pPlayer->SEND_GOSSIP_MENU(???, pCreature->GetGUID()); Missing text
+    return true;
+}
+
 void AddSC_icecrown()
 {
     Script *newscript;
@@ -145,4 +187,9 @@ void AddSC_icecrown()
     newscript->pGossipHello = &GossipHello_npc_dame_evniki_kapsalis;
     newscript->pGossipSelect = &GossipSelect_npc_dame_evniki_kapsalis;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_squire_david";
+    newscript->pGossipHello = &GossipHello_npc_squire_david;
+    newscript->pGossipSelect = &GossipSelect_npc_squire_david;
 }
