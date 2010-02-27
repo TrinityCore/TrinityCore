@@ -2085,4 +2085,19 @@ namespace Trinity
     }
 }
 
+// binary function to sort unit based on the distance to a reference unit
+struct TargetDistanceOrder : public std::binary_function<const Unit *, const Unit *, bool>
+{
+    const Unit *me;
+
+    // pUnit: the reference unit from which the distance is computed.
+    TargetDistanceOrder(const Unit* pUnit) : me(pUnit) {};
+
+    // functor for operator "<"
+    bool operator()(const Unit* left, const Unit* right) const
+    {
+        return (me->GetExactDistSq(left) < me->GetExactDistSq(right));
+    }
+};
+
 #endif

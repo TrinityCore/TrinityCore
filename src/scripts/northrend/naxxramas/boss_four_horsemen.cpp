@@ -327,7 +327,7 @@ struct boss_four_horsemenAI : public BossAI
 
                     if (caster)
                     {
-                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45))
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
                             DoCast(pTarget, SPELL_PRIMARY(id));
                     }
                     else

@@ -65,8 +65,63 @@ class UnitAI
         virtual void SetGUID(const uint64 &guid, int32 id = 0) {}
         virtual uint64 GetGUID(int32 id = 0) { return 0; }
 
-        Unit* SelectTarget(SelectAggroTarget target, uint32 position = 0, float dist = 0, bool playerOnly = false, int32 aura = 0);
-        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget target, float dist = 0, bool playerOnly = false, int32 aura = 0);
+        Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+
+        // Select the targets satifying the predicate.
+        // predicate shall extend std::unary_function<Unit *, bool>
+        template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
+        {
+            const std::list<HostilReference *> &threatlist = me->getThreatManager().getThreatList();
+            std::list<Unit*> targetList;
+
+            if (position >= threatlist.size())
+                return NULL;
+
+            for (std::list<HostilReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            {
+                HostilReference* ref = (*itr);
+                if (predicate(ref->getTarget()))
+                    targetList.push_back(ref->getTarget());
+            }
+
+            if (position >= targetList.size())
+                return NULL;
+
+            if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
+                targetList.sort(TargetDistanceOrder(me));
+
+            switch(targetType)
+            {
+                case SELECT_TARGET_NEAREST:
+                case SELECT_TARGET_TOPAGGRO:
+                    {
+                        std::list<Unit*>::iterator itr = targetList.begin();
+                        advance(itr, position);
+                        return *itr;
+                    }
+                    break;
+
+                case SELECT_TARGET_FARTHEST:
+                case SELECT_TARGET_BOTTOMAGGRO:
+                    {
+                        std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
+                        advance(ritr, position);
+                        return *ritr;
+                    }
+                    break;
+
+                case SELECT_TARGET_RANDOM:
+                    {
+                        std::list<Unit*>::iterator itr = targetList.begin();
+                        advance(itr, urand(position, targetList.size()-1));
+                        return *itr;
+                    }
+                    break;
+            }
+
+            return NULL;
+        }
 
         void AttackStartCaster(Unit *victim, float dist);
 
