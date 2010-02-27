@@ -82,90 +82,47 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
     return true;
 }
 
-inline bool SelectTargetHelper(const Unit * me, const Unit * target, const bool &playerOnly, const float &dist, const int32 &aura)
-{
-    if(playerOnly && (!target || target->GetTypeId() != TYPEID_PLAYER))
-        return false;
+// default predicate function to select target based on distance, player and/or aura criteria
+struct DefaultTargetSelector : public std::unary_function<Unit *, bool> {
+    const Unit *me;
+    float m_dist;
+    bool m_playerOnly;
+    int32 m_aura;
 
-    if(dist && (!me || !target || !me->IsWithinCombatRange(target, dist)))
-        return false;
+    // pUnit: the reference unit
+    // dist: if 0: ignored, if not 0: maximum distance to the reference unit
+    // playerOnly: self explaining
+    // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
+    DefaultTargetSelector(const Unit *pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
-    if(aura)
-    {
-        if(aura > 0)
+    bool operator() (const Unit *pTarget) {
+        if (m_playerOnly && (!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER))
+            return false;
+
+        if (m_dist && (!me || !pTarget || !me->IsWithinCombatRange(pTarget, m_dist)))
+            return false;
+
+        if (m_aura)
         {
-            if(!target->HasAura(aura))
-                return false;
+            if (m_aura > 0)
+            {
+                if (!pTarget->HasAura(m_aura))
+                    return false;
+            }
+            else
+            {
+                if (pTarget->HasAura(m_aura))
+                    return false;
+            }
         }
-        else
-        {
-            if(target->HasAura(aura))
-                return false;
-        }
-    }
 
-    return true;
-}
-
-struct TargetDistanceOrder : public std::binary_function<const Unit *, const Unit *, bool>
-{
-    const Unit * me;
-    TargetDistanceOrder(const Unit* Target) : me(Target) {};
-    // functor for operator ">"
-    bool operator()(const Unit * _Left, const Unit * _Right) const
-    {
-        return (me->GetExactDistSq(_Left) < me->GetExactDistSq(_Right));
+        return true;
     }
 };
 
 Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float dist, bool playerOnly, int32 aura)
 {
-    const std::list<HostilReference *> &threatlist = me->getThreatManager().getThreatList();
-    std::list<Unit*> targetList;
-
-    if (position >= threatlist.size())
-        return NULL;
-
-    for (std::list<HostilReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-        if (SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
-            targetList.push_back((*itr)->getTarget());
- 
-    if (position >= targetList.size())
-        return NULL;
-
-    if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-        targetList.sort(TargetDistanceOrder(me));
-
-    switch(targetType)
-    {
-        case SELECT_TARGET_NEAREST:
-        case SELECT_TARGET_TOPAGGRO:
-            {
-                std::list<Unit*>::iterator itr = targetList.begin();
-                advance(itr, position);
-                return *itr;
-            }
-            break;
-
-        case SELECT_TARGET_FARTHEST:
-        case SELECT_TARGET_BOTTOMAGGRO:
-            {
-                std::list<Unit*>::reverse_iterator ritr = targetList.rbegin();
-                advance(ritr, position);
-                return *ritr;
-            }
-            break;
-
-        case SELECT_TARGET_RANDOM:
-            {
-                std::list<Unit*>::iterator itr = targetList.begin();
-                advance(itr, urand(position, targetList.size()-1));
-                return *itr;
-            }
-            break;
-    }
-
-    return NULL;
+    return SelectTarget(targetType, position, DefaultTargetSelector(me, dist, playerOnly, aura));
 }
 
 void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
@@ -175,8 +132,9 @@ void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAg
     if (threatlist.empty())
         return;
 
+    DefaultTargetSelector targetSelector(me, dist,playerOnly, aura);
     for (std::list<HostilReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-        if (SelectTargetHelper(me, (*itr)->getTarget(), playerOnly, dist, aura))
+        if (targetSelector((*itr)->getTarget()))
             targetList.push_back((*itr)->getTarget());
 
     if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
@@ -259,12 +217,14 @@ void UnitAI::DoCast(uint32 spellId)
             const SpellEntry * spellInfo = GetSpellStore()->LookupEntry(spellId);
             bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY;
             float range = GetSpellMaxRange(spellInfo, false);
-            if(!(spellInfo->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
+
+            DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
+            if (!(spellInfo->Attributes & SPELL_ATTR_BREAKABLE_BY_DAMAGE)
                 && !(spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_VICTIM)
-                && SelectTargetHelper(me, me->getVictim(), playerOnly, range, -(int32)spellId))
+                && targetSelector(me->getVictim()))
                 target = me->getVictim();
             else
-                target = SelectTarget(SELECT_TARGET_RANDOM, 0, range, playerOnly, -(int32)spellId);
+                target = SelectTarget(SELECT_TARGET_RANDOM, 0, targetSelector);
             break;
         }
     }
