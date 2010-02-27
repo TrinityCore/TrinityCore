@@ -379,7 +379,6 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         virtual bool RemoveBones(uint64 guid, float x, float y);
 
         void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
-        void UpdatePlayerVisibility( Player* player, Cell cell, CellPair cellpair );
         void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair );
 
         void resetMarkedCells() { marked_cells.reset(); }
@@ -491,9 +490,7 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
 
-        PeriodicTimer m_ObjectVisibilityNotifyTimer;
-        PeriodicTimer m_PlayerVisibilityNotifyTimer;
-        PeriodicTimer m_RelocationNotifyTimer;
+        int32 m_VisibilityNotifyPeriod;
 
         typedef std::set<WorldObject*> ActiveNonPlayers;
         ActiveNonPlayers m_activeNonPlayers;
@@ -510,10 +507,9 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         GridMap *GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
-        void ProcessObjectsVisibility();
-        void ProcesssPlayersVisibility();
-        void ProcessRelocationNotifies();
-        void ResetNotifies(uint16 notify_mask);
+        //these functions used to process player/mob aggro reactions and
+        //visibility calculations. Highly optimized for massive calculations
+        void ProcessRelocationNotifies(const uint32 &diff);
 
         bool i_scriptLock;
         std::set<WorldObject *> i_objectsToRemove;
@@ -524,9 +520,6 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         // Type specific code for add/remove to/from grid
         template<class T>
             void AddToGrid(T*, NGridType *, Cell const&);
-
-        template<class T>
-            void AddNotifier(T*);
 
         template<class T>
             void RemoveFromGrid(T*, NGridType *, Cell const&);

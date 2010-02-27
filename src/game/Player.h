@@ -2180,8 +2180,10 @@ class Player : public Unit, public GridObject<Player>
         bool IsVisibleInGridForPlayer(Player const* pl) const;
         bool IsVisibleGloballyFor(Player* pl) const;
 
-        void UpdateVisibilityOf(WorldObject* target);
         void SendInitialVisiblePackets(Unit* target);
+        void UpdateObjectVisibility(bool forced = true);
+        void UpdateVisibilityForPlayer();
+        void UpdateVisibilityOf(WorldObject* target);
 
         template<class T>
             void UpdateVisibilityOf(T* target, UpdateData& data, std::set<Unit*>& visibleNow);

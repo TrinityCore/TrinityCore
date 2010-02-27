@@ -27,14 +27,19 @@
 #include "GameSystem/Grid.h"
 #include "GameSystem/GridReference.h"
 #include "Timer.h"
+#include "Util.h"
+
+#define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 
 class GridInfo
 {
 public:
     GridInfo()
-        : i_timer(0), i_unloadActiveLockCount(0), i_unloadExplicitLock(false), i_unloadReferenceLock(false) {}
+        : i_timer(0), i_unloadActiveLockCount(0), i_unloadExplicitLock(false), i_unloadReferenceLock(false),
+          vis_Update(0, irand(0,DEFAULT_VISIBILITY_NOTIFY_PERIOD)) {}
     GridInfo(time_t expiry, bool unload = true )
-        : i_timer(expiry), i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload), i_unloadReferenceLock(false) {}
+        : i_timer(expiry), i_unloadActiveLockCount(0), i_unloadExplicitLock(!unload), i_unloadReferenceLock(false),
+          vis_Update(0, irand(0,DEFAULT_VISIBILITY_NOTIFY_PERIOD)) {}
     const TimeTracker& getTimeTracker() const { return i_timer; }
     bool getUnloadLock() const { return i_unloadActiveLockCount || i_unloadExplicitLock || i_unloadReferenceLock; }
     void setUnloadExplicitLock( bool on ) { i_unloadExplicitLock = on; }
@@ -45,9 +50,11 @@ public:
     void setTimer(const TimeTracker& pTimer) { i_timer = pTimer; }
     void ResetTimeTracker(time_t interval) { i_timer.Reset(interval); }
     void UpdateTimeTracker(time_t diff) { i_timer.Update(diff); }
-
+    PeriodicTimer& getRelocationTimer() { return vis_Update; }
 private:
     TimeTracker i_timer;
+    PeriodicTimer vis_Update;
+
     uint16 i_unloadActiveLockCount : 16;                    // lock from active object spawn points (prevent clone loading)
     bool   i_unloadExplicitLock    : 1;                     // explicit manual lock or config setting
     bool   i_unloadReferenceLock   : 1;                     // lock from instance map copy
