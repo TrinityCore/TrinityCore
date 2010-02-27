@@ -19,6 +19,7 @@
  */
 
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "UpdateData.h"
