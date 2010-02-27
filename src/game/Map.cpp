@@ -421,7 +421,6 @@ bool Map::Add(Player *player)
         return false;
     }
 
-    player->GetMapRef().link(this, player);
     player->SetMap(this);
 
     Cell cell(p);
