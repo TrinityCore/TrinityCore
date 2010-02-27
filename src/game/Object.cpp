@@ -2272,12 +2272,11 @@ void WorldObject::DestroyForNearbyPlayers()
     }
 }
 
-void WorldObject::UpdateObjectVisibility()
+void WorldObject::UpdateObjectVisibility(bool /*forced*/)
 {
-    CellPair p = Trinity::ComputeCellPair(GetPositionX(), GetPositionY());
-    Cell cell(p);
-
-    GetMap()->UpdateObjectVisibility(this, cell, p);
+    //updates object's visibility for nearby players
+    Trinity::VisibleChangesNotifier notifier(*this);
+    VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), notifier);
 }
 
 struct WorldObjectChangeAccumulator

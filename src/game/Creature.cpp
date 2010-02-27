@@ -1588,7 +1588,7 @@ void Creature::Respawn(bool force)
             poolhandler.UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
     }
 
-    SetToNotify();
+    UpdateObjectVisibility();
 }
 
 void Creature::ForcedDespawn(uint32 timeMSToDespawn)

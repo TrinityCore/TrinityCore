@@ -37,21 +37,7 @@ Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
         vis_guids.erase(iter->getSource()->GetGUID());
-
-        if(force/* || iter->getSource()->isNeedNotify(NOTIFY_VISIBILITY_CHANGED)*/)
-            i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
-    }
-}
-
-inline void
-Trinity::VisibleNotifier::Visit(CreatureMapType &m)
-{
-    for(CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        vis_guids.erase(iter->getSource()->GetGUID());
-
-        if(force || iter->getSource()->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
-            i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
+        i_player.UpdateVisibilityOf(iter->getSource(),i_data,i_visibleNow);
     }
 }
 
@@ -61,102 +47,6 @@ Trinity::ObjectUpdater::Visit(CreatureMapType &m)
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
         if(iter->getSource()->IsInWorld() && !iter->getSource()->isSpiritService())
             iter->getSource()->Update(i_timeDiff);
-}
-
-inline void PlayerCreatureRelocationWorker(Player* pl, Creature* c)
-{
-    if(!pl->isAlive() || !c->isAlive() || pl->isInFlight())
-        return;
-
-    // Creature AI reaction
-    if(c->HasReactState(REACT_AGGRESSIVE) && !c->hasUnitState(UNIT_STAT_SIGHTLESS))
-        if(c->_IsWithinDist(pl, c->m_SightDistance, true) && c->IsAIEnabled)
-            c->AI()->MoveInLineOfSight(pl);
-}
-
-inline void CreatureCreatureRelocationWorker(Creature* c1, Creature* c2)
-{
-    if(c1->HasReactState(REACT_AGGRESSIVE) && !c1->hasUnitState(UNIT_STAT_SIGHTLESS))
-        if(c1->_IsWithinDist(c2, c1->m_SightDistance, true) && c1->IsAIEnabled)
-            c1->AI()->MoveInLineOfSight(c2);
-
-    if(c2->HasReactState(REACT_AGGRESSIVE) && !c2->hasUnitState(UNIT_STAT_SIGHTLESS))
-        if(c1->_IsWithinDist(c2, c2->m_SightDistance, true) && c2->IsAIEnabled)
-            c2->AI()->MoveInLineOfSight(c1);
-}
-
-template<class T, class VISITOR> 
-inline void
-Trinity::DelayedUnitRelocation::Notify(GridRefManager<T> &m)
-{
-    for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        T * unit = iter->getSource();
-        if(!unit->isAlive() || !unit->isNeedNotify(NOTIFY_AI_RELOCATION))
-            continue;
-
-        VISITOR relocate(*unit);
-        TypeContainerVisitor<VISITOR, WorldTypeMapContainer > c2world_relocation(relocate);
-        TypeContainerVisitor<VISITOR, GridTypeMapContainer >  c2grid_relocation(relocate);
-
-        i_cell.Visit(i_cellPair, c2world_relocation, i_map, *unit, i_radius);
-        i_cell.Visit(i_cellPair, c2grid_relocation, i_map, *unit, i_radius);
-
-        unit->SetNotified(NOTIFY_AI_RELOCATION);
-    }
-}
-
-template<class T>
-inline void
-Trinity::ResetNotifier::resetNotify(GridRefManager<T> &m)
-{
-    for(typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
-        iter->getSource()->ResetAllNotifiesbyMask(reset_mask);
-}
-
-template<>
-inline void
-Trinity::PlayerRelocationNotifier::Visit(CreatureMapType &m)
-{
-    if(!i_player.isAlive() || i_player.isInFlight())
-        return;
-
-    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        Creature * c = iter->getSource();
-        if(c->isAlive() && !c->NotifyExecuted(NOTIFY_AI_RELOCATION))
-            PlayerCreatureRelocationWorker(&i_player, c);
-    }
-}
-
-template<>
-inline void
-Trinity::CreatureRelocationNotifier::Visit(PlayerMapType &m)
-{
-    if(!i_creature.isAlive())
-        return;
-
-    for(PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
-    {
-        Player * pl = iter->getSource();
-        if( pl->isAlive() && !pl->isInFlight() && !pl->NotifyExecuted(NOTIFY_AI_RELOCATION))
-            PlayerCreatureRelocationWorker(pl, &i_creature);
-    }
-}
-
-template<>
-inline void
-Trinity::CreatureRelocationNotifier::Visit(CreatureMapType &m)
-{
-    if(!i_creature.isAlive())
-        return;
-
-    for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
-    {
-        Creature* c = iter->getSource();
-        if( c != &i_creature && c->isAlive() && !c->NotifyExecuted(NOTIFY_AI_RELOCATION))
-            CreatureCreatureRelocationWorker(c, &i_creature);
-    }
 }
 
 // SEARCHERS & LIST SEARCHERS & WORKERS
