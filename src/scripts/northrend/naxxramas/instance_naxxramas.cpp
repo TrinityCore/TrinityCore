@@ -63,6 +63,11 @@ enum eEnums
     GO_HORSEMEN_CHEST_HERO  = 193426,
     GO_HORSEMEN_CHEST       = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE
     GO_GOTHIK_GATE          = 181170,
+    GO_KELTHUZAD_PORTAL01   = 181402,
+    GO_KELTHUZAD_PORTAL02   = 181403,
+    GO_KELTHUZAD_PORTAL03   = 181404,
+    GO_KELTHUZAD_PORTAL04   = 181405,
+    GO_KELTHUZAD_TRIGGER    = 181444,
 
     SPELL_ERUPTION          = 29371
 };
@@ -120,6 +125,10 @@ struct instance_naxxramas : public InstanceData
     uint64 uiFeugen;
     uint64 uiStalagg;
 
+    uint64 uiKelthuzad;
+    uint64 uiKelthuzadTrigger;
+    uint64 uiPortals[4];    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -133,6 +142,7 @@ struct instance_naxxramas : public InstanceData
             case 15928: uiThaddius = pCreature->GetGUID(); return;
             case 15930: uiFeugen = pCreature->GetGUID(); return;
             case 15929: uiStalagg = pCreature->GetGUID(); return;
+            case 15990: uiKelthuzad = pCreature->GetGUID(); return;
         }
 
         AddMinion(pCreature, add);
@@ -156,6 +166,11 @@ struct instance_naxxramas : public InstanceData
             case GO_GOTHIK_GATE: pGothikGate = add ? pGo : NULL; break;
             case GO_HORSEMEN_CHEST: HorsemenChest = add ? pGo : NULL; break;
             case GO_HORSEMEN_CHEST_HERO: HorsemenChest = add ? pGo : NULL; break;
+            case GO_KELTHUZAD_PORTAL01: uiPortals[0] = pGo->GetGUID(); break;
+            case GO_KELTHUZAD_PORTAL02: uiPortals[1] = pGo->GetGUID(); break;
+            case GO_KELTHUZAD_PORTAL03: uiPortals[2] = pGo->GetGUID(); break; 
+            case GO_KELTHUZAD_PORTAL04: uiPortals[3] = pGo->GetGUID(); break; 
+            case GO_KELTHUZAD_TRIGGER: uiKelthuzadTrigger = pGo->GetGUID(); break; 
         }
 
         AddDoor(pGo, add);
@@ -177,22 +192,37 @@ struct instance_naxxramas : public InstanceData
 
     uint64 GetData64(uint32 id)
     {
-        if (id == DATA_FAERLINA)
+        switch(id)
+        {
+        case DATA_FAERLINA:
             return uiFaerlina;
-        if (id == DATA_THANE)
+        case DATA_THANE:
             return uiThane;
-        if (id == DATA_LADY)
+        case DATA_LADY:
             return uiLady;
-        if (id == DATA_BARON)
+        case DATA_BARON:
             return uiBaron;
-        if (id == DATA_SIR)
+        case DATA_SIR:
             return uiSir;
-        if (id == DATA_THADDIUS)
+        case DATA_THADDIUS:
             return uiThaddius;
-        if (id == DATA_FEUGEN)
+        case DATA_FEUGEN:
             return uiFeugen;
-        if (id == DATA_STALAGG)
+        case DATA_STALAGG:
             return uiStalagg;
+        case DATA_KELTHUZAD:
+            return uiKelthuzad;
+        case DATA_KELTHUZAD_PORTAL01:
+            return uiPortals[0];
+        case DATA_KELTHUZAD_PORTAL02:
+            return uiPortals[1];
+        case DATA_KELTHUZAD_PORTAL03:
+            return uiPortals[2];
+        case DATA_KELTHUZAD_PORTAL04:
+            return uiPortals[3];
+        case DATA_KELTHUZAD_TRIGGER:
+            return uiKelthuzadTrigger;
+        }
         return 0;
     }
 
