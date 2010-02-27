@@ -794,7 +794,7 @@ struct boss_hunter_toc5AI : public ScriptedAI
 
         if (uiShootTimer <= uiDiff)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST,0,30))
+            if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST,0,30.0f))
             {
                 uiTargetGUID = pTarget->GetGUID();
                 DoCast(pTarget, DUNGEON_MODE(SPELL_SHOOT,SPELL_SHOOT_H));
