@@ -11697,26 +11697,7 @@ bool Unit::canDetectStealthOf(Unit const* target, float distance) const
 void Unit::SetVisibility(UnitVisibility x)
 {
     m_Visibility = x;
-
-    if(IsInWorld())
-    {
-        Map *m = GetMap();
-        CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
-        Cell cell(p);
-
-        if(GetTypeId() == TYPEID_PLAYER)
-        {
-            m->UpdatePlayerVisibility((Player*)this, cell, p);
-            m->UpdateObjectsVisibilityFor((Player*)this, cell, p);
-        }
-        else
-            m->UpdateObjectVisibility(this, cell, p);
-
-        AddToNotify(NOTIFY_AI_RELOCATION);
-    }
-
-    if (x == VISIBILITY_GROUP_STEALTH)
-        DestroyForNearbyPlayers();
+    UpdateObjectVisibility();
 }
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
@@ -13034,7 +13015,6 @@ void Unit::AddToWorld()
     if (!IsInWorld())
     {
         WorldObject::AddToWorld();
-        SetToNotify();
     }
 }
 
@@ -14539,14 +14519,6 @@ bool Unit::HandleAuraRaidProcFromCharge(AuraEffect* triggeredByAura)
 }
 /*-----------------------TRINITY-----------------------------*/
 
-void Unit::SetToNotify()
-{
-    if (GetTypeId() == TYPEID_PLAYER)
-        AddToNotify(NOTIFY_VISIBILITY_CHANGED | NOTIFY_AI_RELOCATION | NOTIFY_PLAYER_VISIBILITY);
-    else
-        AddToNotify(NOTIFY_VISIBILITY_CHANGED | NOTIFY_AI_RELOCATION);
-}
-
 void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 {
     // Prevent killing unit twice (and giving reward from kill twice)
@@ -15481,6 +15453,19 @@ void Unit::SetPhaseMask(uint32 newPhaseMask, bool update)
         if (m_SummonSlot[i])
             if (Creature *summon = GetMap()->GetCreature(m_SummonSlot[i]))
                 summon->SetPhaseMask(newPhaseMask,true);
+}
+
+void Unit::UpdateObjectVisibility(bool forced)
+{
+    if (!forced)
+        AddToNotify(NOTIFY_VISIBILITY_CHANGED);
+    else
+    {
+        WorldObject::UpdateObjectVisibility(true);
+        // call MoveInLineOfSight for nearby creatures
+        Trinity::AIRelocationNotifier notifier(*this);
+        VisitNearbyObject(GetMap()->GetVisibilityDistance(), notifier);
+    }
 }
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)

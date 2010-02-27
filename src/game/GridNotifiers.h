@@ -40,52 +40,14 @@ namespace Trinity
 {
     struct VisibleNotifier
     {
-        bool force;
         Player &i_player;
         UpdateData i_data;
         std::set<Unit*> i_visibleNow;
         Player::ClientGUIDs vis_guids;
 
-        explicit VisibleNotifier(Player &player, bool forced) :
-            i_player(player), vis_guids(player.m_clientGUIDs), force(forced) {}
-        explicit VisibleNotifier(Player &player) :
-            i_player(player), vis_guids(player.m_clientGUIDs),
-            force(player.isNeedNotify(NOTIFY_VISIBILITY_CHANGED)) {}
+        VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs) {}
         template<class T> void Visit(GridRefManager<T> &m);
-        void Visit(CreatureMapType &m);
-        void Visit(PlayerMapType &m) {}
         void SendToSelf(void);
-    };
-
-    struct Player2PlayerNotifier : public VisibleNotifier
-    {
-        Player2PlayerNotifier(Player &player, bool forced = false) :
-            VisibleNotifier(player, forced) {}
-
-        template<class T> void Visit(GridRefManager<T> &) {}
-        void Visit(PlayerMapType &);
-        void SendToSelf(void);
-    };
-
-    struct PlayerRelocationNotifier
-    {
-        Player &i_player;
-        PlayerRelocationNotifier(Player &pl) : i_player(pl) {}
-        template<class T> void Visit(GridRefManager<T> &) {}
-        #ifdef WIN32
-        template<> inline void Visit(CreatureMapType &);
-        #endif
-    };
-
-    struct CreatureRelocationNotifier
-    {
-        Creature &i_creature;
-        CreatureRelocationNotifier(Creature &c) : i_creature(c) {}
-        template<class T> void Visit(GridRefManager<T> &) {}
-        #ifdef WIN32
-        template<> inline void Visit(PlayerMapType &);
-        template<> inline void Visit(CreatureMapType &);
-        #endif
     };
 
     struct VisibleChangesNotifier
@@ -99,30 +61,45 @@ namespace Trinity
         void Visit(DynamicObjectMapType &);
     };
 
+    struct PlayerRelocationNotifier : public VisibleNotifier
+    {
+        PlayerRelocationNotifier(Player &pl) : VisibleNotifier(pl) {}
+
+        template<class T> void Visit(GridRefManager<T> &m) { VisibleNotifier::Visit(m); }
+        void Visit(CreatureMapType &);
+        void Visit(PlayerMapType &);
+    };
+
+    struct CreatureRelocationNotifier
+    {
+        Creature &i_creature;
+        CreatureRelocationNotifier(Creature &c) : i_creature(c) {}
+        template<class T> void Visit(GridRefManager<T> &) {}
+        void Visit(CreatureMapType &);
+        void Visit(PlayerMapType &);
+    };
+
     struct DelayedUnitRelocation
     {
         Map &i_map;
-        const Cell& i_cell;
-        const CellPair& i_cellPair;
+        Cell &cell;
+        CellPair &p;
         const float i_radius;
-        DelayedUnitRelocation(const Cell& cell, const CellPair& cellp, Map &map, float radius) :
-        i_cell(cell), i_cellPair(cellp), i_map(map), i_radius(radius) {}
+        DelayedUnitRelocation(Cell &c, CellPair &pair, Map &map, float radius) :
+            cell(c), p(pair), i_map(map), i_radius(radius) {}
         template<class T> void Visit(GridRefManager<T> &) {}
-        void Visit(CreatureMapType &m) { Notify<Creature,CreatureRelocationNotifier >(m); }
-        void Visit(PlayerMapType   &m) { Notify<Player,PlayerRelocationNotifier >(m); }
-        template<class T, class VISITOR> 
-            void Notify(GridRefManager<T> &);
+        void Visit(CreatureMapType &);
+        void Visit(PlayerMapType   &);
     };
 
-    struct ResetNotifier
-    {
-        uint16 reset_mask;
-        ResetNotifier(uint16 notifies) : reset_mask(notifies) {}
-        template<class T> void Visit(GridRefManager<T> &m) { /*resetNotify(m);*/}
-        template<class T> void resetNotify(GridRefManager<T> &);
-        void Visit(CreatureMapType &m) { resetNotify<Creature>(m);}
-        void Visit(PlayerMapType &m) { resetNotify<Player>(m);}
-    };
+     struct AIRelocationNotifier
+     {
+        Unit &i_unit;
+        bool isCreature;
+        explicit AIRelocationNotifier(Unit &unit) : i_unit(unit), isCreature(unit.GetTypeId() == TYPEID_UNIT)  {}
+        template<class T> void Visit(GridRefManager<T> &) {}
+        void Visit(CreatureMapType &);
+     };
 
     struct GridUpdater
     {
@@ -1225,11 +1202,5 @@ namespace Trinity
             std::vector<WorldPacketList> i_data_cache;
                                                             // 0 = default, i => i-1 locale index
     };
-
-    #ifndef WIN32
-    template<> inline void PlayerRelocationNotifier::Visit<Creature>(CreatureMapType &);
-    template<> inline void CreatureRelocationNotifier::Visit<Player>(PlayerMapType &);
-    template<> inline void CreatureRelocationNotifier::Visit<Creature>(CreatureMapType &);
-    #endif
 }
 #endif

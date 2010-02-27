@@ -2554,7 +2554,7 @@ void AuraEffect::HandleInvisibilityDetect(AuraApplication const * aurApp, uint8 
             target->m_detectInvisibilityMask |= (1 << GetMiscValue());
     }
     if(target->GetTypeId() == TYPEID_PLAYER)
-        target->SetToNotify();
+        target->UpdateObjectVisibility();
 }
 
 void AuraEffect::HandleInvisibility(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -2578,7 +2578,7 @@ void AuraEffect::HandleInvisibility(AuraApplication const * aurApp, uint8 mode, 
         if(target->GetTypeId() == TYPEID_PLAYER)
             target->SetFlag(PLAYER_FIELD_BYTES2,PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
-        target->SetToNotify();
+        target->UpdateObjectVisibility();
     }
     else
     {
@@ -2593,7 +2593,7 @@ void AuraEffect::HandleInvisibility(AuraApplication const * aurApp, uint8 mode, 
         if(!target->m_invisibilityMask && target->GetTypeId() == TYPEID_PLAYER)
             target->RemoveFlag(PLAYER_FIELD_BYTES2,PLAYER_FIELD_BYTE2_INVISIBILITY_GLOW);
 
-        target->SetToNotify();
+        target->UpdateObjectVisibility();
     }
 }
 
