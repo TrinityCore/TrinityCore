@@ -507,7 +507,10 @@ struct boss_kelthuzadAI : public BossAI
                                 if (!player->isCharmed())
                                 {
                                     player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
-                                    itr = chained.erase(itr);
+                                    std::map<uint64, float>::iterator next = itr;
+                                    ++next;
+                                    chained.erase(itr);
+                                    itr = next;
                                     continue;
                                 }
 
