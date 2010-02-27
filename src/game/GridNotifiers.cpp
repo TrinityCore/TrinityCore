@@ -26,6 +26,7 @@
 #include "Map.h"
 #include "Transports.h"
 #include "ObjectAccessor.h"
+#include "CellImpl.h"
 
 using namespace Trinity;
 
