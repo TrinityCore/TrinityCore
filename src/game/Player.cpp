@@ -20367,7 +20367,7 @@ void Player::SendUpdateToOutOfRangeGroupMembers()
         pet->ResetAuraUpdateMaskForRaid();
 }
 
-void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
+void Player::SendTransferAborted(uint32 mapid, TransferAbortReason reason, uint8 arg)
 {
     WorldPacket data(SMSG_TRANSFER_ABORTED, 4+2);
     data << uint32(mapid);
@@ -20377,8 +20377,7 @@ void Player::SendTransferAborted(uint32 mapid, uint8 reason, uint8 arg)
         case TRANSFER_ABORT_INSUF_EXPAN_LVL:
         case TRANSFER_ABORT_DIFFICULTY:
         case TRANSFER_ABORT_UNIQUE_MESSAGE:
-        case TRANSFER_ABORT_ZONE_IN_COMBAT:
-        case TRANSFER_ABORT_MAX_PLAYERS:
+            // these are the ONLY cases that have an extra argument in the packet!!!
             data << uint8(arg);
             break;
     }
