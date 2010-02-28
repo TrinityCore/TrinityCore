@@ -795,14 +795,17 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
             SetByteValue(UNIT_FIELD_BYTES_0, 2, minfo->gender);
         }
 
-        switch(GetCreatureInfo()->InhabitType)
+        if (GetCreatureInfo()->InhabitType & INHABIT_AIR)
         {
-            case INHABIT_AIR:
-                AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
-                break;
-            case INHABIT_WATER:
-                AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-                break;
+            if (GetDefaultMovementType() == IDLE_MOTION_TYPE)
+                AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
+            else
+                AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE|MOVEMENTFLAG_FLYING);
+        }
+
+        if (GetCreatureInfo()->InhabitType & INHABIT_WATER)
+        {
+            AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
         }
     }
     return bResult;
