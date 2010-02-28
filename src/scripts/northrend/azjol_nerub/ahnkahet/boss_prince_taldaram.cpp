@@ -96,12 +96,7 @@ struct boss_taldaramAI : public ScriptedAI
     uint32 uiFlamesphereTimer;
     uint32 uiPhaseTimer;
 
-    uint64 uiSphereGuids[2];
-
-    Unit *pEmbraceTarget;
-    Unit *pSphereTarget;
-
-    Creature* pSpheres[3];
+    uint64 uiEmbraceTarget;
 
     CombatPhase Phase;
 
@@ -116,7 +111,7 @@ struct boss_taldaramAI : public ScriptedAI
         uiEmbraceTakenDamage = 0;
         Phase = NORMAL;
         uiPhaseTimer = 0;
-        pEmbraceTarget = NULL;
+        uiEmbraceTarget = 0;
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
     }
@@ -137,9 +132,12 @@ struct boss_taldaramAI : public ScriptedAI
             switch (Phase)
             {
                 case CASTING_FLAME_SPHERES:
+                {
+                    Creature* pSpheres[3];
+
                     //DoCast(m_creature, SPELL_FLAME_SPHERE_SUMMON_1);
                     pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                    pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    Unit *pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pSphereTarget && pSpheres[0])
                     {
                         float angle,x,y;
@@ -170,9 +168,10 @@ struct boss_taldaramAI : public ScriptedAI
 
                     Phase = NORMAL;
                     uiPhaseTimer = 0;
-                break;
+                    break;
+                }
                 case JUST_VANISHED:
-                    if(pEmbraceTarget)
+                    if (Unit *pEmbraceTarget = GetEmbraceTarget())
                     {
                         m_creature->GetMotionMaster()->Clear();
                         m_creature->SetSpeed(MOVE_WALK, 2.0f, true);
@@ -180,21 +179,21 @@ struct boss_taldaramAI : public ScriptedAI
                     }
                     Phase = VANISHED;
                     uiPhaseTimer = 1300;
-                break;
+                    break;
                 case VANISHED:
-                    if(pEmbraceTarget)
+                    if (Unit *pEmbraceTarget = GetEmbraceTarget())
                         DoCast(pEmbraceTarget, DUNGEON_MODE(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
-                        m_creature->GetMotionMaster()->Clear();
-                        m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    m_creature->GetMotionMaster()->Clear();
+                    m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
+                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                     Phase = FEEDING;
                     uiPhaseTimer = 20000;
-                break;
+                    break;
                 case FEEDING:
                     Phase = NORMAL;
                     uiPhaseTimer = 0;
-                    pEmbraceTarget = NULL;
-                break;
+                    uiEmbraceTarget = 0;
+                    break;
                 case NORMAL:
                     if (uiBloodthirstTimer <= diff)
                     {
@@ -231,7 +230,9 @@ struct boss_taldaramAI : public ScriptedAI
                             DoCast(m_creature, SPELL_VANISH);
                             Phase = JUST_VANISHED;
                             uiPhaseTimer = 500;
-                            pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                            if (Unit* pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                                uiEmbraceTarget = pEmbraceTarget->GetGUID();
+                            
                         }
                         uiVanishTimer = urand(25000,35000);
                     } else uiVanishTimer -= diff;
@@ -244,6 +245,8 @@ struct boss_taldaramAI : public ScriptedAI
 
     void DamageTaken(Unit* done_by, uint32 &damage)
     {
+        Unit* pEmbraceTarget = GetEmbraceTarget();
+
         if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->isAlive())
         {
           uiEmbraceTakenDamage += damage;
@@ -251,7 +254,7 @@ struct boss_taldaramAI : public ScriptedAI
           {
               Phase = NORMAL;
               uiPhaseTimer = 0;
-              pEmbraceTarget = NULL;
+              uiEmbraceTarget = 0;
               m_creature->CastStop();
           }
         }
@@ -282,11 +285,13 @@ struct boss_taldaramAI : public ScriptedAI
     {
         if (victim == m_creature)
             return;
+
+        Unit* pEmbraceTarget = GetEmbraceTarget();
         if (Phase == FEEDING && pEmbraceTarget && victim == pEmbraceTarget)
         {
             Phase = NORMAL;
             uiPhaseTimer = 0;
-            pEmbraceTarget = NULL;
+            uiEmbraceTarget = 0;
         }
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
@@ -295,20 +300,29 @@ struct boss_taldaramAI : public ScriptedAI
     {
         if(!pInstance)
             return false;
+
+        uint64 uiSphereGuids[2];
         uiSphereGuids[0] = pInstance->GetData64(DATA_SPHERE1);
         uiSphereGuids[1] = pInstance->GetData64(DATA_SPHERE2);
 
-        GameObject *pSpheres[2];
         for (uint8 i=0; i < 2; ++i)
         {
-            pSpheres[i] = pInstance->instance->GetGameObject(uiSphereGuids[i]);
-            if (!pSpheres[i])
+            GameObject *pSpheres = pInstance->instance->GetGameObject(uiSphereGuids[i]);
+            if (!pSpheres)
                 return false;
-            if (pSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
+            if (pSpheres->GetGoState() != GO_STATE_ACTIVE)
                 return false;
         }
         RemovePrison();
         return true;
+    }
+
+    Unit* GetEmbraceTarget()
+    {
+        if (!uiEmbraceTarget)
+            return NULL;
+
+        return Unit::GetUnit(*m_creature, uiEmbraceTarget);
     }
 
     void RemovePrison()
