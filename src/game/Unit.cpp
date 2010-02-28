@@ -9841,7 +9841,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 // Merciless Combat
                 if ((*i)->GetSpellProto()->SpellIconID == 2656)
                 {
-                    if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
+                    if ((pVictim->GetMaxHealth() * 35 / 100) >= pVictim->GetHealth())
                         DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 }
                 // Tundra Stalker
@@ -11043,8 +11043,8 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
             {
                 // Merciless Combat
                 if ((*i)->GetSpellProto()->SpellIconID == 2656)
-                {
-                    if (pVictim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, spellProto, this))
+                {  
+                    if ((pVictim->GetMaxHealth() * 35 / 100) >= pVictim->GetHealth())
                         DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 }
                 // Tundra Stalker
