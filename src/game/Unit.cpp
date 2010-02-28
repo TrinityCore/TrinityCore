@@ -9742,7 +9742,6 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
 
     // Taken/Done total percent damage auras
     float DoneTotalMod = 1.0f;
-    float TakenTotalMod = 1.0f;
     float ApCoeffMod = 1.0f;
     int32 DoneTotal = 0;
     int32 TakenTotal = 0;
@@ -10000,10 +9999,20 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     }
 
     // ..taken
+    int32 maxPositiveMod = 0; // max of the positive amount aura (that increase the damage taken)
+    int32 sumNegativeMod = 0; // sum the negative amount aura (that reduce the damage taken)
     AuraEffectList const& mModDamagePercentTaken = pVictim->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN);
     for (AuraEffectList::const_iterator i = mModDamagePercentTaken.begin(); i != mModDamagePercentTaken.end(); ++i)
         if ((*i)->GetMiscValue() & GetSpellSchoolMask(spellProto) )
-            TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+        {
+            if ((*i)->GetAmount() > 0)
+            {
+                if ((*i)->GetAmount() > maxPositiveMod)
+                    maxPositiveMod = (*i)->GetAmount();
+            }
+            else
+                sumNegativeMod += (*i)->GetAmount();
+        }
 
     // .. taken pct: dummy auras
     AuraEffectList const& mDummyAuras = pVictim->GetAuraEffectsByType(SPELL_AURA_DUMMY);
@@ -10020,13 +10029,16 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                     float mod = ((Player*)pVictim)->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE)*(-8.0f);
                     if (mod < (*i)->GetAmount())
                         mod = (*i)->GetAmount();
-                    TakenTotalMod *= (mod+100.0f)/100.0f;
+                    sumNegativeMod += mod;
                 }
                 break;
             // Ebon Plague
             case 1933:
                 if ((*i)->GetMiscValue() & (spellProto ? GetSpellSchoolMask(spellProto) : 0))
-                    TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+                {
+                    if ((*i)->GetAmount() > maxPositiveMod)
+                        maxPositiveMod = (*i)->GetAmount();
+                }
                 break;
         }
     }
@@ -10035,7 +10047,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     AuraEffectList const& mOwnerTaken = pVictim->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
         if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
-            TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+            sumNegativeMod += (*i)->GetAmount();
 
     // Mod damage from spell mechanic
     if (uint32 mechanicMask = GetAllSpellMechanicMask(spellProto))
@@ -10043,8 +10055,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         AuraEffectList const& mDamageDoneMechanic = pVictim->GetAuraEffectsByType(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT);
         for (AuraEffectList::const_iterator i = mDamageDoneMechanic.begin(); i != mDamageDoneMechanic.end(); ++i)
             if (mechanicMask & uint32(1<<((*i)->GetMiscValue())))
-                TakenTotalMod *= ((*i)->GetAmount()+100.0f)/100.0f;
+                sumNegativeMod += (*i)->GetAmount();
     }
+
+    float TakenTotalMod = (sumNegativeMod+maxPositiveMod+100.0f)/100.0f;
 
     // Taken/Done fixed damage bonus auras
     int32 DoneAdvertisedBenefit  = SpellBaseDamageBonus(GetSpellSchoolMask(spellProto));
