@@ -658,7 +658,6 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         if (damage >= pVictim->GetHealth())
         {
             pVictim->setDeathState(JUST_DIED);
-            pVictim->SetHealth(0);
 
             CreatureInfo const* cInfo = ((Creature*)pVictim)->GetCreatureInfo();
             if (cInfo && cInfo->lootid)
@@ -11997,6 +11996,7 @@ void Unit::setDeathState(DeathState s)
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
+        SetPower(getPowerType(),0);
     }
     else if (s == JUST_ALIVED)
         RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE); // clear skinnable for creature and player (at battleground)
@@ -14549,8 +14549,6 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     }
 
     //sLog.outError("%u kill %u", GetEntry(), pVictim->GetEntry());
-
-    pVictim->SetHealth(0);
 
     // find player: owner of controlled `this` or `this` itself maybe
     Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
