@@ -48,35 +48,44 @@ enum Creatures
     MOB_DEAD_HORSE      = 16149
 };
 
-struct Waves { uint32 entry, time; };
-// wave setups are the same in heroic and normal difficulty, only count of mobs is different, 
+struct Waves { uint32 entry, time, mode; };
+// wave setups are not the same in heroic and normal difficulty, 
+// mode is 0 only normal, 1 both and 2 only heroic
 // but this is handled in DoGothikSummon function
 const Waves waves[] =
 {
-    {MOB_LIVE_TRAINEE, 20000},
-    {MOB_LIVE_TRAINEE, 20000},
-    {MOB_LIVE_TRAINEE, 10000},
-    {MOB_LIVE_KNIGHT, 10000},
-    {MOB_LIVE_TRAINEE, 15000},
-    {MOB_LIVE_KNIGHT, 5000},
-    {MOB_LIVE_TRAINEE, 20000},
-    {MOB_LIVE_TRAINEE, 0},
-    {MOB_LIVE_KNIGHT, 10000},
-    {MOB_LIVE_RIDER, 10000},
-    {MOB_LIVE_TRAINEE, 5000},
-    {MOB_LIVE_KNIGHT, 15000},
-    {MOB_LIVE_RIDER, 0},
-    {MOB_LIVE_TRAINEE, 10000},
-    {MOB_LIVE_KNIGHT, 10000},
-    {MOB_LIVE_TRAINEE, 10000},
-    {MOB_LIVE_RIDER, 5000},
-    {MOB_LIVE_KNIGHT, 5000},
-    {MOB_LIVE_TRAINEE, 20000},
-    {MOB_LIVE_RIDER, 0},
-    {MOB_LIVE_KNIGHT, 0},
-    {MOB_LIVE_TRAINEE, 20000},
-    {MOB_LIVE_TRAINEE, 25000},
-    {0, 0},
+    {MOB_LIVE_TRAINEE, 20000, 1},
+    {MOB_LIVE_TRAINEE, 20000, 1},
+    {MOB_LIVE_TRAINEE, 10000, 1},
+    {MOB_LIVE_KNIGHT, 10000, 1},
+    {MOB_LIVE_TRAINEE, 15000, 1},
+    {MOB_LIVE_KNIGHT, 5000, 1},
+    {MOB_LIVE_TRAINEE, 20000, 1},
+    {MOB_LIVE_TRAINEE, 0, 1},
+    {MOB_LIVE_KNIGHT, 10000, 1},
+    {MOB_LIVE_TRAINEE, 10000, 2},
+    {MOB_LIVE_RIDER, 10000, 0},
+    {MOB_LIVE_RIDER, 5000, 2},
+    {MOB_LIVE_TRAINEE, 5000, 0},
+    {MOB_LIVE_TRAINEE, 15000, 2},
+    {MOB_LIVE_KNIGHT, 15000, 0},
+    {MOB_LIVE_TRAINEE, 0, 0},
+    {MOB_LIVE_RIDER, 10000, 1},
+    {MOB_LIVE_KNIGHT, 10000, 1},
+    {MOB_LIVE_TRAINEE, 10000, 0},
+    {MOB_LIVE_RIDER, 10000, 2},
+    {MOB_LIVE_TRAINEE, 0, 2},
+    {MOB_LIVE_RIDER, 5000, 1},
+    {MOB_LIVE_TRAINEE, 0, 2},
+    {MOB_LIVE_KNIGHT, 5000, 1},
+    {MOB_LIVE_RIDER, 0, 2},
+    {MOB_LIVE_TRAINEE, 20000, 1},
+    {MOB_LIVE_RIDER, 0, 1},
+    {MOB_LIVE_KNIGHT, 0, 1},
+    {MOB_LIVE_TRAINEE, 25000, 2},
+    {MOB_LIVE_TRAINEE, 15000, 0},
+    {MOB_LIVE_TRAINEE, 25000, 0},
+    {0, 0, 1},
 };
 
 #define POS_Y_GATE  -3360.78f
@@ -359,7 +368,12 @@ struct boss_gothikAI : public BossAI
                 case EVENT_SUMMON:
                     if (waves[waveCount].entry)
                     {
-                        DoGothikSummon(waves[waveCount].entry);
+                        if ((waves[waveCount].mode == 2) && (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL))
+                           DoGothikSummon(waves[waveCount].entry);
+                        else if ((waves[waveCount].mode == 0) && (getDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL))
+                            DoGothikSummon(waves[waveCount].entry);
+                        else if (waves[waveCount].mode == 1)
+                            DoGothikSummon(waves[waveCount].entry);
 
                         // if group is not splitted, open gate and merge both sides at ~ 2 minutes (wave 11)
                         if (waveCount == 11)
@@ -374,10 +388,18 @@ struct boss_gothikAI : public BossAI
                             }
                         }
 
-                        events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
+                        if (waves[waveCount].mode == 1)
+                            events.ScheduleEvent(EVENT_SUMMON,waves[waveCount].time);
+                        else if ((waves[waveCount].mode == 2) && (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL))
+                            events.ScheduleEvent(EVENT_SUMMON,waves[waveCount].time);
+                        else if ((waves[waveCount].mode == 0) && (getDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL))
+                            events.ScheduleEvent(EVENT_SUMMON,waves[waveCount].time);
+                        else
+                            events.ScheduleEvent(EVENT_SUMMON, 0);
+
                         ++waveCount;
                     }
-                    else
+					else
                     {
                         phaseTwo = true;
                         DoScriptText(SAY_TELEPORT, me);
