@@ -206,13 +206,16 @@ struct instance_stratholme : public ScriptedInstance
             case IN_PROGRESS:
                 if (Encounter[0] == IN_PROGRESS || Encounter[0] == FAIL)
                     break;
+                Encounter[0] = data;
                 BaronRun_Timer = 2700000;
                 debug_log("TSCR: Instance Stratholme: Baron run in progress.");
                 break;
             case FAIL:
                 //may add code to remove aura from players, but in theory the time should be up already and removed.
+                Encounter[0] = data;
                 break;
             case DONE:
+                Encounter[0] = data;
                 if (Creature* pYsidaT = instance->GetCreature(ysidaTriggerGUID))
                     pYsidaT->SummonCreature(C_YSIDA,
                     pYsidaT->GetPositionX(),pYsidaT->GetPositionY(),pYsidaT->GetPositionZ(),pYsidaT->GetOrientation(),
@@ -220,7 +223,6 @@ struct instance_stratholme : public ScriptedInstance
                 BaronRun_Timer = 0;
                 break;
             }
-            Encounter[0] = data;
             break;
         case TYPE_BARONESS:
             Encounter[1] = data;
