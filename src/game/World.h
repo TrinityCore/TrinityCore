@@ -413,6 +413,10 @@ enum RealmZone
 #define SCRIPT_COMMAND_CALLSCRIPT_TO_UNIT   21              // datalong scriptid, lowguid datalong2, dataint table
 #define SCRIPT_COMMAND_KILL                 22              // datalong removecorpse
 
+
+//trinity only
+#define SCRIPT_COMMAND_ORIENTATION          30              // datalong orientation
+
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
 {

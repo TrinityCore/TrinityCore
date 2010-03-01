@@ -3685,6 +3685,20 @@ void Map::ScriptsProcess()
                     pSource->PlayDirectSound(step.script->datalong,pTarget);
                 break;
             }
+
+            case SCRIPT_COMMAND_ORIENTATION:
+            {
+                if(!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_ORIENTATION call for NULL creature.");
+                    break;
+                }
+
+                ((Creature *)source)->SetOrientation(step.script->datalong);
+                ((Creature *)source)->SendMovementFlagUpdate();
+
+                break;
+            }
             default:
                 sLog.outError("Unknown script command %u called.",step.script->command);
                 break;
