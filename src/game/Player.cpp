@@ -7465,7 +7465,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
                             continue;
                         // Check if item is useable (forms or disarm)
                         if (attType == BASE_ATTACK)
-                            if (!IsUseEquipedWeapon(true))
+                            if (!IsUseEquipedWeapon(true) && !IsInFeralForm())
                                 continue;
                     }
                     CastItemCombatSpell(target, attType, procVictim, procEx, item, proto);
