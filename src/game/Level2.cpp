@@ -2126,7 +2126,7 @@ bool ChatHandler::HandleModifyPhaseCommand(const char* args)
 //show info of gameobject
 bool ChatHandler::HandleGOInfoCommand(const char* args)
 {
-    uint32 entry = atoi((char*)args);
+    uint32 entry = 0;
     uint32 type = 0;
     uint32 displayid = 0;
     std::string name;
@@ -2136,16 +2136,17 @@ bool ChatHandler::HandleGOInfoCommand(const char* args)
         WorldObject * obj = getSelectedObject();
         entry = obj->GetEntry();
     }
+    else
+        entry = atoi((char*)args);
 
-    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT `type` `displayid` `name` FROM gameobject_template WHERE entry =  %u", entry);
+    GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(entry);
 
-    if(!result)
+    if(!goinfo)
         return false;
 
-    Field * fields = result->Fetch();
-    type = fields[0].GetUInt32();
-    displayid = fields[1].GetUInt32();
-    name = fields[3].GetString();
+    type = goinfo->type;
+    displayid = goinfo->displayId;
+    name = goinfo->name;
 
     PSendSysMessage(LANG_GOINFO_ENTRY, entry);
     PSendSysMessage(LANG_GOINFO_TYPE, type);
