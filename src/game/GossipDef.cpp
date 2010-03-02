@@ -541,12 +541,13 @@ void PlayerMenu::SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID
 
 void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
 {
-    std::string Title,Details,Objectives,EndText;
+    std::string Title, Details, Objectives, EndText, CompletedText;
     std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];
     Title = pQuest->GetTitle();
     Details = pQuest->GetDetails();
     Objectives = pQuest->GetObjectives();
     EndText = pQuest->GetEndText();
+    CompletedText = pQuest->GetCompletedText();
     for (int i=0; i<QUEST_OBJECTIVES_COUNT; ++i)
         ObjectiveText[i]=pQuest->ObjectiveText[i];
 
@@ -564,6 +565,8 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
                 Objectives=ql->Objectives[loc_idx];
             if (ql->EndText.size() > loc_idx && !ql->EndText[loc_idx].empty())
                 EndText=ql->EndText[loc_idx];
+            if (ql->CompletedText.size() > (size_t)loc_idx && !ql->CompletedText[loc_idx].empty())
+                CompletedText=ql->CompletedText[loc_idx];
 
             for (int i=0; i<QUEST_OBJECTIVES_COUNT; ++i)
                 if (ql->ObjectiveText[i].size() > loc_idx && !ql->ObjectiveText[i][loc_idx].empty())
@@ -652,7 +655,7 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
     data << Objectives;
     data << Details;
     data << EndText;
-    data << uint8(0);                                       // some string
+    data << CompletedText;                                  // display in quest objectives window once all objectives are completed
 
     for (iI = 0; iI < QUEST_OBJECTIVES_COUNT; ++iI)
     {
