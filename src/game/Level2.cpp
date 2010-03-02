@@ -2133,8 +2133,8 @@ bool ChatHandler::HandleGOInfoCommand(const char* args)
 
     if(!*args)
     {
-        WorldObject * obj = getSelectedObject();
-        entry = obj->GetEntry();
+        if(WorldObject * obj = getSelectedObject())
+            entry = obj->GetEntry();
     }
     else
         entry = atoi((char*)args);
