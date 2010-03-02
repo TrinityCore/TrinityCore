@@ -409,6 +409,9 @@ UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563
 
 /* CAVERNS OF TIME */
 
+/* CRYSTALSONG FOREST */
+UPDATE `creature_template` SET `ScriptName`='npc_warmage_violetstand' WHERE `entry` IN (32369,32371,32372);
+
 /* MT. HYJAL */
 UPDATE `instance_template` SET `script`='instance_hyjal' WHERE `map`=534;
 UPDATE `creature_template` SET `ScriptName`='npc_tyrande_whisperwind' WHERE `entry`=17948;
