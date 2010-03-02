@@ -2123,6 +2123,37 @@ bool ChatHandler::HandleModifyPhaseCommand(const char* args)
 
     return true;
 }
+//show info of gameobject
+bool ChatHandler::HandleGOInfoCommand(const char* args)
+{
+    uint32 entry = atoi((char*)args);
+    uint32 type = 0;
+    uint32 displayid = 0;
+    std::string name;
+
+    if(!*args)
+    {
+        WorldObject * obj = getSelectedObject();
+        entry = obj->GetEntry();
+    }
+
+    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT `type` `displayid` `name` FROM gameobject_template WHERE entry =  %u", entry);
+
+    if(!result)
+        return false;
+
+    Field * fields = result->Fetch();
+    type = fields[0].GetUInt32();
+    displayid = fields[1].GetUInt32();
+    name = fields[3].GetString();
+
+    PSendSysMessage(LANG_GOINFO_ENTRY, entry);
+    PSendSysMessage(LANG_GOINFO_TYPE, type);
+    PSendSysMessage(LANG_GOINFO_DISPLAYID, displayid);
+    PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
+
+    return true;
+}
 
 //show info of player
 bool ChatHandler::HandlePInfoCommand(const char* args)

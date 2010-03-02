@@ -403,6 +403,7 @@ INSERT INTO `command` VALUES
 ('gobject activate','2','Syntax: .gobject activate #guid\r\n\r\nActivates an object like a door or a button.'),
 ('gobject add','2','Syntax: .gobject add #id <spawntimeSecs>\r\n\r\nAdd a game object from game object templates to the world at your current location using the #id.\r\nspawntimesecs sets the spawntime, it is optional.\r\n\r\nNote: this is a copy of .gameobject.'),
 ('gobject delete','2','Syntax: .gobject delete #go_guid\r\nDelete gameobject with guid #go_guid.'),
+('gobject info', 2, 'Syntax: .gobject info [$object_entry]\r\n\r\nQuery Gameobject information for selected gameobject or given entry.');
 ('gobject move','2','Syntax: .gobject move #goguid [#x #y #z]\r\n\r\nMove gameobject #goguid to character coordinates (or to (#x,#y,#z) coordinates if its provide).'),
 ('gobject near','2','Syntax: .gobject near  [#distance]\r\n\r\nOutput gameobjects at distance #distance from player. Output gameobject guids and coordinates sorted by distance from character. If #distance not provided use 10 as default value.'),
 ('gobject setphase','2','Syntax: .gobject setphase #guid #phasemask\r\n\r\nGameobject with DB guid #guid phasemask changed to #phasemask with related world vision update for players. Gameobject state saved to DB and persistent.'),
@@ -14791,6 +14792,10 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (5021, 'Armor: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5022, 'Channel password not changed due to channel being marked public. GM Powers required.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5023, 'Channel: %s publicity set to: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5024, 'Entry: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5025, 'Type: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5026, 'DisplayID: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5027, 'Name: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6613, '|cfff00000[GM Announcement]: %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6614, 'Notification to GM''s - ', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6615, '|cffffff00[|c1f40af20GM Announce by|r |cffff0000%s|cffffff00]:|r %s|r', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
