@@ -38,6 +38,7 @@ CREATE TABLE `access_requirement` (
   `heroic_quest_done` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `heroic_quest_failed_text` text,
   `comment` text,
+  `status` tinyint(3) unsigned DEFAULT '15' COMMENT 'instance status (open/close)',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
 /*!40101 SET character_set_client = @saved_cs_client */;
