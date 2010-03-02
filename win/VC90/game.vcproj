@@ -3042,6 +3042,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\scripts\northrend\crystalsong_forest.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\scripts\northrend\dalaran.cpp"
 					>
 				</File>
