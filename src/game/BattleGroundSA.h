@@ -32,9 +32,9 @@ class BattleGroundSAScore : public BattleGroundScore
 
 enum BG_SA_Honor
 {
-    BG_SA_HONOR_LOSE = 124,
-    BG_SA_HONOR_WIN  = 248,
-    BG_SA_HONOR_END  = 124
+    // Both teams get 248 honor, winning team gets an extra 124.
+    BG_SA_HONOR_WIN  = 124,
+    BG_SA_HONOR_END  = 248
 };
 
 
