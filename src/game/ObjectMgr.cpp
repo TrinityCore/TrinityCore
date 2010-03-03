@@ -777,6 +777,12 @@ void ObjectMgr::LoadCreatureTemplates()
                 const_cast<CreatureInfo*>(cInfo)->scale = 1.0f;
         }
 
+        if(cInfo->expansion > (MAX_CREATURE_BASE_HP - 1))
+        {
+            sLog.outErrorDb("Table `creature_template` have creature (Entry: %u) with expansion %u ignore and set to NULL.", cInfo->expansion);
+            const_cast<CreatureInfo*>(cInfo)->expansion = 0;
+        }
+
         const_cast<CreatureInfo*>(cInfo)->dmg_multiplier *= Creature::_GetDamageMod(cInfo->rank);
     }
 }
