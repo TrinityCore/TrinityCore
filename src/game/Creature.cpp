@@ -1083,7 +1083,6 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     SetLevel(level);
 
     CreatureBaseStats const* stats = objmgr.GetCreatureBaseStats(level, cinfo->unit_class);
-    assert(stats); // should not be null
 
     // health
     float healthmod = _GetHealthMod(rank);
