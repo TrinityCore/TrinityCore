@@ -2826,7 +2826,7 @@ void Spell::cast(bool skipCheck)
     if(!m_IsTriggeredSpell || !skipCheck)
     {
         SpellCastResult castResult = CheckCast(false);
-        if(castResult != SPELL_CAST_OK)
+        if(castResult != SPELL_CAST_OK && !(m_spellInfo->Attributes & SPELL_ATTR_ONLY_STEALTHED))
         {
             SendCastResult(castResult);
             SendInterrupted(0);
