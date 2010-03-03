@@ -337,8 +337,6 @@ class BattleGroundSA : public BattleGround
 	void ToggleTimer();
 	TeamId attackers;
 	uint32 TotalTime;
-    uint32 m_HonorWinKills;
-    uint32 m_HonorEndKills;
 	bool ShipsStarted;
 	BG_SA_GateState GateStatus[6];
 	BG_SA_Status status;
