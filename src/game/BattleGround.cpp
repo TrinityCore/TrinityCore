@@ -872,6 +872,9 @@ void BattleGround::RewardMark(Player *plr,uint32 count)
         case BATTLEGROUND_EY:
             mark = ITEM_EY_MARK_OF_HONOR;
             break;
+        case BATTLEGROUND_SA:
+            mark = ITEM_SA_MARK_OF_HONOR;
+            break;
         default:
             return;
     }
@@ -976,6 +979,9 @@ void BattleGround::RewardQuestComplete(Player *plr)
             break;
         case BATTLEGROUND_EY:
             quest = SPELL_EY_QUEST_REWARD;
+            break;
+        case BATTLEGROUND_SA:
+            quest = SPELL_SA_QUEST_REWARD;
             break;
         default:
             return;

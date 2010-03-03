@@ -50,6 +50,7 @@ enum BattleGroundQuests
     SPELL_AV_QUEST_REWARD           = 43475,
     SPELL_AV_QUEST_KILLED_BOSS      = 23658,
     SPELL_EY_QUEST_REWARD           = 43477,
+    SPELL_SA_QUEST_REWARD           = 61213,
     SPELL_AB_QUEST_REWARD_4_BASES   = 24061,
     SPELL_AB_QUEST_REWARD_5_BASES   = 24064
 };
@@ -62,10 +63,13 @@ enum BattleGroundMarks
     SPELL_AB_MARK_WINNER            = 24953,
     SPELL_AV_MARK_LOSER             = 24954,
     SPELL_AV_MARK_WINNER            = 24955,
+    SPELL_SA_MARK_WINNER            = 61160,
+    SPELL_SA_MARK_LOSER             = 61159,
     ITEM_AV_MARK_OF_HONOR           = 20560,
     ITEM_WS_MARK_OF_HONOR           = 20558,
     ITEM_AB_MARK_OF_HONOR           = 20559,
-    ITEM_EY_MARK_OF_HONOR           = 29024
+    ITEM_EY_MARK_OF_HONOR           = 29024,
+    ITEM_SA_MARK_OF_HONOR           = 42425
 };
 
 enum BattleGroundMarksCount
