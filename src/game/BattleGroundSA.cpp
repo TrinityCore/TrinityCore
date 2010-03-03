@@ -43,14 +43,14 @@ BattleGroundSA::~BattleGroundSA()
 
 void BattleGroundSA::Reset()
 {
-  TotalTime = 0;
-  attackers = ( (urand(0,1)) ? TEAM_ALLIANCE : TEAM_HORDE);
-  for(uint8 i = 0; i <= 5; i++)
+    TotalTime = 0;
+    attackers = ( (urand(0,1)) ? TEAM_ALLIANCE : TEAM_HORDE);
+    for(uint8 i = 0; i <= 5; i++)
     {
-      GateStatus[i] = BG_SA_GATE_OK;
+        GateStatus[i] = BG_SA_GATE_OK;
     }
-  ShipsStarted = false;
-  status = BG_SA_WARMUP;
+    ShipsStarted = false;
+    status = BG_SA_WARMUP;
 }
 
 bool BattleGroundSA::SetupBattleGround()
@@ -673,15 +673,15 @@ void BattleGroundSA::ToggleTimer()
 
 void BattleGroundSA::EndBattleGround(uint32 winner)
 {
-    //win reward
+    //honor reward for winning
     if (winner == ALLIANCE)
-        RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), ALLIANCE);
+        RewardHonorToTeam(GetBonusHonorFromKill(BG_SA_HONOR_WIN), ALLIANCE);
     else if (winner == HORDE)
-        RewardHonorToTeam(GetBonusHonorFromKill(m_HonorWinKills), HORDE);
+        RewardHonorToTeam(GetBonusHonorFromKill(BG_SA_HONOR_WIN), HORDE);
     
     //complete map_end rewards (even if no team wins)
-    RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), ALLIANCE);
-    RewardHonorToTeam(GetBonusHonorFromKill(m_HonorEndKills), HORDE);
+    RewardHonorToTeam(GetBonusHonorFromKill(BG_SA_HONOR_END), ALLIANCE);
+    RewardHonorToTeam(GetBonusHonorFromKill(BG_SA_HONOR_END), HORDE);
 
     BattleGround::EndBattleGround(winner);
 }
