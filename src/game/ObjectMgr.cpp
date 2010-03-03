@@ -8811,6 +8811,7 @@ void ObjectMgr::LoadGMTickets()
             delete *itr;
     }
     m_GMTicketList.clear();
+    m_GMticketid = 0;
 
     QueryResult_AutoPtr result = CharacterDatabase.Query( "SELECT guid, playerGuid, name, message, createtime, map, posX, posY, posZ, timestamp, closed, assignedto, comment FROM gm_tickets" );
 
@@ -8851,7 +8852,6 @@ void ObjectMgr::LoadGMTickets()
     } while( result->NextRow() );
 
     result = CharacterDatabase.PQuery("SELECT MAX(guid) from gm_tickets");
-    m_GMticketid = 0;
 
     if(result)
     {
