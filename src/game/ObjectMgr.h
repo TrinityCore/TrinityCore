@@ -1061,7 +1061,7 @@ class ObjectMgr
 
         MailLevelRewardMap m_mailLevelRewardMap;
 
-        CreatureBaseStatsList m_creatureBaseStatsList;
+        CreatureBaseStatsMap m_creatureBaseStatsMap;
 
         typedef std::map<uint32,PetLevelInfo*> PetLevelInfoMap;
         // PetLevelInfoMap[creature_id][level]

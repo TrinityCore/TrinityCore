@@ -172,8 +172,6 @@ struct CreatureInfo
 // Defines base stats for creatures (used to calculate HP/mana/armor).
 struct CreatureBaseStats
 {
-    uint8 Level;
-    uint8 Class;
     uint32 BaseHealth[MAX_CREATURE_BASE_HP];
     uint32 BaseMana;
     uint32 BaseArmor;
@@ -202,7 +200,7 @@ struct CreatureBaseStats
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
 };
 
-typedef std::vector<CreatureBaseStats> CreatureBaseStatsList;
+typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsMap;
 
 struct CreatureLocale
 {
