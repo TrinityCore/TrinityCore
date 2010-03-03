@@ -8922,14 +8922,23 @@ void ObjectMgr::RemoveGMTicket(uint64 ticketGuid, int64 source, bool permanently
 
 CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
 {
-    for (CreatureBaseStatsList::const_iterator it = m_creatureBaseStatsList.begin(); it != m_creatureBaseStatsList.end(); ++it)
-    {
-        CreatureBaseStats const& stats = (*it);
-        if (stats.Level == level && stats.Class == unitClass)
-            return &stats;
-    }
+    CreatureBaseStatsMap::const_iterator it = m_creatureBaseStatsMap.find( MAKE_PAIR16(level,unitClass) );
 
-    return NULL;
+    if (it != m_creatureBaseStatsMap.end())
+        return &(it->second);
+
+    struct DefaultCreatureBaseStats : public CreatureBaseStats
+    {
+        DefaultCreatureBaseStats()
+        {
+            BaseArmor = 1;
+            for (uint8 j = 0; j < MAX_CREATURE_BASE_HP; ++j)
+                BaseHealth[j] = 1;
+            BaseMana = 0;
+        }
+    };
+    static const DefaultCreatureBaseStats def_stats;
+    return &def_stats;
 }
 
 void ObjectMgr::LoadCreatureClassLevelStats()
@@ -8951,36 +8960,38 @@ void ObjectMgr::LoadCreatureClassLevelStats()
     do
     {
         Field *fields = result->Fetch();
-        CreatureBaseStats stats = CreatureBaseStats();
-        stats.Level = fields[0].GetUInt32();
-        stats.Class = fields[1].GetUInt8();
+
+        uint8 Level = fields[0].GetUInt32();
+        uint8 Class = fields[1].GetUInt8();
+
+        CreatureBaseStats stats;
         for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
             stats.BaseHealth[i] = fields[i + 2].GetUInt32();
         stats.BaseMana = fields[5].GetUInt32();
         stats.BaseArmor = fields[6].GetUInt32();
 
-        if (stats.Level > STRONG_MAX_LEVEL)
+        if (Level > STRONG_MAX_LEVEL)
         {
             sLog.outErrorDb("Creature base stats for class %u has invalid level %u (max is %u) - set to %u",
-                stats.Class, stats.Level, STRONG_MAX_LEVEL, STRONG_MAX_LEVEL);
-            stats.Level = STRONG_MAX_LEVEL;
+                Class, Level, STRONG_MAX_LEVEL, STRONG_MAX_LEVEL);
+            Level = STRONG_MAX_LEVEL;
         }
 
-        if (!stats.Class || ((1 << (stats.Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
+        if (!Class || ((1 << (Class - 1)) & CLASSMASK_ALL_CREATURES) == 0)
             sLog.outErrorDb("Creature base stats for level %u has invalid class %u",
-                stats.Level, stats.Class);
+                Level, Class);
 
         for (uint8 i = 0; i < MAX_CREATURE_BASE_HP; ++i)
         {
             if (stats.BaseHealth[i] < 1)
             {
                 sLog.outErrorDb("Creature base stats for class %u, level %u has invalid zero base HP[%u] - set to 1",
-                    stats.Class, stats.Level, i);
+                    Class, Level, i);
                 stats.BaseHealth[i] = 1;
             }
         }
 
-        m_creatureBaseStatsList.push_back(stats);
+        m_creatureBaseStatsMap[MAKE_PAIR16(Level, Class)] = stats;
 
         bar.step();
         ++counter;
@@ -8993,22 +9004,9 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         if (!info)
             continue;
 
-        CreatureBaseStats const* stats = GetCreatureBaseStats(info->maxlevel, info->unit_class);
-        if (!stats)
+        if (m_creatureBaseStatsMap.find( MAKE_PAIR16(info->maxlevel, info->unit_class) ) == m_creatureBaseStatsMap.end())
         {
-            sLog.outErrorDb("Missing base stats for creature template %u maxlevel %u, adding default values",
-                info->Entry, info->maxlevel);
-
-            CreatureBaseStats new_stats = CreatureBaseStats();
-
-            new_stats.BaseArmor = 1;
-            for (uint8 j = 0; j < MAX_CREATURE_BASE_HP; ++j)
-                new_stats.BaseHealth[j] = 1;
-            new_stats.BaseMana = 0;
-            new_stats.Class = info->unit_class;
-            new_stats.Level = info->maxlevel;
-
-            m_creatureBaseStatsList.push_back(new_stats);
+            sLog.outErrorDb("Missing base stats for creature class %u maxlevel %u", info->unit_class, info->maxlevel);
         }
     }
 
