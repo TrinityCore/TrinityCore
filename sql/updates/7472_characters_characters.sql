@@ -8,7 +8,7 @@ ALTER TABLE characters
   ADD COLUMN `yesterdayKills` smallint(5) UNSIGNED NOT NULL default '0' AFTER todayKills,
   ADD COLUMN `chosenTitle` int(10) UNSIGNED NOT NULL default '0' AFTER yesterdayKills,
   ADD COLUMN `knownCurrencies` bigint(20) UNSIGNED NOT NULL default '0' AFTER chosenTitle,
-  ADD COLUMN `watchedFaction` int(10) NOT NULL default '0' AFTER knownCurrencies,
+  ADD COLUMN `watchedFaction` bigint(10) NOT NULL default '0' AFTER knownCurrencies,
   ADD COLUMN `drunk` smallint(5) UNSIGNED NOT NULL default '0' AFTER watchedFaction,
   ADD COLUMN `health` int(10) UNSIGNED NOT NULL default '0' AFTER drunk,
   ADD COLUMN `power1` int(10) UNSIGNED NOT NULL default '0' AFTER health,
