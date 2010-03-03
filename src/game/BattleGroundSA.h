@@ -30,6 +30,14 @@ class BattleGroundSAScore : public BattleGroundScore
 	uint8 gates_destroyed;
 };
 
+enum BG_SA_Honor
+{
+    BG_SA_HONOR_LOSE = 124,
+    BG_SA_HONOR_WIN  = 248,
+    BG_SA_HONOR_END  = 124
+};
+
+
 enum BG_SA_Status
   {
     BG_SA_NOTSTARTED = 0,
@@ -329,6 +337,8 @@ class BattleGroundSA : public BattleGround
 	void ToggleTimer();
 	TeamId attackers;
 	uint32 TotalTime;
+    uint32 m_HonorWinKills;
+    uint32 m_HonorEndKills;
 	bool ShipsStarted;
 	BG_SA_GateState GateStatus[6];
 	BG_SA_Status status;
