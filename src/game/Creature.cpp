@@ -132,7 +132,7 @@ bool AssistDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
     return true;
 }
 
-CreatureBaseStats const* CreatureBaseStats::GetBaseStats(uint32 level, uint8 unitClass)
+CreatureBaseStats const* CreatureBaseStats::GetBaseStats(uint8 level, uint8 unitClass)
 {
     return objmgr.GetCreatureBaseStats(level, unitClass);
 }
@@ -1083,6 +1083,7 @@ void Creature::SelectLevel(const CreatureInfo *cinfo)
     SetLevel(level);
 
     CreatureBaseStats const* stats = objmgr.GetCreatureBaseStats(level, cinfo->unit_class);
+    assert(stats); // should not be null
 
     // health
     float healthmod = _GetHealthMod(rank);
