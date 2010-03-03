@@ -30,14 +30,6 @@ class BattleGroundSAScore : public BattleGroundScore
 	uint8 gates_destroyed;
 };
 
-enum BG_SA_Honor
-{
-    // Both teams get 248 honor, winning team gets an extra 124.
-    BG_SA_HONOR_WIN  = 124,
-    BG_SA_HONOR_END  = 248
-};
-
-
 enum BG_SA_Status
   {
     BG_SA_NOTSTARTED = 0,
