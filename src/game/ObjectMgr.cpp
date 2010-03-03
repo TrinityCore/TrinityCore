@@ -8920,7 +8920,7 @@ void ObjectMgr::RemoveGMTicket(uint64 ticketGuid, int64 source, bool permanently
     RemoveGMTicket(ticket, source, permanently);
 }
 
-CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint32 level, uint8 unitClass)
+CreatureBaseStats const* ObjectMgr::GetCreatureBaseStats(uint8 level, uint8 unitClass)
 {
     for (CreatureBaseStatsList::const_iterator it = m_creatureBaseStatsList.begin(); it != m_creatureBaseStatsList.end(); ++it)
     {
