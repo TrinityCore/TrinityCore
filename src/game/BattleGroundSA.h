@@ -309,6 +309,8 @@ class BattleGroundSA : public BattleGround
 	virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
 	virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
 
+    void EndBattleGround(uint32 winner);
+
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
 
