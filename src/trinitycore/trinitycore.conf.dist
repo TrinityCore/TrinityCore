@@ -386,14 +386,7 @@ MapUpdate.Threads = 1
 #    DBLogLevel
 #        Log level of DB logging.
 #                 0 = Minimum
-#                 1 = Basic+#    CharLogDump.Separate
-+#        Write character dump to separate file
-+#        Default: 0 - don't write dump to separate file
-+#                 1 - write each dump to separate file
-+#
-+#    CharLogDump.SeparateDir
-+#        Subdirectory within logs dir for separate char dumps.
-+#
+#                 1 = Basic
 #                 2 = Detail
 #        Default: 3 = Full/Debug
 #
