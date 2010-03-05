@@ -244,51 +244,53 @@ void BattleGroundSA::Update(uint32 diff)
     TotalTime += diff;
 
     if(status == BG_SA_WARMUP || status == BG_SA_SECOND_WARMUP)
-      {
-	if(TotalTime >= BG_SA_WARMUPLENGTH)
-	  {
-	    TotalTime = 0;
-	    ToggleTimer();
-	    status = (status == BG_SA_WARMUP) ? BG_SA_ROUND_ONE : BG_SA_ROUND_TWO;
-	  }
-	if(TotalTime >= BG_SA_BOAT_START)
-	  StartShips();
-	return;
-      }
+    {
+        if(TotalTime >= BG_SA_WARMUPLENGTH)
+        {
+            TotalTime = 0;
+            ToggleTimer();
+            status = (status == BG_SA_WARMUP) ? BG_SA_ROUND_ONE : BG_SA_ROUND_TWO;
+        }
+        if(TotalTime >= BG_SA_BOAT_START)
+            StartShips();
+      
+        return;
+    }
     else if(status == BG_SA_ROUND_ONE)
-      {
-	if(TotalTime >= BG_SA_ROUNDLENGTH)
-	  {
-	    RoundScores[0].time = TotalTime;
-	    TotalTime = 0;
-	    status = BG_SA_SECOND_WARMUP;
-	    attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
-	    RoundScores[0].winner = attackers;
-	    status = BG_SA_SECOND_WARMUP;
-	    ToggleTimer();
-	    ResetObjs();
-	    return;
-	  }
-
-      }
+    {
+        if(TotalTime >= BG_SA_ROUNDLENGTH)
+        {
+            RoundScores[0].time = TotalTime;
+            TotalTime = 0;
+            status = BG_SA_SECOND_WARMUP;
+            attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
+            RoundScores[0].winner = attackers;
+            status = BG_SA_SECOND_WARMUP;
+            ToggleTimer();
+            ResetObjs();
+            return;
+        }
+    }
     else if(status == BG_SA_ROUND_TWO)
-      {
-	if(TotalTime >= BG_SA_ROUNDLENGTH)
-	  {
-	    RoundScores[1].time = TotalTime;
-	    RoundScores[1].winner = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
-	    
-	    if(RoundScores[0].time < RoundScores[1].time)
-	      EndBattleGround(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
-	    else
-	      EndBattleGround(RoundScores[1].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
-	    
-	    return;
-	  }
-      }
+    {
+        if(TotalTime >= BG_SA_ROUNDLENGTH)
+        {
+            RoundScores[1].time = TotalTime;
+            RoundScores[1].winner = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
+
+            if (RoundScores[0].time == RoundScores[1].time)
+                EndBattleGround(NULL);
+            else if(RoundScores[0].time < RoundScores[1].time)
+                EndBattleGround(RoundScores[0].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+            else
+                EndBattleGround(RoundScores[1].winner == TEAM_ALLIANCE ? ALLIANCE : HORDE);
+
+	        return;
+	     }
+    }
 
     if(status == BG_SA_ROUND_ONE || status == BG_SA_ROUND_TWO)
-      SendTime();
+        SendTime();
 }
 
 void BattleGroundSA::StartingEventCloseDoors()
