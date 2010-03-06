@@ -1487,6 +1487,11 @@ void Creature::setDeathState(DeathState s)
         SetHealth(0);
         SetPower(getPowerType(),0);
 
+        // For some reason movement packet is always to be issued on death
+        // send if not going to fall down
+        if (!canFly() && !IsFlying())
+            SendMonsterMove(GetPositionX(), GetPositionY(), GetPositionZ(), 0);
+
         if ((canFly() || IsFlying()) && FallGround())
             return;
 
