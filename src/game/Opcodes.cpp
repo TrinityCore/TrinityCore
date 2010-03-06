@@ -1235,7 +1235,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4B4*/ { "CMSG_ITEM_REFUND",                             STATUS_LOGGEDIN, &WorldSession::HandleItemRefund                },
     /*0x4B5*/ { "SMSG_ITEM_REFUND_RESULT",                      STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4B6*/ { "CMSG_CORPSE_MAP_POSITION_QUERY",               STATUS_LOGGEDIN, &WorldSession::HandleCorpseMapPositionQuery    },
-    /*0x4B7*/ { "CMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE",      STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
+    /*0x4B7*/ { "SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE",      STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x4B8*/ { "CMSG_LFG_SET_ROLES_2",                         STATUS_LOGGEDIN, &WorldSession::HandleLfgSetRoles               },
     /*0x4B9*/ { "UMSG_UNKNOWN_1209",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x4BA*/ { "CMSG_CALENDAR_CONTEXT_EVENT_SIGNUP",           STATUS_NEVER,    &WorldSession::Handle_NULL                     },

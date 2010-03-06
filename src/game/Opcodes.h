@@ -1243,7 +1243,7 @@ enum Opcodes
     CMSG_ITEM_REFUND                                = 0x4B4, // lua: ContainerRefundItemPurchase
     SMSG_ITEM_REFUND_RESULT                         = 0x4B5, // refund item result
     CMSG_CORPSE_MAP_POSITION_QUERY                  = 0x4B6, // CMSG, uint32
-    CMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE         = 0x4B7, // SMSG, 3*float+float
+    SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE         = 0x4B7, // SMSG, 3*float+float
     UMSG_UNKNOWN_1208                               = 0x4B8, // not found
     UMSG_UNKNOWN_1209                               = 0x4B9, // not found
     CMSG_CALENDAR_CONTEXT_EVENT_SIGNUP              = 0x4BA, // CMSG, uint64, lua: CalendarContextEventSignUp
