@@ -104,6 +104,17 @@ void CreatureAI::DoZoneInCombat(Creature* creature)
     }
 }
 
+// scripts does not take care about MoveInLineOfSight loops
+// MoveInLineOfSight can be called inside another MoveInLineOfSight and cause stack overflow
+void CreatureAI::MoveInLineOfSight_Safe(Unit *who)
+{   
+    if(m_MoveInLineOfSight_locked == true)
+        return;
+    m_MoveInLineOfSight_locked = true;
+    MoveInLineOfSight(who);
+    m_MoveInLineOfSight_locked = false;
+}
+
 void CreatureAI::MoveInLineOfSight(Unit *who)
 {
     if(me->getVictim())
