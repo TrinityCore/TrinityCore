@@ -120,7 +120,7 @@ inline void CreatureUnitRelocationWorker(Creature* c, Unit* u)
 
     if(c->HasReactState(REACT_AGGRESSIVE) && !c->hasUnitState(UNIT_STAT_SIGHTLESS))
         if(c->_IsWithinDist(u, c->m_SightDistance, true) && c->IsAIEnabled)
-            c->AI()->MoveInLineOfSight(u);
+            c->AI()->MoveInLineOfSight_Safe(u);
 }
 
 void PlayerRelocationNotifier::Visit(PlayerMapType &m)

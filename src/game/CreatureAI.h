@@ -83,14 +83,14 @@ class CreatureAI : public UnitAI
         Creature *DoSummonFlyer(uint32 uiEntry, WorldObject *obj, float fZ, float fRadius = 5.0f, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
-        explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c) {}
+        explicit CreatureAI(Creature *c) : UnitAI((Unit*)c), me(c), m_creature(c), m_MoveInLineOfSight_locked(false) {}
 
         virtual ~CreatureAI() {}
 
         ///== Reactions At =================================
 
         // Called if IsVisible(Unit *who) is true at each *who move, reaction at visibility zone enter
-        virtual void MoveInLineOfSight(Unit *);
+        void MoveInLineOfSight_Safe(Unit *who);
 
         // Called for reaction at stopping attack at no attackers or targets
         virtual void EnterEvadeMode();
@@ -174,7 +174,12 @@ class CreatureAI : public UnitAI
         virtual void PassengerBoarded(Unit *who, int8 seatId, bool apply) {}
 
     protected:
+        virtual void MoveInLineOfSight(Unit *);
+
         bool _EnterEvadeMode();
+
+    private:
+        bool m_MoveInLineOfSight_locked;
 };
 
 enum Permitions
