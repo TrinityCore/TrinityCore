@@ -334,7 +334,7 @@ void Guardian::InitSummon()
     if(m_owner->GetTypeId() == TYPEID_PLAYER
         && m_owner->GetMinionGUID() == GetGUID()
         && !m_owner->GetCharmGUID())
-        ((Player*)m_owner)->CharmSpellInitialize();
+        m_owner->ToPlayer()->CharmSpellInitialize();
 }
 
 Puppet::Puppet(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)

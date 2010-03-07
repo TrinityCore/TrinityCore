@@ -59,11 +59,11 @@ void Totem::InitStats(uint32 duration)
     CreatureInfo const *cinfo = GetCreatureInfo();
     if(m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
     {
-        uint32 display_id = objmgr.ChooseDisplayId(((Player*)m_owner)->GetTeam(), cinfo);
+        uint32 display_id = objmgr.ChooseDisplayId(m_owner->ToPlayer()->GetTeam(), cinfo);
         CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
         if (minfo)
             display_id = minfo->modelid;
-        switch (((Player*)m_owner)->GetTeam())
+        switch (m_owner->ToPlayer()->GetTeam())
         {
             case ALLIANCE:
                 display_id = cinfo->Modelid1;
@@ -146,9 +146,9 @@ void Totem::UnSummon()
     Group *pGroup = NULL;
     if (m_owner->GetTypeId() == TYPEID_PLAYER)
     {
-        ((Player*)m_owner)->SendAutoRepeatCancel(this);
+        m_owner->ToPlayer()->SendAutoRepeatCancel(this);
         // Not only the player can summon the totem (scripted AI)
-        pGroup = ((Player*)m_owner)->GetGroup();
+        pGroup = m_owner->ToPlayer()->GetGroup();
         if (pGroup)
         {
             for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())

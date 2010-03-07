@@ -61,7 +61,7 @@ void DynamicObject::RemoveFromWorld()
             if(Unit *caster = GetCaster())
             {
                 if(caster->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)caster)->SetViewpoint(this, false);
+                    caster->ToPlayer()->SetViewpoint(this, false);
             }
             else
             {

@@ -325,8 +325,8 @@ void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)
     if(killed->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if(plr->GetTeam() == ALLIANCE && ((Player*)killed)->GetTeam() != ALLIANCE)
+    if(plr->GetTeam() == ALLIANCE && killed->ToPlayer()->GetTeam() != ALLIANCE)
         plr->CastSpell(plr,AlliancePlayerKillReward,true);
-    else if(plr->GetTeam() == HORDE && ((Player*)killed)->GetTeam() != HORDE)
+    else if(plr->GetTeam() == HORDE && killed->ToPlayer()->GetTeam() != HORDE)
         plr->CastSpell(plr,HordePlayerKillReward,true);
 }
