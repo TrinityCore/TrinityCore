@@ -311,14 +311,25 @@ void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTim
     SendMonsterMove(x, y, z, transitTime, player);
 }
 
-void Unit::SendMonsterStop()
+void Unit::SendMonsterStop(bool on_death)
 {
     WorldPacket data(SMSG_MONSTER_MOVE, (17 + GetPackGUID().size()));
     data.append(GetPackGUID());
     data << uint8(0);                                       // new in 3.1
     data << GetPositionX() << GetPositionY() << GetPositionZ();
     data << getMSTime();
-    data << uint8(1);
+
+    if (on_death == true)
+    {
+        data << uint8(1);
+        data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
+        data << uint32(0);                                      // Time in between points
+        data << uint32(1);                                      // 1 single waypoint
+        data << GetPositionX() << GetPositionY() << GetPositionZ();
+    }
+    else
+        data << uint8(0);
+
     SendMessageToSet(&data, true);
 
     clearUnitState(UNIT_STAT_MOVE);
@@ -12002,7 +12013,7 @@ void Unit::setDeathState(DeathState s)
         GetMotionMaster()->MoveIdle();
         if (m_vehicleKit)
             m_vehicleKit->Die();
-        StopMoving();
+        SendMonsterStop(true);
         //without this when removing IncreaseMaxHealth aura player may stuck with 1 hp
         //do not why since in IncreaseMaxHealth currenthealth is checked
         SetHealth(0);
