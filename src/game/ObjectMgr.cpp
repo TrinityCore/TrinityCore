@@ -9004,7 +9004,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         if (!info)
             continue;
 
-        for(uint8 lvl = info->minlevel; lvl <= info->maxlevel; ++lvl)
+        for(uint16 lvl = info->minlevel; lvl <= info->maxlevel; ++lvl)
         {
             if (m_creatureBaseStatsMap.find( MAKE_PAIR16(lvl, info->unit_class) ) == m_creatureBaseStatsMap.end())
                 sLog.outErrorDb("Missing base stats for creature class %u level %u", info->unit_class, lvl);
