@@ -797,7 +797,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
         return false;
     }
 
-    map->Add((Creature*)v);
+    map->Add(v->ToCreature());
 
     return true;
 }

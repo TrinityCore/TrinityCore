@@ -242,8 +242,8 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
         if(passenger->GetEntry() == entry)
         {
             assert(passenger->GetTypeId() == TYPEID_UNIT);
-            if(me->GetTypeId() == TYPEID_UNIT && ((Creature*)me)->IsInEvadeMode() && ((Creature*)passenger)->IsAIEnabled)
-                ((Creature*)passenger)->AI()->EnterEvadeMode();
+            if(me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsInEvadeMode() && passenger->ToCreature()->IsAIEnabled)
+                passenger->ToCreature()->AI()->EnterEvadeMode();
             return;
         }
         passenger->ExitVehicle(); // this should not happen
@@ -329,8 +329,8 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
         if(me->GetTypeId() == TYPEID_UNIT)
         {
-            if(((Creature*)me)->IsAIEnabled)
-                ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, true);
+            if(me->ToCreature()->IsAIEnabled)
+                me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, true);
 
             // update all passenger's positions
             RelocatePassengers(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -380,8 +380,8 @@ void Vehicle::RemovePassenger(Unit *unit)
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
         me->RemoveCharmedBy(unit);
 
-    if(me->GetTypeId() == TYPEID_UNIT && ((Creature*)me)->IsAIEnabled)
-        ((Creature*)me)->AI()->PassengerBoarded(unit, seat->first, false);
+    if(me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
+        me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
     // only for flyable vehicles?
     //CastSpell(this, 45472, true);                           // Parachute

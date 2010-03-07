@@ -129,7 +129,7 @@ void HostilReference::updateOnlineStatus()
         ((getTarget()->GetTypeId() != TYPEID_PLAYER || !((Player*)getTarget())->isGameMaster()) ||
         !getTarget()->hasUnitState(UNIT_STAT_IN_FLIGHT)))
     {
-        Creature* creature = (Creature*)getSourceUnit();
+      Creature* creature = getSourceUnit()->ToCreature();
         online = getTarget()->isInAccessiblePlaceFor(creature);
         if (!online)
         {
@@ -423,7 +423,7 @@ void ThreatManager::modifyThreatPercent(Unit *pVictim, int32 iPercent)
 Unit* ThreatManager::getHostilTarget()
 {
     iThreatContainer.update();
-    HostilReference* nextVictim = iThreatContainer.selectNextVictim((Creature*) getOwner(), getCurrentVictim());
+    HostilReference* nextVictim = iThreatContainer.selectNextVictim( getOwner()->ToCreature(), getCurrentVictim());
     setCurrentVictim(nextVictim);
     return getCurrentVictim() != NULL ? getCurrentVictim()->getTarget() : NULL;
 }

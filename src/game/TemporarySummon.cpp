@@ -214,8 +214,8 @@ void TempSummon::InitSummon()
     Unit* owner = GetSummoner();
     if(owner)
     {
-        if(owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
-            ((Creature*)owner)->AI()->JustSummoned(this);
+        if(owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+            owner->ToCreature()->AI()->JustSummoned(this);
         if(IsAIEnabled)
             AI()->IsSummonedBy(owner);
     }
@@ -237,8 +237,8 @@ void TempSummon::UnSummon()
     }
 
     Unit* owner = GetSummoner();
-    if(owner && owner->GetTypeId() == TYPEID_UNIT && ((Creature*)owner)->IsAIEnabled)
-        ((Creature*)owner)->AI()->SummonedCreatureDespawn(this);
+    if(owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+        owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
 
     AddObjectToRemoveList();
 }

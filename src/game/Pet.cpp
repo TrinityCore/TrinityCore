@@ -191,7 +191,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     CreatureInfo const *cinfo = GetCreatureInfo();
     if (cinfo->type == CREATURE_TYPE_CRITTER)
     {
-        map->Add((Creature*)this);
+        map->Add(this->ToCreature());
         return true;
     }
 
@@ -286,7 +286,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     owner->SetMinion(this, true);
-    map->Add((Creature*)this);
+    map->Add(this->ToCreature());
 
     m_resetTalentsCost = fields[15].GetUInt32();
     m_resetTalentsTime = fields[16].GetUInt64();

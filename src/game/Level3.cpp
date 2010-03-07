@@ -4544,7 +4544,7 @@ bool ChatHandler::HandleNpcChangeEntryCommand(const char *args)
         SetSentErrorMessage(true);
         return false;
     }
-    Creature* creature = (Creature*)unit;
+    Creature* creature = unit->ToCreature();
     if(creature->UpdateEntry(newEntryNum))
         SendSysMessage(LANG_DONE);
     else
@@ -6182,7 +6182,7 @@ bool ChatHandler::HandleRespawnCommand(const char* /*args*/)
         }
 
         if(target->isDead())
-            ((Creature*)target)->Respawn();
+            target->ToCreature()->Respawn();
         return true;
     }
 

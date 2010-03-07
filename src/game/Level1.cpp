@@ -1464,7 +1464,7 @@ bool ChatHandler::HandleModifyTalentCommand (const char* args)
         target->ToPlayer()->SendTalentsInfoData(false);
         return true;
     }
-    else if(((Creature*)target)->isPet())
+    else if(target->ToCreature()->isPet())
     {
         Unit *owner = target->GetOwner();
         if(owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)target)->IsPermanentPetFor(owner->ToPlayer()))

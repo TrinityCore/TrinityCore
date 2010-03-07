@@ -954,7 +954,7 @@ bool Guardian::UpdateStats(Stats stat)
         else
         {
             mod = 0.3f;
-            if (((Creature*)this)->isPet())
+            if (this->ToCreature()->isPet())
             {
                 PetSpellMap::const_iterator itr = (((Pet*)this)->m_spells.find(62758));   // Wild Hunt rank 1
                 if (itr == ((Pet*)this)->m_spells.end())
@@ -1120,7 +1120,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         if(isHunterPet())                      //hunter pets benefit from owner's attack power
         {
         float mod = 1.0f;                                                 //Hunter contribution modifier
-            if (((Creature*)this)->isPet())
+            if (this->ToCreature()->isPet())
         {
           PetSpellMap::const_iterator itr = ((Pet*)this)->m_spells.find(62758);                     //Wild Hunt rank 1
           if (itr == ((Pet*)this)->m_spells.end())

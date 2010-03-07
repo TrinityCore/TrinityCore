@@ -836,7 +836,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const * triggeredByAura)
             m_procEx |= PROC_EX_INTERNAL_TRIGGERED;
     }
     // Totem casts require spellfamilymask defined in spell_proc_event to proc
-    if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isTotem() && m_caster->IsControlledByPlayer())
+    if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isTotem() && m_caster->IsControlledByPlayer())
     {
         m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
     }
@@ -1076,7 +1076,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         {
             spellHitTarget = m_caster;
             if(m_caster->GetTypeId() == TYPEID_UNIT)
-                ((Creature*)m_caster)->LowerPlayerDamageReq(target->damage);
+                m_caster->ToCreature()->LowerPlayerDamageReq(target->damage);
         }
     }
 
@@ -1212,8 +1212,8 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             && unitTarget->GetTypeId() == TYPEID_UNIT)
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
-            if (((Creature*)unitTarget)->IsAIEnabled)
-                ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+            if (unitTarget->ToCreature()->IsAIEnabled)
+                unitTarget->ToCreature()->AI()->AttackStart(m_caster);
         }
     }
 
@@ -1231,18 +1231,18 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         //AI functions
         if(spellHitTarget->GetTypeId() == TYPEID_UNIT)
         {
-            if(((Creature*)spellHitTarget)->IsAIEnabled)
-                ((Creature*)spellHitTarget)->AI()->SpellHit(m_caster, m_spellInfo);
+            if(spellHitTarget->ToCreature()->IsAIEnabled)
+                spellHitTarget->ToCreature()->AI()->SpellHit(m_caster, m_spellInfo);
 
             // cast at creature (or GO) quest objectives update at successful cast finished (+channel finished)
             // ignore pets or autorepeat/melee casts for speed (not exist quest for spells (hm... )
-            if(m_originalCaster && m_originalCaster->IsControlledByPlayer() && !((Creature*)spellHitTarget)->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive())
+            if(m_originalCaster && m_originalCaster->IsControlledByPlayer() && !spellHitTarget->ToCreature()->isPet() && !IsAutoRepeat() && !IsNextMeleeSwingSpell() && !IsChannelActive())
                 if(Player* p = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself())
                     p->CastedCreatureOrGO(spellHitTarget->GetEntry(),spellHitTarget->GetGUID(),m_spellInfo->Id);
         }
 
-        if(m_caster && m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsAIEnabled)
-            ((Creature*)m_caster)->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
+        if(m_caster && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+            m_caster->ToCreature()->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         DoTriggersOnSpellHit(spellHitTarget);
@@ -1336,7 +1336,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
         m_diminishLevel = unit->GetDiminishing(m_diminishGroup);
         DiminishingReturnsType type = GetDiminishingReturnsGroupType(m_diminishGroup);
         // Increase Diminishing on unit, current informations for actually casts will use values above
-        if((type == DRTYPE_PLAYER && (unit->GetTypeId() == TYPEID_PLAYER || ((Creature*)unit)->isPet() || ((Creature*)unit)->isPossessedByPlayer())) || type == DRTYPE_ALL)
+        if((type == DRTYPE_PLAYER && (unit->GetTypeId() == TYPEID_PLAYER || unit->ToCreature()->isPet() || unit->ToCreature()->isPossessedByPlayer())) || type == DRTYPE_ALL)
             unit->IncrDiminishing(m_diminishGroup);
     }
 
@@ -1849,7 +1849,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 case TARGET_UNIT_PASSENGER_5:
                 case TARGET_UNIT_PASSENGER_6:
                 case TARGET_UNIT_PASSENGER_7:
-                    if(m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->IsVehicle())
+                    if(m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsVehicle())
                         if(Unit *unit = m_caster->GetVehicleKit()->GetPassenger(cur - TARGET_UNIT_PASSENGER_0))
                             AddUnitTarget(unit, i);
                     break;
@@ -2303,7 +2303,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                             || (m_targets.getUnitTarget()->getDeathState() == CORPSE
                                 && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId()
                                 && m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT
-                                && !((Creature*)m_targets.getUnitTarget())->isDeadByDefault()
+                                && !m_targets.getUnitTarget()->ToCreature()->isDeadByDefault()
                                 && !(m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL))
                                 && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId())))
                         {
@@ -2534,7 +2534,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     {
                         if ((*itr)->GetTypeId() == TYPEID_UNIT
                             && (*itr)->GetOwnerGUID() == m_caster->GetGUID()
-                            && ((Creature*)(*itr))->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
+                            && (*itr)->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
                         {
                             unit_to_add = (*itr);
                             break;
@@ -2635,7 +2635,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
             return;
         }
     }
-    else if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet())
+    else if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet())
     {
         if(objmgr.IsPetSpellDisabled(m_spellInfo->Id))
         {
@@ -3329,7 +3329,7 @@ void Spell::finish(bool ok)
     {
         if(Unit *charm = m_caster->GetCharm())
             if(charm->GetTypeId() == TYPEID_UNIT
-                && ((Creature*)charm)->HasUnitTypeMask(UNIT_MASK_PUPPET)
+                && charm->ToCreature()->HasUnitTypeMask(UNIT_MASK_PUPPET)
                 && charm->GetUInt32Value(UNIT_CREATED_BY_SPELL) == m_spellInfo->Id)
                 ((Puppet*)charm)->UnSummon();
     }
@@ -3337,7 +3337,7 @@ void Spell::finish(bool ok)
     if(!ok)
         return;
 
-    if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isSummon())
+    if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isSummon())
     {
         // Unsummon statue
         uint32 spell = m_caster->GetUInt32Value(UNIT_CREATED_BY_SPELL);
@@ -3502,7 +3502,7 @@ void Spell::SendSpellStart()
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
-        (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+        (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
          && m_spellInfo->powerType != POWER_HEALTH )
         castFlags |= CAST_FLAG_POWER_LEFT_SELF;
 
@@ -3555,7 +3555,7 @@ void Spell::SendSpellGo()
     if(m_spellInfo->Attributes & SPELL_ATTR_REQ_AMMO)
         castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
-        (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature*)m_caster)->isPet()))
+        (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
         && m_spellInfo->powerType != POWER_HEALTH )
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
@@ -4469,7 +4469,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // Not allow banish not self target
                 if (m_spellInfo->Mechanic == MECHANIC_BANISH)
                     if (target->GetTypeId() == TYPEID_UNIT &&
-                        !m_caster->ToPlayer()->isAllowedToLoot((Creature*)target))
+                        !m_caster->ToPlayer()->isAllowedToLoot(target->ToCreature()))
                         return SPELL_FAILED_CANT_CAST_ON_TAPPED;
 
                 if (m_customAttr & SPELL_ATTR_CU_PICKPOCKET)
@@ -4950,7 +4950,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if( !(m_targets.getUnitTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & UNIT_FLAG_SKINNABLE) )
                     return SPELL_FAILED_TARGET_UNSKINNABLE;
 
-                Creature* creature = (Creature*)m_targets.getUnitTarget();
+                Creature* creature = m_targets.getUnitTarget()->ToCreature();
                 if ( creature->GetCreatureType() != CREATURE_TYPE_CRITTER && ( !creature->lootForBody || !creature->loot.empty() ) )
                 {
                     return SPELL_FAILED_TARGET_NOT_LOOTED;
@@ -5160,7 +5160,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (!m_targets.getUnitTarget() || m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER)
                             return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
-                        Creature* target = (Creature*)m_targets.getUnitTarget();
+                        Creature* target = m_targets.getUnitTarget()->ToCreature();
 
                         if (target->getLevel() > m_caster->getLevel())
                             return SPELL_FAILED_HIGHLEVEL;
@@ -5223,7 +5223,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if(Unit *target = m_targets.getUnitTarget())
                 {
-                    if(target->GetTypeId() == TYPEID_UNIT && ((Creature*)target)->IsVehicle())
+                    if(target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
                         return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
                     if(target->GetCharmerGUID())
@@ -5355,7 +5355,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                 return SPELL_FAILED_BAD_TARGETS;
         }
                                                             //cooldown
-        if(((Creature*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
+        if(m_caster->ToCreature()->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
 
     return CheckCast(true);

@@ -2250,8 +2250,8 @@ void Map::RemoveAllObjectsInRemoveList()
         switch(obj->GetTypeId())
         {
         case TYPEID_UNIT:
-            if(!((Creature*)obj)->isPet())
-                SwitchGridContainers((Creature*)obj, on);
+            if(!obj->ToCreature()->isPet())
+                SwitchGridContainers(obj->ToCreature(), on);
             break;
         }
     }
@@ -2282,8 +2282,8 @@ void Map::RemoveAllObjectsInRemoveList()
         case TYPEID_UNIT:
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
             // make sure that like sources auras/etc removed before destructor start
-            ((Creature*)obj)->CleanupsBeforeDelete();
-            Remove((Creature*)obj,true);
+            obj->ToCreature()->CleanupsBeforeDelete();
+            Remove(obj->ToCreature(),true);
             break;
         default:
             sLog.outError("Non-grid object (TypeId: %u) in grid object removing list, ignored.",obj->GetTypeId());
@@ -3093,8 +3093,8 @@ void Map::ScriptsProcess()
                     sLog.outError("SCRIPT_COMMAND_MOVE_TO call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",source->GetTypeId(),source->GetEntry(),source->GetGUIDLow());
                     break;
                 }
-                ((Creature*)source)->SendMonsterMoveWithSpeed(step.script->x, step.script->y, step.script->z, step.script->datalong2 );
-                ((Creature*)source)->GetMap()->CreatureRelocation(((Creature*)source), step.script->x, step.script->y, step.script->z, 0);
+                source->ToCreature()->SendMonsterMoveWithSpeed(step.script->x, step.script->y, step.script->z, step.script->datalong2 );
+                source->ToCreature()->GetMap()->CreatureRelocation((source->ToCreature()), step.script->x, step.script->y, step.script->z, 0);
                 break;
             case SCRIPT_COMMAND_FLAG_SET:
                 if(!source)
@@ -3631,15 +3631,15 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_KILL:
             {
-                if(!source || ((Creature*)source)->isDead())
+                if(!source || source->ToCreature()->isDead())
                     break;
 
-                ((Creature*)source)->DealDamage(((Creature*)source), ((Creature*)source)->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                source->ToCreature()->DealDamage((source->ToCreature()), source->ToCreature()->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
 
                 switch(step.script->dataint)
                 {
                 case 0: break; //return false not remove corpse
-                case 1: ((Creature*)source)->RemoveCorpse(); break;
+                case 1: source->ToCreature()->RemoveCorpse(); break;
                 }
                 break;
             }
@@ -3716,7 +3716,7 @@ Map::GetCreature(uint64 guid)
 {
     Creature * ret = NULL;
     if(IS_CRE_OR_VEH_GUID(guid))
-        ret = ObjectAccessor::GetObjectInWorld(guid, (Creature*)NULL);
+      ret = ObjectAccessor::GetObjectInWorld(guid, (Creature*)NULL);
 
     if(!ret)
         return NULL;
