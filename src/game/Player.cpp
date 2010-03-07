@@ -1448,11 +1448,6 @@ void Player::setDeathState(DeathState s)
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP, 1);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH, 1);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_DEATH_IN_DUNGEON, 1);
-
-        // For some reason movement packet is always to be issued on death
-        // send if not going to fall down
-        if (!IsFlying() || GetTransport())
-            SendMonsterMove(GetPositionX(), GetPositionY(), GetPositionZ(), 0);
     }
     Unit::setDeathState(s);
 
