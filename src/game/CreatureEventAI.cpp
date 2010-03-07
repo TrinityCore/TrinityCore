@@ -267,7 +267,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
                 return false;
 
             //Creature id doesn't match up
-            if (((Creature*)pActionInvoker)->GetEntry() != event.summon_unit.creatureId)
+            if (pActionInvoker->ToCreature()->GetEntry() != event.summon_unit.creatureId)
                 return false;
 
             //Repeat Timers

@@ -293,7 +293,7 @@ void PlayerAI::OnCharmed(bool apply) { me->IsAIEnabled = apply; }
 
 void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 {
-    Creature *charmer = (Creature*)me->GetCharmer();
+  Creature *charmer = me->GetCharmer()->ToCreature();
 
     //kill self if charm aura has infinite duration
     if(charmer->IsInEvadeMode())

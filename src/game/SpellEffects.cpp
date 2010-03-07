@@ -821,7 +821,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
-                    ((Creature*)unitTarget)->setDeathState(JUST_ALIVED);
+                    unitTarget->ToCreature()->setDeathState(JUST_ALIVED);
                     return;
                 }
                 case 12162:                                 // Deep wounds
@@ -932,7 +932,7 @@ void Spell::EffectDummy(uint32 i)
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
 
-                    ((Creature*)unitTarget)->ForcedDespawn();
+                    unitTarget->ToCreature()->ForcedDespawn();
                     return;
                 }
                 case 16589:                                 // Noggenfogger Elixir
@@ -982,10 +982,10 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 case 23019:                                 // Crystal Prison Dummy DND
                 {
-                    if(!unitTarget || !unitTarget->isAlive() || unitTarget->GetTypeId() != TYPEID_UNIT || ((Creature*)unitTarget)->isPet())
+                    if(!unitTarget || !unitTarget->isAlive() || unitTarget->GetTypeId() != TYPEID_UNIT || unitTarget->ToCreature()->isPet())
                         return;
 
-                    Creature* creatureTarget = (Creature*)unitTarget;
+                    Creature* creatureTarget = unitTarget->ToCreature();
 
                     GameObject* Crystal_Prison = m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-time(NULL));
                     sLog.outDebug("SummonGameObject at SpellEfects.cpp EffectDummy for Spell 23019");
@@ -1219,7 +1219,7 @@ void Spell::EffectDummy(uint32 i)
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
 
-                    ((Creature*)unitTarget)->ForcedDespawn();
+                    unitTarget->ToCreature()->ForcedDespawn();
 
                     //cast spell Raptor Capture Credit
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
@@ -1228,14 +1228,14 @@ void Spell::EffectDummy(uint32 i)
                 case 34665:                                 //Administer Antidote
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT
-                        || unitTarget->GetEntry() != 16880 || ((Creature*)unitTarget)->isPet())
+                        || unitTarget->GetEntry() != 16880 || unitTarget->ToCreature()->isPet())
                         return;
 
-                    ((Creature*)unitTarget)->UpdateEntry(16992);
+                    unitTarget->ToCreature()->UpdateEntry(16992);
                     m_caster->ToPlayer()->RewardPlayerAndGroupAtEvent(16992, unitTarget);
 
                     if (unitTarget->IsAIEnabled)
-                        ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+                        unitTarget->ToCreature()->AI()->AttackStart(m_caster);
 
                     return;
                 }
@@ -1360,7 +1360,7 @@ void Spell::EffectDummy(uint32 i)
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
 
-                    ((Creature*)unitTarget)->ForcedDespawn();
+                    unitTarget->ToCreature()->ForcedDespawn();
                     return;
 
                 }
@@ -2177,7 +2177,7 @@ void Spell::EffectDummy(uint32 i)
     if(gameObjTarget)
         sScriptMgr.EffectDummyGameObj(m_caster, m_spellInfo->Id, i, gameObjTarget);
     else if(unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.EffectDummyCreature(m_caster, m_spellInfo->Id, i, (Creature*)unitTarget);
+        sScriptMgr.EffectDummyCreature(m_caster, m_spellInfo->Id, i, unitTarget->ToCreature());
     else if(itemTarget)
         sScriptMgr.EffectDummyItem(m_caster, m_spellInfo->Id, i, itemTarget);
 }
@@ -3867,7 +3867,7 @@ void Spell::EffectDualWield(uint32 /*i*/)
 {
     unitTarget->SetCanDualWield(true);
     if (unitTarget->GetTypeId() == TYPEID_UNIT)
-        ((Creature*)unitTarget)->UpdateDamagePhysical(OFF_ATTACK);
+        unitTarget->ToCreature()->UpdateDamagePhysical(OFF_ATTACK);
 }
 
 void Spell::EffectPull(uint32 /*i*/)
@@ -4266,7 +4266,7 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     if (unitTarget->GetTypeId() != TYPEID_UNIT)
         return;
 
-    Creature* creatureTarget = (Creature*)unitTarget;
+    Creature* creatureTarget = unitTarget->ToCreature();
 
     if (creatureTarget->isPet())
         return;
@@ -4291,7 +4291,7 @@ void Spell::EffectTameCreature(uint32 /*i*/)
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 
     // add to world
-    pet->GetMap()->Add((Creature*)pet);
+    pet->GetMap()->Add(pet->ToCreature());
 
     // visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
@@ -4315,7 +4315,7 @@ void Spell::EffectSummonPet(uint32 i)
     {
         if(m_originalCaster->GetTypeId() == TYPEID_PLAYER)
             owner = (Player*)m_originalCaster;
-        else if(((Creature*)m_originalCaster)->isTotem())
+        else if(m_originalCaster->ToCreature()->isTotem())
             owner = m_originalCaster->GetCharmerOrOwnerPlayerOrPlayerItself();
     }
 
@@ -4342,7 +4342,7 @@ void Spell::EffectSummonPet(uint32 i)
 
             assert(OldSummon->GetMap() == owner->GetMap());
 
-            //OldSummon->GetMap()->Remove((Creature*)OldSummon,false);
+            //OldSummon->GetMap()->Remove(OldSummon->ToCreature(),false);
 
             float px, py, pz;
             owner->GetClosePoint(px, py, pz, OldSummon->GetObjectSize());
@@ -4350,7 +4350,7 @@ void Spell::EffectSummonPet(uint32 i)
             OldSummon->NearTeleportTo(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->Relocate(px, py, pz, OldSummon->GetOrientation());
             //OldSummon->SetMap(owner->GetMap());
-            //owner->GetMap()->Add((Creature*)OldSummon);
+            //owner->GetMap()->Add(OldSummon->ToCreature());
 
             if (owner->GetTypeId() == TYPEID_PLAYER && OldSummon->isControlled() )
                 owner->ToPlayer()->PetSpellInitialize();
@@ -4372,7 +4372,7 @@ void Spell::EffectSummonPet(uint32 i)
 
     if (m_caster->GetTypeId() == TYPEID_UNIT)
     {
-        if (((Creature*)m_caster)->isTotem())
+        if (m_caster->ToCreature()->isTotem())
             pet->SetReactState(REACT_AGGRESSIVE);
         else
             pet->SetReactState(REACT_DEFENSIVE);
@@ -4444,8 +4444,8 @@ void Spell::EffectTaunt(uint32 /*i*/)
         if (HostilReference* forcedVictim = unitTarget->getThreatManager().getOnlineContainer().getReferenceByTarget(m_caster))
             unitTarget->getThreatManager().setCurrentVictim(forcedVictim);
 
-    if (((Creature*)unitTarget)->IsAIEnabled && !((Creature*)unitTarget)->HasReactState(REACT_PASSIVE))
-        ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+    if (unitTarget->ToCreature()->IsAIEnabled && !unitTarget->ToCreature()->HasReactState(REACT_PASSIVE))
+        unitTarget->ToCreature()->AI()->AttackStart(m_caster);
 }
 
 void Spell::EffectWeaponDmg(uint32 i)
@@ -4996,7 +4996,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
-                    ((Creature*)unitTarget)->ForcedDespawn();
+                    unitTarget->ToCreature()->ForcedDespawn();
                     return;
                 }
                 case 55693:                                 // Remove Collapsing Cave Aura
@@ -5399,7 +5399,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
 
                     unitTarget->CastSpell(unitTarget, iTmpSpellId, true);
-                    Creature* npc = (Creature*)unitTarget;
+                    Creature* npc = unitTarget->ToCreature();
                     npc->LoadEquipment(npc->GetEquipmentId());
                     return;
                 }
@@ -5442,7 +5442,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 }
                 case 52173: // Coyote Spirit Despawn
                 case 60243: // Blood Parrot Despawn
-                    if (unitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)unitTarget)->isSummon())
+                    if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isSummon())
                         ((TempSummon*)unitTarget)->UnSummon();
                     return;
                 // Sky Darkener Assault
@@ -5629,7 +5629,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 }
                 case 60123: // Lightwell
                 {
-                    if (m_caster->GetTypeId() != TYPEID_UNIT || !((Creature*)m_caster)->isSummon())
+                    if (m_caster->GetTypeId() != TYPEID_UNIT || !m_caster->ToCreature()->isSummon())
                         return;
 
                     uint32 spell_heal;
@@ -5883,8 +5883,8 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 55709:
                 {
                     int pct = 100;
-                    if (unitTarget->GetTypeId() == TYPEID_UNIT && ((Creature*)unitTarget)->isPet())
-                        if (Unit* owner = ((Creature*)unitTarget)->GetOwner())
+                    if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isPet())
+                        if (Unit* owner = unitTarget->ToCreature()->GetOwner())
                             owner->CastCustomSpell(unitTarget, 54114, &pct, NULL, NULL, true);
                     break;
                 }
@@ -6759,7 +6759,7 @@ void Spell::EffectSkinning(uint32 /*i*/)
     if(!m_caster || m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Creature* creature = (Creature*) unitTarget;
+    Creature* creature = unitTarget->ToCreature();
     int32 targetLevel = creature->getLevel();
 
     uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill();
@@ -7529,7 +7529,7 @@ void Spell::GetSummonPosition(uint32 i, Position &pos, float radius, uint32 coun
 void Spell::EffectRenamePet(uint32 /*eff_idx*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT ||
-        !((Creature*)unitTarget)->isPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
+        !unitTarget->ToCreature()->isPet() || ((Pet*)unitTarget)->getPetType() != HUNTER_PET)
         return;
 
     unitTarget->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);

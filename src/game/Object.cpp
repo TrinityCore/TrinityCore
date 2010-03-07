@@ -416,7 +416,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
                 break;
             case TYPEID_UNIT:
             {
-                if(((Creature*)this)->canFly())
+                if(this->ToCreature()->canFly())
                     flags |= MOVEMENTFLAG_LEVITATING;
 
                 *data << uint32(0x0000000B);                // unk, can be 0xB or 0xC
@@ -535,12 +535,12 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
 
                     if (GetTypeId() == TYPEID_UNIT)
                     {
-                        if (!target->canSeeSpellClickOn((Creature*)this))
+                        if (!target->canSeeSpellClickOn(this->ToCreature()))
                             appendValue &= ~UNIT_NPC_FLAG_SPELLCLICK;
 
                         if (appendValue & UNIT_NPC_FLAG_TRAINER)
                         {
-                            if (!((Creature*)this)->isCanTrainingOf(target, false))
+                            if (!this->ToCreature()->isCanTrainingOf(target, false))
                                 appendValue &= ~(UNIT_NPC_FLAG_TRAINER | UNIT_NPC_FLAG_TRAINER_CLASS | UNIT_NPC_FLAG_TRAINER_PROFESSION);
                         }
                     }
@@ -579,7 +579,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 {
                     if(GetTypeId() == TYPEID_UNIT)
                     {
-                        const CreatureInfo* cinfo = ((Creature*)this)->GetCreatureInfo();
+                        const CreatureInfo* cinfo = this->ToCreature()->GetCreatureInfo();
                         if(cinfo->flags_extra & CREATURE_FLAG_EXTRA_TRIGGER)
                         {
                             if(target->isGameMaster())
@@ -608,7 +608,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                 {
                     if(GetTypeId() == TYPEID_UNIT)
                     {
-                        if(!target->isAllowedToLoot((Creature*)this))
+		      if(!target->isAllowedToLoot(const_cast<Creature*>(this->ToCreature())))
                             *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_LOOTABLE);
                         else
                             *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_TAPPED);
@@ -1147,14 +1147,14 @@ void WorldObject::setActive( bool on )
     if(on)
     {
         if(GetTypeId() == TYPEID_UNIT)
-            map->AddToActive((Creature*)this);
+            map->AddToActive(this->ToCreature());
         else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
             map->AddToActive((DynamicObject*)this);
     }
     else
     {
         if(GetTypeId() == TYPEID_UNIT)
-            map->RemoveFromActive((Creature*)this);
+            map->RemoveFromActive(this->ToCreature());
         else if(GetTypeId() == TYPEID_DYNAMICOBJECT)
             map->RemoveFromActive((DynamicObject*)this);
     }
@@ -1758,7 +1758,7 @@ TempSummon *Map::SummonCreature(uint32 entry, const Position &pos, SummonPropert
     summon->SetHomePosition(pos);
 
     summon->InitStats(duration);
-    Add((Creature*)summon);
+    Add(summon->ToCreature());
     summon->InitSummon();
 
     //ObjectAccessor::UpdateObjectVisibility(summon);
@@ -1864,7 +1864,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
             break;
     }
 
-    map->Add((Creature*)pet);
+    map->Add(pet->ToCreature());
 
     switch(petType)
     {

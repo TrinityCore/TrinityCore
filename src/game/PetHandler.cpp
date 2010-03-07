@@ -151,17 +151,17 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         if (pet->getVictim())
                             pet->AttackStop();
 
-                        if(pet->GetTypeId() != TYPEID_PLAYER && ((Creature*)pet)->IsAIEnabled)
+                        if(pet->GetTypeId() != TYPEID_PLAYER && pet->ToCreature()->IsAIEnabled)
                         {
                             charmInfo->SetIsCommandAttack(true);
                             charmInfo->SetIsAtStay(false);
                             charmInfo->SetIsFollowing(false);
                             charmInfo->SetIsReturning(false);
 
-                            ((Creature*)pet)->AI()->AttackStart(TargetUnit);
+                            pet->ToCreature()->AI()->AttackStart(TargetUnit);
 
                             //10% chance to play special pet attack talk, else growl
-                            if(((Creature*)pet)->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
+                            if(pet->ToCreature()->isPet() && ((Pet*)pet)->getPetType() == SUMMON_PET && pet != TargetUnit && urand(0, 100) < 10)
                                 pet->SendPetTalk((uint32)PET_TALK_ATTACK);
                             else
                             {
@@ -218,7 +218,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 case REACT_DEFENSIVE:                       //recovery
                 case REACT_AGGRESSIVE:                      //activete
                     if(pet->GetTypeId() == TYPEID_UNIT)
-                        ((Creature*)pet)->SetReactState( ReactStates(spellid) );
+                        pet->ToCreature()->SetReactState( ReactStates(spellid) );
                     break;
             }
             break;
@@ -240,7 +240,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
             }
 
             if (spellInfo->StartRecoveryCategory > 0)
-                if (((Creature*)pet)->GetGlobalCooldown() > 0)
+                if (pet->ToCreature()->GetGlobalCooldown() > 0)
                     return;
 
             for (uint32 i = 0; i < 3; ++i)
@@ -290,13 +290,13 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
 
             if(result == SPELL_CAST_OK)
             {
-                ((Creature*)pet)->AddCreatureSpellCooldown(spellid);
+                pet->ToCreature()->AddCreatureSpellCooldown(spellid);
 
                 unit_target = spell->m_targets.getUnitTarget();
 
                 //10% chance to play special pet attack talk, else growl
                 //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                if(((Creature*)pet)->isPet() && (((Pet*)pet)->getPetType() == SUMMON_PET) && (pet != unit_target) && (urand(0, 100) < 10))
+                if(pet->ToCreature()->isPet() && (((Pet*)pet)->getPetType() == SUMMON_PET) && (pet != unit_target) && (urand(0, 100) < 10))
                     pet->SendPetTalk((uint32)PET_TALK_SPECIAL_SPELL);
                 else
                 {
@@ -311,8 +311,8 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         if (pet->getVictim())
                             pet->AttackStop();
                         pet->GetMotionMaster()->Clear();
-                        if (((Creature*)pet)->IsAIEnabled)
-                            ((Creature*)pet)->AI()->AttackStart(unit_target);
+                        if (pet->ToCreature()->IsAIEnabled)
+                            pet->ToCreature()->AI()->AttackStart(unit_target);
                     }
                 }
 
@@ -325,7 +325,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 else
                     pet->SendPetCastFail(spellid, result);
 
-                if(!((Creature*)pet)->HasSpellCooldown(spellid))
+                if(!pet->ToCreature()->HasSpellCooldown(spellid))
                     GetPlayer()->SendClearCooldown(spellid, pet);
 
                 spell->finish(false);
@@ -478,7 +478,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
             //sign for autocast
             if(act_state == ACT_ENABLED && spell_id)
             {
-                if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
+                if(pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, true);
                 else
                     charmInfo->ToggleCreatureAutocast(spell_id, true);
@@ -486,7 +486,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
             //sign for no/turn off autocast
             else if(act_state == ACT_DISABLED && spell_id)
             {
-                if(pet->GetTypeId() == TYPEID_UNIT && ((Creature*)pet)->isPet())
+                if(pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isPet())
                     ((Pet*)pet)->ToggleAutocast(spell_id, false);
                 else
                     charmInfo->ToggleCreatureAutocast(spell_id, false);
@@ -702,7 +702,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     }
 
     if (spellInfo->StartRecoveryCategory > 0) //Check if spell is affected by GCD
-        if (caster->GetTypeId() == TYPEID_UNIT && ((Creature*)caster)->GetGlobalCooldown() > 0)
+        if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->GetGlobalCooldown() > 0)
         {
             caster->SendPetCastFail(spellid, SPELL_FAILED_NOT_READY);
             return;
@@ -732,7 +732,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
     {
         if(caster->GetTypeId() == TYPEID_UNIT)
         {
-            Creature* pet = (Creature*)caster;
+            Creature* pet = caster->ToCreature();
             pet->AddCreatureSpellCooldown(spellid);
             if(pet->isPet())
             {
@@ -758,7 +758,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
         }
         else
         {
-            if(!((Creature*)caster)->HasSpellCooldown(spellid))
+            if(!caster->ToCreature()->HasSpellCooldown(spellid))
                 GetPlayer()->SendClearCooldown(spellid, caster);
         }
 
