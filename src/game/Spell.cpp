@@ -2826,7 +2826,7 @@ void Spell::cast(bool skipCheck)
     if(!m_IsTriggeredSpell || !skipCheck)
     {
         SpellCastResult castResult = CheckCast(false);
-        if(castResult != SPELL_CAST_OK && !(m_spellInfo->Attributes & SPELL_ATTR_ONLY_STEALTHED))
+        if(castResult != SPELL_CAST_OK)
         {
             SendCastResult(castResult);
             SendInterrupted(0);
@@ -5504,22 +5504,18 @@ bool Spell::CanAutoCast(Unit* target)
 
 SpellCastResult Spell::CheckRange(bool strict)
 {
-    //float range_mod;
-
     // self cast doesn't need range checking -- also for Starshards fix
     if (m_spellInfo->rangeIndex == 1)
         return SPELL_CAST_OK;
 
-    // i do not know why we need this
-    /*if (strict)                                             //add radius of caster
-        range_mod = 1.25;
-    else                                                    //add radius of caster and ~5 yds "give"
-        range_mod = 6.25;*/
+    // Don't check for instant cast spells
+    if (!strict && m_casttime == 0)
+        return SPELL_CAST_OK;
 
     SpellRangeEntry const* srange = sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex);
 
     Unit *target = m_targets.getUnitTarget();
-    float max_range = m_caster->GetSpellMaxRangeForTarget(target, srange); // + range_mod;
+    float max_range = m_caster->GetSpellMaxRangeForTarget(target, srange);
     float min_range = m_caster->GetSpellMinRangeForTarget(target, srange);
     uint32 range_type = GetSpellRangeType(srange);
 
@@ -5531,7 +5527,7 @@ SpellCastResult Spell::CheckRange(bool strict)
         if(range_type == SPELL_RANGE_MELEE)
         {
             // Because of lag, we can not check too strictly here.
-            if(!m_caster->IsWithinMeleeRange(target, max_range/* - 2*MIN_MELEE_REACH*/))
+            if(!m_caster->IsWithinMeleeRange(target, max_range))
                 return SPELL_FAILED_OUT_OF_RANGE;
         }
         else if(!m_caster->IsWithinCombatRange(target, max_range))
