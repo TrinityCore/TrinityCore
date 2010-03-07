@@ -378,8 +378,8 @@ void Aura::_ApplyForTarget(Unit * target, Unit * caster, AuraApplication * auraA
     {
         if (m_spellProto->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
         {
-            Item* castItem = m_castItemGuid ? ((Player*)caster)->GetItemByGuid(m_castItemGuid) : NULL;
-            ((Player*)caster)->AddSpellAndCategoryCooldowns(m_spellProto,castItem ? castItem->GetEntry() : 0, NULL,true);
+            Item* castItem = m_castItemGuid ? caster->ToPlayer()->GetItemByGuid(m_castItemGuid) : NULL;
+            caster->ToPlayer()->AddSpellAndCategoryCooldowns(m_spellProto,castItem ? castItem->GetEntry() : 0, NULL,true);
         }
     }
 }
@@ -401,7 +401,7 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     {
         if ( GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE )
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-            ((Player*)caster)->SendCooldownEvent(GetSpellProto());
+            caster->ToPlayer()->SendCooldownEvent(GetSpellProto());
     }
 }
 
@@ -844,7 +844,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 {
                     case 32474: // Buffeting Winds of Susurrus
                         if(target->GetTypeId() == TYPEID_PLAYER)
-                            ((Player*)target)->ActivateTaxiPathTo(506, GetId());
+                            target->ToPlayer()->ActivateTaxiPathTo(506, GetId());
                         break;
                     case 33572: // Gronn Lord's Grasp, becomes stoned
                         if(GetStackAmount() >= 5 && !target->HasAura(33652))
@@ -852,7 +852,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
                         if(target->GetTypeId() == TYPEID_PLAYER)
-                            ((Player*)target)->RemoveSpellCooldown(20252, true);
+                            target->ToPlayer()->RemoveSpellCooldown(20252, true);
                         break;
                 }
                 break;
@@ -916,8 +916,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         if(target->GetTypeId() == TYPEID_PLAYER)
                             if(GameObject* obj = target->GetGameObject(48018))
 			    {
-                                ((Player*)target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
-				((Player*)target)->RemoveMovementImpairingAuras();
+			      target->ToPlayer()->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+			      target->ToPlayer()->RemoveMovementImpairingAuras();
 			    }
                         break;
                 }
@@ -1093,7 +1093,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                 {
                     if (removeMode == AURA_REMOVE_BY_DEATH)
                     {
-                        if (caster->GetTypeId() == TYPEID_PLAYER && ((Player*)caster)->isHonorOrXPTarget(target))
+                        if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
                     }
                 }
@@ -1151,10 +1151,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         // check cooldown
                         if (caster->GetTypeId() == TYPEID_PLAYER)
                         {
-                            if (((Player*)caster)->HasSpellCooldown(aura->GetId()))
+                            if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
                                 break;
                             // and add if needed
-                            ((Player*)caster)->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
+                            caster->ToPlayer()->AddSpellCooldown(aura->GetId(), 0, uint32(time(NULL) + 12));
                         }
                         // effect on caster
                         if (AuraEffect const * aurEff = aura->GetEffect(0))
@@ -1200,7 +1200,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         if(caster->GetTypeId() != TYPEID_PLAYER)
                             break;
 
-                        Player *player = ((Player*)caster);
+                        Player *player = caster->ToPlayer();
                         // Glyph of Guardian Spirit
                         if(AuraEffect * aurEff = player->GetAuraEffect(63231, 0))
                         {
@@ -1230,11 +1230,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         break;
                     if (target->GetTypeId() != TYPEID_PLAYER)
                         break;
-                    if(((Player*)target)->getClass() != CLASS_DEATH_KNIGHT)
+                    if(target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
                         break;
 
                      // aura removed - remove death runes
-                    ((Player*)target)->RemoveRunesByAuraEffect(GetEffect(0));
+                    target->ToPlayer()->RemoveRunesByAuraEffect(GetEffect(0));
                 }
                 switch(GetId())
                 {

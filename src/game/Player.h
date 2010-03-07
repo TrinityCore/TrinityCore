@@ -2309,6 +2309,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
 Spell * m_spellModTakingSpell;
+
     protected:
         uint32 m_AreaID;
         uint32 m_regenTimerCount;

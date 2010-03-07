@@ -534,12 +534,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
         case ACTION_T_QUEST_EVENT:
             if (Unit* target = GetTargetByType(action.quest_event.target, pActionInvoker))
                 if (target->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)target)->AreaExploredOrEventHappens(action.quest_event.questId);
+                    target->ToPlayer()->AreaExploredOrEventHappens(action.quest_event.questId);
             break;
         case ACTION_T_CAST_EVENT:
             if (Unit* target = GetTargetByType(action.cast_event.target, pActionInvoker))
                 if (target->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)target)->CastedCreatureOrGO(action.cast_event.creatureId, m_creature->GetGUID(), action.cast_event.spellId);
+                    target->ToPlayer()->CastedCreatureOrGO(action.cast_event.creatureId, m_creature->GetGUID(), action.cast_event.spellId);
             break;
         case ACTION_T_SET_UNIT_FIELD:
         {
@@ -622,7 +622,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             {
                 if (Unit* Temp = Unit::GetUnit(*m_creature,pActionInvoker->GetGUID()))
                     if (Temp->GetTypeId() == TYPEID_PLAYER)
-                        ((Player*)Temp)->GroupEventHappens(action.quest_event_all.questId,m_creature);
+                        Temp->ToPlayer()->GroupEventHappens(action.quest_event_all.questId,m_creature);
             }
             break;
         case ACTION_T_CAST_EVENT_ALL:
@@ -631,7 +631,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             for (std::list<HostilReference*>::iterator i = threatList.begin(); i != threatList.end(); ++i)
                 if (Unit* Temp = Unit::GetUnit(*m_creature,(*i)->getUnitGuid()))
                     if (Temp->GetTypeId() == TYPEID_PLAYER)
-                        ((Player*)Temp)->CastedCreatureOrGO(action.cast_event_all.creatureId, m_creature->GetGUID(), action.cast_event_all.spellId);
+                        Temp->ToPlayer()->CastedCreatureOrGO(action.cast_event_all.creatureId, m_creature->GetGUID(), action.cast_event_all.spellId);
             break;
         }
         case ACTION_T_REMOVEAURASFROMSPELL:

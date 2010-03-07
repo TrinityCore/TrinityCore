@@ -663,6 +663,7 @@ class Creature : public Unit, public GridObject<Creature>
         static float _GetDamageMod(int32 Rank);
 
         float m_SightDistance, m_CombatDistance;
+
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);

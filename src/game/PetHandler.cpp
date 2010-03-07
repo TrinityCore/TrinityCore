@@ -284,7 +284,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 }
                 if (Unit* powner = pet->GetCharmerOrOwner())
                     if(powner->GetTypeId() == TYPEID_PLAYER)
-                        pet->SendUpdateToPlayer((Player*)powner);
+		      pet->SendUpdateToPlayer(powner->ToPlayer());
                 result = SPELL_CAST_OK;
             }
 
@@ -535,8 +535,8 @@ void WorldSession::HandlePetRename( WorldPacket & recv_data )
     pet->SetName(name);
 
     Unit *owner = pet->GetOwner();
-    if(owner && (owner->GetTypeId() == TYPEID_PLAYER) && ((Player*)owner)->GetGroup())
-        ((Player*)owner)->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
+    if(owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
+        owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_NAME);
 
     pet->RemoveByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED);
 
@@ -753,7 +753,7 @@ void WorldSession::HandlePetCastSpellOpcode( WorldPacket& recvPacket )
         caster->SendPetCastFail(spellid, result);
         if(caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if(!((Player*)caster)->HasSpellCooldown(spellid))
+            if(!caster->ToPlayer()->HasSpellCooldown(spellid))
                 GetPlayer()->SendClearCooldown(spellid, caster);
         }
         else

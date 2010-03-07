@@ -6378,7 +6378,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
         if(!uVictim || uVictim == this || uVictim->GetTypeId() != TYPEID_PLAYER)
             return false;
 
-        if( GetBGTeam() == ((Player*)uVictim)->GetBGTeam() )
+        if( GetBGTeam() == uVictim->ToPlayer()->GetBGTeam() )
             return false;
 
         return true;
@@ -12624,15 +12624,15 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
     if (!pEnchant)
         return;
 
-    if (!ignore_condition && pEnchant->EnchantmentCondition && !((Player*)this)->EnchantmentFitsRequirements(pEnchant->EnchantmentCondition, -1))
+    if (!ignore_condition && pEnchant->EnchantmentCondition && !this->ToPlayer()->EnchantmentFitsRequirements(pEnchant->EnchantmentCondition, -1))
         return;
 
-    if ((pEnchant->requiredLevel) > ((Player*)this)->getLevel())
+    if ((pEnchant->requiredLevel) > this->ToPlayer()->getLevel())
         return;
 
     if ((pEnchant->requiredSkill) > 0)
     {
-       if ((pEnchant->requiredSkillValue) > (((Player*)this)->GetSkillValue(pEnchant->requiredSkill)))
+       if ((pEnchant->requiredSkillValue) > (this->ToPlayer()->GetSkillValue(pEnchant->requiredSkill)))
         return;
     }
 
@@ -12766,111 +12766,111 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                             ApplyStatBuffMod(STAT_STAMINA, enchant_amount, apply);
                             break;
                         case ITEM_MOD_DEFENSE_SKILL_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_DEFENSE_SKILL, enchant_amount, apply);
                             sLog.outDebug("+ %u DEFENCE", enchant_amount);
                             break;
                         case  ITEM_MOD_DODGE_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_DODGE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_DODGE, enchant_amount, apply);
                             sLog.outDebug("+ %u DODGE", enchant_amount);
                             break;
                         case ITEM_MOD_PARRY_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_PARRY, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_PARRY, enchant_amount, apply);
                             sLog.outDebug("+ %u PARRY", enchant_amount);
                             break;
                         case ITEM_MOD_BLOCK_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_BLOCK, enchant_amount, apply);
                             sLog.outDebug("+ %u SHIELD_BLOCK", enchant_amount);
                             break;
                         case ITEM_MOD_HIT_MELEE_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
                             sLog.outDebug("+ %u MELEE_HIT", enchant_amount);
                             break;
                         case ITEM_MOD_HIT_RANGED_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
                             sLog.outDebug("+ %u RANGED_HIT", enchant_amount);
                             break;
                         case ITEM_MOD_HIT_SPELL_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
                             sLog.outDebug("+ %u SPELL_HIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_MELEE_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
                             sLog.outDebug("+ %u MELEE_CRIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_RANGED_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
                             sLog.outDebug("+ %u RANGED_CRIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_SPELL_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
                             sLog.outDebug("+ %u SPELL_CRIT", enchant_amount);
                             break;
 //                        Values from ITEM_STAT_MELEE_HA_RATING to ITEM_MOD_HASTE_RANGED_RATING are never used
 //                        in Enchantments
 //                        case ITEM_MOD_HIT_TAKEN_MELEE_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_HIT_TAKEN_RANGED_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_HIT_TAKEN_SPELL_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_CRIT_TAKEN_MELEE_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_CRIT_TAKEN_RANGED_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_CRIT_TAKEN_SPELL_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_HASTE_MELEE_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_HASTE_RANGED_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
 //                            break;
                         case ITEM_MOD_HASTE_SPELL_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
                             break;
                         case ITEM_MOD_HIT_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HIT_MELEE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HIT_RANGED, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HIT_SPELL, enchant_amount, apply);
                             sLog.outDebug("+ %u HIT", enchant_amount);
                             break;
                         case ITEM_MOD_CRIT_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_MELEE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_RANGED, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_SPELL, enchant_amount, apply);
                             sLog.outDebug("+ %u CRITICAL", enchant_amount);
                             break;
 //                        Values ITEM_MOD_HIT_TAKEN_RATING and ITEM_MOD_CRIT_TAKEN_RATING are never used in Enchantment
 //                        case ITEM_MOD_HIT_TAKEN_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
-//                            ((Player*)this)->ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
-//                            ((Player*)this)->ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HIT_TAKEN_MELEE, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HIT_TAKEN_RANGED, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_HIT_TAKEN_SPELL, enchant_amount, apply);
 //                            break;
 //                        case ITEM_MOD_CRIT_TAKEN_RATING:
-//                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
-//                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
-//                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+//                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
 //                            break;
                         case ITEM_MOD_RESILIENCE_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_MELEE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_RANGED, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_CRIT_TAKEN_SPELL, enchant_amount, apply);
                             sLog.outDebug("+ %u RESILIENCE", enchant_amount);
                             break;
                         case ITEM_MOD_HASTE_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
-                            ((Player*)this)->ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HASTE_MELEE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HASTE_RANGED, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_HASTE_SPELL, enchant_amount, apply);
                             sLog.outDebug("+ %u HASTE", enchant_amount);
                             break;
                         case ITEM_MOD_EXPERTISE_RATING:
-                            ((Player*)this)->ApplyRatingMod(CR_EXPERTISE, enchant_amount, apply);
+                            this->ToPlayer()->ApplyRatingMod(CR_EXPERTISE, enchant_amount, apply);
                             sLog.outDebug("+ %u EXPERTISE", enchant_amount);
                             break;
                         case ITEM_MOD_ATTACK_POWER:
@@ -13848,7 +13848,7 @@ void Player::AddQuest( Quest const *pQuest, Object *questGiver )
 
         // shared timed quest
         if(questGiver && questGiver->GetTypeId() == TYPEID_PLAYER)
-            limittime = ((Player*)questGiver)->getQuestStatusMap()[quest_id].m_timer / IN_MILISECONDS;
+            limittime = questGiver->ToPlayer()->getQuestStatusMap()[quest_id].m_timer / IN_MILISECONDS;
 
         AddTimedQuest( quest_id );
         questStatusData.m_timer = limittime * IN_MILISECONDS;
@@ -19864,9 +19864,9 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
     // including case when player is out of world
     bool at_same_transport =
         GetTransport() && u->GetTypeId() == TYPEID_PLAYER
-        && !GetSession()->PlayerLogout() && !((Player*)u)->GetSession()->PlayerLogout()
-        && !GetSession()->PlayerLoading() && !((Player*)u)->GetSession()->PlayerLoading()
-        && GetTransport() == ((Player*)u)->GetTransport();
+        && !GetSession()->PlayerLogout() && !u->ToPlayer()->GetSession()->PlayerLogout()
+        && !GetSession()->PlayerLoading() && !u->ToPlayer()->GetSession()->PlayerLoading()
+        && GetTransport() == u->ToPlayer()->GetTransport();
 
     // not in world
     if(!at_same_transport && (!IsInWorld() || !u->IsInWorld()))
@@ -19943,14 +19943,14 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         if(isGameMaster())
         {
             if(u->GetTypeId() == TYPEID_PLAYER)
-                return ((Player*)u)->GetSession()->GetSecurity() <= GetSession()->GetSecurity();
+                return u->ToPlayer()->GetSession()->GetSecurity() <= GetSession()->GetSecurity();
             else
                 return true;
         }
 
         // player see other player with stealth/invisibility only if he in same group or raid or same team (raid/team case dependent from conf setting)
         if(!m_mover->canDetectInvisibilityOf(u))
-            if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+	  if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(const_cast<Player*>(u->ToPlayer() ))))
                 return false;
     }
 
@@ -19963,7 +19963,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         if(!isAlive())
             detect = false;
         if(m_DetectInvTimer < 300 || !HaveAtClient(u))
-            if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(((Player*)u))))
+	  if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(const_cast<Player*>(u->ToPlayer()))))
                 if(!detect || !m_mover->canDetectStealthOf(u, GetDistance(u)))
                     return false;
     }
