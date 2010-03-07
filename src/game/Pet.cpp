@@ -338,7 +338,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
 
     //set last used pet number (for use in BG's)
     if(owner->GetTypeId() == TYPEID_PLAYER && isControlled() && !isTemporarySummoned() && (getPetType() == SUMMON_PET || getPetType() == HUNTER_PET))
-        ((Player*)owner)->SetLastPetNumber(pet_number);
+        owner->ToPlayer()->SetLastPetNumber(pet_number);
 
     m_loading = false;
 
@@ -1523,7 +1523,7 @@ bool Pet::removeSpell(uint32 spell_id, bool learn_prev, bool clear_ab)
             // need update action bar for last removed rank
             if (Unit* owner = GetOwner())
                 if (owner->GetTypeId() == TYPEID_PLAYER)
-                    ((Player*)owner)->PetSpellInitialize();
+                    owner->ToPlayer()->PetSpellInitialize();
         }
     }
 
@@ -1561,8 +1561,8 @@ bool Pet::resetTalents(bool no_cost)
         return false;
 
     // not need after this call
-    if (((Player*)owner)->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        ((Player*)owner)->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS,true);
+    if (owner->ToPlayer()->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        owner->ToPlayer()->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS,true);
 
     CreatureInfo const * ci = GetCreatureInfo();
     if (!ci)
@@ -1654,8 +1654,8 @@ bool Pet::resetTalents(bool no_cost)
 void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 {
     // not need after this call
-    if (((Player*)owner)->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
-        ((Player*)owner)->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS,true);
+    if (owner->ToPlayer()->HasAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS))
+        owner->ToPlayer()->RemoveAtLoginFlag(AT_LOGIN_RESET_PET_TALENTS,true);
 
     // reset for online
     if (online_pet)
@@ -1743,7 +1743,7 @@ void Pet::InitTalentForLevel()
         return;
 
     if (!m_loading)
-        ((Player*)owner)->SendTalentsInfoData(true);
+        owner->ToPlayer()->SendTalentsInfoData(true);
 }
 
 uint32 Pet::resetTalentsCost() const
@@ -1894,7 +1894,7 @@ void Pet::CastPetAuras(bool current)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if (!IsPermanentPetFor((Player*)owner))
+    if (!IsPermanentPetFor(owner->ToPlayer()))
         return;
 
     for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end();)

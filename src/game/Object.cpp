@@ -295,11 +295,11 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         *data << ((Unit*)this)->GetSpeed( MOVE_PITCH_RATE );
 
         // 0x08000000
-        if(GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isInFlight())
+        if(GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->isInFlight())
         {
-            WPAssert(((Player*)this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
+	  //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
-            FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(((Player*)this)->GetMotionMaster()->top());
+	  FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(const_cast<Player*>(this->ToPlayer())->GetMotionMaster()->top());
 
             uint32 flags3 = MOVEFLAG_GLIDE;
 
@@ -327,7 +327,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
             Path &path = fmg->GetPath();
 
             float x, y, z;
-            ((Player*)this)->GetPosition(x, y, z);
+            this->ToPlayer()->GetPosition(x, y, z);
 
             uint32 inflighttime = uint32(path.GetPassedLength(fmg->GetCurrentNode(), x, y, z) * 32);
             uint32 traveltime = uint32(path.GetTotalLength() * 32);
@@ -629,14 +629,14 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                             if(index == UNIT_FIELD_BYTES_2)
                             {
                                 // Allow targetting opposite faction in party when enabled in config
-                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), ((Player*)this)->GetName());
+                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), this->ToPlayer()->GetName());
                                 *data << ( m_uint32Values[ index ] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8) ); // this flag is at uint8 offset 1 !!
                             }
                             else
                             {
                                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
                                 uint32 faction = target->getFaction();
-                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (faction %u)", target->GetName(), ((Player*)this)->GetName(), faction);
+                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (faction %u)", target->GetName(), this->ToPlayer()->GetName(), faction);
                                 *data << uint32(faction);
                             }
                         }
@@ -1487,7 +1487,7 @@ void WorldObject::SendPlaySound(uint32 Sound, bool OnlySelf)
     WorldPacket data(SMSG_PLAY_SOUND, 4);
     data << Sound;
     if (OnlySelf && GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->GetSession()->SendPacket( &data );
+        this->ToPlayer()->GetSession()->SendPacket( &data );
     else
         SendMessageToSet( &data, true ); // ToSelf ignored in this case
 }
@@ -1735,7 +1735,7 @@ TempSummon *Map::SummonCreature(uint32 entry, const Position &pos, SummonPropert
     {
         phase = summoner->GetPhaseMask();
         if(summoner->GetTypeId() == TYPEID_PLAYER)
-            team = ((Player*)summoner)->GetTeam();
+            team = summoner->ToPlayer()->GetTeam();
     }
 
     TempSummon *summon = NULL;

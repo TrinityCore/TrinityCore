@@ -329,7 +329,7 @@ void WorldSession::LogoutPlayer(bool Save)
                 if(owner)
                 {
                     if(owner->GetTypeId() == TYPEID_PLAYER)
-                        aset.insert((Player*)owner);
+		      aset.insert(owner->ToPlayer());
                 }
                 else
                 if((*itr)->GetTypeId() == TYPEID_PLAYER)

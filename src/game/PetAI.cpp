@@ -209,10 +209,10 @@ void PetAI::UpdateAI(const uint32 diff)
             {
                 m_creature->SetInFront(target);
                 if(target && target->GetTypeId() == TYPEID_PLAYER)
-                    m_creature->SendUpdateToPlayer((Player*)target);
+		  m_creature->SendUpdateToPlayer(target->ToPlayer());
 
                 if(owner && owner->GetTypeId() == TYPEID_PLAYER)
-                    m_creature->SendUpdateToPlayer((Player*)owner);
+		  m_creature->SendUpdateToPlayer(owner->ToPlayer());
             }
 
             m_creature->AddCreatureSpellCooldown(spell->m_spellInfo->Id);
@@ -236,7 +236,7 @@ void PetAI::UpdateAllies()
     if(!owner)
         return;
     else if(owner->GetTypeId() == TYPEID_PLAYER)
-        pGroup = ((Player*)owner)->GetGroup();
+        pGroup = owner->ToPlayer()->GetGroup();
 
     //only pet and owner/not in group->ok
     if(m_AllySet.size() == 2 && !pGroup)

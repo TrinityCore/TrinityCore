@@ -1113,9 +1113,9 @@ bool ChatHandler::HandleModifyHPCommand(const char* args)
     if (chr->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)chr, 0))
         return false;
 
-    PSendSysMessage(LANG_YOU_CHANGE_HP, GetNameLink((Player*)chr).c_str(), hp, hpm);
-    if (chr->GetTypeId() == TYPEID_PLAYER && needReportToTarget((Player*)chr))
-        ChatHandler((Player*)chr).PSendSysMessage(LANG_YOURS_HP_CHANGED, GetNameLink().c_str(), hp, hpm);
+    PSendSysMessage(LANG_YOU_CHANGE_HP, GetNameLink(chr->ToPlayer()).c_str(), hp, hpm);
+    if (chr->GetTypeId() == TYPEID_PLAYER && needReportToTarget(chr->ToPlayer()))
+      ChatHandler(chr->ToPlayer()).PSendSysMessage(LANG_YOURS_HP_CHANGED, GetNameLink().c_str(), hp, hpm);
 
     chr->SetMaxHealth( hpm );
     chr->SetHealth( hp );
@@ -1460,20 +1460,20 @@ bool ChatHandler::HandleModifyTalentCommand (const char* args)
         // check online security
         if (HasLowerSecurity((Player*)target, 0))
             return false;
-        ((Player*)target)->SetFreeTalentPoints(tp);
-        ((Player*)target)->SendTalentsInfoData(false);
+        target->ToPlayer()->SetFreeTalentPoints(tp);
+        target->ToPlayer()->SendTalentsInfoData(false);
         return true;
     }
     else if(((Creature*)target)->isPet())
     {
         Unit *owner = target->GetOwner();
-        if(owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)target)->IsPermanentPetFor((Player*)owner))
+        if(owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)target)->IsPermanentPetFor(owner->ToPlayer()))
         {
             // check online security
             if (HasLowerSecurity((Player*)owner, 0))
                 return false;
             ((Pet *)target)->SetFreeTalentPoints(tp);
-            ((Player*)owner)->SendTalentsInfoData(true);
+            owner->ToPlayer()->SendTalentsInfoData(true);
             return true;
         }
     }
