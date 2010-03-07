@@ -766,7 +766,7 @@ void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool app
 bool Aura::IsVisible() const
 {
     // Is this blizzlike? show totem passive auras
-    if (GetOwner()->GetTypeId() == TYPEID_UNIT && ((Creature*)m_owner)->isTotem() && IsPassive())
+    if (GetOwner()->GetTypeId() == TYPEID_UNIT && m_owner->ToCreature()->isTotem() && IsPassive())
         return true;
     return !IsPassive() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE); 
 }

@@ -1746,7 +1746,7 @@ bool ChatHandler::HandleNpcTameCommand(const char* /*args*/)
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 
     // add to world
-    pet->GetMap()->Add((Creature*)pet);
+    pet->GetMap()->Add(pet->ToCreature());
 
     // visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
@@ -3957,7 +3957,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* args)
      pet->InitPetCreateSpells();
      pet->SetHealth(pet->GetMaxHealth());
 
-     pet->GetMap()->Add((Creature*)pet);
+     pet->GetMap()->Add(pet->ToCreature());
 
      // visual effect for levelup
      pet->SetUInt32Value(UNIT_FIELD_LEVEL,creatureTarget->getLevel());
