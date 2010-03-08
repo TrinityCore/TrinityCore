@@ -825,6 +825,61 @@ bool GOHello_go_black_cage(Player *pPlayer, GameObject *pGO)
     return true;
 }
 
+/*######
+## go_amberpine_outhouse
+######*/
+
+#define GOSSIP_USE_OUTHOUSE "Use the outhouse."
+#define GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND "Quest item Anderhol's Slider Cider not found."
+
+enum eAmberpineOuthouse
+{
+    ITEM_ANDERHOLS_SLIDER_CIDER     = 37247,
+    NPC_OUTHOUSE_BUNNY              = 27326,
+    QUEST_DOING_YOUR_DUTY           = 12227,
+    SPELL_INDISPOSED                = 53017,
+    SPELL_INDISPOSED_III            = 48341,
+    SPELL_CREATE_AMBERSEEDS         = 48330,
+    GOSSIP_OUTHOUSE_INUSE           = 12775,
+    GOSSIP_OUTHOUSE_VACANT          = 12779
+};
+
+bool GOHello_go_amberpine_outhouse(Player *pPlayer, GameObject *pGO)
+{
+    if (pPlayer->GetQuestStatus(QUEST_DOING_YOUR_DUTY) == QUEST_STATUS_INCOMPLETE ||
+        (pPlayer->GetQuestStatus(QUEST_DOING_YOUR_DUTY) == QUEST_STATUS_COMPLETE))
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_USE_OUTHOUSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_VACANT, pGO->GetGUID());
+        return true;
+    }
+    else
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_INUSE, pGO->GetGUID());
+        return true;    
+} 
+
+bool GOSelect_go_amberpine_outhouse(Player *pPlayer, GameObject *pGO, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            Creature* pTarget = GetClosestCreatureWithEntry(pPlayer, NPC_OUTHOUSE_BUNNY, 3.0f);
+            if (pTarget)
+            {
+                pTarget->AI()->SetData(1,pPlayer->getGender());
+                pGO->CastSpell(pTarget, SPELL_INDISPOSED_III);
+            }
+            pGO->CastSpell(pPlayer, SPELL_INDISPOSED);
+            if (pPlayer->HasItemCount(ITEM_ANDERHOLS_SLIDER_CIDER,1))
+                pGO->CastSpell(pPlayer, SPELL_CREATE_AMBERSEEDS);
+            return true;
+        }
+        else
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->GetSession()->SendNotification(GO_ANDERHOLS_SLIDER_CIDER_NOT_FOUND);
+            return false;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -988,5 +1043,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_dragonflayer_cage";
     newscript->pGOHello =           &GOHello_go_dragonflayer_cage;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_amberpine_outhouse";
+    newscript->pGOHello =           &GOHello_go_amberpine_outhouse;
+    newscript->pGOSelect =          &GOSelect_go_amberpine_outhouse;
     newscript->RegisterSelf();
 }
