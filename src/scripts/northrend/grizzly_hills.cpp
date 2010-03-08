@@ -356,6 +356,60 @@ CreatureAI* GetAI_npc_mrfloppy(Creature* pCreature)
     return new npc_mrfloppyAI(pCreature);
 }
 
+// Outhouse Bunny
+
+enum eOuthouseBunny
+{
+    SPELL_OUTHOUSE_GROANS           = 48382,
+    SPELL_CAMERA_SHAKE              = 47533,
+    SPELL_DUST_FIELD                = 48329
+};
+
+enum eSounds
+{    SOUND_FEMALE        = 12671,    SOUND_MALE          = 12670};
+struct npc_outhouse_bunnyAI : public ScriptedAI
+{
+    npc_outhouse_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    uint8 m_counter;
+    uint8 m_gender;
+
+    void Reset()
+    {
+        m_counter = 0;
+        m_gender = 0;
+    }
+
+    void SetData(uint32 uiType, uint32 uiData)
+    {
+        if (uiType == 1)
+            m_gender = uiData;
+    }
+	
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+         if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
+        {
+            ++m_counter;
+            if (m_counter < 5)
+                DoCast(pCaster, SPELL_CAMERA_SHAKE, true);
+            else
+                m_counter = 0;
+            DoCast(me, SPELL_DUST_FIELD, true);
+            switch (m_gender)
+            {
+                case GENDER_FEMALE: DoPlaySoundToSet(m_creature, SOUND_FEMALE); break;
+                case GENDER_MALE: DoPlaySoundToSet(m_creature, SOUND_MALE); break;
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_outhouse_bunny(Creature* pCreature)
+{
+    return new npc_outhouse_bunnyAI (pCreature);
+}
+
 void AddSC_grizzly_hills()
 {
     Script* newscript;
@@ -375,5 +429,10 @@ void AddSC_grizzly_hills()
     newscript = new Script;
     newscript->Name = "npc_mrfloppy";
     newscript->GetAI = &GetAI_npc_mrfloppy;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_outhouse_bunny";
+    newscript->GetAI = &GetAI_npc_outhouse_bunny;
     newscript->RegisterSelf();
 }
