@@ -321,14 +321,14 @@ void Unit::SendMonsterStop(bool on_death)
 
     if (on_death == true)
     {
-        data << uint8(1);
+        data << uint8(0);
         data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
         data << uint32(0);                                      // Time in between points
         data << uint32(1);                                      // 1 single waypoint
         data << GetPositionX() << GetPositionY() << GetPositionZ();
     }
     else
-        data << uint8(0);
+        data << uint8(1);
 
     SendMessageToSet(&data, true);
 
