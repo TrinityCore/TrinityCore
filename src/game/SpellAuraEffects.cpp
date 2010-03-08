@@ -2509,10 +2509,13 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
             target->RemoveAurasDueToSpell(spellId2);
 
         // Improved Barkskin - apply/remove armor bonus due to shapeshift
-        if (target->ToPlayer()->HasSpell(63410) || target->ToPlayer()->HasSpell(63411))
+        if (Player *pl=target->ToPlayer())
         {
-            target->RemoveAurasDueToSpell(66530);
-            target->CastSpell(target,66530,true);
+            if (pl->HasSpell(63410) || pl->HasSpell(63411))
+            {
+                target->RemoveAurasDueToSpell(66530);
+                target->CastSpell(target,66530,true);
+            }
         }
 
         Unit::AuraApplicationMap& tAuras = target->GetAppliedAuras();
