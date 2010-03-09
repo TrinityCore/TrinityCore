@@ -743,10 +743,10 @@ struct mob_phase_hunterAI : public ScriptedAI
         // some code to cast spell Mana Burn on random target which has mana
         if (ManaBurnTimer <= diff)
         {
-            std::list<HostilReference*> AggroList = m_creature->getThreatManager().getThreatList();
+            std::list<HostileReference*> AggroList = m_creature->getThreatManager().getThreatList();
             std::list<Unit*> UnitsWithMana;
 
-            for(std::list<HostilReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
+            for(std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
             {
                 if(Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {

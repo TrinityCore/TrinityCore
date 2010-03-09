@@ -121,8 +121,8 @@ struct boss_blackheart_the_inciterAI : public ScriptedAI
         {
             DoCast(m_creature, SPELL_INCITE_CHAOS);
 
-            std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
+            for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)

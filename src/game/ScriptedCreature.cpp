@@ -168,9 +168,9 @@ Creature* ScriptedAI::DoSpawnCreature(uint32 uiId, float fX, float fY, float fZ,
 Unit* ScriptedAI::SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition)
 {
     //ThreatList m_threatlist;
-    std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
-    std::list<HostilReference*>::iterator itr = threatlist.begin();
-    std::list<HostilReference*>::reverse_iterator ritr = threatlist.rbegin();
+    std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+    std::list<HostileReference*>::iterator itr = threatlist.begin();
+    std::list<HostileReference*>::reverse_iterator ritr = threatlist.rbegin();
 
     if (uiPosition >= threatlist.size() || !threatlist.size())
         return NULL;
@@ -401,9 +401,9 @@ void ScriptedAI::DoResetThreat()
         return;
     }
 
-    std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+    std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
 
-    for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
     {
         Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
 
@@ -636,8 +636,8 @@ void BossAI::TeleportCheaters()
 {
     float x, y, z;
     me->GetPosition(x, y, z);
-    std::list<HostilReference*> &m_threatlist = me->getThreatManager().getThreatList();
-    for (std::list<HostilReference*>::iterator itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
+    std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
+    for (std::list<HostileReference*>::iterator itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
         if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
             (*itr)->getTarget()->NearTeleportTo(x, y, z, 0);
 }

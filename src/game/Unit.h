@@ -28,7 +28,7 @@
 #include "UpdateFields.h"
 #include "SharedDefines.h"
 #include "ThreatManager.h"
-#include "HostilRefManager.h"
+#include "HostileRefManager.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
 #include "Utilities/EventProcessor.h"
@@ -1442,9 +1442,9 @@ class Unit : public WorldObject
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
         void SendMovementFlagUpdate();
 
-        void SendChangeCurrentVictimOpcode(HostilReference* pHostilReference);
+        void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
-        void SendRemoveFromThreatListOpcode(HostilReference* pHostilReference);
+        void SendRemoveFromThreatListOpcode(HostileReference* pHostileReference);
         void SendThreatListUpdate();
 
         void BuildHeartBeatMsg(WorldPacket *data) const;
@@ -1752,9 +1752,9 @@ class Unit : public WorldObject
         void TauntApply(Unit* pVictim);
         void TauntFadeOut(Unit *taunter);
         ThreatManager& getThreatManager() { return m_ThreatManager; }
-        void addHatedBy(HostilReference* pHostilReference) { m_HostilRefManager.insertFirst(pHostilReference); };
-        void removeHatedBy(HostilReference* /*pHostilReference*/ ) { /* nothing to do yet */ }
-        HostilRefManager& getHostilRefManager() { return m_HostilRefManager; }
+        void addHatedBy(HostileReference* pHostileReference) { m_HostileRefManager.insertFirst(pHostileReference); };
+        void removeHatedBy(HostileReference* /*pHostileReference*/ ) { /* nothing to do yet */ }
+        HostileRefManager& getHostileRefManager() { return m_HostileRefManager; }
 
         VisibleAuraMap const *GetVisibleAuras() { return &m_visibleAuras; }
         AuraApplication * GetVisibleAura(uint8 slot)
@@ -2064,7 +2064,7 @@ class Unit : public WorldObject
         // Manage all Units threatening us
 //        ThreatManager m_ThreatManager;
         // Manage all Units that are threatened by us
-        HostilRefManager m_HostilRefManager;
+        HostileRefManager m_HostileRefManager;
 
         FollowerRefManager m_FollowingRefManager;
 

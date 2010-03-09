@@ -111,7 +111,7 @@ struct boss_patchwerkAI : public BossAI
                     //amount of HP within melee distance
                     uint32 MostHP = 0;
                     Unit* pMostHPTarget = NULL;
-                    std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+                    std::list<HostileReference*>::iterator i = me->getThreatManager().getThreatList().begin();
                     for (; i != me->getThreatManager().getThreatList().end(); ++i)
                     {
                         Unit *pTarget = (*i)->getTarget();

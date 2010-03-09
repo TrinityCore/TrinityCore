@@ -213,9 +213,9 @@ struct boss_taldaramAI : public ScriptedAI
                     {
                         //Count alive players
                         Unit *pTarget = NULL;
-                        std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
+                        std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
                         std::vector<Unit *> target_list;
-                        for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                        for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                         {
                             pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                             // exclude pets & totems

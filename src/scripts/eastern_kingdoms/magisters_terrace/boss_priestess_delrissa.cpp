@@ -796,8 +796,8 @@ struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
         if (Blink_Timer <= diff)
         {
             bool InMeleeRange = false;
-            std::list<HostilReference*>& t_list = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            std::list<HostileReference*>& t_list = m_creature->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
@@ -876,8 +876,8 @@ struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
         if (Intercept_Stun_Timer <= diff)
         {
             bool InMeleeRange = false;
-            std::list<HostilReference*>& t_list = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            std::list<HostileReference*>& t_list = m_creature->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {

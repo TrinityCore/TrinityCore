@@ -665,8 +665,8 @@ bool ChatHandler::HandleDebugThreatList(const char * /*args*/)
     if(!target || target->isTotem() || target->isPet())
         return false;
 
-    std::list<HostilReference*>& tlist = target->getThreatManager().getThreatList();
-    std::list<HostilReference*>::iterator itr;
+    std::list<HostileReference*>& tlist = target->getThreatManager().getThreatList();
+    std::list<HostileReference*>::iterator itr;
     uint32 cnt = 0;
     PSendSysMessage("Threat list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
     for (itr = tlist.begin(); itr != tlist.end(); ++itr)
@@ -681,12 +681,12 @@ bool ChatHandler::HandleDebugThreatList(const char * /*args*/)
     return true;
 }
 
-bool ChatHandler::HandleDebugHostilRefList(const char * /*args*/)
+bool ChatHandler::HandleDebugHostileRefList(const char * /*args*/)
 {
     Unit* target = getSelectedUnit();
     if(!target)
         target = m_session->GetPlayer();
-    HostilReference* ref = target->getHostilRefManager().getFirst();
+    HostileReference* ref = target->getHostileRefManager().getFirst();
     uint32 cnt = 0;
     PSendSysMessage("Hostil reference list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
     while(ref)

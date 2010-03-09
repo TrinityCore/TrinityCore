@@ -654,7 +654,7 @@ struct cthunAI : public Scripted_NoMovementAI
                     //Place all units in threat list on outside of stomach
                     Stomach_Map.clear();
 
-                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                    std::list<HostileReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
                     for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
                     {
                         //Outside stomach

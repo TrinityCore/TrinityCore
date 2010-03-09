@@ -67,8 +67,8 @@ struct boss_murmurAI : public ScriptedAI
 
     void SonicBoomEffect()
     {
-        std::list<HostilReference *> t_list = m_creature->getThreatManager().getThreatList();
-        for (std::list<HostilReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+        std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
+        for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
@@ -152,8 +152,8 @@ struct boss_murmurAI : public ScriptedAI
             // Thundering Storm
             if (ThunderingStorm_Timer <= diff)
             {
-                std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-                for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+                std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                     if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
                         if (pTarget->isAlive() && !m_creature->IsWithinDist(pTarget, 35, false))
                             DoCast(pTarget, SPELL_THUNDERING_STORM, true);
@@ -175,8 +175,8 @@ struct boss_murmurAI : public ScriptedAI
             return;
         if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
-            std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostilReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+            std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                 if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
                     if (pTarget->isAlive() && m_creature->IsWithinMeleeRange(pTarget))
                     {

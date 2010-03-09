@@ -127,13 +127,13 @@ Unit* UnitAI::SelectTarget(SelectAggroTarget targetType, uint32 position, float 
 
 void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist, bool playerOnly, int32 aura)
 {
-    const std::list<HostilReference*> &threatlist = me->getThreatManager().getThreatList();
+    const std::list<HostileReference*> &threatlist = me->getThreatManager().getThreatList();
 
     if (threatlist.empty())
         return;
 
     DefaultTargetSelector targetSelector(me, dist,playerOnly, aura);
-    for (std::list<HostilReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+    for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         if (targetSelector((*itr)->getTarget()))
             targetList.push_back((*itr)->getTarget());
 
@@ -167,8 +167,8 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
 {
     if (me->isInCombat())
     {
-        std::list<HostilReference*>& threatlist = me->getThreatManager().getThreatList();
-        for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
+        for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit *pTemp = Unit::GetUnit(*me,(*itr)->getUnitGuid()))
                 if (pTemp->GetTypeId() == TYPEID_PLAYER)
@@ -182,8 +182,8 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
 {
     if (me->isInCombat())
     {
-        std::list<HostilReference*>& threatlist = me->getThreatManager().getThreatList();
-        for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
+        for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit *pTemp = Unit::GetUnit(*me,(*itr)->getUnitGuid()))
                 if (pTemp->GetTypeId() == TYPEID_PLAYER)
