@@ -16110,11 +16110,7 @@ void Player::_LoadActions(QueryResult_AutoPtr result, bool startup)
             uint8 type = fields[2].GetUInt8();
 
             if(ActionButton* ab = addActionButton(button, action, type))
-            {
                 ab->uState = ACTIONBUTTON_UNCHANGED;
-                if(!startup) // Switching specs
-                    ab->canRemoveByClient = false;
-            }
             else
             {
                 sLog.outError( "  ...at loading, and will deleted in DB also");
