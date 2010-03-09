@@ -88,23 +88,6 @@ typedef struct AUTH_LOGON_CHALLENGE_C
     uint8   I[1];
 } sAuthLogonChallenge_C;
 
-//typedef sAuthLogonChallenge_C sAuthReconnectChallenge_C;
-/*
-typedef struct
-{
-    uint8   cmd;
-    uint8   error;
-    uint8   unk2;
-    uint8   B[32];
-    uint8   g_len;
-    uint8   g[1];
-    uint8   N_len;
-    uint8   N[32];
-    uint8   s[32];
-    uint8   unk3[16];
-} sAuthLogonChallenge_S;
-*/
-
 typedef struct AUTH_LOGON_PROOF_C
 {
     uint8   cmd;
@@ -114,15 +97,7 @@ typedef struct AUTH_LOGON_PROOF_C
     uint8   number_of_keys;
     uint8   securityFlags;                                  // 0x00-0x04
 } sAuthLogonProof_C;
-/*
-typedef struct
-{
-    uint16  unk1;
-    uint32  unk2;
-    uint8   unk3[4];
-    uint16  unk4[20];
-}  sAuthLogonProofKey_C;
-*/
+
 typedef struct AUTH_LOGON_PROOF_S
 {
     uint8   cmd;
@@ -159,21 +134,21 @@ typedef struct XFER_INIT
     uint8 fileName[5];                                      // fileName[fileNameLen]
     uint64 file_size;                                       // file size (bytes)
     uint8 md5[MD5_DIGEST_LENGTH];                           // MD5
-}XFER_INIT;
+} XFER_INIT;
 
 typedef struct XFER_DATA
 {
     uint8 opcode;
     uint16 data_size;
     uint8 data[ChunkSize];
-}XFER_DATA_STRUCT;
+} XFER_DATA_STRUCT;
 
 typedef struct AuthHandler
 {
     eAuthCmd cmd;
     uint32 status;
     bool (AuthSocket::*handler)(void);
-}AuthHandler;
+} AuthHandler;
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some paltform
 #if defined(__GNUC__)
@@ -196,7 +171,7 @@ class PatcherRunnable: public ACE_Based::Runnable
 typedef struct PATCH_INFO
 {
     uint8 md5[MD5_DIGEST_LENGTH];
-}PATCH_INFO;
+} PATCH_INFO;
 
 /// Caches MD5 hash of client patches present on the server
 class Patcher
@@ -238,7 +213,6 @@ AuthSocket::AuthSocket(RealmSocket& socket) : socket_(socket)
     N.SetHexStr("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword(7);
     _authed = false;
-
     _accountSecurityLevel = SEC_PLAYER;
 }
 
@@ -264,8 +238,9 @@ void AuthSocket::OnRead()
     uint8 _cmd;
     while (1)
     {
-        if(!socket().recv_soft((char *)&_cmd, 1))
+        if (!socket().recv_soft((char *)&_cmd, 1))
             return;
+
         size_t i;
 
         ///- Circle through known commands and call the correct command handler
@@ -400,8 +375,7 @@ bool AuthSocket::_HandleLogonChallenge()
         ///- Get the account details from the account table
         // No SQL injection (escaped user name)
 
-        result =
-            loginDatabase.PQuery("SELECT a.sha_pass_hash,a.id,a.locked,a.last_ip,aa.gmlevel,a.v,a.s "
+        result = loginDatabase.PQuery("SELECT a.sha_pass_hash,a.id,a.locked,a.last_ip,aa.gmlevel,a.v,a.s "
                                  "FROM account a "
                                  "LEFT JOIN account_access aa "
                                  "ON (a.id = aa.id) "
@@ -504,9 +478,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     }
 
                     if (securityFlags & REALM_AUTH_NO_MATCH)                // Security token input
-                    {
                         pkt << uint8(1);
-                    }
 
                     uint8 secLevel = (*result)[4].GetUInt8();
                     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
@@ -524,6 +496,7 @@ bool AuthSocket::_HandleLogonChallenge()
             pkt<< (uint8) REALM_AUTH_NO_MATCH;
         }
     }
+
     socket().send((char const*)pkt.contents(), pkt.size());
     return true;
 }
@@ -534,7 +507,8 @@ bool AuthSocket::_HandleLogonProof()
     DEBUG_LOG("Entering _HandleLogonProof");
     ///- Read the packet
     sAuthLogonProof_C lp;
-    if(!socket().recv((char *)&lp, sizeof(sAuthLogonProof_C)))
+
+    if (!socket().recv((char *)&lp, sizeof(sAuthLogonProof_C)))
         return false;
 
     /// <ul><li> If the client has no valid version
@@ -651,7 +625,9 @@ bool AuthSocket::_HandleLogonProof()
             proof.unk2 = 0x00;
             proof.unk3 = 0x00;
             socket().send((char *)&proof, sizeof(proof));
-        }else{
+        }
+        else
+        {
             sAuthLogonProof_S_Old proof;
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
@@ -708,6 +684,7 @@ bool AuthSocket::_HandleLogonProof()
             }
         }
     }
+
     return true;
 }
 
@@ -774,8 +751,9 @@ bool AuthSocket::_HandleReconnectProof()
     DEBUG_LOG("Entering _HandleReconnectProof");
     ///- Read the packet
     sAuthReconnectProof_C lp;
-    if(!socket().recv((char *)&lp, sizeof(sAuthReconnectProof_C)))
+    if (!socket().recv((char *)&lp, sizeof(sAuthReconnectProof_C)))
         return false;
+
     if (_login.empty() || !_reconnectProof.GetNumBytes() || !K.GetNumBytes())
         return false;
 
@@ -860,6 +838,7 @@ bool AuthSocket::_HandleRealmList()
         pkt << (uint16) built_realmList.size();
     else
         pkt << (uint32) built_realmList.size();
+
     RealmList::RealmMap::const_iterator i;
     for (i = built_realmList.begin(); i != built_realmList.end(); ++i)
     {
@@ -963,12 +942,6 @@ bool AuthSocket::_HandleXferAccept()
 
     ACE_Based::Thread u(new PatcherRunnable(this));
     return true;
-}
-
-/// Check if there is lag on the connection to the client
-bool AuthSocket::IsLag()
-{
-
 }
 
 PatcherRunnable::PatcherRunnable(class AuthSocket * as)
