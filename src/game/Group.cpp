@@ -1139,7 +1139,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
     if(!isBGGroup())
     {
         // insert into group table
-        CharacterDatabase.PExecute("INSERT INTO group_member(leaderGuid,memberGuid,memberFlags,subgroup) VALUES('%u','%u','%u','%u')", GUID_LOPART(m_leaderGuid), GUID_LOPART(member.guid), ((member.flags & MEMBER_FLAG_ASSISTANT)?1:0), member.group);
+        CharacterDatabase.PExecute("INSERT INTO group_member(leaderGuid,memberGuid,memberFlags,subgroup) VALUES('%u','%u','%u','%u')", GUID_LOPART(m_leaderGuid), GUID_LOPART(member.guid), member.flags, member.group);
     }
 
     return true;
