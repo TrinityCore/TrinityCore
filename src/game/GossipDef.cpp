@@ -758,8 +758,8 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
             data << uint32(0);
     }
 
-    data << uint32(0);
     data << uint32(pQuest->GetRewOrReqMoney());
+    data << uint32(pQuest->XPValue(pSession->GetPlayer()));
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
