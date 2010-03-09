@@ -165,8 +165,8 @@ struct boss_tharon_jaAI : public ScriptedAI
                 {
                     DoScriptText(RAND(SAY_FLESH_1,SAY_FLESH_2),m_creature);
                     m_creature->SetDisplayId(MODEL_FLESH);
-                    std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
-                    for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                    std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
                         Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
                         if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
@@ -221,8 +221,8 @@ struct boss_tharon_jaAI : public ScriptedAI
                     uiCurseOfLifeTimer = 1000;
                     uiRainOfFireTimer = urand(14000,18000);
                     uiShadowVolleyTimer = urand(8000,10000);
-                    std::list<HostilReference*>& threatlist = m_creature->getThreatManager().getThreatList();
-                    for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+                    std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
                         Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
                         if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)

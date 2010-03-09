@@ -125,8 +125,8 @@ SET(game_STAT_SRCS
    GuildHandler.cpp
    HomeMovementGenerator.cpp
    HomeMovementGenerator.h
-   HostilRefManager.cpp
-   HostilRefManager.h
+   HostileRefManager.cpp
+   HostileRefManager.h
    IdleMovementGenerator.cpp
    IdleMovementGenerator.h
    InstanceData.cpp

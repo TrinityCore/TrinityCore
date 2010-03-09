@@ -130,13 +130,13 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
     void CastBloodboil()
     {
         // Get the Threat List
-        std::list<HostilReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
 
         if (!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
             return;
 
         std::list<Unit *> targets;
-        std::list<HostilReference *>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference *>::iterator itr = m_threatlist.begin();
         for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
         {
             Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());

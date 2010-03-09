@@ -1395,7 +1395,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             uint32 heal = uint32(caster->SpellHealingBonus(caster, GetSpellProto(), uint32(new_damage * multiplier), DOT, GetBase()->GetStackAmount()));
 
             int32 gain = caster->DealHeal(caster, heal, GetSpellProto());
-            caster->getHostilRefManager().threatAssist(caster, gain * 0.5f, GetSpellProto());
+            caster->getHostileRefManager().threatAssist(caster, gain * 0.5f, GetSpellProto());
             break;
         }
         case SPELL_AURA_PERIODIC_HEALTH_FUNNEL: // only three spells
@@ -1470,7 +1470,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 if( BattleGround *bg = caster->ToPlayer()->GetBattleGround() )
                     bg->UpdatePlayerScore(caster->ToPlayer(), SCORE_HEALING_DONE, gain);
 
-            target->getHostilRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
+            target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
 
             bool haveCastItem = GetBase()->GetCastItemGUID() != 0;
 
@@ -1631,7 +1631,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             int32 gain = target->ModifyPower(power,amount);
 
             if(caster)
-                target->getHostilRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
+                target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
             break;
         }
         case SPELL_AURA_PERIODIC_ENERGIZE:
@@ -1659,7 +1659,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             int32 gain = target->ModifyPower(power,amount);
 
             if(caster)
-                target->getHostilRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
+                target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
             break;
         }
         case SPELL_AURA_POWER_BURN_MANA:
@@ -3189,7 +3189,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const * aurApp, uint8 mode, bo
         if(GetCasterGUID()==target->GetGUID() && target->GetCurrentSpell(CURRENT_GENERIC_SPELL))
             target->FinishSpell(CURRENT_GENERIC_SPELL, false);
         target->InterruptNonMeleeSpells(true);
-        target->getHostilRefManager().deleteReferences();
+        target->getHostileRefManager().deleteReferences();
     }
     else
     {
@@ -3727,7 +3727,7 @@ void AuraEffect::HandleAuraModTotalThreat(AuraApplication const * aurApp, uint8 
     if (!caster || !caster->isAlive())
         return;
 
-    target->getHostilRefManager().addTempThreat(GetAmount(), apply);
+    target->getHostileRefManager().addTempThreat(GetAmount(), apply);
 }
 
 void AuraEffect::HandleModTaunt(AuraApplication const * aurApp, uint8 mode, bool apply) const

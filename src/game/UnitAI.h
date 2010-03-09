@@ -72,15 +72,15 @@ class UnitAI
         // predicate shall extend std::unary_function<Unit *, bool>
         template<class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE predicate)
         {
-            const std::list<HostilReference *> &threatlist = me->getThreatManager().getThreatList();
+            const std::list<HostileReference *> &threatlist = me->getThreatManager().getThreatList();
             std::list<Unit*> targetList;
 
             if (position >= threatlist.size())
                 return NULL;
 
-            for (std::list<HostilReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
             {
-                HostilReference* ref = (*itr);
+                HostileReference* ref = (*itr);
                 if (predicate(ref->getTarget()))
                     targetList.push_back(ref->getTarget());
             }

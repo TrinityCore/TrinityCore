@@ -579,8 +579,8 @@ struct boss_kelthuzadAI : public BossAI
                     case EVENT_DETONATE:
                     {
                         std::vector<Unit*> unitList;
-                        std::list<HostilReference*> *threatList = &me->getThreatManager().getThreatList();
-                        for (std::list<HostilReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
+                        std::list<HostileReference*> *threatList = &me->getThreatManager().getThreatList();
+                        for (std::list<HostileReference*>::const_iterator itr = threatList->begin(); itr != threatList->end(); ++itr)
                         {
                             if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER
                                 && (*itr)->getTarget()->getPowerType() == POWER_MANA

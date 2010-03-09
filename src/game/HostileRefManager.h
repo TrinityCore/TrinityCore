@@ -26,18 +26,18 @@
 
 class Unit;
 class ThreatManager;
-class HostilReference;
+class HostileReference;
 struct SpellEntry;
 
 //=================================================
 
-class HostilRefManager : public RefManager<Unit, ThreatManager>
+class HostileRefManager : public RefManager<Unit, ThreatManager>
 {
     private:
         Unit *iOwner;
     public:
-        explicit HostilRefManager(Unit *pOwner) { iOwner = pOwner; }
-        ~HostilRefManager();
+        explicit HostileRefManager(Unit *pOwner) { iOwner = pOwner; }
+        ~HostileRefManager();
 
         Unit* getOwner() { return iOwner; }
 
@@ -57,7 +57,7 @@ class HostilRefManager : public RefManager<Unit, ThreatManager>
         // Remove specific faction references
         void deleteReferencesForFaction(uint32 faction);
 
-        HostilReference* getFirst() { return ((HostilReference* ) RefManager<Unit, ThreatManager>::getFirst()); }
+        HostileReference* getFirst() { return ((HostileReference* ) RefManager<Unit, ThreatManager>::getFirst()); }
 
         void updateThreatTables();
 

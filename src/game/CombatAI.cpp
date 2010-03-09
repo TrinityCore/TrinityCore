@@ -248,7 +248,7 @@ void TurretAI::UpdateAI(const uint32 diff)
     DoSpellAttackIfReady(me->m_spells[0]);
 
     //if(!DoSpellAttackIfReady(me->m_spells[0]))
-        //if(HostilReference *ref = me->getThreatManager().getCurrentVictim())
+        //if(HostileReference *ref = me->getThreatManager().getCurrentVictim())
             //ref->removeReference();
 }
 

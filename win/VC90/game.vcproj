@@ -1355,11 +1355,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\HostilRefManager.cpp"
+				RelativePath="..\..\src\game\HostileRefManager.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\game\HostilRefManager.h"
+				RelativePath="..\..\src\game\HostileRefManager.h"
 				>
 			</File>
 			<File
