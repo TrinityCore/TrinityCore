@@ -77,7 +77,7 @@ class DBCStorage
         {
             DBCFileLoader dbc;
             // Check if load was sucessful, only then continue
-            if(!dbc.Load(fn, fmt))
+            if (!dbc.Load(fn, fmt))
                 return false;
 
             uint32 sqlRecordCount = 0;

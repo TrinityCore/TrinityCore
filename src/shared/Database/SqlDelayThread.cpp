@@ -33,14 +33,14 @@ void SqlDelayThread::run()
     #endif
 
     SqlAsyncTask * s = NULL;
-    // Lets wait for next async task no more than 2 secs
+
     ACE_Time_Value _time(2);
     while (m_running)
     {
         // if the running state gets turned off while sleeping
         // empty the queue before exiting
         s = dynamic_cast<SqlAsyncTask*> (m_sqlQueue.dequeue());
-        if(s)
+        if (s)
         {
             s->call();
             delete s;

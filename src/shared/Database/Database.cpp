@@ -30,7 +30,6 @@
 
 Database::~Database()
 {
-    /*Delete objects*/
 }
 
 bool Database::Initialize(const char *)
@@ -39,9 +38,9 @@ bool Database::Initialize(const char *)
     // (See method: PExecuteLog)
     m_logSQL = sConfig.GetBoolDefault("LogSQL", false);
     m_logsDir = sConfig.GetStringDefault("LogsDir","");
-    if(!m_logsDir.empty())
+    if (!m_logsDir.empty())
     {
-        if((m_logsDir.at(m_logsDir.length()-1)!='/') && (m_logsDir.at(m_logsDir.length()-1)!='\\'))
+        if ((m_logsDir.at(m_logsDir.length()-1)!='/') && (m_logsDir.at(m_logsDir.length()-1)!='\\'))
             m_logsDir.append("/");
     }
 
@@ -58,7 +57,7 @@ void Database::ThreadEnd()
 
 void Database::escape_string(std::string& str)
 {
-    if(str.empty())
+    if (str.empty())
         return;
 
     char* buf = new char[str.size()*2+1];
@@ -75,23 +74,23 @@ bool Database::PExecuteLog(const char * format,...)
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, format);
-    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if(res==-1)
+    if (res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return false;
     }
 
-    if( m_logSQL )
+    if (m_logSQL)
     {
         time_t curr;
         tm local;
         time(&curr);                                        // get current time_t value
         local=*(localtime(&curr));                          // dereference and assign
         char fName[128];
-        sprintf( fName, "%04d-%02d-%02d_logSQL.sql", local.tm_year+1900, local.tm_mon+1, local.tm_mday );
+        sprintf(fName, "%04d-%02d-%02d_logSQL.sql", local.tm_year+1900, local.tm_mon+1, local.tm_mday);
 
         FILE* log_file;
         std::string logsDir_fname = m_logsDir+fName;
@@ -114,20 +113,20 @@ bool Database::PExecuteLog(const char * format,...)
 void Database::SetResultQueue(SqlResultQueue * queue)
 {
     m_queryQueues[ACE_Based::Thread::current()] = queue;
-
 }
 
 QueryResult_AutoPtr Database::PQuery(const char *format,...)
 {
-    if(!format) return QueryResult_AutoPtr(NULL);
+    if (!format)
+        return QueryResult_AutoPtr(NULL);
 
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, format);
-    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if(res==-1)
+    if (res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return QueryResult_AutoPtr(NULL);
@@ -138,15 +137,16 @@ QueryResult_AutoPtr Database::PQuery(const char *format,...)
 
 QueryNamedResult* Database::PQueryNamed(const char *format,...)
 {
-    if(!format) return NULL;
+    if (!format)
+        return NULL;
 
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, format);
-    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if(res==-1)
+    if (res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return false;
@@ -163,10 +163,10 @@ bool Database::PExecute(const char * format,...)
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, format);
-    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if(res==-1)
+    if (res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return false;
@@ -202,10 +202,10 @@ bool Database::DirectPExecute(const char * format,...)
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, format);
-    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if(res==-1)
+    if (res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return false;
@@ -214,24 +214,24 @@ bool Database::DirectPExecute(const char * format,...)
     return DirectExecute(szQuery);
 }
 
-bool Database::CheckRequiredField( char const* table_name, char const* required_name )
+bool Database::CheckRequiredField(char const* table_name, char const* required_name)
 {
     // check required field
     QueryResult_AutoPtr result = PQuery("SELECT %s FROM %s LIMIT 1",required_name,table_name);
-    if(result)
+    if (result)
         return true;
 
     // check fail, prepare readabale error message
 
     // search current required_* field in DB
     QueryNamedResult* result2 = PQueryNamed("SELECT * FROM %s LIMIT 1",table_name);
-    if(result2)
+    if (result2)
     {
         QueryFieldNames const& namesMap = result2->GetFieldNames();
         std::string reqName;
         for (QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
         {
-            if(itr->substr(0,9)=="required_")
+            if (itr->substr(0,9)=="required_")
             {
                 reqName = *itr;
                 break;
@@ -240,7 +240,7 @@ bool Database::CheckRequiredField( char const* table_name, char const* required_
 
         delete result2;
 
-        if(!reqName.empty())
+        if (!reqName.empty())
             sLog.outErrorDb("Table `%s` have field `%s` but expected `%s`! Not all sql updates applied?",table_name,reqName.c_str(),required_name);
         else
             sLog.outErrorDb("Table `%s` not have required_* field but expected `%s`! Not all sql updates applied?",table_name,required_name);
