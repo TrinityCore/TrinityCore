@@ -15,3 +15,7 @@
 543 #HellfireRampart
 568 #ZulAman
 564 #BlackTemple
+574 #UtgardeKeep
+575 #UtgardePinnacle
+609 #EbonHold
+628 #IsleOfConquest
