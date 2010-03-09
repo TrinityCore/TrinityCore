@@ -37,8 +37,6 @@
 Group::Group()
 {
     m_leaderGuid        = 0;
-    m_mainTank          = 0;
-    m_mainAssistant     = 0;
     m_groupType         = (GroupType)0;
     m_bgGroup           = NULL;
     m_lootMethod        = (LootMethod)0;
@@ -111,9 +109,9 @@ bool Group::Create(const uint64 &guid, const char * name)
         CharacterDatabase.BeginTransaction();
         CharacterDatabase.PExecute("DELETE FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(m_leaderGuid));
         CharacterDatabase.PExecute("DELETE FROM group_member WHERE leaderGuid ='%u'", GUID_LOPART(m_leaderGuid));
-        CharacterDatabase.PExecute("INSERT INTO groups (leaderGuid,mainTank,mainAssistant,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,isRaid,difficulty,raiddifficulty) "
-            "VALUES ('%u','%u','%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
-            GUID_LOPART(m_leaderGuid), GUID_LOPART(m_mainTank), GUID_LOPART(m_mainAssistant), uint32(m_lootMethod),
+        CharacterDatabase.PExecute("INSERT INTO groups (leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,isRaid,difficulty,raiddifficulty) "
+            "VALUES ('%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
+            GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
             GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6], m_targetIcons[7], isRaidGroup(), uint32(m_dungeonDifficulty), m_raidDifficulty);
     }
 
@@ -134,8 +132,8 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
     if(!result)
     {
         external = false;
-        //                                       0          1              2           3           4              5      6      7      8      9      10     11     12     13      14          15
-        result = CharacterDatabase.PQuery("SELECT mainTank, mainAssistant, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, raiddifficulty FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
+        //                                       0          1              2           3           4              5      6      7      8      9      10     11     12     13 
+        result = CharacterDatabase.PQuery("SELECT lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, raiddifficulty FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
         if(!result)
             return false;
     }
@@ -161,8 +159,6 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
         r_diff = RAID_DIFFICULTY_10MAN_NORMAL;
     m_raidDifficulty = Difficulty(r_diff);
 
-    m_mainTank = (*result)[0].GetUInt64();
-    m_mainAssistant = (*result)[1].GetUInt64();
     m_lootMethod = (LootMethod)(*result)[2].GetUInt8();
     m_looterGuid = MAKE_NEW_GUID((*result)[3].GetUInt32(), 0, HIGHGUID_PLAYER);
     m_lootThreshold = (ItemQualities)(*result)[4].GetUInt16();
@@ -172,13 +168,13 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
 
     if(loadMembers)
     {
-        result = CharacterDatabase.PQuery("SELECT memberGuid, assistant, subgroup FROM group_member WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
+        result = CharacterDatabase.PQuery("SELECT memberGuid, memberFlags, subgroup FROM group_member WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
         if(!result)
             return false;
 
         do
         {
-            LoadMemberFromDB((*result)[0].GetUInt32(), (*result)[2].GetUInt8(), (*result)[1].GetBool());
+            LoadMemberFromDB((*result)[0].GetUInt32(), (*result)[1].GetUInt8(), (*result)[2].GetUInt8());
         } while( result->NextRow() );
         // group too small
         if(GetMembersCount() < 2)
@@ -188,7 +184,7 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
     return true;
 }
 
-bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant)
+bool Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup)
 {
     MemberSlot member;
     member.guid      = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
@@ -197,13 +193,8 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant)
     if(!objmgr.GetPlayerNameByGUID(member.guid, member.name))
         return false;
 
-    member.group     = subgroup;
-    if (assistant)
-        member.flags |= MEMBER_FLAG_ASSISTANT;
-    if (member.guid == m_mainTank)
-        member.flags |= MEMBER_FLAG_MAINTANK;
-    if (member.guid == m_mainAssistant)
-        member.flags |= MEMBER_FLAG_MAINASSIST;
+    member.group = subgroup;
+    member.flags = memberFlags;
 
     m_memberSlots.push_back(member);
 
@@ -974,33 +965,31 @@ void Group::SendTargetIconList(WorldSession *session)
 void Group::SendUpdate()
 {
     Player *player;
-
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         player = objmgr.GetPlayer(citr->guid);
-        if(!player || !player->GetSession() || player->GetGroup() != this )
+        if (!player || !player->GetSession() || player->GetGroup() != this )
             continue;
-                                                            // guess size
-        WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+8+4+GetMembersCount()*20));
+
+        WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
         data << uint8(m_groupType);                         // group type (flags in 3.3)
+        data << uint8(citr->group);
+        data << uint8(citr->flags);
         data << uint8(isBGGroup() ? 1 : 0);                 // 2.0.x, isBattleGroundGroup?
-        data << uint8(citr->group);                         // groupid
-        data << uint8(0);                                   // unk
-        if(m_groupType & GROUPTYPE_LFD)
+        if (m_groupType & GROUPTYPE_LFD)
         {
             data << uint8(0);
             data << uint32(0);
         }
         data << uint64(0x50000000FFFFFFFELL);               // related to voice chat?
-        data << uint32(0);                                  // 3.3, may be some kind of time
+        data << uint32(0);                                  // 3.3, value increases every time this packet gets sent
         data << uint32(GetMembersCount()-1);
         for (member_citerator citr2 = m_memberSlots.begin(); citr2 != m_memberSlots.end(); ++citr2)
         {
-            if(citr->guid == citr2->guid)
+            if (citr->guid == citr2->guid)
                 continue;
             Player* member = objmgr.GetPlayer(citr2->guid);
-
-            // Sometimes objmgr can't find player when he is teleporting between maps, causing him to show up as offline
+            
             uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
             onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
 
@@ -1011,9 +1000,8 @@ void Group::SendUpdate()
             data << uint8(citr2->flags);                    // See enum GroupMemberFlags
             data << uint8(0);                               // 3.3
         }
-
         data << uint64(m_leaderGuid);                       // leader guid
-        if(GetMembersCount()-1)
+        if (GetMembersCount()-1)
         {
             data << uint8(m_lootMethod);                    // loot method
             data << uint64(m_looterGuid);                   // looter guid
@@ -1151,7 +1139,7 @@ bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
     if(!isBGGroup())
     {
         // insert into group table
-        CharacterDatabase.PExecute("INSERT INTO group_member(leaderGuid,memberGuid,assistant,subgroup) VALUES('%u','%u','%u','%u')", GUID_LOPART(m_leaderGuid), GUID_LOPART(member.guid), ((member.flags & MEMBER_FLAG_ASSISTANT)?1:0), member.group);
+        CharacterDatabase.PExecute("INSERT INTO group_member(leaderGuid,memberGuid,memberFlags,subgroup) VALUES('%u','%u','%u','%u')", GUID_LOPART(m_leaderGuid), GUID_LOPART(member.guid), ((member.flags & MEMBER_FLAG_ASSISTANT)?1:0), member.group);
     }
 
     return true;
@@ -1200,7 +1188,7 @@ bool Group::_removeMember(const uint64 &guid)
 
 void Group::_setLeader(const uint64 &guid)
 {
-    member_citerator slot = _getMemberCSlot(guid);
+    member_witerator slot = _getMemberWSlot(guid);
     if(slot==m_memberSlots.end())
         return;
 
@@ -1254,6 +1242,7 @@ void Group::_setLeader(const uint64 &guid)
 
     m_leaderGuid = slot->guid;
     m_leaderName = slot->name;
+    ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, false);
 }
 
 void Group::_removeRolls(const uint64 &guid)
@@ -1300,7 +1289,7 @@ bool Group::_setAssistantFlag(const uint64 &guid, const bool &apply)
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_ASSISTANT, apply);
 
     if(!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE group_member SET assistant='%u' WHERE memberGuid='%u'", (apply)?1:0, GUID_LOPART(guid));
+        CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
     return true;
 }
 
@@ -1312,9 +1301,9 @@ bool Group::_setMainTank(const uint64 &guid, const bool &apply)
 
     RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);          // Remove main tank flag from current if any.
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINTANK, apply);   // And apply main tank flag on new main tank.
-
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE groups SET mainTank='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainTank), GUID_LOPART(m_leaderGuid));
+    
+    if(!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
     return true;
 }
 
@@ -1327,8 +1316,8 @@ bool Group::_setMainAssistant(const uint64 &guid, const bool &apply)
     RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINASSIST);         // Remove main assist flag from current if any.
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINASSIST, apply);  // Apply main assist flag on new main assist.
 
-    if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE groups SET mainAssistant='%u' WHERE leaderGuid='%u'", GUID_LOPART(m_mainAssistant), GUID_LOPART(m_leaderGuid));
+    if(!isBGGroup())
+        CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
     return true;
 }
 
