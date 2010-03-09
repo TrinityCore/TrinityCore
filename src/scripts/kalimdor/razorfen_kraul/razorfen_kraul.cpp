@@ -30,7 +30,7 @@ EndContentData */
 #include "razorfen_kraul.h"
 
 #define SAY_READY -1047000
-#define SAY_POINT -10470001
+#define SAY_POINT -1047001
 #define SAY_AGGRO1 -1047002
 #define SAY_BLUELEAF -1047003
 #define SAY_DANGER -1047004
