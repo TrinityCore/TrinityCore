@@ -884,6 +884,19 @@ enum TrinityStrings
     LANG_GOINFO_DISPLAYID               = 5026,
     LANG_GOINFO_NAME                    = 5027,
     // Room for more Trinity strings      5028-9999
+
+    // Level requirement notifications
+    LANG_SAY_REQ                        = 6604,
+    LANG_WHISPER_REQ                    = 6605,
+    LANG_CHANNEL_REQ                    = 6606,
+    LANG_AUCTION_REQ                    = 6607,
+    LANG_TICKET_REQ                     = 6608,
+    LANG_TRADE_REQ                      = 6609,
+    LANG_TRADE_OTHER_REQ                = 6610,
+    LANG_MAIL_SENDER_REQ                = 6611,
+    LANG_MAIL_RECEIVER_REQ              = 6612,
+
+
     // Used for GM Announcements
     LANG_GM_BROADCAST                    = 6613,
     LANG_GM_NOTIFY                       = 6614,

@@ -602,7 +602,13 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_COMPRESSION] = 1;
     }
     m_configs[CONFIG_ADDON_CHANNEL] = sConfig.GetBoolDefault("AddonChannel", true);
-    m_configs[CONFIG_CHAT_CHANNEL_LEVEL_REQ] = sConfig.GetIntDefault("ChannelLevelReq", 1);
+    m_configs[CONFIG_CHAT_CHANNEL_LEVEL_REQ] = sConfig.GetIntDefault("ChatLevelReq.Channel", 1);
+    m_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfig.GetIntDefault("ChatLevelReq.Whisper", 1);
+    m_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfig.GetIntDefault("ChatLevelReq.Say", 1);
+    m_configs[CONFIG_TRADE_LEVEL_REQ] = sConfig.GetIntDefault("LevelReq.Trade", 1);
+    m_configs[CONFIG_TICKET_LEVEL_REQ] = sConfig.GetIntDefault("LevelReq.Ticket", 1);
+    m_configs[CONFIG_AUCTION_LEVEL_REQ] = sConfig.GetIntDefault("LevelReq.Auction", 1);
+    m_configs[CONFIG_MAIL_LEVEL_REQ] = sConfig.GetIntDefault("LevelReq.Mail", 1);
     m_configs[CONFIG_ALLOW_PLAYER_COMMANDS] = sConfig.GetBoolDefault("AllowPlayerCommands", 1);
     m_configs[CONFIG_GRID_UNLOAD] = sConfig.GetBoolDefault("GridUnload", true);
     m_configs[CONFIG_INTERVAL_SAVE] = sConfig.GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILISECONDS);
