@@ -27,24 +27,21 @@
 
 #include "Common.h"
 #include "Auth/BigNumber.h"
-#include "sockets/TcpSocket.h"
-#include "sockets/SocketHandler.h"
-#include "sockets/ListenSocket.h"
-#include "sockets/Utility.h"
-#include "sockets/Parse.h"
-#include "sockets/Socket.h"
+
+#include "RealmSocket.h"
 
 /// Handle login commands
-class AuthSocket: public TcpSocket
+class AuthSocket: public RealmSocket::Session
 {
     public:
         const static int s_BYTE_SIZE = 32;
 
-        AuthSocket(ISocketHandler& h);
-        ~AuthSocket();
+        AuthSocket(RealmSocket& socket);
+        virtual ~AuthSocket(void);
 
-        void OnAccept();
-        void OnRead();
+        virtual void OnRead(void);
+        virtual void OnAccept(void);
+        virtual void OnClose(void);
 
         bool _HandleLogonChallenge();
         bool _HandleLogonProof();
@@ -64,6 +61,8 @@ class AuthSocket: public TcpSocket
         bool IsLag();
 
     private:
+        RealmSocket& socket_;
+        RealmSocket& socket(void) { return socket_; }
 
         BigNumber N, s, g, v;
         BigNumber b, B;
