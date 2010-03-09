@@ -522,7 +522,8 @@ void WorldSession::HandleGroupChangeSubGroupOpcode( WorldPacket & recv_data )
     recv_data >> groupNr;
 
     /** error handling **/
-    if(!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+    uint64 senderGuid = GetPlayer()->GetGUID();
+    if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid))
         return;
 
     if (!group->HasFreeSlotSubGroup(groupNr))
@@ -553,12 +554,12 @@ void WorldSession::HandleGroupAssistantLeaderOpcode( WorldPacket & recv_data )
     recv_data >> flag;
 
     /** error handling **/
-    if(!group->IsLeader(GetPlayer()->GetGUID()))
+    if (!group->IsLeader(GetPlayer()->GetGUID()))
         return;
     /********************/
 
     // everything's fine, do it
-    group->SetAssistant(guid, (flag==0?false:true));
+    group->SetAssistant(guid, (flag != 0));
 }
 
 void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
@@ -566,7 +567,7 @@ void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
     sLog.outDebug("MSG_PARTY_ASSIGNMENT");
 
     Group *group = GetPlayer()->GetGroup();
-    if(!group)
+    if (!group)
         return;
 
     uint8 flag, apply;
@@ -575,15 +576,16 @@ void WorldSession::HandlePartyAssignmentOpcode( WorldPacket & recv_data )
     recv_data >> guid;
 
     /** error handling **/
-    if(!group->IsLeader(GetPlayer()->GetGUID()))
+    uint64 senderGuid = GetPlayer()->GetGUID();
+    if (!group->IsLeader(senderGuid) && group->IsAssistant(senderGuid))
         return;
     /********************/
 
     // everything's fine, do it
-    if (flag == MEMBER_FLAG_MAINTANK)
+    if (flag == 0)
         group->SetMainTank(guid, apply);
 
-    else if (flag == MEMBER_FLAG_MAINASSIST)
+    else if (flag == 1)
         group->SetMainAssistant(guid, apply);
 }
 

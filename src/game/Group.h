@@ -59,9 +59,9 @@ enum GroupMemberOnlineStatus
 
 enum GroupMemberFlags
 {
-    MEMBER_FLAG_ASSISTANT   = 1,
-    MEMBER_FLAG_MAINTANK    = 2,
-    MEMBER_FLAG_MAINASSIST  = 4,
+    MEMBER_FLAG_ASSISTANT   = 0x01,
+    MEMBER_FLAG_MAINTANK    = 0x02,
+    MEMBER_FLAG_MAINASSIST  = 0x04,
 };
 
 enum GroupType
@@ -173,7 +173,7 @@ class Group
         // group manipulation methods
         bool   Create(const uint64 &guid, const char * name);
         bool   LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL), bool loadMembers = true);
-        bool   LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant);
+        bool   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup);
         bool   AddInvite(Player *player);
         uint32 RemoveInvite(Player *player);
         void   RemoveAllInvites();
@@ -436,8 +436,6 @@ class Group
         InvitesList         m_invitees;
         uint64              m_leaderGuid;
         std::string         m_leaderName;
-        uint64              m_mainTank;
-        uint64              m_mainAssistant;
         GroupType           m_groupType;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
