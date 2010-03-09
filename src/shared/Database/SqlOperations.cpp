@@ -37,16 +37,16 @@ void SqlTransaction::Execute(Database *db)
         return;
 
     db->DirectExecute("START TRANSACTION");
-    while(!m_queue.empty())
+    while (!m_queue.empty())
     {
         char const *sql = m_queue.front();
         m_queue.pop();
 
-        if(!db->DirectExecute(sql))
+        if (!db->DirectExecute(sql))
         {
             free((void*)const_cast<char*>(sql));
             db->DirectExecute("ROLLBACK");
-            while(!m_queue.empty())
+            while (!m_queue.empty())
             {
                 free((void*)const_cast<char*>(m_queue.front()));
                 m_queue.pop();
@@ -56,6 +56,7 @@ void SqlTransaction::Execute(Database *db)
 
         free((void*)const_cast<char*>(sql));
     }
+
     db->DirectExecute("COMMIT");
 }
 
@@ -63,8 +64,9 @@ void SqlTransaction::Execute(Database *db)
 
 void SqlQuery::Execute(Database *db)
 {
-    if(!m_callback || !m_queue)
+    if (!m_callback || !m_queue)
         return;
+
     /// execute the query and store the result in the callback
     m_callback->SetResult(db->Query(m_sql));
     /// add the callback to the sql result queue of the thread it originated from
@@ -84,7 +86,7 @@ void SqlResultQueue::Update()
 
 bool SqlQueryHolder::Execute(Trinity::IQueryCallback * callback, SqlDelayThread *thread, SqlResultQueue *queue)
 {
-    if(!callback || !thread || !queue)
+    if (!callback || !thread || !queue)
         return false;
 
     /// delay the execution of the queries, sync them with the delay thread
@@ -96,13 +98,13 @@ bool SqlQueryHolder::Execute(Trinity::IQueryCallback * callback, SqlDelayThread 
 
 bool SqlQueryHolder::SetQuery(size_t index, const char *sql)
 {
-    if(m_queries.size() <= index)
+    if (m_queries.size() <= index)
     {
         sLog.outError("Query index (%u) out of range (size: %u) for query: %s",index,(uint32)m_queries.size(),sql);
         return false;
     }
 
-    if(m_queries[index].first != NULL)
+    if (m_queries[index].first != NULL)
     {
         sLog.outError("Attempt assign query to holder index (%u) where other query stored (Old: [%s] New: [%s])",
             index,m_queries[index].first,sql);
@@ -116,7 +118,7 @@ bool SqlQueryHolder::SetQuery(size_t index, const char *sql)
 
 bool SqlQueryHolder::SetPQuery(size_t index, const char *format, ...)
 {
-    if(!format)
+    if (!format)
     {
         sLog.outError("Query (index: %u) is empty.",index);
         return false;
@@ -125,10 +127,10 @@ bool SqlQueryHolder::SetPQuery(size_t index, const char *format, ...)
     va_list ap;
     char szQuery [MAX_QUERY_LEN];
     va_start(ap, format);
-    int res = vsnprintf( szQuery, MAX_QUERY_LEN, format, ap );
+    int res = vsnprintf(szQuery, MAX_QUERY_LEN, format, ap);
     va_end(ap);
 
-    if(res==-1)
+    if (res==-1)
     {
         sLog.outError("SQL Query truncated (and not execute) for format: %s",format);
         return false;
@@ -139,10 +141,10 @@ bool SqlQueryHolder::SetPQuery(size_t index, const char *format, ...)
 
 QueryResult_AutoPtr SqlQueryHolder::GetResult(size_t index)
 {
-    if(index < m_queries.size())
+    if (index < m_queries.size())
     {
         /// the query strings are freed on the first GetResult or in the destructor
-        if(m_queries[index].first != NULL)
+        if (m_queries[index].first != NULL)
         {
             free((void*)(const_cast<char*>(m_queries[index].first)));
             m_queries[index].first = NULL;
@@ -157,7 +159,7 @@ QueryResult_AutoPtr SqlQueryHolder::GetResult(size_t index)
 void SqlQueryHolder::SetResult(size_t index, QueryResult_AutoPtr result)
 {
     /// store the result in the holder
-    if(index < m_queries.size())
+    if (index < m_queries.size())
         m_queries[index].second = result;
 }
 
@@ -167,7 +169,7 @@ SqlQueryHolder::~SqlQueryHolder()
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
-        if(m_queries[i].first != NULL)
+        if (m_queries[i].first != NULL)
             free((void*)(const_cast<char*>(m_queries[i].first)));
     }
 }
@@ -180,7 +182,7 @@ void SqlQueryHolder::SetSize(size_t size)
 
 void SqlQueryHolderEx::Execute(Database *db)
 {
-    if(!m_holder || !m_callback || !m_queue)
+    if (!m_holder || !m_callback || !m_queue)
         return;
 
     /// we can do this, we are friends
@@ -196,4 +198,3 @@ void SqlQueryHolderEx::Execute(Database *db)
     /// sync with the caller thread
     m_queue->add(m_callback);
 }
-

@@ -48,4 +48,3 @@ class SqlDelayThread : public ACE_Based::Runnable
         virtual void run();                                 ///< Main Thread loop
 };
 #endif                                                      //__SQLDELAYTHREAD_H
-

@@ -44,7 +44,7 @@ size_t DatabaseMysql::db_count = 0;
 DatabaseMysql::DatabaseMysql() : Database(), mMysql(0)
 {
     // before first connection
-    if( db_count++ == 0 )
+    if (db_count++ == 0)
     {
         // Mysql Library Init
         mysql_library_init(-1, NULL, NULL);
@@ -65,15 +65,14 @@ DatabaseMysql::~DatabaseMysql()
     if (mMysql)
         mysql_close(mMysql);
 
-    //Free Mysql library pointers for last ~DB
-    if(--db_count == 0)
+    // Free Mysql library pointers for last ~DB
+    if (--db_count == 0)
         mysql_library_end();
 }
 
 bool DatabaseMysql::Initialize(const char *infoString)
 {
-
-    if(!Database::Initialize(infoString))
+    if (!Database::Initialize(infoString))
         return false;
 
     tranThread = NULL;
@@ -81,7 +80,7 @@ bool DatabaseMysql::Initialize(const char *infoString)
     mysqlInit = mysql_init(NULL);
     if (!mysqlInit)
     {
-        sLog.outError( "Could not initialize Mysql connection" );
+        sLog.outError("Could not initialize Mysql connection");
         return false;
     }
 
@@ -97,23 +96,23 @@ bool DatabaseMysql::Initialize(const char *infoString)
 
     iter = tokens.begin();
 
-    if(iter != tokens.end())
+    if (iter != tokens.end())
         host = *iter++;
-    if(iter != tokens.end())
+    if (iter != tokens.end())
         port_or_socket = *iter++;
-    if(iter != tokens.end())
+    if (iter != tokens.end())
         user = *iter++;
-    if(iter != tokens.end())
+    if (iter != tokens.end())
         password = *iter++;
-    if(iter != tokens.end())
+    if (iter != tokens.end())
         database = *iter++;
 
-    mysql_options(mysqlInit,MYSQL_SET_CHARSET_NAME,"utf8");
+    mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
     #ifdef WIN32
-    if(host==".")                                           // named pipe use option (Windows)
+    if (host==".")                                           // named pipe use option (Windows)
     {
         unsigned int opt = MYSQL_PROTOCOL_PIPE;
-        mysql_options(mysqlInit,MYSQL_OPT_PROTOCOL,(char const*)&opt);
+        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
         port = 0;
         unix_socket = 0;
     }
@@ -123,10 +122,10 @@ bool DatabaseMysql::Initialize(const char *infoString)
         unix_socket = 0;
     }
     #else
-    if(host==".")                                           // socket use option (Unix/Linux)
+    if (host==".")                                           // socket use option (Unix/Linux)
     {
         unsigned int opt = MYSQL_PROTOCOL_SOCKET;
-        mysql_options(mysqlInit,MYSQL_OPT_PROTOCOL,(char const*)&opt);
+        mysql_options(mysqlInit, MYSQL_OPT_PROTOCOL, (char const*)&opt);
         host = "localhost";
         port = 0;
         unix_socket = port_or_socket.c_str();
@@ -143,24 +142,14 @@ bool DatabaseMysql::Initialize(const char *infoString)
 
     if (mMysql)
     {
-        sLog.outDetail( "Connected to MySQL database at %s",
-            host.c_str());
-        sLog.outString( "MySQL client library: %s", mysql_get_client_info());
-        sLog.outString( "MySQL server ver: %s ", mysql_get_server_info( mMysql));
+        sLog.outDetail("Connected to MySQL database at %s", host.c_str());
+        sLog.outString("MySQL client library: %s", mysql_get_client_info());
+        sLog.outString("MySQL server ver: %s ", mysql_get_server_info( mMysql));
 
-        /*----------SET AUTOCOMMIT ON---------*/
-        // It seems mysql 5.0.x have enabled this feature
-        // by default. In crash case you can lose data!!!
-        // So better to turn this off
-        // ---
-        // This is wrong since Trinity use transactions,
-        // autocommit is turned of during it.
-        // Setting it to on makes atomic updates work
         if (!mysql_autocommit(mMysql, 1))
             sLog.outDetail("AUTOCOMMIT SUCCESSFULLY SET TO 1");
         else
             sLog.outDetail("AUTOCOMMIT NOT SET TO 1");
-        /*-------------------------------------*/
 
         // set connection properties to UTF8 to properly handle locales for different
         // server configs - core sends data in UTF8, so MySQL must expect UTF8 too
@@ -170,13 +159,9 @@ bool DatabaseMysql::Initialize(const char *infoString)
     #if MYSQL_VERSION_ID >= 50003
         my_bool my_true = (my_bool)1;
         if (mysql_options(mMysql, MYSQL_OPT_RECONNECT, &my_true))
-        {
             sLog.outDetail("Failed to turn on MYSQL_OPT_RECONNECT.");
-        }
         else
-        {
            sLog.outDetail("Successfully turned on MYSQL_OPT_RECONNECT.");
-        }
     #else
         #warning "Your mySQL client lib version does not support reconnecting after a timeout.\nIf this causes you any trouble we advice you to upgrade your mySQL client libs to at least mySQL 5.0.13 to resolve this problem."
     #endif
@@ -185,8 +170,7 @@ bool DatabaseMysql::Initialize(const char *infoString)
     }
     else
     {
-        sLog.outError( "Could not connect to MySQL database at %s: %s\n",
-            host.c_str(),mysql_error(mysqlInit));
+        sLog.outError("Could not connect to MySQL database at %s: %s\n", host.c_str(),mysql_error(mysqlInit));
         mysql_close(mysqlInit);
         return false;
     }
@@ -203,9 +187,9 @@ bool DatabaseMysql::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **p
         #ifdef TRINITY_DEBUG
         uint32 _s = getMSTime();
         #endif
-        if(mysql_query(mMysql, sql))
+        if (mysql_query(mMysql, sql))
         {
-            sLog.outErrorDb( "SQL: %s", sql );
+            sLog.outErrorDb("SQL: %s", sql);
             sLog.outErrorDb("query ERROR: %s", mysql_error(mMysql));
             return false;
         }
@@ -219,7 +203,6 @@ bool DatabaseMysql::_Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **p
         *pResult = mysql_store_result(mMysql);
         *pRowCount = mysql_affected_rows(mMysql);
         *pFieldCount = mysql_field_count(mMysql);
-        // end guarded block
     }
 
     if (!*pResult )
@@ -242,7 +225,7 @@ QueryResult_AutoPtr DatabaseMysql::Query(const char *sql)
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
-    if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
+    if (!_Query(sql, &result, &fields, &rowCount, &fieldCount))
         return QueryResult_AutoPtr(NULL);
 
     QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
@@ -259,18 +242,18 @@ QueryNamedResult* DatabaseMysql::QueryNamed(const char *sql)
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
-    if(!_Query(sql,&result,&fields,&rowCount,&fieldCount))
+    if (!_Query(sql, &result, &fields, &rowCount, &fieldCount))
         return NULL;
 
     QueryFieldNames names(fieldCount);
     for (uint32 i = 0; i < fieldCount; i++)
-        names[i] = fields[i].name;
+         names[i] = fields[i].name;
 
     QueryResultMysql *queryResult = new QueryResultMysql(result, fields, rowCount, fieldCount);
 
     queryResult->NextRow();
 
-    return new QueryNamedResult(queryResult,names);
+    return new QueryNamedResult(queryResult, names);
 }
 
 bool DatabaseMysql::Execute(const char *sql)
@@ -279,19 +262,15 @@ bool DatabaseMysql::Execute(const char *sql)
         return false;
 
     // don't use queued execution if it has not been initialized
-    if (!m_threadBody) return DirectExecute(sql);
+    if (!m_threadBody)
+        return DirectExecute(sql);
 
     tranThread = ACE_Based::Thread::current();              // owner of this transaction
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
-    {                                                       // Statement for transaction
-        i->second->DelayExecute(sql);
-    }
+        i->second->DelayExecute(sql);                       // Statement for transaction
     else
-    {
-        // Simple sql statement
-        m_threadBody->Delay(new SqlStatement(sql));
-    }
+        m_threadBody->Delay(new SqlStatement(sql));         // Simple sql statement
 
     return true;
 }
@@ -308,7 +287,7 @@ bool DatabaseMysql::DirectExecute(const char* sql)
         #ifdef TRINITY_DEBUG
         uint32 _s = getMSTime();
         #endif
-        if(mysql_query(mMysql, sql))
+        if (mysql_query(mMysql, sql))
         {
             sLog.outErrorDb("SQL: %s", sql);
             sLog.outErrorDb("SQL ERROR: %s", mysql_error(mMysql));
@@ -317,10 +296,9 @@ bool DatabaseMysql::DirectExecute(const char* sql)
         else
         {
             #ifdef TRINITY_DEBUG
-            sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql );
+            sLog.outDebug("[%u ms] SQL: %s", getMSTimeDiff(_s,getMSTime()), sql);
             #endif
         }
-        // end guarded block
     }
 
     return true;
@@ -335,9 +313,8 @@ bool DatabaseMysql::_TransactionCmd(const char *sql)
         return false;
     }
     else
-    {
         DEBUG_LOG("SQL: %s", sql);
-    }
+
     return true;
 }
 
@@ -383,6 +360,7 @@ bool DatabaseMysql::CommitTransaction()
     {
         if (tranThread != ACE_Based::Thread::current())
             return false;
+
         bool _res = _TransactionCmd("COMMIT");
         tranThread = NULL;
         mMutex.release();
@@ -411,6 +389,7 @@ bool DatabaseMysql::RollbackTransaction()
     {
         if (tranThread != ACE_Based::Thread::current())
             return false;
+
         bool _res = _TransactionCmd("ROLLBACK");
         tranThread = NULL;
         mMutex.release();
@@ -424,6 +403,7 @@ bool DatabaseMysql::RollbackTransaction()
         delete i->second;
         i->second = NULL;
     }
+
     return true;
 }
 
@@ -446,7 +426,8 @@ void DatabaseMysql::InitDelayThread()
 
 void DatabaseMysql::HaltDelayThread()
 {
-    if (!m_threadBody || !m_delayThread) return;
+    if (!m_threadBody || !m_delayThread)
+        return;
 
     m_threadBody->Stop();                                   //Stop event
     m_delayThread->wait();                                  //Wait for flush to DB
@@ -455,4 +436,3 @@ void DatabaseMysql::HaltDelayThread()
     m_threadBody = NULL;
 }
 #endif
-
