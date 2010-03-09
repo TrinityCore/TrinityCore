@@ -58,7 +58,6 @@ class AuthSocket: public RealmSocket::Session
 
         FILE *pPatch;
         ACE_Thread_Mutex patcherLock;
-        bool IsLag();
 
     private:
         RealmSocket& socket_;
