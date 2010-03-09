@@ -1077,31 +1077,20 @@ bool ChatHandler::HandleRecallCommand(const char* args)
 //Edit Player HP
 bool ChatHandler::HandleModifyHPCommand(const char* args)
 {
-    if(!*args)
+    if (!*args)
         return false;
-
-    //    char* pHp = strtok((char*)args, " ");
-    //    if (!pHp)
-    //        return false;
-
-    //    char* pHpMax = strtok(NULL, " ");
-    //    if (!pHpMax)
-    //        return false;
-
-    //    int32 hpm = atoi(pHpMax);
-    //    int32 hp = atoi(pHp);
 
     int32 hp = atoi((char*)args);
     int32 hpm = atoi((char*)args);
 
-    if (hp <= 0 || hpm <= 0 || hpm < hp)
+    if (hp < 1 || hpm < 1 || hpm < hp)
     {
         SendSysMessage(LANG_BAD_VALUE);
         SetSentErrorMessage(true);
         return false;
     }
 
-    Unit *chr = getSelectedUnit();
+    Player *chr = getSelectedPlayer();
     if (chr == NULL)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -1109,16 +1098,15 @@ bool ChatHandler::HandleModifyHPCommand(const char* args)
         return false;
     }
 
-    // check online security
-    if (chr->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player*)chr, 0))
+    if (HasLowerSecurity(chr, 0))
         return false;
 
-    PSendSysMessage(LANG_YOU_CHANGE_HP, GetNameLink(chr->ToPlayer()).c_str(), hp, hpm);
-    if (chr->GetTypeId() == TYPEID_PLAYER && needReportToTarget(chr->ToPlayer()))
-      ChatHandler(chr->ToPlayer()).PSendSysMessage(LANG_YOURS_HP_CHANGED, GetNameLink().c_str(), hp, hpm);
+    PSendSysMessage(LANG_YOU_CHANGE_HP, GetNameLink(chr).c_str(), hp, hpm);
+    if (needReportToTarget(chr))
+        ChatHandler(chr).PSendSysMessage(LANG_YOURS_HP_CHANGED, GetNameLink().c_str(), hp, hpm);
 
-    chr->SetMaxHealth( hpm );
-    chr->SetHealth( hp );
+    chr->SetMaxHealth(hpm);
+    chr->SetHealth(hp);
 
     return true;
 }
