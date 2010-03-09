@@ -92,6 +92,12 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
     Player* pl = _player;
 
+    if (pl->getLevel() < sWorld.getConfig(CONFIG_MAIL_LEVEL_REQ))
+    {
+        SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld.getConfig(CONFIG_MAIL_LEVEL_REQ));
+        return;
+    }
+
     uint64 rc = 0;
     if (normalizePlayerName(receiver))
         rc = objmgr.GetPlayerGUIDByName(receiver);
@@ -126,11 +132,13 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
     uint32 rc_team = 0;
     uint8 mails_count = 0;                                  //do not allow to send to one player more than 100 mails
+    uint8 receiveLevel = 0;
 
     if (receive)
     {
         rc_team = receive->GetTeam();
         mails_count = receive->GetMailSize();
+        receiveLevel = receive->getLevel();
     }
     else
     {
@@ -139,6 +147,11 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
         {
             Field *fields = result->Fetch();
             mails_count = fields[0].GetUInt32();
+        }
+        if (QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT level FROM characters WHERE guid = '%u'", GUID_LOPART(rc)))
+        {
+            Field *fields = result->Fetch();
+            receiveLevel = fields[0].GetUInt8();
         }
     }
     //do not allow to have more than 100 mails in mailbox.. mails count is in opcode uint8!!! - so max can be 255..
@@ -151,6 +164,12 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
     if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL) && pl->GetTeam() != rc_team && GetSecurity() == SEC_PLAYER)
     {
         pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
+        return;
+    }
+
+    if (receiveLevel < sWorld.getConfig(CONFIG_MAIL_LEVEL_REQ))
+    {
+        SendNotification(GetTrinityString(LANG_MAIL_RECEIVER_REQ), sWorld.getConfig(CONFIG_MAIL_LEVEL_REQ));
         return;
     }
 

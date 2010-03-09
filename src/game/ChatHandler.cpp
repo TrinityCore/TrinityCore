@@ -199,6 +199,12 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             if (ChatHandler(this).ParseCommands(msg.c_str()) > 0)
                 break;
 
+            if (_player->getLevel() < sWorld.getConfig(CONFIG_CHAT_SAY_LEVEL_REQ))
+            {
+                SendNotification(GetTrinityString(LANG_SAY_REQ), sWorld.getConfig(CONFIG_CHAT_SAY_LEVEL_REQ));
+                return;
+            }
+
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
 
@@ -218,6 +224,12 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             std::string to, msg;
             recv_data >> to;
             recv_data >> msg;
+
+            if (_player->getLevel() < sWorld.getConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ))
+            {
+                SendNotification(GetTrinityString(LANG_WHISPER_REQ), sWorld.getConfig(CONFIG_CHAT_WHISPER_LEVEL_REQ));
+                return;
+            }
 
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
@@ -519,8 +531,11 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             if (!processChatmessageFurtherAfterSecurityChecks(msg, lang))
                 return;
 
-         if (_player->getLevel() < sWorld.getConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
-          return;
+             if (_player->getLevel() < sWorld.getConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ))
+             {
+                 SendNotification(GetTrinityString(LANG_CHANNEL_REQ), sWorld.getConfig(CONFIG_CHAT_CHANNEL_LEVEL_REQ));
+                 return;
+             }
 
             if(msg.empty())
                 break;

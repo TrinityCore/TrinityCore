@@ -57,6 +57,12 @@ void WorldSession::HandleAuctionHelloOpcode(WorldPacket & recv_data)
 //this void causes that auction window is opened
 void WorldSession::SendAuctionHello(uint64 guid, Creature* unit)
 {
+    if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_AUCTION_LEVEL_REQ))
+    {
+        SendNotification(GetTrinityString(LANG_AUCTION_REQ), sWorld.getConfig(CONFIG_AUCTION_LEVEL_REQ));
+        return;
+    }
+
     AuctionHouseEntry const* ahEntry = AuctionHouseMgr::GetAuctionHouseEntry(unit->getFaction());
     if (!ahEntry)
         return;

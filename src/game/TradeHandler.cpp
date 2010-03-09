@@ -495,6 +495,12 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_TRADE_LEVEL_REQ))
+    {
+        SendNotification(GetTrinityString(LANG_TRADE_REQ), sWorld.getConfig(CONFIG_TRADE_LEVEL_REQ));
+        return;
+    }
+
     recvPacket >> ID;
 
     Player* pOther = ObjectAccessor::FindPlayer( ID );
@@ -550,6 +556,12 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
     if (!pOther->IsWithinDistInMap(_player,10.0f,false))
     {
         SendTradeStatus(TRADE_STATUS_TARGET_TO_FAR);
+        return;
+    }
+
+    if (pOther->getLevel() < sWorld.getConfig(CONFIG_TRADE_LEVEL_REQ))
+    {
+        SendNotification(GetTrinityString(LANG_TRADE_OTHER_REQ), sWorld.getConfig(CONFIG_TRADE_LEVEL_REQ));
         return;
     }
 
