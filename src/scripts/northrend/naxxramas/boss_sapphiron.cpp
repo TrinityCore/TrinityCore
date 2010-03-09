@@ -291,7 +291,7 @@ struct boss_sapphironAI : public BossAI
                     case EVENT_ICEBOLT:
                     {
                         std::vector<Unit*> targets;
-                        std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+                        std::list<HostileReference*>::iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                             if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
                                 targets.push_back((*i)->getTarget());
@@ -348,7 +348,7 @@ struct boss_sapphironAI : public BossAI
     {
         DoZoneInCombat(); // make sure everyone is in threatlist
         std::vector<Unit*> targets;
-        std::list<HostilReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+        std::list<HostileReference*>::iterator i = me->getThreatManager().getThreatList().begin();
         for (; i != me->getThreatManager().getThreatList().end(); ++i)
         {
             Unit *pTarget = (*i)->getTarget();

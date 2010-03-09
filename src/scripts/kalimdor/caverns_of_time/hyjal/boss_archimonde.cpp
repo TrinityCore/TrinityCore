@@ -302,12 +302,12 @@ struct boss_archimondeAI : public hyjal_trashAI
         if (victim && m_creature->IsWithinDistInMap(victim, m_creature->GetAttackDistance(victim)))
             return false;
 
-        std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         if (m_threatlist.empty())
             return false;
 
         std::list<Unit*> targets;
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());

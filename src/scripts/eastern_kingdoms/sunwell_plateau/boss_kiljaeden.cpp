@@ -944,7 +944,7 @@ struct mob_hand_of_the_deceiverAI : public ScriptedAI
             Creature* Portal = DoSpawnCreature(CREATURE_FELFIRE_PORTAL, 0, 0,0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000);
             if (Portal)
             {
-                std::list<HostilReference*>::iterator itr;
+                std::list<HostileReference*>::iterator itr;
                 for (itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
                 {
                     Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());

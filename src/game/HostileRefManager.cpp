@@ -18,13 +18,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "HostilRefManager.h"
+#include "HostileRefManager.h"
 #include "ThreatManager.h"
 #include "Unit.h"
 #include "DBCStructure.h"
 #include "SpellMgr.h"
 
-HostilRefManager::~HostilRefManager()
+HostileRefManager::~HostileRefManager()
 {
     deleteReferences();
 }
@@ -34,9 +34,9 @@ HostilRefManager::~HostilRefManager()
 // The pVictim is hated than by them as well
 // use for buffs and healing threat functionality
 
-void HostilRefManager::threatAssist(Unit *pVictim, float fThreat, SpellEntry const *pThreatSpell, bool pSingleTarget)
+void HostileRefManager::threatAssist(Unit *pVictim, float fThreat, SpellEntry const *pThreatSpell, bool pSingleTarget)
 {
-    HostilReference* ref;
+    HostileReference* ref;
 
     float size = pSingleTarget ? 1.0f : getSize();            // if pSingleTarget do not divide threat
     ref = getFirst();
@@ -53,9 +53,9 @@ void HostilRefManager::threatAssist(Unit *pVictim, float fThreat, SpellEntry con
 
 //=================================================
 
-void HostilRefManager::addTempThreat(float fThreat, bool apply)
+void HostileRefManager::addTempThreat(float fThreat, bool apply)
 {
-    HostilReference* ref = getFirst();
+    HostileReference* ref = getFirst();
 
     while(ref != NULL)
     {
@@ -74,9 +74,9 @@ void HostilRefManager::addTempThreat(float fThreat, bool apply)
 
 //=================================================
 
-void HostilRefManager::addThreatPercent(int32 iPercent)
+void HostileRefManager::addThreatPercent(int32 iPercent)
 {
-    HostilReference* ref;
+    HostileReference* ref;
 
     ref = getFirst();
     while (ref != NULL)
@@ -89,9 +89,9 @@ void HostilRefManager::addThreatPercent(int32 iPercent)
 //=================================================
 // The online / offline status is given to the method. The calculation has to be done before
 
-void HostilRefManager::setOnlineOfflineState(bool bIsOnline)
+void HostileRefManager::setOnlineOfflineState(bool bIsOnline)
 {
-    HostilReference* ref;
+    HostileReference* ref;
 
     ref = getFirst();
     while(ref != NULL)
@@ -104,9 +104,9 @@ void HostilRefManager::setOnlineOfflineState(bool bIsOnline)
 //=================================================
 // The online / offline status is calculated and set
 
-void HostilRefManager::updateThreatTables()
+void HostileRefManager::updateThreatTables()
 {
-    HostilReference* ref = getFirst();
+    HostileReference* ref = getFirst();
     while(ref)
     {
         ref->updateOnlineStatus();
@@ -118,12 +118,12 @@ void HostilRefManager::updateThreatTables()
 // The references are not needed anymore
 // tell the source to remove them from the list and free the mem
 
-void HostilRefManager::deleteReferences()
+void HostileRefManager::deleteReferences()
 {
-    HostilReference* ref = getFirst();
+    HostileReference* ref = getFirst();
     while(ref)
     {
-        HostilReference* nextRef = ref->next();
+        HostileReference* nextRef = ref->next();
         ref->removeReference();
         delete ref;
         ref = nextRef;
@@ -133,12 +133,12 @@ void HostilRefManager::deleteReferences()
 //=================================================
 // delete one reference, defined by faction
 
-void HostilRefManager::deleteReferencesForFaction(uint32 faction)
+void HostileRefManager::deleteReferencesForFaction(uint32 faction)
 {
-    HostilReference* ref = getFirst();
+    HostileReference* ref = getFirst();
     while(ref)
     {
-        HostilReference* nextRef = ref->next();
+        HostileReference* nextRef = ref->next();
         if(ref->getSource()->getOwner()->getFactionTemplateEntry()->faction == faction)
         {
             ref->removeReference();
@@ -151,12 +151,12 @@ void HostilRefManager::deleteReferencesForFaction(uint32 faction)
 //=================================================
 // delete one reference, defined by Unit
 
-void HostilRefManager::deleteReference(Unit *pCreature)
+void HostileRefManager::deleteReference(Unit *pCreature)
 {
-    HostilReference* ref = getFirst();
+    HostileReference* ref = getFirst();
     while(ref)
     {
-        HostilReference* nextRef = ref->next();
+        HostileReference* nextRef = ref->next();
         if(ref->getSource()->getOwner() == pCreature)
         {
             ref->removeReference();
@@ -170,12 +170,12 @@ void HostilRefManager::deleteReference(Unit *pCreature)
 //=================================================
 // set state for one reference, defined by Unit
 
-void HostilRefManager::setOnlineOfflineState(Unit *pCreature, bool bIsOnline)
+void HostileRefManager::setOnlineOfflineState(Unit *pCreature, bool bIsOnline)
 {
-    HostilReference* ref = getFirst();
+    HostileReference* ref = getFirst();
     while(ref)
     {
-        HostilReference* nextRef = ref->next();
+        HostileReference* nextRef = ref->next();
         if(ref->getSource()->getOwner() == pCreature)
         {
             ref->setOnlineOfflineState(bIsOnline);

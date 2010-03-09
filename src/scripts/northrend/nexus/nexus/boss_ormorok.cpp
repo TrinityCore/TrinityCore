@@ -184,7 +184,7 @@ struct boss_ormorokAI : public ScriptedAI
                         case 3: Healer = CLASS_DRUID; break;
                         case 4: Healer = CLASS_SHAMAN; break;
                     }
-                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                    std::list<HostileReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
                     for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
                     {
                         Unit* pTemp = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());

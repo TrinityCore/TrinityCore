@@ -218,7 +218,7 @@ struct boss_mandokirAI : public ScriptedAI
                 {
                     TargetInRange = 0;
 
-                    std::list<HostilReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                    std::list<HostileReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
                     for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
                     {
                         Unit* pUnit = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());

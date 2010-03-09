@@ -47,10 +47,10 @@ class ThreatCalcHelper
 };
 
 //==============================================================
-class HostilReference : public Reference<Unit, ThreatManager>
+class HostileReference : public Reference<Unit, ThreatManager>
 {
     public:
-        HostilReference(Unit* pUnit, ThreatManager *pThreatManager, float fThreat);
+        HostileReference(Unit* pUnit, ThreatManager *pThreatManager, float fThreat);
 
         //=================================================
         void addThreat(float fModThreat);
@@ -106,7 +106,7 @@ class HostilReference : public Reference<Unit, ThreatManager>
         void setAccessibleState(bool pIsAccessible);
         //=================================================
 
-        bool operator ==(const HostilReference& pHostilReference) const { return pHostilReference.getUnitGuid() == getUnitGuid(); }
+        bool operator ==(const HostileReference& pHostileReference) const { return pHostileReference.getUnitGuid() == getUnitGuid(); }
 
         //=================================================
 
@@ -119,7 +119,7 @@ class HostilReference : public Reference<Unit, ThreatManager>
 
         //=================================================
 
-        HostilReference* next() { return ((HostilReference* ) Reference<Unit, ThreatManager>::next()); }
+        HostileReference* next() { return ((HostileReference* ) Reference<Unit, ThreatManager>::next()); }
 
         //=================================================
 
@@ -150,13 +150,13 @@ class ThreatManager;
 class ThreatContainer
 {
     private:
-        std::list<HostilReference*> iThreatList;
+        std::list<HostileReference*> iThreatList;
         bool iDirty;
     protected:
         friend class ThreatManager;
 
-        void remove(HostilReference* pRef) { iThreatList.remove(pRef); }
-        void addReference(HostilReference* pHostilReference) { iThreatList.push_back(pHostilReference); }
+        void remove(HostileReference* pRef) { iThreatList.remove(pRef); }
+        void addReference(HostileReference* pHostileReference) { iThreatList.push_back(pHostileReference); }
         void clearReferences();
         // Sort the list if necessary
         void update();
@@ -164,11 +164,11 @@ class ThreatContainer
         ThreatContainer() { iDirty = false; }
         ~ThreatContainer() { clearReferences(); }
 
-        HostilReference* addThreat(Unit* pVictim, float fThreat);
+        HostileReference* addThreat(Unit* pVictim, float fThreat);
 
         void modifyThreatPercent(Unit *pVictim, int32 iPercent);
 
-        HostilReference* selectNextVictim(Creature* pAttacker, HostilReference* pCurrentVictim);
+        HostileReference* selectNextVictim(Creature* pAttacker, HostileReference* pCurrentVictim);
 
         void setDirty(bool pDirty) { iDirty = pDirty; }
 
@@ -176,11 +176,11 @@ class ThreatContainer
 
         bool empty() { return(iThreatList.empty()); }
 
-        HostilReference* getMostHated() { return iThreatList.empty() ? NULL : iThreatList.front(); }
+        HostileReference* getMostHated() { return iThreatList.empty() ? NULL : iThreatList.front(); }
 
-        HostilReference* getReferenceByTarget(Unit* pVictim);
+        HostileReference* getReferenceByTarget(Unit* pVictim);
 
-        std::list<HostilReference*>& getThreatList() { return iThreatList; }
+        std::list<HostileReference*>& getThreatList() { return iThreatList; }
 };
 
 //=================================================
@@ -188,7 +188,7 @@ class ThreatContainer
 class ThreatManager
 {
     public:
-        friend class HostilReference;
+        friend class HostileReference;
 
         explicit ThreatManager(Unit *pOwner);
 
@@ -207,7 +207,7 @@ class ThreatManager
 
         bool isNeedUpdateToClient(uint32 time);
 
-        HostilReference* getCurrentVictim() { return iCurrentVictim; }
+        HostileReference* getCurrentVictim() { return iCurrentVictim; }
 
         Unit* getOwner() { return iOwner; }
 
@@ -216,7 +216,7 @@ class ThreatManager
         void tauntApply(Unit* pTaunter);
         void tauntFadeOut(Unit *pTaunter);
 
-        void setCurrentVictim(HostilReference* pHostilReference);
+        void setCurrentVictim(HostileReference* pHostileReference);
 
         void setDirty(bool bDirty) { iThreatContainer.setDirty(bDirty); }
 
@@ -226,13 +226,13 @@ class ThreatManager
         // Reset all aggro of unit in threadlist satisfying the predicate.
         template<class PREDICATE> void resetAggro(PREDICATE predicate)
         {
-            std::list<HostilReference*> &threatlist = getThreatList();
+            std::list<HostileReference*> &threatlist = getThreatList();
             if (threatlist.empty())
                 return;
 
-            for (std::list<HostilReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+            for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
             {
-                HostilReference* ref = (*itr);
+                HostileReference* ref = (*itr);
 
                 if (predicate(ref->getTarget()))
                 {
@@ -244,14 +244,14 @@ class ThreatManager
 
         // methods to access the lists from the outside to do some dirty manipulation (scriping and such)
         // I hope they are used as little as possible.
-        std::list<HostilReference*>& getThreatList() { return iThreatContainer.getThreatList(); }
-        std::list<HostilReference*>& getOfflieThreatList() { return iThreatOfflineContainer.getThreatList(); }
+        std::list<HostileReference*>& getThreatList() { return iThreatContainer.getThreatList(); }
+        std::list<HostileReference*>& getOfflieThreatList() { return iThreatOfflineContainer.getThreatList(); }
         ThreatContainer& getOnlineContainer() { return iThreatContainer; }
         ThreatContainer& getOfflineContainer() { return iThreatOfflineContainer; }
     private:
         void _addThreat(Unit *pVictim, float fThreat);
 
-        HostilReference* iCurrentVictim;
+        HostileReference* iCurrentVictim;
         Unit* iOwner;
         uint32 iUpdateTimer;
         ThreatContainer iThreatContainer;

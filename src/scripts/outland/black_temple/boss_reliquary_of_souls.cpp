@@ -188,8 +188,8 @@ struct boss_reliquary_of_soulsAI : public ScriptedAI
         if (!pTarget)
             return;
 
-        std::list<HostilReference*>& m_threatlist = pTarget->getThreatManager().getThreatList();
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference*>& m_threatlist = pTarget->getThreatManager().getThreatList();
+        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); itr++)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
@@ -386,11 +386,11 @@ struct boss_essence_of_sufferingAI : public ScriptedAI
 
     void CastFixate()
     {
-        std::list<HostilReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         if (m_threatlist.empty())
             return; // No point continuing if empty threatlist.
         std::list<Unit*> targets;
-        std::list<HostilReference*>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());

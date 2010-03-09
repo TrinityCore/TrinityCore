@@ -559,7 +559,7 @@ struct boss_headless_horsemanAI : public ScriptedAI
             caster->GetMotionMaster()->Clear(false);
             caster->GetMotionMaster()->MoveFollow(m_creature,6,urand(0,5));
             //DoResetThreat();//not sure if need
-            std::list<HostilReference*>::iterator itr;
+            std::list<HostileReference*>::iterator itr;
             for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
             {
                 Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());

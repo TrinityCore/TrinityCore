@@ -230,7 +230,7 @@ struct mob_enslaved_netherwing_drakeAI : public ScriptedAI
                 AttackStart(Dragonmaw);
             }
 
-            HostilReference* ref = m_creature->getThreatManager().getOnlineContainer().getReferenceByTarget(caster);
+            HostileReference* ref = m_creature->getThreatManager().getOnlineContainer().getReferenceByTarget(caster);
             if (ref)
                 ref->removeReference();
         }
