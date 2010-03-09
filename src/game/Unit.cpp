@@ -5306,24 +5306,18 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 }
                 // Eye for an Eye
                 case 9799:
-                {
-                    // return damage % to attacker but < 50% own total health
-                    basepoints0 = 5*int32(damage)/100;
-                    if (basepoints0 > GetMaxHealth()/2)
-                        basepoints0 = GetMaxHealth()/2;
-
-                    triggered_spell_id = 25997;
-
-                    break;
-                }
                 case 25988:
                 {
                     // return damage % to attacker but < 50% own total health
-                    basepoints0 = 10*int32(damage)/100;
-                    if(basepoints0 > GetMaxHealth()/2)
+                    basepoints0 = int32((triggerAmount* damage) /100);
+
+                    if (basepoints0 > GetMaxHealth()/2)
                         basepoints0 = GetMaxHealth()/2;
 
+                    sLog.outDebug("DEBUG LINE: Data about Eye for an Eye ID %u, damage taken %u, unit max health %u, damage done %u", dummySpell->Id, damage, GetMaxHealth(),basepoints0);
+
                     triggered_spell_id = 25997;
+
                     break;
                 }
                 // Sweeping Strikes
