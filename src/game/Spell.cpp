@@ -208,18 +208,16 @@ void SpellCastTargets::Update(Unit* caster)
     NULL;
 
     m_itemTarget = NULL;
-    if(caster->GetTypeId() == TYPEID_PLAYER)
+    if (caster->GetTypeId() == TYPEID_PLAYER)
     {
         if(m_targetMask & TARGET_FLAG_ITEM)
             m_itemTarget = caster->ToPlayer()->GetItemByGuid(m_itemTargetGUID);
-        else if(m_targetMask & TARGET_FLAG_TRADE_ITEM)
-        {
-            // here it is not guid but slot
-            Player* pTrader = caster->ToPlayer()->GetTrader();
-            if(pTrader && m_itemTargetGUID < TRADE_SLOT_COUNT)
-                m_itemTarget = pTrader->GetItemByGuid(m_itemTargetGUID);
-        }
-        if(m_itemTarget)
+        else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
+            if (m_itemTargetGUID == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevent hacking slots
+                if (Player* pTrader = caster->ToPlayer()->GetTrader())
+                    m_itemTarget = pTrader->GetItemByTradeSlot(m_itemTargetGUID);
+
+        if (m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
     }
 }

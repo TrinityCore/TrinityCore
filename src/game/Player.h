@@ -1244,6 +1244,12 @@ class Player : public Unit, public GridObject<Player>
         Player* GetTrader() const { return pTrader; }
         void ClearTrade();
         void TradeCancel(bool sendback);
+        Item *GetItemByTradeSlot(uint8 slot) const
+        {
+            if (slot < TRADE_SLOT_COUNT && tradeItems[slot])
+                return GetItemByGuid(tradeItems[slot]);
+            return NULL;
+        }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateItemDuration(uint32 time, bool realtimeonly=false);
