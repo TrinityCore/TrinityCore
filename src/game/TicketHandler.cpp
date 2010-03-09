@@ -27,6 +27,12 @@
 
 void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 {
+    if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_TICKET_LEVEL_REQ))
+    {
+        SendNotification(GetTrinityString(LANG_TICKET_REQ), sWorld.getConfig(CONFIG_TICKET_LEVEL_REQ));
+        return;
+    }
+
     if(GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
     {
         WorldPacket data( SMSG_GMTICKET_CREATE, 4 );
