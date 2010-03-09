@@ -8,6 +8,9 @@ AuthSocket.h
 Main.cpp
 RealmList.cpp
 RealmList.h
+RealmSocket.h
+RealmSocket.cpp
+RealmAcceptor.h
 )
 
 SET(trinity-realm_LINK_FLAGS "")

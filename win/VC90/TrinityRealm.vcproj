@@ -450,6 +450,18 @@
 			>
 		</File>
 		<File
+			RelativePath="..\..\src\trinityrealm\RealmAcceptor.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\trinityrealm\RealmSocket.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\trinityrealm\RealmSocket.h"
+			>
+		</File>
+		<File
 			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
 			>
 		</File>
