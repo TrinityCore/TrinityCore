@@ -132,7 +132,7 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
     if(!result)
     {
         external = false;
-        //                                       0          1              2           3           4              5      6      7      8      9      10     11     12     13 
+        //                                            1           2            3           4      5      6      7      8      9      10     11     12        13           14                              15
         result = CharacterDatabase.PQuery("SELECT lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, raiddifficulty FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
         if(!result)
             return false;
