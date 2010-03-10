@@ -8990,7 +8990,7 @@ bool Unit::Attack(Unit *victim, bool meleeAttack)
             victim->SetInCombatWith(this);
         AddThreat(victim, 0.0f);
 
-        this->ToCreature()->SendAIReaction(AI_REACTION_AGGRO);
+        this->ToCreature()->SendAIReaction(AI_REACTION_HOSTILE);
         this->ToCreature()->CallAssistance();
     }
 
@@ -13895,7 +13895,7 @@ void Unit::SendPetAIReaction(uint64 guid)
 
     WorldPacket data(SMSG_AI_REACTION, 8 + 4);
     data << uint64(guid);
-    data << uint32(AI_REACTION_AGGRO);
+    data << uint32(AI_REACTION_HOSTILE);
     owner->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
