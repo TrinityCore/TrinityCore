@@ -3736,8 +3736,8 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     // Remove totem at next update if totem looses its aura
     if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE && GetTypeId() == TYPEID_UNIT && this->ToCreature()->isTotem()&& ((TempSummon*)this)->GetSummonerGUID() == aura->GetCasterGUID())
     {
-        if (((Totem*)this)->GetSpell() == aura->GetId() && ((Totem*)this)->GetTotemType() == TOTEM_PASSIVE)
-            ((Totem*)this)->setDeathState(JUST_DIED);
+      if (this->ToTotem()->GetSpell() == aura->GetId() && this->ToTotem()->GetTotemType() == TOTEM_PASSIVE)
+	this->ToTotem()->setDeathState(JUST_DIED);
     }
 
     // Remove aurastates only if were not found
@@ -9341,7 +9341,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         else if (minion->isTotem())
         {
             // All summoned by totem minions must disappear when it is removed.
-            if (const SpellEntry* spInfo = sSpellStore.LookupEntry(((Totem*)minion)->GetSpell()))
+	  if (const SpellEntry* spInfo = sSpellStore.LookupEntry(minion->ToTotem()->GetSpell()))
                 for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
                     if (spInfo->Effect[i] != SPELL_EFFECT_SUMMON)
