@@ -14930,7 +14930,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     assert((type == CHARM_TYPE_VEHICLE) == IsVehicle());
 
-    sLog.outDebug("SetCharmedBy: charmer %u (GUID %u), charmed %u (GUID %u), type %u.", charmer->GetEntry(), GetEntry(), (uint32)type);
+    sLog.outDebug("SetCharmedBy: charmer %u (GUID %u), charmed %u (GUID %u), type %u.", charmer->GetEntry(), charmer->GetGUIDLow(), GetEntry(), GetGUIDLow(), uint32(type));
 
     if (this == charmer)
     {
