@@ -14930,11 +14930,11 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     assert((type == CHARM_TYPE_VEHICLE) == IsVehicle());
 
-    sLog.outDebug("SetCharmedBy: charmer %u, charmed %u, type %u.", charmer->GetEntry(), GetEntry(), (uint32)type);
+    sLog.outDebug("SetCharmedBy: charmer %u (GUID %u), charmed %u (GUID %u), type %u.", charmer->GetEntry(), GetEntry(), (uint32)type);
 
     if (this == charmer)
     {
-        sLog.outCrash("Unit::SetCharmedBy: Unit %u is trying to charm itself!", GetEntry());
+        sLog.outCrash("Unit::SetCharmedBy: Unit %u (GUID %u) is trying to charm itself!", GetEntry(), GetGUIDLow());
         return false;
     }
 
@@ -14943,14 +14943,14 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
 
     if (GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->GetTransport())
     {
-        sLog.outCrash("Unit::SetCharmedBy: Player on transport is trying to charm %u", GetEntry());
+        sLog.outCrash("Unit::SetCharmedBy: Player on transport is trying to charm %u (GUID %u)", GetEntry(), GetGUIDLow());
         return false;
     }
 
     // Already charmed
     if (GetCharmerGUID())
     {
-        sLog.outCrash("Unit::SetCharmedBy: %u has already been charmed but %u is trying to charm it!", GetEntry(), charmer->GetEntry());
+        sLog.outCrash("Unit::SetCharmedBy: %u (GUID %u) has already been charmed but %u (GUID %u) is trying to charm it!", GetEntry(), GetGUIDLow(), charmer->GetEntry(), charmer->GetGUIDLow());
         return false;
     }
 
@@ -14975,7 +14975,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     // StopCastingCharm may remove a possessed pet?
     if (!IsInWorld())
     {
-        sLog.outCrash("Unit::SetCharmedBy: %u is not in world but %u is trying to charm it!", GetEntry(), charmer->GetEntry());
+        sLog.outCrash("Unit::SetCharmedBy: %u (GUID %u) is not in world but %u (GUID %u) is trying to charm it!", GetEntry(), GetGUIDLow(), charmer->GetEntry(), charmer->GetGUIDLow());
         return false;
     }
 
