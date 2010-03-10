@@ -56,14 +56,14 @@ void TotemAI::EnterEvadeMode()
 void
 TotemAI::UpdateAI(const uint32 /*diff*/)
 {
-    if (((Totem*)m_creature)->GetTotemType() != TOTEM_ACTIVE)
+  if ( m_creature->ToTotem()->GetTotemType() != TOTEM_ACTIVE)
         return;
 
     if (!m_creature->isAlive() || m_creature->IsNonMeleeSpellCasted(false))
         return;
 
     // Search spell
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(((Totem*)m_creature)->GetSpell());
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_creature->ToTotem()->GetSpell());
     if (!spellInfo)
         return;
 
@@ -95,7 +95,7 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
 
         // attack
         m_creature->SetInFront(victim);                         // client change orientation by self
-        m_creature->CastSpell(victim, ((Totem*)m_creature)->GetSpell(), false);
+        m_creature->CastSpell(victim, m_creature->ToTotem()->GetSpell(), false);
     }
     else
         i_victimGuid = 0;
