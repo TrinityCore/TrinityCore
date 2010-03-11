@@ -261,9 +261,13 @@ void AuthSocket::OnRead()
             }
         }
 
-        ///- Report unknown commands in the debug log
+        // Report unknown packets in the error log
         if (i == AUTH_TOTAL_COMMANDS)
+        {
+            sLog.outError("[Auth] got unknown packet from '%s'", socket().get_remote_address().c_str());
+            socket().shutdown();
             return;
+        }
     }
 }
 
