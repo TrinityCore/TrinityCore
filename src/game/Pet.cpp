@@ -1572,7 +1572,7 @@ bool Pet::resetTalents(bool no_cost)
     if (!pet_family || pet_family->petTalentType < 0)
         return false;
 
-    Player *player = (Player *)owner;
+    Player *player = owner->ToPlayer();
 
     uint8 level = getLevel();
     uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);

@@ -2110,7 +2110,7 @@ bool ChatHandler::HandleModifyBitCommand(const char* args)
     }
 
     // check online security
-    if (unit->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity((Player *)unit, 0))
+    if (unit->GetTypeId() == TYPEID_PLAYER && HasLowerSecurity(unit->ToPlayer(), 0))
         return false;
 
     char* pField = strtok((char*)args, " ");

@@ -2385,20 +2385,20 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
         if (spellId)
         {
             if(target->GetTypeId() == TYPEID_PLAYER)
-                ((Player *)target)->RemoveSpellCooldown(spellId);
+                target->ToPlayer()->RemoveSpellCooldown(spellId);
             target->CastSpell(target, spellId, true, NULL, this );
         }
 
         if (spellId2)
         {
             if(target->GetTypeId() == TYPEID_PLAYER)
-                ((Player *)target)->RemoveSpellCooldown(spellId2);
+                target->ToPlayer()->RemoveSpellCooldown(spellId2);
             target->CastSpell(target, spellId2, true, NULL, this);
         }
 
         if(target->GetTypeId() == TYPEID_PLAYER)
         {
-            const PlayerSpellMap& sp_list = ((Player *)target)->GetSpellMap();
+            const PlayerSpellMap& sp_list = target->ToPlayer()->GetSpellMap();
             for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
             {
                 if(itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
@@ -2886,7 +2886,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
                 // Stance mastery + Tactical mastery (both passive, and last have aura only in defense stance, but need apply at any stance switch)
                 if(target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    PlayerSpellMap const& sp_list = ((Player *)target)->GetSpellMap();
+                    PlayerSpellMap const& sp_list = target->ToPlayer()->GetSpellMap();
                     for (PlayerSpellMap::const_iterator itr = sp_list.begin(); itr != sp_list.end(); ++itr)
                     {
                         if(itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
@@ -5834,7 +5834,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     {
                         // Play part 1
                         if(apply)
-                            target->PlayDirectSound(14970, (Player *)target);
+                            target->PlayDirectSound(14970, target->ToPlayer());
                         // continue in 58205
                         else
                             target->CastSpell(target, 58205, true);
@@ -5846,10 +5846,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     {
                         // Play part 2
                         if(apply)
-                            target->PlayDirectSound(14971, (Player *)target);
+                            target->PlayDirectSound(14971, target->ToPlayer());
                         // Play part 3
                         else
-                            target->PlayDirectSound(14972, (Player *)target);
+                            target->PlayDirectSound(14972, target->ToPlayer());
                     }
                     break;
             }
