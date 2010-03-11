@@ -56,10 +56,11 @@ enum LootMethod
 
 enum PermissionTypes
 {
-    ALL_PERMISSION    = 0,
-    GROUP_PERMISSION  = 1,
-    MASTER_PERMISSION = 2,
-    NONE_PERMISSION   = 3
+    ALL_PERMISSION              = 0,
+    GROUP_PERMISSION            = 1,
+    MASTER_PERMISSION           = 2,
+    ROUND_ROBIN_PERMISSION      = 3,
+    NONE_PERMISSION             = 4,
 };
 
 enum LootType
@@ -75,6 +76,15 @@ enum LootType
 
     LOOT_FISHINGHOLE            = 20,                       // unsupported by client, sending LOOT_FISHING instead
     LOOT_INSIGNIA               = 21                        // unsupported by client, sending LOOT_CORPSE instead
+};
+
+// type of Loot Item in Loot View
+enum LootSlotType
+{
+    LOOT_SLOT_TYPE_ALLOW_LOOT   = 0,                        // player can loot the item.
+    LOOT_SLOT_TYPE_ROLL_ONGOING = 1,                        // roll is ongoing. player cannot loot.
+    LOOT_SLOT_TYPE_MASTER       = 2,                        // item can only be distributed by group loot master.
+    LOOT_SLOT_TYPE_LOCKED       = 3,                        // item is shown in red. player cannot loot.
 };
 
 class Player;
@@ -248,6 +258,7 @@ struct Loot
     std::vector<LootItem> items;
     uint32 gold;
     uint8 unlootedCount;
+    uint64 roundRobinPlayer;                                // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
     LootType loot_type;                                     // required for achievement system
 
     Loot(uint32 _gold = 0) : gold(_gold), unlootedCount(0), loot_type(LOOT_CORPSE) {}
@@ -279,6 +290,7 @@ struct Loot
         quest_items.clear();
         gold = 0;
         unlootedCount = 0;
+        roundRobinPlayer = 0;
         i_LootValidatorRefManager.clearReferences();
     }
 
@@ -299,6 +311,8 @@ struct Loot
 
     LootItem* LootItemInSlot(uint32 lootslot, Player* player, QuestItem** qitem = NULL, QuestItem** ffaitem = NULL, QuestItem** conditem = NULL);
     uint32 GetMaxSlotInLootFor(Player* player) const;
+    bool hasItemFor(Player* player) const;
+    bool hasOverThresholdItem() const;
 
     private:
         void FillNotNormalLootFor(Player* player);

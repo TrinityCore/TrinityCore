@@ -14560,28 +14560,76 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
     // find player: owner of controlled `this` or `this` itself maybe
     Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
+    Creature *creature = pVictim->ToCreature();
 
     bool bRewardIsAllowed = true;
-    if (pVictim->GetTypeId() == TYPEID_UNIT)
+    if (creature)
     {
-        bRewardIsAllowed = pVictim->ToCreature()->IsDamageEnoughForLootingAndReward();
+        bRewardIsAllowed = creature->IsDamageEnoughForLootingAndReward();
         if (!bRewardIsAllowed)
-            pVictim->ToCreature()->SetLootRecipient(NULL);
+            creature->SetLootRecipient(NULL);
     }
 
-    if (bRewardIsAllowed && pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->GetLootRecipient())
-        player = pVictim->ToCreature()->GetLootRecipient();
+    if (bRewardIsAllowed && creature && creature->GetLootRecipient())
+        player = creature->GetLootRecipient();
+
     // Reward player, his pets, and group/raid members
     // call kill spell proc event (before real die and combat stop to triggering auras removed at death/combat stop)
-    if (bRewardIsAllowed && player && player!=pVictim)
+    if (bRewardIsAllowed && player && player != pVictim)
     {
         WorldPacket data(SMSG_PARTYKILLLOG, (8+8)); //send event PARTY_KILL
         data << uint64(player->GetGUID()); //player with killing blow
         data << uint64(pVictim->GetGUID()); //victim
-        if (Group *group =  player->GetGroup())
+
+        Player* pLooter = player;
+
+        if (Group *group = player->GetGroup())
+        {
             group->BroadcastPacket(&data, group->GetMemberGroup(player->GetGUID()));
+
+            if (creature)
+            {
+                group->UpdateLooterGuid(creature, true);
+                if (group->GetLooterGuid())
+                {
+                    pLooter = objmgr.GetPlayer(group->GetLooterGuid());
+                    if (pLooter)
+                    {
+                        creature->SetLootRecipient(pLooter);   // update creature loot recipient to the allowed looter.
+                        group->SendLooter(creature, pLooter);
+                    }
+                    else
+                        group->SendLooter(creature, NULL);
+                }
+                else
+                    group->SendLooter(creature, NULL);
+
+                group->UpdateLooterGuid(creature);
+            }
+        }
         else
+        {
             player->SendDirectMessage(&data);
+
+            WorldPacket data2(SMSG_LOOT_LIST, (8+1+1));
+            data2 << uint64(creature->GetGUID());
+            data2 << uint8(0); // unk1
+            data2 << uint8(0); // no group looter
+            player->SendMessageToSetInRange(&data2, GetMap()->GetVisibilityDistance(), true);
+        }
+
+        if (creature)
+        {
+            Loot* loot = &creature->loot;
+            if (creature->lootForPickPocketed)
+                creature->lootForPickPocketed = false;
+
+            loot->clear();
+            if (uint32 lootid = creature->GetCreatureInfo()->lootid)
+                loot->FillLoot(lootid, LootTemplates_Creature, pLooter, false, false, creature->GetLootMode());
+
+            loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold,creature->GetCreatureInfo()->maxgold);
+        }
 
         if (player->RewardPlayerAndGroupAtKill(pVictim))
             player->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);

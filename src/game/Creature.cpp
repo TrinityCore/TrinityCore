@@ -485,7 +485,22 @@ void Creature::Update(uint32 diff)
             if (m_isDeadByDefault)
                 break;
 
-            if( m_deathTimer <= diff )
+            if (m_groupLootTimer && lootingGroupLeaderGUID)
+            {
+                // for delayed spells
+                m_Events.Update(diff);
+
+                if (m_groupLootTimer <= diff)
+                {
+                    Group* group = objmgr.GetGroupByLeader(lootingGroupLeaderGUID);
+                    if (group)
+                        group->EndRoll(&loot);
+                    m_groupLootTimer = 0;
+                    lootingGroupLeaderGUID = 0;
+                }
+                else m_groupLootTimer -= diff;
+            }
+            else if (m_deathTimer <= diff)
             {
                 RemoveCorpse();
                 DEBUG_LOG("Removing corpse... %u ", GetUInt32Value(OBJECT_FIELD_ENTRY));
@@ -493,24 +508,8 @@ void Creature::Update(uint32 diff)
             else
             {
                 // for delayed spells
-                m_Events.Update( diff );
-
+                m_Events.Update(diff);
                 m_deathTimer -= diff;
-                if (m_groupLootTimer && lootingGroupLeaderGUID)
-                {
-                    if(diff <= m_groupLootTimer)
-                    {
-                        m_groupLootTimer -= diff;
-                    }
-                    else
-                    {
-                        Group* group = objmgr.GetGroupByLeader(lootingGroupLeaderGUID);
-                        if (group)
-                            group->EndRoll();
-                        m_groupLootTimer = 0;
-                        lootingGroupLeaderGUID = 0;
-                    }
-                }
             }
 
             break;
