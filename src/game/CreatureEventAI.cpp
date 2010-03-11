@@ -575,19 +575,38 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             //Allow movement (create new targeted movement gen only if idle)
             if (CombatMovementEnabled)
             {
-                if(action.combat_movement.melee && m_creature->isInCombat())
-                    if(Unit* victim = m_creature->getVictim())
+                Unit* victim = m_creature->getVictim();
+                if (m_creature->isInCombat() && victim)
+                {
+                    if (action.combat_movement.melee)
+                    {
+                        m_creature->addUnitState(UNIT_STAT_MELEE_ATTACKING);
                         m_creature->SendMeleeAttackStart(victim);
-
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), AttackDistance, AttackAngle);
+                    } 
+                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
+                    {
+                        //m_creature->GetMotionMaster()->Clear(false);
+                        m_creature->GetMotionMaster()->MoveChase(victim, AttackDistance, AttackAngle); // Targeted movement generator will start melee automatically, no need to send it explicitly
+                    }
+                }
             }
             else
-            {
-                if(action.combat_movement.melee && m_creature->isInCombat())
-                    if(Unit* victim = m_creature->getVictim())
+            {    
+                if (m_creature->isInCombat())
+                {
+                    Unit* victim = m_creature->getVictim();
+                    if (action.combat_movement.melee && victim)
+                    {
+                        m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
                         m_creature->SendMeleeAttackStop(victim);
-
-                m_creature->GetMotionMaster()->MoveIdle();
+                    }    
+                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                    {
+                        //m_creature->StopMoving();
+                        //m_creature->GetMotionMaster()->Clear(false);
+                        m_creature->GetMotionMaster()->MoveIdle();
+                    }
+                }
             }
             break;
         case ACTION_T_SET_PHASE:
