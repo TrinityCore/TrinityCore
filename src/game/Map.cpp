@@ -3694,7 +3694,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                ((Creature *)source)->SetOrientation(step.script->datalong);
+                ((Creature *)source)->SetOrientation(step.script->o);
                 ((Creature *)source)->SendMovementFlagUpdate();
 
                 break;
