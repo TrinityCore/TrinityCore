@@ -629,14 +629,12 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                             if(index == UNIT_FIELD_BYTES_2)
                             {
                                 // Allow targetting opposite faction in party when enabled in config
-                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (flag)", target->GetName(), this->ToPlayer()->GetName());
                                 *data << ( m_uint32Values[ index ] & ((UNIT_BYTE2_FLAG_SANCTUARY /*| UNIT_BYTE2_FLAG_AURAS | UNIT_BYTE2_FLAG_UNK5*/) << 8) ); // this flag is at uint8 offset 1 !!
                             }
                             else
                             {
                                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
                                 uint32 faction = target->getFaction();
-                                DEBUG_LOG("-- VALUES_UPDATE: Sending '%s' the blue-group-fix from '%s' (faction %u)", target->GetName(), this->ToPlayer()->GetName(), faction);
                                 *data << uint32(faction);
                             }
                         }
