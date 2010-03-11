@@ -8266,7 +8266,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
         {
             basepoints0 = damage * 15 / 100;
             target = pVictim;
-            trigger_spell_id = 26470;
+            trigger_spell_id = 64413;
             break;
         }
         // Decimation
