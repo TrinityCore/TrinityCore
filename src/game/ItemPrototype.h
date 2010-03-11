@@ -494,7 +494,7 @@ struct _ItemStat
 };
 struct _Spell
 {
-    uint32 SpellId;                                         // id from Spell.dbc
+    int32 SpellId;                                         // id from Spell.dbc
     uint32 SpellTrigger;
     int32  SpellCharges;
     float  SpellPPMRate;
