@@ -48,10 +48,11 @@ enum AreaTeams
     AREATEAM_HORDE = 4
 };
 
-enum AchievementFactionFlags
+enum AchievementFaction
 {
-    ACHIEVEMENT_FACTION_FLAG_HORDE    = 0x00000000,
-    ACHIEVEMENT_FACTION_FLAG_ALLIANCE = 0x00000001,
+    ACHIEVEMENT_FACTION_HORDE           = 0,
+    ACHIEVEMENT_FACTION_ALLIANCE        = 1,
+    ACHIEVEMENT_FACTION_ANY             = -1,
 };
 
 enum AchievementFlags
