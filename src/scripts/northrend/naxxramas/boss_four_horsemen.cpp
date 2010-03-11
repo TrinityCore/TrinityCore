@@ -88,7 +88,7 @@ struct boss_four_horsemenAI : public BossAI
     }
 
     Horsemen id;
-    Unit *eventStarter;
+    uint64 uiEventStarterGUID;
     uint8 nextWP;
     uint32 punishTimer;
     bool caster;
@@ -105,7 +105,7 @@ struct boss_four_horsemenAI : public BossAI
             DoEncounterAction(NULL, false, true, false);
 
         me->SetReactState(REACT_AGGRESSIVE);
-        eventStarter = NULL;
+        uiEventStarterGUID = 0;
         nextWP = 0;
         punishTimer = 2000;
         nextMovementStarted = false;
@@ -210,7 +210,9 @@ struct boss_four_horsemenAI : public BossAI
             movementCompleted = true;
             me->SetReactState(REACT_AGGRESSIVE);
 
-            if (me->canAttack(eventStarter))
+            Unit *eventStarter = Unit::GetUnit(*me, uiEventStarterGUID);
+
+            if (eventStarter && me->canAttack(eventStarter))
                 AttackStart(eventStarter);
             else if (!UpdateVictim())
             {
@@ -242,7 +244,7 @@ struct boss_four_horsemenAI : public BossAI
     {
         if (!movementCompleted && !movementStarted)
         {
-            eventStarter = who;
+            uiEventStarterGUID = who->GetGUID();
             BeginFourHorsemenMovement();
 
             if (!encounterActionAttack)
