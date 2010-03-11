@@ -6404,7 +6404,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
         if( uVictim->GetTypeId() == TYPEID_PLAYER )
         {
-            Player *pVictim = (Player *)uVictim;
+            Player *pVictim = uVictim->ToPlayer();
 
             if( GetTeam() == pVictim->GetTeam() && !sWorld.IsFFAPvPRealm() )
                 return false;
@@ -6459,9 +6459,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
         }
         else
         {
-            Creature *cVictim = (Creature *)uVictim;
-
-            if (!cVictim->isRacialLeader())
+            if (!uVictim->ToCreature()->isRacialLeader())
                 return false;
 
             honor = 100;                                    // ??? need more info
@@ -19921,7 +19919,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         if(isGameMaster())
         {
             if(u->GetTypeId() == TYPEID_PLAYER)
-                return ((Player *)u)->GetSession()->GetSecurity() <= GetSession()->GetSecurity();
+                return u->ToPlayer()->GetSession()->GetSecurity() <= GetSession()->GetSecurity();
             else
                 return true;
         }
