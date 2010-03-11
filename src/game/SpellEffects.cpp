@@ -510,7 +510,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Shadow Bite
                 else if (m_spellInfo->SpellFamilyFlags[1] & 0x400000)
                 {
-                    if (m_caster->GetTypeId() == TYPEID_UNIT && ((Creature *)m_caster)->isPet())
+                    if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet())
                     {
                         // Get DoTs on target by owner (5% increase by dot)
                         damage += 5 * unitTarget->GetDoTsByCaster(m_caster->GetOwnerGUID()) / 100;
@@ -1473,7 +1473,7 @@ void Spell::EffectDummy(uint32 i)
                         return;
 
                     // immediately finishes the cooldown on Frost spells
-                    const SpellCooldowns& cm = ((Player *)m_caster)->GetSpellCooldownMap();
+                    const SpellCooldowns& cm = m_caster->ToPlayer()->GetSpellCooldownMap();
                     for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
@@ -1751,7 +1751,7 @@ void Spell::EffectDummy(uint32 i)
                         return;
 
                     //immediately finishes the cooldown on certain Rogue abilities
-                    const SpellCooldowns& cm = ((Player *)m_caster)->GetSpellCooldownMap();
+                    const SpellCooldowns& cm = m_caster->ToPlayer()->GetSpellCooldownMap();
                     for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
@@ -4829,8 +4829,8 @@ void Spell::EffectSummonObjectWild(uint32 i)
 
     if(pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Player *pl = (Player*)m_caster;
-        BattleGround* bg = ((Player *)m_caster)->GetBattleGround();
+        Player *pl = m_caster->ToPlayer();
+        BattleGround* bg = pl->GetBattleGround();
 
         switch(pGameObj->GetMapId())
         {
@@ -5807,7 +5807,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 // Demonic Empowerment
                 case 47193:
                 {
-                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !((Creature *)unitTarget)->isPet())
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || !unitTarget->ToCreature()->isPet())
                         return;
                     CreatureInfo const * ci = objmgr.GetCreatureTemplate(unitTarget->GetEntry());
                     switch (ci->family)
@@ -6152,7 +6152,7 @@ void Spell::EffectSanctuary(uint32 /*i*/)
         && m_spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE
         && (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VANISH))
     {
-        ((Player *)m_caster)->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+        m_caster->ToPlayer()->RemoveAurasByType(SPELL_AURA_MOD_ROOT);
         // Overkill
         if(m_caster->ToPlayer()->HasSpell(58426))
            m_caster->CastSpell(m_caster, 58427, true);
@@ -7580,7 +7580,7 @@ void Spell::EffectPlayerNotification(uint32 /*eff_idx*/)
     {
         case 58730: // Restricted Flight Area
         case 58600: // Restricted Flight Area
-            ((Player *)unitTarget)->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+            unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;
     }
 }

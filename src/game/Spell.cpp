@@ -1182,7 +1182,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unitTarget, procAttacker, procVictim, procEx, damageInfo.damage, m_attackType, m_spellInfo, m_triggeredByAuraSpell);
             if(caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->Attributes & SPELL_ATTR_STOP_ATTACK_TARGET) == 0 &&
                (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE || m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_RANGED))
-                ((Player *)caster)->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
+                caster->ToPlayer()->CastItemCombatSpell(unitTarget, m_attackType, procVictim, procEx);
         }
 
         caster->DealSpellDamage(&damageInfo, true);
@@ -1730,7 +1730,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                             if ((*itr)->GetEntry() == i_spellST->second.targetEntry && (*itr)->IsWithinDistInMap(m_caster, range))
                             {
                                 goScriptTarget = NULL;
-                                creatureScriptTarget = ((Creature *)*itr);
+                                creatureScriptTarget = (*itr)->ToCreature();
                                 range = m_caster->GetDistance(creatureScriptTarget);
                             }
                         break;
@@ -4506,7 +4506,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (m_targets.m_targetMask == TARGET_FLAG_SELF &&
                     m_spellInfo->EffectImplicitTargetA[1] == TARGET_UNIT_TARGET_ENEMY)
                 {
-                    if (target = m_caster->GetUnit(*m_caster, ((Player *)m_caster)->GetSelection()))
+                    if (target = m_caster->GetUnit(*m_caster, m_caster->ToPlayer()->GetSelection()))
                         m_targets.setUnitTarget(target);
                     else
                         return SPELL_FAILED_BAD_TARGETS;

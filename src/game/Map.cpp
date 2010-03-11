@@ -3026,7 +3026,7 @@ void Map::ScriptsProcess()
                 switch(step.script->datalong)
                 {
                     case 0:                                 // Say
-                        ((Creature *)source)->Say(step.script->dataint, LANG_UNIVERSAL, unit_target);
+                        source->ToCreature()->Say(step.script->dataint, LANG_UNIVERSAL, unit_target);
                         break;
                     case 1:                                 // Whisper
                         if(!unit_target)
@@ -3034,17 +3034,17 @@ void Map::ScriptsProcess()
                             sLog.outError("SCRIPT_COMMAND_TALK attempt to whisper (%u) NULL, skipping.",step.script->datalong);
                             break;
                         }
-                        ((Creature *)source)->Whisper(step.script->dataint,unit_target);
+                        source->ToCreature()->Whisper(step.script->dataint,unit_target);
                         break;
                     case 2:                                 // Yell
-                        ((Creature *)source)->Yell(step.script->dataint, LANG_UNIVERSAL, unit_target);
+                        source->ToCreature()->Yell(step.script->dataint, LANG_UNIVERSAL, unit_target);
                         break;
                     case 3:                                 // Emote text
-                        ((Creature *)source)->TextEmote(step.script->dataint, unit_target);
+                        source->ToCreature()->TextEmote(step.script->dataint, unit_target);
                         break;
                     case 4:                                 // Boss Emote text
-                        ((Creature *)source)->MonsterTextEmote(step.script->dataint, unit_target, true);
-                         break;
+                        source->ToCreature()->MonsterTextEmote(step.script->dataint, unit_target, true);
+                        break;
                     default:
                         break;                              // must be already checked at load
                 }
@@ -3064,7 +3064,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                ((Creature *)source)->HandleEmoteCommand(step.script->datalong);
+                source->ToCreature()->HandleEmoteCommand(step.script->datalong);
                 break;
             case SCRIPT_COMMAND_FIELD_SET:
                 if(!source)
@@ -3694,8 +3694,8 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                ((Creature *)source)->SetOrientation(step.script->o);
-                ((Creature *)source)->SendMovementFlagUpdate();
+                source->ToCreature()->SetOrientation(step.script->o);
+                source->ToCreature()->SendMovementFlagUpdate();
 
                 break;
             }
