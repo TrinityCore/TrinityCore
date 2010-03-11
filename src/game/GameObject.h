@@ -708,6 +708,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         Loot        loot;
 
+        uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
+        uint64 lootingGroupLeaderGUID;                      // used to find group which is looting
+
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id) const;
         bool ActivateToQuest(Player *pTarget) const;

@@ -184,7 +184,7 @@ class Group
         void   ChangeLeader(const uint64 &guid);
         void   SetLootMethod(LootMethod method) { m_lootMethod = method; }
         void   SetLooterGuid(const uint64 &guid) { m_looterGuid = guid; }
-        void   UpdateLooterGuid( Creature* creature, bool ifneed = false );
+        void   UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed = false);
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
 
@@ -324,9 +324,10 @@ class Group
         void SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(const uint64& SourceGuid, const uint64& TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r);
-        void GroupLoot(const uint64& playerGUID, Loot *loot, Creature *creature);
-        void NeedBeforeGreed(const uint64& playerGUID, Loot *loot, Creature *creature);
-        void MasterLoot(const uint64& playerGUID, Loot *loot, Creature *creature);
+        void SendLooter(Creature *pCreature, Player *pLooter);
+        void GroupLoot(Loot *loot, WorldObject* pLootedObject);
+        void NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject);
+        void MasterLoot(Loot *loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(uint64 Guid)
         {
             Rolls::iterator iter;
@@ -341,7 +342,7 @@ class Group
         }
         void CountTheRoll(Rolls::iterator roll, uint32 NumberOfPlayers);
         void CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 NumberOfPlayers, uint8 Choise);
-        void EndRoll();
+        void EndRoll(Loot *loot);
 
         void LinkMember(GroupReference *pRef) { m_memberMgr.insertFirst(pRef); }
         void DelinkMember(GroupReference* /*pRef*/ ) { }
