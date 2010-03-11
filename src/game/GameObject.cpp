@@ -61,6 +61,9 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
     m_DBTableGuid = 0;
     m_rotation = 0;
 
+    m_groupLootTimer = 0;
+    lootingGroupLeaderGUID = 0;
+
     ResetLootMode(); // restore default loot mode
 }
 
@@ -210,7 +213,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     return true;
 }
 
-void GameObject::Update(uint32 /*p_time*/)
+void GameObject::Update(uint32 diff)
 {
     if (IS_MO_TRANSPORT(GetGUID()))
     {
@@ -432,6 +435,19 @@ void GameObject::Update(uint32 /*p_time*/)
                         m_cooldownTime = 0;
                     }
                     break;
+                case GAMEOBJECT_TYPE_CHEST:
+                    if (m_groupLootTimer)
+                    {
+                        if (m_groupLootTimer <= diff)
+                        {
+                            Group* group = objmgr.GetGroupByLeader(lootingGroupLeaderGUID);
+                            if (group)
+                                group->EndRoll(&loot);
+                            m_groupLootTimer = 0;
+                            lootingGroupLeaderGUID = 0;
+                        }
+                        else m_groupLootTimer -= diff;
+                    }
                 default:
                     break;
             }
@@ -1111,7 +1127,7 @@ void GameObject::Use(Unit* user)
                     data << GetGUID();
                     player->GetSession()->SendPacket(&data);
                 }
-                else if (info->questgiver.gossipID)
+                else if (info->goober.gossipID)
                 {
                     player->PrepareGossipMenu(this, info->goober.gossipID);
                     player->SendPreparedGossip(this);
