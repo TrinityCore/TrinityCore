@@ -8633,10 +8633,13 @@ FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
 
         if(GetGUID() != guid)
         {
-            if(GetTypeId() == TYPEID_PLAYER)
-                sLog.outError("Player %s have invalid faction (faction template id) #%u", this->ToPlayer()->GetName(), getFaction());
-            else
-                sLog.outError("Creature (template id: %u) have invalid faction (faction template id) #%u", this->ToCreature()->GetCreatureInfo()->Entry, getFaction());
+            if (const Player *player = ToPlayer())
+                sLog.outError("Player %s has invalid faction (faction template id) #%u", player->GetName(), getFaction());
+            else if (const Creature *creature = ToCreature())
+                sLog.outError("Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureInfo()->Entry, getFaction());
+            else 
+                sLog.outError("Unit (name=%s, type=%u) has invalid faction (faction template id) #%u", GetName(), uint32(GetTypeId()), getFaction());
+
             guid = GetGUID();
         }
     }
