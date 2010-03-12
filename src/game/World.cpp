@@ -1051,7 +1051,6 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_ARENA_START_RATING]                        = sConfig.GetIntDefault ("Arena.ArenaStartRating", 0);
     m_configs[CONFIG_ARENA_START_PERSONAL_RATING]               = sConfig.GetIntDefault ("Arena.ArenaStartPersonalRating", 0);
     m_configs[CONFIG_ARENA_SEASON_IN_PROGRESS]                  = sConfig.GetBoolDefault("Arena.ArenaSeason.InProgress", true);
-    m_configs[CONFIG_ARENA_LK_ARENAS_ENABLE] 			= sConfig.GetIntDefault ("Arena.LK.ArenasEnable", 0);
 
     m_configs[CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN] = sConfig.GetBoolDefault("OffhandCheckAtSpellUnlearn", false);
 
