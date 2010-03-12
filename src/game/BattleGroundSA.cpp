@@ -82,9 +82,6 @@ bool BattleGroundSA::ResetObjs()
         return false;
     }
 
-    GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
-    GetBGObject(BG_SA_TITAN_RELIC)->Refresh();
-
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
     for(uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; i++)
@@ -102,6 +99,9 @@ bool BattleGroundSA::ResetObjs()
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
+
+    GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+    GetBGObject(BG_SA_TITAN_RELIC)->Refresh();
 
     for(uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
