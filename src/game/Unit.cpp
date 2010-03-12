@@ -14551,15 +14551,12 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         return;
 
     // Inform pets (if any) when player kills target)
-    if (this->GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->GetPet())
+    if (this->ToPlayer())
     {
         Pet *pPet = this->ToPlayer()->GetPet();
-
         if (pPet && pPet->isAlive() && pPet->isControlled())
             pPet->AI()->KilledUnit(pVictim);
     }
-
-    //sLog.outError("%u kill %u", GetEntry(), pVictim->GetEntry());
 
     // find player: owner of controlled `this` or `this` itself maybe
     Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
@@ -14614,11 +14611,14 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
         {
             player->SendDirectMessage(&data);
 
-            WorldPacket data2(SMSG_LOOT_LIST, (8+1+1));
-            data2 << uint64(creature->GetGUID());
-            data2 << uint8(0); // unk1
-            data2 << uint8(0); // no group looter
-            player->SendMessageToSetInRange(&data2, GetMap()->GetVisibilityDistance(), true);
+            if (creature)
+            {
+                WorldPacket data2(SMSG_LOOT_LIST, (8+1+1));
+                data2 << uint64(creature->GetGUID());
+                data2 << uint8(0); // unk1
+                data2 << uint8(0); // no group looter
+                player->SendMessageToSet(&data2, true);
+            }
         }
 
         if (creature)
@@ -14707,14 +14707,13 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     else                                                // creature died
     {
         DEBUG_LOG("DealDamageNotPlayer");
-        Creature *cVictim = pVictim->ToCreature();
 
-        if (!cVictim->isPet())
+        if (!creature->isPet())
         {
-            cVictim->DeleteThreatList();
-            CreatureInfo const* cInfo = cVictim->GetCreatureInfo();
+            creature->DeleteThreatList();
+            CreatureInfo const* cInfo = creature->GetCreatureInfo();
             if (cInfo && (cInfo->lootid || cInfo->maxgold > 0))
-                cVictim->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                creature->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
         // Call KilledUnit for creatures, this needs to be called after the lootable flag is set
@@ -14722,13 +14721,13 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             this->ToCreature()->AI()->KilledUnit(pVictim);
 
         // Call creature just died function
-        if (cVictim->IsAIEnabled)
-            cVictim->AI()->JustDied(this);
+        if (creature->IsAIEnabled)
+            creature->AI()->JustDied(this);
 
         // Dungeon specific stuff, only applies to players killing creatures
-        if (cVictim->GetInstanceId())
+        if (creature->GetInstanceId())
         {
-            Map *m = cVictim->GetMap();
+            Map *m = creature->GetMap();
             Player *creditedPlayer = GetCharmerOrOwnerPlayerOrPlayerItself();
             // TODO: do instance binding anyway if the charmer/owner is offline
 
@@ -14736,15 +14735,15 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
             {
                 if (m->IsRaidOrHeroicDungeon())
                 {
-                    if (cVictim->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
+                    if (creature->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                         ((InstanceMap *)m)->PermBindAllPlayers(creditedPlayer);
                 }
                 else
                 {
                     // the reset time is set but not added to the scheduler
                     // until the players leave the instance
-                    time_t resettime = cVictim->GetRespawnTimeEx() + 2 * HOUR;
-                    if (InstanceSave *save = sInstanceSaveManager.GetInstanceSave(cVictim->GetInstanceId()))
+                    time_t resettime = creature->GetRespawnTimeEx() + 2 * HOUR;
+                    if (InstanceSave *save = sInstanceSaveManager.GetInstanceSave(creature->GetInstanceId()))
                         if (save->GetResetTime() < resettime) save->SetResetTime(resettime);
                 }
             }
