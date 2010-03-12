@@ -692,8 +692,8 @@ enum TrinityStrings
     LANG_DIST_ARENA_POINTS_TEAM_START   = 744,
     LANG_DIST_ARENA_POINTS_TEAM_END     = 745,
     LANG_DIST_ARENA_POINTS_END          = 746,
-//                                      = 747, not used
-//                                      = 748, not used
+    LANG_BG_DISABLED                    = 747,
+    LANG_ARENA_DISABLED                 = 748,
 //                                      = 749, not used
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING = 750,       // "Not enough players. This game will close in %u mins."
     LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS = 751,  // "Not enough players. This game will close in %u seconds."
