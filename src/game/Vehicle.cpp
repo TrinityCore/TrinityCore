@@ -91,7 +91,11 @@ void Vehicle::Install()
 
 void Vehicle::InstallAllAccessories()
 {
-    switch(me->GetEntry())
+    VehicleAccessoryList mVehicleList = objmgr.GetVehicleAccessoryList(me->GetEntry());
+    if (mVehicleList.size())
+        for (VehicleAccessoryList::iterator itr2 = mVehicleList.begin(); itr2 < mVehicleList.end(); ++itr2)
+            InstallAccessory(itr2->uiAccessory, itr2->uiSeat, itr2->bMinion);
+    /*switch(me->GetEntry())
     {
         //case 27850:InstallAccessory(27905,1);break;
         case 28782:InstallAccessory(28768,0,false);break; // Acherus Deathcharger
@@ -136,7 +140,7 @@ void Vehicle::InstallAllAccessories()
         case 33418:InstallAccessory(35326,0);break; //Silvermoon Hawkstrider
         case 33299:InstallAccessory(35323,0);break; //Darkspear Raptor
         case 35491:InstallAccessory(35451,0,false);break; //Black Knight
-    }
+    }*/
 }
 
 void Vehicle::Uninstall()
@@ -162,17 +166,16 @@ void Vehicle::Die()
 void Vehicle::Reset()
 {
     sLog.outDebug("Vehicle::Reset");
-    if(m_usableSeatNum)
+    if (me->GetTypeId() == TYPEID_PLAYER)
     {
-        if (me->GetTypeId() == TYPEID_PLAYER)
-        {
+        if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
-        }
-        else
-        {
-            InstallAllAccessories();
+    }
+    else
+    {
+        InstallAllAccessories();
+        if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-        }
     }
 }
 

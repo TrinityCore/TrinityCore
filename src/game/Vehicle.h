@@ -38,6 +38,17 @@ struct VehicleSeat
     Unit* passenger;
 };
 
+struct VehicleAccessory
+{
+    explicit VehicleAccessory(uint32 _uiAccessory, int8 _uiSeat, bool _bMinion) : uiAccessory(_uiAccessory), uiSeat(_uiSeat), bMinion(_bMinion) {}
+    uint32 uiAccessory;
+    int8 uiSeat;
+    uint32 bMinion;
+};
+
+typedef std::vector<VehicleAccessory> VehicleAccessoryList;
+typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
+
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 class Vehicle
