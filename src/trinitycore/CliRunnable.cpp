@@ -219,7 +219,7 @@ bool ChatHandler::HandleServerExitCommand(const char* /*args*/)
 bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
 {
     ///- Get the list of accounts ID logged to the realm
-    QueryResult_AutoPtr resultDB = CharacterDatabase.Query("SELECT name,account,map,zone FROM characters LEFTWHERE online > 0");
+    QueryResult_AutoPtr resultDB = CharacterDatabase.Query("SELECT name,account,map,zone FROM characters WHERE online > 0");
     if (!resultDB)
     {
         SendSysMessage(LANG_ACCOUNT_LIST_EMPTY);
@@ -250,7 +250,7 @@ bool ChatHandler::HandleAccountOnlineListCommand(const char* /*args*/)
         {
             Field *fieldsLogin = resultLogin->Fetch();
             PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
-                fieldsLogin[0].GetString(),name.c_str(),fieldsLogin[1].GetString(),fieldsLogin[2].GetUInt32(),fieldsLogin[3].GetUInt32(),fieldsDB[2].GetInt32(),fieldsDB[3].GetInt32());
+                fieldsLogin[0].GetString(),name.c_str(),fieldsLogin[1].GetString(),fieldsDB[2].GetInt32(),fieldsDB[3].GetInt32(),fieldsLogin[3].GetUInt32(),fieldsLogin[2].GetUInt32());
         }
         else
             PSendSysMessage(LANG_ACCOUNT_LIST_ERROR,name.c_str());
