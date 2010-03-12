@@ -244,6 +244,7 @@ CREATE TABLE `battleground_template` (
   `AllianceStartO` float NOT NULL,
   `HordeStartLoc` mediumint(8) unsigned NOT NULL,
   `HordeStartO` float NOT NULL,
+  `Disable` tynyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -254,20 +255,20 @@ CREATE TABLE `battleground_template` (
 
 LOCK TABLES `battleground_template` WRITE;
 /*!40000 ALTER TABLE `battleground_template` DISABLE KEYS */;
-INSERT INTO `battleground_template` (`id`,`MinPlayersPerTeam`,`MaxPlayersPerTeam`,`MinLvl`,`MaxLvl`,`AllianceStartLoc`,`AllianceStartO`,`HordeStartLoc`,`HordeStartO`) VALUES
-(1,20,40,51,80,611,2.72532,610,2.27452),
-(2,5,10,10,80,769,3.14159,770,3.14159),
-(3,8,15,20,80,890,3.40156,889,0.263892),
-(4,0,2,10,80,929,0,936,3.14159),
-(5,0,2,10,80,939,0,940,3.14159),
-(6,0,2,10,80,0,0,0,0),
-(7,8,15,61,80,1103,3.40156,1104,0.263892),
-(8,0,2,10,80,1258,0,1259,3.14159),
-(9,7,15,71,80,1367,0,1368,0),
-(10,5,5,10,80,1362,0,1363,0),
-(11,5,5,10,80,1364,0,1365,0),
-(30,20,40,71,80,1485,0,1486,0),
-(32,0,40,0,80,0,0,0,0);
+INSERT INTO `battleground_template` (`id`,`MinPlayersPerTeam`,`MaxPlayersPerTeam`,`MinLvl`,`MaxLvl`,`AllianceStartLoc`,`AllianceStartO`,`HordeStartLoc`,`HordeStartO`, `Disable`) VALUES
+(1,20,40,51,80,611,2.72532,610,2.27452,0),
+(2,5,10,10,80,769,3.14159,770,3.14159,0),
+(3,8,15,20,80,890,3.40156,889,0.263892,0),
+(4,0,2,10,80,929,0,936,3.14159,0),
+(5,0,2,10,80,939,0,940,3.14159,0),
+(6,0,2,10,80,0,0,0,0,0),
+(7,8,15,61,80,1103,3.40156,1104,0.263892,0),
+(8,0,2,10,80,1258,0,1259,3.14159,0),
+(9,7,15,71,80,1367,0,1368,0,0),
+(10,5,5,10,80,1362,0,1363,0,1),
+(11,5,5,10,80,1364,0,1365,0,1),
+(30,20,40,71,80,1485,0,1486,0,0),
+(32,0,40,0,80,0,0,0,0,0);
 /*!40000 ALTER TABLE `battleground_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -14645,6 +14646,8 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (744, 'Modifying played count, arena points etc. for loaded arena teams, sending updated stats to online players...', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (745, 'Modification done.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (746, 'Done flushing Arena points.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(747, 'This Battleground have been disabled. You can''t join the queue.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(748, 'Arenas have been disabled. You can''t join the queue.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (750, 'Not enough players. This game will close in %u mins.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (751, 'Not enough players. This game will close in %u seconds.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (753, 'The battle for Warsong Gulch begins in 2 minutes.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -14902,7 +14905,7 @@ CREATE TABLE `vehicle_accessory` (
 COLLATE=utf8_general_ci
 ENGINE=MyISAM
 ROW_FORMAT=FIXED
-AVG_ROW_LENGTH=0
+AVG_ROW_LENGTH=0;
 
 
 LOCK TABLES `vehicle_accessory` WRITE;

@@ -1714,11 +1714,6 @@ BattleGround.PremadeGroupWaitForMatch = 1800000
 #	 Start personal rating on entry in team
 #	 Default: 1500
 #
-#    Arena.LK.ArenasEnable
-#	 Enable or Disable new WoTLK Arenas: Ring of Valor and Dalaran Sewers. These arenas have a problem of Line of The Side.
-#	 Default: 0 (Disable)
-#	          1 (Enable)
-#
 ###############################################################################
 
 Arena.MaxRatingDifference = 150
@@ -1731,7 +1726,6 @@ Arena.ArenaSeason.ID = 1
 Arena.ArenaSeason.InProgress = 1
 Arena.ArenaStartRating = 0
 Arena.ArenaStartPersonalRating = 0
-Arena.LK.ArenasEnable = 0
 
 ###############################################################################
 # NETWORK CONFIG

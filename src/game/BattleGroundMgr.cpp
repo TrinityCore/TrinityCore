@@ -1532,17 +1532,10 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     //for arenas there is random map used
     if (bg_template->isArena())
     {
-	// for type enter in arenas
-	uint32 arenaswitch = urand(1, 3);
-    
-	if (sWorld.getConfig(CONFIG_ARENA_LK_ARENAS_ENABLE) == 1)
-	    arenaswitch = urand(0, 4); // Enable Ring of Valor and Dalaran Sewers arenas - in these arenas problem with LoS
-	else
-	    arenaswitch = urand(1, 3); // Disable WoTLK Arenas (Ring of Valor, Dalaran Sewers)
-    
-        BattleGroundTypeId arenas[] = {BATTLEGROUND_RV, BATTLEGROUND_NA, BATTLEGROUND_BE, BATTLEGROUND_RL, BATTLEGROUND_DS};
-        uint32 arena_num = arenaswitch;
-        bgTypeId = arenas[arena_num];
+        if (!isAnyArenaEnabled()) // it's checked in handler but just to be sure
+           return NULL;
+        uint8 size = m_EnabledArenas.size() - 1; 
+        bgTypeId = m_EnabledArenas[urand(0,size)];
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
         {
@@ -1671,8 +1664,8 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
 
     uint32 count = 0;
 
-    //                                                0   1                 2                 3      4      5                6              7             8
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO FROM battleground_template");
+    //                                                       0   1                 2                 3      4      5                6              7             8
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO FROM battleground_template WHERE disable = 0");
 
     if (!result)
     {
@@ -1771,6 +1764,9 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         //sLog.outDetail("Creating battleground %s, %u-%u", bl->name[sWorld.GetDBClang()], MinLvl, MaxLvl);
         if (!CreateBattleGround(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3]))
             continue;
+
+        if (IsArena && bgTypeID != BATTLEGROUND_AA)
+            m_EnabledArenas.push_back(bgTypeID);
 
         ++count;
     } while (result->NextRow());

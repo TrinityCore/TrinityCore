@@ -108,7 +108,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
 
     if (!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
     {
-        sLog.outError("Battleground: no available bg / template found");
+        SendBattleGroundOrArenaJoinError(BG_JOIN_ERR_BG_DISABLED);
         return;
     }
 
@@ -615,6 +615,12 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
             return;
     }
 
+    //check if any arena enabled 
+    if (!sBattleGroundMgr.isAnyArenaEnabled())
+    {
+        SendBattleGroundOrArenaJoinError(BG_JOIN_ERR_ARENA_DISABLED);
+        return;
+    }
     //check existance
     BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(BATTLEGROUND_AA);
     if (!bg)
@@ -777,6 +783,12 @@ void WorldSession::SendBattleGroundOrArenaJoinError(uint8 err)
             break;
         case BG_JOIN_ERR_ALL_QUEUES_USED:
             msg = LANG_BG_GROUP_MEMBER_NO_FREE_QUEUE_SLOTS;
+            break;
+        case BG_JOIN_ERR_ARENA_DISABLED:
+            msg = LANG_ARENA_DISABLED;
+            break;
+        case BG_JOIN_ERR_BG_DISABLED:
+            msg = LANG_BG_DISABLED;
             break;
         case BG_JOIN_ERR_GROUP_NOT_ENOUGH:
         case BG_JOIN_ERR_MIXED_ARENATEAM:
