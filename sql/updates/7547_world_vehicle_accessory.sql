@@ -9,7 +9,7 @@ CREATE TABLE `vehicle_accessory` (
 COLLATE=utf8_general_ci
 ENGINE=MyISAM
 ROW_FORMAT=FIXED
-AVG_ROW_LENGTH=0
+AVG_ROW_LENGTH=0;
 
 INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
 (28782,28768,0,0, 'Acherus Deathcharger'),
