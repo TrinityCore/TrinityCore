@@ -68,11 +68,7 @@ enum CombatPhase
     NORMAL,
     SACRIFICING
 };
-struct Locations
-{
-    float x, y, z;
-};
-static Locations RitualChannelerLocations[]=
+static Position RitualChannelerPos[]=
 {
     {296.42, -355.01, 90.94},
     {302.36, -352.01, 90.54},
@@ -92,7 +88,7 @@ struct boss_svalaAI : public ScriptedAI
 
     IntroPhase Phase;
 
-    Creature* pArthas;
+    TempSummon* pArthas;
 
     ScriptedInstance* pInstance;
 
@@ -111,12 +107,13 @@ struct boss_svalaAI : public ScriptedAI
     {
         if (!pWho)
             return;
-        if (Phase == IDLE && pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho) && Phase == IDLE && m_creature->IsWithinDistInMap(pWho, 40))
+
+        if (Phase == IDLE && pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho) && m_creature->IsWithinDistInMap(pWho, 40))
         {
             Phase = INTRO;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+            if (pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
@@ -133,7 +130,7 @@ struct boss_svalaAI : public ScriptedAI
 
         if (uiIntroTimer <= diff)
         {
-            if(!pArthas)
+            if (!pArthas)
                 return;
 
             switch (uiIntroPhase)
@@ -174,11 +171,13 @@ struct boss_svalaAI : public ScriptedAI
                     {
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
-                        pArthas->DisappearAndDie();
+                        pArthas->UnSummon();
+                        pArthas = NULL;
                         Phase = FINISHED;
                     }
-                    else Reset();
-                    return;
+                    else 
+                        Reset();
+                    break;
             }
         } else uiIntroTimer -= diff;
     }
@@ -198,17 +197,21 @@ struct mob_ritual_channelerAI : public Scripted_NoMovementAI
         DoCast(m_creature, SPELL_SHADOWS_IN_THE_DARK);
     }
 
+    // called by svala sorrowgrave to set guid of victim
+    void SetGUID(const uint64 &guid, int32 id) 
+    {
+        if (Unit *pVictim = m_creature->GetUnit(*m_creature, guid))
+            DoCast(pVictim, SPELL_PARALYZE);
+    }
+
     void EnterCombat(Unit* who)
     {
-        if (who && !who->HasAura(SPELL_PARALYZE,0))
-            DoCast(who, SPELL_PARALYZE);
-        return;
     }
 };
 
 struct boss_svala_sorrowgraveAI : public ScriptedAI
 {
-    boss_svala_sorrowgraveAI(Creature *c) : ScriptedAI(c)
+    boss_svala_sorrowgraveAI(Creature *c) : ScriptedAI(c), summons(c)
     {
         pInstance = c->GetInstanceData();
     }
@@ -220,7 +223,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
     CombatPhase Phase;
 
-    Creature* pRitualChanneler[3];
+    SummonList summons;
     Unit* pSacrificeTarget;
     
     bool bSacrificed;
@@ -241,8 +244,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         DoTeleportTo(296.632, -346.075, 90.6307);
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
 
-        for (uint8 i = 0; i < 3; ++i)
-             pRitualChanneler[i] = NULL;
+        summons.DespawnAll();
         pSacrificeTarget = NULL;
 
         if (pInstance)
@@ -255,6 +257,16 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
         if (pInstance)
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
+    }
+
+    void JustSummoned(Creature *summon)
+    {
+        summons.Summon(summon);
+    }
+
+    void SummonedCreatureDespawn(Creature *summon)
+    {
+        summons.Despawn(summon);
     }
 
     void UpdateAI(const uint32 diff)
@@ -280,27 +292,28 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 }
             } else uiCallFlamesTimer -= diff;
 
-            if (!bSacrificed && uiRitualOfSwordTimer <= diff)
-            {
-                pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if (pSacrificeTarget)
+            if (!bSacrificed)
+                if (uiRitualOfSwordTimer <= diff)
                 {
-                    DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
-                    DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
-                    //Spell doesn't teleport
-                    DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
-                    m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
-                    DoTeleportTo(296.632, -346.075, 120.85);
-                    Phase = SACRIFICING;
+                    pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                    if (pSacrificeTarget)
+                    {
+                        DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
+                        DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
+                        //Spell doesn't teleport
+                        DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
+                        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
+                        DoTeleportTo(296.632, -346.075, 120.85);
+                        Phase = SACRIFICING;
 
-                    for (uint8 i = 0; i < 3; ++i)
-                        if (pRitualChanneler[i] = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerLocations[i].x, RitualChannelerLocations[i].y, RitualChannelerLocations[i].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                            if (mob_ritual_channelerAI *pChannelerAI = CAST_AI(mob_ritual_channelerAI,pRitualChanneler[i]->AI()))
-                                pChannelerAI->AttackStartNoMove(pSacrificeTarget);
+                        for (uint8 i = 0; i < 3; ++i)
+                            if (Creature* pRitualChanneler = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                                if (pRitualChanneler->AI())
+                                    pRitualChanneler->AI()->SetGUID(pSacrificeTarget->GetGUID());
 
-                    bSacrificed = true;
-                }
-            } else uiRitualOfSwordTimer -= diff;
+                        bSacrificed = true;
+                    }
+                } else uiRitualOfSwordTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -308,16 +321,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         {
             if (uiSacrificeTimer <= diff)
             {
-                bool bSacrificed = false;
-                for (uint8 i = 0; i < 3; ++i)
-                {
-                    if (pRitualChanneler[i] && pRitualChanneler[i]->isAlive())
-                    {
-                        bSacrificed = true;
-                        break;
-                    }
-                }
-                if (bSacrificed && pSacrificeTarget && pSacrificeTarget->isAlive())
+                if (!summons.empty() && pSacrificeTarget && pSacrificeTarget->isAlive())
                     m_creature->Kill(pSacrificeTarget, false); // durability damage?
 
                 //go down
@@ -346,7 +350,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
             if (pSvala && pSvala->isAlive())
                 pKiller->Kill(pSvala);
 
-            pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, DONE);
         }
         DoScriptText(SAY_DEATH, m_creature);
     }
