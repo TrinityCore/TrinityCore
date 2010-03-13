@@ -6005,7 +6005,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
         // Soul Shard only from non-grey units
         if( GetSpellProto()->EffectItemType[m_effIndex] == 6265 &&
             (target->getLevel() <= Trinity::XP::GetGrayLevel(caster->getLevel()) ||
-             target->GetTypeId() == TYPEID_UNIT && !caster->ToPlayer()->isAllowedToLoot(target->ToCreature())) )
+             target->GetTypeId() == TYPEID_UNIT && !target->ToCreature()->isTappedBy(caster->ToPlayer())) )
             return;
         //Adding items
         uint32 noSpaceForCount = 0;
