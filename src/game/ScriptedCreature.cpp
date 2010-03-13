@@ -191,6 +191,9 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition)
         advance (ritr , uiPosition);
         return Unit::GetUnit((*m_creature),(*ritr)->getUnitGuid());
         break;
+
+    default:
+        return UnitAI::SelectTarget(pTarget, uiPosition);
     }
 
     return NULL;
