@@ -2273,7 +2273,7 @@ class Player : public Unit, public GridObject<Player>
         void SetMap(Map * map);
         void ResetMap();
 
-        bool isAllowedToLoot(Creature* creature);
+        bool isAllowedToLoot(const Creature* creature);
 
         DeclinedName const* GetDeclinedNames() const { return m_declinedname; }
         uint8 GetRunesState() const { return m_runes->runeState; }

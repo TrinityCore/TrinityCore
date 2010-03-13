@@ -528,7 +528,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
         {
             if( updateMask->GetBit( index ) )
             {
-                if( index == UNIT_NPC_FLAGS )
+                if (index == UNIT_NPC_FLAGS)
                 {
                     // remove custom flag before sending
                     uint32 appendValue = m_uint32Values[ index ] & ~(UNIT_NPC_FLAG_GUARD + UNIT_NPC_FLAG_OUTDOORPVP);
@@ -553,7 +553,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                     *data << ((Unit*)this)->BuildAuraStateUpdateForTarget(target);
                 }
                 // FIXME: Some values at server stored in float format but must be sent to client in uint32 format
-                else if(index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
+                else if (index >= UNIT_FIELD_BASEATTACKTIME && index <= UNIT_FIELD_RANGEDATTACKTIME)
                 {
                     // convert from float to uint32 and send
                     *data << uint32(m_floatValues[ index ] < 0 ? 0 : m_floatValues[ index ]);
@@ -604,17 +604,35 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                         *data << m_uint32Values[ index ];
                 }
                 // hide lootable animation for unallowed players
-                else if(index == UNIT_DYNAMIC_FLAGS)
+                else if (index == UNIT_DYNAMIC_FLAGS)
                 {
-                    if(GetTypeId() == TYPEID_UNIT)
+                    uint32 dynamicFlags = m_uint32Values[index];
+
+                    if (const Creature* creature = ToCreature())
                     {
-		      if(!target->isAllowedToLoot(const_cast<Creature*>(this->ToCreature())))
-                            *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_LOOTABLE);
+                        if (creature->hasLootRecipient())
+                        {
+                            if (creature->isTappedBy(target))
+                            {
+                                dynamicFlags |= (UNIT_DYNFLAG_TAPPED|UNIT_DYNFLAG_TAPPED_BY_PLAYER);
+                            }
+                            else
+                            {
+                                dynamicFlags |= UNIT_DYNFLAG_TAPPED;
+                                dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
+                            }
+                        }
                         else
-                            *data << (m_uint32Values[ index ] & ~UNIT_DYNFLAG_TAPPED);
+                        {
+                            dynamicFlags &= ~UNIT_DYNFLAG_TAPPED;
+                            dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
+                        }
+
+                        if (!target->isAllowedToLoot(ToCreature()))
+                            dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
                     }
-                    else
-                        *data << m_uint32Values[ index ];
+
+                    *data << dynamicFlags;
                 }
                 // FG: pretend that OTHER players in own group are friendly ("blue")
                 else if(index == UNIT_FIELD_BYTES_2 || index == UNIT_FIELD_FACTIONTEMPLATE)
@@ -2246,15 +2264,13 @@ void WorldObject::DestroyForNearbyPlayers()
     if(!IsInWorld())
         return;
 
-    std::list<Unit*> targets;
-    Trinity::AnyUnitInObjectRangeCheck check(this, GetMap()->GetVisibilityDistance());
-    Trinity::UnitListSearcher<Trinity::AnyUnitInObjectRangeCheck> searcher(this, targets, check);
+    std::list<Player*> targets;
+    Trinity::AnyPlayerInObjectRangeCheck check(this, GetMap()->GetVisibilityDistance());
+    Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, targets, check);
     VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), searcher);
-    for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
+    for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
-        Player *plr = dynamic_cast<Player*>(*iter);
-        if(!plr)
-            continue;
+        Player *plr = (*iter);
 
         if(plr == this)
             continue;

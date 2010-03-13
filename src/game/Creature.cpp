@@ -973,8 +973,7 @@ void Creature::SetLootRecipient(Unit *unit)
     if (!unit)
     {
         m_lootRecipient = 0;
-        RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-        RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
+        RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE|UNIT_DYNFLAG_TAPPED);
         return;
     }
 
@@ -984,6 +983,27 @@ void Creature::SetLootRecipient(Unit *unit)
 
     m_lootRecipient = player->GetGUID();
     SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_TAPPED);
+}
+
+// return true if this creature is tapped by the player or by a member of his group.
+bool Creature::isTappedBy(Player *player) const
+{
+    if (player->GetGUID() == m_lootRecipient)
+        return true;
+
+    Player* recipient = GetLootRecipient();
+    if (!recipient)
+        return false; // recipient exist but is offline. can't check any further.
+
+    Group* recipientGroup = recipient->GetGroup();
+    if (!recipientGroup)
+        return (player == recipient);
+
+    Group* playerGroup = player->GetGroup();
+    if (!playerGroup || playerGroup != recipientGroup)
+        return false;
+
+    return true;
 }
 
 void Creature::SaveToDB()

@@ -528,7 +528,8 @@ class Creature : public Unit, public GridObject<Creature>
         bool lootForPickPocketed;
         bool lootForBody;
         Player *GetLootRecipient() const;
-        bool hasLootRecipient() const { return m_lootRecipient!=0; }
+        bool hasLootRecipient() const { return m_lootRecipient != 0; }  
+        bool isTappedBy(Player *player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit);
         void AllLootRemovedFromCorpse();
@@ -636,7 +637,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() { return DisableReputationGain; }
-        bool IsDamageEnoughForLootingAndReward() { return m_PlayerDamageReq == 0; }
+        bool IsDamageEnoughForLootingAndReward() const { return m_PlayerDamageReq == 0; } 
         void LowerPlayerDamageReq(uint32 unDamage)
         {
             if(m_PlayerDamageReq)
