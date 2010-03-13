@@ -14893,7 +14893,10 @@ UNLOCK TABLES;
 --
 -- Table structure for table `vehicle_accessory`
 --
+
 DROP TABLE IF EXISTS `vehicle_accessory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vehicle_accessory` (
         `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
         `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
@@ -14906,9 +14909,14 @@ COLLATE=utf8_general_ci
 ENGINE=MyISAM
 ROW_FORMAT=FIXED
 AVG_ROW_LENGTH=0;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `version`
+--
 
 LOCK TABLES `vehicle_accessory` WRITE;
+/*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
 INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
 (28782,28768,0,0, 'Acherus Deathcharger'),
 (28312,28319,7,1, 'Wintergrasp Siege Engine'),
@@ -14935,6 +14943,7 @@ INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`d
 (35640,35571,0,0, 'Runok Wildmane''s Mount'),
 (35641,35570,0,0, 'Zul''tore''s Mount'),
 (35634,35617,0,0, 'Deathstalker Visceri''s Mount');
+/*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
 UNLOCK TABLES;
 --
 -- Table structure for table `version`

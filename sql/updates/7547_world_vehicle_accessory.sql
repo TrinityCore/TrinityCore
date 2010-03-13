@@ -1,3 +1,4 @@
+DROP TABLE `vehicle_accessory`;
 CREATE TABLE `vehicle_accessory` (
         `entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
         `accessory_entry` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
