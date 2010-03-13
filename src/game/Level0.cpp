@@ -165,9 +165,9 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
 {
     bool first = true;
 
-    HashMapHolder<Player>::MapType &m = HashMapHolder<Player>::GetContainer();
-    HashMapHolder<Player>::MapType::const_iterator itr = m.begin();
-    for (; itr != m.end(); ++itr)
+    ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
+    HashMapHolder<Player>::MapType &m = ObjectAccessor::Instance().GetPlayers();
+    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         AccountTypes itr_sec = itr->second->GetSession()->GetSecurity();
         if ((itr->second->isGameMaster() || (itr_sec > SEC_PLAYER && itr_sec <= sWorld.getConfig(CONFIG_GM_LEVEL_IN_GM_LIST))) &&
