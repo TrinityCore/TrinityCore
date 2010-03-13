@@ -610,7 +610,6 @@ class CreatureEventAI : public CreatureAI
         inline uint32 GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3);
         inline int32 GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3);
         inline Unit* GetTargetByType(uint32 Target, Unit* pActionInvoker);
-        inline Unit* SelectUnit(AttackingTarget target, uint32 position);
 
         void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target);
         bool CanCast(Unit* Target, SpellEntry const *Spell, bool Triggered);

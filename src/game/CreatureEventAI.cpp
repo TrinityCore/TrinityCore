@@ -1121,37 +1121,6 @@ void CreatureEventAI::UpdateAI(const uint32 diff)
         DoMeleeAttackIfReady();
 }
 
-inline Unit* CreatureEventAI::SelectUnit(AttackingTarget target, uint32 position)
-{
-    //ThreatList m_threatlist;
-    std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-    std::list<HostileReference*>::iterator i = m_threatlist.begin();
-    std::list<HostileReference*>::reverse_iterator r = m_threatlist.rbegin();
-
-    if (position >= m_threatlist.size() || !m_threatlist.size())
-        return NULL;
-
-    switch (target)
-    {
-        case ATTACKING_TARGET_RANDOM:
-        {
-            advance ( i , position +  (rand() % (m_threatlist.size() - position ) ));
-            return Unit::GetUnit(*m_creature,(*i)->getUnitGuid());
-        }
-        case ATTACKING_TARGET_TOPAGGRO:
-        {
-            advance ( i , position);
-            return Unit::GetUnit(*m_creature,(*i)->getUnitGuid());
-        }
-        case ATTACKING_TARGET_BOTTOMAGGRO:
-        {
-            advance ( r , position);
-            return Unit::GetUnit(*m_creature,(*r)->getUnitGuid());
-        }
-    }
-    return NULL;
-}
-
 inline uint32 CreatureEventAI::GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3)
 {
     switch (rnd % 3)
@@ -1183,13 +1152,13 @@ inline Unit* CreatureEventAI::GetTargetByType(uint32 Target, Unit* pActionInvoke
         case TARGET_T_HOSTILE:
             return m_creature->getVictim();
         case TARGET_T_HOSTILE_SECOND_AGGRO:
-            return SelectUnit(ATTACKING_TARGET_TOPAGGRO,1);
+            return SelectTarget(SELECT_TARGET_TOPAGGRO,1);
         case TARGET_T_HOSTILE_LAST_AGGRO:
-            return SelectUnit(ATTACKING_TARGET_BOTTOMAGGRO,0);
+            return SelectTarget(SELECT_TARGET_BOTTOMAGGRO,0);
         case TARGET_T_HOSTILE_RANDOM:
-            return SelectUnit(ATTACKING_TARGET_RANDOM,0);
+            return SelectTarget(SELECT_TARGET_RANDOM,0);
         case TARGET_T_HOSTILE_RANDOM_NOT_TOP:
-            return SelectUnit(ATTACKING_TARGET_RANDOM,1);
+            return SelectTarget(SELECT_TARGET_RANDOM,1);
         case TARGET_T_ACTION_INVOKER:
             return pActionInvoker;
         default:
