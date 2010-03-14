@@ -313,9 +313,12 @@ enum ConditionType
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id
     CONDITION_INSTANCE_DATA         = 13,                   // entry        data
     CONDITION_QUEST_NONE            = 14,                   // quest_id     0
+    CONDITION_CLASS                 = 15,                   // class        0
+    CONDITION_RACE                  = 16,                   // race         0
+    CONDITION_ACHIEVEMENT           = 17                    // achievement_id 0
 };
 
-#define MAX_CONDITION                 15                    // maximum value in ConditionType enum
+#define MAX_CONDITION                 18                    // maximum value in ConditionType enum
 
 struct PlayerCondition
 {
