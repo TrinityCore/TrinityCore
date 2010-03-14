@@ -1830,9 +1830,10 @@ void Spell::EffectDummy(uint32 i)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
                         return;
 
-                    if (Pet *PlrPet = m_caster->ToPlayer()->GetPet())
-                        PlrPet->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(i), true);
-                        return;
+                    if (Pet *pPet = m_caster->ToPlayer()->GetPet())
+                        if (pPet->isAlive())
+                            pPet->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(i), true);
+                    return;
                 }
             }
             break;
