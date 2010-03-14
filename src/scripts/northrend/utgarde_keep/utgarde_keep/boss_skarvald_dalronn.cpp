@@ -341,14 +341,14 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
-                ShadowBolt_Timer = 1000;
+                ShadowBolt_Timer = 2100;//give a 100ms pause to try cast other spells
             }
         } else ShadowBolt_Timer -= diff;
 
         if (Debilitate_Timer <= diff)
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
-             {
+            {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
                 Debilitate_Timer = 5000+rand()%5000;
             }
@@ -357,8 +357,11 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         if (IsHeroic())
             if (Summon_Timer <= diff)
             {
-                DoCast(m_creature, H_SPELL_SUMMON_SKELETONS);
-                Summon_Timer = (rand()%10000) + 20000;
+                if (!m_creature->IsNonMeleeSpellCasted(false))
+                {
+                    DoCast(m_creature, H_SPELL_SUMMON_SKELETONS);
+                    Summon_Timer = (rand()%10000) + 20000;
+                }
             } else Summon_Timer -= diff;
 
         DoMeleeAttackIfReady();
