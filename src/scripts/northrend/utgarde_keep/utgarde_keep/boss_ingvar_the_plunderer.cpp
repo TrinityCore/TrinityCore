@@ -335,6 +335,7 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
                 Resurect_Phase = 1;
                 break;
             case 2:
+                m_creature->SetVisibility(VISIBILITY_OFF);
                 m_creature->DealDamage(m_creature,m_creature->GetHealth());
                 m_creature->RemoveCorpse();
                 break;
