@@ -7727,8 +7727,8 @@ bool PlayerCondition::Meets(Player const * player) const
         }
         case CONDITION_ACHIEVEMENT:
         {
-           AchievementEntry const* achievement = GetAchievementStore()->LookupEntry(value1);
-            return player->GetAchievementMgr().IsCompletedAchievement(value1);
+            AchievementEntry const* achievement = GetAchievementStore()->LookupEntry(value1);
+            return (achievement,1);
         }
         case CONDITION_TEAM:
             return player->GetTeam() == value1;
