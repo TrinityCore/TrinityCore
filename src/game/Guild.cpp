@@ -1497,7 +1497,7 @@ void Guild::LoadGuildBankEventLogFromDB()
 
 void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
 {
-    if (TabId >= GUILD_BANK_MAX_TABS)                   // tabs starts in 0
+    if (TabId > GUILD_BANK_MAX_TABS)                   // tabs starts in 0
         return;
 
     if (TabId == GUILD_BANK_MAX_TABS)
@@ -1510,21 +1510,7 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
         {
             data << uint8(itr->EventType);
             data << uint64(MAKE_NEW_GUID(itr->PlayerGuid,0,HIGHGUID_PLAYER));
-            if (itr->EventType == GUILD_BANK_LOG_DEPOSIT_MONEY ||
-                itr->EventType == GUILD_BANK_LOG_WITHDRAW_MONEY ||
-                itr->EventType == GUILD_BANK_LOG_REPAIR_MONEY ||
-                itr->EventType == GUILD_BANK_LOG_UNK1 ||
-                itr->EventType == GUILD_BANK_LOG_UNK2)
-            {
-                data << uint32(itr->ItemOrMoney);
-            }
-            else
-            {
-                data << uint32(itr->ItemOrMoney);
-                data << uint32(itr->ItemStackCount);
-                if (itr->EventType == GUILD_BANK_LOG_MOVE_ITEM || itr->EventType == GUILD_BANK_LOG_MOVE_ITEM2)
-                    data << uint8(itr->DestTabId);          // moved tab
-            }
+            data << uint32(itr->ItemOrMoney);
             data << uint32(time(NULL) - itr->TimeStamp);
         }
         session->SendPacket(&data);
@@ -1534,27 +1520,15 @@ void Guild::DisplayGuildBankLogs(WorldSession *session, uint8 TabId)
         // here we display current tab logs
         WorldPacket data(MSG_GUILD_BANK_LOG_QUERY, m_GuildBankEventLog_Item[TabId].size()*(4*4+1+1)+1+1);
         data << uint8(TabId);                               // Here a real Tab Id
-                                                            // number of log entries
-        data << uint8(m_GuildBankEventLog_Item[TabId].size());
+        data << uint8(m_GuildBankEventLog_Item[TabId].size()); // number of log entries
         for (GuildBankEventLog::const_iterator itr = m_GuildBankEventLog_Item[TabId].begin(); itr != m_GuildBankEventLog_Item[TabId].end(); ++itr)
         {
             data << uint8(itr->EventType);
             data << uint64(MAKE_NEW_GUID(itr->PlayerGuid,0,HIGHGUID_PLAYER));
-            if (itr->EventType == GUILD_BANK_LOG_DEPOSIT_MONEY ||
-                itr->EventType == GUILD_BANK_LOG_WITHDRAW_MONEY ||
-                itr->EventType == GUILD_BANK_LOG_REPAIR_MONEY ||
-                itr->EventType == GUILD_BANK_LOG_UNK1 ||
-                itr->EventType == GUILD_BANK_LOG_UNK2)
-            {
-                data << uint32(itr->ItemOrMoney);
-            }
-            else
-            {
-                data << uint32(itr->ItemOrMoney);
-                data << uint32(itr->ItemStackCount);
-                if (itr->EventType == GUILD_BANK_LOG_MOVE_ITEM || itr->EventType == GUILD_BANK_LOG_MOVE_ITEM2)
-                    data << uint8(itr->DestTabId);          // moved tab
-            }
+            data << uint32(itr->ItemOrMoney);
+            data << uint32(itr->ItemStackCount);
+            if (itr->EventType == GUILD_BANK_LOG_MOVE_ITEM || itr->EventType == GUILD_BANK_LOG_MOVE_ITEM2)
+                data << uint8(itr->DestTabId);          // moved tab
             data << uint32(time(NULL) - itr->TimeStamp);
         }
         session->SendPacket(&data);
