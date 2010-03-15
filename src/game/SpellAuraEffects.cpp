@@ -5988,13 +5988,12 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
     {
         Unit * caster = GetCaster();
 
-        if(!caster || caster->GetTypeId() != TYPEID_PLAYER)// || m_removeMode!=AURA_REMOVE_BY_DEATH)
+        if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        //we cannot check removemode = death
-        //talent will remove the caster's aura->interrupt channel->remove victim aura
-        if(target->GetHealth() > 0)
+        if(target->getDeathState() != JUST_DIED)
             return;
+
         // Item amount
         if (GetAmount() <= 0)
             return;
@@ -6002,11 +6001,12 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
         if(GetSpellProto()->EffectItemType[m_effIndex] == 0)
             return;
 
-        // Soul Shard only from non-grey units
+        // Soul Shard only from units that grant XP or honor
         if( GetSpellProto()->EffectItemType[m_effIndex] == 6265 &&
-            (target->getLevel() <= Trinity::XP::GetGrayLevel(caster->getLevel()) ||
+            (!caster->ToPlayer()->isHonorOrXPTarget(target) ||
              target->GetTypeId() == TYPEID_UNIT && !target->ToCreature()->isTappedBy(caster->ToPlayer())) )
             return;
+
         //Adding items
         uint32 noSpaceForCount = 0;
         uint32 count = m_amount;
