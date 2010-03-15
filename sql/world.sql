@@ -14917,7 +14917,7 @@ AVG_ROW_LENGTH=0;
 --
 
 LOCK TABLES `vehicle_accessory` WRITE;
-/*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
+/*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
 INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
 (28782,28768,0,0, 'Acherus Deathcharger'),
 (28312,28319,7,1, 'Wintergrasp Siege Engine'),
