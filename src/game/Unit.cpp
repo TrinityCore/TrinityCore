@@ -4532,10 +4532,6 @@ bool Unit::HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) const
 
 bool Unit::HasAura(uint32 spellId, uint64 caster, uint8 reqEffMask) const
 {
-    //Special case for non existing spell
-    if (spellId==61988)
-        return HasAura(61987, caster, reqEffMask) || HasAura(25771, caster, reqEffMask);
-
     if (GetAuraApplication(spellId, caster, reqEffMask))
         return true;
     return false;
