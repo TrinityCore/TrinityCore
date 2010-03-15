@@ -1419,6 +1419,12 @@ void Spell::DoTriggersOnSpellHit(Unit *unit)
             // Cast Avenging Wrath Marker
             m_caster->CastSpell(unit,61987, true, m_CastItem);
         }
+        // Avenging Wrath Marker
+        else if (m_preCastSpell==61987)
+        {
+            // Cast unknown spell (client will use to determine if Divine Shield is castable)
+            m_caster->CastSpell(unit,61988, true, m_CastItem);
+        }
         else if (sSpellStore.LookupEntry(m_preCastSpell))
             m_caster->CastSpell(unit,m_preCastSpell, true, m_CastItem);
     }
@@ -4511,6 +4517,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                     else
                         return SPELL_FAILED_BAD_TARGETS;
                 }
+                // Lay on Hands - cannot be casted on paladin after using Avenging Wrath
+                if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN 
+                    && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
+                    if (target->HasAura(61988)) // Avenging Wrath Marker (Not existing spell)
+                        return SPELL_FAILED_TARGET_AURASTATE;
             }
         }
 
