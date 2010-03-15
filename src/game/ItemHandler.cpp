@@ -746,7 +746,13 @@ void WorldSession::SendListInventory( uint64 vendorguid )
             {
                 if((pProto->AllowableClass & _player->getClassMask()) == 0 && pProto->Bonding == BIND_WHEN_PICKED_UP && !_player->isGameMaster())
                     continue;
-
+                // Only display items in vendor lists for the team the
+                // player is on. If GM on, display all items.
+                // `item_template`.`Faction` is actually `Team`.
+                // 1 == Horde / 2 == Alliance. Field will be renamed in later
+                // patch.
+                if (pProto->Faction == 1 && _player->GetTeam() == ALLIANCE || pProto->Faction == 2 && _player->GetTeam() == HORDE && !_player->isGameMaster())
+                    continue;
                 ++count;
 
                 // reputation discount
