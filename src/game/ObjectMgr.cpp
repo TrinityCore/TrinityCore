@@ -47,6 +47,7 @@
 #include "InstanceData.h" //for condition_instance_data
 #include "GossipDef.h"
 #include "Vehicle.h"
+#include "AchievementMgr.h"
 
 INSTANTIATE_SINGLETON_1(ObjectMgr);
 
@@ -7728,7 +7729,7 @@ bool PlayerCondition::Meets(Player const * player) const
         case CONDITION_ACHIEVEMENT:
         {
             AchievementEntry const* achievement = GetAchievementStore()->LookupEntry(value1);
-            return (achievement,1);
+            return player->GetAchievementMgr().HasAchieved(achievement);
         }
         case CONDITION_TEAM:
             return player->GetTeam() == value1;

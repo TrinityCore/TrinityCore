@@ -1596,7 +1596,7 @@ void AchievementMgr::CompletedCriteriaFor(AchievementEntry const* achievement)
         return;
 
     // already completed and stored
-    if (m_completedAchievements.find(achievement->ID)!=m_completedAchievements.end())
+    if (HasAchieved(achievement))
         return;
 
     if (IsCompletedAchievement(achievement))
@@ -1735,7 +1735,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
     if(!sWorld.getConfig(CONFIG_GM_ALLOW_ACHIEVEMENT_GAINS) && m_player->GetSession()->GetSecurity() > SEC_PLAYER)
         return;
 
-    if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER || m_completedAchievements.find(achievement->ID)!=m_completedAchievements.end())
+    if(achievement->flags & ACHIEVEMENT_FLAG_COUNTER || HasAchieved(achievement))
         return;
 
     SendAchievementEarned(achievement);
@@ -1892,6 +1892,11 @@ void AchievementMgr::BuildAllDataPacket(WorldPacket *data)
     }
 
     *data << int32(-1);
+}
+
+bool AchievementMgr::HasAchieved(AchievementEntry const* achievement) const
+{
+    return m_completedAchievements.find(achievement->ID) != m_completedAchievements.end();
 }
 
 //==========================================================
