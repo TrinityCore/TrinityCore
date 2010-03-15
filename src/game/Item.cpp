@@ -625,12 +625,14 @@ void Item::SetState(ItemUpdateState state, Player *forplayer)
         delete this;
         return;
     }
-
     if (state != ITEM_UNCHANGED)
     {
         // new items must stay in new state until saved
-        if (uState != ITEM_NEW) uState = state;
-        AddToUpdateQueueOf(forplayer);
+        if (uState != ITEM_NEW)
+            uState = state;
+        
+        if (forplayer)
+            AddToUpdateQueueOf(forplayer);
     }
     else
     {

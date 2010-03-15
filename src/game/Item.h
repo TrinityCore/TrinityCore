@@ -250,8 +250,8 @@ class Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
-	bool HasEnchantRequiredSkill(const Player *pPlayer) const;
-	uint32 GetEnchantRequiredLevel() const;
+        bool HasEnchantRequiredSkill(const Player *pPlayer) const;
+        uint32 GetEnchantRequiredLevel() const;
 
         bool IsFitToSpellRequirements(SpellEntry const* spellInfo) const;
         bool IsTargetValidForItemUse(Unit* pUnitTarget);
