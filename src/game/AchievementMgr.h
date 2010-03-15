@@ -240,6 +240,7 @@ class AchievementMgr
         void CheckAllAchievementCriteria();
         void SendAllAchievementData();
         void SendRespondInspectAchievements(Player* player);
+        bool HasAchieved(AchievementEntry const* achievement) const;
         Player* GetPlayer() { return m_player;}
 
     private:

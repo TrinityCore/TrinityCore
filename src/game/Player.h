@@ -2297,6 +2297,7 @@ class Player : public Unit, public GridObject<Player>
         void InitRunes();
 
         AchievementMgr& GetAchievementMgr() { return m_achievementMgr; }
+        AchievementMgr const& GetAchievementMgr() const { return m_achievementMgr; }
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0, Unit *unit = NULL, uint32 time = 0);
         void CompletedAchievement(AchievementEntry const* entry);
 
@@ -2314,7 +2315,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 GetChampioningFaction() const { return m_ChampioningFaction; }
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
-Spell * m_spellModTakingSpell;
+        Spell * m_spellModTakingSpell;
 
     protected:
         uint32 m_AreaID;
