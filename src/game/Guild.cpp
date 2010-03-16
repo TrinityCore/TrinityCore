@@ -2208,7 +2208,7 @@ void Guild::MoveFromCharToBank( Player * pl, uint8 PlayerBag, uint8 PlayerSlot, 
 
         pl->ItemRemovedQuestCheck( pItemChar->GetEntry(), SplitedAmount );
         pItemChar->SetCount(pItemChar->GetCount()-SplitedAmount);
-        pItemChar->SetState(ITEM_CHANGED);
+        pItemChar->SetState(ITEM_CHANGED, pl);
         pl->SaveInventoryAndGoldToDB();
         StoreItem(BankTab, dest, pNewItem);
         CharacterDatabase.CommitTransaction();
