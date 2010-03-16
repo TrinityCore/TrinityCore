@@ -352,11 +352,11 @@ struct boss_warrior_toc5AI : public ScriptedAI
         {
             bDone = true;
 
-            if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+            if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
                 m_creature->SetHomePosition(739.678,662.541,412.393,4.49);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
                 m_creature->SetHomePosition(746.71,661.02,411.69,4.6);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
                 m_creature->SetHomePosition(754.34,660.70,412.39,4.79);
 
             EnterEvadeMode();
@@ -480,11 +480,11 @@ struct boss_mage_toc5AI : public ScriptedAI
         {
             bDone = true;
 
-            if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+            if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
                 m_creature->SetHomePosition(739.678,662.541,412.393,4.49);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
                 m_creature->SetHomePosition(746.71,661.02,411.69,4.6);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
                 m_creature->SetHomePosition(754.34,660.70,412.39,4.79);
 
             if (pInstance)
@@ -620,11 +620,11 @@ struct boss_shaman_toc5AI : public ScriptedAI
         {
             bDone = true;
 
-            if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+            if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
                 m_creature->SetHomePosition(739.678,662.541,412.393,4.49);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
                 m_creature->SetHomePosition(746.71,661.02,411.69,4.6);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
                 m_creature->SetHomePosition(754.34,660.70,412.39,4.79);
 
             if (pInstance)
@@ -760,11 +760,11 @@ struct boss_hunter_toc5AI : public ScriptedAI
         {
             bDone = true;
 
-            if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+            if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
                 m_creature->SetHomePosition(739.678,662.541,412.393,4.49);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
                 m_creature->SetHomePosition(746.71,661.02,411.69,4.6);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
                 m_creature->SetHomePosition(754.34,660.70,412.39,4.79);
 
             if (pInstance)
@@ -901,11 +901,11 @@ struct boss_rouge_toc5AI : public ScriptedAI
         {
             bDone = true;
 
-            if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+            if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
                 m_creature->SetHomePosition(739.678,662.541,412.393,4.49);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
                 m_creature->SetHomePosition(746.71,661.02,411.69,4.6);
-            else if (m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+            else if (pInstance && m_creature->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
                 m_creature->SetHomePosition(754.34,660.70,412.39,4.79);
 
             if (pInstance)
