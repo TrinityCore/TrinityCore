@@ -2266,6 +2266,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
     }
 
     uint32 triggered_spell_id = m_spellInfo->EffectTriggerSpell[effIndex];
+    Unit* originalCaster = NULL;
 
     // special cases
     switch(triggered_spell_id)
@@ -2398,6 +2399,10 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
         // Empower Rune Weapon
         case 53258:
             return; // skip, hack-added in spell effect
+        // Snake Trap
+        case 57879:
+            originalCaster = m_originalCaster;
+            break;
     }
 
     // normal case
@@ -2418,7 +2423,7 @@ void Spell::EffectTriggerSpell(uint32 effIndex)
     // so this just for speedup places in else
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
 
-    caster->CastSpell(unitTarget,spellInfo,true);
+    caster->CastSpell(unitTarget,spellInfo,true, 0, 0, (originalCaster ? originalCaster->GetGUID() : 0));
 }
 
 void Spell::EffectTriggerMissileSpell(uint32 effect_idx)
