@@ -25,13 +25,13 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                        = -1603000,
-    SAY_SLAY_1                                       = -1603001,
-    SAY_SLAY_2                                       = -1603002,
-    SAY_SLAY_3                                       = -1603003,
-    SAY_SLAY_4                                       = -1603004,
-    SAY_DEATH                                        = -1603005,
-    SAY_STUN                                         = -1603006
+    SAY_AGGRO                                        = -1599000,
+    SAY_SLAY_1                                       = -1599001,
+    SAY_SLAY_2                                       = -1599002,
+    SAY_SLAY_3                                       = -1599003,
+    SAY_SLAY_4                                       = -1599004,
+    SAY_DEATH                                        = -1599005,
+    SAY_STUN                                         = -1599006
 };
 
 enum Achievements
