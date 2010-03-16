@@ -40,8 +40,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "genrevision", "VC90\genrevi
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE_Wrappers", "VC90\ACE_vc9.vcproj", "{BD537C9A-FECA-1BAD-6757-8A6348EA12C8}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BTSC", "BTSC\BTSC.vcproj", "{CDD5021C-2801-432C-B266-986D7EBF851D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -130,12 +128,6 @@ Global
 		{BD537C9A-FECA-1BAD-6757-8A6348EA12C8}.Release|Win32.Build.0 = Release|Win32
 		{BD537C9A-FECA-1BAD-6757-8A6348EA12C8}.Release|x64.ActiveCfg = Release|x64
 		{BD537C9A-FECA-1BAD-6757-8A6348EA12C8}.Release|x64.Build.0 = Release|x64
-		{CDD5021C-2801-432C-B266-986D7EBF851D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CDD5021C-2801-432C-B266-986D7EBF851D}.Debug|Win32.Build.0 = Debug|Win32
-		{CDD5021C-2801-432C-B266-986D7EBF851D}.Debug|x64.ActiveCfg = Debug|Win32
-		{CDD5021C-2801-432C-B266-986D7EBF851D}.Release|Win32.ActiveCfg = Release|Win32
-		{CDD5021C-2801-432C-B266-986D7EBF851D}.Release|Win32.Build.0 = Release|Win32
-		{CDD5021C-2801-432C-B266-986D7EBF851D}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
