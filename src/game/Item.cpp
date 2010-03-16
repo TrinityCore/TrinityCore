@@ -582,7 +582,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
             if (GetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID) != int32(item_rand->ID))
             {
                 SetInt32Value(ITEM_FIELD_RANDOM_PROPERTIES_ID,item_rand->ID);
-                SetState(ITEM_CHANGED);
+                SetState(ITEM_CHANGED, GetOwner());
             }
             for (uint32 i = PROP_ENCHANTMENT_SLOT_2; i < PROP_ENCHANTMENT_SLOT_2 + 3; ++i)
                 SetEnchantment(EnchantmentSlot(i),item_rand->enchant_id[i - PROP_ENCHANTMENT_SLOT_2],0,0);
