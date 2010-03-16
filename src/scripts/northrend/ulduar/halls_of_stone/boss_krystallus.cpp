@@ -26,10 +26,10 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                   = -1603007,
-    SAY_KILL                                    = -1603008,
-    SAY_DEATH                                   = -1603009,
-    SAY_SHATTER                                 = -1603010
+    SAY_AGGRO                                   = -1599007,
+    SAY_KILL                                    = -1599008,
+    SAY_DEATH                                   = -1599009,
+    SAY_SHATTER                                 = -1599010
 };
 
 struct boss_krystallusAI : public ScriptedAI

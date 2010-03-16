@@ -29,11 +29,11 @@ enum Spells
 
 enum Yells
 {
-    SAY_AGGRO                                              = -1603011,
-    SAY_SLAY_1                                             = -1603012,
-    SAY_SLAY_2                                             = -1603013,
-    SAY_SLAY_3                                             = -1603014,
-    SAY_DEATH                                              = -1603015
+    SAY_AGGRO                                              = -1599011,
+    SAY_SLAY_1                                             = -1599012,
+    SAY_SLAY_2                                             = -1599013,
+    SAY_SLAY_3                                             = -1599014,
+    SAY_DEATH                                              = -1599015
 };
 
 #define EMOTE_GENERIC_FRENZY                               -1000002
