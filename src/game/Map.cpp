@@ -3064,7 +3064,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                source->ToCreature()->HandleEmoteCommand(step.script->datalong);
+                if (step.script->datalong2)
+                    ((Creature *)source)->SetUInt32Value(UNIT_NPC_EMOTESTATE, step.script->datalong);
+                else
+                    ((Creature *)source)->HandleEmoteCommand(step.script->datalong);
                 break;
             case SCRIPT_COMMAND_FIELD_SET:
                 if(!source)
