@@ -734,6 +734,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_arete' WHERE `entry`=29344;
 UPDATE `creature_template` SET `ScriptName`='npc_dame_evniki_kapsalis' WHERE `entry`=34885;
 UPDATE `creature_template` SET `ScriptName`='npc_squire_david' WHERE `entry`=33447;
 UPDATE `creature_template` SET `ScriptName`='npc_argent_valiant' WHERE `entry`=33448;
+UPDATE `creature_template` SET `ScriptName`='npc_argent_tournament_post' WHERE `entry`=35473;
 
 /* IRONFORGE */
 UPDATE `creature_template` SET `ScriptName`='npc_royal_historian_archesonus' WHERE `entry`=8879;
