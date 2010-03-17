@@ -992,6 +992,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(m_owner->GetArmor()) * 0.35f);  //  Bonus Armor (35% of player armor)
                     SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE,float(m_owner->GetStat(STAT_STAMINA)) * 0.3f);  //  Bonus Stamina (30% of player stamina)
+                    if(!HasAura(58877))//prevent apply twice for the 2 wolves
+                        AddAura(58877, this);//Spirit Hunt, passive, Spirit Wolves' attacks heal them and their master for 150% of damage done.
                     break;
                 }
                 case 31216: // Mirror Image
