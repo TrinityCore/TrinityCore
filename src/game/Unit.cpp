@@ -9965,6 +9965,10 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                             break;
                         }
                 }
+            // Drain Soul - increased damage for targets under 25 % HP
+            if (spellProto->SpellFamilyFlags[0] & 0x00004000)
+                if (HasAura(200000))
+                    DoneTotalMod *= 4;
         break;
         case SPELLFAMILY_DEATHKNIGHT:
             // Improved Icy Touch
