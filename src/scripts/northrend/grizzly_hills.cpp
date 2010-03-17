@@ -410,6 +410,93 @@ CreatureAI* GetAI_npc_outhouse_bunny(Creature* pCreature)
     return new npc_outhouse_bunnyAI (pCreature);
 }
 
+// Tallhorn Stage
+
+enum etallhornstage
+{
+    OBJECT_HAUNCH                   = 188665
+};
+
+struct npc_tallhorn_stagAI : public ScriptedAI
+{
+    npc_tallhorn_stagAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
+        {
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_tallhorn_stag(Creature* pCreature)
+{
+    return new npc_tallhorn_stagAI (pCreature);
+}
+
+// Amberpine Woodsman
+
+enum eamberpinewoodsman
+{
+    TALLHORN_STAG                   = 26363
+};
+
+struct npc_amberpine_woodsmanAI : public ScriptedAI
+{
+    npc_amberpine_woodsmanAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    uint8 m_uiPhase;
+    uint32 m_uiTimer;
+
+    void Reset()
+    {
+        m_uiTimer = 0;
+        m_uiPhase = 1;
+    }	
+	
+	void UpdateAI(const uint32 uiDiff)
+    {	
+		if (Creature* stag = me->FindNearestCreature(TALLHORN_STAG, 0.2f))
+		{
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+        }
+		else
+            if (m_uiPhase)
+            {
+                if (m_uiTimer <= uiDiff)
+                {
+                    switch(m_uiPhase)
+                    {
+                        case 1:
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
+                            m_uiTimer = 3000;
+                            m_uiPhase = 2;
+                            break;						
+                        case 2:
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK1H);
+                            m_uiTimer = 4000;
+                            m_uiPhase = 1;
+                            break;
+                    }
+                }
+                else
+                m_uiTimer -= uiDiff;
+            }
+            ScriptedAI::UpdateAI(uiDiff);		
+        
+        if (!UpdateVictim())
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_amberpine_woodsman(Creature* pCreature)
+{
+    return new npc_amberpine_woodsmanAI (pCreature);
+}
+
 void AddSC_grizzly_hills()
 {
     Script* newscript;
@@ -434,5 +521,15 @@ void AddSC_grizzly_hills()
     newscript = new Script;
     newscript->Name = "npc_outhouse_bunny";
     newscript->GetAI = &GetAI_npc_outhouse_bunny;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_tallhorn_stag";
+    newscript->GetAI = &GetAI_npc_tallhorn_stag;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_amberpine_woodsman";
+    newscript->GetAI = &GetAI_npc_amberpine_woodsman;
     newscript->RegisterSelf();
 }
