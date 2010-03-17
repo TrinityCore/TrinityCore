@@ -845,23 +845,6 @@ void AuraEffect::CalculateSpellMod()
                     m_spellmod->value = GetBase()->GetUnitOwner()->CalculateSpellDamage(GetSpellProto(), 1, GetSpellProto()->EffectBasePoints[1], GetBase()->GetUnitOwner());
                     break;
             }
-            // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && GetSpellProto()->SpellFamilyFlags[0] & 0x00004000)
-            {
-                if (!m_spellmod)
-                {
-                    m_spellmod = new SpellModifier(GetBase());
-                    m_spellmod->op = SPELLMOD_DOT;
-                    m_spellmod->type = SPELLMOD_PCT;
-                    m_spellmod->spellId = GetId();
-                    m_spellmod->mask[0] = 0x00004000;
-                    // 300% more dmg
-                    if (GetBase()->GetUnitOwner()->GetMaxHealth() / 4 > GetBase()->GetUnitOwner()->GetHealth())
-                        m_spellmod->value = 300;
-                    else
-                        m_spellmod->value = 0;
-                }
-            }
             break;
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
