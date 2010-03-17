@@ -14795,38 +14795,36 @@ void Unit::SetControlled(bool apply, UnitState state)
 
         switch(state)
         {
-        case UNIT_STAT_STUNNED:
-	   {
-	    addUnitState(state);
-            SetStunned(true);
-	    CastStop();
-	   }
-            break;
-        case UNIT_STAT_ROOT:
-            if (!hasUnitState(UNIT_STAT_STUNNED))
-		{
-		 addUnitState(state);
-                 SetRooted(true);
-	 	}
-            break;
-        case UNIT_STAT_CONFUSED:
-            if (!hasUnitState(UNIT_STAT_STUNNED))
-		{
-		addUnitState(state);
-                SetConfused(true);
-		CastStop();
-		}
-            break;
-        case UNIT_STAT_FLEEING:
-            if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
-		{
-		addUnitState(state);
-                SetFeared(true);
-		CastStop();
-		}
-            break;
-        default:
-            break;
+            case UNIT_STAT_STUNNED:
+                addUnitState(state);
+                SetStunned(true);
+                CastStop();
+                break;
+            case UNIT_STAT_ROOT:
+                if (!hasUnitState(UNIT_STAT_STUNNED))
+		        {
+		            addUnitState(state);
+                    SetRooted(true);
+	 	        }
+                break;
+            case UNIT_STAT_CONFUSED:
+                if (!hasUnitState(UNIT_STAT_STUNNED))
+		        {
+		            addUnitState(state);
+                    SetConfused(true);
+		            CastStop();
+		        }
+                break;
+            case UNIT_STAT_FLEEING:
+                if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
+		        {
+		            addUnitState(state);
+                    SetFeared(true);
+		            CastStop();
+		        }
+                break;
+            default:
+                break;
         }
     }
     else
