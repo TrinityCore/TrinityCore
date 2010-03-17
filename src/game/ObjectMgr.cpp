@@ -6578,8 +6578,8 @@ uint32 ObjectMgr::GeneratePetNumber()
 void ObjectMgr::LoadCorpses()
 {
     uint32 count = 0;
-    //                                                    0           1           2           3            4    5     6     7            8         10
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, data, time, corpse_type, instance, guid FROM corpse WHERE corpse_type <> 0");
+    //                                                               0           1           2            3        4    5     6         7          8          9       10
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, data, time, corpse_type, instance, phaseMask, guid FROM corpse WHERE corpse_type <> 0");
 
     if(!result)
     {

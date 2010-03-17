@@ -185,8 +185,6 @@ bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
 
 bool Corpse::LoadFromDB(uint32 guid, Field *fields)
 {
-    //                                          0          1          2          3           4   5    6    7           8        9
-    //result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance,phaseMask FROM corpse WHERE guid = '%u'",guid);
     float positionX = fields[0].GetFloat();
     float positionY = fields[1].GetFloat();
     float positionZ = fields[2].GetFloat();
