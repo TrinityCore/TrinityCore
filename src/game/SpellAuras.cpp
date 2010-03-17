@@ -1415,8 +1415,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             // Drain Soul - If the target is at or below 25% health, Drain Soul causes four times the normal damage
             if (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000)
             {
-                if (!target)
-                    break;
                 if (apply)
                 {
                     if (target != caster && target->GetHealth() <= target->GetMaxHealth() / 4)
