@@ -172,6 +172,10 @@ bool GossipSelect_npc_squire_david(Player* pPlayer, Creature* pCreature, uint32 
     return true;
 }
 
+/*######
+## npc_argent_valiant
+######*/
+
 enum eArgentValiant
 {
     SPELL_CHARGE                = 63010,
@@ -244,6 +248,42 @@ CreatureAI* GetAI_npc_argent_valiant(Creature* pCreature)
     return new npc_argent_valiantAI (pCreature);
 }
 
+/*######
+## npc_argent_tournament_post
+######*/
+
+enum eArgentTournamentPost
+{
+    SPELL_ROPE_BEAM                 = 63413,
+    NPC_GORMOK_THE_IMPALER          = 35469,
+    NPC_ICEHOWL                     = 35470
+};
+
+struct npc_argent_tournament_postAI : public ScriptedAI
+{
+    npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_creature->IsNonMeleeSpellCasted(false))
+            return;
+
+        if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
+            DoCast(pTarget, SPELL_ROPE_BEAM);
+
+        if (Creature* pTarget2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
+            DoCast(pTarget2, SPELL_ROPE_BEAM);
+
+        if (!UpdateVictim())
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_argent_tournament_post(Creature* pCreature)
+{
+    return new npc_argent_tournament_postAI (pCreature);
+}
+
 void AddSC_icecrown()
 {
     Script *newscript;
@@ -269,5 +309,10 @@ void AddSC_icecrown()
     newscript = new Script;
     newscript->Name = "npc_argent_valiant";
     newscript->GetAI = &GetAI_npc_argent_valiant;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_argent_tournament_post";
+    newscript->GetAI = &GetAI_npc_argent_tournament_post;
     newscript->RegisterSelf();
 }
