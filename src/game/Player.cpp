@@ -1640,7 +1640,16 @@ uint8 Player::chatTag() const
         return 0;
 }
 
-void Player::SendTeleportAckMsg()
+void Player::SendTeleportPacket(Position &oldPos)
+{
+    WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+    data2.append(GetPackGUID());
+    BuildMovementPacket(&data2);
+    Relocate(&oldPos);
+    SendMessageToSet(&data2, false);
+}
+
+void Player::SendTeleportAckPacket()
 {
     WorldPacket data(MSG_MOVE_TELEPORT_ACK, 41);
     data.append(GetPackGUID());
@@ -1777,8 +1786,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             Position oldPos;
             GetPosition(&oldPos);
             Relocate(x, y, z, orientation);
-            SendTeleportAckMsg();
-            Relocate(&oldPos);
+            SendTeleportAckPacket();
+            SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
     }
     else
