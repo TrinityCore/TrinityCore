@@ -1382,18 +1382,24 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
         item->SetNotRefundable(GetPlayer());
         return;
     }
+
+    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(RefundData->paidExtendedCost);
+    if (!iece)
+    {
+        sLog.outDebug("Item refund: cannot find extendedcost data.");
+        return;
+    }
     
     item->UpdatePlayedTime(GetPlayer());
-    
     WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
     data << uint64(guid);                          // item guid
     data << uint32(RefundData->paidMoney);          // money cost
-    data << uint32(RefundData->paidHonorPoints);    // honor point cost
-    data << uint32(RefundData->paidArenaPoints);   // arena point cost
+    data << uint32(iece->reqhonorpoints);    // honor point cost
+    data << uint32(iece->reqarenapoints);   // arena point cost
     for (uint8 i = 0; i < 5; ++i)                  // item cost data
     {
-        data << RefundData->paidItemId[i];
-        data << RefundData->paidItemCount[i];
+        data << iece->reqitem[i];
+        data << iece->reqitemcount[i];
     }
     data << uint32(0);
     data << uint32(GetPlayer()->GetTotalPlayedTime() - item->GetPlayedTime());
@@ -1444,11 +1450,18 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         return;
     }
     
+    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(RefundData->paidExtendedCost);
+    if (!iece)
+    {
+        sLog.outDebug("Item refund: cannot find extendedcost data.");
+        return;
+    }
+    
     bool store_error = false;
     for (uint8 i = 0; i < 5; ++i)
     {
-        uint32 count = RefundData->paidItemCount[i];
-        uint32 itemid = RefundData->paidItemId[i];
+        uint32 count = iece->reqitemcount[i];
+        uint32 itemid = iece->reqitem[i];
         
         if (count && itemid)
         {
@@ -1475,12 +1488,12 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     data << uint64(guid);                          // item guid
     data << uint32(0);                             // 0, or error code
     data << uint32(RefundData->paidMoney);          // money cost
-    data << uint32(RefundData->paidHonorPoints);    // honor point cost
-    data << uint32(RefundData->paidArenaPoints);   // arena point cost
+    data << uint32(iece->reqhonorpoints);    // honor point cost
+    data << uint32(iece->reqarenapoints);   // arena point cost
     for (uint8 i = 0; i < 5; ++i)                  // item cost data
     {
-        data << RefundData->paidItemId[i];
-        data << RefundData->paidItemCount[i];
+        data << iece->reqitem[i];
+        data << iece->reqitemcount[i];
     }
     SendPacket(&data);
 
@@ -1493,8 +1506,8 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     // Grant back extendedcost items
     for (uint8 i = 0; i < 5; ++i)
     {
-        uint32 count = RefundData->paidItemCount[i];
-        uint32 itemid = RefundData->paidItemId[i];
+        uint32 count = iece->reqitemcount[i];
+        uint32 itemid = iece->reqitem[i];
         if (count && itemid)
         {
             ItemPosCountVec dest;
@@ -1511,12 +1524,12 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         _player->ModifyMoney(moneyRefund);
 
     // Grant back Honor points
-    uint32 honorRefund = RefundData->paidHonorPoints;
+    uint32 honorRefund = iece->reqhonorpoints;
     if (honorRefund)
         _player->ModifyHonorPoints(honorRefund);
 
     // Grant back Arena points
-    uint32 arenaRefund = RefundData->paidArenaPoints;
+    uint32 arenaRefund = iece->reqarenapoints;
     if (arenaRefund)
         _player->ModifyArenaPoints(arenaRefund);
 
