@@ -341,7 +341,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     }
 
     //if(unit->GetTypeId() == TYPEID_PLAYER)
-    //    unit->ToPlayer()->SendTeleportAckMsg();
+    //    unit->ToPlayer()->SendTeleportAckPacket();
     //unit->SendMovementFlagUpdate();
 
     return true;
