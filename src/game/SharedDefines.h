@@ -372,7 +372,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX3_CAN_PROC_TRIGGERED         0x04000000            // 26
 #define SPELL_ATTR_EX3_DRAIN_SOUL                 0x08000000            // 27 only drain soul has this flag
 #define SPELL_ATTR_EX3_UNK28                      0x10000000            // 28
-#define SPELL_ATTR_EX3_UNK29                      0x20000000            // 29 Ignite 3.3.0
+#define SPELL_ATTR_EX3_NO_DONE_BONUS              0x20000000            // 29 Ignore caster spellpower and done damage mods?
 #define SPELL_ATTR_EX3_UNK30                      0x40000000            // 30 Shaman's Fire Nova 3.3.0, Sweeping Strikes 3.3.0
 #define SPELL_ATTR_EX3_UNK31                      0x80000000            // 31
 
