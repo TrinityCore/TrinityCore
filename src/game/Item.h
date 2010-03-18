@@ -218,6 +218,27 @@ struct ItemRequiredTarget
 
 bool ItemCanGoIntoBag(ItemPrototype const *proto, ItemPrototype const *pBagProto);
 
+struct ItemRefund
+{
+    ItemRefund()
+    {
+        paidMoney = 0;
+        paidHonorPoints = 0;
+        paidArenaPoints = 0;
+        for (uint8 i=0;i<5;++i)
+        {
+            paidItemId[i] = 0;
+            paidItemCount[i] = 0;
+        }
+    }
+    uint32 eligibleFor;
+    uint32 paidMoney;
+    uint32 paidHonorPoints;
+    uint32 paidArenaPoints;
+    uint32 paidItemId[5];
+    uint32 paidItemCount[5];
+};
+
 class Item : public Object
 {
     public:
@@ -243,6 +264,8 @@ class Item : public Object
         virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL));
         virtual void DeleteFromDB();
         void DeleteFromInventoryDB();
+        void SaveRefundDataToDB();
+        void DeleteRefundDataFromDB();
 
         bool IsBag() const { return GetProto()->InventoryType == INVTYPE_BAG; }
         bool IsBroken() const { return GetUInt32Value(ITEM_FIELD_MAXDURABILITY) > 0 && GetUInt32Value(ITEM_FIELD_DURABILITY) == 0; }
@@ -321,20 +344,12 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
 
         // Item Refund system
-        uint32 GetPaidHonorPoints() { return m_paidHonorPoints; }
-        uint32 GetPaidArenaPoints() { return m_paidArenaPoints; }
-        uint32 GetPaidExtendedCostId(uint32 pos) { return m_paidExtendedCostId[pos]; }
-        uint32 GetPaidExtendedCostCount(uint32 pos) { return m_paidExtendedCostCount[pos]; }
-        uint32 GetRefundExpiryTime() { return GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME); }
-        void SetRefundExpiryTime(uint32 timeval) { SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, timeval); }
-        void SetPaidHonorPoints(uint32 value) { m_paidHonorPoints = value; }
-        void SetPaidArenaPoints(uint32 value) { m_paidArenaPoints = value; }
-        void SetPaidExtendedCost(uint32 pos, uint32 entry, uint32 count)
-        {
-            m_paidExtendedCostId[pos] = entry;
-            m_paidExtendedCostCount[pos] = count;
-        }
-
+        ItemRefund *GetRefundData() { return m_RefundData; }
+        void SetRefundData(ItemRefund *RefundData) { m_RefundData = RefundData; }
+        void SetNotRefundable(Player *owner);
+        void UpdatePlayedTime(Player *owner);
+        uint32 GetPlayedTime(bool raw = false);
+        
         void BuildUpdate(UpdateDataMapType& );
 
     private:
@@ -343,11 +358,7 @@ class Item : public Object
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
-
-        // refund system
-        uint32 m_paidHonorPoints;
-        uint32 m_paidArenaPoints;
-        uint32 m_paidExtendedCostId[5];
-        uint32 m_paidExtendedCostCount[5];
+        time_t m_lastPlayedTimeUpdate;
+        ItemRefund *m_RefundData;
 };
 #endif
