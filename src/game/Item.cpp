@@ -247,6 +247,8 @@ Item::Item( )
     m_container = NULL;
     m_lootGenerated = false;
     mb_in_trade = false;
+    m_lastPlayedTimeUpdate = time(NULL);
+    m_RefundData = NULL;
 }
 
 bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
@@ -328,6 +330,8 @@ void Item::SaveToDB()
             CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", guid);
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED))
                 CharacterDatabase.PExecute("DELETE FROM character_gifts WHERE item_guid = '%u'", GetGUIDLow());
+            if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+                DeleteRefundDataFromDB();
             delete this;
             return;
         }
@@ -411,7 +415,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
         SetOwnerGUID(owner_guid);
         need_save = true;
     }
-
+    
     if (need_save)                                           // normal item changed state set not work at loading
     {
         std::ostringstream ss;
@@ -1042,4 +1046,68 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
     if (Player *owner = GetOwner())
         BuildFieldsUpdate(owner, data_map);
     ClearUpdateMask(false);
+}
+
+void Item::SaveRefundDataToDB()
+{
+    ItemRefund* RefundData = GetRefundData();
+    if (!RefundData)
+        return;
+
+    std::ostringstream ss;
+    ss << "INSERT INTO item_refund_instance VALUES(";
+    ss << GetGUIDLow() << ",";
+    ss << RefundData->eligibleFor << ",";
+    ss << RefundData->paidMoney << ",";
+    ss << RefundData->paidHonorPoints << ",";
+    ss << RefundData->paidArenaPoints << ",";
+
+    for (uint8 i=0; i<5; ++i)
+    {
+        ss << RefundData->paidItemId[i] << ",";
+        ss << RefundData->paidItemCount[i];
+        if (i < 4)
+            ss << ",";
+    }
+    ss << ")";
+    
+    CharacterDatabase.Execute(ss.str().c_str());
+}
+
+void Item::DeleteRefundDataFromDB()
+{
+    CharacterDatabase.PExecute("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
+}
+
+void Item::SetNotRefundable(Player *owner)
+{
+    if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+        return;
+
+    if (m_RefundData)
+        delete m_RefundData;
+        
+    RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
+    SetState(ITEM_CHANGED, owner);
+    DeleteRefundDataFromDB();
+    owner->DeleteRefundReference(this);
+}
+
+void Item::UpdatePlayedTime(Player *owner)
+{
+    time_t curtime = time(NULL);
+    uint32 elapsed = curtime - m_lastPlayedTimeUpdate;
+    SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, GetPlayedTime(true) + elapsed);
+    SetState(ITEM_CHANGED, owner);
+    m_lastPlayedTimeUpdate = curtime;
+}
+
+uint32 Item::GetPlayedTime(bool raw)
+{
+    if (raw)
+        return GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME);
+        
+    time_t curtime = time(NULL);
+    uint32 elapsed = curtime - m_lastPlayedTimeUpdate;
+    return uint32(GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) + elapsed);
 }
