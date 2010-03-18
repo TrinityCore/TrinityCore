@@ -3898,7 +3898,7 @@ void Spell::EffectDistract(uint32 /*i*/)
     {
         // For players just turn them
         unitTarget->ToPlayer()->SetPosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
-        unitTarget->ToPlayer()->SendTeleportAckMsg();
+        unitTarget->ToPlayer()->SendTeleportAckPacket();
     }
     else
     {

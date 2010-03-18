@@ -15990,7 +15990,7 @@ void Unit::ExitVehicle()
     if (GetTypeId() == TYPEID_PLAYER)
     {
         //this->ToPlayer()->SetClientControl(this, 1);
-        this->ToPlayer()->SendTeleportAckMsg();
+        this->ToPlayer()->SendTeleportAckPacket();
         this->ToPlayer()->SetFallInformation(0, GetPositionZ());
     }
     WorldPacket data;
@@ -16109,31 +16109,9 @@ void Unit::NearTeleportTo( float x, float y, float z, float orientation, bool ca
         this->ToPlayer()->TeleportTo(GetMapId(), x, y, z, orientation, TELE_TO_NOT_LEAVE_TRANSPORT | TELE_TO_NOT_LEAVE_COMBAT | TELE_TO_NOT_UNSUMMON_PET | (casting ? TELE_TO_SPELL : 0));
     else
     {
-        WorldPacket data;
-        /*data.Initialize(MSG_MOVE_TELEPORT, 30);
-        data.append(GetPackGUID());
-        data << uint32(GetUnitMovementFlags());
-        data << uint16(0);  // Probably walk flags here
-        data << getMSTime(); // time
-        data << x; // destination coords
-        data << y;
-        data << z;
-        data << orientation;
-        data << uint32 (0);
-        // Other information here: jumping angle etc
-        SendMessageToSet(&data, false);*/
-
         // FIXME: this interrupts spell visual
         DestroyForNearbyPlayers();
-
         SetPosition(x, y, z, orientation, true);
-        //ObjectAccessor::UpdateObjectVisibility(this);
-
-        //WorldPacket data;
-        // Work strange for many spells: triggered active mover set for targeted player to creature
-        //BuildTeleportAckMsg(&data, x, y, z, orientation);
-        //BuildHeartBeatMsg(&data);
-        //SendMessageToSet(&data, false);
     }
 }
 

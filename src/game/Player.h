@@ -1825,7 +1825,8 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSetInRange(WorldPacket *data, float fist, bool self);// overwrite Object::SendMessageToSetInRange
         void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only);
 
-        void SendTeleportAckMsg();
+        void SendTeleportPacket(Position &oldPos);
+        void SendTeleportAckPacket();
 
         static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true);
 
