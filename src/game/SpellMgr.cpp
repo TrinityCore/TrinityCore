@@ -3506,10 +3506,6 @@ void SpellMgr::LoadSpellCustomAttr()
                     spellInfo->Targets |= TARGET_FLAG_UNIT;
                     count++;
                     break;
-                //case TARGET_TYPE_AREA_DST:
-                //case TARGET_TYPE_DEST_DEST:
-                //    spellInfo->Targets |= TARGET_FLAG_DEST_LOCATION;
-                //    break;
             }
         }
 
