@@ -2002,6 +2002,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             Position pos;
             m_caster->GetNearPosition(pos, dist, angle);
             m_targets.setDst(&pos); // also flag
+            AddUnitTarget(m_caster, i);
             break;
         }
 
@@ -2017,6 +2018,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             if(cur == TARGET_DST_TARGET_ENEMY || cur == TARGET_DEST_TARGET_ANY)
             {
                 m_targets.setDst(target);
+                AddUnitTarget(target, i);
                 break;
             }
 
@@ -2045,6 +2047,9 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             Position pos;
             target->GetNearPosition(pos, dist, angle);
             m_targets.setDst(&pos);
+            // Teleports use this as destination
+            if (m_spellInfo->Effect[i] != SPELL_EFFECT_TELEPORT_UNITS)
+                AddUnitTarget(target, i);
             break;
         }
 
