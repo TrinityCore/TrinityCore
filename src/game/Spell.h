@@ -30,6 +30,16 @@ class GameObject;
 class DynamicObject;
 class Aura;
 
+// These flags represent the inner states of the targeting system
+enum SpellInternalTargetFlags
+{
+    FLAG_INT_UNIT               = 0x00000002,
+    FLAG_INT_SRC_LOC            = 0x00000020,
+    FLAG_INT_DST_LOC            = 0x00000040,
+    FLAG_INT_OBJECT             = 0x00000800
+};
+
+// These flags are used in client - server communication only
 enum SpellCastTargetFlags
 {
     TARGET_FLAG_SELF            = 0x00000000,
@@ -143,10 +153,15 @@ class SpellCastTargets
             m_strTarget = target.m_strTarget;
 
             m_targetMask = target.m_targetMask;
+            m_intTargetFlags = target.getIntTargetFlags();
 
             return *this;
         }
 
+        uint32 getTargetMask() const { return m_targetMask; }
+        void setTargetMask(uint32 newMask) { m_targetMask = newMask; }
+        uint32 getIntTargetFlags() const { return m_intTargetFlags; }
+        
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
@@ -175,8 +190,8 @@ class SpellCastTargets
         }
 
         bool IsEmpty() const { return m_GOTargetGUID==0 && m_unitTargetGUID==0 && m_itemTarget==0 && m_CorpseTargetGUID==0; }
-        bool HasSrc() const { return m_targetMask & TARGET_FLAG_SOURCE_LOCATION; }
-        bool HasDst() const { return m_targetMask & TARGET_FLAG_DEST_LOCATION; }
+        bool HasSrc() const { return m_intTargetFlags & FLAG_INT_SRC_LOC; }
+        bool HasDst() const { return m_intTargetFlags & FLAG_INT_DST_LOC; }
         bool HasTraj() const { return m_speed != 0; }
 
         float GetDist2d() const { return m_srcPos.GetExactDist2d(&m_dstPos); }
@@ -190,8 +205,9 @@ class SpellCastTargets
         float m_elevation, m_speed;
         std::string m_strTarget;
 
-        uint32 m_targetMask;
     private:
+        uint32 m_targetMask;
+        uint32 m_intTargetFlags;
         // objects (can be used at spell creating and after Update at casting
         Unit *m_unitTarget;
         GameObject *m_GOTarget;
