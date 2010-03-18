@@ -2152,6 +2152,51 @@ CreatureAI* GetAI_npc_magmoth_crusher(Creature* pCreature)
     return new npc_magmoth_crusherAI(pCreature);
 }
 
+/*######
+## Quest 11608: Bury Those Cockroaches!
+######*/
+
+#define QUEST_BURY_THOSE_COCKROACHES            11608
+#define SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION  45502
+
+struct npc_seaforium_depth_chargeAI : public ScriptedAI
+{
+    npc_seaforium_depth_chargeAI(Creature *c) : ScriptedAI(c) {}
+
+    uint32 uiExplosionTimer;
+    void Reset()
+    {
+        uiExplosionTimer = urand(5000,10000);
+    }
+    void UpdateAI(const uint32 diff)
+    {
+        if (uiExplosionTimer < diff)
+        {
+            DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);          
+            for(uint8 i = 0; i < 4; ++i)
+            {
+                if(Creature* cCredit = m_creature->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
+                {
+                    if(Unit* uOwner = m_creature->GetOwner(true))
+                    {
+                        Player* pOwner = uOwner->ToPlayer();
+                        if(pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
+                            pOwner->KilledMonsterCredit(cCredit->GetEntry(),cCredit->GetGUID());
+                    }                    
+                }
+            }
+            m_creature->Kill(m_creature);
+            return;
+        } else uiExplosionTimer -= diff;
+    }
+};
+
+CreatureAI* GetAI_npc_seaforium_depth_charge(Creature* pCreature)
+{
+    return new npc_seaforium_depth_chargeAI(pCreature);
+}
+
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -2296,5 +2341,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_magmoth_crusher";
     newscript->GetAI = &GetAI_npc_magmoth_crusher;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_seaforium_depth_charge";
+    newscript->GetAI = &GetAI_npc_seaforium_depth_charge;
     newscript->RegisterSelf();
 }
