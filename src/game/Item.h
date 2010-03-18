@@ -220,23 +220,10 @@ bool ItemCanGoIntoBag(ItemPrototype const *proto, ItemPrototype const *pBagProto
 
 struct ItemRefund
 {
-    ItemRefund()
-    {
-        paidMoney = 0;
-        paidHonorPoints = 0;
-        paidArenaPoints = 0;
-        for (uint8 i=0;i<5;++i)
-        {
-            paidItemId[i] = 0;
-            paidItemCount[i] = 0;
-        }
-    }
+    ItemRefund() : paidMoney(0), paidExtendedCost(0) {}
     uint32 eligibleFor;
     uint32 paidMoney;
-    uint32 paidHonorPoints;
-    uint32 paidArenaPoints;
-    uint32 paidItemId[5];
-    uint32 paidItemCount[5];
+    uint32 paidExtendedCost;
 };
 
 class Item : public Object

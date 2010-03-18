@@ -1617,6 +1617,22 @@ LOCK TABLES `item_instance` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_refund_instance`
+--
+
+DROP TABLE IF EXISTS `item_refund_instance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_refund_instance` (                             
+  `item_guid` int(11) unsigned NOT NULL COMMENT 'Item GUID',      
+  `player_guid` int(11) unsigned NOT NULL COMMENT 'Player GUID',  
+  `paidMoney` int(11) unsigned NOT NULL DEFAULT '0',              
+  `paidExtendedCost` int(11) unsigned NOT NULL DEFAULT '0',       
+  PRIMARY KEY (`item_guid`,`player_guid`)                         
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item Refund System';
+/*!40101 SET character_set_client = @saved_cs_client */;
+                      
+--
 -- Table structure for table `item_text`
 --
 

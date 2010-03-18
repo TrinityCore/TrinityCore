@@ -16389,10 +16389,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                 else
                 {
                     QueryResult_AutoPtr result2 = CharacterDatabase.PQuery(
-                    "SELECT player_guid,paidMoney,paidHonor,paidArena,"
-                    "paidItem_1,paidItemCount_1,paidItem_2,paidItemCount_2,paidItem_3,paidItemCount_3,paidItem_4,paidItemCount_4,"
-                    "paidItem_5,paidItemCount_5 FROM item_refund_instance WHERE item_guid = '%u' LIMIT 1",
-                    item->GetGUIDLow());
+                    "SELECT player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' LIMIT 1", item->GetGUIDLow());
                     if (!result2)
                     {
                         sLog.outDebug("Item::LoadFromDB, " 
@@ -16406,13 +16403,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                         ItemRefund* RefundData = new ItemRefund();
                         RefundData->eligibleFor = fields[0].GetUInt32();
                         RefundData->paidMoney = fields[1].GetUInt32();
-                        RefundData->paidHonorPoints = fields[2].GetUInt32();
-                        RefundData->paidArenaPoints = fields[3].GetUInt32();
-                        for (uint8 i=0, j=4; i<5; ++i, j+=2)
-                        {
-                            RefundData->paidItemId[i] = fields[j].GetUInt32(); 
-                            RefundData->paidItemCount[i] = fields[j+1].GetUInt32();
-                        }
+                        RefundData->paidExtendedCost = fields[2].GetUInt32();
                         item->SetRefundData(RefundData);
                         AddRefundReference(item);
                     }
@@ -19322,11 +19313,6 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         return false;
     }
 
-    uint32 honorPoints = 0;
-    uint32 arenaPoints = 0;
-    uint32 itemCostId[5] = {0,0,0,0,0};
-    uint32 itemCostCount[5] = {0,0,0,0,0};
-        
     if ((bag == NULL_BAG && slot == NULL_SLOT) || IsInventoryPos(bag, slot))
     {
         ItemPosCountVec dest;
@@ -19343,23 +19329,15 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
-            {
-                honorPoints = iece->reqhonorpoints;
-                ModifyHonorPoints( - int32(honorPoints) );
-            }
+                ModifyHonorPoints( - int32(iece->reqhonorpoints * count) );
+
             if (iece->reqarenapoints)
-            {
-                arenaPoints = iece->reqarenapoints;
-                ModifyArenaPoints( - int32(arenaPoints) );
-            }
+                ModifyArenaPoints( - int32(iece->reqarenapoints * count) );
+
             for (uint8 i = 0; i < 5; ++i)
             {
                 if (iece->reqitem[i])
-                {
                     DestroyItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count), true);
-                    itemCostId[i] = iece->reqitem[i];
-                    itemCostCount[i] = iece->reqitemcount[i];
-                }
             }
         }
 
@@ -19375,18 +19353,12 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             GetSession()->SendPacket(&data);
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
             
-            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
             {
                 ItemRefund* RefundData = new ItemRefund();
                 RefundData->eligibleFor = GetGUIDLow();
                 RefundData->paidMoney = price;
-                RefundData->paidHonorPoints = honorPoints;
-                RefundData->paidArenaPoints = arenaPoints;
-                for (uint8 i=0; i<5; ++i)
-                {
-                    RefundData->paidItemId[i] = itemCostId[i];
-                    RefundData->paidItemCount[i] = itemCostCount[i] ;
-                }
+                RefundData->paidExtendedCost = crItem->ExtendedCost;
                 it->SetRefundData(RefundData);
                 it->SaveRefundDataToDB();
                 AddRefundReference(it);
@@ -19414,23 +19386,15 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
-            {
-                honorPoints = iece->reqhonorpoints;
-                ModifyHonorPoints( - int32(honorPoints) );
-            }
+                ModifyHonorPoints( - int32(iece->reqhonorpoints * count) );
+
             if (iece->reqarenapoints)
-            {
-                arenaPoints = iece->reqarenapoints;
-                ModifyArenaPoints( - int32(arenaPoints));
-            }
+                ModifyArenaPoints( - int32(iece->reqarenapoints * count) );
+
             for (uint8 i = 0; i < 5; ++i)
             {
                 if(iece->reqitem[i])
-                {
-                    DestroyItemCount(iece->reqitem[i], iece->reqitemcount[i], true);
-                    itemCostId[i] = iece->reqitem[i];
-                    itemCostCount[i] = iece->reqitemcount[i];
-                }
+                    DestroyItemCount(iece->reqitem[i], iece->reqitemcount[i] * count, true);
             }
         }
 
@@ -19449,18 +19413,12 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
 
             AutoUnequipOffhandIfNeed();
 
-            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
+            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
             {
                 ItemRefund* RefundData = new ItemRefund();
                 RefundData->eligibleFor = GetGUIDLow();
                 RefundData->paidMoney = price;
-                RefundData->paidHonorPoints = honorPoints;
-                RefundData->paidArenaPoints = arenaPoints;
-                for (uint8 i=0; i<5; ++i)
-                {
-                    RefundData->paidItemId[i] = itemCostId[i];
-                    RefundData->paidItemCount[i] = itemCostCount[i] ;
-                }
+                RefundData->paidExtendedCost = crItem->ExtendedCost;
                 it->SetRefundData(RefundData);
                 it->SaveRefundDataToDB();
                 AddRefundReference(it);

@@ -1059,16 +1059,7 @@ void Item::SaveRefundDataToDB()
     ss << GetGUIDLow() << ",";
     ss << RefundData->eligibleFor << ",";
     ss << RefundData->paidMoney << ",";
-    ss << RefundData->paidHonorPoints << ",";
-    ss << RefundData->paidArenaPoints << ",";
-
-    for (uint8 i=0; i<5; ++i)
-    {
-        ss << RefundData->paidItemId[i] << ",";
-        ss << RefundData->paidItemCount[i];
-        if (i < 4)
-            ss << ",";
-    }
+    ss << RefundData->paidExtendedCost;
     ss << ")";
     
     CharacterDatabase.Execute(ss.str().c_str());
