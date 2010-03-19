@@ -282,6 +282,7 @@ SET(scripts_STAT_SRCS
    kalimdor/wailing_caverns/instance_wailing_caverns.cpp
    kalimdor/wailing_caverns/wailing_caverns.cpp
    kalimdor/zulfarrak/zulfarrak.cpp
+   kalimdor/zulfarrak/instance_zulfarrak.cpp
    kalimdor/ashenvale.cpp
    kalimdor/azshara.cpp
    kalimdor/azuremyst_isle.cpp
