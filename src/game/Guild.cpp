@@ -44,7 +44,7 @@ Guild::Guild()
     m_BorderColor = 0;
     m_BackgroundColor = 0;
 
-    m_CreatedDate = 0;
+    m_CreatedDate = time(0);
 
     m_GuildBankMoney = 0;
     m_PurchasedTabs = 0;
