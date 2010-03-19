@@ -302,9 +302,7 @@ class Guild
         std::string const& GetMOTD() const { return MOTD; }
         std::string const& GetGINFO() const { return GINFO; }
 
-        uint32 GetCreatedYear() const { return m_CreatedYear; }
-        uint32 GetCreatedMonth() const { return m_CreatedMonth; }
-        uint32 GetCreatedDay() const { return m_CreatedDay; }
+        time_t GetCreatedDate() const { return m_CreatedDate; }
 
         uint32 GetEmblemStyle() const { return m_EmblemStyle; }
         uint32 GetEmblemColor() const { return m_EmblemColor; }
@@ -437,9 +435,7 @@ class Guild
         uint64 m_LeaderGuid;
         std::string MOTD;
         std::string GINFO;
-        uint32 m_CreatedYear;
-        uint32 m_CreatedMonth;
-        uint32 m_CreatedDay;
+        time_t m_CreatedDate;
 
         uint32 m_EmblemStyle;
         uint32 m_EmblemColor;
