@@ -44,13 +44,14 @@ Guild::Guild()
     m_BorderColor = 0;
     m_BackgroundColor = 0;
 
-    m_CreatedDate = time(NULL);
+    m_CreatedDate = 0;
 
     m_GuildBankMoney = 0;
     m_PurchasedTabs = 0;
 
     m_GuildEventLogNextGuid = 0;
     m_GuildBankEventLogNextGuid_Money = 0;
+
     for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         m_GuildBankEventLogNextGuid_Item[i] = 0;
 }
@@ -222,15 +223,12 @@ bool Guild::LoadGuildFromDB(QueryResult_AutoPtr guildDataResult)
     m_BackgroundColor = fields[7].GetUInt32();
     GINFO             = fields[8].GetCppString();
     MOTD              = fields[9].GetCppString();
-    time_t time       = fields[10].GetUInt64();
+    m_CreatedDate     = fields[10].GetUInt64();
     m_GuildBankMoney  = fields[11].GetUInt64();
     m_PurchasedTabs   = fields[12].GetUInt32();
 
     if (m_PurchasedTabs > GUILD_BANK_MAX_TABS)
         m_PurchasedTabs = GUILD_BANK_MAX_TABS;
-
-    if (time > 0)
-        m_CreatedDate = time;
 
     return true;
 }
