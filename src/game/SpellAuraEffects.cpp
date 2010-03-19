@@ -1268,7 +1268,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             bool crit = IsPeriodicTickCrit(target, caster);
             if (crit)
+            {
                 damage = caster->SpellCriticalDamageBonus(m_spellProto, damage, target);
+                damage -= target->GetSpellCritDamageReduction(damage);
+            }
 
             // only from players
             if (IS_PLAYER_GUID(GetCasterGUID()))
