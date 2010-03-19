@@ -788,8 +788,8 @@ enum Opcodes
     SMSG_BATTLEGROUND_PLAYER_LEFT                   = 0x2ED,
     CMSG_BATTLEMASTER_JOIN                          = 0x2EE,
     SMSG_ADDON_INFO                                 = 0x2EF,
-    CMSG_PET_UNLEARN                                = 0x2F0,
-    SMSG_PET_UNLEARN_CONFIRM                        = 0x2F1,
+    CMSG_PET_UNLEARN                                = 0x2F0,    // Deprecated 3.x
+    SMSG_PET_UNLEARN_CONFIRM                        = 0x2F1,    // Deprecated 3.x
     SMSG_PARTY_MEMBER_STATS_FULL                    = 0x2F2,
     CMSG_PET_SPELL_AUTOCAST                         = 0x2F3,
     SMSG_WEATHER                                    = 0x2F4,

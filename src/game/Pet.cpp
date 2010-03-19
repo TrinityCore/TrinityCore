@@ -81,12 +81,12 @@ void Pet::AddToWorld()
 
     // Prevent stuck pets when zoning. Pets default to "follow" when added to world
     // so we'll reset flags and let the AI handle things
-    if (this->GetCharmInfo() && this->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
+    if (GetCharmInfo() && GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
     {
-        this->GetCharmInfo()->SetIsCommandAttack(false);
-        this->GetCharmInfo()->SetIsAtStay(false);
-        this->GetCharmInfo()->SetIsFollowing(false);
-        this->GetCharmInfo()->SetIsReturning(false);
+        GetCharmInfo()->SetIsCommandAttack(false);
+        GetCharmInfo()->SetIsAtStay(false);
+        GetCharmInfo()->SetIsFollowing(false);
+        GetCharmInfo()->SetIsReturning(false);
     }
 
 }
@@ -1629,7 +1629,7 @@ bool Pet::resetTalents(bool no_cost)
                 // unlearn if first rank is talent or learned by talent
                 if (itrFirstId == talentInfo->RankID[j] || spellmgr.IsSpellLearnToSpell(talentInfo->RankID[j],itrFirstId))
                 {
-                    removeSpell(itr->first,false);
+                    unlearnSpell(itr->first,false);
                     itr = m_spells.begin();
                     continue;
                 }

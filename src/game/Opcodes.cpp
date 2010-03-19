@@ -780,7 +780,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x2ED*/ { "SMSG_BATTLEGROUND_PLAYER_LEFT",                STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x2EE*/ { "CMSG_BATTLEMASTER_JOIN",                       STATUS_LOGGEDIN, &WorldSession::HandleBattlemasterJoinOpcode    },
     /*0x2EF*/ { "SMSG_ADDON_INFO",                              STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x2F0*/ { "CMSG_PET_UNLEARN",                             STATUS_LOGGEDIN, &WorldSession::HandlePetUnlearnOpcode          },
+    /*0x2F0*/ { "CMSG_PET_UNLEARN",                             STATUS_LOGGEDIN, &WorldSession::Handle_NULL                     },
     /*0x2F1*/ { "SMSG_PET_UNLEARN_CONFIRM",                     STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x2F2*/ { "SMSG_PARTY_MEMBER_STATS_FULL",                 STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x2F3*/ { "CMSG_PET_SPELL_AUTOCAST",                      STATUS_LOGGEDIN, &WorldSession::HandlePetSpellAutocastOpcode    },
