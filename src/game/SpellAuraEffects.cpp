@@ -588,7 +588,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                 int32 mws = caster->GetAttackTime(BASE_ATTACK);
                 float mwb_min = caster->GetWeaponDamageRange(BASE_ATTACK,MINDAMAGE);
                 float mwb_max = caster->GetWeaponDamageRange(BASE_ATTACK,MAXDAMAGE);
-                amount+=int32(((mwb_min+mwb_max)/2+ap*mws/14000)*0.2f);
+                amount+=caster->ApplyEffectModifiers(m_spellProto,m_effIndex,int32(((mwb_min+mwb_max)/2+ap*mws/14000)*0.2f));
                 // "If used while your target is above 75% health, Rend does 35% more damage."
                 // as for 3.1.3 only ranks above 9 (wrong tooltip?)
                 if (spellmgr.GetSpellRank(m_spellProto->Id) >= 9)
@@ -1333,7 +1333,10 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             bool crit = IsPeriodicTickCrit(target, caster);
             if (crit)
+            {
                 damage = caster->SpellCriticalDamageBonus(m_spellProto, damage, target);
+                damage -= target->GetSpellCritDamageReduction(damage);
+            }
 
             //Calculate armor mitigation if it is a physical spell
             if (GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)
