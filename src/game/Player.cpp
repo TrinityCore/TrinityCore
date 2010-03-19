@@ -8832,15 +8832,23 @@ void Player::SendTalentWipeConfirm(uint64 guid)
     GetSession()->SendPacket( &data );
 }
 
-void Player::SendPetSkillWipeConfirm()
+void Player::ResetPetTalents()
 {
+    // This needs another gossip option + NPC text as a confirmation.
+    // The confirmation gossip listid has the text: "Yes, please do."
     Pet* pet = GetPet();
-    if (!pet)
+
+    if (!pet || pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
         return;
-    WorldPacket data(SMSG_PET_UNLEARN_CONFIRM, (8+4));
-    data << pet->GetGUID();
-    data << uint32(pet->resetTalentsCost());
-    GetSession()->SendPacket( &data );
+
+    CharmInfo *charmInfo = pet->GetCharmInfo();
+    if (!charmInfo)
+    {
+        sLog.outError("Object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
+        return;
+    }
+    pet->resetTalents();
+    SendTalentsInfoData(true);
 }
 
 /*********************************************************/
@@ -13123,7 +13131,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     if (!pCreature->isCanTrainingAndResetTalentsOf(this))
                         bCanTalk = false;
                     break;
-                case GOSSIP_OPTION_UNLEARNPETSKILLS:
+                case GOSSIP_OPTION_UNLEARNPETTALENTS:
                     if (!GetPet() || GetPet()->getPetType() != HUNTER_PET || GetPet()->m_spells.size() <= 1 || pCreature->GetCreatureInfo()->trainer_type != TRAINER_TYPE_PETS || pCreature->GetCreatureInfo()->trainer_class != CLASS_HUNTER)
                         bCanTalk = false;
                     break;
@@ -13351,9 +13359,9 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             PlayerTalkClass->CloseGossip();
             SendTalentWipeConfirm(guid);
             break;
-        case GOSSIP_OPTION_UNLEARNPETSKILLS:
+        case GOSSIP_OPTION_UNLEARNPETTALENTS:
             PlayerTalkClass->CloseGossip();
-            SendPetSkillWipeConfirm();
+            ResetPetTalents();
             break;
         case GOSSIP_OPTION_TAXIVENDOR:
             GetSession()->SendTaxiMenu((pSource->ToCreature()));

@@ -601,33 +601,6 @@ void WorldSession::HandlePetAbandon( WorldPacket & recv_data )
     }
 }
 
-void WorldSession::HandlePetUnlearnOpcode(WorldPacket& recvPacket)
-{
-    sLog.outDetail("CMSG_PET_UNLEARN");
-    uint64 guid;
-    recvPacket >> guid;                 // Pet guid
-
-    Pet* pet = _player->GetPet();
-
-    if(!pet || pet->getPetType() != HUNTER_PET || pet->m_usedTalentCount == 0)
-        return;
-
-    if(guid != pet->GetGUID())
-    {
-        sLog.outError( "HandlePetUnlearnOpcode.Pet %u isn't pet of player %s .", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
-        return;
-    }
-
-    CharmInfo *charmInfo = pet->GetCharmInfo();
-    if(!charmInfo)
-    {
-        sLog.outError("WorldSession::HandlePetUnlearnOpcode: object (GUID: %u TypeId: %u) is considered pet-like but doesn't have a charminfo!", pet->GetGUIDLow(), pet->GetTypeId());
-        return;
-    }
-    pet->resetTalents();
-    _player->SendTalentsInfoData(true);
-}
-
 void WorldSession::HandlePetSpellAutocastOpcode( WorldPacket& recvPacket )
 {
     sLog.outDetail("CMSG_PET_SPELL_AUTOCAST");
