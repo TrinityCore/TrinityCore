@@ -1631,6 +1631,15 @@ CREATE TABLE `item_refund_instance` (
   PRIMARY KEY (`item_guid`,`player_guid`)                         
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item Refund System';
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_refund_instance`
+--
+
+LOCK TABLES `item_refund_instance` WRITE;
+/*!40000 ALTER TABLE `item_refund_instance` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_refund_instance` ENABLE KEYS */;
+UNLOCK TABLES;
                       
 --
 -- Table structure for table `item_text`
