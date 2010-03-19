@@ -1,1 +1,1 @@
-UPDATE `instance_template` SET `cript`='instance_zulfarrak' WHERE `map`=209;
+UPDATE `instance_template` SET `script`='instance_zulfarrak' WHERE `map`=209;
