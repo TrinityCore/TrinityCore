@@ -247,6 +247,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
                         GetPlayerName(), GetAccountId(), item->GetProto()->Name1, item->GetEntry(), item->GetCount(), receiver.c_str(), rc_account);
                 }
 
+                item->SetNotRefundable(GetPlayer()); // makes the item no longer refundable
                 pl->MoveItemFromInventory(items[i]->GetBagSlot(), item->GetSlot(), true);
                 CharacterDatabase.BeginTransaction();
                 item->DeleteFromInventoryDB();     // deletes item from character's inventory
@@ -254,7 +255,6 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
                 // owner in data will set at mail receive and item extracting
                 CharacterDatabase.PExecute("UPDATE item_instance SET owner_guid = '%u' WHERE guid='%u'", GUID_LOPART(rc), item->GetGUIDLow());
                 CharacterDatabase.CommitTransaction();
-
                 draft.AddItem(item);
             }
 

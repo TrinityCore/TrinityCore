@@ -17494,7 +17494,7 @@ void Player::_SaveInventory()
         // Item could be deleted, or traded.
         // In the first case, DeleteRefundDataFromDB() was already called in Item::SaveToDB()
         Item* iPtr = (*itr);
-        if (!iPtr || iPtr->GetOwner() != this)
+        if (!iPtr)
             m_refundableItems.erase(itr++);
         else
         {
