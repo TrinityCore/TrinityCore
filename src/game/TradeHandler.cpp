@@ -202,6 +202,9 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                         _player->pTrader->GetName(),_player->pTrader->GetSession()->GetAccountId());
                 }
 
+                
+                // make not refundable
+                myItems[i]->SetNotRefundable(_player);
                 // store
                 _player->pTrader->MoveItemToInventory( traderDst, myItems[i], true, true);
             }
@@ -217,6 +220,8 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                         _player->GetName(),_player->GetSession()->GetAccountId());
                 }
 
+                // make not refundable
+                hisItems[i]->SetNotRefundable(_player->pTrader);
                 // store
                 _player->MoveItemToInventory( playerDst, hisItems[i], true, true);
             }
