@@ -1436,7 +1436,7 @@ class Player : public Unit, public GridObject<Player>
 
         void SetBindPoint(uint64 guid);
         void SendTalentWipeConfirm(uint64 guid);
-        void SendPetSkillWipeConfirm();
+        void ResetPetTalents();
         void CalcRage( uint32 damage,bool attacker );
         void RegenerateAll();
         void Regenerate(Powers power);
