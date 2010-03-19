@@ -44,9 +44,7 @@ Guild::Guild()
     m_BorderColor = 0;
     m_BackgroundColor = 0;
 
-    m_CreatedYear = 0;
-    m_CreatedMonth = 0;
-    m_CreatedDay = 0;
+    m_CreatedDate = time(NULL);
 
     m_GuildBankMoney = 0;
     m_PurchasedTabs = 0;
@@ -232,12 +230,7 @@ bool Guild::LoadGuildFromDB(QueryResult_AutoPtr guildDataResult)
         m_PurchasedTabs = GUILD_BANK_MAX_TABS;
 
     if (time > 0)
-    {
-        tm local       = *(localtime(&time));               // dereference and assign
-        m_CreatedDay   = local.tm_mday;
-        m_CreatedMonth = local.tm_mon + 1;
-        m_CreatedYear  = local.tm_year + 1900;
-    }
+        m_CreatedDate = time;
 
     return true;
 }
