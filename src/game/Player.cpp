@@ -10972,6 +10972,7 @@ uint8 Player::CanUseItem( Item *pItem, bool not_loading ) const
                             allowEquip = (itemSkill == SKILL_MAIL);
                             break;
                         case CLASS_PALADIN:
+                        case CLASS_WARRIOR:
                             allowEquip = (itemSkill == SKILL_PLATE_MAIL);
                             break;
                     }
