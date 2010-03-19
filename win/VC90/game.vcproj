@@ -3029,6 +3029,10 @@
 					Name="Zul&apos;Farrak"
 					>
 					<File
+						RelativePath="..\..\src\scripts\kalimdor\zulfarrak\instance_zulfarrak.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\src\scripts\kalimdor\zulfarrak\zulfarrak.cpp"
 						>
 					</File>

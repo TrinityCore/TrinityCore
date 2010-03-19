@@ -258,7 +258,8 @@ void AddSC_mob_anubisath_sentinel();
 void AddSC_instance_temple_of_ahnqiraj();
 void AddSC_wailing_caverns();                //Wailing caverns
 void AddSC_instance_wailing_caverns();
-void AddSC_zulfarrak();                      //Zul'Farrak
+void AddSC_zulfarrak();                     //Zul'Farrak generic
+void AddSC_instance_zulfarrak();            //Zul'Farrak instance script
 
 void AddSC_ashenvale();
 void AddSC_azshara();
@@ -725,7 +726,8 @@ void AddScripts()
     AddSC_instance_temple_of_ahnqiraj();
     AddSC_wailing_caverns();                //Wailing caverns
     AddSC_instance_wailing_caverns();
-    AddSC_zulfarrak();                      //Zul'Farrak
+    AddSC_zulfarrak();                      //Zul'Farrak generic
+    AddSC_instance_zulfarrak();             //Zul'Farrak instance script
 
     AddSC_ashenvale();
     AddSC_azshara();
