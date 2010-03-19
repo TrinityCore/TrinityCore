@@ -1212,13 +1212,8 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
             damageInfo->procVictim   = PROC_FLAG_TAKEN_MELEE_HIT;//|PROC_FLAG_TAKEN_OFFHAND_HIT // not used
             damageInfo->HitInfo = HITINFO_LEFTSWING;
             break;
-        case RANGED_ATTACK:
-            damageInfo->procAttacker = PROC_FLAG_SUCCESSFUL_RANGED_HIT;
-            damageInfo->procVictim   = PROC_FLAG_TAKEN_RANGED_HIT;
-            damageInfo->HitInfo = HITINFO_UNK2;// test
-            break;
         default:
-            break;
+            return;
     }
 
     // Physical Immune check
@@ -1235,20 +1230,17 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
     damage += CalculateDamage(damageInfo->attackType, false, true);
     // Add melee damage bonus
     MeleeDamageBonus(damageInfo->target, &damage, damageInfo->attackType);
+
     // Calculate armor reduction
-    damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL , damageInfo->attackType);
-    damageInfo->cleanDamage += damage - damageInfo->damage;
+    if (damageInfo->damageSchoolMask & SPELL_SCHOOL_MASK_NORMAL)
+    {
+        damageInfo->damage = CalcArmorReducedDamage(damageInfo->target, damage, NULL , damageInfo->attackType);
+        damageInfo->cleanDamage += damage - damageInfo->damage;
+    }
+    else
+        damageInfo->damage = damage;
 
     damageInfo->hitOutCome = RollMeleeOutcomeAgainst(damageInfo->target, damageInfo->attackType);
-
-    // Disable parry or dodge for ranged attack
-    if (damageInfo->attackType == RANGED_ATTACK)
-    {
-        if (damageInfo->hitOutCome == MELEE_HIT_PARRY)
-            damageInfo->hitOutCome = MELEE_HIT_NORMAL;
-        else if (damageInfo->hitOutCome == MELEE_HIT_DODGE)
-            damageInfo->hitOutCome = MELEE_HIT_MISS;
-    }
 
     switch (damageInfo->hitOutCome)
     {
@@ -1302,12 +1294,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
                 damageInfo->damage = int32((damageInfo->damage) * float((100.0f + mod)/100.0f));
 
             // Resilience - reduce crit damage
-            uint32 resilienceReduction;
-            if (attackType != RANGED_ATTACK)
-                resilienceReduction = pVictim->GetMeleeCritDamageReduction(damageInfo->damage);
-            else
-                resilienceReduction = pVictim->GetRangedCritDamageReduction(damageInfo->damage);
-
+            uint32 resilienceReduction = pVictim->GetMeleeCritDamageReduction(damageInfo->damage);
             damageInfo->damage      -= resilienceReduction;
             damageInfo->cleanDamage += resilienceReduction;
             break;
@@ -1373,12 +1360,7 @@ void Unit::CalculateMeleeDamage(Unit *pVictim, uint32 damage, CalcDamageInfo *da
 
     // only from players
     if (GetTypeId() == TYPEID_PLAYER)
-    {
-        if (attackType != RANGED_ATTACK)
-            damage -= pVictim->GetMeleeDamageReduction(damage);
-        else
-            damage -= pVictim->GetRangedDamageReduction(damage);
-    }
+        damage -= pVictim->GetMeleeDamageReduction(damage);
 
     // Calculate absorb resist
     if (int32(damageInfo->damage) > 0)
