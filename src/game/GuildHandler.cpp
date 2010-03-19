@@ -242,9 +242,7 @@ void WorldSession::HandleGuildInfoOpcode(WorldPacket& /*recvPacket*/)
 
     WorldPacket data(SMSG_GUILD_INFO, (5*4 + guild->GetName().size() + 1));
     data << guild->GetName();
-    data << guild->GetCreatedDay();
-    data << guild->GetCreatedMonth();
-    data << guild->GetCreatedYear();
+    data << secsToTimeBitFields(guild->GetCreatedDate());
     data << guild->GetMemberSize();
     data << guild->GetMemberSize();
 
