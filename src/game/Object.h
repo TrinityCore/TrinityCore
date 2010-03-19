@@ -560,10 +560,13 @@ class WorldObject : public Object, public WorldLocation
 
         bool IsInMap(const WorldObject* obj) const
         {
-            if (obj)
-                return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap()) && InSamePhase(obj);
-            else
+            if (!obj || !IsInWorld() || !(obj->IsInWorld()) || GetMap() != obj->GetMap() || !InSamePhase(obj))
                 return false;
+
+            if (GetMap()->Instanceable() && GetInstanceId() != obj->GetInstanceId())
+                return false;
+
+            return true;
         }
         bool IsWithinDist3d(float x, float y, float z, float dist) const
             { return IsInDist(x, y, z, dist + GetObjectSize()); }
