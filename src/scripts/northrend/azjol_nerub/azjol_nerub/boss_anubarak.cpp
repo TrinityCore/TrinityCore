@@ -74,7 +74,7 @@ float SpawnPoint[2][2] =
 
 struct boss_anub_arakAI : public ScriptedAI
 {
-    boss_anub_arakAI(Creature *c) : ScriptedAI(c)
+    boss_anub_arakAI(Creature *c) : ScriptedAI(c), lSummons(me)
     {
         pInstance = c->GetInstanceData();
     }
@@ -98,6 +98,8 @@ struct boss_anub_arakAI : public ScriptedAI
     uint32 VENOMANCER_Timer;
     uint32 DATTER_Timer;
 
+    SummonList lSummons;
+
     void Reset()
     {
 
@@ -112,6 +114,8 @@ struct boss_anub_arakAI : public ScriptedAI
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
         m_creature->RemoveAura(SPELL_SUBMERGE);
+
+        lSummons.DespawnAll();
         
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
@@ -271,6 +275,12 @@ struct boss_anub_arakAI : public ScriptedAI
         
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
+
+    void JustSummoned(Creature* summon)
+    {
+        lSummons.Summon(summon);
+    }
+    
 };
 
 CreatureAI* GetAI_boss_anub_arak(Creature *pCreature)
