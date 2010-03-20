@@ -67,7 +67,7 @@ static Locations SpawnLoc[]=
 
 struct boss_slad_ranAI : public ScriptedAI
 {
-    boss_slad_ranAI(Creature *c) : ScriptedAI(c)
+    boss_slad_ranAI(Creature *c) : ScriptedAI(c), lSummons(me)
     {
         pInstance = c->GetInstanceData();
     }
@@ -79,6 +79,8 @@ struct boss_slad_ranAI : public ScriptedAI
 
     uint8 uiPhase;
 
+    SummonList lSummons;
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -88,6 +90,8 @@ struct boss_slad_ranAI : public ScriptedAI
         uiVenomBoltTimer = 15000;
         uiSpawnTimer = 5000;
         uiPhase = 0;
+
+        lSummons.DespawnAll();
 
         if (pInstance)
             pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
@@ -169,7 +173,7 @@ struct boss_slad_ranAI : public ScriptedAI
     void JustSummoned(Creature* summoned)
     {
         summoned->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
-
+        lSummons.Summon(summon);
     }
 };
 
