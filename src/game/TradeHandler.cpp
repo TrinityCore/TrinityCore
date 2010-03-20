@@ -202,9 +202,6 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                         _player->pTrader->GetName(),_player->pTrader->GetSession()->GetAccountId());
                 }
 
-                
-                // make not refundable
-                myItems[i]->SetNotRefundable(_player);
                 // store
                 _player->pTrader->MoveItemToInventory( traderDst, myItems[i], true, true);
             }
@@ -220,8 +217,6 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
                         _player->GetName(),_player->GetSession()->GetAccountId());
                 }
 
-                // make not refundable
-                hisItems[i]->SetNotRefundable(_player->pTrader);
                 // store
                 _player->MoveItemToInventory( playerDst, hisItems[i], true, true);
             }
@@ -378,12 +373,14 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
                 myItems[i]->SetUInt64Value( ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
                 iPtr = _player->GetItemByGuid(_player->tradeItems[i]);
                 _player->MoveItemFromInventory(iPtr->GetBagSlot(), iPtr->GetSlot(), true);
+                myItems[i]->SetNotRefundable(_player);
             }
             if (hisItems[i])
             {
                 hisItems[i]->SetUInt64Value( ITEM_FIELD_GIFTCREATOR,_player->pTrader->GetGUID());
                 iPtr = _player->pTrader->GetItemByGuid(_player->pTrader->tradeItems[i]);
                 _player->pTrader->MoveItemFromInventory(iPtr->GetBagSlot(), iPtr->GetSlot(), true);
+                hisItems[i]->SetNotRefundable(_player->pTrader);
             }
         }
 
