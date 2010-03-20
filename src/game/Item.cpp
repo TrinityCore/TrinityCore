@@ -1069,13 +1069,15 @@ void Item::DeleteRefundDataFromDB()
     CharacterDatabase.PExecute("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
 }
 
-void Item::SetNotRefundable(Player *owner)
+void Item::SetNotRefundable(Player *owner, bool changestate)
 {
     if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
         return;
 
     RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
-    SetState(ITEM_CHANGED, owner);
+    // Following is not applicable in the trading procedure
+    if (changestate)
+        SetState(ITEM_CHANGED, owner);
     
     SetRefundRecipient(0);
     SetPaidMoney(0);
