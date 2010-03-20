@@ -103,7 +103,7 @@ enum Quests
 
 enum Achievements
 {
-    ACHIEV_BRANN_SPANKIN                = 2154
+    ACHIEV_BRANN_SPANKIN_NEW            = 2154
 };
 
 #define GOSSIP_ITEM_START               "Brann, it would be our honor!"
