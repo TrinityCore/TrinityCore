@@ -371,16 +371,16 @@ void WorldSession::HandleAcceptTradeOpcode(WorldPacket& /*recvPacket*/)
             if (myItems[i])
             {
                 myItems[i]->SetUInt64Value( ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
+                myItems[i]->SetNotRefundable(_player, false);
                 iPtr = _player->GetItemByGuid(_player->tradeItems[i]);
                 _player->MoveItemFromInventory(iPtr->GetBagSlot(), iPtr->GetSlot(), true);
-                myItems[i]->SetNotRefundable(_player);
             }
             if (hisItems[i])
             {
                 hisItems[i]->SetUInt64Value( ITEM_FIELD_GIFTCREATOR,_player->pTrader->GetGUID());
+                hisItems[i]->SetNotRefundable(_player->pTrader, false);
                 iPtr = _player->pTrader->GetItemByGuid(_player->pTrader->tradeItems[i]);
                 _player->pTrader->MoveItemFromInventory(iPtr->GetBagSlot(), iPtr->GetSlot(), true);
-                hisItems[i]->SetNotRefundable(_player->pTrader);
             }
         }
 
