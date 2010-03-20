@@ -509,6 +509,9 @@ struct npc_brann_hosAI : public npc_escortAI
                     break;
                 case 29:
                     DoScriptText(SAY_EVENT_END_02, m_creature);
+                    if (pInstance)
+                        pInstance->SetData(DATA_BRANN_EVENT, DONE);
+                    
                     JumpToNextStep(5500);
                     break;
                 case 30:
@@ -615,7 +618,6 @@ struct npc_brann_hosAI : public npc_escortAI
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_MARNAK),false);
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM),false);
                         pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR),false);
-                        pInstance->SetData(DATA_BRANN_EVENT, DONE);
                     }
                     Player* pPlayer = GetPlayerForEscort();
                     if (pPlayer)
