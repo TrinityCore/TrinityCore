@@ -562,10 +562,6 @@ class WorldObject : public Object, public WorldLocation
         {
             if (!obj || !IsInWorld() || !(obj->IsInWorld()) || GetMap() != obj->GetMap() || !InSamePhase(obj))
                 return false;
-
-            if (GetMap()->Instanceable() && GetInstanceId() != obj->GetInstanceId())
-                return false;
-
             return true;
         }
         bool IsWithinDist3d(float x, float y, float z, float dist) const
