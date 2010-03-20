@@ -218,14 +218,6 @@ struct ItemRequiredTarget
 
 bool ItemCanGoIntoBag(ItemPrototype const *proto, ItemPrototype const *pBagProto);
 
-struct ItemRefund
-{
-    ItemRefund() : paidMoney(0), paidExtendedCost(0) {}
-    uint32 eligibleFor;
-    uint32 paidMoney;
-    uint32 paidExtendedCost;
-};
-
 class Item : public Object
 {
     public:
@@ -331,11 +323,17 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetProto()->IsConjuredConsumable(); }
 
         // Item Refund system
-        ItemRefund *GetRefundData() { return m_RefundData; }
-        void SetRefundData(ItemRefund *RefundData) { m_RefundData = RefundData; }
         void SetNotRefundable(Player *owner);
+        void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
+        void SetPaidMoney(uint32 money) { m_paidMoney = money; }
+        void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
+        uint32 GetRefundRecipient() { return m_refundRecipient; }
+        uint32 GetPaidMoney() { return m_paidMoney; }
+        uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
+        
         void UpdatePlayedTime(Player *owner);
-        uint32 GetPlayedTime(bool raw = false);
+        uint32 GetPlayedTime();
+        bool IsRefundExpired();
         
         void BuildUpdate(UpdateDataMapType& );
 
@@ -346,6 +344,8 @@ class Item : public Object
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window
         time_t m_lastPlayedTimeUpdate;
-        ItemRefund *m_RefundData;
+        uint32 m_refundRecipient;
+        uint32 m_paidMoney;
+        uint32 m_paidExtendedCost;
 };
 #endif
