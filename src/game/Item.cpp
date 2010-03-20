@@ -1084,7 +1084,7 @@ void Item::SetNotRefundable(Player *owner, bool changestate)
     SetPaidExtendedCost(0);
     DeleteRefundDataFromDB();   
     
-    owner->DeleteRefundReference(this);
+    owner->DeleteRefundReference(GetGUID());
 }
 
 void Item::UpdatePlayedTime(Player *owner)
