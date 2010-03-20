@@ -1359,41 +1359,32 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
         return;
     }
 
+    // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
+    item->UpdatePlayedTime(GetPlayer());
+        
     if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
     {
         sLog.outDebug("Item refund: item not refundable!");
         return;
     }
-
-    if (item->GetPlayedTime() > (2*HOUR))    // item refund has expired
-        item->SetNotRefundable(GetPlayer());
         
-    ItemRefund* RefundData = item->GetRefundData();
-    if (!RefundData)
-    {
-        sLog.outDebug("Item refund: cannot find refundable data.");
-        item->SetNotRefundable(GetPlayer());
-        return;
-    }
-    
-    if (GetPlayer()->GetGUIDLow() != RefundData->eligibleFor) // Formerly refundable item got traded
+    if (GetPlayer()->GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
     {
         sLog.outDebug("Item refund: item was traded!");
         item->SetNotRefundable(GetPlayer());
         return;
     }
 
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(RefundData->paidExtendedCost);
+    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
     if (!iece)
     {
         sLog.outDebug("Item refund: cannot find extendedcost data.");
         return;
     }
     
-    item->UpdatePlayedTime(GetPlayer());
     WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
     data << uint64(guid);                          // item guid
-    data << uint32(RefundData->paidMoney);          // money cost
+    data << uint32(item->GetPaidMoney());          // money cost
     data << uint32(iece->reqhonorpoints);    // honor point cost
     data << uint32(iece->reqarenapoints);   // arena point cost
     for (uint8 i = 0; i < 5; ++i)                  // item cost data
@@ -1425,7 +1416,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         return;
     }
 
-    if (item->GetPlayedTime() > (2*HOUR))    // item refund has expired
+    if (item->IsRefundExpired())    // item refund has expired
     {
         item->SetNotRefundable(GetPlayer());
         WorldPacket data(SMSG_ITEM_REFUND_RESULT, 8+4);
@@ -1435,28 +1426,22 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         return;
     }
 
-    ItemRefund* RefundData = item->GetRefundData();
-    if (!RefundData)
-    {
-        sLog.outDebug("Item refund: cannot find refundable data.");
-        item->SetNotRefundable(GetPlayer());
-        return;
-    }
-    
-    if (GetPlayer()->GetGUIDLow() != RefundData->eligibleFor) // Formerly refundable item got traded
+    if (GetPlayer()->GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
     {
         sLog.outDebug("Item refund: item was traded!");
         item->SetNotRefundable(GetPlayer());
         return;
     }
     
-    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(RefundData->paidExtendedCost);
+    ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
     if (!iece)
     {
         sLog.outDebug("Item refund: cannot find extendedcost data.");
         return;
     }
     
+    uint32 moneyRefund = item->GetPaidMoney();
+
     bool store_error = false;
     for (uint8 i = 0; i < 5; ++i)
     {
@@ -1487,7 +1472,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     WorldPacket data(SMSG_ITEM_REFUND_RESULT, 8+4+4+4+4+4*4+4*4);
     data << uint64(guid);                          // item guid
     data << uint32(0);                             // 0, or error code
-    data << uint32(RefundData->paidMoney);          // money cost
+    data << uint32(moneyRefund);          // money cost
     data << uint32(iece->reqhonorpoints);    // honor point cost
     data << uint32(iece->reqarenapoints);   // arena point cost
     for (uint8 i = 0; i < 5; ++i)                  // item cost data
@@ -1498,8 +1483,8 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     SendPacket(&data);
 
     // Delete any references to the refund data
-    item->DeleteRefundDataFromDB();
-    GetPlayer()->DeleteRefundReference(item);
+    item->SetNotRefundable(GetPlayer());
+
     // Destroy item
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
     
@@ -1519,7 +1504,6 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     }
     
     // Grant back money
-    uint32 moneyRefund = RefundData->paidMoney;
     if (moneyRefund)
         _player->ModifyMoney(moneyRefund);
 
@@ -1533,5 +1517,4 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     if (arenaRefund)
         _player->ModifyArenaPoints(arenaRefund);
 
-    delete RefundData;
 }
