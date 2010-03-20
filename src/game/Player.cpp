@@ -16412,7 +16412,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                         item->SetRefundRecipient(fields[0].GetUInt32());
                         item->SetPaidMoney(fields[1].GetUInt32());
                         item->SetPaidExtendedCost(fields[2].GetUInt32());
-                        AddRefundReference(item);
+                        AddRefundReference(item->GetGUID());
                     }
                 }
             }
@@ -17499,9 +17499,14 @@ void Player::_SaveInventory()
     // the client auto counts down in real time after having received the initial played time on the first
     // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
     // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
-    for (std::set<Item*>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); ++itr)
+    std::set<uint64>::iterator i_next;
+    for (std::set<uint64>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
     {
-        Item* iPtr = *itr;
+        // use copy iterator because UpdatePlayedTime may invalidate itr
+        i_next = itr;
+        ++i_next;
+
+        Item* iPtr = GetItemByGuid(*itr);
         ASSERT(iPtr); // Sanity check, if this assertion is hit then the item wasn't removed from the set correctly./
         iPtr->UpdatePlayedTime(this);
     }
@@ -19362,7 +19367,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 it->SetPaidMoney(price);
                 it->SetPaidExtendedCost(crItem->ExtendedCost);
                 it->SaveRefundDataToDB();
-                AddRefundReference(it);
+                AddRefundReference(it->GetGUID());
             }
         }
     }
@@ -19420,7 +19425,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 it->SetPaidMoney(price);
                 it->SetPaidExtendedCost(crItem->ExtendedCost);
                 it->SaveRefundDataToDB();
-                AddRefundReference(it);
+                AddRefundReference(it->GetGUID());
             }
         }
     }
@@ -23347,12 +23352,12 @@ void Player::SendDuelCountdown(uint32 counter)
     GetSession()->SendPacket(&data);
 }
 
-void Player::AddRefundReference(Item* it)
+void Player::AddRefundReference(uint64 it)
 {
     m_refundableItems.insert(it);
 }
 
-void Player::DeleteRefundReference(Item* it)
+void Player::DeleteRefundReference(uint64 it)
 {
     m_refundableItems.erase(it);
 }

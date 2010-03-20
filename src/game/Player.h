@@ -1190,8 +1190,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         uint8 _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL ) const;
         
-        void AddRefundReference(Item* it);
-        void DeleteRefundReference(Item* it);
+        void AddRefundReference(uint64 it);
+        void DeleteRefundReference(uint64 it);
 
         void ApplyEquipCooldown( Item * pItem );
         void SetAmmo( uint32 item );
@@ -2558,7 +2558,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 _CanStoreItem_InInventorySlots( uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot ) const;
         Item* _StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, bool update );
 
-        std::set<Item*> m_refundableItems;
+        std::set<uint64> m_refundableItems;
 
         void UpdateKnownCurrencies(uint32 itemId, bool apply);
         int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest);
