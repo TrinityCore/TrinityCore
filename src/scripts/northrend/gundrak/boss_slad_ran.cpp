@@ -173,7 +173,7 @@ struct boss_slad_ranAI : public ScriptedAI
     void JustSummoned(Creature* summoned)
     {
         summoned->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
-        lSummons.Summon(summon);
+        lSummons.Summon(summoned);
     }
 };
 
