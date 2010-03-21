@@ -378,6 +378,7 @@ SET(scripts_STAT_SRCS
    northrend/nexus/oculus/boss_varos.cpp
    northrend/nexus/oculus/boss_eregos.cpp
    northrend/nexus/oculus/oculus.h
+   northrend/nexus/oculus/oculus.cpp
    northrend/obsidian_sanctum/instance_obsidian_sanctum.cpp
    northrend/obsidian_sanctum/boss_sartharion.cpp
    northrend/obsidian_sanctum/obsidian_sanctum.h
