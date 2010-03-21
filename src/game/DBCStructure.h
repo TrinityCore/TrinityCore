@@ -1145,15 +1145,6 @@ struct MapEntry
     bool IsBattleArena() const { return map_type == MAP_ARENA; }
     bool IsBattleGroundOrArena() const { return map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
 
-    bool IsMountAllowed() const
-    {
-        return !IsDungeon() ||
-            MapID==209 || MapID==269 || MapID==309 ||       // TanarisInstance, CavernsOfTime, Zul'gurub
-            MapID==509 || MapID==534 || MapID==560 ||       // AhnQiraj, HyjalPast, HillsbradPast
-            MapID==568 || MapID==580 || MapID==615 ||       // ZulAman, Sunwell Plateau, Obsidian Sanctrum
-            MapID==616 || MapID==595;                       // Eye Of Eternity, The Culling of Stratholme
-    }
-
     bool GetEntrancePos(int32 &mapid, float &x, float &y) const
     {
         if(entrance_map < 0)
