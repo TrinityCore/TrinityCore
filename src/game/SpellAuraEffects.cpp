@@ -1257,10 +1257,19 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                     // 5..8 ticks have normal tick damage
                 }
                 // There is a Chance to make a Soul Shard when Drain soul does damage
-                if (GetSpellProto()->SpellFamilyName==SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000))
+                if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000))
                 {
-                    if(caster && roll_chance_i(20))
-                        caster->CastSpell(caster, 24827, true, 0, this);
+                    if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
+                    {
+                        if (roll_chance_i(20))
+                        {
+                            caster->CastSpell(caster, 64018, true, 0, this);
+                            // Glyph of Drain Soul - chance to create an additional Soul Shard
+                            if (AuraEffect *aur = caster->GetAuraEffect(58070, 0))
+                                if (roll_chance_i(aur->GetMiscValue()))
+                                    caster->CastSpell(caster, 58068, true, 0, aur);
+                        }
+                    }
                 }
             }
             else
@@ -5971,14 +5980,15 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
     if(!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
 
-    Unit * target = aurApp->GetTarget();
-
     if(!(apply))
     {
         Unit * caster = GetCaster();
 
         if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
             return;
+
+        Player *plCaster = caster->ToPlayer();
+        Unit *target = aurApp->GetTarget();
 
         if(target->getDeathState() != JUST_DIED)
             return;
@@ -5990,28 +6000,45 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
         if(GetSpellProto()->EffectItemType[m_effIndex] == 0)
             return;
 
-        // Soul Shard only from units that grant XP or honor
-        if( GetSpellProto()->EffectItemType[m_effIndex] == 6265 &&
-            (!caster->ToPlayer()->isHonorOrXPTarget(target) ||
-             target->GetTypeId() == TYPEID_UNIT && !target->ToCreature()->isTappedBy(caster->ToPlayer())) )
-            return;
+        // Soul Shard
+        if (GetSpellProto()->EffectItemType[m_effIndex] == 6265)
+        {
+            // Soul Shard only from units that grant XP or honor
+            if (!plCaster->isHonorOrXPTarget(target) ||
+                (target->GetTypeId() == TYPEID_UNIT && !target->ToCreature()->isTappedBy(plCaster)))
+                return;
+
+            // If this is Drain Soul, check for Glyph of Drain Soul
+            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && (GetSpellProto()->SpellFamilyFlags[0] & 0x00004000))
+            {
+                // Glyph of Drain Soul - chance to create an additional Soul Shard
+                if (AuraEffect *aur = caster->GetAuraEffect(58070, 0))
+                    if (roll_chance_i(aur->GetMiscValue()))
+                        caster->CastSpell(caster, 58068, true, 0, aur); // We _could_ simply do ++count here, but Blizz does it this way :)
+            }
+        }
 
         //Adding items
         uint32 noSpaceForCount = 0;
         uint32 count = m_amount;
-
+        
         ItemPosCountVec dest;
-        uint8 msg = caster->ToPlayer()->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, GetSpellProto()->EffectItemType[m_effIndex], count, &noSpaceForCount);
+        uint8 msg = plCaster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, GetSpellProto()->EffectItemType[m_effIndex], count, &noSpaceForCount);
         if( msg != EQUIP_ERR_OK )
         {
             count-=noSpaceForCount;
-            caster->ToPlayer()->SendEquipError( msg, NULL, NULL );
+            plCaster->SendEquipError(msg, NULL, NULL);
             if (count==0)
                 return;
         }
 
-        Item* newitem = caster->ToPlayer()->StoreNewItem(dest, GetSpellProto()->EffectItemType[m_effIndex], true);
-        caster->ToPlayer()->SendNewItem(newitem, count, true, false);
+        Item* newitem = plCaster->StoreNewItem(dest, GetSpellProto()->EffectItemType[m_effIndex], true);
+        if (!newitem)
+        {
+            plCaster->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
+            return;
+        }
+        plCaster->SendNewItem(newitem, count, true, true);
     }
 }
 
