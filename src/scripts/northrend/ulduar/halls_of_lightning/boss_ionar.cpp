@@ -185,7 +185,8 @@ struct boss_ionarAI : public ScriptedAI
                     if (pSpark->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                         pSpark->GetMotionMaster()->MovementExpired();
 
-                    pSpark->SetSpeed(MOVE_RUN, pSpark->GetCreatureInfo()->speed * 2);
+                    //now handle by db
+                    //pSpark->SetSpeed(MOVE_RUN, pSpark->GetCreatureInfo()->speed * 2);
                     pSpark->GetMotionMaster()->MovePoint(POINT_CALLBACK, pos);
                 }
             }
@@ -430,7 +431,8 @@ struct mob_spark_of_ionarAI : public ScriptedAI
                         if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                             m_creature->GetMotionMaster()->MovementExpired();
 
-                        m_creature->SetSpeed(MOVE_RUN, m_creature->GetCreatureInfo()->speed * 2);
+                        //now handle by db
+                        //m_creature->SetSpeed(MOVE_RUN, m_creature->GetCreatureInfo()->speed * 2);
                         m_creature->GetMotionMaster()->MovePoint(POINT_CALLBACK, pos);
                     }
                 }

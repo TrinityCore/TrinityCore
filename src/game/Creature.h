@@ -88,7 +88,8 @@ struct CreatureInfo
     uint32  faction_A;
     uint32  faction_H;
     uint32  npcflag;
-    float   speed;
+    float   speed_walk;
+    float   speed_run;
     float   scale;
     uint32  rank;
     float   mindmg;
