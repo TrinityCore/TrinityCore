@@ -93,10 +93,10 @@ struct boss_nothAI : public BossAI
         else
         {
             events.ScheduleEvent(EVENT_BALCONY, 110000);
-            events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
+            events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
             events.ScheduleEvent(EVENT_WARRIOR, 30000);
             if (getDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
-                events.ScheduleEvent(EVENT_BLINK, 20000+rand()%10000);
+                events.ScheduleEvent(EVENT_BLINK, 20000 + rand()%20000);
         }
     }
 
@@ -142,7 +142,7 @@ struct boss_nothAI : public BossAI
             {
                 case EVENT_CURSE:
                     DoCastAOE(SPELL_CURSE_PLAGUEBRINGER);
-                    events.ScheduleEvent(EVENT_CURSE, 20000+rand()%10000);
+                    events.ScheduleEvent(EVENT_CURSE, 50000 + rand()%10000);
                     return;
                 case EVENT_WARRIOR:
                     DoScriptText(SAY_SUMMON, me);
@@ -153,7 +153,7 @@ struct boss_nothAI : public BossAI
                     DoCastAOE(SPELL_CRIPPLE, true);
                     DoCastAOE(SPELL_BLINK);
                     DoResetThreat();
-                    events.ScheduleEvent(EVENT_BLINK, 20000+rand()%10000);
+                    events.ScheduleEvent(EVENT_BLINK, 40000);
                     return;
                 case EVENT_BALCONY:
                     me->SetReactState(REACT_PASSIVE);
@@ -162,7 +162,7 @@ struct boss_nothAI : public BossAI
                     me->RemoveAllAuras();
                     me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
                     events.Reset();
-                    events.ScheduleEvent(EVENT_WAVE, 2000);
+                    events.ScheduleEvent(EVENT_WAVE, 2000 + rand()%3000);
                     waveCount = 0;
                     return;
                 case EVENT_WAVE:
@@ -177,7 +177,7 @@ struct boss_nothAI : public BossAI
                                 SummonUndead(MOB_GUARDIAN, RAID_MODE(5,10));break;
                     }
                     ++waveCount;
-                    events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, 34000);
+                    events.ScheduleEvent(waveCount < 2 ? EVENT_WAVE : EVENT_GROUND, 30000 + rand()%15000);
                     return;
                 case EVENT_GROUND:
                 {
@@ -185,6 +185,7 @@ struct boss_nothAI : public BossAI
                     float x, y, z, o;
                     me->GetHomePosition(x, y, z, o);
                     me->NearTeleportTo(x, y, z, o);
+                    events.ScheduleEvent(EVENT_BALCONY, 110000);
                     EnterPhaseGround();
                     return;
                 }
