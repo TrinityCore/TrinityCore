@@ -2644,6 +2644,7 @@ CREATE TABLE `instance_template` (
   `startLocZ` float DEFAULT NULL,
   `startLocO` float DEFAULT NULL,
   `script` varchar(128) NOT NULL DEFAULT '',
+  `allowMount` tinyint(1) NOT NULL DEFAULT '0';
   PRIMARY KEY (`map`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
