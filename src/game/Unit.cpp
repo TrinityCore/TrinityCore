@@ -14587,7 +14587,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
     if (isPet() || isTotem())
     {
         if (Unit *owner = GetOwner())
-            owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
+            owner->ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_NONE, PROC_EX_NONE, 0);
     }
     ProcDamageAndSpell(pVictim, PROC_FLAG_KILL, PROC_FLAG_KILLED, PROC_EX_NONE, 0);
 
