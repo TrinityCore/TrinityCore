@@ -908,6 +908,11 @@ UPDATE `creature_template` SET `ScriptName`='mob_crystalline_tangler' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='boss_keristrasza' WHERE `entry`=26723;
 UPDATE `gameobject_template` SET `ScriptName`='containment_sphere' WHERE `entry` IN (188527, 188528, 188526);
 
+/* THE NEXUS, THE OCULUS */
+UPDATE `instance_template` SET `script`='instance_oculus' WHERE `map`=578;
+UPDATE `creature_template` SET `ScriptName`='boss_drakos' WHERE `entry`=27654;
+UPDATE `creature_template` SET `ScriptName`='npcs_oculus_drakes' WHERE `entry` IN (27657,27658,27659);
+
 /* OBSIDIAN SANCTUM */
 UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE map=615;
 UPDATE creature_template SET ScriptName='boss_sartharion' WHERE entry=28860;
