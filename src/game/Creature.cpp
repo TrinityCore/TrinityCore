@@ -341,9 +341,10 @@ bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data )
 
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
 
-    SetSpeed(MOVE_WALK,     cinfo->speed );
-    SetSpeed(MOVE_RUN,      cinfo->speed );
-    SetSpeed(MOVE_SWIM,     cinfo->speed );
+    SetSpeed(MOVE_WALK,     cinfo->speed_walk );
+    SetSpeed(MOVE_RUN,      cinfo->speed_run );
+    SetSpeed(MOVE_SWIM, 1.0f);      // using 1.0 rate
+    SetSpeed(MOVE_FLIGHT, 1.0f);    // using 1.0 rate
 
     SetFloatValue(OBJECT_FIELD_SCALE_X, cinfo->scale);
 

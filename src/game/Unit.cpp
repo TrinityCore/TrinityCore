@@ -292,6 +292,7 @@ void Unit::SendMonsterMoveWithSpeedToCurrentDestination(Player* player)
         SendMonsterMoveWithSpeed(x, y, z, 0, player);
 }
 
+
 void Unit::SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime, Player* player)
 {
     if (!transitTime)
@@ -421,8 +422,9 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
 
     data << uint32(MovementFlags);
 
-    if (MovementFlags & MONSTER_MOVE_WALK)
-        moveTime *= 1.05f;
+    //enable me if things goes wrong or looks ugly, it is however an old hack
+    //if (MovementFlags & MONSTER_MOVE_WALK)
+        //moveTime *= 1.05f;
 
     data << uint32(moveTime);                               // Time in between points
     data << uint32(1);                                      // 1 single waypoint
@@ -11744,7 +11746,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
         {
             // Set creature speed rate from CreatureInfo
             if (GetTypeId() == TYPEID_UNIT)
-                speed *= this->ToCreature()->GetCreatureInfo()->speed;
+                speed *= this->ToCreature()->GetCreatureInfo()->speed_walk;
 
             // Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
             // TODO: possible affect only on MOVE_RUN
