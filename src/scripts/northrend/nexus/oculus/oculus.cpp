@@ -167,7 +167,7 @@ void AddSC_oculus()
     Script *newscript;
     
     newscript = new Script;
-    newscript->Name = "npc_occulus_drake";
+    newscript->Name = "npc_oculus_drake";
     newscript->pGossipHello = &GossipHello_npc_oculus_drake;
     newscript->pGossipSelect = &GossipSelect_npc_oculus_drake;
     newscript->RegisterSelf();
