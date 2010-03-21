@@ -149,7 +149,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
     }
 
-    bool allowMount = !mEntry->IsDungeon();
+    bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattleGroundOrArena();
     if (mInstance)
     {
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
