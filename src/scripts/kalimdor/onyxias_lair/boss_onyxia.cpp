@@ -42,8 +42,8 @@ enum
     SPELL_FIREBALL              = 18392,
 
     //Not much choise about these. We have to make own defintion on the direction/start-end point
-    //SPELL_BREATH_NORTH_TO_SOUTH = 17086,                  // 20x in "array"
-    //SPELL_BREATH_SOUTH_TO_NORTH = 18351,                  // 11x in "array"
+    SPELL_BREATH_NORTH_TO_SOUTH = 17086,                    // 20x in "array"
+    SPELL_BREATH_SOUTH_TO_NORTH = 18351,                    // 11x in "array"
 
     SPELL_BREATH_EAST_TO_WEST   = 18576,                    // 7x in "array"
     SPELL_BREATH_WEST_TO_EAST   = 18609,                    // 7x in "array"
@@ -59,8 +59,10 @@ enum
     SPELL_HEATED_GROUND         = 22191,
 
     SPELL_SUMMONWHELP           = 17646,
+    SPELL_SUMMONLAIRGUARD       = 68968,
     NPC_WHELP                   = 11262,
-    MAX_WHELP                   = 16,
+    MAX_WHELP                   = 20,
+    NPC_LAIRGUARD               = 36561,
 
     PHASE_START                 = 1,
     PHASE_BREATH                = 2,
@@ -83,8 +85,8 @@ static sOnyxMove aMoveData[]=
     {3, 5, SPELL_BREATH_NE_TO_SW,        10.2191f, -247.912f, -60.896f},//north-east
     {4, 2, SPELL_BREATH_SE_TO_NW,       -63.5156f, -240.096f, -60.477f},//south-east
     {5, 3, SPELL_BREATH_SW_TO_NE,       -58.2509f, -189.020f, -60.790f},//south-west
-    //{6, 7, SPELL_BREATH_SOUTH_TO_NORTH, -65.8444f, -213.809f, -60.2985f},//south
-    //{7, 6, SPELL_BREATH_NORTH_TO_SOUTH,  22.8763f, -217.152f, -60.0548f},//north
+    {6, 7, SPELL_BREATH_SOUTH_TO_NORTH, -65.8444f, -213.809f, -60.2985f},//south
+    {7, 6, SPELL_BREATH_NORTH_TO_SOUTH,  22.8763f, -217.152f, -60.0548f},//north
 };
 
 static float afSpawnLocations[2][3]=
@@ -112,9 +114,11 @@ struct boss_onyxiaAI : public ScriptedAI
     uint32 m_uiSummonWhelpsTimer;
     uint32 m_uiBellowingRoarTimer;
     uint32 m_uiWhelpTimer;
+    uint32 m_uiLairGuardTimer;
 
     uint8 m_uiSummonCount;
     bool m_bIsSummoningWhelps;
+    bool m_bIsSummoningLairGuards;
 
     void Reset()
     {
@@ -136,9 +140,11 @@ struct boss_onyxiaAI : public ScriptedAI
         m_uiSummonWhelpsTimer = 45000;
         m_uiBellowingRoarTimer = 30000;
         m_uiWhelpTimer = 1000;
+        m_uiLairGuardTimer = 1000;
 
         m_uiSummonCount = 0;
         m_bIsSummoningWhelps = false;
+        m_bIsSummoningLairGuards = false;
     }
 
     void Aggro(Unit* pWho)
@@ -354,6 +360,24 @@ struct boss_onyxiaAI : public ScriptedAI
                     m_bIsSummoningWhelps = true;
                 else
                     m_uiSummonWhelpsTimer -= uiDiff;
+            }
+            if (m_bIsSummoningLairGuards)
+            {
+                if (m_uiLairGuardTimer <= uiDiff)
+                {
+                    m_creature->SummonCreature(NPC_LAIRGUARD, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    m_creature->SummonCreature(NPC_LAIRGUARD, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    m_uiLairGuardTimer = 30000;
+                }
+                else
+                    m_uiLairGuardTimer -= uiDiff;
+            }
+            else
+            {
+                if (m_uiLairGuardTimer <= uiDiff)
+                    m_bIsSummoningLairGuards = true;
+                else
+                    m_uiLairGuardTimer -= uiDiff;
             }
         }
     }
