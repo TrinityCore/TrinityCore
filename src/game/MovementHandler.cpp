@@ -149,6 +149,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
     }
 
+    bool allowMount = !mEntry->IsDungeon();
     if (mInstance)
     {
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
@@ -156,7 +157,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         {
             if (mapDiff->resetTime)
             {
-
                 if (uint32 timeReset = sInstanceSaveManager.GetResetTimeFor(mEntry->MapID,diff))
                 {
                     uint32 timeleft = timeReset - time(NULL);
@@ -164,10 +164,11 @@ void WorldSession::HandleMoveWorldportAckOpcode()
                 }
             }
         }
+        allowMount = mInstance->allowMount;
     }
 
     // mount allow check
-    if(!mEntry->IsMountAllowed())
+    if (!allowMount)
         _player->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // update zone immediately, otherwise leave channel will cause crash in mtmap
