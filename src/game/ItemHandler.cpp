@@ -1516,5 +1516,4 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     uint32 arenaRefund = iece->reqarenapoints;
     if (arenaRefund)
         _player->ModifyArenaPoints(arenaRefund);
-
 }
