@@ -3692,6 +3692,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\..\src\scripts\northrend\nexus\oculus\oculus.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\..\src\scripts\northrend\nexus\oculus\oculus.h"
 							>
 						</File>
