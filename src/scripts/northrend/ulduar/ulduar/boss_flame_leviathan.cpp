@@ -20,40 +20,38 @@
 #include "ulduar.h"
 #include "Vehicle.h"
 
-#define SPELL_PURSUED           62374
-#define SPELL_GATHERING_SPEED   62375
-#define SPELL_BATTERING_RAM     62376
-#define SPELL_FLAME_VENTS       62396
-#define SPELL_MISSILE_BARRAGE   62400
-#define SPELL_SYSTEMS_SHUTDOWN  62475
-
-#define SPELL_FLAME_CANNON      62395
-//#define SPELL_FLAME_CANNON      64692 trigger the same spell
-
-#define SPELL_OVERLOAD_CIRCUIT  62399
-
-#define SPELL_SEARING_FLAME     62402
-
-#define SPELL_BLAZE             62292
-
-#define SPELL_SMOKE_TRAIL       63575
-
-#define SPELL_MIMIRON_INFERNO   62910
-
-#define SPELL_HODIR_FURY        62297
-
-#define SPELL_ELECTROSHOCK      62522
-
-enum Mobs
+enum Spells
 {
-    MOB_MECHANOLIFT = 33214,
-    MOB_LIQUID      = 33189,
-    MOB_CONTAINER   = 33218,
+    SPELL_PURSUED                               = 62374,
+    SPELL_GATHERING_SPEED                       = 62375,
+    SPELL_BATTERING_RAM                         = 62376,
+    SPELL_FLAME_VENTS                           = 62396,
+    SPELL_MISSILE_BARRAGE                       = 62400,
+    SPELL_SYSTEMS_SHUTDOWN                      = 62475,
+
+    SPELL_FLAME_CANNON                          = 62395,
+//  SPELL_FLAME_CANNON                          = 64692, trigger the same spell
+
+    SPELL_OVERLOAD_CIRCUIT                      = 62399,
+    SPELL_SEARING_FLAME                         = 62402,
+    SPELL_BLAZE                                 = 62292,
+    SPELL_SMOKE_TRAIL                           = 63575,
+    SPELL_MIMIRON_INFERNO                       = 62910,
+    SPELL_HODIR_FURY                            = 62297,
+    SPELL_ELECTROSHOCK                          = 62522,
+};
+
+enum Creatures
+{
+    MOB_MECHANOLIFT                             = 33214,
+    MOB_LIQUID                                  = 33189,
+    MOB_CONTAINER                               = 33218,
 };
 
 enum Events
 {
-    EVENT_PURSUE = 1,
+    EVENT_NONE,
+    EVENT_PURSUE,
     EVENT_MISSILE,
     EVENT_VENT,
     EVENT_SPEED,
@@ -64,41 +62,59 @@ enum Events
 
 enum Seats
 {
-    SEAT_PLAYER = 0,
-    SEAT_TURRET = 1,
-    SEAT_DEVICE = 2,
+    SEAT_PLAYER                                 = 0,
+    SEAT_TURRET                                 = 1,
+    SEAT_DEVICE                                 = 2,
+};
+
+enum Yells
+{
+    SAY_AGGRO                                   = -1603060,
+    SAY_SLAY                                    = -1603061,
+    SAY_DEATH                                   = -1603062,
+    SAY_TARGET_1                                = -1603063,
+    SAY_TARGET_2                                = -1603064,
+    SAY_TARGET_3                                = -1603065,
+    SAY_HARDMODE                                = -1603066,
+    SAY_TOWER_NONE                              = -1603067,
+    SAY_TOWER_FROST                             = -1603068,
+    SAY_TOWER_FLAME                             = -1603069,
+    SAY_TOWER_NATURE                            = -1603070,
+    SAY_TOWER_STORM                             = -1603071,
+    SAY_PLAYER_RIDING                           = -1603072,
+    SAY_OVERLOAD_1                              = -1603073,
+    SAY_OVERLOAD_2                              = -1603074,
+    SAY_OVERLOAD_3                              = -1603075,
 };
 
 struct boss_flame_leviathanAI : public BossAI
 {
-    boss_flame_leviathanAI(Creature *pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(me->GetVehicleKit())
+    boss_flame_leviathanAI(Creature *pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
     {
-        m_pInstance = pCreature->GetInstanceData();
         assert(vehicle);
     }
-
-    ScriptedInstance* m_pInstance;
 
     Vehicle *vehicle;
 
     void Reset()
     {
         _Reset();
-        me->SetReactState(REACT_AGGRESSIVE);
+        m_creature->SetReactState(REACT_AGGRESSIVE);
     }
 
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
-        me->SetReactState(REACT_DEFENSIVE);
+        DoScriptText(SAY_AGGRO, m_creature);
+        m_creature->SetReactState(REACT_DEFENSIVE);
         events.ScheduleEvent(EVENT_PURSUE, 0);
         events.ScheduleEvent(EVENT_MISSILE, 1500);
         events.ScheduleEvent(EVENT_VENT, 20000);
         events.ScheduleEvent(EVENT_SPEED, 15000);
         events.ScheduleEvent(EVENT_SUMMON, 0);
-        //events.ScheduleEvent(EVENT_MIMIRON_INFERNO, 60000 + (rand()%60000)); // Not Blizzlike
-        //events.ScheduleEvent(EVENT_HODIR_FURY, 60000 + (rand()%60000));      // Not Blizzlike
-        if (Creature *turret = CAST_CRE(vehicle->GetPassenger(7)))
+        //events.ScheduleEvent(EVENT_MIMIRON_INFERNO, urand(60000, 120000)); // Not Blizzlike
+        //events.ScheduleEvent(EVENT_HODIR_FURY, urand(60000, 120000));      // Not Blizzlike
+        if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             turret->AI()->DoZoneInCombat();
     }
 
@@ -111,8 +127,8 @@ struct boss_flame_leviathanAI : public BossAI
 
     void JustDied(Unit *victim)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_LEVIATHAN, DONE);
+        DoScriptText(SAY_DEATH, m_creature);
+        _JustDied();
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -120,15 +136,15 @@ struct boss_flame_leviathanAI : public BossAI
         if(spell->Id == 62472)
             vehicle->InstallAllAccessories();
         else if(spell->Id == SPELL_ELECTROSHOCK)
-            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+            m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!me->isInCombat())
+        if (!m_creature->isInCombat())
             return;
 
-        if (me->getThreatManager().isThreatListEmpty())
+        if (m_creature->getThreatManager().isThreatListEmpty())
         {
             EnterEvadeMode();
             return;
@@ -136,11 +152,11 @@ struct boss_flame_leviathanAI : public BossAI
 
         events.Update(diff);
 
-        if (me->hasUnitState(UNIT_STAT_CASTING))
+        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         uint32 eventId = events.GetEvent();
-        if (!me->getVictim())
+        if (!m_creature->getVictim())
             eventId = EVENT_PURSUE;
 
         switch(eventId)
@@ -150,13 +166,12 @@ struct boss_flame_leviathanAI : public BossAI
                 DoCastAOE(SPELL_PURSUED, true);
                 //events.RepeatEvent(35000); // this should not be used because eventId may be overriden
                 events.RescheduleEvent(EVENT_PURSUE, 35000);
-                if(!me->getVictim()) // all siege engines and demolishers are dead
+                if(!m_creature->getVictim()) // all siege engines and demolishers are dead
                     UpdateVictim(); // begin to kill other things
                 return;
             case EVENT_MISSILE:
-                //TODO: without target no visual effect
-                //DoCastAOE(SPELL_MISSILE_BARRAGE);
-                DoCast(me->getVictim(), SPELL_MISSILE_BARRAGE);
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM))
+                    DoCast(pTarget, SPELL_MISSILE_BARRAGE);
                 events.RepeatEvent(1500);
                 return;
             case EVENT_VENT:
@@ -169,17 +184,18 @@ struct boss_flame_leviathanAI : public BossAI
                 return;
             case EVENT_SUMMON:
                 if(summons.size() < 15) // 4seat+1turret+10lift
-                    if(Creature *lift = DoSummonFlyer(MOB_MECHANOLIFT, me, rand()%20 + 20, 50, 0))
+                    if(Creature *lift = DoSummonFlyer(MOB_MECHANOLIFT, me, urand(20,40), 50, 0))
                         lift->GetMotionMaster()->MoveRandom(100);
                 events.RepeatEvent(2000);
                 return;
             case EVENT_MIMIRON_INFERNO: // Not Blizzlike
-                DoCast(me->getVictim(), SPELL_MIMIRON_INFERNO);
-                events.RepeatEvent(60000 + (rand()%60000));
+                DoCast(m_creature->getVictim(), SPELL_MIMIRON_INFERNO);
+                events.RepeatEvent(urand(60000, 120000));
                 return;
             case EVENT_HODIR_FURY:      // Not Blizzlike
-                DoCast(me->getVictim(), SPELL_HODIR_FURY);
-                events.RepeatEvent(60000 + (rand()%60000));
+                DoCast(m_creature->getVictim(), SPELL_HODIR_FURY);
+                events.RepeatEvent(urand(60000, 120000));
+                return;
             default:
                 events.PopEvent();
                 break;
@@ -197,7 +213,7 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
     {
         assert(vehicle);
 #ifdef BOSS_DEBUG
-        me->SetReactState(REACT_AGGRESSIVE);
+        m_creature->SetReactState(REACT_AGGRESSIVE);
 #endif
     }
 
@@ -214,17 +230,17 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
 
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
     {
-        if(!me->GetVehicle())
+        if (!m_creature->GetVehicle())
             return;
 
-        if(seatId == SEAT_PLAYER)
+        if (seatId == SEAT_PLAYER)
         {
             if(!apply)
                 return;
 
             if(Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             {
-                turret->setFaction(me->GetVehicleBase()->getFaction());
+                turret->setFaction(m_creature->GetVehicleBase()->getFaction());
                 turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
                 turret->AI()->AttackStart(who);
             }
@@ -234,12 +250,12 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
                 device->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
         }
-        else if(seatId == SEAT_TURRET)
+        else if (seatId == SEAT_TURRET)
         {
-            if(apply)
+            if (apply)
                 return;
 
-            if(Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
+            if (Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 device->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
@@ -254,7 +270,7 @@ struct boss_flame_leviathan_defense_turretAI : public TurretAI
 
     void DamageTaken(Unit *who, uint32 &damage)
     {
-        if(!CanAIAttack(who))
+        if (!CanAIAttack(who))
             damage = 0;
     }
 
@@ -274,15 +290,15 @@ struct boss_flame_leviathan_overload_deviceAI : public PassiveAI
     {
         if(param == EVENT_SPELLCLICK)
         {
-            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            if(me->GetVehicle())
+            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            if(m_creature->GetVehicle())
             {
-                if(Unit *player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
+                if(Unit *player = m_creature->GetVehicle()->GetPassenger(SEAT_PLAYER))
                 {
                     player->ExitVehicle();
-                    me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
-                    if(Unit *leviathan = me->GetVehicleBase()->GetVehicleBase())
+                    m_creature->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
+                    if(Unit *leviathan = m_creature->GetVehicleBase()->GetVehicleBase())
                         player->GetMotionMaster()->MoveKnockbackFrom(leviathan->GetPositionX(), leviathan->GetPositionY(), 30, 30);
                 }
             }
@@ -296,18 +312,18 @@ struct boss_flame_leviathan_safety_containerAI : public PassiveAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(id == me->GetEntry())
+        if(id == m_creature->GetEntry())
         {
             if(Creature *liquid = DoSummon(MOB_LIQUID, me, 0))
                 liquid->CastSpell(liquid, 62494, true);
-            me->DisappearAndDie(); // this will relocate creature to sky
+            m_creature->DisappearAndDie(); // this will relocate creature to sky
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!me->GetVehicle() && me->isSummon() && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
-            me->GetMotionMaster()->MoveFall(409.8f, me->GetEntry());
+        if(!m_creature->GetVehicle() && m_creature->isSummon() && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
+            m_creature->GetMotionMaster()->MoveFall(409.8f, m_creature->GetEntry());
     }
 };
 
@@ -315,7 +331,7 @@ struct spell_pool_of_tarAI : public TriggerAI
 {
     spell_pool_of_tarAI(Creature *c) : TriggerAI(c)
     {
-        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void DamageTaken(Unit *who, uint32 &damage)
@@ -325,8 +341,8 @@ struct spell_pool_of_tarAI : public TriggerAI
 
     void SpellHit(Unit* caster, const SpellEntry *spell)
     {
-        if(spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
-            me->CastSpell(me, SPELL_BLAZE, true);
+        if(spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !m_creature->HasAura(SPELL_BLAZE))
+            m_creature->CastSpell(me, SPELL_BLAZE, true);
     }
 };
 
