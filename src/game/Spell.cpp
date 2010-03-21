@@ -5315,7 +5315,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 // Ignore map check if spell have AreaId. AreaId already checked and this prevent special mount spells
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && !objmgr.GetInstanceTemplate(m_caster->GetMapId())->allowMount && !m_IsTriggeredSpell && !m_spellInfo->AreaGroupId)
+                bool AllowMount = !m_caster->GetMap()->IsDungeon();
+                InstanceTemplate const *it = objmgr.GetInstanceTemplate(m_caster->GetMapId());
+                if (it)
+                    AllowMount = it->allowMount;
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && !AllowMount && !m_IsTriggeredSpell && !m_spellInfo->AreaGroupId)
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 ShapeshiftForm form = m_caster->m_form;
