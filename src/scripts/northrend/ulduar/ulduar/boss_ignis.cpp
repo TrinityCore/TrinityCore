@@ -23,37 +23,50 @@
 #define SPELL_SCORCH                62546
 #define SPELL_SLAG_POT              62717
 
-//wrong ids. not in db
-#define SAY_AGGRO                   -10000002
-#define SAY_SLAY                    -1000003
+enum Yells
+{
+    SAY_AGGRO                                   = -1603220,
+    SAY_SLAY_1                                  = -1603221,
+    SAY_SLAY_2                                  = -1603222,
+    SAY_DEATH                                   = -1603223,
+    SAY_SUMMON                                  = -1603224,
+    SAY_SLAG_POT                                = -1603225,
+    SAY_SCORCH_1                                = -1603226,
+    SAY_SCORCH_2                                = -1603227,
+    SAY_BERSERK                                 = -1603228,
+};
 
 struct boss_ignis_AI : public BossAI
 {
     boss_ignis_AI(Creature *pCreature) : BossAI(pCreature, TYPE_IGNIS) {}
 
-    uint32 FLAME_JETS_Timer;
-    uint32 SCORCH_Timer;
-    uint32 SLAG_POT_Timer;
+    uint32 uiFlameJetsTimer;
+    uint32 uiScorchTimer;
+    uint32 uiSlagPotTimer;
 
     void Reset()
     {
-        FLAME_JETS_Timer = 32000;
-        SCORCH_Timer = 100;
-        SLAG_POT_Timer = 100;
+        _Reset();
+        uiFlameJetsTimer = 32000;
+        uiScorchTimer = 100;
+        uiSlagPotTimer = 100;
     }
 
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO,m_creature);
+        _EnterCombat();
     }
+
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
+        _JustDied();
     }
 
     void MoveInLineOfSight(Unit* who) {}
@@ -63,7 +76,7 @@ struct boss_ignis_AI : public BossAI
         if (!UpdateVictim())
             return;
 
-        if(m_creature->GetPositionY() < 150 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
+        if (m_creature->GetPositionY() < 150 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
         {
             m_creature->RemoveAllAuras();
             m_creature->DeleteThreatList();
@@ -71,26 +84,28 @@ struct boss_ignis_AI : public BossAI
             m_creature->GetMotionMaster()->MoveTargetedHome();
         }
 
-        if (FLAME_JETS_Timer <= diff)
+        if (uiFlameJetsTimer <= diff)
         {
             DoCast(SPELL_FLAME_JETS);
-            DoScriptText(SAY_SLAY, m_creature);
-            FLAME_JETS_Timer = 25000;
-        } else FLAME_JETS_Timer -= diff;
+            uiFlameJetsTimer = 25000;
+        } else uiFlameJetsTimer -= diff;
 
-        if (SCORCH_Timer <= diff)
+        if (uiScorchTimer <= diff)
         {
+            DoScriptText(RAND(SAY_SCORCH_1,SAY_SCORCH_2), m_creature);
             DoCast(SPELL_SCORCH);
-            SCORCH_Timer = 20000;
-        } else SCORCH_Timer -= diff;
+            uiScorchTimer = 20000;
+        } else uiScorchTimer -= diff;
 
-        if (SLAG_POT_Timer <= diff)
+        if (uiSlagPotTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+            {
+                DoScriptText(SAY_SLAG_POT, m_creature);
                 DoCast(pTarget, SPELL_SLAG_POT);
-            DoScriptText(SAY_SLAY, m_creature);
-            SLAG_POT_Timer = 30000;
-        } else SLAG_POT_Timer -= diff;
+            }
+            uiSlagPotTimer = 30000;
+        } else uiSlagPotTimer -= diff;
 
         DoMeleeAttackIfReady();
     }

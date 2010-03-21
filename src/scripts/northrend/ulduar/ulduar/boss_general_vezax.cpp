@@ -18,3 +18,14 @@
 
 #include "ScriptedPch.h"
 #include "ulduar.h"
+
+enum Yells
+{
+    SAY_AGGRO                                   = -1603290,
+    SAY_SLAY_1                                  = -1603291,
+    SAY_SLAY_2                                  = -1603292,
+    SAY_KITE                                    = -1603293,
+    SAY_DEATH                                   = -1603294,
+    SAY_BERSERK                                 = -1603295,
+    SAY_HARDMODE_ON                             = -1603296,
+};

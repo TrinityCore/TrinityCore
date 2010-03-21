@@ -1293,6 +1293,12 @@ UPDATE `creature_template` SET `ScriptName`='spell_pool_of_tar' WHERE `entry`=33
 UPDATE `creature_template` SET `ScriptName`='boss_ignis' WHERE `entry`=33118;
 UPDATE `creature_template` SET `ScriptName`='boss_razorscale' WHERE `entry`=33186;
 UPDATE `creature_template` SET `ScriptName`='boss_xt002' WHERE `entry`=33293;
+UPDATE `creature_template` SET `ScriptName`='mob_xt002_heart' WHERE `entry`=33329;
+UPDATE `creature_template` SET `ScriptName`='mob_scrapbot' WHERE `entry`=33343;
+UPDATE `creature_template` SET `ScriptName`='mob_pummeller' WHERE `entry`=33344;
+UPDATE `creature_template` SET `ScriptName`='mob_boombot' WHERE `entry`=33346;
+UPDATE `creature_template` SET `ScriptName`='mob_void_zone' WHERE `entry`=34001;
+UPDATE `creature_template` SET `ScriptName`='mob_life_spark' WHERE `entry`=34004;
 UPDATE `creature_template` SET `ScriptName`='boss_steelbreaker' WHERE `entry`=32867;
 UPDATE `creature_template` SET `ScriptName`='boss_runemaster_molgeim' WHERE `entry`=32927;
 UPDATE `creature_template` SET `ScriptName`='boss_stormcaller_brundir' WHERE `entry`=32857;
