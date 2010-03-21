@@ -911,7 +911,7 @@ UPDATE `gameobject_template` SET `ScriptName`='containment_sphere' WHERE `entry`
 /* THE NEXUS, THE OCULUS */
 UPDATE `instance_template` SET `script`='instance_oculus' WHERE `map`=578;
 UPDATE `creature_template` SET `ScriptName`='boss_drakos' WHERE `entry`=27654;
-UPDATE `creature_template` SET `ScriptName`='npcs_oculus_drakes' WHERE `entry` IN (27657,27658,27659);
+UPDATE `creature_template` SET `ScriptName`='npc_oculus_drakes' WHERE `entry` IN (27657,27658,27659);
 
 /* OBSIDIAN SANCTUM */
 UPDATE `instance_template` SET `script`='instance_obsidian_sanctum' WHERE map=615;
