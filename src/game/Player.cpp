@@ -11245,6 +11245,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
             RemoveItemDurations(pItem);
 
             pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
+            pItem->SetNotRefundable(this);
             pItem->SetState(ITEM_REMOVED, this);
         }
 
@@ -11361,6 +11362,7 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
         RemoveItemDurations(pItem);
 
         pItem->SetOwnerGUID(GetGUID());                     // prevent error at next SetState in case trade/mail/buy from vendor
+        pItem->SetNotRefundable(this);
         pItem->SetState(ITEM_REMOVED, this);
         pItem2->SetState(ITEM_CHANGED, this);
 
@@ -11579,8 +11581,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
         
-        if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
-            pItem->SetNotRefundable(this);
+        pItem->SetNotRefundable(this);
 
         ItemRemovedQuestCheck( pItem->GetEntry(), pItem->GetCount() );
 
