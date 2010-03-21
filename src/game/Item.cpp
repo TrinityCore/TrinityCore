@@ -629,7 +629,7 @@ void Item::SetState(ItemUpdateState state, Player *forplayer)
     {
         // pretend the item never existed
         RemoveFromUpdateQueueOf(forplayer);
-        forplayer->SetNotRefundable(GetGUID());
+        forplayer->DeleteRefundReference(GetGUID());
         delete this;
         return;
     }
