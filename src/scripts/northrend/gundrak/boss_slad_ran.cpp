@@ -1,62 +1,63 @@
-/* Script Data Start
-SDName: Boss slad_ran
-SDAuthor: LordVanMartin
-SD%Complete:
-SDComment:
-SDCategory:
-Script Data End */
+/*
+* Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_slad_ran' where entry = '';
-*** SQL END ***/
 #include "ScriptedPch.h"
 #include "gundrak.h"
 
 //Spells
 enum Spells
 {
-    SPELL_POISON_NOVA                           = 55081,
-    H_SPELL_POISON_NOVA                         = 59842,
-    SPELL_POWERFULL_BITE                        = 48287,
-    H_SPELL_POWERFULL_BITE                      = 59840,
-    SPELL_VENOM_BOLT                            = 54970,
-    H_SPELL_VENOM_BOLT                          = 59839
+    SPELL_POISON_NOVA                             = 55081,
+    H_SPELL_POISON_NOVA                           = 59842,
+    SPELL_POWERFULL_BITE                          = 48287,
+    H_SPELL_POWERFULL_BITE                        = 59840,
+    SPELL_VENOM_BOLT                              = 54970,
+    H_SPELL_VENOM_BOLT                            = 59839
 };
 
 //Yell
 enum Yells
 {
-    SAY_AGGRO                                 = -1604017,
-    SAY_SLAY_1                                = -1604018,
-    SAY_SLAY_2                                = -1604019,
-    SAY_SLAY_3                                = -1604020,
-    SAY_DEATH                                 = -1604021,
-    SAY_SUMMON_SNAKES                         = -1604022,
-    SAY_SUMMON_CONSTRICTORS                   = -1604023
+    SAY_AGGRO                                   = -1604017,
+    SAY_SLAY_1                                  = -1604018,
+    SAY_SLAY_2                                  = -1604019,
+    SAY_SLAY_3                                  = -1604020,
+    SAY_DEATH                                   = -1604021,
+    SAY_SUMMON_SNAKES                           = -1604022,
+    SAY_SUMMON_CONSTRICTORS                     = -1604023
 };
 
 //Creatures
 enum Creatures
 {
-    CREATURE_SNAKE                            = 29680,
-    CREATURE_CONSTRICTORS                     = 29713
+    CREATURE_SNAKE                              = 29680,
+    CREATURE_CONSTRICTORS                       = 29713
 };
 
 //Creatures' spells
 enum ConstrictorSpells
 {
-    SPELL_GRIP_OF_SLAD_RAN                    = 55093,
-    SPELL_VENOMOUS_BITE                       = 54987,
-    H_SPELL_VENOMOUS_BITE                     = 58996
+    SPELL_GRIP_OF_SLAD_RAN                      = 55093,
+    SPELL_VENOMOUS_BITE                         = 54987,
+    H_SPELL_VENOMOUS_BITE                       = 58996
 };
 
-// Spawning locations
-struct Locations
-{
-    float x, y, z, orientation;
-};
-
-static Locations SpawnLoc[]=
+static Position SpawnLoc[]=
 {
   {1783.81, 646.637, 133.948, 3.71755},
   {1775.03, 606.586, 134.165, 1.43117},
@@ -135,20 +136,21 @@ struct boss_slad_ranAI : public ScriptedAI
             {
                 if (uiPhase == 1)
                     for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                        m_creature->SummonCreature(CREATURE_SNAKE, SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, SpawnLoc[i].orientation, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                        m_creature->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 if (uiPhase == 2)
                     for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                        m_creature->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i].x, SpawnLoc[i].y, SpawnLoc[i].z, SpawnLoc[i].orientation, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+                        m_creature->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 uiSpawnTimer = 5000;
             } else uiSpawnTimer -= diff;
         }
 
-        if ((uiPhase == 0) && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
+        if (uiPhase == 0 && HealthBelowPct(30))
         {
             DoScriptText(SAY_SUMMON_SNAKES,m_creature);
             uiPhase = 1;
         }
-        if ((uiPhase == 1) && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
+        
+        if (uiPhase == 1 && HealthBelowPct(25))
         {
             DoScriptText(SAY_SUMMON_CONSTRICTORS,m_creature);
             uiPhase = 2;
