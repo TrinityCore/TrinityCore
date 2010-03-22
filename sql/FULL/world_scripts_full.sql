@@ -639,6 +639,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_drakkari_elemental' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='npc_living_mojo' WHERE `entry`=29830;
 /* Eck the Ferocious */
 UPDATE `creature_template` SET `ScriptName`='boss_eck' WHERE `entry`=29932;
+UPDATE `creature_template` SET `ScriptName`='npc_ruins_dweller' WHERE `entry`=29920;
 
 UPDATE `gameobject_template` SET `ScriptName`='go_gundrak_altar' WHERE `entry`=192518;
 UPDATE `gameobject_template` SET `ScriptName`='go_gundrak_altar' WHERE `entry`=192519;

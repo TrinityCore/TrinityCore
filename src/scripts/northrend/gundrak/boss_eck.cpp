@@ -20,6 +20,9 @@ enum Spells
     SPELL_ECK_SPRING_1                      = 55815, //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
     SPELL_ECK_SPRING_2                      = 55837  //Eck leaps at a distant target.
 };
+
+static Position EckSpawnPoint = { 1643.877930, 936.278015, 107.204948, 0.668432 };
+
 struct boss_eckAI : public ScriptedAI
 {
     boss_eckAI(Creature *c) : ScriptedAI(c)
@@ -117,6 +120,31 @@ CreatureAI* GetAI_boss_eck(Creature* pCreature)
     return new boss_eckAI (pCreature);
 }
 
+struct npc_ruins_dwellerAI : public ScriptedAI
+{
+    npc_ruins_dwellerAI(Creature *c) : ScriptedAI(c)
+    {
+        pInstance = c->GetInstanceData();
+    }
+
+    ScriptedInstance* pInstance;
+
+    void JustDied(Unit *who)
+    {
+        if(pInstance)
+        {
+            pInstance->SetData(DATA_RUIN_DIED_DWELLER,m_creature->GetGUID());
+            if (pInstance->GetData(DATA_RUIN_DIED_DWELLER) == 0)
+                m_creature->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILISECONDS);
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_ruins_dweller(Creature* pCreature)
+{
+    return new npc_ruins_dwellerAI (pCreature);
+}
+
 void AddSC_boss_eck()
 {
     Script *newscript;
@@ -124,5 +152,10 @@ void AddSC_boss_eck()
     newscript = new Script;
     newscript->Name = "boss_eck";
     newscript->GetAI = &GetAI_boss_eck;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_ruins_dweller";
+    newscript->GetAI = &GetAI_npc_ruins_dweller;
     newscript->RegisterSelf();
 }

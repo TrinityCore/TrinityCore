@@ -55,6 +55,8 @@ struct instance_gundrak : public ScriptedInstance
     GOState uiBridgeState;
     GOState uiCollisionState;
 
+    std::set<uint64> DwellerGUIDs;
+
     std::string str_data;
 
     void Initialize()
@@ -95,6 +97,8 @@ struct instance_gundrak : public ScriptedInstance
         uiBridgeState = GO_STATE_ACTIVE;
         uiCollisionState = GO_STATE_READY;
 
+        DwellerGUIDs.clear();
+
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
     }
 
@@ -110,11 +114,12 @@ struct instance_gundrak : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 29304: uiSladRan = pCreature->GetGUID(); break;
-            case 29305: uiMoorabi = pCreature->GetGUID(); break;
-            case 29306: uiGalDarah = pCreature->GetGUID(); break;
-            case 29307: uiDrakkariColossus = pCreature->GetGUID(); break;
-            case 29932: uiEckTheFerocious = pCreature->GetGUID(); break;
+            case CREATURE_SLAD_RAN: uiSladRan = pCreature->GetGUID(); break;
+            case CREATURE_MOORABI: uiMoorabi = pCreature->GetGUID(); break;
+            case CREATURE_GALDARAH: uiGalDarah = pCreature->GetGUID(); break;
+            case CREATURE_DRAKKARICOLOSSUS: uiDrakkariColossus = pCreature->GetGUID(); break;
+            case CREATURE_ECK: uiEckTheFerocious = pCreature->GetGUID(); break;
+            case CREATURE_RUIN_DWELLER: DwellerGUIDs.insert(pCreature->GetGUID()); break;
         }
     }
 
@@ -263,6 +268,9 @@ struct instance_gundrak : public ScriptedInstance
             if (bHeroicMode && data == DONE)
                 HandleGameObject(uiEckTheFerociousDoorBehind,true);
             break;
+        case DATA_RUIN_DIED_DWELLER:
+            DwellerGUIDs.erase(data);
+            break;
         }
 
         if (data == DONE)
@@ -278,6 +286,7 @@ struct instance_gundrak : public ScriptedInstance
             case DATA_GAL_DARAH_EVENT:            return m_auiEncounter[2];
             case DATA_DRAKKARI_COLOSSUS_EVENT:    return m_auiEncounter[3];
             case DATA_ECK_THE_FEROCIOUS_EVENT:    return m_auiEncounter[4];
+            case DATA_RUIN_DIED_DWELLER:          return DwellerGUIDs.size();
         }
 
         return 0;
