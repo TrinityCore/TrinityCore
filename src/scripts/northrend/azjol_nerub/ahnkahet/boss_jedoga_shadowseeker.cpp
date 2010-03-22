@@ -1,63 +1,59 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-/* ScriptData
-SDName: boss_jedoga_shadowseeker
-SDAuthor: WarHead
-SD%Complete: 100%
-SDComment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
-SDCategory: Ahn'kahet
-EndScriptData */
+/*
+ * Comment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
+ */
 
 #include "ScriptedPch.h"
 #include "ahnkahet.h"
 
 enum Yells
 {
-    TEXT_AGGRO          = -1619000,
-    TEXT_SACRIFICE_1_1  = -1619001,
-    TEXT_SACRIFICE_1_2  = -1619002,
-    TEXT_SACRIFICE_2_1  = -1619003,
-    TEXT_SACRIFICE_2_2  = -1619004,
-    TEXT_SLAY_1         = -1619005,
-    TEXT_SLAY_2         = -1619006,
-    TEXT_SLAY_3         = -1619007,
-    TEXT_DEATH          = -1619008,
-    TEXT_PREACHING_1    = -1619009,
-    TEXT_PREACHING_2    = -1619010,
-    TEXT_PREACHING_3    = -1619011,
-    TEXT_PREACHING_4    = -1619012,
-    TEXT_PREACHING_5    = -1619013
+    TEXT_AGGRO                                    = -1619000,
+    TEXT_SACRIFICE_1_1                            = -1619001,
+    TEXT_SACRIFICE_1_2                            = -1619002,
+    TEXT_SACRIFICE_2_1                            = -1619003,
+    TEXT_SACRIFICE_2_2                            = -1619004,
+    TEXT_SLAY_1                                   = -1619005,
+    TEXT_SLAY_2                                   = -1619006,
+    TEXT_SLAY_3                                   = -1619007,
+    TEXT_DEATH                                    = -1619008,
+    TEXT_PREACHING_1                              = -1619009,
+    TEXT_PREACHING_2                              = -1619010,
+    TEXT_PREACHING_3                              = -1619011,
+    TEXT_PREACHING_4                              = -1619012,
+    TEXT_PREACHING_5                              = -1619013
 };
 
 enum Spells
 {
-    SPELL_SPHERE_VISUAL         = 56075,
-    SPELL_GIFT_OF_THE_HERALD    = 56219,
-    SPELL_CYCLONE_STRIKE        = 56855, // Self
-    SPELL_CYCLONE_STRIKE_H      = 60030,
-    SPELL_LIGHTNING_BOLT        = 56891, // 40Y
-    SPELL_LIGHTNING_BOLT_H      = 60032, // 40Y
-    SPELL_THUNDERSHOCK          = 56926, // 30Y
-    SPELL_THUNDERSHOCK_H        = 60029 // 30Y
+    SPELL_SPHERE_VISUAL                           = 56075,
+    SPELL_GIFT_OF_THE_HERALD                      = 56219,
+    SPELL_CYCLONE_STRIKE                          = 56855, // Self
+    SPELL_CYCLONE_STRIKE_H                        = 60030,
+    SPELL_LIGHTNING_BOLT                          = 56891, // 40Y
+    SPELL_LIGHTNING_BOLT_H                        = 60032, // 40Y
+    SPELL_THUNDERSHOCK                            = 56926, // 30Y
+    SPELL_THUNDERSHOCK_H                          = 60029 // 30Y
 };
 
-float JEDOGA_POS[2][4] =
+const Position JedogaPosition[2] =
 {
     {372.330994f, -705.278015f, -0.624178f, 5.427970f},
     {372.330994f, -705.278015f, -16.179716f, 5.427970f}
@@ -74,16 +70,16 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    uint32 uiOpFerTimer,
-        uiCycloneTimer,
-        uiBoltTimer,
-        uiThunderTimer;
+    uint32 uiOpFerTimer;
+    uint32 uiCycloneTimer;
+    uint32 uiBoltTimer;
+    uint32 uiThunderTimer;
 
-    bool predone,
-        bOpFerok,
-        bOnGround,
-        bOpFerokFail,
-        bCanDown;
+    bool predone;
+    bool bOpFerok;
+    bool bOnGround;
+    bool bOpFerokFail;
+    bool bCanDown;
 
     bool FirstTime;
 
@@ -188,13 +184,12 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
         bOpFerokFail = false;
 
         pInstance->SetData(DATA_JEDOGA_TRIGGER_SWITCH, 0);
-        m_creature->GetMotionMaster()->MovePoint(1, JEDOGA_POS[1][0], JEDOGA_POS[1][1], JEDOGA_POS[1][2]);
-
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
-        m_creature->SendMonsterMove(JEDOGA_POS[1][0], JEDOGA_POS[1][1], JEDOGA_POS[1][2], 0, MOVEFLAG_JUMP, 0);
-        m_creature->Relocate(JEDOGA_POS[1][0], JEDOGA_POS[1][1], JEDOGA_POS[1][2], JEDOGA_POS[1][3]);
+        m_creature->GetMotionMaster()->MovePoint(1, JedogaPosition[1]);
+/*      m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+        m_creature->SendMonsterMove(JedogaPosition[1], MOVEFLAG_JUMP, 0);
+        m_creature->Relocate(JedogaPosition[1][0], JedogaPosition[1][1], JedogaPosition[1][2], JedogaPosition[1][3]);
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
-
+*/
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, false);
         m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, false);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
@@ -234,15 +229,15 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
         m_creature->AttackStop();
         m_creature->RemoveAllAuras();
         m_creature->LoadCreaturesAddon();
-        m_creature->GetMotionMaster()->MovePoint(0, JEDOGA_POS[0][0], JEDOGA_POS[0][1], JEDOGA_POS[0][2]);
-
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
-        m_creature->SendMonsterMove(JEDOGA_POS[0][0], JEDOGA_POS[0][1], JEDOGA_POS[0][2], 0, MOVEFLAG_JUMP, 0);
-        m_creature->Relocate(JEDOGA_POS[0][0], JEDOGA_POS[0][1], JEDOGA_POS[0][2], JEDOGA_POS[0][3]);
+        m_creature->GetMotionMaster()->MovePoint(0, JedogaPosition[0]);
+/*      m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+        m_creature->SendMonsterMove(JedogaPosition[0][0], JedogaPosition[0][1], JedogaPosition[0][2], 0, MOVEFLAG_JUMP, 0);
+        m_creature->Relocate(JedogaPosition[0][0], JedogaPosition[0][1], JedogaPosition[0][2], JedogaPosition[0][3]);
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
         m_creature->GetMotionMaster()->Clear();
         m_creature->GetMotionMaster()->MoveIdle();
         m_creature->StopMoving();
+*/
 
         pInstance->SetData(DATA_JEDOGA_TRIGGER_SWITCH, 1);
         if (pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) OpferRufen();
@@ -437,7 +432,7 @@ struct mob_jedoga_initiandAI : public ScriptedAI
                 m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, false);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
 
-                float distance = m_creature->GetDistance(JEDOGA_POS[1][0], JEDOGA_POS[1][1], JEDOGA_POS[1][2]);
+                float distance = m_creature->GetDistance(JedogaPosition[1]);
 
                 if (distance < 9.0f)
                     m_creature->SetSpeed(MOVE_WALK, 0.5f, true);
@@ -447,7 +442,7 @@ struct mob_jedoga_initiandAI : public ScriptedAI
                     m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
 
                 m_creature->GetMotionMaster()->Clear(false);
-                m_creature->GetMotionMaster()->MovePoint(1, JEDOGA_POS[1][0], JEDOGA_POS[1][1], JEDOGA_POS[1][2]);
+                m_creature->GetMotionMaster()->MovePoint(1, JedogaPosition[1]);
                 walking = true;
             }
             if (!walking)
@@ -483,8 +478,8 @@ struct mob_jedoga_initiandAI : public ScriptedAI
 // ------------------------------------------------------------------------------------------------------------
 enum AufseherSpell
 {
-  SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1    = 60342,
-  SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2    = 56312
+  SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1            = 60342,
+  SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2            = 56312
 };
 
 struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
@@ -502,10 +497,10 @@ struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
 
     ScriptedInstance* pInstance;
 
-    bool removed,
-        removed2,
-        casted,
-        casted2;
+    bool removed;
+    bool removed2;
+    bool casted;
+    bool casted2;
 
     void Reset() {}
     void EnterCombat(Unit* who) {}
@@ -518,13 +513,7 @@ struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
             return;
 
         if (!removed && m_creature->GetPositionX() > 440.0f)
-        {   /* NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
-            if (pInstance->GetData(EVENT_VORRICHTUNGEN))
-            {
-                m_creature->InterruptNonMeleeSpells(true);
-                removed = true;
-                return;
-            }*/
+        {   
             if (pInstance->GetData(DATA_PRINCE_TALDARAM_EVENT) == DONE)
             {
                 m_creature->InterruptNonMeleeSpells(true);
