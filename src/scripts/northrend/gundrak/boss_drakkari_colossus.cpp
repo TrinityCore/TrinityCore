@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,33 +16,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* Script Data Start
-SDName: Boss Drakkari Colossus
-SDAuthor: Manuel
-SD%Complete: 95 %
-SDComment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make the boss enter in combat!
-SDCategory:
-Script Data End */
+/*
+ * Comment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make the boss enter in combat!
+ */
 
 #include "ScriptedPch.h"
 #include "gundrak.h"
 
 enum Spells
 {
-    SPELL_EMERGE        = 54850,
-
-    SPELL_MIGHTY_BLOW   = 54719,
-
-    SPELL_MERGE         = 54878,
-    SPELL_SURGE         = 54801,
-
-    SPELL_FREEZE_ANIM   = 16245,
-
-    SPELL_MOJO_PUDDLE   = 55627,
-    H_SPELL_MOJO_PUDDLE = 58994,
-
-    SPELL_MOJO_WAVE     = 55626,
-    H_SPELL_MOJO_WAVE   = 58993
+    SPELL_EMERGE                                  = 54850,
+    SPELL_MIGHTY_BLOW                             = 54719,
+    SPELL_MERGE                                   = 54878,
+    SPELL_SURGE                                   = 54801,
+    SPELL_FREEZE_ANIM                             = 16245,
+    SPELL_MOJO_PUDDLE                             = 55627,
+    H_SPELL_MOJO_PUDDLE                           = 58994,
+    SPELL_MOJO_WAVE                               = 55626,
+    H_SPELL_MOJO_WAVE                             = 58993
 };
 
 struct boss_drakkari_colossusAI : public ScriptedAI
