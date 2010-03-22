@@ -14314,7 +14314,11 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     // In most cases req get honor or XP from kill
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
     {
-        bool allow = this->ToPlayer()->isHonorOrXPTarget(pVictim);
+        bool allow = false;
+        
+        if (pVictim)
+            allow = ToPlayer()->isHonorOrXPTarget(pVictim);
+
         // Shadow Word: Death - can trigger from every kill
         if (aura->GetId() == 32409)
             allow = true;
