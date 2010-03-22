@@ -1,27 +1,35 @@
-/* Script Data Start
-SDName: Boss moorabi
-SDAuthor: Manuel
-SD%Complete: 100%
-SDComment: Maybe needs better timers.
-SDCategory: Gundrak
-Script Data End */
+/*
+* Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
 #include "ScriptedPch.h"
 #include "gundrak.h"
 
 enum eSpells
 {
-    SPELL_DETERMINED_STAB       =   55104,
-    SPELL_GROUND_TREMOR         =   55142,
-    SPELL_NUMBING_SHOUT         =   55106,
-
-    SPELL_DETERMINED_GORE       =   55102,
-    SPELL_DETERMINED_GORE_1     =   59444,
-    SPELL_QUAKE                 =   55101,
-    SPELL_NUMBING_ROAR          =   55100,
-
-    SPELL_MOJO_FRENZY           =   55163,
-    SPELL_TRANSFORMATION        =   55098, //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
+    SPELL_DETERMINED_STAB                         = 55104,
+    SPELL_GROUND_TREMOR                           = 55142,
+    SPELL_NUMBING_SHOUT                           = 55106,
+    SPELL_DETERMINED_GORE                         = 55102,
+    SPELL_DETERMINED_GORE_1                       = 59444,
+    SPELL_QUAKE                                   = 55101,
+    SPELL_NUMBING_ROAR                            = 55100,
+    SPELL_MOJO_FRENZY                             = 55163,
+    SPELL_TRANSFORMATION                          = 55098, //Periodic, The caster transforms into a powerful mammoth, increasing Physical damage done by 25% and granting immunity to Stun effects.
 };
 
 enum eArchivements
@@ -133,23 +141,13 @@ struct boss_moorabiAI : public ScriptedAI
      {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (IsHeroic() && !bPhase)
-        {
-            AchievementEntry const *AchievLessRabi = GetAchievementStore()->LookupEntry(ACHIEVEMENT_LESS_RABI);
-            if (AchievLessRabi)
-            {
-                Map* pMap = m_creature->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievLessRabi);
-                }
-            }
-        }
-
         if (pInstance)
+        {
             pInstance->SetData(DATA_MOORABI_EVENT, DONE);
+
+            if (IsHeroic() && !bPhase)
+                pInstance->DoCompleteAchievement(ACHIEVEMENT_LESS_RABI);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
