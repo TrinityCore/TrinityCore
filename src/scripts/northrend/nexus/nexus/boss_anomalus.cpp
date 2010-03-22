@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2006 - 2010 TrinityCore <http://www.trinitycore.org>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,13 +14,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-/* ScriptData
-SDName: Boss_Anomalus
-SD%Complete:
-SDComment:
-SDCategory: The Nexus, The Nexus
-EndScriptData */
 
 #include "ScriptedPch.h"
 #include "nexus.h"
@@ -51,7 +45,7 @@ enum eEnums
     SAY_SHIELD              = -1576013
 };
 
-float RiftLocation[6][3]=
+const Position RiftLocation[6] =
 {
     {652.64, -273.70, -8.75},
     {634.45, -265.94, -8.44},
@@ -146,14 +140,14 @@ struct boss_anomalusAI : public ScriptedAI
         } else
             ChaoticRiftGUID = 0;
 
-        if ((Phase == 0) && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.75))
+        if ((Phase == 0) && HealthBelowPct(50))
         {
             Phase = 1;
             DoScriptText(SAY_SHIELD, m_creature);
             DoCast(m_creature, SPELL_RIFT_SHIELD);
 
             int tmp = rand()%(2);
-            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp][0], RiftLocation[tmp][1], RiftLocation[tmp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
             if (Rift)
             {
                 //DoCast(Rift, SPELL_CHARGE_RIFT);
@@ -164,41 +158,6 @@ struct boss_anomalusAI : public ScriptedAI
             }
         }
 
-        if ((Phase == 1) && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.50))
-        {
-            Phase = 2;
-            DoScriptText(SAY_SHIELD , m_creature);
-            DoCast(m_creature, SPELL_RIFT_SHIELD);
-
-            int tmp = rand()%(2);
-            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp][0], RiftLocation[tmp][1], RiftLocation[tmp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-            if (Rift)
-            {
-                //DoCast(Rift, SPELL_CHARGE_RIFT);
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    Rift->AI()->AttackStart(pTarget);
-                ChaoticRiftGUID = Rift->GetGUID();
-                DoScriptText(SAY_RIFT , m_creature);
-            }
-        }
-
-        if ((Phase == 2) && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
-        {
-            Phase = 3;
-            DoScriptText(SAY_SHIELD , m_creature);
-            DoCast(m_creature, SPELL_RIFT_SHIELD);
-
-            int tmp = rand()%(2);
-            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp][0], RiftLocation[tmp][1], RiftLocation[tmp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-            if (Rift)
-            {
-                //DoCast(Rift, SPELL_CHARGE_RIFT);
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    Rift->AI()->AttackStart(pTarget);
-                ChaoticRiftGUID = Rift->GetGUID();
-                DoScriptText(SAY_RIFT , m_creature);
-            }
-        }
 
         if (SPELL_SPARK_Timer <= diff)
         {
@@ -206,18 +165,6 @@ struct boss_anomalusAI : public ScriptedAI
                 DoCast(pTarget, DUNGEON_MODE(SPELL_SPARK_N, SPELL_SPARK_H));
             SPELL_SPARK_Timer = 5000;
         } else SPELL_SPARK_Timer -=diff;
-
-        if (SPELL_CREATE_RIFT_Timer <= diff)
-        {
-            DoScriptText(SAY_RIFT , m_creature);
-
-            int tmp = rand()%(2);
-            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp][0], RiftLocation[tmp][1], RiftLocation[tmp][2], 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-            if (Rift)
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    Rift->AI()->AttackStart(pTarget);
-            SPELL_CREATE_RIFT_Timer = 25000;
-        } else SPELL_CREATE_RIFT_Timer -=diff;
 
         DoMeleeAttackIfReady();
     }
