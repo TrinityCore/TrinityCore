@@ -329,6 +329,7 @@ struct AchievementCriteriaEntry
         struct
         {
             uint32  itemSlot;                               // 3
+            uint32  count;                                  // 4
         } equip_epic_item;
 
         // ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT      = 50

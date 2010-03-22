@@ -11121,6 +11121,7 @@ Item* Player::StoreNewItem( ItemPosCountVec const& dest, uint32 item, bool updat
     if( pItem )
     {
         ItemAddedQuestCheck( item, count );
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, count);
         if(randomPropertyId)
             pItem->SetItemRandomProperties(randomPropertyId);
         pItem = StoreItem( dest, pItem, update );
@@ -11263,6 +11264,7 @@ Item* Player::EquipNewItem( uint16 pos, uint32 item, bool update )
     if (Item *pItem = Item::CreateItem( item, 1, this ))
     {
         ItemAddedQuestCheck( item, 1 );
+        GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, item, 1);
         return EquipItem( pos, pItem, update );
     }
 
@@ -11545,6 +11547,7 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
 {
     // update quest counters
     ItemAddedQuestCheck(pItem->GetEntry(), pItem->GetCount());
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM, pItem->GetEntry(), pItem->GetCount());
 
     // store item
     Item* pLastItem = StoreItem(dest, pItem, update);
