@@ -2145,7 +2145,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (32906,-1603184,'His hold on me dissipates. I can see clearly once more. Thank you, heroes.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15531,1,0,0,'Freya SAY_DEATH'),
    (32906,-1603185,'You have strayed too far, wasted too much time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15532,1,0,0,'Freya SAY_BERSERK'),
    (32906,-1603186,'Eonar, your servant requires aid!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15528,1,0,0,'Freya SAY_SUMMON_CONSERVATOR'),
-   (32906,-1603187,'Children, assist me!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15331,1,0,0,'Freya SAY_SUMMON_TRIO'),
+   (32906,-1603187,'Children, assist me!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15533,1,0,0,'Freya SAY_SUMMON_TRIO'),
    (32906,-1603188,'The swarm of the elements shall overtake you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15534,1,0,0,'Freya SAY_SUMMON_LASHERS'),
    (32906,-1603189,'Eonar, your servant calls for your blessing!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15535,1,0,0,'Freya SAY_YS_HELP'),
 

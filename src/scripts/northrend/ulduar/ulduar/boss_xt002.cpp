@@ -459,7 +459,7 @@ struct boss_xt002_AI : public BossAI
         uiSpawnAddTimer = TIMER_SPAWN_ADD;
 
         if (!hardMode)
-            m_creature->ModifyHealth(-transferHealth);
+            m_creature->ModifyHealth(-((int32)transferHealth));
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         phase = 1;
