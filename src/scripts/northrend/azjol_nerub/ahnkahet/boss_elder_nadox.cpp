@@ -1,55 +1,63 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
-
-/* ScriptData
-SDName: boss_elder_nadox
-SD%Complete: 100
-SDComment:
-SDCategory: Ahn'kahet
-EndScriptData */
+* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
 #include "ScriptedPch.h"
 #include "ahnkahet.h"
 
 bool DeadAhnkaharGuardian; // needed for achievement: Respect Your Elders(2038)
 
-#define ACHIEVEMENT_RESPECT_YOUR_ELDERS     2038
+enum Achievements
+{
+    ACHIEV_RESPECT_YOUR_ELDERS                    = 2038
+};
 
 //not in db
-#define SAY_AGGRO                              -1619014
-#define SAY_SLAY_1                             -1619015
-#define SAY_SLAY_2                             -1619016
-#define SAY_SLAY_3                             -1619017
-#define SAY_DEATH                              -1619018
-#define SAY_EGG_SAC_1                          -1619019
-#define SAY_EGG_SAC_2                          -1619020
+enum Yells
+{
+    SAY_AGGRO                                     = -1619014,
+    SAY_SLAY_1                                    = -1619015,
+    SAY_SLAY_2                                    = -1619016,
+    SAY_SLAY_3                                    = -1619017,
+    SAY_DEATH                                     = -1619018,
+    SAY_EGG_SAC_1                                 = -1619019,
+    SAY_EGG_SAC_2                                 = -1619020
+};
 
-#define SPELL_BROOD_PLAGUE                  56130
-#define H_SPELL_BROOD_PLAGUE                59467
-#define H_SPELL_BROOD_RAGE                  59465
-#define SPELL_ENRAGE                        26662// Enraged if too far away from home
+enum Spells
+{
+    SPELL_BROOD_PLAGUE                            = 56130,
+    H_SPELL_BROOD_PLAGUE                          = 59467,
+    H_SPELL_BROOD_RAGE                            = 59465,
+    SPELL_ENRAGE                                  = 26662 // Enraged if too far away from home
+};
 
-#define MOB_AHNKAHAR_SWARMER                30178
-#define SPELL_SUMMON_SWARMERS               56119//2x 30178  -- 2x every 10secs
+enum Creatures
+{
+    MOB_AHNKAHAR_SWARMER                          = 30178,
+    MOB_AHNKAHAR_GUARDIAN_ENTRY                   = 30176
+};
 
-#define MOB_AHNKAHAR_GUARDIAN_ENTRY         30176
-#define SPELL_SUMMON_SWARM_GUARD            56120//1x 30176  -- every 25secs
-#define SPELL_GUARDIAN_AURA                 56151
+enum CreatureSpells
+{
+    SPELL_SUMMON_SWARMERS                         = 56119, //2x 30178  -- 2x every 10secs
+    SPELL_SUMMON_SWARM_GUARD                      = 56120, //1x 30176  -- every 25secs
+    SPELL_GUARDIAN_AURA                           = 56151
+};
 
 #define EMOTE_HATCHES                       "An Ahn'kahar Guardian hatches!"
 
@@ -107,23 +115,12 @@ struct boss_elder_nadoxAI : public ScriptedAI
     {
         DoScriptText(SAY_SLAY_3,m_creature); //SAY_SLAY_3 on death?
 
-        if (IsHeroic() && !DeadAhnkaharGuardian)
-        {
-            AchievementEntry const *AchievRespectYourElders = GetAchievementStore()->LookupEntry(ACHIEVEMENT_RESPECT_YOUR_ELDERS);
-            if (AchievRespectYourElders)
-            {
-                Map* pMap = m_creature->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievRespectYourElders);
-                }
-            }
-        }
-
         if (pInstance)
+        {
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, DONE);
+            if (IsHeroic() && !DeadAhnkaharGuardian)
+                pInstance->DoCompleteAchievement(ACHIEV_RESPECT_YOUR_ELDERS);
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -225,8 +222,7 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
         {
             if (pInstance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
             {
-                m_creature->DealDamage(m_creature,m_creature->GetHealth());
-                m_creature->RemoveCorpse();
+                m_creature->DisappearAndDie();
             }
         }
 

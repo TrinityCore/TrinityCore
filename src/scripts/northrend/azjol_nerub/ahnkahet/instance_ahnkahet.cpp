@@ -1,35 +1,23 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
-
-/* ScriptData
-SDName: Instance_Azjol_Nerub
-SD%Complete: 0
-SDComment:
-SDCategory: Azjol Nerub
-EndScriptData */
+* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
 #include "ScriptedPch.h"
 #include "ahnkahet.h"
-
-#define MAX_ENCOUNTER           5
-#define MAX_JEDOGA_INITIANDS    15
-
-#define AchievementVolunteerWork    2056
 
 /* Ahn'kahet encounters:
 0 - Elder Nadox
@@ -38,6 +26,13 @@ EndScriptData */
 3 - Herald Volazj
 4 - Amanitar (Heroic only)
 */
+
+#define MAX_ENCOUNTER           5
+
+enum Achievements
+{
+    ACHIEV_VOLUNTEER_WORK                         = 2056
+};
 
 struct instance_ahnkahet : public ScriptedInstance
 {
@@ -202,11 +197,11 @@ struct instance_ahnkahet : public ScriptedInstance
                         }
                     }
                     if (!initiandkilled && instance->IsHeroic())
-                        DoCompleteAchievement(AchievementVolunteerWork);
+                        DoCompleteAchievement(ACHIEV_VOLUNTEER_WORK);
                 }
                 break;
-            case DATA_HERALD_VOLAZJ: m_auiEncounter[3] = data; break;
-            case DATA_AMANITAR: m_auiEncounter[4] = data; break;
+            case DATA_HERALD_VOLAZJ_EVENT: m_auiEncounter[3] = data; break;
+            case DATA_AMANITAR_EVENT: m_auiEncounter[4] = data; break;
             case DATA_SPHERE1_EVENT: spheres[0] = data; break;
             case DATA_SPHERE2_EVENT: spheres[1] = data; break;
             case DATA_JEDOGA_TRIGGER_SWITCH: switchtrigger = data; break;
@@ -235,7 +230,7 @@ struct instance_ahnkahet : public ScriptedInstance
             case DATA_PRINCE_TALDARAM_EVENT:        return m_auiEncounter[1];
             case DATA_JEDOGA_SHADOWSEEKER_EVENT:    return m_auiEncounter[2];
             case DATA_HERALD_VOLAZJ:                return m_auiEncounter[3];
-            case DATA_AMANITAR:                     return m_auiEncounter[4];
+            case DATA_AMANITAR_EVENT:                     return m_auiEncounter[4];
             case DATA_SPHERE1_EVENT:                return spheres[0];
             case DATA_SPHERE2_EVENT:                return spheres[1];
             case DATA_ALL_INITIAND_DEAD:
