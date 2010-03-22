@@ -3561,6 +3561,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\..\src\scripts\northrend\vault_of_archavon\boss_koralon.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\northrend\vault_of_archavon\boss_toravon.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\..\src\scripts\northrend\vault_of_archavon\instance_vault_of_archavon.cpp"
 						>
 					</File>

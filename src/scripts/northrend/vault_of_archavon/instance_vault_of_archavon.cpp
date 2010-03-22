@@ -1,35 +1,42 @@
 #include "ScriptedPch.h"
 #include "vault_of_archavon.h"
 
-#define ENCOUNTERS 2
+#define ENCOUNTERS  4
 
 /* Vault of Archavon encounters:
 1 - Archavon the Stone Watcher event
 2 - Emalon the Storm Watcher event
+3 - Koralon the Flame Watcher event
+4 - Toravon the Ice Watcher event
 */
 
 struct instance_archavon : public ScriptedInstance
 {
-    instance_archavon(Map *Map) : ScriptedInstance(Map) {Initialize();};
+    instance_archavon(Map *Map) : ScriptedInstance(Map) {};
 
-    uint32 Encounters[ENCOUNTERS];
+    uint32 uiEncounters[ENCOUNTERS];
 
-    uint64 Archavon;
-    uint64 Emalon;
+    uint64 uiArchavon;
+    uint64 uiEmalon;
+    uint64 uiKoralon;
+    uint64 uiToravon;
 
     void Initialize()
     {
-        Archavon = 0;
-        Emalon = 0;
+        uiArchavon = 0;
+        uiEmalon = 0;
+        uiKoralon = 0;
+        uiToravon = 0;
 
         for (uint8 i = 0; i < ENCOUNTERS; i++)
-            Encounters[i] = NOT_STARTED;
+            uiEncounters[i] = NOT_STARTED;
     }
 
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < ENCOUNTERS; i++)
-            if(Encounters[i] == IN_PROGRESS) return true;
+            if (uiEncounters[i] == IN_PROGRESS) 
+                return true;
 
         return false;
     }
@@ -38,8 +45,10 @@ struct instance_archavon : public ScriptedInstance
     {
         switch(creature->GetEntry())
         {
-        case 31125: Archavon = creature->GetGUID(); break;
-        case 33993: Emalon = creature->GetGUID(); break;
+            case CREATURE_ARCHAVON: uiArchavon  = creature->GetGUID(); break;
+            case CREATURE_EMALON:   uiEmalon    = creature->GetGUID(); break;
+            case CREATURE_KORALON:  uiKoralon   = creature->GetGUID(); break;
+            case CREATURE_TORAVON:  uiToravon   = creature->GetGUID(); break;
         }
     }
 
@@ -47,8 +56,10 @@ struct instance_archavon : public ScriptedInstance
     {
         switch(type)
         {
-        case DATA_ARCHAVON_EVENT: return Encounters[0];
-        case DATA_EMALON_EVENT: return Encounters[1];
+            case DATA_ARCHAVON_EVENT:   return uiEncounters[0];
+            case DATA_EMALON_EVENT:     return uiEncounters[1];
+            case DATA_KORALON_EVENT:    return uiEncounters[2];
+            case DATA_TORAVON_EVENT:    return uiEncounters[3];
         }
         return 0;
     }
@@ -57,8 +68,10 @@ struct instance_archavon : public ScriptedInstance
     {
         switch(identifier)
         {
-        case DATA_ARCHAVON: return Archavon;
-        case DATA_EMALON: return Emalon;
+            case DATA_ARCHAVON: return uiArchavon;
+            case DATA_EMALON:   return uiEmalon;
+            case DATA_KORALON:  return uiKoralon;
+            case DATA_TORAVON:  return uiToravon;
         }
         return 0;
     }
@@ -67,11 +80,13 @@ struct instance_archavon : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_ARCHAVON_EVENT: Encounters[0] = data; break;
-            case DATA_EMALON_EVENT: Encounters[1] = data; break;
+            case DATA_ARCHAVON_EVENT:   uiEncounters[0] = data; break;
+            case DATA_EMALON_EVENT:     uiEncounters[1] = data; break;
+            case DATA_KORALON_EVENT:    uiEncounters[2] = data; break;
+            case DATA_TORAVON_EVENT:    uiEncounters[3] = data; break;
         }
 
-        if(data == DONE)
+        if (data == DONE)
             SaveToDB();
     }
 
@@ -79,10 +94,11 @@ struct instance_archavon : public ScriptedInstance
     {
         OUT_SAVE_INST_DATA;
         std::ostringstream stream;
-        stream << Encounters[0] << " " << Encounters[1];
+        stream << uiEncounters[0] << " " << uiEncounters[1] << " " << uiEncounters[2] << " " << uiEncounters[3];
+
         char* out = new char[stream.str().length() + 1];
         strcpy(out, stream.str().c_str());
-        if(out)
+        if (out)
         {
             OUT_SAVE_INST_DATA_COMPLETE;
             return out;
@@ -93,18 +109,21 @@ struct instance_archavon : public ScriptedInstance
 
     void Load(const char* in)
     {
-        if(!in)
+        if (!in)
         {
             OUT_LOAD_INST_DATA_FAIL;
             return;
         }
 
         OUT_LOAD_INST_DATA(in);
+
         std::istringstream stream(in);
-        stream >> Encounters[0] >> Encounters[1];
+        stream >> uiEncounters[0] >> uiEncounters[1] >> uiEncounters[2] >> uiEncounters[3];
+
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
-            if(Encounters[i] == IN_PROGRESS)
-                Encounters[i] = NOT_STARTED;
+            if (uiEncounters[i] == IN_PROGRESS)
+                uiEncounters[i] = NOT_STARTED;
+        
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
