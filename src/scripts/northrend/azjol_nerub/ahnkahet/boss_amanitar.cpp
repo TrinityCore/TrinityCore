@@ -1,52 +1,45 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- */
+* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program; if not, write to the Free Software
+* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
 
-/* Script Data Start
-SDName: boss_amanitar
-SDAuthor: WarHead
-SD%Complete: 80%
-SDComment:  Find correct mushrooms spell to make them visible - buffs of the mushrooms not ever applied to the users...
-SDCategory: Ahn'kahet
-Script Data End */
+/*
+ * Comment:  Find correct mushrooms spell to make them visible - buffs of the mushrooms not ever applied to the users...
+ */
 
 #include "ScriptedPch.h"
 #include "ahnkahet.h"
 
 enum Spells
 {
-    SPELL_BASH                             = 57094, // Victim
-    SPELL_ENTANGLING_ROOTS                 = 57095, // Random Victim 100Y
-    SPELL_MINI                             = 57055, // Self
-    SPELL_VENOM_BOLT_VOLLEY                = 57088, // Random Victim 100Y
-    
-    HEALTHY_MUSHROOM_SPELL_POTENT_FUNGUS    = 56648, // Killer 3Y
-    
-    POISONOUS_MUSHROOM_SPELL_POISON_CLOUD   = 57061, // Self - Duration 8 Sec
-    POISONOUS_MUSHROOM_SPELL_VISUAL_AREA    = 61566, // Self
-    POISONOUS_MUSHROOM_SPELL_VISUAL_AURA    = 56741, // Self
-    
-    SPELL_PUTRID_MUSHROOM                   = 31690, // To make the mushrooms visible
+    SPELL_BASH                                    = 57094, // Victim
+    SPELL_ENTANGLING_ROOTS                        = 57095, // Random Victim 100Y
+    SPELL_MINI                                    = 57055, // Self
+    SPELL_VENOM_BOLT_VOLLEY                       = 57088, // Random Victim 100Y 
+    SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS          = 56648, // Killer 3Y
+    SPELL_POISONOUS_MUSHROOM_POISON_CLOUD         = 57061, // Self - Duration 8 Sec
+    SPELL_POISONOUS_MUSHROOM_VISUAL_AREA          = 61566, // Self
+    SPELL_POISONOUS_MUSHROOM_VISUAL_AURA          = 56741, // Self
+    SPELL_PUTRID_MUSHROOM                         = 31690, // To make the mushrooms visible
 };
 
 enum Creatures
 {
-#define NPC_HEALTHY_MUSHROOM     30391
-#define NPC_POISONOUS_MUSHROOM   30435
+    NPC_HEALTHY_MUSHROOM                          = 30391,
+    NPC_POISONOUS_MUSHROOM                        = 30435
 };
 
 struct boss_amanitarAI : public ScriptedAI
@@ -59,10 +52,10 @@ struct boss_amanitarAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    uint32 roottimer,
-        bashtimer,
-        bolttimer,
-        spawntimer;
+    uint32 roottimer;
+    uint32 bashtimer;
+    uint32 bolttimer;
+    uint32 spawntimer;
 
     bool FirstTime;
 
@@ -173,7 +166,7 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         DoCast(m_creature, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
 
         if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
-            DoCast(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AURA, true);
+            DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
 
         auratimer = 0;
         deathtimer = 30000;
@@ -187,7 +180,7 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         if (m_creature->GetEntry() == NPC_HEALTHY_MUSHROOM && killer->GetTypeId() == TYPEID_PLAYER)
         {
             m_creature->InterruptNonMeleeSpells(false);
-            DoCast(killer, HEALTHY_MUSHROOM_SPELL_POTENT_FUNGUS, false);
+            DoCast(killer, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, false);
         }
     }
 
@@ -200,8 +193,8 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         {
             if (auratimer <= diff)
             {
-                DoCast(m_creature, POISONOUS_MUSHROOM_SPELL_VISUAL_AREA, true);
-                DoCast(m_creature, POISONOUS_MUSHROOM_SPELL_POISON_CLOUD, false);
+                DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
+                DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
                 auratimer = 7000;
             } else auratimer -= diff;
         }

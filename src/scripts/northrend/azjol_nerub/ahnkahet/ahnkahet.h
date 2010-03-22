@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,30 +19,34 @@
 #ifndef DEF_AHNKAHET_H
 #define DEF_AHNKAHET_H
 
-#define DATA_ELDER_NADOX            1
-#define DATA_PRINCE_TALDARAM        2
-#define DATA_JEDOGA_SHADOWSEEKER    3
-#define DATA_HERALD_VOLAZJ          4
-#define DATA_AMANITAR               5
+enum Data64
+{
+    DATA_ELDER_NADOX,
+    DATA_PRINCE_TALDARAM,
+    DATA_JEDOGA_SHADOWSEEKER,
+    DATA_HERALD_VOLAZJ,
+    DATA_AMANITAR,
+    DATA_SPHERE1,
+    DATA_SPHERE2,
+    DATA_PRINCE_TALDARAM_PLATFORM,
+    DATA_PL_JEDOGA_TARGET,
+    DATA_ADD_JEDOGA_OPFER,
+    DATA_ADD_JEDOGA_INITIAND
+};
 
-#define DATA_ELDER_NADOX_EVENT          6
-#define DATA_PRINCE_TALDARAM_EVENT      7
-#define DATA_JEDOGA_SHADOWSEEKER_EVENT  8
-#define DATA_HERALD_VOLAZJ_EVENT        9
-#define DATA_AMANITAR_EVENT             10
-
-#define DATA_SPHERE1                    11
-#define DATA_SPHERE2                    12
-#define DATA_SPHERE1_EVENT              13
-#define DATA_SPHERE2_EVENT              14
-#define DATA_PRINCE_TALDARAM_PLATFORM   15
-
-#define DATA_PL_JEDOGA_TARGET       16
-#define DATA_ADD_JEDOGA_OPFER       17
-#define DATA_JEDOGA_RESET_INITIANDS 18
-#define DATA_JEDOGA_TRIGGER_SWITCH  19
-#define DATA_ADD_JEDOGA_INITIAND    20
-#define DATA_ALL_INITIAND_DEAD      21
-#define DATA_INITIAND_KILLED        22
+enum Data
+{
+    DATA_ELDER_NADOX_EVENT,
+    DATA_PRINCE_TALDARAM_EVENT,
+    DATA_JEDOGA_SHADOWSEEKER_EVENT,
+    DATA_HERALD_VOLAZJ_EVENT,
+    DATA_AMANITAR_EVENT,
+    DATA_SPHERE1_EVENT,
+    DATA_SPHERE2_EVENT,
+    DATA_JEDOGA_TRIGGER_SWITCH,
+    DATA_JEDOGA_RESET_INITIANDS,
+    DATA_INITIAND_KILLED,
+    DATA_ALL_INITIAND_DEAD
+};
 
 #endif
