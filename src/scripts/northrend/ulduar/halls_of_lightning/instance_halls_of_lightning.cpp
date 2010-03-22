@@ -152,6 +152,9 @@ struct instance_halls_of_lightning : public ScriptedInstance
                 m_auiEncounter[3] = uiData;
                 break;
         }
+
+        if (uiData == DONE)
+            SaveToDB();
     }
 
     uint32 GetData(uint32 uiType)
