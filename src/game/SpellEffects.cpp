@@ -6337,19 +6337,19 @@ void Spell::EffectActivateObject(uint32 effect_idx)
 
 void Spell::EffectApplyGlyph(uint32 i)
 {
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (m_caster->GetTypeId() != TYPEID_PLAYER || m_glyphIndex >= MAX_GLYPH_SLOT_INDEX)
         return;
 
     Player *player = (Player*)m_caster;
 
     // apply new one
-    if(uint32 glyph = m_spellInfo->EffectMiscValue[i])
+    if (uint32 glyph = m_spellInfo->EffectMiscValue[i])
     {
-        if(GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        if (GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
-            if(GlyphSlotEntry const *gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
+            if (GlyphSlotEntry const *gs = sGlyphSlotStore.LookupEntry(player->GetGlyphSlot(m_glyphIndex)))
             {
-                if(gp->TypeFlags != gs->TypeFlags)
+                if (gp->TypeFlags != gs->TypeFlags)
                 {
                     SendCastResult(SPELL_FAILED_INVALID_GLYPH);
                     return;                                 // glyph slot mismatch
@@ -6357,9 +6357,9 @@ void Spell::EffectApplyGlyph(uint32 i)
             }
 
             // remove old glyph
-            if(uint32 oldglyph = player->GetGlyph(m_glyphIndex))
+            if (uint32 oldglyph = player->GetGlyph(m_glyphIndex))
             {
-                if(GlyphPropertiesEntry const *old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
+                if (GlyphPropertiesEntry const *old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 {
                     player->RemoveAurasDueToSpell(old_gp->SpellId);
                     player->SetGlyph(m_glyphIndex, 0);
