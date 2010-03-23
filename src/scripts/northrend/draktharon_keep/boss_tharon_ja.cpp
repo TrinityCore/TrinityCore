@@ -48,7 +48,8 @@ enum Spells
     H_SPELL_LIGHTNING_BREATH                               = 59963,
     SPELL_POISON_CLOUD                                     = 49548,
     H_SPELL_POISON_CLOUD                                   = 59969,
-    SPELL_RETURN_FLESH                                     = 53463 //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
+    SPELL_RETURN_FLESH                                     = 53463, //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
+    SPELL_ACHIEVEMENT_CHECK                                = 61863,
 };
 /* not needed
 enum PlayerSkills
@@ -247,7 +248,13 @@ struct boss_tharon_jaAI : public ScriptedAI
         DoScriptText(SAY_DEATH,m_creature);
 
         if (pInstance)
+        {
+            // cast is not rewarding the achievement.
+            // DoCast(SPELL_ACHIEVEMENT_CHECK);
+            pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_ACHIEVEMENT_CHECK);
+
             pInstance->SetData(DATA_THARON_JA_EVENT, DONE);
+        }
     }
 };
 
