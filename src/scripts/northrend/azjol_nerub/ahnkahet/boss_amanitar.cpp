@@ -47,24 +47,24 @@ struct boss_amanitarAI : public ScriptedAI
     boss_amanitarAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        FirstTime = true;
+        bFirstTime = true;
     }
 
     ScriptedInstance* pInstance;
 
-    uint32 roottimer;
-    uint32 bashtimer;
-    uint32 bolttimer;
-    uint32 spawntimer;
+    uint32 uiRootTimer;
+    uint32 uiBashTimer;
+    uint32 uiBoltTimer;
+    uint32 uiSpawnTimer;
 
-    bool FirstTime;
+    bool bFirstTime;
 
     void Reset()
     {
-        roottimer = urand(5000,9000);
-        bashtimer = urand(10000,14000);
-        bolttimer = urand(15000,30000);
-        spawntimer = 0;
+        uiRootTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
+        uiBashTimer = urand(10*IN_MILISECONDS,14*IN_MILISECONDS);
+        uiBoltTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+        uiSpawnTimer = 0;
 
         m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
         m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
@@ -72,11 +72,10 @@ struct boss_amanitarAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
-            if (!FirstTime)
-            {
+            if (!bFirstTime)
                 pInstance->SetData(DATA_AMANITAR_EVENT, FAIL);
-            }
-            else FirstTime = false;
+            else
+                bFirstTime = false;
         }
     }
 
@@ -108,9 +107,9 @@ struct boss_amanitarAI : public ScriptedAI
                 Position pos;
                 victim->GetPosition(&pos);
                 m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
-                m_creature->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                m_creature->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILISECONDS);
                 m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
-                m_creature->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                m_creature->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILISECONDS);
             }
         }
     }
@@ -121,31 +120,31 @@ struct boss_amanitarAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (spawntimer <= diff)
+        if (uiSpawnTimer <= diff)
         {
             SpawnAdds();
-            spawntimer = urand(35000,40000);
-        } else spawntimer -= diff;
+            uiSpawnTimer = urand(35*IN_MILISECONDS,40*IN_MILISECONDS);
+        } else uiSpawnTimer -= diff;
 
-        if (roottimer <= diff)
+        if (uiRootTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_ENTANGLING_ROOTS);
-            roottimer = urand(15000,30000);
-        }
+            uiRootTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+        } else uiRootTimer -= diff;
 
-        if (bashtimer <= diff)
+        if (uiBashTimer <= diff)
         {
             DoCastVictim(SPELL_BASH);
-            bashtimer = urand(15000,30000);
-        } else bashtimer -= diff;
+            uiBashTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+        } else uiBashTimer -= diff;
 
-        if (bolttimer <= diff)
+        if (uiBoltTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_VENOM_BOLT_VOLLEY);
-            bolttimer = urand(15000,30000);
-        } else bolttimer -= diff;
+            uiBoltTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+        } else uiBoltTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -153,13 +152,10 @@ struct boss_amanitarAI : public ScriptedAI
 
 struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
 {
-    mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c)
-    {
-        c->SetUInt32Value(UNIT_FIELD_DISPLAYID, 26981); // Unsichtbar...
-    }
+    mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c) {}
 
-    uint32 auratimer,
-        deathtimer; // Without not all will despawn after 30000! :-(
+    uint32 uiAuraTimer;
+    uint32 uiDeathTimer;
 
     void Reset()
     {
@@ -168,8 +164,8 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
             DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
 
-        auratimer = 0;
-        deathtimer = 30000;
+        uiAuraTimer = 0;
+        uiDeathTimer = 30*IN_MILISECONDS;
     }
 
     void JustDied(Unit *killer)
@@ -191,17 +187,16 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
     {
         if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
         {
-            if (auratimer <= diff)
+            if (uiAuraTimer <= diff)
             {
                 DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
                 DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
-                auratimer = 7000;
-            } else auratimer -= diff;
+                uiAuraTimer = 7*IN_MILISECONDS;
+            } else uiAuraTimer -= diff;
         }
-        if (deathtimer <= diff)
-        {
+        if (uiDeathTimer <= diff)
             m_creature->DisappearAndDie();
-        } else deathtimer -= diff;
+        else uiDeathTimer -= diff;
     }
 };
 
