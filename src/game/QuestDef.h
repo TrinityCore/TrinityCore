@@ -187,6 +187,7 @@ class Quest
         int32  GetZoneOrSort() const { return ZoneOrSort; }
         int32  GetSkillOrClass() const { return SkillOrClass; }
         uint32 GetMinLevel() const { return MinLevel; }
+        uint32 GetMaxLevel() const { return MaxLevel; }
         uint32 GetQuestLevel() const { return QuestLevel; }
         uint32 GetType() const { return Type; }
         uint32 GetRequiredRaces() const { return RequiredRaces; }
@@ -253,7 +254,7 @@ class Quest
         uint32 RewItemId[QUEST_REWARDS_COUNT];
         uint32 RewItemCount[QUEST_REWARDS_COUNT];
         uint32 RewRepFaction[QUEST_REPUTATIONS_COUNT];
-        int32 RewRepValueId[QUEST_REPUTATIONS_COUNT];
+        int32  RewRepValueId[QUEST_REPUTATIONS_COUNT];
         int32  RewRepValue[QUEST_REPUTATIONS_COUNT];
         uint32 DetailsEmote[QUEST_EMOTE_COUNT];
         uint32 DetailsEmoteDelay[QUEST_EMOTE_COUNT];
@@ -284,7 +285,8 @@ class Quest
         int32  ZoneOrSort;
         int32  SkillOrClass;
         uint32 MinLevel;
-        int32 QuestLevel;
+        uint32 MaxLevel;
+        int32  QuestLevel;
         uint32 Type;
         uint32 RequiredRaces;
         uint32 RequiredSkillValue;
@@ -306,7 +308,7 @@ class Quest
         int32  NextQuestId;
         int32  ExclusiveGroup;
         uint32 NextQuestInChain;
-	uint32 XPId;
+        uint32 XPId;
         uint32 SrcItemId;
         uint32 SrcItemCount;
         uint32 SrcSpell;

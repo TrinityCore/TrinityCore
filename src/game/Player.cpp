@@ -14226,7 +14226,13 @@ bool Player::SatisfyQuestLevel(Quest const* qInfo, bool msg)
     if (getLevel() < qInfo->GetMinLevel())
     {
         if(msg)
-            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+            SendCanTakeQuestResponse(INVALIDREASON_QUEST_FAILED_LOW_LEVEL);
+        return false;
+    }
+    else if (qInfo->GetMaxLevel() > 0 && getLevel() > qInfo->GetMaxLevel())
+    {
+        if(msg)
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ); // There doesn't seem to be a specific response for too high player level
         return false;
     }
     return true;
