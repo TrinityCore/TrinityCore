@@ -49,6 +49,12 @@ struct boss_moraggAI : public ScriptedAI
     {
         if (pInstance)
         {
+            if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MORAGG_CELL)))
+                if(pDoor->GetGoState() == GO_STATE_READY)
+   	        {
+                    EnterEvadeMode();
+                    return;
+                }
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
             else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
