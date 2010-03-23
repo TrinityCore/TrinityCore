@@ -104,7 +104,7 @@ inline uint32 GetEruptionSection(float x, float y)
 struct instance_naxxramas : public InstanceData
 {
     instance_naxxramas(Map* pMap) : InstanceData(pMap)
-        , Sapphiron(NULL), pGothikGate(NULL), HorsemenChest(NULL), HorsemenNum(0)
+        , Sapphiron(NULL), pGothikGate(NULL), HorsemenChest(NULL)
     {
         SetBossNumber(MAX_BOSS_NUMBER);
         LoadDoorData(doorData);
@@ -114,7 +114,6 @@ struct instance_naxxramas : public InstanceData
     std::set<GameObject*> HeiganEruption[4];
     GameObject* pGothikGate, *HorsemenChest;
     Creature* Sapphiron;
-    uint32 HorsemenNum;
     uint64 uiFaerlina;
     uint64 uiThane;
     uint64 uiLady;
@@ -128,6 +127,9 @@ struct instance_naxxramas : public InstanceData
     uint64 uiKelthuzad;
     uint64 uiKelthuzadTrigger;
     uint64 uiPortals[4];    
+
+    time_t minHorsemenDiedTime;
+    time_t maxHorsemenDiedTime;
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
@@ -186,6 +188,26 @@ struct instance_naxxramas : public InstanceData
             case DATA_GOTHIK_GATE:
                 if (pGothikGate)
                     pGothikGate->SetGoState(GOState(value));
+                break;
+
+            case DATA_HORSEMEN0:
+            case DATA_HORSEMEN1:
+            case DATA_HORSEMEN2:
+            case DATA_HORSEMEN3:
+                if (value == NOT_STARTED)
+                {
+                    minHorsemenDiedTime = 0;
+                    maxHorsemenDiedTime = 0;
+                }
+                else if (value == DONE)
+                {
+                    time_t now = time(NULL);
+
+                    if (minHorsemenDiedTime == 0)
+                        minHorsemenDiedTime = now;
+                    
+                    maxHorsemenDiedTime = now;
+                }
                 break;
         }
     }
@@ -250,6 +272,28 @@ struct instance_naxxramas : public InstanceData
                 (*itr)->CastSpell(NULL, SPELL_ERUPTION);
             }
         }
+    }
+
+    bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* source, Unit const* target = NULL, uint32 miscvalue1 = 0)
+    {
+        switch(criteria_id)
+        {
+            case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
+                if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                    return true;
+                return false;
+            case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
+                if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                    return true;
+                return false; 
+            case 13233: // Criteria for achievement 2186: The Immortal (25-man)
+                // TODO.
+                break;
+            case 13237: // Criteria for achievement 2187: The Undying (10-man)
+                // TODO.
+                break;
+        }
+        return false;
     }
 };
 

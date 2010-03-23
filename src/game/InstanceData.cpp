@@ -322,6 +322,17 @@ void InstanceData::DoCompleteAchievement(uint32 achievement)
                 pPlayer->CompletedAchievement(AE);
 }
 
+// Update Achievement Criteria for all players in instance
+void InstanceData::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1, uint32 miscvalue2, Unit *unit, uint32 time)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *pPlayer = i->getSource())
+                pPlayer->UpdateAchievementCriteria(type, miscvalue1, miscvalue2, unit, time);
+}
+
 // Remove Auras due to Spell on all players in instance
 void InstanceData::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
 {
