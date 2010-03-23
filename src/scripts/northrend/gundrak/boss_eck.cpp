@@ -140,8 +140,8 @@ struct npc_ruins_dwellerAI : public ScriptedAI
     {
         if(pInstance)
         {
-            pInstance->SetData(DATA_RUIN_DIED_DWELLER,m_creature->GetGUID());
-            if (pInstance->GetData(DATA_RUIN_DIED_DWELLER) == 0)
+            pInstance->SetData64(DATA_RUIN_DWELLER_DIED,m_creature->GetGUID());
+            if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
                 m_creature->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILISECONDS);
         }
     }
