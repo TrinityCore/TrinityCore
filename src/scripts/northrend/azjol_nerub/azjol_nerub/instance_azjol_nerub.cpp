@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,13 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: Instance_Azjol_Nerub
-SD%Complete: 0
-SDComment: Placeholder
-SDCategory: Azjol Nerub
-EndScriptData */
-
 #include "ScriptedPch.h"
 #include "azjol_nerub.h"
 
@@ -38,34 +31,34 @@ struct instance_azjol_nerub : public ScriptedInstance
 {
     instance_azjol_nerub(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    uint64 m_uiKrikthir;
-    uint64 m_uiHadronox;
-    uint64 m_uiAnubarak;
-    uint64 m_uiWatcherGashra;
-    uint64 m_uiWatcherSilthik;
-    uint64 m_uiWatcherNarjil;
+    uint64 uiKrikthir;
+    uint64 uiHadronox;
+    uint64 uiAnubarak;
+    uint64 uiWatcherGashra;
+    uint64 uiWatcherSilthik;
+    uint64 uiWatcherNarjil;
 
-    uint64 m_uiKrikthirDoor;
+    uint64 uiKrikthirDoor;
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 auiEncounter[MAX_ENCOUNTER];
 
    void Initialize()
    {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+        memset(&auiEncounter, 0, sizeof(auiEncounter));
 
-        m_uiKrikthir = 0;
-        m_uiHadronox = 0;
-        m_uiAnubarak = 0;
-        m_uiWatcherGashra = 0;
-        m_uiWatcherSilthik = 0;
-        m_uiWatcherNarjil = 0;
-        m_uiKrikthirDoor = 0;
+        uiKrikthir = 0;
+        uiHadronox = 0;
+        uiAnubarak = 0;
+        uiWatcherGashra = 0;
+        uiWatcherSilthik = 0;
+        uiWatcherNarjil = 0;
+        uiKrikthirDoor = 0;
     }
 
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            if (m_auiEncounter[i] == IN_PROGRESS) return true;
+            if (auiEncounter[i] == IN_PROGRESS) return true;
 
         return false;
     }
@@ -74,12 +67,12 @@ struct instance_azjol_nerub : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 28684:    m_uiKrikthir = pCreature->GetGUID();        break;
-            case 28921:    m_uiHadronox = pCreature->GetGUID();        break;
-            case 29120:    m_uiAnubarak = pCreature->GetGUID();        break;
-            case 28730:    m_uiWatcherGashra = pCreature->GetGUID();   break;
-            case 28731:    m_uiWatcherSilthik = pCreature->GetGUID();  break;
-            case 28729:    m_uiWatcherNarjil = pCreature->GetGUID();   break;
+            case 28684:    uiKrikthir = pCreature->GetGUID();        break;
+            case 28921:    uiHadronox = pCreature->GetGUID();        break;
+            case 29120:    uiAnubarak = pCreature->GetGUID();        break;
+            case 28730:    uiWatcherGashra = pCreature->GetGUID();   break;
+            case 28731:    uiWatcherSilthik = pCreature->GetGUID();  break;
+            case 28729:    uiWatcherNarjil = pCreature->GetGUID();   break;
         }
     }
 
@@ -88,8 +81,8 @@ struct instance_azjol_nerub : public ScriptedInstance
         switch (pGo->GetEntry())
         {
             case 192395:
-                m_uiKrikthirDoor = pGo->GetGUID();
-                if (m_auiEncounter[0] == DONE)
+                uiKrikthirDoor = pGo->GetGUID();
+                if (auiEncounter[0] == DONE)
                     HandleGameObject(NULL,true,pGo);
                 break;
         }
@@ -99,12 +92,12 @@ struct instance_azjol_nerub : public ScriptedInstance
     {
         switch(identifier)
         {
-            case DATA_KRIKTHIR_THE_GATEWATCHER:     return m_uiKrikthir;
-            case DATA_HADRONOX:                     return m_uiHadronox;
-            case DATA_ANUBARAK:                     return m_uiAnubarak;
-            case DATA_WATCHER_GASHRA:               return m_uiWatcherGashra;
-            case DATA_WATCHER_SILTHIK:              return m_uiWatcherSilthik;
-            case DATA_WATCHER_NARJIL:               return m_uiWatcherNarjil;
+            case DATA_KRIKTHIR_THE_GATEWATCHER:     return uiKrikthir;
+            case DATA_HADRONOX:                     return uiHadronox;
+            case DATA_ANUBARAK:                     return uiAnubarak;
+            case DATA_WATCHER_GASHRA:               return uiWatcherGashra;
+            case DATA_WATCHER_SILTHIK:              return uiWatcherSilthik;
+            case DATA_WATCHER_NARJIL:               return uiWatcherNarjil;
         }
 
         return 0;
@@ -115,14 +108,14 @@ struct instance_azjol_nerub : public ScriptedInstance
         switch(type)
         {
         case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:
-            m_auiEncounter[0] = data;
+            auiEncounter[0] = data;
             if (data == DONE)
-                HandleGameObject(m_uiKrikthirDoor,true);
+                HandleGameObject(uiKrikthirDoor,true);
             break;
         case DATA_HADRONOX_EVENT:
-            m_auiEncounter[1] = data; break;
+            auiEncounter[1] = data; break;
         case DATA_ANUBARAK_EVENT:
-            m_auiEncounter[2] = data; break;
+            auiEncounter[2] = data; break;
         }
 
         if (data == DONE)
@@ -135,9 +128,9 @@ struct instance_azjol_nerub : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:   return m_auiEncounter[0];
-            case DATA_HADRONOX_EVENT:                   return m_auiEncounter[1];
-            case DATA_ANUBARAK_EVENT:                   return m_auiEncounter[2];
+            case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:   return auiEncounter[0];
+            case DATA_HADRONOX_EVENT:                   return auiEncounter[1];
+            case DATA_ANUBARAK_EVENT:                   return auiEncounter[2];
         }
 
         return 0;
@@ -147,16 +140,12 @@ struct instance_azjol_nerub : public ScriptedInstance
     {
         OUT_SAVE_INST_DATA;
 
-        std::string str_data;
-
         std::ostringstream saveStream;
-        saveStream << "A N " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-            << m_auiEncounter[2];
-
-        str_data = saveStream.str();
+        saveStream << "A N " << auiEncounter[0] << " " << auiEncounter[1] << " "
+            << auiEncounter[2];
 
         OUT_SAVE_INST_DATA_COMPLETE;
-        return str_data;
+        return saveStream.str();
     }
 
     void Load(const char* in)
@@ -177,13 +166,13 @@ struct instance_azjol_nerub : public ScriptedInstance
 
         if (dataHead1 == 'A' && dataHead2 == 'N')
         {
-            m_auiEncounter[0] = data0;
-            m_auiEncounter[1] = data1;
-            m_auiEncounter[2] = data2;
+            auiEncounter[0] = data0;
+            auiEncounter[1] = data1;
+            auiEncounter[2] = data2;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+                if (auiEncounter[i] == IN_PROGRESS)
+                    auiEncounter[i] = NOT_STARTED;
 
         } else OUT_LOAD_INST_DATA_FAIL;
 
