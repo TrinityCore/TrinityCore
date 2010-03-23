@@ -33,7 +33,13 @@ enum Spells
     SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
     H_SPELL_SHADOW_BOLT_VOLLEY                    = 59975,
     SPELL_SHIVER                                  = 57949,
-    H_SPELL_SHIVER                                = 59978
+    H_SPELL_SHIVER                                = 59978,
+    SPELL_CLONE_PLAYER                            = 57507, //casted on player during insanity
+    SPELL_INSANITY_PHASING_1                      = 57508,
+    SPELL_INSANITY_PHASING_2                      = 57509,
+    SPELL_INSANITY_PHASING_3                      = 57519,
+    SPELL_INSANITY_PHASING_4                      = 57511,
+    SPELL_INSANITY_PHASING_5                      = 57512
 };
 
 enum Creatures
@@ -126,7 +132,7 @@ struct boss_volazjAI : public ScriptedAI
                     // Fixme: allow mirror image query to send other guid to get rid of minion status
                     summon->SetUInt64Value(UNIT_FIELD_CREATEDBY, plr->GetGUID());
                     // clone
-                    plr->CastSpell(summon, 57507, true);
+                    plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                     // set phase
                     summon->SetPhaseMask((1<<(4+insanityHandled)),true);
                 }
@@ -138,9 +144,9 @@ struct boss_volazjAI : public ScriptedAI
     void Reset()
     {
         uiEncounterTimer = 0;
-        uiMindFlayTimer = 8000;
-        uiShadowBoltVolleyTimer = 5000;
-        uiShiverTimer = 15000;
+        uiMindFlayTimer = 8*IN_MILISECONDS;
+        uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
+        uiShiverTimer = 15*IN_MILISECONDS;
 
         if (pInstance)
             pInstance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
@@ -174,19 +180,19 @@ struct boss_volazjAI : public ScriptedAI
         switch (phase)
         {
             case 16:
-                spell = 57508;
+                spell = SPELL_INSANITY_PHASING_1;
                 break;
             case 32:
-                spell = 57509;
+                spell = SPELL_INSANITY_PHASING_2;
                 break;
             case 64:
-                spell = 57510;
+                spell = SPELL_INSANITY_PHASING_3;
                 break;
             case 128:
-                spell = 57511;
+                spell = SPELL_INSANITY_PHASING_4;
                 break;
             case 256:
-                spell = 57512;
+                spell = SPELL_INSANITY_PHASING_5;
                 break;
         }
         return spell;
@@ -256,20 +262,20 @@ struct boss_volazjAI : public ScriptedAI
         if (uiMindFlayTimer <= diff)
         {
             DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
-            uiMindFlayTimer = 20000;
+            uiMindFlayTimer = 20*IN_MILISECONDS;
         } else uiMindFlayTimer -= diff;
 
         if (uiShadowBoltVolleyTimer <= diff)
         {
             DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
-            uiShadowBoltVolleyTimer = 5000;
+            uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
         } else uiShadowBoltVolleyTimer -= diff;
 
         if (uiShiverTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, DUNGEON_MODE(SPELL_SHIVER, H_SPELL_SHIVER));
-            uiShiverTimer = 15000;
+            uiShiverTimer = 15*IN_MILISECONDS;
         } else uiShiverTimer -= diff;
 
         uiEncounterTimer += diff;
@@ -283,7 +289,7 @@ struct boss_volazjAI : public ScriptedAI
         if (pInstance)
         {
             pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
-            if (IsHeroic() && uiEncounterTimer < 120000)
+            if (IsHeroic() && uiEncounterTimer < 120*IN_MILISECONDS)
                 pInstance->DoCompleteAchievement(ACHIEV_QUICK_DEMISE);
         }
 
@@ -292,9 +298,6 @@ struct boss_volazjAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
-            return;
-
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 };

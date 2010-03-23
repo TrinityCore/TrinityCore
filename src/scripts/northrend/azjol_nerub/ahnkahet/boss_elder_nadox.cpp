@@ -43,20 +43,15 @@ enum Spells
     SPELL_BROOD_PLAGUE                            = 56130,
     H_SPELL_BROOD_PLAGUE                          = 59467,
     H_SPELL_BROOD_RAGE                            = 59465,
-    SPELL_ENRAGE                                  = 26662 // Enraged if too far away from home
+    SPELL_ENRAGE                                  = 26662, // Enraged if too far away from home
+    SPELL_SUMMON_SWARMERS                         = 56119, //2x 30178  -- 2x every 10secs
+    SPELL_SUMMON_SWARM_GUARD                      = 56120, //1x 30176  -- every 25secs
 };
 
 enum Creatures
 {
     MOB_AHNKAHAR_SWARMER                          = 30178,
     MOB_AHNKAHAR_GUARDIAN_ENTRY                   = 30176
-};
-
-enum CreatureSpells
-{
-    SPELL_SUMMON_SWARMERS                         = 56119, //2x 30178  -- 2x every 10secs
-    SPELL_SUMMON_SWARM_GUARD                      = 56120, //1x 30176  -- every 25secs
-    SPELL_GUARDIAN_AURA                           = 56151
 };
 
 #define EMOTE_HATCHES                       "An Ahn'kahar Guardian hatches!"
@@ -68,29 +63,29 @@ struct boss_elder_nadoxAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    uint32 plague_Timer;
-    uint32 rage_Timer;
+    uint32 uiPlagueTimer;
+    uint32 uiRagueTimer;
 
-    uint32 swarmer_spawn_Timer;
-    uint32 guard_spawn_Timer;
-    uint32 enrage_Timer;
+    uint32 uiSwarmerSpawnTimer;
+    uint32 uiGuardSpawnTimer;
+    uint32 uiEnragueTimer;
     
-    bool GuardSpawned;
+    bool bGuardSpawned;
 
     ScriptedInstance *pInstance;
 
     void Reset()
     {
-        plague_Timer = 13000;
-        rage_Timer = 20000;
+        uiPlagueTimer = 13*IN_MILISECONDS;
+        uiRagueTimer = 20*IN_MILISECONDS;
 
-        swarmer_spawn_Timer = 10000;
-        guard_spawn_Timer = 25000;
+        uiSwarmerSpawnTimer = 10*IN_MILISECONDS;
+        uiGuardSpawnTimer = 25*IN_MILISECONDS;
 
-        enrage_Timer = 5000;
+        uiEnragueTimer = 5*IN_MILISECONDS;
 
         DeadAhnkaharGuardian = false;
-        GuardSpawned = false;
+        bGuardSpawned = false;
 
         if (pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
@@ -106,8 +101,6 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
-            return;
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
@@ -128,42 +121,40 @@ struct boss_elder_nadoxAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (plague_Timer <= diff)
+        if (uiPlagueTimer <= diff)
         {
             DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
-            plague_Timer = 15000;
-        } else plague_Timer -= diff;
+            uiPlagueTimer = 15*IN_MILISECONDS;
+        } else uiPlagueTimer -= diff;
 
         if (IsHeroic())
-            if (rage_Timer <= diff)
+            if (uiRagueTimer <= diff)
             {
-                Unit* Swarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35);
-
-                if (Swarmer)
+                if (Creature *pSwarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35))
                 {
-                    DoCast(Swarmer, H_SPELL_BROOD_RAGE, true);
-                    rage_Timer = 15000;
+                    DoCast(pSwarmer, H_SPELL_BROOD_RAGE, true);
+                    uiRagueTimer = 15*IN_MILISECONDS;
                 }
-            } else rage_Timer -= diff;
+            } else uiRagueTimer -= diff;
 
-        if (swarmer_spawn_Timer <= diff)
+        if (uiSwarmerSpawnTimer <= diff)
         {
             DoCast(m_creature, SPELL_SUMMON_SWARMERS, true);
             DoCast(m_creature, SPELL_SUMMON_SWARMERS);
             if (urand(1,3) == 3) // 33% chance of dialog
                 DoScriptText(RAND(SAY_EGG_SAC_1,SAY_EGG_SAC_2), m_creature);
 
-            swarmer_spawn_Timer = 10000;
-        } else swarmer_spawn_Timer -= diff;
+            uiSwarmerSpawnTimer = 10*IN_MILISECONDS;
+        } else uiSwarmerSpawnTimer -= diff;
 
-        if (!GuardSpawned && guard_spawn_Timer <= diff)
+        if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
         {
             m_creature->MonsterTextEmote(EMOTE_HATCHES,m_creature->GetGUID(),true);
             DoCast(m_creature, SPELL_SUMMON_SWARM_GUARD);
-            GuardSpawned = true; 
-        } else guard_spawn_Timer -= diff;
+            bGuardSpawned = true;
+        } else uiGuardSpawnTimer -= diff;
 
-        if (enrage_Timer <= diff)
+        if (uiEnragueTimer <= diff)
         {
             if (m_creature->HasAura(SPELL_ENRAGE,0))
                 return;
@@ -174,8 +165,8 @@ struct boss_elder_nadoxAI : public ScriptedAI
                 if (!m_creature->IsNonMeleeSpellCasted(false))
                     DoCast(m_creature, SPELL_ENRAGE, true);
 
-            enrage_Timer = 5000;
-        } else enrage_Timer -= diff;
+            uiEnragueTimer = 5*IN_MILISECONDS;
+        } else uiEnragueTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -186,7 +177,11 @@ CreatureAI* GetAI_boss_elder_nadox(Creature* pCreature)
     return new boss_elder_nadoxAI(pCreature);
 }
 
-#define SPELL_SPRINT            56354
+enum AddSpells
+{
+    SPELL_SPRINT                                  = 56354,
+    SPELL_GUARDIAN_AURA                           = 56151    
+};
 
 struct mob_ahnkahar_nerubianAI : public ScriptedAI
 {
@@ -196,13 +191,13 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
     }
 
     ScriptedInstance *pInstance;
-    uint32 sprint_Timer;
+    uint32 uiSprintTimer;
 
     void Reset()
     {
-        if (m_creature->GetEntry() == 30176) //magic numbers are bad!
+        if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY) //magic numbers are bad!
             DoCast(m_creature, SPELL_GUARDIAN_AURA, true);
-        sprint_Timer = 10000;
+        uiSprintTimer = 10*IN_MILISECONDS;
     }
 
     void JustDied(Unit *killer)
@@ -215,7 +210,10 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (m_creature->GetEntry() == 30176) //magic numbers are bad!
+        if (!UpdateVictim())
+            return;
+        
+        if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
             m_creature->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
 
         if (pInstance)
@@ -229,16 +227,17 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (sprint_Timer <= diff)
+        if (uiSprintTimer <= diff)
         {
             DoCast(m_creature, SPELL_SPRINT);
-            sprint_Timer = 25000;
-        } else sprint_Timer -= diff;
+            uiSprintTimer = 25*IN_MILISECONDS;
+        } else uiSprintTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
 };
 
+//HACK: No, AI. Replace with proper db content?
 struct mob_nadox_eggsAI : public Scripted_NoMovementAI
 {
     mob_nadox_eggsAI(Creature* c) : Scripted_NoMovementAI(c)

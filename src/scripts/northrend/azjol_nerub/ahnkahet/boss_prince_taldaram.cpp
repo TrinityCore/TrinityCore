@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,59 +16,51 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* ScriptData
-SDName: boss_prince_taldaram
-SDAuthor: Tartalo & tlexii
-SD%Complete: 0
-SDComment:
-SDCategory: Ahn'kahet
-EndScriptData */
-
 #include "ScriptedPch.h"
 #include "ahnkahet.h"
 
 enum Spells
 {
-    SPELL_BLOODTHIRST                   = 55968, //Trigger Spell + add aura
-    SPELL_CONJURE_FLAME_SPHERE          = 55931,
-    SPELL_FLAME_SPHERE_SUMMON_1         = 55895,// 1x 30106
-    H_SPELL_FLAME_SPHERE_SUMMON_1       = 59511,// 1x 31686
-    H_SPELL_FLAME_SPHERE_SUMMON_2       = 59512,// 1x 31687
-    SPELL_FLAME_SPHERE_SPAWN_EFFECT     = 55891,
-    SPELL_FLAME_SPHERE_VISUAL           = 55928,
-    SPELL_FLAME_SPHERE_PERIODIC         = 55926,
-    H_SPELL_FLAME_SPHERE_PERIODIC       = 59508,
-    SPELL_FLAME_SPHERE_DEATH_EFFECT     = 55947,
-    SPELL_BEAM_VISUAL                   = 60342,
-    SPELL_EMBRACE_OF_THE_VAMPYR         = 55959,
-    H_SPELL_EMBRACE_OF_THE_VAMPYR       = 59513,
-    SPELL_VANISH                        = 55964,
-    CREATURE_FLAME_SPHERE               = 30106,
-    H_CREATURE_FLAME_SPHERE_1           = 31686,
-    H_CREATURE_FLAME_SPHERE_2           = 31687
+    SPELL_BLOODTHIRST                             = 55968, //Trigger Spell + add aura
+    SPELL_CONJURE_FLAME_SPHERE                    = 55931,
+    SPELL_FLAME_SPHERE_SUMMON_1                   = 55895,// 1x 30106
+    H_SPELL_FLAME_SPHERE_SUMMON_1                 = 59511,// 1x 31686
+    H_SPELL_FLAME_SPHERE_SUMMON_2                 = 59512,// 1x 31687
+    SPELL_FLAME_SPHERE_SPAWN_EFFECT               = 55891,
+    SPELL_FLAME_SPHERE_VISUAL                     = 55928,
+    SPELL_FLAME_SPHERE_PERIODIC                   = 55926,
+    H_SPELL_FLAME_SPHERE_PERIODIC                 = 59508,
+    SPELL_FLAME_SPHERE_DEATH_EFFECT               = 55947,
+    SPELL_BEAM_VISUAL                             = 60342,
+    SPELL_EMBRACE_OF_THE_VAMPYR                   = 55959,
+    H_SPELL_EMBRACE_OF_THE_VAMPYR                 = 59513,
+    SPELL_VANISH                                  = 55964,
+    CREATURE_FLAME_SPHERE                         = 30106,
+    H_CREATURE_FLAME_SPHERE_1                     = 31686,
+    H_CREATURE_FLAME_SPHERE_2                     = 31687
 };
 enum Misc
 {
-    DATA_EMBRACE_DMG                    = 20000,
-    H_DATA_EMBRACE_DMG                  = 40000,
-    DATA_SPHERE_DISTANCE                =    15
+    DATA_EMBRACE_DMG                              = 20000,
+    H_DATA_EMBRACE_DMG                            = 40000,
+    DATA_SPHERE_DISTANCE                          =    15
 };
 #define DATA_SPHERE_ANGLE_OFFSET            0.7
 #define DATA_GROUND_POSITION_Z             11.4
 enum Achievements
 {
-    ACHIEVEMENT_THE_PARTY_IS_OVER       = 1861
+    ACHIEV_THE_PARTY_IS_OVER                      = 1861
 };
 enum Yells
 {
-    SAY_AGGRO                                = -1619021,
-    SAY_SLAY_1                               = -1619022,
-    SAY_SLAY_2                               = -1619023,
-    SAY_DEATH                                = -1619024,
-    SAY_FEED_1                               = -1619025,
-    SAY_FEED_2                               = -1619026,
-    SAY_VANISH_1                             = -1619027,
-    SAY_VANISH_2                             = -1619028
+    SAY_AGGRO                                     = -1619021,
+    SAY_SLAY_1                                    = -1619022,
+    SAY_SLAY_2                                    = -1619023,
+    SAY_DEATH                                     = -1619024,
+    SAY_FEED_1                                    = -1619025,
+    SAY_FEED_2                                    = -1619026,
+    SAY_VANISH_1                                  = -1619027,
+    SAY_VANISH_2                                  = -1619028
 };
 enum CombatPhase
 {
@@ -77,6 +69,11 @@ enum CombatPhase
     JUST_VANISHED,
     VANISHED,
     FEEDING
+};
+enum GameObjects
+{
+    GO_SPHERE1                                    = 193093,
+    GO_SPHERE2                                    = 193094
 };
 
 struct boss_taldaramAI : public ScriptedAI
@@ -104,10 +101,10 @@ struct boss_taldaramAI : public ScriptedAI
 
     void Reset()
     {
-        uiBloodthirstTimer = 10000;
-        uiVanishTimer = (25 + rand()%10)*1000;
-        uiEmbraceTimer = 20000;
-        uiFlamesphereTimer = 5000;
+        uiBloodthirstTimer = 10*IN_MILISECONDS;
+        uiVanishTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
+        uiEmbraceTimer = 20*IN_MILISECONDS;
+        uiFlamesphereTimer = 5*IN_MILISECONDS;
         uiEmbraceTakenDamage = 0;
         Phase = NORMAL;
         uiPhaseTimer = 0;
@@ -136,7 +133,7 @@ struct boss_taldaramAI : public ScriptedAI
                     Creature* pSpheres[3];
 
                     //DoCast(m_creature, SPELL_FLAME_SPHERE_SUMMON_1);
-                    pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                    pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
                     Unit *pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pSphereTarget && pSpheres[0])
                     {
@@ -149,9 +146,9 @@ struct boss_taldaramAI : public ScriptedAI
                     if (IsHeroic())
                     {
                         //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_1);
-                        pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                        pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
                         //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_2);
-                        pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                        pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
                         if (pSphereTarget && pSpheres[1] && pSpheres[2])
                         {
                             float angle,x,y;
@@ -187,7 +184,7 @@ struct boss_taldaramAI : public ScriptedAI
                     m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                     Phase = FEEDING;
-                    uiPhaseTimer = 20000;
+                    uiPhaseTimer = 20*IN_MILISECONDS;
                     break;
                 case FEEDING:
                     Phase = NORMAL;
@@ -198,15 +195,15 @@ struct boss_taldaramAI : public ScriptedAI
                     if (uiBloodthirstTimer <= diff)
                     {
                         DoCast(m_creature->getVictim(), SPELL_BLOODTHIRST);
-                        uiBloodthirstTimer = 10000;
+                        uiBloodthirstTimer = 10*IN_MILISECONDS;
                     } else uiBloodthirstTimer -= diff;
 
                     if (uiFlamesphereTimer <= diff)
                     {
                         DoCast(m_creature, SPELL_CONJURE_FLAME_SPHERE);
                         Phase = CASTING_FLAME_SPHERES;
-                        uiPhaseTimer = 3000 + diff;
-                        uiFlamesphereTimer = 15000;
+                        uiPhaseTimer = 3*IN_MILISECONDS + diff;
+                        uiFlamesphereTimer = 15*IN_MILISECONDS;
                     } else uiFlamesphereTimer -= diff;
 
                     if (uiVanishTimer <= diff)
@@ -234,7 +231,7 @@ struct boss_taldaramAI : public ScriptedAI
                                 uiEmbraceTarget = pEmbraceTarget->GetGUID();
                             
                         }
-                        uiVanishTimer = urand(25000,35000);
+                        uiVanishTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
                     } else uiVanishTimer -= diff;
 
                     DoMeleeAttackIfReady();
@@ -268,15 +265,11 @@ struct boss_taldaramAI : public ScriptedAI
         {
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
 
-            //The Party's Over achievement:
-            AchievementEntry const *AchievThePartyIsOver = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_PARTY_IS_OVER);
-            Map* pMap = m_creature->GetMap();
-            if (pMap && pMap->IsDungeon() && IsHeroic() && AchievThePartyIsOver)
+            if (IsHeroic())
             {
-                Map::PlayerList const &players = pMap->GetPlayers();
+                Map::PlayerList const &players = pInstance->instance->GetPlayers();
                 if (players.getSize() < 5)
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievThePartyIsOver);
+                    pInstance->DoCompleteAchievement(ACHIEV_THE_PARTY_IS_OVER);
             }
         }
     }
@@ -358,7 +351,7 @@ struct mob_taldaram_flamesphereAI : public ScriptedAI
         DoCast(m_creature, SPELL_FLAME_SPHERE_VISUAL);
         DoCast(m_creature, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
         DoCast(m_creature, DUNGEON_MODE(SPELL_FLAME_SPHERE_PERIODIC, H_SPELL_FLAME_SPHERE_PERIODIC));
-        uiDespawnTimer = 10000;
+        uiDespawnTimer = 10*IN_MILISECONDS;
     }
 
     void EnterCombat(Unit *who) {}
@@ -401,8 +394,8 @@ bool GOHello_prince_taldaram_sphere(Player *pPlayer, GameObject *pGO)
 
         switch(pGO->GetEntry())
         {
-            case 193093: pInstance->SetData(DATA_SPHERE1_EVENT,IN_PROGRESS); break;
-            case 193094: pInstance->SetData(DATA_SPHERE2_EVENT,IN_PROGRESS); break;
+            case GO_SPHERE1: pInstance->SetData(DATA_SPHERE1_EVENT,IN_PROGRESS); break;
+            case GO_SPHERE2: pInstance->SetData(DATA_SPHERE2_EVENT,IN_PROGRESS); break;
         }
 
         CAST_AI(boss_taldaramAI, pPrinceTaldaram->AI())->CheckSpheres();
