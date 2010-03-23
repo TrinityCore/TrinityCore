@@ -137,7 +137,10 @@ struct instance_gundrak : public ScriptedInstance
             case CREATURE_GALDARAH: uiGalDarah = pCreature->GetGUID(); break;
             case CREATURE_DRAKKARICOLOSSUS: uiDrakkariColossus = pCreature->GetGUID(); break;
             case CREATURE_ECK: uiEckTheFerocious = pCreature->GetGUID(); break;
-            case CREATURE_RUIN_DWELLER: DwellerGUIDs.insert(pCreature->GetGUID()); break;
+            case CREATURE_RUIN_DWELLER:
+                if (pCreature->isAlive())
+                    DwellerGUIDs.insert(pCreature->GetGUID());
+                break;
         }
     }
 
@@ -286,13 +289,16 @@ struct instance_gundrak : public ScriptedInstance
             if (bHeroicMode && data == DONE)
                 HandleGameObject(uiEckTheFerociousDoorBehind,true);
             break;
-        case DATA_RUIN_DIED_DWELLER:
-            DwellerGUIDs.erase(data);
-            break;
         }
 
         if (data == DONE)
             SaveToDB();
+    }
+    
+    void SetData64(uint32 type, uint64 data)
+    {
+        if (type == DATA_RUIN_DWELLER_DIED)
+	    DwellerGUIDs.erase(data);
     }
 
     uint32 GetData(uint32 type)
@@ -304,7 +310,7 @@ struct instance_gundrak : public ScriptedInstance
             case DATA_GAL_DARAH_EVENT:            return m_auiEncounter[2];
             case DATA_DRAKKARI_COLOSSUS_EVENT:    return m_auiEncounter[3];
             case DATA_ECK_THE_FEROCIOUS_EVENT:    return m_auiEncounter[4];
-            case DATA_RUIN_DIED_DWELLER:          return DwellerGUIDs.size();
+            case DATA_ALIVE_RUIN_DWELLERS:        return DwellerGUIDs.size();
         }
 
         return 0;
