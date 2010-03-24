@@ -4095,53 +4095,30 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const * aurApp, uint8
         return;
 
     Unit * target = aurApp->GetTarget();
-
     uint32 mechanic;
-    mechanic = 1 << GetMiscValue();
 
-    //immune movement impairment and loss of control
-    if(GetId()==42292 || GetId()==59752)
-        mechanic=IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
-    // Forbearance
-    // in DBC wrong mechanic immune since 3.0.x
-    else if (GetId() == 25771)
-        mechanic = 1 << MECHANIC_IMMUNE_SHIELD;
-
-    if (!mechanic)
-        return;
-
-    if(apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
+    switch (GetId())
     {
-        Unit::AuraApplicationMap& Auras = target->GetAppliedAuras();
-        for (Unit::AuraApplicationMap::iterator iter = Auras.begin(); iter != Auras.end();)
-        {
-            SpellEntry const *spell = iter->second->GetBase()->GetSpellProto();
-            if (spell->Id != GetId())
-            {
-                //check for mechanic mask
-                if(GetAllSpellMechanicMask(spell) & mechanic)
-                {
-                    target->RemoveAura(iter);
-                }
-                else
-                    ++iter;
-            }
-            else
-                ++iter;
-        }
+        case 42292: // PvP trinket
+        case 59752: // Every Man for Himself
+            mechanic = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
+            // Actually we should apply immunities here, too, but the aura has only 100 ms duration, so there is practically no point
+            break;
+        case 54508: // Demonic Empowerment
+            mechanic = (1 << MECHANIC_SNARE) | (1 << MECHANIC_ROOT);
+            target->ApplySpellImmune(GetId(), IMMUNITY_STATE, SPELL_AURA_MOD_ROOT, apply);
+            target->ApplySpellImmune(GetId(), IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, apply);
+            break;
+        default:
+            if (GetMiscValue() < 1)
+                return;
+            mechanic = 1 << GetMiscValue();
+            target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, GetMiscValue(), apply);
+            break;
     }
-
-    target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,GetMiscValue(), apply);
-
-    // Demonic Empowerment -- voidwalker -- missing movement impairing effects immunity
-    if (GetId() == 54508)
-    {
-        if (apply)
-            target->RemoveMovementImpairingAuras();
-
-        target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_ROOT, apply);
-        target->ApplySpellImmune(GetId(),IMMUNITY_STATE,SPELL_AURA_MOD_DECREASE_SPEED, apply);
-    }
+            
+    if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
+        target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
 }
 
 void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const * aurApp, uint8 mode, bool apply) const

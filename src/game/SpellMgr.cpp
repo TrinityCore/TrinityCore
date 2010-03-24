@@ -939,7 +939,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
 
 bool IsPositiveSpell(uint32 spellId)
 {
-    if(!sSpellStore.LookupEntry(spellId)) // non-existing spells such as 61988 (Forbearance)
+    if(!sSpellStore.LookupEntry(spellId)) // non-existing spells
         return false;
     return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE);
 }
@@ -3781,6 +3781,10 @@ void SpellMgr::LoadSpellCustomAttr()
         case 31687: // Summon Water Elemental
             // 322-330 switch - effect changed to dummy, target entry not changed in client:(
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+            count++;
+            break;
+        case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
+            spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
             count++;
             break;
         default:
