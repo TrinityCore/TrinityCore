@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008 - 2010 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,39 +16,35 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* Script Data Start
-SDName: Boss dred
-SDAuthor: Manuel
-SD%Complete: 100 %
-SDComment: MAYBE need more improve the "Raptor Call".
-SDCategory:
-Script Data End */
+/*
+ * Comment: MAYBE need more improve the "Raptor Call".
+ */
 
 #include "ScriptedPch.h"
 #include "drak_tharon_keep.h"
 
 enum eSpells
 {
-    SPELL_BELLOWING_ROAR                                   = 22686, // fears the group, can be resisted/dispelled
-    SPELL_GRIEVOUS_BITE                                    = 48920,
-    SPELL_MANGLING_SLASH                                   = 48873, //casted on the current tank, adds debuf
-    SPELL_FEARSOME_ROAR                                    = 48849,
-    H_SPELL_FEARSOME_ROAR                                  = 59422, //Not stacking, debuff
-    SPELL_PIERCING_SLASH                                   = 48878, //debuff -->Armor reduced by 75%
-    SPELL_RAPTOR_CALL                                      = 59416, //dummy
-    SPELL_GUT_RIP                                          = 49710,
-    SPELL_REND                                             = 13738
+    SPELL_BELLOWING_ROAR                          = 22686, // fears the group, can be resisted/dispelled
+    SPELL_GRIEVOUS_BITE                           = 48920,
+    SPELL_MANGLING_SLASH                          = 48873, //casted on the current tank, adds debuf
+    SPELL_FEARSOME_ROAR                           = 48849,
+    H_SPELL_FEARSOME_ROAR                         = 59422, //Not stacking, debuff
+    SPELL_PIERCING_SLASH                          = 48878, //debuff -->Armor reduced by 75%
+    SPELL_RAPTOR_CALL                             = 59416, //dummy
+    SPELL_GUT_RIP                                 = 49710,
+    SPELL_REND                                    = 13738
 };
 
 enum eArchivements
 {
-    ACHIEV_BETTER_OFF_DRED                                 = 2039
+    ACHIEV_BETTER_OFF_DRED                        = 2039
 };
 
 enum Creatures
 {
-    NPC_RAPTOR_1                                           = 26641,
-    NPC_RAPTOR_2                                           = 26628
+    NPC_RAPTOR_1                                  = 26641,
+    NPC_RAPTOR_2                                  = 26628
 };
 
 struct boss_dredAI : public ScriptedAI
@@ -58,12 +54,12 @@ struct boss_dredAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    uint32 BellowingRoarTimer;
-    uint32 GrievousBiteTimer;
-    uint32 ManglingSlashTimer;
-    uint32 FearsomeRoarTimer;
-    uint32 PiercingSlashTimer;
-    uint32 RaptorCallTimer;
+    uint32 uiBellowingRoarTimer;
+    uint32 uiGrievousBiteTimer;
+    uint32 uiManglingSlashTimer;
+    uint32 uiFearsomeRoarTimer;
+    uint32 uiPiercingSlashTimer;
+    uint32 uiRaptorCallTimer;
 
     ScriptedInstance* pInstance;
 
@@ -75,12 +71,12 @@ struct boss_dredAI : public ScriptedAI
             pInstance->SetData(DATA_KING_DRED_ACHIEV, 0);
         }
 
-        BellowingRoarTimer = 33000;
-        GrievousBiteTimer  = 20000;
-        ManglingSlashTimer = 18500;
-        FearsomeRoarTimer  = urand(10000,20000);
-        PiercingSlashTimer = 17000;
-        RaptorCallTimer    = urand(20000,25000);
+        uiBellowingRoarTimer = 33*IN_MILISECONDS;
+        uiGrievousBiteTimer  = 20*IN_MILISECONDS;
+        uiManglingSlashTimer = 18.5*IN_MILISECONDS;
+        uiFearsomeRoarTimer  = urand(10*IN_MILISECONDS,20*IN_MILISECONDS);
+        uiPiercingSlashTimer = 17*IN_MILISECONDS;
+        uiRaptorCallTimer    = urand(20*IN_MILISECONDS,25*IN_MILISECONDS);
     }
 
     void EnterCombat(Unit* who)
@@ -95,47 +91,47 @@ struct boss_dredAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (BellowingRoarTimer < diff)
+        if (uiBellowingRoarTimer < diff)
         {
             DoCastAOE(SPELL_BELLOWING_ROAR, false);
-            BellowingRoarTimer = 40000;
-        } else BellowingRoarTimer -=diff;
+            uiBellowingRoarTimer = 40*IN_MILISECONDS;
+        } else uiBellowingRoarTimer -=diff;
 
-        if (GrievousBiteTimer < diff)
+        if (uiGrievousBiteTimer < diff)
         {
             DoCastVictim(SPELL_GRIEVOUS_BITE ,false);
-            GrievousBiteTimer = 20000;
-        } else GrievousBiteTimer -=diff;
+            uiGrievousBiteTimer = 20*IN_MILISECONDS;
+        } else uiGrievousBiteTimer -=diff;
 
-        if (ManglingSlashTimer < diff)
+        if (uiManglingSlashTimer < diff)
         {
             DoCastVictim(SPELL_MANGLING_SLASH,false);
-            ManglingSlashTimer = 20000;
-        } else ManglingSlashTimer -=diff;
-
-        if (FearsomeRoarTimer < diff)
+            uiManglingSlashTimer = 20*IN_MILISECONDS;
+        } else uiManglingSlashTimer -=diff;
+        
+        if (uiFearsomeRoarTimer < diff)
         {
             DoCastAOE(DUNGEON_MODE(SPELL_FEARSOME_ROAR, H_SPELL_FEARSOME_ROAR),false);
-            FearsomeRoarTimer = urand(16,18)*1000;
-        } else FearsomeRoarTimer -=diff;
+            uiFearsomeRoarTimer = urand(16*IN_MILISECONDS,18*IN_MILISECONDS);
+        } else uiFearsomeRoarTimer -=diff;
 
-        if (PiercingSlashTimer < diff)
+        if (uiPiercingSlashTimer < diff)
         {
             DoCastVictim(SPELL_PIERCING_SLASH,false);
-            PiercingSlashTimer = 20000;
-        } else PiercingSlashTimer -=diff;
+            uiPiercingSlashTimer = 20*IN_MILISECONDS;
+        } else uiPiercingSlashTimer -=diff;
 
-        if (RaptorCallTimer < diff)
+        if (uiRaptorCallTimer < diff)
         {
             DoCastVictim(SPELL_RAPTOR_CALL,false);
 
             float x,y,z;
 
             m_creature->GetClosePoint(x,y,z,m_creature->GetObjectSize()/3,10.0f);
-            m_creature->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1000);
+            m_creature->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILISECONDS);
 
-            RaptorCallTimer = urand(20000,25000);
-        } else RaptorCallTimer -=diff;
+            uiRaptorCallTimer = urand(20*IN_MILISECONDS,25*IN_MILISECONDS);
+        } else uiRaptorCallTimer -=diff;
 
         DoMeleeAttackIfReady();
     }
@@ -214,11 +210,11 @@ struct npc_drakkari_scytheclawAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    uint32 RendTimer;
+    uint32 uiRendTimer;
 
     void Reset()
     {
-        RendTimer = urand(10000,15000);
+        uiRendTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
     }
 
     void UpdateAI(const uint32 diff)
@@ -227,11 +223,11 @@ struct npc_drakkari_scytheclawAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (RendTimer < diff)
+        if (uiRendTimer < diff)
         {
             DoCastVictim(SPELL_REND,false);
-            RendTimer = urand(10000,15000);
-        }else RendTimer -=diff;
+            uiRendTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
+        }else uiRendTimer -=diff;
 
         DoMeleeAttackIfReady();
     }
