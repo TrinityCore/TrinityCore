@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+* Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -91,6 +91,14 @@ struct boss_novosAI : public Scripted_NoMovementAI
         bAchiev = true;
         m_creature->CastStop();
         lSummons.DespawnAll();
+
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
         if (pInstance)
         {
             pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
@@ -112,7 +120,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
         Phase = PHASE_1;
         uiCrystalHandlerTimer = 30*IN_MILISECONDS;
         uiTimer = 1*IN_MILISECONDS;
-        DoCast(m_creature, SPELL_ARCANE_FIELD);
+        DoCast(SPELL_ARCANE_FIELD);
         if (pInstance)
         {
             for (std::list<uint64>::iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
@@ -203,6 +211,17 @@ struct boss_novosAI : public Scripted_NoMovementAI
             uiTimer = 1*IN_MILISECONDS;
         }
     }
+
+    Unit* GetRandomTarget()
+    {
+        return SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+    }
+};
+
+enum CrystalHandlerSpells
+{
+    SPELL_FLASH_OF_DARKNESS                       = 49668,
+    H_SPELL_FLASH_OF_DARKNESS                     = 59004
 };
 
 struct mob_crystal_handlerAI : public ScriptedAI
@@ -212,12 +231,42 @@ struct mob_crystal_handlerAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
+    uint32 uiFlashOfDarknessTimer;
+
     ScriptedInstance *pInstance;
+
+    void Reset()
+    {
+        uiFlashOfDarknessTimer = 5*IN_MILISECONDS;
+    }
 
     void JustDied(Unit* killer)
     {
         if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             CAST_AI(boss_novosAI,pNovos->AI())->RemoveCrystal();
+    }
+
+    void UpdateAI(uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+
+        if (uiFlashOfDarknessTimer <= diff)
+        {
+            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
+            uiFlashOfDarknessTimer = 5*IN_MILISECONDS;
+        } else uiFlashOfDarknessTimer -= diff;
+
+        DoMeleeAttackIfReady();
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if (type != POINT_MOTION_TYPE || id != 0)
+            return;
+        if (Creature *pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
+                AttackStart(pTarget);
     }
 };
 
@@ -232,10 +281,14 @@ struct mob_novos_minionAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if(type != POINT_MOTION_TYPE || id !=0)
             return;
         if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+        {
             CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
+            if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
+                AttackStart(pTarget);
+        }
     }
 };
 
