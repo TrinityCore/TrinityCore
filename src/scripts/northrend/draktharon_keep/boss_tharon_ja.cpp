@@ -16,66 +16,46 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-/* Script Data Start
-SDName: Boss Tharon'ja
-SDAuthor: Tartalo
-SD%Complete: 100
-SDComment:
-SDCategory:
-Script Data End */
-
-/*** SQL START ***
-update creature_template set scriptname = 'boss_tharon_ja' where entry = '';
-*** SQL END ***/
 #include "ScriptedPch.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
 {
     //skeletal spells (phase 1)
-    SPELL_CURSE_OF_LIFE                                    = 49527,
-    H_SPELL_CURSE_OF_LIFE                                  = 59972,
-    SPELL_RAIN_OF_FIRE                                     = 49518,
-    H_SPELL_RAIN_OF_FIRE                                   = 59971,
-    SPELL_SHADOW_VOLLEY                                    = 49528,
-    H_SPELL_SHADOW_VOLLEY                                  = 59973,
-    SPELL_DECAY_FLESH                                      = 49356, //casted at end of phase 1, starts phase 2
+    SPELL_CURSE_OF_LIFE                           = 49527,
+    H_SPELL_CURSE_OF_LIFE                         = 59972,
+    SPELL_RAIN_OF_FIRE                            = 49518,
+    H_SPELL_RAIN_OF_FIRE                          = 59971,
+    SPELL_SHADOW_VOLLEY                           = 49528,
+    H_SPELL_SHADOW_VOLLEY                         = 59973,
+    SPELL_DECAY_FLESH                             = 49356, //casted at end of phase 1, starts phase 2
     //flesh spells (phase 2)
-    SPELL_GIFT_OF_THARON_JA                                = 52509,
-    SPELL_EYE_BEAM                                         = 49544,
-    H_SPELL_EYE_BEAM                                       = 59965,
-    SPELL_LIGHTNING_BREATH                                 = 49537,
-    H_SPELL_LIGHTNING_BREATH                               = 59963,
-    SPELL_POISON_CLOUD                                     = 49548,
-    H_SPELL_POISON_CLOUD                                   = 59969,
-    SPELL_RETURN_FLESH                                     = 53463, //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
-    SPELL_ACHIEVEMENT_CHECK                                = 61863,
+    SPELL_GIFT_OF_THARON_JA                       = 52509,
+    SPELL_EYE_BEAM                                = 49544,
+    H_SPELL_EYE_BEAM                              = 59965,
+    SPELL_LIGHTNING_BREATH                        = 49537,
+    H_SPELL_LIGHTNING_BREATH                      = 59963,
+    SPELL_POISON_CLOUD                            = 49548,
+    H_SPELL_POISON_CLOUD                          = 59969,
+    SPELL_RETURN_FLESH                            = 53463, //Channeled spell ending phase two and returning to phase 1. This ability will stun the party for 6 seconds.
+    SPELL_ACHIEVEMENT_CHECK                       = 61863,
 };
-/* not needed
-enum PlayerSkills
-{
-    //Players' skills during Phase2
-    SPELL_PLAYER_PHASE2_SLAYING_STRIKE                     = 50799,
-    SPELL_PLAYER_PHASE2_TAUNT                              = 49613,
-    SPELL_PLAYER_PHASE2_BONE_ARMOR                         = 49609,
-    SPELL_PLAYER_PHASE2_TOUCH_OF_LIFE                      = 49617
-};
-*/
+
 enum Yells
 {
-    SAY_AGGRO                                              = -1600011,
-    SAY_KILL_1                                             = -1600012,
-    SAY_KILL_2                                             = -1600013,
-    SAY_FLESH_1                                            = -1600014,
-    SAY_FLESH_2                                            = -1600015,
-    SAY_SKELETON_1                                         = -1600016,
-    SAY_SKELETON_2                                         = -1600017,
-    SAY_DEATH                                              = -1600018
+    SAY_AGGRO                                     = -1600011,
+    SAY_KILL_1                                    = -1600012,
+    SAY_KILL_2                                    = -1600013,
+    SAY_FLESH_1                                   = -1600014,
+    SAY_FLESH_2                                   = -1600015,
+    SAY_SKELETON_1                                = -1600016,
+    SAY_SKELETON_2                                = -1600017,
+    SAY_DEATH                                     = -1600018
 };
 enum Models
 {
-    MODEL_FLESH                                            = 27073,
-    MODEL_SKELETON                                         = 27511
+    MODEL_FLESH                                   = 27073,
+    MODEL_SKELETON                                = 27511
 };
 enum CombatPhase
 {
@@ -106,10 +86,10 @@ struct boss_tharon_jaAI : public ScriptedAI
 
     void Reset()
     {
-        uiPhaseTimer = 20000;
-        uiCurseOfLifeTimer = 1000;
-        uiRainOfFireTimer = urand(14000,18000);
-        uiShadowVolleyTimer = urand(8000,10000);
+        uiPhaseTimer = 20*IN_MILISECONDS;
+        uiCurseOfLifeTimer = 1*IN_MILISECONDS;
+        uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
+        uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
         Phase = SKELETAL;
         m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
         if (pInstance)
@@ -137,26 +117,26 @@ struct boss_tharon_jaAI : public ScriptedAI
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(SPELL_CURSE_OF_LIFE, H_SPELL_CURSE_OF_LIFE));
-                    uiCurseOfLifeTimer = urand(10000,15000);
+                    uiCurseOfLifeTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
                 } else uiCurseOfLifeTimer -= diff;
                 
                 if (uiShadowVolleyTimer < diff)
                 {
                     DoCastVictim(DUNGEON_MODE(SPELL_SHADOW_VOLLEY,H_SPELL_SHADOW_VOLLEY));
-                    uiShadowVolleyTimer = urand(8000,10000);
+                    uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
                 } else uiShadowVolleyTimer -= diff;
                 
                 if (uiRainOfFireTimer < diff)
                 {
                     DoCastAOE(DUNGEON_MODE(SPELL_RAIN_OF_FIRE,H_SPELL_RAIN_OF_FIRE));
-                    uiRainOfFireTimer = urand(14000,18000);
+                    uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
                 } else uiRainOfFireTimer -= diff;
                 
                 if (uiPhaseTimer < diff)
                 {
                     DoCast(SPELL_DECAY_FLESH);
                     Phase = GOING_FLESH;
-                    uiPhaseTimer = 6000;
+                    uiPhaseTimer = 6*IN_MILISECONDS;
                 } else uiPhaseTimer -= diff;
 
                 DoMeleeAttackIfReady();
@@ -176,10 +156,10 @@ struct boss_tharon_jaAI : public ScriptedAI
                             pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                     }
-                    uiPhaseTimer = 20000;
-                    uiLightningBreathTimer = urand(3000,4000);
-                    uiEyeBeamTimer = urand(4000,8000);
-                    uiPoisonCloudTimer = urand(6000,7000);
+                    uiPhaseTimer = 20*IN_MILISECONDS;
+                    uiLightningBreathTimer = urand(3*IN_MILISECONDS,4*IN_MILISECONDS);
+                    uiEyeBeamTimer = urand(4*IN_MILISECONDS,8*IN_MILISECONDS);
+                    uiPoisonCloudTimer = urand(6*IN_MILISECONDS,7*IN_MILISECONDS);
                     Phase = FLESH;
                 } else uiPhaseTimer -= diff;
                 break;
@@ -188,27 +168,27 @@ struct boss_tharon_jaAI : public ScriptedAI
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(SPELL_LIGHTNING_BREATH, H_SPELL_LIGHTNING_BREATH));
-                    uiLightningBreathTimer = urand(6000,7000);
+                    uiLightningBreathTimer = urand(6*IN_MILISECONDS,7*IN_MILISECONDS);
                 } else uiLightningBreathTimer -= diff;
 
                 if (uiEyeBeamTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(SPELL_EYE_BEAM, H_SPELL_EYE_BEAM));
-                    uiEyeBeamTimer = urand(4000,6000);
+                    uiEyeBeamTimer = urand(4*IN_MILISECONDS,6*IN_MILISECONDS);
                 } else uiEyeBeamTimer -= diff;
 
                 if (uiPoisonCloudTimer < diff)
                 {
                     DoCastAOE(DUNGEON_MODE(SPELL_POISON_CLOUD, H_SPELL_POISON_CLOUD));
-                    uiPoisonCloudTimer = urand(10000,12000);
+                    uiPoisonCloudTimer = urand(10*IN_MILISECONDS,12*IN_MILISECONDS);
                 } else uiPoisonCloudTimer -= diff;
                 
                 if (uiPhaseTimer < diff)
                 {
                     DoCast(SPELL_RETURN_FLESH);
                     Phase = GOING_SKELETAL;
-                    uiPhaseTimer = 6000;
+                    uiPhaseTimer = 6*IN_MILISECONDS;
                 } else uiPhaseTimer -= diff;
                 DoMeleeAttackIfReady();
                 break;
@@ -218,10 +198,10 @@ struct boss_tharon_jaAI : public ScriptedAI
                     DoScriptText(RAND(SAY_SKELETON_1,SAY_SKELETON_2), m_creature);
                     m_creature->DeMorph();
                     Phase = SKELETAL;
-                    uiPhaseTimer = 20000;
-                    uiCurseOfLifeTimer = 1000;
-                    uiRainOfFireTimer = urand(14000,18000);
-                    uiShadowVolleyTimer = urand(8000,10000);
+                    uiPhaseTimer = 20*IN_MILISECONDS;
+                    uiCurseOfLifeTimer = 1*IN_MILISECONDS;
+                    uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
+                    uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
                     std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
