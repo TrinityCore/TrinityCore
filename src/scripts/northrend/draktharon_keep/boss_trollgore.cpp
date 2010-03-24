@@ -16,48 +16,41 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-/* Script Data Start
-SDName: Boss trollgore
-SDAuthor: Tartalo
-SD%Complete:
-SDComment: TODO: spawn troll waves
-SDCategory:
-Script Data End */
+/*
+ * Comment: TODO: spawn troll waves
+ */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_trollgore' where entry = '';
-*** SQL END ***/
 #include "ScriptedPch.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
 {
-    SPELL_INFECTED_WOUND                                   = 49637,
-    SPELL_CRUSH                                            = 49639,
-    SPELL_CORPSE_EXPLODE                                   = 49555,
-    SPELL_CONSUME                                          = 49380,
-    SPELL_CONSUME_AURA                                     = 49381,
+    SPELL_INFECTED_WOUND                          = 49637,
+    SPELL_CRUSH                                   = 49639,
+    SPELL_CORPSE_EXPLODE                          = 49555,
+    SPELL_CONSUME                                 = 49380,
+    SPELL_CONSUME_AURA                            = 49381,
     //Heroic spells
-    H_SPELL_CORPSE_EXPLODE                                 = 59807,
-    H_SPELL_CONSUME                                        = 59803,
-    H_SPELL_CONSUME_AURA                                   = 59805,
+    H_SPELL_CORPSE_EXPLODE                        = 59807,
+    H_SPELL_CONSUME                               = 59803,
+    H_SPELL_CONSUME_AURA                          = 59805,
 };
 enum Yells
 {
-    SAY_AGGRO                                              = -1600006,
-    SAY_KILL                                               = -1600007,
-    SAY_CONSUME                                            = -1600008,
-    SAY_EXPLODE                                            = -1600009,
-    SAY_DEATH                                              = -1600010
+    SAY_AGGRO                                     = -1600006,
+    SAY_KILL                                      = -1600007,
+    SAY_CONSUME                                   = -1600008,
+    SAY_EXPLODE                                   = -1600009,
+    SAY_DEATH                                     = -1600010
 };
 enum Achievements
 {
-    ACHIEV_CONSUMPTION_JUNCTION                            = 2151
+    ACHIEV_CONSUMPTION_JUNCTION                   = 2151
 };
 enum Creatures
 {
-    NPC_DRAKKARI_INVADER_1                                 = 27753,
-    NPC_DRAKKARI_INVADER_2                                 = 27709
+    NPC_DRAKKARI_INVADER_1                        = 27753,
+    NPC_DRAKKARI_INVADER_2                        = 27709
 };
 
 Position AddSpawnPoint = { -260.493011, -622.968018, 26.605301, 3.036870 };
@@ -84,12 +77,12 @@ struct boss_trollgoreAI : public ScriptedAI
 
     void Reset()
     {
-        uiConsumeTimer = 15000;
-        uiAuraCountTimer = 15500;
-        uiCrushTimer = urand(1000,5000);
-        uiInfectedWoundTimer = urand(6000,10000);
-        uiExplodeCorpseTimer = 3000;
-        uiSpawnTimer = urand(30000,40000);
+        uiConsumeTimer = 15*IN_MILISECONDS;
+        uiAuraCountTimer = 15.5*IN_MILISECONDS;
+        uiCrushTimer = urand(1*IN_MILISECONDS,5*IN_MILISECONDS);
+        uiInfectedWoundTimer = urand(60*IN_MILISECONDS,10*IN_MILISECONDS);
+        uiExplodeCorpseTimer = 3*IN_MILISECONDS;
+        uiSpawnTimer = urand(30*IN_MILISECONDS,40*IN_MILISECONDS);
 
         bAchiev = IsHeroic();
 
@@ -120,14 +113,14 @@ struct boss_trollgoreAI : public ScriptedAI
             uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
             for (uint8 i = 0; i < spawnNumber; ++i)
                 DoSummon(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
-            uiSpawnTimer = urand(30000,40000);
+            uiSpawnTimer = urand(30*IN_MILISECONDS,40*IN_MILISECONDS);
         } else uiSpawnTimer -= diff;
 
         if (uiConsumeTimer <= diff)
         {
             DoScriptText(SAY_CONSUME, m_creature);
             DoCast(DUNGEON_MODE(SPELL_CONSUME, H_SPELL_CONSUME));
-            uiConsumeTimer = 15000;
+            uiConsumeTimer = 15*IN_MILISECONDS;
         } else uiConsumeTimer -= diff;
 
         if (bAchiev)
@@ -140,20 +133,20 @@ struct boss_trollgoreAI : public ScriptedAI
         if (uiCrushTimer <= diff)
         {
             DoCastVictim(SPELL_CRUSH);
-            uiCrushTimer = urand(10000,15000);
+            uiCrushTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
         } else uiCrushTimer -= diff;
 
         if (uiInfectedWoundTimer <= diff)
         {
             DoCastVictim(SPELL_INFECTED_WOUND);
-            uiInfectedWoundTimer = urand(25000,35000);
+            uiInfectedWoundTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
         } else uiInfectedWoundTimer -= diff;
 
         if (uiExplodeCorpseTimer <= diff)
         {
             DoCast(DUNGEON_MODE(SPELL_CORPSE_EXPLODE, H_SPELL_CORPSE_EXPLODE));
             DoScriptText(SAY_EXPLODE, m_creature);
-            uiExplodeCorpseTimer = urand(15000,19000);
+            uiExplodeCorpseTimer = urand(15*IN_MILISECONDS,19*IN_MILISECONDS);
         } else uiExplodeCorpseTimer -= diff;
 
         DoMeleeAttackIfReady();

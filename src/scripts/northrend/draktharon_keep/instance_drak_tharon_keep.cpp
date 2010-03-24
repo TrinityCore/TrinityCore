@@ -30,17 +30,17 @@
 
 enum Creatures
 {
-    NPC_TROLLGORE                                          = 26630,
-    NPC_NOVOS                                              = 26631,
-    NPC_KING_DRED                                          = 27483,
-    NPC_THARON_JA                                          = 26632
+    NPC_TROLLGORE                                 = 26630,
+    NPC_NOVOS                                     = 26631,
+    NPC_KING_DRED                                 = 27483,
+    NPC_THARON_JA                                 = 26632
 };
 enum GameObjects
 {
-    GO_NOVOS_CRYSTAL_1                                     = 189299,
-    GO_NOVOS_CRYSTAL_2                                     = 189300,
-    GO_NOVOS_CRYSTAL_3                                     = 189301,
-    GO_NOVOS_CRYSTAL_4                                     = 189302
+    GO_NOVOS_CRYSTAL_1                            = 189299,
+    GO_NOVOS_CRYSTAL_2                            = 189300,
+    GO_NOVOS_CRYSTAL_3                            = 189301,
+    GO_NOVOS_CRYSTAL_4                            = 189302
 };
 
 struct instance_drak_tharon : public ScriptedInstance

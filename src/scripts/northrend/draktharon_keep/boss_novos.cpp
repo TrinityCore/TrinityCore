@@ -16,49 +16,38 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
-/* Script Data Start
-SDName: Boss novos
-SDAuthor: Tartalo
-SD%Complete: 100
-SDComment:
-SDCategory:
-Script Data End */
-
-/*** SQL START ***
-update creature_template set scriptname = 'boss_novos' where entry = '';
-*** SQL END ***/
 #include "ScriptedPch.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
 {
-    SPELL_ARCANE_BLAST                        = 49198,
-    H_SPELL_ARCANE_BLAST                      = 59909,
-    SPELL_ARCANE_FIELD                        = 47346,
-    SPELL_BLIZZARD                            = 49034,
-    H_SPELL_BLIZZARD                          = 59854,
-    SPELL_FROSTBOLT                           = 49037,
-    H_SPELL_FROSTBOLT                         = 59855,
-    SPELL_WRATH_OF_MISERY                     = 50089,
-    H_SPELL_WRATH_OF_MISERY                   = 59856,
-    SPELL_SUMMON_MINIONS                      = 59910 //Summons an army of Fetid Troll Corpses to assist the caster.
+    SPELL_ARCANE_BLAST                            = 49198,
+    H_SPELL_ARCANE_BLAST                          = 59909,
+    SPELL_ARCANE_FIELD                            = 47346,
+    SPELL_BLIZZARD                                = 49034,
+    H_SPELL_BLIZZARD                              = 59854,
+    SPELL_FROSTBOLT                               = 49037,
+    H_SPELL_FROSTBOLT                             = 59855,
+    SPELL_WRATH_OF_MISERY                         = 50089,
+    H_SPELL_WRATH_OF_MISERY                       = 59856,
+    SPELL_SUMMON_MINIONS                          = 59910 //Summons an army of Fetid Troll Corpses to assist the caster.
 };
 //not in db
 enum Yells
 {
-    SAY_AGGRO                              = -1600000,
-    SAY_KILL                               = -1600001,
-    SAY_DEATH                              = -1600002,
-    SAY_NECRO_ADD                          = -1600003,
-    SAY_REUBBLE_1                          = -1600004,
-    SAY_REUBBLE_2                          = -1600005
+    SAY_AGGRO                                     = -1600000,
+    SAY_KILL                                      = -1600001,
+    SAY_DEATH                                     = -1600002,
+    SAY_NECRO_ADD                                 = -1600003,
+    SAY_REUBBLE_1                                 = -1600004,
+    SAY_REUBBLE_2                                 = -1600005
 };
 enum Creatures
 {
-    CREATURE_RISEN_SHADOWCASTER            = 27600,
-    CREATURE_FETID_TROLL_CORPSE            = 27598,
-    CREATURE_HULKING_CORPSE                = 27597,
-    CREATURE_CRYSTAL_HANDLER               = 26627
+    CREATURE_RISEN_SHADOWCASTER                   = 27600,
+    CREATURE_FETID_TROLL_CORPSE                   = 27598,
+    CREATURE_HULKING_CORPSE                       = 27597,
+    CREATURE_CRYSTAL_HANDLER                      = 26627
 };
 enum CombatPhase
 {
@@ -68,24 +57,18 @@ enum CombatPhase
 };
 enum Achievements
 {
-    ACHIEV_OH_NOVOS                   = 2057
+    ACHIEV_OH_NOVOS                               = 2057
 };
 
-struct Location
-{
-    float x,y,z;
-};
-
-static Location AddSpawnPoint = { -379.20, -816.76, 59.70};
-static Location CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
-static Location AddDestinyPoint = { -379.314545, -772.577637, 28.58837 };
+static Position AddSpawnPoint = { -379.20, -816.76, 59.70 };
+static Position CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
+static Position AddDestinyPoint = { -379.314545, -772.577637, 28.58837 };
 
 struct boss_novosAI : public Scripted_NoMovementAI
 {
     boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
     {
         pInstance = c->GetInstanceData();
-        Reset();
     }
 
     uint32 uiTimer;
@@ -127,8 +110,8 @@ struct boss_novosAI : public Scripted_NoMovementAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
         Phase = PHASE_1;
-        uiCrystalHandlerTimer = 30000;
-        uiTimer = 1000;
+        uiCrystalHandlerTimer = 30*IN_MILISECONDS;
+        uiTimer = 1*IN_MILISECONDS;
         DoCast(m_creature, SPELL_ARCANE_FIELD);
         if (pInstance)
         {
@@ -151,18 +134,18 @@ struct boss_novosAI : public Scripted_NoMovementAI
             case PHASE_1:
                 if (uiTimer <= diff)
                 {
-                    Creature *pSummon = m_creature->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint.x, AddSpawnPoint.y , AddSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-                    pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
+                    Creature *pSummon = m_creature->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                    pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                     //If spell is casted stops casting arcane field so no spell casting
                     //DoCast(m_creature, SPELL_SUMMON_MINIONS);
-                    uiTimer = 3000;
+                    uiTimer = 3*IN_MILISECONDS;
                 } else uiTimer -= diff;
                 if (uiCrystalHandlerTimer <= diff)
                 {
                     DoScriptText(SAY_NECRO_ADD, m_creature);
-                    Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint.x, CrystalHandlerSpawnPoint.y , CrystalHandlerSpawnPoint.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
-                    pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint.x, AddDestinyPoint.y, AddDestinyPoint.z);
-                    uiCrystalHandlerTimer = urand(20000,30000);
+                    Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                    pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
+                    uiCrystalHandlerTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
                 } else uiCrystalHandlerTimer -= diff;
                 break;
             case PHASE_2:
@@ -171,7 +154,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
                                                      RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
-                    uiTimer = urand(1000,3000);
+                    uiTimer = urand(1*IN_MILISECONDS,3*IN_MILISECONDS);
                 } else uiTimer -= diff;
                 break;
         }
@@ -217,7 +200,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             Phase = PHASE_2;
-            uiTimer = 1000;
+            uiTimer = 1*IN_MILISECONDS;
         }
     }
 };
