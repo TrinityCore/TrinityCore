@@ -2093,7 +2093,7 @@ DROP TABLE IF EXISTS `game_event_npc_vendor`;
 CREATE TABLE `game_event_npc_vendor` (
   `event` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `item` mediumint(8) NOT NULL DEFAULT '0',
   `maxcount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `incrtime` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
@@ -3660,7 +3660,7 @@ DROP TABLE IF EXISTS `npc_trainer`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `npc_trainer` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `spell` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `spell` mediumint(8) NOT NULL DEFAULT '0',
   `spellcost` int(10) unsigned NOT NULL DEFAULT '0',
   `reqskill` smallint(5) unsigned NOT NULL DEFAULT '0',
   `reqskillvalue` smallint(5) unsigned NOT NULL DEFAULT '0',
