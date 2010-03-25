@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -25,7 +25,7 @@ enum eSpells
     SPELL_GROUND_TREMOR                           = 55142,
     SPELL_NUMBING_SHOUT                           = 55106,
     SPELL_DETERMINED_GORE                         = 55102,
-    SPELL_DETERMINED_GORE_1                       = 59444,
+    H_SPELL_DETERMINED_GORE                       = 59444,
     SPELL_QUAKE                                   = 55101,
     SPELL_NUMBING_ROAR                            = 55100,
     SPELL_MOJO_FRENZY                             = 55163,
@@ -34,19 +34,19 @@ enum eSpells
 
 enum eArchivements
 {
-    ACHIEVEMENT_LESS_RABI       =   2040
+    ACHIEV_LESS_RABI                              = 2040
 };
 
 enum eSays
 {
-    SAY_AGGRO                   =   -1604010,
-    //SAY_SLAY_1                =   -1604011, // not in db
-    SAY_SLAY_2                  =   -1604012,
-    SAY_SLAY_3                  =   -1604013,
-    SAY_DEATH                   =   -1604014,
-    SAY_TRANSFORM               =   -1604015,
-    SAY_QUAKE                   =   -1604016,
-    EMOTE_TRANSFORM             =   -1604017
+    SAY_AGGRO                                     = -1604010,
+    //SAY_SLAY_1                                  = -1604011, // not in db
+    SAY_SLAY_2                                    = -1604012,
+    SAY_SLAY_3                                    = -1604013,
+    SAY_DEATH                                     = -1604014,
+    SAY_TRANSFORM                                 = -1604015,
+    SAY_QUAKE                                     = -1604016,
+    EMOTE_TRANSFORM                               = -1604017
 };
 
 struct boss_moorabiAI : public ScriptedAI
@@ -67,10 +67,10 @@ struct boss_moorabiAI : public ScriptedAI
 
     void Reset()
     {
-        uiGroundTremorTimer = 18000;
-        uiNumblingShoutTimer =  10000;
-        uiDeterminedStabTimer = 20000;
-        uiTransformationTImer = 12000;
+        uiGroundTremorTimer = 18*IN_MILISECONDS;
+        uiNumblingShoutTimer =  10*IN_MILISECONDS;
+        uiDeterminedStabTimer = 20*IN_MILISECONDS;
+        uiTransformationTImer = 12*IN_MILISECONDS;
         bPhase = false;
 
         if (pInstance)
@@ -105,7 +105,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(m_creature->getVictim(), SPELL_QUAKE, true);
             else
                 DoCast(m_creature->getVictim(), SPELL_GROUND_TREMOR, true);
-            uiGroundTremorTimer = 10000;
+            uiGroundTremorTimer = 10*IN_MILISECONDS;
         } else uiGroundTremorTimer -= uiDiff;
 
         if (uiNumblingShoutTimer <= uiDiff)
@@ -114,16 +114,16 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(m_creature->getVictim(), SPELL_NUMBING_ROAR, true);
             else
                 DoCast(m_creature->getVictim(), SPELL_NUMBING_SHOUT, true);
-            uiNumblingShoutTimer = 10000;
+            uiNumblingShoutTimer = 10*IN_MILISECONDS;
         } else uiNumblingShoutTimer -=uiDiff;
 
         if (uiDeterminedStabTimer <= uiDiff)
         {
             if (bPhase)
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_DETERMINED_GORE, SPELL_DETERMINED_GORE_1));
+                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_DETERMINED_GORE, H_SPELL_DETERMINED_GORE));
             else
                 DoCast(m_creature->getVictim(), SPELL_DETERMINED_STAB, true);
-            uiDeterminedStabTimer = 8000;
+            uiDeterminedStabTimer = 8*IN_MILISECONDS;
         } else uiDeterminedStabTimer -=uiDiff;
 
         if (!bPhase && uiTransformationTImer <= uiDiff)
@@ -131,7 +131,7 @@ struct boss_moorabiAI : public ScriptedAI
             DoScriptText(EMOTE_TRANSFORM, m_creature);
             DoScriptText(SAY_TRANSFORM, m_creature);
             DoCast(m_creature, SPELL_TRANSFORMATION, false);
-            uiTransformationTImer = 10000;
+            uiTransformationTImer = 10*IN_MILISECONDS;
         } else uiTransformationTImer -= uiDiff;
 
         DoMeleeAttackIfReady();
@@ -146,7 +146,7 @@ struct boss_moorabiAI : public ScriptedAI
             pInstance->SetData(DATA_MOORABI_EVENT, DONE);
 
             if (IsHeroic() && !bPhase)
-                pInstance->DoCompleteAchievement(ACHIEVEMENT_LESS_RABI);
+                pInstance->DoCompleteAchievement(ACHIEV_LESS_RABI);
         }
     }
 

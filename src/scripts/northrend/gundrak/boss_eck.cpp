@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
 *
 * This program is free software; you can redistribute it and/or modify
 * it under the terms of the GNU General Public License as published by
@@ -21,11 +21,11 @@
 
 enum Spells
 {
-    SPELL_ECK_BERSERK                       = 55816, //Eck goes berserk, increasing his attack speed by 150% and all damage he deals by 500%.
-    SPELL_ECK_BITE                          = 55813, //Eck bites down hard, inflicting 150% of his normal damage to an enemy.
-    SPELL_ECK_SPIT                          = 55814, //Eck spits toxic bile at enemies in a cone in front of him, inflicting 2970 Nature damage and draining 220 mana every 1 sec for 3 sec.
-    SPELL_ECK_SPRING_1                      = 55815, //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
-    SPELL_ECK_SPRING_2                      = 55837  //Eck leaps at a distant target.
+    SPELL_ECK_BERSERK                             = 55816, //Eck goes berserk, increasing his attack speed by 150% and all damage he deals by 500%.
+    SPELL_ECK_BITE                                = 55813, //Eck bites down hard, inflicting 150% of his normal damage to an enemy.
+    SPELL_ECK_SPIT                                = 55814, //Eck spits toxic bile at enemies in a cone in front of him, inflicting 2970 Nature damage and draining 220 mana every 1 sec for 3 sec.
+    SPELL_ECK_SPRING_1                            = 55815, //Eck leaps at a distant target.  --> Drops aggro and charges a random player. Tank can simply taunt him back.
+    SPELL_ECK_SPRING_2                            = 55837  //Eck leaps at a distant target.
 };
 
 static Position EckSpawnPoint = { 1643.877930, 936.278015, 107.204948, 0.668432 };
@@ -48,10 +48,10 @@ struct boss_eckAI : public ScriptedAI
 
     void Reset()
     {
-        uiBerserkTimer = 60000 + rand()%30000; //60-90 secs according to wowwiki
-        uiBiteTimer = 5000;
-        uiSpitTimer = 10000;
-        uiSpringTimer = 8000;
+        uiBerserkTimer = urand(60*IN_MILISECONDS,90*IN_MILISECONDS); //60-90 secs according to wowwiki
+        uiBiteTimer = 5*IN_MILISECONDS;
+        uiSpitTimer = 10*IN_MILISECONDS;
+        uiSpringTimer = 8*IN_MILISECONDS;
 
         bBerserk = false;
 
@@ -74,13 +74,13 @@ struct boss_eckAI : public ScriptedAI
         if (uiBiteTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ECK_BITE);
-            uiBiteTimer = 8000 + rand()%4000;
+            uiBiteTimer = urand(8*IN_MILISECONDS,12*IN_MILISECONDS);
         } else uiBiteTimer -= diff;
 
         if (uiSpitTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ECK_SPIT);
-            uiSpitTimer = 6000 + rand()%8000;
+            uiSpitTimer = urand(6*IN_MILISECONDS,14*IN_MILISECONDS);
         } else uiSpitTimer -= diff;
 
         if (uiSpringTimer <= diff)
@@ -89,7 +89,7 @@ struct boss_eckAI : public ScriptedAI
             if(pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
                 DoCast(pTarget, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
-                uiSpringTimer = 5000 + rand()%10000;
+                uiSpringTimer = urand(5*IN_MILISECONDS,10*IN_MILISECONDS);
             }
         } else uiSpringTimer -= diff;
 
@@ -104,7 +104,7 @@ struct boss_eckAI : public ScriptedAI
             else
             {
                 uiBerserkTimer -= diff;
-                if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 20)
+                if (HealthBelowPct(20))
                 {
                     DoCast(m_creature, SPELL_ECK_BERSERK);
                     bBerserk = true;
