@@ -29,6 +29,11 @@ enum Spells
     SPELL_WARSTOMP                                         = 24375
 };
 
+enum eEnums
+{
+    DATA_THRONE_DOOR                              = 24 // not id or guid of doors but number of enum in blackrock_depths.h
+};
+
 struct boss_magmusAI : public ScriptedAI
 {
     boss_magmusAI(Creature *c) : ScriptedAI(c) {}
@@ -70,6 +75,12 @@ struct boss_magmusAI : public ScriptedAI
         }
 
         DoMeleeAttackIfReady();
+    }
+    // When he die open door to last chamber
+    void JustDied(Unit *who)
+    {
+        if(ScriptedInstance* pInstance = who->GetInstanceData())
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_THRONE_DOOR), true);
     }
 };
 CreatureAI* GetAI_boss_magmus(Creature* pCreature)

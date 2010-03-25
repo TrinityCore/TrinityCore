@@ -91,56 +91,12 @@ void Vehicle::Install()
 
 void Vehicle::InstallAllAccessories()
 {
-    VehicleAccessoryList mVehicleList = objmgr.GetVehicleAccessoryList(me->GetEntry());
-    if (mVehicleList.size())
-        for (VehicleAccessoryList::iterator itr2 = mVehicleList.begin(); itr2 < mVehicleList.end(); ++itr2)
-            InstallAccessory(itr2->uiAccessory, itr2->uiSeat, itr2->bMinion);
-    /*switch(me->GetEntry())
-    {
-        //case 27850:InstallAccessory(27905,1);break;
-        case 28782:InstallAccessory(28768,0,false);break; // Acherus Deathcharger
-        case 28312:InstallAccessory(28319,7);break;
-        case 32627:InstallAccessory(32629,7);break;
-        case 32930:
-            InstallAccessory(32933,0);
-            InstallAccessory(32934,1);
-            break;
-        case 33109:InstallAccessory(33167,1);break;
-        case 33060:InstallAccessory(33067,7);break;
-        case 33113:
-            InstallAccessory(33114,0);
-            InstallAccessory(33114,1);
-            InstallAccessory(33114,2);
-            InstallAccessory(33114,3);
-            InstallAccessory(33139,7);
-            break;
-        case 33114:
-            InstallAccessory(33143,2); // Overload Control Device
-            InstallAccessory(33142,1); // Leviathan Defense Turret
-            break;
-        case 33214:InstallAccessory(33218,1,false);break; // Mechanolift 304-A
-        case 35637:InstallAccessory(34705,0,false);break;
-        case 35633:InstallAccessory(34702,0,false);break;
-        case 35768:InstallAccessory(34701,0,false);break;
-        case 34658:InstallAccessory(34657,0,false);break;
-        case 35636:InstallAccessory(34703,0,false);break;
-        case 35638:InstallAccessory(35572,0,false);break;
-        case 35635:InstallAccessory(35569,0,false);break;
-        case 35640:InstallAccessory(35571,0,false);break;
-        case 35641:InstallAccessory(35570,0,false);break;
-        case 35634:InstallAccessory(35617,0,false);break;
-        case 33298:InstallAccessory(35332,0);break; //Darnassian Nightsaber
-        case 33416:InstallAccessory(35330,0);break; //Exodar Elekk
-        case 33297:InstallAccessory(35328,0);break; //Stormwind Steed
-        case 33414:InstallAccessory(35327,0);break; //Forsaken Warhorse
-        case 33301:InstallAccessory(35331,0);break; //Gnomeregan Mechanostrider
-        case 33408:InstallAccessory(35329,0);break; //Ironforge Ram
-        case 33300:InstallAccessory(35325,0);break; //Thunder Bluff Kodo
-        case 33409:InstallAccessory(35314,0);break; //Orgrimmar Wolf
-        case 33418:InstallAccessory(35326,0);break; //Silvermoon Hawkstrider
-        case 33299:InstallAccessory(35323,0);break; //Darkspear Raptor
-        case 35491:InstallAccessory(35451,0,false);break; //Black Knight
-    }*/
+    VehicleAccessoryList const* mVehicleList = objmgr.GetVehicleAccessoryList(me->GetEntry());
+    if (!mVehicleList)
+        return;
+
+    for (VehicleAccessoryList::const_iterator itr = mVehicleList->begin(); itr != mVehicleList->end(); ++itr)
+        InstallAccessory(itr->uiAccessory, itr->uiSeat, itr->bMinion);
 }
 
 void Vehicle::Uninstall()

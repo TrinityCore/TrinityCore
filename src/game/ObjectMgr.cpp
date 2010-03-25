@@ -2367,7 +2367,6 @@ void ObjectMgr::LoadItemPrototypes()
 void ObjectMgr::LoadVehicleAccessories()
 {
     m_VehicleAccessoryMap.clear();                           // needed for reload case
-    VehicleAccessoryList mVehicleList;
 
     uint32 count = 0;
 
@@ -2408,9 +2407,7 @@ void ObjectMgr::LoadVehicleAccessories()
             continue;
         }
 
-        mVehicleList = GetVehicleAccessoryList(uiEntry);
-        mVehicleList.push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion));
-        m_VehicleAccessoryMap[uiEntry] = mVehicleList;
+        m_VehicleAccessoryMap[uiEntry].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion));
 
         ++count;
     } while (result->NextRow());
@@ -8148,6 +8145,124 @@ void ObjectMgr::LoadMailLevelRewards()
     sLog.outString( ">> Loaded %u level dependent mail rewards,", count );
 }
 
+bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
+{
+    CreatureInfo const* cInfo = GetCreatureTemplate(entry);
+
+    if(!cInfo && entry > 0)
+    {
+        sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
+        return false;
+    }
+
+    if(!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
+    {
+        if (skip_trainers->find(entry) == skip_trainers->end())
+        {
+            sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
+            skip_trainers->insert(entry);
+        }
+        return false;
+    }
+
+    SpellEntry const *spellinfo = sSpellStore.LookupEntry(spell);
+    if(!spellinfo)
+    {
+        sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u ) has non existing spell %u, ignore", entry,spell);
+        return false;
+    }
+
+    if(!SpellMgr::IsSpellValid(spellinfo))
+    {
+        sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u) has broken learning spell %u, ignore", entry, spell);
+        return false;
+    }
+
+    if(GetTalentSpellCost(spell))
+    {
+        if(talentIds->count(spell)==0)
+        {
+            sLog.outErrorDb("Table `npc_trainer` has talent as learning spell %u, ignore", spell);
+            talentIds->insert(spell);
+        }
+         return false;
+    }
+
+    TrainerSpellData& data = m_mCacheTrainerSpellMap[entry];
+
+    TrainerSpell& trainerSpell = data.spellList[spell];
+    trainerSpell.spell         = spell;
+    trainerSpell.spellCost     = fields[2].GetUInt32();
+    trainerSpell.reqSkill      = fields[3].GetUInt32();
+    trainerSpell.reqSkillValue = fields[4].GetUInt32();
+    trainerSpell.reqLevel      = fields[5].GetUInt32();
+
+    if(!trainerSpell.reqLevel)
+        trainerSpell.reqLevel = spellinfo->spellLevel;
+
+    // calculate learned spell for profession case when stored cast-spell
+    trainerSpell.learnedSpell[0] = spell;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
+            continue;
+        if (trainerSpell.learnedSpell[0] == spell)
+            trainerSpell.learnedSpell[0] = 0;
+        // player must be able to cast spell on himself
+        if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY 
+            && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ANY && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_CASTER)
+        {
+            sLog.outErrorDb("Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
+            continue;
+        }
+
+        trainerSpell.learnedSpell[i] = spellinfo->EffectTriggerSpell[i];
+    }
+
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (!trainerSpell.learnedSpell[i])
+            continue;
+        if(SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell[i]))
+        {
+            data.trainerType = 2;
+            break;
+        }
+    }
+
+    return true;
+}
+
+int ObjectMgr::LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
+{
+    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer WHERE entry='%d'", spell);
+    if ( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+        return 0;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    uint32 count = 0;
+    do
+    {
+        bar.step();
+
+        Field* fields = result->Fetch();
+
+        int32 spell  = fields[1].GetInt32();
+        if ( spell < 0 )
+            count += this->LoadReferenceTrainer(trainer, -spell, skip_trainers, talentIds);
+        else if ( this->AddSpellToTrainer(trainer, spell, fields, skip_trainers, talentIds) )
+            ++count;
+    } while (result->NextRow());
+
+    return count;
+}
+
 void ObjectMgr::LoadTrainerSpell()
 {
     // For reload case
@@ -8182,97 +8297,62 @@ void ObjectMgr::LoadTrainerSpell()
         Field* fields = result->Fetch();
 
         uint32 entry  = fields[0].GetUInt32();
-        uint32 spell  = fields[1].GetUInt32();
-
-        CreatureInfo const* cInfo = GetCreatureTemplate(entry);
-
-        if(!cInfo)
-        {
-            sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
-            continue;
-        }
-
-        if(!(cInfo->npcflag & UNIT_NPC_FLAG_TRAINER))
-        {
-            if (skip_trainers.find(entry) == skip_trainers.end())
-            {
-                sLog.outErrorDb("Table `npc_trainer` have data for not creature template (Entry: %u) without trainer flag, ignore", entry);
-                skip_trainers.insert(entry);
-            }
-            continue;
-        }
-
-        SpellEntry const *spellinfo = sSpellStore.LookupEntry(spell);
-        if(!spellinfo)
-        {
-            sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u ) has non existing spell %u, ignore", entry,spell);
-            continue;
-        }
-
-        if(!SpellMgr::IsSpellValid(spellinfo))
-        {
-            sLog.outErrorDb("Table `npc_trainer` for Trainer (Entry: %u) has broken learning spell %u, ignore", entry, spell);
-            continue;
-        }
-
-        if(GetTalentSpellCost(spell))
-        {
-            if(talentIds.count(spell)==0)
-            {
-                sLog.outErrorDb("Table `npc_trainer` has talent as learning spell %u, ignore", spell);
-                talentIds.insert(spell);
-            }
-            continue;
-        }
-
-        TrainerSpellData& data = m_mCacheTrainerSpellMap[entry];
-
-        TrainerSpell& trainerSpell = data.spellList[spell];
-        trainerSpell.spell         = spell;
-        trainerSpell.spellCost     = fields[2].GetUInt32();
-        trainerSpell.reqSkill      = fields[3].GetUInt32();
-        trainerSpell.reqSkillValue = fields[4].GetUInt32();
-        trainerSpell.reqLevel      = fields[5].GetUInt32();
-
-        if(!trainerSpell.reqLevel)
-            trainerSpell.reqLevel = spellinfo->spellLevel;
-
-        // calculate learned spell for profession case when stored cast-spell
-        trainerSpell.learnedSpell[0] = spell;
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if(spellinfo->Effect[i] != SPELL_EFFECT_LEARN_SPELL)
-                continue;
-            if (trainerSpell.learnedSpell[0] == spell)
-                trainerSpell.learnedSpell[0] = 0;
-            // player must be able to cast spell on himself
-            if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY 
-                && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ANY && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_CASTER)
-            {
-                sLog.outErrorDb("Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);
-                continue;
-            }
-
-            trainerSpell.learnedSpell[i] = spellinfo->EffectTriggerSpell[i];
-        }
-
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            if (!trainerSpell.learnedSpell[i])
-                continue;
-            if(SpellMgr::IsProfessionSpell(trainerSpell.learnedSpell[i]))
-            {
-                data.trainerType = 2;
-                break;
-            }
-        }
-
-        ++count;
+        int32 spell  = fields[1].GetInt32();
+        if ( spell < 0 )
+            count += this->LoadReferenceTrainer(entry, -spell, &skip_trainers, &talentIds);
+        else if ( this->AddSpellToTrainer(entry, spell, fields, &skip_trainers, &talentIds) )
+            ++count;
 
     } while (result->NextRow());
 
     sLog.outString();
     sLog.outString( ">> Loaded %d Trainers", count );
+}
+
+int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *skip_vendors)
+{
+    // find all items from the reference vendor
+    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT entry, item, maxcount, incrtime, ExtendedCost FROM npc_vendor WHERE entry='%d'", item);
+    if( !result )
+    {
+        barGoLink bar( 1 );
+
+        bar.step();
+        return 0;
+    }
+
+    barGoLink bar( result->GetRowCount() );
+
+    uint32 count = 0;
+    do
+    {
+        bar.step();
+        Field* fields = result->Fetch();
+
+        uint32 entry        = fields[0].GetUInt32();
+        int32 item_id      = fields[1].GetInt32();
+
+        // if item is a negative, its a reference
+        if ( item_id < 0 )
+            count += LoadReferenceVendor(vendor, -item_id, skip_vendors);
+        else
+        {
+            int32  maxcount     = fields[2].GetInt32();
+            uint32 incrtime     = fields[3].GetUInt32();
+            uint32 ExtendedCost = fields[4].GetUInt32();
+
+            if(!IsVendorItemValid(vendor,item_id,maxcount,incrtime,ExtendedCost,NULL,skip_vendors))
+                continue;
+
+            VendorItemData& vList = m_mCacheVendorItemMap[vendor];
+
+            vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
+            ++count;
+        }
+
+    } while (result->NextRow());
+
+    return count;
 }
 
 void ObjectMgr::LoadVendors()
@@ -8305,18 +8385,25 @@ void ObjectMgr::LoadVendors()
         Field* fields = result->Fetch();
 
         uint32 entry        = fields[0].GetUInt32();
-        uint32 item_id      = fields[1].GetUInt32();
-        int32  maxcount     = fields[2].GetInt32();
-        uint32 incrtime     = fields[3].GetUInt32();
-        uint32 ExtendedCost = fields[4].GetUInt32();
+        int32 item_id      = fields[1].GetInt32();
 
-        if(!IsVendorItemValid(entry,item_id,maxcount,incrtime,ExtendedCost,NULL,&skip_vendors))
-            continue;
+        // if item is a negative, its a reference
+        if ( item_id < 0 )
+            count += LoadReferenceVendor(entry, -item_id, &skip_vendors);
+        else
+        {
+            int32  maxcount     = fields[2].GetInt32();
+            uint32 incrtime     = fields[3].GetUInt32();
+            uint32 ExtendedCost = fields[4].GetUInt32();
 
-        VendorItemData& vList = m_mCacheVendorItemMap[entry];
+            if(!IsVendorItemValid(entry,item_id,maxcount,incrtime,ExtendedCost,NULL,&skip_vendors))
+                continue;
 
-        vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
-        ++count;
+            VendorItemData& vList = m_mCacheVendorItemMap[entry];
+
+            vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
+            ++count;
+        }
 
     } while (result->NextRow());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
         m_creature->SetReactState(REACT_PASSIVE);
-        MightyBlowTimer = 10000;
+        MightyBlowTimer = 10*IN_MILISECONDS;
         bHealth = false;
         bHealth1 = false;
     }
@@ -96,7 +96,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (!bHealth && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50 &&  m_creature->GetHealth()*100 / m_creature->GetMaxHealth() >= 6)
+        if (!bHealth && HealthBelowPct(50) &&  !HealthBelowPct(6))
         {
             CreatureState(m_creature, false);
             DoCast(m_creature,SPELL_FREEZE_ANIM);
@@ -104,7 +104,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
             bHealth = true;
         }
 
-        if (!bHealth1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 5)
+        if (!bHealth1 && HealthBelowPct(5))
         {
             DoCast(m_creature,SPELL_EMERGE);
             CreatureState(m_creature, false);
@@ -115,7 +115,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         if (MightyBlowTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_MIGHTY_BLOW, true);
-            MightyBlowTimer = 10000;
+            MightyBlowTimer = 10*IN_MILISECONDS;
         } else MightyBlowTimer -= diff;
 
         if (!m_creature->hasUnitState(UNIT_STAT_STUNNED))
@@ -130,7 +130,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummon)
     {
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 5)
+        if (HealthBelowPct(5))
             pSummon->DealDamage(pSummon, pSummon->GetHealth() * 0.5 , NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         pSummon->AI()->AttackStart(m_creature->getVictim());
     }
@@ -160,7 +160,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
     {
         if (pColossus)
             CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(m_creature, true);
-        uiSurgeTimer = 7000;
+        uiSurgeTimer = 7*IN_MILISECONDS;
         bGoToColossus = false;
     }
 
@@ -184,7 +184,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
         if(!UpdateVictim())
             return;
 
-        if(!bGoToColossus && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50 && pColossus->GetHealth()*100 / pColossus->GetMaxHealth() >= 6)
+        if(!bGoToColossus && HealthBelowPct(50) && !CAST_AI(boss_drakkari_colossusAI,pColossus->AI())->HealthBelowPct(6))
         {
             m_creature->InterruptNonMeleeSpells(true);
             if (pColossus)
@@ -195,7 +195,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
         if (uiSurgeTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SURGE);
-            uiSurgeTimer = 7000;
+            uiSurgeTimer = 7*IN_MILISECONDS;
         } else uiSurgeTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -225,8 +225,8 @@ struct npc_living_mojoAI : public ScriptedAI
 
     void Reset()
     {
-        uiMojoWaveTimer = 2000;
-        uiMojoPuddleTimer = 7000;
+        uiMojoWaveTimer = 2*IN_MILISECONDS;
+        uiMojoPuddleTimer = 7*IN_MILISECONDS;
     }
 
     void EnterCombat(Unit* who)
@@ -266,13 +266,13 @@ struct npc_living_mojoAI : public ScriptedAI
         if (uiMojoWaveTimer <= diff)
         {
             DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MOJO_WAVE, H_SPELL_MOJO_WAVE));
-            uiMojoWaveTimer = 15000;
+            uiMojoWaveTimer = 15*IN_MILISECONDS;
         } else uiMojoWaveTimer -= diff;
 
         if (uiMojoPuddleTimer <= diff)
         {
             DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MOJO_PUDDLE, H_SPELL_MOJO_PUDDLE));
-            uiMojoPuddleTimer = 18000;
+            uiMojoPuddleTimer = 18*IN_MILISECONDS;
         } else uiMojoPuddleTimer -= diff;
 
         DoMeleeAttackIfReady();

@@ -429,6 +429,7 @@ class ObjectMgr
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
         static GameObjectInfo const *GetGameObjectInfo(uint32 id) { return sGOStorage.LookupEntry<GameObjectInfo>(id); }
+        int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
 
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo *goinfo);
@@ -582,13 +583,12 @@ class ObjectMgr
             return NULL;
         }
 
-        VehicleAccessoryList GetVehicleAccessoryList(uint32 uiEntry)
+        VehicleAccessoryList const* GetVehicleAccessoryList(uint32 uiEntry) const
         {
-            VehicleAccessoryList mVehList;
             VehicleAccessoryMap::const_iterator itr = m_VehicleAccessoryMap.find(uiEntry);
             if (itr != m_VehicleAccessoryMap.end())
-                mVehList = itr->second;
-            return mVehList;
+                return &itr->second;
+            return NULL;
         }
 
         void LoadGuilds();
@@ -691,6 +691,8 @@ class ObjectMgr
 
         void LoadVendors();
         void LoadTrainerSpell();
+        bool AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
+        int  LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
         void LoadGMTickets();
 
         std::string GeneratePetName(uint32 entry);
