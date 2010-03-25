@@ -4757,7 +4757,11 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     if(m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN) // Lay on Hands
     {
         if (m_caster && m_caster->GetGUID() == unitTarget->GetGUID())
-            m_caster->CastSpell(m_caster, 25771, true);
+        {
+            m_caster->CastSpell(m_caster, 25771, true); // Forbearance
+            m_caster->CastSpell(m_caster, 61988, true); // Immune shield marker (serverside)
+            m_caster->CastSpell(m_caster, 61987, true); // Avenging Wrath marker
+        }
 
         addhealth = m_caster->GetMaxHealth();
     }
