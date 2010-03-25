@@ -2367,7 +2367,6 @@ void ObjectMgr::LoadItemPrototypes()
 void ObjectMgr::LoadVehicleAccessories()
 {
     m_VehicleAccessoryMap.clear();                           // needed for reload case
-    VehicleAccessoryList mVehicleList;
 
     uint32 count = 0;
 
@@ -2408,9 +2407,7 @@ void ObjectMgr::LoadVehicleAccessories()
             continue;
         }
 
-        mVehicleList = GetVehicleAccessoryList(uiEntry);
-        mVehicleList.push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion));
-        m_VehicleAccessoryMap[uiEntry] = mVehicleList;
+        m_VehicleAccessoryMap[uiEntry].push_back(VehicleAccessory(uiAccessory, uiSeat, bMinion));
 
         ++count;
     } while (result->NextRow());
