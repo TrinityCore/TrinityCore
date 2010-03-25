@@ -32,6 +32,14 @@ enum eTypes
     DATA_GO_CHALICE         = 19,
 
     DATA_GHOSTKILL          = 20,
-    DATA_EVENSTARTER        = 21
+    DATA_EVENSTARTER        = 21,
+
+    DATA_GOLEM_DOOR_N       = 22,
+    DATA_GOLEM_DOOR_S       = 23,
+
+    DATA_THRONE_DOOR        = 24,
+
+    DATA_SF_BRAZIER_N       = 25,
+    DATA_SF_BRAZIER_S       = 26
 };
 #endif
