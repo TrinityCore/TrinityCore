@@ -583,13 +583,12 @@ class ObjectMgr
             return NULL;
         }
 
-        VehicleAccessoryList GetVehicleAccessoryList(uint32 uiEntry)
+        VehicleAccessoryList const* GetVehicleAccessoryList(uint32 uiEntry) const
         {
-            VehicleAccessoryList mVehList;
             VehicleAccessoryMap::const_iterator itr = m_VehicleAccessoryMap.find(uiEntry);
             if (itr != m_VehicleAccessoryMap.end())
-                mVehList = itr->second;
-            return mVehList;
+                return &itr->second;
+            return NULL;
         }
 
         void LoadGuilds();
