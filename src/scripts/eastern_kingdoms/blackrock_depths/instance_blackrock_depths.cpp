@@ -47,6 +47,7 @@ enum eEnums
     NPC_SEETHREL            = 9038,
     NPC_GLOOMREL            = 9037,
     NPC_DOOMREL             = 9039,
+    NPC_MAGMUS              = 9938, 
 
     GO_ARENA1               = 161525,
     GO_ARENA2               = 161522,
@@ -62,9 +63,11 @@ enum eEnums
     GO_TOMB_ENTER           = 170576,
     GO_TOMB_EXIT            = 170577,
     GO_LYCEUM               = 170558,
-    GO_GOLEM_ROOM_N         = 170573,
-    GO_GOLEM_ROOM_S         = 170574,
-    GO_THONE_ROOM           = 170575,
+    GO_SF_N                 = 174745, // Shadowforge Brazier North
+    GO_SF_S                 = 174744, // Shadowforge Brazier South
+    GO_GOLEM_ROOM_N         = 170573, // Magmus door North
+    GO_GOLEM_ROOM_S         = 170574, // Magmus door Soutsh
+    GO_THRONE_ROOM          = 170575, // Throne door
 
     GO_SPECTRAL_CHALICE     = 164869,
     GO_CHEST_SEVEN          = 169243
@@ -79,6 +82,7 @@ struct instance_blackrock_depths : public ScriptedInstance
 
     uint64 EmperorGUID;
     uint64 PhalanxGUID;
+    uint64 MagmusGUID;
 
     uint64 GoArena1GUID;
     uint64 GoArena2GUID;
@@ -94,9 +98,11 @@ struct instance_blackrock_depths : public ScriptedInstance
     uint64 GoTombEnterGUID;
     uint64 GoTombExitGUID;
     uint64 GoLyceumGUID;
+    uint64 GoSFSGUID;
+    uint64 GoSFNGUID;
     uint64 GoGolemNGUID;
     uint64 GoGolemSGUID;
-    uint64 GoThoneGUID;
+    uint64 GoThroneGUID;
     uint64 GoChestGUID;
 
     uint32 BarAleCount;
@@ -112,6 +118,7 @@ struct instance_blackrock_depths : public ScriptedInstance
 
         EmperorGUID = 0;
         PhalanxGUID = 0;
+        MagmusGUID = 0;
 
         GoArena1GUID = 0;
         GoArena2GUID = 0;
@@ -127,9 +134,11 @@ struct instance_blackrock_depths : public ScriptedInstance
         GoTombEnterGUID = 0;
         GoTombExitGUID = 0;
         GoLyceumGUID = 0;
+        GoSFSGUID = 0;
+        GoSFNGUID = 0;
         GoGolemNGUID = 0;
         GoGolemSGUID = 0;
-        GoThoneGUID = 0;
+        GoThroneGUID = 0;
         GoChestGUID = 0;
 
         BarAleCount = 0;
@@ -155,6 +164,11 @@ struct instance_blackrock_depths : public ScriptedInstance
         case NPC_SEETHREL: TombBossGUIDs[4] = pCreature->GetGUID(); break;
         case NPC_GLOOMREL: TombBossGUIDs[5] = pCreature->GetGUID(); break;
         case NPC_ANGERREL: TombBossGUIDs[6] = pCreature->GetGUID(); break;
+        case NPC_MAGMUS: 
+            MagmusGUID = pCreature->GetGUID();
+            if(!pCreature->isAlive())
+                HandleGameObject(GetData64(DATA_THRONE_DOOR), true); // if Magmus is dead open door to last boss
+            break;
         }
     }
 
@@ -182,9 +196,11 @@ struct instance_blackrock_depths : public ScriptedInstance
                 HandleGameObject(0, false, pGo);
             break;
         case GO_LYCEUM: GoLyceumGUID = pGo->GetGUID(); break;
+        case GO_SF_S: GoSFSGUID = pGo->GetGUID(); break;
+        case GO_SF_N: GoSFNGUID = pGo->GetGUID(); break;
         case GO_GOLEM_ROOM_N: GoGolemNGUID = pGo->GetGUID(); break;
         case GO_GOLEM_ROOM_S: GoGolemSGUID = pGo->GetGUID(); break;
-        case GO_THONE_ROOM: GoThoneGUID = pGo->GetGUID(); break;
+        case GO_THRONE_ROOM: GoThroneGUID = pGo->GetGUID(); break;
         case GO_CHEST_SEVEN: GoChestGUID = pGo->GetGUID(); break;
         }
     }
@@ -301,6 +317,16 @@ struct instance_blackrock_depths : public ScriptedInstance
             return GoBarDoorGUID;
         case DATA_EVENSTARTER:
             return TombEventStarterGUID;
+        case DATA_SF_BRAZIER_N:
+            return GoSFNGUID;
+        case DATA_SF_BRAZIER_S:
+            return GoSFSGUID;
+        case DATA_THRONE_DOOR:
+            return GoThroneGUID;
+        case DATA_GOLEM_DOOR_N:
+            return GoGolemNGUID;
+        case DATA_GOLEM_DOOR_S:
+            return GoGolemSGUID;
         }
         return 0;
     }
@@ -329,7 +355,7 @@ struct instance_blackrock_depths : public ScriptedInstance
                 m_auiEncounter[i] = NOT_STARTED;
         if (GhostKillCount > 0 && GhostKillCount < 7)
             GhostKillCount = 0;//reset tomb of seven event
-        if (GhostKillCount > 7)
+        if (GhostKillCount >= 7)
             GhostKillCount = 7;
 
         OUT_LOAD_INST_DATA_COMPLETE;
@@ -401,6 +427,17 @@ struct instance_blackrock_depths : public ScriptedInstance
                 TombTimer = TIMER_TOMBOFTHESEVEN;
                 ++TombEventCounter;
                 TombOfSevenEvent();
+                // Check Killed bosses
+                for (uint8 i = 0; i < 7; ++i)
+                {
+                    if (Creature* boss = instance->GetCreature(TombBossGUIDs[i]))
+                    {
+                        if (!boss->isAlive())
+                        {
+                            GhostKillCount = i+1;
+                         }
+                    }
+                }
             } else TombTimer -= diff;
         }
         if (GhostKillCount >= 7 && TombEventStarterGUID)
