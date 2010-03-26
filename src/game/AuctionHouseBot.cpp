@@ -823,6 +823,20 @@ void AuctionHouseBot::Initialize()
     }
     LoadValues(&NeutralConfig);
 
+    //
+    // check if the AHBot account/GUID in the config actually exists
+    //
+
+    if ((AHBplayerAccount != 0) || (AHBplayerGUID != 0))
+    {
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE account = %u AND guid = %u", AHBplayerAccount, AHBplayerGUID);
+        if (!result)
+       {
+           sLog.outError("AuctionHouseBot: The account/GUID-information set for your AHBot is incorrect (account: %u guid: %u)", AHBplayerAccount, AHBplayerGUID);
+           return;
+        }
+    }
+
     if (AHBSeller)
     {
         QueryResult_AutoPtr results = QueryResult_AutoPtr(NULL);
