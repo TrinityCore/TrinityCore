@@ -1863,24 +1863,27 @@ LOCK TABLES `petition_sign` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `saved_variables`
+-- Table structure for table `worldstates`
 --
 
-DROP TABLE IF EXISTS `saved_variables`;
+DROP TABLE IF EXISTS `worldstates`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `saved_variables` (
-    `NextArenaPointDistributionTime` bigint(40) UNSIGNED NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Variable Saves';
+CREATE TABLE `worldstates` (
+  `entry` mediumint(11) UNSIGNED NOT NULL DEFAULT '0',
+  `value` bigint(40) UNSIGNED NOT NULL DEFAULT '0',
+  `comment` text NOT NULL,
+  PRIMARY KEY  (`entry`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Variable Saves';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `saved_variables`
+-- Dumping data for table `worldstates`
 --
 
-LOCK TABLES `saved_variables` WRITE;
-/*!40000 ALTER TABLE `saved_variables` DISABLE KEYS */;
-/*!40000 ALTER TABLE `saved_variables` ENABLE KEYS */;
+LOCK TABLES `worldstates` WRITE;
+/*!40000 ALTER TABLE `worldstates` DISABLE KEYS */;
+/*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

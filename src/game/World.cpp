@@ -1650,6 +1650,9 @@ void World::SetInitialWorldSettings()
     uint32 nextGameEvent = gameeventmgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
+    sLog.outString("Loading World States..."); // must be loaded before battleground and outdoor PvP
+    LoadWorldStates();
+
     ///- Initialize Battlegrounds
     sLog.outString("Starting BattleGround System");
     sBattleGroundMgr.CreateInitialBattleGrounds();
@@ -2587,4 +2590,50 @@ void World::UpdateAreaDependentAuras()
             itr->second->GetPlayer()->UpdateAreaDependentAuras(itr->second->GetPlayer()->GetAreaId());
             itr->second->GetPlayer()->UpdateZoneDependentAuras(itr->second->GetPlayer()->GetZoneId());
         }
+}
+
+void World::LoadWorldStates()
+{  
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT entry, value FROM worldstates");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+        sLog.outString();
+        sLog.outString(">> Loaded 0 world states.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+    uint32 counter = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+        m_worldstates[fields[0].GetUInt32()] = fields[1].GetUInt64();
+        bar.step();
+        ++counter;
+    }
+    while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %u world states.", counter);
+}
+
+// Setting a worldstate will save it to DB
+void World::setWorldState(uint32 index, uint64 value)
+{
+    WorldStatesMap::const_iterator it = m_worldstates.find(index);
+    if (it != m_worldstates.end())
+        CharacterDatabase.PExecute("UPDATE worldstates SET value="UI64FMTD" where entry=%u", value, index);
+    else
+        CharacterDatabase.PExecute("INSERT INTO worldstates (entry, value) VALUES (%u,"UI64FMTD")", index, value);
+    m_worldstates[index] = value;
+}
+
+uint64 World::getWorldState(uint32 index) const
+{
+    WorldStatesMap::const_iterator it = m_worldstates.find(index);
+    return it != m_worldstates.end() ? it->second : 0;
 }
