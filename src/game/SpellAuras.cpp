@@ -1043,6 +1043,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
         }
         switch(GetSpellProto()->SpellFamilyName)
         {
+            case SPELLFAMILY_GENERIC:
+                // Remove the immunity shield marker on Avenging Wrath removal if Forbearance is not present
+                if (GetId() == 61987 && target->HasAura(61988) && !target->HasAura(25771))
+                    target->RemoveAura(61988);
+                break;
             case SPELLFAMILY_MAGE:
                 switch(GetId())
                 {
@@ -1217,6 +1222,11 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         break;
                 }
                 break;
+            case SPELLFAMILY_PALADIN:
+                // Remove the immunity shield marker on Forbearance removal if AW marker is not present
+                if (GetId() == 25771 && target->HasAura(61988) && !target->HasAura(61987))
+                    target->RemoveAura(61988);
+                break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North
                 // Reaping
@@ -1241,7 +1251,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         target->CastSpell(target, GetEffect(0)->GetAmount(), true, NULL, GetEffect(0));
                         break;
                 }
-                break;
+                break; 
         }
     }
 

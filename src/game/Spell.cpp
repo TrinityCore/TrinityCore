@@ -1414,14 +1414,20 @@ void Spell::DoTriggersOnSpellHit(Unit *unit)
     // Apply additional spell effects to target
     if (m_preCastSpell)
     {
-        // Special spell id
-        if(m_preCastSpell==61988)
+        // Paladin immunity shields
+        if (m_preCastSpell == 61988)
         {
-            //Cast Forbearance
-            m_caster->CastSpell(unit,25771, true, m_CastItem);
+            // Cast Forbearance
+            m_caster->CastSpell(unit, 25771, true);
             // Cast Avenging Wrath Marker
-            m_caster->CastSpell(unit,61987, true, m_CastItem);
+            unit->CastSpell(unit, 61987, true);
         }
+
+        // Avenging Wrath
+        if (m_preCastSpell == 61987)
+            // Cast the serverside immunity shield marker
+            m_caster->CastSpell(unit, 61988, true);
+
         if (sSpellStore.LookupEntry(m_preCastSpell))
             // Blizz seems to just apply aura without bothering to cast
             m_caster->AddAura(m_preCastSpell, unit);
@@ -4512,11 +4518,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         if(m_spellInfo->excludeTargetAuraSpell && target->HasAura(m_spellInfo->excludeTargetAuraSpell))
             return SPELL_FAILED_TARGET_AURASTATE;
 
-        // Special exclude - Hand of Protection, Divine Protection, Divine Shield cannot be cast on target after it used Avenging Wrath
-        if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->Mechanic == MECHANIC_IMMUNE_SHIELD)
-            if (target->HasAura(61987)) // Avenging Wrath Marker
-                return SPELL_FAILED_TARGET_AURASTATE;
-
         if(!m_IsTriggeredSpell && target == m_caster && m_spellInfo->AttributesEx & SPELL_ATTR_EX_CANT_TARGET_SELF)
             return SPELL_FAILED_BAD_TARGETS;
 
@@ -4587,13 +4588,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
                 // Lay on Hands - cannot be self-cast on paladin with Forbearance or after using Avenging Wrath
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
-                {
-                    if (target->HasAura(61987)) // Avenging Wrath Marker
-                        return SPELL_FAILED_TARGET_AURASTATE;
-                    
-                    if (target->HasAura(25771)) // Forbearance (we could test for the immune shield marker 61988 instead)
-                        return SPELL_FAILED_TARGET_AURASTATE;
-                }   
+                    if (target->HasAura(61988)) // Immunity shield marker
+                        return SPELL_FAILED_TARGET_AURASTATE;   
             }
         }
 
