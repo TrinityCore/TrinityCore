@@ -62,8 +62,6 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
     uint32 Curse_Timer;
     uint32 Teleport_Timer;
 
-    Creature *Summoned;
-
     void Reset()
     {
         ArcaneMissiles_Timer = 4500;
@@ -121,6 +119,7 @@ struct boss_darkmaster_gandlingAI : public ScriptedAI
                     if (DoGetThreat(pTarget))
                         DoModifyThreatPercent(pTarget, -100);
 
+                    Creature *Summoned = NULL;
                     switch(rand()%6)
                     {
                         case 0:

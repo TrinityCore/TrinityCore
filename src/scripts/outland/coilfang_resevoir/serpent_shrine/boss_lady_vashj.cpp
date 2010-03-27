@@ -574,7 +574,8 @@ struct mob_enchanted_elementalAI : public ScriptedAI
     uint32 move;
     uint32 phase;
     float x, y, z;
-    Creature *Vashj;
+
+    uint64 VashjGUID;
 
     void Reset()
     {
@@ -582,7 +583,8 @@ struct mob_enchanted_elementalAI : public ScriptedAI
         m_creature->SetSpeed(MOVE_RUN,0.6);//run
         move = 0;
         phase = 1;
-        Vashj = NULL;
+
+        VashjGUID = 0;
 
         for (int i = 0; i<8; ++i)//search for nearest waypoint (up on stairs)
         {
@@ -603,7 +605,7 @@ struct mob_enchanted_elementalAI : public ScriptedAI
             }
         }
         if (pInstance)
-            Vashj = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_LADYVASHJ));
+            VashjGUID = pInstance->GetData64(DATA_LADYVASHJ);
     }
 
     void EnterCombat(Unit *who) { return; }
@@ -615,10 +617,8 @@ struct mob_enchanted_elementalAI : public ScriptedAI
         if (!pInstance)
             return;
 
-        if (!Vashj)
-        {
+        if (!VashjGUID)
             return;
-        }
 
         if (move <= diff)
         {
@@ -638,10 +638,13 @@ struct mob_enchanted_elementalAI : public ScriptedAI
                 if (m_creature->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
                     DoCast(m_creature, SPELL_SURGE);
             }
-            if (!Vashj->isInCombat() || CAST_AI(boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
+            if (Creature *Vashj = Unit::GetCreature(*m_creature, VashjGUID))
             {
-                //call Unsummon()
-                m_creature->Kill(m_creature);
+                if (!Vashj->isInCombat() || CAST_AI(boss_lady_vashjAI, Vashj->AI())->Phase != 2 || Vashj->isDead())
+                {
+                    //call Unsummon()
+                    m_creature->Kill(m_creature);
+                }
             }
             move = 1000;
         } else move -= diff;

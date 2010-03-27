@@ -55,7 +55,6 @@ struct boss_marliAI : public ScriptedAI
     uint32 Transform_Timer;
     uint32 TransformBack_Timer;
 
-    Creature *Spider;
     bool Spawned;
     bool PhaseTwo;
 
@@ -112,6 +111,8 @@ struct boss_marliAI : public ScriptedAI
                 if (!pTarget)
                     return;
 
+                Creature *Spider = NULL;
+
                 Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
@@ -134,7 +135,7 @@ struct boss_marliAI : public ScriptedAI
                 if (!pTarget)
                     return;
 
-                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Creature *Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
                 SpawnSpider_Timer = 12000 + rand()%5000;

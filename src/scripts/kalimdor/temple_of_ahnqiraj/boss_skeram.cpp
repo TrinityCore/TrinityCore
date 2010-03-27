@@ -62,8 +62,6 @@ struct boss_skeramAI : public ScriptedAI
     uint32 Blink_Timer;
     uint32 Invisible_Timer;
 
-    Creature *Image1, *Image2;
-
     bool Images75;
     bool Images50;
     bool Images25;
@@ -260,7 +258,7 @@ struct boss_skeramAI : public ScriptedAI
 
         Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-        Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
+        Creature *Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image1)
         {
             Image1->SetMaxHealth(m_creature->GetMaxHealth() / 5);
@@ -270,7 +268,7 @@ struct boss_skeramAI : public ScriptedAI
             CAST_AI(boss_skeramAI, Image1->AI())->IsImage = true;
         }
 
-        Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
+        Creature *Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image2)
         {
             Image2->SetMaxHealth(m_creature->GetMaxHealth() / 5);

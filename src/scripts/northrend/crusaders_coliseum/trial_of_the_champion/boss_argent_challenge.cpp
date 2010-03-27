@@ -162,7 +162,7 @@ struct boss_paletressAI : public ScriptedAI
     {
         pInstance = pCreature->GetInstanceData();
 
-        pMemory = NULL;
+        MemoryGUID = 0;
         pCreature->SetReactState(REACT_PASSIVE);
         pCreature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
         pCreature->RestoreFaction();
@@ -171,6 +171,7 @@ struct boss_paletressAI : public ScriptedAI
     ScriptedInstance* pInstance;
 
     Creature* pMemory;
+    uint64 MemoryGUID;
 
     bool bHealth;
     bool bDone;
@@ -193,8 +194,9 @@ struct boss_paletressAI : public ScriptedAI
         bHealth = false;
         bDone = false;
 
-        if (pMemory && pMemory->isAlive())
-            pMemory->RemoveFromWorld();
+        if (Creature *pMemory = Unit::GetCreature(*m_creature, MemoryGUID))
+            if (pMemory->isAlive())
+                pMemory->RemoveFromWorld();
     }
 
     void SetData(uint32 uiId, uint32 uiValue)
@@ -273,8 +275,9 @@ struct boss_paletressAI : public ScriptedAI
                         DoCast(m_creature,DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
                         break;
                     case 1:
-                        if (pMemory && pMemory->isAlive())
-                            DoCast(pMemory,DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
+                        if (Creature *pMemory = Unit::GetCreature(*m_creature, MemoryGUID))
+                            if (pMemory->isAlive())
+                                DoCast(pMemory, DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
                         break;
                 }
                 uiRenewTimer = urand(15000,17000);
@@ -297,7 +300,7 @@ struct boss_paletressAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummon)
     {
-        pMemory = pSummon;
+        MemoryGUID = pSummon->GetGUID();
     }
 };
 

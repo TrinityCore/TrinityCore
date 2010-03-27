@@ -50,9 +50,6 @@ struct boss_erekemAI : public ScriptedAI
     uint32 uiLightningBoltTimer;
     uint32 uiEarthShieldTimer;
 
-    Creature* pGuard1;
-    Creature* pGuard2;
-
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -70,13 +67,16 @@ struct boss_erekemAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
-        pGuard1 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_1));
-        if (pGuard1 && !pGuard1->isAlive())
-            pGuard1->Respawn();
-
-        pGuard2 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_2));
-        if (pGuard2 && !pGuard2->isAlive())
-            pGuard2->Respawn();
+        if (Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+        {
+            if (!pGuard1->isAlive())
+                pGuard1->Respawn();
+        }
+        if (Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+        {
+            if (!pGuard2->isAlive())
+                pGuard2->Respawn();
+        }
     }
 
     void AttackStart(Unit* pWho)
@@ -91,21 +91,17 @@ struct boss_erekemAI : public ScriptedAI
             pWho->SetInCombatWith(m_creature);
             DoStartMovement(pWho);
 
-            if (pInstance)
+            if (Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
             {
-                if (pGuard1)
-                {
-                    pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
-                    if (!pGuard1->getVictim() && pGuard1->AI())
-                        pGuard1->AI()->AttackStart(pWho);
-                }
-     
-                if (pGuard2)
-                {
-                    pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
-                    if (!pGuard2->getVictim() && pGuard2->AI())
-                        pGuard2->AI()->AttackStart(pWho);
-                }
+                pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                if (!pGuard1->getVictim() && pGuard1->AI())
+                    pGuard1->AI()->AttackStart(pWho);
+            }
+            if (Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+            {
+                pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                if (!pGuard2->getVictim() && pGuard2->AI())
+                    pGuard2->AI()->AttackStart(pWho);
             }
         }
     }
@@ -123,8 +119,6 @@ struct boss_erekemAI : public ScriptedAI
                     EnterEvadeMode();
                     return;
                 }
-            pGuard1 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_1));
-            pGuard2 = pInstance->instance->GetCreature(pInstance->GetData64(DATA_EREKEM_GUARD_2));
 
             if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
                 pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
@@ -144,9 +138,13 @@ struct boss_erekemAI : public ScriptedAI
         //spam stormstrike in hc mode if spawns are dead
         if (IsHeroic())
         {
-            if (pGuard1 && !pGuard1->isAlive() && pGuard2 && !pGuard2->isAlive())
+            if (Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
             {
-                DoCast(m_creature->getVictim(), SPELL_STORMSTRIKE);
+                if (Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+                {
+                    if (!pGuard1->isAlive() && !pGuard2->isAlive())
+                        DoCast(m_creature->getVictim(), SPELL_STORMSTRIKE);
+                }
             }
         }
 
@@ -158,10 +156,14 @@ struct boss_erekemAI : public ScriptedAI
 
         if (uiChainHealTimer <= diff)
         {
-            if (Creature *pTarget = GetChainHealTarget())
+            if (uint64 TargetGUID = GetChainHealTargetGUID())
             {
-                DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
+                if(Creature *pTarget = Unit::GetCreature(*m_creature, TargetGUID))
+                    DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
+
                 //If one of the adds is dead spawn heals faster
+                Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
+                Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
                 uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
             }
         } else uiChainHealTimer -= diff;
@@ -214,15 +216,20 @@ struct boss_erekemAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
-    Creature* GetChainHealTarget()
+    uint64 GetChainHealTargetGUID()
     {
         if (HealthBelowPct(85))
-            return m_creature;
+            return m_creature->GetGUID();
+
+        Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
         if (pGuard1 && pGuard1->isAlive() && (pGuard1->GetHealth()*100 <= pGuard1->GetMaxHealth() * 75))
-            return pGuard1;
+            return pGuard1->GetGUID();
+
+        Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
         if (pGuard2 && pGuard2->isAlive() && (pGuard2->GetHealth()*100 <= pGuard2->GetMaxHealth() * 75))
-            return pGuard2;
-        return NULL;
+            return pGuard2->GetGUID();
+
+        return 0;
     }
 };
 

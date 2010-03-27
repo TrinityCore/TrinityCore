@@ -73,7 +73,6 @@ struct boss_brutallusAI : public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-    Unit* Madrigosa;
 
     uint32 SlashTimer;
     uint32 BurnTimer;
@@ -101,8 +100,6 @@ struct boss_brutallusAI : public ScriptedAI
 
         IsIntro = false;
         Enraged = false;        
-
-        
 
         DoCast(m_creature, SPELL_DUAL_WIELD, true);        
 
@@ -142,17 +139,15 @@ struct boss_brutallusAI : public ScriptedAI
             ScriptedAI::EnterEvadeMode();
     }
 
-
-
     void StartIntro()
     {
         if (!Intro || IsIntro)
             return;
         error_log("Start Intro");
-        Madrigosa = Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_MADRIGOSA));
+        Creature *Madrigosa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
         if (Madrigosa)
         {
-            ((Creature*)Madrigosa)->Respawn();
+            Madrigosa->Respawn();
             Madrigosa->setActive(true);
             IsIntro = true;
             Madrigosa->SetMaxHealth(m_creature->GetMaxHealth());
@@ -166,7 +161,6 @@ struct boss_brutallusAI : public ScriptedAI
             error_log("Madrigosa was not found");
             EndIntro();
         }
-       
     }
 
     void EndIntro()
@@ -186,6 +180,7 @@ struct boss_brutallusAI : public ScriptedAI
 
     void DoIntro()
     {
+        Creature *Madrigosa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
         if (!Madrigosa)
             return;
 
@@ -286,13 +281,15 @@ struct boss_brutallusAI : public ScriptedAI
             {
                 if (IntroFrostBoltTimer <= diff)
                 {
-                    if (Madrigosa)
+                    if (Creature *Madrigosa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0))
                     {
                         Madrigosa->CastSpell(m_creature, SPELL_INTRO_FROSTBOLT, true);
                         IntroFrostBoltTimer = 2000;
                     }
                 } else IntroFrostBoltTimer -= diff;
             }
+            if (!UpdateVictim())
+                return;
             DoMeleeAttackIfReady();
         }
 

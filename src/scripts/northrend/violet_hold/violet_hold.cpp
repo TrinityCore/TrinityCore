@@ -44,8 +44,6 @@ struct npc_sinclariAI : public ScriptedAI
     uint8  uiPhase;
     uint32 uiTimer;
 
-    std::list<Creature*> GuardList;
-
     void Reset()
     {
         uiPhase = 0;
@@ -54,9 +52,11 @@ struct npc_sinclariAI : public ScriptedAI
         m_creature->SetVisibility(VISIBILITY_ON);
         m_creature->SetReactState(REACT_AGGRESSIVE);
 
+        std::list<Creature*> GuardList;
         m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
         if (!GuardList.empty())
-            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+        {
+            for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
             {
                 if (Creature* pGuard = *itr)
                 {
@@ -66,6 +66,7 @@ struct npc_sinclariAI : public ScriptedAI
                     pGuard->SetReactState(REACT_AGGRESSIVE);
                 }
             }
+        }
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -100,6 +101,8 @@ struct npc_sinclariAI : public ScriptedAI
                        uiPhase = 2;
                        break;
                     case 2:
+                    {
+                        std::list<Creature*> GuardList;
                         m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
                         if (!GuardList.empty())
                             for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
@@ -113,7 +116,10 @@ struct npc_sinclariAI : public ScriptedAI
                         uiTimer = 6000;
                         uiPhase = 3;
                         break;
+                    }
                     case 3:
+                    {
+                        std::list<Creature*> GuardList;
                         m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
                         if (!GuardList.empty())
                             for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
@@ -127,6 +133,7 @@ struct npc_sinclariAI : public ScriptedAI
                         uiTimer = 2000;
                         uiPhase = 4;
                         break;
+                    }
                     case 4:
                         m_creature->GetMotionMaster()->MovePoint(0, MovePosition);
                         uiTimer = 0;

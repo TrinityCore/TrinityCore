@@ -34,7 +34,6 @@ struct boss_hazzarahAI : public ScriptedAI
     uint32 ManaBurn_Timer;
     uint32 Sleep_Timer;
     uint32 Illusions_Timer;
-    Creature* Illusion;
 
     void Reset()
     {
@@ -78,7 +77,7 @@ struct boss_hazzarahAI : public ScriptedAI
                 if (!pTarget)
                     return;
 
-                Illusion = m_creature->SummonCreature(15163,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
+                Creature *Illusion = m_creature->SummonCreature(15163,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
                 if (Illusion)
                     Illusion->AI()->AttackStart(pTarget);
             }
