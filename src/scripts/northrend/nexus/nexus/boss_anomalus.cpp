@@ -1,5 +1,5 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2006 - 2010 TrinityCore <http://www.trinitycore.org>
+ * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -18,31 +18,34 @@
 #include "ScriptedPch.h"
 #include "nexus.h"
 
-bool DeadChaoticRift; // needed for achievement: Chaos Theory(2037)
-
-enum eEnums
+enum Spells
 {
-    ACHIEVEMENT_CHAOS_THEORY   = 2037,
-
     //Spells
-    SPELL_SPARK_N              = 47751,
-    SPELL_SPARK_H              = 57062,
-    SPELL_RIFT_SHIELD          = 47748,
-    SPELL_CHARGE_RIFT          = 47747, //Works wrong (affect players, not rifts)
-    SPELL_CREATE_RIFT          = 47743, //Don't work, using WA
-    SPELL_ARCANE_ATTRACTION    = 57063, //No idea, when it's used
+    SPELL_SPARK                                   = 47751,
+    H_SPELL_SPARK                                 = 57062,
+    SPELL_RIFT_SHIELD                             = 47748,
+    SPELL_CHARGE_RIFT                             = 47747, //Works wrong (affect players, not rifts)
+    SPELL_CREATE_RIFT                             = 47743, //Don't work, using WA
+    SPELL_ARCANE_ATTRACTION                       = 57063, //No idea, when it's used
+};
 
-    MOB_CRAZED_MANA_WRAITH              = 26746,
-    MOB_CHAOTIC_RIFT                    = 26918,
-    SPELL_CHAOTIC_ENERGY_BURST          = 47688,
-    SPELL_CHARGED_CHAOTIC_ENERGY_BURST  = 47737,
-    SPELL_ARCANEFORM                    = 48019, //Chaotic Rift visual
-
+enum Adds
+{
+    MOB_CRAZED_MANA_WRAITH                        = 26746,
+    MOB_CHAOTIC_RIFT                              = 26918
+};
+enum Yells
+{
     //Yell
-    SAY_AGGRO               = -1576010,
-    SAY_DEATH               = -1576011,
-    SAY_RIFT                = -1576012,
-    SAY_SHIELD              = -1576013
+    SAY_AGGRO                                     = -1576010,
+    SAY_DEATH                                     = -1576011,
+    SAY_RIFT                                      = -1576012,
+    SAY_SHIELD                                    = -1576013
+};
+
+enum Achievs
+{
+    ACHIEV_CHAOS_THEORY                           = 2037
 };
 
 const Position RiftLocation[6] =
@@ -65,18 +68,19 @@ struct boss_anomalusAI : public ScriptedAI
     ScriptedInstance* pInstance;
 
     uint8 Phase;
-    uint32 SPELL_SPARK_Timer;
-    uint32 SPELL_CREATE_RIFT_Timer;
-    uint64 ChaoticRiftGUID;
+    uint32 uiSparkTimer;
+    uint32 uiCreateRiftTimer;
+    uint64 uiChaoticRiftGUID;
+
+    bool bDeadChaoticRift; // needed for achievement: Chaos Theory(2037)
 
     void Reset()
     {
         Phase = 0;
-        SPELL_SPARK_Timer = 5000;
-        SPELL_CREATE_RIFT_Timer = 25000;
-        ChaoticRiftGUID = 0;
+        uiSparkTimer = 5*IN_MILISECONDS;
+        uiChaoticRiftGUID = 0;
 
-        DeadChaoticRift = false;
+        bDeadChaoticRift = false;
 
         if (pInstance)
             pInstance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
@@ -94,23 +98,12 @@ struct boss_anomalusAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (IsHeroic() && !DeadChaoticRift)
-        {
-            AchievementEntry const *AchievChaosTheory = GetAchievementStore()->LookupEntry(ACHIEVEMENT_CHAOS_THEORY);
-            if (AchievChaosTheory)
-            {
-                Map* pMap = m_creature->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievChaosTheory);
-                }
-            }
-        }
-
         if (pInstance)
+        {
+            if (IsHeroic() && !bDeadChaoticRift)
+                pInstance->DoCompleteAchievement(ACHIEV_CHAOS_THEORY);
             pInstance->SetData(DATA_ANOMALUS_EVENT, DONE);
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -127,44 +120,42 @@ struct boss_anomalusAI : public ScriptedAI
 
         if (m_creature->HasAura(SPELL_RIFT_SHIELD))
         {
-            if (ChaoticRiftGUID)
+            if (uiChaoticRiftGUID)
             {
-                Unit* Rift = Unit::GetUnit((*m_creature), ChaoticRiftGUID);
+                Unit* Rift = Unit::GetUnit((*m_creature), uiChaoticRiftGUID);
                 if (Rift && Rift->isDead())
                 {
                     m_creature->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
-                    ChaoticRiftGUID = 0;
+                    uiChaoticRiftGUID = 0;
                 }
                 return;
             }
         } else
-            ChaoticRiftGUID = 0;
+            uiChaoticRiftGUID = 0;
 
         if ((Phase == 0) && HealthBelowPct(50))
         {
             Phase = 1;
             DoScriptText(SAY_SHIELD, m_creature);
             DoCast(m_creature, SPELL_RIFT_SHIELD);
-
-            int tmp = rand()%(2);
-            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[tmp], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0,5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
             if (Rift)
             {
                 //DoCast(Rift, SPELL_CHARGE_RIFT);
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     Rift->AI()->AttackStart(pTarget);
-                ChaoticRiftGUID = Rift->GetGUID();
+                uiChaoticRiftGUID = Rift->GetGUID();
                 DoScriptText(SAY_RIFT , m_creature);
             }
         }
 
 
-        if (SPELL_SPARK_Timer <= diff)
+        if (uiSparkTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_SPARK_N, SPELL_SPARK_H));
-            SPELL_SPARK_Timer = 5000;
-        } else SPELL_SPARK_Timer -=diff;
+                DoCast(pTarget, DUNGEON_MODE(SPELL_SPARK, H_SPELL_SPARK));
+            uiSparkTimer = 5*IN_MILISECONDS;
+        } else uiSparkTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -175,6 +166,13 @@ CreatureAI* GetAI_boss_anomalus(Creature* pCreature)
     return new boss_anomalusAI (pCreature);
 }
 
+enum RiftSpells
+{
+    SPELL_CHAOTIC_ENERGY_BURST                    = 47688,
+    SPELL_CHARGED_CHAOTIC_ENERGY_BURST            = 47737,
+    SPELL_ARCANEFORM                              = 48019 //Chaotic Rift visual
+};
+
 struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 {
     mob_chaotic_riftAI(Creature *c) : Scripted_NoMovementAI(c)
@@ -184,14 +182,14 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 
     ScriptedInstance* pInstance;
 
-    uint32 SPELL_CHAOTIC_ENERGY_BURST_Timer;
-    uint32 SUMMON_CRAZED_MANA_WRAITH_Timer;
+    uint32 uiChaoticEnergyBurstTimer;
+    uint32 uiSummonCrazedManaWraithTimer;
 
     void Reset()
     {
-        SPELL_CHAOTIC_ENERGY_BURST_Timer = 1000;
-        SUMMON_CRAZED_MANA_WRAITH_Timer = 5000;
-        m_creature->SetDisplayId(25206); //For some reason in DB models for ally and horde are different.
+        uiChaoticEnergyBurstTimer = 1*IN_MILISECONDS;
+        uiSummonCrazedManaWraithTimer = 5*IN_MILISECONDS;
+        //m_creature->SetDisplayId(25206); //For some reason in DB models for ally and horde are different.
                                          //Model for ally (1126) does not show auras. Horde model works perfect.
                                          //Set model to horde number
         DoCast(m_creature, SPELL_ARCANEFORM, false);
@@ -199,7 +197,8 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 
     void JustDied(Unit *killer)
     {
-        DeadChaoticRift = true;
+        if (Creature* pAnomalus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0))
+            CAST_AI(boss_anomalusAI,pAnomalus->AI())->bDeadChaoticRift = true;
     }
 
     void UpdateAI(const uint32 diff)
@@ -207,29 +206,29 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
         if (!UpdateVictim())
             return;
 
-        if (SPELL_CHAOTIC_ENERGY_BURST_Timer <= diff)
+        if (uiChaoticEnergyBurstTimer <= diff)
         {
-            Unit* Anomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
+            Unit* pAnomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
+                if (pAnomalus && pAnomalus->HasAura(SPELL_RIFT_SHIELD))
                     DoCast(pTarget, SPELL_CHARGED_CHAOTIC_ENERGY_BURST);
                 else
                     DoCast(pTarget, SPELL_CHAOTIC_ENERGY_BURST);
-            SPELL_CHAOTIC_ENERGY_BURST_Timer = 1000;
-        } else SPELL_CHAOTIC_ENERGY_BURST_Timer -=diff;
+            uiChaoticEnergyBurstTimer = 1*IN_MILISECONDS;
+        } else uiChaoticEnergyBurstTimer -= diff;
 
-        if (SUMMON_CRAZED_MANA_WRAITH_Timer <= diff)
+        if (uiSummonCrazedManaWraithTimer <= diff)
         {
-            Creature* Wraith = m_creature->SummonCreature(MOB_CRAZED_MANA_WRAITH, m_creature->GetPositionX()+1, m_creature->GetPositionY()+1, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            Creature* Wraith = m_creature->SummonCreature(MOB_CRAZED_MANA_WRAITH, m_creature->GetPositionX()+1, m_creature->GetPositionY()+1, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
             if (Wraith)
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     Wraith->AI()->AttackStart(pTarget);
             Unit* Anomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
-                SUMMON_CRAZED_MANA_WRAITH_Timer = 5000;
+                uiSummonCrazedManaWraithTimer = 5*IN_MILISECONDS;
             else
-                SUMMON_CRAZED_MANA_WRAITH_Timer = 10000;
-        } else SUMMON_CRAZED_MANA_WRAITH_Timer -=diff;
+                uiSummonCrazedManaWraithTimer = 10*IN_MILISECONDS;
+        } else uiSummonCrazedManaWraithTimer -= diff;
     }
 };
 

@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -14,52 +15,44 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-/* ScriptData
-SDName: Boss_Magus_Telestra
-SD%Complete:
-SDComment:
-SDCategory: The Nexus, The Nexus
-EndScriptData */
-
 #include "ScriptedPch.h"
 #include "nexus.h"
 
-enum eEnums
+enum Spells
 {
-//Spells
-    SPELL_ICE_NOVA_N          = 47772,
-    SPELL_ICE_NOVA_H          = 56935,
-    SPELL_FIREBOMB_N          = 47773,
-    SPELL_FIREBOMB_H          = 56934,
-    SPELL_GRAVITY_WELL        = 47756,
-    SPELL_TELESTRA_BACK       = 47714,
+    SPELL_ICE_NOVA                                = 47772,
+    H_SPELL_ICE_NOVA                              = 56935,
+    SPELL_FIREBOMB                                = 47773,
+    H_SPELL_FIREBOMB                              = 56934,
+    SPELL_GRAVITY_WELL                            = 47756,
+    SPELL_TELESTRA_BACK                           = 47714,
 
-//At 50% HP - 3 clones, Frost, Fire, Arcane (and in 10% HP in Heroic)
-    MOB_FIRE_MAGUS            = 26928,
-    MOB_FROST_MAGUS           = 26930,
-    MOB_ARCANE_MAGUS          = 26929,
-
-    SPELL_FIRE_MAGUS_VISUAL   = 47705,
-    SPELL_FROST_MAGUS_VISUAL  = 47706,
-    SPELL_ARCANE_MAGUS_VISUAL = 47704,
-
-//Yell
-    SAY_AGGRO                 = -1576000,
-    SAY_KILL                  = -1576001,
-    SAY_DEATH                 = -1576002,
-    SAY_MERGE                 = -1576003,
-    SAY_SPLIT_1               = -1576004,
-    SAY_SPLIT_2               = -1576005,
-
-//Achievement
-    ACHIEV_SPLIT_PERSONALITY  = 2150,
-    ACHIEV_TIMER              = 5 * 1000
+    SPELL_FIRE_MAGUS_VISUAL                       = 47705,
+    SPELL_FROST_MAGUS_VISUAL                      = 47706,
+    SPELL_ARCANE_MAGUS_VISUAL                     = 47704
+};
+enum Creatures
+{
+    MOB_FIRE_MAGUS                                = 26928,
+    MOB_FROST_MAGUS                               = 26930,
+    MOB_ARCANE_MAGUS                              = 26929
+};
+enum Yells
+{
+    SAY_AGGRO                                     = -1576000,
+    SAY_KILL                                      = -1576001,
+    SAY_DEATH                                     = -1576002,
+    SAY_MERGE                                     = -1576003,
+    SAY_SPLIT_1                                   = -1576004,
+    SAY_SPLIT_2                                   = -1576005,
+};
+enum Achievements
+{
+    ACHIEV_SPLIT_PERSONALITY                      = 2150,
+    ACHIEV_TIMER                                  = 5*IN_MILISECONDS
 };
 
-float CenterOfRoom[1][4] =
-{
-    {504.80, 89.07, -16.12, 6.27}
-};
+const Position  CenterOfRoom = {504.80, 89.07, -16.12, 6.27};
 
 struct boss_magus_telestraAI : public ScriptedAI
 {
@@ -70,45 +63,44 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    uint64 FireMagusGUID;
-    uint64 FrostMagusGUID;
-    uint64 ArcaneMagusGUID;
-    bool FireMagusDead;
-    bool FrostMagusDead;
-    bool ArcaneMagusDead;
+    uint64 uiFireMagusGUID;
+    uint64 uiFrostMagusGUID;
+    uint64 uiArcaneMagusGUID;
+    
+    bool bFireMagusDead;
+    bool bFrostMagusDead;
+    bool bArcaneMagusDead;
+    bool bIsWaitingToAppear;
+    bool bIsAchievementTimerRunning;
 
-    uint32 AppearDelay_Timer;
-    bool AppearDelay;
+    uint32 uiIsWaitingToAppearTimer;
+    uint32 uiIceNovaTimer;
+    uint32 uiFireBombTimer;
+    uint32 uiGravityWellTimer;
+    uint32 uiCooldown;
+    uint32 uiAchievementTimer;
 
     uint8 Phase;
-
-    uint32 SPELL_ICE_NOVA_Timer;
-    uint32 SPELL_FIREBOMB_Timer;
-    uint32 SPELL_GRAVITY_WELL_Timer;
-    uint32 Cooldown;
-
-    bool AchievementTimerRunning;
-    uint8 AchievementProgress;
-    uint32 AchievementTimer;
+    uint8 uiAchievementProgress;
 
     void Reset()
     {
         Phase = 0;
         //These times are probably wrong
-        SPELL_ICE_NOVA_Timer =  7000;
-        SPELL_FIREBOMB_Timer =  0;
-        SPELL_GRAVITY_WELL_Timer = 15000;
-        Cooldown = 0;
+        uiIceNovaTimer =  7*IN_MILISECONDS;
+        uiFireBombTimer =  0;
+        uiGravityWellTimer = 15*IN_MILISECONDS;
+        uiCooldown = 0;
 
-        FireMagusGUID = 0;
-        FrostMagusGUID = 0;
-        ArcaneMagusGUID = 0;
+        uiFireMagusGUID = 0;
+        uiFrostMagusGUID = 0;
+        uiArcaneMagusGUID = 0;
 
-        AchievementProgress = 0;
-        AchievementTimer = 0;
-        AchievementTimerRunning = false;
-
-        AppearDelay = false;
+        uiAchievementProgress = 0;
+        uiAchievementTimer = 0;
+        
+        bIsAchievementTimerRunning = false;
+        bIsWaitingToAppear = false;
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetVisibility(VISIBILITY_ON);
@@ -129,23 +121,12 @@ struct boss_magus_telestraAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        if (IsHeroic() && AchievementProgress == 2)
-        {
-            AchievementEntry const *AchievSplitPersonality = GetAchievementStore()->LookupEntry(ACHIEV_SPLIT_PERSONALITY);
-            if (AchievSplitPersonality)
-            {
-                Map* pMap = m_creature->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievSplitPersonality);
-                }
-            }
-        }
-
         if (pInstance)
+        {
+            if (IsHeroic() && uiAchievementProgress == 2)
+                pInstance->DoCompleteAchievement(ACHIEV_SPLIT_PERSONALITY);
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
+        }
     }
 
     void KilledUnit(Unit *victim)
@@ -155,8 +136,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     uint64 SplitPersonality(uint32 entry)
     {
-        Creature* Summoned = m_creature->SummonCreature(entry, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
-        if (Summoned)
+        if (Creature* Summoned = m_creature->SummonCreature(entry, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS))
         {
             switch (entry)
             {
@@ -191,147 +171,148 @@ struct boss_magus_telestraAI : public ScriptedAI
             return;
         }
 
-        if (AppearDelay)
+        if (bIsWaitingToAppear)
         {
             m_creature->StopMoving();
             m_creature->AttackStop();
-            if (AppearDelay_Timer <= diff)
+            if (uiIsWaitingToAppearTimer <= diff)
             {
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                AppearDelay = false;
-            } else AppearDelay_Timer -= diff;
+                bIsWaitingToAppear = false;
+            } else uiIsWaitingToAppearTimer -= diff;
             return;
         }
 
-        if ((Phase == 1)||(Phase == 3))
+        if ((Phase == 1) ||(Phase == 3))
         {
-            Unit* FireMagus;
-            Unit* FrostMagus;
-            Unit* ArcaneMagus;
-            if (FireMagusGUID)
-                FireMagus = Unit::GetUnit((*m_creature), FireMagusGUID);
-            if (FrostMagusGUID)
-                FrostMagus = Unit::GetUnit((*m_creature), FrostMagusGUID);
-            if (ArcaneMagusGUID)
-                ArcaneMagus = Unit::GetUnit((*m_creature), ArcaneMagusGUID);
-            if (FireMagus && FireMagus->isDead())
+            Unit* pFireMagus;
+            Unit* pFrostMagus;
+            Unit* pArcaneMagus;
+            if (uiFireMagusGUID)
+                pFireMagus = Unit::GetUnit((*m_creature), uiFireMagusGUID);
+            if (uiFrostMagusGUID)
+                pFrostMagus = Unit::GetUnit((*m_creature), uiFrostMagusGUID);
+            if (uiArcaneMagusGUID)
+                pArcaneMagus = Unit::GetUnit((*m_creature), uiArcaneMagusGUID);
+            if (pFireMagus && pFireMagus->isDead())
             {
-                FireMagusDead = true;
-                if (!AchievementTimerRunning)
-                    AchievementTimerRunning = true;
+                bFireMagusDead = true;
+                if (!bIsAchievementTimerRunning)
+                    bIsAchievementTimerRunning = true;
             }
-            if (FrostMagus && FrostMagus->isDead())
+            if (pFrostMagus && pFrostMagus->isDead())
             {
-                FrostMagusDead = true;
-                if (!AchievementTimerRunning)
-                    AchievementTimerRunning = true;
+                bFrostMagusDead = true;
+                if (!bIsAchievementTimerRunning)
+                    bIsAchievementTimerRunning = true;
             }
-            if (ArcaneMagus && ArcaneMagus->isDead())
+            if (pArcaneMagus && pArcaneMagus->isDead())
             {
-                ArcaneMagusDead = true;
-                if (!AchievementTimerRunning)
-                    AchievementTimerRunning = true;
+                bArcaneMagusDead = true;
+                if (!bIsAchievementTimerRunning)
+                    bIsAchievementTimerRunning = true;
             }
-            if (AchievementTimerRunning)
-                AchievementTimer += diff;
-            if (FireMagusDead && FrostMagusDead && ArcaneMagusDead)
+            if (bIsAchievementTimerRunning)
+                uiAchievementTimer += diff;
+            if (bFireMagusDead && bFrostMagusDead && bArcaneMagusDead)
             {
-                if (AchievementTimer <= ACHIEV_TIMER)
-                    AchievementProgress +=1;
+                if (uiAchievementTimer <= ACHIEV_TIMER)
+                    uiAchievementProgress +=1;
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMap()->CreatureRelocation(m_creature, CenterOfRoom[0][0], CenterOfRoom[0][1], CenterOfRoom[0][2], CenterOfRoom[0][3]);
+                m_creature->GetMap()->CreatureRelocation(m_creature, CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
                 DoCast(m_creature, SPELL_TELESTRA_BACK);
                 m_creature->SetVisibility(VISIBILITY_ON);
                 if (Phase == 1)
                     Phase = 2;
                 if (Phase == 3)
                     Phase = 4;
-                FireMagusGUID = 0;
-                FrostMagusGUID = 0;
-                ArcaneMagusGUID = 0;
-                AppearDelay = true;
-                AppearDelay_Timer = 4000;
+                uiFireMagusGUID = 0;
+                uiFrostMagusGUID = 0;
+                uiArcaneMagusGUID = 0;
+                bIsWaitingToAppear = true;
+                uiIsWaitingToAppearTimer = 4*IN_MILISECONDS;
                 DoScriptText(SAY_MERGE, m_creature);
-                AchievementTimerRunning = false;
-                AchievementTimer = 0;
-            }else
+                bIsAchievementTimerRunning = false;
+                uiAchievementTimer = 0;
+            }
+            else
                 return;
         }
 
-        if ((Phase == 0) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.5)))
+        if ((Phase == 0) && HealthBelowPct(50))
         {
             Phase = 1;
             m_creature->CastStop();
             m_creature->RemoveAllAuras();
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            FireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
-            FrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
-            ArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
-            FireMagusDead = false;
-            FrostMagusDead = false;
-            ArcaneMagusDead = false;
+            uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
+            uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
+            uiArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
+            bFireMagusDead = false;
+            bFrostMagusDead = false;
+            bArcaneMagusDead = false;
             DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
             return;
         }
 
-        if (IsHeroic() && (Phase == 2) && (m_creature->GetHealth() <= (m_creature->GetMaxHealth() * 0.1)))
+        if (IsHeroic() && (Phase == 2) && HealthBelowPct(10))
         {
             Phase = 3;
             m_creature->CastStop();
             m_creature->RemoveAllAuras();
             m_creature->SetVisibility(VISIBILITY_OFF);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            FireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
-            FrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
-            ArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
-            FireMagusDead = false;
-            FrostMagusDead = false;
-            ArcaneMagusDead = false;
+            uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
+            uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
+            uiArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
+            bFireMagusDead = false;
+            bFrostMagusDead = false;
+            bArcaneMagusDead = false;
             DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
             return;
         }
 
-        if (Cooldown)
+        if (uiCooldown)
         {
-            if (Cooldown <= diff)
-                Cooldown = 0;
+            if (uiCooldown <= diff)
+                uiCooldown = 0;
             else
             {
-                Cooldown -= diff;
+                uiCooldown -= diff;
                 return;
             }
         }
 
-        if (SPELL_ICE_NOVA_Timer <= diff)
+        if (uiIceNovaTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget, DUNGEON_MODE(SPELL_ICE_NOVA_N, SPELL_ICE_NOVA_H));
-                Cooldown = 1500;
+                DoCast(pTarget, DUNGEON_MODE(SPELL_ICE_NOVA, H_SPELL_ICE_NOVA));
+                uiCooldown = 1.5*IN_MILISECONDS;
             }
-            SPELL_ICE_NOVA_Timer = 15000;
-        } else SPELL_ICE_NOVA_Timer -=diff;
+            uiIceNovaTimer = 15*IN_MILISECONDS;
+        } else uiIceNovaTimer -= diff;
 
-        if (SPELL_GRAVITY_WELL_Timer <= diff)
+        if (uiGravityWellTimer <= diff)
         {
             if (Unit *pTarget = m_creature->getVictim())
             {
                 DoCast(pTarget, SPELL_GRAVITY_WELL);
-                Cooldown = 6000;
+                uiCooldown = 6*IN_MILISECONDS;
             }
-            SPELL_GRAVITY_WELL_Timer = 15000;
-        } else SPELL_GRAVITY_WELL_Timer -=diff;
+            uiGravityWellTimer = 15*IN_MILISECONDS;
+        } else uiGravityWellTimer -= diff;
 
-        if (SPELL_FIREBOMB_Timer <= diff)
+        if (uiFireBombTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget, DUNGEON_MODE(SPELL_FIREBOMB_N, SPELL_FIREBOMB_H));
-                Cooldown = 2000;
+                DoCast(pTarget, DUNGEON_MODE(SPELL_FIREBOMB, H_SPELL_FIREBOMB));
+                uiCooldown = 2*IN_MILISECONDS;
             }
-            SPELL_FIREBOMB_Timer = 2000;
-        } else SPELL_FIREBOMB_Timer -=diff;
+            uiFireBombTimer = 2*IN_MILISECONDS;
+        } else uiFireBombTimer -=diff;
 
         DoMeleeAttackIfReady();
     }

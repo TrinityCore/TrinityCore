@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,13 +14,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
-/* ScriptData
-SDName: Instance_Nexus
-SD%Complete:
-SDComment:
-SDCategory: The Nexus, The Nexus
-EndScriptData */
 
 #include "ScriptedPch.h"
 #include "nexus.h"
@@ -46,6 +40,7 @@ struct instance_nexus : public ScriptedInstance
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
         Anomalus = 0;
+        Keristrasza = 0;
     }
 
     void OnCreatureCreate(Creature *pCreature, bool bAdd)
@@ -69,35 +64,30 @@ struct instance_nexus : public ScriptedInstance
             // Alliance npcs are spawned by default, if you are alliance, you will fight against horde npcs.
             case 26800:
             {
-                pCreature->setFaction(16);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26799, HORDE);
                 break;
             }
             case 26802:
             {
-                pCreature->setFaction(16);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26801, HORDE);
                 break;
             }
             case 26805:
             {
-                pCreature->setFaction(16);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26803, HORDE);
                 break;
             }
             case 27949:
             {
-                pCreature->setFaction(16);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(27947, HORDE);
                 break;
             }
             case 26796:
             {
-                pCreature->setFaction(16);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26798, HORDE);
                 break;
