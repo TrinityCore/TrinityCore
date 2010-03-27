@@ -104,16 +104,16 @@ inline uint32 GetEruptionSection(float x, float y)
 struct instance_naxxramas : public InstanceData
 {
     instance_naxxramas(Map* pMap) : InstanceData(pMap)
-        , Sapphiron(NULL), pGothikGate(NULL), HorsemenChest(NULL)
     {
         SetBossNumber(MAX_BOSS_NUMBER);
         LoadDoorData(doorData);
         LoadMinionData(minionData);
     }
 
-    std::set<GameObject*> HeiganEruption[4];
-    GameObject* pGothikGate, *HorsemenChest;
-    Creature* Sapphiron;
+    std::set<uint64> HeiganEruptionGUID[4];
+    uint64 GothikGateGUID;
+    uint64 HorsemenChestGUID;
+    uint64 SapphironGUID;
     uint64 uiFaerlina;
     uint64 uiThane;
     uint64 uiLady;
@@ -135,7 +135,7 @@ struct instance_naxxramas : public InstanceData
     {
         switch(pCreature->GetEntry())
         {
-            case 15989: Sapphiron = add ? pCreature : NULL; return;
+            case 15989: SapphironGUID = add ? pCreature->GetGUID() : 0; return;
             case 15953: uiFaerlina = pCreature->GetGUID(); return;
             case 16064: uiThane = pCreature->GetGUID(); return;
             case 16065: uiLady = pCreature->GetGUID(); return;
@@ -156,18 +156,24 @@ struct instance_naxxramas : public InstanceData
         {
             uint32 section = GetEruptionSection(pGo->GetPositionX(), pGo->GetPositionY());
             if (add)
-                HeiganEruption[section].insert(pGo);
+                HeiganEruptionGUID[section].insert(pGo->GetGUID());
             else
-                HeiganEruption[section].erase(pGo);
+                HeiganEruptionGUID[section].erase(pGo->GetGUID());
             return;
         }
 
         switch(pGo->GetEntry())
         {
-            case GO_BIRTH: if (!add && Sapphiron) Sapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH); return;
-            case GO_GOTHIK_GATE: pGothikGate = add ? pGo : NULL; break;
-            case GO_HORSEMEN_CHEST: HorsemenChest = add ? pGo : NULL; break;
-            case GO_HORSEMEN_CHEST_HERO: HorsemenChest = add ? pGo : NULL; break;
+            case GO_BIRTH:
+            if (!add && SapphironGUID)
+            {
+                if (Creature *pSapphiron = instance->GetCreature(SapphironGUID))
+                    pSapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH);
+                return;
+            }
+            case GO_GOTHIK_GATE: GothikGateGUID = add ? pGo->GetGUID() : 0; break;
+            case GO_HORSEMEN_CHEST: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
+            case GO_HORSEMEN_CHEST_HERO: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
             case GO_KELTHUZAD_PORTAL01: uiPortals[0] = pGo->GetGUID(); break;
             case GO_KELTHUZAD_PORTAL02: uiPortals[1] = pGo->GetGUID(); break;
             case GO_KELTHUZAD_PORTAL03: uiPortals[2] = pGo->GetGUID(); break; 
@@ -186,7 +192,7 @@ struct instance_naxxramas : public InstanceData
                 HeiganErupt(value);
                 break;
             case DATA_GOTHIK_GATE:
-                if (pGothikGate)
+                if (GameObject *pGothikGate = instance->GetGameObject(GothikGateGUID))
                     pGothikGate->SetGoState(GOState(value));
                 break;
 
@@ -253,8 +259,11 @@ struct instance_naxxramas : public InstanceData
         if (!InstanceData::SetBossState(id, state))
             return false;
 
-        if (id == BOSS_HORSEMEN && state == DONE && HorsemenChest)
-            HorsemenChest->SetRespawnTime(HorsemenChest->GetRespawnDelay());
+        if (id == BOSS_HORSEMEN && state == DONE)
+        {
+            if (GameObject *pHorsemenChest = instance->GetGameObject(HorsemenChestGUID))
+                pHorsemenChest->SetRespawnTime(pHorsemenChest->GetRespawnDelay());
+        }
 
         return true;
     }
@@ -266,10 +275,13 @@ struct instance_naxxramas : public InstanceData
             if (i == section)
                 continue;
 
-            for (std::set<GameObject*>::iterator itr = HeiganEruption[i].begin(); itr != HeiganEruption[i].end(); ++itr)
+            for (std::set<uint64>::const_iterator itr = HeiganEruptionGUID[i].begin(); itr != HeiganEruptionGUID[i].end(); ++itr)
             {
-                (*itr)->SendCustomAnim();
-                (*itr)->CastSpell(NULL, SPELL_ERUPTION);
+                if (GameObject *pHeiganEruption = instance->GetGameObject(*itr))
+                {
+                    pHeiganEruption->SendCustomAnim();
+                    pHeiganEruption->CastSpell(NULL, SPELL_ERUPTION);
+                }
             }
         }
     }

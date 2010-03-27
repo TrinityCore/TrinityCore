@@ -307,7 +307,7 @@ struct boss_kalecgos_kjAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    GameObject* Orb[4];
+    uint64 OrbGUID[4];
     ScriptedInstance* pInstance;
     uint8 OrbsEmpowered;
     uint8 EmpowerCount;
@@ -316,7 +316,7 @@ struct boss_kalecgos_kjAI : public ScriptedAI
 
     void InitializeAI(){
         for (uint8 i = 0; i < 4; ++i)
-            Orb[i] = NULL;
+            OrbGUID[i] = 0;
         FindOrbs();
         OrbsEmpowered = 0;
         EmpowerCount = 0;
@@ -347,8 +347,8 @@ struct boss_kalecgos_kjAI : public ScriptedAI
             return;
 
         uint8 i = 0;
-        for (std::list<GameObject*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
-            Orb[i] = pInstance ? pInstance->instance->GetGameObject(pInstance->GetData64((*itr)->GetGUID())) : NULL;
+        for (std::list<GameObject*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr, ++i){
+            OrbGUID[i] = pInstance ? (*itr)->GetGUID() : 0;
         }
     }
 
@@ -356,24 +356,29 @@ struct boss_kalecgos_kjAI : public ScriptedAI
     {
         m_creature->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
         for (uint8 i = 0; i < 4; ++i)
-            if (Orb[i]) Orb[i]->SetUInt32Value(GAMEOBJECT_FACTION, 0);
+            if (GameObject *pOrb = m_creature->GetMap()->GetGameObject(OrbGUID[i]))
+                pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 0);
     }
 
     void EmpowerOrb(bool all)
     {
-        if (!Orb[OrbsEmpowered])
+        if (!OrbGUID[OrbsEmpowered])
             return;
+
         uint8 random = urand(0,3);
         if (all)
         {
             m_creature->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (!Orb[i]) return;
-                Orb[i]->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
-                Orb[i]->SetUInt32Value(GAMEOBJECT_FACTION, 35);
-                Orb[i]->setActive(true);
-                Orb[i]->Refresh();
+                GameObject *pOrb = m_creature->GetMap()->GetGameObject(OrbGUID[i]);
+                if (!pOrb)
+                    return;
+
+                pOrb->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
+                pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 35);
+                pOrb->setActive(true);
+                pOrb->Refresh();
             }
         }
         else
@@ -392,12 +397,15 @@ struct boss_kalecgos_kjAI : public ScriptedAI
                      }
                  }
             }*/
-        if(Orb[random])
+        if(OrbGUID[random])
         {
-            Orb[random]->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
-            Orb[random]->SetUInt32Value(GAMEOBJECT_FACTION, 35);
-            Orb[random]->setActive(true);
-            Orb[random]->Refresh();
+            if (GameObject* pOrb = m_creature->GetMap()->GetGameObject(OrbGUID[random]))
+            {
+                pOrb->CastSpell(m_creature, SPELL_RING_OF_BLUE_FLAMES);
+                pOrb->SetUInt32Value(GAMEOBJECT_FACTION, 35);
+                pOrb->setActive(true);
+                pOrb->Refresh();
+            }
         }
         ++OrbsEmpowered;
         }
@@ -440,8 +448,6 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
 
     ScriptedInstance* pInstance;
     SummonList Summons;
-    Creature*  Kalec;
-    Unit*      randomPlayer;
 
     uint8 Phase;
     uint8 ActiveTimers;
@@ -486,8 +492,6 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
         IsWaiting     = false;
         OrbActivated  = false;
 
-        if(pInstance)
-            Kalec = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KALECGOS_KJ)));
         ChangeTimers(false, 0);
     }
 
@@ -595,9 +599,9 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                 switch(t)
                 {
                     case TIMER_KALEC_JOIN:
-                        if (Kalec)
+                        if (Creature *pKalec = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_KALECGOS_KJ) : 0))
                         {
-                            DoScriptText(SAY_KALECGOS_JOIN, Kalec);
+                            DoScriptText(SAY_KALECGOS_JOIN, pKalec);
                             IsKalecJoined = true;
                             TimerIsDeactiveted[TIMER_KALEC_JOIN] = true;
                         }
@@ -613,14 +617,15 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                     case TIMER_LEGION_LIGHTNING:
                         if (!m_creature->IsNonMeleeSpellCasted(false))
                         {
+                            Unit *RandomPlayer;
                             m_creature->RemoveAurasDueToSpell(SPELL_SOUL_FLAY);
                             for (uint8 z = 0; z < 6; ++z)
                             {
-                                randomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                                if (!randomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
+                                RandomPlayer = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+                                if (RandomPlayer && !RandomPlayer->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
                             }
-                            if (randomPlayer)
-                                DoCast(randomPlayer, SPELL_LEGION_LIGHTNING, false);
+                            if (RandomPlayer)
+                                DoCast(RandomPlayer, SPELL_LEGION_LIGHTNING, false);
                             else
                                 error_log("try to cast SPELL_LEGION_LIGHTNING on invalid target");
                             Timer[TIMER_LEGION_LIGHTNING] = (Phase == PHASE_SACRIFICE) ? 18000 : 30000; // 18 seconds in PHASE_SACRIFICE
@@ -686,15 +691,15 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                         }
                         break;
                     case TIMER_ORBS_EMPOWER: //Phase 3
-                        if (Kalec)
+                        if (Creature *pKalec = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_KALECGOS_KJ) : 0))
                         {
                             switch (Phase)
                             {
                                 case PHASE_SACRIFICE:
-                                    CAST_AI(boss_kalecgos_kjAI, Kalec->AI())->EmpowerOrb(true);
+                                    CAST_AI(boss_kalecgos_kjAI, pKalec->AI())->EmpowerOrb(true);
                                     break;
                                 default:
-                                    CAST_AI(boss_kalecgos_kjAI, Kalec->AI())->EmpowerOrb(false);
+                                    CAST_AI(boss_kalecgos_kjAI, pKalec->AI())->EmpowerOrb(false);
                                     break;
                             }
                         }
@@ -707,7 +712,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                         for (uint8 z = 0; z < 6; ++z)
                         {
                             pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                            if (!pTarget->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
+                            if (pTarget && !pTarget->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT,0)) break;
                         }
                         if (pTarget)
                         {
@@ -788,7 +793,6 @@ struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
     }
 
     ScriptedInstance* pInstance;
-    Creature* KalecKJ;
     SummonList Summons;
 
     bool SummonedDeceivers;
@@ -800,8 +804,6 @@ struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
 
     void InitializeAI()
     {
-        if(pInstance)
-            KalecKJ = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_KALECGOS_KJ));
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->addUnitState(UNIT_STAT_STUNNED);
@@ -812,8 +814,8 @@ struct mob_kiljaeden_controllerAI : public Scripted_NoMovementAI
     void Reset()
     {
         Phase = PHASE_DECEIVERS;
-        if (KalecKJ)
-            CAST_AI(boss_kalecgos_kjAI, KalecKJ->AI())->ResetOrbs();
+        if (Creature *pKalecKJ = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_KALECGOS_KJ) : 0))
+            CAST_AI(boss_kalecgos_kjAI, pKalecKJ->AI())->ResetOrbs();
         DeceiverDeathCount = 0;
         SummonedDeceivers = false;
         KiljaedenDeath = false;

@@ -141,14 +141,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
     boss_drakkari_elementalAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         pInstance = pCreature->GetInstanceData();
-        if(pInstance)
-        {
-            if (pCreature->GetMap()->IsDungeon())
-                pColossus = CAST_CRE(pCreature->GetUnit(*pCreature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)));
-        }
     }
-
-    Creature* pColossus;
 
     ScriptedInstance* pInstance;
 
@@ -158,7 +151,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
 
     void Reset()
     {
-        if (pColossus)
+        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(m_creature, true);
         uiSurgeTimer = 7*IN_MILISECONDS;
         bGoToColossus = false;
@@ -173,8 +166,11 @@ struct boss_drakkari_elementalAI : public ScriptedAI
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
-        CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(pColossus, true);
-        CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->bHealth1 = false;
+        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+        {
+            CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(pColossus, true);
+            CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->bHealth1 = false;
+        }
         m_creature->RemoveFromWorld();
     }
 
@@ -184,12 +180,17 @@ struct boss_drakkari_elementalAI : public ScriptedAI
         if(!UpdateVictim())
             return;
 
-        if(!bGoToColossus && HealthBelowPct(50) && !CAST_AI(boss_drakkari_colossusAI,pColossus->AI())->HealthBelowPct(6))
+        if(!bGoToColossus && HealthBelowPct(50))
         {
-            m_creature->InterruptNonMeleeSpells(true);
-            if (pColossus)
-                DoCast(pColossus, SPELL_MERGE);
-            bGoToColossus = true;
+            if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            {
+                if (!CAST_AI(boss_drakkari_colossusAI,pColossus->AI())->HealthBelowPct(6))
+                {
+                    m_creature->InterruptNonMeleeSpells(true);
+                    DoCast(pColossus, SPELL_MERGE);
+                    bGoToColossus = true;
+                }
+            }
         }
 
         if (uiSurgeTimer <= diff)
@@ -203,9 +204,8 @@ struct boss_drakkari_elementalAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        if (!pColossus)
-            return;
-        pColossus->Kill(pColossus);
+        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            pColossus->Kill(pColossus);
     }
 };
 
@@ -215,8 +215,6 @@ struct npc_living_mojoAI : public ScriptedAI
     {
         pInstance = pCreature->GetInstanceData();
     }
-
-    Creature* pColossus;
 
     ScriptedInstance* pInstance;
 
@@ -231,28 +229,32 @@ struct npc_living_mojoAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        if (pInstance)
-            pColossus = m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_DRAKKARI_COLOSSUS));
 
         //Check if the npc is near of Drakkari Colossus.
-        if (pColossus && pColossus->isAlive() && m_creature->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
-            m_creature->SetReactState(REACT_PASSIVE);
-        else
-            m_creature->SetReactState(REACT_AGGRESSIVE);
+        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+        {
+            if (pColossus->isAlive() && m_creature->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
+                m_creature->SetReactState(REACT_PASSIVE);
+            else
+                m_creature->SetReactState(REACT_AGGRESSIVE);
+        }
     }
 
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
         if (m_creature->HasReactState(REACT_PASSIVE))
         {
-            if (pColossus && pColossus->isAlive() && !pColossus->isInCombat())
+            if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             {
-                pColossus->RemoveAura(SPELL_FREEZE_ANIM);
-                pColossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                pColossus->SetReactState(REACT_AGGRESSIVE);
-                if (pDone_by && pDone_by->isAlive())
-                    pColossus->AI()->AttackStart(pDone_by);
-                EnterEvadeMode();
+                if (pColossus->isAlive() && !pColossus->isInCombat())
+                {
+                    pColossus->RemoveAura(SPELL_FREEZE_ANIM);
+                    pColossus->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    pColossus->SetReactState(REACT_AGGRESSIVE);
+                    if (pDone_by && pDone_by->isAlive())
+                        pColossus->AI()->AttackStart(pDone_by);
+                    EnterEvadeMode();
+                }
             }
         }
     }

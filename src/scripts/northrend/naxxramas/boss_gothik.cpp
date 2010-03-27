@@ -153,10 +153,14 @@ struct boss_gothikAI : public BossAI
     bool phaseTwo;
     bool thirtyPercentReached;
 
+    std::vector<uint64> LiveTriggerGUID;
+    std::vector<uint64> DeadTriggerGUID;
+
     void Reset()
     {
-        liveTrigger.clear();
-        deadTrigger.clear();
+        LiveTriggerGUID.clear();
+        DeadTriggerGUID.clear();
+
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_DISABLE_MOVE);
         me->SetReactState(REACT_PASSIVE);
         if (instance)
@@ -171,12 +175,12 @@ struct boss_gothikAI : public BossAI
     {
         for (uint32 i = 0; i < POS_LIVE; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
-                liveTrigger.push_back(trigger);
+                LiveTriggerGUID.push_back(trigger->GetGUID());
         for (uint32 i = 0; i < POS_DEAD; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonDead[i]))
-                deadTrigger.push_back(trigger);
+                DeadTriggerGUID.push_back(trigger->GetGUID());
 
-        if (liveTrigger.size() < POS_LIVE || deadTrigger.size() < POS_DEAD)
+        if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
         {
             error_log("Script Gothik: cannot summon triggers!");
             EnterEvadeMode();
@@ -223,8 +227,8 @@ struct boss_gothikAI : public BossAI
 
     void JustDied(Unit* Killer)
     {
-        liveTrigger.clear();
-        deadTrigger.clear();
+        LiveTriggerGUID.clear();
+        DeadTriggerGUID.clear();
         _JustDied();
         DoScriptText(SAY_DEATH, me);
         if (instance)
@@ -238,17 +242,29 @@ struct boss_gothikAI : public BossAI
             switch(entry)
             {
                 case MOB_LIVE_TRAINEE:
-                    DoSummon(MOB_LIVE_TRAINEE, liveTrigger[0], 1);
-                    DoSummon(MOB_LIVE_TRAINEE, liveTrigger[1], 1);
-                    DoSummon(MOB_LIVE_TRAINEE, liveTrigger[2], 1);
+                {
+                    if (Creature *LiveTrigger0 = Unit::GetCreature(*m_creature, LiveTriggerGUID[0]))
+                        DoSummon(MOB_LIVE_TRAINEE, LiveTrigger0, 1);
+                    if (Creature *LiveTrigger1 = Unit::GetCreature(*m_creature, LiveTriggerGUID[1]))
+                        DoSummon(MOB_LIVE_TRAINEE, LiveTrigger1, 1);
+                    if (Creature *LiveTrigger2 = Unit::GetCreature(*m_creature, LiveTriggerGUID[2]))
+                        DoSummon(MOB_LIVE_TRAINEE, LiveTrigger2, 1);
                     break;
+                }
                 case MOB_LIVE_KNIGHT:
-                    DoSummon(MOB_LIVE_KNIGHT, liveTrigger[3], 1);
-                    DoSummon(MOB_LIVE_KNIGHT, liveTrigger[5], 1);
+                {
+                    if (Creature *LiveTrigger3 = Unit::GetCreature(*m_creature, LiveTriggerGUID[3]))
+                        DoSummon(MOB_LIVE_KNIGHT, LiveTrigger3, 1);
+                    if (Creature *LiveTrigger5 = Unit::GetCreature(*m_creature, LiveTriggerGUID[5]))
+                        DoSummon(MOB_LIVE_KNIGHT, LiveTrigger5, 1);
                     break;
+                }
                 case MOB_LIVE_RIDER:
-                    DoSummon(MOB_LIVE_RIDER, liveTrigger[4], 1);
+                {
+                    if (Creature *LiveTrigger4 = Unit::GetCreature(*m_creature, LiveTriggerGUID[4]))
+                        DoSummon(MOB_LIVE_RIDER, LiveTrigger4, 1);
                     break;
+                }
             }
         }
         else
@@ -256,15 +272,25 @@ struct boss_gothikAI : public BossAI
             switch(entry)
             {
                 case MOB_LIVE_TRAINEE:
-                    DoSummon(MOB_LIVE_TRAINEE, liveTrigger[0], 1);
-                    DoSummon(MOB_LIVE_TRAINEE, liveTrigger[1], 1);
+                {
+                    if (Creature *LiveTrigger0 = Unit::GetCreature(*m_creature, LiveTriggerGUID[4]))
+                        DoSummon(MOB_LIVE_TRAINEE, LiveTrigger0, 1);
+                    if (Creature *LiveTrigger1 = Unit::GetCreature(*m_creature, LiveTriggerGUID[4]))
+                        DoSummon(MOB_LIVE_TRAINEE, LiveTrigger1, 1);
                     break;
+                }
                 case MOB_LIVE_KNIGHT:
-                    DoSummon(MOB_LIVE_KNIGHT, liveTrigger[5], 1);
+                {
+                    if (Creature *LiveTrigger5 = Unit::GetCreature(*m_creature, LiveTriggerGUID[4]))
+                        DoSummon(MOB_LIVE_KNIGHT, LiveTrigger5, 1);
                     break;
+                }
                 case MOB_LIVE_RIDER:
-                    DoSummon(MOB_LIVE_RIDER, liveTrigger[4], 1);
+                {
+                    if (Creature *LiveTrigger4 = Unit::GetCreature(*m_creature, LiveTriggerGUID[4]))
+                        DoSummon(MOB_LIVE_RIDER, LiveTrigger4, 1);
                     break;
+                }
             }
         }
     }
@@ -320,7 +346,8 @@ struct boss_gothikAI : public BossAI
         if (spellId && me->isInCombat())
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST);
-            me->CastSpell(deadTrigger[rand()%POS_DEAD], spellId, true);
+            if (Creature *pRandomDeadTrigger = Unit::GetCreature(*m_creature, DeadTriggerGUID[rand() % POS_DEAD]))
+                me->CastSpell(pRandomDeadTrigger, spellId, true);
         }
     }
 

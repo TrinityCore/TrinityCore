@@ -66,13 +66,13 @@ struct mob_voidtravelerAI : public ScriptedAI
     {
     }
 
-    Unit *Vorpil;
+    uint64 VorpilGUID;
     uint32 move;
     bool sacrificed;
 
     void Reset()
     {
-        Vorpil = NULL;
+        VorpilGUID = 0;
         move = 0;
         sacrificed = false;
     }
@@ -81,13 +81,20 @@ struct mob_voidtravelerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!Vorpil)
+        if (!VorpilGUID)
         {
             m_creature->Kill(m_creature);
             return;
         }
         if (move <= diff)
         {
+            Creature *Vorpil = Unit::GetCreature(*m_creature, VorpilGUID);
+            if(!Vorpil)
+            {
+                VorpilGUID = 0;
+                return;
+            }
+
             if (sacrificed)
             {
                 m_creature->AddAura(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), Vorpil);
@@ -197,7 +204,7 @@ struct boss_grandmaster_vorpilAI : public ScriptedAI
     void JustSummoned(Creature *summoned)
     {
         if (summoned && summoned->GetEntry() == MOB_VOID_TRAVELER)
-            CAST_AI(mob_voidtravelerAI, summoned->AI())->Vorpil = m_creature;
+            CAST_AI(mob_voidtravelerAI, summoned->AI())->VorpilGUID = m_creature->GetGUID();
     }
 
     void KilledUnit(Unit *victim)

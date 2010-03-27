@@ -374,7 +374,6 @@ struct npc_muru_portalAI : public Scripted_NoMovementAI
     ScriptedInstance* pInstance;
 
     SummonList Summons;
-    Creature* Muru;
 
     bool SummonSentinel;
     bool InAction;

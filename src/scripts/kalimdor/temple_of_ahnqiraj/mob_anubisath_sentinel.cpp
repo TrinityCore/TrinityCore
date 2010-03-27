@@ -80,24 +80,25 @@ struct aqsentinelAI : public ScriptedAI
         abselected = 0;                                     // just initialization of variable
     }
 
-    Creature *nearby[3];
+    uint64 NearbyGUID[3];
 
     void ClearBuddyList()
     {
-        nearby[0] = nearby[1] = nearby[2] = NULL;
+        NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
     }
 
-    void AddBuddyToList(Creature *c)
+    void AddBuddyToList(uint64 CreatureGUID)
     {
-        if (c==m_creature)
+        if (CreatureGUID == m_creature->GetGUID())
             return;
+
         for (int i=0; i<3; ++i)
         {
-            if (nearby[i] == c)
+            if (NearbyGUID[i] == CreatureGUID)
                 return;
-            if (!nearby[i])
+            if (!NearbyGUID[i])
             {
-                nearby[i] = c;
+                NearbyGUID[i] = CreatureGUID;
                 return;
             }
         }
@@ -107,23 +108,23 @@ struct aqsentinelAI : public ScriptedAI
     {
         aqsentinelAI *cai = CAST_AI(aqsentinelAI, (c)->AI());
         for (int i=0; i<3; ++i)
-            if (nearby[i] && nearby[i]!=c)
-                cai->AddBuddyToList(nearby[i]);
-        cai->AddBuddyToList(m_creature);
+            if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
+                cai->AddBuddyToList(NearbyGUID[i]);
+        cai->AddBuddyToList(m_creature->GetGUID());
     }
 
     void SendMyListToBuddies()
     {
         for (int i=0; i<3; ++i)
-            if (nearby[i])
-                GiveBuddyMyList(nearby[i]);
+            if (Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[i]))
+                GiveBuddyMyList(pNearby);
     }
 
     void CallBuddiesToAttack(Unit *who)
     {
         for (int i=0; i<3; ++i)
         {
-            Creature *c = nearby[i];
+            Creature *c = Unit::GetCreature(*m_creature, NearbyGUID[i]);
             if (c)
             {
                 if (!c->isInCombat())
@@ -145,7 +146,7 @@ struct aqsentinelAI : public ScriptedAI
             return;
 
         for (std::list<Creature*>::iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
-            AddBuddyToList((*iter));
+            AddBuddyToList((*iter)->GetGUID());
     }
 
     int pickAbilityRandom(bool *chosenAbilities)
@@ -175,11 +176,16 @@ struct aqsentinelAI : public ScriptedAI
         int bli;
         for (bli = 0; bli < 3; ++bli)
         {
-            if (!nearby[bli])
+            if (!NearbyGUID[bli])
                 break;
-            AddSentinelsNear(nearby[bli]);
-            CAST_AI(aqsentinelAI, nearby[bli]->AI())->gatherOthersWhenAggro = false;
-            CAST_AI(aqsentinelAI, nearby[bli]->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+
+            Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[bli]);
+            if(!pNearby)
+                break;
+
+            AddSentinelsNear(pNearby);
+            CAST_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
+            CAST_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
         }
         /*if (bli < 3)
             DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
@@ -197,10 +203,13 @@ struct aqsentinelAI : public ScriptedAI
         {
             for (int i=0; i<3; ++i)
             {
-                if (!nearby[i])
+                if (!NearbyGUID[i])
                     continue;
-                if (nearby[i]->isDead())
-                    nearby[i]->Respawn();
+                if (Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[i]))
+                {
+                    if (pNearby->isDead())
+                        pNearby->Respawn();
+                }
             }
         }
         ClearBuddyList();
@@ -225,7 +234,7 @@ struct aqsentinelAI : public ScriptedAI
     {
         for (int ni=0; ni<3; ++ni)
         {
-            Creature *sent = nearby[ni];
+            Creature *sent = Unit::GetCreature(*m_creature, NearbyGUID[ni]);
             if (!sent)
                 continue;
             if (sent->isDead())

@@ -46,7 +46,6 @@ struct boss_gythAI : public ScriptedAI
     bool SummonedRend;
     bool bAggro;
     bool RootSelf;
-    Creature *SummonedCreature;
 
     void Reset()
     {

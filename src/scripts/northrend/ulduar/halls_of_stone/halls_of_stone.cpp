@@ -133,7 +133,7 @@ struct mob_tribuna_controllerAI : public ScriptedAI
     bool bMarnakActivated;
     bool bAbedneumActivated;
 
-    std::list<Creature*> lKaddrakGUIDList;
+    std::list<uint64> KaddrakGUIDList;
 
     void Reset()
     {
@@ -153,7 +153,7 @@ struct mob_tribuna_controllerAI : public ScriptedAI
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR),false);
         }
     
-        lKaddrakGUIDList.clear();
+        KaddrakGUIDList.clear();
     }
 
     void UpdateFacesList()
@@ -189,10 +189,15 @@ struct mob_tribuna_controllerAI : public ScriptedAI
             if (uiKaddrakEncounterTimer <= diff)
             {
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    if (!lKaddrakGUIDList.empty())
-                        for (std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
-                            if ((*itr)->isAlive())
-                                (*itr)->CastSpell(pTarget, DUNGEON_MODE(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
+                    if (!KaddrakGUIDList.empty())
+                        for (std::list<uint64>::const_iterator itr = KaddrakGUIDList.begin(); itr != KaddrakGUIDList.end(); ++itr)
+                        {
+                            if (Creature *pKaddrak = Unit::GetCreature(*m_creature, *itr))
+                            {
+                                if (pKaddrak->isAlive())
+                                    pKaddrak->CastSpell(pTarget, DUNGEON_MODE(SPELL_GLARE_OF_THE_TRIBUNAL, H_SPELL_GLARE_OF_THE_TRIBUNAL), true);
+                            }
+                        }
                 uiKaddrakEncounterTimer = 1500;
             } else uiKaddrakEncounterTimer -= diff;
         }

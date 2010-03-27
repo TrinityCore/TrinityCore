@@ -89,7 +89,6 @@ struct boss_baron_rivendareAI : public ScriptedAI
     uint32 MortalStrike_Timer;
     //    uint32 RaiseDead_Timer;
     uint32 SummonSkeletons_Timer;
-    Creature *Summoned;
 
     void Reset()
     {
@@ -112,7 +111,7 @@ struct boss_baron_rivendareAI : public ScriptedAI
     void JustSummoned(Creature* summoned)
     {
         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-             summoned->AI()->AttackStart(pTarget);
+            summoned->AI()->AttackStart(pTarget);
     }
 
      void JustDied(Unit* Killer)

@@ -77,6 +77,7 @@ struct boss_arlokkAI : public ScriptedAI
     uint32 m_uiSummonCount;
 
     Unit* m_pMarkedTarget;
+    uint64 MarkedTargetGUID;
 
     bool m_bIsPhaseTwo;
     bool m_bIsVanished;
@@ -96,7 +97,7 @@ struct boss_arlokkAI : public ScriptedAI
         m_bIsPhaseTwo = false;
         m_bIsVanished = false;
 
-        m_pMarkedTarget = NULL;
+        MarkedTargetGUID = 0;
 
         m_creature->SetDisplayId(MODEL_ID_NORMAL);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -129,8 +130,8 @@ struct boss_arlokkAI : public ScriptedAI
 
     void DoSummonPhanters()
     {
-        if (m_pMarkedTarget)
-            DoScriptText(SAY_FEAST_PANTHER, m_creature, m_pMarkedTarget);
+        if (Unit *pMarkedTarget = Unit::GetUnit(*m_creature, MarkedTargetGUID))
+            DoScriptText(SAY_FEAST_PANTHER, m_creature, pMarkedTarget);
 
         m_creature->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998, -1649.6734, 41.4800, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
         m_creature->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970, -1606.4840, 41.2979, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -138,8 +139,8 @@ struct boss_arlokkAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (m_pMarkedTarget)
-            pSummoned->AI()->AttackStart(m_pMarkedTarget);
+        if (Unit *pMarkedTarget = Unit::GetUnit(*m_creature, MarkedTargetGUID))
+            pSummoned->AI()->AttackStart(pMarkedTarget);
 
         ++m_uiSummonCount;
     }
@@ -161,12 +162,15 @@ struct boss_arlokkAI : public ScriptedAI
 
             if (m_uiMark_Timer <= uiDiff)
             {
-                m_pMarkedTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                Unit *pMarkedTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-                if (m_pMarkedTarget)
-                    DoCast(m_pMarkedTarget, SPELL_MARK);
+                if (pMarkedTarget)
+                {
+                    DoCast(pMarkedTarget, SPELL_MARK);
+                    MarkedTargetGUID = pMarkedTarget->GetGUID();
+                }
                 else
-                    error_log("TSCR: boss_arlokk could not accuire m_pMarkedTarget.");
+                    error_log("TSCR: boss_arlokk could not accuire pMarkedTarget.");
 
                 m_uiMark_Timer = 15000;
             }

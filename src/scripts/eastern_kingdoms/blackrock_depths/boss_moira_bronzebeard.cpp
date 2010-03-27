@@ -41,13 +41,9 @@ struct boss_moira_bronzebeardAI : public ScriptedAI
     uint32 MindBlast_Timer;
     uint32 ShadowWordPain_Timer;
     uint32 Smite_Timer;
-    Unit* PlayerHolder;
-    Unit* Target;
-    bool Heal;
 
     void Reset()
     {
-        Target = NULL;
         Heal_Timer = 12000;                                 //These times are probably wrong
         MindBlast_Timer = 16000;
         ShadowWordPain_Timer = 2000;

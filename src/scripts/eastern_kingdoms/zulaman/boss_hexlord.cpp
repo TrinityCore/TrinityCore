@@ -224,8 +224,6 @@ struct boss_hex_lord_malacrassAI : public ScriptedAI
 
     uint32 PlayerClass;
 
-    Unit* SoulDrainTarget;
-
     void Reset()
     {
         if (pInstance)

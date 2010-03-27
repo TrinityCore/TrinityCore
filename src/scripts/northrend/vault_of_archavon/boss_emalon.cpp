@@ -158,16 +158,11 @@ struct mob_tempest_minionAI : public ScriptedAI
     mob_tempest_minionAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        uiEmalonGUID = pInstance ? pInstance->GetData64(DATA_EMALON) : 0;
-        pEmalon = Unit::GetCreature(*m_creature, uiEmalonGUID);
     }
 
     ScriptedInstance* pInstance;
 
     EventMap events;
-
-    uint64 uiEmalonGUID;
-    Creature* pEmalon;
 
     uint32 uiOverchargedTimer;
 
@@ -180,10 +175,13 @@ struct mob_tempest_minionAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if (pEmalon && pEmalon->isAlive())
+        if(Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
         {
-            pEmalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-            DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
+            if (pEmalon->isAlive())
+            {
+                pEmalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
+            }
         }
     }
 
@@ -192,8 +190,11 @@ struct mob_tempest_minionAI : public ScriptedAI
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-        if (pEmalon && !pEmalon->getVictim() && pEmalon->AI())
-            pEmalon->AI()->AttackStart(who);
+        if(Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
+        {
+            if (!pEmalon->getVictim() && pEmalon->AI())
+                pEmalon->AI()->AttackStart(who);
+        }
     }
 
     void UpdateAI(const uint32 diff)

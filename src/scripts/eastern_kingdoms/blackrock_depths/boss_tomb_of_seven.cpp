@@ -107,10 +107,6 @@ struct boss_doomrelAI : public ScriptedAI
     uint32 CurseOfWeakness_Timer;
     uint32 DemonArmor_Timer;
     bool Voidwalkers;
-    int Rand;
-    int RandX;
-    int RandY;
-    Creature* Summoned;
 
     void Reset()
     {

@@ -267,13 +267,17 @@ struct boss_kelthuzadAI : public BossAI
 
     std::map<uint64, float> chained;
 
-    GameObject* pPortals[4];
-    GameObject* pKTTrigger;
+    uint64 PortalsGUID[4];
+    uint64 KTTriggerGUID;
+
     SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
     void Reset()
     {
         _Reset();
+
+        PortalsGUID[0] = PortalsGUID[1] = PortalsGUID[2] = PortalsGUID[3] = 0;
+        KTTriggerGUID = 0;
 
         me->setFaction(35);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
@@ -289,7 +293,7 @@ struct boss_kelthuzadAI : public BossAI
 
         FindGameObjects();
 
-        if (pKTTrigger)
+        if (GameObject *pKTTrigger = m_creature->GetMap()->GetGameObject(KTTriggerGUID))
         {
             pKTTrigger->ResetDoorOrButton();
             pKTTrigger->SetPhaseMask(1, true);
@@ -297,10 +301,10 @@ struct boss_kelthuzadAI : public BossAI
 
         for (uint8 i = 0; i <= 3; ++i)
         {
-            if (pPortals[i])
+            if (GameObject *pPortal = m_creature->GetMap()->GetGameObject(PortalsGUID[i]))
             {
-                if (!((pPortals[i]->getLootState() == GO_READY) || (pPortals[i]->getLootState() == GO_NOT_READY)))
-                    pPortals[i]->ResetDoorOrButton();
+                if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
+                    pPortal->ResetDoorOrButton();
             }
         }
 
@@ -339,8 +343,8 @@ struct boss_kelthuzadAI : public BossAI
         FindGameObjects();
         for (uint8 i = 0; i <= 3; ++i)
         {
-            if (pPortals[i])
-                pPortals[i]->ResetDoorOrButton();
+            if (GameObject *pPortal = m_creature->GetMap()->GetGameObject(PortalsGUID[i]))
+                pPortal->ResetDoorOrButton();
         }
         DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
         DoScriptText(SAY_SUMMON_MINIONS, me);
@@ -357,11 +361,11 @@ struct boss_kelthuzadAI : public BossAI
 
     void FindGameObjects()
     {
-        pPortals[0] = instance ? instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_PORTAL01)) : NULL;
-        pPortals[1] = instance ? instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_PORTAL02)) : NULL;
-        pPortals[2] = instance ? instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_PORTAL03)) : NULL;
-        pPortals[3] = instance ? instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_PORTAL04)) : NULL;
-        pKTTrigger = instance ? instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)) : NULL;
+        PortalsGUID[0] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL01) : 0;
+        PortalsGUID[1] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL02) : 0;
+        PortalsGUID[2] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL03) : 0;
+        PortalsGUID[3] = instance ? instance->GetData64(DATA_KELTHUZAD_PORTAL04) : 0;
+        KTTriggerGUID = instance ? instance->GetData64(DATA_KELTHUZAD_TRIGGER) : 0;
     }
 
     void UpdateAI(const uint32 diff)
@@ -402,7 +406,7 @@ struct boss_kelthuzadAI : public BossAI
                             events.PopEvent();
                         break;
                     case EVENT_TRIGGER:
-                        if (pKTTrigger)    
+                        if (GameObject *pKTTrigger = m_creature->GetMap()->GetGameObject(KTTriggerGUID))    
                             pKTTrigger->SetPhaseMask(2, true);
                         events.PopEvent();
                         break;
@@ -444,8 +448,11 @@ struct boss_kelthuzadAI : public BossAI
 
                     for (uint8 i = 0; i <= 3; ++i)
                     {
-                        if (pPortals[i] && (pPortals[i]->getLootState() == GO_READY))
-                            pPortals[i]->UseDoorOrButton();
+                        if (GameObject *pPortal = m_creature->GetMap()->GetGameObject(PortalsGUID[i]))
+                        {
+                            if (pPortal->getLootState() == GO_READY)
+                                pPortal->UseDoorOrButton();
+                        }
                     }
                 }
             }

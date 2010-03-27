@@ -44,7 +44,6 @@ struct boss_ayamissAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-    Unit *pTarget;
     uint32 STINGERSPRAY_Timer;
     uint32 POISONSTINGER_Timer;
     uint32 SUMMONSWARMER_Timer;
@@ -54,7 +53,6 @@ struct boss_ayamissAI : public ScriptedAI
 
     void Reset()
     {
-        pTarget = NULL;
         STINGERSPRAY_Timer = 30000;
         POISONSTINGER_Timer = 30000;
         SUMMONSWARMER_Timer = 60000;
@@ -66,8 +64,6 @@ struct boss_ayamissAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        pTarget = who;
-        
         if (pInstance)
             pInstance->SetData(DATA_AYAMISS_EVENT, IN_PROGRESS);
     }
