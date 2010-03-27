@@ -49,7 +49,7 @@ struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
     uint32 Carnivorousbite_Timer;
     uint32 FocusFire_Timer;
 
-    Unit *focusedTarget;
+    uint64 FocusedTargetGUID;
 
     void Reset()
     {
@@ -57,7 +57,7 @@ struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
         Attractmagic_Timer = 28000;
         Carnivorousbite_Timer = 10000;
         FocusFire_Timer = 17000;
-        focusedTarget = NULL;
+        FocusedTargetGUID = 0;
     }
 
     void EnterCombat(Unit *who)
@@ -72,8 +72,8 @@ struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
             summoned->SetLevel(m_creature->getLevel());
             summoned->addUnitState(UNIT_STAT_ROOT);
 
-            if (focusedTarget)
-                summoned->AI()->AttackStart(focusedTarget);
+            if (Unit *pFocusedTarget = Unit::GetUnit(*m_creature, FocusedTargetGUID))
+                summoned->AI()->AttackStart(pFocusedTarget);
         }
     }
 
@@ -127,7 +127,7 @@ struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
             if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
             {
-                focusedTarget = pTarget;
+                FocusedTargetGUID = pTarget->GetGUID();
                 m_creature->SummonCreature(ENTRY_FOCUS_FIRE,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,5500);
 
                 // TODO: Find better way to handle emote

@@ -499,19 +499,19 @@ struct npc_dark_rider_of_acherusAI : public ScriptedAI
     uint32 PhaseTimer;
     uint32 Phase;
     bool Intro;
-    Unit *Target;
+    uint64 TargetGUID;
 
     void Reset()
     {
         PhaseTimer = 4000;
         Phase = 0;
         Intro = false;
-        Target = NULL;
+        TargetGUID = 0;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!Intro)
+        if (!Intro || !TargetGUID)
             return;
 
         if (PhaseTimer <= diff)
@@ -524,7 +524,8 @@ struct npc_dark_rider_of_acherusAI : public ScriptedAI
                     Phase = 1;
                     break;
                 case 1:
-                    DoCast(Target, DESPAWN_HORSE, true);
+                    if (Unit *pTarget = Unit::GetUnit(*m_creature, TargetGUID))
+                        DoCast(pTarget, DESPAWN_HORSE, true);
                     PhaseTimer = 3000;
                     Phase = 2;
                     break;
@@ -548,11 +549,11 @@ struct npc_dark_rider_of_acherusAI : public ScriptedAI
         if (!who)
             return;
 
-        Target = who;
+        TargetGUID = who->GetGUID();
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         m_creature->SetSpeed(MOVE_RUN, 0.4f);
-        m_creature->GetMotionMaster()->MoveChase(Target);
-        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Target->GetGUID());
+        m_creature->GetMotionMaster()->MoveChase(who);
+        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, TargetGUID);
         Intro = true;
     }
 

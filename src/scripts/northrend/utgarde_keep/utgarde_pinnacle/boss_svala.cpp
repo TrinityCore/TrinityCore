@@ -89,6 +89,7 @@ struct boss_svalaAI : public ScriptedAI
     IntroPhase Phase;
 
     TempSummon* pArthas;
+    uint64 ArthasGUID;
 
     ScriptedInstance* pInstance;
 
@@ -97,7 +98,7 @@ struct boss_svalaAI : public ScriptedAI
         Phase = IDLE;
         uiIntroTimer = 1000;
         uiIntroPhase = 0;
-        pArthas = NULL;
+        ArthasGUID = 0;
 
         if (pInstance)
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
@@ -113,10 +114,11 @@ struct boss_svalaAI : public ScriptedAI
             Phase = INTRO;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature *pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
+                ArthasGUID = pArthas->GetGUID();
             }
         }
     }
@@ -130,6 +132,7 @@ struct boss_svalaAI : public ScriptedAI
 
         if (uiIntroTimer <= diff)
         {
+            Creature *pArthas = Unit::GetCreature(*m_creature, ArthasGUID);
             if (!pArthas)
                 return;
 
@@ -171,8 +174,8 @@ struct boss_svalaAI : public ScriptedAI
                     {
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
-                        pArthas->UnSummon();
-                        pArthas = NULL;
+                        ((TempSummon*)pArthas)->UnSummon(); // TODO: should need a ToTempSummon()
+                        ArthasGUID = 0;
                         Phase = FINISHED;
                     }
                     else 

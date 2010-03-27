@@ -143,15 +143,13 @@ bool GrandChampionsOutVehicle(Creature* m_creature)
 
 struct generic_vehicleAI_toc5AI : public npc_escortAI
 {
-    generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature), pVehicle(pCreature->GetVehicleKit())
+    generic_vehicleAI_toc5AI(Creature* pCreature) : npc_escortAI(pCreature)
     {
         SetDespawnAtEnd(false);
         uiWaypointPath = 0;
 
         pInstance = pCreature->GetInstanceData();
     }
-
-    Vehicle* pVehicle;
 
     ScriptedInstance* pInstance;
 
@@ -261,11 +259,9 @@ struct generic_vehicleAI_toc5AI : public npc_escortAI
         //dosen't work at all
         if (uiShieldBreakerTimer <= uiDiff)
         {
+            Vehicle *pVehicle = m_creature->GetVehicleKit();
             if (!pVehicle)
-            {
-                pVehicle = m_creature->GetVehicleKit();
                 return;
-            }
 
             if (Unit* pPassenger = pVehicle->GetPassenger(SEAT_ID_0))
             {

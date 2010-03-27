@@ -98,7 +98,7 @@ struct boss_ragnarosAI : public ScriptedAI
     uint32 Erruption_Timer;
     uint32 Submerge_Timer;
     uint32 Attack_Timer;
-    Creature *Summoned;
+
     bool HasYelledMagmaBurst;
     bool HasSubmergedOnce;
     bool WasBanished;
