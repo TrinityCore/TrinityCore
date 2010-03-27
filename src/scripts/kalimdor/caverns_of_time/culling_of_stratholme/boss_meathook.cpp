@@ -29,21 +29,21 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_CONSTRICTING_CHAINS                              = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
-    H_SPELL_CONSTRICTING_CHAINS                            = 58823,
-    SPELL_DISEASE_EXPULSION                                = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
-    H_SPELL_DISEASE_EXPULSION                              = 58824,
-    SPELL_FRENZY                                           = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
+    SPELL_CONSTRICTING_CHAINS                   = 52696, //Encases the targets in chains, dealing 1800 Physical damage every 1 sec. and stunning the target for 5 sec.
+    H_SPELL_CONSTRICTING_CHAINS                 = 58823,
+    SPELL_DISEASE_EXPULSION                     = 52666, //Meathook belches out a cloud of disease, dealing 1710 to 1890 Nature damage and interrupting the spell casting of nearby enemy targets for 4 sec.
+    H_SPELL_DISEASE_EXPULSION                   = 58824,
+    SPELL_FRENZY                                = 58841 //Increases the caster's Physical damage by 10% for 30 sec.
 };
-//not in db
+
 enum Yells
 {
-    SAY_AGGRO                                              = -1595026,
-    SAY_SLAY_1                                             = -1595027,
-    SAY_SLAY_2                                             = -1595028,
-    SAY_SLAY_3                                             = -1595029,
-    SAY_SPAWN                                              = -1595030,
-    SAY_DEATH                                              = -1595031
+    SAY_AGGRO                                   = -1595026,
+    SAY_SLAY_1                                  = -1595027,
+    SAY_SLAY_2                                  = -1595028,
+    SAY_SLAY_3                                  = -1595029,
+    SAY_SPAWN                                   = -1595030,
+    SAY_DEATH                                   = -1595031
 };
 
 struct boss_meathookAI : public ScriptedAI

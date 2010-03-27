@@ -41,22 +41,21 @@ enum Spells
     SPELL_SUMMON_GHOULS                         = 52451
 };
 
-//not in db
 enum Yells
 {
-    SAY_AGGRO                                = -1595032,
-    SAY_SPAWN                                = -1595033,
-    SAY_SLAY_1                               = -1595034,
-    SAY_SLAY_2                               = -1595035,
-    SAY_SLAY_3                               = -1595036,
-    SAY_DEATH                                = -1595037,
-    SAY_EXPLODE_GHOUL_1                      = -1595038,
-    SAY_EXPLODE_GHOUL_2                      = -1595039,
-    SAY_STEAL_FLESH_1                        = -1595040,
-    SAY_STEAL_FLESH_2                        = -1595041,
-    SAY_STEAL_FLESH_3                        = -1595042,
-    SAY_SUMMON_GHOULS_1                      = -1595043,
-    SAY_SUMMON_GHOULS_2                      = -1595044
+    SAY_AGGRO                                   = -1595032,
+    SAY_SPAWN                                   = -1595033,
+    SAY_SLAY_1                                  = -1595034,
+    SAY_SLAY_2                                  = -1595035,
+    SAY_SLAY_3                                  = -1595036,
+    SAY_DEATH                                   = -1595037,
+    SAY_EXPLODE_GHOUL_1                         = -1595038,
+    SAY_EXPLODE_GHOUL_2                         = -1595039,
+    SAY_STEAL_FLESH_1                           = -1595040,
+    SAY_STEAL_FLESH_2                           = -1595041,
+    SAY_STEAL_FLESH_3                           = -1595042,
+    SAY_SUMMON_GHOULS_1                         = -1595043,
+    SAY_SUMMON_GHOULS_2                         = -1595044
 };
 
 struct boss_salrammAI : public ScriptedAI
@@ -64,23 +63,25 @@ struct boss_salrammAI : public ScriptedAI
     boss_salrammAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
+        if (pInstance)
+            DoScriptText(SAY_SPAWN,m_creature);
     }
 
-    uint32 Curse_flesh_Timer;
-    uint32 Explode_ghoul_Timer;
-    uint32 Shadow_bolt_Timer;
-    uint32 Steal_flesh_Timer;
-    uint32 Summon_ghouls_Timer;
+    uint32 uiCurseFleshTimer;
+    uint32 uiExplodeGhoulTimer;
+    uint32 uiShadowBoltTimer;
+    uint32 uiStealFleshTimer;
+    uint32 uiSummonGhoulsTimer;
     
     ScriptedInstance* pInstance;
 
     void Reset()
     {
-         Curse_flesh_Timer = 30000;  //30s DBM
-         Explode_ghoul_Timer = urand(25000,28000); //approx 6 sec after summon ghouls
-         Shadow_bolt_Timer = urand(8000,12000); // approx 10s
-         Steal_flesh_Timer = 12345;
-         Summon_ghouls_Timer = urand(19000,24000); //on a video approx 24s after aggro
+         uiCurseFleshTimer = 30000;  //30s DBM
+         uiExplodeGhoulTimer = urand(25000,28000); //approx 6 sec after summon ghouls
+         uiShadowBoltTimer = urand(8000,12000); // approx 10s
+         uiStealFleshTimer = 12345;
+         uiSummonGhoulsTimer = urand(19000,24000); //on a video approx 24s after aggro
          
          if (pInstance)
              pInstance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
@@ -94,8 +95,6 @@ struct boss_salrammAI : public ScriptedAI
              pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
     }
 
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -103,37 +102,37 @@ struct boss_salrammAI : public ScriptedAI
             return;
 
         //Curse of twisted flesh timer
-        if (Curse_flesh_Timer <= diff)
+        if (uiCurseFleshTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
-            Curse_flesh_Timer = 37000;
-        } else Curse_flesh_Timer -= diff;
+            uiCurseFleshTimer = 37000;
+        } else uiCurseFleshTimer -= diff;
 
         //Shadow bolt timer
-        if (Shadow_bolt_Timer <= diff)
+        if (uiShadowBoltTimer <= diff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
-            Shadow_bolt_Timer = urand(8000,12000);
-        } else Shadow_bolt_Timer -= diff;
+            uiShadowBoltTimer = urand(8000,12000);
+        } else uiShadowBoltTimer -= diff;
 
         //Steal Flesh timer
-        if (Steal_flesh_Timer <= diff)
+        if (uiStealFleshTimer <= diff)
         {
             DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), m_creature);
             if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(random_pTarget, SPELL_STEAL_FLESH);
-            Steal_flesh_Timer = 10000;
-        } else Steal_flesh_Timer -= diff;
+            uiStealFleshTimer = 10000;
+        } else uiStealFleshTimer -= diff;
 
         //Summon ghouls timer
-        if (Summon_ghouls_Timer <= diff)
+        if (uiSummonGhoulsTimer <= diff)
         {
             DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), m_creature);
             if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
-            Summon_ghouls_Timer = 10000;
-        } else Summon_ghouls_Timer -= diff;
+            uiSummonGhoulsTimer = 10000;
+        } else uiSummonGhoulsTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
