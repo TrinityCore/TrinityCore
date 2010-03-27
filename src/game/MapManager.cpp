@@ -257,7 +257,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     }
 
                     //Instance is full
-                    MapDifficulty const* mapDiff = ((InstanceMap*)player)->GetMapDifficulty();
+                    MapDifficulty const* mapDiff = ((InstanceMap*)boundedMap)->GetMapDifficulty();
                     int8 maxPlayers = mapDiff ? mapDiff->maxPlayers : 0;
                     if (maxPlayers != -1) //-1: unlimited access
                     {
