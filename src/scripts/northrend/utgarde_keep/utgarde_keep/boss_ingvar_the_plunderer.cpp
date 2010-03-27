@@ -26,20 +26,29 @@ EndScriptData */
 #include "ScriptedPch.h"
 #include "utgarde_keep.h"
 
-enum eEnums
+enum Yells
 {
     //Yells Ingvar
-    YELL_AGGRO_1                        = -1574005,
-    YELL_AGGRO_2                        = -1574006,
+    YELL_AGGRO_1                                = -1574005,
+    YELL_AGGRO_2                                = -1574006,
 
-    YELL_DEAD_1                         = -1574007,
-    YELL_DEAD_2                         = -1574008,
+    YELL_DEAD_1                                 = -1574007,
+    YELL_DEAD_2                                 = -1574008,
 
-    YELL_KILL_1                         = -1574009,
-    YELL_KILL_2                         = -1574010,
+    YELL_KILL_1                                 = -1574009,
+    YELL_KILL_2                                 = -1574010,
+};
 
-//Ingvar Spells human form
+enum Creatures
+{
     MOB_INGVAR_HUMAN                            = 23954,
+    MOB_ANNHYLDE_THE_CALLER                     = 24068,
+    MOB_INGVAR_UNDEAD                           = 23980,
+};
+
+enum Spells
+{
+    //Ingvar Spells human form
     SPELL_CLEAVE                                = 42724,
     SPELL_SMASH                                 = 42669,
     H_SPELL_SMASH                               = 59706,
@@ -48,16 +57,11 @@ enum eEnums
     SPELL_ENRAGE                                = 42705,
     H_SPELL_ENRAGE                              = 59707,
 
-    MOB_ANNHYLDE_THE_CALLER                     = 24068,
     SPELL_INGVAR_FEIGN_DEATH                    = 42795,
     SPELL_SUMMON_BANSHEE                        = 42912,
-    SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN       = 42863, //Spawn resurrecteffekt around Ingvar
+    SPELL_SCOURG_RESURRECTION                   = 42863, // Spawn resurrect effect around Ingvar
 
-    MODEL_INGVAR_UNDEAD                         = 26351,
-    MODEL_INGVAR_HUMAN                          = 21953,
-
-//Ingvar Spells undead form
-    MOB_INGVAR_UNDEAD                           = 23980,
+    //Ingvar Spells undead form
     SPELL_DARK_SMASH                            = 42723,
     SPELL_DREADFUL_ROAR                         = 42729,
     H_SPELL_DREADFUL_ROAR                       = 59734,
@@ -77,35 +81,32 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    bool undead;
-    bool event_inProgress;
+    bool bIsUndead;
+    bool bEventInProgress;
 
-    uint32 Cleave_Timer;
-    uint32 Smash_Timer;
-    uint32 Enrage_Timer;
-    uint32 Roar_Timer;
-    uint32 SpawnResTimer;
-    uint32 wait_Timer;
+    uint32 uiCleaveTimer;
+    uint32 uiSmashTimer;
+    uint32 uiEnrageTimer;
+    uint32 uiRoarTimer;
+    uint32 uiSpawnResTimer;
 
     void Reset()
     {
-        if (undead) // Visual Hack
-            m_creature->SetDisplayId(MODEL_INGVAR_HUMAN);
+        if (bIsUndead)
+            m_creature->UpdateEntry(MOB_INGVAR_HUMAN);
 
-        undead = false;
-        event_inProgress = false;
+        bIsUndead = false;
+        bEventInProgress = false;
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-        Cleave_Timer = 2000;
-        Smash_Timer = 5000;
-        Enrage_Timer = 10000;
-        Roar_Timer = 15000;
+        uiCleaveTimer = 2000;
+        uiSmashTimer = 5000;
+        uiEnrageTimer = 10000;
+        uiRoarTimer = 15000;
 
-        SpawnResTimer = 3000;
-
-        wait_Timer = 0;
+        uiSpawnResTimer = 3000;
 
         if (pInstance)
             pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
@@ -113,27 +114,26 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if (damage >= m_creature->GetHealth() && !undead)
+        if (damage >= m_creature->GetHealth() && !bIsUndead)
         {
             //DoCast(m_creature, SPELL_INGVAR_FEIGN_DEATH, true);  // Dont work ???
             // visuel hack
             m_creature->SetHealth(0);
             m_creature->InterruptNonMeleeSpells(true);
             m_creature->RemoveAllAuras();
-            m_creature->SetDisplayId(MODEL_INGVAR_UNDEAD);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             m_creature->GetMotionMaster()->MovementExpired(false);
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
             // visuel hack end
 
-            event_inProgress = true;
-            undead = true;
+            bEventInProgress = true;
+            bIsUndead = true;
 
             DoScriptText(YELL_DEAD_1,m_creature);
         }
 
-        if (event_inProgress)
+        if (bEventInProgress)
         {
             damage = 0;
         }
@@ -141,11 +141,12 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
     void StartZombiePhase()
     {
-        undead = true;
-        event_inProgress = false;
+        bIsUndead = true;
+        bEventInProgress = false;
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        m_creature->UpdateEntry(MOB_INGVAR_UNDEAD);
+        m_creature->SetInCombatWith(m_creature->getVictim());
         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-        m_creature->AI()->AttackStart(m_creature->getVictim());
 
         DoScriptText(YELL_AGGRO_2,m_creature);
     }
@@ -168,8 +169,10 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (undead) { DoScriptText(YELL_KILL_1,m_creature); }
-        else { DoScriptText(YELL_KILL_2,m_creature); }
+        if (bIsUndead) 
+            DoScriptText(YELL_KILL_1,m_creature);
+        else 
+            DoScriptText(YELL_KILL_2,m_creature);
     }
 
     void UpdateAI(const uint32 diff)
@@ -177,66 +180,55 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (event_inProgress)
+        if (bEventInProgress)
         {
-            if (SpawnResTimer)
-                if (SpawnResTimer <= diff)
+            if (uiSpawnResTimer)
+                if (uiSpawnResTimer <= diff)
                 {
-                    DoCast(m_creature, SPELL_SUMMON_BANSHEE); // Summons direktly on caster position
-                    //DoCast(m_creature, SPELL_SCOURG_RESURRECTION_EFFEKTSPAWN); // Dont needet ?
-                    SpawnResTimer = 0;
-                } else SpawnResTimer -= diff;
+                    DoCast(m_creature, SPELL_SUMMON_BANSHEE); // Summons directly on caster position
+                    // DoCast(m_creature, SPELL_SCOURG_RESURRECTION, true); // Not needed ?
+                    uiSpawnResTimer = 0;
+                } else uiSpawnResTimer -= diff;
 
             return;
         }
 
-        // This is used for a spell queue ... the spells should not castet if one spell is already casting
-        if (wait_Timer)
-            if (wait_Timer <= diff)
-            {
-                wait_Timer = 0;
-            } else wait_Timer -= diff;
-
-        if (Cleave_Timer <= diff)
+        if (uiCleaveTimer <= diff)
         {
-            if (!wait_Timer)
+            if (!m_creature->hasUnitState(UNIT_STAT_CASTING))
             {
-                if (undead)
+                if (bIsUndead)
                     DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_WOE_STRIKE, H_SPELL_WOE_STRIKE));
                 else
                     DoCast(m_creature->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = rand()%5000 + 2000;
-
-                wait_Timer = 1000;
+                uiCleaveTimer = rand()%5000 + 2000;
             }
-        } else Cleave_Timer -= diff;
+        } else uiCleaveTimer -= diff;
 
-        if (Smash_Timer <= diff)
+        if (uiSmashTimer <= diff)
         {
-            if (!wait_Timer)
+            if (!m_creature->hasUnitState(UNIT_STAT_CASTING))
             {
-                if (undead)
+                if (bIsUndead)
                     DoCast(m_creature->getVictim(), SPELL_DARK_SMASH);
                 else
                     DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SMASH, H_SPELL_SMASH));
-                Smash_Timer = 10000;
-
-                wait_Timer = 5000;
+                uiSmashTimer = 10000;
             }
-        } else Smash_Timer -= diff;
+        } else uiSmashTimer -= diff;
 
-        if (!undead)
+        if (!bIsUndead)
         {
-            if (Enrage_Timer <= diff)
+            if (uiEnrageTimer <= diff)
             {
                 DoCast(m_creature, DUNGEON_MODE(SPELL_ENRAGE, H_SPELL_ENRAGE));
-                Enrage_Timer = 10000;
-            } else Enrage_Timer -= diff;
+                uiEnrageTimer = 10000;
+            } else uiEnrageTimer -= diff;
         } else // In Undead form used to summon weapon
         {
-            if (Enrage_Timer <= diff)
+            if (uiEnrageTimer <= diff)
             {
-                if (!wait_Timer)
+                if (!m_creature->hasUnitState(UNIT_STAT_CASTING))
                 {
                     // Spawn target for Axe
                     Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
@@ -246,24 +238,22 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
                         DoCast(m_creature, SPELL_SHADOW_AXE_SUMMON);
                     }
-                    Enrage_Timer = 30000;
+                    uiEnrageTimer = 30000;
                 }
-            } else Enrage_Timer -= diff;
+            } else uiEnrageTimer -= diff;
         }
 
-        if (Roar_Timer <= diff)
+        if (uiRoarTimer <= diff)
         {
-            if (!wait_Timer)
+            if (!m_creature->hasUnitState(UNIT_STAT_CASTING))
             {
-                if (undead)
+                if (bIsUndead)
                     DoCast(m_creature, DUNGEON_MODE(SPELL_DREADFUL_ROAR, H_SPELL_DREADFUL_ROAR));
                 else
                     DoCast(m_creature, DUNGEON_MODE(SPELL_STAGGERING_ROAR, H_SPELL_STAGGERING_ROAR));
-                Roar_Timer = 10000;
-
-                wait_Timer = 5000;
+                uiRoarTimer = 10000;
             }
-        } else Roar_Timer -= diff;
+        } else uiRoarTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -271,7 +261,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
 CreatureAI* GetAI_boss_ingvar_the_plunderer(Creature* pCreature)
 {
-    return new boss_ingvar_the_plundererAI (pCreature);
+    return new boss_ingvar_the_plundererAI(pCreature);
 }
 
 enum eSpells
@@ -295,8 +285,8 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
 
     float x,y,z;
     ScriptedInstance* pInstance;
-    uint32 Resurect_Timer;
-    uint32 Resurect_Phase;
+    uint32 uiResurectTimer;
+    uint32 uiResurectPhase;
 
     void Reset()
     {
@@ -331,8 +321,8 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
                 ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
                 ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_DUMMY,true);
                 DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
-                Resurect_Timer = 8000;
-                Resurect_Phase = 1;
+                uiResurectTimer = 8000;
+                uiResurectPhase = 1;
                 break;
             case 2:
                 m_creature->SetVisibility(VISIBILITY_OFF);
@@ -348,10 +338,10 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
     void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
-        if (Resurect_Timer)
-            if (Resurect_Timer <= diff)
+        if (uiResurectTimer)
+            if (uiResurectTimer <= diff)
             {
-                if (Resurect_Phase == 1)
+                if (uiResurectPhase == 1)
                 {
                     Unit* ingvar = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
                     if (ingvar)
@@ -359,26 +349,25 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
                         ingvar->SetStandState(UNIT_STAND_STATE_STAND);
                         ingvar->CastSpell(ingvar,SPELL_SCOURG_RESURRECTION_HEAL,false);
                     }
-                    Resurect_Timer = 3000;
-                    Resurect_Phase = 2;
-                } else if (Resurect_Phase == 2)
+                    uiResurectTimer = 3000;
+                    uiResurectPhase = 2;
+                } 
+                else if (uiResurectPhase == 2)
                 {
-                    Creature* ingvar = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
-                    if (ingvar)
+                    if (Creature* ingvar = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0))
                     {
                         ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
-                        //ingvar->CastSpell(ingvar,SPELL_INGVAR_TRANSFORM,false);
-                        //ingvar->SetDisplayId(MODEL_INGVAR_UNDEAD); // Visual Hack - when he dies he becomes human model -> wrong
-                        Creature* c_ingvar = ingvar;
 
-                        CAST_AI(boss_ingvar_the_plundererAI, (c_ingvar->AI()))->StartZombiePhase();
+                        if (boss_ingvar_the_plundererAI* pAI = CAST_AI(boss_ingvar_the_plundererAI, ingvar->AI()))
+                            pAI->StartZombiePhase();
 
                         m_creature->GetMotionMaster()->MovePoint(2,x+1,y,z+30);
-                        ++Resurect_Phase;
+                        ++uiResurectPhase;
+                        uiResurectTimer = 0;
                     }
                 }
 
-            } else Resurect_Timer -= diff;
+            } else uiResurectTimer -= diff;
     }
 };
 
@@ -399,7 +388,7 @@ struct mob_ingvar_throw_dummyAI : public ScriptedAI
     {
     }
 
-    uint32 Despawn_Timer;
+    uint32 uiDespawnTimer;
 
     void Reset()
     {
@@ -411,19 +400,19 @@ struct mob_ingvar_throw_dummyAI : public ScriptedAI
             pTarget->GetPosition(x,y,z);
             m_creature->GetMotionMaster()->MovePoint(0,x,y,z);
         }
-        Despawn_Timer = 7000;
+        uiDespawnTimer = 7000;
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void EnterCombat(Unit *who) {}
     void UpdateAI(const uint32 diff)
     {
-        if (Despawn_Timer <= diff)
+        if (uiDespawnTimer <= diff)
         {
             m_creature->DealDamage(m_creature,m_creature->GetHealth());
             m_creature->RemoveCorpse();
-            Despawn_Timer = 0;
-        } else Despawn_Timer -= diff;
+            uiDespawnTimer = 0;
+        } else uiDespawnTimer -= diff;
     }
 };
 
