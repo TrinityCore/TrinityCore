@@ -209,6 +209,7 @@ class Quest
         uint32 GetCharTitleId() const { return CharTitleId; }
         uint32 GetPlayersSlain() const { return PlayersSlain; }
         uint32 GetBonusTalents() const { return BonusTalents; }
+        int32  GetRewArenaPoints() const {return RewArenaPoints; }
         uint32 GetSrcItemId() const { return SrcItemId; }
         uint32 GetSrcItemCount() const { return SrcItemCount; }
         uint32 GetSrcSpell() const { return SrcSpell; }
@@ -304,6 +305,7 @@ class Quest
         uint32 CharTitleId;
         uint32 PlayersSlain;
         uint32 BonusTalents;
+        int32  RewArenaPoints;
         int32  PrevQuestId;
         int32  NextQuestId;
         int32  ExclusiveGroup;
