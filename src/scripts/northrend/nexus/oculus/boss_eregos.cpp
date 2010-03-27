@@ -25,7 +25,7 @@ enum Spells
     SPELL_ARCANE_BARRAGE                          = 50804,
     H_SPELL_ARCANE_BARRAGE                        = 59381,
     SPELL_ARCANE_VOLLEY                           = 51153,
-    H_SPELL_ARCANE_VOLLEY                         = 59382
+    H_SPELL_ARCANE_VOLLEY                         = 59382,
     SPELL_ENRAGED_ASSAULT                         = 51170,
     SPELL_PLANAR_ANOMALIES                        = 57959,
     SPELL_PLANAR_SHIFT                            = 51162,
