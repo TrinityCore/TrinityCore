@@ -641,7 +641,7 @@ void OutdoorPvPWG::OnCreatureCreate(Creature *creature, bool add)
                 else
                     return;
 
-                if (uint32 engLowguid = GUID_LOPART(((TempSummon*)creature)->GetSummonerGUID()))
+                if (uint32 engLowguid = GUID_LOPART(creature->ToTempSummon()->GetSummonerGUID()))
                 {
                     if (OPvPCapturePointWG *workshop = GetWorkshopByEngGuid(engLowguid))
                     {

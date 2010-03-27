@@ -5456,7 +5456,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 52173: // Coyote Spirit Despawn
                 case 60243: // Blood Parrot Despawn
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isSummon())
-                        ((TempSummon*)unitTarget)->UnSummon();
+                        unitTarget->ToTempSummon()->UnSummon();
                     return;
                 // Sky Darkener Assault
                 case 52124:
@@ -5664,10 +5664,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if(chargesaura && chargesaura->GetCharges() > 1)
                     {
                         chargesaura->SetCharges(chargesaura->GetCharges() - 1);
-                        m_caster->CastSpell(unitTarget, spell_heal, true, NULL, NULL, ((TempSummon*)m_caster)->GetSummonerGUID());
+                        m_caster->CastSpell(unitTarget, spell_heal, true, NULL, NULL, m_caster->ToTempSummon()->GetSummonerGUID());
                     }
                     else
-                        ((TempSummon*)m_caster)->UnSummon();
+                        m_caster->ToTempSummon()->UnSummon();
                     return;
                 }
                 // Stoneclaw Totem

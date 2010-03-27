@@ -141,7 +141,7 @@ bool SpellClickInfo::IsFitToRequirements(Player const* player, Creature const * 
     Unit const * summoner = NULL;
     // Check summoners for party
     if (clickNpc->isSummon())
-        summoner = ((TempSummon*)clickNpc)->GetSummoner();
+        summoner = clickNpc->ToTempSummon()->GetSummoner();
     if (!summoner)
         summoner = clickNpc;
 
