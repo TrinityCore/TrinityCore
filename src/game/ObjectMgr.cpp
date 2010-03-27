@@ -3582,37 +3582,37 @@ void ObjectMgr::LoadQuests()
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, Method, ZoneOrSort, SkillOrClass, MinLevel, MaxLevel, QuestLevel, Type, RequiredRaces, RequiredSkillValue,"
     //   10                   11                 12                    13                  14                     15                   16                     17                   18                19
         "RepObjectiveFaction, RepObjectiveValue, RepObjectiveFaction2, RepObjectiveValue2, RequiredMinRepFaction, RequiredMinRepValue, RequiredMaxRepFaction, RequiredMaxRepValue, SuggestedPlayers, LimitTime,"
-    //   20          21            22           23            24            25           26           27              28                29       30         31            32
-        "QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, RewXPId, SrcItemId, SrcItemCount, SrcSpell,"
-    //   33     34       35          36               37                38       39              40              41              42              43
+    //   20          21            22           23            24            25                  26           27          28              29                30       31         32            33
+        "QuestFlags, SpecialFlags, CharTitleId, PlayersSlain, BonusTalents, RewardArenaPoints, PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestInChain, RewXPId, SrcItemId, SrcItemCount, SrcSpell,"
+    //   34     35       36          37               38                39       40              41              42              43              44
         "Title, Details, Objectives, OfferRewardText, RequestItemsText, EndText, CompletedText,  ObjectiveText1, ObjectiveText2, ObjectiveText3, ObjectiveText4,"
-    //   44          45          46          47          48          49          50             51             52             53             54             55
+    //   45          46          47          48          49          50          51             52             53             54             55             56
         "ReqItemId1, ReqItemId2, ReqItemId3, ReqItemId4, ReqItemId5, ReqItemId6, ReqItemCount1, ReqItemCount2, ReqItemCount3, ReqItemCount4, ReqItemCount5, ReqItemCount6,"
-    //   56            57            58            59            60              61               62               63
+    //   57            58            59            60            61               62               63               64
         "ReqSourceId1, ReqSourceId2, ReqSourceId3, ReqSourceId4, ReqSourceCount1, ReqSourceCount2, ReqSourceCount3, ReqSourceCount4,"
-    //   64                  65                  66                  67                  68                     69                     70                   71
+    //   65                  66                  67                  68                  69                     70                     71                     72
         "ReqCreatureOrGOId1, ReqCreatureOrGOId2, ReqCreatureOrGOId3, ReqCreatureOrGOId4, ReqCreatureOrGOCount1, ReqCreatureOrGOCount2, ReqCreatureOrGOCount3, ReqCreatureOrGOCount4,"
-    //   72             73             74             75
+    //   73             74             75             76
         "ReqSpellCast1, ReqSpellCast2, ReqSpellCast3, ReqSpellCast4,"
-    //   76                77                78                79                80                81
+    //   77                78                79                80                81                82
         "RewChoiceItemId1, RewChoiceItemId2, RewChoiceItemId3, RewChoiceItemId4, RewChoiceItemId5, RewChoiceItemId6,"
-    //   82                   83                   84                   85                   86                   87
+    //   83                   84                   85                   86                   87                   88
         "RewChoiceItemCount1, RewChoiceItemCount2, RewChoiceItemCount3, RewChoiceItemCount4, RewChoiceItemCount5, RewChoiceItemCount6,"
-    //   88          89          90          91          92             93             94             95
+    //   89          90          91          92          93             94             95             96
         "RewItemId1, RewItemId2, RewItemId3, RewItemId4, RewItemCount1, RewItemCount2, RewItemCount3, RewItemCount4,"
-    //   96              97              98              99              100             101             102             103             104             105
+    //   97              98              99              100             101             102             103             104             105             106
         "RewRepFaction1, RewRepFaction2, RewRepFaction3, RewRepFaction4, RewRepFaction5, RewRepValueId1, RewRepValueId2, RewRepValueId3, RewRepValueId4, RewRepValueId5,"
-    //   106           107           108           109           110
+    //   107           108           109           110           111
         "RewRepValue1, RewRepValue2, RewRepValue3, RewRepValue4, RewRepValue5,"
-    //   111               112                 113            114               115       116           117                118               119         120     121     122
+    //   112               113                 114            115               116       117           118                119               120         121     122     123
         "RewHonorAddition, RewHonorMultiplier, RewOrReqMoney, RewMoneyMaxLevel, RewSpell, RewSpellCast, RewMailTemplateId, RewMailDelaySecs, PointMapId, PointX, PointY, PointOpt,"
-    //   123            124            125            126            127                 128                 129                 130
+    //   124            125            126            127            128                 129                 130                 131
         "DetailsEmote1, DetailsEmote2, DetailsEmote3, DetailsEmote4, DetailsEmoteDelay1, DetailsEmoteDelay2, DetailsEmoteDelay3, DetailsEmoteDelay4,"
-    //   131              132            135                134                135                136
+    //   132              133            134                135                136                137
         "IncompleteEmote, CompleteEmote, OfferRewardEmote1, OfferRewardEmote2, OfferRewardEmote3, OfferRewardEmote4,"
-    //   137                     138                     139                     140
+    //   138                     139                     140                     141
         "OfferRewardEmoteDelay1, OfferRewardEmoteDelay2, OfferRewardEmoteDelay3, OfferRewardEmoteDelay4,"
-    //   141          142
+    //   142          143
         "StartScript, CompleteScript"
         " FROM quest_template");
     if(result == NULL)
