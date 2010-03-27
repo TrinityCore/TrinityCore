@@ -231,6 +231,13 @@ void AddSC_boss_chrono_lord_deja();
 void AddSC_boss_temporus();
 void AddSC_dark_portal();
 void AddSC_instance_dark_portal();
+void AddSC_boss_epoch();                     //CoT Culling Of Stratholme
+void AddSC_boss_infinite_corruptor();
+void AddSC_boss_salramm();
+void AddSC_boss_mal_ganis();
+void AddSC_boss_meathook();
+void AddSC_culling_of_stratholme();
+void AddSC_instance_culling_of_stratholme();
 void AddSC_boss_celebras_the_cursed();       //Maraudon
 void AddSC_boss_landslide();
 void AddSC_boss_noxxion();
@@ -704,6 +711,13 @@ void AddScripts()
     AddSC_boss_temporus();
     AddSC_dark_portal();
     AddSC_instance_dark_portal();
+    AddSC_boss_epoch();                     //CoT Culling Of Stratholme
+    AddSC_boss_infinite_corruptor();
+    AddSC_boss_salramm();
+    AddSC_boss_mal_ganis();
+    AddSC_boss_meathook();
+    AddSC_culling_of_stratholme();
+    AddSC_instance_culling_of_stratholme();
     AddSC_boss_celebras_the_cursed();       //Maraudon
     AddSC_boss_landslide();
     AddSC_boss_noxxion();

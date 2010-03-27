@@ -30,30 +30,24 @@ Script Data End */
 
 enum Spells
 {
-    SPELL_CURSE_OF_EXERTION                   = 52772,
-    SPELL_TIME_WARP                           = 52766, //Time slows down, reducing attack, casting and movement speed by 70% for 6 sec.
-    SPELL_TIME_STOP                           = 58848, //Stops time in a 50 yard sphere for 2 sec.
-    SPELL_WOUNDING_STRIKE                     = 52771, //Used only on the tank
-    H_SPELL_WOUNDING_STRIKE                   = 58830
+    SPELL_CURSE_OF_EXERTION                     = 52772,
+    SPELL_TIME_WARP                             = 52766, //Time slows down, reducing attack, casting and movement speed by 70% for 6 sec.
+    SPELL_TIME_STOP                             = 58848, //Stops time in a 50 yard sphere for 2 sec.
+    SPELL_WOUNDING_STRIKE                       = 52771, //Used only on the tank
+    H_SPELL_WOUNDING_STRIKE                     = 58830
 };
 
-//not in db
 enum Yells
 {
-    SAY_INTRO                                = -1595000, //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
-    SAY_AGGRO                                = -1595001, //"We'll see about that, young prince."
-    SAY_TIME_WARP_1                          = -1595002, //"Tick tock, tick tock..."
-    SAY_TIME_WARP_2                          = -1595003, //"Not quick enough!"
-    SAY_TIME_WARP_3                          = -1595004, //"Let's get this over with. "
-    SAY_SLAY_1                               = -1595005, //"There is no future for you."
-    SAY_SLAY_2                               = -1595006, //"This is the hour of our greatest triumph!"
-    SAY_SLAY_3                               = -1595007, //"You were destined to fail. "
-    SAY_DEATH                                = -1595008 //"*gurgles*"
-};
-enum CombatPhases
-{
-    INTRO,
-    COMBAT
+    SAY_INTRO                                   = -1595000, //"Prince Arthas Menethil, on this day, a powerful darkness has taken hold of your soul. The death you are destined to visit upon others will this day be your own."
+    SAY_AGGRO                                   = -1595001, //"We'll see about that, young prince."
+    SAY_TIME_WARP_1                             = -1595002, //"Tick tock, tick tock..."
+    SAY_TIME_WARP_2                             = -1595003, //"Not quick enough!"
+    SAY_TIME_WARP_3                             = -1595004, //"Let's get this over with. "
+    SAY_SLAY_1                                  = -1595005, //"There is no future for you."
+    SAY_SLAY_2                                  = -1595006, //"This is the hour of our greatest triumph!"
+    SAY_SLAY_3                                  = -1595007, //"You were destined to fail. "
+    SAY_DEATH                                   = -1595008 //"*gurgles*"
 };
 
 struct boss_epochAI : public ScriptedAI
@@ -71,8 +65,6 @@ struct boss_epochAI : public ScriptedAI
     uint32 uiTimeStopTimer;
     uint32 uiCurseOfExertionTimer;
 
-    CombatPhases Phase;
-    
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -98,11 +90,6 @@ struct boss_epochAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (Phase == INTRO)
-        {
-            return;
-        }
-        
         //Return since we have no target
         if (!UpdateVictim())
             return;

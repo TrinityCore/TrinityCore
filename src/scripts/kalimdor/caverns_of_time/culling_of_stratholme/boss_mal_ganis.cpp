@@ -32,35 +32,34 @@ update creature_template set scriptname = 'boss_mal_ganis' where entry = '';
 
 enum Spells
 {
-    SPELL_CARRION_SWARM                           = 52720, //A cresting wave of chaotic magic splashes over enemies in front of the caster, dealing 3230 to 3570 Shadow damage and 380 to 420 Shadow damage every 3 sec. for 15 sec.
-    H_SPELL_CARRION_SWARM                         = 58852,
-    SPELL_MIND_BLAST                              = 52722, //Inflicts 4163 to 4837 Shadow damage to an enemy.
-    H_SPELL_MIND_BLAST                            = 58850,
-    SPELL_SLEEP                                   = 52721, //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
-    H_SPELL_SLEEP                                 = 58849,
-    SPELL_VAMPIRIC_TOUCH                          = 52723 //Heals the caster for half the damage dealt by a melee attack.
+    SPELL_CARRION_SWARM                         = 52720, //A cresting wave of chaotic magic splashes over enemies in front of the caster, dealing 3230 to 3570 Shadow damage and 380 to 420 Shadow damage every 3 sec. for 15 sec.
+    H_SPELL_CARRION_SWARM                       = 58852,
+    SPELL_MIND_BLAST                            = 52722, //Inflicts 4163 to 4837 Shadow damage to an enemy.
+    H_SPELL_MIND_BLAST                          = 58850,
+    SPELL_SLEEP                                 = 52721, //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
+    H_SPELL_SLEEP                               = 58849,
+    SPELL_VAMPIRIC_TOUCH                        = 52723 //Heals the caster for half the damage dealt by a melee attack.
 };
 
-//not in db
 enum Yells
 {
-    SAY_INTRO_1                                  = -1595009,
-    SAY_INTRO_2                                  = -1595010,
-    SAY_OUTRO                                    = -1595011,
-    SAY_AGGRO                                    = -1595012,
-    SAY_KILL_1                                   = -1595013,
-    SAY_KILL_2                                   = -1595014,
-    SAY_KILL_3                                   = -1595015,
-    SAY_SLAY_1                                   = -1595016,
-    SAY_SLAY_2                                   = -1595017,
-    SAY_SLAY_3                                   = -1595018,
-    SAY_SLAY_4                                   = -1595019,
-    SAY_SLEEP_1                                  = -1595020,
-    SAY_SLEEP_2                                  = -1595021,
-    SAY_30HEALTH                                 = -1595022,
-    SAY_15HEALTH                                 = -1595023,
-    SAY_ESCAPE_SPEECH_1                          = -1595024,
-    SAY_ESCAPE_SPEECH_2                          = -1595025
+    SAY_INTRO_1                                 = -1595009,
+    SAY_INTRO_2                                 = -1595010,
+    SAY_AGGRO                                   = -1595011,
+    SAY_KILL_1                                  = -1595012,
+    SAY_KILL_2                                  = -1595013,
+    SAY_KILL_3                                  = -1595014,
+    SAY_SLAY_1                                  = -1595015,
+    SAY_SLAY_2                                  = -1595016,
+    SAY_SLAY_3                                  = -1595017,
+    SAY_SLAY_4                                  = -1595018,
+    SAY_SLEEP_1                                 = -1595019,
+    SAY_SLEEP_2                                 = -1595020,
+    SAY_30HEALTH                                = -1595021,
+    SAY_15HEALTH                                = -1595022,
+    SAY_ESCAPE_SPEECH_1                         = -1595023,
+    SAY_ESCAPE_SPEECH_2                         = -1595024,
+    SAY_OUTRO                                   = -1595025,
 };
 
 enum CombatPhases
@@ -82,6 +81,7 @@ struct boss_mal_ganisAI : public ScriptedAI
     uint32 uiSleepTimer;
 
     uint8 uiOutroStep;
+    uint32 uiOutroTimer;
 
     bool bYelled;
     bool bYelled2;
@@ -101,6 +101,7 @@ struct boss_mal_ganisAI : public ScriptedAI
          uiMindBlastTimer = 11000;
          uiVampiricTouchTimer = urand(10000,15000);
          uiSleepTimer = urand(15000,20000);
+         uiOutroTimer = 1000;
          
          if (pInstance)
              pInstance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
@@ -114,6 +115,12 @@ struct boss_mal_ganisAI : public ScriptedAI
         
         if (pInstance)
             pInstance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
+    }
+
+    void DamageTaken(Unit *done_by, uint32 &damage)
+    {
+        if (damage >= m_creature->GetHealth() && done_by != m_creature)
+            damage = m_creature->GetHealth()-1;
     }
 
     void UpdateAI(const uint32 diff)
@@ -164,16 +171,18 @@ struct boss_mal_ganisAI : public ScriptedAI
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
+                    uiMindBlastTimer = 6000;
                 } else uiMindBlastTimer -= diff;
 
                 if (uiVampiricTouchTimer < diff)
                 {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, SPELL_VAMPIRIC_TOUCH);
+                    DoCast(m_creature, SPELL_VAMPIRIC_TOUCH);
+                    uiVampiricTouchTimer = 32000;
                 } else uiVampiricTouchTimer -= diff;
 
                 if (uiSleepTimer < diff)
                 {
+                    DoScriptText(RAND(SAY_SLEEP_1,SAY_SLEEP_2), m_creature);
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
                     uiSleepTimer = urand(15000,20000);
@@ -181,13 +190,57 @@ struct boss_mal_ganisAI : public ScriptedAI
 
                 DoMeleeAttackIfReady();
                 break;
+            case OUTRO:
+                if (uiOutroTimer < diff)
+                {
+                    switch(uiOutroStep)
+                    {
+                        case 1:
+                            DoScriptText(SAY_ESCAPE_SPEECH_1, m_creature);
+                            me->GetMotionMaster()->MoveTargetedHome();
+                            ++uiOutroStep;
+                            uiOutroTimer = 8000;
+                            break;
+                        case 2:
+                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pArthas->GetGUID());
+                            m_creature->HandleEmoteCommand(29);
+                            DoScriptText(SAY_ESCAPE_SPEECH_2, m_creature);
+                            ++uiOutroStep;
+                            uiOutroTimer = 9000;
+                            break;
+                        case 3:
+                            DoScriptText(SAY_OUTRO, m_creature);
+                            ++uiOutroStep;
+                            uiOutroTimer = 16000;
+                            break;
+                        case 4:
+                            m_creature->HandleEmoteCommand(33);
+                            ++uiOutroStep;
+                            uiOutroTimer = 500;
+                            break;
+                        case 5:
+                            m_creature->SetVisibility(VISIBILITY_OFF);
+                            m_creature->Kill(m_creature);
+                            break;
+                            
+                    }
+                } else uiOutroTimer -= diff;
+                break;
         }
     }
+
     void JustDied(Unit* killer)
     {
         if (pInstance)
-             pInstance->SetData(DATA_MAL_GANIS_EVENT, DONE);
+        {
+            pInstance->SetData(DATA_MAL_GANIS_EVENT, DONE);
+
+            // give achievement credit to players. criteria use spell 58630 which doesn't exist.
+            if (pInstance)
+                pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 58630);
+        }
     }
+
     void KilledUnit(Unit *victim)
     {
         if (victim == m_creature)

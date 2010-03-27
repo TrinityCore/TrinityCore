@@ -42,9 +42,10 @@ struct instance_culling_of_stratholme : public ScriptedInstance
     uint64 uiShkafGate;
     uint64 uiMalGanisGate1;
     uint64 uiMalGanisGate2;
+    uint64 uiExitGate;
     uint64 uiMalGanisChest;
     
-    uint8 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
     
     bool IsEncounterInProgress() const
@@ -90,8 +91,16 @@ struct instance_culling_of_stratholme : public ScriptedInstance
             case GO_MALGANIS_GATE_2:
                 uiMalGanisGate2 = pGo->GetGUID();
                 break;
-            case GO_MALGANIS_CHEST:
+            case GO_EXIT_GATE:
+                uiExitGate = pGo->GetGUID();
+                if (m_auiEncounter[3] == DONE)
+                    HandleGameObject(uiExitGate,true);
+                break;
+            case GO_MALGANIS_CHEST_N:
+			case GO_MALGANIS_CHEST_H:
                 uiMalGanisChest = pGo->GetGUID();
+                if (m_auiEncounter[3] == DONE)
+                    pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
                 break;
         }
     }
@@ -111,9 +120,21 @@ struct instance_culling_of_stratholme : public ScriptedInstance
                 break;
             case DATA_MAL_GANIS_EVENT:
                 m_auiEncounter[3] = data;
-                GameObject *pGate;
-                if (data == IN_PROGRESS && (pGate = instance->GetGameObject(uiMalGanisGate2)))
-                    pGate->SetGoState(GO_STATE_READY);
+
+                switch(m_auiEncounter[3])
+                {
+                    case NOT_STARTED:
+                        HandleGameObject(uiMalGanisGate2,true);
+                        break;
+                    case IN_PROGRESS:
+                        HandleGameObject(uiMalGanisGate2,false);
+                        break;
+                    case DONE:
+                        HandleGameObject(uiExitGate, true);
+                        if (GameObject *pGo = instance->GetGameObject(uiMalGanisChest))
+                            pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+                        break;
+                }
                 break;
             case DATA_INFINITE_EVENT:
                 m_auiEncounter[4] = data;
@@ -146,8 +167,10 @@ struct instance_culling_of_stratholme : public ScriptedInstance
             case DATA_EPOCH:                      return uiEpoch;
             case DATA_MAL_GANIS:                  return uiMalGanis;
             case DATA_INFINITE:                   return uiInfinite;
+            case DATA_SHKAF_GATE:                 return uiShkafGate;
             case DATA_MAL_GANIS_GATE_1:           return uiMalGanisGate1;
             case DATA_MAL_GANIS_GATE_2:           return uiMalGanisGate2;
+            case DATA_EXIT_GATE:                  return uiExitGate;
             case DATA_MAL_GANIS_CHEST:            return uiMalGanisChest;
         }
         return 0;
