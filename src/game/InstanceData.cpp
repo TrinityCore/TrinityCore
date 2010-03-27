@@ -313,13 +313,19 @@ void InstanceData::DoSendNotifyToInstance(const char *format, ...)
 // Complete Achievement for all players in instance
 void InstanceData::DoCompleteAchievement(uint32 achievement)
 {
-    AchievementEntry const* AE = GetAchievementStore()->LookupEntry(achievement);
+    AchievementEntry const* pAE = GetAchievementStore()->LookupEntry(achievement);
     Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!pAE)
+    {
+        error_log("TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
+        return;
+    }
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             if (Player *pPlayer = i->getSource())
-                pPlayer->CompletedAchievement(AE);
+                pPlayer->CompletedAchievement(pAE);
 }
 
 // Update Achievement Criteria for all players in instance

@@ -47,10 +47,7 @@ enum Misc
 };
 #define DATA_SPHERE_ANGLE_OFFSET            0.7
 #define DATA_GROUND_POSITION_Z             11.4
-enum Achievements
-{
-    ACHIEV_THE_PARTY_IS_OVER                      = 1861
-};
+
 enum Yells
 {
     SAY_AGGRO                                     = -1619021,
@@ -262,16 +259,7 @@ struct boss_taldaramAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (pInstance)
-        {
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
-
-            if (IsHeroic())
-            {
-                Map::PlayerList const &players = pInstance->instance->GetPlayers();
-                if (players.getSize() < 5)
-                    pInstance->DoCompleteAchievement(ACHIEV_THE_PARTY_IS_OVER);
-            }
-        }
     }
 
     void KilledUnit(Unit *victim)
