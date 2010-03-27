@@ -221,6 +221,7 @@ SET(scripts_STAT_SRCS
    kalimdor/caverns_of_time/culling_of_stratholme/boss_mal_ganis.cpp
    kalimdor/caverns_of_time/culling_of_stratholme/boss_salramm.cpp
    kalimdor/caverns_of_time/culling_of_stratholme/boss_infinite.cpp
+   kalimdor/caverns_of_time/culling_of_stratholme/culling_of_stratholme.cpp
    kalimdor/caverns_of_time/culling_of_stratholme/culling_of_stratholme.h
    kalimdor/caverns_of_time/dark_portal/dark_portal.h
    kalimdor/caverns_of_time/dark_portal/instance_dark_portal.cpp

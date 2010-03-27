@@ -2792,6 +2792,10 @@
 							>
 						</File>
 						<File
+							RelativePath="..\..\src\scripts\kalimdor\caverns_of_time\culling_of_stratholme\culling_of_stratholme.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\..\src\scripts\kalimdor\caverns_of_time\culling_of_stratholme\culling_of_stratholme.h"
 							>
 						</File>

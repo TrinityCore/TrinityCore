@@ -25,7 +25,8 @@ enum Data
     DATA_SALRAMM_EVENT,
     DATA_EPOCH_EVENT,
     DATA_MAL_GANIS_EVENT,
-    DATA_INFINITE_EVENT
+    DATA_INFINITE_EVENT,
+    DATA_ARTHAS_EVENT
 };
 
 enum Data64
@@ -38,17 +39,20 @@ enum Data64
     DATA_SHKAF_GATE,
     DATA_MAL_GANIS_GATE_1,
     DATA_MAL_GANIS_GATE_2,
+    DATA_EXIT_GATE,
     DATA_MAL_GANIS_CHEST
 };
 
 enum Creatures
 {
-    NPC_MEATHOOK                                           = 26529,
-    NPC_SALRAMM                                            = 26530,
-    NPC_EPOCH                                              = 26532,
-    NPC_MAL_GANIS                                          = 26533,
-    NPC_INFINITE                                           = 32273,
-    NPC_ARTHAS                                             = 26499
+    NPC_MEATHOOK           = 26529,           
+    NPC_SALRAMM            = 26530,
+    NPC_EPOCH              = 26532,
+    NPC_MAL_GANIS          = 26533,
+    NPC_INFINITE           = 32273,
+    NPC_ARTHAS             = 26499,
+    NPC_JAINA              = 26497,
+    NPC_UTHER              = 26528
 };
 
 enum GameObjects
@@ -56,6 +60,8 @@ enum GameObjects
     GO_SHKAF_GATE                                          = 188686,
     GO_MALGANIS_GATE_1                                     = 187711,
     GO_MALGANIS_GATE_2                                     = 187723,
-    GO_MALGANIS_CHEST                                      = 190663
+    GO_EXIT_GATE                                           = 191788,
+    GO_MALGANIS_CHEST_N                                    = 190663,
+	GO_MALGANIS_CHEST_H                                    = 193597
 };
 #endif

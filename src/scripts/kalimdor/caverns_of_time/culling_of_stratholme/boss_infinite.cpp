@@ -21,13 +21,21 @@
 
 enum Spells
 {
-    SPELL_CORRUPTING_BLIGHT           = 60588,
-    SPELL_VOID_STRIKE                 = 60590
+    SPELL_CORRUPTING_BLIGHT                     = 60588,
+    SPELL_VOID_STRIKE                           = 60590
 };
 
-struct boss_infiniteAI : public ScriptedAI
+enum Yells
 {
-    boss_infiniteAI(Creature *c) : ScriptedAI(c)
+    SAY_AGGRO                                   = -1595045,
+    SAY_FAIL                                    = -1595046,
+    SAY_DEATH                                   = -1595047
+};
+
+
+struct boss_infinite_corruptorAI : public ScriptedAI
+{
+    boss_infinite_corruptorAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
@@ -64,17 +72,17 @@ struct boss_infiniteAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_infinite(Creature* pCreature)
+CreatureAI* GetAI_boss_infinite_corruptor(Creature* pCreature)
 {
-    return new boss_infiniteAI (pCreature);
+    return new boss_infinite_corruptorAI(pCreature);
 }
 
-void AddSC_infinite_epoch()
+void AddSC_boss_infinite_corruptor()
 {
     Script *newscript;
 
     newscript = new Script;
-    newscript->Name = "boss_infinite";
-    newscript->GetAI = &GetAI_boss_infinite;
+    newscript->Name = "boss_infinite_corruptor";
+    newscript->GetAI = &GetAI_boss_infinite_corruptor;
     newscript->RegisterSelf();
 }
