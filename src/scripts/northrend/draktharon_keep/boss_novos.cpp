@@ -246,7 +246,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
             CAST_AI(boss_novosAI,pNovos->AI())->RemoveCrystal();
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
