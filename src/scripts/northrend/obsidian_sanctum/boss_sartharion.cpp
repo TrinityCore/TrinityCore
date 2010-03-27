@@ -200,7 +200,6 @@ Locations TwilightEggsSarth[] =
     {3257.41, 512.939 , 58.5432},
     {3231.04, 498.281 , 58.6439}
 };
-uint32 achievProgress;
 
 /*######
 ## Boss Sartharion
@@ -234,6 +233,8 @@ struct boss_sartharionAI : public ScriptedAI
     bool m_bHasCalledTenebron;
     bool m_bHasCalledShadron;
     bool m_bHasCalledVesperon;
+
+    uint32 achievProgress;
 
     void Reset()
     {
@@ -289,9 +290,9 @@ struct boss_sartharionAI : public ScriptedAI
 
         if (pInstance)
         {
-            if (achievProgress == 1)
+            if (achievProgress >= 1)
               pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ASSIST,H_ACHIEV_TWILIGHT_ASSIST));
-            else if (achievProgress == 2)
+            else if (achievProgress >= 2)
               pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_DUO,H_ACHIEV_TWILIGHT_DUO));
             else if (achievProgress == 3)
               pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
@@ -827,8 +828,8 @@ struct mob_tenebronAI : public dummy_dragonAI
     void KilledUnit(Unit* pVictim)
     {
         DoScriptText(RAND(SAY_TENEBRON_SLAY_1,SAY_TENEBRON_SLAY_2), m_creature);
-        if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
-            achievProgress = 1;
+        /*if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+            achievProgress = 1;*/
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -914,8 +915,8 @@ struct mob_shadronAI : public dummy_dragonAI
     void KilledUnit(Unit* pVictim)
     {
         DoScriptText(RAND(SAY_SHADRON_SLAY_1,SAY_SHADRON_SLAY_2), m_creature);
-        if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
-            achievProgress = 2;
+        /*if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+            achievProgress = 2;*/
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -998,8 +999,8 @@ struct mob_vesperonAI : public dummy_dragonAI
     void KilledUnit(Unit* pVictim)
     {
         DoScriptText(RAND(SAY_VESPERON_SLAY_1,SAY_VESPERON_SLAY_2), m_creature);
-        if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
-            achievProgress = 3;
+        /*if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+            achievProgress = 3;*/
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -1260,12 +1261,15 @@ CreatureAI* GetAI_mob_twilight_eggs(Creature* pCreature)
     return new mob_twilight_eggsAI(pCreature);
 }
 
-// Flame Tzunami
+/*######
+## Flame Tzunami
+######*/
 struct npc_flame_tsunamiAI : public ScriptedAI
 {
     npc_flame_tsunamiAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_creature->HasAura(57492);
+        m_creature->HasAura(SPELL_FLAME_TSUNAMI_DMG_AURA);
+        DoCast(m_creature, SPELL_FLAME_TSUNAMI);
     }
 
     uint32 Tsunami_Timer;
