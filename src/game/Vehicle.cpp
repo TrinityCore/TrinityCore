@@ -105,7 +105,7 @@ void Vehicle::Uninstall()
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if(Unit *passenger = itr->second.passenger)
             if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
-                ((TempSummon*)passenger)->UnSummon();
+                passenger->ToTempSummon()->UnSummon();
     RemoveAllPassengers();
 }
 

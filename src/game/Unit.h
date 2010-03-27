@@ -1957,8 +1957,10 @@ class Unit : public WorldObject
         void OutDebugInfo() const;
         virtual bool isBeingLoaded() const { return false;}
 
-	Pet* ToPet(){ if(isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
+        Pet* ToPet(){ if(isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
 		Totem* ToTotem(){ if(isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
+        TempSummon* ToTempSummon() { if(isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
+        const TempSummon* ToTempSummon() const { if(isSummon()) return reinterpret_cast<const TempSummon*>(this); else return NULL; }
 
     protected:
         explicit Unit ();

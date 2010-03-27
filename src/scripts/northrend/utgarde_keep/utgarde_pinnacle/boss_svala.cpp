@@ -174,7 +174,7 @@ struct boss_svalaAI : public ScriptedAI
                     {
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
-                        ((TempSummon*)pArthas)->UnSummon(); // TODO: should need a ToTempSummon()
+                        pArthas->ToTempSummon()->UnSummon();
                         ArthasGUID = 0;
                         Phase = FINISHED;
                     }
