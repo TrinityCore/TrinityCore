@@ -33,6 +33,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
 {
     instance_culling_of_stratholme(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
     
+    uint64 uiArthas;
     uint64 uiMeathook;
     uint64 uiSalramm;
     uint64 uiEpoch;
@@ -60,6 +61,9 @@ struct instance_culling_of_stratholme : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
+            case NPC_ARTHAS:
+                uiArthas = pCreature->GetGUID();
+                break;
             case NPC_MEATHOOK:
                 uiMeathook = pCreature->GetGUID();
                 break;
@@ -162,6 +166,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
     {
         switch(identifier)
         {
+            case DATA_ARTHAS:                     return uiArthas;
             case DATA_MEATHOOK:                   return uiMeathook;
             case DATA_SALRAMM:                    return uiSalramm;
             case DATA_EPOCH:                      return uiEpoch;

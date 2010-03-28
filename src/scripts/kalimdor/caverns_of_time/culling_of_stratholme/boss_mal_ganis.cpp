@@ -86,7 +86,6 @@ struct boss_mal_ganisAI : public ScriptedAI
     bool bYelled;
     bool bYelled2;
 
-    Creature *pArthas;
     CombatPhases Phase;
          
     ScriptedInstance* pInstance;
@@ -95,7 +94,6 @@ struct boss_mal_ganisAI : public ScriptedAI
     {
          bYelled = false;
          bYelled2 = false;
-         pArthas = NULL;
          Phase = COMBAT;
          uiCarrionSwarmTimer = 6000;
          uiMindBlastTimer = 11000;
@@ -110,9 +108,6 @@ struct boss_mal_ganisAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-
-        pArthas = GetClosestCreatureWithEntry(m_creature, NPC_ARTHAS, 150.0f);
-        
         if (pInstance)
             pInstance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
     }
@@ -153,13 +148,14 @@ struct boss_mal_ganisAI : public ScriptedAI
                     return;
                 }
 
-                if (pArthas && pArthas->isDead())
-                {
-                    EnterEvadeMode();
-                    m_creature->DisappearAndDie();
-                    if (pInstance)
-                        pInstance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
-                }
+                if (Creature* pArthas = m_creature->GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0))
+                    if (pArthas->isDead())
+                    {
+                        EnterEvadeMode();
+                        m_creature->DisappearAndDie();
+                        if (pInstance)
+                            pInstance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
+                    }
 
                 if (uiCarrionSwarmTimer < diff)
                 {
@@ -202,7 +198,7 @@ struct boss_mal_ganisAI : public ScriptedAI
                             uiOutroTimer = 8000;
                             break;
                         case 2:
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pArthas->GetGUID());
+                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0);
                             m_creature->HandleEmoteCommand(29);
                             DoScriptText(SAY_ESCAPE_SPEECH_2, m_creature);
                             ++uiOutroStep;
