@@ -31,6 +31,7 @@ enum Data
 
 enum Data64
 {
+    DATA_ARTHAS,
     DATA_MEATHOOK,
     DATA_SALRAMM,
     DATA_EPOCH,
