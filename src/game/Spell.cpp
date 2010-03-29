@@ -1027,8 +1027,9 @@ void Spell::AddItemTarget(Item* pitem, uint32 effIndex)
 
 void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
-    if (!target || target == (TargetInfo*)0x10 || target->processed)
+    if (!target || target->processed)
         return;
+
     target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
