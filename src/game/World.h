@@ -414,6 +414,7 @@ enum RealmZone
 
 //trinity only
 #define SCRIPT_COMMAND_ORIENTATION          30              // o = orientation
+#define SCRIPT_COMMAND_EQUIP                31              // datalong = equipment id
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
