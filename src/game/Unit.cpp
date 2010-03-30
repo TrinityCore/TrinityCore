@@ -13734,19 +13734,20 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                 case SPELL_AURA_MOD_STUN:
                 case SPELL_AURA_MOD_ROOT:
                 case SPELL_AURA_TRANSFORM:
-                    if (isVictim && damage)
+                {
+                    // chargeable mods are breaking on hit
+                    if (useCharges)
+                        takeCharges = true;
+                    else
                     {
-                        // Damage is dealt after proc system - lets ignore auras which wasn't updated yet
-                        // to make spell not remove its own aura
-                        if (i->aura->GetDuration() == i->aura->GetMaxDuration())
-                            break;
                         int32 damageLeft = triggeredByAura->GetAmount();
                         // No damage left
-                        if (damageLeft < damage )
+                        if (damageLeft < damage)
                             i->aura->Remove();
                         else
-                            triggeredByAura->SetAmount(damageLeft-damage);
+                            triggeredByAura->SetAmount(damageLeft - damage);
                     }
+                }
                     break;
                 //case SPELL_AURA_ADD_FLAT_MODIFIER:
                 //case SPELL_AURA_ADD_PCT_MODIFIER:
