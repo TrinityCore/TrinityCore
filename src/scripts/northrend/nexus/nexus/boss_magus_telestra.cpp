@@ -163,13 +163,33 @@ struct boss_magus_telestraAI : public ScriptedAI
         return 0;
     }
 
+    void SummonedCreatureDespawn(Creature *summon)
+    {
+        if (summon->isAlive())
+            return;
+
+        if (summon->GetGUID() == uiFireMagusGUID)
+        {
+            bFireMagusDead = true;
+            bIsAchievementTimerRunning = true;
+        }
+        else if (summon->GetGUID() == uiFrostMagusGUID)
+        {
+            bFrostMagusDead = true;
+            bIsAchievementTimerRunning = true;
+        }
+        else if (summon->GetGUID() == uiArcaneMagusGUID)
+        {
+            bArcaneMagusDead = true;
+            bIsAchievementTimerRunning = true;
+        }
+    }
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
-        {
             return;
-        }
 
         if (bIsWaitingToAppear)
         {
@@ -185,33 +205,6 @@ struct boss_magus_telestraAI : public ScriptedAI
 
         if ((Phase == 1) ||(Phase == 3))
         {
-            Unit* pFireMagus;
-            Unit* pFrostMagus;
-            Unit* pArcaneMagus;
-            if (uiFireMagusGUID)
-                pFireMagus = Unit::GetUnit((*m_creature), uiFireMagusGUID);
-            if (uiFrostMagusGUID)
-                pFrostMagus = Unit::GetUnit((*m_creature), uiFrostMagusGUID);
-            if (uiArcaneMagusGUID)
-                pArcaneMagus = Unit::GetUnit((*m_creature), uiArcaneMagusGUID);
-            if (pFireMagus && pFireMagus->isDead())
-            {
-                bFireMagusDead = true;
-                if (!bIsAchievementTimerRunning)
-                    bIsAchievementTimerRunning = true;
-            }
-            if (pFrostMagus && pFrostMagus->isDead())
-            {
-                bFrostMagusDead = true;
-                if (!bIsAchievementTimerRunning)
-                    bIsAchievementTimerRunning = true;
-            }
-            if (pArcaneMagus && pArcaneMagus->isDead())
-            {
-                bArcaneMagusDead = true;
-                if (!bIsAchievementTimerRunning)
-                    bIsAchievementTimerRunning = true;
-            }
             if (bIsAchievementTimerRunning)
                 uiAchievementTimer += diff;
             if (bFireMagusDead && bFrostMagusDead && bArcaneMagusDead)
