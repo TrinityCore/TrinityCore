@@ -1156,9 +1156,7 @@ private:
 
     bool DisableBeta_PTR_Unused;
     bool DisablePermEnchant;
-#if CLIENT_VER > 300
     bool DisableConjured;
-#endif
     bool DisableGems;
     bool DisableMoney;
     bool DisableMoneyLoot;

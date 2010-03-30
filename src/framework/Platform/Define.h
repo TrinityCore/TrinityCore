@@ -82,8 +82,4 @@ typedef uint32      DWORD;
 
 typedef uint64 OBJECT_HANDLE;
 
-#ifndef CLIENT_VER
-#define CLIENT_VER 322
-#endif
-
 #endif //TRINITY_DEFINE_H
