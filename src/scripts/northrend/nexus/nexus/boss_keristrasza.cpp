@@ -177,7 +177,7 @@ struct boss_keristraszaAI : public ScriptedAI
             uiCheckIntenseColdTimer = 2*IN_MILISECONDS;
         } else uiCheckIntenseColdTimer -= diff;
 
-        if (!bEnrage && (m_creature->GetHealth() < HealthBelowPct(25)))
+        if (!bEnrage && HealthBelowPct(25))
         {
             DoScriptText(SAY_ENRAGE, m_creature);
             DoCast(m_creature, SPELL_ENRAGE);
