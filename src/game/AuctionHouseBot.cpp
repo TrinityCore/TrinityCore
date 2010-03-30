@@ -857,13 +857,12 @@ void AuctionHouseBot::Initialize()
         }
 
         char lootQuery[] = "SELECT item FROM creature_loot_template UNION "
+            "SELECT item FROM reference_loot_template UNION "
             "SELECT item FROM disenchant_loot_template UNION "
             "SELECT item FROM fishing_loot_template UNION "
             "SELECT item FROM gameobject_loot_template UNION "
             "SELECT item FROM item_loot_template UNION "
-#if CLIENT_VER > 300
             "SELECT item FROM milling_loot_template UNION "
-#endif
             "SELECT item FROM pickpocketing_loot_template UNION "
             "SELECT item FROM prospecting_loot_template UNION "
             "SELECT item FROM skinning_loot_template";
