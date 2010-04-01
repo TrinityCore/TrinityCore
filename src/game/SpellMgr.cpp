@@ -3787,6 +3787,14 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
             count++;
             break;
+        case 42442:     // Vengeance Landing Cannonfire
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
+        case 45863:     // Cosmetic - Incinerate to Random Target
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
         default:
             break;
         }
