@@ -1173,6 +1173,7 @@ void GameObject::Use(Unit* user)
 
             // cast this spell later if provided
             spellId = info->goober.spellId;
+            spellCaster = NULL;
 
             break;
         }
@@ -1482,14 +1483,10 @@ void GameObject::Use(Unit* user)
         return;
     }
 
-    Spell *spell = new Spell(spellCaster, spellInfo, triggered);
-    //Spell *spell = new Spell(spellCaster, spellInfo, triggered,GetGUID());
-
-    // spell target is user of GO
-    SpellCastTargets targets;
-    targets.setUnitTarget(user);
-
-    spell->prepare(&targets);
+    if (spellCaster)
+        spellCaster->CastSpell(user, spellInfo, triggered);
+    else
+        CastSpell(user, spellId);
 }
 
 void GameObject::CastSpell(Unit* target, uint32 spellId)
