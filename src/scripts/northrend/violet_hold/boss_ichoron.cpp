@@ -349,7 +349,7 @@ struct mob_ichor_globuleAI : public ScriptedAI
         {
             if (pInstance)
             {
-                if (Creature* pIchoron = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ICHORON))))
+                if (Creature* pIchoron = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_ICHORON)))
                 {
                     if (m_creature->IsWithinDist(pIchoron, 2.0f , false))
                     {
@@ -367,7 +367,7 @@ struct mob_ichor_globuleAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoCast(m_creature, SPELL_SPLASH);
-        if (Creature* pIchoron = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ICHORON))))
+        if (Creature* pIchoron = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_ICHORON)))
             if (pIchoron->AI())
                 pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);
     }

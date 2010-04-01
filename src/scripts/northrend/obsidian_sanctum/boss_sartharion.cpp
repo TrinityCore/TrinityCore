@@ -1073,8 +1073,8 @@ struct mob_acolyte_of_shadronAI : public ScriptedAI
         {
             Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
             Creature* pShadron = NULL;
-            Creature* pSartharion = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SARTHARION)));
-            if (Creature* pShadron = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SHADRON))))
+            Creature* pSartharion = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SARTHARION));
+            if (Creature* pShadron = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SHADRON)))
             //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT
             if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                  pSartharion->CastSpell(m_creature, SPELL_GIFT_OF_TWILIGTH_SAR, true);
@@ -1116,14 +1116,14 @@ struct mob_acolyte_of_shadronAI : public ScriptedAI
             if (pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
             {
                 //not solo fight, so main boss has deduff
-                Creature* pDebuffTarget = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SARTHARION)));
+                Creature* pDebuffTarget = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SARTHARION));
                 if (pDebuffTarget && pDebuffTarget->isAlive() && pDebuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SAR))
                     pDebuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SAR);
             }
             else
             {
                 //event not in progress, then solo fight and must remove debuff mini-boss
-                Creature* pDebuffTarget = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_SHADRON)));
+                Creature* pDebuffTarget = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SHADRON));
                 if (pDebuffTarget && pDebuffTarget->isAlive() && pDebuffTarget->HasAura(SPELL_GIFT_OF_TWILIGTH_SHA))
                     pDebuffTarget->RemoveAurasDueToSpell(SPELL_GIFT_OF_TWILIGTH_SHA);
             }
@@ -1171,7 +1171,7 @@ struct mob_acolyte_of_vesperonAI : public ScriptedAI
         // remove twilight torment on Vesperon
         if (pInstance)
         {
-            Creature* pVesperon = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_VESPERON)));
+            Creature* pVesperon = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_VESPERON));
 
             if (pVesperon && pVesperon->isAlive() && pVesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
                 pVesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);

@@ -254,7 +254,8 @@ struct pyrewood_ambushAI : public ScriptedAI
             if (PlayerGUID)
             {
                 pPlayer = Unit::GetPlayer(PlayerGUID);
-                pTarget = RAND((Unit*)m_creature, (Unit*)pPlayer);
+                if (pPlayer)
+                    pTarget = RAND((Unit*)m_creature, (Unit*)pPlayer);
             } else
                 pTarget = m_creature;
 

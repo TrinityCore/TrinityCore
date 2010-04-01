@@ -23,7 +23,7 @@ The teleporter appears to be active and stable.
 
 bool GoHello_ulduar_teleporter( Player *pPlayer, GameObject *pGO )
 {
-    ScriptedInstance *pInstance = (ScriptedInstance *) pGO->GetInstanceData();
+    ScriptedInstance *pInstance = pGO->GetInstanceData();
     if(!pInstance) return true;
 
     pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, BASE_CAMP);

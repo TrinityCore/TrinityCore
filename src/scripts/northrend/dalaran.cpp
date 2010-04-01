@@ -105,6 +105,38 @@ CreatureAI* GetAI_npc_mageguard_dalaran(Creature* pCreature)
     return new npc_mageguard_dalaranAI(pCreature);
 }
 
+/*######
+## npc_hira_snowdawn
+######*/
+
+#define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
+
+bool GossipHello_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature)
+{
+    if (!pCreature->isVendor() || !pCreature->isTrainer())
+        return false;
+
+    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+    if (pPlayer->getLevel() == 80)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+
+    return true;
+}
+
+bool GossipSelect_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_TRAIN)
+        pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+
+    if (uiAction == GOSSIP_ACTION_TRADE)
+        pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+    
+    return true;
+}
+
 void AddSC_dalaran()
 {
     Script *newscript;
@@ -112,5 +144,11 @@ void AddSC_dalaran()
     newscript = new Script;
     newscript->Name = "npc_mageguard_dalaran";
     newscript->GetAI = &GetAI_npc_mageguard_dalaran;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_hira_snowdawn";
+    newscript->pGossipHello = &GossipHello_npc_hira_snowdawn;
+    newscript->pGossipSelect = &GossipSelect_npc_hira_snowdawn;
     newscript->RegisterSelf();
 }
