@@ -333,7 +333,7 @@ struct mob_collapsing_starAI : public ScriptedAI
 {
     mob_collapsing_starAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

@@ -723,7 +723,7 @@ struct mob_palehoof_orbAI : public ScriptedAI
                {
                     pNext->RemoveAurasDueToSpell(SPELL_FREEZE);
                     pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    ((Unit*)pNext)->SetStandState(UNIT_STAND_STATE_STAND);
+                    pNext->SetStandState(UNIT_STAND_STATE_STAND);
                     pNext->SetInCombatWithZone();
                     pNext->Attack(pNext->SelectNearestTarget(100),true);
                     
