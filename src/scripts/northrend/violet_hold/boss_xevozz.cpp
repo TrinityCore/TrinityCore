@@ -252,7 +252,7 @@ struct mob_ethereal_sphereAI : public ScriptedAI
         {
             if (pInstance)
             {
-                if (Creature* pXevozz = ((Creature*)Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_XEVOZZ))))
+                if (Creature* pXevozz = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_XEVOZZ)))
                 {
                     float fDistance = m_creature->GetDistance2d(pXevozz);
                     if (fDistance <= 3)

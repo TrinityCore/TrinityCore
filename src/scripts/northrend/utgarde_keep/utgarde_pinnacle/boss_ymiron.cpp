@@ -344,7 +344,7 @@ struct boss_ymironAI : public ScriptedAI
     void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
     {
         if (m_uiCreatureGUID)
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, m_uiCreatureGUID))
+            if (Creature* pTemp = Unit::GetCreature(*m_creature, m_uiCreatureGUID))
                 pTemp->DisappearAndDie();
 
         m_uiCreatureGUID = 0;
