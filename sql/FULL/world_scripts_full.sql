@@ -518,6 +518,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_shield_generator_channel' WHERE
 
 /* DALARAN */
 UPDATE `creature_template` SET `ScriptName`='npc_mageguard_dalaran' WHERE `entry` IN (29254,29255);
+UPDATE `creature_template` SET `ScriptName`='npc_hira_snowdawn' WHERE `entry`=31238;
 
 /* DARKSHORE */
 UPDATE `creature_template` SET `ScriptName`='npc_kerlonian' WHERE `entry`=11218;
