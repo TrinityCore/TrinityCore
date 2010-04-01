@@ -277,7 +277,7 @@ struct npc_gurgthockAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
         {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
                 if (pTemp)
                     pTemp->RemoveFromWorld();
         }

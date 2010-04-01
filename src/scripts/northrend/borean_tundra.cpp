@@ -672,7 +672,7 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
         if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
             go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
-        if (TempSummon *summon = (TempSummon*)m_creature)
+        if (TempSummon *summon = m_creature->ToTempSummon())
             if (summon->isSummon())
                 if (Unit *pTemp = summon->GetSummoner())
                     if (pTemp->GetTypeId() == TYPEID_PLAYER)
