@@ -109,6 +109,11 @@ CreatureAI* GetAI_npc_mageguard_dalaran(Creature* pCreature)
 ## npc_hira_snowdawn
 ######*/
 
+enum eHiraSnowdawn
+{
+    SPELL_COLD_WEATHER_FLYING                   = 54197                                  
+};
+
 #define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
 
 bool GossipHello_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature)
@@ -118,7 +123,7 @@ bool GossipHello_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature)
 
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_TRAIN_HIRA, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-    if (pPlayer->getLevel() == 80)
+    if (pPlayer->getLevel() >= 80 && pPlayer->HasSpell(SPELL_COLD_WEATHER_FLYING))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
