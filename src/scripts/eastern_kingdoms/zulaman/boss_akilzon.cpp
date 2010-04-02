@@ -197,7 +197,7 @@ struct boss_akilzonAI : public ScriptedAI
                 cell.Visit(p, grid_unit_searcher, *(m_creature->GetMap()));
             }
             //dealdamege
-            for (std::list<Unit*>::iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
+            for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
             {
                 if (!Cloud->IsWithinDist(*i, 6, false))
                 {

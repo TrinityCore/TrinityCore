@@ -223,7 +223,7 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
                 Unit *pTarget;
                 using std::set;
                 set<int>list;
-                set<int>::iterator itr;
+                set<int>::const_iterator itr;
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
@@ -262,7 +262,7 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
                 Unit* pGlobuleTarget;
                 using std::set;
                 set<int>globulelist;
-                set<int>::iterator itr;
+                set<int>::const_iterator itr;
                 for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                 {
                     counter = 0;

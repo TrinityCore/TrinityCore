@@ -784,7 +784,7 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
     uint32 SpellTimer1, SpellTimer2, SpellTimer3,SpellTimer4;
     bool Timers;
     bool hasTarget;
-    Unit* trigger;
+
     void Reset()
     {
         MobGUID = 0;
@@ -861,7 +861,7 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
             if(pTarget)
                 m_creature->AI()->AttackStart(pTarget);
         }
-        if (!(trigger = m_creature->FindNearestCreature(15379,100)))
+        if (!(m_creature->FindNearestCreature(15379,100)))
             DoCast(m_creature, 33652);
 
         if (!UpdateVictim())
@@ -966,7 +966,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
 
             const Group::MemberSlotList members = EventGroup->GetMemberSlots();
 
-            for (Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
+            for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
             {
                 GroupMember = (Unit::GetPlayer(itr->guid));
                 if(!GroupMember)
@@ -1039,7 +1039,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
             Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
             Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-            Unit *Fandral = Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
+            /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
             Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
 
             if(Merithra)

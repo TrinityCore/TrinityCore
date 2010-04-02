@@ -307,7 +307,7 @@ struct boss_archimondeAI : public hyjal_trashAI
             return false;
 
         std::list<Unit*> targets;
-        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());

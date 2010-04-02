@@ -48,7 +48,6 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
     npc_warmage_violetstandAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature){}
 
     uint32 m_uiTimer;                 //Timer until recast
-    std::list<Creature *> orbList;
 
     void Reset()
     {
@@ -69,10 +68,12 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
             switch(me->GetEntry())
             {
                 case NPC_WARMAGE_SARINA:
+                {
+                    std::list<Creature*> orbList;
                     GetCreatureListWithEntryInGrid(orbList, m_creature, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
                     if (!orbList.empty())
                     {
-                        for (std::list<Creature*>::iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
                         {
                             if (Creature* pOrb = *itr)
                                 if (pOrb->GetPositionY() < 1000)
@@ -80,6 +81,7 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
                         }
                     }
                     m_uiTimer = 90000;
+                }
                     break;
 				case NPC_WARMAGE_HALISTER:
                 case NPC_WARMAGE_ILSUDRIA:

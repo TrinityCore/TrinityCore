@@ -302,7 +302,7 @@ struct boss_kalecgosAI : public ScriptedAI
             {
                 std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
                 std::list<Unit*> targetList;
-                for (std::list<HostileReference*>::iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
+                for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
                     if((*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
                         targetList.push_back((*itr)->getTarget());
                 if(targetList.empty())
@@ -310,7 +310,7 @@ struct boss_kalecgosAI : public ScriptedAI
                     SpectralBlastTimer = 1000;
                     return;
                 }
-                std::list<Unit*>::iterator i = targetList.begin();
+                std::list<Unit*>::const_iterator i = targetList.begin();
                 advance(i, rand()%targetList.size());
                 if((*i))
                 {
@@ -614,7 +614,7 @@ struct boss_sathrovarrAI : public ScriptedAI
 
         if (ResetThreat <= diff)
         {
-            for (std::list<HostileReference*>::iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
             {
                 if(Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {

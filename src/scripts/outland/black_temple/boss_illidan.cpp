@@ -501,7 +501,7 @@ struct boss_illidan_stormrageAI : public ScriptedAI
 
     void DeleteFromThreatList(uint64 TargetGUID)
     {
-        for (std::list<HostileReference*>::iterator itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
+        for (std::list<HostileReference*>::const_iterator itr = m_creature->getThreatManager().getThreatList().begin(); itr != m_creature->getThreatManager().getThreatList().end(); ++itr)
         {
             if ((*itr)->getUnitGuid() == TargetGUID)
             {
@@ -1072,13 +1072,13 @@ struct npc_akama_illidanAI : public ScriptedAI
     {
         std::list<HostileReference*>& threatList = m_creature->getThreatManager().getThreatList();
         std::vector<Unit*> eliteList;
-        for (std::list<HostileReference*>::iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
+        for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit && pUnit->GetEntry() == ILLIDARI_ELITE)
                 eliteList.push_back(pUnit);
         }
-        for (std::vector<Unit*>::iterator itr = eliteList.begin(); itr != eliteList.end(); ++itr)
+        for (std::vector<Unit*>::const_iterator itr = eliteList.begin(); itr != eliteList.end(); ++itr)
             (*itr)->setDeathState(JUST_DIED);
         EnterEvadeMode();
     }

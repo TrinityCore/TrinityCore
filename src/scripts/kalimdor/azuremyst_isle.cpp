@@ -488,7 +488,7 @@ struct npc_geezleAI : public ScriptedAI
         Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(m_creature, players, checker);
         m_creature->VisitNearbyWorldObject(radius, searcher);
 
-        for (std::list<Player*>::iterator itr = players.begin(); itr != players.end(); ++itr)
+        for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             if((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
                 &&(*itr)->HasAura(SPELL_TREE_DISGUISE) )
@@ -505,7 +505,7 @@ struct npc_geezleAI : public ScriptedAI
 
         if (!FlagList.empty())
         {
-            for (std::list<GameObject*>::iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
+            for (std::list<GameObject*>::const_iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
             {
                 if (despawn)
                 {

@@ -167,7 +167,7 @@ struct boss_nalorakkAI : public ScriptedAI
         if (!templist.size())
             return;
 
-        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
         {
             if ((*i) && m_creature->IsWithinDistInMap((*i),25))
             {

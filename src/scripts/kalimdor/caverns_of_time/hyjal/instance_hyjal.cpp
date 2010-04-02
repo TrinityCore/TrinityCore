@@ -220,7 +220,7 @@ struct instance_mount_hyjal : public ScriptedInstance
                 {
                     if (!m_uiAncientGemGUID.empty())
                     {
-                        for (std::list<uint64>::iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
+                        for (std::list<uint64>::const_iterator itr = m_uiAncientGemGUID.begin(); itr != m_uiAncientGemGUID.end(); ++itr)
                         {
                             //don't know how long it expected
                             DoRespawnGameObject(*itr,DAY);

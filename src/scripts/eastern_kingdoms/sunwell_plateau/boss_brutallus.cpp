@@ -313,7 +313,7 @@ struct boss_brutallusAI : public ScriptedAI
         {
             std::list<Unit*> pTargets;
             SelectTargetList(pTargets, 10, SELECT_TARGET_RANDOM, 100, true);
-            for (std::list<Unit*>::iterator i = pTargets.begin(); i != pTargets.end(); ++i)
+            for (std::list<Unit*>::const_iterator i = pTargets.begin(); i != pTargets.end(); ++i)
                 if(!(*i)->HasAura(SPELL_BURN))
                 {
                     (*i)->CastSpell((*i), SPELL_BURN, true);

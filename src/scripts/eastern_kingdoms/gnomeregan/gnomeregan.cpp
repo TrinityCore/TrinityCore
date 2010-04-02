@@ -131,7 +131,7 @@ struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
         if (GoSummonList.empty())
             return;
 
-        for(std::list<uint64>::iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+        for(std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
         {
            if (GameObject* pGo = GameObject::GetGameObject(*m_creature, *itr))
            {
@@ -186,14 +186,14 @@ struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
             pInstance->HandleGameObject(NULL,false,pGo);
 
         if (!GoSummonList.empty())
-            for(std::list<uint64>::iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
+            for(std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
             {
                 if (GameObject* pGo = GameObject::GetGameObject(*m_creature, *itr))
                     pGo->RemoveFromWorld();
             }
 
         if (!SummonList.empty())
-            for(std::list<uint64>::iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
+            for(std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
             {
                 if (Creature* pSummon = Unit::GetCreature(*m_creature, *itr))
                 {

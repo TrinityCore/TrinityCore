@@ -377,7 +377,7 @@ struct master_kelerun_bloodmournAI : public ScriptedAI
 
             for (uint8 i = 0; i < 4; ++i)
             if (Creature *pSummoned = DoSpawnCreature(PaladinEntry[i], SpawnPosition[i].x, SpawnPosition[i].y, SpawnPosition[i].z, SpawnPosition[i].o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 180000))
-            paladinGuid[i] = pSummoned->GetGUID();
+                paladinGuid[i] = pSummoned->GetGUID();
 
             timer = OFFSET_NEXT_ATTACK;
             questPhase = 2;

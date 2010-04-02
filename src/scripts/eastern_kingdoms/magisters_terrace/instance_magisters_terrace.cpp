@@ -41,7 +41,7 @@ struct instance_magisters_terrace : public ScriptedInstance
     uint32 DelrissaDeathCount;
 
     std::list<uint64> FelCrystals;
-    std::list<uint64>::iterator CrystalItr;
+    std::list<uint64>::const_iterator CrystalItr;
 
     uint64 SelinGUID;
     uint64 DelrissaGUID;

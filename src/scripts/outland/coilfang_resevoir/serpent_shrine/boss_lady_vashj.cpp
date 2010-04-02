@@ -440,7 +440,7 @@ struct boss_lady_vashjAI : public ScriptedAI
                 bool InMeleeRange = false;
                 Unit *pTarget;
                 std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                                                             //if in melee range

@@ -89,7 +89,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
         if (pInstance)
         {
             //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-            for (std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+            for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
             {
                 //Unit* pUnit = Unit::GetUnit(*m_creature, FelCrystals[i]);
                 Unit* pUnit = Unit::GetUnit(*m_creature, *itr);
@@ -132,7 +132,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
         Unit* pCrystal = NULL;
         Unit* CrystalChosen = NULL;
         //for (uint8 i =  0; i < CRYSTALS_NUMBER; ++i)
-        for (std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
         {
             pCrystal = NULL;
             //pCrystal = Unit::GetUnit(*m_creature, FelCrystals[i]);
@@ -169,7 +169,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
             return;
 
         //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
-        for (std::list<uint64>::iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
         {
             //Creature* pCrystal = (Unit::GetCreature(*m_creature, FelCrystals[i]));
             Creature* pCrystal = Unit::GetCreature(*m_creature, *itr);

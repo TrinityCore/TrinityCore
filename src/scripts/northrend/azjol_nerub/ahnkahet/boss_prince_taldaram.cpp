@@ -209,7 +209,7 @@ struct boss_taldaramAI : public ScriptedAI
                         Unit *pTarget = NULL;
                         std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
                         std::vector<Unit *> target_list;
-                        for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                        for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                         {
                             pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                             // exclude pets & totems

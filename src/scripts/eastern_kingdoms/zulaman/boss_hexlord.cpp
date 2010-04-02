@@ -306,7 +306,7 @@ struct boss_hex_lord_malacrassAI : public ScriptedAI
             AddList.erase(AddList.begin()+rand()%AddList.size());
 
         uint8 i = 0;
-        for (std::vector<uint32>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)
+        for (std::vector<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end(); ++itr, ++i)
             AddEntry[i] = *itr;
     }
 

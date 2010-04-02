@@ -202,7 +202,7 @@ struct boss_sapphironAI : public BossAI
 
     void ClearIceBlock()
     {
-        for (IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+        for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
         {
             if (Player* pPlayer = Unit::GetPlayer(itr->first))
                 pPlayer->RemoveAura(SPELL_ICEBOLT);
@@ -291,7 +291,7 @@ struct boss_sapphironAI : public BossAI
                     case EVENT_ICEBOLT:
                     {
                         std::vector<Unit*> targets;
-                        std::list<HostileReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+                        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                         for (; i != me->getThreatManager().getThreatList().end(); ++i)
                             if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
                                 targets.push_back((*i)->getTarget());
@@ -300,7 +300,7 @@ struct boss_sapphironAI : public BossAI
                             iceboltCount = 0;
                         else
                         {
-                            std::vector<Unit*>::iterator itr = targets.begin();
+                            std::vector<Unit*>::const_iterator itr = targets.begin();
                             advance(itr, rand()%targets.size());
                             iceblocks.insert(std::make_pair((*itr)->GetGUID(), 0));
                             DoCast(*itr, SPELL_ICEBOLT);
@@ -348,7 +348,7 @@ struct boss_sapphironAI : public BossAI
     {
         DoZoneInCombat(); // make sure everyone is in threatlist
         std::vector<Unit*> targets;
-        std::list<HostileReference*>::iterator i = me->getThreatManager().getThreatList().begin();
+        std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
         for (; i != me->getThreatManager().getThreatList().end(); ++i)
         {
             Unit *pTarget = (*i)->getTarget();
@@ -362,7 +362,7 @@ struct boss_sapphironAI : public BossAI
                 continue;
             }
 
-            for (IceBlockMap::iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
+            for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
             {
                 if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                 {
@@ -379,7 +379,7 @@ struct boss_sapphironAI : public BossAI
 
         me->CastSpell(me, SPELL_FROST_EXPLOSION, true);
 
-        for (std::vector<Unit*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+        for (std::vector<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
             (*itr)->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, false);
     }
 };

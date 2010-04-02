@@ -172,7 +172,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
                 LackeyEntryList.erase(LackeyEntryList.begin() + rand()%LackeyEntryList.size());
 
             //summon all the remaining in vector
-            for (std::vector<uint32>::iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
+            for (std::vector<uint32>::const_iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
             {
                 if (Creature* pAdd = m_creature->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     m_auiLackeyGUID[j] = pAdd->GetGUID();
@@ -182,7 +182,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
         }
         else
         {
-            for (std::vector<uint32>::iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
+            for (std::vector<uint32>::const_iterator itr = LackeyEntryList.begin(); itr != LackeyEntryList.end(); ++itr)
             {
                 Unit* pAdd = Unit::GetUnit(*m_creature, m_auiLackeyGUID[j]);
 
@@ -797,7 +797,7 @@ struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
         {
             bool InMeleeRange = false;
             std::list<HostileReference*>& t_list = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
@@ -877,7 +877,7 @@ struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
         {
             bool InMeleeRange = false;
             std::list<HostileReference*>& t_list = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
@@ -1124,7 +1124,7 @@ struct boss_apokoAI : public boss_priestess_lackey_commonAI
 
         if (Healing_Wave_Timer <= diff)
         {
-            // std::vector<Add*>::iterator itr = Group.begin() + rand()%Group.size();
+            // std::vector<Add*>::const_iterator itr = Group.begin() + rand()%Group.size();
             // uint64 guid = (*itr)->guid;
             // if (guid)
             // {

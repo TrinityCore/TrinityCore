@@ -480,14 +480,14 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
             {
                 std::list<HostileReference *>& ThreatList = m_creature->getThreatManager().getThreatList();
                 std::vector<Unit *> TargetList;
-                for (std::list<HostileReference *>::iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                for (std::list<HostileReference *>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                 {
                     Unit *tempTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                     if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != m_creature->getVictim()->GetGUID() && TargetList.size()<5)
                         TargetList.push_back(tempTarget);
                 }
                 SpellEntry *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
-                for (std::vector<Unit *>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+                for (std::vector<Unit *>::const_iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                 {
                     if ((*itr) && (*itr)->isAlive())
                     {
