@@ -22,15 +22,48 @@ SDCategory: Areatrigger
 EndScriptData */
 
 /* ContentData
+at_aldurthar_gate               q13315/q13351
 at_coilfang_waterfall           4591
 at_legion_teleporter            4560 Teleporter TO Invasion Point: Cataclysm
 at_ravenholdt
 at_warsong_slaughterhouse
 at_warsong_grainery
 at_torp_farm
+at_warsong_farms                q11686
+at_stormwright_shelf            q12741
 EndContentData */
 
 #include "ScriptedPch.h"
+
+/*######
+## AreaTrigger_at_aldurthar_gate
+######*/
+
+enum eAldurtharGate
+{
+    TRIGGER_SOUTH                               = 5284,
+
+    TRIGGER_CENTRAL                             = 5285,
+    TRIGGER_NORTH                               = 5286,
+    TRIGGER_NORTHWEST                           = 5287,
+
+    NPC_SOUTH_GATE                              = 32195,
+    NPC_CENTRAL_GATE                            = 32196,
+    NPC_NORTH_GATE                              = 32197,
+    NPC_NORTHWEST_GATE                          = 32199
+};
+
+bool AreaTrigger_at_aldurthar_gate(Player* pPlayer, const AreaTriggerEntry* pAt)
+{
+    switch(pAt->id)
+    {
+        case TRIGGER_SOUTH:     pPlayer->KilledMonsterCredit(NPC_SOUTH_GATE, 0);     break;
+        case TRIGGER_CENTRAL:   pPlayer->KilledMonsterCredit(NPC_CENTRAL_GATE, 0);   break;
+        case TRIGGER_NORTH:     pPlayer->KilledMonsterCredit(NPC_NORTH_GATE, 0);     break;
+        case TRIGGER_NORTHWEST: pPlayer->KilledMonsterCredit(NPC_NORTHWEST_GATE, 0); break;
+    }
+    return true;
+}
 
 /*######
 ## at_coilfang_waterfall
@@ -98,9 +131,64 @@ bool AreaTrigger_at_ravenholdt(Player* pPlayer, const AreaTriggerEntry* pAt)
     return false;
 }
 
+/*######
+## at_warsong_farms
+######*/
+
+enum eWarsongFarms
+{
+    QUEST_THE_WARSONG_FARMS                     = 11686,
+                                                
+    NPC_CREDIT_SLAUGHTERHOUSE                   = 25672,
+    NPC_CREDIT_GRAINERY                         = 25669,
+    NPC_CREDIT_TORP_FARM                        = 25671,
+
+    AT_SLAUGHTERHOUSE                           = 4873,
+    AT_GRAINERY                                 = 4871,
+    AT_TORP_FARM                                = 4872
+};
+
+bool AreaTrigger_at_warsong_farms(Player* pPlayer, const AreaTriggerEntry* pAt)
+{
+    if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_THE_WARSONG_FARMS) == QUEST_STATUS_INCOMPLETE)
+    {
+        switch(pAt->id)
+        {
+            case AT_SLAUGHTERHOUSE: pPlayer->KilledMonsterCredit(NPC_CREDIT_SLAUGHTERHOUSE, 0); break;
+            case AT_GRAINERY:       pPlayer->KilledMonsterCredit(NPC_CREDIT_GRAINERY, 0);       break;
+            case AT_TORP_FARM:      pPlayer->KilledMonsterCredit(NPC_CREDIT_TORP_FARM, 0);      break;
+        }
+    }
+    return true;
+ }
+
+/*######
+## at_stormwright_shelf
+######*/
+
+enum eStormwrightShelf
+{
+    QUEST_STRENGTH_OF_THE_TEMPEST               = 12741,
+
+    SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST      = 53067
+};
+
+bool AreaTrigger_at_stormwright_shelf(Player* pPlayer, const AreaTriggerEntry* pAt)
+{
+    if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_STRENGTH_OF_THE_TEMPEST) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->CastSpell(pPlayer, SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST, false);
+
+    return true;
+}
+
 void AddSC_areatrigger_scripts()
 {
-    Script *newscript;
+    Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "at_aldurthar_gate";
+    newscript->pAreaTrigger = &AreaTrigger_at_aldurthar_gate;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "at_coilfang_waterfall";
@@ -116,5 +204,14 @@ void AddSC_areatrigger_scripts()
     newscript->Name = "at_ravenholdt";
     newscript->pAreaTrigger = &AreaTrigger_at_ravenholdt;
     newscript->RegisterSelf();
-}
 
+    newscript = new Script;
+    newscript->Name = "at_warsong_farms";
+    newscript->pAreaTrigger = &AreaTrigger_at_warsong_farms;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "at_stormwright_shelf";
+    newscript->pAreaTrigger = &AreaTrigger_at_stormwright_shelf;
+    newscript->RegisterSelf();
+}
