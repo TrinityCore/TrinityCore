@@ -738,7 +738,7 @@ void npc_doctorAI::PatientSaved(Creature* soldier, Player* pPlayer, Location* Po
             {
                 if (!Patients.empty())
                 {
-                    std::list<uint64>::iterator itr;
+                    std::list<uint64>::const_iterator itr;
                     for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                     {
                         if (Creature* Patient = Unit::GetCreature((*m_creature), *itr))
@@ -1804,7 +1804,7 @@ struct npc_ebon_gargoyleAI : CasterAI
         Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(m_creature, m_creature, 30);
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_creature, targets, u_check);
         m_creature->VisitNearbyObject(30, searcher);
-        for (std::list<Unit*>::iterator iter = targets.begin(); iter != targets.end(); ++iter)
+        for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
             if((*iter)->GetAura(49206,owner->GetGUID()))
             {
                 me->Attack((*iter),false);

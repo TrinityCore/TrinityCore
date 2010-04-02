@@ -106,7 +106,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
             luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_2));
             luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_3));
             luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_4));
-            for (std::list<uint64>::iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
+            for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
             {
                 if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
                     pTemp->SetGoState(GO_STATE_READY);
@@ -123,7 +123,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
         DoCast(SPELL_ARCANE_FIELD);
         if (pInstance)
         {
-            for (std::list<uint64>::iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
+            for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
             {
                 if (GameObject *pTemp = pInstance->instance->GetGameObject(*itr))
                     pTemp->SetGoState(GO_STATE_ACTIVE);

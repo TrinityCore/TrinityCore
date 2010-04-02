@@ -851,7 +851,7 @@ struct boss_kaelthasAI : public ScriptedAI
                     //GravityLapse_Timer
                     if (GravityLapse_Timer <= diff)
                     {
-                        std::list<HostileReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                        std::list<HostileReference*>::const_iterator i = m_creature->getThreatManager().getThreatList().begin();
                         switch (GravityLapse_Phase)
                         {
                             case 0:
@@ -1197,7 +1197,7 @@ struct boss_grand_astromancer_capernianAI : public advisorbase_ai
             bool InMeleeRange = false;
             Unit *pTarget = NULL;
             std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
+            for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
             {
                 Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
                                                             //if in melee range

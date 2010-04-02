@@ -181,7 +181,7 @@ struct boss_aranAI : public ScriptedAI
             return;
 
         //store the threat list in a different container
-        for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+        for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
             Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
             //only on alive players
@@ -194,7 +194,7 @@ struct boss_aranAI : public ScriptedAI
             targets.erase(targets.begin()+rand()%targets.size());
 
         uint32 i = 0;
-        for (std::vector<Unit*>::iterator itr = targets.begin(); itr!= targets.end(); ++itr)
+        for (std::vector<Unit*>::const_iterator itr = targets.begin(); itr!= targets.end(); ++itr)
         {
             if (*itr)
             {

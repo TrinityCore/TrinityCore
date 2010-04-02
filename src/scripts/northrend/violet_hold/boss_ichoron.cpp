@@ -236,7 +236,7 @@ struct boss_ichoronAI : public ScriptedAI
                     bool bIsWaterElementsAlive = false;
                     if (!m_waterElements.empty())
                     {
-                        for (std::list<uint64>::iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
+                        for (std::list<uint64>::const_iterator itr = m_waterElements.begin(); itr != m_waterElements.end(); ++itr)
                             if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
                                 if (pTemp->isAlive())
                                 {

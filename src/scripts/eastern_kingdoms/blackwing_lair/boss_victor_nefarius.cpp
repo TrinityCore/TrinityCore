@@ -189,7 +189,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
 
         //Trinity::Singleton<MapManager>::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
         /*
-        list <Player*>::iterator i = MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
+        list <Player*>::const_iterator i = MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
 
         for (i = MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin(); i != MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().end(); ++i)
         {

@@ -145,7 +145,7 @@ struct mob_shadowy_constructAI : public ScriptedAI
         std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
         if (m_threatlist.empty())
             return;                                         // No threat list. Don't continue.
-        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
         std::list<Unit*> targets;
         for (; itr != m_threatlist.end(); ++itr)
         {
@@ -283,7 +283,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
         if (!Blossom) return;
 
         std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-        std::list<HostileReference*>::iterator i = m_threatlist.begin();
+        std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
         for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());

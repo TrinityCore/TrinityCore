@@ -169,7 +169,7 @@ struct boss_volkhanAI : public ScriptedAI
         if (m_lGolemGUIDList.empty())
             return;
 
-        for (std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
         {
             if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {
@@ -186,7 +186,7 @@ struct boss_volkhanAI : public ScriptedAI
         if (m_lGolemGUIDList.empty())
             return;
 
-        for (std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
         {
             if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {

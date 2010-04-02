@@ -533,7 +533,7 @@ struct boss_felmystAI : public ScriptedAI
             cell.Visit(pair, cSearcher, *(m_creature->GetMap()));
         }
 
-        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
         {
             if (entry == MOB_VAPOR_TRAIL && Phase == PHASE_FLIGHT)
             {

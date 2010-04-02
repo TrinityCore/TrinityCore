@@ -735,7 +735,7 @@ struct npc_scarlet_ghoulAI : public ScriptedAI
 
         if (!MinionList.empty())
         {
-            for (std::list<Creature*>::iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
+            for (std::list<Creature*>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
             {
                 if (CAST_CRE(*itr)->GetOwner()->GetGUID() == m_creature->GetOwner()->GetGUID())
                 {

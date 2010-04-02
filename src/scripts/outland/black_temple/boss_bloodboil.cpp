@@ -136,7 +136,7 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
             return;
 
         std::list<Unit *> targets;
-        std::list<HostileReference *>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference *>::const_iterator itr = m_threatlist.begin();
         for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
         {
             Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
@@ -154,7 +154,7 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
         /*SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
         if (spellInfo)
         {
-            for (std::list<Unit *>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
+            for (std::list<Unit *>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
                 Unit *pTarget = *itr;
                 if (!pTarget) return;

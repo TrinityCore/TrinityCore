@@ -78,7 +78,7 @@ struct boss_the_black_stalkerAI : public ScriptedAI
 
     void JustDied(Unit *who)
     {
-        for (std::list<uint64>::iterator i = Striders.begin(); i != Striders.end(); ++i)
+        for (std::list<uint64>::const_iterator i = Striders.begin(); i != Striders.end(); ++i)
             if (Creature *strider = Unit::GetCreature(*m_creature, *i))
                 strider->DisappearAndDie();
     }

@@ -135,7 +135,7 @@ struct instance_magtheridons_lair : public ScriptedInstance
                 if (m_auiEncounter[1] != NOT_STARTED)
                 {
                     m_auiEncounter[1] = NOT_STARTED;
-                    for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
                         if (Creature *Channeler = instance->GetCreature(*i))
                         {
@@ -154,7 +154,7 @@ struct instance_magtheridons_lair : public ScriptedInstance
                 {
                     m_auiEncounter[1] = IN_PROGRESS;
                     // Let all five channelers aggro.
-                    for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                    for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                     {
                         Creature *Channeler = instance->GetCreature(*i);
                         if (Channeler && Channeler->isAlive())
@@ -171,7 +171,7 @@ struct instance_magtheridons_lair : public ScriptedInstance
                 }
                 break;
             case DONE: // Add buff and check if all channelers are dead.
-                for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
                     Creature *Channeler = instance->GetCreature(*i);
                     if (Channeler && Channeler->isAlive())
@@ -187,7 +187,7 @@ struct instance_magtheridons_lair : public ScriptedInstance
             break;
         case DATA_COLLAPSE:
             // true - collapse / false - reset
-            for (std::set<uint64>::iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
+            for (std::set<uint64>::const_iterator i = ColumnGUID.begin(); i != ColumnGUID.end(); ++i)
                 DoUseDoorOrButton(*i);
             break;
         default:
@@ -222,7 +222,7 @@ struct instance_magtheridons_lair : public ScriptedInstance
         {
             if (RespawnTimer <= diff)
             {
-                for (std::set<uint64>::iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
+                for (std::set<uint64>::const_iterator i = ChannelerGUID.begin(); i != ChannelerGUID.end(); ++i)
                 {
                     if (Creature *Channeler = instance->GetCreature(*i))
                     {

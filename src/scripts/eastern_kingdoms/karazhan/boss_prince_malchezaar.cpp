@@ -242,7 +242,7 @@ struct boss_malchezaarAI : public ScriptedAI
     void InfernalCleanup()
     {
         //Infernal Cleanup
-        for (std::vector<uint64>::iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
+        for (std::vector<uint64>::const_iterator itr = infernals.begin(); itr != infernals.end(); ++itr)
             if (Unit *pInfernal = Unit::GetUnit(*m_creature, *itr))
                 if (pInfernal->isAlive())
                 {
@@ -288,7 +288,7 @@ struct boss_malchezaarAI : public ScriptedAI
             return;
 
         //begin + 1, so we don't target the one with the highest threat
-        std::list<HostileReference *>::iterator itr = t_list.begin();
+        std::list<HostileReference *>::const_iterator itr = t_list.begin();
         std::advance(itr, 1);
         for (; itr != t_list.end(); ++itr) //store the threat list in a different container
             if (Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
@@ -300,7 +300,7 @@ struct boss_malchezaarAI : public ScriptedAI
             targets.erase(targets.begin()+rand()%targets.size());
 
         uint32 i = 0;
-        for (std::vector<Unit *>::iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
+        for (std::vector<Unit *>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
             if (Unit *pTarget = *iter)
             {
                 enfeeble_targets[i] = pTarget->GetGUID();

@@ -153,7 +153,7 @@ struct boss_kazrogalAI : public hyjal_trashAI
             m_creature->CastCustomSpell(m_creature, SPELL_MARK, NULL, NULL, NULL, false, NULL, NULL, m_creature->GetGUID());
 
             std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->getPowerType() == POWER_MANA)

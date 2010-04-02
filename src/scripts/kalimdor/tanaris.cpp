@@ -461,7 +461,7 @@ struct npc_toogaAI : public FollowerAI
     uint32 m_uiPostEventTimer;
     uint32 m_uiPhasePostEvent;
 
-    Unit* pTorta;
+    uint64 TortaGUID;
 
     void Reset()
     {
@@ -469,7 +469,7 @@ struct npc_toogaAI : public FollowerAI
         m_uiPostEventTimer = 1000;
         m_uiPhasePostEvent = 0;
 
-        pTorta = NULL;
+        TortaGUID = 0;
     }
 
     void MoveInLineOfSight(Unit *pWho)
@@ -486,7 +486,7 @@ struct npc_toogaAI : public FollowerAI
                         pPlayer->GroupEventHappens(QUEST_TOOGA, m_creature);
                 }
 
-                pTorta = pWho;
+                TortaGUID = pWho->GetGUID();
                 SetFollowComplete(true);
             }
         }
@@ -514,6 +514,7 @@ struct npc_toogaAI : public FollowerAI
                 {
                     m_uiPostEventTimer = 5000;
 
+                    Unit *pTorta = Unit::GetUnit(*m_creature, TortaGUID);
                     if (!pTorta || !pTorta->isAlive())
                     {
                         //something happened, so just complete

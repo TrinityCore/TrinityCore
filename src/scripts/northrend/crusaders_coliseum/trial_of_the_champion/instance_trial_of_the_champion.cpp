@@ -171,7 +171,7 @@ struct instance_trial_of_the_champion : public ScriptedInstance
                 m_auiEncounter[0] = uiData;
                 if (uiData == IN_PROGRESS)
                 {
-                    for(std::list<uint64>::iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                    for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                         if (Creature* pSummon = instance->GetCreature(*itr))
                             pSummon->RemoveFromWorld();
                 }else if (uiData == DONE)

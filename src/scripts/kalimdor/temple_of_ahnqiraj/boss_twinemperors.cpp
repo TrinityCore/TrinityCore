@@ -320,7 +320,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
         Creature *nearb = NULL;
 
-        for (std::list<Creature*>::iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
+        for (std::list<Creature*>::const_iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
         {
             Creature *c = *iter;
             if (c)

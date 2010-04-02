@@ -281,7 +281,7 @@ struct boss_kelthuzadAI : public BossAI
 
         me->setFaction(35);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
-        std::map<uint64, float>::iterator itr;
+        std::map<uint64, float>::const_iterator itr;
         for (itr = chained.begin(); itr != chained.end(); ++itr)
         {
             if (Player* charmed = Unit::GetPlayer((*itr).first))
@@ -326,7 +326,7 @@ struct boss_kelthuzadAI : public BossAI
         _JustDied();
         DoScriptText(SAY_DEATH, m_creature);
 
-        std::map<uint64, float>::iterator itr;
+        std::map<uint64, float>::const_iterator itr;
         for (itr = chained.begin(); itr != chained.end(); ++itr)
         {
             if (Player* pPlayer = Unit::GetPlayer((*itr).first))
@@ -573,7 +573,7 @@ struct boss_kelthuzadAI : public BossAI
                                     }
                                 }
                             }
-                            itr++;
+                            ++itr;
                         }
 
                         if (chained.empty())
@@ -597,7 +597,7 @@ struct boss_kelthuzadAI : public BossAI
 
                         if (!unitList.empty())
                         {
-                            std::vector<Unit*>::iterator itr = unitList.begin();
+                            std::vector<Unit*>::const_iterator itr = unitList.begin();
                             advance(itr, rand()%unitList.size());
                             DoCast(*itr, SPELL_MANA_DETONATION);
                             DoScriptText(RAND(SAY_SPECIAL_1,SAY_SPECIAL_2,SAY_SPECIAL_3), me);

@@ -175,14 +175,14 @@ struct npc_ringoAI : public FollowerAI
     uint32 m_uiEndEventProgress;
     uint32 m_uiEndEventTimer;
 
-    Unit* pSpraggle;
+    uint64 SpraggleGUID;
 
     void Reset()
     {
         m_uiFaintTimer = urand(30000, 60000);
         m_uiEndEventProgress = 0;
         m_uiEndEventTimer = 1000;
-        pSpraggle = NULL;
+        SpraggleGUID = 0;
     }
 
     void MoveInLineOfSight(Unit *pWho)
@@ -199,7 +199,7 @@ struct npc_ringoAI : public FollowerAI
                         pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, m_creature);
                 }
 
-                pSpraggle = pWho;
+                SpraggleGUID = pWho->GetGUID();
                 SetFollowComplete(true);
             }
         }
@@ -244,6 +244,7 @@ struct npc_ringoAI : public FollowerAI
             {
                 if (m_uiEndEventTimer <= uiDiff)
                 {
+                    Unit *pSpraggle = Unit::GetUnit(*m_creature, SpraggleGUID);
                     if (!pSpraggle || !pSpraggle->isAlive())
                     {
                         SetFollowComplete();

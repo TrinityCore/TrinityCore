@@ -950,7 +950,7 @@ void hyjalAI::HideNearPos(float x, float y)
 
     if (!creatures.empty())
     {
-        for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
+        for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
         {
             (*itr)->SetVisibility(VISIBILITY_OFF);
             (*itr)->setFaction(35);//make them friendly so mobs won't attack them
@@ -1007,7 +1007,7 @@ void hyjalAI::WaypointReached(uint32 i)
 
         if (!creatures.empty())
         {
-            for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
+            for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
             {
                 if ((*itr) && (*itr)->isAlive() && (*itr) != m_creature && (*itr)->GetEntry() != JAINA)
                 {
@@ -1048,7 +1048,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
 
             if (!creatures.empty())
             {
-                for (std::list<Creature*>::iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
+                for (std::list<Creature*>::const_iterator itr = creatures.begin(); itr != creatures.end(); ++itr)
                 {
                     if ((*itr) && (*itr)->isAlive())
                     {

@@ -230,7 +230,7 @@ struct boss_chromaggusAI : public ScriptedAI
         if (Affliction_Timer <= diff)
         {
             std::list<HostileReference*> threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator i = threatlist.begin(); i != threatlist.end(); ++i)
+            for (std::list<HostileReference*>::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
             {
                 Unit* pUnit;
                 if ((*i) && (*i)->getSource())

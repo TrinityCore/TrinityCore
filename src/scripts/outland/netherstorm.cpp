@@ -79,7 +79,7 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
         Wave = false;
         someplayer = 0;
         goConsole = 0;
-        Creature* add = NULL;
+        add = NULL;
     }
 
     void EnterCombat(Unit *who) { return; }
@@ -296,8 +296,7 @@ bool GOHello_go_manaforge_control_console(Player* pPlayer, GameObject* pGo)
         pPlayer->SendPreparedQuest(pGo->GetGUID());
     }
 
-    Creature* manaforge;
-    manaforge = NULL;
+    Creature* manaforge = NULL;
 
     switch(pGo->GetAreaId())
     {
@@ -696,6 +695,7 @@ struct mob_phase_hunterAI : public ScriptedAI
     float HpPercent;
 
     Player *pPlayer;
+    uint64 PlayerGUID;
 
     uint32 ManaBurnTimer;
 
@@ -707,7 +707,7 @@ struct mob_phase_hunterAI : public ScriptedAI
         WeakPercent = 25 + (rand() % 16); // 25-40
         HpPercent = 0.0f;
 
-        pPlayer = NULL;
+        PlayerGUID = 0;
 
         ManaBurnTimer = 5000 + (rand() % 3 * 1000); // 5-8 sec cd
 
@@ -718,7 +718,7 @@ struct mob_phase_hunterAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
-            pPlayer = CAST_PLR(who);
+            PlayerGUID = who->GetGUID();
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -765,7 +765,7 @@ struct mob_phase_hunterAI : public ScriptedAI
                 ManaBurnTimer = 3500;
         } else ManaBurnTimer -= diff;
 
-        if (pPlayer) // start: support for quest 10190
+        if (Player *pPlayer = Unit::GetPlayer(PlayerGUID)) // start: support for quest 10190
         {
             if (!Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
                 && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
