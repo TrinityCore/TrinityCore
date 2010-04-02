@@ -266,35 +266,40 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
 {
     npc_lord_gregor_lescovarAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
-        pMarzon = NULL;
-        pTyrion = NULL;
         pCreature->RestoreFaction();
     }
 
     uint32 uiTimer;
     uint32 uiPhase;
 
-    Creature* pMarzon;
-    Creature* pTyrion;
+    uint64 MarzonGUID;
 
     void Reset()
     {
         uiTimer = 0;
         uiPhase = 0;
+
+        MarzonGUID = 0;
     }
 
     void EnterEvadeMode()
     {
         m_creature->DisappearAndDie();
 
-        if (pMarzon && pMarzon->isAlive())
-            pMarzon->DisappearAndDie();
+        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
+        {
+            if (pMarzon->isAlive())
+                pMarzon->DisappearAndDie();
+        }
     }
 
     void EnterCombat(Unit* pWho)
     {
-        if (pMarzon && pMarzon->isAlive() && !pMarzon->isInCombat())
-            pMarzon->AI()->AttackStart(pWho);
+        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
+        {
+            if (pMarzon->isAlive() && !pMarzon->isInCombat())
+                pMarzon->AI()->AttackStart(pWho);
+        }
     }
 
     void WaypointReached(uint32 uiPointId)
@@ -309,8 +314,11 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
                 break;
             case 16:
                 SetEscortPaused(true);
-                if (pMarzon = m_creature->SummonCreature(NPC_MARZON_BLADE,-8411.360352, 480.069733, 123.760895, 4.941504, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+                if (Creature *pMarzon = m_creature->SummonCreature(NPC_MARZON_BLADE,-8411.360352, 480.069733, 123.760895, 4.941504, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+                {
                     pMarzon->GetMotionMaster()->MovePoint(0,-8408.000977, 468.611450, 123.759903);
+                    MarzonGUID = pMarzon->GetGUID();
+                }
                 uiTimer = 2000;
                 uiPhase = 4;
                 break;
@@ -323,7 +331,7 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
         m_creature->GetCreatureListWithEntryInGrid(GuardList,NPC_STORMWIND_ROYAL,8.0f);
         if (!GuardList.empty())
         {
-            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+            for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
             {
                 if (Creature* pGuard = *itr)
                     pGuard->DisappearAndDie();
@@ -361,7 +369,7 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
                         uiPhase = 0;
                         break;
                     case 5:
-                        if (pMarzon)
+                        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
                             DoScriptText(SAY_MARZON_1, pMarzon);
                         uiTimer = 3000;
                         uiPhase = 6;
@@ -376,7 +384,7 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
                     case 7:
                         if (Creature* pTyrion = m_creature->FindNearestCreature(NPC_TYRION, 20.0f, true))
                             DoScriptText(SAY_TYRION_2, pTyrion);
-                        if (pMarzon)
+                        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
                             pMarzon->setFaction(14);
                         m_creature->setFaction(14);
                         uiTimer = 0;
@@ -498,13 +506,9 @@ struct npc_tyrion_spybotAI : public npc_escortAI
 
     uint32 uiTimer;
     uint32 uiPhase;
-    Creature* pTyrion;
-    Creature* pLescovar;
 
     void Reset()
     {
-        pLescovar = NULL;
-        pTyrion   = NULL;
         uiTimer = 0;
         uiPhase = 0;
     }
@@ -547,8 +551,11 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 2;
                         break;
                     case 2:
+                        /*
+                        FIXME: Why have this if pTyrion not declared?
                         if (pTyrion)
                             DoScriptText(SAY_TYRION_1, pTyrion);
+                        */
                         uiTimer = 3000;
                         uiPhase = 3;
                         break;
@@ -579,8 +586,11 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 0;
                         break;
                     case 8:
+                        /*
+                        FIXME: Why have this if pLescovar not declared?
                         if (pLescovar)
                             DoScriptText(SAY_LESCOVAR_1, pLescovar);
+                        */
                         uiTimer = 3000;
                         uiPhase = 9;
                         break;
@@ -590,12 +600,15 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 10;
                         break;
                     case 10:
+                        /*
+                        FIXME: Why have this if pLescovar not declared?
                         if (pLescovar && pLescovar->isAlive())
                         {
                             if (Player* pPlayer = GetPlayerForEscort())
                                 CAST_AI(npc_lord_gregor_lescovarAI,pLescovar->AI())->Start(false, false, pPlayer->GetGUID());
                             CAST_AI(npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
                         }
+                        */
                         m_creature->DisappearAndDie();
                         uiTimer = 0;
                         uiPhase = 0;

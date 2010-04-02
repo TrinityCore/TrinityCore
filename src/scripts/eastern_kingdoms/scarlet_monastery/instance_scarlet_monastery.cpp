@@ -103,7 +103,7 @@ struct instance_scarlet_monastery : public ScriptedInstance
             m_auiEncounter[1] = data;
             if (data == DONE)
             {
-                for (std::set<uint64>::iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
+                for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
                 {
                     Creature* add = instance->GetCreature(*itr);
                     if (add && add->isAlive())

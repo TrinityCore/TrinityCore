@@ -150,17 +150,14 @@ enum eFloppy
 struct npc_emilyAI : public npc_escortAI
 {
     npc_emilyAI(Creature* pCreature) : npc_escortAI(pCreature) { }
-    
+
     uint32 m_uiChatTimer;
-    
+
     uint64 RWORGGUID;
     uint64 MrfloppyGUID;
-    
-    Creature* Mrfloppy;
-    Creature* RWORG;
+
     bool Completed;
-    
-    
+
     void JustSummoned(Creature* pSummoned)
     {
         if (Creature* Mrfloppy = GetClosestCreatureWithEntry(m_creature, NPC_MRFLOPPY, 50.0f))
@@ -168,7 +165,7 @@ struct npc_emilyAI : public npc_escortAI
         else
             pSummoned->AI()->AttackStart(m_creature->getVictim());
     }
-    
+
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();
@@ -177,57 +174,77 @@ struct npc_emilyAI : public npc_escortAI
         switch (i)
         {
             case 9:
-                Mrfloppy = GetClosestCreatureWithEntry(m_creature, NPC_MRFLOPPY, 100.0f);
+                if (Creature *Mrfloppy = GetClosestCreatureWithEntry(m_creature, NPC_MRFLOPPY, 100.0f))
+                    MrfloppyGUID = Mrfloppy->GetGUID();
                 break;
             case 10:
-                if (Mrfloppy)
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
                 {
                     DoScriptText(SAY_WORGHAGGRO1, m_creature);
                     m_creature->SummonCreature(NPC_HUNGRY_WORG,m_creature->GetPositionX()+5,m_creature->GetPositionY()+2,m_creature->GetPositionZ()+1,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
                 }
                 break;
             case 11:
-                Mrfloppy->GetMotionMaster()->MoveFollow(m_creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
+                    Mrfloppy->GetMotionMaster()->MoveFollow(m_creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                 break;
             case 17:
-                Mrfloppy->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
+                    Mrfloppy->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
                 DoScriptText(SAY_WORGRAGGRO3, m_creature);
-                RWORG = m_creature->SummonCreature(NPC_RAVENOUS_WORG,m_creature->GetPositionX()+10,m_creature->GetPositionY()+8,m_creature->GetPositionZ()+2,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000);
-                RWORG->setFaction(35);
+                if (Creature *RWORG = m_creature->SummonCreature(NPC_RAVENOUS_WORG,m_creature->GetPositionX()+10,m_creature->GetPositionY()+8,m_creature->GetPositionZ()+2,3.229f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,120000))
+                {
+                    RWORG->setFaction(35);
+                    RWORGGUID = RWORG->GetGUID();
+                }
                 break;
             case 18:
-                if (Mrfloppy)
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
                 {
-                    RWORG->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
+                    if (Creature *RWORG = Unit::GetCreature(*m_creature, RWORGGUID))
+                        RWORG->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
                     DoCast(Mrfloppy,SPELL_MRFLOPPY);
                 }
                 break;
             case 19:
-                if (Mrfloppy->HasAura(SPELL_MRFLOPPY, 0))
-                    Mrfloppy->EnterVehicle(RWORG);
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
+                {
+                    if (Mrfloppy->HasAura(SPELL_MRFLOPPY, 0))
+                    {
+                        if (Creature *RWORG = Unit::GetCreature(*m_creature, RWORGGUID))
+                            Mrfloppy->EnterVehicle(RWORG);
+                    }
+                }
                 break;
             case 20:
-                if (Mrfloppy)
+                if (Creature *RWORG = Unit::GetCreature(*m_creature, RWORGGUID))
                     RWORG->HandleEmoteCommand(34);
                 break;
             case 21:
-                if (Mrfloppy)
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
                 {
-                    RWORG->Kill(Mrfloppy);
-                    Mrfloppy->ExitVehicle();
-                    RWORG->setFaction(14);
-                    RWORG->GetMotionMaster()->MovePoint(0, RWORG->GetPositionX()+10,RWORG->GetPositionY()+80,RWORG->GetPositionZ());
-                    DoScriptText(SAY_VICTORY2, m_creature);
+                    if (Creature *RWORG = Unit::GetCreature(*m_creature, RWORGGUID))
+                    {
+                        RWORG->Kill(Mrfloppy);
+                        Mrfloppy->ExitVehicle();
+                        RWORG->setFaction(14);
+                        RWORG->GetMotionMaster()->MovePoint(0, RWORG->GetPositionX()+10,RWORG->GetPositionY()+80,RWORG->GetPositionZ());
+                        DoScriptText(SAY_VICTORY2, m_creature);
+                    }
                 }
                 break;
             case 22:
-                if (Mrfloppy && Mrfloppy->isDead())
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
                 {
-                    RWORG->DisappearAndDie();
-                    m_creature->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
-                    Mrfloppy->setDeathState(ALIVE);
-                    Mrfloppy->GetMotionMaster()->MoveFollow(m_creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-                    DoScriptText(SAY_VICTORY3, m_creature);
+                    if (Mrfloppy->isDead())
+                    {
+                        if (Creature *RWORG = Unit::GetCreature(*m_creature, RWORGGUID))
+                            RWORG->DisappearAndDie();
+                        m_creature->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
+                        Mrfloppy->setDeathState(ALIVE);
+                        Mrfloppy->GetMotionMaster()->MoveFollow(m_creature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        DoScriptText(SAY_VICTORY3, m_creature);
+                    }
                 }
                 break;
             case 24:
@@ -244,28 +261,28 @@ struct npc_emilyAI : public npc_escortAI
                 break;
             case 27:
                 m_creature->DisappearAndDie();
-                if (Mrfloppy)
+                if (Creature *Mrfloppy = Unit::GetCreature(*m_creature, MrfloppyGUID))
                     Mrfloppy->DisappearAndDie();
                 break;
         }
     }
-    
+
     void EnterCombat(Unit* Who)
     {
         DoScriptText(SAY_RANDOMAGGRO, m_creature);
     }
-    
+
     void Reset()
     {
         m_uiChatTimer = 4000;
-        Mrfloppy = NULL;
-        RWORG = NULL;
+        MrfloppyGUID = 0;
+        RWORGGUID = 0;
     }
-    
+
     void UpdateAI(const uint32 uiDiff)
     {
         npc_escortAI::UpdateAI(uiDiff);
-        
+
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (m_uiChatTimer <= uiDiff)
@@ -277,7 +294,6 @@ struct npc_emilyAI : public npc_escortAI
         }
     }
 };
-
 
 bool QuestAccept_npc_emily(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
@@ -305,23 +321,13 @@ CreatureAI* GetAI_npc_emily(Creature* pCreature)
 struct npc_mrfloppyAI : public ScriptedAI
 {
     npc_mrfloppyAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint64 EmilyGUID;
     uint64 RWORGGUID;
     uint64 HWORGGUID;
-    
-    Creature* HWORG;
-    Creature* RWORG;
-    
-    Creature* Emily;
-    
-    void Reset()
-    {
-        HWORG = NULL;
-        RWORG = NULL;
-        Emily = NULL;
-    }
-    
+
+    void Reset() {}
+
     void EnterCombat(Unit* Who)
     {
         if (Creature* Emily = GetClosestCreatureWithEntry(m_creature, NPC_EMILY, 50.0f))
@@ -339,11 +345,11 @@ struct npc_mrfloppyAI : public ScriptedAI
             }
         }
     }
-    
+
     void EnterEvadeMode() {}
-    
+
     void MoveInLineOfSight(Unit *who) {}
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())

@@ -155,8 +155,6 @@ struct npc_ranger_lilathaAI : public npc_escortAI
 {
     npc_ranger_lilathaAI(Creature *c) : npc_escortAI(c) {}
 
-    std::list<GameObject*> CageList;
-
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = GetPlayerForEscort();

@@ -105,7 +105,7 @@ struct npc_sinclariAI : public ScriptedAI
                         std::list<Creature*> GuardList;
                         m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
                         if (!GuardList.empty())
-                            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+                            for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
                             {
                                 if (Creature* pGuard = *itr)
                                 {
@@ -122,7 +122,7 @@ struct npc_sinclariAI : public ScriptedAI
                         std::list<Creature*> GuardList;
                         m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
                         if (!GuardList.empty())
-                            for (std::list<Creature*>::iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
+                            for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
                             {
                                 if (Creature* pGuard = *itr)
                                 {

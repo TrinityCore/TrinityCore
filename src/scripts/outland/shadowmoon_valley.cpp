@@ -1496,7 +1496,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
 
             const Group::MemberSlotList members = EventGroup->GetMemberSlots();
 
-            for (Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
+            for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
             {
                 GroupMember = (Unit::GetPlayer(itr->guid));
                 if (!GroupMember)
@@ -1522,7 +1522,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
 
             if (GroupMemberCount == DeadMemberCount)
             {
-                for (Group::member_citerator itr = members.begin(); itr!= members.end(); itr++)
+                for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
                     GroupMember = Unit::GetPlayer(itr->guid);
 

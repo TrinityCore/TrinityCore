@@ -161,7 +161,7 @@ struct boss_keristraszaAI : public ScriptedAI
         if (uiCheckIntenseColdTimer < diff && !bMoreThanTwoIntenseCold)
         {
             std::list<HostileReference*> ThreatList = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); itr++)
+            for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
             {
                 Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
                 if (!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER)

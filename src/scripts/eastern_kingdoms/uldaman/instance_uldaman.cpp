@@ -96,7 +96,7 @@ struct instance_uldaman : public ScriptedInstance
 
     void ActivateStoneKeepers()
     {
-        for (std::vector<uint64>::iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (!pTarget || !pTarget->isAlive() || pTarget->getFaction()==14)
@@ -116,7 +116,7 @@ struct instance_uldaman : public ScriptedInstance
         if (!archaedas)
             return;
 
-        for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (!pTarget || !pTarget->isAlive() || pTarget->getFaction()==14)
@@ -131,7 +131,7 @@ struct instance_uldaman : public ScriptedInstance
     void DeActivateMinions()
     {
         // first despawn any aggroed wall minions
-        for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
@@ -141,7 +141,7 @@ struct instance_uldaman : public ScriptedInstance
         }
 
         // Vault Walkers
-        for (std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
@@ -151,7 +151,7 @@ struct instance_uldaman : public ScriptedInstance
         }
 
         // Earthen Guardians
-        for (std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
@@ -177,7 +177,7 @@ struct instance_uldaman : public ScriptedInstance
     void RespawnMinions()
     {
         // first respawn any aggroed wall minions
-        for (std::vector<uint64>::iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (pTarget && pTarget->isDead())
@@ -189,7 +189,7 @@ struct instance_uldaman : public ScriptedInstance
         }
 
         // Vault Walkers
-        for (std::vector<uint64>::iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (pTarget && pTarget->isDead())
@@ -201,7 +201,7 @@ struct instance_uldaman : public ScriptedInstance
         }
 
         // Earthen Guardians
-        for (std::vector<uint64>::iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
+        for (std::vector<uint64>::const_iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
             if (pTarget && pTarget->isDead())

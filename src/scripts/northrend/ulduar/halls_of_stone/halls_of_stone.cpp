@@ -162,7 +162,7 @@ struct mob_tribuna_controllerAI : public ScriptedAI
         if (!lKaddrakGUIDList.empty())
         {
             uint32 uiPositionCounter = 0;
-            for (std::list<Creature*>::iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
+            for (std::list<Creature*>::const_iterator itr = lKaddrakGUIDList.begin(); itr != lKaddrakGUIDList.end(); ++itr)
             {
                 if ((*itr)->isAlive())
                 {
@@ -277,7 +277,7 @@ struct npc_brann_hosAI : public npc_escortAI
     {
         if (lDwarfGUIDList.empty())
             return;
-        for (std::list<uint64>::iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = lDwarfGUIDList.begin(); itr != lDwarfGUIDList.end(); ++itr)
         {
             Creature* pTemp = Unit::GetCreature(*m_creature, pInstance ? (*itr) : 0);
             if (pTemp && pTemp->isAlive())

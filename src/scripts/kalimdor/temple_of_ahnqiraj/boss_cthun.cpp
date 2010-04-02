@@ -541,10 +541,10 @@ struct cthunAI : public Scripted_NoMovementAI
         if (Stomach_Map.empty())
             return NULL;
 
-        UNORDERED_MAP<uint64, bool>::iterator i = Stomach_Map.begin();
+        UNORDERED_MAP<uint64, bool>::const_iterator i = Stomach_Map.begin();
 
         std::list<Unit*> temp;
-        std::list<Unit*>::iterator j;
+        std::list<Unit*>::const_iterator j;
 
         //Get all players in map
         while (i != Stomach_Map.end())
@@ -654,7 +654,7 @@ struct cthunAI : public Scripted_NoMovementAI
                     //Place all units in threat list on outside of stomach
                     Stomach_Map.clear();
 
-                    std::list<HostileReference*>::iterator i = m_creature->getThreatManager().getThreatList().begin();
+                    std::list<HostileReference*>::const_iterator i = m_creature->getThreatManager().getThreatList().begin();
                     for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
                     {
                         //Outside stomach

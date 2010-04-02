@@ -77,7 +77,7 @@ struct boss_sulfuronAI : public ScriptedAI
             std::list<Creature*> pList = DoFindFriendlyMissingBuff(45.0f,SPELL_INSPIRE);
             if (!pList.empty())
             {
-                std::list<Creature*>::iterator i = pList.begin();
+                std::list<Creature*>::const_iterator i = pList.begin();
                 advance(i, (rand()%pList.size()));
                 pTarget = (*i);
             }

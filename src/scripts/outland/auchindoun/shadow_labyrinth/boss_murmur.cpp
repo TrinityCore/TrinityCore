@@ -68,7 +68,7 @@ struct boss_murmurAI : public ScriptedAI
     void SonicBoomEffect()
     {
         std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
-        for (std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+        for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
@@ -153,7 +153,7 @@ struct boss_murmurAI : public ScriptedAI
             if (ThunderingStorm_Timer <= diff)
             {
                 std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-                for (std::list<HostileReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+                for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                     if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
                         if (pTarget->isAlive() && !m_creature->IsWithinDist(pTarget, 35, false))
                             DoCast(pTarget, SPELL_THUNDERING_STORM, true);
@@ -176,7 +176,7 @@ struct boss_murmurAI : public ScriptedAI
         if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
-            for (std::list<HostileReference*>::iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
+            for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                 if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
                     if (pTarget->isAlive() && m_creature->IsWithinMeleeRange(pTarget))
                     {

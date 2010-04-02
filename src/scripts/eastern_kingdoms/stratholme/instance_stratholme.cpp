@@ -251,7 +251,7 @@ struct instance_stratholme : public ScriptedInstance
                 HandleGameObject(portGauntletGUID, false);
 
                 uint32 count = abomnationGUID.size();
-                for (std::set<uint64>::iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
+                for (std::set<uint64>::const_iterator i = abomnationGUID.begin(); i != abomnationGUID.end(); ++i)
                 {
                     if (Creature* pAbom = instance->GetCreature(*i))
                     {

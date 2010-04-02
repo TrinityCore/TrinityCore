@@ -189,8 +189,8 @@ struct boss_reliquary_of_soulsAI : public ScriptedAI
             return;
 
         std::list<HostileReference*>& m_threatlist = pTarget->getThreatManager().getThreatList();
-        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
-        for (; itr != m_threatlist.end(); itr++)
+        std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
+        for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
             if (pUnit)
@@ -390,7 +390,7 @@ struct boss_essence_of_sufferingAI : public ScriptedAI
         if (m_threatlist.empty())
             return; // No point continuing if empty threatlist.
         std::list<Unit*> targets;
-        std::list<HostileReference*>::iterator itr = m_threatlist.begin();
+        std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); ++itr)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());

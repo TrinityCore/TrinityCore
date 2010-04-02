@@ -187,7 +187,7 @@ struct boss_razorscaleAI : public BossAI
                     std::list<Unit*> pTargets;
                     SelectTargetList(pTargets, RAID_MODE(3,9), SELECT_TARGET_RANDOM, 100, true);
                     uint8 i = 0;
-                    for (std::list<Unit*>::iterator itr = pTargets.begin(); itr != pTargets.end();)
+                    for (std::list<Unit*>::const_iterator itr = pTargets.begin(); itr != pTargets.end();)
                     {
                         if (m_creature->HasInArc(M_PI, *itr))
                         {

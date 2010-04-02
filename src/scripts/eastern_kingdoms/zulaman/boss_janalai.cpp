@@ -246,7 +246,7 @@ struct boss_janalaiAI : public ScriptedAI
         if (!templist.size())
             return false;
 
-        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
         {
             if (uiAction == 1)
                (*i)->SetDisplayId(10056);
@@ -275,7 +275,7 @@ struct boss_janalaiAI : public ScriptedAI
 
             cell.Visit(pair, cSearcher, *(m_creature->GetMap()));
         }
-        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end(); ++i)
+        for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
         {
            (*i)->CastSpell(*i, SPELL_FIRE_BOMB_DAMAGE, true);
            (*i)->RemoveAllAuras();
@@ -510,7 +510,7 @@ struct mob_amanishi_hatcherAI : public ScriptedAI
 
         //error_log("Eggs %d at %d", templist.size(), side);
 
-        for (std::list<Creature*>::iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
+        for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
             if ((*i)->GetDisplayId() != 11686)
             {
                (*i)->CastSpell(*i, SPELL_HATCH_EGG, false);
