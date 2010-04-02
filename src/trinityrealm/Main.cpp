@@ -152,14 +152,6 @@ extern int main(int argc, char **argv)
     sLog.outString("Using configuration file %s.", cfg_file);
 
     sLog.outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
-    if (SSLeay() < 0x009080bfL)
-    {
-        sLog.outError("Outdated version of OpenSSL lib. Logins to server impossible!");
-        sLog.outError("Minimal required version [OpenSSL 0.9.8k]");
-        clock_t pause = 5000 + clock();
-        while (pause > clock()) {}
-        return 1;
-    }
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
