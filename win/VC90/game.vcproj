@@ -3174,44 +3174,64 @@
 					</File>
 				</Filter>
 				<Filter
-					Name="Forge of Souls"
+					Name="Icecrown Citadel"
 					>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\boss_bronjahm.cpp"
+					<Filter
+						Name="Forge of Souls"
 						>
-					</File>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\forge_of_souls.h"
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\boss_bronjahm.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\forge_of_souls.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\instance_forge_of_souls.cpp"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Halls of Reflection"
 						>
-					</File>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\forge_of_souls\instance_forge_of_souls.cpp"
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.h"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\instance_halls_of_reflection.cpp"
+							>
+						</File>
+					</Filter>
+					<Filter
+						Name="Pit of Saron"
 						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Halls of Reflection"
-					>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\instance_halls_of_reflection.cpp"
-						>
-					</File>
-				</Filter>
-				<Filter
-					Name="Pit of Saron"
-					>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\pit_of_saron.h"
-						>
-					</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\boss_forgemaster_garfrost.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\boss_krickandick.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\boss_scourgelord_tyrannus.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\pit_of_saron.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\pit_of_saron\pit_of_saron.h"
+							>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="Gundrak"
