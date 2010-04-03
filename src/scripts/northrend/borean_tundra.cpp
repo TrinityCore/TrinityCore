@@ -2196,6 +2196,49 @@ CreatureAI* GetAI_npc_seaforium_depth_charge(Creature* pCreature)
     return new npc_seaforium_depth_chargeAI(pCreature);
 }
 
+/*######
+## Help Those That Cannot Help Themselves, Quest 11876
+######*/
+
+enum eValiancekeepcannons
+{
+    GO_VALIANCE_KEEP_CANNON_1                     = 187560,
+    GO_VALIANCE_KEEP_CANNON_2                     = 188692
+};
+
+struct npc_valiance_keep_cannoneerAI : public ScriptedAI
+{
+    npc_valiance_keep_cannoneerAI(Creature* c) : ScriptedAI(c) {}
+
+    uint32 uiTimer;
+
+    void Reset()
+    {   
+		uiTimer = urand(13000,18000);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (uiTimer <= diff)
+        {
+            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
+            GameObject* pCannon;
+            if ((pCannon = m_creature->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_1,10)) || (pCannon = m_creature->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_2,10)))
+                pCannon->Use(m_creature);
+            uiTimer = urand(13000,18000);
+        }
+        else uiTimer -= diff;
+
+        if (!UpdateVictim())
+            return;
+    }
+
+};
+
+CreatureAI* GetAI_npc_valiance_keep_cannoneer(Creature* pCreature)
+{
+    return new npc_valiance_keep_cannoneerAI(pCreature);
+}
 
 void AddSC_borean_tundra()
 {
@@ -2346,5 +2389,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_seaforium_depth_charge";
     newscript->GetAI = &GetAI_npc_seaforium_depth_charge;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_valiance_keep_cannoneer";
+    newscript->GetAI = &GetAI_npc_valiance_keep_cannoneer;
     newscript->RegisterSelf();
 }
