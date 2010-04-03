@@ -88,7 +88,7 @@ void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const Wa
 
     // TODO: make this part of waypoint node, so that creature can walk when desired?
     if (unit.canFly())
-        SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
+        unit.SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
 
     unit.addUnitState(UNIT_STAT_ROAMING);
 }
