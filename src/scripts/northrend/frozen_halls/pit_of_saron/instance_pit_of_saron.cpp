@@ -17,7 +17,7 @@
 #include "ScriptedPch.h"
 #include "pit_of_saron.h"
 
-#define MAX_ENCOUNTER 3
+#define MAX_ENCOUNTER     3
 
 /* Pit of Saron encounters:
 0- Forgemaster Garfrost
@@ -27,65 +27,135 @@
 
 struct instance_pit_of_saron : public ScriptedInstance
 {
-    instance_pit_of_saron(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    instance_pit_of_saron(Map* pMap) : ScriptedInstance(pMap) {};
 
-    uint64 uiForgemaster;
     uint64 uiKrick;
     uint64 uiIck;
+    uint64 uiGarfrost;
     uint64 uiTyrannus;
+    uint64 uiRimefang;
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint64 uiJainaOrSylvanas1;
+    uint64 uiJainaOrSylvanas2;
 
-    void Initialize()
-    {
-        uiForgemaster = 0;
+    uint32 uiTeamInInstance;
+    uint32 uiEncounter[MAX_ENCOUNTER];
+
+   void Initialize()
+   {
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            uiEncounter[i] = NOT_STARTED;
+
+        uiGarfrost = 0;
         uiKrick = 0;
         uiIck = 0;
         uiTyrannus = 0;
-        
+    }
+
+    bool IsEncounterInProgress() const
+    {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            m_auiEncounter[i] = NOT_STARTED;
+            if (uiEncounter[i] == IN_PROGRESS) 
+                return true;
+
+        return false;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
+        Map::PlayerList const &players = instance->GetPlayers();
+
+        if (!players.isEmpty())
+        {
+            if (Player* pPlayer = players.begin()->getSource())
+                uiTeamInInstance = pPlayer->GetTeam();
+        }
+
         switch(pCreature->GetEntry())
         {
-            case CREATURE_FORGEMASTER:
-                uiForgemaster = pCreature->GetGUID();
+            case CREATURE_KRICK:   
+                uiKrick = pCreature->GetGUID();     
                 break;
-            case CREATURE_KRICK:
-                uiKrick = pCreature->GetGUID();
-                break;
+
             case CREATURE_ICK:
                 uiIck = pCreature->GetGUID();
                 break;
-            case CREATURE_TYRANNUS:
-                uiTyrannus = pCreature->GetGUID();
-                break;                
+
+            case CREATURE_GARFROST:    
+                uiGarfrost = pCreature->GetGUID();        
+                break;
+
+            case CREATURE_TYRANNUS:    
+                uiTyrannus = pCreature->GetGUID();        
+                break;
+
+            case CREATURE_RIMEFANG:
+                uiRimefang = pCreature->GetGUID();        
+                break;
+
+            case NPC_SYLVANAS_PART1:
+                if (uiTeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(NPC_JAINA_PART1, ALLIANCE);
+                uiJainaOrSylvanas1 = pCreature->GetGUID();
+                break;
+            case NPC_SYLVANAS_PART2:
+                if (uiTeamInInstance == ALLIANCE)
+                    pCreature->UpdateEntry(NPC_JAINA_PART2, ALLIANCE);
+                uiJainaOrSylvanas2 = pCreature->GetGUID();
+                break;
+            case NPC_KILARA:
+                if (uiTeamInInstance == ALLIANCE)
+                   pCreature->UpdateEntry(NPC_ELANDRA, ALLIANCE);
+                break;
+            case NPC_KORALEN:
+                if (uiTeamInInstance == ALLIANCE)
+                   pCreature->UpdateEntry(NPC_KORLAEN, ALLIANCE);
+                break;
+            case NPC_CHAMPION_1_HORDE:
+                if (uiTeamInInstance == ALLIANCE)
+                   pCreature->UpdateEntry(NPC_CHAMPION_1_ALLIANCE, ALLIANCE);
+                break;
+            case NPC_CHAMPION_2_HORDE:
+                if (uiTeamInInstance == ALLIANCE)
+                   pCreature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
+                break;
+            case NPC_CHAMPION_3_HORDE: // No 3rd set for Alliance?
+                if (uiTeamInInstance == ALLIANCE) 
+                   pCreature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
+                break;
         }
     }
-/*
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+
+    uint64 GetData64(uint32 identifier)
     {
-        switch(pGo->GetEntry())
+        switch(identifier)
         {
+            case DATA_GARFROST:             return uiGarfrost;
+            case DATA_KRICK:                return uiKrick;
+            case DATA_ICK:                  return uiIck;
+            case DATA_TYRANNUS:             return uiTyrannus;
+            case DATA_RIMEFANG:             return uiRimefang;
+
+            case DATA_JAINA_SYLVANAS_1:     return uiJainaOrSylvanas1;
+            case DATA_JAINA_SYLVANAS_2:     return uiJainaOrSylvanas2;
         }
+
+        return 0;
     }
-*/
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
         {
-            case DATA_FORGEMASTER_EVENT:
-                m_auiEncounter[0] = data;
-                break;
-            case DATA_KRICKANDICK_EVENT:
-                m_auiEncounter[1] = data;
+            case DATA_GARFROST_EVENT:
+                uiEncounter[0] = data; 
                 break;
             case DATA_TYRANNUS_EVENT:
-                m_auiEncounter[2] = data;
-                break;                
+                uiEncounter[1] = data; 
+                break;
+            case DATA_KRICKANDICK_EVENT:
+                uiEncounter[2] = data; 
+                break;
         }
 
         if (data == DONE)
@@ -96,32 +166,27 @@ struct instance_pit_of_saron : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_FORGEMASTER_EVENT:    return m_auiEncounter[0];
-            case DATA_KRICKANDICK_EVENT:    return m_auiEncounter[1];
-            case DATA_TYRANNUS_EVENT:       return m_auiEncounter[2];
+            case DATA_GARFROST_EVENT:            return uiEncounter[0];
+            case DATA_TYRANNUS_EVENT:            return uiEncounter[1];
+            case DATA_KRICKANDICK_EVENT:         return uiEncounter[2];
         }
 
         return 0;
     }
-/*
-    uint64 GetData64(uint32 identifier)
-    {
-        switch(identifier)
-        {
-        }
 
-        return 0;
-    }
-*/
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
 
+        std::string str_data;
+
         std::ostringstream saveStream;
-        saveStream << "P S " << m_auiEncounter[0] << " " << m_auiEncounter[1] << m_auiEncounter[2];
+        saveStream << "P S " << uiEncounter[0] << " " << uiEncounter[1]  << " " << uiEncounter[2];
+
+        str_data = saveStream.str();
 
         OUT_SAVE_INST_DATA_COMPLETE;
-        return saveStream.str();
+        return str_data;
     }
 
     void Load(const char* in)
@@ -142,13 +207,13 @@ struct instance_pit_of_saron : public ScriptedInstance
 
         if (dataHead1 == 'P' && dataHead2 == 'S')
         {
-            m_auiEncounter[0] = data0;
-            m_auiEncounter[1] = data1;
-            m_auiEncounter[2] = data2;
+            uiEncounter[0] = data0;
+            uiEncounter[1] = data1;
+            uiEncounter[2] = data2;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+                if (uiEncounter[i] == IN_PROGRESS)
+                    uiEncounter[i] = NOT_STARTED;
 
         } else OUT_LOAD_INST_DATA_FAIL;
 
@@ -161,7 +226,7 @@ InstanceData* GetInstanceData_instance_pit_of_saron(Map* pMap)
     return new instance_pit_of_saron(pMap);
 }
 
-void AddSC_pit_of_saron()
+void AddSC_instance_pit_of_saron()
 {
     Script *newscript;
     newscript = new Script;
