@@ -60,50 +60,42 @@ enum eEnums
 
 struct boss_ionarAI : public ScriptedAI
 {
-    boss_ionarAI(Creature *pCreature) : ScriptedAI(pCreature)
+    boss_ionarAI(Creature *pCreature) : ScriptedAI(pCreature), m_sparkList(pCreature)
     {
         m_pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* m_pInstance;
 
-    std::list<uint64> m_lSparkGUIDList;
+    SummonList m_sparkList;
 
     bool m_bIsSplitPhase;
-    uint32 m_uiSplit_Timer;
-    uint32 m_uiSparkAtHomeCount;
+    uint32 m_uiSplitTimer;
 
-    uint32 m_uiStaticOverload_Timer;
-    uint32 m_uiBallLightning_Timer;
+    uint32 m_uiStaticOverloadTimer;
+    uint32 m_uiBallLightningTimer;
 
     uint32 m_uiHealthAmountModifier;
 
     void Reset()
     {
-        m_lSparkGUIDList.clear();
+        m_sparkList.DespawnAll();
 
         m_bIsSplitPhase = true;
-        m_uiSplit_Timer = 25000;
-        m_uiSparkAtHomeCount = 0;
+        m_uiSplitTimer = 25000;
 
-        m_uiStaticOverload_Timer = 5000 + rand()%1000;
-        m_uiBallLightning_Timer = 10000 + rand()%1000;
+        m_uiStaticOverloadTimer = urand(5000, 6000);
+        m_uiBallLightningTimer = urand(10000, 11000);
 
         m_uiHealthAmountModifier = 1;
 
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+
         if (m_creature->GetVisibility() == VISIBILITY_OFF)
             m_creature->SetVisibility(VISIBILITY_ON);
-    }
 
-    void AttackedBy(Unit* pAttacker)
-    {
-        if (m_creature->getVictim())
-            return;
-
-        if (m_creature->GetVisibility() == VISIBILITY_OFF)
-            return;
-
-        AttackStart(pAttacker);
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_IONAR, NOT_STARTED);
     }
 
     void EnterCombat(Unit* who)
@@ -114,29 +106,11 @@ struct boss_ionarAI : public ScriptedAI
             m_pInstance->SetData(TYPE_IONAR, IN_PROGRESS);
     }
 
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_IONAR, NOT_STARTED);
-    }
-
-    void AttackStart(Unit* pWho)
-    {
-        if (m_creature->Attack(pWho, true))
-        {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
-
-            if (m_creature->GetVisibility() != VISIBILITY_OFF)
-                m_creature->GetMotionMaster()->MoveChase(pWho);
-        }
-    }
-
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        DespawnSpark();
+
+        m_sparkList.DespawnAll();
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_IONAR, DONE);
@@ -147,92 +121,74 @@ struct boss_ionarAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
-    void DespawnSpark()
-    {
-        if (m_lSparkGUIDList.empty())
-            return;
-
-        for (std::list<uint64>::const_iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
-        {
-            if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
-            {
-                if (pTemp->isAlive())
-                    pTemp->ForcedDespawn();
-            }
-        }
-        m_lSparkGUIDList.clear();
-    }
-
     //make sparks come back
     void CallBackSparks()
     {
         //should never be empty here, but check
-        if (m_lSparkGUIDList.empty())
+        if (m_sparkList.empty())
             return;
 
         Position pos;
         m_creature->GetPosition(&pos);
 
-        for (std::list<uint64>::const_iterator itr = m_lSparkGUIDList.begin(); itr != m_lSparkGUIDList.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = m_sparkList.begin(); itr != m_sparkList.end(); ++itr)
         {
             if (Creature* pSpark = Unit::GetCreature(*m_creature, *itr))
             {
                 if (pSpark->isAlive())
                 {
-                    // Interrupt attack to prevent further attacking player
-                    pSpark->AttackStop();
-
-                    if (pSpark->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-                        pSpark->GetMotionMaster()->MovementExpired();
-
-                    //now handle by db
-                    //pSpark->SetSpeed(MOVE_RUN, pSpark->GetCreatureInfo()->speed * 2);
+                    pSpark->SetSpeed(MOVE_RUN, 2.0f);
+                    pSpark->GetMotionMaster()->Clear();
                     pSpark->GetMotionMaster()->MovePoint(POINT_CALLBACK, pos);
                 }
+                else
+                    pSpark->ForcedDespawn();
             }
         }
     }
 
-    void RegisterSparkAtHome()
+    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
     {
-        ++m_uiSparkAtHomeCount;
+        if (m_creature->GetVisibility() == VISIBILITY_OFF)
+            uiDamage = 0;
     }
 
     void JustSummoned(Creature* pSummoned)
     {
         if (pSummoned->GetEntry() == NPC_SPARK_OF_IONAR)
         {
+            m_sparkList.Summon(pSummoned);
+
             pSummoned->CastSpell(pSummoned, DUNGEON_MODE(SPELL_SPARK_VISUAL_TRIGGER_N,SPELL_SPARK_VISUAL_TRIGGER_H), true);
 
-            // You can do nothing against these npcs but only run away!
-            // They must never get damage at all!
-            pSummoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-            pSummoned->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-
-            if (m_creature->getVictim())
-                pSummoned->AI()->AttackStart(pTarget ? pTarget : m_creature->getVictim());
-
-            m_lSparkGUIDList.push_back(pSummoned->GetGUID());
+            if (pTarget)
+            {
+                pSummoned->SetInCombatWith(pTarget);
+                pSummoned->GetMotionMaster()->Clear();
+                pSummoned->GetMotionMaster()->MoveFollow(pTarget, 0.0f, 0.0f);
+            }
         }
+    }
+
+    void SummonedCreatureDespawn(Creature *pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_SPARK_OF_IONAR)
+            m_sparkList.Despawn(pSummoned);
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
+        //Return since we have no target
+        if (!UpdateVictim())
+            return;
+
         // Splitted
         if (m_creature->GetVisibility() == VISIBILITY_OFF)
         {
-            // Reset if there is no target anymore!
-            if (!UpdateVictim())
+            if (m_uiSplitTimer <= uiDiff)
             {
-                DespawnSpark();
-                EnterEvadeMode();
-            }
-
-            if (m_uiSplit_Timer <= uiDiff)
-            {
-                m_uiSplit_Timer = 2500;
+                m_uiSplitTimer = 2500;
 
                 // Return sparks to where Ionar splitted
                 if (m_bIsSplitPhase)
@@ -241,57 +197,46 @@ struct boss_ionarAI : public ScriptedAI
                     m_bIsSplitPhase = false;
                 }
                 // Lightning effect and restore Ionar
-                else if (m_uiSparkAtHomeCount == MAX_SPARKS)
+                else if (m_sparkList.empty())
                 {
-                    m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, false);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, false);
                     m_creature->SetVisibility(VISIBILITY_ON);
+                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
                     DoCast(m_creature, SPELL_SPARK_DESPAWN, false);
 
-                    DespawnSpark();
-
-                    m_uiSparkAtHomeCount = 0;
-                    m_uiSplit_Timer = 25000;
+                    m_uiSplitTimer = 25000;
                     m_bIsSplitPhase = true;
 
-                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
-                    {
-                        if (m_creature->getVictim())
-                            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-                    }
+                    if (m_creature->getVictim())
+                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                 }
             }
             else
-                m_uiSplit_Timer -= uiDiff;
+                m_uiSplitTimer -= uiDiff;
 
             return;
         }
 
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (m_uiStaticOverload_Timer <= uiDiff)
+        if (m_uiStaticOverloadTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, DUNGEON_MODE(SPELL_STATIC_OVERLOAD_N, SPELL_STATIC_OVERLOAD_H));
 
-            m_uiStaticOverload_Timer = 5000 + rand()%1000;
+            m_uiStaticOverloadTimer = urand(5000, 6000);
         }
         else
-            m_uiStaticOverload_Timer -= uiDiff;
+            m_uiStaticOverloadTimer -= uiDiff;
 
-        if (m_uiBallLightning_Timer <= uiDiff)
+        if (m_uiBallLightningTimer <= uiDiff)
         {
             DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BALL_LIGHTNING_N, SPELL_BALL_LIGHTNING_H));
-            m_uiBallLightning_Timer = 10000 + rand()%1000;
+            m_uiBallLightningTimer = urand(10000, 11000);
         }
         else
-            m_uiBallLightning_Timer -= uiDiff;
+            m_uiBallLightningTimer -= uiDiff;
 
         // Health check
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-(20*m_uiHealthAmountModifier)))
+        if (HealthBelowPct(100-(20*m_uiHealthAmountModifier)))
         {
             ++m_uiHealthAmountModifier;
 
@@ -300,7 +245,7 @@ struct boss_ionarAI : public ScriptedAI
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
 
-            DoCast(m_creature, SPELL_DISPERSE);
+            DoCast(m_creature, SPELL_DISPERSE, true);
         }
 
         DoMeleeAttackIfReady();
@@ -325,13 +270,10 @@ bool EffectDummyCreature_boss_ionar(Unit* pCaster, uint32 uiSpellId, uint32 uiEf
 
         pCreatureTarget->AttackStop();
         pCreatureTarget->SetVisibility(VISIBILITY_OFF);
+        pCreatureTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
-        // he never must get damage (e.g. through aoe) if he isn't there
-        pCreatureTarget->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_NORMAL, true);
-        pCreatureTarget->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-
-        if (pCreatureTarget->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-            pCreatureTarget->GetMotionMaster()->MovementExpired();
+        pCreatureTarget->GetMotionMaster()->Clear();
+        pCreatureTarget->GetMotionMaster()->MoveIdle();
 
         //always return true when we are handling this spell and effect
         return true;
@@ -357,6 +299,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
     void Reset()
     {
         uiCheckTimer = 2000;
+        m_creature->SetReactState(REACT_PASSIVE);
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -365,50 +308,20 @@ struct mob_spark_of_ionarAI : public ScriptedAI
             return;
 
         if (uiPointId == POINT_CALLBACK)
-        {
-            if (Creature* pIonar = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_IONAR)))
-            {
-                if (!pIonar->isAlive())
-                {
-                    if (m_creature->isAlive())
-                        m_creature->ForcedDespawn();
-
-                    return;
-                }
-
-                if (boss_ionarAI* pIonarAI = dynamic_cast<boss_ionarAI*>(pIonar->AI()))
-                    pIonarAI->RegisterSparkAtHome();
-            }
-            else
-                if (m_creature->isAlive())
-                    m_creature->ForcedDespawn();
-        }
+            m_creature->ForcedDespawn();
     }
 
-    void EnterCombat(Unit* who)
-    {   // Prevent to get aggro / start attack if we move home
-        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-            return;
-
-        ScriptedAI::EnterCombat(who);
-    }
-
-    void AttackStart(Unit* pWho)
-    {   // Prevent to get aggro / start attack if we move home
-        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
-            return;
-
-        ScriptedAI::AttackStart(pWho);
+    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    {
+        uiDamage = 0;
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        // Despawn since we have no target and the encounter is not running
-        if (!UpdateVictim() && m_pInstance && m_pInstance->GetData(TYPE_IONAR) != IN_PROGRESS)
+        // Despawn if the encounter is not running
+        if (m_pInstance && m_pInstance->GetData(TYPE_IONAR) != IN_PROGRESS)
         {
-            if (m_creature->isAlive())
-                m_creature->ForcedDespawn();
-
+            m_creature->ForcedDespawn();
             return;
         }
 
@@ -425,20 +338,13 @@ struct mob_spark_of_ionarAI : public ScriptedAI
                         Position pos;
                         pIonar->GetPosition(&pos);
 
-                        // Interrupt attack to prevent further attacking player
-                        m_creature->AttackStop();
-
-                        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-                            m_creature->GetMotionMaster()->MovementExpired();
-
-                        //now handle by db
-                        //m_creature->SetSpeed(MOVE_RUN, m_creature->GetCreatureInfo()->speed * 2);
+                        m_creature->SetSpeed(MOVE_RUN, 2.0f);
+                        m_creature->GetMotionMaster()->Clear();
                         m_creature->GetMotionMaster()->MovePoint(POINT_CALLBACK, pos);
                     }
                 }
                 else
-                    if (m_creature->isAlive())
-                        m_creature->ForcedDespawn();
+                    m_creature->ForcedDespawn();
             }
             uiCheckTimer = 2000;
         }
