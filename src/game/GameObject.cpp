@@ -1211,10 +1211,6 @@ void GameObject::Use(Unit* user)
             {
                 case GO_READY:                              // ready for loot
                 {
-                    // 1) skill must be >= base_zone_skill
-                    // 2) if skill == base_zone_skill => 5% chance
-                    // 3) chance is linear dependence from (base_zone_skill-skill)
-
                     uint32 zone, subzone;
                     GetZoneAndAreaId(zone,subzone);
 
@@ -1227,34 +1223,43 @@ void GameObject::Use(Unit* user)
                         sLog.outErrorDb("Fishable areaId %u are not properly defined in `skill_fishing_base_level`.",subzone);
 
                     int32 skill = player->GetSkillValue(SKILL_FISHING);
-                    int32 chance = pow((double)skill/zone_skill,2) * 100;
+
+                    int32 chance;
+                    if (skill < zone_skill)
+                    {
+                        chance = pow((double)skill/zone_skill,2) * 100;
+                        if (chance < 1)
+                            chance = 1;
+                    }
+                    else
+                        chance = 100;
+
                     int32 roll = irand(1,100);
 
                     DEBUG_LOG("Fishing check (skill: %i zone min skill: %i chance %i roll: %i",skill,zone_skill,chance,roll);
 
-                    if(chance >= roll)
+                    // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
+                    if (chance >= roll)
                     {
                         player->UpdateFishingSkill();
-                        // 3.1 changes, you can now fish anywhere and get fishing skillups
-                        // but you will likely cause junk in areas that require a high fishing skill (not yet implemented)
-                        if(skill >= zone_skill)
-                        {
-                            // prevent removing GO at spell cancel
-                            player->RemoveGameObject(this,false);
-                            SetOwnerGUID(player->GetGUID());
 
-                            //TODO: find reasonable value for fishing hole search
-                            GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
-                            if (ok)
-                            {
-                                player->SendLoot(ok->GetGUID(),LOOT_FISHINGHOLE);
-                                player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, ok->GetGOInfo()->id);
-                                SetLootState(GO_JUST_DEACTIVATED);
-                            }
-                            else
-                                player->SendLoot(GetGUID(),LOOT_FISHING);
+                        // prevent removing GO at spell cancel
+                        player->RemoveGameObject(this,false);
+                        SetOwnerGUID(player->GetGUID());
+
+                        //TODO: find reasonable value for fishing hole search
+                        GameObject* ok = LookupFishingHoleAround(20.0f + CONTACT_DISTANCE);
+                        if (ok)
+                        {
+                            player->SendLoot(ok->GetGUID(),LOOT_FISHINGHOLE);
+                            player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_FISH_IN_GAMEOBJECT, ok->GetGOInfo()->id);
+                            SetLootState(GO_JUST_DEACTIVATED);
                         }
+                        else
+                            player->SendLoot(GetGUID(),LOOT_FISHING);
                     }
+                    // TODO: else: junk
+
                     break;
                 }
                 case GO_JUST_DEACTIVATED:                   // nothing to do, will be deleted at next update
