@@ -144,9 +144,10 @@ void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/
 void WorldSession::SendGMTicketGetTicket(uint32 status, char const* text)
 {
     int len = text ? strlen(text) : 0;
-    WorldPacket data( SMSG_GMTICKET_GETTICKET, (4+len+1+4+2+4+4) );
+    WorldPacket data(SMSG_GMTICKET_GETTICKET, (4+len+1+4+2+4+4));
     data << uint32(status); // standard 0x0A, 0x06 if text present
-    if(status == 6)
+    data << uint32(1);      // unk flags, if 0, can't edit the ticket
+    if (status == 6)
     {
         data << text; // ticket text
         data << uint8(0x7); // ticket category
@@ -156,5 +157,5 @@ void WorldSession::SendGMTicketGetTicket(uint32 status, char const* text)
         data << uint8(0); // if == 2 and next field == 1 then "Your ticket has been escalated"
         data << uint8(0); // const
     }
-    SendPacket( &data );
+    SendPacket(&data);
 }
