@@ -15945,7 +15945,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     {
         case TYPEID_UNIT:
             if (canFly())
-                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_LEVITATING);
+                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             break;
         case TYPEID_PLAYER:
             // remove unknown, unused etc flags for now
