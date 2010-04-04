@@ -3795,6 +3795,18 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
+        case 25425:     // Shoot
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
+        case 25761:     // Shoot
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
+        case 42611:     // Shoot
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
         default:
             break;
         }
