@@ -3799,7 +3799,7 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
-        case 25761:     // Shoot
+        case 45761:     // Shoot
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
