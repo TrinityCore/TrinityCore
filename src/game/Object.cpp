@@ -1656,6 +1656,12 @@ void WorldObject::SendMessageToSetInRange(WorldPacket *data, float dist, bool /*
     VisitNearbyWorldObject(dist, notifier);
 }
 
+void WorldObject::SendMessageToSet(WorldPacket *data, Player const* skipped_rcvr)
+{
+    Trinity::MessageDistDeliverer notifier(this, data, GetMap()->GetVisibilityDistance(), false, skipped_rcvr);
+    VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), notifier);
+}
+
 void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 {
     WorldPacket data(SMSG_GAMEOBJECT_DESPAWN_ANIM, 8);

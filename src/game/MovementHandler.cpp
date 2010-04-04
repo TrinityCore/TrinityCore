@@ -349,7 +349,7 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
     movementInfo.time = getMSTime();
     movementInfo.guid = mover->GetGUID();
     WriteMovementInfo(&data, &movementInfo);
-    GetPlayer()->SendMessageToSet(&data, false);
+    mover->SendMessageToSet(&data, _player);
 
     mover->m_movementInfo = movementInfo;
 
@@ -360,9 +360,10 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
         return;
     }
 
+    mover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+
     if (plMover)                                            // nothing is charmed, or player charmed
     {
-        plMover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
         plMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
         if (movementInfo.z < -500.0f)
@@ -396,17 +397,15 @@ void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
             }
         }
     }
-    else                                                    // creature charmed
+    /*else                                                    // creature charmed
     {
-        mover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
-
-        /*if(mover->canFly())
+        if(mover->canFly())
         {
             bool flying = mover->IsFlying();
             if(flying != ((mover->GetByteValue(UNIT_FIELD_BYTES_1, 3) & 0x02) ? true : false))
                 mover->SetFlying(flying);
-        }*/
-    }
+        }
+    }*/
 
     //sLog.outString("Receive Movement Packet %s:", opcodeTable[recv_data.GetOpcode()]);
     //mover->OutMovementInfo();
