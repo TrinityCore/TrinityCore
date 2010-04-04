@@ -1824,6 +1824,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSet(WorldPacket *data, bool self);// overwrite Object::SendMessageToSet
         void SendMessageToSetInRange(WorldPacket *data, float fist, bool self);// overwrite Object::SendMessageToSetInRange
         void SendMessageToSetInRange(WorldPacket *data, float dist, bool self, bool own_team_only);
+        void SendMessageToSet(WorldPacket *data, Player const* skipped_rcvr);
 
         void SendTeleportPacket(Position &oldPos);
         void SendTeleportAckPacket();

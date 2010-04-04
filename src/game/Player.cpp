@@ -6045,6 +6045,17 @@ void Player::SendMessageToSetInRange(WorldPacket *data, float dist, bool self, b
     VisitNearbyWorldObject(dist, notifier);
 }
 
+void Player::SendMessageToSet(WorldPacket *data, Player const* skipped_rcvr)
+{
+    if (skipped_rcvr != this)
+        GetSession()->SendPacket(data);
+
+    // we use World::GetMaxVisibleDistance() because i cannot see why not use a distance
+    // update: replaced by GetMap()->GetVisibilityDistance()
+    Trinity::MessageDistDeliverer notifier(this, data, GetMap()->GetVisibilityDistance(), false, skipped_rcvr);
+    VisitNearbyWorldObject(GetMap()->GetVisibilityDistance(), notifier);
+}
+
 void Player::SendDirectMessage(WorldPacket *data)
 {
     if (m_session)
