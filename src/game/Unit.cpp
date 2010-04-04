@@ -14993,7 +14993,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     }
 
     // Set charmed
-    setFaction(charmer->getFaction());
+     Map* pMap = GetMap();
+     if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleGround()))
+        setFaction(charmer->getFaction());
+
     charmer->SetCharm(this, true);
 
     if (GetTypeId() == TYPEID_UNIT)
@@ -15090,7 +15093,9 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     CombatStop(); //TODO: CombatStop(true) may cause crash (interrupt spells)
     getHostileRefManager().deleteReferences();
     DeleteThreatList();
-    RestoreFaction();
+    Map* pMap = GetMap();
+    if (!IsVehicle() || (IsVehicle() && pMap && !pMap->IsBattleGround()))
+        RestoreFaction();
     GetMotionMaster()->InitDefault();
 
     if (type == CHARM_TYPE_POSSESS)
