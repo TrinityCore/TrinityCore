@@ -5599,7 +5599,7 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1052,48384), -- Improved Moonkin Form
 (1053,53379), -- Swift Retribution
 -- Percentage Damage Increase
-(1055,75593), -- Ferocious Inspiration
+(1055,34455), -- Ferocious Inspiration
 (1056,31869), -- Sanctified Retribution
 -- Critical Strike Chance Taken Debuff (All types)
 (1058,20335), -- Heart of the Crusader
