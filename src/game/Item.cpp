@@ -1028,20 +1028,10 @@ bool Item::IsBindedNotWith( Player const* player ) const
 
 bool ItemRequiredTarget::IsFitToRequirements( Unit* pUnitTarget ) const
 {
-    float uiPercentHP;
-    float uiHealth;
-    float uiMaxHealth;
-
     if (pUnitTarget->GetTypeId() != TYPEID_UNIT)
         return false;
 
     if (pUnitTarget->GetEntry() != m_uiTargetEntry)
-        return false;
-
-    uiHealth = pUnitTarget->GetHealth();
-    uiMaxHealth = pUnitTarget->GetMaxHealth();
-    uiPercentHP = ((uiHealth / uiMaxHealth) * 100);
-    if (m_uiMaxPercentHealth <= uiPercentHP)
         return false;
 
     switch(m_uiType)
