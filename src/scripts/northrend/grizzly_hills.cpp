@@ -372,7 +372,10 @@ enum eOuthouseBunny
 };
 
 enum eSounds
-{    SOUND_FEMALE        = 12671,    SOUND_MALE          = 12670};
+{
+    SOUND_FEMALE        = 12671,
+    SOUND_MALE          = 12670
+};
 struct npc_outhouse_bunnyAI : public ScriptedAI
 {
     npc_outhouse_bunnyAI(Creature* pCreature) : ScriptedAI(pCreature) {}
@@ -427,15 +430,25 @@ struct npc_tallhorn_stagAI : public ScriptedAI
 {
     npc_tallhorn_stagAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
+    uint8 m_uiPhase;
+
+    void Reset()
+    {
+        m_uiPhase = 1;
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
-        // call this each update tick?
-        if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
-        {
-            me->SetStandState(UNIT_STAND_STATE_DEAD);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        }
+        if (m_uiPhase = 1)
+		{
+		    if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
+            {
+                me->SetStandState(UNIT_STAND_STATE_DEAD);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+            }
+            m_uiPhase = 0;
+		}
     }
 };
 
