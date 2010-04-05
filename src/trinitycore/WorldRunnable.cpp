@@ -45,8 +45,6 @@ void WorldRunnable::run()
 {
     ///- Init new SQL thread for the world database
     WorldDatabase.ThreadStart();                                // let thread do safe mySQL requests (one connection call enough)
-    CharacterDatabase.ThreadStart();
-    loginDatabase.ThreadStart();
 
     sWorld.InitResultQueue();
 
@@ -96,6 +94,4 @@ void WorldRunnable::run()
 
     ///- End the database thread
     WorldDatabase.ThreadEnd();                                  // free mySQL thread resources
-    CharacterDatabase.ThreadEnd();
-    loginDatabase.ThreadEnd();
 }
