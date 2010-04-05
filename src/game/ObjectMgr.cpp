@@ -2422,7 +2422,7 @@ void ObjectMgr::LoadItemRequiredTarget()
 
     uint32 count = 0;
 
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry,type,targetEntry FROM item_required_target");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry,type,targetEntry,maxPercentHealth FROM item_required_target");
 
     if (!result)
     {
@@ -2442,9 +2442,10 @@ void ObjectMgr::LoadItemRequiredTarget()
         Field *fields = result->Fetch();
         bar.step();
 
-        uint32 uiItemId      = fields[0].GetUInt32();
-        uint32 uiType        = fields[1].GetUInt32();
-        uint32 uiTargetEntry = fields[2].GetUInt32();
+        uint32 uiItemId             = fields[0].GetUInt32();
+        uint32 uiType               = fields[1].GetUInt32();
+        uint32 uiTargetEntry        = fields[2].GetUInt32();
+        float uiMaxPercentHealth    = fields[3].GetUInt32();
 
         ItemPrototype const* pItemProto = sItemStorage.LookupEntry<ItemPrototype>(uiItemId);
 
@@ -2508,7 +2509,7 @@ void ObjectMgr::LoadItemRequiredTarget()
             continue;
         }
 
-        m_ItemRequiredTarget.insert(ItemRequiredTargetMap::value_type(uiItemId,ItemRequiredTarget(ItemRequiredTargetType(uiType),uiTargetEntry)));
+        m_ItemRequiredTarget.insert(ItemRequiredTargetMap::value_type(uiItemId,ItemRequiredTarget(ItemRequiredTargetType(uiType),uiTargetEntry,uiMaxPercentHealth)));
 
         ++count;
     } while (result->NextRow());

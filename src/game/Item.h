@@ -208,9 +208,10 @@ enum ItemRequiredTargetType
 
 struct ItemRequiredTarget
 {
-    ItemRequiredTarget(ItemRequiredTargetType uiType, uint32 uiTargetEntry) : m_uiType(uiType), m_uiTargetEntry(uiTargetEntry) {}
+    ItemRequiredTarget(ItemRequiredTargetType uiType, uint32 uiTargetEntry, float uiMaxPercentHealth) : m_uiType(uiType), m_uiTargetEntry(uiTargetEntry), m_uiMaxPercentHealth(uiMaxPercentHealth) {}
     ItemRequiredTargetType m_uiType;
     uint32 m_uiTargetEntry;
+    float m_uiMaxPercentHealth;
 
     // helpers
     bool IsFitToRequirements(Unit* pUnitTarget) const;
