@@ -698,31 +698,34 @@ void Pet::GivePetXP(uint32 xp)
 
     uint8 level = getLevel();
 
-    // XP to money conversion processed in Player::RewardQuest
-    if(level >= sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
-        return;
+    // If pet is detected to be equal to player level, don't hand out XP
+    if ( level >= GetOwner()->getLevel() )
+       return;
 
     uint32 curXP = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
     uint32 nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
     uint32 newXP = curXP + xp;
 
-    if(newXP >= nextLvlXP && level+1 > GetOwner()->getLevel())
-    {
-        SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, nextLvlXP-1);
-        return;
-    }
-
+    // Check how much XP the pet should receive, and hand off have any left from previous levelups
     while( newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) )
     {
+        // Subtract newXP from amount needed for nextlevel
         newXP -= nextLvlXP;
-
         GivePetLevel(level+1);
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(level+1)*PET_XP_FACTOR);
+        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(level+1)*PET_XP_FACTOR);             
 
+        // Make sure we're working with the upgraded levels for the pet XP-levels
         level = getLevel();
         nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
+        
+        // Hitting the pet/playerlevel combolimitation, set UNIT_FIELD_PETEXPERIENCE (current XP) to 0
+        if ( level >= GetOwner()->getLevel() ) {
+          newXP = 0;
+          SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, newXP);
+          return;
+        }
     }
-
+    // Not affected by special conditions - give it new XP
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, newXP);
 }
 
