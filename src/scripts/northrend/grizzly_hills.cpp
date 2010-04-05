@@ -429,6 +429,7 @@ struct npc_tallhorn_stagAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        // call this each update tick?
         if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
         {
             me->SetStandState(UNIT_STAND_STATE_DEAD);
@@ -465,6 +466,7 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
 	
 	void UpdateAI(const uint32 uiDiff)
     {	
+        // call this each update tick?
 		if (Creature* stag = me->FindNearestCreature(TALLHORN_STAG, 0.2f))
 		{
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
@@ -493,8 +495,7 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
             }
             ScriptedAI::UpdateAI(uiDiff);		
         
-        if (!UpdateVictim())
-            return;
+        UpdateVictim();
     }
 };
 

@@ -216,9 +216,9 @@ struct boss_paletressAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 MovementType, uint32 Data)
+    void MovementInform(uint32 MovementType, uint32 Point)
     {
-        if (MovementType != POINT_MOTION_TYPE)
+        if (MovementType != POINT_MOTION_TYPE || Point != 0)
             return;
 
         if (pInstance)
