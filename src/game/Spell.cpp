@@ -4499,13 +4499,11 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_MOVING;
     }
 
-    Unit *target;
+    Unit *target = m_targets.getUnitTarget();
 
     // In pure self-cast spells, the client won't send any unit target
-    if (m_targets.getTargetMask() == TARGET_FLAG_SELF || m_targets.getTargetMask() & TARGET_FLAG_CASTER) // TARGET_FLAG_SELF == 0, remember!
+    if (target && (m_targets.getTargetMask() == TARGET_FLAG_SELF || m_targets.getTargetMask() & TARGET_FLAG_CASTER)) // TARGET_FLAG_SELF == 0, remember!
         target = m_caster;
-    else
-        target = m_targets.getUnitTarget();
 
     if (target)
     {
