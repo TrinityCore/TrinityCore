@@ -1,61 +1,66 @@
-/* Script Data Start
-SDName: Boss svala
-SDAuthor: Tartalo
-SD%Complete:
-SDComment:
-SDCategory:
-Script Data End */
+/* Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
-/*** SQL START ***
-update creature_template set scriptname = 'boss_svala' where entry = '';
-*** SQL END ***/
 #include "ScriptedPch.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
 {
-    SPELL_CALL_FLAMES                        = 48258,
-    SPELL_RITUAL_OF_THE_SWORD                = 48276, //Effect #1 Teleport,  Effect #2 Dummy
-    SPELL_SINSTER_STRIKE                     = 15667,
-    H_SPELL_SINSTER_STRIKE                   = 59409,
-    SPELL_SVALA_TRANSFORMING1                = 54140,
-    SPELL_SVALA_TRANSFORMING2                = 54205
+    SPELL_CALL_FLAMES                             = 48258,
+    SPELL_RITUAL_OF_THE_SWORD                     = 48276, //Effect #1 Teleport,  Effect #2 Dummy
+    SPELL_SINSTER_STRIKE                          = 15667,
+    H_SPELL_SINSTER_STRIKE                        = 59409,
+    SPELL_SVALA_TRANSFORMING1                     = 54140,
+    SPELL_SVALA_TRANSFORMING2                     = 54205
 };
 //not in db
 enum Yells
 {
-    SAY_DIALOG_WITH_ARTHAS_1              = -1575015,
-    SAY_DIALOG_WITH_ARTHAS_2              = -1575016,
-    SAY_DIALOG_WITH_ARTHAS_3              = -1575017,
-    SAY_AGGRO                             = -1575018,
-    SAY_SLAY_1                            = -1575019,
-    SAY_SLAY_2                            = -1575020,
-    SAY_SLAY_3                            = -1575021,
-    SAY_DEATH                             = -1575022,
-    SAY_SACRIFICE_PLAYER_1                = -1575023,
-    SAY_SACRIFICE_PLAYER_2                = -1575024,
-    SAY_SACRIFICE_PLAYER_3                = -1575025,
-    SAY_SACRIFICE_PLAYER_4                = -1575026,
-    SAY_SACRIFICE_PLAYER_5                = -1575027,
-    SAY_DIALOG_OF_ARTHAS_1                = -1575028,
-    SAY_DIALOG_OF_ARTHAS_2                = -1575029
+    SAY_DIALOG_WITH_ARTHAS_1                      = -1575015,
+    SAY_DIALOG_WITH_ARTHAS_2                      = -1575016,
+    SAY_DIALOG_WITH_ARTHAS_3                      = -1575017,
+    SAY_AGGRO                                     = -1575018,
+    SAY_SLAY_1                                    = -1575019,
+    SAY_SLAY_2                                    = -1575020,
+    SAY_SLAY_3                                    = -1575021,
+    SAY_DEATH                                     = -1575022,
+    SAY_SACRIFICE_PLAYER_1                        = -1575023,
+    SAY_SACRIFICE_PLAYER_2                        = -1575024,
+    SAY_SACRIFICE_PLAYER_3                        = -1575025,
+    SAY_SACRIFICE_PLAYER_4                        = -1575026,
+    SAY_SACRIFICE_PLAYER_5                        = -1575027,
+    SAY_DIALOG_OF_ARTHAS_1                        = -1575028,
+    SAY_DIALOG_OF_ARTHAS_2                        = -1575029
 };
 enum Creatures
 {
-    CREATURE_ARTHAS                          = 24266, // Image of Arthas
-    CREATURE_SVALA_SORROWGRAVE               = 26668, // Svala after transformation
-    CREATURE_SVALA                           = 29281, // Svala before transformation
-    CREATURE_RITUAL_CHANNELER                = 27281
+    CREATURE_ARTHAS                               = 24266, // Image of Arthas
+    CREATURE_SVALA_SORROWGRAVE                    = 26668, // Svala after transformation
+    CREATURE_SVALA                                = 29281, // Svala before transformation
+    CREATURE_RITUAL_CHANNELER                     = 27281
 };
 enum ChannelerSpells
 {
     //ritual channeler's spells
-    SPELL_PARALYZE                           = 48278,
-    SPELL_SHADOWS_IN_THE_DARK                = 59407
+    SPELL_PARALYZE                                = 48278,
+    SPELL_SHADOWS_IN_THE_DARK                     = 59407
 };
 enum Misc
 {
-    DATA_SVALA_DISPLAY_ID                    = 25944
+    DATA_SVALA_DISPLAY_ID                         = 25944
 };
 enum IntroPhase
 {
@@ -68,12 +73,15 @@ enum CombatPhase
     NORMAL,
     SACRIFICING
 };
+
 static Position RitualChannelerPos[]=
 {
     {296.42, -355.01, 90.94},
     {302.36, -352.01, 90.54},
     {291.39, -350.89, 90.54}
 };
+static Position ArthasPos = { 295.81, -366.16, 92.57, 1.58 };
+static Position SvalaPos = { 296.632, -346.075, 90.6307, 1.58 };
 
 struct boss_svalaAI : public ScriptedAI
 {
@@ -89,16 +97,16 @@ struct boss_svalaAI : public ScriptedAI
     IntroPhase Phase;
 
     TempSummon* pArthas;
-    uint64 ArthasGUID;
+    uint64 uiArthasGUID;
 
     ScriptedInstance* pInstance;
 
     void Reset()
     {
         Phase = IDLE;
-        uiIntroTimer = 1000;
+        uiIntroTimer = 1*IN_MILISECONDS;
         uiIntroPhase = 0;
-        ArthasGUID = 0;
+        uiArthasGUID = 0;
 
         if (pInstance)
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
@@ -114,11 +122,11 @@ struct boss_svalaAI : public ScriptedAI
             Phase = INTRO;
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (Creature *pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, 295.81, -366.16, 92.57, 1.58, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature *pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
-                ArthasGUID = pArthas->GetGUID();
+                uiArthasGUID = pArthas->GetGUID();
             }
         }
     }
@@ -132,7 +140,7 @@ struct boss_svalaAI : public ScriptedAI
 
         if (uiIntroTimer <= diff)
         {
-            Creature *pArthas = Unit::GetCreature(*m_creature, ArthasGUID);
+            Creature *pArthas = Unit::GetCreature(*m_creature, uiArthasGUID);
             if (!pArthas)
                 return;
 
@@ -141,28 +149,28 @@ struct boss_svalaAI : public ScriptedAI
                 case 0:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, m_creature);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3500;
+                    uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
                 case 1:
                     DoScriptText(SAY_DIALOG_OF_ARTHAS_1, pArthas);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3500;
+                    uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
                 case 2:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, m_creature);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3500;
+                    uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
                 case 3:
                     DoScriptText(SAY_DIALOG_OF_ARTHAS_2, pArthas);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3500;
+                    uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
                 case 4:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, m_creature);
                     DoCast(m_creature, SPELL_SVALA_TRANSFORMING1);
                     ++uiIntroPhase;
-                    uiIntroTimer = 2800;
+                    uiIntroTimer = 2.8*IN_MILISECONDS;
                     break;
                 case 5:
                     DoCast(m_creature, SPELL_SVALA_TRANSFORMING2);
@@ -170,12 +178,12 @@ struct boss_svalaAI : public ScriptedAI
                     uiIntroTimer = 200;
                     break;
                 case 6:
-                    if (Creature* pSvalaSorrowgrave = m_creature->SummonCreature(CREATURE_SVALA_SORROWGRAVE, 296.632, -346.075, 90.6307, 1.58, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
+                    if (Creature* pSvalaSorrowgrave = m_creature->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILISECONDS))
                     {
                         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
                         pArthas->ToTempSummon()->UnSummon();
-                        ArthasGUID = 0;
+                        uiArthasGUID = 0;
                         Phase = FINISHED;
                     }
                     else 
@@ -201,10 +209,11 @@ struct mob_ritual_channelerAI : public Scripted_NoMovementAI
     }
 
     // called by svala sorrowgrave to set guid of victim
-    void SetGUID(const uint64 &guid, int32 id) 
+    void DoAction(uint32 action)
     {
-        if (Unit *pVictim = m_creature->GetUnit(*m_creature, guid))
-            DoCast(pVictim, SPELL_PARALYZE);
+        if (pInstance)
+            if (Unit *pVictim = m_creature->GetUnit(*m_creature, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
+                DoCast(pVictim, SPELL_PARALYZE);
     }
 
     void EnterCombat(Unit* who)
@@ -227,18 +236,17 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
     CombatPhase Phase;
 
     SummonList summons;
-    Unit* pSacrificeTarget;
-    
+
     bool bSacrificed;
 
     ScriptedInstance* pInstance;
 
     void Reset()
     {
-        uiSinsterStrikeTimer = 7000;
-        uiCallFlamesTimer = 10000;
-        uiRitualOfSwordTimer = 20000;
-        uiSacrificeTimer = 8000;
+        uiSinsterStrikeTimer = 7*IN_MILISECONDS;
+        uiCallFlamesTimer = 10*IN_MILISECONDS;
+        uiRitualOfSwordTimer = 20*IN_MILISECONDS;
+        uiSacrificeTimer = 8*IN_MILISECONDS;
         
         bSacrificed = false;
 
@@ -248,10 +256,12 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
 
         summons.DespawnAll();
-        pSacrificeTarget = NULL;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, NOT_STARTED);
+            pInstance->SetData64(DATA_SACRIFICED_PLAYER,0);
+        }
     }
 
     void EnterCombat(Unit* who)
@@ -283,7 +293,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
             if (uiSinsterStrikeTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
-                uiSinsterStrikeTimer = urand(5000,9000);
+                uiSinsterStrikeTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
             } else uiSinsterStrikeTimer -= diff;
 
             if (uiCallFlamesTimer <= diff)
@@ -291,15 +301,14 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoCast(pTarget, SPELL_CALL_FLAMES);
-                    uiCallFlamesTimer = urand(8000,12000);
+                    uiCallFlamesTimer = urand(8*IN_MILISECONDS,12*IN_MILISECONDS);
                 }
             } else uiCallFlamesTimer -= diff;
 
             if (!bSacrificed)
                 if (uiRitualOfSwordTimer <= diff)
                 {
-                    pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (pSacrificeTarget)
+                    if (Unit* pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
                         DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
@@ -308,11 +317,14 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                         m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
                         DoTeleportTo(296.632, -346.075, 120.85);
                         Phase = SACRIFICING;
-
-                        for (uint8 i = 0; i < 3; ++i)
-                            if (Creature* pRitualChanneler = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
-                                if (pRitualChanneler->AI())
-                                    pRitualChanneler->AI()->SetGUID(pSacrificeTarget->GetGUID());
+                        if (pInstance)
+                        {
+                            pInstance->SetData64(DATA_SACRIFICED_PLAYER,pSacrificeTarget->GetGUID());
+                            
+                            for (uint8 i = 0; i < 3; ++i)
+                                if (Creature* pSummon = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                                    pSummon->AI()->DoAction(0);
+                        }
 
                         bSacrificed = true;
                     }
@@ -324,7 +336,8 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         {
             if (uiSacrificeTimer <= diff)
             {
-                if (!summons.empty() && pSacrificeTarget && pSacrificeTarget->isAlive())
+                Unit* pSacrificeTarget = pInstance ? Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_SACRIFICED_PLAYER)) : NULL;
+                if (pInstance && !summons.empty() && pSacrificeTarget && pSacrificeTarget->isAlive())
                     m_creature->Kill(pSacrificeTarget, false); // durability damage?
 
                 //go down
@@ -334,7 +347,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     m_creature->GetMotionMaster()->MoveChase(pTarget);
 
-                uiSacrificeTimer = 8000;
+                uiSacrificeTimer = 8*IN_MILISECONDS;
             }
             else uiSacrificeTimer -= diff;
         }
