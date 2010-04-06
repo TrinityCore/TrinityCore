@@ -31,5 +31,9 @@ SET(vmaps_STAT_SRCS
    VMapTools.h
 )
 
+include_directories(
+  ${CMAKE_SOURCE_DIR}/dep/include/g3dlite
+)
+
 add_library(vmaps STATIC ${vmaps_STAT_SRCS})
 

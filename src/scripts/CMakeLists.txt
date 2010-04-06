@@ -562,5 +562,16 @@ SET(scripts_STAT_SRCS
    world/npc_taxi.cpp
 )
 message("-- Added Script Engine to SCRIPTS lib")
+
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/shared
+  ${CMAKE_SOURCE_DIR}/src/framework
+  ${CMAKE_SOURCE_DIR}/src/game
+  ${CMAKE_SOURCE_DIR}/src/shared/Database
+  ${CMAKE_SOURCE_DIR}/dep/include
+  ${MYSQL_INCLUDE_DIR}
+)
+
 add_library(scripts STATIC ${scripts_STAT_SRCS})
 
