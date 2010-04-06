@@ -27,4 +27,12 @@ SET(trinitydatabase_STAT_SRCS
     SqlOperations.h
 )
 
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/shared
+  ${CMAKE_SOURCE_DIR}/src/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/framework
+  ${MYSQL_INCLUDE_DIR}
+)
+
 add_library(trinitydatabase STATIC ${trinitydatabase_STAT_SRCS})

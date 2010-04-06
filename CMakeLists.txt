@@ -168,25 +168,6 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 add_definitions(--no-warnings) #to make build look nice, no gcc nazi warnings.
 
-INCLUDE_DIRECTORIES(
-dep/include 
-dep/include/g3dlite 
-dep/include/sockets
-src/shared 
-src/framework 
-src/shared/Database 
-src/shared/vmap
-src/game 
-${CMAKE_BINARY_DIR}
-${MYSQL_INCLUDE_DIR} 
-${POSTGRESQL_INCLUDE_DIR}
-${POSTGRESQL_INCLUDE_DIR}/libpq-4/
-${POSTGRESQL_INCLUDE_DIR}/libpq-4/server/ 
-${CMAKE_CURRENT_BINARY_DIR}/src/shared 
-${CMAKE_CURRENT_SOURCE_DIR}/..
-${ACE_INCLUDE_DIR}
-)
-
 SET(CMAKE_SKIP_BUILD_RPATH FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
