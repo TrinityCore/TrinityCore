@@ -17,6 +17,11 @@ SET(scripts_STAT_SRCS
    ../game/ScriptedSimpleAI.cpp
    ../game/ScriptedSimpleAI.h
    custom/on_events.cpp
+   eastern_kingdoms/alterac_valley/alterac_valley.cpp
+   eastern_kingdoms/alterac_valley/boss_balinda.cpp
+   eastern_kingdoms/alterac_valley/boss_drekthar.cpp
+   eastern_kingdoms/alterac_valley/boss_galvangar.cpp
+   eastern_kingdoms/alterac_valley/boss_vanndar.cpp
    eastern_kingdoms/blackrock_depths/blackrock_depths.cpp
    eastern_kingdoms/blackrock_depths/boss_ambassador_flamelash.cpp
    eastern_kingdoms/blackrock_depths/boss_anubshiah.cpp
