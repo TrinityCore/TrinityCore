@@ -2240,6 +2240,105 @@ CreatureAI* GetAI_npc_valiance_keep_cannoneer(Creature* pCreature)
     return new npc_valiance_keep_cannoneerAI(pCreature);
 }
 
+/*******************************************************
+ * npc_warmage_coldarra
+ *******************************************************/
+
+enum Spells
+{
+    SPELL_TRANSITUS_SHIELD_BEAM = 48310
+};
+
+enum NPCs 
+{
+    NPC_TRANSITUS_SHIELD_DUMMY   = 27306,
+    NPC_WARMAGE_HOLLISTER        = 27906,
+    NPC_WARMAGE_CALANDRA         = 27173,
+    NPC_WARMAGE_WATKINS          = 27904
+};
+
+struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
+{
+    npc_warmage_coldarraAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature){}
+
+    uint32 m_uiTimer;                 //Timer until recast
+
+    void Reset()
+    {
+        m_uiTimer = 0;
+    }
+
+    void Aggro(Unit* pWho){}
+
+    void AttackStart(Unit* pWho){}
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiTimer <= uiDiff)
+        {
+            std::list<Creature*> orbList;
+            GetCreatureListWithEntryInGrid(orbList, m_creature, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+
+            switch(me->GetEntry())
+            {
+                case NPC_WARMAGE_HOLLISTER:
+                {
+                    if (!orbList.empty())
+                    {
+                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                        {
+                            if (Creature* pOrb = *itr)
+                                if (pOrb->GetPositionY() > 6680)
+                                    DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
+                        }
+                    }
+                    m_uiTimer = urand(90000,120000);
+                }
+                    break;
+				case NPC_WARMAGE_CALANDRA:
+                {
+                    if (!orbList.empty())
+                    {
+                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                        {
+                            if (Creature* pOrb = *itr)
+                                if ((pOrb->GetPositionY() < 6680) && (pOrb->GetPositionY() > 6630))
+                                    DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
+                        }
+                    }
+                    m_uiTimer = urand(90000,120000);
+                }
+                    break;
+                case NPC_WARMAGE_WATKINS:
+                {
+                    if (!orbList.empty())
+                    {
+                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                        {
+                            if (Creature* pOrb = *itr)
+                                if (pOrb->GetPositionY() < 6630)
+                                    DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
+                        }
+                    }
+                    m_uiTimer = urand(90000,120000);
+                }
+                    break;
+            }
+        }		
+        else m_uiTimer -= uiDiff;
+
+        ScriptedAI::UpdateAI(uiDiff);
+
+        if (!UpdateVictim())
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_warmage_coldarra(Creature* pCreature)
+{
+    return new npc_warmage_coldarraAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -2394,5 +2493,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_valiance_keep_cannoneer";
     newscript->GetAI = &GetAI_npc_valiance_keep_cannoneer;
+    newscript->RegisterSelf();
+	
+    newscript = new Script;
+    newscript->Name = "npc_warmage_coldarra";
+    newscript->GetAI = &GetAI_npc_warmage_coldarra;
     newscript->RegisterSelf();
 }

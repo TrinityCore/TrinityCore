@@ -407,7 +407,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_fezzix_geartwist' WHERE `entry`
 UPDATE `creature_template` SET `scriptname`='npc_trapped_mammoth_calf' WHERE `entry`=25850;
 UPDATE `item_template` SET `scriptname`='item_dehta_trap_smasher' WHERE `entry`=35228;
 UPDATE `creature_template` SET `ScriptName`='npc_magmoth_crusher' WHERE `entry`=25434;
-
+UPDATE `creature_template` SET `ScriptName`='npc_valiance_keep_cannoneer' WHERE `entry`=25306;
+UPDATE `creature_template` SET `ScriptName`='npc_warmage_coldarra' WHERE `entry` IN (27173,27904,27906);
 
 /* BURNING STEPPES */
 UPDATE `creature_template` SET `ScriptName`='npc_ragged_john' WHERE `entry`=9563;
