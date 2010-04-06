@@ -23,6 +23,16 @@ SET(shared_STAT_SRCS
    WorldPacket.h
    SystemConfig.h
 )
+
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/include
+  ${CMAKE_SOURCE_DIR}/dep/include/sockets
+  ${CMAKE_SOURCE_DIR}/src/framework
+  ${CMAKE_SOURCE_DIR}/src/shared
+  ${MYSQL_INCLUDE_DIR}
+)
+
 add_library(shared STATIC ${shared_STAT_SRCS})
 target_link_libraries(
 shared
