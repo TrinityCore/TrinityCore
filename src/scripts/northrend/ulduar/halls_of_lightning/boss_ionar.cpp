@@ -77,24 +77,28 @@ struct boss_ionarAI : public ScriptedAI
     SummonList lSparkList;
 
     bool bIsSplitPhase;
+    bool bHasDispersed;
+    
     uint32 uiSplitTimer;
 
     uint32 uiStaticOverloadTimer;
     uint32 uiBallLightningTimer;
 
-    uint32 uiHealthAmountModifier;
+    uint32 uiDisperseHealth;
 
     void Reset()
     {
         lSparkList.DespawnAll();
 
         bIsSplitPhase = true;
+        bHasDispersed = false;
+        
         uiSplitTimer = 25*IN_MILISECONDS;
 
         uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);
         uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
 
-        uiHealthAmountModifier = 1;
+        uiDisperseHealth = 45 + urand(0,10);
 
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
@@ -243,9 +247,9 @@ struct boss_ionarAI : public ScriptedAI
             uiBallLightningTimer -= uiDiff;
 
         // Health check
-        if (HealthBelowPct(100-(20*uiHealthAmountModifier)))
+        if (!bHasDispersed && HealthBelowPct(uiDisperseHealth))
         {
-            ++uiHealthAmountModifier;
+            bHasDispersed = true;
 
             DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
 
