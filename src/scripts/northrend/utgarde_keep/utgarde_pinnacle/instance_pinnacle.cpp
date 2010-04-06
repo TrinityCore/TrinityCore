@@ -10,9 +10,12 @@
 3 - King Ymiron
 */
 
-#define ENTRY_SKADI_THE_RUTHLESS_DOOR      192173
-#define ENTRY_KING_YMIRON_DOOR             192174
-#define ENTRY_GORK_PALEHOOF_SPHERE         188593
+enum GameObjects
+{
+    ENTRY_SKADI_THE_RUTHLESS_DOOR                 = 192173,
+    ENTRY_KING_YMIRON_DOOR                        = 192174,
+    ENTRY_GORK_PALEHOOF_SPHERE                    = 188593
+};
 
 struct instance_pinnacle : public ScriptedInstance
 {
@@ -34,6 +37,7 @@ struct instance_pinnacle : public ScriptedInstance
     uint64 uiPalehoofOrb;
 
     uint64 uiSvala;
+    uint64 uiSacrificedPlayer;
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -43,6 +47,24 @@ struct instance_pinnacle : public ScriptedInstance
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
            m_auiEncounter[i] = NOT_STARTED;
+
+        uiSvalaSorrowgrave = 0;
+        uiGortokPalehoof = 0;
+        uiSkadiTheRuthless = 0;
+        uiKingYmiron = 0;
+        
+        uiSkadiTheRuthlessDoor = 0;
+        uiKingYmironDoor = 0;
+        uiGortokPalehoofSphere = 0;
+        
+        uiFrenziedWorgen = 0;
+        uiRavenousFurbolg = 0;
+        uiFerociousRhino = 0;
+        uiMassiveJormungar = 0;
+        uiPalehoofOrb = 0;
+        
+        uiSvala = 0;
+        uiSacrificedPlayer = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -119,6 +141,12 @@ struct instance_pinnacle : public ScriptedInstance
             SaveToDB();
     }
 
+    void SetData64(uint32 type, uint64 data)
+    {
+        if (type == DATA_SACRIFICED_PLAYER)
+            uiSacrificedPlayer = data;
+    }
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -181,7 +209,7 @@ struct instance_pinnacle : public ScriptedInstance
         std::istringstream loadStream(in);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3;
 
-        if (dataHead1 == 'U' && dataHead2 == 'K')
+        if (dataHead1 == 'U' && dataHead2 == 'P')
         {
             m_auiEncounter[0] = data0;
             m_auiEncounter[1] = data1;
