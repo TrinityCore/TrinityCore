@@ -309,6 +309,16 @@ SET(game_STAT_SRCS
    ZoneScript.h
 )
 
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/dep/include
+  ${CMAKE_SOURCE_DIR}/src/framework
+  ${CMAKE_SOURCE_DIR}/src/shared
+  ${CMAKE_SOURCE_DIR}/src/shared/vmap
+  ${CMAKE_SOURCE_DIR}/src/shared/Database
+  ${MYSQL_INCLUDE_DIR}
+)
+
 if(NOT DO_SCRIPTS)
    SET(game_STAT_SRCS ${game_STAT_SRCS}
       ScriptedEscortAI.cpp

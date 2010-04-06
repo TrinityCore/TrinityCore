@@ -14,6 +14,10 @@ SET(g3dlite_STAT_SRCS
    Vector4.cpp
 )
 
+include_directories(
+  ${CMAKE_SOURCE_DIR}/dep/include/g3dlite
+)
+
 add_library(g3dlite STATIC ${g3dlite_STAT_SRCS})
 
 

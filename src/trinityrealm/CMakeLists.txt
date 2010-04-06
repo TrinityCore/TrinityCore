@@ -13,6 +13,14 @@ RealmSocket.cpp
 RealmAcceptor.h
 )
 
+include_directories(
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/shared
+  ${CMAKE_SOURCE_DIR}/src/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/framework
+  ${MYSQL_INCLUDE_DIR}
+)
+
 SET(trinity-realm_LINK_FLAGS "")
 
 add_executable(trinity-realm ${trinity-realm_SRCS})
