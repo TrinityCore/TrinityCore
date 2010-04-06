@@ -1850,6 +1850,30 @@
 					>
 				</File>
 				<Filter
+					Name="Alterac Valley"
+					>
+					<File
+						RelativePath="..\..\src\scripts\eastern_kingdoms\alterac_valley\alterac_valley.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\eastern_kingdoms\alterac_valley\boss_balinda.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\eastern_kingdoms\alterac_valley\boss_drekthar.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\eastern_kingdoms\alterac_valley\boss_galvangar.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\scripts\eastern_kingdoms\alterac_valley\boss_vanndar.cpp"
+						>
+					</File>
+				</Filter>
+				<Filter
 					Name="Blackrock Depths"
 					>
 					<File
