@@ -386,7 +386,7 @@ void FillSpellSummary()
             if (pTempSpell->Effect[j] == SPELL_EFFECT_HEAL ||
                 pTempSpell->Effect[j] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
                 pTempSpell->Effect[j] == SPELL_EFFECT_HEAL_MECHANICAL ||
-                (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA  && pTempSpell->EffectApplyAuraName[j] ==  8))
+                (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA  && pTempSpell->EffectApplyAuraName[j] == 8))
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
 
             //Make sure that this spell applies an aura

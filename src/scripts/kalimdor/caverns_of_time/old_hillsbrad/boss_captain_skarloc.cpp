@@ -98,7 +98,7 @@ struct boss_captain_skarlocAI : public ScriptedAI
         } else Holy_Light_Timer -= diff;
 
         //Cleanse
-        if (Cleanse_Timer  <= diff)
+        if (Cleanse_Timer <= diff)
         {
             DoCast(m_creature, SPELL_CLEANSE);
             Cleanse_Timer = 10000;

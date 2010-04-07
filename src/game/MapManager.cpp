@@ -188,7 +188,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
         if (!mapDiff)
         {
             bool isNormalTargetMap = entry->map_type == MAP_RAID
-                ? (player->GetRaidDifficulty()    == RAID_DIFFICULTY_10MAN_NORMAL)
+                ? (player->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                 : (player->GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
 
             //Send aborted message

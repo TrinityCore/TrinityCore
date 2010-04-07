@@ -43,7 +43,7 @@ Weather::Weather(uint32 zone, WeatherZoneChances const* weatherChances) : m_zone
 /// Launch a weather update
 bool Weather::Update(uint32 diff)
 {
-    if (m_timer.GetCurrent()>=0)
+    if (m_timer.GetCurrent() >= 0)
         m_timer.Update(diff);
     else m_timer.SetCurrent(0);
 

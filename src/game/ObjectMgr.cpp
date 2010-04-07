@@ -3192,7 +3192,7 @@ void ObjectMgr::GetPlayerClassLevelInfo(uint32 class_, uint8 level, PlayerClassL
 
 void ObjectMgr::GetPlayerLevelInfo(uint32 race, uint32 class_, uint8 level, PlayerLevelInfo* info) const
 {
-    if (level < 1 || race   >= MAX_RACES || class_ >= MAX_CLASSES)
+    if (level < 1 || race >= MAX_RACES || class_ >= MAX_CLASSES)
         return;
 
     PlayerInfo const* pInfo = &playerInfo[race][class_];
@@ -5972,7 +5972,7 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_hiItemGuid = (*result)[0].GetUInt32()+1;
 
-    // Cleanup other tables from not existed guids (>=m_hiItemGuid)
+    // Cleanup other tables from not existed guids ( >= m_hiItemGuid)
     CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);
     CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);
     CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);
@@ -6013,7 +6013,7 @@ void ObjectMgr::SetHighestGuids()
 
 uint32 ObjectMgr::GenerateArenaTeamId()
 {
-    if (m_arenaTeamId>=0xFFFFFFFE)
+    if (m_arenaTeamId >= 0xFFFFFFFE)
     {
         sLog.outError("Arena team ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6023,7 +6023,7 @@ uint32 ObjectMgr::GenerateArenaTeamId()
 
 uint32 ObjectMgr::GenerateAuctionID()
 {
-    if (m_auctionid>=0xFFFFFFFE)
+    if (m_auctionid >= 0xFFFFFFFE)
     {
         sLog.outError("Auctions ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6033,7 +6033,7 @@ uint32 ObjectMgr::GenerateAuctionID()
 
 uint64 ObjectMgr::GenerateEquipmentSetGuid()
 {
-    if (m_equipmentSetGuid>=0xFFFFFFFFFFFFFFFEll)
+    if (m_equipmentSetGuid >= 0xFFFFFFFFFFFFFFFEll)
     {
         sLog.outError("EquipmentSet guid overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6043,7 +6043,7 @@ uint64 ObjectMgr::GenerateEquipmentSetGuid()
 
 uint32 ObjectMgr::GenerateGuildId()
 {
-    if (m_guildId>=0xFFFFFFFE)
+    if (m_guildId >= 0xFFFFFFFE)
     {
         sLog.outError("Guild ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6053,7 +6053,7 @@ uint32 ObjectMgr::GenerateGuildId()
 
 uint32 ObjectMgr::GenerateMailID()
 {
-    if (m_mailid>=0xFFFFFFFE)
+    if (m_mailid >= 0xFFFFFFFE)
     {
         sLog.outError("Mail ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6063,7 +6063,7 @@ uint32 ObjectMgr::GenerateMailID()
 
 uint32 ObjectMgr::GenerateItemTextID()
 {
-    if (m_ItemTextId>=0xFFFFFFFE)
+    if (m_ItemTextId >= 0xFFFFFFFE)
     {
         sLog.outError("Item text ids overflow!! Can't continue, shutting down server. ");
         World::StopNow(ERROR_EXIT_CODE);
@@ -6090,56 +6090,56 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
     switch(guidhigh)
     {
         case HIGHGUID_ITEM:
-            if (m_hiItemGuid>=0xFFFFFFFE)
+            if (m_hiItemGuid >= 0xFFFFFFFE)
             {
                 sLog.outError("Item guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiItemGuid++;
         case HIGHGUID_UNIT:
-            if (m_hiCreatureGuid>=0x00FFFFFE)
+            if (m_hiCreatureGuid >= 0x00FFFFFE)
             {
                 sLog.outError("Creature guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiCreatureGuid++;
         case HIGHGUID_PET:
-            if (m_hiPetGuid>=0x00FFFFFE)
+            if (m_hiPetGuid >= 0x00FFFFFE)
             {
                 sLog.outError("Pet guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiPetGuid++;
         case HIGHGUID_VEHICLE:
-            if (m_hiVehicleGuid>=0x00FFFFFF)
+            if (m_hiVehicleGuid >= 0x00FFFFFF)
             {
                 sLog.outError("Vehicle guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiVehicleGuid++;
         case HIGHGUID_PLAYER:
-            if (m_hiCharGuid>=0xFFFFFFFE)
+            if (m_hiCharGuid >= 0xFFFFFFFE)
             {
                 sLog.outError("Players guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiCharGuid++;
         case HIGHGUID_GAMEOBJECT:
-            if (m_hiGoGuid>=0x00FFFFFE)
+            if (m_hiGoGuid >= 0x00FFFFFE)
             {
                 sLog.outError("Gameobject guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiGoGuid++;
         case HIGHGUID_CORPSE:
-            if (m_hiCorpseGuid>=0xFFFFFFFE)
+            if (m_hiCorpseGuid >= 0xFFFFFFFE)
             {
                 sLog.outError("Corpse guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiCorpseGuid++;
         case HIGHGUID_DYNAMICOBJECT:
-            if (m_hiDoGuid>=0xFFFFFFFE)
+            if (m_hiDoGuid >= 0xFFFFFFFE)
             {
                 sLog.outError("DynamicObject guid overflow!! Can't continue, shutting down server. ");
                 World::StopNow(ERROR_EXIT_CODE);
@@ -7356,7 +7356,7 @@ int ObjectMgr::GetIndexForLocale(LocaleConstant loc)
 
 LocaleConstant ObjectMgr::GetLocaleForIndex(int i)
 {
-    if (i<0 || i>=m_LocalForIndex.size())
+    if (i<0 || i >= m_LocalForIndex.size())
         return LOCALE_enUS;
 
     return m_LocalForIndex[i];
@@ -8742,7 +8742,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     else if (maxcount == 0 && incrtime > 0)
     {
         if (pl)
-            ChatHandler(pl).PSendSysMessage("MaxCount == 0 but IncrTime<>=0");
+            ChatHandler(pl).PSendSysMessage("MaxCount == 0 but IncrTime<>= 0");
         else
             sLog.outErrorDb("Table `(game_event_)npc_vendor` has `maxcount`=0 for item %u of vendor (Entry: %u) but `incrtime`<>0, ignore", item_id, vendor_entry);
         return false;

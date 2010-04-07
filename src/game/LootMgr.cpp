@@ -1192,7 +1192,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
         if (i->mincountOrRef < 0)                           // References
         {
             LootTemplateMap::const_iterator Referenced = store.find(-i->mincountOrRef);
-            if (Referenced  == store.end())
+            if (Referenced == store.end())
                 continue;                                   // Error message [should be] already printed at loading stage
             if (Referenced->second->HasQuestDrop(store, i->group))
                 return true;

@@ -692,7 +692,7 @@ bool Aura::ModStackAmount(int32 num)
     int32 stackAmount = m_stackAmount + num;
     if (stackAmount > m_spellProto->StackAmount)
         stackAmount = m_spellProto->StackAmount;
-    else if (stackAmount <=0) // Last aura from stack removed
+    else if (stackAmount <= 0) // Last aura from stack removed
     {
         m_stackAmount = 0;
         return true; // need remove aura

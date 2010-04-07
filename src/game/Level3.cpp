@@ -4248,7 +4248,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
         return false;
 
     int32 damage_int = atoi((char*)damageStr);
-    if (damage_int <=0)
+    if (damage_int <= 0)
         return true;
 
     uint32 damage = damage_int;
@@ -5972,7 +5972,7 @@ bool ChatHandler::HandleBanInfoIPCommand(const char *args)
 
 bool ChatHandler::HandleBanListCharacterCommand(const char *args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok ((char*)args, " ");
     if (!cFilter)
@@ -5992,7 +5992,7 @@ bool ChatHandler::HandleBanListCharacterCommand(const char *args)
 
 bool ChatHandler::HandleBanListAccountCommand(const char *args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";
@@ -6097,7 +6097,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult_AutoPtr result)
 
 bool ChatHandler::HandleBanListIPCommand(const char *args)
 {
-    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
+    loginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
 
     char* cFilter = strtok((char*)args, " ");
     std::string filter = cFilter ? cFilter : "";

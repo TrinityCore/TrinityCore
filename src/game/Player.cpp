@@ -134,7 +134,7 @@ enum CharacterCustomizeFlags
 
 static uint32 copseReclaimDelay[MAX_DEATH_COUNT] = { 30, 60, 120 };
 
-// ==  PlayerTaxi ================================================
+// == PlayerTaxi ================================================
 
 PlayerTaxi::PlayerTaxi()
 {
@@ -178,7 +178,7 @@ void PlayerTaxi::InitTaxiNodesForLevel(uint32 race, uint32 chrClass, uint8 level
         case HORDE:    SetTaximaskNode(99);  break;
     }
     // level dependent taxi hubs
-    if (level>=68)
+    if (level >= 68)
         SetTaximaskNode(213);                               //Shattered Sun Staging Area
 }
 
@@ -280,7 +280,7 @@ std::ostringstream& operator<< (std::ostringstream& ss, PlayerTaxi const& taxi)
     return ss;
 }
 
-// ==  Player ====================================================
+// == Player ====================================================
 
 UpdateMask Player::updateVisualBits;
 
@@ -6459,7 +6459,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
             k_grey = Trinity::XP::GetGrayLevel(k_level);
 
-            if (v_level<=k_grey)
+            if (v_level <= k_grey)
                 return false;
 
             float diff_level = (k_level == k_grey) ? 1 : ((float(v_level) - float(k_grey)) / (float(k_level) - float(k_grey)));
@@ -18796,7 +18796,7 @@ void Player::SetRestBonus (float rest_bonus_new)
     // update data for client
     if (m_rest_bonus>10)
         SetByteValue(PLAYER_BYTES_2, 3, 0x01);              // Set Reststate = Rested
-    else if (m_rest_bonus<=1)
+    else if (m_rest_bonus <= 1)
         SetByteValue(PLAYER_BYTES_2, 3, 0x02);              // Set Reststate = Normal
 
     //RestTickUpdate
@@ -21603,7 +21603,7 @@ void Player::SendCorpseReclaimDelay(bool load)
            !pvp && sWorld.getConfig(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE))
         {
             count = (m_deathExpireTime-corpse->GetGhostTime())/DEATH_EXPIRE_STEP;
-            if (count>=MAX_DEATH_COUNT)
+            if (count >= MAX_DEATH_COUNT)
                 count = MAX_DEATH_COUNT-1;
         }
         else
@@ -22708,7 +22708,7 @@ void Player::UpdateKnownCurrencies(uint32 itemId, bool apply)
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo,uint16 opcode)
 {
-    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <=minfo.z || opcode == MSG_MOVE_FALL_LAND)
+    if (m_lastFallTime >= minfo.fallTime || m_lastFallZ <= minfo.z || opcode == MSG_MOVE_FALL_LAND)
         SetFallInformation(minfo.fallTime, minfo.z);
 }
 

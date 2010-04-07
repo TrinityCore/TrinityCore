@@ -1101,11 +1101,11 @@ bool ChatHandler::HandleDebugUpdateCommand(const char* args)
     //check updateIndex
     if (chr->GetTypeId() == TYPEID_PLAYER)
     {
-        if (updateIndex>=PLAYER_END) return true;
+        if (updateIndex >= PLAYER_END) return true;
     }
     else
     {
-        if (updateIndex>=UNIT_END) return true;
+        if (updateIndex >= UNIT_END) return true;
     }
 
     char*  pvalue = strtok(NULL, " ");

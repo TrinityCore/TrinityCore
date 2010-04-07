@@ -211,7 +211,7 @@ bool OPvPCapturePointZM_GraveYard::Update(uint32 diff)
 int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
 {
     uint32 retval = OPvPCapturePoint::HandleOpenGo(plr, guid);
-    if (retval>=0)
+    if (retval >= 0)
     {
         if (plr->HasAura(ZM_BATTLE_STANDARD_A) && m_GraveYardState != ZM_GRAVEYARD_A)
         {

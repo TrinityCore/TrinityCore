@@ -705,9 +705,9 @@ struct mob_palehoof_orbAI : public ScriptedAI
         if (currentPhase == PHASE_NONE)
             return;
 
-        if (SummonTimer<=diff)
+        if (SummonTimer <= diff)
         {
-            if (currentPhase<5&&currentPhase>=0)
+            if (currentPhase<5&&currentPhase >= 0)
             {
                Creature *pNext;
                switch(currentPhase)

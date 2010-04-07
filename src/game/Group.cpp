@@ -1537,7 +1537,7 @@ uint32 Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleG
 }
 
 //===================================================
-//==============  Roll ===============================
+//============== Roll ===============================
 //===================================================
 
 void Roll::targetObjectBuildLink()

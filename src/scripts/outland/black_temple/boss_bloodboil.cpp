@@ -161,7 +161,7 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
                 for (uint32 i = 0; i<3; ++i)
                 {
                     uint8 eff = spellInfo->Effect[i];
-                    if (eff>=TOTAL_SPELL_EFFECTS)
+                    if (eff >= TOTAL_SPELL_EFFECTS)
                         continue;
 
                     Aura *Aur = new Aura(spellInfo, i, pTarget, pTarget, pTarget);

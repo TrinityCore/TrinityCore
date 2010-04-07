@@ -384,7 +384,7 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
         //Return since we have no target
         if (m_creature->HasAura(AURA_BANISH) || !UpdateVictim())
         {
-            if (BanishTimer<= diff)
+            if (BanishTimer <= diff)
             {
                 CheckBanish();//no need to check every update tick
                 BanishTimer = 1000;
