@@ -38,12 +38,12 @@ void PointMovementGenerator<T>::Initialize(T &unit)
 template<class T>
 bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 {
-    if(!&unit)
+    if (!&unit)
         return false;
 
-    if(unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
+    if (unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
     {
-        if(unit.hasUnitState(UNIT_STAT_CHARGING))
+        if (unit.hasUnitState(UNIT_STAT_CHARGING))
             return false;
         else
             return true;
@@ -53,7 +53,7 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 
     i_destinationHolder.UpdateTraveller(traveller, diff);
 
-    if(i_destinationHolder.HasArrived())
+    if (i_destinationHolder.HasArrived())
     {
         unit.clearUnitState(UNIT_STAT_MOVE);
         arrived = true;
@@ -66,9 +66,9 @@ bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 template<class T>
 void PointMovementGenerator<T>:: Finalize(T &unit)
 {
-    if(unit.hasUnitState(UNIT_STAT_CHARGING))
+    if (unit.hasUnitState(UNIT_STAT_CHARGING))
         unit.clearUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
-    if(arrived) // without this crash!
+    if (arrived) // without this crash!
         MovementInform(unit);
 }
 
@@ -79,7 +79,7 @@ void PointMovementGenerator<T>::MovementInform(T &unit)
 
 template <> void PointMovementGenerator<Creature>::MovementInform(Creature &unit)
 {
-    if(id == EVENT_FALL_GROUND)
+    if (id == EVENT_FALL_GROUND)
     {
         unit.setDeathState(JUST_DIED);
         unit.SetFlying(true);

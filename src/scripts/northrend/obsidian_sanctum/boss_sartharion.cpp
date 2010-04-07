@@ -320,7 +320,7 @@ struct boss_sartharionAI : public ScriptedAI
 
     void FetchDragons()
     {
-        if(!pInstance)
+        if (!pInstance)
             return;
         Creature* pFetchTene = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_TENEBRON));
         Creature* pFetchShad = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SHADRON));
@@ -517,7 +517,7 @@ struct boss_sartharionAI : public ScriptedAI
             {
                 DoCast(pTarget, SPELL_LAVA_STRIKE);
 
-                if(urand(0,4) == 4)
+                if (urand(0,4) == 4)
                     DoScriptText(RAND(SAY_SARTHARION_SPECIAL_1,SAY_SARTHARION_SPECIAL_2,SAY_SARTHARION_SPECIAL_3), m_creature);
             }
             m_uiLavaStrikeTimer = urand(5000,20000);
@@ -712,7 +712,7 @@ struct dummy_dragonAI : public ScriptedAI
             case NPC_SHADRON:
             {
                 iTextId = WHISPER_OPEN_PORTAL;
-                if(pInstance && !pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+                if (pInstance && !pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                     m_creature->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron.x, AcolyteofShadron.y , AcolyteofShadron.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 else
                     m_creature->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2.x, AcolyteofShadron2.y , AcolyteofShadron2.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
@@ -786,7 +786,7 @@ struct dummy_dragonAI : public ScriptedAI
         {
             if (m_uiMoveNextTimer <= uiDiff)
             {
-                if(m_uiWaypointId < MAX_WAYPOINT)
+                if (m_uiWaypointId < MAX_WAYPOINT)
                     m_creature->GetMotionMaster()->MovePoint(m_uiWaypointId,
                         m_aDragonCommon[m_uiWaypointId].m_fX, m_aDragonCommon[m_uiWaypointId].m_fY, m_aDragonCommon[m_uiWaypointId].m_fZ);
 

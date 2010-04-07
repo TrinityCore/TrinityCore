@@ -207,7 +207,7 @@ struct boss_volazjAI : public ScriptedAI
         // Check if all summons in this phase killed
         for (SummonList::const_iterator iter = Summons.begin(); iter!=Summons.end(); ++iter)
         {
-            if(Creature *visage = Unit::GetCreature(*m_creature, *iter))
+            if (Creature *visage = Unit::GetCreature(*m_creature, *iter))
             {
                 // Not all are dead
                 if (phase == visage->GetPhaseMask())

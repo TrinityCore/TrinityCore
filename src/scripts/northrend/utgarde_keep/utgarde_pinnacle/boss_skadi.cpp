@@ -186,7 +186,7 @@ struct boss_skadiAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
                 return;
 
         if (uiSpawnCounter >= DUNGEON_MODE(4, 5))

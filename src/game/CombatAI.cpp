@@ -24,7 +24,7 @@
 int AggressorAI::Permissible(const Creature *creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
-    if( !creature->isCivilian() && !creature->IsNeutralToAll() )
+    if ( !creature->isCivilian() && !creature->IsNeutralToAll() )
         return PERMIT_BASE_PROACTIVE;
 
     return PERMIT_BASE_NO;
@@ -32,7 +32,7 @@ int AggressorAI::Permissible(const Creature *creature)
 
 void AggressorAI::UpdateAI(const uint32 /*diff*/)
 {
-    if(!UpdateVictim())
+    if (!UpdateVictim())
         return;
 
     DoMeleeAttackIfReady();
@@ -62,7 +62,7 @@ int AOEAI::Permissible(const Creature *creature)
 void CombatAI::InitializeAI()
 {
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
-        if(me->m_spells[i] && GetSpellStore()->LookupEntry(me->m_spells[i]))
+        if (me->m_spells[i] && GetSpellStore()->LookupEntry(me->m_spells[i]))
             spells.push_back(me->m_spells[i]);
 
     CreatureAI::InitializeAI();
@@ -76,7 +76,7 @@ void CombatAI::Reset()
 void CombatAI::JustDied(Unit *killer)
 {
     for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
-        if(AISpellInfo[*i].condition == AICOND_DIE)
+        if (AISpellInfo[*i].condition == AICOND_DIE)
             me->CastSpell(killer, *i, true);
 }
 
@@ -84,24 +84,24 @@ void CombatAI::EnterCombat(Unit *who)
 {
     for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
-        if(AISpellInfo[*i].condition == AICOND_AGGRO)
+        if (AISpellInfo[*i].condition == AICOND_AGGRO)
             me->CastSpell(who, *i, false);
-        else if(AISpellInfo[*i].condition == AICOND_COMBAT)
+        else if (AISpellInfo[*i].condition == AICOND_COMBAT)
             events.ScheduleEvent(*i, AISpellInfo[*i].cooldown + rand()%AISpellInfo[*i].cooldown);
     }
 }
 
 void CombatAI::UpdateAI(const uint32 diff)
 {
-    if(!UpdateVictim())
+    if (!UpdateVictim())
         return;
 
     events.Update(diff);
 
-    if(me->hasUnitState(UNIT_STAT_CASTING))
+    if (me->hasUnitState(UNIT_STAT_CASTING))
         return;
 
-    if(uint32 spellId = events.ExecuteEvent())
+    if (uint32 spellId = events.ExecuteEvent())
     {
         DoCast(spellId);
         events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand()%AISpellInfo[spellId].cooldown);
@@ -135,7 +135,7 @@ void CasterAI::EnterCombat(Unit *who)
     uint32 count = 0;
     for (SpellVct::iterator itr = spells.begin(); itr != spells.end(); ++itr, ++count)
     {
-        if(AISpellInfo[*itr].condition == AICOND_AGGRO)
+        if (AISpellInfo[*itr].condition == AICOND_AGGRO)
             me->CastSpell(who, *itr, false);
         else if (AISpellInfo[*itr].condition == AICOND_COMBAT)
         {
@@ -152,15 +152,15 @@ void CasterAI::EnterCombat(Unit *who)
 
 void CasterAI::UpdateAI(const uint32 diff)
 {
-    if(!UpdateVictim())
+    if (!UpdateVictim())
         return;
 
     events.Update(diff);
 
-    if(me->hasUnitState(UNIT_STAT_CASTING))
+    if (me->hasUnitState(UNIT_STAT_CASTING))
         return;
 
-    if(uint32 spellId = events.ExecuteEvent())
+    if (uint32 spellId = events.ExecuteEvent())
     {
         DoCast(spellId);
         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
@@ -176,7 +176,7 @@ ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
 {
     ASSERT(me->m_spells[0]);
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
-    if(!m_minRange)
+    if (!m_minRange)
         m_minRange = MELEE_RANGE;
     me->m_CombatDistance = GetSpellMaxRange(me->m_spells[0], false);
     me->m_SightDistance = me->m_CombatDistance;
@@ -184,30 +184,30 @@ ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
 
 void ArchorAI::AttackStart(Unit *who)
 {
-    if(!who)
+    if (!who)
         return;
 
-    if(me->IsWithinCombatRange(who, m_minRange))
+    if (me->IsWithinCombatRange(who, m_minRange))
     {
-        if(me->Attack(who, true) && !who->IsFlying())
+        if (me->Attack(who, true) && !who->IsFlying())
             me->GetMotionMaster()->MoveChase(who);
     }
     else
     {
-        if(me->Attack(who, false) && !who->IsFlying())
+        if (me->Attack(who, false) && !who->IsFlying())
             me->GetMotionMaster()->MoveChase(who, me->m_CombatDistance);
     }
 
-    if(who->IsFlying())
+    if (who->IsFlying())
         me->GetMotionMaster()->MoveIdle();
 }
 
 void ArchorAI::UpdateAI(const uint32 diff)
 {
-    if(!UpdateVictim())
+    if (!UpdateVictim())
         return;
 
-    if(!me->IsWithinCombatRange(me->getVictim(), m_minRange))
+    if (!me->IsWithinCombatRange(me->getVictim(), m_minRange))
         DoSpellAttackIfReady(me->m_spells[0]);
     else
         DoMeleeAttackIfReady();
@@ -228,7 +228,7 @@ TurretAI::TurretAI(Creature *c) : CreatureAI(c)
 bool TurretAI::CanAIAttack(const Unit *who) const
 {
     // TODO: use one function to replace it
-    if(!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
+    if (!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
         || m_minRange && me->IsWithinCombatRange(me->getVictim(), m_minRange))
         return false;
     return true;
@@ -236,19 +236,19 @@ bool TurretAI::CanAIAttack(const Unit *who) const
 
 void TurretAI::AttackStart(Unit *who)
 {
-    if(who)
+    if (who)
         me->Attack(who, false);
 }
 
 void TurretAI::UpdateAI(const uint32 diff)
 {
-    if(!UpdateVictim())
+    if (!UpdateVictim())
         return;
 
     DoSpellAttackIfReady(me->m_spells[0]);
 
-    //if(!DoSpellAttackIfReady(me->m_spells[0]))
-        //if(HostileReference *ref = me->getThreatManager().getCurrentVictim())
+    //if (!DoSpellAttackIfReady(me->m_spells[0]))
+        //if (HostileReference *ref = me->getThreatManager().getCurrentVictim())
             //ref->removeReference();
 }
 
@@ -277,6 +277,6 @@ void AOEAI::AttackStart(Unit *who)
 
 void AOEAI::UpdateAI(const uint32 diff)
 {
-    if(!me->HasAura(me->m_spells[0]))
+    if (!me->HasAura(me->m_spells[0]))
         me->CastSpell(me, me->m_spells[0],false);
 }

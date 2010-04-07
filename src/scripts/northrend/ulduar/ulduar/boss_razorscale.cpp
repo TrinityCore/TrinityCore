@@ -110,7 +110,7 @@ struct boss_razorscaleAI : public BossAI
         if (!UpdateVictim())
             return;
 
-        if(m_creature->GetPositionY() > -60 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
+        if (m_creature->GetPositionY() > -60 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
         {
             m_creature->RemoveAllAuras();
             m_creature->DeleteThreatList();

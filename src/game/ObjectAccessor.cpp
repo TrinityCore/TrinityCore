@@ -111,24 +111,24 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
                 return ((Player const&)p).GetItemByGuid(guid);
             break;
         case HIGHGUID_PLAYER:
-            if(typemask & TYPEMASK_PLAYER)
+            if (typemask & TYPEMASK_PLAYER)
                 return FindPlayer(guid);
             break;
         case HIGHGUID_GAMEOBJECT:
-            if(typemask & TYPEMASK_GAMEOBJECT)
+            if (typemask & TYPEMASK_GAMEOBJECT)
                 return p.GetMap()->GetGameObject(guid);
             break;
         case HIGHGUID_UNIT:
         case HIGHGUID_VEHICLE:
-            if(typemask & TYPEMASK_UNIT)
+            if (typemask & TYPEMASK_UNIT)
                 return p.GetMap()->GetCreature(guid);
             break;
         case HIGHGUID_PET:
-            if(typemask & TYPEMASK_UNIT)
+            if (typemask & TYPEMASK_UNIT)
                 return GetPet(guid);
             break;
         case HIGHGUID_DYNAMICOBJECT:
-            if(typemask & TYPEMASK_DYNAMICOBJECT)
+            if (typemask & TYPEMASK_DYNAMICOBJECT)
                 return p.GetMap()->GetDynamicObject(guid);
             break;
         case HIGHGUID_TRANSPORT:
@@ -255,7 +255,7 @@ void ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair, GridType& grid, 
 Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia)
 {
     Corpse* corpse = GetCorpseForPlayerGUID(player_guid);
-    if(!corpse)
+    if (!corpse)
     {
         //in fact this function is called from several places
         //even when player doesn't have a corpse, not an error
@@ -275,7 +275,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
     // remove resurrectable corpse from grid object registry (loaded state checked into call)
     // do not load the map if it's not loaded
     //Map *map = MapManager::Instance().FindMap(corpse->GetMapId(), corpse->GetInstanceId());
-    //if(map)
+    //if (map)
     //    map->Remove(corpse, false);
 
     // remove corpse from DB

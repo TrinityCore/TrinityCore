@@ -102,9 +102,9 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 
     debug_log("TSCR: DoScriptText: text entry=%i, Sound=%u, Type=%u, Language=%u, Emote=%u", iTextEntry, pData->uiSoundId, pData->uiType, pData->uiLanguage, pData->uiEmote);
 
-    if(pData->uiSoundId)
+    if (pData->uiSoundId)
     {
-        if(GetSoundEntriesStore()->LookupEntry(pData->uiSoundId))
+        if (GetSoundEntriesStore()->LookupEntry(pData->uiSoundId))
         {
             pSource->SendPlaySound(pData->uiSoundId, false);
         }
@@ -112,7 +112,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
             error_log("TSCR: DoScriptText entry %i tried to process invalid sound id %u.", iTextEntry, pData->uiSoundId);
     }
 
-    if(pData->uiEmote)
+    if (pData->uiEmote)
     {
         if (pSource->GetTypeId() == TYPEID_UNIT || pSource->GetTypeId() == TYPEID_PLAYER)
             ((Unit*)pSource)->HandleEmoteCommand(pData->uiEmote);
@@ -159,12 +159,12 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 void Script::RegisterSelf()
 {
     int id = GetScriptId(Name.c_str());
-    if(id)
+    if (id)
     {
         m_scripts[id] = this;
         ++num_sc_scripts;
     }
-    else if(Name.find("example") == std::string::npos)
+    else if (Name.find("example") == std::string::npos)
     {
         error_db_log("TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
         delete this;
@@ -307,12 +307,12 @@ bool ScriptMgr::GossipSelectWithCode(Player* pPlayer, Creature* pCreature, uint3
 
 bool ScriptMgr::GOSelect(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint32 uiAction)
 {
-    if(!pGO)
+    if (!pGO)
     return false;
     debug_log("TSCR: Gossip selection, sender: %d, action: %d", uiSender, uiAction);
 
     Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
-    if(!tmpscript || !tmpscript->pGOSelect) return false;
+    if (!tmpscript || !tmpscript->pGOSelect) return false;
 
     pPlayer->PlayerTalkClass->ClearMenus();
     return tmpscript->pGOSelect(pPlayer, pGO, uiSender, uiAction);
@@ -320,12 +320,12 @@ bool ScriptMgr::GOSelect(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint
 
 bool ScriptMgr::GOSelectWithCode(Player* pPlayer, GameObject* pGO, uint32 uiSender, uint32 uiAction, const char* sCode)
 {
-    if(!pGO)
+    if (!pGO)
     return false;
     debug_log("TSCR: Gossip selection, sender: %d, action: %d",uiSender, uiAction);
 
     Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
-    if(!tmpscript || !tmpscript->pGOSelectWithCode) return false;
+    if (!tmpscript || !tmpscript->pGOSelectWithCode) return false;
 
     pPlayer->PlayerTalkClass->ClearMenus();
     return tmpscript->pGOSelectWithCode(pPlayer, pGO, uiSender ,uiAction, sCode);

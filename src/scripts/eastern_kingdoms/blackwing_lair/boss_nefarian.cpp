@@ -108,9 +108,9 @@ struct boss_nefarianAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if( DespawnTimer <= diff)
+        if ( DespawnTimer <= diff)
         {
-            if(!UpdateVictim())
+            if (!UpdateVictim())
                 m_creature->ForcedDespawn();
             DespawnTimer = 5000;
         } else DespawnTimer -= diff;

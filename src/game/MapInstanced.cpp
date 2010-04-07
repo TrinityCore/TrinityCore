@@ -36,7 +36,7 @@ MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEO
 
 void MapInstanced::InitVisibilityDistance()
 {
-    if(m_InstancedMaps.empty())
+    if (m_InstancedMaps.empty())
         return;
     //initialize visibility distances for all instance copies
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
@@ -55,9 +55,9 @@ void MapInstanced::Update(const uint32& t)
 
     while (i != m_InstancedMaps.end())
     {
-        if(i->second->CanUnload(t))
+        if (i->second->CanUnload(t))
         {
-            if(!DestroyInstance(i))                             // iterator incremented
+            if (!DestroyInstance(i))                             // iterator incremented
             {
                 //m_unloadTimer
             }
@@ -122,20 +122,20 @@ void MapInstanced::UnloadAll()
 */
 Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
 {
-    if(GetId() != mapId || !player)
+    if (GetId() != mapId || !player)
         return NULL;
 
     Map* map = NULL;
     uint32 NewInstanceId = 0;                       // instanceId of the resulting map
 
-    if(IsBattleGroundOrArena())
+    if (IsBattleGroundOrArena())
     {
         // instantiate or find existing bg map for player
         // the instance id is set in battlegroundid
         NewInstanceId = player->GetBattleGroundId();
-        if(!NewInstanceId) return NULL;
+        if (!NewInstanceId) return NULL;
         map = _FindMap(NewInstanceId);
-        if(!map)
+        if (!map)
             map = CreateBattleGround(NewInstanceId, player->GetBattleGround());
     }
     else
@@ -145,21 +145,21 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player * player)
 
         // the player's permanent player bind is taken into consideration first
         // then the player's group bind and finally the solo bind.
-        if(!pBind || !pBind->perm)
+        if (!pBind || !pBind->perm)
         {
             InstanceGroupBind *groupBind = NULL;
             Group *group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
-            if(group && (groupBind = group->GetBoundInstance(this)))
+            if (group && (groupBind = group->GetBoundInstance(this)))
                 pSave = groupBind->save;
         }
-        if(pSave)
+        if (pSave)
         {
             // solo/perm/group
             NewInstanceId = pSave->GetInstanceId();
             map = _FindMap(NewInstanceId);
             // it is possible that the save exists but the map doesn't
-            if(!map)
+            if (!map)
                 map = CreateInstance(NewInstanceId, pSave, pSave->GetDifficulty());
         }
         else
@@ -183,13 +183,13 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
 
     // make sure we have a valid map id
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
-    if(!entry)
+    if (!entry)
     {
         sLog.outError("CreateInstance: no entry for map %d", GetId());
         assert(false);
     }
     const InstanceTemplate * iTemplate = objmgr.GetInstanceTemplate(GetId());
-    if(!iTemplate)
+    if (!iTemplate)
     {
         sLog.outError("CreateInstance: no instance template for map %d", GetId());
         assert(false);
@@ -236,7 +236,7 @@ BattleGroundMap* MapInstanced::CreateBattleGround(uint32 InstanceId, BattleGroun
 bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 {
     itr->second->RemoveAllPlayers();
-    if(itr->second->HavePlayers())
+    if (itr->second->HavePlayers())
     {
         ++itr;
         return false;
@@ -244,7 +244,7 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 
     itr->second->UnloadAll();
     // should only unload VMaps if this is the last instance and grid unloading is enabled
-    if(m_InstancedMaps.size() <= 1 && sWorld.getConfig(CONFIG_GRID_UNLOAD))
+    if (m_InstancedMaps.size() <= 1 && sWorld.getConfig(CONFIG_GRID_UNLOAD))
     {
         VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(itr->second->GetId());
         // in that case, unload grids of the base map, too

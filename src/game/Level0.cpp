@@ -34,14 +34,14 @@
 bool ChatHandler::HandleHelpCommand(const char* args)
 {
     char* cmd = strtok((char*)args, " ");
-    if(!cmd)
+    if (!cmd)
     {
         ShowHelpForCommand(getCommandTable(), "help");
         ShowHelpForCommand(getCommandTable(), "");
     }
     else
     {
-        if(!ShowHelpForCommand(getCommandTable(), cmd))
+        if (!ShowHelpForCommand(getCommandTable(), cmd))
             SendSysMessage(LANG_NO_HELP_CMD);
     }
 
@@ -65,21 +65,21 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
     Player *chr = m_session->GetPlayer();
 
-    if(chr->isInFlight())
+    if (chr->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if(chr->isInCombat())
+    if (chr->isInCombat())
     {
         SendSysMessage(LANG_YOU_IN_COMBAT);
         SetSentErrorMessage(true);
         return false;
     }
 
-    if((chr->isDead()) || (chr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
+    if ((chr->isDead()) || (chr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST)))
     {
     // if player is dead and stuck, send ghost to graveyard
     chr->RepopAtGraveyard();
@@ -103,7 +103,7 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 updateTime = sWorld.GetUpdateTime();
 
     PSendSysMessage(_FULLVERSION);
-    //if(m_session)
+    //if (m_session)
     //    full = _FULLVERSION(REVISION_DATE,REVISION_TIME,"|cffffffff|Hurl:" REVISION_ID "|h" REVISION_ID "|h|r");
     //else
     //    full = _FULLVERSION(REVISION_DATE,REVISION_TIME,REVISION_ID);
@@ -129,7 +129,7 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
         return false;
     }
 
-    if(m_session->GetPlayer( )->isInFlight())
+    if (m_session->GetPlayer( )->isInFlight())
     {
         SendSysMessage(LANG_YOU_IN_FLIGHT);
         SetSentErrorMessage(true);
@@ -146,7 +146,7 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     Player *player=m_session->GetPlayer();
 
     // save GM account without delay and output message (testing, etc)
-    if(m_session->GetSecurity() > SEC_PLAYER)
+    if (m_session->GetSecurity() > SEC_PLAYER)
     {
         player->SaveToDB();
         SendSysMessage(LANG_PLAYER_SAVED);
@@ -173,7 +173,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
         if ((itr->second->isGameMaster() || (itr_sec > SEC_PLAYER && itr_sec <= sWorld.getConfig(CONFIG_GM_LEVEL_IN_GM_LIST))) &&
             (!m_session || itr->second->IsVisibleGloballyFor(m_session->GetPlayer())))
         {
-            if(first)
+            if (first)
             {
                 SendSysMessage(LANG_GMS_ON_SRV);
                 first = false;
@@ -183,7 +183,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
         }
     }
 
-    if(first)
+    if (first)
         SendSysMessage(LANG_GMS_NOT_LOGGED);
 
     return true;
@@ -191,7 +191,7 @@ bool ChatHandler::HandleGMListIngameCommand(const char* /*args*/)
 
 bool ChatHandler::HandleAccountPasswordCommand(const char* args)
 {
-    if(!*args)
+    if (!*args)
         return false;
 
     char *old_pass = strtok ((char*)args, " ");
@@ -242,7 +242,7 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
 
 bool ChatHandler::HandleAccountAddonCommand(const char* args)
 {
-    if(!*args)
+    if (!*args)
         return false;
 
     char *szExp = strtok((char*)args," ");
@@ -250,7 +250,7 @@ bool ChatHandler::HandleAccountAddonCommand(const char* args)
     uint32 account_id = m_session->GetAccountId();
 
     int expansion=atoi(szExp);                                    //get int anyway (0 if error)
-    if(expansion < 0 || expansion > sWorld.getConfig(CONFIG_EXPANSION))
+    if (expansion < 0 || expansion > sWorld.getConfig(CONFIG_EXPANSION))
          return false;
 
     // No SQL injection

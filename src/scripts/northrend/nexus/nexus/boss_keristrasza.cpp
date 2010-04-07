@@ -114,7 +114,7 @@ struct boss_keristraszaAI : public ScriptedAI
 
     bool CheckContainmentSpheres(bool remove_prison = false)
     {
-        if(!pInstance)
+        if (!pInstance)
             return false;
 
         auiContainmentSphereGUIDs[0] = pInstance->GetData64(ANOMALUS_CONTAINMET_SPHERE);

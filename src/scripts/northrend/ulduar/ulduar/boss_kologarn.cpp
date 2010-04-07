@@ -117,19 +117,19 @@ struct boss_kologarnAI : public BossAI
             case EVENT_NONE:
                 break;
             case EVENT_SMASH:
-                if(left && right)
+                if (left && right)
                     DoCastVictim(SPELL_TWO_ARM_SMASH, true);
-                else if(left || right)
+                else if (left || right)
                     DoCastVictim(SPELL_ONE_ARM_SMASH, true);
                 events.RepeatEvent(15000);
                 break;
             case EVENT_SWEEP:
-                if(left)
+                if (left)
                     DoCastAOE(SPELL_ARM_SWEEP, true);
                 events.RepeatEvent(15000);
                 break;
             case EVENT_GRIP:
-                if(right)
+                if (right)
                     DoCastAOE(SPELL_STONE_GRIP, true);
                 events.RepeatEvent(15000);
                 break;

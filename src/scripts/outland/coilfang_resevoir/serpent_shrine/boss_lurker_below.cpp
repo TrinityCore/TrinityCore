@@ -98,7 +98,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
     bool CheckCanStart()//check if players fished
     {
-        if(pInstance && pInstance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+        if (pInstance && pInstance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
             return false;
         return true;
     }
@@ -151,7 +151,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(!CanStartEvent)//boss is invisible, don't attack
+        if (!CanStartEvent)//boss is invisible, don't attack
             return;
         if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)))
         {
@@ -165,17 +165,17 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type == ROTATE_MOTION_TYPE)
+        if (type == ROTATE_MOTION_TYPE)
             me->SetReactState(REACT_AGGRESSIVE);
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!CanStartEvent)//boss is invisible, don't attack
+        if (!CanStartEvent)//boss is invisible, don't attack
         {
-            if(CheckCanStart())
+            if (CheckCanStart())
             {
-                if(Submerged)
+                if (Submerged)
                 {
                     m_creature->SetVisibility(VISIBILITY_ON);
                     Submerged = false;
@@ -201,9 +201,9 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
             return;
         }
 
-        if(m_creature->getThreatManager().getThreatList().empty())//check if should evade
+        if (m_creature->getThreatManager().getThreatList().empty())//check if should evade
         {
-            if(m_creature->isInCombat())
+            if (m_creature->isInCombat())
                 EnterEvadeMode();
             return;
         }
@@ -244,14 +244,14 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 {
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if(m_creature->IsWithinMeleeRange(i->getSource()))
+                        if (m_creature->IsWithinMeleeRange(i->getSource()))
                             InRange = true;
                     }
                 }
                 CheckTimer = 2000;
             } else CheckTimer -= diff;
 
-            if(RotTimer)
+            if (RotTimer)
             {
                 Map* pMap = m_creature->GetMap();
                 if (pMap->IsDungeon())
@@ -287,7 +287,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 GeyserTimer = rand()%5000 + 15000;
             } else GeyserTimer -= diff;
 
-            if(!InRange)//if on players in melee range cast Waterbolt
+            if (!InRange)//if on players in melee range cast Waterbolt
             {
                 if (WaterboltTimer <= diff)
                 {
@@ -321,7 +321,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 return;
             } else PhaseTimer-=diff;
 
-            if(m_creature->getThreatManager().getThreatList().empty())//check if should evade
+            if (m_creature->getThreatManager().getThreatList().empty())//check if should evade
             {
                 EnterEvadeMode();
                 return;

@@ -442,7 +442,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
         return;
     }
 
-    if(!ScriptWP) // sd2 never adds wp in script, but tc does
+    if (!ScriptWP) // sd2 never adds wp in script, but tc does
     {
 
     if (!WaypointList.empty())

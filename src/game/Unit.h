@@ -1243,7 +1243,7 @@ class Unit : public WorldObject
         void GetRaidMember(std::list<Unit*> &units, float dist);
         bool IsContestedGuard() const
         {
-            if(FactionTemplateEntry const* entry = getFactionTemplateEntry())
+            if (FactionTemplateEntry const* entry = getFactionTemplateEntry())
                 return entry->IsContestedGuardFaction();
 
             return false;
@@ -1251,7 +1251,7 @@ class Unit : public WorldObject
         bool IsPvP() const { return HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP); }
         void SetPvP(bool state)
         {
-            if(state)
+            if (state)
                 SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
             else
                 RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
@@ -1470,7 +1470,7 @@ class Unit : public WorldObject
         uint64 GetCharmerOrOwnerGUID() const { return GetCharmerGUID() ? GetCharmerGUID() : GetOwnerGUID(); }
         uint64 GetCharmerOrOwnerOrOwnGUID() const
         {
-            if(uint64 guid = GetCharmerOrOwnerGUID())
+            if (uint64 guid = GetCharmerOrOwnerGUID())
                 return guid;
             return GetGUID();
         }
@@ -1486,7 +1486,7 @@ class Unit : public WorldObject
         Unit* GetCharmerOrOwner() const { return GetCharmerGUID() ? GetCharmer() : GetOwner(); }
         Unit* GetCharmerOrOwnerOrSelf() const
         {
-            if(Unit *u = GetCharmerOrOwner())
+            if (Unit *u = GetCharmerOrOwner())
                 return u;
 
             return (Unit*)this;
@@ -1511,7 +1511,7 @@ class Unit : public WorldObject
         bool isPossessedByPlayer() const { return hasUnitState(UNIT_STAT_POSSESSED) && IS_PLAYER_GUID(GetCharmerGUID()); }
         bool isPossessing() const
         {
-            if(Unit *u = GetCharm())
+            if (Unit *u = GetCharm())
                 return u->isPossessed();
             else
                 return false;
@@ -1719,7 +1719,7 @@ class Unit : public WorldObject
         bool isInFrontInMap(Unit const* target,float distance, float arc = M_PI) const;
         void SetInFront(Unit const* target)
         {
-            if(!hasUnitState(UNIT_STAT_CANNOT_TURN))
+            if (!hasUnitState(UNIT_STAT_CANNOT_TURN))
                 SetOrientation(GetAngle(target));
         }
         bool isInBackInMap(Unit const* target, float distance, float arc = M_PI) const;
@@ -1760,7 +1760,7 @@ class Unit : public WorldObject
         AuraApplication * GetVisibleAura(uint8 slot)
         {
             VisibleAuraMap::iterator itr = m_visibleAuras.find(slot);
-            if(itr != m_visibleAuras.end())
+            if (itr != m_visibleAuras.end())
                 return itr->second;
             return 0;
         }
@@ -1889,7 +1889,7 @@ class Unit : public WorldObject
         bool CanProc(){return !m_procDeep;}
         void SetCantProc( bool apply)
         {
-            if(apply)
+            if (apply)
                 ++m_procDeep;
             else
             {
@@ -1957,10 +1957,10 @@ class Unit : public WorldObject
         void OutDebugInfo() const;
         virtual bool isBeingLoaded() const { return false;}
 
-        Pet* ToPet(){ if(isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
-        Totem* ToTotem(){ if(isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
-        TempSummon* ToTempSummon() { if(isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
-        const TempSummon* ToTempSummon() const { if(isSummon()) return reinterpret_cast<const TempSummon*>(this); else return NULL; }
+        Pet* ToPet(){ if (isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
+        Totem* ToTotem(){ if (isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
+        TempSummon* ToTempSummon() { if (isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
+        const TempSummon* ToTempSummon() const { if (isSummon()) return reinterpret_cast<const TempSummon*>(this); else return NULL; }
 
     protected:
         explicit Unit ();

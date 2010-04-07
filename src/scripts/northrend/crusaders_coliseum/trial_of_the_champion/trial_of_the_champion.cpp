@@ -373,17 +373,17 @@ struct npc_announcer_toc5AI : public ScriptedAI
     {
         Map::PlayerList const &PlList = m_creature->GetMap()->GetPlayers();
 
-        if(PlList.isEmpty())
+        if (PlList.isEmpty())
             return;
 
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
         {
-            if(Player* pPlayer = i->getSource())
+            if (Player* pPlayer = i->getSource())
             {
-                if(pPlayer->isGameMaster())
+                if (pPlayer->isGameMaster())
                     continue;
 
-                if(pPlayer->isAlive())
+                if (pPlayer->isAlive())
                 {
                     pTemp->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
                     pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);

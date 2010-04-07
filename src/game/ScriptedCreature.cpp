@@ -24,7 +24,7 @@ void SummonList::DoZoneInCombat(uint32 entry)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
-        if(summon && summon->IsAIEnabled
+        if (summon && summon->IsAIEnabled
             && (!entry || summon->GetEntry() == entry))
             summon->AI()->DoZoneInCombat();
     }
@@ -36,7 +36,7 @@ void SummonList::DoAction(uint32 entry, uint32 info)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
         ++i;
-        if(summon && summon->IsAIEnabled
+        if (summon && summon->IsAIEnabled
             && (!entry || summon->GetEntry() == entry))
             summon->AI()->DoAction(info);
     }
@@ -47,9 +47,9 @@ void SummonList::DespawnEntry(uint32 entry)
     for (iterator i = begin(); i != end();)
     {
         Creature *summon = Unit::GetCreature(*m_creature, *i);
-        if(!summon)
+        if (!summon)
             erase(i++);
-        else if(summon->GetEntry() == entry)
+        else if (summon->GetEntry() == entry)
         {
             erase(i++);
             summon->setDeathState(JUST_DIED);
@@ -65,12 +65,12 @@ void SummonList::DespawnAll()
     while (!empty())
     {
         Creature *summon = Unit::GetCreature(*m_creature, *begin());
-        if(!summon)
+        if (!summon)
             erase(begin());
         else
         {
             erase(begin());
-            if(summon->isSummon())
+            if (summon->isSummon())
             {
                 summon->DestroyForNearbyPlayers();
                 CAST_SUM(summon)->UnSummon();
@@ -96,7 +96,7 @@ void ScriptedAI::AttackStartNoMove(Unit* pWho)
     if (!pWho)
         return;
 
-    if(m_creature->Attack(pWho, false))
+    if (m_creature->Attack(pWho, false))
         DoStartNoMovement(pWho);
 }
 
@@ -410,20 +410,20 @@ void ScriptedAI::DoResetThreat()
     {
         Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
 
-        if(pUnit && DoGetThreat(pUnit))
+        if (pUnit && DoGetThreat(pUnit))
             DoModifyThreatPercent(pUnit, -100);
     }
 }
 
 float ScriptedAI::DoGetThreat(Unit* pUnit)
 {
-    if(!pUnit) return 0.0f;
+    if (!pUnit) return 0.0f;
     return m_creature->getThreatManager().getThreat(pUnit);
 }
 
 void ScriptedAI::DoModifyThreatPercent(Unit* pUnit, int32 pct)
 {
-    if(!pUnit) return;
+    if (!pUnit) return;
     m_creature->getThreatManager().modifyThreatPercent(pUnit, pct);
 }
 
@@ -440,9 +440,9 @@ void ScriptedAI::DoTeleportTo(const float fPos[4])
 
 void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float fX, float fY, float fZ, float fO)
 {
-    if(!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
+    if (!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
     {
-        if(pUnit)
+        if (pUnit)
             error_log("TSCR: Creature %u (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: %u) to x: %f y:%f z: %f o: %f. Aborted.", m_creature->GetGUID(), m_creature->GetEntry(), pUnit->GetTypeId(), pUnit->GetGUID(), fX, fY, fZ, fO);
         return;
     }
@@ -607,12 +607,12 @@ BossAI::BossAI(Creature *c, uint32 id) : ScriptedAI(c)
 
 void BossAI::_Reset()
 {
-    if(!me->isAlive())
+    if (!me->isAlive())
         return;
 
     events.Reset();
     summons.DespawnAll();
-    if(instance)
+    if (instance)
         instance->SetBossState(bossId, NOT_STARTED);
 }
 
@@ -620,7 +620,7 @@ void BossAI::_JustDied()
 {
     events.Reset();
     summons.DespawnAll();
-    if(instance)
+    if (instance)
     {
         instance->SetBossState(bossId, DONE);
         instance->SaveToDB();
@@ -631,7 +631,7 @@ void BossAI::_EnterCombat()
 {
     me->setActive(true);
     DoZoneInCombat();
-    if(instance)
+    if (instance)
         instance->SetBossState(bossId, IN_PROGRESS);
 }
 
@@ -641,7 +641,7 @@ void BossAI::TeleportCheaters()
     me->GetPosition(x, y, z);
     std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
     for (std::list<HostileReference*>::iterator itr = m_threatlist.begin(); itr != m_threatlist.end(); ++itr)
-        if((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
+        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && !CheckBoundary((*itr)->getTarget()))
             (*itr)->getTarget()->NearTeleportTo(x, y, z, 0);
 }
 
@@ -695,7 +695,7 @@ bool BossAI::CheckBoundary(Unit *who)
 void BossAI::JustSummoned(Creature *summon)
 {
     summons.Summon(summon);
-    if(me->isInCombat())
+    if (me->isInCombat())
         DoZoneInCombat(summon);
 }
 
@@ -711,13 +711,13 @@ void LoadOverridenSQLData()
     GameObjectInfo *goInfo;
 
     // Sunwell Plateau : Kalecgos : Spectral Rift
-    if(goInfo = GOBJECT(187055))
-        if(goInfo->type == GAMEOBJECT_TYPE_GOOBER)
+    if (goInfo = GOBJECT(187055))
+        if (goInfo->type == GAMEOBJECT_TYPE_GOOBER)
             goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
 
     // Naxxramas : Sapphiron Birth
-    if(goInfo = GOBJECT(181356))
-        if(goInfo->type == GAMEOBJECT_TYPE_TRAP)
+    if (goInfo = GOBJECT(181356))
+        if (goInfo->type == GAMEOBJECT_TYPE_TRAP)
             goInfo->trap.radius = 50;
 }
 

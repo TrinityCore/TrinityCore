@@ -203,7 +203,7 @@ bool InstanceData::SetBossState(uint32 id, EncounterState state)
 
             if (state == DONE)
                 for (MinionSet::iterator i = bossInfo->minion.begin(); i != bossInfo->minion.end(); ++i)
-                    if((*i)->isWorldBoss() && (*i)->isAlive())
+                    if ((*i)->isWorldBoss() && (*i)->isAlive())
                         return false;
 
             bossInfo->state = state;
@@ -224,7 +224,7 @@ bool InstanceData::SetBossState(uint32 id, EncounterState state)
 
 std::string InstanceData::LoadBossState(const char * data)
 {
-    if(!data)
+    if (!data)
         return NULL;
     std::istringstream loadStream(data);
     uint32 buff;

@@ -116,7 +116,7 @@ struct boss_emalonAI : public BossAI
             switch(eventId)
             {
             case EVENT_CHAIN_LIGHTNING:
-                if(Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
                 break;
@@ -175,7 +175,7 @@ struct mob_tempest_minionAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if(Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
+        if (Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
         {
             if (pEmalon->isAlive())
             {
@@ -190,7 +190,7 @@ struct mob_tempest_minionAI : public ScriptedAI
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-        if(Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
+        if (Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
         {
             if (!pEmalon->getVictim() && pEmalon->AI())
                 pEmalon->AI()->AttackStart(who);

@@ -211,7 +211,7 @@ void PlayerMenu::SendPointOfInterest( float X, float Y, uint32 Icon, uint32 Flag
 void PlayerMenu::SendPointOfInterest( uint32 poi_id )
 {
     PointOfInterest const* poi = objmgr.GetPointOfInterest(poi_id);
-    if(!poi)
+    if (!poi)
     {
         sLog.outErrorDb("Requested send not existed POI (Id: %u), ignore.",poi_id);
         return;
@@ -372,7 +372,7 @@ bool QuestMenu::HasItem( uint32 questid )
 {
     for (QuestMenuItemList::const_iterator i = m_qItems.begin(); i != m_qItems.end(); ++i)
     {
-        if(i->m_qId==questid)
+        if (i->m_qId==questid)
         {
             return true;
         }
@@ -406,7 +406,7 @@ void PlayerMenu::SendQuestGiverQuestList( QEmote eEmote, const std::string& Titl
         int loc_idx = pSession->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if(QuestLocale const *ql = objmgr.GetQuestLocale(questID))
+            if (QuestLocale const *ql = objmgr.GetQuestLocale(questID))
             {
                 if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
                     title=ql->Title[loc_idx];
@@ -717,7 +717,7 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
     uint32 EmoteCount = 0;
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
-        if(pQuest->OfferRewardEmote[i] <= 0)
+        if (pQuest->OfferRewardEmote[i] <= 0)
             break;
         ++EmoteCount;
     }
@@ -820,7 +820,7 @@ void PlayerMenu::SendQuestGiverRequestItems( Quest const *pQuest, uint64 npcGUID
 
     data << uint32(0x00);                                   // unknown
 
-    if(Completable)
+    if (Completable)
         data << pQuest->GetCompleteEmote();
     else
         data << pQuest->GetIncompleteEmote();

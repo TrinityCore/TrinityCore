@@ -60,7 +60,7 @@ struct ServerPktHeader
     ServerPktHeader(uint32 size, uint16 cmd) : size(size)
     {
         uint8 headerIndex=0;
-        if(isLargePacket())
+        if (isLargePacket())
         {
             sLog.outDebug("initializing large server to client packet. Size: %u, cmd: %u", size, cmd);
             header[headerIndex++] = 0x80|(0xFF &(size>>16));
@@ -444,7 +444,7 @@ int WorldSocket::handle_input_header (void)
 
     ACE_NEW_RETURN (m_RecvWPct, WorldPacket ((uint16) header.cmd, header.size), -1);
 
-    if(header.size > 0)
+    if (header.size > 0)
     {
         m_RecvWPct->resize (header.size);
         m_RecvPct.base ((char*) m_RecvWPct->contents (), m_RecvWPct->size ());
@@ -696,7 +696,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
     {
         sLog.outError("WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet (opcode: %u) from client %s, accountid=%i. Disconnected client.",
                 opcode, GetRemoteAddress().c_str(), m_Session?m_Session->GetAccountId():-1);
-        if(sLog.IsOutDebug())
+        if (sLog.IsOutDebug())
         {
             sLog.outDebug("Dumping error causing packet:");
             new_pct->hexlike();
@@ -726,7 +726,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     BigNumber K;
 
-    if(sWorld.IsClosed())
+    if (sWorld.IsClosed())
     {
         packet.Initialize(SMSG_AUTH_RESPONSE, 1);
         packet << uint8(AUTH_REJECT);
@@ -788,7 +788,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     uint8 expansion = fields[6].GetUInt8();
     uint32 world_expansion = sWorld.getConfig(CONFIG_EXPANSION);
-    if(expansion > world_expansion)
+    if (expansion > world_expansion)
         expansion = world_expansion;
     //expansion = ((sWorld.getConfig(CONFIG_EXPANSION) > fields[6].GetUInt8()) ? fields[6].GetUInt8() : sWorld.getConfig(CONFIG_EXPANSION));
 
@@ -824,7 +824,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     id = fields[0].GetUInt32 ();
     /*
-    if(security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
+    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
         security = SEC_ADMINISTRATOR;
         */
 
@@ -846,7 +846,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                               " AND (RealmID = '%d'"
                               " OR RealmID = '-1')",
                               id, realmID);
-    if(!result)
+    if (!result)
         security = 0;
     else
     {

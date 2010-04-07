@@ -215,9 +215,9 @@ struct boss_terestianAI : public ScriptedAI
 
         m_creature->RemoveAurasDueToSpell(SPELL_BROKEN_PACT);
 
-        if(Minion* Kilrek = m_creature->GetFirstMinion())
+        if (Minion* Kilrek = m_creature->GetFirstMinion())
         {
-            if(!Kilrek->isAlive())
+            if (!Kilrek->isAlive())
             {
                 Kilrek->UnSummon();
                 DoCast(m_creature, SPELL_SUMMON_IMP, true);
@@ -301,13 +301,13 @@ struct boss_terestianAI : public ScriptedAI
 
         if (SummonTimer <= diff)
         {
-            if(!PortalGUID[0])
+            if (!PortalGUID[0])
                 DoCast(m_creature->getVictim(), SPELL_FIENDISH_PORTAL, false);
 
-            if(!PortalGUID[1])
+            if (!PortalGUID[1])
                 DoCast(m_creature->getVictim(), SPELL_FIENDISH_PORTAL_1, false);
 
-            if(PortalGUID[0] && PortalGUID[1])
+            if (PortalGUID[0] && PortalGUID[1])
             {
                 if (Creature* pPortal = Unit::GetCreature(*m_creature, PortalGUID[urand(0,1)]))
                     pPortal->CastSpell(m_creature->getVictim(), SPELL_SUMMON_FIENDISIMP, false);

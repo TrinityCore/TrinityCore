@@ -166,7 +166,7 @@ struct instance_blackrock_depths : public ScriptedInstance
         case NPC_ANGERREL: TombBossGUIDs[6] = pCreature->GetGUID(); break;
         case NPC_MAGMUS:
             MagmusGUID = pCreature->GetGUID();
-            if(!pCreature->isAlive())
+            if (!pCreature->isAlive())
                 HandleGameObject(GetData64(DATA_THRONE_DOOR), true); // if Magmus is dead open door to last boss
             break;
         }

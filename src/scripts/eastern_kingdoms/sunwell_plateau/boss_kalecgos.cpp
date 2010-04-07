@@ -149,11 +149,11 @@ struct boss_kalecgosAI : public ScriptedAI
             pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
         }
 
-        if(Creature *Sath = Unit::GetCreature(*me, SathGUID))
+        if (Creature *Sath = Unit::GetCreature(*me, SathGUID))
             Sath->AI()->EnterEvadeMode();
 
         me->setFaction(14);
-        if(!JustReseted)//first reset at create
+        if (!JustReseted)//first reset at create
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -223,7 +223,7 @@ struct boss_kalecgosAI : public ScriptedAI
         }
         else
         {
-            if(JustReseted)
+            if (JustReseted)
             {
                 if (ResetTimer <= diff)
                 {
@@ -241,20 +241,20 @@ struct boss_kalecgosAI : public ScriptedAI
 
             if (CheckTimer <= diff)
             {
-                if(me->GetDistance(CENTER_X, CENTER_Y, DRAGON_REALM_Z) >= 75)
+                if (me->GetDistance(CENTER_X, CENTER_Y, DRAGON_REALM_Z) >= 75)
                 {
                     me->AI()->EnterEvadeMode();
                     return;
                 }
                 if (HealthBelowPct(10) && !isEnraged)
                 {
-                    if(Creature* Sath = Unit::GetCreature(*me, SathGUID))
+                    if (Creature* Sath = Unit::GetCreature(*me, SathGUID))
                         Sath->AI()->DoAction(DO_ENRAGE);
                     DoAction(DO_ENRAGE);
                 }
                 if (!isBanished && HealthBelowPct(1))
                 {
-                    if(Creature* Sath = Unit::GetCreature(*me, SathGUID))
+                    if (Creature* Sath = Unit::GetCreature(*me, SathGUID))
                     {
                         if (Sath->HasAura(SPELL_BANISH))
                         {
@@ -303,16 +303,16 @@ struct boss_kalecgosAI : public ScriptedAI
                 std::list<HostileReference*> &m_threatlist = me->getThreatManager().getThreatList();
                 std::list<Unit*> targetList;
                 for (std::list<HostileReference*>::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
-                    if((*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
+                    if ((*itr)->getTarget() && (*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->GetGUID() != me->getVictim()->GetGUID() && !(*itr)->getTarget()->HasAura(AURA_SPECTRAL_EXHAUSTION) && (*itr)->getTarget()->GetPositionZ() > me->GetPositionZ()-5)
                         targetList.push_back((*itr)->getTarget());
-                if(targetList.empty())
+                if (targetList.empty())
                 {
                     SpectralBlastTimer = 1000;
                     return;
                 }
                 std::list<Unit*>::const_iterator i = targetList.begin();
                 advance(i, rand()%targetList.size());
-                if((*i))
+                if ((*i))
                 {
                     (*i)->CastSpell((*i), SPELL_SPECTRAL_BLAST,true);
                     SpectralBlastTimer = 20000+rand()%5000;
@@ -325,7 +325,7 @@ struct boss_kalecgosAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if(JustReseted)//boss is invisible, don't attack
+        if (JustReseted)//boss is invisible, don't attack
             return;
         if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)))
         {
@@ -360,7 +360,7 @@ struct boss_kalecgosAI : public ScriptedAI
 
     void MovementInform(uint32 type,uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
         me->SetVisibility(VISIBILITY_OFF);
         if (isFriendly)
@@ -482,7 +482,7 @@ struct boss_sathrovarrAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        if(Creature *Kalec = me->SummonCreature(MOB_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+        if (Creature *Kalec = me->SummonCreature(MOB_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
         {
             KalecGUID = Kalec->GetGUID();
             me->CombatStart(Kalec);
@@ -536,7 +536,7 @@ struct boss_sathrovarrAI : public ScriptedAI
         Map::PlayerList const &PlayerList = pMap->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
-            if(i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
+            if (i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
             {
                 i->getSource()->RemoveAura(AURA_SPECTRAL_REALM);
                 i->getSource()->TeleportTo(me->GetMap()->GetId(),i->getSource()->GetPositionX(),i->getSource()->GetPositionY(),DRAGON_REALM_Z+5,i->getSource()->GetOrientation());
@@ -561,7 +561,7 @@ struct boss_sathrovarrAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
+        if (!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
             me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
         if (!UpdateVictim())
             return;
@@ -569,7 +569,7 @@ struct boss_sathrovarrAI : public ScriptedAI
         if (CheckTimer <= diff)
         {
             Creature *Kalec = Unit::GetCreature(*me, KalecGUID);
-            if(!Kalec || (Kalec && !Kalec->isAlive()))
+            if (!Kalec || (Kalec && !Kalec->isAlive()))
             {
                 if (Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                     Kalecgos->AI()->EnterEvadeMode();
@@ -577,14 +577,14 @@ struct boss_sathrovarrAI : public ScriptedAI
             }
             if (HealthBelowPct(10) && !isEnraged)
             {
-                if(Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
+                if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
                     Kalecgos->AI()->DoAction(DO_ENRAGE);
                 DoAction(DO_ENRAGE);
             }
             Creature *Kalecgos = Unit::GetCreature(*me, KalecgosGUID);
             if (Kalecgos)
             {
-                if(!Kalecgos->isInCombat())
+                if (!Kalecgos->isInCombat())
                 {
                     me->AI()->EnterEvadeMode();
                     return;
@@ -616,9 +616,9 @@ struct boss_sathrovarrAI : public ScriptedAI
         {
             for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
             {
-                if(Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
-                    if(pUnit->GetPositionZ() > me->GetPositionZ()+5)
+                    if (pUnit->GetPositionZ() > me->GetPositionZ()+5)
                     {
                         me->getThreatManager().modifyThreatPercent(pUnit,-100);
                     }
@@ -629,7 +629,7 @@ struct boss_sathrovarrAI : public ScriptedAI
 
         if (ShadowBoltTimer <= diff)
         {
-            if(!(rand()%5))DoScriptText(SAY_SATH_SPELL1, me);
+            if (!(rand()%5))DoScriptText(SAY_SATH_SPELL1, me);
             DoCast(me, SPELL_SHADOW_BOLT);
             ShadowBoltTimer = 7000+(rand()%3000);
         } else ShadowBoltTimer -= diff;
@@ -644,7 +644,7 @@ struct boss_sathrovarrAI : public ScriptedAI
 
         if (CorruptionStrikeTimer <= diff)
         {
-            if(!(rand()%5))DoScriptText(SAY_SATH_SPELL2, me);
+            if (!(rand()%5))DoScriptText(SAY_SATH_SPELL2, me);
             DoCast(me->getVictim(), SPELL_CORRUPTION_STRIKE);
             CorruptionStrikeTimer = 13000;
         } else CorruptionStrikeTimer -= diff;
@@ -694,7 +694,7 @@ struct boss_kalecAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
+        if (!me->HasAura(AURA_SPECTRAL_INVISIBILITY))
             me->CastSpell(me, AURA_SPECTRAL_INVISIBILITY, true);
         if (!UpdateVictim())
             return;
@@ -751,7 +751,7 @@ bool GOkalecgos_teleporter(Player* pPlayer, GameObject* pGo)
     Map::PlayerList const &PlayerList = pMap->GetPlayers();
     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
     {
-        if(i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
+        if (i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
             ++SpectralPlayers;
     }
     if (pPlayer->HasAura(AURA_SPECTRAL_EXHAUSTION) || (MAX_PLAYERS_IN_SPECTRAL_REALM && SpectralPlayers >= MAX_PLAYERS_IN_SPECTRAL_REALM))

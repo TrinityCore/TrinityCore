@@ -613,7 +613,7 @@ struct boss_kaelthasAI : public ScriptedAI
                         if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
                         {
                             Phase = 2;
-                            if(m_pInstance)
+                            if (m_pInstance)
                                 m_pInstance->SetData(DATA_KAELTHASEVENT, 2);
 
                             DoScriptText(SAY_PHASE2_WEAPON, m_creature);
@@ -656,7 +656,7 @@ struct boss_kaelthasAI : public ScriptedAI
                     if (Phase_Timer <= diff)
                     {
                         DoScriptText(SAY_PHASE3_ADVANCE, m_creature);
-                        if(m_pInstance)
+                        if (m_pInstance)
                             m_pInstance->SetData(DATA_KAELTHASEVENT, 3);
                         Phase = 3;
                         PhaseSubphase = 0;
@@ -692,7 +692,7 @@ struct boss_kaelthasAI : public ScriptedAI
                     DoScriptText(SAY_PHASE4_INTRO2, m_creature);
                     Phase = 4;
 
-                    if(m_pInstance)
+                    if (m_pInstance)
                         m_pInstance->SetData(DATA_KAELTHASEVENT, 4);
 
                     // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
@@ -785,7 +785,7 @@ struct boss_kaelthasAI : public ScriptedAI
                 {
                     if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
                     {
-                        if(m_pInstance)
+                        if (m_pInstance)
                             m_pInstance->SetData(DATA_KAELTHASEVENT, 4);
                         Phase = 5;
                         Phase_Timer = 10000;

@@ -181,7 +181,7 @@ struct boss_high_king_maulgarAI : public ScriptedAI
 
     void GetCouncil()
     {
-        if(pInstance)
+        if (pInstance)
         {
             //get council member's guid to respawn them if needed
             Council[0] = pInstance->GetData64(DATA_KIGGLERTHECRAZED);

@@ -44,7 +44,7 @@ DynamicObject::DynamicObject() : WorldObject()
 void DynamicObject::AddToWorld()
 {
     ///- Register the dynamicObject for guid lookup
-    if(!IsInWorld())
+    if (!IsInWorld())
     {
         ObjectAccessor::Instance().AddObject(this);
         WorldObject::AddToWorld();
@@ -54,13 +54,13 @@ void DynamicObject::AddToWorld()
 void DynamicObject::RemoveFromWorld()
 {
     ///- Remove the dynamicObject from the accessor
-    if(IsInWorld())
+    if (IsInWorld())
     {
-        if(m_isWorldObject)
+        if (m_isWorldObject)
         {
-            if(Unit *caster = GetCaster())
+            if (Unit *caster = GetCaster())
             {
-                if(caster->GetTypeId() == TYPEID_PLAYER)
+                if (caster->GetTypeId() == TYPEID_PLAYER)
                     caster->ToPlayer()->SetViewpoint(this, false);
             }
             else
@@ -77,7 +77,7 @@ bool DynamicObject::Create(uint32 guidlow, Unit *caster, uint32 spellId, const P
 {
     SetMap(caster->GetMap());
     Relocate(pos);
-    if(!IsPositionValid())
+    if (!IsPositionValid())
     {
         sLog.outError("DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",spellId,GetPositionX(),GetPositionY());
         return false;
@@ -132,7 +132,7 @@ void DynamicObject::Update(uint32 p_time)
     }
     else
     {
-        if(GetDuration() > int32(p_time))
+        if (GetDuration() > int32(p_time))
             m_duration -= p_time;
         else
             expired = true;

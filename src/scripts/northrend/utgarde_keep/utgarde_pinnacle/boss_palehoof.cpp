@@ -145,7 +145,7 @@ struct boss_palehoofAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(currentPhase!=PHASE_GORTOK_PALEHOOF)
+        if (currentPhase!=PHASE_GORTOK_PALEHOOF)
             return;
         //Return since we have no target
         if (!UpdateVictim())
@@ -194,7 +194,7 @@ struct boss_palehoofAI : public ScriptedAI
 
     void NextPhase()
     {
-        if(currentPhase == PHASE_NONE)
+        if (currentPhase == PHASE_NONE)
         {
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
             m_creature->SummonCreature(MOB_STASIS_CONTROLLER,moveLocs[5].x,moveLocs[5].y,moveLocs[5].z,0,TEMPSUMMON_CORPSE_DESPAWN);
@@ -208,7 +208,7 @@ struct boss_palehoofAI : public ScriptedAI
             uint8 next = urand(0,3);
             for (uint8 i=0; i < 16; i++)
             {
-                if(!DoneAdds[i%4] && next == 0)
+                if (!DoneAdds[i%4] && next == 0)
                 {
                     move = (Phase)(i%4);
                     break;
@@ -223,7 +223,7 @@ struct boss_palehoofAI : public ScriptedAI
         Creature *pOrb = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pOrb && pOrb->isAlive())
         {
-            if(currentPhase == PHASE_NONE)
+            if (currentPhase == PHASE_NONE)
                 pOrb->CastSpell(m_creature,SPELL_ORB_VISUAL,true);
             pOrb->GetMotionMaster()->MovePoint(move,moveLocs[move].x,moveLocs[move].y,moveLocs[move].z);
         }
@@ -274,7 +274,7 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
-            if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
+            if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
             {
                 Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
@@ -380,7 +380,7 @@ struct mob_frenzied_worgenAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
-            if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
+            if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
             {
                 Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
@@ -489,7 +489,7 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
-            if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
+            if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
             {
                 Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
@@ -602,7 +602,7 @@ struct mob_massive_jormungarAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
-            if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
+            if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
             {
                 Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
@@ -702,12 +702,12 @@ struct mob_palehoof_orbAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(currentPhase==PHASE_NONE)
+        if (currentPhase==PHASE_NONE)
             return;
 
-        if(SummonTimer<=diff)
+        if (SummonTimer<=diff)
         {
-            if(currentPhase<5&&currentPhase>=0)
+            if (currentPhase<5&&currentPhase>=0)
             {
                Creature *pNext;
                switch(currentPhase)
@@ -737,7 +737,7 @@ struct mob_palehoof_orbAI : public ScriptedAI
     {
         if (type != POINT_MOTION_TYPE)
             return;
-        if(id<0 || id>4)
+        if (id<0 || id>4)
             return;
         Creature *pNext;
         switch(id)
@@ -748,7 +748,7 @@ struct mob_palehoof_orbAI : public ScriptedAI
             case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
             case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
         }
-        if(pNext)
+        if (pNext)
             DoCast(pNext, SPELL_ORB_CHANNEL, false);
         currentPhase=(Phase)id;
         SummonTimer=5000;

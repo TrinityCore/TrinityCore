@@ -283,7 +283,7 @@ struct npc_sinkhole_kill_creditAI : public ScriptedAI
                     break;
                 case 7:
                     DoCast(m_creature, SPELL_EXPLODE_CART, true);
-                    if(Player *caster = Unit::GetPlayer(casterGuid))
+                    if (Player *caster = Unit::GetPlayer(casterGuid))
                         caster->KilledMonster(m_creature->GetCreatureInfo(),m_creature->GetGUID());
                     uiPhaseTimer = 5000;
                     Phase = 8;
@@ -539,7 +539,7 @@ struct npc_jennyAI : public ScriptedAI
 
     void Reset()
     {
-        if(!setCrateNumber)
+        if (!setCrateNumber)
             setCrateNumber = true;
 
         m_creature->SetReactState(REACT_PASSIVE);
@@ -563,7 +563,7 @@ struct npc_jennyAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(setCrateNumber)
+        if (setCrateNumber)
         {
             m_creature->AddAura(SPELL_CRATES_CARRIED,m_creature);
             setCrateNumber = false;
@@ -877,7 +877,7 @@ bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, Quest const 
 {
     if (pQuest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
     {
-        if(GameObject* pGo = pCreature->FindNearestGameObject(GO_CAGE, 5.0f))
+        if (GameObject* pGo = pCreature->FindNearestGameObject(GO_CAGE, 5.0f))
         {
             pGo->SetRespawnTime(0);
             pGo->SetGoType(GAMEOBJECT_TYPE_BUTTON);
@@ -1432,7 +1432,7 @@ struct npc_counselor_talbotAI : public ScriptedAI
     }
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if(uiType != POINT_MOTION_TYPE)
+        if (uiType != POINT_MOTION_TYPE)
             return;
 
         if (m_creature->isSummon())
@@ -1485,7 +1485,7 @@ struct npc_counselor_talbotAI : public ScriptedAI
 
         Creature *pLeryssa = Unit::GetCreature(*m_creature, LeryssaGUID);
         Creature *pArlos = Unit::GetCreature(*m_creature, ArlosGUID);
-        if(!pLeryssa || !pArlos)
+        if (!pLeryssa || !pArlos)
             return;
 
         DoScriptText(SAY_ARLOS_1, pArlos);
@@ -1529,7 +1529,7 @@ struct npc_leryssaAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if(uiType != POINT_MOTION_TYPE)
+        if (uiType != POINT_MOTION_TYPE)
             return;
 
         if (!bDone)
@@ -1967,7 +1967,7 @@ struct npc_bonker_togglevoltAI : public npc_escortAI
     {
         if (GetAttack() && UpdateVictim())
         {
-            if(Bonker_agro==0)
+            if (Bonker_agro==0)
             {
                 DoScriptText(SAY_bonker_1,m_creature);
                 Bonker_agro++;
@@ -2187,12 +2187,12 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
             DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
             for (uint8 i = 0; i < 4; ++i)
             {
-                if(Creature* cCredit = m_creature->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
+                if (Creature* cCredit = m_creature->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
                 {
-                    if(Unit* uOwner = m_creature->GetOwner(true))
+                    if (Unit* uOwner = m_creature->GetOwner(true))
                     {
                         Player* pOwner = uOwner->ToPlayer();
-                        if(pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
+                        if (pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
                             pOwner->KilledMonsterCredit(cCredit->GetEntry(),cCredit->GetGUID());
                     }
                 }

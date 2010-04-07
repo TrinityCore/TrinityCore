@@ -154,7 +154,7 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
 
 
         // check if creature is not outside of building
-        if(uiResetTimer <= diff)
+        if (uiResetTimer <= diff)
         {
             if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
                 EnterEvadeMode();

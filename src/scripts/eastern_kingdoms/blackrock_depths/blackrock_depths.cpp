@@ -53,9 +53,9 @@ bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
         else
             pInstance->SetData(TYPE_LYCEUM, IN_PROGRESS);
         // If used brazier open linked doors (North or South)
-        if(pGo->GetGUID() == pInstance->GetData64(DATA_SF_BRAZIER_N))
+        if (pGo->GetGUID() == pInstance->GetData64(DATA_SF_BRAZIER_N))
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GOLEM_DOOR_N), true);
-        else if(pGo->GetGUID() == pInstance->GetData64(DATA_SF_BRAZIER_S))
+        else if (pGo->GetGUID() == pInstance->GetData64(DATA_SF_BRAZIER_S))
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GOLEM_DOOR_S), true);
     }
     return false;

@@ -204,7 +204,7 @@ class WorldSession
 
         void SetTutorialInt(uint32 intId, uint32 value)
         {
-            if(m_Tutorials[intId] != value)
+            if (m_Tutorials[intId] != value)
             {
                 m_Tutorials[intId] = value;
                 m_TutorialsChanged = true;

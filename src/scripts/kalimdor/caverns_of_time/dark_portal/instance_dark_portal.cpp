@@ -260,7 +260,7 @@ struct instance_dark_portal : public ScriptedInstance
         //normalize Z-level if we can, if rift is not at ground level.
         pos.m_positionZ = std::max(m_creature->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), m_creature->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
-        if(Creature *summon = m_creature->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+        if (Creature *summon = m_creature->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
             return summon;
 
         debug_log("TSCR: Instance Dark Portal: What just happened there? No boss, no loot, no fun...");

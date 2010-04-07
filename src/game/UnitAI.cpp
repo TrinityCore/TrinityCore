@@ -28,19 +28,19 @@
 
 void UnitAI::AttackStart(Unit *victim)
 {
-    if(victim && me->Attack(victim, true))
+    if (victim && me->Attack(victim, true))
         me->GetMotionMaster()->MoveChase(victim);
 }
 
 void UnitAI::AttackStartCaster(Unit *victim, float dist)
 {
-    if(victim && me->Attack(victim, false))
+    if (victim && me->Attack(victim, false))
         me->GetMotionMaster()->MoveChase(victim, dist);
 }
 
 void UnitAI::DoMeleeAttackIfReady()
 {
-    if(me->hasUnitState(UNIT_STAT_CASTING))
+    if (me->hasUnitState(UNIT_STAT_CASTING))
         return;
 
     //Make sure our attack is ready and we aren't currently casting before checking distance
@@ -66,12 +66,12 @@ void UnitAI::DoMeleeAttackIfReady()
 
 bool UnitAI::DoSpellAttackIfReady(uint32 spell)
 {
-    if(me->hasUnitState(UNIT_STAT_CASTING))
+    if (me->hasUnitState(UNIT_STAT_CASTING))
         return true;
 
-    if(me->isAttackReady())
+    if (me->isAttackReady())
     {
-        if(me->IsWithinCombatRange(me->getVictim(), GetSpellMaxRange(spell, false)))
+        if (me->IsWithinCombatRange(me->getVictim(), GetSpellMaxRange(spell, false)))
         {
             me->CastSpell(me->getVictim(), spell, false);
             me->resetAttackTimer();
@@ -229,11 +229,11 @@ void UnitAI::DoCast(uint32 spellId)
         }
     }
 
-    if(target)
+    if (target)
         me->CastSpell(target, spellId, false);
 }
 
-#define UPDATE_TARGET(a) {if(AIInfo->target<a) AIInfo->target=a;}
+#define UPDATE_TARGET(a) {if (AIInfo->target<a) AIInfo->target=a;}
 
 void UnitAI::FillAISpellInfo()
 {
@@ -245,20 +245,20 @@ void UnitAI::FillAISpellInfo()
     for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i, ++AIInfo)
     {
         spellInfo = GetSpellStore()->LookupEntry(i);
-        if(!spellInfo)
+        if (!spellInfo)
             continue;
 
-        if(spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
+        if (spellInfo->Attributes & SPELL_ATTR_CASTABLE_WHILE_DEAD)
             AIInfo->condition = AICOND_DIE;
-        else if(IsPassiveSpell(i) || GetSpellDuration(spellInfo) == -1)
+        else if (IsPassiveSpell(i) || GetSpellDuration(spellInfo) == -1)
             AIInfo->condition = AICOND_AGGRO;
         else
             AIInfo->condition = AICOND_COMBAT;
 
-        if(AIInfo->cooldown < spellInfo->RecoveryTime)
+        if (AIInfo->cooldown < spellInfo->RecoveryTime)
             AIInfo->cooldown = spellInfo->RecoveryTime;
 
-        if(!GetSpellMaxRange(spellInfo, false))
+        if (!GetSpellMaxRange(spellInfo, false))
             UPDATE_TARGET(AITARGET_SELF)
         else
         {
@@ -266,17 +266,17 @@ void UnitAI::FillAISpellInfo()
             {
                 uint32 targetType = spellInfo->EffectImplicitTargetA[j];
 
-                if(targetType == TARGET_UNIT_TARGET_ENEMY
+                if (targetType == TARGET_UNIT_TARGET_ENEMY
                     || targetType == TARGET_DST_TARGET_ENEMY)
                     UPDATE_TARGET(AITARGET_VICTIM)
-                else if(targetType == TARGET_UNIT_AREA_ENEMY_DST)
+                else if (targetType == TARGET_UNIT_AREA_ENEMY_DST)
                     UPDATE_TARGET(AITARGET_ENEMY)
 
-                if(spellInfo->Effect[j] == SPELL_EFFECT_APPLY_AURA)
+                if (spellInfo->Effect[j] == SPELL_EFFECT_APPLY_AURA)
                 {
-                    if(targetType == TARGET_UNIT_TARGET_ENEMY)
+                    if (targetType == TARGET_UNIT_TARGET_ENEMY)
                         UPDATE_TARGET(AITARGET_DEBUFF)
-                    else if(IsPositiveSpell(i))
+                    else if (IsPositiveSpell(i))
                         UPDATE_TARGET(AITARGET_BUFF)
                 }
             }
@@ -296,21 +296,21 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
   Creature *charmer = me->GetCharmer()->ToCreature();
 
     //kill self if charm aura has infinite duration
-    if(charmer->IsInEvadeMode())
+    if (charmer->IsInEvadeMode())
     {
         Unit::AuraEffectList const& auras = me->GetAuraEffectsByType(SPELL_AURA_MOD_CHARM);
         for (Unit::AuraEffectList::const_iterator iter = auras.begin(); iter != auras.end(); ++iter)
-            if((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
+            if ((*iter)->GetCasterGUID() == charmer->GetGUID() && (*iter)->GetBase()->IsPermanent())
             {
                 charmer->Kill(me);
                 return;
             }
     }
 
-    if(!charmer->isInCombat())
+    if (!charmer->isInCombat())
         me->GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, me->GetFollowAngle());
 
     Unit *target = me->getVictim();
-    if(!target || !charmer->canAttack(target))
+    if (!target || !charmer->canAttack(target))
         AttackStart(charmer->SelectNearestTarget());
 }

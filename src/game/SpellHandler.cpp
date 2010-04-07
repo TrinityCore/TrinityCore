@@ -187,7 +187,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     }
 
     ItemPrototype const *proto = pItem->GetProto();
-    if(!proto)
+    if (!proto)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL );
         return;
@@ -360,11 +360,11 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         //recvPacket.read_skip<float>();                      // unk1, coords?
         uint8 unk1;
         recvPacket >> unk1;                                 // >> 1 or 0
-        if(unk1)
+        if (unk1)
         {
             recvPacket.read_skip<uint32>();                 // >> MSG_MOVE_STOP
             uint64 guid;                                    // guid - unused
-            if(!recvPacket.readPackGUID(guid))
+            if (!recvPacket.readPackGUID(guid))
                 return;
 
             MovementInfo movementInfo;
@@ -537,7 +537,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
         return;
 
     // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
-    if(!unit->IsInWorld())
+    if (!unit->IsInWorld())
     {
         sLog.outCrash("Spell click target %u is not in world!", unit->GetEntry());
         assert(false);

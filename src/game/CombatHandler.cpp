@@ -35,9 +35,9 @@ void WorldSession::HandleAttackSwingOpcode( WorldPacket & recv_data )
 
     Unit *pEnemy = ObjectAccessor::GetUnit(*_player, guid);
 
-    if(!pEnemy)
+    if (!pEnemy)
     {
-        if(!IS_UNIT_GUID(guid))
+        if (!IS_UNIT_GUID(guid))
             sLog.outError("WORLD: Object %u (TypeID: %u) isn't player, pet or creature",GUID_LOPART(guid),GuidHigh2TypeId(GUID_HIPART(guid)));
         else
             sLog.outError( "WORLD: Enemy %s %u not found",GetLogNameForGuid(guid),GUID_LOPART(guid));
@@ -47,7 +47,7 @@ void WorldSession::HandleAttackSwingOpcode( WorldPacket & recv_data )
         return;
     }
 
-    if(!_player->canAttack(pEnemy))
+    if (!_player->canAttack(pEnemy))
     {
         sLog.outError( "WORLD: Enemy %s %u is friendly",(IS_PLAYER_GUID(guid) ? "player" : "creature"),GUID_LOPART(guid));
 
@@ -71,7 +71,7 @@ void WorldSession::HandleSetSheathedOpcode( WorldPacket & recv_data )
 
     //sLog.outDebug( "WORLD: Recvd CMSG_SETSHEATHED Message guidlow:%u value1:%u", GetPlayer()->GetGUIDLow(), sheathed );
 
-    if(sheathed >= MAX_SHEATH_STATE)
+    if (sheathed >= MAX_SHEATH_STATE)
     {
         sLog.outError("Unknown sheath state %u ??",sheathed);
         return;

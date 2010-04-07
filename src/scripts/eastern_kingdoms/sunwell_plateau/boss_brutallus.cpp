@@ -265,7 +265,7 @@ struct boss_brutallusAI : public ScriptedAI
 
         if (Intro && !IsIntro)
             StartIntro();
-        if(!Intro)
+        if (!Intro)
             ScriptedAI::MoveInLineOfSight(who);
     }
 
@@ -314,7 +314,7 @@ struct boss_brutallusAI : public ScriptedAI
             std::list<Unit*> pTargets;
             SelectTargetList(pTargets, 10, SELECT_TARGET_RANDOM, 100, true);
             for (std::list<Unit*>::const_iterator i = pTargets.begin(); i != pTargets.end(); ++i)
-                if(!(*i)->HasAura(SPELL_BURN))
+                if (!(*i)->HasAura(SPELL_BURN))
                 {
                     (*i)->CastSpell((*i), SPELL_BURN, true);
                     break;

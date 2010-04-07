@@ -48,7 +48,7 @@ class WaypointStore
 
         WaypointPath* GetPath(uint32 id)
         {
-            if(waypoint_map.find(id) != waypoint_map.end())
+            if (waypoint_map.find(id) != waypoint_map.end())
                 return waypoint_map[id];
             else return 0;
         }

@@ -72,28 +72,28 @@ void LoadSkillExtraItemTable()
 
             uint32 spellId = fields[0].GetUInt32();
 
-            if(!sSpellStore.LookupEntry(spellId))
+            if (!sSpellStore.LookupEntry(spellId))
             {
                 sLog.outError("Skill specialization %u has non-existent spell id in `skill_extra_item_template`!", spellId);
                 continue;
             }
 
             uint32 requiredSpecialization = fields[1].GetUInt32();
-            if(!sSpellStore.LookupEntry(requiredSpecialization))
+            if (!sSpellStore.LookupEntry(requiredSpecialization))
             {
                 sLog.outError("Skill specialization %u have not existed required specialization spell id %u in `skill_extra_item_template`!", spellId,requiredSpecialization);
                 continue;
             }
 
             float additionalCreateChance = fields[2].GetFloat();
-            if(additionalCreateChance <= 0.0f)
+            if (additionalCreateChance <= 0.0f)
             {
                 sLog.outError("Skill specialization %u has too low additional create chance in `skill_extra_item_template`!", spellId);
                 continue;
             }
 
             uint8 additionalMaxNum = fields[3].GetUInt8();
-            if(!additionalMaxNum)
+            if (!additionalMaxNum)
             {
                 sLog.outError("Skill specialization %u has 0 max number of extra items in `skill_extra_item_template`!", spellId);
                 continue;
@@ -122,17 +122,17 @@ bool canCreateExtraItems(Player * player, uint32 spellId, float &additionalChanc
 {
     // get the info for the specified spell
     SkillExtraItemMap::const_iterator ret = SkillExtraItemStore.find(spellId);
-    if(ret==SkillExtraItemStore.end())
+    if (ret==SkillExtraItemStore.end())
         return false;
 
     SkillExtraItemEntry const* specEntry = &ret->second;
 
     // if no entry, then no extra items can be created
-    if(!specEntry)
+    if (!specEntry)
         return false;
 
     // the player doesn't have the required specialization, return false
-    if(!player->HasSpell(specEntry->requiredSpecialization))
+    if (!player->HasSpell(specEntry->requiredSpecialization))
         return false;
 
     // set the arguments to the appropriate values

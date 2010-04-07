@@ -100,7 +100,7 @@ struct instance_sunken_temple : public ScriptedInstance
          switch(State)
          {
          case GO_ATALAI_STATUE1:
-            if(!s1 && !s2 && !s3 && !s4 && !s5 && !s6)
+            if (!s1 && !s2 && !s3 && !s4 && !s5 && !s6)
             {
                 if (GameObject *pAtalaiStatue1 = instance->GetGameObject(GOAtalaiStatue1))
                     UseStatue(pAtalaiStatue1);
@@ -109,7 +109,7 @@ struct instance_sunken_temple : public ScriptedInstance
             };
             break;
          case GO_ATALAI_STATUE2:
-            if(s1 && !s2 && !s3 && !s4 && !s5 && !s6)
+            if (s1 && !s2 && !s3 && !s4 && !s5 && !s6)
             {
                 if (GameObject *pAtalaiStatue2 = instance->GetGameObject(GOAtalaiStatue2))
                     UseStatue(pAtalaiStatue2);
@@ -118,7 +118,7 @@ struct instance_sunken_temple : public ScriptedInstance
             };
             break;
          case GO_ATALAI_STATUE3:
-            if(s1 && s2 && !s3 && !s4 && !s5 && !s6)
+            if (s1 && s2 && !s3 && !s4 && !s5 && !s6)
             {
                 if (GameObject *pAtalaiStatue3 = instance->GetGameObject(GOAtalaiStatue3))
                     UseStatue(pAtalaiStatue3);
@@ -127,7 +127,7 @@ struct instance_sunken_temple : public ScriptedInstance
             };
             break;
          case GO_ATALAI_STATUE4:
-            if(s1 && s2 && s3 && !s4 && !s5 && !s6)
+            if (s1 && s2 && s3 && !s4 && !s5 && !s6)
             {
                 if (GameObject *pAtalaiStatue4 = instance->GetGameObject(GOAtalaiStatue4))
                     UseStatue(pAtalaiStatue4);
@@ -136,7 +136,7 @@ struct instance_sunken_temple : public ScriptedInstance
             }
             break;
          case GO_ATALAI_STATUE5:
-            if(s1 && s2 && s3 && s4 && !s5 && !s6)
+            if (s1 && s2 && s3 && s4 && !s5 && !s6)
             {
                 if (GameObject *pAtalaiStatue5 = instance->GetGameObject(GOAtalaiStatue5))
                     UseStatue(pAtalaiStatue5);
@@ -145,7 +145,7 @@ struct instance_sunken_temple : public ScriptedInstance
             }
             break;
          case GO_ATALAI_STATUE6:
-            if(s1 && s2 && s3 && s4 && s5 && !s6)
+            if (s1 && s2 && s3 && s4 && s5 && !s6)
             {
                 if (GameObject *pAtalaiStatue6 = instance->GetGameObject(GOAtalaiStatue6))
                     UseStatue(pAtalaiStatue6);

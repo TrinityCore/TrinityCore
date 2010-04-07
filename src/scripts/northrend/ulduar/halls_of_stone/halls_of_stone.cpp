@@ -184,7 +184,7 @@ struct mob_tribuna_controllerAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(bKaddrakActivated)
+        if (bKaddrakActivated)
         {
             if (uiKaddrakEncounterTimer <= diff)
             {

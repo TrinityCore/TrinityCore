@@ -34,7 +34,7 @@
 
 static void CorpsesEraseCallBack(QueryResult_AutoPtr result, bool bones)
 {
-    if(!result)
+    if (!result)
         return;
 
     do
@@ -51,9 +51,9 @@ static void CorpsesEraseCallBack(QueryResult_AutoPtr result, bool bones)
         sLog.outDebug("[Global event] Removing %s %u (X:%f Y:%f Map:%u).",(bones?"bones":"corpse"),guidlow,positionX,positionY,mapid);
 
         /// Resurrectable - convert corpses to bones
-        if(!bones)
+        if (!bones)
         {
-            if(!ObjectAccessor::Instance().ConvertCorpseForPlayer(player_guid))
+            if (!ObjectAccessor::Instance().ConvertCorpseForPlayer(player_guid))
             {
                 sLog.outDebug("Corpse %u not found in world or bones creating forbidden. Delete from DB.",guidlow);
                 CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%u'",guidlow);

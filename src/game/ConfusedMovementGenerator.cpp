@@ -119,19 +119,19 @@ template<class T>
 bool
 ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 {
-    if(!&unit)
+    if (!&unit)
         return true;
 
-    if(unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
+    if (unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
         return true;
 
-    if( i_nextMoveTime.Passed() )
+    if ( i_nextMoveTime.Passed() )
     {
         // currently moving, update location
         Traveller<T> traveller(unit);
-        if( i_destinationHolder.UpdateTraveller(traveller, diff))
+        if ( i_destinationHolder.UpdateTraveller(traveller, diff))
         {
-            if( i_destinationHolder.HasArrived())
+            if ( i_destinationHolder.HasArrived())
             {
                 // arrived, stop and wait a bit
                 unit.clearUnitState(UNIT_STAT_MOVE);
@@ -145,7 +145,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     {
         // waiting for next move
         i_nextMoveTime.Update(diff);
-        if( i_nextMoveTime.Passed() )
+        if ( i_nextMoveTime.Passed() )
         {
             // start moving
             assert( i_nextMove <= MAX_CONF_WAYPOINTS );
@@ -165,7 +165,7 @@ ConfusedMovementGenerator<T>::Finalize(T &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.clearUnitState(UNIT_STAT_CONFUSED);
-    if(unit.GetTypeId() == TYPEID_UNIT && unit.getVictim())
+    if (unit.GetTypeId() == TYPEID_UNIT && unit.getVictim())
         unit.SetUInt64Value(UNIT_FIELD_TARGET, unit.getVictim()->GetGUID());
 }
 

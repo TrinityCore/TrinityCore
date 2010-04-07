@@ -38,45 +38,45 @@ namespace FactorySelector
         const CreatureAICreator *ai_factory = NULL;
         CreatureAIRegistry &ai_registry(CreatureAIRepository::Instance());
 
-        if(creature->isPet())
+        if (creature->isPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
 
         //scriptname in db
-        if(!ai_factory)
-            if(CreatureAI* scriptedAI = sScriptMgr.GetAI(creature))
+        if (!ai_factory)
+            if (CreatureAI* scriptedAI = sScriptMgr.GetAI(creature))
                 return scriptedAI;
 
         // AIname in db
         std::string ainame=creature->GetAIName();
-        if(!ai_factory && !ainame.empty())
+        if (!ai_factory && !ainame.empty())
             ai_factory = ai_registry.GetRegistryItem( ainame.c_str() );
 
         // select by NPC flags
-        if(!ai_factory)
+        if (!ai_factory)
         {
-            if(creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Guardian*)creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            if (creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN) && ((Guardian*)creature)->GetOwner()->GetTypeId() == TYPEID_PLAYER)
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
-            else if(creature->IsVehicle() || creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
+            else if (creature->IsVehicle() || creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK))
                 ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
-            else if(creature->isGuard())
+            else if (creature->isGuard())
                 ai_factory = ai_registry.GetRegistryItem("GuardAI");
-            else if(creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+            else if (creature->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("PetAI");
-            else if(creature->isTotem())
+            else if (creature->isTotem())
                 ai_factory = ai_registry.GetRegistryItem("TotemAI");
-            else if(creature->isTrigger())
+            else if (creature->isTrigger())
             {
-                if(creature->m_spells[0])
+                if (creature->m_spells[0])
                     ai_factory = ai_registry.GetRegistryItem("TriggerAI");
                 else
                     ai_factory = ai_registry.GetRegistryItem("NullCreatureAI");
             }
-            else if(creature->GetCreatureType() == CREATURE_TYPE_CRITTER && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
+            else if (creature->GetCreatureType() == CREATURE_TYPE_CRITTER && !creature->HasUnitTypeMask(UNIT_MASK_GUARDIAN))
                 ai_factory = ai_registry.GetRegistryItem("CritterAI");
         }
 
         // select by permit check
-        if(!ai_factory)
+        if (!ai_factory)
         {
             int best_val = -1;
             typedef CreatureAIRegistry::RegistryMapType RMT;
@@ -87,7 +87,7 @@ namespace FactorySelector
                 const SelectableAI *p = dynamic_cast<const SelectableAI *>(factory);
                 assert( p != NULL );
                 int val = p->Permit(creature);
-                if( val > best_val )
+                if ( val > best_val )
                 {
                     best_val = val;
                     ai_factory = p;
@@ -108,7 +108,7 @@ namespace FactorySelector
         assert( creature->GetCreatureInfo() != NULL );
         const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem( creature->GetDefaultMovementType());
 
-        /* if( mv_factory == NULL  )
+        /* if ( mv_factory == NULL  )
         {
             int best_val = -1;
             std::vector<std::string> l;
@@ -119,7 +119,7 @@ namespace FactorySelector
             const SelectableMovement *p = dynamic_cast<const SelectableMovement *>(factory);
             assert( p != NULL );
             int val = p->Permit(creature);
-            if( val > best_val )
+            if ( val > best_val )
             {
                 best_val = val;
                 mv_factory = p;

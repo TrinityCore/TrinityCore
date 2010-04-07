@@ -80,7 +80,7 @@ struct npc_Apothecary_HanesAI : public npc_escortAI
 
     void UpdateEscortAI(const uint32 diff)
     {
-        if(HealthBelowPct(75))
+        if (HealthBelowPct(75))
         {
             if (PotTimer <= diff)
             {
@@ -166,9 +166,9 @@ struct npc_plaguehound_trackerAI : public npc_escortAI
     void InitScriptData()
     {
         Player* pPlayer = NULL;
-        if(me->isSummon())
-            if(Unit* summoner = CAST_SUM(me)->GetSummoner())
-                if(summoner->GetTypeId() == TYPEID_PLAYER)
+        if (me->isSummon())
+            if (Unit* summoner = CAST_SUM(me)->GetSummoner())
+                if (summoner->GetTypeId() == TYPEID_PLAYER)
                     pPlayer = CAST_PLR(summoner);
 
         if (!pPlayer)
@@ -181,9 +181,9 @@ struct npc_plaguehound_trackerAI : public npc_escortAI
     void WaypointReached(uint32 i)
     {
         Player* pPlayer = NULL;
-        if(me->isSummon())
-            if(Unit* summoner = CAST_SUM(me)->GetSummoner())
-                if(summoner->GetTypeId() == TYPEID_PLAYER)
+        if (me->isSummon())
+            if (Unit* summoner = CAST_SUM(me)->GetSummoner())
+                if (summoner->GetTypeId() == TYPEID_PLAYER)
                     pPlayer = CAST_PLR(summoner);
 
         if (!pPlayer)
@@ -285,7 +285,7 @@ enum eMcGoyver
 
 bool GossipHello_npc_mcgoyver(Player* pPlayer, Creature* pCreature)
 {
-    if(pPlayer->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());

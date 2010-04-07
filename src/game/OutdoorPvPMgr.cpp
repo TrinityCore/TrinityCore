@@ -50,7 +50,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
     // create new opvp
     OutdoorPvP * pOP = new OutdoorPvPHP;
     // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
+    if (!pOP->SetupOutdoorPvP())
     {
         sLog.outDebug("OutdoorPvP : HP init failed.");
         delete pOP;
@@ -63,7 +63,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     pOP = new OutdoorPvPNA;
     // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
+    if (!pOP->SetupOutdoorPvP())
     {
         sLog.outDebug("OutdoorPvP : NA init failed.");
         delete pOP;
@@ -76,7 +76,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     pOP = new OutdoorPvPTF;
     // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
+    if (!pOP->SetupOutdoorPvP())
     {
         sLog.outDebug("OutdoorPvP : TF init failed.");
         delete pOP;
@@ -89,7 +89,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     pOP = new OutdoorPvPZM;
     // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
+    if (!pOP->SetupOutdoorPvP())
     {
         sLog.outDebug("OutdoorPvP : ZM init failed.");
         delete pOP;
@@ -102,7 +102,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     pOP = new OutdoorPvPSI;
     // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
+    if (!pOP->SetupOutdoorPvP())
     {
         sLog.outDebug("OutdoorPvP : SI init failed.");
         delete pOP;
@@ -115,7 +115,7 @@ void OutdoorPvPMgr::InitOutdoorPvP()
 
     pOP = new OutdoorPvPEP;
     // respawn, init variables
-    if(!pOP->SetupOutdoorPvP())
+    if (!pOP->SetupOutdoorPvP())
     {
         sLog.outDebug("OutdoorPvP : EP init failed.");
         delete pOP;
@@ -135,10 +135,10 @@ void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP *handle)
 void OutdoorPvPMgr::HandlePlayerEnterZone(Player *plr, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if(itr == m_OutdoorPvPMap.end())
+    if (itr == m_OutdoorPvPMap.end())
         return;
 
-    if(itr->second->HasPlayer(plr))
+    if (itr->second->HasPlayer(plr))
         return;
 
     itr->second->HandlePlayerEnterZone(plr, zoneid);
@@ -148,11 +148,11 @@ void OutdoorPvPMgr::HandlePlayerEnterZone(Player *plr, uint32 zoneid)
 void OutdoorPvPMgr::HandlePlayerLeaveZone(Player *plr, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if(itr == m_OutdoorPvPMap.end())
+    if (itr == m_OutdoorPvPMap.end())
         return;
 
     // teleport: remove once in removefromworld, once in updatezone
-    if(!itr->second->HasPlayer(plr))
+    if (!itr->second->HasPlayer(plr))
         return;
 
     itr->second->HandlePlayerLeaveZone(plr, zoneid);
@@ -162,7 +162,7 @@ void OutdoorPvPMgr::HandlePlayerLeaveZone(Player *plr, uint32 zoneid)
 OutdoorPvP * OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if(itr == m_OutdoorPvPMap.end())
+    if (itr == m_OutdoorPvPMap.end())
     {
         // no handle for this zone, return
         return NULL;
@@ -173,7 +173,7 @@ OutdoorPvP * OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
 void OutdoorPvPMgr::Update(uint32 diff)
 {
     m_UpdateTimer += diff;
-    if(m_UpdateTimer > OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL)
+    if (m_UpdateTimer > OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL)
     {
         for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
             (*itr)->Update(m_UpdateTimer);
@@ -185,7 +185,7 @@ bool OutdoorPvPMgr::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * 
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if((*itr)->HandleCustomSpell(plr,spellId,go))
+        if ((*itr)->HandleCustomSpell(plr,spellId,go))
             return true;
     }
     return false;
@@ -194,7 +194,7 @@ bool OutdoorPvPMgr::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * 
 ZoneScript * OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneId);
-    if(itr != m_OutdoorPvPMap.end())
+    if (itr != m_OutdoorPvPMap.end())
         return itr->second;
     else
         return NULL;
@@ -204,7 +204,7 @@ bool OutdoorPvPMgr::HandleOpenGo(Player *plr, uint64 guid)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if((*itr)->HandleOpenGo(plr,guid))
+        if ((*itr)->HandleOpenGo(plr,guid))
             return true;
     }
     return false;
@@ -214,7 +214,7 @@ void OutdoorPvPMgr::HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if((*itr)->HandleGossipOption(plr,guid,gossipid))
+        if ((*itr)->HandleGossipOption(plr,guid,gossipid))
             return;
     }
 }
@@ -223,7 +223,7 @@ bool OutdoorPvPMgr::CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if((*itr)->CanTalkTo(plr,c,gso))
+        if ((*itr)->CanTalkTo(plr,c,gso))
             return true;
     }
     return false;
@@ -233,7 +233,7 @@ void OutdoorPvPMgr::HandleDropFlag(Player *plr, uint32 spellId)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if((*itr)->HandleDropFlag(plr,spellId))
+        if ((*itr)->HandleDropFlag(plr,spellId))
             return;
     }
 }
@@ -241,9 +241,9 @@ void OutdoorPvPMgr::HandleDropFlag(Player *plr, uint32 spellId)
 void OutdoorPvPMgr::HandlePlayerResurrects(Player *plr, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
-    if(itr == m_OutdoorPvPMap.end())
+    if (itr == m_OutdoorPvPMap.end())
         return;
 
-    if(itr->second->HasPlayer(plr))
+    if (itr->second->HasPlayer(plr))
         itr->second->HandlePlayerResurrects(plr, zoneid);
 }

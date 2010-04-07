@@ -281,7 +281,7 @@ struct mob_novos_minionAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE || id !=0)
+        if (type != POINT_MOTION_TYPE || id !=0)
             return;
         if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
         {

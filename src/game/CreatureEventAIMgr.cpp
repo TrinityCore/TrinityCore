@@ -136,7 +136,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
             temp.orientation = fields[4].GetFloat();
             temp.SpawnTimeSecs = fields[5].GetUInt32();
 
-            if(!Trinity::IsValidMapCoord(temp.position_x,temp.position_y,temp.position_z,temp.orientation))
+            if (!Trinity::IsValidMapCoord(temp.position_x,temp.position_y,temp.position_z,temp.orientation))
             {
                 sLog.outErrorDb("CreatureEventAI:  Summon id %u have wrong coordinates (%f,%f,%f,%f), skipping.", i,temp.position_x,temp.position_y,temp.position_z,temp.orientation);
                 continue;
@@ -286,11 +286,11 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         case SPAWNED_EVENT_ALWAY:
                             break;
                         case SPAWNED_EVENT_MAP:
-                            if(!sMapStore.LookupEntry(temp.spawned.conditionValue1))
+                            if (!sMapStore.LookupEntry(temp.spawned.conditionValue1))
                                 sLog.outErrorDb("CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'map specific' but with not existed map (%u) in param2. Event will never repeat.", temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
                             break;
                         case SPAWNED_EVENT_ZONE:
-                            if(!GetAreaEntryByAreaID(temp.spawned.conditionValue1))
+                            if (!GetAreaEntryByAreaID(temp.spawned.conditionValue1))
                                 sLog.outErrorDb("CreatureEventAI:  Creature %u are using spawned event(%u) with param1 = %u 'area specific' but with not existed area (%u) in param2. Event will never repeat.", temp.creature_id, i, temp.spawned.condition, temp.spawned.conditionValue1);
                         default:
                             sLog.outErrorDb("CreatureEventAI:  Creature %u are using invalid spawned event %u mode (%u) in param1", temp.creature_id, i, temp.spawned.condition);
@@ -659,9 +659,9 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         }
                         break;
                     case ACTION_T_SET_INVINCIBILITY_HP_LEVEL:
-                        if(action.invincibility_hp_level.is_percent)
+                        if (action.invincibility_hp_level.is_percent)
                         {
-                            if(action.invincibility_hp_level.hp_level > 100)
+                            if (action.invincibility_hp_level.hp_level > 100)
                             {
                                 sLog.outErrorDb("CreatureEventAI:  Event %u Action %u uses wrong percent value %u.", i, j+1, action.invincibility_hp_level.hp_level);
                                 action.invincibility_hp_level.hp_level = 100;
@@ -705,20 +705,20 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             m_CreatureEventAI_Event_Map[creature_id].push_back(temp);
             ++Count;
 
-            if(CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(temp.creature_id))
+            if (CreatureInfo const* cInfo = sCreatureStorage.LookupEntry<CreatureInfo>(temp.creature_id))
             {
-                if(!cInfo->AIName || !cInfo->AIName[0])
+                if (!cInfo->AIName || !cInfo->AIName[0])
                 {
                     //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but its AIName is empty. Set to EventAI as default.", cInfo->Entry);
                     size_t len = strlen("EventAI")+1;
                     const_cast<CreatureInfo*>(cInfo)->AIName = new char[len];
                     strncpy(const_cast<char*>(cInfo->AIName), "EventAI", len);
                 }
-                if(strcmp(cInfo->AIName, "EventAI"))
+                if (strcmp(cInfo->AIName, "EventAI"))
                 {
                     //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it has AIName %s. EventAI script will be overriden.", cInfo->Entry, cInfo->AIName);
                 }
-                if(cInfo->ScriptID)
+                if (cInfo->ScriptID)
                 {
                     //sLog.outErrorDb("CreatureEventAI: Creature Entry %u has EventAI script but it also has C++ script. EventAI script will be overriden.", cInfo->Entry);
                 }

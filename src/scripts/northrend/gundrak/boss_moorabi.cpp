@@ -92,7 +92,7 @@ struct boss_moorabiAI : public ScriptedAI
          if (!UpdateVictim())
              return;
 
-        if(!bPhase && m_creature->HasAura(SPELL_TRANSFORMATION))
+        if (!bPhase && m_creature->HasAura(SPELL_TRANSFORMATION))
         {
             bPhase = true;
             m_creature->RemoveAura(SPELL_MOJO_FRENZY);
