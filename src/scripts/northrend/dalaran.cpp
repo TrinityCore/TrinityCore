@@ -111,7 +111,7 @@ CreatureAI* GetAI_npc_mageguard_dalaran(Creature* pCreature)
 
 enum eHiraSnowdawn
 {
-    SPELL_COLD_WEATHER_FLYING                   = 54197                                  
+    SPELL_COLD_WEATHER_FLYING                   = 54197
 };
 
 #define GOSSIP_TEXT_TRAIN_HIRA "I seek training to ride a steed."
@@ -138,7 +138,7 @@ bool GossipSelect_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature, uint32
 
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-    
+
     return true;
 }
 

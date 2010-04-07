@@ -1461,7 +1461,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char *args)
         SetSentErrorMessage(true);
         return false;
     }
-    
+
     // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
     if (gmRealmID == -1)
     {
@@ -1487,7 +1487,7 @@ bool ChatHandler::HandleAccountSetGmLevelCommand(const char *args)
         loginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u'", targetAccountId);
     else
         loginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", targetAccountId, realmID);
-        
+
     if (gm != 0)
         loginDatabase.PExecute("INSERT INTO account_access VALUES ('%u','%d','%d')", targetAccountId, gm, realmID);
     PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
@@ -5361,7 +5361,7 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
     }
 
     CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE (at_login & '%u') = '0'",atLogin,atLogin);
-    
+
     ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType const& plist = ObjectAccessor::Instance().GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
@@ -6867,7 +6867,7 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
 bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
 {
     ///- Get the accounts with GM Level >0
-    QueryResult_AutoPtr result = loginDatabase.Query("SELECT a.username,aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel > 0"); 
+    QueryResult_AutoPtr result = loginDatabase.Query("SELECT a.username,aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel > 0");
     if(result)
     {
         SendSysMessage(LANG_GMLIST);

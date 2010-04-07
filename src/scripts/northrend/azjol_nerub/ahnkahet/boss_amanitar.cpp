@@ -28,7 +28,7 @@ enum Spells
     SPELL_BASH                                    = 57094, // Victim
     SPELL_ENTANGLING_ROOTS                        = 57095, // Random Victim 100Y
     SPELL_MINI                                    = 57055, // Self
-    SPELL_VENOM_BOLT_VOLLEY                       = 57088, // Random Victim 100Y 
+    SPELL_VENOM_BOLT_VOLLEY                       = 57088, // Random Victim 100Y
     SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS          = 56648, // Killer 3Y
     SPELL_POISONOUS_MUSHROOM_POISON_CLOUD         = 57061, // Self - Duration 8 Sec
     SPELL_POISONOUS_MUSHROOM_VISUAL_AREA          = 61566, // Self

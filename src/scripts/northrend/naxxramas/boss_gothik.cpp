@@ -49,7 +49,7 @@ enum Creatures
 };
 
 struct Waves { uint32 entry, time, mode; };
-// wave setups are not the same in heroic and normal difficulty, 
+// wave setups are not the same in heroic and normal difficulty,
 // mode is 0 only normal, 1 both and 2 only heroic
 // but this is handled in DoGothikSummon function
 const Waves waves[] =
@@ -358,15 +358,15 @@ struct boss_gothikAI : public BossAI
 
         switch(spell->Id)
         {
-            case SPELL_INFORM_DEAD_TRAINEE: 
-                DoSummon(MOB_DEAD_TRAINEE, pTarget, 0);  
+            case SPELL_INFORM_DEAD_TRAINEE:
+                DoSummon(MOB_DEAD_TRAINEE, pTarget, 0);
                 break;
-            case SPELL_INFORM_DEAD_KNIGHT:  
-                DoSummon(MOB_DEAD_KNIGHT, pTarget, 0);   
+            case SPELL_INFORM_DEAD_KNIGHT:
+                DoSummon(MOB_DEAD_KNIGHT, pTarget, 0);
                 break;
-            case SPELL_INFORM_DEAD_RIDER:   
+            case SPELL_INFORM_DEAD_RIDER:
                 DoSummon(MOB_DEAD_RIDER, pTarget, 1.0f);
-                DoSummon(MOB_DEAD_HORSE, pTarget, 1.0f); 
+                DoSummon(MOB_DEAD_HORSE, pTarget, 1.0f);
                 break;
         }
     }
@@ -488,7 +488,7 @@ struct mob_gothik_minionAI : public CombatAI
     bool liveSide;
     bool gateClose;
 
-    bool isOnSameSide(const Unit *pWho) 
+    bool isOnSameSide(const Unit *pWho)
     {
         return (liveSide == IN_LIVE_SIDE(pWho));
     }

@@ -43,11 +43,11 @@ enum WaterElementalSpells
 struct mob_water_elementalAI : public ScriptedAI
 {
     mob_water_elementalAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint32 uiWaterBoltTimer;
     uint64 uiBalindaGUID;
     uint32 uiResetTimer;
-    
+
     void Reset()
     {
         uiWaterBoltTimer            = 3*IN_MILISECONDS;
@@ -58,13 +58,13 @@ struct mob_water_elementalAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
-        
+
         if(uiWaterBoltTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WATERBOLT);
             uiWaterBoltTimer = 5*IN_MILISECONDS;
         } else uiWaterBoltTimer -= diff;
-        
+
         // check if creature is not outside of building
         if(uiResetTimer < diff)
         {
@@ -73,7 +73,7 @@ struct mob_water_elementalAI : public ScriptedAI
                     EnterEvadeMode();
                 uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -88,7 +88,7 @@ struct boss_balindaAI : public ScriptedAI
     uint32 uiFrostboltTimer;
     uint32 uiResetTimer;
     uint32 uiWaterElementalTimer;
-    
+
     SummonList Summons;
 
     void Reset()
@@ -117,7 +117,7 @@ struct boss_balindaAI : public ScriptedAI
     {
         ((mob_water_elementalAI*)summoned->AI())->uiBalindaGUID = m_creature->GetGUID();
         summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
-        summoned->setFaction(m_creature->getFaction());        
+        summoned->setFaction(m_creature->getFaction());
         Summons.Summon(summoned);
     }
 

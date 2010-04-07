@@ -304,7 +304,7 @@ struct boss_ichoronAI : public ScriptedAI
     }
 
 
-    void SummonedCreatureDespawn(Creature *pSummoned) 
+    void SummonedCreatureDespawn(Creature *pSummoned)
     {
         m_waterElements.remove(pSummoned->GetGUID());
     }

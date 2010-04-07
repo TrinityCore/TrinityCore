@@ -52,17 +52,17 @@ struct instance_pinnacle : public ScriptedInstance
         uiGortokPalehoof = 0;
         uiSkadiTheRuthless = 0;
         uiKingYmiron = 0;
-        
+
         uiSkadiTheRuthlessDoor = 0;
         uiKingYmironDoor = 0;
         uiGortokPalehoofSphere = 0;
-        
+
         uiFrenziedWorgen = 0;
         uiRavenousFurbolg = 0;
         uiFerociousRhino = 0;
         uiMassiveJormungar = 0;
         uiPalehoofOrb = 0;
-        
+
         uiSvala = 0;
         uiSacrificedPlayer = 0;
     }

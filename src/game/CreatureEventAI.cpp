@@ -582,13 +582,13 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     {
                         m_creature->addUnitState(UNIT_STAT_MELEE_ATTACKING);
                         m_creature->SendMeleeAttackStart(victim);
-                    } 
+                    }
                     if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == IDLE_MOTION_TYPE)
                         m_creature->GetMotionMaster()->MoveChase(victim, AttackDistance, AttackAngle); // Targeted movement generator will start melee automatically, no need to send it explicitly
                 }
             }
             else
-            {    
+            {
                 if (m_creature->isInCombat())
                 {
                     Unit* victim = m_creature->getVictim();
@@ -596,7 +596,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     {
                         m_creature->clearUnitState(UNIT_STAT_MELEE_ATTACKING);
                         m_creature->SendMeleeAttackStop(victim);
-                    }    
+                    }
                     if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                         m_creature->GetMotionMaster()->MoveIdle();
                 }

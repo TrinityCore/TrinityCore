@@ -165,7 +165,7 @@ bool GossipSelect_npc_oculus_drake(Player* pPlayer, Creature* pCreature, uint32 
 void AddSC_oculus()
 {
     Script *newscript;
-    
+
     newscript = new Script;
     newscript->Name = "npc_oculus_drake";
     newscript->pGossipHello = &GossipHello_npc_oculus_drake;

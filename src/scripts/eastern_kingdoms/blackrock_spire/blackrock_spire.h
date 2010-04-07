@@ -21,6 +21,6 @@ enum Data
 {
     EVENT_LEEEROY,
     WHELP_DEATH_COUNT
-}; 
+};
 
 #endif

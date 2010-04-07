@@ -26,13 +26,13 @@ EndScriptData */
 #define SAY_INTRO                       -1000147
 #define SAY_AGGRO1                      -1000148
 #define SAY_AGGRO2                      -1000149
-#define SAY_SURPREME1                   -1000154 
+#define SAY_SURPREME1                   -1000154
 #define SAY_SURPREME2                   -1000149
 #define SAY_KILL1                       -1000150
 #define SAY_KILL2                       -1000151
-#define SAY_KILL3                       -1000152 
-#define SAY_DEATH                       -1000155 
-#define EMOTE_FRENZY                    -1000151 
+#define SAY_KILL3                       -1000152
+#define SAY_DEATH                       -1000155
+#define EMOTE_FRENZY                    -1000151
 #define SAY_RAND1                       -1000158
 #define SAY_RAND2                       -1000157
 

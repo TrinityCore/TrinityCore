@@ -186,7 +186,7 @@ struct boss_svalaAI : public ScriptedAI
                         uiArthasGUID = 0;
                         Phase = FINISHED;
                     }
-                    else 
+                    else
                         Reset();
                     break;
             }
@@ -247,7 +247,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         uiCallFlamesTimer = 10*IN_MILISECONDS;
         uiRitualOfSwordTimer = 20*IN_MILISECONDS;
         uiSacrificeTimer = 8*IN_MILISECONDS;
-        
+
         bSacrificed = false;
 
         Phase = NORMAL;
@@ -320,7 +320,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_SACRIFICED_PLAYER,pSacrificeTarget->GetGUID());
-                            
+
                             for (uint8 i = 0; i < 3; ++i)
                                 if (Creature* pSummon = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
                                     pSummon->AI()->DoAction(0);

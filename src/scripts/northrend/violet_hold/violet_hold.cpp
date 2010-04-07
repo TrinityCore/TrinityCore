@@ -226,7 +226,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                         pSummon->GetMotionMaster()->MovePoint(0, DoorPosition);
                 }
             }
-            else 
+            else
             {
                 bPortalGuardianOrKeeperSpawn = true;
                 uint32 entry = RAND(CREATURE_PORTAL_GUARDIAN, CREATURE_PORTAL_KEEPER);

@@ -37,7 +37,7 @@ EndScriptData */
 struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
 {
     instance_ruins_of_ahn_qiraj(Map* pMap) : ScriptedInstance(pMap) { Initialize(); }
-    
+
     uint64 uiKurinaxx;
     uint64 uiRajaxx;
     uint64 uiMoam;
@@ -47,11 +47,11 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
 
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-    
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        
+
         uiKurinaxx = 0;
         uiRajaxx = 0;
         uiMoam = 0;
@@ -59,7 +59,7 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
         uiAyamiss = 0;
         uiOssirian = 0;
     }
-    
+
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -67,7 +67,7 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
 
         return false;
     }
-    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch (pCreature->GetEntry())
@@ -92,7 +92,7 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
                 break;
         }
     }
-    
+
     uint32 GetData(uint32 identifier)
     {
         switch(identifier)
@@ -104,10 +104,10 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
             case DATA_AYAMISS_EVENT:                 return m_auiEncounter[4];
             case DATA_OSSIRIAN_EVENT:                return m_auiEncounter[5];
         }
-        
+
         return 0;
     }
-    
+
     void SetData(uint32 identifier, uint32 data)
     {
         switch(identifier)
@@ -131,11 +131,11 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
                 m_auiEncounter[5] = data;
                 break;
         }
-        
+
         if (data == DONE)
             SaveToDB();
     }
-    
+
     uint64 GetData64(uint32 uiIdentifier)
     {
         switch(uiIdentifier)
@@ -147,10 +147,10 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
             case DATA_AYAMISS:                return uiAyamiss;
             case DATA_OSSIRIAN:               return uiOssirian;
         }
-        
+
         return 0;
     }
-    
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;
@@ -164,7 +164,7 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }
-    
+
     void Load(const char* in)
     {
         if (!in)
@@ -189,7 +189,7 @@ struct instance_ruins_of_ahn_qiraj : public ScriptedInstance
             m_auiEncounter[3] = data3;
             m_auiEncounter[4] = data4;
             m_auiEncounter[5] = data5;
-            
+
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;

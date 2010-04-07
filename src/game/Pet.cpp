@@ -712,12 +712,12 @@ void Pet::GivePetXP(uint32 xp)
         // Subtract newXP from amount needed for nextlevel
         newXP -= nextLvlXP;
         GivePetLevel(level+1);
-        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(level+1)*PET_XP_FACTOR);             
+        SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(level+1)*PET_XP_FACTOR);
 
         // Make sure we're working with the upgraded levels for the pet XP-levels
         level = getLevel();
         nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
-        
+
         // Hitting the pet/playerlevel combolimitation, set UNIT_FIELD_PETEXPERIENCE (current XP) to 0
         if ( level >= GetOwner()->getLevel() ) {
           newXP = 0;

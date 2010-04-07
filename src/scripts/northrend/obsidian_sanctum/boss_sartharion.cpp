@@ -296,7 +296,7 @@ struct boss_sartharionAI : public ScriptedAI
               pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_DUO,H_ACHIEV_TWILIGHT_DUO));
             else if (achievProgress == 3)
               pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_TWILIGHT_ZONE,H_ACHIEV_TWILIGHT_ZONE));
-       
+
             pInstance->SetData(TYPE_SARTHARION_EVENT, DONE);
         }
     }
@@ -695,20 +695,20 @@ struct dummy_dragonAI : public ScriptedAI
         //using a grid search here seem to be more efficient than caching all four guids
         //in instance script and calculate range to each.
         GameObject* pPortal = m_creature->FindNearestGameObject(GO_TWILIGHT_PORTAL,50.0f);
-        if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(GO_TWILIGHT_PORTAL)))            
-            TwilightPortal->SetGoState(GO_STATE_ACTIVE); 
+        if (GameObject* TwilightPortal = GameObject::GetGameObject((*m_creature), pInstance->GetData64(GO_TWILIGHT_PORTAL)))
+            TwilightPortal->SetGoState(GO_STATE_ACTIVE);
 
         switch(m_creature->GetEntry())
         {
             case NPC_TENEBRON:
             {
                 iTextId = WHISPER_HATCH_EGGS;
-                if (pInstance && pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)                
+                if (pInstance && pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                     m_creature->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[0].x, TwilightEggs[0].y, TwilightEggs[0].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 else
                     m_creature->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggsSarth[0].x, TwilightEggsSarth[0].y, TwilightEggsSarth[0].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 break;
-            }            
+            }
             case NPC_SHADRON:
             {
                 iTextId = WHISPER_OPEN_PORTAL;
@@ -721,7 +721,7 @@ struct dummy_dragonAI : public ScriptedAI
             }
             case NPC_VESPERON:
             {
-                if (pInstance && !pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS) 
+                if (pInstance && !pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                     Creature* Acolyte = m_creature->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon.x, AcolyteofVesperon.y , AcolyteofVesperon.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
                 else
                     Creature* Acolyte = m_creature->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2.x, AcolyteofVesperon2.y , AcolyteofVesperon2.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
@@ -858,7 +858,7 @@ struct mob_tenebronAI : public dummy_dragonAI
             OpenPortal();
             m_uiHatchEggTimer = 30000;
         }
-        else 
+        else
              m_uiHatchEggTimer -= uiDiff;
 
         // shadow breath
@@ -1027,7 +1027,7 @@ struct mob_vesperonAI : public dummy_dragonAI
         if (m_uiAcolyteVesperonTimer <= uiDiff)
         {
             OpenPortal();
-            DoCast(m_creature->getVictim(), SPELL_TWILIGHT_TORMENT_VESP);            
+            DoCast(m_creature->getVictim(), SPELL_TWILIGHT_TORMENT_VESP);
             m_uiAcolyteVesperonTimer = urand(60000,70000);
         }
         else
@@ -1080,10 +1080,10 @@ struct mob_acolyte_of_shadronAI : public ScriptedAI
                  pSartharion->CastSpell(m_creature, SPELL_GIFT_OF_TWILIGTH_SAR, true);
             else
             {
-                pShadron->CastSpell(m_creature, SPELL_GIFT_OF_TWILIGTH_SHA,true); 
+                pShadron->CastSpell(m_creature, SPELL_GIFT_OF_TWILIGTH_SHA,true);
                 pShadron->AddThreat(pTarget, 100.0f);
                 AttackStart(pShadron->getVictim());
-            }                
+            }
         }
          m_creature->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,m_creature);
     }
@@ -1161,7 +1161,7 @@ struct mob_acolyte_of_vesperonAI : public ScriptedAI
     {
         if (pInstance)
         {
-            m_creature->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,m_creature);                
+            m_creature->AddAura(SPELL_TWILIGHT_SHIFT_ENTER,m_creature);
         }
         DoCast(m_creature, SPELL_TWILIGHT_TORMENT_VESP_ACO);
     }
@@ -1175,7 +1175,7 @@ struct mob_acolyte_of_vesperonAI : public ScriptedAI
 
             if (pVesperon && pVesperon->isAlive() && pVesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
                 pVesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
-            
+
             Map *map = m_creature->GetMap();
             if (map->IsDungeon())
             {
@@ -1194,7 +1194,7 @@ struct mob_acolyte_of_vesperonAI : public ScriptedAI
                         i->getSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT_ENTER);
                     }
                     if (i->getSource()->isAlive() && i->getSource()->HasAura(SPELL_TWILIGHT_TORMENT_VESP,0) && !i->getSource()->getVictim())
-                        i->getSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT); 
+                        i->getSource()->RemoveAurasDueToSpell(SPELL_TWILIGHT_SHIFT);
                 }
             }
 
@@ -1221,8 +1221,8 @@ CreatureAI* GetAI_mob_acolyte_of_vesperon(Creature* pCreature)
 
 struct mob_twilight_eggsAI : public Scripted_NoMovementAI
 {
-    mob_twilight_eggsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) 
-    {        
+    mob_twilight_eggsAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature)
+    {
         pInstance = pCreature->GetInstanceData();
     }
     uint32 m_uiFadeArmorTimer;
@@ -1239,7 +1239,7 @@ struct mob_twilight_eggsAI : public Scripted_NoMovementAI
     {
         if (!pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
             m_creature->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-        else                      
+        else
             m_creature->SummonCreature(NPC_SHARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
         m_creature->DealDamage(m_creature, m_creature->GetHealth());
     }
@@ -1248,9 +1248,9 @@ struct mob_twilight_eggsAI : public Scripted_NoMovementAI
         if (m_uiHatchEggTimer <= uiDiff)
         {
             SpawnWhelps();
-        } 
+        }
         else
-            m_uiHatchEggTimer -= uiDiff;       
+            m_uiHatchEggTimer -= uiDiff;
     }
     void AttackStart(Unit* pWho) {}
     void MoveInLineOfSight(Unit* pWho) {}

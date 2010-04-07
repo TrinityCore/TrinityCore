@@ -267,7 +267,7 @@ struct boss_razorscaleAI : public BossAI
         const float y = -174.92;
         const float GroundLevel = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);
         const float FlightHeight = GroundLevel + 4.0f; // TODO: Fly out of range of attacks (442 is sufficient height for this), minus ~(10*number of harpoon gun chains attached to Razorscale)
-        
+
         if (Phase == 1) // Always flying during Phase 1
             IsFlying = true;
 

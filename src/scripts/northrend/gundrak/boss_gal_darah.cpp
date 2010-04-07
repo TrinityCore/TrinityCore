@@ -192,7 +192,7 @@ struct boss_gal_darahAI : public ScriptedAI
                     else
                     {
                         uiTransformationTimer -= diff;
-                        
+
                         if (bStartOfTransformation)
                         {
                             bStartOfTransformation = false;
@@ -258,7 +258,7 @@ struct boss_gal_darahAI : public ScriptedAI
                             itr->getSource()->CompletedAchievement(achievWhatTheEck);
                 }
             }
-            
+
             pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
         }
     }

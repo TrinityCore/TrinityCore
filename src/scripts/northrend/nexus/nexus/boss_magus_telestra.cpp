@@ -66,7 +66,7 @@ struct boss_magus_telestraAI : public ScriptedAI
     uint64 uiFireMagusGUID;
     uint64 uiFrostMagusGUID;
     uint64 uiArcaneMagusGUID;
-    
+
     bool bFireMagusDead;
     bool bFrostMagusDead;
     bool bArcaneMagusDead;
@@ -98,7 +98,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
         uiAchievementProgress = 0;
         uiAchievementTimer = 0;
-        
+
         bIsAchievementTimerRunning = false;
         bIsWaitingToAppear = false;
 

@@ -35,7 +35,7 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 
-AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint8 effMask) 
+AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint8 effMask)
     : m_target(target), m_base(aura), m_slot(MAX_AURAS), m_flags(AFLAG_NONE), m_needClientUpdate(false)
     , m_removeMode(AURA_REMOVE_NONE), m_effectsToApply(effMask)
 {
@@ -445,7 +445,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
             targetsToRemove.push_back(appIter->second->GetTarget());
         else
         {
-            // needs readding - remove now, will be applied in next update cycle 
+            // needs readding - remove now, will be applied in next update cycle
             // (dbcs do not have auras which apply on same type of targets but have different radius, so this is not really needed)
             if (appIter->second->GetEffectMask() != existing->second)
                 targetsToRemove.push_back(appIter->second->GetTarget());
@@ -527,7 +527,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
 // targets have to be registered and not have effect applied yet to use this function
 void Aura::_ApplyEffectForTargets(uint8 effIndex)
 {
-    Unit * caster = GetCaster(); 
+    Unit * caster = GetCaster();
     // prepare list of aura targets
     UnitList targetList;
     for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
@@ -617,7 +617,7 @@ void Aura::Update(uint32 diff, Unit * caster)
                         else
                         {
                             Remove();
-                            return; 
+                            return;
                         }
                     }
                 }
@@ -715,9 +715,9 @@ bool Aura::IsPassive() const
     return IsPassiveSpell(GetSpellProto());
 }
 
-bool Aura::IsDeathPersistent() const 
+bool Aura::IsDeathPersistent() const
 {
-    return IsDeathPersistentSpell(GetSpellProto()); 
+    return IsDeathPersistentSpell(GetSpellProto());
 }
 
 bool Aura::CanBeSaved() const
@@ -768,7 +768,7 @@ bool Aura::IsVisible() const
     // Is this blizzlike? show totem passive auras
     if (GetOwner()->GetTypeId() == TYPEID_UNIT && m_owner->ToCreature()->isTotem() && IsPassive())
         return true;
-    return !IsPassive() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE); 
+    return !IsPassive() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
 }
 
 void Aura::UnregisterSingleTarget()
@@ -899,7 +899,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                                 {
                                     case 31571: spellId = 57529; break;
                                     case 31572: spellId = 57531; break;
-                                    default: 
+                                    default:
                                         sLog.outError("Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
                                 }
                                 if(spellId)
@@ -1251,7 +1251,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         target->CastSpell(target, GetEffect(0)->GetAmount(), true, NULL, GetEffect(0));
                         break;
                 }
-                break; 
+                break;
         }
     }
 
@@ -1457,7 +1457,7 @@ void Aura::_DeleteRemovedApplications()
 }
 
 UnitAura::UnitAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
-    : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID) 
+    : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
     m_AuraDRGroup = DIMINISHING_NONE;
     GetUnitOwner()->_AddAura(this, caster);
@@ -1567,7 +1567,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit * caster)
 }
 
 DynObjAura::DynObjAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
-    : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID) 
+    : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
     GetDynobjOwner()->SetAura(this);
 }

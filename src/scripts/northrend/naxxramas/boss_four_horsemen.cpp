@@ -105,7 +105,7 @@ struct boss_four_horsemenAI : public BossAI
             DoEncounterAction(NULL, false, true, false);
 
         if (instance)
-            instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED); 
+            instance->SetData(DATA_HORSEMEN0 + id, NOT_STARTED);
 
         me->SetReactState(REACT_AGGRESSIVE);
         uiEventStarterGUID = 0;
@@ -279,7 +279,7 @@ struct boss_four_horsemenAI : public BossAI
         summons.DespawnAll();
 
         if (instance)
-            instance->SetData(DATA_HORSEMEN0 + id, DONE); 
+            instance->SetData(DATA_HORSEMEN0 + id, DONE);
 
         if (instance && DoEncounterAction(NULL, false, false, true))
         {

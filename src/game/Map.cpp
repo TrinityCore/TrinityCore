@@ -360,7 +360,7 @@ void
 Map::EnsureGridLoadedAtEnter(const Cell &cell, Player *player)
 {
     EnsureGridLoaded(cell);
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());    
+    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
     assert( grid != NULL );
 
     if (player)

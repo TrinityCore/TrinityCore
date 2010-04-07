@@ -35,7 +35,7 @@ struct instance_archavon : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < ENCOUNTERS; i++)
-            if (uiEncounters[i] == IN_PROGRESS) 
+            if (uiEncounters[i] == IN_PROGRESS)
                 return true;
 
         return false;
@@ -123,7 +123,7 @@ struct instance_archavon : public ScriptedInstance
         for (uint8 i = 0; i < ENCOUNTERS; ++i)
             if (uiEncounters[i] == IN_PROGRESS)
                 uiEncounters[i] = NOT_STARTED;
-        
+
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };

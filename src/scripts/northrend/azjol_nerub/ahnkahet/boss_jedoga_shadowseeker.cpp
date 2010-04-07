@@ -518,7 +518,7 @@ struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
             return;
 
         if (!bRemoved && m_creature->GetPositionX() > 440.0f)
-        {   
+        {
             if (pInstance->GetData(DATA_PRINCE_TALDARAM_EVENT) == DONE)
             {
                 m_creature->InterruptNonMeleeSpells(true);

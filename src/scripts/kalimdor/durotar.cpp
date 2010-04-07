@@ -12,7 +12,7 @@
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/ 
+*/
 
 #include "ScriptedPch.h"
 
@@ -39,24 +39,24 @@ enum LazyPeon
 struct npc_lazy_peonAI : public ScriptedAI
 {
     npc_lazy_peonAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint64 uiPlayerGUID;
-    
+
     uint32 m_uiRebuffTimer;
     uint32 work;
-    
+
     void Reset ()
     {
         uiPlayerGUID = 0;
         work = false;
     }
-    
+
     void MovementInform(uint32 type, uint32 id)
     {
         if (id == 1)
             work = true;
     }
-    
+
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
@@ -69,7 +69,7 @@ struct npc_lazy_peonAI : public ScriptedAI
                 m_creature->GetMotionMaster()->MovePoint(1,Lumberpile->GetPositionX()-1,Lumberpile->GetPositionY(),Lumberpile->GetPositionZ());
         }
     }
-    
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (work = true)
@@ -95,7 +95,7 @@ CreatureAI* GetAI_npc_lazy_peon(Creature* pCreature)
 void AddSC_durotar()
 {
     Script* newscript;
-    
+
     newscript = new Script;
     newscript->Name = "npc_lazy_peon";
     newscript->GetAI = &GetAI_npc_lazy_peon;

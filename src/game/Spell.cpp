@@ -815,11 +815,11 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const * triggeredByAura)
     m_procEx= PROC_EX_NONE;
 
     // Hunter trap spells - activation proc for Lock and Load, Entrapment and Misdirection
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && 
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
         (m_spellInfo->SpellFamilyFlags[0] & 0x18 ||     // Freezing and Frost Trap, Freezing Arrow
         m_spellInfo->Id == 57879 ||                     // Snake Trap - done this way to avoid double proc
         m_spellInfo->SpellFamilyFlags[2] & 0x00024000)) // Explosive and Immolation Trap
-        
+
         m_procAttacker |= PROC_FLAG_ON_TRAP_ACTIVATION;
 
     /*
@@ -1210,7 +1210,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             caster->ProcDamageAndSpell(unit, procAttacker, procVictim, procEx, 0, m_attackType, m_spellInfo, m_triggeredByAuraSpell);
 
         // Failed Pickpocket, reveal rogue
-        if (missInfo == SPELL_MISS_RESIST 
+        if (missInfo == SPELL_MISS_RESIST
             && m_customAttr & SPELL_ATTR_CU_PICKPOCKET
             && unitTarget->GetTypeId() == TYPEID_UNIT)
         {
@@ -1371,7 +1371,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
         if(m_originalCaster)
         {
-            if (m_spellAura = Aura::TryCreate(aurSpellInfo, effectMask, unit, 
+            if (m_spellAura = Aura::TryCreate(aurSpellInfo, effectMask, unit,
                 m_originalCaster,(aurSpellInfo == m_spellInfo)? &m_currentBasePoints[0] : &basePoints[0], m_CastItem))
             {
                 // Now Reduce spell duration using data received at spell hit
@@ -2981,7 +2981,7 @@ void Spell::cast(bool skipCheck)
     }
 
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
-    SendSpellGo();                                          
+    SendSpellGo();
 
     // Okay, everything is prepared. Now we need to distinguish between immediate and evented delayed spells
     if (m_spellInfo->speed > 0.0f && !IsChanneledSpell(m_spellInfo) || m_spellInfo->Id == 14157)
@@ -3609,9 +3609,9 @@ void Spell::SendSpellGo()
         && m_spellInfo->powerType != POWER_HEALTH )
         castFlags |= CAST_FLAG_POWER_LEFT_SELF; // should only be sent to self, but the current messaging doesn't make that possible
 
-    if((m_caster->GetTypeId() == TYPEID_PLAYER) 
-        && (m_caster->getClass() == CLASS_DEATH_KNIGHT) 
-        && m_spellInfo->runeCostID 
+    if((m_caster->GetTypeId() == TYPEID_PLAYER)
+        && (m_caster->getClass() == CLASS_DEATH_KNIGHT)
+        && m_spellInfo->runeCostID
         && m_spellInfo->powerType == POWER_RUNE)
     {
         castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
@@ -3640,7 +3640,7 @@ void Spell::SendSpellGo()
 
     if ((m_spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION) && m_targets.HasSrc())
         m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_SOURCE_LOCATION);
-    else 
+    else
         m_targets.setTargetMask(m_targets.getTargetMask() & ~TARGET_FLAG_SOURCE_LOCATION);
 
     if ((m_spellInfo->Targets & TARGET_FLAG_DEST_LOCATION) && m_targets.HasDst())
@@ -4588,7 +4588,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // Lay on Hands - cannot be self-cast on paladin with Forbearance or after using Avenging Wrath
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
                     if (target->HasAura(61988)) // Immunity shield marker
-                        return SPELL_FAILED_TARGET_AURASTATE;   
+                        return SPELL_FAILED_TARGET_AURASTATE;
             }
         }
 
@@ -4644,7 +4644,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
         */
 
-        if(target) 
+        if(target)
             if(IsPositiveSpell(m_spellInfo->Id))
                 if(target->IsImmunedToSpell(m_spellInfo))
                     return SPELL_FAILED_TARGET_AURASTATE;
@@ -5216,11 +5216,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                     {
                         if (m_caster->GetTypeId() != TYPEID_PLAYER)
                             return SPELL_FAILED_DONT_REPORT;
-                        
+
                         Unit* target = m_targets.getUnitTarget();
                         if (!target || target->GetTypeId() != TYPEID_PLAYER)
                             return SPELL_FAILED_BAD_TARGETS;
-                        
+
                         if (!m_caster->ToPlayer()->IsInSameRaidWith(target->ToPlayer()))
                             return SPELL_FAILED_TARGET_NOT_IN_RAID;
 
@@ -6106,7 +6106,7 @@ SpellCastResult Spell::CheckItems()
                          if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
-                 break;                    
+                 break;
             }
             default:
                 break;

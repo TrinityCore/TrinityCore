@@ -89,7 +89,7 @@ enum Spells
     SPELL_BERSERK                                          = 28498,
 
     //spells for chained
-    //warlock                                        
+    //warlock
     SPELL_CURSE_OF_AGONY                                   = 47864,
     SPELL_SHADOW_BOLT                                      = 47809,
     //shaman
@@ -148,7 +148,7 @@ const Position Pos[12] =
 //creatures in corners
 //Unstoppable Abominations
 #define MAX_ABOMINATIONS                        21
-const Position PosAbominations[MAX_ABOMINATIONS] = 
+const Position PosAbominations[MAX_ABOMINATIONS] =
 {
     {3755.52, -5155.22, 143.480, 2.0},
     {3744.35, -5164.03, 143.590, 2.00},
@@ -175,7 +175,7 @@ const Position PosAbominations[MAX_ABOMINATIONS] =
 
 //Soldiers of the Frozen Wastes
 #define MAX_WASTES                              49
-const Position PosWastes[MAX_WASTES] = 
+const Position PosWastes[MAX_WASTES] =
 {
     {3754.41, -5147.24, 143.204, 2.0},
     {3754.68, -5156.17, 143.418, 2.0},
@@ -230,7 +230,7 @@ const Position PosWastes[MAX_WASTES] =
 
 //Soul Weavers
 #define MAX_WEAVERS                             7
-const Position PosWeavers[MAX_WEAVERS] = 
+const Position PosWeavers[MAX_WEAVERS] =
 {
     {3752.45, -5168.35, 143.562, 1.6094},
     {3772.2, -5070.04, 143.329, 1.93686},
@@ -252,9 +252,9 @@ struct NotCharmedTargetSelector : public std::unary_function<Unit *, bool> {
 
 struct boss_kelthuzadAI : public BossAI
 {
-    boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD), spawns(c) 
+    boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD), spawns(c)
     {
-        uiFaction = m_creature->getFaction();   
+        uiFaction = m_creature->getFaction();
     }
 
     uint32 Phase;
@@ -287,7 +287,7 @@ struct boss_kelthuzadAI : public BossAI
             if (Player* charmed = Unit::GetPlayer((*itr).first))
                 charmed->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
         }
-        
+
         chained.clear();
         spawns.DespawnAll();
 
@@ -406,7 +406,7 @@ struct boss_kelthuzadAI : public BossAI
                             events.PopEvent();
                         break;
                     case EVENT_TRIGGER:
-                        if (GameObject *pKTTrigger = m_creature->GetMap()->GetGameObject(KTTriggerGUID))    
+                        if (GameObject *pKTTrigger = m_creature->GetMap()->GetGameObject(KTTriggerGUID))
                             pKTTrigger->SetPhaseMask(2, true);
                         events.PopEvent();
                         break;
@@ -657,7 +657,7 @@ bool AreaTrigger_at_kelthuzad_center(Player* pPlayer, const AreaTriggerEntry *at
         if (trigger->getLootState() == GO_READY)
             trigger->UseDoorOrButton();
 
-        // Note: summon must be done by trigger and not by KT. 
+        // Note: summon must be done by trigger and not by KT.
         // Otherwise, they attack immediately as KT is in combat.
         for (uint8 i = 0; i <= MAX_ABOMINATIONS; ++i)
         {

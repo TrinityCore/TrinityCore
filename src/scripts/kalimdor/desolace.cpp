@@ -179,7 +179,7 @@ void AddSC_desolace()
     newscript->pEffectDummyCreature = &EffectDummyCreature_npc_aged_dying_ancient_kodo;
     newscript->pGossipHello = &GossipHello_npc_aged_dying_ancient_kodo;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "go_iruxos";
     newscript->pGOHello = &GOHello_go_iruxos;

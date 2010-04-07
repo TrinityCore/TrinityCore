@@ -25,7 +25,7 @@ EndScriptData */
 npcs_dithers_and_arbington
 npc_myranda_the_hag
 npc_the_scourge_cauldron
-npc_andorhal_tower 
+npc_andorhal_tower
 EndContentData */
 
 #include "ScriptedPch.h"
@@ -206,7 +206,7 @@ CreatureAI* GetAI_npc_the_scourge_cauldron(Creature* pCreature)
 }
 
 /*######
-##    npcs_andorhal_tower 
+##    npcs_andorhal_tower
 ######*/
 
 enum eAndorhalTower

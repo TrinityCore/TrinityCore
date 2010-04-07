@@ -61,7 +61,7 @@ enum SpellCastTargetFlags
     TARGET_FLAG_CORPSE          = 0x00008000,               // pguid, resurrection spells
     TARGET_FLAG_UNK2            = 0x00010000,               // pguid, not used in any spells as of 3.2.2a (can be set dynamically)
     TARGET_FLAG_GLYPH           = 0x00020000,               // used in glyph spells
-    TARGET_FLAG_UNK3            = 0x00040000,               // 
+    TARGET_FLAG_UNK3            = 0x00040000,               //
     TARGET_FLAG_UNK4            = 0x00080000                // uint32, loop { vec3, guid -> if guid == 0 break }
 };
 
@@ -161,7 +161,7 @@ class SpellCastTargets
         uint32 getTargetMask() const { return m_targetMask; }
         void setTargetMask(uint32 newMask) { m_targetMask = newMask; }
         uint32 getIntTargetFlags() const { return m_intTargetFlags; }
-        
+
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
@@ -460,7 +460,7 @@ class Spell
 
         void HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i);
         void HandleThreatSpells(uint32 spellId);
-        
+
         const SpellEntry * const m_spellInfo;
         int32 m_currentBasePoints[3];                       // cache SpellEntry::EffectBasePoints and use for set custom base points
         Item* m_CastItem;

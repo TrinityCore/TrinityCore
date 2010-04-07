@@ -270,7 +270,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
                 if (DrainCrystalTimer <= diff)
                 {
                     SelectNearestCrystal();
-                    if (IsHeroic()) 
+                    if (IsHeroic())
                         DrainCrystalTimer = 10000 + rand()%5000;
                     else
                         DrainCrystalTimer = 20000 + rand()%5000;

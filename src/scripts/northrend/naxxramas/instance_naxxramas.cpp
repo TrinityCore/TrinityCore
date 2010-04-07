@@ -126,7 +126,7 @@ struct instance_naxxramas : public InstanceData
 
     uint64 uiKelthuzad;
     uint64 uiKelthuzadTrigger;
-    uint64 uiPortals[4];    
+    uint64 uiPortals[4];
 
     time_t minHorsemenDiedTime;
     time_t maxHorsemenDiedTime;
@@ -176,9 +176,9 @@ struct instance_naxxramas : public InstanceData
             case GO_HORSEMEN_CHEST_HERO: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
             case GO_KELTHUZAD_PORTAL01: uiPortals[0] = pGo->GetGUID(); break;
             case GO_KELTHUZAD_PORTAL02: uiPortals[1] = pGo->GetGUID(); break;
-            case GO_KELTHUZAD_PORTAL03: uiPortals[2] = pGo->GetGUID(); break; 
-            case GO_KELTHUZAD_PORTAL04: uiPortals[3] = pGo->GetGUID(); break; 
-            case GO_KELTHUZAD_TRIGGER: uiKelthuzadTrigger = pGo->GetGUID(); break; 
+            case GO_KELTHUZAD_PORTAL03: uiPortals[2] = pGo->GetGUID(); break;
+            case GO_KELTHUZAD_PORTAL04: uiPortals[3] = pGo->GetGUID(); break;
+            case GO_KELTHUZAD_TRIGGER: uiKelthuzadTrigger = pGo->GetGUID(); break;
         }
 
         AddDoor(pGo, add);
@@ -211,7 +211,7 @@ struct instance_naxxramas : public InstanceData
 
                     if (minHorsemenDiedTime == 0)
                         minHorsemenDiedTime = now;
-                    
+
                     maxHorsemenDiedTime = now;
                 }
                 break;
@@ -297,7 +297,7 @@ struct instance_naxxramas : public InstanceData
             case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
                 if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                     return true;
-                return false; 
+                return false;
             case 13233: // Criteria for achievement 2186: The Immortal (25-man)
                 // TODO.
                 break;

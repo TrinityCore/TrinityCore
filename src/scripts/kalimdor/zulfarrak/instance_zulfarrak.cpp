@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
- 
+
 #include "ScriptedPch.h"
 
 #define NPC_GAHZRILLA 7273
@@ -42,7 +42,7 @@ struct instance_zulfarrak : public ScriptedInstance
         }
     }
 };
- 
+
 InstanceData* GetInstanceData_instance_zulfarrak(Map* pMap)
 {
     return new instance_zulfarrak(pMap);

@@ -103,7 +103,7 @@ struct boss_anub_arakAI : public ScriptedAI
         m_creature->RemoveAura(SPELL_SUBMERGE);
 
         lSummons.DespawnAll();
-        
+
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
     }
@@ -112,7 +112,7 @@ struct boss_anub_arakAI : public ScriptedAI
     void EnterCombat(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
     }
@@ -245,11 +245,11 @@ struct boss_anub_arakAI : public ScriptedAI
         if (uiPhase != 1)
             DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit *pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
     }
@@ -258,7 +258,7 @@ struct boss_anub_arakAI : public ScriptedAI
     {
         if (pVictim == m_creature)
             return;
-        
+
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
     }
 
@@ -266,7 +266,7 @@ struct boss_anub_arakAI : public ScriptedAI
     {
         lSummons.Summon(summon);
     }
-    
+
 };
 
 CreatureAI* GetAI_boss_anub_arak(Creature *pCreature)

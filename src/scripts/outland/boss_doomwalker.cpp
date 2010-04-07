@@ -24,10 +24,10 @@ EndScriptData */
 #include "ScriptedPch.h"
 
 #define SAY_AGGRO                   -1000159
-#define SAY_EARTHQUAKE_1            -1000160 
-#define SAY_EARTHQUAKE_2            -1000161 
+#define SAY_EARTHQUAKE_1            -1000160
+#define SAY_EARTHQUAKE_2            -1000161
 #define SAY_OVERRUN_1               -1000162
-#define SAY_OVERRUN_2               -1000163 
+#define SAY_OVERRUN_2               -1000163
 #define SAY_SLAY_1                  -1000164
 #define SAY_SLAY_2                  -1000165
 #define SAY_SLAY_3                  -1000166

@@ -46,7 +46,7 @@ enum Data64
 
 enum Creatures
 {
-    NPC_MEATHOOK           = 26529,           
+    NPC_MEATHOOK           = 26529,
     NPC_SALRAMM            = 26530,
     NPC_EPOCH              = 26532,
     NPC_MAL_GANIS          = 26533,

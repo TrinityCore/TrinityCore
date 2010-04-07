@@ -445,7 +445,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
             pCreature->SetLootRecipient(NULL);
             loot->clear();
         }
-        else 
+        else
         {
             // if the round robin player release, reset it.
             if (player->GetGUID() == loot->roundRobinPlayer)

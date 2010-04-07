@@ -39,7 +39,7 @@ struct boss_infinite_corruptorAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -47,7 +47,7 @@ struct boss_infinite_corruptorAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         if (pInstance)
@@ -64,7 +64,7 @@ struct boss_infinite_corruptorAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         if (pInstance)

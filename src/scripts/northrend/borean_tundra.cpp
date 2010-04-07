@@ -2040,7 +2040,7 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
     void Reset()
     {
         GameObject *pTrap;
-        
+
         uiTimer = 1500;
         bStarted = false;
 
@@ -2089,7 +2089,7 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
         if (param == 1)
             bStarted = true;
     }
-    
+
     void MovementInform(uint32 uiType, uint32 uiId)
     {
         GameObject* pTrap;
@@ -2184,7 +2184,7 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
     {
         if (uiExplosionTimer < diff)
         {
-            DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);          
+            DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
             for(uint8 i = 0; i < 4; ++i)
             {
                 if(Creature* cCredit = m_creature->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
@@ -2194,7 +2194,7 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
                         Player* pOwner = uOwner->ToPlayer();
                         if(pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
                             pOwner->KilledMonsterCredit(cCredit->GetEntry(),cCredit->GetGUID());
-                    }                    
+                    }
                 }
             }
             m_creature->Kill(m_creature);
@@ -2225,7 +2225,7 @@ struct npc_valiance_keep_cannoneerAI : public ScriptedAI
     uint32 uiTimer;
 
     void Reset()
-    {   
+    {
         uiTimer = urand(13000,18000);
     }
 
@@ -2261,7 +2261,7 @@ enum Spells
     SPELL_TRANSITUS_SHIELD_BEAM = 48310
 };
 
-enum NPCs 
+enum NPCs
 {
     NPC_TRANSITUS_SHIELD_DUMMY   = 27306,
     NPC_WARMAGE_HOLLISTER        = 27906,
@@ -2336,7 +2336,7 @@ struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
                 }
                     break;
             }
-        }        
+        }
         else m_uiTimer -= uiDiff;
 
         ScriptedAI::UpdateAI(uiDiff);
@@ -2506,7 +2506,7 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_valiance_keep_cannoneer";
     newscript->GetAI = &GetAI_npc_valiance_keep_cannoneer;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "npc_warmage_coldarra";
     newscript->GetAI = &GetAI_npc_warmage_coldarra;

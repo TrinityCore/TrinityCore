@@ -248,7 +248,7 @@ Item::Item( )
     m_lootGenerated = false;
     mb_in_trade = false;
     m_lastPlayedTimeUpdate = time(NULL);
-    
+
     m_refundRecipient = 0;
     m_paidMoney = 0;
     m_paidExtendedCost = 0;
@@ -277,7 +277,7 @@ bool Item::Create( uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags);
     SetUInt32Value(ITEM_FIELD_DURATION, abs(itemProto->Duration));
-    
+
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
 
     return true;
@@ -418,7 +418,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
         SetOwnerGUID(owner_guid);
         need_save = true;
     }
-    
+
     if (need_save)                                           // normal item changed state set not work at loading
     {
         std::ostringstream ss;
@@ -638,7 +638,7 @@ void Item::SetState(ItemUpdateState state, Player *forplayer)
         // new items must stay in new state until saved
         if (uState != ITEM_NEW)
             uState = state;
-        
+
         AddToUpdateQueueOf(forplayer);
     }
     else
@@ -748,8 +748,8 @@ uint32 Item::GetEnchantRequiredLevel() const
       if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
     if (enchantEntry->requiredLevel > level)
       level = enchantEntry->requiredLevel;
-  
-  return level;  
+
+  return level;
 }
 
 bool Item::IsBoundByEnchant() const
@@ -834,7 +834,7 @@ void Item::SetEnchantmentDuration(EnchantmentSlot slot, uint32 duration, Player*
         return;
 
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1 + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_DURATION_OFFSET,duration);
-    SetState(ITEM_CHANGED, owner);  
+    SetState(ITEM_CHANGED, owner);
     // Cannot use GetOwner() here, has to be passed as an argument to avoid freeze due to hashtable locking
 }
 
@@ -1061,7 +1061,7 @@ void Item::SaveRefundDataToDB()
     ss << GetPaidMoney() << ",";
     ss << GetPaidExtendedCost();
     ss << ")";
-    
+
     CharacterDatabase.Execute(ss.str().c_str());
 }
 
@@ -1079,12 +1079,12 @@ void Item::SetNotRefundable(Player *owner, bool changestate)
     // Following is not applicable in the trading procedure
     if (changestate)
         SetState(ITEM_CHANGED, owner);
-    
+
     SetRefundRecipient(0);
     SetPaidMoney(0);
     SetPaidExtendedCost(0);
-    DeleteRefundDataFromDB();   
-    
+    DeleteRefundDataFromDB();
+
     owner->DeleteRefundReference(GetGUID());
 }
 

@@ -25,13 +25,13 @@ enum Achievements
 struct instance_blackrock_spire : public ScriptedInstance
 {
     instance_blackrock_spire(Map* pMap) : ScriptedInstance(pMap) {}
-    
+
     uint32 uiLeeroyTimer;
     uint32 uiWhelpCount;
     uint32 uiLeroyData;
-    
+
     bool bLeeeeeeeeroy;
-    
+
     void Initialize()
     {
       uiLeeroyTimer = 15*IN_MILISECONDS;
@@ -39,7 +39,7 @@ struct instance_blackrock_spire : public ScriptedInstance
       bLeeeeeeeeroy = true;
       uiLeroyData = 0;
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -57,7 +57,7 @@ struct instance_blackrock_spire : public ScriptedInstance
                 }
                 uiWhelpCount = data;
                 break;
-        }   
+        }
     }
 
     uint32 GetData(uint32 type)
@@ -71,7 +71,7 @@ struct instance_blackrock_spire : public ScriptedInstance
     }
 
     void Update(uint32 diff)
-    { 
+    {
         if (GetData(EVENT_LEEEROY) != FAIL && GetData(EVENT_LEEEROY) == IN_PROGRESS)
         {
             if (uiLeeroyTimer <= diff)

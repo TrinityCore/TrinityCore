@@ -43,21 +43,21 @@ struct boss_ossirianAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance *pInstance;
-    
+
     void Reset()
     {
         if (pInstance)
             pInstance->SetData(DATA_OSSIRIAN_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit *who)
     {
         if (pInstance)
             pInstance->SetData(DATA_OSSIRIAN_EVENT, IN_PROGRESS);
     }
-    
+
     void JustDied(Unit *killer)
     {
         if (pInstance)

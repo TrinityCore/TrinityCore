@@ -411,7 +411,7 @@ int WorldSocket::Update (void)
     if (m_TimeOutTime &&
         time(NULL) >= m_TimeOutTime)
         return -1;
-    
+
     if (m_OutActive || m_OutBuffer->length () == 0)
         return 0;
 
@@ -837,7 +837,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     // Checks gmlevel per Realm
-    result = 
+    result =
         loginDatabase.PQuery ("SELECT "
                               "RealmID, "            //0
                               "gmlevel "             //1
@@ -1064,7 +1064,7 @@ int WorldSocket::iSendPartialPacket(WorldPacket& pct)
     if (m_OutBuffer->copy((char*) (pct.contents() + pct.rpos()), remainingLen) == -1)
          ACE_ASSERT (false);
 
-     return 1; // some byte written and packet completed 
+     return 1; // some byte written and packet completed
 }
 
 bool WorldSocket::iFlushPacketQueue()
@@ -1076,7 +1076,7 @@ bool WorldSocket::iFlushPacketQueue()
     {
         int result = iSendPartialPacket(*pct);
 
-        if (result != 0) 
+        if (result != 0)
         {
             // some bytes were written
             haveone = true;

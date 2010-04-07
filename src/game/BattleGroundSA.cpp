@@ -52,7 +52,7 @@ void BattleGroundSA::Reset()
 
 bool BattleGroundSA::SetupBattleGround()
 {
-    return ResetObjs(); 
+    return ResetObjs();
 }
 
 bool BattleGroundSA::ResetObjs()
@@ -66,7 +66,7 @@ bool BattleGroundSA::ResetObjs()
 
     for(uint8 i = 0; i < BG_SA_MAXNPC; i++)
         DelCreature(i);
-  
+
     for(uint8 i = BG_SA_MAXNPC; i < BG_SA_MAXNPC + BG_SA_MAX_GY; i++)
         DelCreature(i);
 
@@ -93,7 +93,7 @@ bool BattleGroundSA::ResetObjs()
     }
 
     OverrideGunFaction();
- 
+
     for(uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
@@ -125,7 +125,7 @@ bool BattleGroundSA::ResetObjs()
         {
             sLog.outError("SOTA: Can't find GY entry %u",BG_SA_GYEntries[i]);
             return false;
-        }      
+        }
 
         if(i == BG_SA_BEACH_GY)
         {
@@ -143,7 +143,7 @@ bool BattleGroundSA::ResetObjs()
     //GY capture points
     for(uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_MAXOBJ; i++)
     {
-        AddObject(i, BG_SA_ObjEntries[i] - (attackers == TEAM_ALLIANCE ? 1:0), 
+        AddObject(i, BG_SA_ObjEntries[i] - (attackers == TEAM_ALLIANCE ? 1:0),
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0,0,0,0,RESPAWN_ONE_DAY);
@@ -154,21 +154,21 @@ bool BattleGroundSA::ResetObjs()
     UpdateWorldState(BG_SA_RIGHT_GY_HORDE , GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_HORDE?1:0 );
     UpdateWorldState(BG_SA_LEFT_GY_HORDE , GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_HORDE?1:0 );
     UpdateWorldState(BG_SA_CENTER_GY_HORDE , GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_HORDE?1:0 );
-  
+
     UpdateWorldState(BG_SA_RIGHT_GY_ALLIANCE , GraveyardStatus[BG_SA_RIGHT_CAPTURABLE_GY] == TEAM_ALLIANCE?1:0 );
     UpdateWorldState(BG_SA_LEFT_GY_ALLIANCE , GraveyardStatus[BG_SA_LEFT_CAPTURABLE_GY] == TEAM_ALLIANCE?1:0 );
     UpdateWorldState(BG_SA_CENTER_GY_ALLIANCE , GraveyardStatus[BG_SA_CENTRAL_CAPTURABLE_GY] == TEAM_ALLIANCE?1:0 );
-  
+
     if(attackers == TEAM_ALLIANCE)
     {
         UpdateWorldState(BG_SA_ALLY_ATTACKS, 1);
         UpdateWorldState(BG_SA_HORDE_ATTACKS, 0);
-      
+
         UpdateWorldState(BG_SA_RIGHT_ATT_TOKEN_ALL, 1);
         UpdateWorldState(BG_SA_LEFT_ATT_TOKEN_ALL, 1);
         UpdateWorldState(BG_SA_RIGHT_ATT_TOKEN_HRD, 0);
         UpdateWorldState(BG_SA_LEFT_ATT_TOKEN_HRD, 0);
-      
+
         UpdateWorldState(BG_SA_HORDE_DEFENCE_TOKEN,1);
         UpdateWorldState(BG_SA_ALLIANCE_DEFENCE_TOKEN,0);
     }
@@ -176,7 +176,7 @@ bool BattleGroundSA::ResetObjs()
     {
         UpdateWorldState(BG_SA_HORDE_ATTACKS, 1);
         UpdateWorldState(BG_SA_ALLY_ATTACKS, 0);
-      
+
         UpdateWorldState(BG_SA_RIGHT_ATT_TOKEN_ALL, 0);
         UpdateWorldState(BG_SA_LEFT_ATT_TOKEN_ALL, 0);
         UpdateWorldState(BG_SA_RIGHT_ATT_TOKEN_HRD, 1);
@@ -192,7 +192,7 @@ bool BattleGroundSA::ResetObjs()
     UpdateWorldState(BG_SA_GREEN_GATEWS, 1);
     UpdateWorldState(BG_SA_YELLOW_GATEWS, 1);
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
-  
+
     TeleportPlayers();
     return true;
 }
@@ -265,7 +265,7 @@ void BattleGroundSA::Update(uint32 diff)
             {
                 RoundScores[1].time = TotalTime;
                 RoundScores[1].winner = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
-            
+
                 if (RoundScores[0].time == RoundScores[1].time)
                     EndBattleGround(NULL);
                 else if(RoundScores[0].time < RoundScores[1].time)
@@ -339,12 +339,12 @@ void BattleGroundSA::AddPlayer(Player *plr)
         if(plr->GetTeamId() == attackers)
         {
             plr->CastSpell(plr,12438,true);//Without this player falls before boat loads...
-      
+
             if(urand(0,1))
                 plr->TeleportTo(607, 2682.936f, -830.368f, 50.0f, 2.895f, 0);
             else
                 plr->TeleportTo(607, 2577.003f, 980.261f, 50.0f, 0.807f, 0);
-      
+
         }
         else
             plr->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
@@ -408,11 +408,11 @@ void BattleGroundSA::TeleportPlayers()
             if(plr->GetTeamId() == attackers)
             {
                 plr->CastSpell(plr,12438,true);     //Without this player falls before boat loads...
-          
+
                 if(urand(0,1))
                     plr->TeleportTo(607, 2682.936f, -830.368f, 50.0f, 2.895f, 0);
                 else
-                    plr->TeleportTo(607, 2577.003f, 980.261f, 50.0f, 0.807f, 0);          
+                    plr->TeleportTo(607, 2577.003f, 980.261f, 50.0f, 0.807f, 0);
             }
             else
                 plr->TeleportTo(607, 1209.7f, -65.16f, 70.1f, 0.0f, 0);
@@ -464,13 +464,13 @@ void BattleGroundSA::OverrideGunFaction()
 {
     if(!m_BgCreatures[0])
         return;
-  
+
     for(uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10;i++)
     {
         if(Creature* gun = GetBGCreature(i))
             gun->setFaction(BG_SA_Factions[attackers? TEAM_ALLIANCE : TEAM_HORDE]);
     }
-    
+
     for(uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4;i++)
     {
         if(Creature* dem = GetBGCreature(i))
@@ -513,7 +513,7 @@ void BattleGroundSA::DestroyGate(uint32 i, Player* pl)
                     ASSERT(false);
                     break;
             }
-      
+
             if(i < 5)
                 DelObject(i+9);
             UpdateWorldState(uws, GateStatus[i]);
@@ -598,7 +598,7 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i)
         case BG_SA_LEFT_CAPTURABLE_GY:
             SpawnBGObject(BG_SA_LEFT_FLAG,RESPAWN_ONE_DAY);
             npc = BG_SA_NPC_RIGSPARK;
-            AddCreature(BG_SA_NpcEntries[npc], npc, attackers, 
+            AddCreature(BG_SA_NpcEntries[npc], npc, attackers,
               BG_SA_NpcSpawnlocs[npc][0], BG_SA_NpcSpawnlocs[npc][1],
               BG_SA_NpcSpawnlocs[npc][2], BG_SA_NpcSpawnlocs[npc][3]);
             UpdateWorldState(BG_SA_LEFT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE? 1:0));
@@ -607,7 +607,7 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i)
         case BG_SA_RIGHT_CAPTURABLE_GY:
             SpawnBGObject(BG_SA_RIGHT_FLAG, RESPAWN_ONE_DAY);
             npc = BG_SA_NPC_SPARKLIGHT;
-            AddCreature(BG_SA_NpcEntries[npc], npc, attackers, 
+            AddCreature(BG_SA_NpcEntries[npc], npc, attackers,
               BG_SA_NpcSpawnlocs[npc][0], BG_SA_NpcSpawnlocs[npc][1],
               BG_SA_NpcSpawnlocs[npc][2], BG_SA_NpcSpawnlocs[npc][3]);
             UpdateWorldState(BG_SA_RIGHT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE? 1:0));
@@ -668,7 +668,7 @@ void BattleGroundSA::EndBattleGround(uint32 winner)
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
     else if (winner == HORDE)
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
-    
+
     //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(2), ALLIANCE);
     RewardHonorToTeam(GetBonusHonorFromKill(2), HORDE);

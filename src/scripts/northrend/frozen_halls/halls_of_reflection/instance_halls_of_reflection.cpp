@@ -40,7 +40,7 @@ struct instance_halls_of_reflection : public ScriptedInstance
         uiFalric = 0;
         uiMarwyn = 0;
         uiLichKing = 0;
-        
+
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             m_auiEncounter[i] = NOT_STARTED;
     }
@@ -57,7 +57,7 @@ struct instance_halls_of_reflection : public ScriptedInstance
                 break;
             case CREATURE_LICHKING:
                 uiLichKing = pCreature->GetGUID();
-                break;    
+                break;
         }
     }
 /*
@@ -80,7 +80,7 @@ struct instance_halls_of_reflection : public ScriptedInstance
                 break;
             case DATA_LICHKING_EVENT:
                 m_auiEncounter[2] = data;
-                break;                
+                break;
         }
 
         if (data == DONE)

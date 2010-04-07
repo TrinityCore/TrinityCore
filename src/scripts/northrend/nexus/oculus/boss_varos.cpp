@@ -49,7 +49,7 @@ struct boss_varosAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -60,7 +60,7 @@ struct boss_varosAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
     }
@@ -77,7 +77,7 @@ struct boss_varosAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, DONE);
     }

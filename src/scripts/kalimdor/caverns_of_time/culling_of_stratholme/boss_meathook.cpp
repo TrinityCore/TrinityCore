@@ -48,7 +48,7 @@ enum Yells
 
 struct boss_meathookAI : public ScriptedAI
 {
-    boss_meathookAI(Creature *c) : ScriptedAI(c) 
+    boss_meathookAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
         if (pInstance)
@@ -58,7 +58,7 @@ struct boss_meathookAI : public ScriptedAI
     uint32 uiChainTimer;
     uint32 uiDiseaseTimer;
     uint32 uiFrenzyTimer;
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -66,7 +66,7 @@ struct boss_meathookAI : public ScriptedAI
         uiChainTimer = urand(12000,17000);   //seen on video 13, 17, 15, 12, 16
         uiDiseaseTimer = urand(2000,4000);   //approx 3s
         uiFrenzyTimer = urand(21000,26000);  //made it up
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MEATHOOK_EVENT, NOT_STARTED);
     }
@@ -74,7 +74,7 @@ struct boss_meathookAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
     }
@@ -110,7 +110,7 @@ struct boss_meathookAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MEATHOOK_EVENT, DONE);
     }

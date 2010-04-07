@@ -28,15 +28,15 @@
 struct instance_oculus : public ScriptedInstance
 {
     instance_oculus(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-    
+
     uint64 uiDrakos;
     uint64 uiVaros;
     uint64 uiUrom;
     uint64 uiEregos;
-    
+
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -55,7 +55,7 @@ struct instance_oculus : public ScriptedInstance
                 break;
         }
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -77,7 +77,7 @@ struct instance_oculus : public ScriptedInstance
         if (data == DONE)
             SaveToDB();
     }
-    
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -90,7 +90,7 @@ struct instance_oculus : public ScriptedInstance
 
         return 0;
     }
-    
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -104,7 +104,7 @@ struct instance_oculus : public ScriptedInstance
         return 0;
     }
 
-    
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;

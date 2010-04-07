@@ -152,7 +152,7 @@ struct mob_tribuna_controllerAI : public ScriptedAI
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_ABEDNEUM),false);
             pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_SKY_FLOOR),false);
         }
-    
+
         KaddrakGUIDList.clear();
     }
 
@@ -538,7 +538,7 @@ struct npc_brann_hosAI : public npc_escortAI
                         if (!bHasBeenDamaged)
                             pInstance->DoCompleteAchievement(ACHIEV_BRANN_SPANKIN_NEW);
                     }
-                    
+
                     JumpToNextStep(5500);
                     break;
                 case 30:
@@ -663,7 +663,7 @@ struct npc_brann_hosAI : public npc_escortAI
         {
             DoScriptText(SAY_LOW_HEALTH, m_creature);
             bIsLowHP = true;
-        } 
+        }
         else if (bIsLowHP && !HealthBelowPct(30))
             bIsLowHP = false;
 
