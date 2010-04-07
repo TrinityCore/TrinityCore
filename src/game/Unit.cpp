@@ -535,7 +535,7 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
 void Unit::UpdateInterruptMask()
 {
     m_interruptMask = 0;
-    for(AuraApplicationList::const_iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
+    for (AuraApplicationList::const_iterator i = m_interruptableAuras.begin(); i != m_interruptableAuras.end(); ++i)
         m_interruptMask |= (*i)->GetBase()->GetSpellProto()->AuraInterruptFlags;
 
     if (Spell* spell = m_currentSpells[CURRENT_CHANNELED_SPELL])
@@ -4240,7 +4240,7 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
             Aura * aura = iter->second;
             ++iter;
             Aura::ApplicationMap const & appMap = aura->GetApplicationMap();
-            for(Aura::ApplicationMap::const_iterator itr = appMap.begin(); itr!= appMap.end();)
+            for (Aura::ApplicationMap::const_iterator itr = appMap.begin(); itr!= appMap.end();)
             {
                 AuraApplication * aurApp = itr->second;
                 ++itr;
@@ -16189,7 +16189,7 @@ void Unit::StopAttackFaction(uint32 faction_id)
     }
 
     AttackerSet const& attackers = getAttackers();
-    for(AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
+    for (AttackerSet::const_iterator itr = attackers.begin(); itr != attackers.end();)
     {
         if ((*itr)->getFactionTemplateEntry()->faction==faction_id)
         {
@@ -16202,7 +16202,7 @@ void Unit::StopAttackFaction(uint32 faction_id)
 
     getHostileRefManager().deleteReferencesForFaction(faction_id);
 
-    for(ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
+    for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
             (*itr)->StopAttackFaction(faction_id);
 }
 

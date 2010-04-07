@@ -519,13 +519,13 @@ void PlayerMenu::SendQuestGiverQuestDetails( Quest const *pQuest, uint64 npcGUID
     data << uint32(pQuest->GetRewArenaPoints());            // reward arena points
     data << uint32(0);                                      // unk
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         data << uint32(pQuest->RewRepFaction[i]);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         data << int32(pQuest->RewRepValueId[i]);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         data << int32(pQuest->RewRepValue[i]);
 
     data << uint32(QUEST_EMOTE_COUNT);
@@ -637,13 +637,13 @@ void PlayerMenu::SendQuestQueryResponse( Quest const *pQuest )
         }
     }
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)         // reward factions ids
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)         // reward factions ids
         data << uint32(pQuest->RewRepFaction[i]);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)         // columnid+1 QuestFactionReward.dbc?
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)         // columnid+1 QuestFactionReward.dbc?
         data << int32(pQuest->RewRepValueId[i]);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)         // unk (0)
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)         // unk (0)
         data << int32(pQuest->RewRepValue[i]);
 
     data << pQuest->GetPointMapId();
@@ -772,13 +772,13 @@ void PlayerMenu::SendQuestGiverOfferReward( Quest const* pQuest, uint64 npcGUID,
     data << uint32(pQuest->GetRewArenaPoints());               // arena points
     data << uint32(0);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward factions ids
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward factions ids
         data << uint32(pQuest->RewRepFaction[i]);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // columnid in QuestFactionReward.dbc (zero based)?
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // columnid in QuestFactionReward.dbc (zero based)?
         data << int32(pQuest->RewRepValueId[i]);
 
-    for(int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward reputation override?
+    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward reputation override?
         data << uint32(pQuest->RewRepValue[i]);
 
     pSession->SendPacket( &data );

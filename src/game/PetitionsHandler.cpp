@@ -353,7 +353,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     data << uint32(0);                                      // 11
     data << uint32(0);                                      // 13 count of next strings?
 
-    for(int i = 0; i < 10; ++i)
+    for (int i = 0; i < 10; ++i)
         data << uint8(0);                                   // some string
 
     data << uint32(0);                                      // 14

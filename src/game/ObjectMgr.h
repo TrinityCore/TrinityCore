@@ -739,7 +739,7 @@ class ObjectMgr
             if (map_itr == m_mailLevelRewardMap.end())
                 return NULL;
 
-            for(MailLevelRewardList::const_iterator set_itr = map_itr->second.begin(); set_itr != map_itr->second.end(); ++set_itr)
+            for (MailLevelRewardList::const_iterator set_itr = map_itr->second.begin(); set_itr != map_itr->second.end(); ++set_itr)
                 if (set_itr->raceMask & raceMask)
                     return &*set_itr;
 

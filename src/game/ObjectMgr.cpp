@@ -1216,9 +1216,9 @@ void ObjectMgr::LoadCreatures()
 
     // build single time for check spawnmask
     std::map<uint32,uint32> spawnMasks;
-    for(uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if(sMapStore.LookupEntry(i))
-            for(int k = 0; k < MAX_DIFFICULTY; ++k)
+            for (int k = 0; k < MAX_DIFFICULTY; ++k)
                 if (GetMapDifficultyData(i,Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
@@ -1560,9 +1560,9 @@ void ObjectMgr::LoadGameobjects()
 
     // build single time for check spawnmask
     std::map<uint32,uint32> spawnMasks;
-    for(uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if(sMapStore.LookupEntry(i))
-            for(int k = 0; k < MAX_DIFFICULTY; ++k)
+            for (int k = 0; k < MAX_DIFFICULTY; ++k)
                 if (GetMapDifficultyData(i,Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
@@ -2348,7 +2348,7 @@ void ObjectMgr::LoadItemPrototypes()
         if (!entry)
             continue;
 
-        for(int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
             if(entry->ItemId[j] <= 0)
                 continue;
@@ -2360,7 +2360,7 @@ void ObjectMgr::LoadItemPrototypes()
         }
     }
 
-    for(std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
+    for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
         sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dnc`", *itr);
 }
 
@@ -8561,7 +8561,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     std::set<uint32> gossipScriptSet;
 
-    for(ScriptMapMap::const_iterator itr = sGossipScripts.begin(); itr != sGossipScripts.end(); ++itr)
+    for (ScriptMapMap::const_iterator itr = sGossipScripts.begin(); itr != sGossipScripts.end(); ++itr)
         gossipScriptSet.insert(itr->first);
 
     do
@@ -8656,7 +8656,7 @@ void ObjectMgr::LoadGossipMenuItems()
 
     if (!gossipScriptSet.empty())
     {
-        for(std::set<uint32>::const_iterator itr = gossipScriptSet.begin(); itr != gossipScriptSet.end(); ++itr)
+        for (std::set<uint32>::const_iterator itr = gossipScriptSet.begin(); itr != gossipScriptSet.end(); ++itr)
             sLog.outErrorDb("Table `gossip_scripts` contain unused script, id %u.", *itr);
     }
 
@@ -8960,7 +8960,7 @@ void ObjectMgr::LoadGMTickets()
 {
     if(!m_GMTicketList.empty())
     {
-        for(GmTicketList::const_iterator itr = m_GMTicketList.begin(); itr != m_GMTicketList.end(); ++itr)
+        for (GmTicketList::const_iterator itr = m_GMTicketList.begin(); itr != m_GMTicketList.end(); ++itr)
             delete *itr;
     }
     m_GMTicketList.clear();
@@ -9157,7 +9157,7 @@ void ObjectMgr::LoadCreatureClassLevelStats()
         if (!info)
             continue;
 
-        for(uint16 lvl = info->minlevel; lvl <= info->maxlevel; ++lvl)
+        for (uint16 lvl = info->minlevel; lvl <= info->maxlevel; ++lvl)
         {
             if (m_creatureBaseStatsMap.find( MAKE_PAIR16(lvl, info->unit_class) ) == m_creatureBaseStatsMap.end())
                 sLog.outErrorDb("Missing base stats for creature class %u level %u", info->unit_class, lvl);

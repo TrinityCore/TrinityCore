@@ -270,7 +270,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
     if(uint8)
     {
         uint32 count1;
-        for(count1)
+        for (count1)
         {
             uint64; // player guid
         }
@@ -278,7 +278,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
 
     data << uint32(0);                                      // count2
     data << uint32(0);
-    for(count2)
+    for (count2)
     {
         uint64 // not player guid
         uint32 flags;
@@ -292,7 +292,7 @@ void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
         }
         if(flags & 0x20)
         {
-            for(3)
+            for (3)
             {
                 uint8
             }

@@ -554,7 +554,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 else if (m_caster->m_form == FORM_SHADOW && (m_spellInfo->SpellFamilyFlags[0] & 0x00002000))
                 {
                     Unit::AuraEffectList const& ImprMindBlast = m_caster->GetAuraEffectsByType(SPELL_AURA_ADD_FLAT_MODIFIER);
-                    for(Unit::AuraEffectList::const_iterator i = ImprMindBlast.begin(); i != ImprMindBlast.end(); ++i)
+                    for (Unit::AuraEffectList::const_iterator i = ImprMindBlast.begin(); i != ImprMindBlast.end(); ++i)
                     {
                         if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST &&
                             ((*i)->GetSpellProto()->SpellIconID == 95))
@@ -1908,7 +1908,7 @@ void Spell::EffectDummy(uint32 i)
                     Unit::AttackerSet attackers = unitTarget->getAttackers();
 
                     // selected from list 3
-                    for(int i = 0; i < std::min(size_t(3),attackers.size()); ++i)
+                    for (int i = 0; i < std::min(size_t(3),attackers.size()); ++i)
                     {
                         Unit::AttackerSet::iterator aItr = attackers.begin();
                         std::advance(aItr, rand() % attackers.size());
@@ -4180,7 +4180,7 @@ void Spell::EffectEnchantItemTmp(uint32 i)
 
         }
 
-        for(int j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
+        for (int j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
         {
             if (Item* item = p_caster->GetWeaponForAttack(WeaponAttackType(j)))
             {
@@ -7372,7 +7372,7 @@ void Spell::EffectActivateRune(uint32  eff_idx)
 
     uint32 count = damage;
     if (count == 0) count = 1;
-    for(uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
+    for (uint32 j = 0; j < MAX_RUNES && count > 0; ++j)
     {
         if(plr->GetRuneCooldown(j) && plr->GetCurrentRune(j) == RuneType(m_spellInfo->EffectMiscValue[eff_idx]))
         {
@@ -7387,7 +7387,7 @@ void Spell::EffectActivateRune(uint32  eff_idx)
         if (eff_idx != 0)
             return;
 
-        for(uint32 i = 0; i < MAX_RUNES; ++i)
+        for (uint32 i = 0; i < MAX_RUNES; ++i)
         {
             if(plr->GetRuneCooldown(i) && (plr->GetCurrentRune(i) == RUNE_FROST ||  plr->GetCurrentRune(i) == RUNE_DEATH))
                 plr->SetRuneCooldown(i, 0);
@@ -7657,7 +7657,7 @@ void Spell::EffectRechargeManaGem(uint32 i)
 
     if (Item* pItem = player->GetItemByEntry(item_id))
     {
-        for(int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
             pItem->SetSpellCharges(x,pProto->Spells[x].SpellCharges);
         pItem->SetState(ITEM_CHANGED,player);
     }

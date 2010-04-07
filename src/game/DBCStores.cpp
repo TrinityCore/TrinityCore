@@ -324,7 +324,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sMapDifficultyStore,       dbcPath,"MapDifficulty.dbc");
     // fill data
-    for(uint32 i = 1; i < sMapDifficultyStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sMapDifficultyStore.GetNumRows(); ++i)
         if(MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
             sMapDifficultyMap[MAKE_PAIR32(entry->MapId,entry->Difficulty)] = MapDifficulty(entry->resetTime,entry->maxPlayers);
     sMapDifficultyStore.Clear();
@@ -332,7 +332,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sMovieStore,               dbcPath,"Movie.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestSortStore,           dbcPath,"QuestSort.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sPvPDifficultyStore,       dbcPath,"PvpDifficulty.dbc");
-    for(uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
             if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
                 assert(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
@@ -734,7 +734,7 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel( uint32 mapid, uint32 le
     if (level > DEFAULT_MAX_LEVEL)
         level = DEFAULT_MAX_LEVEL;
 
-    for(uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
             if (entry->mapId == mapid && entry->minLevel <= level && entry->maxLevel >= level)
                 return entry;
@@ -744,7 +744,7 @@ PvPDifficultyEntry const* GetBattlegroundBracketByLevel( uint32 mapid, uint32 le
 
 PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattleGroundBracketId id)
 {
-    for(uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
+    for (uint32 i = 0; i < sPvPDifficultyStore.GetNumRows(); ++i)
         if (PvPDifficultyEntry const* entry = sPvPDifficultyStore.LookupEntry(i))
             if (entry->mapId == mapid && entry->GetBracketId() == id)
                 return entry;

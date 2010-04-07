@@ -746,7 +746,7 @@ struct mob_phase_hunterAI : public ScriptedAI
             std::list<HostileReference*> AggroList = m_creature->getThreatManager().getThreatList();
             std::list<Unit*> UnitsWithMana;
 
-            for(std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
             {
                 if(Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {

@@ -216,14 +216,14 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, uint8 tryEffMask, WorldObje
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            for(uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
             {
                 if (IsUnitOwnedAuraEffect(spellproto->Effect[i]))
                     effMask |= 1 << i;
             }
             break;
         case TYPEID_DYNAMICOBJECT:
-            for(uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellproto->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
                     effMask |= 1 << i;
@@ -245,14 +245,14 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit *
     {
         case TYPEID_UNIT:
         case TYPEID_PLAYER:
-            for(uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
             {
                 if (IsUnitOwnedAuraEffect(spellproto->Effect[i]))
                     effMask |= 1 << i;
             }
             break;
         case TYPEID_DYNAMICOBJECT:
-            for(uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellproto->Effect[i] == SPELL_EFFECT_PERSISTENT_AREA_AURA)
                     effMask |= 1 << i;

@@ -634,7 +634,7 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
     data << uint32(time(NULL));                             // unix time of something
     data << uint8(1);
     data << uint32(mask);                                   // type mask
-    for(uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
+    for (uint32 i = 0; i < NUM_ACCOUNT_DATA_TYPES; ++i)
         if(mask & (1 << i))
             data << uint32(GetAccountData(AccountDataType(i))->Time);// also unix time
     SendPacket(&data);
