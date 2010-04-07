@@ -3514,7 +3514,7 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
              uint32 item;
-             for(int8 x=0;x < 3;x++)
+             for (int8 x=0;x < 3;x++)
                  if (spellInfo->EffectItemType[x])
                      item = spellInfo->EffectItemType[x];
              ItemPrototype const *pProto = objmgr.GetItemPrototype(item);
@@ -6102,7 +6102,7 @@ SpellCastResult Spell::CheckItems()
 
                  if (Item* pitem = p_caster->GetItemByEntry(item_id))
                  {
-                     for(int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                     for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
                          if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }

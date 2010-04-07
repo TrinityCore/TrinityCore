@@ -451,7 +451,7 @@ void InstanceSaveManager::LoadResetTimes()
         }
 
         // schedule the reset times
-        for(InstResetTimeMapDiffType::iterator itr = instResetTime.begin(); itr != instResetTime.end(); ++itr)
+        for (InstResetTimeMapDiffType::iterator itr = instResetTime.begin(); itr != instResetTime.end(); ++itr)
             if(itr->second.second > now)
                 ScheduleReset(true, itr->second.second, InstResetEvent(0, PAIR32_LOPART(itr->second.first),Difficulty(PAIR32_HIPART(itr->second.first)),itr->first));
     }
@@ -491,7 +491,7 @@ void InstanceSaveManager::LoadResetTimes()
 
     // calculate new global reset times for expired instances and those that have never been reset yet
     // add the global reset times to the priority queue
-    for(MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
+    for (MapDifficultyMap::const_iterator itr = sMapDifficultyMap.begin(); itr != sMapDifficultyMap.end(); ++itr)
     {
         uint32 map_diff_pair = itr->first;
         uint32 mapid = PAIR32_LOPART(map_diff_pair);
@@ -527,13 +527,13 @@ void InstanceSaveManager::LoadResetTimes()
         // schedule the global reset/warning
         uint8 type = 1;
         static int tim[4] = {3600, 900, 300, 60};
-        for(; type < 4; type++)
+        for (; type < 4; type++)
             if(t - tim[type-1] > now)
                 break;
 
         ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, -1));
 
-        for(ResetTimeMapDiffInstances::const_iterator in_itr = mapDiffResetInstances.lower_bound(map_diff_pair);
+        for (ResetTimeMapDiffInstances::const_iterator in_itr = mapDiffResetInstances.lower_bound(map_diff_pair);
             in_itr != mapDiffResetInstances.upper_bound(map_diff_pair); ++in_itr)
         {
             ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, in_itr->second));

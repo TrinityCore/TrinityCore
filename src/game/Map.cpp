@@ -584,7 +584,7 @@ bool Map::loaded(const GridPair &p) const
 void Map::Update(const uint32 &t_diff)
 {
     /// update players at tick
-    for(m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
+    for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
         Player* plr = m_mapRefIter->getSource();
         if(plr && plr->IsInWorld())
@@ -710,7 +710,7 @@ struct ResetNotifier
 {
     template<class T>inline void resetNotify(GridRefManager<T> &m)
     {
-        for(typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
+        for (typename GridRefManager<T>::iterator iter=m.begin(); iter != m.end(); ++iter)
             iter->getSource()->ResetAllNotifies();
     }
     template<class T> void Visit(GridRefManager<T> &) {}
@@ -720,7 +720,7 @@ struct ResetNotifier
 
 void Map::ProcessRelocationNotifies(const uint32 & diff)
 {
-    for(GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); ++i)
+    for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); ++i)
     {
         NGridType *grid = i->getSource();
 
@@ -736,9 +736,9 @@ void Map::ProcessRelocationNotifies(const uint32 & diff)
         CellPair cell_min(gx*MAX_NUMBER_OF_CELLS, gy*MAX_NUMBER_OF_CELLS);
         CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
 
-        for(uint32 x = cell_min.x_coord; x < cell_max.x_coord; ++x)
+        for (uint32 x = cell_min.x_coord; x < cell_max.x_coord; ++x)
         {
-            for(uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
+            for (uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
             {
                 uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
                 if(!isCellMarked(cell_id))
@@ -760,7 +760,7 @@ void Map::ProcessRelocationNotifies(const uint32 & diff)
     ResetNotifier reset;
     TypeContainerVisitor<ResetNotifier, GridTypeMapContainer >  grid_notifier(reset);
     TypeContainerVisitor<ResetNotifier, WorldTypeMapContainer > world_notifier(reset);
-    for(GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); ++i)
+    for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end(); ++i)
     {
         NGridType *grid = i->getSource();
 
@@ -777,9 +777,9 @@ void Map::ProcessRelocationNotifies(const uint32 & diff)
         CellPair cell_min(gx*MAX_NUMBER_OF_CELLS, gy*MAX_NUMBER_OF_CELLS);
         CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
 
-        for(uint32 x = cell_min.x_coord; x < cell_max.x_coord; ++x)
+        for (uint32 x = cell_min.x_coord; x < cell_max.x_coord; ++x)
         {
-            for(uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
+            for (uint32 y = cell_min.y_coord; y < cell_max.y_coord; ++y)
             {
                 uint32 cell_id = (y * TOTAL_NUMBER_OF_CELLS_PER_MAP) + x;
                 if(!isCellMarked(cell_id))

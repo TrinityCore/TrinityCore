@@ -81,7 +81,7 @@ struct instance_trial_of_the_champion : public ScriptedInstance
 
     bool IsEncounterInProgress() const
     {
-        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
             if (m_auiEncounter[i] == IN_PROGRESS)
                 return true;
@@ -171,7 +171,7 @@ struct instance_trial_of_the_champion : public ScriptedInstance
                 m_auiEncounter[0] = uiData;
                 if (uiData == IN_PROGRESS)
                 {
-                    for(std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
+                    for (std::list<uint64>::const_iterator itr = VehicleList.begin(); itr != VehicleList.end(); ++itr)
                         if (Creature* pSummon = instance->GetCreature(*itr))
                             pSummon->RemoveFromWorld();
                 }else if (uiData == DONE)

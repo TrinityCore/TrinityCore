@@ -418,7 +418,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
     uint32 data[2];
     bool move_command = false;
 
-    for(uint8 i = 0; i < count; ++i)
+    for (uint8 i = 0; i < count; ++i)
     {
         recv_data >> position[i];
         recv_data >> data[i];
@@ -465,7 +465,7 @@ void WorldSession::HandlePetSetAction( WorldPacket & recv_data )
         }
     }
 
-    for(uint8 i = 0; i < count; ++i)
+    for (uint8 i = 0; i < count; ++i)
     {
         uint32 spell_id = UNIT_ACTION_BUTTON_ACTION(data[i]);
         uint8 act_state = UNIT_ACTION_BUTTON_TYPE(data[i]);

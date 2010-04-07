@@ -1454,7 +1454,7 @@ void LoadLootTemplates_Mail()
     LootTemplates_Mail.LoadAndCollectLootIds(ids_set);
 
     // remove real entries and check existence loot
-    for(uint32 i = 1; i < sMailTemplateStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sMailTemplateStore.GetNumRows(); ++i)
         if(sMailTemplateStore.LookupEntry(i))
             if (ids_set.find(i) != ids_set.end())
                 ids_set.erase(i);

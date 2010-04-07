@@ -1314,7 +1314,7 @@ valid examples:
                     int32 propertyId = 0;
                     bool negativeNumber = false;
                     char c;
-                    for(uint8 i=0; i<randomPropertyPosition; ++i)
+                    for (uint8 i=0; i<randomPropertyPosition; ++i)
                     {
                         propertyId = 0;
                         negativeNumber = false;
@@ -1629,7 +1629,7 @@ valid examples:
                             ItemLocale const *il = objmgr.GetItemLocale(linkedItem->ItemId);
 
                             bool foundName = false;
-                            for(uint8 i=LOCALE_koKR; i<MAX_LOCALE; ++i)
+                            for (uint8 i=LOCALE_koKR; i<MAX_LOCALE; ++i)
                             {
                                 int8 dbIndex = objmgr.GetIndexForLocale(LocaleConstant(i));
                                 if (dbIndex == -1 || il == NULL || dbIndex >= il->Name.size())

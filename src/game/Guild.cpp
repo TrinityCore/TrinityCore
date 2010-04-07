@@ -1599,7 +1599,7 @@ void Guild::AppendDisplayGuildBankSlot( WorldPacket& data, GuildBankTab const *t
         size_t enchCountPos = data.wpos();
 
         data << uint8(enchCount);                           // number of enchantments
-        for(uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
+        for (uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
         {
             if(uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(i)))
             {

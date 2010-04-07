@@ -100,7 +100,7 @@ struct boss_xevozzAI : public ScriptedAI
         if (assistList.empty())
             return;
 
-        for(std::list<Creature*>::const_iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
+        for (std::list<Creature*>::const_iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
         {
             if (Creature* pSphere = *iter)
                 pSphere->Kill(pSphere, false);

@@ -224,7 +224,7 @@ struct boss_ichoronAI : public ScriptedAI
                         bIsExploded = true;
                         m_creature->AttackStop();
                         m_creature->SetVisibility(VISIBILITY_OFF);
-                        for(uint8 i = 0; i < 10; i++)
+                        for (uint8 i = 0; i < 10; i++)
                         {
                             int tmp = urand(0, MAX_SPAWN_LOC-1);
                             m_creature->SummonCreature(NPC_ICHOR_GLOBULE, SpawnLoc[tmp], TEMPSUMMON_CORPSE_DESPAWN);

@@ -5327,7 +5327,7 @@ void Player::UpdateRating(CombatRating cr)
 
 void Player::UpdateAllRatings()
 {
-    for(int cr = 0; cr < MAX_COMBAT_RATING; ++cr)
+    for (int cr = 0; cr < MAX_COMBAT_RATING; ++cr)
         UpdateRating(CombatRating(cr));
 }
 
@@ -5630,7 +5630,7 @@ void Player::UpdateSkillsForLevel()
 
     bool alwaysMaxSkill = sWorld.getConfig(CONFIG_ALWAYS_MAX_SKILL_FOR_LEVEL);
 
-    for(SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
+    for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
     {
         if(itr->second.uState == SKILL_DELETED)
             continue;
@@ -5670,7 +5670,7 @@ void Player::UpdateSkillsForLevel()
 
 void Player::UpdateSkillsToMaxSkillsForLevel()
 {
-    for(SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
+    for (SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); ++itr)
     {
         if(itr->second.uState == SKILL_DELETED)
             continue;
@@ -9541,7 +9541,7 @@ bool Player::HasItemOrGemWithLimitCategoryEquipped( uint32 limitCategory, uint32
 uint8 Player::CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem) const
 {
     uint8 tempcount = 0;
-    for(int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
         if (!pItem)
@@ -9555,7 +9555,7 @@ uint8 Player::CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem) c
             tempcount += pItem->GetCount();
     }
 
-    for(int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
+    for (int i = KEYRING_SLOT_START; i < CURRENCYTOKEN_SLOT_END; ++i)
     {
         Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
         if (!pItem)
@@ -9569,13 +9569,13 @@ uint8 Player::CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem) c
             tempcount += pItem->GetCount();
     }
 
-    for(int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
         Bag* pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i );
         if (!pBag)
             continue;
 
-        for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+        for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
         {
             Item *pItem = GetItemByPos( i, j );
 
@@ -9590,7 +9590,7 @@ uint8 Player::CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem) c
         }
     }
 
-    for(int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
+    for (int i = BANK_SLOT_ITEM_START; i < BANK_SLOT_ITEM_END; ++i)
     {
         Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i );
         if (!pItem)
@@ -9604,13 +9604,13 @@ uint8 Player::CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem) c
             tempcount += pItem->GetCount();
     }
 
-    for(int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
+    for (int i = BANK_SLOT_BAG_START; i < BANK_SLOT_BAG_END; ++i)
     {
         Bag* pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i );
         if (!pBag)
             continue;
 
-        for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+        for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
         {
             Item *pItem = GetItemByPos( i, j );
 
@@ -11853,7 +11853,7 @@ void Player::DestroyConjuredItems( bool update )
 Item* Player::GetItemByEntry(uint32 entry) const
 {
     // in inventory
-    for(int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
+    for (int i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; ++i)
     {
         if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
             if (pItem->GetEntry() == entry)
@@ -11861,11 +11861,11 @@ Item* Player::GetItemByEntry(uint32 entry) const
     }
 
 
-    for(int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    for (int i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
         if (Bag* pBag = (Bag*)GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
         {
-            for(uint32 j = 0; j < pBag->GetBagSize(); ++j)
+            for (uint32 j = 0; j < pBag->GetBagSize(); ++j)
             {
                 if (Item* pItem = pBag->GetItemByPos(j))
                     if (pItem->GetEntry()==entry)
@@ -11875,7 +11875,7 @@ Item* Player::GetItemByEntry(uint32 entry) const
     }
 
 
-    for(int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
+    for (int i = EQUIPMENT_SLOT_START; i < INVENTORY_SLOT_BAG_END; ++i)
     {
         if (Item* pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
             if (pItem->GetEntry()==entry)
@@ -12323,7 +12323,7 @@ void Player::SwapItem( uint16 src, uint16 dst )
         if (IsBagPos(src))
         {
             Bag* bag = (Bag*)pSrcItem;
-            for(int i=0; i < bag->GetBagSize(); ++i)
+            for (int i=0; i < bag->GetBagSize(); ++i)
             {
                 if (Item *bagItem = bag->GetItemByPos(i))
                 {
@@ -12340,7 +12340,7 @@ void Player::SwapItem( uint16 src, uint16 dst )
         if (!released && IsBagPos(dst) && pDstItem)
         {
             Bag* bag = (Bag*)pDstItem;
-            for(int i=0; i < bag->GetBagSize(); ++i)
+            for (int i=0; i < bag->GetBagSize(); ++i)
             {
                 if (Item *bagItem = bag->GetItemByPos(i))
                 {
@@ -13092,7 +13092,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
     if (pMenuItemBounds.first == pMenuItemBounds.second && menuId == GetDefaultGossipMenuForSource(pSource))
         pMenuItemBounds = objmgr.GetGossipMenuItemsMapBounds(0);
 
-    for(GossipMenuItemsMap::const_iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
+    for (GossipMenuItemsMap::const_iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
     {
         bool bCanTalk = true;
 
@@ -13442,7 +13442,7 @@ uint32 Player::GetGossipTextId(uint32 menuId)
 
     GossipMenusMapBounds pMenuBounds = objmgr.GetGossipMenusMapBounds(menuId);
 
-    for(GossipMenusMap::const_iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
+    for (GossipMenusMap::const_iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
     {
         if (objmgr.IsPlayerMeetToCondition(this, itr->second.cond_1) && objmgr.IsPlayerMeetToCondition(this, itr->second.cond_2))
             textId = itr->second.text_id;
@@ -17705,7 +17705,7 @@ void Player::_SaveDailyQuestStatus()
 void Player::_SaveSkills()
 {
     // we don't need transactions here.
-    for( SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); )
+    for ( SkillStatusMap::iterator itr = mSkillStatus.begin(); itr != mSkillStatus.end(); )
     {
         if(itr->second.uState == SKILL_UNCHANGED)
         {
@@ -20494,7 +20494,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
     SendInitialSpells();
 
     data.Initialize(SMSG_SEND_UNLEARN_SPELLS, 4);
-    data << uint32(0);                                      // count, for(count) uint32;
+    data << uint32(0);                                      // count, for (count) uint32;
     GetSession()->SendPacket(&data);
 
     SendInitialActionButtons();
@@ -22040,7 +22040,7 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
     uint32 cooldown = RUNE_COOLDOWN;
 
     AuraEffectList const& regenAura = GetAuraEffectsByType(SPELL_AURA_MOD_POWER_REGEN_PERCENT);
-    for(AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
+    for (AuraEffectList::const_iterator i = regenAura.begin();i != regenAura.end(); ++i)
     {
         if((*i)->GetMiscValue() == POWER_RUNE && (*i)->GetMiscValueB() == rune)
             cooldown = cooldown*(100-(*i)->GetAmount())/100;
@@ -22051,7 +22051,7 @@ uint32 Player::GetRuneBaseCooldown(uint8 index)
 
 void Player::RemoveRunesByAuraEffect(AuraEffect const * aura)
 {
-    for(uint8 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
         if (m_runes->runes[i].ConvertAura == aura)
         {
@@ -22069,7 +22069,7 @@ void Player::RestoreBaseRune(uint8 index)
     // Don't drop passive talents providing rune convertion
     if (!aura || aura->GetAuraType() != SPELL_AURA_CONVERT_RUNE)
         return;
-    for(uint8 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
         if (aura == m_runes->runes[i].ConvertAura)
             return;

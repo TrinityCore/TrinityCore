@@ -205,7 +205,7 @@ struct boss_volazjAI : public ScriptedAI
         Summons.Despawn(summon);
 
         // Check if all summons in this phase killed
-        for(SummonList::const_iterator iter = Summons.begin(); iter!=Summons.end(); ++iter)
+        for (SummonList::const_iterator iter = Summons.begin(); iter!=Summons.end(); ++iter)
         {
             if(Creature *visage = Unit::GetCreature(*m_creature, *iter))
             {

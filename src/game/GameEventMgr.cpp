@@ -1040,7 +1040,7 @@ uint32 GameEventMgr::GetNPCFlag(Creature * cr)
 
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
-        for(NPCFlagList::iterator itr = mGameEventNPCFlags[*e_itr].begin();
+        for (NPCFlagList::iterator itr = mGameEventNPCFlags[*e_itr].begin();
             itr != mGameEventNPCFlags[*e_itr].end();
             ++ itr)
             if(itr->first == guid)
@@ -1446,7 +1446,7 @@ bool GameEventMgr::hasCreatureQuestActiveEventExcept(uint32 quest_id, uint16 eve
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
         if((*e_itr) != event_id)
-            for(QuestRelList::iterator itr = mGameEventCreatureQuests[*e_itr].begin();
+            for (QuestRelList::iterator itr = mGameEventCreatureQuests[*e_itr].begin();
                 itr != mGameEventCreatureQuests[*e_itr].end();
                 ++ itr)
                 if(itr->second == quest_id)
@@ -1460,7 +1460,7 @@ bool GameEventMgr::hasGameObjectQuestActiveEventExcept(uint32 quest_id, uint16 e
     for (ActiveEvents::iterator e_itr = m_ActiveEvents.begin(); e_itr != m_ActiveEvents.end(); ++e_itr)
     {
         if((*e_itr) != event_id)
-            for(QuestRelList::iterator itr = mGameEventGameObjectQuests[*e_itr].begin();
+            for (QuestRelList::iterator itr = mGameEventGameObjectQuests[*e_itr].begin();
                 itr != mGameEventGameObjectQuests[*e_itr].end();
                 ++ itr)
                 if(itr->second == quest_id)
@@ -1475,7 +1475,7 @@ bool GameEventMgr::hasCreatureActiveEventExcept(uint32 creature_id, uint16 event
         if((*e_itr) != event_id)
         {
             int32 internal_event_id = mGameEvent.size() + (*e_itr) - 1;
-            for(GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin();
+            for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin();
                 itr != mGameEventCreatureGuids[internal_event_id].end();
                 ++ itr)
                 if(*itr == creature_id)
@@ -1491,7 +1491,7 @@ bool GameEventMgr::hasGameObjectActiveEventExcept(uint32 go_id, uint16 event_id)
         if((*e_itr) != event_id)
         {
             int32 internal_event_id = mGameEvent.size() + (*e_itr) - 1;
-            for(GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin();
+            for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin();
                 itr != mGameEventGameobjectGuids[internal_event_id].end();
                 ++ itr)
                 if(*itr == go_id)
