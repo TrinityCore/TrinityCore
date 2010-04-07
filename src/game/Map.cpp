@@ -1207,7 +1207,7 @@ bool GridMap::loadData(char *filename)
     if (!in)
         return true;
     fread(&header, sizeof(header),1,in);
-    if (header.mapMagic     == uint32(MAP_MAGIC) &&
+    if (header.mapMagic == uint32(MAP_MAGIC) &&
         header.versionMagic == uint32(MAP_VERSION_MAGIC))
     {
         // loadup area data
@@ -2924,7 +2924,7 @@ void Map::ScriptsProcess()
             switch(GUID_HIPART(step.sourceGUID))
             {
                 case HIGHGUID_ITEM:
-                // case HIGHGUID_CONTAINER:  == HIGHGUID_ITEM
+                // case HIGHGUID_CONTAINER: == HIGHGUID_ITEM
                 {
                     Player* player = HashMapHolder<Player>::Find(step.ownerGUID);
                     if (player)

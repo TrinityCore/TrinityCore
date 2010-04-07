@@ -1976,7 +1976,7 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
         {
             AuraEffect * auraEff =(*i);
             ++i;
-            if (auraEff->GetAmount()<=0)
+            if (auraEff->GetAmount() <= 0)
             {
                 uint32 removedAuras = pVictim->m_removedAurasCount;
                 auraEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
@@ -2493,7 +2493,7 @@ bool Unit::isSpellBlocked(Unit *pVictim, SpellEntry const * /*spellProto*/, Weap
         {
             if (!(*i)->IsAffectedOnSpell(spellProto))
                 continue;
-            if ((*i)->GetMiscValue()  == )
+            if ((*i)->GetMiscValue() == )
                 return false;
         }
         */
@@ -4675,7 +4675,7 @@ int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value)
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue() ==  misc_value)
+        if ((*i)->GetMiscValue() == misc_value)
             modifier += (*i)->GetAmount();
     }
     return modifier;
@@ -4688,7 +4688,7 @@ float Unit::GetTotalAuraMultiplierByMiscValue(AuraType auratype, int32 misc_valu
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue() ==  misc_value)
+        if ((*i)->GetMiscValue() == misc_value)
             multiplier *= (100.0f + (*i)->GetAmount())/100.0f;
     }
     return multiplier;
@@ -4701,7 +4701,7 @@ int32 Unit::GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue() ==  misc_value && (*i)->GetAmount() > modifier)
+        if ((*i)->GetMiscValue() == misc_value && (*i)->GetAmount() > modifier)
             modifier = (*i)->GetAmount();
     }
 
@@ -4715,7 +4715,7 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue() ==  misc_value && (*i)->GetAmount() < modifier)
+        if ((*i)->GetMiscValue() == misc_value && (*i)->GetAmount() < modifier)
             modifier = (*i)->GetAmount();
     }
 
@@ -5610,7 +5610,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // mana cost save
                 int32 cost = procSpell->manaCost + procSpell->ManaCostPercentage * GetCreateMana() / 100;
                 basepoints0 = cost * triggerAmount/100;
-                if (basepoints0 <=0)
+                if (basepoints0 <= 0)
                     return false;
 
                 target = this;
@@ -5665,7 +5665,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
 
                 int32 cost = procSpell->manaCost + procSpell->ManaCostPercentage * GetCreateMana() / 100;
                 basepoints0 = cost * triggerAmount/100;
-                if (basepoints0 <=0)
+                if (basepoints0 <= 0)
                     return false;
                 triggered_spell_id = 44450;
                 target = this;

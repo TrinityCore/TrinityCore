@@ -290,7 +290,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
 
     sLog.outDebug("Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)",GetEntry(),GetUInt32Value(ITEM_FIELD_DURATION),diff);
 
-    if (GetUInt32Value(ITEM_FIELD_DURATION)<=diff)
+    if (GetUInt32Value(ITEM_FIELD_DURATION) <= diff)
     {
         sScriptMgr.ItemExpire(owner, GetProto());
         owner->DestroyItem(GetBagSlot(), GetSlot(), true);
@@ -1007,7 +1007,7 @@ bool Item::IsBindedNotWith(Player const* player) const
         return false;
 
     // own item
-    if (GetOwnerGUID() ==  player->GetGUID())
+    if (GetOwnerGUID() == player->GetGUID())
         return false;
 
     // not BOA item case

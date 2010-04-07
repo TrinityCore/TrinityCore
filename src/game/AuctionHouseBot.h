@@ -163,7 +163,7 @@ public:
     }
     uint32 GetMinItems()
     {
-        if ((minItems  == 0) && (maxItems))
+        if ((minItems == 0) && (maxItems))
             return maxItems;
         else if ((maxItems) && (minItems > maxItems))
             return maxItems;

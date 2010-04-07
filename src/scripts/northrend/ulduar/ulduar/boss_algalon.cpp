@@ -314,7 +314,7 @@ struct boss_algalonAI : public ScriptedAI
         {
             if (Enrage)
             {
-                if (Ascend_Timer  <= diff)
+                if (Ascend_Timer <= diff)
                 {
                     DoCast(m_creature, SPELL_ASCEND);
                     DoScriptText(SAY_BERSERK, m_creature);

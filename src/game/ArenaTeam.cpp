@@ -46,7 +46,7 @@ ArenaTeam::ArenaTeam()
     m_stats.games_week    = 0;
     m_stats.games_season  = 0;
     m_stats.rank          = 0;
-    if (sWorld.getConfig(CONFIG_ARENA_START_RATING)>=0)
+    if (sWorld.getConfig(CONFIG_ARENA_START_RATING) >= 0)
     m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
     else if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
         m_stats.rating    = 0;
@@ -518,7 +518,7 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
 
     uint32 rating = MemberRating + 150 < m_stats.rating ? MemberRating : m_stats.rating;
 
-    if (rating<=1500)
+    if (rating <= 1500)
     {
         if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) < 5)
             points = (float)rating * 0.22f + 14.0f;

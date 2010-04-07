@@ -1263,12 +1263,12 @@ valid examples:
 
                     color <<= 4;
                     // check for hex char
-                    if (c >= '0' && c <='9')
+                    if (c >= '0' && c <= '9')
                     {
                         color |= c-'0';
                         continue;
                     }
-                    if (c >= 'a' && c <='f')
+                    if (c >= 'a' && c <= 'f')
                     {
                         color |= 10+c-'a';
                         continue;
@@ -1320,7 +1320,7 @@ valid examples:
                         negativeNumber = false;
                         while ((c = reader.get())!=':')
                         {
-                            if (c >='0' && c<='9')
+                            if (c >='0' && c <= '9')
                             {
                                 propertyId*=10;
                                 propertyId += c-'0';
@@ -1347,7 +1347,7 @@ valid examples:
                     }
 
                     // ignore other integers
-                    while ((c >='0' && c <='9') || c == ':')
+                    while ((c >='0' && c <= '9') || c == ':')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1359,7 +1359,7 @@ valid examples:
                     uint32 questid= 0;
                     // read questid
                     char c = reader.peek();
-                    while (c >='0' && c<='9')
+                    while (c >='0' && c <= '9')
                     {
                         reader.ignore(1);
                         questid *= 10;
@@ -1435,7 +1435,7 @@ valid examples:
                     uint32 spellid = 0;
                     // read spell entry
                     char c = reader.peek();
-                    while (c >='0' && c<='9')
+                    while (c >='0' && c <= '9')
                     {
                         reader.ignore(1);
                         spellid *= 10;
@@ -1454,7 +1454,7 @@ valid examples:
                     uint32 spellid = 0;
                     // read spell entry
                     char c = reader.peek();
-                    while (c >='0' && c<='9')
+                    while (c >='0' && c <= '9')
                     {
                         reader.ignore(1);
                         spellid *= 10;
@@ -1493,7 +1493,7 @@ valid examples:
                     reader.getline(buffer, 256, ':');
                     uint32 glyphId = 0;
                     char c = reader.peek();
-                    while (c>='0' && c <='9')
+                    while (c >= '0' && c <= '9')
                     {
                         glyphId *= 10;
                         glyphId += c-'0';

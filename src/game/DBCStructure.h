@@ -840,7 +840,7 @@ struct FactionTemplateEntry
         if (entry.faction)
         {
             for (int i = 0; i < 4; ++i)
-                if (enemyFaction[i]  == entry.faction)
+                if (enemyFaction[i] == entry.faction)
                     return false;
             for (int i = 0; i < 4; ++i)
                 if (friendFaction[i] == entry.faction)
@@ -855,7 +855,7 @@ struct FactionTemplateEntry
         if (entry.faction)
         {
             for (int i = 0; i < 4; ++i)
-                if (enemyFaction[i]  == entry.faction)
+                if (enemyFaction[i] == entry.faction)
                     return true;
             for (int i = 0; i < 4; ++i)
                 if (friendFaction[i] == entry.faction)
@@ -1593,7 +1593,7 @@ struct SpellShapeshiftEntry
     //char*  Name[16];                                      // 2-17 unused
     //uint32 NameFlags;                                     // 18 unused
     uint32 flags1;                                          // 19
-    int32  creatureType;                                    // 20 <=0 humanoid, other normal creature types
+    int32  creatureType;                                    // 20 <= 0 humanoid, other normal creature types
     //uint32 unk1;                                          // 21 unused
     uint32 attackSpeed;                                     // 22
     //uint32 modelID;                                       // 23 unused, alliance modelid (where horde case?)

@@ -486,7 +486,7 @@ class ObjectMgr
 
         PlayerInfo const* GetPlayerInfo(uint32 race, uint32 class_) const
         {
-            if (race   >= MAX_RACES)   return NULL;
+            if (race >= MAX_RACES)   return NULL;
             if (class_ >= MAX_CLASSES) return NULL;
             PlayerInfo const* info = &playerInfo[race][class_];
             if (info->displayId_m == 0 || info->displayId_f == 0) return NULL;

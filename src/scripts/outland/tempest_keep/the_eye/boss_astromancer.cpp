@@ -260,7 +260,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                 //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMap()->CreatureRelocation(m_creature, CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
-                for (uint8 i=0; i<=2; ++i)
+                for (uint8 i=0; i <= 2; ++i)
                 {
                     if (!i)
                     {
@@ -283,7 +283,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                     Portals[2][0] = Portals[2][0]+7*i;
                     Portals[2][1] = Portal_Y(Portals[2][0], LARGE_PORTAL_RADIUS);
                 }
-                for (int i=0; i<=2; ++i)
+                for (int i=0; i <= 2; ++i)
                 {
                     if (Creature* Summoned = m_creature->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
                     {
@@ -302,8 +302,8 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
             if (Phase2_Timer <= diff)
             {
                 Phase = 3;
-                for (int i=0; i<=2; ++i)
-                    for (int j=1; j<=4; j++)
+                for (int i=0; i <= 2; ++i)
+                    for (int j=1; j <= 4; j++)
                         SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
                 DoScriptText(SAY_SUMMON1, m_creature);
@@ -325,7 +325,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMap()->CreatureRelocation(m_creature, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
-                for (int j=0; j<=2; j++)
+                for (int j=0; j <= 2; j++)
                     if (j!=i)
                         SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
