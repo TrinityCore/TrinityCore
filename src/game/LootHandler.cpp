@@ -32,7 +32,7 @@
 #include "World.h"
 #include "Util.h"
 
-void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
+void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: CMSG_AUTOSTORE_LOOT_ITEM");
     Player  *player =   GetPlayer();
@@ -57,7 +57,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
     }
     else if (IS_ITEM_GUID(lguid))
     {
-        Item *pItem = player->GetItemByGuid( lguid );
+        Item *pItem = player->GetItemByGuid(lguid);
 
         if (!pItem)
         {
@@ -83,7 +83,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
 
         bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
 
-        if ( !ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
+        if (!ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
         {
             player->SendLootRelease(lguid);
             return;
@@ -100,7 +100,7 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
 
     if (!item)
     {
-        player->SendEquipError( EQUIP_ERR_ALREADY_LOOTED, NULL, NULL );
+        player->SendEquipError(EQUIP_ERR_ALREADY_LOOTED, NULL, NULL);
         return;
     }
 
@@ -112,10 +112,10 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
     }
 
     ItemPosCountVec dest;
-    uint8 msg = player->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item->itemid, item->count );
-    if ( msg == EQUIP_ERR_OK )
+    uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
+    if (msg == EQUIP_ERR_OK)
     {
-        Item * newitem = player->StoreNewItem( dest, item->itemid, true, item->randomPropertyId);
+        Item * newitem = player->StoreNewItem(dest, item->itemid, true, item->randomPropertyId);
 
         if (qitem)
         {
@@ -155,10 +155,10 @@ void WorldSession::HandleAutostoreLootItemOpcode( WorldPacket & recv_data )
         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
     }
     else
-        player->SendEquipError( msg, NULL, NULL );
+        player->SendEquipError(msg, NULL, NULL);
 }
 
-void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
 {
     sLog.outDebug("WORLD: CMSG_LOOT_MONEY");
 
@@ -185,7 +185,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
         {
             Corpse *bones = ObjectAccessor::GetCorpse(*GetPlayer(), guid);
 
-            if (bones && bones->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
+            if (bones && bones->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
                 pLoot = &bones->loot;
 
             break;
@@ -202,7 +202,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
 
             bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
 
-            if ( ok_loot && pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE) )
+            if (ok_loot && pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
                 pLoot = &pCreature->loot ;
 
             break;
@@ -211,7 +211,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
             return;                                         // unlootable type
     }
 
-    if ( pLoot )
+    if (pLoot)
     {
         if (!IS_ITEM_GUID(guid) && player->GetGroup())      //item can be looted only single player
         {
@@ -231,17 +231,17 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
 
             for (std::vector<Player*>::const_iterator i = playersNear.begin(); i != playersNear.end(); ++i)
             {
-                (*i)->ModifyMoney( money_per_player );
+                (*i)->ModifyMoney(money_per_player);
                 (*i)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, money_per_player);
                 //Offset surely incorrect, but works
-                WorldPacket data( SMSG_LOOT_MONEY_NOTIFY, 4 );
+                WorldPacket data(SMSG_LOOT_MONEY_NOTIFY, 4);
                 data << uint32(money_per_player);
-                (*i)->GetSession()->SendPacket( &data );
+                (*i)->GetSession()->SendPacket(&data);
             }
         }
         else
         {
-            player->ModifyMoney( pLoot->gold );
+            player->ModifyMoney(pLoot->gold);
             player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_MONEY, pLoot->gold);
         }
         pLoot->gold = 0;
@@ -249,7 +249,7 @@ void WorldSession::HandleLootMoneyOpcode( WorldPacket & /*recv_data*/ )
     }
 }
 
-void WorldSession::HandleLootOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLootOpcode(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: CMSG_LOOT");
 
@@ -263,7 +263,7 @@ void WorldSession::HandleLootOpcode( WorldPacket & recv_data )
     GetPlayer()->SendLoot(guid, LOOT_CORPSE);
 }
 
-void WorldSession::HandleLootReleaseOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLootReleaseOpcode(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: CMSG_LOOT_RELEASE");
 
@@ -400,7 +400,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     }
     else if (IS_ITEM_GUID(lguid))
     {
-        Item *pItem = player->GetItemByGuid(lguid );
+        Item *pItem = player->GetItemByGuid(lguid);
         if (!pItem)
             return;
 
@@ -471,7 +471,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     loot->RemoveLooter(player->GetGUID());
 }
 
-void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
+void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
 {
     uint8 slotid;
     uint64 lootguid, target_playerguid;
@@ -524,17 +524,17 @@ void WorldSession::HandleLootMasterGiveOpcode( WorldPacket & recv_data )
     LootItem& item = pLoot->items[slotid];
 
     ItemPosCountVec dest;
-    uint8 msg = target->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item.itemid, item.count );
-    if ( msg != EQUIP_ERR_OK )
+    uint8 msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
+    if (msg != EQUIP_ERR_OK)
     {
-        target->SendEquipError( msg, NULL, NULL );
-        _player->SendEquipError( msg, NULL, NULL );         // send duplicate of error massage to master looter
+        target->SendEquipError(msg, NULL, NULL);
+        _player->SendEquipError(msg, NULL, NULL);         // send duplicate of error massage to master looter
         return;
     }
 
     // not move item from loot to target inventory
-    Item * newitem = target->StoreNewItem( dest, item.itemid, true, item.randomPropertyId );
-    target->SendNewItem(newitem, uint32(item.count), false, false, true );
+    Item * newitem = target->StoreNewItem(dest, item.itemid, true, item.randomPropertyId);
+    target->SendNewItem(newitem, uint32(item.count), false, false, true);
     target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, item.itemid, item.count);
     target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, pLoot->loot_type, item.count);
     target->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item.itemid, item.count);

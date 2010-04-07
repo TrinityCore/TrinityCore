@@ -224,7 +224,7 @@ bool AccountMgr::normalizeString(std::string& utf8str)
     if (!Utf8toWStr(utf8str,wstr_buf,wstr_len))
         return false;
 
-    std::transform( &wstr_buf[0], wstr_buf+wstr_len, &wstr_buf[0], wcharToUpperOnlyLatin );
+    std::transform(&wstr_buf[0], wstr_buf+wstr_len, &wstr_buf[0], wcharToUpperOnlyLatin);
 
     return WStrToUtf8(wstr_buf,wstr_len,utf8str);
 }

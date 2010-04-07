@@ -135,7 +135,7 @@ void GameObject::RemoveFromWorld()
             if (Unit * owner = GetOwner(false))
                 owner->RemoveGameObject(this,false);
             else if (!IS_PLAYER_GUID(owner_guid))
-                sLog.outError("Delete GameObject (GUID: %u Entry: %u ) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
+                sLog.outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
         ObjectAccessor::Instance().RemoveObject(this);
@@ -150,7 +150,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     Relocate(x,y,z,ang);
     if (!IsPositionValid())
     {
-        sLog.outError("Gameobject (GUID: %u Entry: %u ) not created. Suggested coordinates isn't valid (X: %f Y: %f)",guidlow,name_id,x,y);
+        sLog.outError("Gameobject (GUID: %u Entry: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",guidlow,name_id,x,y);
         return false;
     }
 
@@ -245,7 +245,7 @@ void GameObject::Update(uint32 diff)
                 case GAMEOBJECT_TYPE_FISHINGNODE:
                 {
                     // fishing code (bobber ready)
-                    if ( time(NULL) > m_respawnTime - FISHING_BOBBER_READY_TIME )
+                    if (time(NULL) > m_respawnTime - FISHING_BOBBER_READY_TIME)
                     {
                         // splash bobber (bobber ready now)
                         Unit* caster = GetOwner();
@@ -332,7 +332,7 @@ void GameObject::Update(uint32 diff)
                     if (m_cooldownTime >= time(NULL))
                         return;
 
-                    // Type 2 - Bomb ( will go away after casting it's spell )
+                    // Type 2 - Bomb (will go away after casting it's spell)
                     if (goInfo->trap.charges == 2)
                     {
                         if (goInfo->trap.spellId)
@@ -340,7 +340,7 @@ void GameObject::Update(uint32 diff)
                         SetLootState(GO_JUST_DEACTIVATED);
                         break;
                     }
-                    // Type 0 and 1 - trap ( type 0 will not get removed after casting a spell )
+                    // Type 0 and 1 - trap (type 0 will not get removed after casting a spell)
                     Unit* owner = GetOwner();
                     Unit* ok = NULL;                            // pointer to appropriate target if found any
 
@@ -619,7 +619,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
     // updated in DB
     std::ostringstream ss;
-    ss << "INSERT INTO gameobject VALUES ( "
+    ss << "INSERT INTO gameobject VALUES ("
         << m_DBTableGuid << ", "
         << GetEntry() << ", "
         << mapid << ", "
@@ -639,7 +639,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 
     WorldDatabase.BeginTransaction();
     WorldDatabase.PExecuteLog("DELETE FROM gameobject WHERE guid = '%u'", m_DBTableGuid);
-    WorldDatabase.PExecuteLog( ss.str( ).c_str( ) );
+    WorldDatabase.PExecuteLog(ss.str().c_str());
     WorldDatabase.CommitTransaction();
 }
 
@@ -647,7 +647,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
 {
     GameObjectData const* data = objmgr.GetGOData(guid);
 
-    if ( !data )
+    if (!data)
     {
         sLog.outErrorDb("Gameobject (GUID: %u) not found in table `gameobject`, can't load. ",guid);
         return false;
@@ -673,7 +673,7 @@ bool GameObject::LoadFromDB(uint32 guid, Map *map)
     m_DBTableGuid = guid;
     if (map->GetInstanceId() != 0) guid = objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-    if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit) )
+    if (!Create(guid,entry, map, phaseMask, x, y, z, ang, rotation0, rotation1, rotation2, rotation3, animprogress, go_state, artKit))
         return false;
 
     if (data->spawntimesecs >= 0)
@@ -1214,9 +1214,9 @@ void GameObject::Use(Unit* user)
                     uint32 zone, subzone;
                     GetZoneAndAreaId(zone,subzone);
 
-                    int32 zone_skill = objmgr.GetFishingBaseSkillLevel( subzone );
+                    int32 zone_skill = objmgr.GetFishingBaseSkillLevel(subzone);
                     if (!zone_skill)
-                        zone_skill = objmgr.GetFishingBaseSkillLevel( zone );
+                        zone_skill = objmgr.GetFishingBaseSkillLevel(zone);
 
                     //provide error, no fishable zone or area should be 0
                     if (!zone_skill)
@@ -1289,7 +1289,7 @@ void GameObject::Use(Unit* user)
 
             GameObjectInfo const* info = GetGOInfo();
 
-            if ( !caster || caster->GetTypeId() != TYPEID_PLAYER )
+            if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                 return;
 
             // accept only use by player from same group for caster except caster itself
@@ -1337,7 +1337,7 @@ void GameObject::Use(Unit* user)
             if (info->spellcaster.partyOnly)
             {
                 Unit* caster = GetOwner();
-                if ( !caster || caster->GetTypeId() != TYPEID_PLAYER )
+                if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
                 if (user->GetTypeId() != TYPEID_PLAYER || !user->ToPlayer()->IsInSameRaidWith(caster->ToPlayer()))
@@ -1478,11 +1478,11 @@ void GameObject::Use(Unit* user)
     if (!spellId)
         return;
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry( spellId );
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
     {
         if (user->GetTypeId() != TYPEID_PLAYER || !sOutdoorPvPMgr.HandleCustomSpell((Player*)user,spellId,this))
-            sLog.outError("WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u )", spellId,GetEntry(),GetGoType());
+            sLog.outError("WORLD: unknown spell id %u at use action for gameobject (Entry: %u GoType: %u)", spellId,GetEntry(),GetGoType());
         else
             sLog.outDebug("WORLD: %u non-dbc spell was handled by OutdoorPvP", spellId);
         return;

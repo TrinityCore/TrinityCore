@@ -497,7 +497,7 @@ namespace Trinity
             {
                 if (i_funit->GetTypeId() != TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
                     u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
-                    ( u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)) )==0 ||
+                    (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)))==0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
 
@@ -542,7 +542,7 @@ namespace Trinity
             CannibalizeObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
             bool operator()(Player* u)
             {
-                if ( i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() )
+                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight())
                     return false;
 
                 return i_funit->IsWithinDistInMap(u, i_range);
@@ -846,8 +846,8 @@ namespace Trinity
             NearestAttackableUnitInObjectRangeCheck(WorldObject const* obj, Unit const* funit, float range) : i_obj(obj), i_funit(funit), i_range(range) {}
             bool operator()(Unit* u)
             {
-                if ( u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
-                    !i_funit->IsFriendlyTo(u) && u->isVisibleForOrDetect(i_funit,false)  )
+                if (u->isTargetableForAttack() && i_obj->IsWithinDistInMap(u, i_range) &&
+                    !i_funit->IsFriendlyTo(u) && u->isVisibleForOrDetect(i_funit,false))
                 {
                     i_range = i_obj->GetDistance(u);        // use found unit range as new range limit for next check
                     return true;
@@ -874,7 +874,7 @@ namespace Trinity
                 Unit const* owner = i_funit->GetOwner();
                 if (owner)
                     check = owner;
-                i_targetForPlayer = ( check->GetTypeId() == TYPEID_PLAYER );
+                i_targetForPlayer = (check->GetTypeId() == TYPEID_PLAYER);
             }
             bool operator()(Unit* u)
             {
@@ -884,7 +884,7 @@ namespace Trinity
                 if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isTotem())
                     return false;
 
-                if (( i_targetForPlayer ? !i_funit->IsFriendlyTo(u) : i_funit->IsHostileTo(u) )&& i_obj->IsWithinDistInMap(u, i_range))
+                if ((i_targetForPlayer ? !i_funit->IsFriendlyTo(u) : i_funit->IsHostileTo(u))&& i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
                 return false;
@@ -988,15 +988,15 @@ namespace Trinity
                 if (u == i_funit)
                     return false;
 
-                if ( !u->CanAssistTo(i_funit, i_enemy) )
+                if (!u->CanAssistTo(i_funit, i_enemy))
                     return false;
 
                 // too far
-                if ( !i_funit->IsWithinDistInMap(u, i_range) )
+                if (!i_funit->IsWithinDistInMap(u, i_range))
                     return false;
 
                 // only if see assisted creature
-                if ( !i_funit->IsWithinLOSInMap(u) )
+                if (!i_funit->IsWithinLOSInMap(u))
                     return false;
 
                 return true;
@@ -1176,7 +1176,7 @@ namespace Trinity
                 for (size_t i = 0; i < i_data_cache.size(); ++i)
                     delete i_data_cache[i];
             }
-            void operator()( Player* p );
+            void operator()(Player* p);
 
         private:
             Builder& i_builder;
@@ -1197,7 +1197,7 @@ namespace Trinity
                     for (size_t j = 0; j < i_data_cache[i].size(); ++j)
                         delete i_data_cache[i][j];
             }
-            void operator()( Player* p );
+            void operator()(Player* p);
 
         private:
             Builder& i_builder;

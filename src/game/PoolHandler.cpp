@@ -425,12 +425,12 @@ void PoolHandler::LoadFromDB()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u objects pools", count );
+    sLog.outString(">> Loaded %u objects pools", count);
 
     // Creatures
 
     sLog.outString();
-    sLog.outString( "Loading Creatures Pooling Data..." );
+    sLog.outString("Loading Creatures Pooling Data...");
 
     mPoolCreatureGroups.resize(max_pool_id + 1);
     mCreatureSearchMap.clear();
@@ -444,7 +444,7 @@ void PoolHandler::LoadFromDB()
         bar2.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u creatures in pools", count );
+        sLog.outString(">> Loaded %u creatures in pools", count);
     }
     else
     {
@@ -463,7 +463,7 @@ void PoolHandler::LoadFromDB()
             CreatureData const* data = objmgr.GetCreatureData(guid);
             if (!data)
             {
-                sLog.outErrorDb("`pool_creature` has a non existing creature spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id );
+                sLog.outErrorDb("`pool_creature` has a non existing creature spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
                 continue;
             }
             if (pool_id > max_pool_id)
@@ -488,12 +488,12 @@ void PoolHandler::LoadFromDB()
 
         } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u creatures in pools", count );
+        sLog.outString(">> Loaded %u creatures in pools", count);
     }
 
     // Gameobjects
 
-    sLog.outString( "Loading Gameobject Pooling Data..." );
+    sLog.outString("Loading Gameobject Pooling Data...");
 
     mPoolGameobjectGroups.resize(max_pool_id + 1);
     mGameobjectSearchMap.clear();
@@ -507,7 +507,7 @@ void PoolHandler::LoadFromDB()
         bar2.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u gameobject in pools", count );
+        sLog.outString(">> Loaded %u gameobject in pools", count);
     }
     else
     {
@@ -526,7 +526,7 @@ void PoolHandler::LoadFromDB()
             GameObjectData const* data = objmgr.GetGOData(guid);
             if (!data)
             {
-                sLog.outErrorDb("`pool_gameobject` has a non existing gameobject spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id );
+                sLog.outErrorDb("`pool_gameobject` has a non existing gameobject spawn (GUID: %u) defined for pool id (%u), skipped.", guid, pool_id);
                 continue;
             }
             GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(data->id);
@@ -534,7 +534,7 @@ void PoolHandler::LoadFromDB()
                 goinfo->type != GAMEOBJECT_TYPE_GOOBER &&
                 goinfo->type != GAMEOBJECT_TYPE_FISHINGHOLE)
             {
-                sLog.outErrorDb("`pool_gameobject` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id );
+                sLog.outErrorDb("`pool_gameobject` has a not lootable gameobject spawn (GUID: %u, type: %u) defined for pool id (%u), skipped.", guid, goinfo->type, pool_id);
                 continue;
             }
             if (pool_id > max_pool_id)
@@ -558,14 +558,14 @@ void PoolHandler::LoadFromDB()
             SearchPair p(guid, pool_id);
             mGameobjectSearchMap.insert(p);
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u gameobject in pools", count );
+        sLog.outString(">> Loaded %u gameobject in pools", count);
     }
 
     // Pool of pools
 
-    sLog.outString( "Loading Mother Pooling Data..." );
+    sLog.outString("Loading Mother Pooling Data...");
 
     mPoolPoolGroups.resize(max_pool_id + 1);
     //                                      1        2            3
@@ -578,12 +578,12 @@ void PoolHandler::LoadFromDB()
         bar2.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u pools in pools", count );
+        sLog.outString(">> Loaded %u pools in pools", count);
     }
     else
     {
 
-        barGoLink bar2( result->GetRowCount() );
+        barGoLink bar2(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -625,7 +625,7 @@ void PoolHandler::LoadFromDB()
             SearchPair p(child_pool_id, mother_pool_id);
             mPoolSearchMap.insert(p);
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
 
         // Now check for circular reference
         for (uint16 i=0; i<max_pool_id; ++i)
@@ -652,7 +652,7 @@ void PoolHandler::LoadFromDB()
         }
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u pools in mother pools", count );
+        sLog.outString(">> Loaded %u pools in mother pools", count);
     }
 }
 
@@ -707,7 +707,7 @@ void PoolHandler::SpawnPool<Pool>(uint16 pool_id, uint32 sub_pool_id)
         mPoolPoolGroups[pool_id].SpawnObject(mSpawnedData, mPoolTemplate[pool_id].MaxLimit, sub_pool_id);
 }
 
-void PoolHandler::SpawnPool( uint16 pool_id )
+void PoolHandler::SpawnPool(uint16 pool_id)
 {
     SpawnPool<Pool>(pool_id, 0);
     SpawnPool<GameObject>(pool_id, 0);

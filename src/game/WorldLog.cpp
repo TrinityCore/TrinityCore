@@ -38,7 +38,7 @@ WorldLog::WorldLog() : i_file(NULL)
 
 WorldLog::~WorldLog()
 {
-    if ( i_file != NULL )
+    if (i_file != NULL)
         fclose(i_file);
     i_file = NULL;
 }
@@ -65,7 +65,7 @@ void WorldLog::Initialize()
 
 void WorldLog::outTimestampLog(char const *fmt, ...)
 {
-    if ( LogWorld() )
+    if (LogWorld())
     {
         Guard guard(*this);
         ASSERT(i_file);
@@ -74,7 +74,7 @@ void WorldLog::outTimestampLog(char const *fmt, ...)
         va_list args;
         va_start(args, fmt);
         vfprintf(i_file, fmt, args);
-        //fprintf(i_file, "\n" );
+        //fprintf(i_file, "\n");
         va_end(args);
 
         fflush(i_file);
@@ -93,7 +93,7 @@ void WorldLog::outTimestampLog(char const *fmt, ...)
 
 void WorldLog::outLog(char const *fmt, ...)
 {
-    if ( LogWorld() )
+    if (LogWorld())
     {
         Guard guard(*this);
         ASSERT(i_file);
@@ -101,7 +101,7 @@ void WorldLog::outLog(char const *fmt, ...)
         va_list args;
         va_start(args, fmt);
         vfprintf(i_file, fmt, args);
-        //fprintf(i_file, "\n" );
+        //fprintf(i_file, "\n");
         va_end(args);
 
         fflush(i_file);

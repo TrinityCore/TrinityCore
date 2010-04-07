@@ -37,7 +37,7 @@ class Totem : public Minion
     public:
         explicit Totem(SummonPropertiesEntry const *properties, Unit *owner);
         virtual ~Totem(){};
-        void Update( uint32 time );
+        void Update(uint32 time);
         void InitStats(uint32 duration);
         void InitSummon();
         void UnSummon();
@@ -51,7 +51,7 @@ class Totem : public Minion
         void UpdateArmor() {}
         void UpdateMaxHealth() {}
         void UpdateMaxPower(Powers /*power*/) {}
-        void UpdateAttackPowerAndDamage(bool /*ranged*/ ) {}
+        void UpdateAttackPowerAndDamage(bool /*ranged*/) {}
         void UpdateDamagePhysical(WeaponAttackType /*attType*/) {}
 
         bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const;

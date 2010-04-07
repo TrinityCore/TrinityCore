@@ -267,8 +267,8 @@ inline bool IsSealSpell(SpellEntry const *spellInfo)
 {
     //Collection of all the seal family flags. No other paladin spell has any of those.
     return spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN &&
-        ( spellInfo->SpellFamilyFlags[1] & 0x26000C00
-        || spellInfo->SpellFamilyFlags[0] & 0x0A000000 );
+        (spellInfo->SpellFamilyFlags[1] & 0x26000C00
+        || spellInfo->SpellFamilyFlags[0] & 0x0A000000);
 }
 
 inline bool IsElementalShield(SpellEntry const *spellInfo)
@@ -392,7 +392,7 @@ inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 
 inline bool IsAreaAuraEffect(uint32 effect)
 {
-    if ( effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
+    if (effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID     ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND   ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY    ||
@@ -546,8 +546,8 @@ enum ProcFlags
    PROC_FLAG_TAKEN_ANY_DAMAGE                = 0x00100000,    // 20 Taken any damage
    PROC_FLAG_ON_TRAP_ACTIVATION              = 0x00200000,    // 21 On trap activation (possibly needs name change to ON_GAMEOBJECT_CAST or USE)
 
-   PROC_FLAG_TAKEN_OFFHAND_HIT               = 0x00400000,    // 22 Taken off-hand melee attacks ( this is probably wrong )
-   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT          = 0x00800000,    // 23 Successful off-hand melee attacks ( this is probably wrong )
+   PROC_FLAG_TAKEN_OFFHAND_HIT               = 0x00400000,    // 22 Taken off-hand melee attacks (this is probably wrong)
+   PROC_FLAG_SUCCESSFUL_OFFHAND_HIT          = 0x00800000,    // 23 Successful off-hand melee attacks (this is probably wrong)
 
    PROC_FLAG_DEATH                           = 0x01000000     // 24 Died in any way
 };
@@ -748,7 +748,7 @@ struct SpellArea
     uint32 areaId;                                          // zone/subzone/or 0 is not limited to zone
     uint32 questStart;                                      // quest start (quest must be active or rewarded for spell apply)
     uint32 questEnd;                                        // quest end (quest don't must be rewarded for spell apply)
-    int32  auraSpell;                                       // spell aura must be applied for spell apply )if possitive) and it don't must be applied in other case
+    int32  auraSpell;                                       // spell aura must be applied for spell apply)if possitive) and it don't must be applied in other case
     uint32 raceMask;                                        // can be applied only to races
     Gender gender;                                          // can be applied only to gender
     bool questStartCanActive;                               // if true then quest start can be active (not only rewarded)
@@ -885,7 +885,7 @@ class SpellMgr
         uint32 IsSpellMemberOfSpellGroup(uint32 spellid, SpellGroup groupid) const
         {
             SpellSpellGroupMapBounds spellGroup = GetSpellSpellGroupMapBounds(spellid);
-            for ( SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
+            for (SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
             {
                 if (itr->second == groupid)
                     return true;
@@ -909,7 +909,7 @@ class SpellMgr
             usedGroups.insert(group_id);
 
             SpellGroupSpellMapBounds groupSpell = GetSpellGroupSpellMapBounds(group_id);
-            for ( SpellGroupSpellMap::const_iterator itr = groupSpell.first; itr != groupSpell.second ; ++itr)
+            for (SpellGroupSpellMap::const_iterator itr = groupSpell.first; itr != groupSpell.second ; ++itr)
             {
                 if (itr->second < 0)
                 {
@@ -932,13 +932,13 @@ class SpellMgr
             // find SpellGroups which are common for both spells
             SpellSpellGroupMapBounds spellGroup1 = GetSpellSpellGroupMapBounds(spellid_1);
             std::set<SpellGroup> groups;
-            for ( SpellSpellGroupMap::const_iterator itr = spellGroup1.first; itr != spellGroup1.second ; ++itr)
+            for (SpellSpellGroupMap::const_iterator itr = spellGroup1.first; itr != spellGroup1.second ; ++itr)
             {
                 if (IsSpellMemberOfSpellGroup(spellid_2, itr->second))
                 {
                     bool add = true;
                     SpellGroupSpellMapBounds groupSpell = GetSpellGroupSpellMapBounds(itr->second);
-                    for ( SpellGroupSpellMap::const_iterator itr2 = groupSpell.first; itr2 != groupSpell.second ; ++itr2)
+                    for (SpellGroupSpellMap::const_iterator itr2 = groupSpell.first; itr2 != groupSpell.second ; ++itr2)
                     {
                         if (itr2->second < 0)
                         {
@@ -981,17 +981,17 @@ class SpellMgr
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const
         {
             SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
-            if ( itr != mSpellProcEventMap.end( ) )
+            if (itr != mSpellProcEventMap.end())
                 return &itr->second;
             return NULL;
         }
 
-        bool IsSpellProcEventCanTriggeredBy( SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
+        bool IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active);
 
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
         {
             SpellEnchantProcEventMap::const_iterator itr = mSpellEnchantProcEventMap.find(enchId);
-            if ( itr != mSpellEnchantProcEventMap.end( ) )
+            if (itr != mSpellEnchantProcEventMap.end())
                 return &itr->second;
             return NULL;
         }
@@ -1001,13 +1001,13 @@ class SpellMgr
         {
             // Lookup data
             SpellBonusMap::const_iterator itr = mSpellBonusMap.find(spellId);
-            if ( itr != mSpellBonusMap.end( ) )
+            if (itr != mSpellBonusMap.end())
                 return &itr->second;
             // Not found, try lookup for 1 spell rank if exist
             if (uint32 rank_1 = GetFirstSpellInChain(spellId))
             {
                 SpellBonusMap::const_iterator itr2 = mSpellBonusMap.find(rank_1);
-                if ( itr2 != mSpellBonusMap.end( ) )
+                if (itr2 != mSpellBonusMap.end())
                     return &itr2->second;
             }
             return NULL;
@@ -1016,8 +1016,8 @@ class SpellMgr
         // Spell target coordinates
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
-            SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find( spell_id );
-            if ( itr != mSpellTargetPositions.end( ) )
+            SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find(spell_id);
+            if (itr != mSpellTargetPositions.end())
                 return &itr->second;
             return NULL;
         }

@@ -20,8 +20,8 @@
 #include "Policies/SingletonImp.h"
 #include "World.h"
 
-INSTANTIATE_SINGLETON_1( AllianceChannelMgr );
-INSTANTIATE_SINGLETON_1( HordeChannelMgr );
+INSTANTIATE_SINGLETON_1(AllianceChannelMgr);
+INSTANTIATE_SINGLETON_1(HordeChannelMgr);
 
 ChannelMgr* channelMgr(uint32 team)
 {

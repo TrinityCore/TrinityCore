@@ -1254,7 +1254,7 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
             {
                 if (pPlayer->GetMoney() < 10000000)
                 {
-                    pPlayer->SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
                     pPlayer->PlayerTalkClass->CloseGossip();
                     break;
                 }
@@ -1822,7 +1822,7 @@ struct npc_ebon_gargoyleAI : CasterAI
     // Fly away when dismissed
     void SpellHit(Unit *source, const SpellEntry *spell)
     {
-        if (spell->Id != 50515 || !me->isAlive() )
+        if (spell->Id != 50515 || !me->isAlive())
             return;
 
         Unit *owner = me->GetOwner();

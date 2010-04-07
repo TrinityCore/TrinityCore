@@ -71,18 +71,18 @@ void LoadRandomEnchantmentsTable()
             chance = fields[2].GetFloat();
 
             if (chance > 0.000001f && chance <= 100.0f)
-                RandomItemEnch[entry].push_back( EnchStoreItem(ench, chance) );
+                RandomItemEnch[entry].push_back(EnchStoreItem(ench, chance));
 
             ++count;
         } while (result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u Item Enchantment definitions", count );
+        sLog.outString(">> Loaded %u Item Enchantment definitions", count);
     }
     else
     {
         sLog.outString();
-        sLog.outErrorDb( ">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+        sLog.outErrorDb(">> Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
     }
 }
 

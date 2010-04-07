@@ -49,7 +49,7 @@ namespace FactorySelector
         // AIname in db
         std::string ainame=creature->GetAIName();
         if (!ai_factory && !ainame.empty())
-            ai_factory = ai_registry.GetRegistryItem( ainame.c_str() );
+            ai_factory = ai_registry.GetRegistryItem(ainame.c_str());
 
         // select by NPC flags
         if (!ai_factory)
@@ -85,9 +85,9 @@ namespace FactorySelector
             {
                 const CreatureAICreator *factory = iter->second;
                 const SelectableAI *p = dynamic_cast<const SelectableAI *>(factory);
-                assert( p != NULL );
+                assert(p != NULL);
                 int val = p->Permit(creature);
-                if ( val > best_val )
+                if (val > best_val)
                 {
                     best_val = val;
                     ai_factory = p;
@@ -98,17 +98,17 @@ namespace FactorySelector
         // select NullCreatureAI if not another cases
         ainame = (ai_factory == NULL) ? "NullCreatureAI" : ai_factory->key();
 
-        DEBUG_LOG("Creature %u used AI is %s.", creature->GetGUIDLow(), ainame.c_str() );
-        return ( ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature) );
+        DEBUG_LOG("Creature %u used AI is %s.", creature->GetGUIDLow(), ainame.c_str());
+        return (ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature));
     }
 
     MovementGenerator* selectMovementGenerator(Creature *creature)
     {
         MovementGeneratorRegistry &mv_registry(MovementGeneratorRepository::Instance());
-        assert( creature->GetCreatureInfo() != NULL );
-        const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem( creature->GetDefaultMovementType());
+        assert(creature->GetCreatureInfo() != NULL);
+        const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
-        /* if ( mv_factory == NULL  )
+        /* if (mv_factory == NULL)
         {
             int best_val = -1;
             std::vector<std::string> l;
@@ -117,9 +117,9 @@ namespace FactorySelector
             {
             const MovementGeneratorCreator *factory = mv_registry.GetRegistryItem((*iter).c_str());
             const SelectableMovement *p = dynamic_cast<const SelectableMovement *>(factory);
-            assert( p != NULL );
+            assert(p != NULL);
             int val = p->Permit(creature);
-            if ( val > best_val )
+            if (val > best_val)
             {
                 best_val = val;
                 mv_factory = p;
@@ -127,7 +127,7 @@ namespace FactorySelector
             }
         }*/
 
-        return ( mv_factory == NULL ? NULL : mv_factory->Create(creature) );
+        return (mv_factory == NULL ? NULL : mv_factory->Create(creature));
 
     }
 }

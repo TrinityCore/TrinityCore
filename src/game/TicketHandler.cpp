@@ -25,7 +25,7 @@
 #include "Player.h"
 #include "World.h"
 
-void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
+void WorldSession::HandleGMTicketCreateOpcode(WorldPacket & recv_data)
 {
     if (GetPlayer()->getLevel() < sWorld.getConfig(CONFIG_TICKET_LEVEL_REQ))
     {
@@ -35,9 +35,9 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
     if (GM_Ticket *ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID()))
     {
-        WorldPacket data( SMSG_GMTICKET_CREATE, 4 );
+        WorldPacket data(SMSG_GMTICKET_CREATE, 4);
         data << uint32(1); // 1 - You already have GM ticket
-        SendPacket( &data );
+        SendPacket(&data);
         return;
     }
 
@@ -79,7 +79,7 @@ void WorldSession::HandleGMTicketCreateOpcode( WorldPacket & recv_data )
 
 }
 
-void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
+void WorldSession::HandleGMTicketUpdateOpcode(WorldPacket & recv_data)
 {
     WorldPacket data(SMSG_GMTICKET_UPDATETEXT, 4);
 
@@ -106,7 +106,7 @@ void WorldSession::HandleGMTicketUpdateOpcode( WorldPacket & recv_data)
 
 }
 
-void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
+void WorldSession::HandleGMTicketDeleteOpcode(WorldPacket & /*recv_data*/)
 {
     GM_Ticket* ticket = objmgr.GetGMTicketByPlayer(GetPlayer()->GetGUID());
 
@@ -116,13 +116,13 @@ void WorldSession::HandleGMTicketDeleteOpcode( WorldPacket & /*recv_data*/)
         data << uint32(9);
         SendPacket(&data);
 
-        sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid );
+        sWorld.SendGMText(LANG_COMMAND_TICKETPLAYERABANDON, GetPlayer()->GetName(), ticket->guid);
         objmgr.RemoveGMTicket(ticket, GetPlayer()->GetGUID(), false);
         SendGMTicketGetTicket(0x0A, 0);
     }
 }
 
-void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
+void WorldSession::HandleGMTicketGetTicketOpcode(WorldPacket & /*recv_data*/)
 {
     SendQueryTimeResponse();
 
@@ -134,7 +134,7 @@ void WorldSession::HandleGMTicketGetTicketOpcode( WorldPacket & /*recv_data*/)
 
 }
 
-void WorldSession::HandleGMTicketSystemStatusOpcode( WorldPacket & /*recv_data*/)
+void WorldSession::HandleGMTicketSystemStatusOpcode(WorldPacket & /*recv_data*/)
 {
     WorldPacket data(SMSG_GMTICKET_SYSTEMSTATUS, 4);
     data << uint32(1);

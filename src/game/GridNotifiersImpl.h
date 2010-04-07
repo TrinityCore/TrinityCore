@@ -368,7 +368,7 @@ void Trinity::CreatureListSearcher<Check>::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (itr->getSource()->InSamePhase(i_phaseMask))
-            if ( i_check(itr->getSource()))
+            if (i_check(itr->getSource()))
                 i_objects.push_back(itr->getSource());
 }
 
@@ -377,7 +377,7 @@ void Trinity::PlayerListSearcher<Check>::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator itr=m.begin(); itr != m.end(); ++itr)
         if (itr->getSource()->InSamePhase(i_phaseMask))
-            if ( i_check(itr->getSource()))
+            if (i_check(itr->getSource()))
                 i_objects.push_back(itr->getSource());
 }
 
@@ -402,7 +402,7 @@ void Trinity::PlayerSearcher<Check>::Visit(PlayerMapType &m)
 }
 
 template<class Builder>
-void Trinity::LocalizedPacketDo<Builder>::operator()( Player* p )
+void Trinity::LocalizedPacketDo<Builder>::operator()(Player* p)
 {
     int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;
@@ -427,7 +427,7 @@ void Trinity::LocalizedPacketDo<Builder>::operator()( Player* p )
 }
 
 template<class Builder>
-void Trinity::LocalizedPacketListDo<Builder>::operator()( Player* p )
+void Trinity::LocalizedPacketListDo<Builder>::operator()(Player* p)
 {
     int32 loc_idx = p->GetSession()->GetSessionDbLocaleIndex();
     uint32 cache_idx = loc_idx+1;

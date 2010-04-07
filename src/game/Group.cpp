@@ -175,7 +175,7 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
         do
         {
             LoadMemberFromDB((*result)[0].GetUInt32(), (*result)[1].GetUInt8(), (*result)[2].GetUInt8());
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         // group too small
         if (GetMembersCount() < 2)
             return false;
@@ -221,12 +221,12 @@ void Group::ConvertToRaid()
 
 bool Group::AddInvite(Player *player)
 {
-    if ( !player || player->GetGroupInvite() )
+    if (!player || player->GetGroupInvite())
         return false;
     Group* group = player->GetGroup();
-    if ( group && group->isBGGroup() )
+    if (group && group->isBGGroup())
         group = player->GetOriginalGroup();
-    if ( group )
+    if (group)
         return false;
 
     RemoveInvite(player);
@@ -334,7 +334,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
     {
         bool leaderChanged = _removeMember(guid);
 
-        if (Player *player = objmgr.GetPlayer( guid ))
+        if (Player *player = objmgr.GetPlayer(guid))
         {
             // quest related GO state dependent from raid membership
             if (isRaidGroup())
@@ -344,12 +344,12 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
 
             if (method == 1)
             {
-                data.Initialize( SMSG_GROUP_UNINVITE, 0 );
-                player->GetSession()->SendPacket( &data );
+                data.Initialize(SMSG_GROUP_UNINVITE, 0);
+                player->GetSession()->SendPacket(&data);
             }
 
             //we already removed player from group and in player->GetGroup() is his original group!
-            if ( Group* group = player->GetGroup() )
+            if (Group* group = player->GetGroup())
             {
                 group->SendUpdate();
             }
@@ -407,12 +407,12 @@ void Group::Disband(bool hideDestroy)
 
         //we cannot call _removeMember because it would invalidate member iterator
         //if we are removing player from battleground raid
-        if ( isBGGroup() )
+        if (isBGGroup())
             player->RemoveFromBattleGroundRaid();
         else
         {
             //we can remove player who is in battleground from his original group
-            if ( player->GetOriginalGroup() == this )
+            if (player->GetOriginalGroup() == this)
                 player->SetOriginalGroup(NULL);
             else
                 player->SetGroup(NULL);
@@ -433,7 +433,7 @@ void Group::Disband(bool hideDestroy)
         }
 
         //we already removed player from group and in player->GetGroup() is his original group, send update
-        if ( Group* group = player->GetGroup() )
+        if (Group* group = player->GetGroup())
         {
             group->SendUpdate();
         }
@@ -489,7 +489,7 @@ void Group::SendLootStartRoll(uint32 CountDown, const Roll &r)
             continue;
 
         if (itr->second != NOT_VALID)
-            p->GetSession()->SendPacket( &data );
+            p->GetSession()->SendPacket(&data);
     }
 }
 
@@ -513,7 +513,7 @@ void Group::SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uin
             continue;
 
         if (itr->second != NOT_VALID)
-            p->GetSession()->SendPacket( &data );
+            p->GetSession()->SendPacket(&data);
     }
 }
 
@@ -536,7 +536,7 @@ void Group::SendLootRollWon(const uint64& SourceGuid, const uint64& TargetGuid, 
             continue;
 
         if (itr->second != NOT_VALID)
-            p->GetSession()->SendPacket( &data );
+            p->GetSession()->SendPacket(&data);
     }
 }
 
@@ -556,7 +556,7 @@ void Group::SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r)
             continue;
 
         if (itr->second != NOT_VALID)
-            p->GetSession()->SendPacket( &data );
+            p->GetSession()->SendPacket(&data);
     }
 }
 
@@ -790,7 +790,7 @@ void Group::CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 N
 //called when roll timer expires
 void Group::EndRoll(Loot *pLoot)
 {
-    for (Rolls::iterator itr = RollId.begin(); itr != RollId.end(); )
+    for (Rolls::iterator itr = RollId.begin(); itr != RollId.end();)
     {
         if ((*itr)->getLoot() == pLoot) {
             CountTheRoll(itr, GetMembersCount());           //i don't have to edit player votes, who didn't vote ... he will pass
@@ -847,12 +847,12 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
                     item->is_looted = true;
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     roll->getLoot()->unlootedCount--;
-                    player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId);
+                    player->StoreNewItem(dest, roll->itemid, true, item->randomPropertyId);
                 }
                 else
                 {
                     item->is_blocked = false;
-                    player->SendEquipError( msg, NULL, NULL );
+                    player->SendEquipError(msg, NULL, NULL);
                 }
             }
         }
@@ -937,9 +937,9 @@ void Group::SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid)
         return;
 
     // clean other icons
-    if ( targetGuid != 0 )
+    if (targetGuid != 0)
         for (int i=0; i<TARGETICONCOUNT; ++i)
-            if ( m_targetIcons[i] == targetGuid )
+            if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, 0, 0);
 
     m_targetIcons[id] = targetGuid;
@@ -969,7 +969,7 @@ void Group::GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_lev
             member_with_max_level = member;
 
         uint32 gray_level = Trinity::XP::GetGrayLevel(member->getLevel());
-        if ( victim->getLevel() > gray_level && (!not_gray_member_with_max_level
+        if (victim->getLevel() > gray_level && (!not_gray_member_with_max_level
            || not_gray_member_with_max_level->getLevel() < member->getLevel()))
             not_gray_member_with_max_level = member;
     }
@@ -1001,7 +1001,7 @@ void Group::SendUpdate()
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
         player = objmgr.GetPlayer(citr->guid);
-        if (!player || !player->GetSession() || player->GetGroup() != this )
+        if (!player || !player->GetSession() || player->GetGroup() != this)
             continue;
 
         WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
@@ -1043,7 +1043,7 @@ void Group::SendUpdate()
             data << uint8(m_raidDifficulty);                // Raid Difficulty
             data << uint8(0);                               // 3.3
         }
-        player->GetSession()->SendPacket( &data );
+        player->GetSession()->SendPacket(&data);
     }
 }
 
@@ -1069,7 +1069,7 @@ void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int
     for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *pl = itr->getSource();
-        if (!pl || (ignore != 0 && pl->GetGUID() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this) )
+        if (!pl || (ignore != 0 && pl->GetGUID() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this))
             continue;
 
         if (pl->GetSession() && (group==-1 || itr->getSubGroup()==group))
@@ -1149,10 +1149,10 @@ bool Group::_addMember(const uint64 &guid, const char* name, uint8 group)
     {
         player->SetGroupInvite(NULL);
         //if player is in group and he is being added to BG raid group, then call SetBattleGroundRaid()
-        if ( player->GetGroup() && isBGGroup() )
+        if (player->GetGroup() && isBGGroup())
             player->SetBattleGroundRaid(this, group);
         //if player is in bg raid and we are adding him to normal group, then call SetOriginalGroup()
-        else if ( player->GetGroup() )
+        else if (player->GetGroup())
             player->SetOriginalGroup(this, group);
         //if player is not in group, then call set group
         else
@@ -1184,12 +1184,12 @@ bool Group::_removeMember(const uint64 &guid)
     if (player)
     {
         //if we are removing player from battleground raid
-        if ( isBGGroup() )
+        if (isBGGroup())
             player->RemoveFromBattleGroundRaid();
         else
         {
             //we can remove player who is in battleground from his original group
-            if ( player->GetOriginalGroup() == this )
+            if (player->GetOriginalGroup() == this)
                 player->SetOriginalGroup(NULL);
             else
                 player->SetGroup(NULL);
@@ -1239,7 +1239,7 @@ void Group::_setLeader(const uint64 &guid)
             "DELETE FROM group_instance WHERE leaderguid='%u' AND (permanent = 1 OR "
             "instance IN (SELECT instance FROM character_instance WHERE guid = '%u')"
             ")", GUID_LOPART(m_leaderGuid), GUID_LOPART(slot->guid)
-        );
+);
 
         Player *player = objmgr.GetPlayer(slot->guid);
         if (player)
@@ -1391,7 +1391,7 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
     if (_setMembersGroup(player->GetGUID(), group))
     {
         uint8 prevSubGroup = player->GetSubGroup();
-        if ( player->GetGroup() == this )
+        if (player->GetGroup() == this)
             player->GetGroupRef().setSubGroup(group);
         //if player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
         else
@@ -1601,7 +1601,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
     // we assume that when the difficulty changes, all instances that can be reset will be
     Difficulty diff = GetDifficulty(isRaid);
 
-    for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end(); )
+    for (BoundInstancesMap::iterator itr = m_boundInstances[diff].begin(); itr != m_boundInstances[diff].end();)
     {
         InstanceSave *p = itr->second.save;
         const MapEntry *entry = sMapStore.LookupEntry(itr->first);

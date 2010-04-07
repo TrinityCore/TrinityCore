@@ -43,10 +43,10 @@ HomeMovementGenerator<Creature>::Reset(Creature &)
 void
 HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
 {
-    if ( !&owner )
+    if (!&owner)
         return;
 
-    if ( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) )
+    if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
         return;
 
     float x, y, z;
@@ -62,7 +62,7 @@ HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
 bool
 HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff)
 {
-    CreatureTraveller traveller( owner);
+    CreatureTraveller traveller(owner);
     i_destinationHolder.UpdateTraveller(traveller, time_diff);
 
     if (time_diff > i_travel_timer)
