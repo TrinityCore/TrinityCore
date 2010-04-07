@@ -827,7 +827,7 @@ bool ChatHandler::HasLowerSecurityAccount(WorldSession* target, uint32 target_ac
     else if (target_account)
         target_sec = accmgr.GetSecurity(target_account);
     else
-        return true;                                        // caller must report error for (target==NULL && target_account==0)
+        return true;                                        // caller must report error for (target == NULL && target_account == 0)
 
     if (m_session->GetSecurity() < target_sec || (strong && m_session->GetSecurity() <= target_sec))
     {
@@ -1058,7 +1058,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand *table, const char* text,
     // in case "" command let process by caller
     if (!cmd.empty())
     {
-        if (table==getCommandTable())
+        if (table == getCommandTable())
             sLog.outErrorDb("Table `command` have not existed command '%s', skip.",cmd.c_str());
         else
             sLog.outErrorDb("Table `command` have not existed subcommand '%s' in command '%s', skip.",cmd.c_str(),fullcommand.c_str());
@@ -1347,7 +1347,7 @@ valid examples:
                     }
 
                     // ignore other integers
-                    while ((c >='0' && c <='9') || c==':')
+                    while ((c >='0' && c <='9') || c == ':')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1724,7 +1724,7 @@ bool ChatHandler::ShowHelpForSubCommands(ChatCommand *table, char const* cmd, ch
     if (list.empty())
         return false;
 
-    if (table==getCommandTable())
+    if (table == getCommandTable())
     {
         SendSysMessage(LANG_AVIABLE_CMD);
         PSendSysMessage("%s",list.c_str());
@@ -1927,7 +1927,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
         return NULL;
 
     // skip spaces
-    while (*text==' '||*text=='\t'||*text=='\b')
+    while (*text == ' '||*text == '\t'||*text == '\b')
         ++text;
 
     if (!*text)
@@ -1975,7 +1975,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
         return NULL;
 
     // skip spaces
-    while (*text==' '||*text=='\t'||*text=='\b')
+    while (*text == ' '||*text == '\t'||*text == '\b')
         ++text;
 
     if (!*text)
@@ -1993,7 +1993,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
 
     char* tail;
 
-    if (text[1]=='c')
+    if (text[1] == 'c')
     {
         char* check = strtok(text, "|");                    // skip color
         if (!check)
@@ -2347,7 +2347,7 @@ char* ChatHandler::extractQuotedArg(char* args)
     if (!*args)
         return NULL;
 
-    if (*args=='"')
+    if (*args == '"')
         return strtok(args+1, "\"");
     else
     {

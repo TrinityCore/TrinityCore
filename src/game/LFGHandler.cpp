@@ -39,7 +39,7 @@ static void AttemptJoin(Player* _player)
         Player *plr = iter->second;
 
         // skip enemies and self
-        if (!plr || plr==_player || plr->GetTeam() != _player->GetTeam())
+        if (!plr || plr == _player || plr->GetTeam() != _player->GetTeam())
             continue;
 
         //skip players not in world
@@ -99,7 +99,7 @@ static void AttemptAddMore(Player* _player)
         Player *plr = iter->second;
 
         // skip enemies and self
-        if (!plr || plr==_player || plr->GetTeam() != _player->GetTeam())
+        if (!plr || plr == _player || plr->GetTeam() != _player->GetTeam())
             continue;
 
         if (!plr->IsInWorld())

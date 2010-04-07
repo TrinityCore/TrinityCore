@@ -987,7 +987,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
         if (old_cell.DiffCell(new_cell))
         {
             #ifdef TRINITY_DEBUG
-            if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+            if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
                 sLog.outDebug("Creature (GUID: %u Entry: %u) moved in grid[%u,%u] from cell[%u,%u] to cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
             #endif
 
@@ -997,7 +997,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
         else
         {
             #ifdef TRINITY_DEBUG
-            if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+            if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
                 sLog.outDebug("Creature (GUID: %u Entry: %u) move in same grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY());
             #endif
         }
@@ -1011,7 +1011,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
         EnsureGridLoadedAtEnter(new_cell);
 
         #ifdef TRINITY_DEBUG
-        if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+        if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
             sLog.outDebug("Active creature (GUID: %u Entry: %u) moved from grid[%u,%u]cell[%u,%u] to grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
@@ -1025,7 +1025,7 @@ bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
     if (loaded(GridPair(new_cell.GridX(), new_cell.GridY())))
     {
         #ifdef TRINITY_DEBUG
-        if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+        if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
             sLog.outDebug("Creature (GUID: %u Entry: %u) moved from grid[%u,%u]cell[%u,%u] to grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
@@ -1056,7 +1056,7 @@ bool Map::CreatureRespawnRelocation(Creature *c)
     c->GetMotionMaster()->Clear();
 
     #ifdef TRINITY_DEBUG
-    if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES)==0)
+    if ((sLog.getLogFilter() & LOG_FILTER_CREATURE_MOVES) == 0)
         sLog.outDebug("Creature (GUID: %u Entry: %u) will moved from grid[%u,%u]cell[%u,%u] to respawn grid[%u,%u]cell[%u,%u].", c->GetGUIDLow(), c->GetEntry(), c->GetCurrentCell().GridX(), c->GetCurrentCell().GridY(), c->GetCurrentCell().CellX(), c->GetCurrentCell().CellY(), resp_cell.GridX(), resp_cell.GridY(), resp_cell.CellX(), resp_cell.CellY());
     #endif
 
@@ -2152,7 +2152,7 @@ void Map::SendInitTransports(Player * player)
     for (MapManager::TransportSet::const_iterator i = tset.begin(); i != tset.end(); ++i)
     {
         // send data for current transport in other place
-        if ((*i) != player->GetTransport() && (*i)->GetMapId()==GetId())
+        if ((*i) != player->GetTransport() && (*i)->GetMapId() == GetId())
         {
             (*i)->BuildCreateUpdateBlockForPlayer(&transData, player);
         }
@@ -2217,7 +2217,7 @@ void Map::DelayedUpdate(const uint32 t_diff)
 
 void Map::AddObjectToRemoveList(WorldObject *obj)
 {
-    assert(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
+    assert(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
     obj->CleanupsBeforeDelete(false);                            // remove or simplify at least cross referenced links
 
@@ -2227,7 +2227,7 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 
 void Map::AddObjectToSwitchList(WorldObject *obj, bool on)
 {
-    assert(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
+    assert(obj->GetMapId() == GetId() && obj->GetInstanceId() == GetInstanceId());
 
     std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.find(obj);
     if (itr == i_objectsToSwitch.end())
@@ -2848,7 +2848,7 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
     // prepare static data
     uint64 sourceGUID = source ? source->GetGUID() : (uint64)0; //some script commands doesn't have source
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
-    uint64 ownerGUID  = (source->GetTypeId()==TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
+    uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
 
     ///- Schedule script execution for all scripts in the script map
     ScriptMap const *s2 = &(s->second);
@@ -2883,7 +2883,7 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     // prepare static data
     uint64 sourceGUID = source ? source->GetGUID() : (uint64)0;
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
-    uint64 ownerGUID  = (source->GetTypeId()==TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
+    uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
 
     ScriptAction sa;
     sa.sourceGUID = sourceGUID;
@@ -2924,7 +2924,7 @@ void Map::ScriptsProcess()
             switch(GUID_HIPART(step.sourceGUID))
             {
                 case HIGHGUID_ITEM:
-                // case HIGHGUID_CONTAINER: ==HIGHGUID_ITEM
+                // case HIGHGUID_CONTAINER:  == HIGHGUID_ITEM
                 {
                     Player* player = HashMapHolder<Player>::Find(step.ownerGUID);
                     if (player)
@@ -3260,10 +3260,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                if (go->GetGoType()==GAMEOBJECT_TYPE_FISHINGNODE ||
-                    go->GetGoType()==GAMEOBJECT_TYPE_DOOR        ||
-                    go->GetGoType()==GAMEOBJECT_TYPE_BUTTON      ||
-                    go->GetGoType()==GAMEOBJECT_TYPE_TRAP)
+                if (go->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE ||
+                    go->GetGoType() == GAMEOBJECT_TYPE_DOOR        ||
+                    go->GetGoType() == GAMEOBJECT_TYPE_BUTTON      ||
+                    go->GetGoType() == GAMEOBJECT_TYPE_TRAP)
                 {
                     sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT can not be used with gameobject of type %u (guid: %u).", uint32(go->GetGoType()), step.script->datalong);
                     break;
@@ -3329,7 +3329,7 @@ void Map::ScriptsProcess()
 
                 door->UseDoorOrButton(time_to_close);
 
-                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType()==GAMEOBJECT_TYPE_BUTTON)
+                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
                     ((GameObject*)target)->UseDoorOrButton(time_to_close);
                 break;
             }
@@ -3384,7 +3384,7 @@ void Map::ScriptsProcess()
 
                 door->UseDoorOrButton(time_to_open);
 
-                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType()==GAMEOBJECT_TYPE_BUTTON)
+                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
                     ((GameObject*)target)->UseDoorOrButton(time_to_open);
 
                 break;
@@ -3438,7 +3438,7 @@ void Map::ScriptsProcess()
 
                 // quest id and flags checked at script loading
                 if ((worldObject->GetTypeId()!=TYPEID_UNIT || ((Unit*)worldObject)->isAlive()) &&
-                    (step.script->datalong2==0 || worldObject->IsWithinDistInMap(player,float(step.script->datalong2))))
+                    (step.script->datalong2 == 0 || worldObject->IsWithinDistInMap(player,float(step.script->datalong2))))
                     player->AreaExploredOrEventHappens(step.script->datalong);
                 else
                     player->FailQuest(step.script->datalong);

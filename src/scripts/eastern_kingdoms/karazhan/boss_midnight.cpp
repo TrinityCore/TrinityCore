@@ -94,7 +94,7 @@ struct boss_midnightAI : public ScriptedAI
             if (Unit *pAttumen = Unit::GetUnit(*m_creature, Attumen))
                 Mount(pAttumen);
         }
-        else if (Phase ==3)
+        else if (Phase  == 3)
         {
             if (Mount_Timer)
             {

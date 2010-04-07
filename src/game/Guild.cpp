@@ -1994,7 +1994,7 @@ void Guild::SwapItems(Player * pl, uint8 BankTab, uint8 BankTabSlot, uint8 BankT
             CharacterDatabase.CommitTransaction();
         }
     }
-    DisplayGuildBankContentUpdate(BankTab,BankTabSlot,BankTab==BankTabDst ? BankTabSlotDst : -1);
+    DisplayGuildBankContentUpdate(BankTab,BankTabSlot,BankTab == BankTabDst ? BankTabSlotDst : -1);
     if (BankTab != BankTabDst)
         DisplayGuildBankContentUpdate(BankTabDst,BankTabSlotDst);
 }

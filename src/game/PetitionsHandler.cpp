@@ -256,12 +256,12 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     uint32 type = fields[0].GetUInt32();
 
     // if guild petition and has guild => error, return;
-    if (type==9 && _player->GetGuildId())
+    if (type == 9 && _player->GetGuildId())
         return;
 
     result = CharacterDatabase.PQuery("SELECT playerguid FROM petition_sign WHERE petitionguid = '%u'", petitionguid_low);
 
-    // result==NULL also correct in case no sign yet
+    // result == NULL also correct in case no sign yet
     if (result)
         signs = result->GetRowCount();
 
@@ -662,7 +662,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     }
 
     result = CharacterDatabase.PQuery("SELECT playerguid FROM petition_sign WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
-    // result==NULL also correct charter without signs
+    // result == NULL also correct charter without signs
     if (result)
         signs = result->GetRowCount();
 

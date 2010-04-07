@@ -732,7 +732,7 @@ bool GameObject::hasQuest(uint32 quest_id) const
     QuestRelations const& qr = objmgr.mGOQuestRelations;
     for (QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
     {
-        if (itr->second==quest_id)
+        if (itr->second == quest_id)
             return true;
     }
     return false;
@@ -743,7 +743,7 @@ bool GameObject::hasInvolvedQuest(uint32 quest_id) const
     QuestRelations const& qr = objmgr.mGOQuestInvolvedRelations;
     for (QuestRelations::const_iterator itr = qr.lower_bound(GetEntry()); itr != qr.upper_bound(GetEntry()); ++itr)
     {
-        if (itr->second==quest_id)
+        if (itr->second == quest_id)
             return true;
     }
     return false;
@@ -1293,7 +1293,7 @@ void GameObject::Use(Unit* user)
                 return;
 
             // accept only use by player from same group for caster except caster itself
-            if (caster->ToPlayer()==player || !caster->ToPlayer()->IsInSameRaidWith(player))
+            if (caster->ToPlayer() == player || !caster->ToPlayer()->IsInSameRaidWith(player))
                 return;
 
             AddUniqueUse(player);
@@ -1309,7 +1309,7 @@ void GameObject::Use(Unit* user)
                 return;
 
             spellId = info->summoningRitual.spellId;
-            if (spellId==62330)                              // GO store not existed spell, replace by expected
+            if (spellId == 62330)                              // GO store not existed spell, replace by expected
             {
                 // spell have reagent and mana cost but it not expected use its
                 // it triggered spell in fact casted at currently channeled GO
@@ -1372,7 +1372,7 @@ void GameObject::Use(Unit* user)
             if (level < info->meetingstone.minLevel)
                 return;
 
-            if (info->id==194097)
+            if (info->id == 194097)
                 spellId = 61994;                            // Ritual of Summoning
             else
                 spellId = 59782;                            // Summoning Stone Effect

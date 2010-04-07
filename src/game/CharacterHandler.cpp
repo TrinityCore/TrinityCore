@@ -309,7 +309,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
 
     // speedup check for heroic class disabled case
     uint32 heroic_free_slots = sWorld.getConfig(CONFIG_HEROIC_CHARACTERS_PER_REALM);
-    if (heroic_free_slots==0 && GetSecurity()==SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
+    if (heroic_free_slots == 0 && GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
     {
         data << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
         SendPacket(&data);
@@ -318,7 +318,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
 
     // speedup check for heroic class disabled case
     uint32 req_level_for_heroic = sWorld.getConfig(CONFIG_MIN_LEVEL_FOR_HEROIC_CHARACTER_CREATING);
-    if (GetSecurity()==SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT && req_level_for_heroic > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
+    if (GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT && req_level_for_heroic > sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         data << (uint8)CHAR_CREATE_LEVEL_REQUIREMENT;
         SendPacket(&data);
@@ -331,7 +331,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     bool have_same_race = false;
 
     // if 0 then allowed creating without any characters
-    bool have_req_level_for_heroic = (req_level_for_heroic==0);
+    bool have_req_level_for_heroic = (req_level_for_heroic == 0);
 
     if (!AllowTwoSideAccounts || skipCinematics == 1 || class_ == CLASS_DEATH_KNIGHT)
     {
@@ -344,7 +344,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
             Field* field = result2->Fetch();
             uint8 acc_race  = field[1].GetUInt32();
 
-            if (GetSecurity()==SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
+            if (GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
             {
                 uint8 acc_class = field[2].GetUInt32();
                 if (acc_class == CLASS_DEATH_KNIGHT)
@@ -352,7 +352,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
                     if (heroic_free_slots > 0)
                         --heroic_free_slots;
 
-                    if (heroic_free_slots==0)
+                    if (heroic_free_slots == 0)
                     {
                         data << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
                         SendPacket(&data);
@@ -397,7 +397,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
                 if (!have_same_race)
                     have_same_race = race_ == acc_race;
 
-                if (GetSecurity()==SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
+                if (GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT)
                 {
                     uint8 acc_class = field[2].GetUInt32();
                     if (acc_class == CLASS_DEATH_KNIGHT)
@@ -405,7 +405,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
                         if (heroic_free_slots > 0)
                             --heroic_free_slots;
 
-                        if (heroic_free_slots==0)
+                        if (heroic_free_slots == 0)
                         {
                             data << (uint8)CHAR_CREATE_UNIQUE_CLASS_LIMIT;
                             SendPacket(&data);
@@ -424,7 +424,7 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
         }
     }
 
-    if (GetSecurity()==SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT && !have_req_level_for_heroic)
+    if (GetSecurity() == SEC_PLAYER && class_ == CLASS_DEATH_KNIGHT && !have_req_level_for_heroic)
     {
         data << (uint8)CHAR_CREATE_LEVEL_REQUIREMENT;
         SendPacket(&data);
@@ -572,7 +572,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
      // for send server info and strings (config)
     ChatHandler chH = ChatHandler(pCurrChar);
 
-    // "GetAccountId()==db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
+    // "GetAccountId() == db stored account id" checked in LoadFromDB (prevent login not own character using cheating tools)
     if (!pCurrChar->LoadFromDB(GUID_LOPART(playerGuid), holder))
     {
         KickPlayer();                                       // disconnect client, player no set to session and it will not deleted or saved at kick

@@ -293,7 +293,7 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if (phase==0)
+        if (phase == 0)
         {
             phase = 1;
             check = 0;

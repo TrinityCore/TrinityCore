@@ -70,7 +70,7 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
         owner.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
         // restore orientation of not moving creature at returning to home
-        if (owner.GetDefaultMovementType()==IDLE_MOTION_TYPE)
+        if (owner.GetDefaultMovementType() == IDLE_MOTION_TYPE)
         {
             //sLog.outDebug("Entering HomeMovement::GetDestination(z,y,z)");
             owner.SetOrientation(ori);

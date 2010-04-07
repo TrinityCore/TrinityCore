@@ -586,7 +586,7 @@ void WorldSession::LoadAccountData(QueryResult_AutoPtr result, uint32 mask)
             continue;
         }
 
-        if ((mask & (1 << type))==0)
+        if ((mask & (1 << type)) == 0)
         {
             sLog.outError("Table `%s` have non appropriate for table  account data type (%u), ignore.",
                 mask == GLOBAL_CACHE_MASK ? "account_data" : "character_account_data", type);

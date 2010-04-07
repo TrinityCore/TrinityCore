@@ -59,13 +59,13 @@ EndScriptData */
 #define SOUND_INTRO 12090
 
 //Spells:
-// ====== Troll Form
+//====== Troll Form
 #define SPELL_WHIRLWIND             17207
 #define SPELL_GRIEVOUS_THROW        43093   // remove debuff after full healed
-// ====== Bear Form
+//====== Bear Form
 #define SPELL_CREEPING_PARALYSIS    43095   // should cast on the whole raid
 #define SPELL_OVERPOWER             43456   // use after melee attack dodged
-// ====== Eagle Form
+//====== Eagle Form
 #define SPELL_ENERGY_STORM          43983   // enemy area aura, trigger 42577
 #define SPELL_ZAP_INFORM            42577
 #define SPELL_ZAP_DAMAGE            43137   // 1250 damage

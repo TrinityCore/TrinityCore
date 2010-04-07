@@ -931,7 +931,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
             if (Spawn)
             {
                 Spawn->LoadCreaturesAddon();
-                if (Spawn->GetGUID()== 15423)
+                if (Spawn->GetGUID() ==  15423)
                     Spawn->SetUInt32Value(UNIT_FIELD_DISPLAYID,15427+rand()%4);
                 if (i >= 30) WaveCount = 1;
                 if (i >= 33) WaveCount = 2;

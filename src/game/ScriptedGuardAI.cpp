@@ -183,7 +183,7 @@ void guardAI::DoReplyToTextEmote(uint32 em)
 
 void guardAI_orgrimmar::ReceiveEmote(Player* pPlayer, uint32 text_emote)
 {
-    if (pPlayer->GetTeam()==HORDE)
+    if (pPlayer->GetTeam() == HORDE)
         DoReplyToTextEmote(text_emote);
 }
 
