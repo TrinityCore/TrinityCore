@@ -151,7 +151,7 @@ struct boss_tyrannusAI : public ScriptedAI
         if (m_creature->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -216,7 +216,7 @@ struct boss_rimefangAI : public ScriptedAI
         if (m_creature->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

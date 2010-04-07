@@ -168,7 +168,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
                 LackeyEntryList[i] = m_auiAddEntries[i];
 
             //remove random entries
-            while(LackeyEntryList.size() > MAX_ACTIVE_LACKEY)
+            while (LackeyEntryList.size() > MAX_ACTIVE_LACKEY)
                 LackeyEntryList.erase(LackeyEntryList.begin() + rand()%LackeyEntryList.size());
 
             //summon all the remaining in vector

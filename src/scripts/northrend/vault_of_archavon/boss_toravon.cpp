@@ -104,7 +104,7 @@ struct boss_toravonAI : public ScriptedAI
         if (m_creature->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -157,7 +157,7 @@ struct mob_frost_warderAI : public ScriptedAI
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

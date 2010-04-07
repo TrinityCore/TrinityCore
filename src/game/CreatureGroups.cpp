@@ -144,7 +144,7 @@ void CreatureGroupManager::LoadCreatureFormations()
 
         CreatureGroupMap[memberGUID] = group_member;
     }
-    while(result->NextRow()) ;
+    while (result->NextRow()) ;
 
     sLog.outString();
     sLog.outString( ">> Loaded %u creatures in formations", total_records );

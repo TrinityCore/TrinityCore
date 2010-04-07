@@ -202,7 +202,7 @@ struct boss_shahrazAI : public ScriptedAI
             ++BeamCount;
             uint32 Beam = CurrentBeam;
             if (BeamCount > 3)
-                while(CurrentBeam == Beam)
+                while (CurrentBeam == Beam)
                     CurrentBeam = rand()%3;
 
         } else BeamTimer -= diff;

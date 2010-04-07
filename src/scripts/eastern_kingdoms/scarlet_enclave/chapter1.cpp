@@ -259,7 +259,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

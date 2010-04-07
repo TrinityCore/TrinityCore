@@ -76,7 +76,7 @@ WorldSession::~WorldSession()
 
     ///- empty incoming packet queue
     WorldPacket* packet;
-    while(_recvQueue.next(packet))
+    while (_recvQueue.next(packet))
         delete packet;
 
     loginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
@@ -296,7 +296,7 @@ bool WorldSession::Update(uint32 /*diff*/)
 void WorldSession::LogoutPlayer(bool Save)
 {
     // finish pending transfers before starting the logout
-    while(_player && _player->IsBeingTeleportedFar())
+    while (_player && _player->IsBeingTeleportedFar())
         HandleMoveWorldportAckOpcode();
 
     m_playerLogout = true;
@@ -381,7 +381,7 @@ void WorldSession::LogoutPlayer(bool Save)
 
         // Repop at GraveYard or other player far teleport will prevent saving player because of not present map
         // Teleport player immediately for correct player save
-        while(_player->IsBeingTeleportedFar())
+        while (_player->IsBeingTeleportedFar())
             HandleMoveWorldportAckOpcode();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
@@ -656,7 +656,7 @@ void WorldSession::LoadTutorialsData()
             for (int iI = 0; iI < 8; ++iI)
                 m_Tutorials[iI] = fields[iI].GetUInt32();
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
     }
     m_TutorialsChanged = false;
 }

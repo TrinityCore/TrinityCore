@@ -344,7 +344,7 @@ void MapManager::UnloadAll()
     for (MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->UnloadAll();
 
-    while(!i_maps.empty())
+    while (!i_maps.empty())
     {
         delete i_maps.begin()->second;
         i_maps.erase(i_maps.begin());

@@ -219,7 +219,7 @@ struct boss_steelbreakerAI : public ScriptedAI
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -329,7 +329,7 @@ struct boss_runemaster_molgeimAI : public ScriptedAI
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -499,7 +499,7 @@ struct boss_stormcaller_brundirAI : public ScriptedAI
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

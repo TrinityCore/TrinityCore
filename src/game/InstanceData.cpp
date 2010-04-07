@@ -57,7 +57,7 @@ bool InstanceData::IsEncounterInProgress() const
 
 void InstanceData::LoadMinionData(const MinionData *data)
 {
-    while(data->entry)
+    while (data->entry)
     {
         if (data->bossId < bosses.size())
             minions.insert(std::make_pair(data->entry, MinionInfo(&bosses[data->bossId])));
@@ -69,7 +69,7 @@ void InstanceData::LoadMinionData(const MinionData *data)
 
 void InstanceData::LoadDoorData(const DoorData *data)
 {
-    while(data->entry)
+    while (data->entry)
     {
         if (data->bossId < bosses.size())
             doors.insert(std::make_pair(data->entry, DoorInfo(&bosses[data->bossId], data->type, BoundaryType(data->boundary))));

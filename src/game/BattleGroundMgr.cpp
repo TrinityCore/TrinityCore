@@ -547,7 +547,7 @@ void BattleGroundQueue::FillPlayersToBG(BattleGround* bg, BattleGroundBracketId 
     // At first we need to compare free space in bg and our selection pool
     int32 diffAli   = aliFree   - int32(m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount());
     int32 diffHorde = hordeFree - int32(m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount());
-    while( abs(diffAli - diffHorde) > 1 && (m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() > 0 || m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() > 0) )
+    while ( abs(diffAli - diffHorde) > 1 && (m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() > 0 || m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() > 0) )
     {
         //each cycle execution we need to kick at least 1 group
         if (diffAli < diffHorde)
@@ -750,7 +750,7 @@ bool BattleGroundQueue::CheckSkirmishForSameFaction(BattleGroundBracketId bracke
 }
 
 /*
-this method is called when group is inserted, or player / group is removed from BG Queue - there is only one player's status changed, so we don't use while(true) cycles to invite whole queue
+this method is called when group is inserted, or player / group is removed from BG Queue - there is only one player's status changed, so we don't use while (true) cycles to invite whole queue
 it must be called after fully adding the members of a group to ensure group joining
 should be called from BattleGround::RemovePlayer function in some cases
 */
@@ -1158,7 +1158,7 @@ void BattleGroundMgr::DeleteAllBattleGrounds()
     for (uint32 bgTypeId = 0; bgTypeId < MAX_BATTLEGROUND_TYPE_ID; ++bgTypeId)
     {
         // ~BattleGround call unregistring BG from queue
-        while(!BGFreeSlotQueue[bgTypeId].empty())
+        while (!BGFreeSlotQueue[bgTypeId].empty())
             delete BGFreeSlotQueue[bgTypeId].front();
     }
 }
@@ -2107,7 +2107,7 @@ void BattleGroundMgr::LoadBattleMastersEntry()
 
         mBattleMastersMap[entry] = BattleGroundTypeId(bgTypeId);
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u battlemaster entries", count );

@@ -97,7 +97,7 @@ bool findnth(std::string &str, int n, std::string::size_type &s, std::string::si
     {
         e = str.find("'",s);
         if (e == std::string::npos) return false;
-    } while(str[e-1] == '\\');
+    } while (str[e-1] == '\\');
 
     for (int i = 1; i < n; ++i)
     {
@@ -330,7 +330,7 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         }
         while (result->NextRow());
     }
-    while(guids && guids_itr != guids->end());              // not set case iterate single time, set case iterate for all guids
+    while (guids && guids_itr != guids->end());              // not set case iterate single time, set case iterate for all guids
 }
 
 std::string PlayerDumpWriter::GetDump(uint32 guid)
@@ -460,7 +460,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     PetIds petids;
 
     CharacterDatabase.BeginTransaction();
-    while(!feof(fin))
+    while (!feof(fin))
     {
         if(!fgets(buf, 32000, fin))
         {

@@ -511,7 +511,7 @@ bool ChatHandler::HandleGameObjectTargetCommand(const char* args)
         pool_id = poolhandler.IsPartOfAPool<GameObject>(lowguid);
         if (!pool_id || poolhandler.IsSpawnedObject<GameObject>(lowguid))
             found = true;
-    } while( result->NextRow() && (!found) );
+    } while ( result->NextRow() && (!found) );
 
     if (!found)
     {
@@ -2549,7 +2549,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
 
             PSendSysMessage("|cffff33ffid:|r|cff00ffff %u|r|cff00ff00, guid: |r|cff00ffff%u|r|cff00ff00, delay: |r|cff00ffff%u|r|cff00ff00, command: |r|cff00ffff%u|r|cff00ff00, datalong: |r|cff00ffff%u|r|cff00ff00, datalong2: |r|cff00ffff%u|r|cff00ff00, datatext: |r|cff00ffff%s|r|cff00ff00, posx: |r|cff00ffff%f|r|cff00ff00, posy: |r|cff00ffff%f|r|cff00ff00, posz: |r|cff00ffff%f|r|cff00ff00, orientation: |r|cff00ffff%f|r", id, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11);
         }
-        while(result->NextRow());
+        while (result->NextRow());
     }
 
     if(show == "del")
@@ -2773,7 +2773,7 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
             pathid = fields[0].GetUInt32();
             point  = fields[1].GetUInt32();
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
 
         // We have the waypoint number and the GUID of the "master npc"
         // Text is enclosed in "<>", all other arguments not
@@ -2969,7 +2969,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
             PSendSysMessage("|cff00ff00Show info: Waypoint event: |r|cff00ffff%u|r", ev_id);
             PSendSysMessage("|cff00ff00Show info: Event chance: |r|cff00ffff%u|r", ev_chance);
             }
-            while( result->NextRow() );
+            while ( result->NextRow() );
 
         return true;
     }
@@ -3013,7 +3013,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
                 }
 
             }
-            while( result2->NextRow() );
+            while ( result2->NextRow() );
 
             if( hasError )
             {
@@ -3061,7 +3061,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
                 wpCreature->SetLevel(point > MAX_LEVEL ? MAX_LEVEL : point);
             }
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
 
         SendSysMessage("|cff00ff00Showing the current creature's path.|r");
         return true;
@@ -3186,7 +3186,7 @@ bool ChatHandler::HandleWpShowCommand(const char* args)
                 pCreature->AddObjectToRemoveList();
             }
         }
-        while(result->NextRow());
+        while (result->NextRow());
         // set "wpguid" column to "empty" - no visual waypoint spawned
         WorldDatabase.PExecuteLog("UPDATE waypoint_data SET wpguid = '0'");
         //WorldDatabase.PExecuteLog("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
@@ -3819,9 +3819,9 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult_AutoPtr result, int32 li
                 PSendSysMessage(LANG_LOOKUP_PLAYER_CHARACTER,name.c_str(),guid);
                 ++i;
 
-            } while( chars->NextRow() && ( limit == -1 || i < limit ) );
+            } while ( chars->NextRow() && ( limit == -1 || i < limit ) );
         }
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     if(i==0)                                                // empty accounts only
     {

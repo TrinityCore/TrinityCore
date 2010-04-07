@@ -1207,7 +1207,7 @@ void World::LoadConfigSettings(bool reload)
     strncpy(forbiddenMaps, forbiddenmaps.c_str(), forbiddenmaps.length());
     const char * delim = ",";
     char * token = strtok(forbiddenMaps, delim);
-    while(token != NULL)
+    while (token != NULL)
     {
         int32 mapid = strtol(token, NULL, 10);
         m_forbiddenMapIds.insert(mapid);
@@ -1798,7 +1798,7 @@ void World::LoadAutobroadcasts()
         m_Autobroadcasts.push_back(message);
 
         count++;
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u autobroadcasts definitions", count);
@@ -2037,7 +2037,7 @@ namespace Trinity
             {
                 char* pos = text;
 
-                while(char* line = lineFromMessage(pos))
+                while (char* line = lineFromMessage(pos))
                 {
                     WorldPacket* data = new WorldPacket();
 
@@ -2112,7 +2112,7 @@ void World::SendGlobalText(const char* text, WorldSession *self)
     char* buf = strdup(text);
     char* pos = buf;
 
-    while(char* line = ChatHandler::LineFromMessage(pos))
+    while (char* line = ChatHandler::LineFromMessage(pos))
     {
         ChatHandler::FillMessageData(&data, NULL, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, NULL, 0, line, NULL);
         SendGlobalMessage(&data, self);
@@ -2222,7 +2222,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
             if (std::string(sess->GetPlayerName()) != author)
                 sess->KickPlayer();
     }
-    while(resultAccounts->NextRow());
+    while (resultAccounts->NextRow());
 
     return BAN_SUCCESS;
 }
@@ -2374,7 +2374,7 @@ void World::UpdateSessions(uint32 diff)
 {
     ///- Add new sessions
     WorldSession* sess;
-    while(addSessQueue.next(sess))
+    while (addSessQueue.next(sess))
         AddSession_ (sess);
 
     ///- Then send an update signal to remaining ones

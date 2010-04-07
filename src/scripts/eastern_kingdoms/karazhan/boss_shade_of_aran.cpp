@@ -190,7 +190,7 @@ struct boss_aranAI : public ScriptedAI
         }
 
         //cut down to size if we have more than 3 targets
-        while(targets.size() > 3)
+        while (targets.size() > 3)
             targets.erase(targets.begin()+rand()%targets.size());
 
         uint32 i = 0;

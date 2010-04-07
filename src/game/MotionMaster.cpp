@@ -43,7 +43,7 @@ void
 MotionMaster::Initialize()
 {
     // clear ALL movement generators (including default)
-    while(!empty())
+    while (!empty())
     {
         MovementGenerator *curr = top();
         pop();
@@ -70,7 +70,7 @@ void MotionMaster::InitDefault()
 MotionMaster::~MotionMaster()
 {
     // clear ALL movement generators (including default)
-    while(!empty())
+    while (!empty())
     {
         MovementGenerator *curr = top();
         pop();
@@ -502,7 +502,7 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
         return;
     //We set waypoint movement as new default movement generator
     // clear ALL movement generators (including default)
-    /*while(!empty())
+    /*while (!empty())
     {
         MovementGenerator *curr = top();
         curr->Finalize(*i_owner);

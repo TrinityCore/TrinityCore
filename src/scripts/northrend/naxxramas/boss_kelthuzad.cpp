@@ -377,7 +377,7 @@ struct boss_kelthuzadAI : public BossAI
 
         if (Phase == 1)
         {
-            while(uint32 eventId = events.GetEvent())
+            while (uint32 eventId = events.GetEvent())
             {
                 switch(eventId)
                 {

@@ -233,7 +233,7 @@ struct boss_sapphironAI : public BossAI
 
         if (phase == PHASE_GROUND)
         {
-            while(uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = events.ExecuteEvent())
             {
                 switch(eventId)
                 {

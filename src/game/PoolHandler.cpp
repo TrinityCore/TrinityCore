@@ -558,7 +558,7 @@ void PoolHandler::LoadFromDB()
             SearchPair p(guid, pool_id);
             mGameobjectSearchMap.insert(p);
 
-        } while( result->NextRow() );
+        } while ( result->NextRow() );
         sLog.outString();
         sLog.outString( ">> Loaded %u gameobject in pools", count );
     }
@@ -625,7 +625,7 @@ void PoolHandler::LoadFromDB()
             SearchPair p(child_pool_id, mother_pool_id);
             mPoolSearchMap.insert(p);
 
-        } while( result->NextRow() );
+        } while ( result->NextRow() );
 
         // Now check for circular reference
         for (uint16 i=0; i<max_pool_id; ++i)

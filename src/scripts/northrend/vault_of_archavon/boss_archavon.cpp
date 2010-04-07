@@ -104,7 +104,7 @@ struct boss_archavonAI : public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -167,7 +167,7 @@ struct mob_archavon_warderAI : public ScriptedAI //npc 32353
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

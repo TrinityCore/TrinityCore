@@ -772,7 +772,7 @@ ChatCommand * ChatHandler::getCommandTable()
 
                 SetDataForCommandInTable(commandTable, name.c_str(), fields[1].GetUInt16(), fields[2].GetCppString(), name);
 
-            } while(result->NextRow());
+            } while (result->NextRow());
         }
     }
 
@@ -872,7 +872,7 @@ void ChatHandler::SendSysMessage(const char *str)
     char* buf = strdup(str);
     char* pos = buf;
 
-    while(char* line = LineFromMessage(pos))
+    while (char* line = LineFromMessage(pos))
     {
         FillSystemMessageData(&data, line);
         m_session->SendPacket(&data);
@@ -890,7 +890,7 @@ void ChatHandler::SendGlobalSysMessage(const char *str)
     char* buf = strdup(str);
     char* pos = buf;
 
-    while(char* line = LineFromMessage(pos))
+    while (char* line = LineFromMessage(pos))
     {
         FillSystemMessageData(&data, line);
         sWorld.SendGlobalMessage(&data);
@@ -908,7 +908,7 @@ void ChatHandler::SendGlobalGMSysMessage(const char *str)
     char* buf = strdup(str);
     char* pos = buf;
 
-    while(char* line = LineFromMessage(pos))
+    while (char* line = LineFromMessage(pos))
     {
         FillSystemMessageData(&data, line);
         sWorld.SendGlobalGMMessage(&data);
@@ -1137,7 +1137,7 @@ valid examples:
     {
         const std::string validCommands = "cHhr|";
 
-        while(*message)
+        while (*message)
         {
             // find next pipe command
             message = strchr(message, '|');
@@ -1180,7 +1180,7 @@ valid examples:
     ItemRandomPropertiesEntry const* itemProperty;
     ItemRandomSuffixEntry const* itemSuffix;
 
-    while(!reader.eof())
+    while (!reader.eof())
     {
         if (validSequence == validSequenceIterator)
         {
@@ -1318,7 +1318,7 @@ valid examples:
                     {
                         propertyId = 0;
                         negativeNumber = false;
-                        while((c = reader.get())!=':')
+                        while ((c = reader.get())!=':')
                         {
                             if(c >='0' && c<='9')
                             {
@@ -1347,7 +1347,7 @@ valid examples:
                     }
 
                     // ignore other integers
-                    while((c >='0' && c <='9') || c==':')
+                    while ((c >='0' && c <='9') || c==':')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1359,7 +1359,7 @@ valid examples:
                     uint32 questid= 0;
                     // read questid
                     char c = reader.peek();
-                    while(c >='0' && c<='9')
+                    while (c >='0' && c<='9')
                     {
                         reader.ignore(1);
                         questid *= 10;
@@ -1378,7 +1378,7 @@ valid examples:
                     }
                     c = reader.peek();
                     // level
-                    while(c !='|' && c!='\0')
+                    while (c !='|' && c!='\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1397,7 +1397,7 @@ valid examples:
 
                     char c = reader.peek();
                     // base64 encoded stuff
-                    while(c !='|' && c!='\0')
+                    while (c !='|' && c!='\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1421,7 +1421,7 @@ valid examples:
 
                     char c = reader.peek();
                     // skillpoints? whatever, drop it
-                    while(c !='|' && c!='\0')
+                    while (c !='|' && c!='\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1435,7 +1435,7 @@ valid examples:
                     uint32 spellid = 0;
                     // read spell entry
                     char c = reader.peek();
-                    while(c >='0' && c<='9')
+                    while (c >='0' && c<='9')
                     {
                         reader.ignore(1);
                         spellid *= 10;
@@ -1454,7 +1454,7 @@ valid examples:
                     uint32 spellid = 0;
                     // read spell entry
                     char c = reader.peek();
-                    while(c >='0' && c<='9')
+                    while (c >='0' && c<='9')
                     {
                         reader.ignore(1);
                         spellid *= 10;
@@ -1478,7 +1478,7 @@ valid examples:
 
                     char c = reader.peek();
                     // skip progress
-                    while(c !='|' && c!='\0')
+                    while (c !='|' && c!='\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1493,7 +1493,7 @@ valid examples:
                     reader.getline(buffer, 256, ':');
                     uint32 glyphId = 0;
                     char c = reader.peek();
-                    while(c>='0' && c <='9')
+                    while (c>='0' && c <='9')
                     {
                         glyphId *= 10;
                         glyphId += c-'0';
@@ -1927,7 +1927,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
         return NULL;
 
     // skip spaces
-    while(*text==' '||*text=='\t'||*text=='\b')
+    while (*text==' '||*text=='\t'||*text=='\b')
         ++text;
 
     if (!*text)
@@ -1975,7 +1975,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
         return NULL;
 
     // skip spaces
-    while(*text==' '||*text=='\t'||*text=='\b')
+    while (*text==' '||*text=='\t'||*text=='\b')
         ++text;
 
     if (!*text)

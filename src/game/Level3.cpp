@@ -2311,7 +2311,7 @@ bool ChatHandler::HandleLearnAllCommand(const char* /*args*/)
     };
 
     int loop = 0;
-    while(strcmp(allSpellList[loop], "0"))
+    while (strcmp(allSpellList[loop], "0"))
     {
         uint32 spell = atol((char*)allSpellList[loop++]);
 
@@ -2354,7 +2354,7 @@ bool ChatHandler::HandleLearnAllGMCommand(const char* /*args*/)
     };
 
     uint16 gmSpellIter = 0;
-    while( strcmp(gmSpellList[gmSpellIter], "0") )
+    while ( strcmp(gmSpellList[gmSpellIter], "0") )
     {
         uint32 spell = atol((char*)gmSpellList[gmSpellIter++]);
 
@@ -6089,7 +6089,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult_AutoPtr result)
                     }
                 }while ( banInfo->NextRow() );
             }
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
         SendSysMessage("===============================================================================");
     }
     return true;
@@ -6161,7 +6161,7 @@ bool ChatHandler::HandleBanListIPCommand(const char *args)
                     aTm_unban->tm_year%100, aTm_unban->tm_mon+1, aTm_unban->tm_mday, aTm_unban->tm_hour, aTm_unban->tm_min,
                     fields[3].GetString(), fields[4].GetString());
             }
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
         SendSysMessage("===============================================================================");
     }
 
@@ -6880,7 +6880,7 @@ bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
         {
             Field *fields = result->Fetch();
             PSendSysMessage("|%15s|%6s|", fields[0].GetString(),fields[1].GetString());
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
 
         PSendSysMessage("========================");
     }
@@ -7019,7 +7019,7 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
     char* tail = strtok(NULL, "");
 
     // get from tail next item str
-    while(char* itemStr = strtok(tail, " "))
+    while (char* itemStr = strtok(tail, " "))
     {
         // and get new tail
         tail = strtok(NULL, "");
@@ -7048,7 +7048,7 @@ bool ChatHandler::HandleSendItemsCommand(const char *args)
             return false;
         }
 
-        while(item_count > item_proto->GetMaxStackSize())
+        while (item_count > item_proto->GetMaxStackSize())
         {
             items.push_back(ItemPair(item_id,item_proto->GetMaxStackSize()));
             item_count -= item_proto->GetMaxStackSize();
