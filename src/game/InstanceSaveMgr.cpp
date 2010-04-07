@@ -482,7 +482,7 @@ void InstanceSaveManager::LoadResetTimes()
                 CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty = '%u'", newresettime, mapid, difficulty);
 
             SetResetTimeFor(mapid,difficulty,newresettime);
-        } while(result->NextRow());
+        } while (result->NextRow());
     }
 
     // clean expired instances, references to them will be deleted in CleanupInstances
@@ -566,7 +566,7 @@ void InstanceSaveManager::ScheduleReset(bool add, time_t time, InstResetEvent ev
 void InstanceSaveManager::Update()
 {
     time_t now = time(NULL), t;
-    while(!m_resetTimeQueue.empty() && (t = m_resetTimeQueue.begin()->first) < now)
+    while (!m_resetTimeQueue.empty() && (t = m_resetTimeQueue.begin()->first) < now)
     {
         InstResetEvent &event = m_resetTimeQueue.begin()->second;
         if(event.type == 0)
@@ -598,13 +598,13 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
     // do not allow UnbindInstance to automatically unload the InstanceSaves
     lock_instLists = true;
     InstanceSave::PlayerListType &pList = itr->second->m_playerList;
-    while(!pList.empty())
+    while (!pList.empty())
     {
         Player *player = *(pList.begin());
         player->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);
     }
     InstanceSave::GroupListType &gList = itr->second->m_groupList;
-    while(!gList.empty())
+    while (!gList.empty())
     {
         Group *group = *(gList.begin());
         group->UnbindInstance(itr->second->GetMapId(), itr->second->GetDifficulty(), true);

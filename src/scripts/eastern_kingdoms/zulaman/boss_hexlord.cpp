@@ -302,7 +302,7 @@ struct boss_hex_lord_malacrassAI : public ScriptedAI
         for (uint8 i = 0; i < 8; ++i)
             AddList.push_back(AddEntryList[i]);
 
-        while(AddList.size() > 4)
+        while (AddList.size() > 4)
             AddList.erase(AddList.begin()+rand()%AddList.size());
 
         uint8 i = 0;

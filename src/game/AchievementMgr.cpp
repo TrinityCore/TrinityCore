@@ -573,7 +573,7 @@ void AchievementMgr::LoadFromDB(QueryResult_AutoPtr achievementResult, QueryResu
             CompletedAchievementData& ca = m_completedAchievements[achievement_id];
             ca.date = time_t(fields[1].GetUInt64());
             ca.changed = false;
-        } while(achievementResult->NextRow());
+        } while (achievementResult->NextRow());
     }
 
     if(criteriaResult)
@@ -602,7 +602,7 @@ void AchievementMgr::LoadFromDB(QueryResult_AutoPtr achievementResult, QueryResu
             progress.counter = counter;
             progress.date    = date;
             progress.changed = false;
-        } while(criteriaResult->NextRow());
+        } while (criteriaResult->NextRow());
     }
 
 }
@@ -1848,7 +1848,7 @@ void AchievementMgr::SendAllAchievementData()
 
     bool cAchievements = false;
     bool cProgress = false;
-    while( !cAchievements || !cProgress )
+    while ( !cAchievements || !cProgress )
     {
         data.clear();
         send = false;
@@ -2045,7 +2045,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
         // counting data by and data types
         ++count;
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     // post loading checks
     for (uint32 entryId = 0; entryId < sAchievementCriteriaStore.GetNumRows(); ++entryId)
@@ -2148,7 +2148,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         }
 
         m_allCompletedAchievements.insert(achievement_id);
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %lu realm completed achievements.",(unsigned long)m_allCompletedAchievements.size());

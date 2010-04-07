@@ -322,7 +322,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
     {
         uiFirstBoss = urand(0,4);
 
-        while(uiSecondBoss == uiFirstBoss || uiThirdBoss == uiFirstBoss || uiThirdBoss == uiSecondBoss)
+        while (uiSecondBoss == uiFirstBoss || uiThirdBoss == uiFirstBoss || uiThirdBoss == uiSecondBoss)
         {
             uiSecondBoss = urand(0,4);
             uiThirdBoss = urand(0,4);

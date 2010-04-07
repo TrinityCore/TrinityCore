@@ -665,7 +665,7 @@ struct boss_fathomguard_caribdisAI : public ScriptedAI
             // It can be cast on any of the mobs
             Unit *pUnit = NULL;
 
-            while(pUnit == NULL || !pUnit->isAlive())
+            while (pUnit == NULL || !pUnit->isAlive())
             {
                 pUnit = selectAdvisorUnit();
             }

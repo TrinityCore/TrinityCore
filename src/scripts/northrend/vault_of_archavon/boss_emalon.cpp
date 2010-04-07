@@ -111,7 +111,7 @@ struct boss_emalonAI : public BossAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -229,7 +229,7 @@ struct mob_tempest_minionAI : public ScriptedAI
             }
         }
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

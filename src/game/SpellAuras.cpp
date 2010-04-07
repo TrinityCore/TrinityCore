@@ -412,7 +412,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
     assert (!m_isRemoved);
     m_isRemoved = true;
     ApplicationMap::iterator appItr = m_applications.begin();
-    while(!m_applications.empty())
+    while (!m_applications.empty())
     {
         AuraApplication * aurApp =  appItr->second;
         Unit * target = aurApp->GetTarget();
@@ -1449,7 +1449,7 @@ void Aura::SetNeedClientUpdateForTargets() const
 
 void Aura::_DeleteRemovedApplications()
 {
-    while(!m_removedApplications.empty())
+    while (!m_removedApplications.empty())
     {
         delete m_removedApplications.front();
         m_removedApplications.pop_front();

@@ -64,7 +64,7 @@ void AddonMgr::LoadFromDB()
 
         SavedAddon addon(name, crc);
         m_knownAddons.push_back(addon);
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u known addons", count);

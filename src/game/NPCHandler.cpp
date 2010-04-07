@@ -572,7 +572,7 @@ void WorldSession::SendStablePet(uint64 guid )
             data << uint8(2);                               // 1 = current, 2/3 = in stable (any from 4,5,... create problems with proper show)
 
             ++num;
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
     }
 
     data.put<uint8>(wpos, num);                             // set real data to placeholder
@@ -629,7 +629,7 @@ void WorldSession::HandleStablePet( WorldPacket & recv_data )
 
             // this slot not free, skip
             ++free_slot;
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
     }
 
     WorldPacket data(SMSG_STABLE_RESULT, 1);

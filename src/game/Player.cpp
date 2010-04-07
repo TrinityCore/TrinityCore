@@ -834,7 +834,7 @@ bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
     sLog.outDebug("STORAGE: Creating initial item, itemId = %u, count = %u",titem_id, titem_amount);
 
     // attempt equip by one
-    while(titem_amount > 0)
+    while (titem_amount > 0)
     {
         uint16 eDest;
         uint8 msg = CanEquipNewItem( NULL_SLOT, eDest, titem_id, false );
@@ -2521,7 +2521,7 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     uint32 nextLvlXP = GetUInt32Value(PLAYER_NEXT_LEVEL_XP);
     uint32 newXP = curXP + xp + rested_bonus_xp;
 
-    while( newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) )
+    while ( newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) )
     {
         newXP -= nextLvlXP;
 
@@ -3732,7 +3732,7 @@ void Player::_LoadSpellCooldowns(QueryResult_AutoPtr result)
 
             sLog.outDebug("Player (GUID: %u) spell %u, item %u cooldown loaded (%u secs).", GetGUIDLow(), spell_id, item_id, uint32(db_time-curTime));
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
     }
 }
 
@@ -4895,7 +4895,7 @@ void Player::LeftChannel(Channel *c)
 
 void Player::CleanupChannels()
 {
-    while(!m_channels.empty())
+    while (!m_channels.empty())
     {
         Channel* ch = *m_channels.begin();
         m_channels.erase(m_channels.begin());               // remove from player's channel list
@@ -23155,7 +23155,7 @@ void Player::_LoadTalents(QueryResult_AutoPtr result)
 
             AddTalent(fields[0].GetUInt32(), fields[1].GetUInt32(), false);
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
     }
 }
 

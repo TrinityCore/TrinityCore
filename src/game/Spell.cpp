@@ -1629,7 +1629,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
         SearchAreaTarget(tempUnitMap, max_range, PUSH_CHAIN, TargetType);
     tempUnitMap.remove(cur);
 
-    while(num)
+    while (num)
     {
         TagUnitMap.push_back(cur);
         --num;
@@ -1642,7 +1642,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
         if(TargetType == SPELL_TARGETS_CHAINHEAL)
         {
             next = tempUnitMap.begin();
-            while(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS
+            while (cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS
                 || !cur->IsWithinLOSInMap(*next))
             {
                 ++next;
@@ -1657,7 +1657,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
 
             if(cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
                 break;
-            while(m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE
+            while (m_spellInfo->DmgClass == SPELL_DAMAGE_CLASS_MELEE
                 && !m_caster->isInFrontInMap(*next, max_range)
                 || !m_caster->canSeeOrDetect(*next, false)
                 || !cur->IsWithinLOSInMap(*next))
@@ -2484,7 +2484,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         }
 
                         unitList.clear();
-                        while(!manaUsers.empty() && unitList.size()<10)
+                        while (!manaUsers.empty() && unitList.size()<10)
                         {
                             unitList.push_back(manaUsers.top().getUnit());
                             manaUsers.pop();
@@ -2502,7 +2502,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         }
 
                         unitList.clear();
-                        while(!healedMembers.empty() && unitList.size()<1)
+                        while (!healedMembers.empty() && unitList.size()<1)
                         {
                             unitList.push_back(healedMembers.top().getUnit());
                             healedMembers.pop();
@@ -2533,7 +2533,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[0] & 0x10000000 && m_spellInfo->SpellIconID == 2214) // Circle of Healing
                         maxsize += m_caster->HasAura(55675) ? 1 : 0; // Glyph of Circle of Healing
 
-                    while(!healedMembers.empty() && unitList.size()<maxsize)
+                    while (!healedMembers.empty() && unitList.size()<maxsize)
                     {
                         unitList.push_back(healedMembers.top().getUnit());
                         healedMembers.pop();
@@ -6984,7 +6984,7 @@ void Spell::FillRaidOrPartyManaPriorityTargets( UnitList &TagUnitMap, Unit* targ
             manaUsers.push(PrioritizeManaUnitWraper(*itr));
 
     TagUnitMap.clear();
-    while(!manaUsers.empty())
+    while (!manaUsers.empty())
     {
         TagUnitMap.push_back(manaUsers.top().getUnit());
         manaUsers.pop();
@@ -7001,7 +7001,7 @@ void Spell::FillRaidOrPartyHealthPriorityTargets( UnitList &TagUnitMap, Unit* ta
             healthQueue.push(PrioritizeHealthUnitWraper(*itr));
 
     TagUnitMap.clear();
-    while(!healthQueue.empty())
+    while (!healthQueue.empty())
     {
         TagUnitMap.push_back(healthQueue.top().getUnit());
         healthQueue.pop();

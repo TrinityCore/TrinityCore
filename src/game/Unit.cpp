@@ -3143,7 +3143,7 @@ uint32 Unit::GetWeaponSkillValue (WeaponAttackType attType, Unit const* target) 
 
 void Unit::_DeleteRemovedAuras()
 {
-    while(!m_removedAuras.empty())
+    while (!m_removedAuras.empty())
     {
         delete m_removedAuras.front();
         m_removedAuras.pop_front();
@@ -4366,7 +4366,7 @@ AuraEffect * Unit::GetAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster) 
 AuraEffect * Unit::GetAuraEffectOfRankedSpell(uint32 spellId, uint8 effIndex, uint64 caster) const
 {
     uint32 rankSpell = spellmgr.GetFirstSpellInChain(spellId);
-    while(true)
+    while (true)
     {
         if (AuraEffect * aurEff = GetAuraEffect(rankSpell, effIndex, caster))
             return aurEff;
@@ -4429,7 +4429,7 @@ Aura * Unit::GetAura(uint32 spellId, uint64 casterGUID, uint8 reqEffMask) const
 AuraApplication * Unit::GetAuraApplicationOfRankedSpel(uint32 spellId, uint64 casterGUID, uint8 reqEffMask, AuraApplication * except) const
 {
     uint32 rankSpell = spellmgr.GetFirstSpellInChain(spellId);
-    while(true)
+    while (true)
     {
         if (AuraApplication * aurApp = GetAuraApplication(rankSpell, casterGUID, reqEffMask, except))
             return aurApp;
@@ -4750,7 +4750,7 @@ void Unit::RemoveDynObject(uint32 spellid)
 
 void Unit::RemoveAllDynObjects()
 {
-    while(!m_dynObjGUIDs.empty())
+    while (!m_dynObjGUIDs.empty())
     {
         DynamicObject* dynObj = GetMap()->GetDynamicObject(*m_dynObjGUIDs.begin());
         if(dynObj)
@@ -13933,7 +13933,7 @@ void Unit::SetDisplayId(uint32 modelId)
 
 void Unit::ClearComboPointHolders()
 {
-    while(!m_ComboPointHolders.empty())
+    while (!m_ComboPointHolders.empty())
     {
         uint32 lowguid = *m_ComboPointHolders.begin();
 

@@ -58,7 +58,7 @@ Group::~Group()
         else sLog.outError("Group::~Group: battleground group is not linked to the correct battleground.");
     }
     Rolls::iterator itr;
-    while(!RollId.empty())
+    while (!RollId.empty())
     {
         itr = RollId.begin();
         Roll *r = *itr;
@@ -175,7 +175,7 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
         do
         {
             LoadMemberFromDB((*result)[0].GetUInt32(), (*result)[1].GetUInt8(), (*result)[2].GetUInt8());
-        } while( result->NextRow() );
+        } while ( result->NextRow() );
         // group too small
         if(GetMembersCount() < 2)
             return false;

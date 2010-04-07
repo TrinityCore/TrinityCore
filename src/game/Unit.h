@@ -2084,7 +2084,7 @@ namespace Trinity
     template<class T>
     void RandomResizeList(std::list<T> &_list, uint32 _size)
     {
-        while(_list.size() > _size)
+        while (_list.size() > _size)
         {
             typename std::list<T>::iterator itr = _list.begin();
             advance(itr, urand(0, _list.size() - 1));

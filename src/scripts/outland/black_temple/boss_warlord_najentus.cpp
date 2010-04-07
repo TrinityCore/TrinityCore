@@ -140,7 +140,7 @@ struct boss_najentusAI : public ScriptedAI
 
         events.Update(diff);
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
