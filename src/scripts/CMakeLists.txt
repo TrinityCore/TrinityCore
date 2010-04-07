@@ -569,6 +569,7 @@ SET(scripts_STAT_SRCS
 message("-- Added Script Engine to SCRIPTS lib")
 
 include_directories(
+  ${ACE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/shared
   ${CMAKE_SOURCE_DIR}/src/framework
