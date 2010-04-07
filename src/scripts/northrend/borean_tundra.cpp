@@ -1715,6 +1715,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
     {
         uiStep = 1;
         uiPhase = 0;
+	pCaster = NULL;
     }
 
     void EnterCombat(Unit* pWho)
@@ -1722,12 +1723,12 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
         return;
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    void SpellHit(Unit* pUnit, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_NEURAL_NEEDLE && pCaster->GetTypeId() == TYPEID_PLAYER)
         {
             ++uiPhase;
-            pCaster = CAST_PLR(pCaster);
+            pCaster = CAST_PLR(pUnit);
         }
     }
 
@@ -1804,9 +1805,6 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
                 }
                 break;
         }
-
-        if (!UpdateVictim())
-            return;
     }
 };
 
