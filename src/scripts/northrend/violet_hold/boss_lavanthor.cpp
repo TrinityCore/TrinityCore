@@ -56,7 +56,7 @@ struct boss_lavanthorAI : public ScriptedAI
     {
         if (pInstance)
         {
-	    if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_LAVANTHOR_CELL)))
+        if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_LAVANTHOR_CELL)))
                 if (pDoor->GetGoState() == GO_STATE_READY)
                 {
                     EnterEvadeMode();

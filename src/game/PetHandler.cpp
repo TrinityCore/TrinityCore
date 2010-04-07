@@ -284,7 +284,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                 }
                 if (Unit* powner = pet->GetCharmerOrOwner())
                     if(powner->GetTypeId() == TYPEID_PLAYER)
-		      pet->SendUpdateToPlayer(powner->ToPlayer());
+              pet->SendUpdateToPlayer(powner->ToPlayer());
                 result = SPELL_CAST_OK;
             }
 

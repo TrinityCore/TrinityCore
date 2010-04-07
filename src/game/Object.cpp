@@ -297,9 +297,9 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         // 0x08000000
         if(GetTypeId() == TYPEID_PLAYER && this->ToPlayer()->isInFlight())
         {
-	  //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
+      //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
-	  FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(const_cast<Player*>(this->ToPlayer())->GetMotionMaster()->top());
+      FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(const_cast<Player*>(this->ToPlayer())->GetMotionMaster()->top());
 
             uint32 flags3 = MOVEFLAG_GLIDE;
 

@@ -101,7 +101,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
                     HandleGameObject(uiExitGate,true);
                 break;
             case GO_MALGANIS_CHEST_N:
-			case GO_MALGANIS_CHEST_H:
+            case GO_MALGANIS_CHEST_H:
                 uiMalGanisChest = pGo->GetGUID();
                 if (m_auiEncounter[3] == DONE)
                     pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);

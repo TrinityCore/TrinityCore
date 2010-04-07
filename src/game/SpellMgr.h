@@ -1272,20 +1272,20 @@ class SpellMgr
             return true;
         }
 
-	const SpellsRequiringSpellMap GetSpellsRequiringSpell()
-	{
-	  return this->mSpellsReqSpell;
-	}
+    const SpellsRequiringSpellMap GetSpellsRequiringSpell()
+    {
+      return this->mSpellsReqSpell;
+    }
 
-	uint32 GetSpellRequired(uint32 spell_id) const
-	{
-	  SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
-	  
-	  if(itr == mSpellReq.end())
-	    return NULL;
-	  
-	  return itr->second;
-	}
+    uint32 GetSpellRequired(uint32 spell_id) const
+    {
+      SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
+      
+      if(itr == mSpellReq.end())
+        return NULL;
+      
+      return itr->second;
+    }
 
 
     // Modifiers

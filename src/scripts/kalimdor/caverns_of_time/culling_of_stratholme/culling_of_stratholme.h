@@ -63,6 +63,6 @@ enum GameObjects
     GO_MALGANIS_GATE_2                                     = 187723,
     GO_EXIT_GATE                                           = 191788,
     GO_MALGANIS_CHEST_N                                    = 190663,
-	GO_MALGANIS_CHEST_H                                    = 193597
+    GO_MALGANIS_CHEST_H                                    = 193597
 };
 #endif

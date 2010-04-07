@@ -2440,7 +2440,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
             switch(GetMiscValue())
             {
                 case FORM_CAT:
-		      // Savage Roar
+              // Savage Roar
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0 , 0x10000000, 0))
                         target->CastSpell(target, 62071, true);
                     // Nurturing Instinct
@@ -2697,7 +2697,7 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
         // drop flag at invisible in bg
         if(target->ToPlayer()->InBattleGround())
             if(BattleGround *bg = target->ToPlayer()->GetBattleGround())
-	      bg->EventPlayerDroppedFlag(target->ToPlayer());
+          bg->EventPlayerDroppedFlag(target->ToPlayer());
 
         // GM-mode have mask 0xFFFFFFFF
         if(!target->ToPlayer()->isGameMaster())

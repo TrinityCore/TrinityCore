@@ -5291,7 +5291,7 @@ bool ChatHandler::HandleResetTalentsCommand(const char * args)
 
                 ChatHandler(owner->ToPlayer()).SendSysMessage(LANG_RESET_PET_TALENTS);
                 if(!m_session || m_session->GetPlayer()!=owner->ToPlayer())
-		  PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE,GetNameLink(owner->ToPlayer()).c_str());
+          PSendSysMessage(LANG_RESET_PET_TALENTS_ONLINE,GetNameLink(owner->ToPlayer()).c_str());
             }
             return true;
         }

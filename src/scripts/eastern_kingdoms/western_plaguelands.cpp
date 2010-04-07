@@ -206,7 +206,7 @@ CreatureAI* GetAI_npc_the_scourge_cauldron(Creature* pCreature)
 }
 
 /*######
-##	npcs_andorhal_tower 
+##    npcs_andorhal_tower 
 ######*/
 
 enum eAndorhalTower

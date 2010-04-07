@@ -209,10 +209,10 @@ void PetAI::UpdateAI(const uint32 diff)
             {
                 m_creature->SetInFront(target);
                 if(target && target->GetTypeId() == TYPEID_PLAYER)
-		  m_creature->SendUpdateToPlayer(target->ToPlayer());
+          m_creature->SendUpdateToPlayer(target->ToPlayer());
 
                 if(owner && owner->GetTypeId() == TYPEID_PLAYER)
-		  m_creature->SendUpdateToPlayer(owner->ToPlayer());
+          m_creature->SendUpdateToPlayer(owner->ToPlayer());
             }
 
             m_creature->AddCreatureSpellCooldown(spell->m_spellInfo->Id);

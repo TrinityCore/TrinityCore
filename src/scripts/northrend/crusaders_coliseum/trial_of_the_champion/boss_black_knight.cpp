@@ -55,8 +55,8 @@ enum eSpells
 
     SPELL_BLACK_KNIGHT_RES  = 67693,
 
-    SPELL_LEAP				= 67749,
-    SPELL_LEAP_H			= 67880
+    SPELL_LEAP                = 67749,
+    SPELL_LEAP_H            = 67880
 };
 
 enum eModels

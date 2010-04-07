@@ -730,8 +730,8 @@ bool Item::HasEnchantRequiredSkill(const Player *pPlayer) const
   for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
     if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
       if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-	if (enchantEntry->requiredSkill && pPlayer->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
-	  return false;
+    if (enchantEntry->requiredSkill && pPlayer->GetSkillValue(enchantEntry->requiredSkill) < enchantEntry->requiredSkillValue)
+      return false;
 
   return true;
 }
@@ -746,8 +746,8 @@ uint32 Item::GetEnchantRequiredLevel() const
   for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
     if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
       if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-	if (enchantEntry->requiredLevel > level)
-	  level = enchantEntry->requiredLevel;
+    if (enchantEntry->requiredLevel > level)
+      level = enchantEntry->requiredLevel;
   
   return level;  
 }

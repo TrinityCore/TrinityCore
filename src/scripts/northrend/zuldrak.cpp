@@ -929,16 +929,16 @@ struct npc_crusade_recruitAI : public ScriptedAI
     uint8 m_uiPhase;                  //The current phase we are in
     uint32 m_uiTimer;                 //Timer until phase transition
     float m_heading;                  //Store creature heading
-	
+    
     void Reset()
     {
         m_uiTimer = 0;
         m_uiPhase = 0;
         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-        m_heading = m_creature->GetOrientation();		
+        m_heading = m_creature->GetOrientation();        
     }
-	
+    
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPhase)
@@ -951,10 +951,10 @@ struct npc_crusade_recruitAI : public ScriptedAI
                         // say random text
                         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                         m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);                        
-                        DoScriptText(RAND(SAY_RECRUIT_1,SAY_RECRUIT_2,SAY_RECRUIT_3), m_creature);						
+                        DoScriptText(RAND(SAY_RECRUIT_1,SAY_RECRUIT_2,SAY_RECRUIT_3), m_creature);                        
                         m_uiTimer = 3000;
                         m_uiPhase = 2;
-                        break;						
+                        break;                        
                     case 2:
                         // walk forward
                         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -973,7 +973,7 @@ struct npc_crusade_recruitAI : public ScriptedAI
             else
             m_uiTimer -= uiDiff;
         }
-        ScriptedAI::UpdateAI(uiDiff);		
+        ScriptedAI::UpdateAI(uiDiff);        
         
         if (!UpdateVictim())
             return;
@@ -986,7 +986,7 @@ CreatureAI* GetAI_npc_crusade_recruit(Creature* pCreature)
 }
 
 bool GossipHello_npc_crusade_recruit(Player* pPlayer, Creature* pCreature)
-{	
+{    
     if (pPlayer->GetQuestStatus(QUEST_TROLL_PATROL_INTESTINAL_FORTITUDE) == QUEST_STATUS_INCOMPLETE)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
