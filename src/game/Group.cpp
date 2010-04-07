@@ -1568,7 +1568,7 @@ void Group::SetRaidDifficulty(Difficulty difficulty)
     if(!isBGGroup())
         CharacterDatabase.PExecute("UPDATE groups SET raiddifficulty = %u WHERE leaderGuid ='%u'", m_raidDifficulty, GUID_LOPART(m_leaderGuid));
 
-    for(GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference *itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player *player = itr->getSource();
         if(!player->GetSession() || player->getLevel() < LEVELREQUIREMENT_HEROIC)

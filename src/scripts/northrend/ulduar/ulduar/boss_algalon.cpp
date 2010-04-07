@@ -166,7 +166,7 @@ struct boss_algalonAI : public ScriptedAI
         if (m_lCollapsingStarGUIDList.empty())
             return;
 
-        for(std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
+        for (std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
         {
             if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
             {

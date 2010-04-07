@@ -44,7 +44,7 @@ void BattleGroundSA::Reset()
 {
     TotalTime = 0;
     attackers = ( (urand(0,1)) ? TEAM_ALLIANCE : TEAM_HORDE);
-    for(uint8 i = 0; i <= 5; i++)
+    for (uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
     status = BG_SA_WARMUP;
@@ -61,19 +61,19 @@ bool BattleGroundSA::ResetObjs()
     uint32 defF = BG_SA_Factions[attackers ? TEAM_ALLIANCE : TEAM_HORDE];
 
 
-    for(uint8 i = 0; i <BG_SA_MAXOBJ; i++)
+    for (uint8 i = 0; i <BG_SA_MAXOBJ; i++)
         DelObject(i);
 
-    for(uint8 i = 0; i < BG_SA_MAXNPC; i++)
+    for (uint8 i = 0; i < BG_SA_MAXNPC; i++)
         DelCreature(i);
 
-    for(uint8 i = BG_SA_MAXNPC; i < BG_SA_MAXNPC + BG_SA_MAX_GY; i++)
+    for (uint8 i = BG_SA_MAXNPC; i < BG_SA_MAXNPC + BG_SA_MAX_GY; i++)
         DelCreature(i);
 
-    for(uint8 i = 0; i < 6; i++)
+    for (uint8 i = 0; i < 6; i++)
         GateStatus[i] = BG_SA_GATE_OK;
 
-    for(uint8 i = 0; i < BG_SA_CENTRAL_FLAG; i++)
+    for (uint8 i = 0; i < BG_SA_CENTRAL_FLAG; i++)
     {
         if(!AddObject(i,BG_SA_ObjEntries[i],
             BG_SA_ObjSpawnlocs[i][0],BG_SA_ObjSpawnlocs[i][1],
@@ -84,7 +84,7 @@ bool BattleGroundSA::ResetObjs()
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
-    for(uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; i++)
+    for (uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; i++)
     {
         if(!AddCreature(BG_SA_NpcEntries[i], i, (attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
               BG_SA_NpcSpawnlocs[i][0],BG_SA_NpcSpawnlocs[i][1],
@@ -94,7 +94,7 @@ bool BattleGroundSA::ResetObjs()
 
     OverrideGunFaction();
 
-    for(uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
+    for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
@@ -103,7 +103,7 @@ bool BattleGroundSA::ResetObjs()
     GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     GetBGObject(BG_SA_TITAN_RELIC)->Refresh();
 
-    for(uint8 i = 0; i <= 5; i++)
+    for (uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
 
     // MAD props for Kiper for discovering those values - 4 hours of his work.
@@ -116,7 +116,7 @@ bool BattleGroundSA::ResetObjs()
     ShipsStarted = false;
 
     //Graveyards!
-    for(uint8 i = 0;i < BG_SA_MAX_GY; i++)
+    for (uint8 i = 0;i < BG_SA_MAX_GY; i++)
     {
         WorldSafeLocsEntry const *sg = NULL;
         sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
@@ -141,7 +141,7 @@ bool BattleGroundSA::ResetObjs()
     }
 
     //GY capture points
-    for(uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_MAXOBJ; i++)
+    for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_MAXOBJ; i++)
     {
         AddObject(i, BG_SA_ObjEntries[i] - (attackers == TEAM_ALLIANCE ? 1:0),
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -205,9 +205,9 @@ void BattleGroundSA::StartShips()
     DoorOpen(BG_SA_BOAT_ONE);
     DoorOpen(BG_SA_BOAT_TWO);
 
-    for(int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
     {
-        for( BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
+        for ( BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
         {
             if(Player* p = objmgr.GetPlayer(itr->first))
             {
@@ -465,13 +465,13 @@ void BattleGroundSA::OverrideGunFaction()
     if(!m_BgCreatures[0])
         return;
 
-    for(uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10;i++)
+    for (uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10;i++)
     {
         if(Creature* gun = GetBGCreature(i))
             gun->setFaction(BG_SA_Factions[attackers? TEAM_ALLIANCE : TEAM_HORDE]);
     }
 
-    for(uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4;i++)
+    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4;i++)
     {
         if(Creature* dem = GetBGCreature(i))
             dem->setFaction(BG_SA_Factions[attackers]);
@@ -539,7 +539,7 @@ WorldSafeLocsEntry const* BattleGroundSA::GetClosestGraveYard(Player* player)
     ret = sWorldSafeLocsStore.LookupEntry(safeloc);
     nearest = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
 
-    for(uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
+    for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
         if(GraveyardStatus[i] != player->GetTeamId())
             continue;

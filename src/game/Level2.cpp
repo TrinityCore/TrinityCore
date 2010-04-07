@@ -4262,7 +4262,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = 0;
-                for(; loc < MAX_LOCALE; ++loc)
+                for (; loc < MAX_LOCALE; ++loc)
                 {
                     if(loc==GetSessionDbcLocale())
                         continue;
@@ -4427,7 +4427,7 @@ bool ChatHandler::HandleTitlesSetMaskCommand(const char* args)
 
     uint64 titles2 = titles;
 
-    for(uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
+    for (uint32 i = 1; i < sCharTitlesStore.GetNumRows(); ++i)
         if(CharTitlesEntry const* tEntry = sCharTitlesStore.LookupEntry(i))
             titles2 &= ~(uint64(1) << tEntry->bit_index);
 

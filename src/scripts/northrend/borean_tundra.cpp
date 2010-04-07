@@ -2185,7 +2185,7 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
         if (uiExplosionTimer < diff)
         {
             DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
-            for(uint8 i = 0; i < 4; ++i)
+            for (uint8 i = 0; i < 4; ++i)
             {
                 if(Creature* cCredit = m_creature->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
                 {

@@ -141,7 +141,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                             break;
                     }
 
-                    for(std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
+                    for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
                         if (Creature* pSummon = Unit::GetCreature(*m_creature, *itr))
                             AggroAllPlayers(pSummon);
                 }else if (uiLesserChampions == 9)
@@ -416,7 +416,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                 case 3:
                     if (!Champion1List.empty())
                     {
-                        for(std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
+                        for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
                             if (Creature* pSummon = Unit::GetCreature(*m_creature, *itr))
                                 AggroAllPlayers(pSummon);
                         NextStep(0,false);

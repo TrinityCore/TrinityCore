@@ -68,7 +68,7 @@ void BattleGroundRV::Update(uint32 diff)
                 setState(BG_RV_STATE_OPEN_PILARS);
                 break;
             case BG_RV_STATE_OPEN_PILARS:
-                for(i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                for (i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_OPEN_FIRE);
@@ -81,7 +81,7 @@ void BattleGroundRV::Update(uint32 diff)
                 break;
             case BG_RV_STATE_CLOSE_PILARS:
                 uint32 i;
-                for(i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
+                for (i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_CLOSE_FIRE);

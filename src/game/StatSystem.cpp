@@ -1242,7 +1242,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     }
 
     Unit::AuraEffectList const& mDummy = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACKSPEED);
-    for(Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
+    for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
     {
         switch ((*itr)->GetSpellProto()->Id)
         {
