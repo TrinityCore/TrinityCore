@@ -326,7 +326,7 @@ struct mob_ichor_globuleAI : public ScriptedAI
 {
     mob_ichor_globuleAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-    	pInstance = pCreature->GetInstanceData();
+        pInstance = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

@@ -2226,7 +2226,7 @@ struct npc_valiance_keep_cannoneerAI : public ScriptedAI
 
     void Reset()
     {   
-		uiTimer = urand(13000,18000);
+        uiTimer = urand(13000,18000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -2307,7 +2307,7 @@ struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
                     m_uiTimer = urand(90000,120000);
                 }
                     break;
-				case NPC_WARMAGE_CALANDRA:
+                case NPC_WARMAGE_CALANDRA:
                 {
                     if (!orbList.empty())
                     {
@@ -2336,7 +2336,7 @@ struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
                 }
                     break;
             }
-        }		
+        }        
         else m_uiTimer -= uiDiff;
 
         ScriptedAI::UpdateAI(uiDiff);
@@ -2506,7 +2506,7 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_valiance_keep_cannoneer";
     newscript->GetAI = &GetAI_npc_valiance_keep_cannoneer;
     newscript->RegisterSelf();
-	
+    
     newscript = new Script;
     newscript->Name = "npc_warmage_coldarra";
     newscript->GetAI = &GetAI_npc_warmage_coldarra;

@@ -1585,7 +1585,7 @@ struct ChainHealingOrder : public std::binary_function<const Unit*, const Unit*,
         /*if (Target == MainTarget)
             return 0;
         else*/ if (Target->GetTypeId() == TYPEID_PLAYER && MainTarget->GetTypeId() == TYPEID_PLAYER &&
-		   Target->ToPlayer()->IsInSameRaidWith(MainTarget->ToPlayer()))
+           Target->ToPlayer()->IsInSameRaidWith(MainTarget->ToPlayer()))
         {
             if (Target->GetHealth() == Target->GetMaxHealth())
                 return 40000;
@@ -2915,13 +2915,13 @@ void Spell::cast(bool skipCheck)
                 m_preCastSpell = 11196;                                // Recently Bandaged
             break;
         }
-	case SPELLFAMILY_MAGE:
-	{
-	     // Permafrost
-	     if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-		  m_preCastSpell = 68391;
-	     break;
-	}
+    case SPELLFAMILY_MAGE:
+    {
+         // Permafrost
+         if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
+          m_preCastSpell = 68391;
+         break;
+    }
     }
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client

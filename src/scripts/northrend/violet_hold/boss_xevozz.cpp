@@ -225,7 +225,7 @@ struct mob_ethereal_sphereAI : public ScriptedAI
 {
     mob_ethereal_sphereAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-    	pInstance   = pCreature->GetInstanceData();
+        pInstance   = pCreature->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;

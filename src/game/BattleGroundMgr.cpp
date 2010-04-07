@@ -1393,10 +1393,10 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             case BATTLEGROUND_AA:
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
-	      *data << uint32(2);
-	      *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);   
-	      *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);                           
-	      break;  
+          *data << uint32(2);
+          *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);   
+          *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);                           
+          break;  
             case BATTLEGROUND_DS:                           // wotlk
             case BATTLEGROUND_RV:                           // wotlk
             case BATTLEGROUND_IC:                           // wotlk

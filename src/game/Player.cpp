@@ -8762,7 +8762,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             break;
         case 3703:                                          // Shattrath City
         case 4384:                                          // Strand of the Ancients
-	        if (bg && bg->GetTypeID() == BATTLEGROUND_SA)
+            if (bg && bg->GetTypeID() == BATTLEGROUND_SA)
                 bg->FillInitialWorldStates(data);
             else
             {
@@ -20107,7 +20107,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
 
         // player see other player with stealth/invisibility only if he in same group or raid or same team (raid/team case dependent from conf setting)
         if(!m_mover->canDetectInvisibilityOf(u))
-	  if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(const_cast<Player*>(u->ToPlayer() ))))
+      if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(const_cast<Player*>(u->ToPlayer() ))))
                 return false;
     }
 
@@ -20120,7 +20120,7 @@ bool Player::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool
         if(!isAlive())
             detect = false;
         if(m_DetectInvTimer < 300 || !HaveAtClient(u))
-	  if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(const_cast<Player*>(u->ToPlayer()))))
+      if(!(u->GetTypeId() == TYPEID_PLAYER && !IsHostileTo(u) && IsGroupVisibleFor(const_cast<Player*>(u->ToPlayer()))))
                 if(!detect || !m_mover->canDetectStealthOf(u, GetDistance(u)))
                     return false;
     }

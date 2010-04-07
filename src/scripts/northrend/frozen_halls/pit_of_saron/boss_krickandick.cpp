@@ -68,16 +68,16 @@ enum Yells
 
 enum Events
 {
-	EVENT_NONE,
+    EVENT_NONE,
     EVENT_PURSUE,
-	EVENT_MIGHTY_KICK,
-	EVENT_POISON_NOVA,
-	EVENT_EXPLOSIVE_BARRAGE,
-	EVENT_END_EXPLOSIVE_BARRAGE,
+    EVENT_MIGHTY_KICK,
+    EVENT_POISON_NOVA,
+    EVENT_EXPLOSIVE_BARRAGE,
+    EVENT_END_EXPLOSIVE_BARRAGE,
 
     // Krick
-	EVENT_SHADOW_BOLT,
-	EVENT_TOXIC_WASTE,
+    EVENT_SHADOW_BOLT,
+    EVENT_TOXIC_WASTE,
 
     // Krick OUTRO
     EVENT_OUTRO_1,
@@ -145,7 +145,7 @@ struct boss_ickAI : public ScriptedAI
     void EnterCombat(Unit *pWho)
     {
         if (pInstance)
-    		pInstance->SetData(DATA_KRICKANDICK_EVENT, IN_PROGRESS);
+            pInstance->SetData(DATA_KRICKANDICK_EVENT, IN_PROGRESS);
 
         Creature* pKrick = GetKrick();
         if (!pKrick)
@@ -154,12 +154,12 @@ struct boss_ickAI : public ScriptedAI
         if (pKrick)
             DoScriptText(SAY_KRICK_AGGRO, pKrick);
 
-		events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000, GCD_1);
+        events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000, GCD_1);
         events.ScheduleEvent(EVENT_PURSUE, 30000, GCD_1);
         events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
-		events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 35000);
+        events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 35000);
         events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
-		events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+        events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
     }
 
     void EnterEvadeMode()
@@ -241,7 +241,7 @@ struct boss_ickAI : public ScriptedAI
                 if (Creature *pKrick = GetKrick())
                 {
                     DoScriptText(SAY_KRICK_BARRAGE_1, pKrick);
-    			    DoScriptText(SAY_KRICK_BARRAGE_2, pKrick);
+                    DoScriptText(SAY_KRICK_BARRAGE_2, pKrick);
                 }
 
                 DoCastAOE(SPELL_EXPLOSIVE_BARRAGE);
@@ -268,7 +268,7 @@ struct boss_krickAI : public ScriptedAI
         pInstance = c->GetInstanceData();
     }
 
-	ScriptedInstance* pInstance;
+    ScriptedInstance* pInstance;
     EventMap events;
 
     KrickPhase  phase;
@@ -353,8 +353,8 @@ struct boss_krickAI : public ScriptedAI
     {
         if (phase == PHASE_OUTRO)
         {
-	        if (!pInstance)
-	            return;
+            if (!pInstance)
+                return;
 
             events.Update(diff);
             switch(events.ExecuteEvent())
@@ -454,7 +454,7 @@ struct boss_krickAI : public ScriptedAI
             }
             return;
         }
-	}
+    }
 };
 
 CreatureAI* GetAI_boss_ick(Creature* pCreature)

@@ -81,10 +81,10 @@ struct boss_drakosAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_DRAKOS_EVENT, IN_PROGRESS);
     }
-	void JustSummoned(Creature* summon)
-	{
-		lSummons.Summon(summon);
-	}
+    void JustSummoned(Creature* summon)
+    {
+        lSummons.Summon(summon);
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -140,7 +140,7 @@ struct boss_drakosAI : public ScriptedAI
             DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2,SAY_STOMP_3), m_creature);
             DoCast(DUNGEON_MODE(SPELL_THUNDERING_STOMP, SPELL_THUNDERING_STOMP_H));
             uiStompTimer = urand(15*IN_MILISECONDS, 18*IN_MILISECONDS);
-		} else uiStompTimer -= diff ;
+        } else uiStompTimer -= diff ;
 
         DoMeleeAttackIfReady();
     }

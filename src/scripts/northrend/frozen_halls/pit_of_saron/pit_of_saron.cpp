@@ -904,7 +904,7 @@ struct mob_geist_ambusherAI: public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-    	//Only here so when I figure out how to make it cast on an NPC i can do that.
+        //Only here so when I figure out how to make it cast on an NPC i can do that.
         events.ScheduleEvent(EVENT_LEAPING_FACE_MAUL, 99999);
     }
 
@@ -923,7 +923,7 @@ struct mob_geist_ambusherAI: public ScriptedAI
         {
             switch(eventId)
             {
-    			//Should only be used on NPCs
+                //Should only be used on NPCs
                 case EVENT_LEAPING_FACE_MAUL:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_LEAPING_FACE_MAUL);

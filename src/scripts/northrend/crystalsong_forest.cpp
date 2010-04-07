@@ -83,14 +83,14 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
                     m_uiTimer = 90000;
                 }
                     break;
-				case NPC_WARMAGE_HALISTER:
+                case NPC_WARMAGE_HALISTER:
                 case NPC_WARMAGE_ILSUDRIA:
                     if (pTarget)
                         DoCast(pTarget,SPELL_TRANSITUS_SHIELD_BEAM);
                     m_uiTimer = 90000;
                     break;
             }
-        }		
+        }        
         else m_uiTimer -= uiDiff;
 
         ScriptedAI::UpdateAI(uiDiff);

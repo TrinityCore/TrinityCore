@@ -96,7 +96,7 @@ struct boss_tyrannusAI : public ScriptedAI
 
     void Reset()
     {
-		events.Reset();
+        events.Reset();
         
         if (pInstance)
             pInstance->SetData(DATA_TYRANNUS_EVENT, NOT_STARTED);
@@ -110,7 +110,7 @@ struct boss_tyrannusAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-		m_creature->ExitVehicle();
+        m_creature->ExitVehicle();
 
         // restore health if any damage done during intro
         m_creature->SetHealth(m_creature->GetMaxHealth());
@@ -118,7 +118,7 @@ struct boss_tyrannusAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_TYRANNUS_EVENT, IN_PROGRESS);
 
-		events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
+        events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
         events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 35000);
         events.ScheduleEvent(EVENT_DARK_MIGHT, 40000);
     }
@@ -130,13 +130,13 @@ struct boss_tyrannusAI : public ScriptedAI
     
     void JustDied(Unit* killer)  
     {
-		DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, m_creature);
 
-		if (pInstance)
+        if (pInstance)
         {
             pInstance->SetData(DATA_TYRANNUS_EVENT, DONE);
             if (Creature* pRimefang = GetRimefang())
-        		pRimefang->ForcedDespawn();
+                pRimefang->ForcedDespawn();
         }
     }
 
@@ -160,18 +160,18 @@ struct boss_tyrannusAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
                     return;
                 case EVENT_OVERLORDS_BRAND:
-					if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-    					DoCast(pTarget, SPELL_OVERLORDS_BRAND);
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, SPELL_OVERLORDS_BRAND);
                     events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 45000);
                     return;
                 case EVENT_DARK_MIGHT:
-					DoScriptText(SAY_DARK_MIGHT_1, m_creature);
-					DoScriptText(SAY_DARK_MIGHT_2, m_creature);
+                    DoScriptText(SAY_DARK_MIGHT_1, m_creature);
+                    DoScriptText(SAY_DARK_MIGHT_2, m_creature);
                     DoCast(m_creature, DUNGEON_MODE(SPELL_DARK_MIGHT, H_SPELL_DARK_MIGHT));
                     events.ScheduleEvent(EVENT_DARK_MIGHT, 60000);
                     return;
-			}
-		}
+            }
+        }
 
         DoMeleeAttackIfReady();
     }
@@ -193,7 +193,7 @@ struct boss_rimefangAI : public ScriptedAI
         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-		events.Reset();   
+        events.Reset();   
     }
 
     void EnterCombat(Unit* who)
@@ -201,7 +201,7 @@ struct boss_rimefangAI : public ScriptedAI
         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-		events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25000);
+        events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25000);
         events.ScheduleEvent(EVENT_ICY_BLAST, 35000);
     }
     
@@ -220,13 +220,13 @@ struct boss_rimefangAI : public ScriptedAI
         {
             switch(eventId)
             {
-				case EVENT_MARK_OF_RIMEFANG:
-					DoScriptText(SAY_MARK_RIMEFANG_1, m_creature);
+                case EVENT_MARK_OF_RIMEFANG:
+                    DoScriptText(SAY_MARK_RIMEFANG_1, m_creature);
                     DoScriptText(SAY_MARK_RIMEFANG_2, m_creature);
 
-					if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_MARK_OF_RIMEFANG);
-					events.ScheduleEvent(EVENT_HOARFROST, 5000);
+                    events.ScheduleEvent(EVENT_HOARFROST, 5000);
                     return;
                 case EVENT_HOARFROST:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -234,18 +234,18 @@ struct boss_rimefangAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 20000);
                     return;
                 case EVENT_ICY_BLAST:
-					if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-	    				DoCast(pTarget, DUNGEON_MODE(SPELL_ICY_BLAST, H_SPELL_ICY_BLAST));
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                        DoCast(pTarget, DUNGEON_MODE(SPELL_ICY_BLAST, H_SPELL_ICY_BLAST));
                     events.ScheduleEvent(EVENT_ICY_BLAST_2, 5000);
                     return;
                 case EVENT_ICY_BLAST_2:
-					if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget->getVictim(), DUNGEON_MODE(SPELL_ICY_BLAST_2, H_SPELL_ICY_BLAST_2));
                     events.ScheduleEvent(EVENT_ICY_BLAST, 30000);
                     return;
-			}
-		}
-	}
+            }
+        }
+    }
 };
 
 CreatureAI* GetAI_boss_tyrannus(Creature* pCreature)

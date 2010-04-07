@@ -3285,7 +3285,7 @@ void ObjectMgr::LoadGuilds()
 {
     Guild *newGuild;
     uint32 count = 0;
-	
+    
     //                                                    0             1          2          3           4           5           6
     QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
     //   7               8    9    10         11        12
@@ -3339,7 +3339,7 @@ void ObjectMgr::LoadGuilds()
             !newGuild->LoadBankRightsFromDB(guildBankTabRightsResult) ||
             !newGuild->CheckGuildStructure()
             )
-		{
+        {
             newGuild->Disband();
             delete newGuild;
             continue;

@@ -38,7 +38,7 @@ bool AT_example_areatrigger(Player* pPlayer, const AreaTriggerEntry *pAt)
 extern void LoadDatabase();
 bool ItemUse_example_item(Player* pPlayer, Item* pItem, SpellCastTargets const& scTargets)
 {
-	sScriptMgr.LoadDatabase();
+    sScriptMgr.LoadDatabase();
     return true;
 }
 

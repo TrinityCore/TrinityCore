@@ -394,7 +394,7 @@ struct npc_outhouse_bunnyAI : public ScriptedAI
         if (uiType == 1)
             m_gender = uiData;
     }
-	
+    
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
          if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
@@ -440,15 +440,15 @@ struct npc_tallhorn_stagAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPhase = 1)
-		{
-		    if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
+        {
+            if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
             {
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
             }
             m_uiPhase = 0;
-		}
+        }
     }
 };
 
@@ -475,16 +475,16 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
     {
         m_uiTimer = 0;
         m_uiPhase = 1;
-    }	
-	
-	void UpdateAI(const uint32 uiDiff)
-    {	
+    }    
+    
+    void UpdateAI(const uint32 uiDiff)
+    {    
         // call this each update tick?
-		if (Creature* stag = me->FindNearestCreature(TALLHORN_STAG, 0.2f))
-		{
+        if (Creature* stag = me->FindNearestCreature(TALLHORN_STAG, 0.2f))
+        {
             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
         }
-		else
+        else
             if (m_uiPhase)
             {
                 if (m_uiTimer <= uiDiff)
@@ -495,7 +495,7 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
                             m_uiTimer = 3000;
                             m_uiPhase = 2;
-                            break;						
+                            break;                        
                         case 2:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK1H);
                             m_uiTimer = 4000;
@@ -506,7 +506,7 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
                 else
                 m_uiTimer -= uiDiff;
             }
-            ScriptedAI::UpdateAI(uiDiff);		
+            ScriptedAI::UpdateAI(uiDiff);        
         
         UpdateVictim();
     }

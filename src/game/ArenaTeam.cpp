@@ -47,7 +47,7 @@ ArenaTeam::ArenaTeam()
     m_stats.games_season  = 0;
     m_stats.rank          = 0;
     if (sWorld.getConfig(CONFIG_ARENA_START_RATING)>=0)
-	m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
+    m_stats.rating = sWorld.getConfig(CONFIG_ARENA_START_RATING);
     else if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
         m_stats.rating    = 0;
     else
@@ -146,7 +146,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     newmember.wins_season       = 0;
     newmember.wins_week         = 0;
     if (sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING) >= 0)
-	newmember.personal_rating = sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+    newmember.personal_rating = sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING);
     else if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
     {
         if (m_stats.rating < 1000)
@@ -199,7 +199,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult_AutoPtr arenaTeamDataResult)
     m_stats.games_season = fields[12].GetUInt32();
     m_stats.wins_season  = fields[13].GetUInt32();
     m_stats.rank         = fields[14].GetUInt32();
-		
+        
     return true;
 }
 
@@ -216,7 +216,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult_AutoPtr arenaTeamMembersResult)
         //prevent crash if db records are broken, when all members in result are already processed and current team hasn't got any members
         if (!fields)
             break;
-		uint32 arenaTeamId        = fields[0].GetUInt32();
+        uint32 arenaTeamId        = fields[0].GetUInt32();
         if (arenaTeamId < m_TeamId)
         {
             //there is in table arena_team_member record which doesn't have arenateamid in arena_team table, report error
@@ -322,7 +322,7 @@ void ArenaTeam::Disband(WorldSession *session)
         // Removing from members is done in DelMember.
         DelMember(m_members.front().guid);
     }
-	
+    
     if (session)
     {
         if(Player *player = session->GetPlayer())

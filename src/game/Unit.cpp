@@ -3091,9 +3091,9 @@ float Unit::GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVict
     if (attackType != RANGED_ATTACK)
     {
         crit -= pVictim->GetMeleeCritChanceReduction();
-	 // Glyph of barkskin
-	 if (pVictim->HasAura(63057) && pVictim->HasAura(22812))
-	     crit-=25.0f;
+     // Glyph of barkskin
+     if (pVictim->HasAura(63057) && pVictim->HasAura(22812))
+         crit-=25.0f;
     }
     else
         crit -= pVictim->GetRangedCritChanceReduction();
@@ -9254,7 +9254,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         else if (minion->isTotem())
         {
             // All summoned by totem minions must disappear when it is removed.
-	  if (const SpellEntry* spInfo = sSpellStore.LookupEntry(minion->ToTotem()->GetSpell()))
+      if (const SpellEntry* spInfo = sSpellStore.LookupEntry(minion->ToTotem()->GetSpell()))
                 for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
                     if (spInfo->Effect[i] != SPELL_EFFECT_SUMMON)
@@ -11369,7 +11369,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         if (enemy)
         {            
             if (IsAIEnabled)
-			{
+            {
                 this->ToCreature()->AI()->EnterCombat(enemy);
                 RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);//always remove Out of Combat Non Attackable flag if we enter combat and AI is enabled
             }
@@ -12173,7 +12173,7 @@ Unit* Creature::SelectVictim()
     for (AttackerSet::const_iterator itr = m_attackers.begin(); itr != m_attackers.end(); ++itr)
     {
         if ((*itr) && !canCreatureAttack(*itr) && (*itr)->GetTypeId() != TYPEID_PLAYER
-	    && !(*itr)->ToCreature()->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+        && !(*itr)->ToCreature()->HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
             return NULL;
     }
 
@@ -14761,17 +14761,17 @@ void Unit::SetControlled(bool apply, UnitState state)
                 break;
             case UNIT_STAT_CONFUSED:
                 if (!hasUnitState(UNIT_STAT_STUNNED))
-		        {
+                {
                     SetConfused(true);
-		            CastStop();
-		        }
+                    CastStop();
+                }
                 break;
             case UNIT_STAT_FLEEING:
                 if (!hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_CONFUSED))
-		        {
+                {
                     SetFeared(true);
-		            CastStop();
-		        }
+                    CastStop();
+                }
                 break;
             default:
                 break;
@@ -15843,7 +15843,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seatId)
         // drop flag at invisible in bg
         if(this->ToPlayer()->InBattleGround())
             if(BattleGround *bg = this->ToPlayer()->GetBattleGround())
-	      bg->EventPlayerDroppedFlag(this->ToPlayer());
+          bg->EventPlayerDroppedFlag(this->ToPlayer());
     }
 
     assert(!m_vehicle);
