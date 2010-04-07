@@ -43,7 +43,7 @@
 #include "Policies/Singleton.h"
 #include "Policies/SingletonImp.h"
 
-INSTANTIATE_SINGLETON_1( InstanceSaveManager );
+INSTANTIATE_SINGLETON_1(InstanceSaveManager);
 
 InstanceSaveManager::InstanceSaveManager() : lock_instLists(false)
 {
@@ -142,7 +142,7 @@ void InstanceSaveManager::DeleteInstanceFromDB(uint32 instanceid)
 
 void InstanceSaveManager::RemoveInstanceSave(uint32 InstanceId)
 {
-    InstanceSaveHashMap::iterator itr = m_instanceSaveById.find( InstanceId );
+    InstanceSaveHashMap::iterator itr = m_instanceSaveById.find(InstanceId);
     if (itr != m_instanceSaveById.end())
     {
         // save the resettime for normal instances only when they get unloaded
@@ -235,7 +235,7 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
     va_list ap;
     char szQueryTail [MAX_QUERY_LEN];
     va_start(ap, queryTail);
-    int res = vsnprintf( szQueryTail, MAX_QUERY_LEN, queryTail, ap );
+    int res = vsnprintf(szQueryTail, MAX_QUERY_LEN, queryTail, ap);
     va_end(ap);
 
     QueryResult_AutoPtr result = db.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
@@ -345,7 +345,7 @@ void InstanceSaveManager::CleanupInstances()
 
     bar.step();
     sLog.outString();
-    sLog.outString( ">> Initialized %u instances", (uint32)InstanceSet.size());
+    sLog.outString(">> Initialized %u instances", (uint32)InstanceSet.size());
 }
 
 void InstanceSaveManager::PackInstances()
@@ -394,7 +394,7 @@ void InstanceSaveManager::PackInstances()
     }
 
     sLog.outString();
-    sLog.outString( ">> Instance numbers remapped, next instance id is %u", InstanceNumber );
+    sLog.outString(">> Instance numbers remapped, next instance id is %u", InstanceNumber);
 }
 
 void InstanceSaveManager::LoadResetTimes()
@@ -416,7 +416,7 @@ void InstanceSaveManager::LoadResetTimes()
     ResetTimeMapDiffInstances mapDiffResetInstances;
 
     QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT id, map, difficulty, resettime FROM instance WHERE resettime > 0");
-    if ( result )
+    if (result)
     {
         do
         {
@@ -433,7 +433,7 @@ void InstanceSaveManager::LoadResetTimes()
 
         // update reset time for normal instances with the max creature respawn time + X hours
         result = WorldDatabase.Query("SELECT MAX(respawntime), instance FROM creature_respawn WHERE instance > 0 GROUP BY instance");
-        if ( result )
+        if (result)
         {
             do
             {

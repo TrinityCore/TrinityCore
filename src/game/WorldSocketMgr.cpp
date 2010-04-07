@@ -251,7 +251,7 @@ WorldSocketMgr::StartReactiveIO (ACE_UINT16 port, const char* address)
 
     m_SockOutUBuff = sConfig.GetIntDefault ("Network.OutUBuff", 65536);
 
-    if ( m_SockOutUBuff <= 0 )
+    if (m_SockOutUBuff <= 0)
     {
         sLog.outError ("Network.OutUBuff is wrong in your config file");
         return -1;

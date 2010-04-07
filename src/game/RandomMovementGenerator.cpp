@@ -185,7 +185,7 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff
 
     CreatureTraveller traveller(creature);
 
-    if ( i_destinationHolder.UpdateTraveller(traveller, diff, true) )
+    if (i_destinationHolder.UpdateTraveller(traveller, diff, true))
     {
         if (i_nextMoveTime.Passed())
         {

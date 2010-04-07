@@ -452,7 +452,7 @@ class BattleGround
         void BlockMovement(Player *plr);
 
         void SendMessageToAll(int32 entry, ChatMsg type, Player const* source = NULL);
-        void PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...  );
+        void PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...);
 
         // specialized version with 2 string id args
         void SendMessage2ToAll(int32 entry, ChatMsg type, Player const* source, int32 strId1 = 0, int32 strId2 = 0);

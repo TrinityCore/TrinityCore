@@ -125,13 +125,13 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     if (unit.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
         return true;
 
-    if ( i_nextMoveTime.Passed() )
+    if (i_nextMoveTime.Passed())
     {
         // currently moving, update location
         Traveller<T> traveller(unit);
-        if ( i_destinationHolder.UpdateTraveller(traveller, diff))
+        if (i_destinationHolder.UpdateTraveller(traveller, diff))
         {
-            if ( i_destinationHolder.HasArrived())
+            if (i_destinationHolder.HasArrived())
             {
                 // arrived, stop and wait a bit
                 unit.clearUnitState(UNIT_STAT_MOVE);
@@ -145,10 +145,10 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     {
         // waiting for next move
         i_nextMoveTime.Update(diff);
-        if ( i_nextMoveTime.Passed() )
+        if (i_nextMoveTime.Passed())
         {
             // start moving
-            assert( i_nextMove <= MAX_CONF_WAYPOINTS );
+            assert(i_nextMove <= MAX_CONF_WAYPOINTS);
             const float x = i_waypoints[i_nextMove][0];
             const float y = i_waypoints[i_nextMove][1];
             const float z = i_waypoints[i_nextMove][2];

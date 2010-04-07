@@ -34,9 +34,9 @@
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
 
-void WorldSession::HandleMoveWorldportAckOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog.outDebug( "WORLD: got MSG_MOVE_WORLDPORT_ACK." );
+    sLog.outDebug("WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -142,7 +142,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     Corpse *corpse = GetPlayer()->GetCorpse();
     if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == GetPlayer()->GetMapId())
     {
-        if ( mEntry->IsDungeon() )
+        if (mEntry->IsDungeon())
         {
             GetPlayer()->ResurrectPlayer(0.5f,false);
             GetPlayer()->SpawnCorpseBones();
@@ -236,7 +236,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     GetPlayer()->ProcessDelayedOperations();
 }
 
-void WorldSession::HandleMovementOpcodes( WorldPacket & recv_data )
+void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 {
     uint16 opcode = recv_data.GetOpcode();
     //sLog.outDebug("WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
@@ -677,7 +677,7 @@ void WorldSession::HandleMountSpecialAnimOpcode(WorldPacket& /*recvdata*/)
     GetPlayer()->SendMessageToSet(&data, false);
 }
 
-void WorldSession::HandleMoveKnockBackAck( WorldPacket & recv_data )
+void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 {
     sLog.outDebug("CMSG_MOVE_KNOCK_BACK_ACK");
 
@@ -691,7 +691,7 @@ void WorldSession::HandleMoveKnockBackAck( WorldPacket & recv_data )
     ReadMovementInfo(recv_data, &movementInfo);
 }
 
-void WorldSession::HandleMoveHoverAck( WorldPacket& recv_data )
+void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)
 {
     sLog.outDebug("CMSG_MOVE_HOVER_ACK");
 
@@ -725,7 +725,7 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recv_data)
 
 void WorldSession::HandleSummonResponseOpcode(WorldPacket& recv_data)
 {
-    if (!_player->isAlive() || _player->isInCombat() )
+    if (!_player->isAlive() || _player->isInCombat())
         return;
 
     uint64 summoner_guid;

@@ -399,7 +399,7 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     // reset cooldown state for spells
     if (caster && caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if ( GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE )
+        if (GetSpellProto()->Attributes & SPELL_ATTR_DISABLED_WHILE_ACTIVE)
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
             caster->ToPlayer()->SendCooldownEvent(GetSpellProto());
     }
@@ -817,7 +817,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             // some auras applied at aura apply
             else if (itr->second->autocast)
             {
-                if ( !target->HasAura(itr->second->spellId) )
+                if (!target->HasAura(itr->second->spellId))
                     target->CastSpell(target,itr->second->spellId,true);
             }
         }
@@ -1289,7 +1289,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
             {
                 case 19574: // Bestial Wrath
                     // The Beast Within cast on owner if talent present
-                    if ( Unit* owner = target->GetOwner() )
+                    if (Unit* owner = target->GetOwner())
                     {
                         // Search talent
                         if (owner->HasAura(34692))

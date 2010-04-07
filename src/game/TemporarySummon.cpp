@@ -37,7 +37,7 @@ Unit* TempSummon::GetSummoner() const
     return m_summonerGUID ? ObjectAccessor::GetUnit(*this, m_summonerGUID) : NULL;
 }
 
-void TempSummon::Update( uint32 diff )
+void TempSummon::Update(uint32 diff)
 {
     Creature::Update(diff);
 
@@ -81,7 +81,7 @@ void TempSummon::Update( uint32 diff )
 
         case TEMPSUMMON_CORPSE_TIMED_DESPAWN:
         {
-            if ( m_deathState == CORPSE)
+            if (m_deathState == CORPSE)
             {
                 if (m_timer <= diff)
                 {
@@ -96,7 +96,7 @@ void TempSummon::Update( uint32 diff )
         case TEMPSUMMON_CORPSE_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
-            if ( m_deathState == CORPSE || m_deathState == DEAD)
+            if (m_deathState == CORPSE || m_deathState == DEAD)
             {
                 UnSummon();
                 return;
@@ -106,7 +106,7 @@ void TempSummon::Update( uint32 diff )
         }
         case TEMPSUMMON_DEAD_DESPAWN:
         {
-            if ( m_deathState == DEAD )
+            if (m_deathState == DEAD)
             {
                 UnSummon();
                 return;
@@ -116,7 +116,7 @@ void TempSummon::Update( uint32 diff )
         case TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
-            if ( m_deathState == CORPSE || m_deathState == DEAD)
+            if (m_deathState == CORPSE || m_deathState == DEAD)
             {
                 UnSummon();
                 return;
@@ -145,7 +145,7 @@ void TempSummon::Update( uint32 diff )
                 return;
             }
 
-            if (!isInCombat() && isAlive() )
+            if (!isInCombat() && isAlive())
             {
                 if (m_timer <= diff)
                 {

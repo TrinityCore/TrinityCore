@@ -48,27 +48,27 @@ class ChatHandler
         explicit ChatHandler(Player* player) : m_session(player->GetSession()) {}
          ~ChatHandler() {}
 
-        static void FillMessageData( WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit *speaker);
+        static void FillMessageData(WorldPacket *data, WorldSession* session, uint8 type, uint32 language, const char *channelName, uint64 target_guid, const char *message, Unit *speaker);
 
-        void FillMessageData( WorldPacket *data, uint8 type, uint32 language, uint64 target_guid, const char* message)
+        void FillMessageData(WorldPacket *data, uint8 type, uint32 language, uint64 target_guid, const char* message)
         {
-            FillMessageData( data, m_session, type, language, NULL, target_guid, message, NULL);
+            FillMessageData(data, m_session, type, language, NULL, target_guid, message, NULL);
         }
 
-        void FillSystemMessageData( WorldPacket *data, const char* message )
+        void FillSystemMessageData(WorldPacket *data, const char* message)
         {
-            FillMessageData( data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, 0, message );
+            FillMessageData(data, CHAT_MSG_SYSTEM, LANG_UNIVERSAL, 0, message);
         }
 
         static char* LineFromMessage(char*& pos) { char* start = strtok(pos,"\n"); pos = NULL; return start; }
 
         // function with different implementation for chat/console
         virtual const char *GetTrinityString(int32 entry) const;
-        virtual void SendSysMessage(  const char *str);
+        virtual void SendSysMessage(const char *str);
 
-        void SendSysMessage(          int32     entry);
-        void PSendSysMessage(         const char *format, ...) ATTR_PRINTF(2,3);
-        void PSendSysMessage(         int32     entry, ...  );
+        void SendSysMessage(int32     entry);
+        void PSendSysMessage(const char *format, ...) ATTR_PRINTF(2,3);
+        void PSendSysMessage(int32     entry, ...);
         std::string PGetParseString(int32 entry, ...);
 
         int ParseCommands(const char* text);
@@ -94,7 +94,7 @@ class ChatHandler
 
         void SendGlobalGMSysMessage(const char *str);
 
-        static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand );
+        static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
         bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
@@ -645,7 +645,7 @@ class CliHandler : public ChatHandler
         Print* m_print;
 };
 
-char const *fmtstring( char const *format, ... );
+char const *fmtstring(char const *format, ...);
 
 #endif
 

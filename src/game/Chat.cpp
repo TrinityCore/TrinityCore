@@ -1642,7 +1642,7 @@ valid examples:
                                     expectedName += " ";
                                     expectedName += suffix[i];
                                 }
-                                if ( expectedName == buffer)
+                                if (expectedName == buffer)
                                 {
                                     foundName = true;
                                     break;

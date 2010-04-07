@@ -36,7 +36,7 @@ DestinationHolder<TRAVELLER>::_findOffSetPoint(float x1, float y1, float x2, flo
      * hence x = x2 - (offset/d)*(x2-x1)
      * like wise offset/d = (y2-y)/(y2-y1);
      */
-    if ( offset == 0 )
+    if (offset == 0)
     {
         x = x2;
         y = y2;
@@ -198,7 +198,7 @@ template<typename TRAVELLER>
 void
 DestinationHolder<TRAVELLER>::GetLocationNowNoMicroMovement(float &x, float &y, float &z) const
 {
-    if ( HasArrived() )
+    if (HasArrived())
     {
         x = i_destX;
         y = i_destY;

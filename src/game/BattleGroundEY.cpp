@@ -131,7 +131,7 @@ void BattleGroundEY::AddPoints(uint32 Team, uint32 Points)
     BattleGroundTeamId team_index = GetTeamIndexByTeamId(Team);
     m_TeamScores[team_index] += Points;
     m_HonorScoreTics[team_index] += Points;
-    if (m_HonorScoreTics[team_index] >= m_HonorTics )
+    if (m_HonorScoreTics[team_index] >= m_HonorTics)
     {
         RewardHonorToTeam(GetBonusHonorFromKill(1), Team);
         m_HonorScoreTics[team_index] -= m_HonorTics;
@@ -472,7 +472,7 @@ bool BattleGroundEY::SetupBattleGround()
         || !AddObject(BG_EY_OBJECT_TOWER_CAP_BLOOD_ELF, BG_OBJECT_BE_TOWER_CAP_EY_ENTRY, 2050.493164f, 1372.235962f, 1194.563477f, 1.710423f, 0, 0, 0.754710f, 0.656059f, RESPAWN_ONE_DAY)
         || !AddObject(BG_EY_OBJECT_TOWER_CAP_DRAENEI_RUINS, BG_OBJECT_DR_TOWER_CAP_EY_ENTRY, 2301.010498f, 1386.931641f, 1197.183472f, 1.570796f, 0, 0, 0.707107f, 0.707107f, RESPAWN_ONE_DAY)
         || !AddObject(BG_EY_OBJECT_TOWER_CAP_MAGE_TOWER, BG_OBJECT_HU_TOWER_CAP_EY_ENTRY, 2282.121582f, 1760.006958f, 1189.707153f, 1.919862f, 0, 0, 0.819152f, 0.573576f, RESPAWN_ONE_DAY)
-        )
+)
     {
         sLog.outErrorDb("BatteGroundEY: Failed to spawn some object BattleGround not created!");
         return false;
@@ -490,7 +490,7 @@ bool BattleGroundEY::SetupBattleGround()
         if (!AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REALVER + i * 3, Buff_Entries[0], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
             || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REALVER + i * 3 + 1, Buff_Entries[1], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
             || !AddObject(BG_EY_OBJECT_SPEEDBUFF_FEL_REALVER + i * 3 + 2, Buff_Entries[2], at->x, at->y, at->z, 0.907571f, 0, 0, 0.438371f, 0.898794f, RESPAWN_ONE_DAY)
-            )
+)
             sLog.outError("BattleGroundEY: Cannot spawn buff");
     }
 
@@ -610,7 +610,7 @@ void BattleGroundEY::EventPlayerDroppedFlag(Player *Source)
     m_FlagsTimer = BG_EY_FLAG_RESPAWN_TIME;
     Source->CastSpell(Source, SPELL_RECENTLY_DROPPED_FLAG, true);
     Source->CastSpell(Source, BG_EY_PLAYER_DROPPED_FLAG_SPELL, true);
-    //this does not work correctly :( (it should remove flag carrier name)
+    //this does not work correctly :((it should remove flag carrier name)
     UpdateWorldState(NETHERSTORM_FLAG_STATE_HORDE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
     UpdateWorldState(NETHERSTORM_FLAG_STATE_ALLIANCE, BG_EY_FLAG_STATE_WAIT_RESPAWN);
 

@@ -28,7 +28,7 @@
 #include "Database/DatabaseEnv.h"
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -519,7 +519,7 @@ union GameObjectValue
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -718,7 +718,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
 
-        void TriggeringLinkedGameObject( uint32 trapEntry, Unit* target);
+        void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
         bool isVisibleForInState(Player const* u, bool inVisibleList) const;
         bool canDetectTrap(Player const* u, float distance) const;

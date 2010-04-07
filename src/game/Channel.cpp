@@ -164,7 +164,7 @@ void Channel::Join(uint64 p, const char *pass)
     {
         if (HasFlag(CHANNEL_FLAG_LFG) &&
             sWorld.getConfig(CONFIG_RESTRICTED_LFG_CHANNEL) && plr->GetSession()->GetSecurity() == SEC_PLAYER &&
-            (plr->GetGroup() || plr->m_lookingForGroup.Empty()) )
+            (plr->GetGroup() || plr->m_lookingForGroup.Empty()))
         {
             MakeNotInLfg(&data);
             SendToOne(&data, p);
@@ -177,7 +177,7 @@ void Channel::Join(uint64 p, const char *pass)
         plr->JoinedChannel(this);
     }
 
-    if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld.getConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL) ))
+    if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld.getConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
     {
         MakeJoined(&data, p);
         SendToAll(&data);
@@ -202,7 +202,7 @@ void Channel::Join(uint64 p, const char *pass)
         players[p].SetModerator(true);
     }
     /*
-    else if (!IsConstant() && m_ownerGUID && plr && m_ownerGUID == plr->GetGUID() ))
+    else if (!IsConstant() && m_ownerGUID && plr && m_ownerGUID == plr->GetGUID()))
     {
         SetOwner(p, (players.size() > 1 ? true : false));
         players[p].SetModerator(true);
@@ -237,7 +237,7 @@ void Channel::Leave(uint64 p, bool send)
         bool changeowner = players[p].IsOwner();
 
         players.erase(p);
-        if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld.getConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL) ))
+        if (m_announce && (!plr || plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || !sWorld.getConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL)))
         {
             WorldPacket data;
             MakeLeft(&data, p);
@@ -445,8 +445,8 @@ void Channel::SetMode(uint64 p, const char *p2n, bool mod, bool set)
 
         // allow make moderator from another team only if both is GMs
         // at this moment this only way to show channel post for GM from another team
-        if ( (plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || newp->GetSession()->GetSecurity() < SEC_GAMEMASTER) &&
-            plr->GetTeam() != newp->GetTeam() && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL) )
+        if ((plr->GetSession()->GetSecurity() < SEC_GAMEMASTER || newp->GetSession()->GetSecurity() < SEC_GAMEMASTER) &&
+            plr->GetTeam() != newp->GetTeam() && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         {
             WorldPacket data;
             MakePlayerNotFound(&data, p2n);

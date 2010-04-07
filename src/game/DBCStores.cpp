@@ -235,8 +235,8 @@ void LoadDBCStores(const std::string& dataPath)
             // fill AreaId->DBC records
             sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID),area->exploreFlag));
 
-            // fill MapId->DBC records ( skip sub zones and continents )
-            if (area->zone==0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571 )
+            // fill MapId->DBC records (skip sub zones and continents)
+            if (area->zone==0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571)
                 sAreaFlagByMapID.insert(AreaFlagByMapID::value_type(area->mapid,area->exploreFlag));
         }
     }
@@ -413,7 +413,7 @@ void LoadDBCStores(const std::string& dataPath)
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentTabId );
+            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
             if (!talentTabInfo)
                 continue;
 
@@ -518,12 +518,12 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sWorldSafeLocsStore,       dbcPath,"WorldSafeLocs.dbc");
 
     // error checks
-    if (bad_dbc_files.size() >= DBCFilesCount )
+    if (bad_dbc_files.size() >= DBCFilesCount)
     {
         sLog.outError("\nIncorrect DataDir value in Trinityd.conf or ALL required *.dbc files (%d) not found by path: %sdbc",DBCFilesCount,dataPath.c_str());
         exit(1);
     }
-    else if (!bad_dbc_files.empty() )
+    else if (!bad_dbc_files.empty())
     {
         std::string str;
         for (std::list<std::string>::iterator i = bad_dbc_files.begin(); i != bad_dbc_files.end(); ++i)
@@ -534,19 +534,19 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if ( !sSpellStore.LookupEntry(74445)            ||       // last added spell in 3.3.2
+    if (!sSpellStore.LookupEntry(74445)            ||       // last added spell in 3.3.2
         !sMapStore.LookupEntry(718)                ||       // last map added in 3.3.2
         !sGemPropertiesStore.LookupEntry(1629)     ||       // last gem property added in 3.3.2
         !sItemExtendedCostStore.LookupEntry(2982)  ||       // last item extended cost added in 3.3.2
         !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.2
         !sAreaStore.LookupEntry(3461)              ||       // last area (areaflag) added in 3.3.2
-        !sItemStore.LookupEntry(52686)             )        // last client known item added in 3.3.2
+        !sItemStore.LookupEntry(52686))        // last client known item added in 3.3.2
     {
         sLog.outError("\nYou have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);
     }
     sLog.outString();
-    sLog.outString( ">> Initialized %d data stores", DBCFilesCount );
+    sLog.outString(">> Initialized %d data stores", DBCFilesCount);
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction, bool &isTeamMember)
@@ -728,7 +728,7 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
     return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
 }
 
-PvPDifficultyEntry const* GetBattlegroundBracketByLevel( uint32 mapid, uint32 level )
+PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
 {
     // prevent out-of-range levels for dbc data
     if (level > DEFAULT_MAX_LEVEL)

@@ -82,7 +82,7 @@ void CreatureGroupManager::LoadCreatureFormations()
 
     if (!result)
     {
-        sLog.outErrorDb(" ...an error occured while loading the table creature_formations ( maybe it doesn't exist ?)\n");
+        sLog.outErrorDb(" ...an error occured while loading the table creature_formations (maybe it doesn't exist ?)\n");
         return;
     }
 
@@ -96,7 +96,7 @@ void CreatureGroupManager::LoadCreatureFormations()
     }
 
     uint32 total_records = result->GetRowCount();
-    barGoLink bar( total_records);
+    barGoLink bar(total_records);
     Field *fields;
 
     FormationInfo *group_member;
@@ -147,7 +147,7 @@ void CreatureGroupManager::LoadCreatureFormations()
     while (result->NextRow()) ;
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u creatures in formations", total_records );
+    sLog.outString(">> Loaded %u creatures in formations", total_records);
     sLog.outString();
 }
 

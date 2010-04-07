@@ -102,7 +102,7 @@ void Pet::RemoveFromWorld()
     }
 }
 
-bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool current )
+bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool current)
 {
     m_loading = true;
 
@@ -119,7 +119,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
         // current pet (slot 0)                   0   1      2(?)   3        4      5    6           7     8     9        10         11       12            13      14        15                 16                 17              18
         result = CharacterDatabase.PQuery("SELECT id, entry, owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType "
             "FROM character_pet WHERE owner = '%u' AND slot = '%u'",
-            ownerid, PET_SAVE_AS_CURRENT );
+            ownerid, PET_SAVE_AS_CURRENT);
     else if (petentry)
         // known petentry entry (unique for summoned pet, but non unique for hunter pet (only from current or not stabled pets)
         //                                        0   1      2(?)   3        4      5    6           7     8     9        10         11       12           13       14        15                 16                 17              18
@@ -233,7 +233,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, fields[5].GetUInt32());
     SetCreatorGUID(owner->GetGUID());
 
-    SetReactState( ReactStates( fields[6].GetUInt8() ));
+    SetReactState(ReactStates(fields[6].GetUInt8()));
 
     SetCanModifyStats(true);
     InitStatsForLevel(petlevel);
@@ -396,12 +396,12 @@ void Pet::SavePetToDB(PetSaveMode mode)
         CharacterDatabase.escape_string(name);
         CharacterDatabase.BeginTransaction();
         // remove current data
-        CharacterDatabase.PExecute("DELETE FROM character_pet WHERE owner = '%u' AND id = '%u'", owner,m_charmInfo->GetPetNumber() );
+        CharacterDatabase.PExecute("DELETE FROM character_pet WHERE owner = '%u' AND id = '%u'", owner,m_charmInfo->GetPetNumber());
 
         // prevent duplicate using slot (except PET_SAVE_NOT_IN_SLOT)
         if (mode <= PET_SAVE_LAST_STABLE_SLOT)
             CharacterDatabase.PExecute("UPDATE character_pet SET slot = '%u' WHERE owner = '%u' AND slot = '%u'",
-                PET_SAVE_NOT_IN_SLOT, owner, uint32(mode) );
+                PET_SAVE_NOT_IN_SLOT, owner, uint32(mode));
 
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
         if (getPetType()==HUNTER_PET && (mode==PET_SAVE_AS_CURRENT||mode > PET_SAVE_LAST_STABLE_SLOT))
@@ -409,7 +409,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
                 owner,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
         // save pet
         std::ostringstream ss;
-        ss  << "INSERT INTO character_pet ( id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType) "
+        ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, resettalents_cost, resettalents_time, CreatedBySpell, PetType) "
             << "VALUES ("
             << m_charmInfo->GetPetNumber() << ", "
             << GetEntry() << ", "
@@ -438,7 +438,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
             << GetUInt32Value(UNIT_CREATED_BY_SPELL) << ", "
             << uint32(getPetType()) << ")";
 
-        CharacterDatabase.Execute( ss.str().c_str() );
+        CharacterDatabase.Execute(ss.str().c_str());
         CharacterDatabase.CommitTransaction();
     }
     // delete
@@ -466,7 +466,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
         if (getPetType() == HUNTER_PET)
         {
             // pet corpse non lootable and non skinnable
-            SetUInt32Value( UNIT_DYNAMIC_FLAGS, 0x00 );
+            SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0x00);
             RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 
              //lose happiness when died and not in BG/Arena
@@ -492,11 +492,11 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
-    switch( m_deathState )
+    switch(m_deathState)
     {
         case CORPSE:
         {
-            if (getPetType() != HUNTER_PET || m_deathTimer <= diff )
+            if (getPetType() != HUNTER_PET || m_deathTimer <= diff)
             {
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;
@@ -516,7 +516,7 @@ void Pet::Update(uint32 diff)
 
             if (isControlled())
             {
-                if ( owner->GetPetGUID() != GetGUID() )
+                if (owner->GetPetGUID() != GetGUID())
                 {
                     sLog.outError("Pet %u is not pet of owner %u, removed", GetEntry(), m_owner->GetName());
                     Remove(getPetType()==HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
@@ -690,7 +690,7 @@ void Pet::GivePetXP(uint32 xp)
     if (getPetType() != HUNTER_PET)
         return;
 
-    if ( xp < 1 )
+    if (xp < 1)
         return;
 
     if (!isAlive())
@@ -699,7 +699,7 @@ void Pet::GivePetXP(uint32 xp)
     uint8 level = getLevel();
 
     // If pet is detected to be equal to player level, don't hand out XP
-    if ( level >= GetOwner()->getLevel() )
+    if (level >= GetOwner()->getLevel())
        return;
 
     uint32 curXP = GetUInt32Value(UNIT_FIELD_PETEXPERIENCE);
@@ -707,7 +707,7 @@ void Pet::GivePetXP(uint32 xp)
     uint32 newXP = curXP + xp;
 
     // Check how much XP the pet should receive, and hand off have any left from previous levelups
-    while ( newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL) )
+    while (newXP >= nextLvlXP && level < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         // Subtract newXP from amount needed for nextlevel
         newXP -= nextLvlXP;
@@ -719,7 +719,7 @@ void Pet::GivePetXP(uint32 xp)
         nextLvlXP = GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP);
 
         // Hitting the pet/playerlevel combolimitation, set UNIT_FIELD_PETEXPERIENCE (current XP) to 0
-        if ( level >= GetOwner()->getLevel() ) {
+        if (level >= GetOwner()->getLevel()) {
           newXP = 0;
           SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, newXP);
           return;
@@ -877,8 +877,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
     else                                            // not exist in DB, use some default fake data
     {
         // remove elite bonuses included in DB values
-        //SetCreateHealth(uint32(((float(cinfo->maxhealth) / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel) );
-        //SetCreateMana(  uint32(((float(cinfo->maxmana)   / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel) );
+        //SetCreateHealth(uint32(((float(cinfo->maxhealth) / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel));
+        //SetCreateMana(uint32(((float(cinfo->maxmana)   / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel));
 
         SetCreateStat(STAT_STRENGTH, 22);
         SetCreateStat(STAT_AGILITY, 22);
@@ -899,8 +899,8 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             SetBonusDamage(int32 (val * 0.15f));
             //bonusAP += val * 0.57;
 
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)) );
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)) );
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
             break;
@@ -910,9 +910,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(petlevel)*PET_XP_FACTOR);
             //these formula may not be correct; however, it is designed to be close to what it should be
             //this makes dps 0.5 of pets level
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)) );
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
             //damage range is then petlevel / 2
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)) );
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
             //damage is increased afterwards as strength and pet scaling modify attack power
             break;
         }
@@ -926,7 +926,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     float val = m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST) * 0.4;
                     if (val < 0)
                         val = 0;
-                    SetBonusDamage( int32(val));
+                    SetBonusDamage(int32(val));
                     break;
                 }
                 case 1964: //force of nature
@@ -1226,7 +1226,7 @@ void Pet::_LoadAuras(uint32 timediff)
             else
                 remaincharges = 0;
 
-            if (Aura * aura = Aura::TryCreate( spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
+            if (Aura * aura = Aura::TryCreate(spellproto, effmask, this, NULL, &baseDamage[0], NULL, caster_guid))
             {
                 if (!aura->CanBeSaved())
                 {
@@ -1342,7 +1342,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
     // talent: unlearn all other talent ranks (high and low)
     if (TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
     {
-        if (TalentEntry const *talentInfo = sTalentStore.LookupEntry( talentPos->talent_id ))
+        if (TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
             for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
             {
@@ -1364,7 +1364,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
         {
             if (itr2->second.state == PETSPELL_REMOVED) continue;
 
-            if (spellmgr.IsRankSpellDueToSpell(spellInfo,itr2->first) )
+            if (spellmgr.IsRankSpellDueToSpell(spellInfo,itr2->first))
             {
                 // replace by new high rank
                 if (spellmgr.IsHighRankOfSpell(spell_id,itr2->first))
@@ -1601,7 +1601,7 @@ bool Pet::resetTalents(bool no_cost)
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry( talentInfo->TalentTab );
+        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
         if (!talentTabInfo)
             continue;

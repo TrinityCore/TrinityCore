@@ -1416,7 +1416,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Quests...");
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
 
-    sLog.outString( "Loading Quest POI" );
+    sLog.outString("Loading Quest POI");
     objmgr.LoadQuestPOI();
 
     sLog.outString("Loading Quests Relations...");
@@ -1479,7 +1479,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Player Corpses...");
     objmgr.LoadCorpses();
 
-    sLog.outString( "Loading Player level dependent mail rewards..." );
+    sLog.outString("Loading Player level dependent mail rewards...");
     objmgr.LoadMailLevelRewards();
 
     sLog.outString("Loading Disabled Spells...");
@@ -2618,7 +2618,7 @@ void World::LoadWorldStates()
     while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u world states.", counter);
+    sLog.outString(">> Loaded %u world states.", counter);
 }
 
 // Setting a worldstate will save it to DB
