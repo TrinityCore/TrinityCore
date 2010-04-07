@@ -117,7 +117,7 @@ struct npc_tomb_creatureAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
-        
+
         //from acid
         if (m_creature->GetEntry() == CREATURE_TOMB_REAVER)
         {

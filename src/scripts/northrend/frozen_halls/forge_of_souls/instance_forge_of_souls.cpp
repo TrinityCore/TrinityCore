@@ -37,7 +37,7 @@ struct instance_forge_of_souls : public ScriptedInstance
     {
         uiBronjahm = 0;
         uiDevourer = 0;
-        
+
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             m_auiEncounter[i] = NOT_STARTED;
     }

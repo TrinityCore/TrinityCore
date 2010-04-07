@@ -1852,7 +1852,7 @@ class Unit : public WorldObject
         static Creature* GetCreature(WorldObject& object, uint64 guid);
 
         MotionMaster* GetMotionMaster(){ return &i_motionMaster; }
-    
+
         bool IsStopped() const { return !(hasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();
 

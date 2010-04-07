@@ -35,11 +35,11 @@ struct TSpellSummary {
 
 ScriptMgr::ScriptMgr()
 {
-    
+
 }
 ScriptMgr::~ScriptMgr()
 {
-    
+
 }
 
 void ScriptMgr::ScriptsInit()

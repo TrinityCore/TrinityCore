@@ -476,29 +476,29 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
 {
     uint32 count;
     recv_data >> count; // quest count, max=25
- 
+
     if(count >= MAX_QUEST_LOG_SIZE)
         return;
- 
+
     WorldPacket data(SMSG_QUEST_POI_QUERY_RESPONSE, 4+(4+4)*count);
     data << uint32(count); // count
- 
+
     for(int i = 0; i < count; ++i)
     {
         uint32 questId;
         recv_data >> questId; // quest id
- 
+
         bool questOk = false;
- 
+
         uint16 questSlot = _player->FindQuestSlot(questId);
- 
+
         if(questSlot != MAX_QUEST_LOG_SIZE)
             questOk =_player->GetQuestSlotQuestId(questSlot) == questId;
- 
+
         if(questOk)
         {
             QuestPOIVector const *POI = objmgr.GetQuestPOIVector(questId);
- 
+
             if(POI)
             {
                 data << uint32(questId); // quest ID
@@ -514,7 +514,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
                     data << uint32(itr->Unk3);              // unknown
                     data << uint32(itr->Unk4);              // unknown
                     data << uint32(itr->points.size());     // POI points count
- 
+
                     for(std::vector<QuestPOIPoint>::const_iterator itr2 = itr->points.begin(); itr2 != itr->points.end(); ++itr2)
                     {
                         data << int32(itr2->x); // POI point x
@@ -534,6 +534,6 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
             data << uint32(0); // POI count
         }
     }
- 
+
     SendPacket(&data);
 }

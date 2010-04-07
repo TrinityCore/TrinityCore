@@ -155,7 +155,7 @@ struct mob_ragin_flamesAI : public ScriptedAI
 {
     mob_ragin_flamesAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceData();        
+        pInstance = c->GetInstanceData();
     }
 
     ScriptedInstance *pInstance;

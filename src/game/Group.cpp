@@ -565,10 +565,10 @@ void Group::SendLooter(Creature *pCreature, Player *pLooter)
 {
     assert(pCreature);
 
-    WorldPacket data(SMSG_LOOT_LIST, (8+8));    
+    WorldPacket data(SMSG_LOOT_LIST, (8+8));
     data << uint64(pCreature->GetGUID());
     data << uint8(0); // unk1
-    
+
     if (pLooter)
         data.append(pLooter->GetPackGUID());
     else
@@ -628,12 +628,12 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 
                 RollId.push_back(r);
 
-                if (Creature* creature = dynamic_cast<Creature *>(pLootedObject)) 
+                if (Creature* creature = dynamic_cast<Creature *>(pLootedObject))
                 {
                     creature->m_groupLootTimer = 60000;
                     creature->lootingGroupLeaderGUID = GetLeaderGUID();
                 }
-                else if (GameObject* go = dynamic_cast<GameObject *>(pLootedObject)) 
+                else if (GameObject* go = dynamic_cast<GameObject *>(pLootedObject))
                 {
                     go->m_groupLootTimer = 60000;
                     go->lootingGroupLeaderGUID = GetLeaderGUID();
@@ -693,7 +693,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 
                 RollId.push_back(r);
 
-                if (Creature* creature = dynamic_cast<Creature *>(pLootedObject)) 
+                if (Creature* creature = dynamic_cast<Creature *>(pLootedObject))
                 {
                     creature->m_groupLootTimer = 60000;
                     creature->lootingGroupLeaderGUID = GetLeaderGUID();
@@ -924,7 +924,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
 
         // remove is_blocked so that the item is lootable by all players
         LootItem *item = &(roll->getLoot()->items[roll->itemSlot]);
-        if (item) 
+        if (item)
             item->is_blocked = false;
     }
     RollId.erase(rollI);
@@ -1022,7 +1022,7 @@ void Group::SendUpdate()
             if (citr->guid == citr2->guid)
                 continue;
             Player* member = objmgr.GetPlayer(citr2->guid);
-            
+
             uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
             onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
 
@@ -1334,7 +1334,7 @@ bool Group::_setMainTank(const uint64 &guid, const bool &apply)
 
     RemoveUniqueGroupMemberFlag(MEMBER_FLAG_MAINTANK);          // Remove main tank flag from current if any.
     ToggleGroupMemberFlag(slot, MEMBER_FLAG_MAINTANK, apply);   // And apply main tank flag on new main tank.
-    
+
     if(!isBGGroup())
         CharacterDatabase.PExecute("UPDATE group_member SET memberFlags='%u' WHERE memberGuid='%u'", slot->flags, GUID_LOPART(guid));
     return true;
@@ -1412,7 +1412,7 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
 // If the RR player is not yet set for the group, the first group member becomes the round-robin player.
 // If the RR player is set, the next player in group becomes the round-robin player.
 //
-// If ifneed is true, 
+// If ifneed is true,
 //      the current RR player is checked to be near the looted object.
 //      if yes, no update done.
 //      if not, he looses his turn.

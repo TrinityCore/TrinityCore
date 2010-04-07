@@ -138,7 +138,7 @@ bool AreaTrigger_at_ravenholdt(Player* pPlayer, const AreaTriggerEntry* pAt)
 enum eWarsongFarms
 {
     QUEST_THE_WARSONG_FARMS                     = 11686,
-                                                
+
     NPC_CREDIT_SLAUGHTERHOUSE                   = 25672,
     NPC_CREDIT_GRAINERY                         = 25669,
     NPC_CREDIT_TORP_FARM                        = 25671,

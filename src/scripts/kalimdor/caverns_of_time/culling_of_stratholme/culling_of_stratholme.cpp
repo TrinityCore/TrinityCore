@@ -248,21 +248,21 @@ struct npc_arthasAI : public npc_escortAI
     uint64 uiEpochGUID;
     uint64 uiMalganisGUID;
     uint64 uiInfiniteGUID;
-    
+
     uint32 uiExorcismTimer;
-    
-    void Reset() 
-    {   
+
+    void Reset()
+    {
         uiUtherGUID = 0;
         uiJainaGUID = 0;
-        
-        for (uint8 i = 0; i < 2; ++i) 
+
+        for (uint8 i = 0; i < 2; ++i)
             uiCitymenGUID[i] = 0;
 
-        for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i) 
+        for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
             uiWaveGUID[i] = 0;
 
-        for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i) 
+        for (uint8 i = 0; i < ENCOUNTER_DRACONIAN_NUMBER; ++i)
             uiInfiniteDraconianGUID[i] = 0;
 
         uiStalkerGUID = 0;
@@ -283,7 +283,7 @@ struct npc_arthasAI : public npc_escortAI
                     uiGossipStep = 0;
                     break;
             }
-            uiPhaseTimer = 1000;  
+            uiPhaseTimer = 1000;
             uiExorcismTimer = 7300;
             uiWave = 0;
         }
@@ -299,7 +299,7 @@ struct npc_arthasAI : public npc_escortAI
         if (pInstance)
             pInstance->SetData(DATA_ARTHAS_EVENT, FAIL);
     }
-    
+
     void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
     {
         m_creature->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0],RiftAndSpawnsLocations[timeRiftID][1],RiftAndSpawnsLocations[timeRiftID][2],RiftAndSpawnsLocations[timeRiftID][3],RiftAndSpawnsLocations[timeRiftID][4],TEMPSUMMON_TIMED_DESPAWN,11000);
@@ -380,7 +380,7 @@ struct npc_arthasAI : public npc_escortAI
                     if (Unit* pDisguised1 = m_creature->SummonCreature(NPC_CITY_MAN4,2403.22f,1205.54f,134.04f,3.311264f,TEMPSUMMON_DEAD_DESPAWN,180000))
                     {
                         uiInfiniteDraconianGUID[1] = pDisguised1->GetGUID();
-                        
+
                         if (Unit* pDisguised2 = m_creature->SummonCreature(NPC_CITY_MAN,2400.82f,1201.69f,134.01f,1.534082f,TEMPSUMMON_DEAD_DESPAWN,180000))
                         {
                             uiInfiniteDraconianGUID[2] = pDisguised2->GetGUID();
@@ -733,8 +733,8 @@ struct npc_arthasAI : public npc_escortAI
                                 pZombie->UpdateEntry(NPC_ZOMBIE, 0);
                             else //There's no one else to transform
                                 uiStep++;
-                        } 
-                        else 
+                        }
+                        else
                             uiStep++;
                         uiPhaseTimer = 500;
                         break;
@@ -742,7 +742,7 @@ struct npc_arthasAI : public npc_escortAI
                         if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
                             DoScriptText(SAY_PHASE207, pMalganis);
                         JumpToNextStep(17000);
-                        break;             
+                        break;
                     case 39:
                         if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
                             pMalganis->SetVisibility(VISIBILITY_OFF);
@@ -760,7 +760,7 @@ struct npc_arthasAI : public npc_escortAI
                         uiBossEvent = DATA_MEATHOOK_EVENT;
                         if (pInstance)
                             pInstance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
-                        
+
                         m_creature->SetReactState(REACT_DEFENSIVE);
                         SetDespawnAtFar(false);
                         JumpToNextStep(5000);
@@ -794,11 +794,11 @@ struct npc_arthasAI : public npc_escortAI
                             uint32 deadCounter = 0;
                             for (uint8 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
                             {
-                                if (uiWaveGUID[i] == 0) 
+                                if (uiWaveGUID[i] == 0)
                                     break;
                                 ++mobCounter;
                                 Unit* pTemp = Unit::GetCreature(*me, uiWaveGUID[i]);
-                                if (!pTemp || pTemp->isDead()) 
+                                if (!pTemp || pTemp->isDead())
                                     ++deadCounter;
                             }
 
@@ -806,8 +806,8 @@ struct npc_arthasAI : public npc_escortAI
                                 JumpToNextStep(1000);
                             else
                                 uiPhaseTimer = 1000;
-                        } 
-                        else 
+                        }
+                        else
                             JumpToNextStep(500);
                         break;
                     case 49: //Summon Boss
@@ -821,7 +821,7 @@ struct npc_arthasAI : public npc_escortAI
                                 uiBossID = NPC_SALRAMM;
 
                             if (Unit* pBoss = m_creature->SummonCreature(uiBossID,2232.19f,1331.933f,126.662f,3.15f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
-                            {    
+                            {
                                 uiBossGUID = pBoss->GetGUID();
                                 pBoss->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                                 pBoss->GetMotionMaster()->MovePoint(0, 2194.110f,1332.00f,130.00f);
@@ -841,13 +841,13 @@ struct npc_arthasAI : public npc_escortAI
                                 else if (uiBossEvent == DATA_SALRAMM_EVENT)
                                 {
                                     SetHoldState(false);
-                                    bStepping = false; 
+                                    bStepping = false;
                                     uiBossEvent = DATA_EPOCH_EVENT;
                                 }
-                            } 
-                            else if (pInstance->GetData(uiBossEvent) == FAIL) 
+                            }
+                            else if (pInstance->GetData(uiBossEvent) == FAIL)
                                 npc_escortAI::EnterEvadeMode();
-                            else 
+                            else
                                 uiPhaseTimer = 10000;
                         }
                         break;
@@ -866,7 +866,7 @@ struct npc_arthasAI : public npc_escortAI
                         if (Creature* pDisguised0 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[0]))
                             DoScriptText(SAY_PHASE302, pDisguised0);
                         JumpToNextStep(7000);
-                        break; 
+                        break;
                     case 63:
                         DoScriptText(SAY_PHASE303, m_creature);
                         SetHoldState(false);
@@ -877,7 +877,7 @@ struct npc_arthasAI : public npc_escortAI
                     case 64:
                         m_creature->HandleEmoteCommand(54);
                         JumpToNextStep(1000);
-                        break;    
+                        break;
                     case 65:
                         if (Creature* pDisguised0 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[0]))
                             pDisguised0->HandleEmoteCommand(11);
@@ -936,12 +936,12 @@ struct npc_arthasAI : public npc_escortAI
                             }
                         JumpToNextStep(5000);
                         break;
-                    case 72: 
+                    case 72:
                     case 74:
                     case 76:
                         if (m_creature->isInCombat())
                             uiPhaseTimer = 1000;
-                        else 
+                        else
                         {
                             if (uiStep == 72) DoScriptText(SAY_PHASE308,m_creature);
                             if (uiStep == 74) DoScriptText(SAY_PHASE308,m_creature);
@@ -955,7 +955,7 @@ struct npc_arthasAI : public npc_escortAI
                     case 78:
                         if (m_creature->isInCombat())
                             uiPhaseTimer = 1000;
-                        else 
+                        else
                         {
                             DoScriptText(SAY_PHASE312,m_creature);
                             JumpToNextStep(5000);
@@ -975,7 +975,7 @@ struct npc_arthasAI : public npc_escortAI
                                 m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiEpochGUID);
                             }
                         JumpToNextStep(18000);
-                        break;    
+                        break;
                     case 81:
                         if (pInstance)
                             if (pInstance->GetData(DATA_EPOCH_EVENT) != DONE)
@@ -990,13 +990,13 @@ struct npc_arthasAI : public npc_escortAI
                                 {
                                     //Make Epoch attackable
                                     pEpoch->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_UNK_9);
-                                    pEpoch->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); 
+                                    pEpoch->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                     pEpoch->SetReactState(REACT_AGGRESSIVE);
                                 }
-                                
+
                             }
                         JumpToNextStep(1000);
-                        break;    
+                        break;
                     case 83:
                         if (pInstance)
                         {
@@ -1008,9 +1008,9 @@ struct npc_arthasAI : public npc_escortAI
                                 uiBossEvent = DATA_MAL_GANIS_EVENT;
                                 JumpToNextStep(15000);
                             }
-                            else if (pInstance->GetData(DATA_EPOCH_EVENT) == FAIL) 
+                            else if (pInstance->GetData(DATA_EPOCH_EVENT) == FAIL)
                                 npc_escortAI::EnterEvadeMode();
-                            else 
+                            else
                                 uiPhaseTimer = 10000;
                         }
                         break;
@@ -1032,7 +1032,7 @@ struct npc_arthasAI : public npc_escortAI
                         {
                             GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAL_GANIS_GATE_1));
                             pGate->SetGoState(GO_STATE_ACTIVE);
-                        }   
+                        }
                         SetHoldState(false);
                         bStepping = false;
                         JumpToNextStep(0);
@@ -1059,9 +1059,9 @@ struct npc_arthasAI : public npc_escortAI
                                 SetHoldState(false);
                                 JumpToNextStep(1000);
                             }
-                            else if (pInstance->GetData(DATA_MAL_GANIS_EVENT) == FAIL) 
+                            else if (pInstance->GetData(DATA_MAL_GANIS_EVENT) == FAIL)
                                 npc_escortAI::EnterEvadeMode();
-                            else 
+                            else
                                 uiPhaseTimer = 10000;
                         }
                         break;
@@ -1083,19 +1083,19 @@ struct npc_arthasAI : public npc_escortAI
                         break;
                 }
             } else uiPhaseTimer -= diff;
-        } 
-        
+        }
+
         //Battling skills
         if (!m_creature->getVictim())
             return;
-         
+
         if (uiExorcismTimer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
                 DoCast(target, DUNGEON_MODE(SPELL_EXORCISM_N, SPELL_EXORCISM_H));
             uiExorcismTimer = 7300;
         } else uiExorcismTimer -= diff;
-           
+
         if (HealthBelowPct(40))
             DoCast(m_creature, SPELL_HOLY_LIGHT);
     }
@@ -1116,7 +1116,7 @@ CreatureAI* GetAI_npc_arthas(Creature* pCreature)
 bool GossipHello_npc_arthas(Player* pPlayer, Creature* pCreature)
 {
     npc_arthasAI* pAI = CAST_AI(npc_arthasAI,pCreature->AI());
-    
+
     if (pAI && pAI->bStepping == false)
     {
         switch (pAI->uiGossipStep)
@@ -1161,7 +1161,7 @@ bool GossipSelect_npc_arthas(Player *pPlayer, Creature *pCreature, uint32 sender
 
     if (!pAI)
         return false;
-    
+
     switch (action)
     {
         case GOSSIP_ACTION_INFO_DEF:

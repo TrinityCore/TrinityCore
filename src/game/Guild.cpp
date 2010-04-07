@@ -234,7 +234,7 @@ bool Guild::LoadGuildFromDB(QueryResult_AutoPtr guildDataResult)
 }
 
 bool Guild::CheckGuildStructure()
-{    
+{
     // Repair the structure of guild
     // If the guildmaster doesn't exist or isn't the member of guild
     // attempt to promote another member
@@ -359,7 +359,7 @@ bool Guild::LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult)
         if (guildId > m_Id)
             //we loaded all members for this guild already, break cycle
             break;
-    
+
         MemberSlot newmember;
         uint64 guid      = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
         newmember.RankId = fields[2].GetUInt32();

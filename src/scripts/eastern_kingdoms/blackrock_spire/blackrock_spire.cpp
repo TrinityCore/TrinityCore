@@ -28,9 +28,9 @@ struct npc_rookey_whelpAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
-    
+
     void JustDied(Unit *who)
     {
         if (pInstance)
@@ -38,12 +38,12 @@ struct npc_rookey_whelpAI : public ScriptedAI
             pInstance->SetData(WHELP_DEATH_COUNT, pInstance->GetData(WHELP_DEATH_COUNT)+1);
         }
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
             return;
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -72,7 +72,7 @@ void AddSC_blackrock_spire()
     newscript->GetAI = &GetAI_rookey_whelp;
     newscript->RegisterSelf();
     newscript = new Script;
-    
+
     newscript->Name = "go_rookey_egg";
     newscript->pGOHello = &GOHello_rookey_egg;
     newscript->RegisterSelf();

@@ -58,7 +58,7 @@ void WorldSession::HandlePetAction( WorldPacket & recv_data )
         sLog.outError("HandlePetAction.Pet %u isn't pet of player %s.", uint32(GUID_LOPART(guid1)), GetPlayer()->GetName() );
         return;
     }
-    
+
     if (!pet->isAlive())
         return;
 

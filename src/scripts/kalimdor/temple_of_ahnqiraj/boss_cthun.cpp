@@ -29,7 +29,7 @@ EndScriptData */
  *
  * The first phase is the EYE phase: the Eye of C'Thun is active and C'thun is not active.
  *     During this phase, the "Eye of C'Thun" alternates between 2 sub-phases:
- *         - PHASE_EYE_GREEN_BEAM: 
+ *         - PHASE_EYE_GREEN_BEAM:
  *             50 sec phase during which the Eye mainly casts its Green Beam every 3 sec.
  *         - PHASE_EYE_RED_BEAM:
  *             35 sec phase during which the Eye casts its red beam every sec.
@@ -39,7 +39,7 @@ EndScriptData */
  *     This phase starts with the transformation of the Eye into C'Thun (PHASE_CTHUN_TRANSITION).
  *     After the transformation, C'Thun alternates between 2 sub-phases:
  *         - PHASE_CTHUN_STOMACH:
- *             - C'Thun is almost insensible to all damage (99% damage reduction). 
+ *             - C'Thun is almost insensible to all damage (99% damage reduction).
  *             - It spawns 2 tentacles in its stomach.
  *             - C'Thun swallows players.
  *             - This sub-phase ends when the 2 tentacles are killed. Swallowed players are regurgitate.
@@ -50,7 +50,7 @@ EndScriptData */
  *
  *     This CTHUN phase ends when C'Thun is killed
  *
- * Note: 
+ * Note:
  * - the current phase is stored in the instance data to be easily shared between the eye and cthun.
  */
 
@@ -94,7 +94,7 @@ enum Spells
 {
     //***** Main Phase 1 ********
     //Eye Spells
-    SPELL_FREEZE_ANIM                           = 16245,                    
+    SPELL_FREEZE_ANIM                           = 16245,
     SPELL_GREEN_BEAM                            = 26134,
     SPELL_DARK_GLARE                            = 26029,
     SPELL_RED_COLORATION                        = 22518,        //Probably not the right spell but looks similar
@@ -331,7 +331,7 @@ struct eye_of_cthunAI : public Scripted_NoMovementAI
                     //Freeze animation
                     DoCast(m_creature, SPELL_FREEZE_ANIM);
                     m_creature->SetOrientation(DarkGlareAngle);
-                    m_creature->StopMoving();  
+                    m_creature->StopMoving();
 
                     //Darkbeam for 35 seconds
                     PhaseTimer = 35000;

@@ -149,7 +149,7 @@ struct boss_slad_ranAI : public ScriptedAI
             DoScriptText(SAY_SUMMON_SNAKES,m_creature);
             uiPhase = 1;
         }
-        
+
         if (uiPhase == 1 && HealthBelowPct(25))
         {
             DoScriptText(SAY_SUMMON_CONSTRICTORS,m_creature);

@@ -45,29 +45,29 @@ struct boss_bronjahmAI : public ScriptedAI
     {
         pInstance = m_creature->GetInstanceData();
     }
-    
+
     uint32 uiFearTimer;
     uint32 uiShadowBoltTimer;
     uint32 uiMagicsBaneTimer;
     uint32 uiCorruptSoulTimer;
-    
+
     CombatPhases Phase;
 
     ScriptedInstance* pInstance;
-    
+
     void Reset()
     {
         Phase = PHASE_1;
-        
+
         uiFearTimer = urand(8000,12000);
         uiShadowBoltTimer = 2000;
         uiMagicsBaneTimer = urand(8000,15000);
         uiCorruptSoulTimer = urand(15000,25000);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_BRONJAHM_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         //DoScriptText(SAY_AGGRO, m_creature);
@@ -75,7 +75,7 @@ struct boss_bronjahmAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_BRONJAHM_EVENT, IN_PROGRESS);
     }
-    
+
     void JustDied(Unit* killer)
     {
         //DoScriptText(SAY_DEATH, m_creature);
@@ -83,13 +83,13 @@ struct boss_bronjahmAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_BRONJAHM_EVENT, DONE);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         switch (Phase)
         {
             case PHASE_1:
@@ -111,23 +111,23 @@ struct boss_bronjahmAI : public ScriptedAI
                 } else uiFearTimer -= diff;
                 break;
         }
-        
+
         if (HealthBelowPct(30))
             DoCast(m_creature,SPELL_TELEPORT);
-        
+
         if (uiShadowBoltTimer <= diff)
         {
             if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
                 DoCastVictim(SPELL_SHADOW_BOLT);
             uiShadowBoltTimer = 2000;
         } else uiShadowBoltTimer -= diff;
-        
+
         if (uiMagicsBaneTimer <= diff)
         {
             DoCastVictim(DUNGEON_MODE(SPELL_MAGIC_S_BANE,SPELL_MAGIC_S_BANE_H));
             uiMagicsBaneTimer = urand(8000,15000);
         } else uiMagicsBaneTimer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -143,9 +143,9 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
     {
         pInstance = m_creature->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
-    
+
     void Reset()
     {
         SetCombatMovement(false);
@@ -154,7 +154,7 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
                 m_creature->GetMotionMaster()->MoveChase(pBronjham);
 
     }
-    
+
     void MovementInform(uint32 type, uint32 id)
     {
         if (pInstance)
@@ -173,7 +173,7 @@ CreatureAI* GetAI_mob_corrupted_soul_fragment(Creature* pCreature)
 void AddSC_boss_bronjahm()
 {
     Script *newscript;
-    
+
     newscript = new Script;
     newscript->Name = "mob_corruptel_soul_fragment";
     newscript->GetAI = &GetAI_mob_corrupted_soul_fragment;

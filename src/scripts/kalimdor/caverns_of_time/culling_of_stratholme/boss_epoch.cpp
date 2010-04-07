@@ -75,7 +75,7 @@ struct boss_epochAI : public ScriptedAI
         uiTimeWarpTimer = 25300;
         uiTimeStopTimer = 21300;
         uiWoundingStrikeTimer = 5300;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
     }
@@ -83,7 +83,7 @@ struct boss_epochAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
     }
@@ -126,7 +126,7 @@ struct boss_epochAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_EPOCH_EVENT, DONE);
     }

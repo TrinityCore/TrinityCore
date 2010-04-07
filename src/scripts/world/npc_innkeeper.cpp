@@ -37,7 +37,7 @@ EndScriptData */
 
 #define LOCALE_INNKEEPER_0 "Make this inn my home."
 #define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
- 
+
 bool GossipHello_npc_innkeeper(Player *pPlayer, Creature *pCreature)
 {
     if (IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
@@ -80,7 +80,7 @@ bool GossipSelect_npc_innkeeper(Player* pPlayer, Creature* pCreature, uint32 uiS
     if (uiAction == GOSSIP_ACTION_INFO_DEF+HALLOWEEN_EVENTID && IsEventActive(HALLOWEEN_EVENTID) && !pPlayer->HasAura(SPELL_TRICK_OR_TREATED))
     {
         pPlayer->CastSpell(pPlayer, SPELL_TRICK_OR_TREATED, true);
- 
+
         if (urand(0, 1))
             pPlayer->CastSpell(pPlayer, SPELL_TREAT, true);
         else

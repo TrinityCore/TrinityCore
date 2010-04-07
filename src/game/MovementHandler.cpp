@@ -564,7 +564,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     _player->m_movementInfo = mi;
 
-    /* 
+    /*
     ReadMovementInfo(recv_data, &_player->m_mover->m_movementInfo);*/
     _player->ExitVehicle();
 }
@@ -574,7 +574,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE");
     recv_data.hexlike();
 
-    Unit* vehicle_base = GetPlayer()->GetVehicleBase();  
+    Unit* vehicle_base = GetPlayer()->GetVehicleBase();
     if(!vehicle_base)
         return;
 

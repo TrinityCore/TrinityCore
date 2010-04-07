@@ -55,7 +55,7 @@ struct instance_pit_of_saron : public ScriptedInstance
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            if (uiEncounter[i] == IN_PROGRESS) 
+            if (uiEncounter[i] == IN_PROGRESS)
                 return true;
 
         return false;
@@ -73,24 +73,24 @@ struct instance_pit_of_saron : public ScriptedInstance
 
         switch(pCreature->GetEntry())
         {
-            case CREATURE_KRICK:   
-                uiKrick = pCreature->GetGUID();     
+            case CREATURE_KRICK:
+                uiKrick = pCreature->GetGUID();
                 break;
 
             case CREATURE_ICK:
                 uiIck = pCreature->GetGUID();
                 break;
 
-            case CREATURE_GARFROST:    
-                uiGarfrost = pCreature->GetGUID();        
+            case CREATURE_GARFROST:
+                uiGarfrost = pCreature->GetGUID();
                 break;
 
-            case CREATURE_TYRANNUS:    
-                uiTyrannus = pCreature->GetGUID();        
+            case CREATURE_TYRANNUS:
+                uiTyrannus = pCreature->GetGUID();
                 break;
 
             case CREATURE_RIMEFANG:
-                uiRimefang = pCreature->GetGUID();        
+                uiRimefang = pCreature->GetGUID();
                 break;
 
             case NPC_SYLVANAS_PART1:
@@ -120,7 +120,7 @@ struct instance_pit_of_saron : public ScriptedInstance
                    pCreature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
                 break;
             case NPC_CHAMPION_3_HORDE: // No 3rd set for Alliance?
-                if (uiTeamInInstance == ALLIANCE) 
+                if (uiTeamInInstance == ALLIANCE)
                    pCreature->UpdateEntry(NPC_CHAMPION_2_ALLIANCE, ALLIANCE);
                 break;
         }
@@ -148,13 +148,13 @@ struct instance_pit_of_saron : public ScriptedInstance
         switch(type)
         {
             case DATA_GARFROST_EVENT:
-                uiEncounter[0] = data; 
+                uiEncounter[0] = data;
                 break;
             case DATA_TYRANNUS_EVENT:
-                uiEncounter[1] = data; 
+                uiEncounter[1] = data;
                 break;
             case DATA_KRICKANDICK_EVENT:
-                uiEncounter[2] = data; 
+                uiEncounter[2] = data;
                 break;
         }
 

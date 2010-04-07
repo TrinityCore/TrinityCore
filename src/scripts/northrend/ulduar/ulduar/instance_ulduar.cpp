@@ -320,7 +320,7 @@ struct instance_ulduar : public ScriptedInstance
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             {
                 loadStream >> m_auiEncounter[i];
-                
+
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
             }

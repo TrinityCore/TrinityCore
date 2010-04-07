@@ -87,7 +87,7 @@ struct boss_mal_ganisAI : public ScriptedAI
     bool bYelled2;
 
     CombatPhases Phase;
-         
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -100,7 +100,7 @@ struct boss_mal_ganisAI : public ScriptedAI
          uiVampiricTouchTimer = urand(10000,15000);
          uiSleepTimer = urand(15000,20000);
          uiOutroTimer = 1000;
-         
+
          if (pInstance)
              pInstance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
     }
@@ -218,7 +218,7 @@ struct boss_mal_ganisAI : public ScriptedAI
                             m_creature->SetVisibility(VISIBILITY_OFF);
                             m_creature->Kill(m_creature);
                             break;
-                            
+
                     }
                 } else uiOutroTimer -= diff;
                 break;

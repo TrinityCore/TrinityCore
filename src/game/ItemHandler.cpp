@@ -1361,13 +1361,13 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
 
     // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
     item->UpdatePlayedTime(GetPlayer());
-        
+
     if (!item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE))
     {
         sLog.outDebug("Item refund: item not refundable!");
         return;
     }
-        
+
     if (GetPlayer()->GetGUIDLow() != item->GetRefundRecipient()) // Formerly refundable item got traded
     {
         sLog.outDebug("Item refund: item was traded!");
@@ -1381,7 +1381,7 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
         sLog.outDebug("Item refund: cannot find extendedcost data.");
         return;
     }
-    
+
     WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
     data << uint64(guid);                          // item guid
     data << uint32(item->GetPaidMoney());          // money cost
@@ -1432,14 +1432,14 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         item->SetNotRefundable(GetPlayer());
         return;
     }
-    
+
     ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(item->GetPaidExtendedCost());
     if (!iece)
     {
         sLog.outDebug("Item refund: cannot find extendedcost data.");
         return;
     }
-    
+
     uint32 moneyRefund = item->GetPaidMoney();
 
     bool store_error = false;
@@ -1447,7 +1447,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     {
         uint32 count = iece->reqitemcount[i];
         uint32 itemid = iece->reqitem[i];
-        
+
         if (count && itemid)
         {
             ItemPosCountVec dest;
@@ -1457,9 +1457,9 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
                 store_error = true;
                 break;
             }
-         }   
+         }
     }
-    
+
     if (store_error)
     {
         WorldPacket data(SMSG_ITEM_REFUND_RESULT, 8+4);
@@ -1487,7 +1487,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
 
     // Destroy item
     _player->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
-    
+
     // Grant back extendedcost items
     for (uint8 i = 0; i < 5; ++i)
     {
@@ -1502,7 +1502,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
             _player->SendNewItem(it, count, true, false, true);
         }
     }
-    
+
     // Grant back money
     if (moneyRefund)
         _player->ModifyMoney(moneyRefund);

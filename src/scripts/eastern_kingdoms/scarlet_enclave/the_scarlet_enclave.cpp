@@ -85,11 +85,11 @@ struct npc_valkyr_battle_maidenAI : public PassiveAI
                     FlyBackTimer = 5000;
                     break;
                 case 3:
-                    me->SetVisibility(VISIBILITY_OFF);        
-                    FlyBackTimer = 3000;  
+                    me->SetVisibility(VISIBILITY_OFF);
+                    FlyBackTimer = 3000;
                     break;
                 case 4:
-                    me->DisappearAndDie();                                      
+                    me->DisappearAndDie();
                     break;
                 default:
                     //Nothing To DO

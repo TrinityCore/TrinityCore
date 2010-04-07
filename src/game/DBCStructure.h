@@ -1487,7 +1487,7 @@ struct SpellEntry
     //float   unk_320_4[3];                                 // 235-237  3.2.0
     //uint32  spellDescriptionVariableID;                   // 238      3.2.0
     //uint32  SpellDifficultyId;                            // 239      3.3.0
-  /*  
+  /*
     flag96    EffectSpellClassMask[MAX_SPELL_EFFECTS];      // 127-136
     uint32    SpellVisual[2];                               // 137-138  m_spellVisualID
     uint32    SpellIconID;                                  // 139      m_spellIconID

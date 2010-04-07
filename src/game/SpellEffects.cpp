@@ -1514,7 +1514,7 @@ void Spell::EffectDummy(uint32 i)
                     // Glyph of Eternal Water
                     if (unitTarget->HasAura(70937))
                         unitTarget->CastSpell(unitTarget, 70908, true);
-                    else 
+                    else
                         unitTarget->CastSpell(unitTarget, 70907, true);
                 }
             }
@@ -2198,7 +2198,7 @@ void Spell::EffectTriggerSpellWithValue(uint32 i)
 
     int32 bp = damage;
     Unit * caster = GetTriggeredSpellCaster(spellInfo, m_caster, unitTarget);
-    
+
     caster->CastCustomSpell(unitTarget,triggered_spell_id,&bp,&bp,&bp,true);
 }
 
@@ -2240,7 +2240,7 @@ void Spell::EffectForceCast(uint32 i)
         {
             case 52588: // Skeletal Gryphon Escape
             case 48598: // Ride Flamebringer Cue
-                unitTarget->RemoveAura(damage); 
+                unitTarget->RemoveAura(damage);
                 break;
             case 52463: // Hide In Mine Car
             case 52349: // Overtake
@@ -5720,10 +5720,10 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
-                    
+
                     if (roll_chance_i(50))                  // chance unknown, using 50
                         return;
-                    
+
                     static uint32 const spellPlayer[5] =
                     {
                         45674,                            // Bigger!
@@ -5732,7 +5732,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         45682,                            // Ghost
                         45684                             // Polymorph
                     };
-                    
+
                     static uint32 const spellTarget[5] = {
                         45673,                            // Bigger!
                         45672,                            // Shrunk
@@ -5740,7 +5740,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         45681,                            // Ghost
                         45683                             // Polymorph
                     };
-                    
+
                     m_caster->CastSpell(m_caster, spellPlayer[urand(0,4)], true);
                     unitTarget->CastSpell(unitTarget, spellTarget[urand(0,4)], true);
                     break;

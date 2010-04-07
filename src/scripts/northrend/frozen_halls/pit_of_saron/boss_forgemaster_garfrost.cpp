@@ -71,7 +71,7 @@ struct boss_garfrostAI : public ScriptedAI
     bool phase2;
     bool phase3;
     bool bAchievement;
-    
+
     ScriptedInstance* pInstance;
     EventMap events;
 
@@ -82,7 +82,7 @@ struct boss_garfrostAI : public ScriptedAI
         phase2 = false;
         phase3 = false;
         bAchievement = true;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_GARFROST_EVENT, NOT_STARTED);
     }

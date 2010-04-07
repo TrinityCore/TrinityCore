@@ -18,7 +18,7 @@
 #include "pit_of_saron.h"
 
 /*
- * SDComment: TODO: 
+ * SDComment: TODO:
  *  - implement aura for spell Overlord Brand.
  *  - Intro/Outro
  *  - improve script of Rimefang
@@ -90,14 +90,14 @@ struct boss_tyrannusAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
     EventMap events;
 
     void Reset()
     {
         events.Reset();
-        
+
         if (pInstance)
             pInstance->SetData(DATA_TYRANNUS_EVENT, NOT_STARTED);
     }
@@ -127,8 +127,8 @@ struct boss_tyrannusAI : public ScriptedAI
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
     }
-    
-    void JustDied(Unit* killer)  
+
+    void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
 
@@ -183,7 +183,7 @@ struct boss_rimefangAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
     EventMap events;
 
@@ -193,7 +193,7 @@ struct boss_rimefangAI : public ScriptedAI
         m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
         m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
         m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-        events.Reset();   
+        events.Reset();
     }
 
     void EnterCombat(Unit* who)
@@ -204,7 +204,7 @@ struct boss_rimefangAI : public ScriptedAI
         events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25000);
         events.ScheduleEvent(EVENT_ICY_BLAST, 35000);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target

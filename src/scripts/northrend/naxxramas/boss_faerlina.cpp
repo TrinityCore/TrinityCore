@@ -151,7 +151,7 @@ struct boss_faerlinaAI : public BossAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void SpellHit(Unit* caster, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_WIDOWS_EMBRACE || spell->Id == H_SPELL_WIDOWS_EMBRACE)
@@ -193,7 +193,7 @@ struct mob_faerlina_addAI : public ScriptedAI
             if (Creature *pFaerlina = pInstance->instance->GetCreature(pInstance->GetData64(DATA_FAERLINA)))
                 DoCast(pFaerlina, SPELL_WIDOWS_EMBRACE);
         }
-    }    
+    }
 };
 
 CreatureAI* GetAI_mob_faerlina_add(Creature* pCreature)

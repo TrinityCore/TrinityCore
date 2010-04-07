@@ -234,24 +234,24 @@ struct boss_algalonAI : public ScriptedAI
                 {
                     switch(uiStep)
                     {
-                        case 1: 
-                            DoScriptText(SAY_SUMMON_1, m_creature); 
+                        case 1:
+                            DoScriptText(SAY_SUMMON_1, m_creature);
                             JumpToNextStep(3000);
-                            break; 
-                        case 2: 
-                            DoScriptText(SAY_SUMMON_2, m_creature); 
+                            break;
+                        case 2:
+                            DoScriptText(SAY_SUMMON_2, m_creature);
                             JumpToNextStep(3000);
-                            break; 
-                        case 3: 
-                            DoScriptText(SAY_SUMMON_3, m_creature); 
+                            break;
+                        case 3:
+                            DoScriptText(SAY_SUMMON_3, m_creature);
                             JumpToNextStep(3000);
-                            break; 
-                        case 4: 
-                            DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, m_creature); 
+                            break;
+                        case 4:
+                            DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, m_creature);
                             JumpToNextStep(3000);
-                            break; 
-                        case 5: 
-                            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); 
+                            break;
+                        case 5:
+                            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             m_creature->SetReactState(REACT_AGGRESSIVE);
                             Summon = true;
                             break;

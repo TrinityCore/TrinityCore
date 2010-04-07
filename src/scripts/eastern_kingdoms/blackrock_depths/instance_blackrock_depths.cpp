@@ -47,7 +47,7 @@ enum eEnums
     NPC_SEETHREL            = 9038,
     NPC_GLOOMREL            = 9037,
     NPC_DOOMREL             = 9039,
-    NPC_MAGMUS              = 9938, 
+    NPC_MAGMUS              = 9938,
 
     GO_ARENA1               = 161525,
     GO_ARENA2               = 161522,
@@ -164,7 +164,7 @@ struct instance_blackrock_depths : public ScriptedInstance
         case NPC_SEETHREL: TombBossGUIDs[4] = pCreature->GetGUID(); break;
         case NPC_GLOOMREL: TombBossGUIDs[5] = pCreature->GetGUID(); break;
         case NPC_ANGERREL: TombBossGUIDs[6] = pCreature->GetGUID(); break;
-        case NPC_MAGMUS: 
+        case NPC_MAGMUS:
             MagmusGUID = pCreature->GetGUID();
             if(!pCreature->isAlive())
                 HandleGameObject(GetData64(DATA_THRONE_DOOR), true); // if Magmus is dead open door to last boss

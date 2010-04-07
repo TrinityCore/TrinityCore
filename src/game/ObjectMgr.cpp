@@ -3285,7 +3285,7 @@ void ObjectMgr::LoadGuilds()
 {
     Guild *newGuild;
     uint32 count = 0;
-    
+
     //                                                    0             1          2          3           4           5           6
     QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT guild.guildid,guild.name,leaderguid,EmblemStyle,EmblemColor,BorderStyle,BorderColor,"
     //   7               8    9    10         11        12
@@ -4083,8 +4083,8 @@ void ObjectMgr::LoadQuests()
                     sLog.outErrorDb("Quest %u has `RewRepFaction%d` = %u but raw faction (faction.dbc) %u does not exist, quest will not reward reputation for this faction.", qinfo->GetQuestId(),j+1,qinfo->RewRepFaction[j] ,qinfo->RewRepFaction[j] );
                     qinfo->RewRepFaction[j] = 0;            // quest will not reward this
                 }
-            } 
-        
+            }
+
 
             else if(qinfo->RewRepValue[j]!=0)
             {
@@ -6745,28 +6745,28 @@ void ObjectMgr::LoadPointsOfInterest()
 void ObjectMgr::LoadQuestPOI()
 {
     uint32 count = 0;
- 
+
     // 0 1 2 3
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT questId, id, objIndex, mapid, WorldMapAreaId, FloorId, unk3, unk4 FROM quest_poi order by questId");
- 
+
     if(!result)
     {
         barGoLink bar(1);
- 
+
         bar.step();
- 
+
         sLog.outString();
         sLog.outErrorDb(">> Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
         return;
     }
- 
+
     barGoLink bar(result->GetRowCount());
- 
+
     do
     {
         Field *fields = result->Fetch();
         bar.step();
- 
+
         uint32 questId            = fields[0].GetUInt32();
         uint32 id                 = fields[1].GetUInt32();
         int32 objIndex            = fields[2].GetInt32();
@@ -6777,9 +6777,9 @@ void ObjectMgr::LoadQuestPOI()
         uint32 unk4               = fields[7].GetUInt32();
 
         QuestPOI POI(id, objIndex, mapId, WorldMapAreaId, FloorId, unk3, unk4);
- 
+
         QueryResult_AutoPtr points = WorldDatabase.PQuery("SELECT x, y FROM quest_poi_points WHERE questId='%u' AND id='%i'", questId, id);
- 
+
         if(points)
         {
             do
@@ -6791,12 +6791,12 @@ void ObjectMgr::LoadQuestPOI()
                 POI.points.push_back(point);
             } while (points->NextRow());
         }
- 
+
         mQuestPOIMap[questId].push_back(POI);
- 
+
         ++count;
     } while (result->NextRow());
- 
+
     sLog.outString();
     sLog.outString(">> Loaded %u quest POI definitions", count);
 }
@@ -8209,7 +8209,7 @@ bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::
         if (trainerSpell.learnedSpell[0] == spell)
             trainerSpell.learnedSpell[0] = 0;
         // player must be able to cast spell on himself
-        if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY 
+        if (spellinfo->EffectImplicitTargetA[i] != 0 && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ALLY
             && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_TARGET_ANY && spellinfo->EffectImplicitTargetA[i] != TARGET_UNIT_CASTER)
         {
             sLog.outErrorDb("Table `npc_trainer` has spell %u for trainer entry %u with learn effect which has incorrect target type, ignoring learn effect!", spell, entry);

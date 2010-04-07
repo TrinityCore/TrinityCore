@@ -144,7 +144,7 @@ struct boss_talon_king_ikissAI : public ScriptedAI
             //second top aggro target in normal, random target in heroic correct?
             if (IsHeroic())
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            else 
+            else
                 pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
 
             if (pTarget)

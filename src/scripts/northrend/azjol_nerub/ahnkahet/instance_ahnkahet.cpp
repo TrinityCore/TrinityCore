@@ -58,14 +58,14 @@ struct instance_ahnkahet : public ScriptedInstance
     uint8 InitiandCnt,
         switchtrigger,
         initiandkilled;
-        
+
     std::string str_data;
 
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         InitiandGUIDs.clear();
-        
+
         Elder_Nadox =0;
         Prince_Taldaram =0;
         Jedoga_Shadowseeker =0;
@@ -256,7 +256,7 @@ struct instance_ahnkahet : public ScriptedInstance
             << spheres[0] << " " << spheres[1];
 
         str_data = saveStream.str();
-        
+
         OUT_SAVE_INST_DATA_COMPLETE;
         return str_data;
     }

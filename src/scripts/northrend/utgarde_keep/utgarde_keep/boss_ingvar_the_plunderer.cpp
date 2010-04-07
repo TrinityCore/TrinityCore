@@ -169,9 +169,9 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (bIsUndead) 
+        if (bIsUndead)
             DoScriptText(YELL_KILL_1,m_creature);
-        else 
+        else
             DoScriptText(YELL_KILL_2,m_creature);
     }
 
@@ -351,7 +351,7 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
                     }
                     uiResurectTimer = 3000;
                     uiResurectPhase = 2;
-                } 
+                }
                 else if (uiResurectPhase == 2)
                 {
                     if (Creature* ingvar = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0))

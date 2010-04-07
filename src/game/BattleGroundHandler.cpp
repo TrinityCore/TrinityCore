@@ -615,7 +615,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
             return;
     }
 
-    //check if any arena enabled 
+    //check if any arena enabled
     if (!sBattleGroundMgr.isAnyArenaEnabled())
     {
         SendBattleGroundOrArenaJoinError(BG_JOIN_ERR_ARENA_DISABLED);

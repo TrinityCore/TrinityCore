@@ -446,7 +446,7 @@ struct mob_wrathbone_coldwraithAI: public ScriptedAI
                     return;
             }
         }
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -788,7 +788,7 @@ struct mob_deathwhisper_shadowcasterAI: public ScriptedAI
                     return;
             }
         }
-    
+
         DoMeleeAttackIfReady();
     }
 };
@@ -839,7 +839,7 @@ struct mob_deathwhisper_necrolyteAI: public ScriptedAI
                     return;
             }
         }
-        
+
         DoMeleeAttackIfReady();
     }
 };
@@ -931,7 +931,7 @@ struct mob_geist_ambusherAI: public ScriptedAI
                     return;
             }
         }
-    
+
         DoMeleeAttackIfReady();
     }
 };

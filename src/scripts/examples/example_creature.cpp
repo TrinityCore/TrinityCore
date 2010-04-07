@@ -55,7 +55,7 @@ enum Yells
 
 enum Spells
 {
-    // List of spells. 
+    // List of spells.
     // Not required to define them in this way, but will make it easier to maintain in case spellId change
     SPELL_BUFF                                  = 25661,
     SPELL_ONE                                   = 12555,

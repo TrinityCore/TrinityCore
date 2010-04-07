@@ -79,7 +79,7 @@ struct boss_tharon_jaAI : public ScriptedAI
     uint32 uiEyeBeamTimer;
     uint32 uiLightningBreathTimer;
     uint32 uiPoisonCloudTimer;
-    
+
     CombatPhase Phase;
 
     ScriptedInstance* pInstance;
@@ -95,7 +95,7 @@ struct boss_tharon_jaAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
@@ -103,7 +103,7 @@ struct boss_tharon_jaAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
@@ -119,19 +119,19 @@ struct boss_tharon_jaAI : public ScriptedAI
                         DoCast(pTarget, DUNGEON_MODE(SPELL_CURSE_OF_LIFE, H_SPELL_CURSE_OF_LIFE));
                     uiCurseOfLifeTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
                 } else uiCurseOfLifeTimer -= diff;
-                
+
                 if (uiShadowVolleyTimer < diff)
                 {
                     DoCastVictim(DUNGEON_MODE(SPELL_SHADOW_VOLLEY,H_SPELL_SHADOW_VOLLEY));
                     uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
                 } else uiShadowVolleyTimer -= diff;
-                
+
                 if (uiRainOfFireTimer < diff)
                 {
                     DoCastAOE(DUNGEON_MODE(SPELL_RAIN_OF_FIRE,H_SPELL_RAIN_OF_FIRE));
                     uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
                 } else uiRainOfFireTimer -= diff;
-                
+
                 if (uiPhaseTimer < diff)
                 {
                     DoCast(SPELL_DECAY_FLESH);
@@ -183,7 +183,7 @@ struct boss_tharon_jaAI : public ScriptedAI
                     DoCastAOE(DUNGEON_MODE(SPELL_POISON_CLOUD, H_SPELL_POISON_CLOUD));
                     uiPoisonCloudTimer = urand(10*IN_MILISECONDS,12*IN_MILISECONDS);
                 } else uiPoisonCloudTimer -= diff;
-                
+
                 if (uiPhaseTimer < diff)
                 {
                     DoCast(SPELL_RETURN_FLESH);

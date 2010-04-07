@@ -175,8 +175,8 @@ struct boss_ickAI : public ScriptedAI
             if (pKrick->AI())
                 pKrick->AI()->DoAction(ACTION_OUTRO);
         }
- 
-        if (pInstance) 
+
+        if (pInstance)
             pInstance->SetData(DATA_KRICKANDICK_EVENT, DONE);
     }
 
@@ -208,7 +208,7 @@ struct boss_ickAI : public ScriptedAI
                     DoScriptText(SAY_ICK_CHASE_1, m_creature, pTarget);
                     DoCast(pTarget, SPELL_PURSUED);
                 }
-                
+
                 DoCast(SPELL_CONFUSION);
                 events.ScheduleEvent(EVENT_PURSUE, 30000, GCD_1);
                 return;
@@ -274,7 +274,7 @@ struct boss_krickAI : public ScriptedAI
     KrickPhase  phase;
     uint64 uiNpcOutroDialog;
     uint64 uiTyrannus;
-    
+
     void Reset()
     {
         uiNpcOutroDialog = 0;
@@ -307,7 +307,7 @@ struct boss_krickAI : public ScriptedAI
 
     void DoAction(const int32 actionId)
     {
-        switch(actionId) 
+        switch(actionId)
         {
             case ACTION_OUTRO:
             {
@@ -324,7 +324,7 @@ struct boss_krickAI : public ScriptedAI
                 if (pJainaOrSylvanas) {
                     Position pos;
                     m_creature->GetNearPosition(pos, 5.0f, 0);
-                    pJainaOrSylvanas->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 
+                    pJainaOrSylvanas->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(),
                         pos.GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY()));
                 }
                 else {
@@ -333,7 +333,7 @@ struct boss_krickAI : public ScriptedAI
                     else
                         pJainaOrSylvanas = m_creature->SummonCreature(NPC_JAINA_PART1, *m_creature, TEMPSUMMON_MANUAL_DESPAWN);
                 }
-                
+
                 if (pJainaOrSylvanas)
                 {
                     pJainaOrSylvanas->SetOrientation(pJainaOrSylvanas->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY()));
@@ -406,14 +406,14 @@ struct boss_krickAI : public ScriptedAI
                     uiTyrannus = (pInstance ? pInstance->GetData64(DATA_TYRANNUS) : 0);
                     events.ScheduleEvent(EVENT_OUTRO_7, 1);
                     break;
-                case EVENT_OUTRO_7: 
+                case EVENT_OUTRO_7:
                     if (Creature *pTyrannus = m_creature->GetCreature(*m_creature, uiTyrannus))
                         DoScriptText(SAY_TYRANNUS_OUTRO_7, pTyrannus);
                     events.ScheduleEvent(EVENT_OUTRO_8, 7000);
                     break;
                 case EVENT_OUTRO_8:
                     DoScriptText(SAY_KRICK_OUTRO_8, m_creature);
-                    // TODO: Tyrannus starts killing Krick. 
+                    // TODO: Tyrannus starts killing Krick.
                     // there shall be some visual spell effect
                     events.ScheduleEvent(EVENT_OUTRO_9, 6000);
                     break;
@@ -427,7 +427,7 @@ struct boss_krickAI : public ScriptedAI
 
                     events.ScheduleEvent(EVENT_OUTRO_10, 12000);
                     break;
-                case EVENT_OUTRO_10: 
+                case EVENT_OUTRO_10:
                 {
                     Creature* pNpcDialog = m_creature->GetCreature(*m_creature, uiNpcOutroDialog);
                     if (pNpcDialog)
@@ -447,7 +447,7 @@ struct boss_krickAI : public ScriptedAI
                     Creature* pNpcDialog = m_creature->GetCreature(*m_creature, uiNpcOutroDialog);
                     if (pNpcDialog)
                         pNpcDialog->DisappearAndDie();
-                    
+
                     m_creature->DisappearAndDie();
                     break;
                 }

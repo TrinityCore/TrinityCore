@@ -1189,7 +1189,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint8 _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         uint8 _CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL ) const;
-        
+
         void AddRefundReference(uint64 it);
         void DeleteRefundReference(uint64 it);
 
