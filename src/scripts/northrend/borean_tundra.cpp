@@ -653,7 +653,7 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
 {
     npc_nesingwary_trapperAI(Creature *c) : ScriptedAI(c) { c->SetVisibility(VISIBILITY_OFF); }
 
-    GameObject *go_caribou;
+    uint64 go_caribouGUID;
     uint8  Phase;
     uint32 uiPhaseTimer;
 
@@ -662,14 +662,14 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
         m_creature->SetVisibility(VISIBILITY_OFF);
         uiPhaseTimer = 2500;
         Phase = 1;
-        go_caribou = NULL;
+        go_caribouGUID = 0;
     }
     void EnterCombat(Unit *who) {}
     void MoveInLineOfSight(Unit *who) {}
 
     void JustDied(Unit *who)
     {
-        if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
+        if (GameObject *go_caribou = m_creature->GetMap()->GetGameObject(go_caribouGUID))
             go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
         if (TempSummon *summon = m_creature->ToTempSummon())
@@ -678,7 +678,7 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
                     if (pTemp->GetTypeId() == TYPEID_PLAYER)
                         CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
 
-        if (go_caribou && go_caribou->GetTypeId() == TYPEID_GAMEOBJECT)
+        if (GameObject *go_caribou = m_creature->GetMap()->GetGameObject(go_caribouGUID))
             go_caribou->SetGoState(GO_STATE_READY);
     }
 
@@ -723,6 +723,8 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
                     break;
 
                 case 7:
+                {
+                    GameObject *go_caribou = NULL;
                     if ((go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
@@ -738,9 +740,13 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
                         (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
+                    {
                         go_caribou->SetGoState(GO_STATE_ACTIVE);
+                        go_caribouGUID = go_caribou->GetGUID();
+                    }
                     Phase = 8;
                     uiPhaseTimer = 1000;
+                }
                     break;
                 case 8:
                     DoCast(m_creature, SPELL_TRAPPED, true);
@@ -916,17 +922,15 @@ enum eNexusDrakeHatchling
 
 struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
 {
-    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c)
-    {
-        pHarpooner = NULL;
-    }
+    npc_nexus_drake_hatchlingAI(Creature *c) : FollowerAI(c) {}
 
-    Player *pHarpooner;
+    uint64 HarpoonerGUID;
     bool WithRedDragonBlood;
 
     void Reset()
     {
        WithRedDragonBlood = false;
+       HarpoonerGUID = 0;
     }
 
     void EnterCombat(Unit* pWho)
@@ -939,7 +943,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
     {
         if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
         {
-            pHarpooner = CAST_PLR(caster);
+            HarpoonerGUID = caster->GetGUID();
             DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
         }
         WithRedDragonBlood = true;
@@ -949,34 +953,40 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!pHarpooner || !pHarpooner->IsInWorld())
+        if (!HarpoonerGUID)
             return;
 
         if (m_creature->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
         {
             if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
-                pHarpooner->KilledMonsterCredit(26175,0);
-                pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
-                SetFollowComplete();
-                pHarpooner = NULL;
-                m_creature->DisappearAndDie();
+                if (Player *pHarpooner = Unit::GetPlayer(HarpoonerGUID))
+                {
+                    pHarpooner->KilledMonsterCredit(26175,0);
+                    pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
+                    SetFollowComplete();
+                    HarpoonerGUID = 0;
+                    m_creature->DisappearAndDie();
+                }
             }
         }
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (WithRedDragonBlood && pHarpooner && pHarpooner->IsInWorld() && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+        if (WithRedDragonBlood && HarpoonerGUID && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
         {
-            EnterEvadeMode();
-            StartFollow(pHarpooner, 35, NULL);
+            if (Player *pHarpooner = Unit::GetPlayer(HarpoonerGUID))
+            {
+                EnterEvadeMode();
+                StartFollow(pHarpooner, 35, NULL);
 
-            DoCast(m_creature, SPELL_SUBDUED, true);
-            pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
+                DoCast(m_creature, SPELL_SUBDUED, true);
+                pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
 
-            m_creature->AttackStop();
-            WithRedDragonBlood = false;
+                m_creature->AttackStop();
+                WithRedDragonBlood = false;
+            }
         }
 
         if (!UpdateVictim())
@@ -1402,8 +1412,8 @@ struct npc_counselor_talbotAI : public ScriptedAI
         pCreature->RestoreFaction();
     }
 
-    Creature* pLeryssa;
-    Creature* pArlos;
+    uint64 LeryssaGUID;
+    uint64 ArlosGUID;
 
     bool bCheck;
 
@@ -1413,8 +1423,8 @@ struct npc_counselor_talbotAI : public ScriptedAI
 
     void Reset()
     {
-        pLeryssa             = NULL;
-        pArlos               = NULL;
+        LeryssaGUID         = 0;
+        ArlosGUID           = 0;
         bCheck              = false;
         uiShadowBoltTimer   = urand(5000,12000);
         uiDeflectionTimer   = urand(20000,25000);
@@ -1434,9 +1444,11 @@ struct npc_counselor_talbotAI : public ScriptedAI
     {
         if (bCheck)
         {
-            pLeryssa = m_creature->FindNearestCreature(NPC_LERYSSA, 50.0f, true);
-            pArlos   = m_creature->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true);
-            bCheck  = false;
+            if (Creature *pLeryssa = m_creature->FindNearestCreature(NPC_LERYSSA, 50.0f, true))
+                LeryssaGUID = pLeryssa->GetGUID();
+            if (Creature *pArlos = m_creature->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true))
+                ArlosGUID = pArlos->GetGUID();
+            bCheck = false;
         }
 
         if (!UpdateVictim())
@@ -1468,7 +1480,12 @@ struct npc_counselor_talbotAI : public ScriptedAI
 
    void JustDied(Unit* pKiller)
    {
-        if (!pArlos || !pLeryssa)
+        if (!LeryssaGUID || !ArlosGUID)
+            return;
+
+        Creature *pLeryssa = Unit::GetCreature(*m_creature, LeryssaGUID);
+        Creature *pArlos = Unit::GetCreature(*m_creature, ArlosGUID);
+        if(!pLeryssa || !pArlos)
             return;
 
         DoScriptText(SAY_ARLOS_1, pArlos);
@@ -1701,12 +1718,9 @@ enum eImprisionedBerylSorcerer
 
 struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
 {
-    npc_imprisoned_beryl_sorcererAI(Creature* pCreature) : ScriptedAI(pCreature)
-    {
-        pCaster = NULL;
-    }
+    npc_imprisoned_beryl_sorcererAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    Player *pCaster;
+    uint64 CasterGUID;
 
     uint32  uiStep;
     uint32  uiPhase;
@@ -1715,7 +1729,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
     {
         uiStep = 1;
         uiPhase = 0;
-	pCaster = NULL;
+        CasterGUID = NULL;
     }
 
     void EnterCombat(Unit* pWho)
@@ -1725,10 +1739,10 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
 
     void SpellHit(Unit* pUnit, const SpellEntry* pSpell)
     {
-        if (pSpell->Id == SPELL_NEURAL_NEEDLE && pCaster->GetTypeId() == TYPEID_PLAYER)
+        if (pSpell->Id == SPELL_NEURAL_NEEDLE && pUnit->GetTypeId() == TYPEID_PLAYER)
         {
             ++uiPhase;
-            pCaster = CAST_PLR(pUnit);
+            CasterGUID = pUnit->GetGUID();
         }
     }
 
@@ -1779,7 +1793,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 5:
                 if (uiStep == 5)
                 {
-                    if (pCaster)
+                    if (Player *pCaster = Unit::GetPlayer(CasterGUID))
                     {
                         DoScriptText(SAY_IMPRISIONED_BERYL_5, m_creature);
                         pCaster->KilledMonsterCredit(25478,0);
