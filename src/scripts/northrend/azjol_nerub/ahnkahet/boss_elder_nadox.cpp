@@ -69,7 +69,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
     uint32 uiSwarmerSpawnTimer;
     uint32 uiGuardSpawnTimer;
     uint32 uiEnragueTimer;
-    
+
     bool bGuardSpawned;
 
     ScriptedInstance *pInstance;
@@ -180,7 +180,7 @@ CreatureAI* GetAI_boss_elder_nadox(Creature* pCreature)
 enum AddSpells
 {
     SPELL_SPRINT                                  = 56354,
-    SPELL_GUARDIAN_AURA                           = 56151    
+    SPELL_GUARDIAN_AURA                           = 56151
 };
 
 struct mob_ahnkahar_nerubianAI : public ScriptedAI
@@ -212,7 +212,7 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
-        
+
         if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
             m_creature->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
 

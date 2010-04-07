@@ -114,7 +114,7 @@ struct boss_kologarnAI : public BossAI
         // TODO: because we are using hack, he is stunned and cannot cast, so we use triggered for every spell
         switch(events.GetEvent())
         {
-            case EVENT_NONE: 
+            case EVENT_NONE:
                 break;
             case EVENT_SMASH:
                 if(left && right)

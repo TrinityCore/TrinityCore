@@ -715,8 +715,8 @@ bool GOHello_go_soulwell(Player *pPlayer, GameObject* pGO)
     if (!pPlayer->IsInSameRaidWith(static_cast<Player *>(caster)))
         return true;
 
-    // Repeating this at every use is ugly and inefficient. But as long as we don't have proper  
-    // GO scripting with at least On Create and On Update events, the other options are no less 
+    // Repeating this at every use is ugly and inefficient. But as long as we don't have proper
+    // GO scripting with at least On Create and On Update events, the other options are no less
     // ugly and hacky.
     uint32 newSpell = 0;
     if (pGO->GetEntry() == 193169)                                  // Soulwell for rank 2
@@ -855,8 +855,8 @@ bool GOHello_go_amberpine_outhouse(Player *pPlayer, GameObject *pGO)
     }
     else
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_OUTHOUSE_INUSE, pGO->GetGUID());
-        return true;    
-} 
+        return true;
+}
 
 bool GOSelect_go_amberpine_outhouse(Player *pPlayer, GameObject *pGO, uint32 uiSender, uint32 uiAction)
 {
@@ -1044,7 +1044,7 @@ void AddSC_go_scripts()
     newscript->Name = "go_dragonflayer_cage";
     newscript->pGOHello =           &GOHello_go_dragonflayer_cage;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "go_amberpine_outhouse";
     newscript->pGOHello =           &GOHello_go_amberpine_outhouse;

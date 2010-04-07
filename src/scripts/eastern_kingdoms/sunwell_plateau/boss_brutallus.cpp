@@ -99,9 +99,9 @@ struct boss_brutallusAI : public ScriptedAI
         IntroFrostBoltTimer = 0;
 
         IsIntro = false;
-        Enraged = false;        
+        Enraged = false;
 
-        DoCast(m_creature, SPELL_DUAL_WIELD, true);        
+        DoCast(m_creature, SPELL_DUAL_WIELD, true);
 
         if (pInstance)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
@@ -151,7 +151,7 @@ struct boss_brutallusAI : public ScriptedAI
             Madrigosa->setActive(true);
             IsIntro = true;
             Madrigosa->SetMaxHealth(m_creature->GetMaxHealth());
-            Madrigosa->SetHealth(m_creature->GetMaxHealth());            
+            Madrigosa->SetHealth(m_creature->GetMaxHealth());
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             m_creature->Attack(Madrigosa, true);
             Madrigosa->Attack(m_creature, true);

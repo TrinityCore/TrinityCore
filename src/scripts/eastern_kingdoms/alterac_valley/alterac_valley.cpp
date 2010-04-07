@@ -49,7 +49,7 @@ enum Creatures
 struct mob_av_marshal_or_warmasterAI : public ScriptedAI
 {
     mob_av_marshal_or_warmasterAI(Creature *c) : ScriptedAI(c) {}
-    
+
     uint32 uiChargeTimer;
     uint32 uiCleaveTimer;
     uint32 uiDemoralizingShoutTimer;
@@ -57,7 +57,7 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
     uint32 uiWhirlwind2Timer;
     uint32 uiEnrageTimer;
     uint32 uiResetTimer;
-    
+
     bool bHasAura;
 
     void Reset()
@@ -72,12 +72,12 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
 
         bHasAura = false;
     }
-    
+
     void JustRespawned()
     {
         Reset();
     }
-    
+
     void UpdateAI(const uint32 diff)
     {
         if (!bHasAura)
@@ -112,47 +112,47 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
 
             bHasAura = true;
         }
-        
+
         if (!UpdateVictim())
             return;
-        
+
         if (uiChargeTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CHARGE);
             uiChargeTimer = urand(10*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiChargeTimer -= diff;
-        
+
         if (uiCleaveTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_CLEAVE);
             uiCleaveTimer =  urand(10*IN_MILISECONDS,16*IN_MILISECONDS);
         } else uiCleaveTimer -= diff;
-        
+
         if (uiDemoralizingShoutTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_DEMORALIZING_SHOUT);
             uiDemoralizingShoutTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
         } else uiDemoralizingShoutTimer -= diff;
-        
+
         if (uiWhirlwind1Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WHIRLWIND1);
             uiWhirlwind1Timer = urand(6*IN_MILISECONDS,20*IN_MILISECONDS);
         } else uiWhirlwind1Timer -= diff;
-        
+
         if (uiWhirlwind2Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WHIRLWIND2);
             uiWhirlwind2Timer = urand(10*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiWhirlwind2Timer -= diff;
-        
+
         if (uiEnrageTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ENRAGE);
             uiEnrageTimer = urand(10*IN_MILISECONDS,30*IN_MILISECONDS);
         }else uiEnrageTimer -= diff;
-        
-        
+
+
         // check if creature is not outside of building
         if(uiResetTimer <= diff)
         {
@@ -160,7 +160,7 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
                 EnterEvadeMode();
             uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 };

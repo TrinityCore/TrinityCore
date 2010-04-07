@@ -52,7 +52,7 @@ struct boss_drakosAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiMagicPullTimer ;
     uint32 uiStompTimer ;
     uint32 uiBombSummonTimer ;
@@ -73,11 +73,11 @@ struct boss_drakosAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_DRAKOS_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_DRAKOS_EVENT, IN_PROGRESS);
     }
@@ -147,7 +147,7 @@ struct boss_drakosAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_DRAKOS_EVENT, DONE);
     }

@@ -199,7 +199,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult_AutoPtr arenaTeamDataResult)
     m_stats.games_season = fields[12].GetUInt32();
     m_stats.wins_season  = fields[13].GetUInt32();
     m_stats.rank         = fields[14].GetUInt32();
-        
+
     return true;
 }
 
@@ -322,7 +322,7 @@ void ArenaTeam::Disband(WorldSession *session)
         // Removing from members is done in DelMember.
         DelMember(m_members.front().guid);
     }
-    
+
     if (session)
     {
         if(Player *player = session->GetPlayer())

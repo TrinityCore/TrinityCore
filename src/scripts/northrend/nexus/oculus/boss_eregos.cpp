@@ -88,13 +88,13 @@ struct boss_eregosAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_EREGOS_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit* who)
     {
         if (pInstance)
             pInstance->SetData(DATA_EREGOS_EVENT, IN_PROGRESS);
     }
-    
+
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff)
@@ -105,7 +105,7 @@ struct boss_eregosAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    
+
     void JustDied(Unit* killer)
     {
         if (pInstance)

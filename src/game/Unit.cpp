@@ -6754,7 +6754,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     for (ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr) {
                         if ((*itr)->GetEntry() != 2630)
                             continue;
-                     
+
                         caster = (*itr);
                         break;
                     }
@@ -8554,7 +8554,7 @@ FactionTemplateEntry const* Unit::getFactionTemplateEntry() const
                 sLog.outError("Player %s has invalid faction (faction template id) #%u", player->GetName(), getFaction());
             else if (const Creature *creature = ToCreature())
                 sLog.outError("Creature (template id: %u) has invalid faction (faction template id) #%u", creature->GetCreatureInfo()->Entry, getFaction());
-            else 
+            else
                 sLog.outError("Unit (name=%s, type=%u) has invalid faction (faction template id) #%u", GetName(), uint32(GetTypeId()), getFaction());
 
             guid = GetGUID();
@@ -10982,7 +10982,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
             {
                 // Merciless Combat
                 if ((*i)->GetSpellProto()->SpellIconID == 2656)
-                {  
+                {
                     if ((pVictim->GetMaxHealth() * 35 / 100) >= pVictim->GetHealth())
                         DoneTotalMod *= (100.0f+(*i)->GetAmount())/100.0f;
                 }
@@ -11367,7 +11367,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
             this->ToCreature()->SetHomePosition(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 
         if (enemy)
-        {            
+        {
             if (IsAIEnabled)
             {
                 this->ToCreature()->AI()->EnterCombat(enemy);
@@ -11915,7 +11915,7 @@ void Unit::SetHover(bool on)
 
 void Unit::setDeathState(DeathState s)
 {
-    // death state needs to be updated before RemoveAllAurasOnDeath() calls HandleChannelDeathItem(..) so that 
+    // death state needs to be updated before RemoveAllAurasOnDeath() calls HandleChannelDeathItem(..) so that
     // it can be used to check creation of death items (such as soul shards).
     DeathState oldDeathState = m_deathState;
     m_deathState = s;
@@ -14317,7 +14317,7 @@ bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry co
     if (EventProcFlag & PROC_FLAG_KILL && GetTypeId() == TYPEID_PLAYER)
     {
         bool allow = false;
-        
+
         if (pVictim)
             allow = ToPlayer()->isHonorOrXPTarget(pVictim);
 
@@ -14587,7 +14587,7 @@ void Unit::Kill(Unit *pVictim, bool durabilityLoss)
 
             loot->generateMoneyLoot(creature->GetCreatureInfo()->mingold,creature->GetCreatureInfo()->maxgold);
         }
-        
+
         player->RewardPlayerAndGroupAtKill(pVictim);
     }
 

@@ -134,7 +134,7 @@ enum Yells
 
 //#define VOID_ZONE_DMG_10                      5000
 //#define VOID_ZONE_DMG_25                      7500
-//#define VOID_ZONE_RADIUS                      
+//#define VOID_ZONE_RADIUS
 
 
 /************************************************
@@ -174,7 +174,7 @@ struct boss_xt002_AI : public BossAI
     uint32 uiHeartPhaseTimer;
     uint32 uiSpawnAddTimer;
     uint32 uiEnrageTimer;
-    
+
     bool searing_light_active;
     uint64 uiSearingLightTarget;
 
@@ -360,7 +360,7 @@ struct boss_xt002_AI : public BossAI
                             case 3: m_creature->SummonCreature(NPC_XS013_SCRAPBOT, irand(UL_X - 3, UL_X + 3), irand(UL_Y - 3, UL_Y + 3), SPAWN_Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000); break;
                         }
                     }
-            
+
                     //Spawn 5 Scrapbots
                     switch (rand() % 4)
                     {
@@ -399,7 +399,7 @@ struct boss_xt002_AI : public BossAI
 
             DoMeleeAttackIfReady();
         }
-        
+
         if (gravity_bomb_active)
         {
             if (uiGravityBombAuraTimer <= diff)
@@ -437,7 +437,7 @@ struct boss_xt002_AI : public BossAI
 
         //Summon the heart npc
         m_creature->SummonCreature(NPC_XT002_HEART, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ() + 7, 0, TEMPSUMMON_TIMED_DESPAWN, TIMER_HEART_PHASE);
-        
+
         // Start "end of phase 2 timer"
         uiHeartPhaseTimer = TIMER_HEART_PHASE;
 
@@ -620,7 +620,7 @@ struct mob_pummellerAI : public ScriptedAI
     {
         if (!UpdateVictim())
             return;
-        
+
         if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
         {
             if (uiArcingSmashTimer <= diff)

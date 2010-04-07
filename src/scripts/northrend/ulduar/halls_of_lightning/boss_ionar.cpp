@@ -28,11 +28,11 @@ enum Spells
     H_SPELL_BALL_LIGHTNING                        = 59800,
     SPELL_STATIC_OVERLOAD                         = 52658,
     H_SPELL_STATIC_OVERLOAD                       = 59795,
-    
+
     SPELL_DISPERSE                                = 52770,
     SPELL_SUMMON_SPARK                            = 52746,
     SPELL_SPARK_DESPAWN                           = 52776,
-    
+
     //Spark of Ionar
     SPELL_SPARK_VISUAL_TRIGGER                    = 52667,
     H_SPELL_SPARK_VISUAL_TRIGGER                  = 59833
@@ -78,7 +78,7 @@ struct boss_ionarAI : public ScriptedAI
 
     bool bIsSplitPhase;
     bool bHasDispersed;
-    
+
     uint32 uiSplitTimer;
 
     uint32 uiStaticOverloadTimer;
@@ -92,7 +92,7 @@ struct boss_ionarAI : public ScriptedAI
 
         bIsSplitPhase = true;
         bHasDispersed = false;
-        
+
         uiSplitTimer = 25*IN_MILISECONDS;
 
         uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);

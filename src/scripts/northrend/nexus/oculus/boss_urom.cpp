@@ -51,7 +51,7 @@ struct boss_uromAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance* pInstance;
 
     void Reset()
@@ -62,11 +62,11 @@ struct boss_uromAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_UROM_EVENT, IN_PROGRESS);
     }
-    
+
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
     void UpdateAI(const uint32 diff)
@@ -80,7 +80,7 @@ struct boss_uromAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         DoScriptText(SAY_DEATH, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_UROM_EVENT, DONE);
     }

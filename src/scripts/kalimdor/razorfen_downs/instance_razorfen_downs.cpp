@@ -109,7 +109,7 @@ struct instance_razorfen_downs : public ScriptedInstance
         if (uiType == DATA_GONG_WAVES)
         {
             uiGongWaves = uiData;
-            
+
             switch(uiGongWaves)
             {
                 case 9:
@@ -127,10 +127,10 @@ struct instance_razorfen_downs : public ScriptedInstance
                         return;
 
                     pGo->SetFlag(GAMEOBJECT_FLAGS,GO_FLAG_UNK1);
-                    
+
                     uint32 uiCreature = 0;
                     uint8 uiSummonTimes = 0;
-                    
+
                     switch(uiGongWaves)
                     {
                         case 1:
@@ -147,7 +147,7 @@ struct instance_razorfen_downs : public ScriptedInstance
                         default:
                             break;
                     }
-                    
+
 
                     if (Creature* pCreature = pGo->SummonCreature(uiCreature,2502.635,844.140,46.896,0.633))
                     {

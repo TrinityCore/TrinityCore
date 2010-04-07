@@ -1394,9 +1394,9 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
           *data << uint32(2);
-          *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);   
-          *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);                           
-          break;  
+          *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);
+          *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);
+          break;
             case BATTLEGROUND_DS:                           // wotlk
             case BATTLEGROUND_RV:                           // wotlk
             case BATTLEGROUND_IC:                           // wotlk
@@ -1534,7 +1534,7 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     {
         if (!isAnyArenaEnabled()) // it's checked in handler but just to be sure
            return NULL;
-        uint8 size = m_EnabledArenas.size() - 1; 
+        uint8 size = m_EnabledArenas.size() - 1;
         bgTypeId = m_EnabledArenas[urand(0,size)];
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
@@ -1781,7 +1781,7 @@ void BattleGroundMgr::InitAutomaticArenaPointDistribution()
     {
         sLog.outDebug("Initializing Automatic Arena Point Distribution");
         uint64 wstime = sWorld.getWorldState(WS_ARENA_DISTRIBUTION_TIME);
-        
+
         if (!wstime)
         {
             sLog.outDebug("Battleground: Next arena point distribution time not found, reseting it now.");

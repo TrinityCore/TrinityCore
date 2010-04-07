@@ -7956,7 +7956,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 bool groupRules = (group && go->GetGOInfo()->type == GAMEOBJECT_TYPE_CHEST && go->GetGOInfo()->chest.groupLootRules);
 
                 // check current RR player and get next if necessary
-                if (groupRules) 
+                if (groupRules)
                     group->UpdateLooterGuid(go, true);
 
                 loot->FillLoot(lootid, LootTemplates_Gameobject, this, !groupRules, false, go->GetLootMode());
@@ -8012,7 +8012,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                         break;
                 }
             }
-            else 
+            else
                 permission = ALL_PERMISSION;
         }
     }
@@ -11597,7 +11597,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
 
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
-        
+
         pItem->SetNotRefundable(this);
 
         ItemRemovedQuestCheck( pItem->GetEntry(), pItem->GetCount() );
@@ -14088,7 +14088,7 @@ void Player::RewardQuest( Quest const *pQuest, uint32 reward, Object* questGiver
 
     if (pQuest->GetRewArenaPoints())
         ModifyArenaPoints(pQuest->GetRewArenaPoints());
-    
+
     // Send reward mail
     if (uint32 mail_template_id = pQuest->GetRewMailTemplateId())
         MailDraft(mail_template_id).SendMailTo(this, questGiver, MAIL_CHECK_MASK_NONE, pQuest->GetRewMailDelaySecs());
@@ -15540,11 +15540,11 @@ float Player::GetFloatValueFromDB(uint16 index, uint64 guid)
 
 bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 {
-    ////                                                     0     1        2     3     4     5      6       7      8   9      10           11            12          
+    ////                                                     0     1        2     3     4     5      6       7      8   9      10           11            12
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guid, account, data, name, race, class, gender, level, xp, money, playerBytes, playerBytes2, playerFlags,"
-     // 13          14          15          16   17           18        19         20         21         22          23           24                 25                
+     // 13          14          15          16   17           18        19         20         21         22          23           24                 25
     //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost,"
-    // 26                 27       28       29       30       31         32           33            34        35    36      37                 38         39                 
+    // 26                 27       28       29       30       31         32           33            34        35    36      37                 38         39
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty,"
     // 40           41                42                43                    44          45          46              47           48               49              50
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
@@ -15600,7 +15600,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
 
     SetUInt32Value(UNIT_FIELD_LEVEL, fields[7].GetUInt8());
     SetUInt32Value(PLAYER_XP, fields[8].GetUInt32());
-    
+
     uint32 money = fields[9].GetUInt32();
     if (money > MAX_MONEY_AMOUNT)
         money = MAX_MONEY_AMOUNT;
@@ -16189,7 +16189,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
             // or if there are free/quest/conditional item for the player
             if (loot->roundRobinPlayer == 0 || loot->roundRobinPlayer == GetGUID())
                 return true;
-    
+
             return loot->hasItemFor(this);
         case GROUP_LOOT:
         case NEED_BEFORE_GREED:
@@ -16429,13 +16429,13 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                     item->GetGUIDLow(), GetGUIDLow());
                     if (!result2)
                     {
-                        sLog.outDebug("Item::LoadFromDB, " 
+                        sLog.outDebug("Item::LoadFromDB, "
                         "Item GUID: %u has field flags & ITEM_FLAGS_REFUNDABLE but has no data in item_refund_instance, removing flag.",
                         item->GetGUIDLow());
                         RemoveFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
                     }
                     else
-                    {    
+                    {
                         fields = result2->Fetch();
                         item->SetRefundRecipient(fields[0].GetUInt32());
                         item->SetPaidMoney(fields[1].GetUInt32());
@@ -16444,7 +16444,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                     }
                 }
             }
-            
+
             bool success = true;
 
             if (!bag_guid)
@@ -17363,7 +17363,7 @@ void Player::SaveToDB()
     ss << (uint64)m_deathExpireTime << ", '";
 
     ss << m_taxi.SaveTaxiDestinationsToString() << "', ";
-    
+
     ss << GetArenaPoints() << ", ";
 
     ss << GetHonorPoints() << ", ";
@@ -17539,11 +17539,11 @@ void Player::_SaveInventory()
         {
             iPtr->UpdatePlayedTime(this);
             continue;
-        }    
+        }
         else
         {
             sLog.outError("Can't find item guid " UI64FMTD " but is in refundable storage for player %u ! Removing.", (*itr), GetGUIDLow());
-            m_refundableItems.erase(itr); 
+            m_refundableItems.erase(itr);
         }
     }
 
@@ -19368,7 +19368,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
         }
 
         ModifyMoney( -(int32)price );
-        
+
         if (crItem->ExtendedCost)                            // case for new honor system
         {
             ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
@@ -19396,7 +19396,7 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
             data << uint32(count);
             GetSession()->SendPacket(&data);
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
-            
+
             if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
             {
                 it->SetRefundRecipient(GetGUIDLow());

@@ -56,12 +56,12 @@ struct boss_moamAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     uint32 uiTrampleTimer;
     uint32 uiDrainManaTimer;
     uint32 uiPhaseTimer;
     CombatPhase Phase;
-    
+
     ScriptedInstance *pInstance;
 
     void Reset()
@@ -71,7 +71,7 @@ struct boss_moamAI : public ScriptedAI
         uiPhaseTimer = 90000;
         Phase = NORMAL;
         m_creature->SetPower(POWER_MANA,0);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MOAM_EVENT, NOT_STARTED);
     }
@@ -79,17 +79,17 @@ struct boss_moamAI : public ScriptedAI
     void EnterCombat(Unit *who)
     {
         DoScriptText(EMOTE_AGGRO, m_creature);
-        
+
         if (pInstance)
             pInstance->SetData(DATA_MOAM_EVENT, IN_PROGRESS);
     }
-    
+
     void JustDied(Unit *killer)
     {
         if (pInstance)
             pInstance->SetData(DATA_MOAM_EVENT, DONE);
     }
-    
+
     void DrainMana()
     {
         for (uint8 i=0;i<6;++i)
@@ -108,7 +108,7 @@ struct boss_moamAI : public ScriptedAI
         {
             if (!UpdateVictim())
                 return;
-            
+
             //If we are 100%MANA cast Arcane Erruption
             if (m_creature->GetPower(POWER_MANA) == m_creature->GetMaxPower(POWER_MANA))
             {
@@ -116,23 +116,23 @@ struct boss_moamAI : public ScriptedAI
                 DoScriptText(EMOTE_MANA_FULL, m_creature);
                 m_creature->SetPower(POWER_MANA,0);
             }
-            
+
             //Trample Spell
             if (uiTrampleTimer <= diff)
             {
                 DoCast(m_creature->getVictim(), SPELL_TRAMPLE);
                 uiTrampleTimer = urand(3000,7000);
             } else uiTrampleTimer -= diff;
-            
+
             //Drain Mana
             if (uiDrainManaTimer <= diff)
             {
                 DrainMana();
                 uiDrainManaTimer = urand(3000,7000);
             } else uiDrainManaTimer -= diff;
-            
+
             DoMeleeAttackIfReady();
-            
+
             //After 90secs change phase
             if (uiPhaseTimer <= diff)
             {

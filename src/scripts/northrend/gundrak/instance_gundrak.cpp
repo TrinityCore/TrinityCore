@@ -294,7 +294,7 @@ struct instance_gundrak : public ScriptedInstance
         if (data == DONE)
             SaveToDB();
     }
-    
+
     void SetData64(uint32 type, uint64 data)
     {
         if (type == DATA_RUIN_DWELLER_DIED)

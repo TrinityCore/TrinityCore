@@ -330,11 +330,11 @@ class Item : public Object
         uint32 GetRefundRecipient() { return m_refundRecipient; }
         uint32 GetPaidMoney() { return m_paidMoney; }
         uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
-        
+
         void UpdatePlayedTime(Player *owner);
         uint32 GetPlayedTime();
         bool IsRefundExpired();
-        
+
         void BuildUpdate(UpdateDataMapType& );
 
     private:

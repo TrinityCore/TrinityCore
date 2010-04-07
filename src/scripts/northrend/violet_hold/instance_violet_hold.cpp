@@ -349,7 +349,7 @@ struct instance_violet_hold : public ScriptedInstance
                 break;
             case 12:
                 if (uiSecondBoss == 0)
-                    do 
+                    do
                     {
                         uiSecondBoss = urand(1,6);
                     } while (uiSecondBoss == uiFirstBoss);
@@ -408,7 +408,7 @@ struct instance_violet_hold : public ScriptedInstance
         OUT_SAVE_INST_DATA;
 
         std::ostringstream saveStream;
-        saveStream << "V H " << (uint16)m_auiEncounter[0] 
+        saveStream << "V H " << (uint16)m_auiEncounter[0]
             << " " << (uint16)m_auiEncounter[1]
             << " " << (uint16)m_auiEncounter[2]
             << " " << (uint16)uiFirstBoss

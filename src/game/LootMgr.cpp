@@ -784,7 +784,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                         slot_type = LOOT_SLOT_TYPE_ROLL_ONGOING;
                     else if (l.roundRobinPlayer == 0 || !l.items[i].is_underthreshold || lv.viewer->GetGUID() == l.roundRobinPlayer)
                     {
-                        // no round robin owner or he has released the loot 
+                        // no round robin owner or he has released the loot
                         // or it IS the round robin group owner
                         // => item is lootable
                         slot_type = LOOT_SLOT_TYPE_ALLOW_LOOT;

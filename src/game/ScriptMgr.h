@@ -37,7 +37,7 @@ struct Script
         pOnGetMoney(NULL), pOnPlayerChat(NULL), pOnServerStartup(NULL), pOnServerShutdown(NULL),
         pOnAreaChange(NULL), pOnItemClick(NULL), pOnItemOpen(NULL), pOnGoClick(NULL), pOnCreatureKill(NULL),
         pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL),
-        pGOSelect(NULL), pGOSelectWithCode(NULL), 
+        pGOSelect(NULL), pGOSelectWithCode(NULL),
         pQuestSelect(NULL), pQuestComplete(NULL), pNPCDialogStatus(NULL), pGODialogStatus(NULL),
         pChooseReward(NULL), pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL),
         pGOQuestAccept(NULL), pGOChooseReward(NULL),pItemUse(NULL), pItemExpire(NULL),
@@ -96,10 +96,10 @@ class ScriptMgr
     public:
         ScriptMgr();
         ~ScriptMgr();
-        
+
         void ScriptsInit();
         void LoadDatabase();
-        char const* ScriptsVersion();    
+        char const* ScriptsVersion();
 
     //event handlers
         void OnLogin(Player *pPlayer);

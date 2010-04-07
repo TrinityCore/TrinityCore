@@ -212,7 +212,7 @@ struct boss_thaddiusAI : public BossAI
 
         if (!UpdateVictim())
             return;
-        
+
         events.Update(diff);
 
         if (me->hasUnitState(UNIT_STAT_CASTING))
@@ -250,7 +250,7 @@ CreatureAI* GetAI_boss_thaddius(Creature* pCreature)
 
 struct mob_stalaggAI : public ScriptedAI
 {
-    mob_stalaggAI(Creature *c) : ScriptedAI(c) 
+    mob_stalaggAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }
@@ -301,7 +301,7 @@ struct mob_stalaggAI : public ScriptedAI
 
                     // reset aggro to be sure that feugen will not follow the jump
                     pFeugen->getThreatManager().modifyThreatPercent(pFeugenVictim, -100);
-                    pFeugenVictim->JumpTo(m_creature, 0.3f); 
+                    pFeugenVictim->JumpTo(m_creature, 0.3f);
 
                     m_creature->getThreatManager().modifyThreatPercent(pStalaggVictim, -100);
                     pStalaggVictim->JumpTo(pFeugen, 0.3f);
@@ -329,7 +329,7 @@ CreatureAI* GetAI_mob_stalagg(Creature* pCreature)
 
 struct mob_feugenAI : public ScriptedAI
 {
-    mob_feugenAI(Creature *c) : ScriptedAI(c) 
+    mob_feugenAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
     }

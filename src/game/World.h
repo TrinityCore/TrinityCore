@@ -683,7 +683,7 @@ class World
         float rate_values[MAX_RATES];
         uint32 m_configs[CONFIG_VALUE_COUNT];
         typedef std::map<uint32,uint64> WorldStatesMap;
-        WorldStatesMap m_worldstates;       
+        WorldStatesMap m_worldstates;
         int32 m_playerLimit;
         AccountTypes m_allowedSecurityLevel;
         LocaleConstant m_defaultDbcLocale;                     // from config for one from loaded DBC locales

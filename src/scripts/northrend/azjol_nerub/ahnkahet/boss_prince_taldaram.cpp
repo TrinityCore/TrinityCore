@@ -226,7 +226,7 @@ struct boss_taldaramAI : public ScriptedAI
                             uiPhaseTimer = 500;
                             if (Unit* pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 uiEmbraceTarget = pEmbraceTarget->GetGUID();
-                            
+
                         }
                         uiVanishTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
                     } else uiVanishTimer -= diff;

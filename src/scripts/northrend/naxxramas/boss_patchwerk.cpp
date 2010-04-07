@@ -43,7 +43,7 @@ enum Events
     EVENT_HATEFUL,
     EVENT_SLIME
 };
- 
+
 #define ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM  RAID_MODE(1856, 1857)
 #define MAX_ENCOUNTER_TIME                    3 * 60 * 1000
 

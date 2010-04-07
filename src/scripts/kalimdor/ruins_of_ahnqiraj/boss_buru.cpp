@@ -35,21 +35,21 @@ struct boss_buruAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
     }
-    
+
     ScriptedInstance *pInstance;
-    
+
     void Reset()
     {
         if (pInstance)
             pInstance->SetData(DATA_BURU_EVENT, NOT_STARTED);
     }
-    
+
     void EnterCombat(Unit *who)
     {
         if (pInstance)
             pInstance->SetData(DATA_BURU_EVENT, IN_PROGRESS);
     }
-    
+
     void JustDied(Unit *killer)
     {
         if (pInstance)

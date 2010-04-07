@@ -337,7 +337,7 @@ void LoadDBCStores(const std::string& dataPath)
             if (entry->bracketId > MAX_BATTLEGROUND_BRACKETS)
                 assert(false && "Need update MAX_BATTLEGROUND_BRACKETS by DBC data");
 
-    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestXPStore,             dbcPath,"QuestXP.dbc"); 
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestXPStore,             dbcPath,"QuestXP.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sQuestFactionRewardStore,  dbcPath,"QuestFactionReward.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sRandomPropertiesPointsStore, dbcPath,"RandPropPoints.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sScalingStatDistributionStore, dbcPath,"ScalingStatDistribution.dbc");

@@ -64,7 +64,7 @@ struct boss_gelihastAI : public ScriptedAI
             DoCastVictim(SPELL_NET);
             uiNetTimer = urand(4000,7000);
         } else uiNetTimer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 };

@@ -41,7 +41,7 @@
 class Aura;
 //
 // EFFECT HANDLER NOTES
-// 
+//
 // in aura handler there should be check for modes:
 // AURA_EFFECT_HANDLE_REAL set -  aura mod is just applied/removed on the target
 // AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK set - aura is just applied/removed, or aura packet request is made
@@ -504,8 +504,8 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         // Borrowed Time
                         if (AuraEffect const * aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
                             bonus += aurEff->GetAmount() / 100;
-                        
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus; 
+
+                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus;
                     }
                     break;
                 case SPELLFAMILY_PALADIN:
@@ -1119,7 +1119,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
                            break;
                     }
                     break;
-                case SPELLFAMILY_MAGE: 
+                case SPELLFAMILY_MAGE:
                     if (GetId() == 55342)// Mirror Image
                         m_isPeriodic = false;
                     break;
@@ -1859,7 +1859,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                         target->RemoveAurasDueToSpell(31665);
                     break;
                 // Killing Spree
-                case 51690: 
+                case 51690:
                 {
                     // TODO: this should use effect[1] of 51690
                     UnitList targets;
@@ -4119,7 +4119,7 @@ void AuraEffect::HandleModMechanicImmunity(AuraApplication const * aurApp, uint8
             target->ApplySpellImmune(GetId(), IMMUNITY_MECHANIC, GetMiscValue(), apply);
             break;
     }
-            
+
     if (apply && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY)
         target->RemoveAurasWithMechanic(mechanic, AURA_REMOVE_BY_DEFAULT, GetId());
 }
@@ -5508,7 +5508,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     {
                         float currentGroundLevel = target->GetBaseMap()->GetHeight(target->GetPositionX(), target->GetPositionY(), MAX_HEIGHT);
                         if (target->GetPositionZ() > currentGroundLevel)
-                            target->GetMotionMaster()->MoveFall(currentGroundLevel);        
+                            target->GetMotionMaster()->MoveFall(currentGroundLevel);
                     }
                     break;
                 case 46699:                                     // Requires No Ammo
@@ -5864,7 +5864,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     {
                         if (target->m_form != FORM_CAT)
                             break;
-                        
+
                         target->CastSpell(target, spellId, true, NULL, NULL, GetCasterGUID());
                         break;
                     }
@@ -6006,7 +6006,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
         //Adding items
         uint32 noSpaceForCount = 0;
         uint32 count = m_amount;
-        
+
         ItemPosCountVec dest;
         uint8 msg = plCaster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, GetSpellProto()->EffectItemType[m_effIndex], count, &noSpaceForCount);
         if( msg != EQUIP_ERR_OK )
@@ -6152,7 +6152,7 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const * aurApp, uint8 mod
                 continue;
             if(!plr->GetRuneCooldown(i))
             {
-                // ConvertRune(i, 
+                // ConvertRune(i,
                 plr->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this);
                 --runes;
             }

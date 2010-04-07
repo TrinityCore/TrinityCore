@@ -47,7 +47,7 @@ struct Locations
 {
     float x, y, z;
 };
- 
+
 struct Locations moveLocs[]=
 {
     {261.6,-449.3,109.5},
@@ -57,7 +57,7 @@ struct Locations moveLocs[]=
     {310.0,-453.4,109.5},
     {238.6,-460.7,109.5}
 };
- 
+
 enum Phase
 {
     PHASE_FRENZIED_WORGEN,
@@ -92,11 +92,11 @@ struct boss_palehoofAI : public ScriptedAI
         uiWhiteringRoarTimer = 10000;
 
         m_creature->GetMotionMaster()->MoveTargetedHome();
- 
+
         for(uint32 i=0;i<4;i++)
             DoneAdds[i]=false;
         AddCount=0;
- 
+
         currentPhase=PHASE_NONE;
 
         if (pInstance)
@@ -125,15 +125,15 @@ struct boss_palehoofAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
     }
-    
+
     void AttackStart(Unit* who)
     {
         if (!who)
             return;
- 
+
         if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
- 
+
         if (m_creature->Attack(who, true))
         {
             m_creature->AddThreat(who, 0.0f);
@@ -150,30 +150,30 @@ struct boss_palehoofAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-        
+
         Creature* pTemp = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pTemp && pTemp->isAlive())
             pTemp->DisappearAndDie();
-        
+
         if (uiArcingSmashTimer <= diff)
         {
             DoCast(m_creature, SPELL_ARCING_SMASH);
             uiArcingSmashTimer = urand(13000,17000);
         } else uiArcingSmashTimer -= diff;
-        
+
         if (uiImpaleTimer <= diff)
         {
           if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
               DoCast(pTarget, DUNGEON_MODE(SPELL_IMPALE, H_SPELL_IMPALE));
           uiImpaleTimer = urand(8000,12000);
         } else uiImpaleTimer -= diff;
-        
+
         if (uiWhiteringRoarTimer <= diff)
         {
             DoCast(m_creature, DUNGEON_MODE(SPELL_WITHERING_ROAR, H_SPELL_WITHERING_ROAR));
             uiWhiteringRoarTimer = urand(8000,12000);
         } else uiWhiteringRoarTimer -= diff;
-        
+
         DoMeleeAttackIfReady();
     }
 
@@ -229,7 +229,7 @@ struct boss_palehoofAI : public ScriptedAI
         }
         currentPhase = move;
     }
-    
+
     void JustReachedHome()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -272,7 +272,7 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
         uiTerrifyingRoarTimer = 15000;
 
         m_creature->GetMotionMaster()->MoveTargetedHome();
- 
+
         if (pInstance)
             if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
             {
@@ -335,7 +335,7 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
     }
-    
+
     void JustReachedHome()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -378,7 +378,7 @@ struct mob_frenzied_worgenAI : public ScriptedAI
         uint32 uiEnrage2Timer = 10000;
 
         m_creature->GetMotionMaster()->MoveTargetedHome();
- 
+
         if (pInstance)
             if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
             {
@@ -443,7 +443,7 @@ struct mob_frenzied_worgenAI : public ScriptedAI
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
     }
-    
+
     void JustReachedHome()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -487,7 +487,7 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
         uiGrievousWoundTimer = 20000;
 
         m_creature->GetMotionMaster()->MoveTargetedHome();
- 
+
         if (pInstance)
             if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT)==IN_PROGRESS)
             {
@@ -551,7 +551,7 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
     }
-    
+
     void JustReachedHome()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -600,7 +600,7 @@ struct mob_massive_jormungarAI : public ScriptedAI
         uiPoisonBreathTimer = 10000;
 
         m_creature->GetMotionMaster()->MoveTargetedHome();
- 
+
         if (pInstance)
             if(pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
             {
@@ -665,7 +665,7 @@ struct mob_massive_jormungarAI : public ScriptedAI
                 CAST_AI(boss_palehoofAI,pPalehoof->AI())->NextPhase();
         }
     }
-    
+
     void JustReachedHome()
     {
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -726,7 +726,7 @@ struct mob_palehoof_orbAI : public ScriptedAI
                     pNext->SetStandState(UNIT_STAND_STATE_STAND);
                     pNext->SetInCombatWithZone();
                     pNext->Attack(pNext->SelectNearestTarget(100),true);
-                    
+
                }
                currentPhase=PHASE_NONE;
             }
@@ -809,12 +809,12 @@ void AddSC_boss_palehoof()
     newscript->GetAI = &GetAI_mob_massive_jormungar;
     newscript->RegisterSelf();
 
-       
+
     newscript = new Script;
     newscript->Name = "mob_palehoof_orb";
     newscript->GetAI = &GetAI_mob_palehoof_orb;
     newscript->RegisterSelf();
-    
+
 
     newscript = new Script;
     newscript->Name = "go_palehoof_sphere";

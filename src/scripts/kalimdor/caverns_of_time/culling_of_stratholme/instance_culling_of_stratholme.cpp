@@ -24,15 +24,15 @@
 /* Culling of Stratholme encounters:
 0 - Meathook
 1 - Salramm the Fleshcrafter
-2 - Chrono-Lord Epoch 
-3 - Mal'Ganis 
+2 - Chrono-Lord Epoch
+3 - Mal'Ganis
 4 - Infinite Corruptor (Heroic only)
 */
 
 struct instance_culling_of_stratholme : public ScriptedInstance
 {
     instance_culling_of_stratholme(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-    
+
     uint64 uiArthas;
     uint64 uiMeathook;
     uint64 uiSalramm;
@@ -45,10 +45,10 @@ struct instance_culling_of_stratholme : public ScriptedInstance
     uint64 uiMalGanisGate2;
     uint64 uiExitGate;
     uint64 uiMalGanisChest;
-    
+
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
-    
+
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
@@ -56,7 +56,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
 
         return false;
     }
-    
+
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
         switch(pCreature->GetEntry())
@@ -108,7 +108,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
                 break;
         }
     }
-    
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
@@ -144,11 +144,11 @@ struct instance_culling_of_stratholme : public ScriptedInstance
                 m_auiEncounter[4] = data;
                 break;
         }
-        
+
         if (data == DONE)
             SaveToDB();
     }
-    
+
     uint32 GetData(uint32 type)
     {
         switch(type)
@@ -161,7 +161,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
         }
         return 0;
     }
-    
+
     uint64 GetData64(uint32 identifier)
     {
         switch(identifier)
@@ -180,7 +180,7 @@ struct instance_culling_of_stratholme : public ScriptedInstance
         }
         return 0;
     }
-    
+
     std::string GetSaveData()
     {
         OUT_SAVE_INST_DATA;

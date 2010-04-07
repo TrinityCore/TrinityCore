@@ -397,9 +397,9 @@ struct Position
     void GetPosition(float &x, float &y, float &z, float &o) const
         { x = m_positionX; y = m_positionY; z = m_positionZ; o = m_orientation; }
     void GetPosition(Position *pos) const
-    { 
-        if (pos) 
-            pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation); 
+    {
+        if (pos)
+            pos->Relocate(m_positionX, m_positionY, m_positionZ, m_orientation);
     }
 
     bool IsPositionValid() const;
@@ -423,7 +423,7 @@ struct Position
 
     float GetAngle(const Position *pos) const;
     float GetAngle(float x, float y) const;
-    float GetRelativeAngle(const Position *pos) const 
+    float GetRelativeAngle(const Position *pos) const
         { return GetAngle(pos) - m_orientation; }
     float GetRelativeAngle(float x, float y) const { return GetAngle(x, y) - m_orientation; }
     void GetSinCos(float x, float y, float &vsin, float &vcos) const;
@@ -532,27 +532,27 @@ class WorldObject : public Object, public WorldLocation
         virtual const char* GetNameForLocaleIdx(int32 /*locale_idx*/) const { return GetName(); }
 
         float GetDistance(const WorldObject *obj) const
-        { 
+        {
             float d = GetExactDist(obj) - GetObjectSize() - obj->GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }
         float GetDistance(const Position &pos) const
-        { 
+        {
             float d = GetExactDist(&pos) - GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }
         float GetDistance(float x, float y, float z) const
-        { 
+        {
             float d = GetExactDist(x, y, z) - GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }
         float GetDistance2d(const WorldObject* obj) const
-        { 
+        {
             float d = GetExactDist2d(obj) - GetObjectSize() - obj->GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }
         float GetDistance2d(float x, float y) const
-        { 
+        {
             float d = GetExactDist2d(x, y) - GetObjectSize();
             return d > 0.0f ? d : 0.0f;
         }

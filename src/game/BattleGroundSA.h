@@ -61,14 +61,14 @@ enum BG_SA_WorldStates
     BG_SA_TIMER_SEC_DECS = 3561,
     BG_SA_ALLY_ATTACKS  = 4352,
     BG_SA_HORDE_ATTACKS = 4353,
-    
+
     BG_SA_PURPLE_GATEWS = 3614,
     BG_SA_RED_GATEWS = 3617,
     BG_SA_BLUE_GATEWS = 3620,
     BG_SA_GREEN_GATEWS = 3623,
     BG_SA_YELLOW_GATEWS = 3638,
     BG_SA_ANCIENT_GATEWS = 3849,
-    
+
 
     BG_SA_LEFT_GY_ALLIANCE = 3635,
     BG_SA_RIGHT_GY_ALLIANCE = 3636,
@@ -112,7 +112,7 @@ enum BG_SA_NPCs
     BG_SA_MAXNPC
   };
 
-const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] = 
+const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
   {
     27894,
     27894,
@@ -134,18 +134,18 @@ const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
     29262,
   };
 
-const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC][4] = 
+const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC][4] =
   {
     //Cannons
-    { 1436.429f, 110.05f, 41.407f, 5.4f }, 
+    { 1436.429f, 110.05f, 41.407f, 5.4f },
     { 1404.9023f, 84.758f, 41.183f, 5.46f },
-    { 1068.693f, -86.951f, 93.81f, 0.02f }, 
+    { 1068.693f, -86.951f, 93.81f, 0.02f },
     { 1068.83f, -127.56f, 96.45f, 0.0912f },
-    { 1422.115f, -196.433f, 42.1825f, 1.0222f }, 
+    { 1422.115f, -196.433f, 42.1825f, 1.0222f },
     { 1454.887f, -220.454f, 41.956f, 0.9627f },
-    { 1232.345f, -187.517f, 66.945f, 0.45f }, 
+    { 1232.345f, -187.517f, 66.945f, 0.45f },
     { 1249.634f, -224.189f, 66.72f, 0.635f },
-    { 1236.213f, 92.287f, 64.965f, 5.751f }, 
+    { 1236.213f, 92.287f, 64.965f, 5.751f },
     { 1215.11f, 57.772f, 64.739f, 5.78f } ,
     //Demolishers
     { 1611.597656,-117.270073,8.719355,2.513274},
@@ -182,7 +182,7 @@ enum BG_SA_Objects
     BG_SA_MAXOBJ
   };
 
-const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] = 
+const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
   {
     { 1411.57f, 108.163f, 28.692f, 5.441f },
     { 1055.452f, -108.1f, 82.134f, 0.034f },
@@ -234,17 +234,17 @@ const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ] =
     192834,
     193182,
     193185,
-    192687, 
-    192685, 
-    192689, 
-    192690, 
+    192687,
+    192685,
+    192689,
+    192690,
     192691,
     191311,
     191311,
     191311,
     191310,
     191306,
-    191308,    
+    191308,
   };
 
 const uint32 BG_SA_Factions[2] =
@@ -333,7 +333,7 @@ class BattleGroundSA : public BattleGround
     BG_SA_GateState GateStatus[6];
     BG_SA_Status status;
     TeamId GraveyardStatus[BG_SA_MAX_GY];
-    BG_SA_RoundScore RoundScores[2]; 
+    BG_SA_RoundScore RoundScores[2];
     bool TimerEnabled;
 };
 #endif

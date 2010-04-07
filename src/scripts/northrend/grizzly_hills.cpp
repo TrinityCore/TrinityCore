@@ -126,11 +126,11 @@ enum eFloppy
     NPC_HUNGRY_WORG             = 26586,
     NPC_RAVENOUS_WORG           = 26590,   //RWORG
     NPC_EMILY                   = 26588,
-    
+
     QUEST_PERILOUS_ADVENTURE    = 12027,
-    
+
     SPELL_MRFLOPPY              = 47184,    //vehicle aura
-    
+
     SAY_WORGHAGGRO1             = -1800001, //Um... I think one of those wolves is back...
     SAY_WORGHAGGRO2             = -1800002, //He's going for Mr. Floppy!
     SAY_WORGRAGGRO3             = -1800003, //Oh, no! Look, it's another wolf, and it's a biiiiiig one!
@@ -304,7 +304,7 @@ bool QuestAccept_npc_emily(Player* pPlayer, Creature* pCreature, Quest const* qu
         {
             Mrfloppy->GetMotionMaster()->MoveFollow(pCreature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
-        
+
         if (npc_escortAI* pEscortAI = CAST_AI(npc_emilyAI, (pCreature->AI())))
             pEscortAI->Start(true, false, pPlayer->GetGUID());
     }
@@ -394,7 +394,7 @@ struct npc_outhouse_bunnyAI : public ScriptedAI
         if (uiType == 1)
             m_gender = uiData;
     }
-    
+
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
          if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
@@ -475,10 +475,10 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
     {
         m_uiTimer = 0;
         m_uiPhase = 1;
-    }    
-    
+    }
+
     void UpdateAI(const uint32 uiDiff)
-    {    
+    {
         // call this each update tick?
         if (Creature* stag = me->FindNearestCreature(TALLHORN_STAG, 0.2f))
         {
@@ -495,7 +495,7 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
                             m_uiTimer = 3000;
                             m_uiPhase = 2;
-                            break;                        
+                            break;
                         case 2:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK1H);
                             m_uiTimer = 4000;
@@ -506,8 +506,8 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
                 else
                 m_uiTimer -= uiDiff;
             }
-            ScriptedAI::UpdateAI(uiDiff);        
-        
+            ScriptedAI::UpdateAI(uiDiff);
+
         UpdateVictim();
     }
 };
@@ -532,7 +532,7 @@ void AddSC_grizzly_hills()
     newscript->GetAI = &GetAI_npc_emily;
     newscript->pQuestAccept = &QuestAccept_npc_emily;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "npc_mrfloppy";
     newscript->GetAI = &GetAI_npc_mrfloppy;

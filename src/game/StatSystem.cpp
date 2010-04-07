@@ -927,7 +927,7 @@ bool Guardian::UpdateStats(Stats stat)
     // Handle Death Knight Glyphs and Talents
     float mod = 0.75f;
     if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
-    { 
+    {
         switch (stat)
         {
             case STAT_STAMINA:  mod = 0.3f; break;                // Default Owner's Stamina scale

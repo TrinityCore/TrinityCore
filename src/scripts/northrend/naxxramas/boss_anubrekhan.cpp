@@ -41,7 +41,7 @@ enum Spells
     SPELL_LOCUST_SWARM_10           = 28785,
     SPELL_LOCUST_SWARM_25           = 54021,
     SPELL_SUMMON_CORPSE_SCARABS_PLR = 29105,    // This spawns 5 corpse scarabs on top of player
-    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards 
+    SPELL_SUMMON_CORPSE_SCARABS_MOB = 28864,   // This spawns 10 corpse scarabs on top of dead guards
     SPELL_BERSERK                   = 27680,
 };
 
@@ -61,7 +61,7 @@ struct boss_anubrekhanAI : public BossAI
         {
             Position pos;
 
-            // respawn guard using home position, 
+            // respawn guard using home position,
             // otherwise, after a wipe, they respawn where boss was at wipe moment.
             pos = m_creature->GetHomePosition();
             pos.m_positionY -= 10.0f;

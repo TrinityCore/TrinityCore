@@ -24,7 +24,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_flame_warder' WHERE `entry`='35
 #include "ScriptedPch.h"
 #include "vault_of_archavon.h"
 
-enum Events 
+enum Events
 {
     EVENT_NONE,
 

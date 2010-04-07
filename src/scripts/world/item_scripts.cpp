@@ -352,7 +352,7 @@ bool ItemUse_item_dehta_trap_smasher(Player* pPlayer, Item* pItem, const SpellCa
 {
     Creature* pMammoth;
     GameObject* pTrap;
-    
+
     if (pPlayer->GetQuestStatus(QUEST_CANNOT_HELP_THEMSELVES) == QUEST_STATUS_INCOMPLETE &&
         (pMammoth = pPlayer->FindNearestCreature(NPC_TRAPPED_MAMMOTH_CALF,5.0f)) &&
         ((pTrap = pPlayer->FindNearestGameObject(GO_MAMMOTH_TRAP_1,5.0f)) ||

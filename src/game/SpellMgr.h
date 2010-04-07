@@ -877,7 +877,7 @@ class SpellMgr
 
         bool IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const;
 
-        SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const 
+        SpellSpellGroupMapBounds GetSpellSpellGroupMapBounds(uint32 spell_id) const
         {
             spell_id = GetFirstSpellInChain(spell_id);
             return SpellSpellGroupMapBounds(mSpellSpellGroup.lower_bound(spell_id),mSpellSpellGroup.upper_bound(spell_id));
@@ -893,16 +893,16 @@ class SpellMgr
             return false;
         }
 
-        SpellGroupSpellMapBounds GetSpellGroupSpellMapBounds(SpellGroup group_id) const 
+        SpellGroupSpellMapBounds GetSpellGroupSpellMapBounds(SpellGroup group_id) const
         {
             return SpellGroupSpellMapBounds(mSpellGroupSpell.lower_bound(group_id),mSpellGroupSpell.upper_bound(group_id));
         }
-        void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells) const 
+        void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells) const
         {
             std::set<SpellGroup> usedGroups;
             GetSetOfSpellsInSpellGroup(group_id, foundSpells, usedGroups);
         }
-        void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const 
+        void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const
         {
             if (usedGroups.find(group_id) != usedGroups.end())
                 return;
@@ -1066,16 +1066,16 @@ class SpellMgr
             return 0;
         }
 
-        SpellRequiredMapBounds GetSpellsRequiredForSpellBounds(uint32 spell_id) const 
-        { 
+        SpellRequiredMapBounds GetSpellsRequiredForSpellBounds(uint32 spell_id) const
+        {
             return SpellRequiredMapBounds(mSpellReq.lower_bound(spell_id),mSpellReq.upper_bound(spell_id));
         }
 
-        SpellsRequiringSpellMapBounds GetSpellsRequiringSpellBounds(uint32 spell_id) const 
-        { 
+        SpellsRequiringSpellMapBounds GetSpellsRequiringSpellBounds(uint32 spell_id) const
+        {
             return SpellsRequiringSpellMapBounds(mSpellsReqSpell.lower_bound(spell_id),mSpellsReqSpell.upper_bound(spell_id));
         }
-        bool IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const 
+        bool IsSpellRequiringSpell(uint32 spellid, uint32 req_spellid) const
         {
             SpellsRequiringSpellMapBounds spellsRequiringSpell = GetSpellsRequiringSpellBounds(req_spellid);
             for (SpellsRequiringSpellMap::const_iterator itr = spellsRequiringSpell.first; itr != spellsRequiringSpell.second; ++itr)
@@ -1280,10 +1280,10 @@ class SpellMgr
     uint32 GetSpellRequired(uint32 spell_id) const
     {
       SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
-      
+
       if(itr == mSpellReq.end())
         return NULL;
-      
+
       return itr->second;
     }
 
