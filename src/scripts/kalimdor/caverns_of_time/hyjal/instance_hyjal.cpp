@@ -171,7 +171,7 @@ struct instance_mount_hyjal : public ScriptedInstance
             case DATA_AZGALOREVENT:
                 {
                     m_auiEncounter[3] = data;
-                    if (data==DONE)
+                    if (data == DONE)
                     {
                         if (ArchiYell)break;
                         ArchiYell = true;

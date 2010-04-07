@@ -372,7 +372,7 @@ bool QuestMenu::HasItem(uint32 questid)
 {
     for (QuestMenuItemList::const_iterator i = m_qItems.begin(); i != m_qItems.end(); ++i)
     {
-        if (i->m_qId==questid)
+        if (i->m_qId == questid)
         {
             return true;
         }
@@ -512,7 +512,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
     data << float(0);                                       // new 3.3.0, honor multiplier?
-    data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast==0)
+    data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << int32(pQuest->GetRewSpellCast());               // casted spell
     data << uint32(pQuest->GetCharTitleId());               // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(pQuest->GetBonusTalents());              // bonus talents
@@ -577,7 +577,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const *pQuest)
     WorldPacket data(SMSG_QUEST_QUERY_RESPONSE, 100);     // guess size
 
     data << uint32(pQuest->GetQuestId());                   // quest id
-    data << uint32(pQuest->GetQuestMethod());               // Accepted values: 0, 1 or 2. 0==IsAutoComplete() (skip objectives/details)
+    data << uint32(pQuest->GetQuestMethod());               // Accepted values: 0, 1 or 2. 0 == IsAutoComplete() (skip objectives/details)
     data << uint32(pQuest->GetQuestLevel());                // may be -1, static data, in other cases must be used dynamic level: Player::GetQuestLevel (0 is not known, but assuming this is no longer valid for quest intended for client)
     data << uint32(pQuest->GetMinLevel());                  // min level
     data << uint32(pQuest->GetZoneOrSort());                // zone or sort to display in quest log
@@ -600,7 +600,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const *pQuest)
         data << uint32(pQuest->GetRewOrReqMoney());         // reward money (below max lvl)
 
     data << uint32(pQuest->GetRewMoneyMaxLevel());          // used in XP calculation at client
-    data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast==0)
+    data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << int32(pQuest->GetRewSpellCast());               // casted spell
 
     // rewarded honor points
@@ -765,7 +765,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
     data << float(0);                                       // unk, honor multiplier?
     data << uint32(0x08);                                   // unused by client?
-    data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast==0)
+    data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << int32(pQuest->GetRewSpellCast());               // casted spell
     data << uint32(0);                                      // unknown
     data << uint32(pQuest->GetBonusTalents());              // bonus talents

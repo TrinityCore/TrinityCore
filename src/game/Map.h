@@ -543,7 +543,7 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
                 ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
                 if (itr == m_activeNonPlayers.end())
                     return;
-                if (itr==m_activeNonPlayersIter)
+                if (itr == m_activeNonPlayersIter)
                     ++m_activeNonPlayersIter;
                 m_activeNonPlayers.erase(itr);
             }

@@ -1890,7 +1890,7 @@ void BattleGroundMgr::SendToBattleGround(Player *pl, uint32 instanceId, BattleGr
         uint32 mapid = bg->GetMapId();
         float x, y, z, O;
         uint32 team = pl->GetBGTeam();
-        if (team==0)
+        if (team == 0)
             team = pl->GetTeam();
         bg->GetTeamStartLoc(team, x, y, z, O);
 

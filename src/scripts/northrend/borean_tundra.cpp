@@ -1845,7 +1845,7 @@ enum Mootoo_the_Younger_Entries
 };
 bool QuestAccept_npc_mootoo_the_younger(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
-    if (quest->GetQuestId()==QUEST_ESCAPING_THE_MIST)
+    if (quest->GetQuestId() == QUEST_ESCAPING_THE_MIST)
     {
         switch (pPlayer->GetTeam())
         {
@@ -1930,7 +1930,7 @@ enum Script_Texts_Bonker_Togglevolt
 
 bool QuestAccept_npc_bonker_togglevolt(Player* pPlayer, Creature* pCreature, Quest const* quest)
 {
-    if (quest->GetQuestId()==QUEST_GET_ME_OUTA_HERE)
+    if (quest->GetQuestId() == QUEST_GET_ME_OUTA_HERE)
     {
         switch (pPlayer->GetTeam())
         {
@@ -1967,7 +1967,7 @@ struct npc_bonker_togglevoltAI : public npc_escortAI
     {
         if (GetAttack() && UpdateVictim())
         {
-            if (Bonker_agro==0)
+            if (Bonker_agro == 0)
             {
                 DoScriptText(SAY_bonker_1,m_creature);
                 Bonker_agro++;

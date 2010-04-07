@@ -253,7 +253,7 @@ struct aqsentinelAI : public ScriptedAI
         for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
         {
             Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if (pUnit->getPowerType()==POWER_MANA)
+            if (pUnit->getPowerType() == POWER_MANA)
                 return pUnit;
         }
         return NULL;

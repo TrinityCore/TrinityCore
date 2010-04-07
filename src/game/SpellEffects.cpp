@@ -458,7 +458,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_WARLOCK:
             {
                 // Incinerate Rank 1 & 2
-                if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID==2128)
+                if ((m_spellInfo->SpellFamilyFlags[1] & 0x000040) && m_spellInfo->SpellIconID == 2128)
                 {
                     // Incinerate does more dmg (dmg*0.25) if the target have Immolate debuff.
                     // Check aura state for speed but aura state set not only for Immolate spell
@@ -572,7 +572,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
             case SPELLFAMILY_DRUID:
             {
                 // Ferocious Bite
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[0] & 0x000800000) && m_spellInfo->SpellVisual[0]==6587)
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && (m_spellInfo->SpellFamilyFlags[0] & 0x000800000) && m_spellInfo->SpellVisual[0] == 6587)
                 {
                     // converts each extra point of energy into ($f1+$AP/410) additional damage
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
@@ -1941,7 +1941,7 @@ void Spell::EffectDummy(uint32 i)
             break;
         case SPELLFAMILY_SHAMAN:
             // Cleansing Totem Pulse
-            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS && m_spellInfo->SpellIconID==1673)
+            if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_TOTEM_EFFECTS && m_spellInfo->SpellIconID == 1673)
             {
                 int32 bp1 = 1;
                 // Cleansing Totem Effect
@@ -2105,7 +2105,7 @@ void Spell::EffectDummy(uint32 i)
                 spell_id=48289;
             }
             // Raise dead - take reagents and trigger summon spells
-            else if (m_spellInfo->Id ==48289)
+            else if (m_spellInfo->Id  == 48289)
             {
                 if (m_targets.HasDst())
                     targets.setDst(&m_targets.m_dstPos);
@@ -2701,7 +2701,7 @@ void Spell::EffectPowerDrain(uint32 i)
     if (drain_power == POWER_MANA && m_caster != unitTarget)
     {
         float manaMultiplier = m_spellInfo->EffectMultipleValue[i];
-        if (manaMultiplier==0)
+        if (manaMultiplier == 0)
             manaMultiplier = 1;
 
         if (Player *modOwner = m_caster->GetSpellModOwner())
@@ -2875,7 +2875,7 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
             }
         }
         // Riptide - increase healing done by Chain Heal
-        else if (m_spellInfo->SpellFamilyName==SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x100)
+        else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x100)
         {
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
             if (AuraEffect * aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0, 0x10, m_originalCasterGUID))
@@ -3967,7 +3967,7 @@ void Spell::EffectTeleUnitsFaceCaster(uint32 i)
     float fx,fy,fz;
     m_caster->GetClosePoint(fx,fy,fz,unitTarget->GetObjectSize(),dis);
 
-    unitTarget->NearTeleportTo(fx,fy,fz,-m_caster->GetOrientation(),unitTarget==m_caster);
+    unitTarget->NearTeleportTo(fx,fy,fz,-m_caster->GetOrientation(),unitTarget == m_caster);
 }
 
 void Spell::EffectLearnSkill(uint32 i)
@@ -4100,7 +4100,7 @@ void Spell::EffectEnchantItemPrismatic(uint32 effect_idx)
         bool add_socket = false;
         for (uint8 i = 0; i < 3; ++i)
         {
-            if (pEnchant->type[i]==ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET)
+            if (pEnchant->type[i] == ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET)
             {
                 add_socket = true;
                 break;
@@ -4368,7 +4368,7 @@ void Spell::EffectSummonPet(uint32 i)
         }
 
         if (owner->GetTypeId() == TYPEID_PLAYER)
-            owner->ToPlayer()->RemovePet(OldSummon,(OldSummon->getPetType()==HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT),false);
+            owner->ToPlayer()->RemovePet(OldSummon,(OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT),false);
         else
             return;
     }
@@ -4563,7 +4563,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
             }
 
             // Seal of Command Unleashed
-            else if (m_spellInfo->Id==20467)
+            else if (m_spellInfo->Id == 20467)
             {
                 spell_bonus += int32(0.08f*m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                 spell_bonus += int32(0.13f*m_caster->SpellBaseDamageBonus(GetSpellSchoolMask(m_spellInfo)));
@@ -4849,7 +4849,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
         {
             case 489:                                       //WS
             {
-                if (bg && bg->GetTypeID()==BATTLEGROUND_WS && bg->GetStatus() == STATUS_IN_PROGRESS)
+                if (bg && bg->GetTypeID() == BATTLEGROUND_WS && bg->GetStatus() == STATUS_IN_PROGRESS)
                 {
                     uint32 team = ALLIANCE;
 
@@ -4862,7 +4862,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
             }
             case 566:                                       //EY
             {
-                if (bg && bg->GetTypeID()==BATTLEGROUND_EY && bg->GetStatus() == STATUS_IN_PROGRESS)
+                if (bg && bg->GetTypeID() == BATTLEGROUND_EY && bg->GetStatus() == STATUS_IN_PROGRESS)
                 {
                     ((BattleGroundEY*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID());
                 }
@@ -4910,7 +4910,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     Player* plr = m_caster->ToPlayer();
                     if (plr && plr->GetLastPetNumber())
                     {
-                        PetType NewPetType = (plr->getClass()==CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
+                        PetType NewPetType = (plr->getClass() == CLASS_HUNTER) ? HUNTER_PET : SUMMON_PET;
                         if (Pet* NewPet = new Pet(plr,NewPetType))
                         {
                             if (NewPet->LoadPetFromDB(plr, 0, plr->GetLastPetNumber(), true))
@@ -5222,11 +5222,11 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;;
                         case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
                         case 225:
-                            if (unitTarget->ToPlayer()->GetMapId()==571 || unitTarget->ToPlayer()->GetMapId()==530)
+                            if (unitTarget->ToPlayer()->GetMapId() == 571 || unitTarget->ToPlayer()->GetMapId() == 530)
                                 unitTarget->CastSpell(unitTarget, 51617, true);
                             break;
                         case 300:
-                            if (unitTarget->ToPlayer()->GetMapId()==571 || unitTarget->ToPlayer()->GetMapId()==530)
+                            if (unitTarget->ToPlayer()->GetMapId() == 571 || unitTarget->ToPlayer()->GetMapId() == 530)
                                 unitTarget->CastSpell(unitTarget, 48023, true);
                             break;
                         default: break;
@@ -6292,7 +6292,7 @@ void Spell::EffectStuck(uint32 /*i*/)
 
     pTarget->TeleportTo(pTarget->GetStartPosition(), unitTarget == m_caster ? TELE_TO_SPELL : 0);
     // homebind location is loaded always
-    // pTarget->TeleportTo(pTarget->m_homebindMapId,pTarget->m_homebindX,pTarget->m_homebindY,pTarget->m_homebindZ,pTarget->GetOrientation(), (unitTarget==m_caster ? TELE_TO_SPELL : 0));
+    // pTarget->TeleportTo(pTarget->m_homebindMapId,pTarget->m_homebindX,pTarget->m_homebindY,pTarget->m_homebindZ,pTarget->GetOrientation(), (unitTarget == m_caster ? TELE_TO_SPELL : 0));
 
     // Stuck spell trigger Hearthstone cooldown
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(8690);
@@ -6686,7 +6686,7 @@ void Spell::EffectLeapForward(uint32 i)
     }
 
     if (j < 10)
-        unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget==m_caster);
+        unitTarget->NearTeleportTo(destx, desty, destz + 0.07531, orientation, unitTarget == m_caster);
 }
 
 void Spell::EffectReputation(uint32 i)
@@ -7056,7 +7056,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
     if (m_targets.HasDst())
         m_targets.m_dstPos.GetPosition(fx, fy, fz);
     //FIXME: this can be better check for most objects but still hack
-    else if (m_spellInfo->EffectRadiusIndex[effIndex] && m_spellInfo->speed==0)
+    else if (m_spellInfo->EffectRadiusIndex[effIndex] && m_spellInfo->speed == 0)
     {
         float dis = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[effIndex]));
         m_caster->GetClosePoint(fx, fy, fz, DEFAULT_WORLD_OBJECT_SIZE, dis);
@@ -7072,7 +7072,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
     }
 
     Map *cMap = m_caster->GetMap();
-    if (goinfo->type==GAMEOBJECT_TYPE_FISHINGNODE)
+    if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE)
     {
         //dirty way to hack serpent shrine pool
         if (cMap->GetId() == 548 && m_caster->GetDistance(36.69, -416.38, -19.9645) <= 16)//center of strange pool
@@ -7092,7 +7092,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
             fz = cMap->GetWaterLevel(fx, fy);
     }
     // if gameobject is summoning object, it should be spawned right on caster's position
-    else if (goinfo->type==GAMEOBJECT_TYPE_SUMMONING_RITUAL)
+    else if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)
     {
         m_caster->GetPosition(fx, fy, fz);
     }
@@ -7266,7 +7266,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
 {
     sLog.outDebug("Effect: StealBeneficialBuff");
 
-    if (!unitTarget || unitTarget==m_caster)                 // can't steal from self
+    if (!unitTarget || unitTarget == m_caster)                 // can't steal from self
         return;
 
     Unit::AuraList steal_list;

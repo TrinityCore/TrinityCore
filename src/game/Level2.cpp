@@ -933,7 +933,7 @@ bool ChatHandler::HandleModifyRepCommand(const char * args)
 
             wstrToLower(wrank);
 
-            if (wrank.substr(0,wrankStr.size())==wrankStr)
+            if (wrank.substr(0,wrankStr.size()) == wrankStr)
             {
                 char *deltaTxt = strtok(NULL, " ");
                 if (deltaTxt)
@@ -1194,7 +1194,7 @@ bool ChatHandler::HandleNpcChangeLevelCommand(const char* args)
 
     if (pCreature->isPet())
     {
-        if (((Pet*)pCreature)->getPetType()==HUNTER_PET)
+        if (((Pet*)pCreature)->getPetType() == HUNTER_PET)
         {
             pCreature->SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(lvl)/4);
             pCreature->SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
@@ -1933,7 +1933,7 @@ bool ChatHandler::HandleItemMoveCommand(const char* args)
     srcslot = (uint8)atoi(pParam1);
     dstslot = (uint8)atoi(pParam2);
 
-    if (srcslot==dstslot)
+    if (srcslot == dstslot)
         return true;
 
     if (!m_session->GetPlayer()->IsValidPos(INVENTORY_SLOT_BAG_0,srcslot))
@@ -2009,7 +2009,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
             return false;
         }
 
-        if (player==m_session->GetPlayer())
+        if (player == m_session->GetPlayer())
         {
             SendSysMessage(LANG_COMMAND_KICKSELF);
             SetSentErrorMessage(true);
@@ -2041,7 +2041,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
             return false;
         }
 
-        if (m_session && name==m_session->GetPlayer()->GetName())
+        if (m_session && name == m_session->GetPlayer()->GetName())
         {
             SendSysMessage(LANG_COMMAND_KICKSELF);
             SetSentErrorMessage(true);
@@ -2086,7 +2086,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
     if (!extractPlayerTarget((char*)args,&target))
         return false;
 
-    if (m_session && target==m_session->GetPlayer())
+    if (m_session && target == m_session->GetPlayer())
     {
         SendSysMessage(LANG_COMMAND_KICKSELF);
         SetSentErrorMessage(true);
@@ -3447,7 +3447,7 @@ bool ChatHandler::HandleEventActiveListCommand(const char* args)
         ++counter;
     }
 
-    if (counter==0)
+    if (counter == 0)
         SendSysMessage(LANG_NOEVENTFOUND);
 
     return true;
@@ -3703,7 +3703,7 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
             loc = 0;
             for (; loc < MAX_LOCALE; ++loc)
             {
-                if (loc==GetSessionDbcLocale())
+                if (loc == GetSessionDbcLocale())
                     continue;
 
                 name = skillInfo->name[loc];
@@ -3823,7 +3823,7 @@ bool ChatHandler::LookupPlayerSearchCommand(QueryResult_AutoPtr result, int32 li
         }
     } while (result->NextRow());
 
-    if (i==0)                                                // empty accounts only
+    if (i == 0)                                                // empty accounts only
     {
         PSendSysMessage(LANG_NO_PLAYERS_FOUND);
         SetSentErrorMessage(true);
@@ -4264,7 +4264,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale())
+                    if (loc == GetSessionDbcLocale())
                         continue;
 
                     name = titleInfo->name[loc];
@@ -4280,7 +4280,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
             {
                 char const* knownStr = target && target->HasTitle(titleInfo) ? GetTrinityString(LANG_KNOWN) : "";
 
-                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE)==titleInfo->bit_index
+                char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
                     ? GetTrinityString(LANG_ACTIVE)
                     : "";
 
@@ -4465,7 +4465,7 @@ bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
             if (name.empty())
                 continue;
 
-            char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE)==titleInfo->bit_index
+            char const* activeStr = target && target->GetUInt32Value(PLAYER_CHOSEN_TITLE) == titleInfo->bit_index
                 ? GetTrinityString(LANG_ACTIVE)
                 : "";
 

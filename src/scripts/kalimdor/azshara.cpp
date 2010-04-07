@@ -56,7 +56,7 @@ struct mobs_spitelashesAI : public ScriptedAI
         if (!spellhit &&
             Hitter->GetTypeId() == TYPEID_PLAYER &&
             CAST_PLR(Hitter)->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE &&
-            (Spellkind->Id==118 || Spellkind->Id== 12824 || Spellkind->Id== 12825 || Spellkind->Id== 12826))
+            (Spellkind->Id == 118 || Spellkind->Id ==  12824 || Spellkind->Id ==  12825 || Spellkind->Id ==  12826))
         {
             spellhit=true;
             DoCast(m_creature, 29124);                       //become a sheep

@@ -189,7 +189,7 @@ class SpellCastTargets
             }
         }
 
-        bool IsEmpty() const { return m_GOTargetGUID==0 && m_unitTargetGUID==0 && m_itemTarget==0 && m_CorpseTargetGUID==0; }
+        bool IsEmpty() const { return m_GOTargetGUID == 0 && m_unitTargetGUID == 0 && m_itemTarget == 0 && m_CorpseTargetGUID == 0; }
         bool HasSrc() const { return m_intTargetFlags & FLAG_INT_SRC_LOC; }
         bool HasDst() const { return m_intTargetFlags & FLAG_INT_DST_LOC; }
         bool HasTraj() const { return m_speed != 0; }

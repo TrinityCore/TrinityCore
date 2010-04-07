@@ -158,11 +158,11 @@ struct CreatureInfo
 
     bool isTameable(bool exotic) const
     {
-        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE)==0)
+        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE) == 0)
             return false;
 
         // if can tame exotic then can tame any temable
-        return exotic || (type_flags & CREATURE_TYPEFLAGS_EXOTIC)==0;
+        return exotic || (type_flags & CREATURE_TYPEFLAGS_EXOTIC) == 0;
     }
 };
 

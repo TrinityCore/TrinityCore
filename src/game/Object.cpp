@@ -53,7 +53,7 @@ uint32 GuidHigh2TypeId(uint32 guid_hi)
     switch(guid_hi)
     {
         case HIGHGUID_ITEM:         return TYPEID_ITEM;
-        //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER==HIGHGUID_ITEM currently
+        //case HIGHGUID_CONTAINER:    return TYPEID_CONTAINER; HIGHGUID_CONTAINER == HIGHGUID_ITEM currently
         case HIGHGUID_UNIT:         return TYPEID_UNIT;
         case HIGHGUID_PET:          return TYPEID_UNIT;
         case HIGHGUID_PLAYER:       return TYPEID_PLAYER;
@@ -1584,7 +1584,7 @@ void WorldObject::MonsterYellToZone(int32 textId, uint32 language, uint64 Target
 
     Map::PlayerList const& pList = GetMap()->GetPlayers();
     for (Map::PlayerList::const_iterator itr = pList.begin(); itr != pList.end(); ++itr)
-        if (itr->getSource()->GetZoneId()==zoneid)
+        if (itr->getSource()->GetZoneId() == zoneid)
             say_do(itr->getSource());
 }
 
@@ -1823,7 +1823,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         Unit::AuraEffectList const& auraClassScripts = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
         for (Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin(); itr!=auraClassScripts.end();)
         {
-            if ((*itr)->GetMiscValue()==2228)
+            if ((*itr)->GetMiscValue() == 2228)
             {
                 RemoveAurasDueToSpell((*itr)->GetId());
                 itr = auraClassScripts.begin();
@@ -1838,7 +1838,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         return NULL;
     }
 
-    // petentry==0 for hunter "call pet" (current pet summoned if any)
+    // petentry == 0 for hunter "call pet" (current pet summoned if any)
     if (!entry)
     {
         delete pet;
@@ -1904,7 +1904,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
         Unit::AuraEffectList const& auraClassScripts = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
         for (Unit::AuraEffectList::const_iterator itr = auraClassScripts.begin(); itr!=auraClassScripts.end();)
         {
-            if ((*itr)->GetMiscValue()==2228)
+            if ((*itr)->GetMiscValue() == 2228)
             {
                 RemoveAurasDueToSpell((*itr)->GetId());
                 itr = auraClassScripts.begin();
@@ -2030,7 +2030,7 @@ namespace Trinity
             void operator()(Creature* c) const
             {
                 // skip self or target
-                if (c==i_searcher || c==&i_object)
+                if (c == i_searcher || c == &i_object)
                     return;
 
                 float x,y,z;
@@ -2049,7 +2049,7 @@ namespace Trinity
                 void operator()(T* u) const
             {
                 // skip self or target
-                if (u==i_searcher || u==&i_object)
+                if (u == i_searcher || u == &i_object)
                     return;
 
                 float x,y;

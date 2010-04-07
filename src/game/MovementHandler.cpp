@@ -648,7 +648,7 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
 
 void WorldSession::HandleEjectPasenger(WorldPacket &data)
 {
-    if (data.GetOpcode()==CMSG_EJECT_PASSENGER)
+    if (data.GetOpcode() == CMSG_EJECT_PASSENGER)
     {
         if (Vehicle* Vv= _player->GetVehicleKit())
         {

@@ -452,7 +452,7 @@ struct CreatureEventAI_Event
         struct
         {
             uint32 spellId;
-            uint32 schoolMask;                              // -1 (==0xffffffff) is ok value for full mask, or must be more limited mask like (0 < 1) = 1 for normal/physical school
+            uint32 schoolMask;                              // -1 ( == 0xffffffff) is ok value for full mask, or must be more limited mask like (0 < 1) = 1 for normal/physical school
             uint32 repeatMin;
             uint32 repeatMax;
         } spell_hit;

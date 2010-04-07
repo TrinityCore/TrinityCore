@@ -1693,7 +1693,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool IsGroupVisibleFor(Player* p) const;
         bool IsInSameGroupWith(Player const* p) const;
-        bool IsInSameRaidWith(Player const* p) const { return p==this || (GetGroup() != NULL && GetGroup() == p->GetGroup()); }
+        bool IsInSameRaidWith(Player const* p) const { return p == this || (GetGroup() != NULL && GetGroup() == p->GetGroup()); }
         void UninviteFromGroup();
         static void RemoveFromGroup(Group* group, uint64 guid);
         void RemoveFromGroup() { RemoveFromGroup(GetGroup(),GetGUID()); }
@@ -2185,7 +2185,7 @@ class Player : public Unit, public GridObject<Player>
         typedef std::set<uint64> ClientGUIDs;
         ClientGUIDs m_clientGUIDs;
 
-        bool HaveAtClient(WorldObject const* u) const { return u==this || m_clientGUIDs.find(u->GetGUID())!=m_clientGUIDs.end(); }
+        bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID())!=m_clientGUIDs.end(); }
 
         bool canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList = false, bool is3dDistance = true) const;
         bool IsVisibleInGridForPlayer(Player const* pl) const;
@@ -2650,7 +2650,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
                 continue;
 
             // special case (skip >10sec spell casts for instant cast setting)
-            if (mod->op==SPELLMOD_CASTING_TIME  && basevalue >= T(10000) && mod->value <= -100)
+            if (mod->op == SPELLMOD_CASTING_TIME  && basevalue >= T(10000) && mod->value <= -100)
                 continue;
 
             totalmul *= 1.0f + (float)mod->value / 100.0f;

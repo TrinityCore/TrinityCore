@@ -497,7 +497,7 @@ namespace Trinity
             {
                 if (i_funit->GetTypeId() != TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
                     u->getDeathState() != CORPSE || u->isDeadByDefault() || u->isInFlight() ||
-                    (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)))==0 ||
+                    (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
 
@@ -551,7 +551,7 @@ namespace Trinity
             bool operator()(Creature* u)
             {
                 if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() ||
-                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD)==0)
+                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                     return false;
 
                 return i_funit->IsWithinDistInMap(u, i_range);
@@ -935,7 +935,7 @@ namespace Trinity
 
     struct AnyStealthedCheck
     {
-        bool operator()(Unit* u) { return u->GetVisibility()==VISIBILITY_GROUP_STEALTH; }
+        bool operator()(Unit* u) { return u->GetVisibility() == VISIBILITY_GROUP_STEALTH; }
     };
 
     // Creature checks

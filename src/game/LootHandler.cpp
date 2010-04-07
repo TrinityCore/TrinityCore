@@ -81,7 +81,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
     {
         Creature* pCreature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
+        bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass() == CLASS_ROGUE && pCreature->lootForPickPocketed);
 
         if (!ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
         {
@@ -176,7 +176,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
             GameObject *pGameObject = GetPlayer()->GetMap()->GetGameObject(guid);
 
             // not check distance for GO in case owned GO (fishing bobber case, for example)
-            if (pGameObject && ((pGameObject->GetOwnerGUID()==_player->GetGUID() || pGameObject->IsWithinDistInMap(_player,INTERACTION_DISTANCE))))
+            if (pGameObject && ((pGameObject->GetOwnerGUID() == _player->GetGUID() || pGameObject->IsWithinDistInMap(_player,INTERACTION_DISTANCE))))
                 pLoot = &pGameObject->loot;
 
             break;
@@ -200,7 +200,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
         {
             Creature* pCreature = GetPlayer()->GetMap()->GetCreature(guid);
 
-            bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
+            bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass() == CLASS_ROGUE && pCreature->lootForPickPocketed);
 
             if (ok_loot && pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
                 pLoot = &pCreature->loot ;
@@ -430,7 +430,7 @@ void WorldSession::DoLootRelease(uint64 lguid)
     {
         Creature* pCreature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass()==CLASS_ROGUE && pCreature->lootForPickPocketed);
+        bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass() == CLASS_ROGUE && pCreature->lootForPickPocketed);
         if (!ok_loot || !pCreature->IsWithinDistInMap(_player,INTERACTION_DISTANCE))
             return;
 

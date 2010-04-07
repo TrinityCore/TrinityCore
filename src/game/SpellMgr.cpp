@@ -480,8 +480,8 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo)
     {
         for (uint8 i = 0; i<MAX_SPELL_EFFECTS; ++i)
         {
-            if (spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_STUN
-                || spellInfo->EffectApplyAuraName[i]==SPELL_AURA_MOD_ROOT)
+            if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_STUN
+                || spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_ROOT)
                 return AURA_STATE_FROZEN;
         }
     }
@@ -555,7 +555,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             if (spellInfo->SpellFamilyFlags[0] & 0x400)
                 return SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE;
 
-            if ((spellInfo->SpellFamilyFlags[0] & 0x1000000) && spellInfo->EffectApplyAuraName[0]==SPELL_AURA_MOD_CONFUSE)
+            if ((spellInfo->SpellFamilyFlags[0] & 0x1000000) && spellInfo->EffectApplyAuraName[0] == SPELL_AURA_MOD_CONFUSE)
                 return SPELL_SPECIFIC_MAGE_POLYMORPH;
 
             break;
@@ -672,7 +672,7 @@ bool IsSingleFromSpellSpecificPerCaster(SpellSpecific spellSpec1,SpellSpecific s
         case SPELL_SPECIFIC_ASPECT:
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
-            return spellSpec1==spellSpec2;
+            return spellSpec1 == spellSpec2;
         default:
             return false;
     }
@@ -694,17 +694,17 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1, SpellSpecific 
         case SPELL_SPECIFIC_WARRIOR_ENRAGE:
         case SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE:
         case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
-            return spellSpec1==spellSpec2;
+            return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
-            return spellSpec2==SPELL_SPECIFIC_FOOD
-                || spellSpec2==SPELL_SPECIFIC_FOOD_AND_DRINK;
+            return spellSpec2 == SPELL_SPECIFIC_FOOD
+                || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
         case SPELL_SPECIFIC_DRINK:
-            return spellSpec2==SPELL_SPECIFIC_DRINK
-                || spellSpec2==SPELL_SPECIFIC_FOOD_AND_DRINK;
+            return spellSpec2 == SPELL_SPECIFIC_DRINK
+                || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
         case SPELL_SPECIFIC_FOOD_AND_DRINK:
-            return spellSpec2==SPELL_SPECIFIC_FOOD
-                || spellSpec2==SPELL_SPECIFIC_DRINK
-                || spellSpec2==SPELL_SPECIFIC_FOOD_AND_DRINK;
+            return spellSpec2 == SPELL_SPECIFIC_FOOD
+                || spellSpec2 == SPELL_SPECIFIC_DRINK
+                || spellSpec2 == SPELL_SPECIFIC_FOOD_AND_DRINK;
         default:
             return false;
     }
@@ -839,7 +839,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     // many positive auras have negative triggered spells at damage for example and this not make it negative (it can be canceled for example)
                     break;
                 case SPELL_AURA_MOD_STUN:                   //have positive and negative spells, we can't sort its correctly at this moment.
-                    if (effIndex==0 && spellproto->Effect[1]==0 && spellproto->Effect[2]==0)
+                    if (effIndex == 0 && spellproto->Effect[1] == 0 && spellproto->Effect[2] == 0)
                         return false;                       // but all single stun aura spells is negative
                     break;
                 case SPELL_AURA_MOD_PACIFY_SILENCE:
@@ -863,7 +863,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     if (spellproto->EffectImplicitTargetA[effIndex] != TARGET_UNIT_CASTER)
                         return false;
                     // but not this if this first effect (didn't find better check)
-                    if (spellproto->Attributes & 0x4000000 && effIndex==0)
+                    if (spellproto->Attributes & 0x4000000 && effIndex == 0)
                         return false;
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
@@ -1017,7 +1017,7 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
     if (GetTalentSpellCost(spellInfo->Id) > 0 &&
-        (spellInfo->Effect[0]==SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[1]==SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[2]==SPELL_EFFECT_LEARN_SPELL))
+        (spellInfo->Effect[0] == SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[1] == SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[2] == SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
     uint32 stanceMask = (form ? 1 << (form - 1) : 0);
@@ -1115,7 +1115,7 @@ void SpellMgr::LoadSpellTargetPositions()
         bool found = false;
         for (int i = 0; i < 3; ++i)
         {
-            if (spellInfo->EffectImplicitTargetA[i]==TARGET_DST_DB || spellInfo->EffectImplicitTargetB[i]==TARGET_DST_DB)
+            if (spellInfo->EffectImplicitTargetA[i] == TARGET_DST_DB || spellInfo->EffectImplicitTargetB[i] == TARGET_DST_DB)
             {
                 found = true;
                 break;
@@ -1134,7 +1134,7 @@ void SpellMgr::LoadSpellTargetPositions()
             continue;
         }
 
-        if (st.target_X==0 && st.target_Y==0 && st.target_Z==0)
+        if (st.target_X == 0 && st.target_Y == 0 && st.target_Z == 0)
         {
             sLog.outErrorDb("Spell (ID:%u) target coordinates not provided.",Spell_ID);
             continue;
@@ -1250,7 +1250,7 @@ void SpellMgr::LoadSpellProcEvents()
 
         mSpellProcEventMap[entry] = spe;
 
-        if (spell->procFlags==0)
+        if (spell->procFlags == 0)
         {
             if (spe.procFlags == 0)
             {
@@ -1638,7 +1638,7 @@ bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellI
     if (!spellInfo_1 || !spellInfo_2) return false;
     if (spellInfo_1->Id == spellId_2) return false;
 
-    return GetFirstSpellInChain(spellInfo_1->Id)==GetFirstSpellInChain(spellId_2);
+    return GetFirstSpellInChain(spellInfo_1->Id) == GetFirstSpellInChain(spellId_2);
 }
 
 bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
@@ -1660,18 +1660,18 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
         {
             case SPELLFAMILY_PALADIN:
                 // Paladin aura Spell
-                if (spellInfo->Effect[i]==SPELL_EFFECT_APPLY_AREA_AURA_RAID)
+                if (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID)
                     return false;
                 break;
             case SPELLFAMILY_DRUID:
                 // Druid form Spell
-                if (spellInfo->Effect[i]==SPELL_EFFECT_APPLY_AURA &&
+                if (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA &&
                     spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_SHAPESHIFT)
                     return false;
                 break;
             case SPELLFAMILY_ROGUE:
                 // Rogue Stealth
-                if (spellInfo->Effect[i]==SPELL_EFFECT_APPLY_AURA &&
+                if (spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA &&
                     spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_SHAPESHIFT)
                     return false;
         }
@@ -1741,7 +1741,7 @@ bool SpellMgr::IsPrimaryProfessionSpell(uint32 spellId)
 
 bool SpellMgr::IsPrimaryProfessionFirstRankSpell(uint32 spellId) const
 {
-    return IsPrimaryProfessionSpell(spellId) && GetSpellRank(spellId)==1;
+    return IsPrimaryProfessionSpell(spellId) && GetSpellRank(spellId) == 1;
 }
 
 bool SpellMgr::IsSkillBonusSpell(uint32 spellId) const
@@ -1819,7 +1819,7 @@ void SpellMgr::LoadSpellLearnSkills()
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (entry->Effect[i]==SPELL_EFFECT_SKILL)
+            if (entry->Effect[i] == SPELL_EFFECT_SKILL)
             {
                 SpellLearnSkillNode dbc_node;
                 dbc_node.skill = entry->EffectMiscValue[i];
@@ -1908,7 +1908,7 @@ void SpellMgr::LoadSpellLearnSpells()
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (entry->Effect[i]==SPELL_EFFECT_LEARN_SPELL)
+            if (entry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
             {
                 SpellLearnSpellNode dbc_node;
                 dbc_node.spell = entry->EffectTriggerSpell[i];
@@ -1991,18 +1991,18 @@ void SpellMgr::LoadSpellScriptTarget()
         bool targetfound = false;
         for (uint8 i = 0; i < 3; ++i)
         {
-            if (spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_AREA_ENTRY_SRC ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_AREA_ENTRY_SRC ||
-                spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_AREA_ENTRY_DST ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_AREA_ENTRY_DST ||
-                spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetA[i]==TARGET_GAMEOBJECT_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_GAMEOBJECT_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetA[i]==TARGET_DST_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_DST_NEARBY_ENTRY ||
-                spellProto->EffectImplicitTargetA[i]==TARGET_UNIT_CONE_ENTRY ||
-                spellProto->EffectImplicitTargetB[i]==TARGET_UNIT_CONE_ENTRY)
+            if (spellProto->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENTRY_SRC ||
+                spellProto->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ENTRY_SRC ||
+                spellProto->EffectImplicitTargetA[i] == TARGET_UNIT_AREA_ENTRY_DST ||
+                spellProto->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ENTRY_DST ||
+                spellProto->EffectImplicitTargetA[i] == TARGET_UNIT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetB[i] == TARGET_UNIT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetA[i] == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetB[i] == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetA[i] == TARGET_DST_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetB[i] == TARGET_DST_NEARBY_ENTRY ||
+                spellProto->EffectImplicitTargetA[i] == TARGET_UNIT_CONE_ENTRY ||
+                spellProto->EffectImplicitTargetB[i] == TARGET_UNIT_CONE_ENTRY)
             {
                 targetfound = true;
                 break;
@@ -2574,7 +2574,7 @@ void SpellMgr::LoadSpellAreas()
                 continue;
             }
 
-            if (spellArea.questEnd==spellArea.questStart && !spellArea.questStartCanActive)
+            if (spellArea.questEnd == spellArea.questStart && !spellArea.questStartCanActive)
             {
                 sLog.outErrorDb("Spell %u listed in `spell_area` have quest (%u) requirement for start and end in same time", spell,spellArea.questEnd);
                 continue;
@@ -2634,7 +2634,7 @@ void SpellMgr::LoadSpellAreas()
             }
         }
 
-        if (spellArea.raceMask && (spellArea.raceMask & RACEMASK_ALL_PLAYABLE)==0)
+        if (spellArea.raceMask && (spellArea.raceMask & RACEMASK_ALL_PLAYABLE) == 0)
         {
             sLog.outErrorDb("Spell %u listed in `spell_area` have wrong race mask (%u) requirement", spell,spellArea.raceMask);
             continue;

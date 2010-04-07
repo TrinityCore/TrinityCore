@@ -99,7 +99,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = stoneKeeper.begin(); i != stoneKeeper.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
-            if (!pTarget || !pTarget->isAlive() || pTarget->getFaction()==14)
+            if (!pTarget || !pTarget->isAlive() || pTarget->getFaction() == 14)
                 continue;
             pTarget->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
             pTarget->setFaction(14);
@@ -119,7 +119,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
-            if (!pTarget || !pTarget->isAlive() || pTarget->getFaction()==14)
+            if (!pTarget || !pTarget->isAlive() || pTarget->getFaction() == 14)
                 continue;
             archaedas->CastSpell(pTarget, SPELL_AWAKEN_VAULT_WALKER, true);
             pTarget->CastSpell(pTarget, SPELL_ARCHAEDAS_AWAKEN,true);
@@ -216,19 +216,19 @@ struct instance_uldaman : public ScriptedInstance
     void SetData (uint32 type, uint32 data)
     {
         //error_log ("SetData: data = %d", data);
-        if (data==0) OpenDoor (altarOfTheKeeperTempleDoor);
-        if (data==0) OpenDoor (archaedasTempleDoor);
-        if (data==3) OpenDoor (ancientVaultDoor);
-        if (data==1) ActivateStoneKeepers();
-        if (data==2) ActivateWallMinions();
-        if (data==4) DeActivateMinions();
-        if (data==5) RespawnMinions();
+        if (data == 0) OpenDoor (altarOfTheKeeperTempleDoor);
+        if (data == 0) OpenDoor (archaedasTempleDoor);
+        if (data == 3) OpenDoor (ancientVaultDoor);
+        if (data == 1) ActivateStoneKeepers();
+        if (data == 2) ActivateWallMinions();
+        if (data == 4) DeActivateMinions();
+        if (data == 5) RespawnMinions();
     }
 
     void SetData64 (uint32 type, uint64 data)
     {
         // Archaedas
-        if (type==0)
+        if (type == 0)
         {
             ActivateArchaedas (data);
         }

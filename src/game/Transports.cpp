@@ -543,10 +543,10 @@ void Transport::Update(uint32 /*p_time*/)
 
         m_nextNodeTime = m_curr->first;
 
-        if (m_curr == m_WayPoints.begin() && (sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES)==0)
+        if (m_curr == m_WayPoints.begin() && (sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES) == 0)
             sLog.outDetail(" ************ BEGIN ************** %s", this->m_name.c_str());
 
-        if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES)==0)
+        if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES) == 0)
             sLog.outDetail("%s moved to %d %f %f %f %d", this->m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
 
         //Transport Event System
@@ -560,7 +560,7 @@ void Transport::UpdateForMap(Map const* targetMap)
     if (pl.isEmpty())
         return;
 
-    if (GetMapId()==targetMap->GetId())
+    if (GetMapId() == targetMap->GetId())
     {
         for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
         {

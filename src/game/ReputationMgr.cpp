@@ -67,7 +67,7 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
             return factionEntry->BaseRepValue[i];
     }
 
-    // in faction.dbc exist factions with (RepListId >=0, listed in character reputation list) with all BaseRepRaceMask[i]==0
+    // in faction.dbc exist factions with (RepListId >=0, listed in character reputation list) with all BaseRepRaceMask[i] == 0
     return 0;
 }
 
@@ -508,7 +508,7 @@ void ReputationMgr::LoadFromDB(QueryResult_AutoPtr result)
                     SetAtWar(faction,true);
 
                 // reset changed flag if values similar to saved in DB
-                if (faction->Flags==dbFactionFlags)
+                if (faction->Flags == dbFactionFlags)
                     faction->Changed = false;
             }
         }

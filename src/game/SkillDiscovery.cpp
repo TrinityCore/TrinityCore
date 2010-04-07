@@ -120,7 +120,7 @@ void LoadSkillDiscoveryTable()
         {
             SkillLineAbilityMapBounds bounds = spellmgr.GetSkillLineAbilityMapBounds(spellId);
 
-            if (bounds.first==bounds.second)
+            if (bounds.first == bounds.second)
             {
                 sLog.outErrorDb("Spell (ID: %u) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table",spellId);
                 continue;
@@ -154,7 +154,7 @@ void LoadSkillDiscoveryTable()
         if (!IsExplicitDiscoverySpell(spellEntry))
             continue;
 
-        if (SkillDiscoveryStore.find(spell_id)==SkillDiscoveryStore.end())
+        if (SkillDiscoveryStore.find(spell_id) == SkillDiscoveryStore.end())
             sLog.outErrorDb("Spell (ID: %u) is 100%% chance random discovery ability but not have data in `skill_discovery_template` table",spell_id);
     }
 }

@@ -272,8 +272,8 @@ void InstanceData::DoRespawnGameObject(uint64 uiGuid, uint32 uiTimeToDespawn)
     if (GameObject* pGo = instance->GetGameObject(uiGuid))
     {
         //not expect any of these should ever be handled
-        if (pGo->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE || pGo->GetGoType()==GAMEOBJECT_TYPE_DOOR ||
-            pGo->GetGoType() == GAMEOBJECT_TYPE_BUTTON || pGo->GetGoType()==GAMEOBJECT_TYPE_TRAP)
+        if (pGo->GetGoType() == GAMEOBJECT_TYPE_FISHINGNODE || pGo->GetGoType() == GAMEOBJECT_TYPE_DOOR ||
+            pGo->GetGoType() == GAMEOBJECT_TYPE_BUTTON || pGo->GetGoType() == GAMEOBJECT_TYPE_TRAP)
             return;
 
         if (pGo->isSpawned())

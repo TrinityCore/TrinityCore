@@ -110,7 +110,7 @@ enum ITEM_FLAGS
     ITEM_FLAGS_CONJURED                       = 0x00000002,
     ITEM_FLAGS_OPENABLE                       = 0x00000004,
     ITEM_FLAGS_WRAPPED                        = 0x00000008,
-    ITEM_FLAGS_BROKEN                         = 0x00000010, // appears red icon (like when item durability==0)
+    ITEM_FLAGS_BROKEN                         = 0x00000010, // appears red icon (like when item durability == 0)
     ITEM_FLAGS_TOTEM                          = 0x00000020, // ?
     ITEM_FLAGS_USABLE                         = 0x00000040, // ?
     ITEM_FLAGS_WRAPPER                        = 0x00000200, // used or not used wrapper
@@ -640,9 +640,9 @@ struct ItemPrototype
         return 0;
     }
 
-    bool IsPotion() const { return Class==ITEM_CLASS_CONSUMABLE && SubClass==ITEM_SUBCLASS_POTION; }
-    bool IsWeaponVellum() const { return Class==ITEM_CLASS_TRADE_GOODS && SubClass==ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
-    bool IsArmorVellum() const { return Class==ITEM_CLASS_TRADE_GOODS && SubClass==ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
+    bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
+    bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
+    bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_FLAGS_CONJURED); }
 };
 
