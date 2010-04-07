@@ -426,7 +426,7 @@ struct boss_gothikAI : public BossAI
 
                         ++waveCount;
                     }
-					else
+                    else
                     {
                         phaseTwo = true;
                         DoScriptText(SAY_TELEPORT, me);

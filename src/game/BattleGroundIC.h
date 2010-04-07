@@ -23,8 +23,8 @@ class BattleGround;
 
 enum Buffs
 {
-    OIL_REFINERY		= 68719,
-    QUARRY			= 68720
+    OIL_REFINERY        = 68719,
+    QUARRY            = 68720
 };
 
 class BattleGroundICScore : public BattleGroundScore

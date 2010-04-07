@@ -26,8 +26,8 @@ class BattleGroundSAScore : public BattleGroundScore
     public:
         BattleGroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) {};
         virtual ~BattleGroundSAScore() {};
-	uint8 demolishers_destroyed;
-	uint8 gates_destroyed;
+    uint8 demolishers_destroyed;
+    uint8 gates_destroyed;
 };
 
 enum BG_SA_Status
@@ -300,14 +300,14 @@ class BattleGroundSA : public BattleGround
         virtual void AddPlayer(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
-	virtual bool SetupBattleGround();
-	virtual void Reset();
-	virtual void FillInitialWorldStates(WorldPacket& data);
-	virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 event);
-	virtual void HandleKillUnit(Creature* unit, Player* killer);
-	virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
-	virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
-	virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
+    virtual bool SetupBattleGround();
+    virtual void Reset();
+    virtual void FillInitialWorldStates(WorldPacket& data);
+    virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 event);
+    virtual void HandleKillUnit(Creature* unit, Player* killer);
+    virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
+    virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
+    virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
 
     void EndBattleGround(uint32 winner);
 
@@ -319,21 +319,21 @@ class BattleGroundSA : public BattleGround
         void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
 
     private:
-	bool ResetObjs();
-	void StartShips();
-	void TeleportPlayers();
-	void OverrideGunFaction();
-	void DestroyGate(uint32 i, Player* pl);
-	void SendTime();
-	void CaptureGraveyard(BG_SA_Graveyards i);
-	void ToggleTimer();
-	TeamId attackers;
-	uint32 TotalTime;
-	bool ShipsStarted;
-	BG_SA_GateState GateStatus[6];
-	BG_SA_Status status;
-	TeamId GraveyardStatus[BG_SA_MAX_GY];
-	BG_SA_RoundScore RoundScores[2]; 
-	bool TimerEnabled;
+    bool ResetObjs();
+    void StartShips();
+    void TeleportPlayers();
+    void OverrideGunFaction();
+    void DestroyGate(uint32 i, Player* pl);
+    void SendTime();
+    void CaptureGraveyard(BG_SA_Graveyards i);
+    void ToggleTimer();
+    TeamId attackers;
+    uint32 TotalTime;
+    bool ShipsStarted;
+    BG_SA_GateState GateStatus[6];
+    BG_SA_Status status;
+    TeamId GraveyardStatus[BG_SA_MAX_GY];
+    BG_SA_RoundScore RoundScores[2]; 
+    bool TimerEnabled;
 };
 #endif

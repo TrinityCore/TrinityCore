@@ -1350,7 +1350,7 @@ void Spell::EffectDummy(uint32 i)
                         return;
 
                     if(BattleGround* bg = m_caster->ToPlayer()->GetBattleGround())
-		      bg->EventPlayerDroppedFlag(m_caster->ToPlayer());
+              bg->EventPlayerDroppedFlag(m_caster->ToPlayer());
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
                     return;
@@ -7133,8 +7133,8 @@ void Spell::EffectTransmitted(uint32 effIndex)
         {
             if(m_caster->GetTypeId() == TYPEID_PLAYER)
             {
-	      pGameObj->AddUniqueUse(m_caster->ToPlayer());
-	      m_caster->AddGameObject(pGameObj);          // will removed at spell cancel
+          pGameObj->AddUniqueUse(m_caster->ToPlayer());
+          m_caster->AddGameObject(pGameObj);          // will removed at spell cancel
             }
             break;
         }

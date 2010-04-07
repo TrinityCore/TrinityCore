@@ -2846,9 +2846,9 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Frostbite
             if (spellproto->SpellFamilyFlags[1] & 0x80000000)
                 return DIMINISHING_TRIGGER_ROOT;
-	     // Frost Nova, Shatterd Barrier
-	     if (spellproto->SpellFamilyFlags[0] & 0x00080040)
-		  return DIMINISHING_CONTROL_ROOT;
+         // Frost Nova, Shatterd Barrier
+         if (spellproto->SpellFamilyFlags[0] & 0x00080040)
+          return DIMINISHING_CONTROL_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:

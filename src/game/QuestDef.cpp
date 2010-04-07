@@ -183,19 +183,19 @@ uint32 Quest::XPValue( Player *pPlayer ) const
       int32 quest_level = (QuestLevel == -1 ? pPlayer->getLevel() : QuestLevel);
       xpentry = sQuestXPStore.LookupEntry(quest_level);
       if(!xpentry)
-	return 0;
+    return 0;
       
       int diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
 
       if (diffFactor < 1)
-	diffFactor = 1;
+    diffFactor = 1;
       else if (diffFactor > 10)
-	diffFactor = 10;
+    diffFactor = 10;
 
       uint32 xp = diffFactor * xpentry->Exp[XPId] / 10;
 
       if (xp <= 100)
-	xp = 5 * ((xp + 2) / 5);
+    xp = 5 * ((xp + 2) / 5);
       else if (xp <= 500)
         xp = 10 * ((xp + 5) / 10);
       else if (xp <= 1000)

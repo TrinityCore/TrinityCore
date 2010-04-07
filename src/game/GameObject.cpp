@@ -1147,10 +1147,10 @@ void GameObject::Use(Unit* user)
                         break;
                 }
 
-		if (BattleGround* bg = player->GetBattleGround())
-		  {
-		    bg->EventPlayerUsedGO(player, this);
-		  }
+        if (BattleGround* bg = player->GetBattleGround())
+          {
+            bg->EventPlayerUsedGO(player, this);
+          }
 
                 player->CastedCreatureOrGO(info->id, GetGUID(), 0);
             }
@@ -1593,12 +1593,12 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.destroyedDisplayId);
             EventInform(m_goInfo->building.destroyedEvent);
-	    if(pwho)
-	      {
-		if(BattleGround* bg = pwho->GetBattleGround())
-		  bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.destroyedEvent);
-	      }
-	}
+        if(pwho)
+          {
+        if(BattleGround* bg = pwho->GetBattleGround())
+          bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.destroyedEvent);
+          }
+    }
     }
     else // from intact to damaged
     {

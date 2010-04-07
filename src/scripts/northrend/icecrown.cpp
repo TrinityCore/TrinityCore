@@ -191,7 +191,7 @@ struct npc_argent_valiantAI : public ScriptedAI
         pCreature->GetMotionMaster()->MovePoint(0,8599.258,963.951,547.553);
         pCreature->setFaction(35); //wrong faction in db?
     }
-	
+    
     uint32 uiChargeTimer;
     uint32 uiShieldBreakerTimer;
 
@@ -200,7 +200,7 @@ struct npc_argent_valiantAI : public ScriptedAI
         uiChargeTimer = 7000;
         uiShieldBreakerTimer = 10000;
     }
-	
+    
     void MovementInform(uint32 uiType, uint32 uiId)
     {
         if (uiType != POINT_MOTION_TYPE)

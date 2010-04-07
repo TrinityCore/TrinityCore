@@ -88,8 +88,8 @@ struct boss_balindaAI : public ScriptedAI
     uint32 uiFrostboltTimer;
     uint32 uiResetTimer;
     uint32 uiWaterElementalTimer;
-	
-	SummonList Summons;
+    
+    SummonList Summons;
 
     void Reset()
     {
@@ -100,7 +100,7 @@ struct boss_balindaAI : public ScriptedAI
         uiResetTimer                = 5*IN_MILISECONDS;
         uiWaterElementalTimer       = 0;
 
-		Summons.DespawnAll();
+        Summons.DespawnAll();
     }
 
     void EnterCombat(Unit *who)
@@ -113,7 +113,7 @@ struct boss_balindaAI : public ScriptedAI
         Reset();
     }
 
-	void JustSummoned(Creature* summoned)
+    void JustSummoned(Creature* summoned)
     {
         ((mob_water_elementalAI*)summoned->AI())->uiBalindaGUID = m_creature->GetGUID();
         summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
@@ -122,9 +122,9 @@ struct boss_balindaAI : public ScriptedAI
     }
 
     void JustDied(Unit* Killer)
-	{
-		Summons.DespawnAll();
-	}
+    {
+        Summons.DespawnAll();
+    }
 
     void UpdateAI(const uint32 diff)
     {
@@ -133,7 +133,7 @@ struct boss_balindaAI : public ScriptedAI
 
         if (uiWaterElementalTimer < diff)
         {
-			if(Summons.empty())
+            if(Summons.empty())
                 m_creature->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILISECONDS);
             uiWaterElementalTimer = 50*IN_MILISECONDS;
         } else uiWaterElementalTimer -= diff;

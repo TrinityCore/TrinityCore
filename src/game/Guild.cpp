@@ -234,7 +234,7 @@ bool Guild::LoadGuildFromDB(QueryResult_AutoPtr guildDataResult)
 }
 
 bool Guild::CheckGuildStructure()
-{	
+{    
     // Repair the structure of guild
     // If the guildmaster doesn't exist or isn't the member of guild
     // attempt to promote another member
@@ -359,7 +359,7 @@ bool Guild::LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult)
         if (guildId > m_Id)
             //we loaded all members for this guild already, break cycle
             break;
-	
+    
         MemberSlot newmember;
         uint64 guid      = MAKE_NEW_GUID(fields[1].GetUInt32(), 0, HIGHGUID_PLAYER);
         newmember.RankId = fields[2].GetUInt32();
@@ -371,7 +371,7 @@ bool Guild::LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult)
         newmember.OFFnote               = fields[4].GetCppString();
         newmember.BankResetTimeMoney    = fields[5].GetUInt32();
         newmember.BankRemMoney          = fields[6].GetUInt32();
-		for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
+        for (uint8 i = 0; i < GUILD_BANK_MAX_TABS; ++i)
         {
             newmember.BankResetTimeTab[i] = fields[7+(2*i)].GetUInt32();
             newmember.BankRemSlotsTab[i]  = fields[8+(2*i)].GetUInt32();
