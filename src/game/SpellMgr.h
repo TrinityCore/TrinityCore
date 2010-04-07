@@ -248,7 +248,7 @@ inline float GetSpellMaxRange(uint32 id, bool positive)
 inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 {
     for (int i= 0; i < 3; ++i)
-        if (SpellEffects(spellInfo->Effect[i])==effect)
+        if (SpellEffects(spellInfo->Effect[i]) == effect)
             return true;
     return false;
 }
@@ -256,7 +256,7 @@ inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 inline bool IsSpellHaveAura(SpellEntry const *spellInfo, AuraType aura)
 {
     for (int i= 0; i < 3; ++i)
-        if (AuraType(spellInfo->EffectApplyAuraName[i])==aura)
+        if (AuraType(spellInfo->EffectApplyAuraName[i]) == aura)
             return true;
     return false;
 }
@@ -283,14 +283,14 @@ inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
 {
     return ((spellInfo->Effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM
         && spellInfo->Effect[1] == SPELL_EFFECT_SCRIPT_EFFECT)
-        || spellInfo->Id == 64323);                          // Book of Glyph Mastery (Effect0==SPELL_EFFECT_SCRIPT_EFFECT without any other data)
+        || spellInfo->Id == 64323);                          // Book of Glyph Mastery (Effect0 == SPELL_EFFECT_SCRIPT_EFFECT without any other data)
 }
 
 inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
 {
-    return (spellInfo->Effect[0]==SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category)
-        (spellInfo->Effect[0]==SPELL_EFFECT_CREATE_ITEM_2 && spellInfo->TotemCategory[0] == 121));
+    return (spellInfo->Effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
+        // different random cards from Inscription (121 == Virtuoso Inking Set category)
+        (spellInfo->Effect[0] == SPELL_EFFECT_CREATE_ITEM_2 && spellInfo->TotemCategory[0] == 121));
 }
 
 bool IsHigherHankOfSpell(uint32 spellId_1,uint32 spellId_2);
@@ -971,7 +971,7 @@ class SpellMgr
         uint16 GetSpellThreat(uint32 spellid) const
         {
             SpellThreatMap::const_iterator itr = mSpellThreatMap.find(spellid);
-            if (itr==mSpellThreatMap.end())
+            if (itr == mSpellThreatMap.end())
                 return 0;
 
             return itr->second;
@@ -1150,7 +1150,7 @@ class SpellMgr
         {
             SpellLearnSpellMapBounds bounds = GetSpellLearnSpellMapBounds(spell_id1);
             for (SpellLearnSpellMap::const_iterator i = bounds.first; i != bounds.second; ++i)
-                if (i->second.spell==spell_id2)
+                if (i->second.spell == spell_id2)
                     return true;
             return false;
         }

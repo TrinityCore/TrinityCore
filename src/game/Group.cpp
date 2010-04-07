@@ -384,7 +384,7 @@ void Group::ChangeLeader(const uint64 &guid)
 {
     member_citerator slot = _getMemberCSlot(guid);
 
-    if (slot==m_memberSlots.end())
+    if (slot == m_memberSlots.end())
         return;
 
     _setLeader(guid);
@@ -1072,7 +1072,7 @@ void Group::BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int
         if (!pl || (ignore != 0 && pl->GetGUID() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this))
             continue;
 
-        if (pl->GetSession() && (group==-1 || itr->getSubGroup()==group))
+        if (pl->GetSession() && (group == -1 || itr->getSubGroup() == group))
             pl->GetSession()->SendPacket(packet);
     }
 }
@@ -1222,7 +1222,7 @@ bool Group::_removeMember(const uint64 &guid)
 void Group::_setLeader(const uint64 &guid)
 {
     member_witerator slot = _getMemberWSlot(guid);
-    if (slot==m_memberSlots.end())
+    if (slot == m_memberSlots.end())
         return;
 
     if (!isBGGroup())
@@ -1301,7 +1301,7 @@ void Group::_removeRolls(const uint64 &guid)
 bool Group::_setMembersGroup(const uint64 &guid, const uint8 &group)
 {
     member_witerator slot = _getMemberWSlot(guid);
-    if (slot==m_memberSlots.end())
+    if (slot == m_memberSlots.end())
         return false;
 
     slot->group = group;
@@ -1537,7 +1537,7 @@ uint32 Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleG
 }
 
 //===================================================
-//============== Roll ===============================
+//==============  Roll ===============================
 //===================================================
 
 void Roll::targetObjectBuildLink()

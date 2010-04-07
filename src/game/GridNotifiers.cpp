@@ -335,7 +335,7 @@ ObjectUpdater::Visit(GridRefManager<T> &m)
 bool CannibalizeObjectCheck::operator()(Corpse* u)
 {
     // ignore bones
-    if (u->GetType()==CORPSE_BONES)
+    if (u->GetType() == CORPSE_BONES)
         return false;
 
     Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGUID());

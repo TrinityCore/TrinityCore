@@ -341,7 +341,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
 
     for (; iter != m_QueuedPlayer.end(); ++iter, ++position)
     {
-        if (*iter==sess)
+        if (*iter == sess)
         {
             sess->SetInQueue(false);
             iter = m_QueuedPlayer.erase(iter);
@@ -2199,7 +2199,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
 
     if (!resultAccounts)
     {
-        if (mode==BAN_IP)
+        if (mode == BAN_IP)
             return BAN_SUCCESS;                             // ip correctly banned but nobody affected (yet)
         else
             return BAN_NOTFOUND;                                // Nobody to ban
@@ -2266,7 +2266,7 @@ void World::_UpdateGameTime()
         ///- ... and it is overdue, stop the world (set m_stopEvent)
         if (m_ShutdownTimer <= elapsed)
         {
-            if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
+            if (!(m_ShutdownMask & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
                 m_stopEvent = true;                         // exist code already set
             else
                 m_ShutdownTimer = 1;                        // minimum timer value to wait idle state
@@ -2292,9 +2292,9 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
     m_ExitCode = exitcode;
 
     ///- If the shutdown time is 0, set m_stopEvent (except if shutdown is 'idle' with remaining sessions)
-    if (time==0)
+    if (time == 0)
     {
-        if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount()==0)
+        if (!(options & SHUTDOWN_MASK_IDLE) || GetActiveAndQueuedSessionCount() == 0)
             m_stopEvent = true;                             // exist code already set
         else
             m_ShutdownTimer = 1;                            //So that the session count is re-evaluated at next world tick
@@ -2320,15 +2320,15 @@ void World::ShutdownMsg(bool show, Player* player)
     if (show ||
         (m_ShutdownTimer < 10) ||
                                                             // < 30 sec; every 5 sec
-        (m_ShutdownTimer<30        && (m_ShutdownTimer % 5)==0) ||
+        (m_ShutdownTimer<30        && (m_ShutdownTimer % 5) == 0) ||
                                                             // < 5 min ; every 1 min
-        (m_ShutdownTimer<5*MINUTE  && (m_ShutdownTimer % MINUTE)==0) ||
+        (m_ShutdownTimer<5*MINUTE  && (m_ShutdownTimer % MINUTE) == 0) ||
                                                             // < 30 min ; every 5 min
-        (m_ShutdownTimer<30*MINUTE && (m_ShutdownTimer % (5*MINUTE))==0) ||
+        (m_ShutdownTimer<30*MINUTE && (m_ShutdownTimer % (5*MINUTE)) == 0) ||
                                                             // < 12 h ; every 1 h
-        (m_ShutdownTimer<12*HOUR   && (m_ShutdownTimer % HOUR)==0) ||
+        (m_ShutdownTimer<12*HOUR   && (m_ShutdownTimer % HOUR) == 0) ||
                                                             // > 12 h ; every 12 h
-        (m_ShutdownTimer>12*HOUR   && (m_ShutdownTimer % (12*HOUR))==0))
+        (m_ShutdownTimer>12*HOUR   && (m_ShutdownTimer % (12*HOUR)) == 0))
     {
         std::string str = secsToTimeString(m_ShutdownTimer);
 

@@ -236,7 +236,7 @@ void LoadDBCStores(const std::string& dataPath)
             sAreaFlagByAreaID.insert(AreaFlagByAreaID::value_type(uint16(area->ID),area->exploreFlag));
 
             // fill MapId->DBC records (skip sub zones and continents)
-            if (area->zone==0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571)
+            if (area->zone == 0 && area->mapid != 0 && area->mapid != 1 && area->mapid != 530 && area->mapid != 571)
                 sAreaFlagByMapID.insert(AreaFlagByMapID::value_type(area->mapid,area->exploreFlag));
         }
     }
@@ -418,7 +418,7 @@ void LoadDBCStores(const std::string& dataPath)
                 continue;
 
             // prevent memory corruption; otherwise cls will become 12 below
-            if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE)==0)
+            if ((talentTabInfo->ClassMask & CLASSMASK_ALL_PLAYABLE) == 0)
                 continue;
 
             // store class talent tab pages
@@ -465,7 +465,7 @@ void LoadDBCStores(const std::string& dataPath)
         for (uint32 i = 1; i < sSpellStore.GetNumRows (); ++i)
             if (SpellEntry const* sInfo = sSpellStore.LookupEntry (i))
                 for (int j=0; j < 3; ++j)
-                    if (sInfo->Effect[j]==123 /*SPELL_EFFECT_SEND_TAXI*/)
+                    if (sInfo->Effect[j] == 123 /*SPELL_EFFECT_SEND_TAXI*/)
                         spellPaths.insert(sInfo->EffectMiscValue[j]);
 
         memset(sTaxiNodesMask,0,sizeof(sTaxiNodesMask));
@@ -483,7 +483,7 @@ void LoadDBCStores(const std::string& dataPath)
                 for (TaxiPathSetForSource::const_iterator dest_i = src_i->second.begin(); dest_i != src_i->second.end(); ++dest_i)
                 {
                     // not spell path
-                    if (spellPaths.find(dest_i->second.ID)==spellPaths.end())
+                    if (spellPaths.find(dest_i->second.ID) == spellPaths.end())
                     {
                         ok = true;
                         break;
@@ -583,7 +583,7 @@ char* GetPetName(uint32 petfamily, uint32 dbclang)
 TalentSpellPos const* GetTalentSpellPos(uint32 spellId)
 {
     TalentSpellPosMap::const_iterator itr = sTalentSpellPosMap.find(spellId);
-    if (itr==sTalentSpellPosMap.end())
+    if (itr == sTalentSpellPosMap.end())
         return NULL;
 
     return &itr->second;
@@ -678,9 +678,9 @@ ChatChannelsEntry const* GetChannelEntryFor(uint32 channel_id)
 
 bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredTotemCategoryId)
 {
-    if (requiredTotemCategoryId==0)
+    if (requiredTotemCategoryId == 0)
         return true;
-    if (itemTotemCategoryId==0)
+    if (itemTotemCategoryId == 0)
         return false;
 
     TotemCategoryEntry const* itemEntry = sTotemCategoryStore.LookupEntry(itemTotemCategoryId);
@@ -693,7 +693,7 @@ bool IsTotemCategoryCompatiableWith(uint32 itemTotemCategoryId, uint32 requiredT
     if (itemEntry->categoryType!=reqEntry->categoryType)
         return false;
 
-    return (itemEntry->categoryMask & reqEntry->categoryMask)==reqEntry->categoryMask;
+    return (itemEntry->categoryMask & reqEntry->categoryMask) == reqEntry->categoryMask;
 }
 
 void Zone2MapCoordinates(float& x,float& y,uint32 zone)

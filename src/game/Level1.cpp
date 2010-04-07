@@ -2254,7 +2254,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale ())
+                    if (loc == GetSessionDbcLocale ())
                         continue;
 
                     name = areaEntry->area_name[loc];
@@ -2460,7 +2460,7 @@ bool ChatHandler::HandleTeleNameCommand(const char * args)
 
         std::string chrNameLink = playerLink(target_name);
 
-        if (target->IsBeingTeleported()==true)
+        if (target->IsBeingTeleported() == true)
         {
             PSendSysMessage(LANG_IS_TELEPORTED, chrNameLink.c_str());
             SetSentErrorMessage(true);
@@ -2623,7 +2623,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
     {
         Player *pl = itr->getSource();
 
-        if (!pl || pl==m_session->GetPlayer() || !pl->GetSession())
+        if (!pl || pl == m_session->GetPlayer() || !pl->GetSession())
             continue;
 
         // check online security
@@ -2632,7 +2632,7 @@ bool ChatHandler::HandleGroupgoCommand(const char* args)
 
         std::string plNameLink = GetNameLink(pl);
 
-        if (pl->IsBeingTeleported()==true)
+        if (pl->IsBeingTeleported() == true)
         {
             PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
             SetSentErrorMessage(true);
@@ -2835,7 +2835,7 @@ bool ChatHandler::HandleGoZoneXYCommand(const char* args)
     float y = (float)atof(py);
 
     // prevent accept wrong numeric args
-    if ((x==0.0f && *px!='0') || (y==0.0f && *py!='0'))
+    if ((x == 0.0f && *px!='0') || (y == 0.0f && *py!='0'))
         return false;
 
     uint32 areaid = cAreaId ? (uint32)atoi(cAreaId) : _player->GetZoneId();

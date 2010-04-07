@@ -321,7 +321,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                         for (Unit::AuraEffectList::const_iterator itr = mDummy.begin(); itr != mDummy.end(); ++itr)
                         {
                             // Predatory Strikes (effect 0)
-                            if ((*itr)->GetEffIndex()==0 && (*itr)->GetSpellProto()->SpellIconID == 1563)
+                            if ((*itr)->GetEffIndex() == 0 && (*itr)->GetSpellProto()->SpellIconID == 1563)
                             {
                                 mLevelMult = (*itr)->GetAmount() / 100.0f;
                                 break;
@@ -360,7 +360,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     //add dynamic flat mods
     if (ranged)
     {
-        if ((getClassMask() & CLASSMASK_WAND_USERS)==0)
+        if ((getClassMask() & CLASSMASK_WAND_USERS) == 0)
         {
             AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
             for (AuraEffectList::const_iterator i = mRAPbyStat.begin(); i != mRAPbyStat.end(); ++i)
@@ -661,7 +661,7 @@ void Player::UpdateAllSpellCritChances()
 
 void Player::UpdateExpertise(WeaponAttackType attack)
 {
-    if (attack==RANGED_ATTACK)
+    if (attack == RANGED_ATTACK)
         return;
 
     int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));

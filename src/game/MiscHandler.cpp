@@ -561,7 +561,7 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult_AutoPtr result, uin
         {
             if (friendGuid)
             {
-                if (friendGuid==session->GetPlayer()->GetGUID())
+                if (friendGuid == session->GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;
                 else if (session->GetPlayer()->GetTeam() != team && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && session->GetSecurity() < SEC_MODERATOR)
                     friendResult = FRIEND_ENEMY;
@@ -643,7 +643,7 @@ void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult_AutoPtr result, uin
 
         if (IgnoreGuid)
         {
-            if (IgnoreGuid==session->GetPlayer()->GetGUID())              //not add yourself
+            if (IgnoreGuid == session->GetPlayer()->GetGUID())              //not add yourself
                 ignoreResult = FRIEND_IGNORE_SELF;
             else if (session->GetPlayer()->GetSocial()->HasIgnore(GUID_LOPART(IgnoreGuid)))
                 ignoreResult = FRIEND_IGNORE_ALREADY;
@@ -729,7 +729,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
         return;
 
     // prevent resurrect before 30-sec delay after body release not finished
-    if (corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType()==CORPSE_RESURRECTABLE_PVP) > time(NULL))
+    if (corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP) > time(NULL))
         return;
 
     if (!corpse->IsWithinDistInMap(GetPlayer(), CORPSE_RECLAIM_RADIUS, true))

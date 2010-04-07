@@ -415,7 +415,7 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (IsChanneledSpell(spellInfo))
     {
         if (Spell* curSpell = _player->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-            if (curSpell->m_spellInfo->Id==spellId)
+            if (curSpell->m_spellInfo->Id == spellId)
                 _player->InterruptSpell(CURRENT_CHANNELED_SPELL);
         return;
     }

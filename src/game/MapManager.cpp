@@ -205,7 +205,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 uint32 instance_map = corpse->GetMapId();
                 do
                 {
-                    if (instance_map==mapid)
+                    if (instance_map == mapid)
                         break;
 
                     InstanceTemplate const* instance = objmgr.GetInstanceTemplate(instance_map);

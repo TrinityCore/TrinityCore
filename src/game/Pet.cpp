@@ -153,7 +153,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         return false;
 
     PetType pet_type = PetType(fields[18].GetUInt8());
-    if (pet_type==HUNTER_PET)
+    if (pet_type == HUNTER_PET)
     {
         CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(petentry);
         if (!creatureInfo || !creatureInfo->isTameable(owner->CanTameExoticPets()))
@@ -368,7 +368,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
         pOwner->GetTemporaryUnsummonedPetNumber() != m_charmInfo->GetPetNumber())
     {
         // pet will lost anyway at restore temporary unsummoned
-        if (getPetType()==HUNTER_PET)
+        if (getPetType() == HUNTER_PET)
             return;
 
         // for warlock case
@@ -404,7 +404,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
                 PET_SAVE_NOT_IN_SLOT, owner, uint32(mode));
 
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
-        if (getPetType()==HUNTER_PET && (mode==PET_SAVE_AS_CURRENT||mode > PET_SAVE_LAST_STABLE_SLOT))
+        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT||mode > PET_SAVE_LAST_STABLE_SLOT))
             CharacterDatabase.PExecute("DELETE FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot > '%u')",
                 owner,PET_SAVE_AS_CURRENT,PET_SAVE_LAST_STABLE_SLOT);
         // save pet
@@ -461,7 +461,7 @@ void Pet::DeleteFromDB(uint32 guidlow)
 void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
 {
     Creature::setDeathState(s);
-    if (getDeathState()==CORPSE)
+    if (getDeathState() == CORPSE)
     {
         if (getPetType() == HUNTER_PET)
         {
@@ -477,7 +477,7 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
             //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
     }
-    else if (getDeathState()==ALIVE)
+    else if (getDeathState() == ALIVE)
     {
         //RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         CastPetAuras(true);
@@ -519,7 +519,7 @@ void Pet::Update(uint32 diff)
                 if (owner->GetPetGUID() != GetGUID())
                 {
                     sLog.outError("Pet %u is not pet of owner %u, removed", GetEntry(), m_owner->GetName());
-                    Remove(getPetType()==HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
+                    Remove(getPetType() == HUNTER_PET?PET_SAVE_AS_DELETED:PET_SAVE_NOT_IN_SLOT);
                     return;
                 }
             }
@@ -833,7 +833,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     //scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->minScale > 0.0f && petType==HUNTER_PET)
+    if (cFamily && cFamily->minScale > 0.0f && petType == HUNTER_PET)
     {
         float scale;
         if (getLevel() >= cFamily->maxScaleLevel)
@@ -1348,7 +1348,7 @@ bool Pet::addSpell(uint32 spell_id,ActiveStates active /*= ACT_DECIDE*/, PetSpel
             {
                 // skip learning spell and no rank spell case
                 uint32 rankSpellId = talentInfo->RankID[i];
-                if (!rankSpellId || rankSpellId==spell_id)
+                if (!rankSpellId || rankSpellId == spell_id)
                     continue;
 
                 // skip unknown ranks

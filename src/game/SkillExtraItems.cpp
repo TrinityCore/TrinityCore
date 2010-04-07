@@ -122,7 +122,7 @@ bool canCreateExtraItems(Player * player, uint32 spellId, float &additionalChanc
 {
     // get the info for the specified spell
     SkillExtraItemMap::const_iterator ret = SkillExtraItemStore.find(spellId);
-    if (ret==SkillExtraItemStore.end())
+    if (ret == SkillExtraItemStore.end())
         return false;
 
     SkillExtraItemEntry const* specEntry = &ret->second;

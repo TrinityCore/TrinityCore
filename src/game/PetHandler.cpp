@@ -430,7 +430,7 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
             return;
 
         // in the normal case, command and reaction buttons can only be moved, not removed
-        // at moving count ==2, at removing count == 1
+        // at moving count  == 2, at removing count == 1
         // ignore attempt to remove command|reaction buttons (not possible at normal case)
         if (act_state == ACT_COMMAND || act_state == ACT_REACTION)
         {

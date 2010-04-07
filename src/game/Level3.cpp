@@ -1696,13 +1696,13 @@ bool ChatHandler::HandleCooldownCommand(const char *args)
 
         if (!sSpellStore.LookupEntry(spell_id))
         {
-            PSendSysMessage(LANG_UNKNOWN_SPELL, target==m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
+            PSendSysMessage(LANG_UNKNOWN_SPELL, target == m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
             SetSentErrorMessage(true);
             return false;
         }
 
         target->RemoveSpellCooldown(spell_id,true);
-        PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target==m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
+        PSendSysMessage(LANG_REMOVE_COOLDOWN, spell_id, target == m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
    }
     return true;
 }
@@ -2393,7 +2393,7 @@ bool ChatHandler::HandleLearnAllMySpellsCommand(const char* /*args*/)
             continue;
 
         // skip server-side/triggered spells
-        if (spellInfo->spellLevel==0)
+        if (spellInfo->spellLevel == 0)
             continue;
 
         // skip wrong class/race skills
@@ -2513,7 +2513,7 @@ bool ChatHandler::HandleLearnAllMyPetTalentsCommand(const char* /*args*/)
             continue;
 
         // prevent learn talent for different family (cheating)
-        if (((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask)==0)
+        if (((1 << pet_family->petTalentType) & talentTabInfo->petTalentMask) == 0)
             continue;
 
         // search highest talent rank
@@ -2624,7 +2624,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
 
     uint32 itemId = 0;
 
-    if (args[0]=='[')                                        // [name] manual form
+    if (args[0] == '[')                                        // [name] manual form
     {
         char* citemName = strtok((char*)args, "]");
 
@@ -2704,7 +2704,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
     Item* item = plTarget->StoreNewItem(dest, itemId, true, Item::GenerateItemRandomPropertyId(itemId));
 
     // remove binding (let GM give it to another player later)
-    if (pl==plTarget)
+    if (pl == plTarget)
         for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
             if (Item* item1 = pl->GetItemByPos(itr->pos))
                 item1->SetBinding(false);
@@ -2765,7 +2765,7 @@ bool ChatHandler::HandleAddItemSetCommand(const char *args)
                 Item* item = plTarget->StoreNewItem(dest, pProto->ItemId, true);
 
                 // remove binding (let GM give it to another player later)
-                if (pl==plTarget)
+                if (pl == plTarget)
                     item->SetBinding(false);
 
                 pl->SendNewItem(item,1,false,true);
@@ -3299,7 +3299,7 @@ bool ChatHandler::HandleLookupItemSetCommand(const char *args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale())
+                    if (loc == GetSessionDbcLocale())
                         continue;
 
                     name = set->name[loc];
@@ -3364,7 +3364,7 @@ bool ChatHandler::HandleLookupSkillCommand(const char *args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale())
+                    if (loc == GetSessionDbcLocale())
                         continue;
 
                     name = skillInfo->name[loc];
@@ -3443,7 +3443,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale())
+                    if (loc == GetSessionDbcLocale())
                         continue;
 
                     name = spellInfo->SpellName[loc];
@@ -3791,7 +3791,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale())
+                    if (loc == GetSessionDbcLocale())
                         continue;
 
                     name = factionEntry->name[loc];
@@ -3881,7 +3881,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
                 loc = 0;
                 for (; loc < MAX_LOCALE; ++loc)
                 {
-                    if (loc==GetSessionDbcLocale())
+                    if (loc == GetSessionDbcLocale())
                         continue;
 
                     name = nodeEntry->name[loc];
@@ -4410,9 +4410,9 @@ bool ChatHandler::HandleLinkGraveCommand(const char *args)
 
     if (!px2)
         g_team = 0;
-    else if (strncmp(px2,"horde",6)==0)
+    else if (strncmp(px2,"horde",6) == 0)
         g_team = HORDE;
-    else if (strncmp(px2,"alliance",9)==0)
+    else if (strncmp(px2,"alliance",9) == 0)
         g_team = ALLIANCE;
     else
         return false;
@@ -4454,9 +4454,9 @@ bool ChatHandler::HandleNearGraveCommand(const char *args)
 
     if (!*args)
         g_team = 0;
-    else if (strncmp((char*)args,"horde",argslen)==0)
+    else if (strncmp((char*)args,"horde",argslen) == 0)
         g_team = HORDE;
-    else if (strncmp((char*)args,"alliance",argslen)==0)
+    else if (strncmp((char*)args,"alliance",argslen) == 0)
         g_team = ALLIANCE;
     else
         return false;
@@ -4810,7 +4810,7 @@ bool ChatHandler::HandleCharacterLevelCommand(const char *args)
 
     HandleCharacterLevel(target,target_guid,oldlevel,newlevel);
 
-    if (!m_session || m_session->GetPlayer() != target)      // including player==NULL
+    if (!m_session || m_session->GetPlayer() != target)      // including player == NULL
     {
         std::string nameLink = playerLink(target_name);
         PSendSysMessage(LANG_YOU_CHANGE_LVL,nameLink.c_str(),newlevel);
@@ -4850,7 +4850,7 @@ bool ChatHandler::HandleLevelUpCommand(const char *args)
 
     HandleCharacterLevel(target,target_guid,oldlevel,newlevel);
 
-    if (!m_session || m_session->GetPlayer() != target)      // including chr==NULL
+    if (!m_session || m_session->GetPlayer() != target)      // including chr == NULL
     {
         std::string nameLink = playerLink(target_name);
         PSendSysMessage(LANG_YOU_CHANGE_LVL,nameLink.c_str(),newlevel);
@@ -5181,7 +5181,7 @@ static bool HandleResetStatsOrLevelHelper(Player* player)
     player->SetUInt32Value(UNIT_FIELD_BYTES_0, ((player->getRace()) | (player->getClass() << 8) | (player->getGender() << 16) | (powertype << 24)));
 
     // reset only if player not in some form;
-    if (player->m_form==FORM_NONE)
+    if (player->m_form == FORM_NONE)
         player->InitDisplayIds();
 
     player->SetByteValue(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
@@ -5339,14 +5339,14 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
     AtLoginFlags atLogin;
 
     // Command specially created as single command to prevent using short case names
-    if (casename=="spells")
+    if (casename == "spells")
     {
         atLogin = AT_LOGIN_RESET_SPELLS;
         sWorld.SendWorldText(LANG_RESETALL_SPELLS);
         if (!m_session)
             SendSysMessage(LANG_RESETALL_SPELLS);
     }
-    else if (casename=="talents")
+    else if (casename == "talents")
     {
         atLogin = AtLoginFlags(AT_LOGIN_RESET_TALENTS | AT_LOGIN_RESET_PET_TALENTS);
         sWorld.SendWorldText(LANG_RESETALL_TALENTS);
@@ -5601,7 +5601,7 @@ bool ChatHandler::HandleQuestRemove(const char *args)
     for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
         uint32 quest = player->GetQuestSlotQuestId(slot);
-        if (quest==entry)
+        if (quest == entry)
         {
             player->SetQuestSlot(slot,0);
 
@@ -6045,7 +6045,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult_AutoPtr result)
     else
     {
         SendSysMessage(LANG_BANLIST_ACCOUNTS);
-        SendSysMessage("===============================================================================");
+        SendSysMessage(" ===============================================================================");
         SendSysMessage(LANG_BANLIST_ACCOUNTS_HEADER);
         do
         {
@@ -6090,7 +6090,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult_AutoPtr result)
                 }while (banInfo->NextRow());
             }
         }while (result->NextRow());
-        SendSysMessage("===============================================================================");
+        SendSysMessage(" ===============================================================================");
     }
     return true;
 }
@@ -6138,7 +6138,7 @@ bool ChatHandler::HandleBanListIPCommand(const char *args)
     else
     {
         SendSysMessage(LANG_BANLIST_IPS);
-        SendSysMessage("===============================================================================");
+        SendSysMessage(" ===============================================================================");
         SendSysMessage(LANG_BANLIST_IPS_HEADER);
         do
         {
@@ -6162,7 +6162,7 @@ bool ChatHandler::HandleBanListIPCommand(const char *args)
                     fields[3].GetString(), fields[4].GetString());
             }
         }while (result->NextRow());
-        SendSysMessage("===============================================================================");
+        SendSysMessage(" ===============================================================================");
     }
 
     return true;
@@ -6871,9 +6871,9 @@ bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
     if (result)
     {
         SendSysMessage(LANG_GMLIST);
-        SendSysMessage("========================");
+        SendSysMessage(" ======================== ");
         SendSysMessage(LANG_GMLIST_HEADER);
-        SendSysMessage("========================");
+        SendSysMessage(" ======================== ");
 
         ///- Circle through them. Display username and GM level
         do
@@ -6882,7 +6882,7 @@ bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
             PSendSysMessage("|%15s|%6s|", fields[0].GetString(),fields[1].GetString());
         }while (result->NextRow());
 
-        PSendSysMessage("========================");
+        PSendSysMessage(" ======================== ");
     }
     else
         PSendSysMessage(LANG_GMLIST_EMPTY);

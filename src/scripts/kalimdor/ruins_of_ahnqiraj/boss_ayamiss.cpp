@@ -80,20 +80,20 @@ struct boss_ayamissAI : public ScriptedAI
             return;
 
         //If he is 70% start phase 2
-        if (phase==1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 70 && !m_creature->IsNonMeleeSpellCasted(false))
+        if (phase == 1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 70 && !m_creature->IsNonMeleeSpellCasted(false))
         {
             phase=2;
         }
 
         //STINGERSPRAY_Timer (only in phase2)
-        if (phase==2 && STINGERSPRAY_Timer <= diff)
+        if (phase == 2 && STINGERSPRAY_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_STINGERSPRAY);
             STINGERSPRAY_Timer = 30000;
         } else STINGERSPRAY_Timer -= diff;
 
         //POISONSTINGER_Timer (only in phase1)
-        if (phase==1 && POISONSTINGER_Timer <= diff)
+        if (phase == 1 && POISONSTINGER_Timer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_POISONSTINGER);
             POISONSTINGER_Timer = 30000;

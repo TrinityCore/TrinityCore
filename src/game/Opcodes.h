@@ -904,7 +904,7 @@ enum Opcodes
     SMSG_LFG_PROPOSAL_DECLINED                      = 0x361,    // SMSG uint32, uint8, uint32, uint32, uint8, for (uint8) {uint32,uint8,uint8,uint8,uint8}
     CMSG_LFG_PROPOSAL_RESULT                        = 0x362,    // CMSG AcceptProposal, RejectProposal
     SMSG_LFG_ROLE_CHECK                             = 0x363,    // SMSG uint32, uint8, for (uint8) uint32, uint8, for (uint8) { uint64, uint8, uint32, uint8, }
-    SMSG_LFG_ROLE_CHECK_FAILED_RESULT               = 0x364,    // SMSG uint32 unk, uint32, if (unk==6) { uint8 count, for (count) uint64 }
+    SMSG_LFG_ROLE_CHECK_FAILED_RESULT               = 0x364,    // SMSG uint32 unk, uint32, if (unk == 6) { uint8 count, for (count) uint64 }
     SMSG_LFG_QUEUE_STATUS_UPDATE                    = 0x365,    // SMSG uint32 dungeon, uint32 lfgtype, uint32, uint32, uint32, uint32, uint8, uint8, uint8, uint8
     CMSG_SET_LFG_COMMENT                            = 0x366,    // CMSG SetLFGComment
     SMSG_LFG_LFG_PROPOSAL_INFO                      = 0x367,    // SMSG uint8, if (uint8) { uint8, uint8, uint8, uint8, if (uint8) for (uint8) uint32, string}
@@ -1329,10 +1329,10 @@ enum Opcodes
 /// Player state
 enum SessionStatus
 {
-    STATUS_AUTHED = 0,                                      ///< Player authenticated (_player==NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
+    STATUS_AUTHED = 0,                                      ///< Player authenticated (_player == NULL, m_playerRecentlyLogout = false or will be reset before handler call, m_GUID have garbage)
     STATUS_LOGGEDIN,                                        ///< Player in game (_player!=NULL, m_GUID == _player->GetGUID(), inWorld())
     STATUS_TRANSFER,                                        ///< Player transferring to another map (_player!=NULL, m_GUID == _player->GetGUID(), !inWorld())
-    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    ///< _player!= NULL or _player==NULL && m_playerRecentlyLogout, m_GUID store last _player guid)
+    STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT,                    ///< _player!= NULL or _player == NULL && m_playerRecentlyLogout, m_GUID store last _player guid)
     STATUS_NEVER                                            ///< Opcode not accepted from client (deprecated or server side only)
 };
 

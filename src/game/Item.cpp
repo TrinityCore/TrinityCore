@@ -83,7 +83,7 @@ void AddItemsSetItem(Player*player,Item *item)
 
         uint32 z=0;
         for (; z<8; z++)
-            if (eff->spells[z] && eff->spells[z]->Id==set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
                 break;
 
         if (z < 8)
@@ -150,7 +150,7 @@ void RemoveItemsSetItem(Player*player,ItemPrototype const *proto)
 
         for (uint32 z=0; z<8; z++)
         {
-            if (eff->spells[z] && eff->spells[z]->Id==set->spells[x])
+            if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
             {
                 // spell can be not active if not fit form requirement
                 player->ApplyEquipSpell(eff->spells[z],NULL,false);
@@ -406,7 +406,7 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
     }
 
     // update duration if need, and remove if not need
-    if ((proto->Duration==0) != (GetUInt32Value(ITEM_FIELD_DURATION)==0))
+    if ((proto->Duration == 0) != (GetUInt32Value(ITEM_FIELD_DURATION) == 0))
     {
         SetUInt32Value(ITEM_FIELD_DURATION,abs(proto->Duration));
         need_save = true;
@@ -544,7 +544,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // item can have not null only one from field values
     if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
     {
-        sLog.outErrorDb("Item template %u have RandomProperty==%u and RandomSuffix==%u, but must have one from field =0",itemProto->ItemId,itemProto->RandomProperty,itemProto->RandomSuffix);
+        sLog.outErrorDb("Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0",itemProto->ItemId,itemProto->RandomProperty,itemProto->RandomSuffix);
         return 0;
     }
 
@@ -617,7 +617,7 @@ void Item::SetItemRandomProperties(int32 randomPropId)
 bool Item::UpdateItemSuffixFactor()
 {
     uint32 suffixFactor = GenerateEnchSuffixFactor(GetEntry());
-    if (GetItemSuffixFactor()==suffixFactor)
+    if (GetItemSuffixFactor() == suffixFactor)
         return false;
     SetUInt32Value(ITEM_FIELD_PROPERTY_SEED,suffixFactor);
     return true;
@@ -712,7 +712,7 @@ bool Item::CanBeTraded(bool mail) const
     {
         if (owner->CanUnequipItem(GetPos(),false) !=  EQUIP_ERR_OK)
             return false;
-        if (owner->GetLootGUID()==GetGUID())
+        if (owner->GetLootGUID() == GetGUID())
             return false;
     }
 
@@ -770,8 +770,8 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
         // Special case - accept vellum for armor/weapon requirements
-        if ((spellInfo->EquippedItemClass==ITEM_CLASS_ARMOR && proto->IsArmorVellum())
-            ||(spellInfo->EquippedItemClass==ITEM_CLASS_WEAPON && proto->IsWeaponVellum()))
+        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
+            ||(spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum()))
             if (spellmgr.IsSkillTypeSpell(spellInfo->Id, SKILL_ENCHANTING)) // only for enchanting spells
                 return true;
 
@@ -933,7 +933,7 @@ uint8 Item::GetGemCountWithLimitCategory(uint32 limitCategory) const
         if (!gemProto)
             continue;
 
-        if (gemProto->ItemLimitCategory==limitCategory)
+        if (gemProto->ItemLimitCategory == limitCategory)
             ++count;
     }
     return count;
@@ -970,7 +970,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
         if (count > pProto->GetMaxStackSize())
             count = pProto->GetMaxStackSize();
 
-        assert(count !=0 && "pProto->Stackable==0 but checked at loading already");
+        assert(count !=0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item *pItem = NewItemOrBag(pProto);
         if (pItem->Create(objmgr.GenerateLowGuid(HIGHGUID_ITEM), item, player))
@@ -1007,7 +1007,7 @@ bool Item::IsBindedNotWith(Player const* player) const
         return false;
 
     // own item
-    if (GetOwnerGUID()== player->GetGUID())
+    if (GetOwnerGUID() ==  player->GetGUID())
         return false;
 
     // not BOA item case
