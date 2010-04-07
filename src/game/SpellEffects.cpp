@@ -2105,7 +2105,7 @@ void Spell::EffectDummy(uint32 i)
                 spell_id=48289;
             }
             // Raise dead - take reagents and trigger summon spells
-            else if (m_spellInfo->Id  == 48289)
+            else if (m_spellInfo->Id == 48289)
             {
                 if (m_targets.HasDst())
                     targets.setDst(&m_targets.m_dstPos);
@@ -3051,7 +3051,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
     if (canCreateExtraItems(player, m_spellInfo->Id, additionalCreateChance, additionalMaxNum))
     {
         // roll with this chance till we roll not to create or we create the max num
-        while (roll_chance_f(additionalCreateChance) && items_count<=additionalMaxNum)
+        while (roll_chance_f(additionalCreateChance) && items_count <= additionalMaxNum)
             ++items_count;
     }
 
@@ -4156,15 +4156,15 @@ void Spell::EffectEnchantItemTmp(uint32 i)
         switch(damage)
         {
             // Rank 1
-            case  2: spell_id = 36744; break;               //  0% [ 7% ==  2, 14% == 2, 20% == 2]
+            case  2: spell_id = 36744; break;               //  0% [ 7% == 2, 14% == 2, 20% == 2]
             // Rank 2
-            case  4: spell_id = 36753; break;               //  0% [ 7% ==  4, 14% == 4]
+            case  4: spell_id = 36753; break;               //  0% [ 7% == 4, 14% == 4]
             case  5: spell_id = 36751; break;               // 20%
             // Rank 3
-            case  6: spell_id = 36754; break;               //  0% [ 7% ==  6, 14% == 6]
+            case  6: spell_id = 36754; break;               //  0% [ 7% == 6, 14% == 6]
             case  7: spell_id = 36755; break;               // 20%
             // Rank 4
-            case  9: spell_id = 36761; break;               //  0% [ 7% ==  6]
+            case  9: spell_id = 36761; break;               //  0% [ 7% == 6]
             case 10: spell_id = 36758; break;               // 14%
             case 11: spell_id = 36760; break;               // 20%
             default:

@@ -104,7 +104,7 @@ struct boss_netherspiteAI : public ScriptedAI
         yh = pTarget->GetPositionY();
 
         // check if target is between (not checking distance from the beam yet)
-        if (dist(xn,yn,xh,yh)>=dist(xn,yn,xp,yp) || dist(xp,yp,xh,yh)>=dist(xn,yn,xp,yp))
+        if (dist(xn,yn,xh,yh) >= dist(xn,yn,xp,yp) || dist(xp,yp,xh,yh) >= dist(xn,yn,xp,yp))
             return false;
         // check  distance from the beam
         return (abs((xn-xp)*yh+(yp-yn)*xh-xn*yp+xp*yn)/dist(xn,yn,xp,yp) < 1.5f);

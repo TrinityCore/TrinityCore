@@ -170,7 +170,7 @@ struct boss_ormorokAI : public ScriptedAI
             {
                 Unit *pTarget = NULL;
                 uint8 Healer = 0;
-                for (uint8 j = 1; j<=4; j++)
+                for (uint8 j = 1; j <= 4; j++)
                 {
                     switch (j)
                     {

@@ -957,7 +957,7 @@ void AuraEffect::ApplySpellMod(Unit * target, bool apply)
                        if (AuraEffect * aurEff = aura->GetEffect(1))
                             aurEff->RecalculateAmount();
                     }
-                    else //if (modOp  == SPELLMOD_EFFECT3)
+                    else //if (modOp == SPELLMOD_EFFECT3)
                     {
                        if (AuraEffect * aurEff = aura->GetEffect(2))
                             aurEff->RecalculateAmount();
@@ -1643,7 +1643,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (target->GetMaxPower(power) == 0)
                 return;
 
-            if (GetBase()->GetDuration()  == -1 && target->GetPower(power) == target->GetMaxPower(power))
+            if (GetBase()->GetDuration() == -1 && target->GetPower(power) == target->GetMaxPower(power))
                 return;
 
             uint32 amount = m_amount;
@@ -1864,7 +1864,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     // TODO: this should use effect[1] of 51690
                     UnitList targets;
                     {
-                        // eff_radius  == 0
+                        // eff_radius == 0
                         float radius = GetSpellMaxRange(GetSpellProto(), false);
 
                         CellPair p(Trinity::ComputeCellPair(caster->GetPositionX(),caster->GetPositionY()));
@@ -2058,7 +2058,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     case 30427:
                     {
                         // move loot to player inventory and despawn target
-                        if (caster->GetTypeId()  == TYPEID_PLAYER &&
+                        if (caster->GetTypeId() == TYPEID_PLAYER &&
                                 triggerTarget->GetTypeId() == TYPEID_UNIT &&
                                 triggerTarget->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_GAS_CLOUD)
                         {

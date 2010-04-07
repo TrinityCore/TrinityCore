@@ -56,7 +56,7 @@ struct mobs_spitelashesAI : public ScriptedAI
         if (!spellhit &&
             Hitter->GetTypeId() == TYPEID_PLAYER &&
             CAST_PLR(Hitter)->GetQuestStatus(9364) == QUEST_STATUS_INCOMPLETE &&
-            (Spellkind->Id == 118 || Spellkind->Id ==  12824 || Spellkind->Id ==  12825 || Spellkind->Id ==  12826))
+            (Spellkind->Id == 118 || Spellkind->Id == 12824 || Spellkind->Id == 12825 || Spellkind->Id == 12826))
         {
             spellhit=true;
             DoCast(m_creature, 29124);                       //become a sheep
@@ -66,7 +66,7 @@ struct mobs_spitelashesAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
-        if (spellhit && morphtimer>=5000)
+        if (spellhit && morphtimer >= 5000)
         {
             m_creature->ForcedDespawn();
             return;
@@ -75,7 +75,7 @@ struct mobs_spitelashesAI : public ScriptedAI
         if (spellhit && morphtimer<5000)
         {
             morphtimer+=diff;
-            if (morphtimer>=5000)
+            if (morphtimer >= 5000)
             {
                 DoCast(m_creature, 28406);                   //summon copies
                 DoCast(m_creature, 6924);                    //visual explosion

@@ -131,11 +131,11 @@ struct boss_malygosAI : public ScriptedAI
         if (victim == m_creature)
             return;
 
-        if (phase  == 1)
+        if (phase == 1)
             DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), m_creature);
-        if (phase  == 2)
+        if (phase == 2)
             DoScriptText(RAND(SAY_PHASE2_SLAY_1,SAY_PHASE2_SLAY_2,SAY_PHASE2_SLAY_3), m_creature);
-        if (phase  == 3)
+        if (phase == 3)
             DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), m_creature);
     }
 };

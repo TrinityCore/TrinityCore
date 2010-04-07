@@ -635,7 +635,7 @@ void Guild::DelRank()
 
     // delete lowest guild_rank
     uint32 rank = GetLowestRank();
-    CharacterDatabase.PExecute("DELETE FROM guild_rank WHERE rid>='%u' AND guildid='%u'", rank, m_Id);
+    CharacterDatabase.PExecute("DELETE FROM guild_rank WHERE rid >= '%u' AND guildid='%u'", rank, m_Id);
 
     m_Ranks.pop_back();
 }
@@ -1804,7 +1804,7 @@ uint8 Guild::CanStoreItem(uint8 tab, uint8 slot, GuildItemPosCountVec &dest, uin
         return EQUIP_ERR_CANT_DROP_SOULBOUND;
 
     // in specific tab
-    if (tab >=  m_TabListMap.size() || tab >= GUILD_BANK_MAX_TABS)
+    if (tab >= m_TabListMap.size() || tab >= GUILD_BANK_MAX_TABS)
         return EQUIP_ERR_ITEM_DOESNT_GO_INTO_BAG;
 
     // in specific slot

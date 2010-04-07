@@ -122,7 +122,7 @@ struct boss_fankrissAI : public ScriptedAI
         //We will only telport if fankriss has more than 3% of hp so teleported gamers can always loot.
         if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 3)
         {
-            if (SpawnHatchlings_Timer<= diff)
+            if (SpawnHatchlings_Timer <= diff)
             {
                 Unit *pTarget = NULL;
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
