@@ -32,7 +32,7 @@
 
 int PetAI::Permissible(const Creature *creature)
 {
-    if( creature->isPet())
+    if ( creature->isPet())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
@@ -51,7 +51,7 @@ void PetAI::EnterEvadeMode()
 bool PetAI::_needToStop() const
 {
     // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
-    if(m_creature->isCharmed() && m_creature->getVictim() == m_creature->GetCharmer())
+    if (m_creature->isCharmed() && m_creature->getVictim() == m_creature->GetCharmer())
         return true;
 
     return !m_creature->canAttack(m_creature->getVictim());
@@ -59,7 +59,7 @@ bool PetAI::_needToStop() const
 
 void PetAI::_stopAttack()
 {
-    if( !m_creature->isAlive() )
+    if ( !m_creature->isAlive() )
     {
         DEBUG_LOG("Creature stoped attacking cuz his dead [guid=%u]", m_creature->GetGUIDLow());
         m_creature->GetMotionMaster()->Clear();
@@ -82,16 +82,16 @@ void PetAI::UpdateAI(const uint32 diff)
 
     Unit* owner = m_creature->GetCharmerOrOwner();
 
-    if(m_updateAlliesTimer <= diff)
+    if (m_updateAlliesTimer <= diff)
         // UpdateAllies self set update timer
         UpdateAllies();
     else
         m_updateAlliesTimer -= diff;
 
     // m_creature->getVictim() can't be used for check in case stop fighting, m_creature->getVictim() clear at Unit death etc.
-    if( m_creature->getVictim() )
+    if ( m_creature->getVictim() )
     {
-        if( _needToStop() )
+        if ( _needToStop() )
         {
             DEBUG_LOG("Pet AI stoped attacking [guid=%u]", m_creature->GetGUIDLow());
             _stopAttack();
@@ -100,7 +100,7 @@ void PetAI::UpdateAI(const uint32 diff)
 
         DoMeleeAttackIfReady();
     }
-    else if(owner && m_creature->GetCharmInfo()) //no victim
+    else if (owner && m_creature->GetCharmInfo()) //no victim
     {
         Unit *nextTarget = SelectNextTarget();
 
@@ -112,7 +112,7 @@ void PetAI::UpdateAI(const uint32 diff)
     else if (owner && !m_creature->hasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
         m_creature->GetMotionMaster()->MoveFollow(owner,PET_FOLLOW_DIST, m_creature->GetFollowAngle());
 
-    if(!me->GetCharmInfo())
+    if (!me->GetCharmInfo())
         return;
 
     // Autocast (casted only in combat or persistent spells in any state)
@@ -177,10 +177,10 @@ void PetAI::UpdateAI(const uint32 diff)
                     Unit* Target = ObjectAccessor::GetUnit(*m_creature,*tar);
 
                     //only buff targets that are in combat, unless the spell can only be cast while out of combat
-                    if(!Target)
+                    if (!Target)
                         continue;
 
-                    if(spell->CanAutoCast(Target))
+                    if (spell->CanAutoCast(Target))
                     {
                         targetSpellStore.push_back(std::make_pair<Unit*, Spell*>(Target, spell));
                         spellUsed = true;
@@ -205,13 +205,13 @@ void PetAI::UpdateAI(const uint32 diff)
             SpellCastTargets targets;
             targets.setUnitTarget( target );
 
-            if( !m_creature->HasInArc(M_PI, target) )
+            if ( !m_creature->HasInArc(M_PI, target) )
             {
                 m_creature->SetInFront(target);
-                if(target && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->GetTypeId() == TYPEID_PLAYER)
           m_creature->SendUpdateToPlayer(target->ToPlayer());
 
-                if(owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
           m_creature->SendUpdateToPlayer(owner->ToPlayer());
             }
 
@@ -233,29 +233,29 @@ void PetAI::UpdateAllies()
 
     m_updateAlliesTimer = 10*IN_MILISECONDS;                //update friendly targets every 10 seconds, lesser checks increase performance
 
-    if(!owner)
+    if (!owner)
         return;
-    else if(owner->GetTypeId() == TYPEID_PLAYER)
+    else if (owner->GetTypeId() == TYPEID_PLAYER)
         pGroup = owner->ToPlayer()->GetGroup();
 
     //only pet and owner/not in group->ok
-    if(m_AllySet.size() == 2 && !pGroup)
+    if (m_AllySet.size() == 2 && !pGroup)
         return;
     //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
-    if(pGroup && !pGroup->isRaidGroup() && m_AllySet.size() == (pGroup->GetMembersCount() + 2))
+    if (pGroup && !pGroup->isRaidGroup() && m_AllySet.size() == (pGroup->GetMembersCount() + 2))
         return;
 
     m_AllySet.clear();
     m_AllySet.insert(m_creature->GetGUID());
-    if(pGroup)                                              //add group
+    if (pGroup)                                              //add group
     {
         for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
-            if(!Target || !pGroup->SameSubGroup((Player*)owner, Target))
+            if (!Target || !pGroup->SameSubGroup((Player*)owner, Target))
                 continue;
 
-            if(Target->GetGUID() == owner->GetGUID())
+            if (Target->GetGUID() == owner->GetGUID())
                 continue;
 
             m_AllySet.insert(Target->GetGUID());

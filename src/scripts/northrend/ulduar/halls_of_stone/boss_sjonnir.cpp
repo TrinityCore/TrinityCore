@@ -269,7 +269,7 @@ struct mob_iron_sludgeAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         if (pInstance)
-            if(Creature* pSjonnir = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SJONNIR)))
+            if (Creature* pSjonnir = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_SJONNIR)))
                 CAST_AI(boss_sjonnirAI, pSjonnir->AI())->KilledIronSludge();
     }
 };

@@ -469,7 +469,7 @@ struct npc_arthasAI : public npc_escortAI
 
         DoMeleeAttackIfReady();
 
-        if(bStepping)
+        if (bStepping)
         {
             if (uiPhaseTimer <= diff)
             {
@@ -487,7 +487,7 @@ struct npc_arthasAI : public npc_escortAI
                     //After waypoint 0
                     case 1:
                         m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-                        if(Unit* pUther = m_creature->SummonCreature(NPC_UTHER,1794.357f,1272.183f,140.558f,1.37f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                        if (Unit* pUther = m_creature->SummonCreature(NPC_UTHER,1794.357f,1272.183f,140.558f,1.37f,TEMPSUMMON_DEAD_DESPAWN,180000))
                         {
                             uiUtherGUID = pUther->GetGUID();
                             pUther->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -1023,7 +1023,7 @@ struct npc_arthasAI : public npc_escortAI
                     //After Gossip 5
                     case 85:
                         DoScriptText(SAY_PHASE501, m_creature);
-                        if(Creature* pMalganis = m_creature->SummonCreature(NPC_MAL_GANIS,2296.665f,1502.362f,128.362f,4.961f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
+                        if (Creature* pMalganis = m_creature->SummonCreature(NPC_MAL_GANIS,2296.665f,1502.362f,128.362f,4.961f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
                         {
                             uiMalganisGUID = pMalganis->GetGUID();
                             pMalganis->SetReactState(REACT_PASSIVE);

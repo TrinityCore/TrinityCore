@@ -499,7 +499,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
     void HandleAnimation()
     {
         Player* plr = Unit::GetPlayer(PlayerGUID);
-        if(!plr)
+        if (!plr)
             return;
 
         Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100, m_creature);
@@ -507,7 +507,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
         Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100, m_creature);
         Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100,m_creature);
 
-        if(!Fandral || !Arygos || !Caelestrasz || !Merithra)
+        if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
             return;
 
         Unit* mob;
@@ -724,13 +724,13 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     m_creature->GetMotionMaster()->MoveCharge(-8117.99,1532.24,3.94,4);
                     break;
                 case 60:
-                    if(plr)
+                    if (plr)
                         DoScriptText(ANACHRONOS_SAY_10, m_creature,plr);
                     m_creature->GetMotionMaster()->MoveCharge(-8113.46,1524.16,2.89,4);
                     break;
                 case 61:
                     m_creature->GetMotionMaster()->MoveCharge(-8057.1,1470.32,2.61,6);
-                    if(plr->IsInRange(m_creature,0,15))
+                    if (plr->IsInRange(m_creature,0,15))
                         plr->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD ,m_creature);
                     break;
                 case 62:
@@ -745,7 +745,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     break;
                 case 65:
                     m_creature->SetVisibility(VISIBILITY_OFF);
-                    if(Creature* AnachronosQuestTrigger = (Unit::GetCreature(*m_creature, AnachronosQuestTriggerGUID)))
+                    if (Creature* AnachronosQuestTrigger = (Unit::GetCreature(*m_creature, AnachronosQuestTriggerGUID)))
                     {
                         DoScriptText(ARYGOS_YELL_1,m_creature);
                         AnachronosQuestTrigger->AI()->EnterEvadeMode();
@@ -758,15 +758,15 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
     }
     void UpdateAI(const uint32 diff)
     {
-        if(AnimationTimer)
+        if (AnimationTimer)
         {
-            if(AnimationTimer <= diff)
+            if (AnimationTimer <= diff)
                 HandleAnimation();
             else AnimationTimer -= diff;
         }
-        if(AnimationCount < 65)
+        if (AnimationCount < 65)
             m_creature->CombatStop();
-        if(AnimationCount == 65 || eventEnd)
+        if (AnimationCount == 65 || eventEnd)
             m_creature->AI()->EnterEvadeMode();
     }
 };
@@ -801,32 +801,32 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
         Unit *pTarget;
         Player* plr = m_creature->GetPlayer(PlayerGUID);
 
-        if(!Timers)
+        if (!Timers)
         {
-            if(m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414) //all but Kaldorei Soldiers
+            if (m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414) //all but Kaldorei Soldiers
             {
                 SpellTimer1 = SpawnCast[1].Timer1;
                 SpellTimer2 = SpawnCast[2].Timer1;
                 SpellTimer3 = SpawnCast[3].Timer1;
             }
-            if(m_creature->GetEntry() == 15423 || m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
+            if (m_creature->GetEntry() == 15423 || m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
                 SpellTimer4 = SpawnCast[0].Timer1;
             Timers = true;
         }
-        if(m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422|| m_creature->GetEntry() == 15414)
+        if (m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422|| m_creature->GetEntry() == 15414)
         {
-            if(SpellTimer1 <= diff)
+            if (SpellTimer1 <= diff)
             {
                 DoCast(m_creature, SpawnCast[1].SpellId);
                 DoCast(m_creature, 24319);
                 SpellTimer1 = SpawnCast[1].Timer2;
             } else SpellTimer1 -= diff;
-            if(SpellTimer2 <= diff)
+            if (SpellTimer2 <= diff)
             {
                 DoCast(m_creature, SpawnCast[2].SpellId);
                 SpellTimer2 = SpawnCast[2].Timer2;
             } else SpellTimer2 -= diff;
-            if(SpellTimer3 <= diff)
+            if (SpellTimer3 <= diff)
             {
                 DoCast(m_creature, SpawnCast[3].SpellId);
                 SpellTimer3 = SpawnCast[3].Timer2;
@@ -834,7 +834,7 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
         }
         if (m_creature->GetEntry() == 15423 || m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
         {
-            if(SpellTimer4 <= diff)
+            if (SpellTimer4 <= diff)
             {
                 m_creature->RemoveAllAttackers();
                 m_creature->AttackStop();
@@ -858,7 +858,7 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
                     pTarget = m_creature->FindNearestCreature(15414,20,true);
             }
             hasTarget = true;
-            if(pTarget)
+            if (pTarget)
                 m_creature->AI()->AttackStart(pTarget);
         }
         if (!(m_creature->FindNearestCreature(15379,100)))
@@ -928,7 +928,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
             uint32 desptimer = WavesInfo[WaveCount].DespTimer;
             Spawn = m_creature->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
 
-            if(Spawn)
+            if (Spawn)
             {
                 Spawn->LoadCreaturesAddon();
                 if (Spawn->GetGUID()== 15423)
@@ -938,7 +938,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
                 if (i >= 45) WaveCount = 3;
                 if (i >= 51) WaveCount = 4;
 
-                if(WaveCount < 5) //1-4 Wave
+                if (WaveCount < 5) //1-4 Wave
                 {
                     CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->MobGUID = m_creature->GetGUID();
                     CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->PlayerGUID = PlayerGUID;
@@ -953,10 +953,10 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
-        if(!pPlayer)
+        if (!pPlayer)
             return;
 
-        if(Group *EventGroup = pPlayer->GetGroup())
+        if (Group *EventGroup = pPlayer->GetGroup())
         {
             Player* GroupMember;
 
@@ -969,9 +969,9 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
             for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
             {
                 GroupMember = (Unit::GetPlayer(itr->guid));
-                if(!GroupMember)
+                if (!GroupMember)
                     continue;
-                if(!GroupMember->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
+                if (!GroupMember->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
                 {
                      GroupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
                      GroupMember->SetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD, QUEST_STATUS_NONE);
@@ -979,11 +979,11 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
                 }
                 ++GroupMemberCount;
 
-                if(GroupMember->isDead())
+                if (GroupMember->isDead())
                     ++DeadMemberCount;
             }
 
-            if(GroupMemberCount == FailedMemberCount || !pPlayer->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS))
+            if (GroupMemberCount == FailedMemberCount || !pPlayer->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS))
                 Failed = true; //only so event can restart
         }
     }
@@ -991,24 +991,24 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
     void LiveCounter()
     {
         --LiveCount;
-        if(!LiveCount)
+        if (!LiveCount)
             Announced = false;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(!PlayerGUID || !EventStarted)
+        if (!PlayerGUID || !EventStarted)
             return;
 
-        if(WaveCount < 4)
+        if (WaveCount < 4)
         {
-            if(!Announced && AnnounceTimer <= diff)
+            if (!Announced && AnnounceTimer <= diff)
             {
                 DoScriptText(WavesInfo[WaveCount].WaveTextId, m_creature);
                 Announced = true;
             } else AnnounceTimer -= diff;
 
-            if(WaveTimer <= diff)
+            if (WaveTimer <= diff)
                 SummonNextWave();
             else WaveTimer -= diff;
         }
@@ -1020,7 +1020,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
 void mob_qiraj_war_spawnAI::JustDied(Unit* slayer)
 {
     m_creature->RemoveCorpse();
-    if(Creature* Mob = (Unit::GetCreature(*m_creature, MobGUID)))
+    if (Creature* Mob = (Unit::GetCreature(*m_creature, MobGUID)))
         CAST_AI(npc_anachronos_quest_triggerAI, Mob->AI())->LiveCounter();
 
 };
@@ -1030,10 +1030,10 @@ void mob_qiraj_war_spawnAI::JustDied(Unit* slayer)
 
 bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const* quest)
 {
-    if(quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
+    if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
     {
 
-        if(Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
+        if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
         {
 
             Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
@@ -1042,7 +1042,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
             /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
             Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
 
-            if(Merithra)
+            if (Merithra)
             {
                 Merithra->SetUInt32Value(UNIT_NPC_FLAGS, 0);
                 Merithra->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
@@ -1050,7 +1050,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
                 Merithra->setFaction(35);
             }
 
-            if(Caelestrasz)
+            if (Caelestrasz)
             {
                 Caelestrasz->SetUInt32Value(UNIT_NPC_FLAGS, 0);
                 Caelestrasz->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
@@ -1058,7 +1058,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
                 Caelestrasz->setFaction(35);
             }
 
-            if(Arygos)
+            if (Arygos)
             {
                 Arygos->SetUInt32Value(UNIT_NPC_FLAGS, 0);
                 Arygos->SetUInt32Value(UNIT_FIELD_BYTES_1,0);
@@ -1066,7 +1066,7 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
                 Arygos->setFaction(35);
             }
 
-            if(Anachronos)
+            if (Anachronos)
             {
                 CAST_AI(npc_anachronos_the_ancientAI, Anachronos->AI())->PlayerGUID = plr->GetGUID();
                 CAST_AI(npc_anachronos_quest_triggerAI, CAST_CRE(Anachronos_Quest_Trigger)->AI())->Failed=false;

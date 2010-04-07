@@ -31,12 +31,12 @@ bool AreaTrigger_at_twilight_grove(Player* pPlayer, const AreaTriggerEntry *at)
 {
     if (pPlayer->HasQuestForItem(21149))
     {
-        if(Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16,-489.57,49.95,0,TEMPSUMMON_MANUAL_DESPAWN,60000))
+        if (Unit* TCorrupter = pPlayer->SummonCreature(15625,-10328.16,-489.57,49.95,0,TEMPSUMMON_MANUAL_DESPAWN,60000))
         {
             TCorrupter->setFaction(14);
             TCorrupter->SetMaxHealth(832750);
         }
-        if(Unit* CorrupterSpeaker = pPlayer->SummonCreature(1,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()-1,0,TEMPSUMMON_TIMED_DESPAWN,15000))
+        if (Unit* CorrupterSpeaker = pPlayer->SummonCreature(1,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ()-1,0,TEMPSUMMON_TIMED_DESPAWN,15000))
         {
             CorrupterSpeaker->SetName("Twilight Corrupter");
             CorrupterSpeaker->SetVisibility(VISIBILITY_ON);
@@ -90,7 +90,7 @@ struct boss_twilight_corrupterAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
         if (SoulCorruption_Timer <= diff)
         {

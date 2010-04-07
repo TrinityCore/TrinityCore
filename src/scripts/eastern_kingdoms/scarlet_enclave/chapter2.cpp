@@ -66,7 +66,7 @@ struct npc_crusade_persuadedAI : public ScriptedAI
     {
         if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !uiSpeech_counter)
         {
-            if(CAST_PLR(caster)->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
+            if (CAST_PLR(caster)->GetQuestStatus(12720) == QUEST_STATUS_INCOMPLETE)
             {
                 uiPlayerGUID = caster->GetGUID();
                 uiSpeech_timer = 1000;
@@ -94,7 +94,7 @@ struct npc_crusade_persuadedAI : public ScriptedAI
             if (uiSpeech_timer <= diff)
             {
                 Player* pPlayer = Unit::GetPlayer(uiPlayerGUID);
-                if(!pPlayer)
+                if (!pPlayer)
                 {
                     EnterEvadeMode();
                     return;
@@ -123,7 +123,7 @@ struct npc_crusade_persuadedAI : public ScriptedAI
             return;
         }
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -361,16 +361,16 @@ struct mob_scarlet_courierAI : public ScriptedAI
 
     void MovementInform(uint32 type, uint32 id)
     {
-        if(type != POINT_MOTION_TYPE)
+        if (type != POINT_MOTION_TYPE)
             return;
 
-        if(id == 1)
+        if (id == 1)
             uiStage = 2;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if(uiStage && !me->isInCombat())
+        if (uiStage && !me->isInCombat())
         {
             if (uiStage_timer <= diff)
             {
@@ -388,7 +388,7 @@ struct mob_scarlet_courierAI : public ScriptedAI
                     break;
                 case 2:
                     if (GameObject* tree = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
-                        if(Unit *unit = tree->GetOwner())
+                        if (Unit *unit = tree->GetOwner())
                             AttackStart(unit);
                     break;
                 }
@@ -397,7 +397,7 @@ struct mob_scarlet_courierAI : public ScriptedAI
             } else uiStage_timer -= diff;
         }
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
         DoMeleeAttackIfReady();
@@ -474,7 +474,7 @@ struct mob_high_inquisitor_valrothAI : public ScriptedAI
 
     void Shout()
     {
-        if(rand()%100 < 15)
+        if (rand()%100 < 15)
             DoScriptText(RAND(SAY_VALROTH3,SAY_VALROTH4,SAY_VALROTH5), me);
     }
 

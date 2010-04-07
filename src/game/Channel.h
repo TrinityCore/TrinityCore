@@ -126,23 +126,23 @@ class Channel
         uint8 flags;
 
         bool HasFlag(uint8 flag) { return flags & flag; }
-        void SetFlag(uint8 flag) { if(!HasFlag(flag)) flags |= flag; }
+        void SetFlag(uint8 flag) { if (!HasFlag(flag)) flags |= flag; }
         bool IsOwner() { return flags & MEMBER_FLAG_OWNER; }
         void SetOwner(bool state)
         {
-            if(state) flags |= MEMBER_FLAG_OWNER;
+            if (state) flags |= MEMBER_FLAG_OWNER;
             else flags &= ~MEMBER_FLAG_OWNER;
         }
         bool IsModerator() { return flags & MEMBER_FLAG_MODERATOR; }
         void SetModerator(bool state)
         {
-            if(state) flags |= MEMBER_FLAG_MODERATOR;
+            if (state) flags |= MEMBER_FLAG_MODERATOR;
             else flags &= ~MEMBER_FLAG_MODERATOR;
         }
         bool IsMuted() { return flags & MEMBER_FLAG_MUTED; }
         void SetMuted(bool state)
         {
-            if(state) flags |= MEMBER_FLAG_MUTED;
+            if (state) flags |= MEMBER_FLAG_MUTED;
             else flags &= ~MEMBER_FLAG_MUTED;
         }
     };
@@ -216,7 +216,7 @@ class Channel
         uint8 GetPlayerFlags(uint64 p) const
         {
             PlayerList::const_iterator p_itr = players.find(p);
-            if(p_itr == players.end())
+            if (p_itr == players.end())
                 return 0;
 
             return p_itr->second.flags;
@@ -224,7 +224,7 @@ class Channel
 
         void SetModerator(uint64 p, bool set)
         {
-            if(players[p].IsModerator() != set)
+            if (players[p].IsModerator() != set)
             {
                 uint8 oldFlag = GetPlayerFlags(p);
                 players[p].SetModerator(set);
@@ -237,7 +237,7 @@ class Channel
 
         void SetMute(uint64 p, bool set)
         {
-            if(players[p].IsMuted() != set)
+            if (players[p].IsMuted() != set)
             {
                 uint8 oldFlag = GetPlayerFlags(p);
                 players[p].SetMuted(set);

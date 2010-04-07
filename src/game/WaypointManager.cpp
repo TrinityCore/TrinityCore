@@ -44,7 +44,7 @@ void WaypointStore::Load()
     records = (*result)[0].GetUInt32();
 
     result = WorldDatabase.PQuery("SELECT id,point,position_x,position_y,position_z,move_flag,delay,action,action_chance FROM waypoint_data ORDER BY id, point");
-    if(!result)
+    if (!result)
     {
         sLog.outErrorDb("The table `waypoint_data` is empty or corrupted");
         return;
@@ -66,7 +66,7 @@ void WaypointStore::Load()
         count++;
         WaypointData *wp = new WaypointData;
 
-        if(last_id != id)
+        if (last_id != id)
             path_data = new WaypointPath;
 
         float x,y,z;
@@ -88,7 +88,7 @@ void WaypointStore::Load()
 
         path_data->push_back(wp);
 
-        if(id != last_id)
+        if (id != last_id)
             waypoint_map[id] = path_data;
 
         last_id = id;
@@ -101,14 +101,14 @@ void WaypointStore::Load()
 
 void WaypointStore::UpdatePath(uint32 id)
 {
-    if(waypoint_map.find(id)!= waypoint_map.end())
+    if (waypoint_map.find(id)!= waypoint_map.end())
         waypoint_map[id]->clear();
 
     QueryResult_AutoPtr result;
 
     result = WorldDatabase.PQuery("SELECT id,point,position_x,position_y,position_z,move_flag,delay,action,action_chance FROM waypoint_data WHERE id = %u ORDER BY point", id);
 
-    if(!result)
+    if (!result)
         return;
 
     WaypointPath* path_data;

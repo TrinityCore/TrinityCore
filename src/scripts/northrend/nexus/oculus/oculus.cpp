@@ -54,7 +54,7 @@ bool GossipHello_npc_oculus_drake(Player* pPlayer, Creature* pCreature)
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    if(pCreature->GetInstanceData()->GetData(DATA_DRAKOS_EVENT) == DONE)
+    if (pCreature->GetInstanceData()->GetData(DATA_DRAKOS_EVENT) == DONE)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DRAKES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_DRAKES, pCreature->GetGUID());
@@ -71,7 +71,7 @@ bool GossipSelect_npc_oculus_drake(Player* pPlayer, Creature* pCreature, uint32 
         switch(uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            if(!HAS_ESSENCE(pPlayer))
+            if (!HAS_ESSENCE(pPlayer))
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_VERDISA1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_VERDISA2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
@@ -101,7 +101,7 @@ bool GossipSelect_npc_oculus_drake(Player* pPlayer, Creature* pCreature, uint32 
         switch(uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            if(!HAS_ESSENCE(pPlayer))
+            if (!HAS_ESSENCE(pPlayer))
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BELGARISTRASZ1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_BELGARISTRASZ2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
@@ -131,7 +131,7 @@ bool GossipSelect_npc_oculus_drake(Player* pPlayer, Creature* pCreature, uint32 
         switch(uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF + 1:
-            if(!HAS_ESSENCE(pPlayer))
+            if (!HAS_ESSENCE(pPlayer))
             {
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ETERNOS1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
                 pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_ETERNOS2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);

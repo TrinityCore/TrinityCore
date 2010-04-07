@@ -711,7 +711,7 @@ struct mob_phase_hunterAI : public ScriptedAI
 
         ManaBurnTimer = 5000 + (rand() % 3 * 1000); // 5-8 sec cd
 
-        if(m_creature->GetEntry() == NPC_DRAINED_PHASE_HUNTER_ENTRY)
+        if (m_creature->GetEntry() == NPC_DRAINED_PHASE_HUNTER_ENTRY)
             m_creature->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
     }
 
@@ -748,13 +748,13 @@ struct mob_phase_hunterAI : public ScriptedAI
 
             for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
             {
-                if(Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
                 {
-                    if(pUnit->GetCreateMana() > 0)
+                    if (pUnit->GetCreateMana() > 0)
                         UnitsWithMana.push_back(pUnit);
                 }
             }
-            if(!UnitsWithMana.empty())
+            if (!UnitsWithMana.empty())
             {
                 std::list<Unit*>::const_iterator it = UnitsWithMana.begin();
                 std::advance(it, rand() % UnitsWithMana.size());

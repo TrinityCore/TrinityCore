@@ -180,7 +180,7 @@ struct aqsentinelAI : public ScriptedAI
                 break;
 
             Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[bli]);
-            if(!pNearby)
+            if (!pNearby)
                 break;
 
             AddSentinelsNear(pNearby);

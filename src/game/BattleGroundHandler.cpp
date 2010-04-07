@@ -45,7 +45,7 @@ void WorldSession::HandleBattlemasterHelloOpcode( WorldPacket & recv_data )
     if (!unit)
         return;
 
-    if(!unit->isBattleMaster())                             // it's not battlemaster
+    if (!unit->isBattleMaster())                             // it's not battlemaster
         return;
 
     // Stop the npc if moving
@@ -162,7 +162,7 @@ void WorldSession::HandleBattlemasterJoinOpcode( WorldPacket & recv_data )
         for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player *member = itr->getSource();
-            if(!member) continue;   // this should never happen
+            if (!member) continue;   // this should never happen
 
             uint32 queueSlot = member->AddBattleGroundQueueId(bgQueueTypeId);           // add to queue
 
@@ -198,7 +198,7 @@ void WorldSession::HandleBattleGroundPlayerPositionsOpcode( WorldPacket & /*recv
     sLog.outDebug("WORLD: Recvd MSG_BATTLEGROUND_PLAYER_POSITIONS Message");
 
     BattleGround *bg = _player->GetBattleGround();
-    if(!bg)                                                 // can't be received if player not in battleground
+    if (!bg)                                                 // can't be received if player not in battleground
         return;
 
     switch( bg->GetTypeID() )
@@ -543,7 +543,7 @@ void WorldSession::HandleAreaSpiritHealerQueryOpcode( WorldPacket & recv_data )
     if (!unit)
         return;
 
-    if(!unit->isSpiritService())                            // it's not spirit service
+    if (!unit->isSpiritService())                            // it's not spirit service
         return;
 
     if (bg)
@@ -564,7 +564,7 @@ void WorldSession::HandleAreaSpiritHealerQueueOpcode( WorldPacket & recv_data )
     if (!unit)
         return;
 
-    if(!unit->isSpiritService())                            // it's not spirit service
+    if (!unit->isSpiritService())                            // it's not spirit service
         return;
 
     if (bg)
@@ -593,7 +593,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
     if (!unit)
         return;
 
-    if(!unit->isBattleMaster())                             // it's not battle master
+    if (!unit->isBattleMaster())                             // it's not battle master
         return;
 
     uint8 arenatype = 0;
@@ -710,7 +710,7 @@ void WorldSession::HandleBattlemasterJoinArena( WorldPacket & recv_data )
         for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player *member = itr->getSource();
-            if(!member) continue;
+            if (!member) continue;
 
             uint32 queueSlot = member->AddBattleGroundQueueId(bgQueueTypeId);// add to queue
 

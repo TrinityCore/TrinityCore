@@ -203,7 +203,7 @@ enum SpellSchoolMask
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
 {
     for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
-        if(mask & (1 << i))
+        if (mask & (1 << i))
             return SpellSchools(i);
 
     return SPELL_SCHOOL_NORMAL;

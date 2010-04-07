@@ -136,7 +136,7 @@ Map* MapManager::_createBaseMap(uint32 id)
 Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 instanceId)
 {
     ASSERT(obj);
-    //if(!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
+    //if (!obj->IsInWorld()) sLog.outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map *m = _createBaseMap(id);
 
     if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
@@ -159,11 +159,11 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 {
     const MapEntry *entry = sMapStore.LookupEntry(mapid);
-    if(!entry)
+    if (!entry)
        return false;
     const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
 
-    if(entry->map_type == MAP_INSTANCE || entry->map_type == MAP_RAID)
+    if (entry->map_type == MAP_INSTANCE || entry->map_type == MAP_RAID)
     {
         if (entry->map_type == MAP_RAID)
         {
@@ -375,7 +375,7 @@ uint32 MapManager::GetNumInstances()
             continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if(mitr->second->IsDungeon()) ret++;
+            if (mitr->second->IsDungeon()) ret++;
     }
     return ret;
 }

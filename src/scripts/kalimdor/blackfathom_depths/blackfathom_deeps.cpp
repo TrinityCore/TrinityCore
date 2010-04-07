@@ -88,17 +88,17 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
     {
         Map::PlayerList const &PlList = m_creature->GetMap()->GetPlayers();
 
-        if(PlList.isEmpty())
+        if (PlList.isEmpty())
             return;
 
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
         {
-            if(Player* pPlayer = i->getSource())
+            if (Player* pPlayer = i->getSource())
             {
-                if(pPlayer->isGameMaster())
+                if (pPlayer->isGameMaster())
                     continue;
 
-                if(pPlayer->isAlive())
+                if (pPlayer->isAlive())
                 {
                     m_creature->SetInCombatWith(pPlayer);
                     pPlayer->SetInCombatWith(m_creature);

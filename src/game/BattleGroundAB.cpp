@@ -668,7 +668,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
 void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if( itr == m_PlayerScores.end() )                         // player not found...
+    if ( itr == m_PlayerScores.end() )                         // player not found...
         return;
 
     switch(type)

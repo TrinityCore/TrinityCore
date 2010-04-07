@@ -126,7 +126,7 @@ class Object
         const bool IsInWorld() const { return m_inWorld; }
         virtual void AddToWorld()
         {
-            if(m_inWorld)
+            if (m_inWorld)
                 return;
 
             assert(m_uint32Values);
@@ -138,7 +138,7 @@ class Object
         }
         virtual void RemoveFromWorld()
         {
-            if(!m_inWorld)
+            if (!m_inWorld)
                 return;
 
             m_inWorld = false;
@@ -236,7 +236,7 @@ class Object
 
         void ToggleFlag( uint16 index, uint32 flag)
         {
-            if(HasFlag(index, flag))
+            if (HasFlag(index, flag))
                 RemoveFlag(index, flag);
             else
                 SetFlag(index, flag);
@@ -244,7 +244,7 @@ class Object
 
         bool HasFlag( uint16 index, uint32 flag ) const
         {
-            if( index >= m_valuesCount && !PrintIndexError( index , false ) ) return false;
+            if ( index >= m_valuesCount && !PrintIndexError( index , false ) ) return false;
             return (m_uint32Values[ index ] & flag) != 0;
         }
 
@@ -253,7 +253,7 @@ class Object
 
         void ToggleFlag( uint16 index, uint8 offset, uint8 flag )
         {
-            if(HasByteFlag(index, offset, flag))
+            if (HasByteFlag(index, offset, flag))
                 RemoveByteFlag(index, offset, flag);
             else
                 SetByteFlag(index, offset, flag);
@@ -268,7 +268,7 @@ class Object
 
         void ApplyModFlag( uint16 index, uint32 flag, bool apply)
         {
-            if(apply) SetFlag(index,flag); else RemoveFlag(index,flag);
+            if (apply) SetFlag(index,flag); else RemoveFlag(index,flag);
         }
 
         void SetFlag64( uint16 index, uint64 newFlag )
@@ -287,7 +287,7 @@ class Object
 
         void ToggleFlag64( uint16 index, uint64 flag)
         {
-            if(HasFlag64(index, flag))
+            if (HasFlag64(index, flag))
                 RemoveFlag64(index, flag);
             else
                 SetFlag64(index, flag);
@@ -301,7 +301,7 @@ class Object
 
         void ApplyModFlag64( uint16 index, uint64 flag, bool apply)
         {
-            if(apply) SetFlag64(index,flag); else RemoveFlag64(index,flag);
+            if (apply) SetFlag64(index,flag); else RemoveFlag64(index,flag);
         }
 
         void ClearUpdateMask(bool remove);
@@ -318,10 +318,10 @@ class Object
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
 
-    Player* ToPlayer(){ if(GetTypeId() == TYPEID_PLAYER)  return reinterpret_cast<Player*>(this); else return NULL;  }
-    const Player* ToPlayer() const { if(GetTypeId() == TYPEID_PLAYER)  return (const Player*)((Player*)this); else return NULL;  }
-    Creature* ToCreature(){ if(GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
-    const Creature* ToCreature() const {if(GetTypeId() == TYPEID_UNIT) return (const Creature*)((Creature*)this); else return NULL; }
+    Player* ToPlayer(){ if (GetTypeId() == TYPEID_PLAYER)  return reinterpret_cast<Player*>(this); else return NULL;  }
+    const Player* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER)  return (const Player*)((Player*)this); else return NULL;  }
+    Creature* ToCreature(){ if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
+    const Creature* ToCreature() const {if (GetTypeId() == TYPEID_UNIT) return (const Creature*)((Creature*)this); else return NULL; }
 
     protected:
 
@@ -643,7 +643,7 @@ class WorldObject : public Object, public WorldLocation
         TempSummon* SummonCreature(uint32 id, const Position &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
         TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0)
         {
-            if(!x && !y && !z)
+            if (!x && !y && !z)
             {
                 GetClosePoint(x, y, z, GetObjectSize());
                 ang = GetOrientation();

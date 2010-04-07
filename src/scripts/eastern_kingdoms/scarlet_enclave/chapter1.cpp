@@ -139,7 +139,7 @@ struct npc_unworthy_initiateAI : public ScriptedAI
             wait_timer = 5000;
             me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
-            if(Player* starter = Unit::GetPlayer(playerGUID))
+            if (Player* starter = Unit::GetPlayer(playerGUID))
                 DoScriptText(say_event_attack[rand()%9], me, starter);
 
             phase = PHASE_TO_ATTACK;
@@ -192,7 +192,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
     case PHASE_CHAINED:
         if (!anchorGUID)
         {
-            if(Creature *anchor = me->FindNearestCreature(29521, 30))
+            if (Creature *anchor = me->FindNearestCreature(29521, 30))
             {
                 anchor->AI()->SetGUID(me->GetGUID());
                 anchor->CastSpell(me, SPELL_SOUL_PRISON_CHAIN, true);
@@ -611,7 +611,7 @@ struct npc_salanar_the_horsemanAI : public ScriptedAI
                 if (charmer->GetTypeId() == TYPEID_PLAYER)
                 {
                     // for quest Into the Realm of Shadows(12687)
-                    if(me->GetEntry() == 28788 && CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
+                    if (me->GetEntry() == 28788 && CAST_PLR(charmer)->GetQuestStatus(12687) == QUEST_STATUS_INCOMPLETE)
                     {
                         CAST_PLR(charmer)->GroupEventHappens(12687, me);
                         charmer->RemoveAurasDueToSpell(SPELL_EFFECT_OVERTAKE);
@@ -817,7 +817,7 @@ struct npc_scarlet_miner_cartAI : public PassiveAI
 
     void DoAction(const int32 param)
     {
-        if(Creature *miner = Unit::GetCreature(*me, minerGUID))
+        if (Creature *miner = Unit::GetCreature(*me, minerGUID))
         {
             // very bad visual effect
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -829,8 +829,8 @@ struct npc_scarlet_miner_cartAI : public PassiveAI
 
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
     {
-        if(!apply)
-            if(Creature *miner = Unit::GetCreature(*me, minerGUID))
+        if (!apply)
+            if (Creature *miner = Unit::GetCreature(*me, minerGUID))
                 miner->DisappearAndDie();
     }
 };
@@ -880,7 +880,7 @@ struct npc_scarlet_minerAI : public npc_escortAI
         AddWaypoint(11, 2202.595947, -6061.325684, 5.882018 );
         AddWaypoint(12, 2188.974609, -6080.866699, 3.370027 );
 
-        if(urand(0,1))
+        if (urand(0,1))
         {
             AddWaypoint(13, 2176.483887, -6110.407227, 1.855181 );
             AddWaypoint(14, 2172.516602, -6146.752441, 1.074235 );
@@ -911,7 +911,7 @@ struct npc_scarlet_minerAI : public npc_escortAI
         switch (i)
         {
             case 1:
-                if(Unit *car = Unit::GetCreature(*me, carGUID))
+                if (Unit *car = Unit::GetCreature(*me, carGUID))
                 {
                     me->SetInFront(car);
                     me->SendMovementFlagUpdate();
@@ -922,7 +922,7 @@ struct npc_scarlet_minerAI : public npc_escortAI
                 IntroPhase = 1;
                 break;
             case 17:
-                if(Unit *car = Unit::GetCreature(*me, carGUID))
+                if (Unit *car = Unit::GetCreature(*me, carGUID))
                 {
                     me->SetInFront(car);
                     me->SendMovementFlagUpdate();
@@ -947,14 +947,14 @@ struct npc_scarlet_minerAI : public npc_escortAI
             {
                 if (IntroPhase == 1)
                 {
-                    if(Creature *car = Unit::GetCreature(*me, carGUID))
+                    if (Creature *car = Unit::GetCreature(*me, carGUID))
                         DoCast(car, SPELL_CART_DRAG);
                     IntroTimer = 800;
                     IntroPhase = 2;
                 }
                 else
                 {
-                    if(Creature *car = Unit::GetCreature(*me, carGUID))
+                    if (Creature *car = Unit::GetCreature(*me, carGUID))
                         car->AI()->DoAction();
                     IntroPhase = 0;
                 }
@@ -980,12 +980,12 @@ bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* pGO)
     if (pPlayer->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
     {
         // Hack Why Trinity Dont Support Custom Summon Location
-        if(Creature *miner = pPlayer->SummonCreature(28841, 2383.869629, -5900.312500, 107.996086, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
+        if (Creature *miner = pPlayer->SummonCreature(28841, 2383.869629, -5900.312500, 107.996086, pPlayer->GetOrientation(),TEMPSUMMON_DEAD_DESPAWN, 1))
         {
             pPlayer->CastSpell(pPlayer, SPELL_CART_SUMM, true);
-            if(Creature *car = pPlayer->GetVehicleCreatureBase())
+            if (Creature *car = pPlayer->GetVehicleCreatureBase())
             {
-                if(car->GetEntry() == 28817)
+                if (car->GetEntry() == 28817)
                 {
                     car->AI()->SetGUID(miner->GetGUID());
                     CAST_AI(npc_scarlet_minerAI, miner->AI())->InitCartQuest(pPlayer);

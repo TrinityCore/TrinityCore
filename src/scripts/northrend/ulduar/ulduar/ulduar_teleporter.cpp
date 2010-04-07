@@ -24,21 +24,21 @@ The teleporter appears to be active and stable.
 bool GoHello_ulduar_teleporter( Player *pPlayer, GameObject *pGO )
 {
     ScriptedInstance *pInstance = pGO->GetInstanceData();
-    if(!pInstance) return true;
+    if (!pInstance) return true;
 
     pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Expedition Base Camp", GOSSIP_SENDER_MAIN, BASE_CAMP);
     pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Formation Grounds", GOSSIP_SENDER_MAIN, GROUNDS);
-    if(pInstance->GetData(TYPE_LEVIATHAN) == DONE)
+    if (pInstance->GetData(TYPE_LEVIATHAN) == DONE)
     {
         pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Colossal Forge", GOSSIP_SENDER_MAIN, FORGE);
-        if(pInstance->GetData(TYPE_XT002) == DONE)
+        if (pInstance->GetData(TYPE_XT002) == DONE)
         {
             pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Scrapyard", GOSSIP_SENDER_MAIN, SCRAPYARD);
             pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Antechamber of Ulduar", GOSSIP_SENDER_MAIN, ANTECHAMBER);
-            if(pInstance->GetData(TYPE_KOLOGARN) == DONE)
+            if (pInstance->GetData(TYPE_KOLOGARN) == DONE)
             {
                 pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Shattered Walkway", GOSSIP_SENDER_MAIN, WALKWAY);
-                if(pInstance->GetData(TYPE_AURIAYA) == DONE)
+                if (pInstance->GetData(TYPE_AURIAYA) == DONE)
                     pPlayer->ADD_GOSSIP_ITEM(0, "Teleport to the Conservatory of Life", GOSSIP_SENDER_MAIN, CONSERVATORY);
             }
         }
@@ -50,8 +50,8 @@ bool GoHello_ulduar_teleporter( Player *pPlayer, GameObject *pGO )
 
 bool GOSelect_ulduar_teleporter( Player *pPlayer, GameObject *pGO, uint32 sender, uint32 action )
 {
-    if(sender != GOSSIP_SENDER_MAIN) return true;
-    if(!pPlayer->getAttackers().empty()) return true;
+    if (sender != GOSSIP_SENDER_MAIN) return true;
+    if (!pPlayer->getAttackers().empty()) return true;
 
     switch(action)
     {

@@ -308,7 +308,7 @@ struct Runes
 
     void SetRuneState(uint8 index, bool set = true)
     {
-        if(set)
+        if (set)
             runeState |= (1 << index);                      // usable
         else
             runeState &= ~(1 << index);                     // on cooldown
@@ -370,7 +370,7 @@ struct LookingForGroup
     bool HaveInSlot(uint32 _entry, uint32 _type) const
     {
         for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
-            if(slots[i].Is(_entry, _type))
+            if (slots[i].Is(_entry, _type))
                 return true;
         return false;
     }
@@ -378,7 +378,7 @@ struct LookingForGroup
     bool canAutoJoin() const
     {
         for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
-            if(slots[i].canAutoJoin())
+            if (slots[i].canAutoJoin())
                 return true;
         return false;
     }
@@ -386,7 +386,7 @@ struct LookingForGroup
     bool Empty() const
     {
         for (uint8 i = 0; i < MAX_LOOKING_FOR_GROUP_SLOT; ++i)
-            if(!slots[i].Empty())
+            if (!slots[i].Empty())
                 return false;
         return more.Empty();
     }
@@ -1053,16 +1053,16 @@ class Player : public Unit, public GridObject<Player>
         void ContinueTaxiFlight();
                                                             // mount_id can be used in scripting calls
         bool isAcceptWhispers() const { return m_ExtraFlags & PLAYER_EXTRA_ACCEPT_WHISPERS; }
-        void SetAcceptWhispers(bool on) { if(on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
+        void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
         bool isGameMaster() const { return m_ExtraFlags & PLAYER_EXTRA_GM_ON; }
         void SetGameMaster(bool on);
         bool isGMChat() const { return GetSession()->GetSecurity() >= SEC_MODERATOR && (m_ExtraFlags & PLAYER_EXTRA_GM_CHAT); }
-        void SetGMChat(bool on) { if(on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
+        void SetGMChat(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
         bool isTaxiCheater() const { return m_ExtraFlags & PLAYER_EXTRA_TAXICHEAT; }
-        void SetTaxiCheater(bool on) { if(on) m_ExtraFlags |= PLAYER_EXTRA_TAXICHEAT; else m_ExtraFlags &= ~PLAYER_EXTRA_TAXICHEAT; }
+        void SetTaxiCheater(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_TAXICHEAT; else m_ExtraFlags &= ~PLAYER_EXTRA_TAXICHEAT; }
         bool isGMVisible() const { return !(m_ExtraFlags & PLAYER_EXTRA_GM_INVISIBLE); }
         void SetGMVisible(bool on);
-        void SetPvPDeath(bool on) { if(on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
+        void SetPvPDeath(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_PVP_DEATH; else m_ExtraFlags &= ~PLAYER_EXTRA_PVP_DEATH; }
 
         void GiveXP(uint32 xp, Unit* victim);
         void GiveLevel(uint8 level);
@@ -1159,7 +1159,7 @@ class Player : public Unit, public GridObject<Player>
         }
         uint8 CanStoreItem( uint8 bag, uint8 slot, ItemPosCountVec& dest, Item *pItem, bool swap = false ) const
         {
-            if(!pItem)
+            if (!pItem)
                 return EQUIP_ERR_ITEM_NOT_FOUND;
             uint32 count = pItem->GetCount();
             return _CanStoreItem( bag, slot, dest, pItem->GetEntry(), count, pItem, swap, NULL );
@@ -1448,13 +1448,13 @@ class Player : public Unit, public GridObject<Player>
         void ModifyMoney( int32 d )
         {
             d = GetSession()->HandleOnGetMoney(d);
-            if(d < 0)
+            if (d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
             else
                 SetMoney (GetMoney() < uint32(MAX_MONEY_AMOUNT - d) ? GetMoney() + d : MAX_MONEY_AMOUNT);
 
             // "At Gold Limit"
-            if(GetMoney() >= MAX_MONEY_AMOUNT)
+            if (GetMoney() >= MAX_MONEY_AMOUNT)
                 SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD,NULL,NULL);
         }
         void SetMoney( uint32 value )
@@ -2572,7 +2572,7 @@ class Player : public Unit, public GridObject<Player>
 
         void ScheduleDelayedOperation(uint32 operation)
         {
-            if(operation < DELAYED_END)
+            if (operation < DELAYED_END)
                 m_DelayedOperations |= operation;
         }
 
@@ -2638,7 +2638,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
         if (!mod->ownerAura)
             assert(mod->charges == 0);
 
-        if(!IsAffectedBySpellmod(spellInfo,mod,spell))
+        if (!IsAffectedBySpellmod(spellInfo,mod,spell))
             continue;
 
         if (mod->type == SPELLMOD_FLAT)
@@ -2646,11 +2646,11 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
         else if (mod->type == SPELLMOD_PCT)
         {
             // skip percent mods for null basevalue (most important for spell mods with charges )
-            if(basevalue == T(0))
+            if (basevalue == T(0))
                 continue;
 
             // special case (skip >10sec spell casts for instant cast setting)
-            if( mod->op==SPELLMOD_CASTING_TIME  && basevalue >= T(10000) && mod->value <= -100)
+            if ( mod->op==SPELLMOD_CASTING_TIME  && basevalue >= T(10000) && mod->value <= -100)
                 continue;
 
             totalmul *= 1.0f + (float)mod->value / 100.0f;

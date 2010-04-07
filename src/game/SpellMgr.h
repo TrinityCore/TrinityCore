@@ -221,14 +221,14 @@ inline float GetSpellMinRange(SpellEntry const *spellInfo, bool positive)
 inline float GetSpellMinRange(uint32 id, bool positive)
 {
     SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
-    if(!spellInfo) return 0;
+    if (!spellInfo) return 0;
     return GetSpellMinRange(spellInfo, positive);
 }
 
 inline float GetSpellMaxRange(uint32 id, bool positive)
 {
     SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(id);
-    if(!spellInfo) return 0;
+    if (!spellInfo) return 0;
     return GetSpellMaxRange(spellInfo, positive);
 }
 
@@ -248,7 +248,7 @@ inline float GetSpellMaxRange(uint32 id, bool positive)
 inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 {
     for (int i= 0; i < 3; ++i)
-        if(SpellEffects(spellInfo->Effect[i])==effect)
+        if (SpellEffects(spellInfo->Effect[i])==effect)
             return true;
     return false;
 }
@@ -256,7 +256,7 @@ inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
 inline bool IsSpellHaveAura(SpellEntry const *spellInfo, AuraType aura)
 {
     for (int i= 0; i < 3; ++i)
-        if(AuraType(spellInfo->EffectApplyAuraName[i])==aura)
+        if (AuraType(spellInfo->EffectApplyAuraName[i])==aura)
             return true;
     return false;
 }
@@ -304,7 +304,7 @@ uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, Spe
 
 inline bool IsPassiveSpellStackableWithRanks(SpellEntry const* spellProto)
 {
-    if(!IsPassiveSpell(spellProto->Id))
+    if (!IsPassiveSpell(spellProto->Id))
         return false;
 
     return !IsSpellHaveEffect(spellProto,SPELL_EFFECT_APPLY_AURA);
@@ -366,14 +366,14 @@ inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
     for (int i = 0; i < 3; ++i)
     {
         uint32 targetA = spellInfo->EffectImplicitTargetA[i];
-        if(targetA && !IsCasterSourceTarget(targetA))
+        if (targetA && !IsCasterSourceTarget(targetA))
             return false;
 
         uint32 targetB = spellInfo->EffectImplicitTargetB[i];
-        if(targetB && !IsCasterSourceTarget(targetB))
+        if (targetB && !IsCasterSourceTarget(targetB))
             return false;
 
-        if(!targetA && !targetB)
+        if (!targetA && !targetB)
             return false;
     }
     return true;
@@ -381,18 +381,18 @@ inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
 
 inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
 {
-    if(IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[0]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[0]])
+    if (IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[0]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[0]])
         return true;
-    if(IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[1]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[1]])
+    if (IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[1]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[1]])
         return true;
-    if(IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[2]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[2]])
+    if (IsAreaEffectTarget[spellInfo->EffectImplicitTargetA[2]] || IsAreaEffectTarget[spellInfo->EffectImplicitTargetB[2]])
         return true;
     return false;
 }
 
 inline bool IsAreaAuraEffect(uint32 effect)
 {
-    if( effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
+    if ( effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID     ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_FRIEND   ||
         effect == SPELL_EFFECT_APPLY_AREA_AURA_ENEMY    ||
@@ -712,10 +712,10 @@ class PetAura
         uint32 GetAura(uint32 petEntry) const
         {
             std::map<uint32, uint32>::const_iterator itr = auras.find(petEntry);
-            if(itr != auras.end())
+            if (itr != auras.end())
                 return itr->second;
             std::map<uint32, uint32>::const_iterator itr2 = auras.find(0);
-            if(itr2 != auras.end())
+            if (itr2 != auras.end())
                 return itr2->second;
             return 0;
         }
@@ -824,10 +824,10 @@ typedef std::map<int32, PetDefaultSpellsEntry> PetDefaultSpellsMap;
 inline bool IsPrimaryProfessionSkill(uint32 skill)
 {
     SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(skill);
-    if(!pSkill)
+    if (!pSkill)
         return false;
 
-    if(pSkill->categoryId != SKILL_CATEGORY_PROFESSION)
+    if (pSkill->categoryId != SKILL_CATEGORY_PROFESSION)
         return false;
 
     return true;
@@ -971,7 +971,7 @@ class SpellMgr
         uint16 GetSpellThreat(uint32 spellid) const
         {
             SpellThreatMap::const_iterator itr = mSpellThreatMap.find(spellid);
-            if(itr==mSpellThreatMap.end())
+            if (itr==mSpellThreatMap.end())
                 return 0;
 
             return itr->second;
@@ -981,7 +981,7 @@ class SpellMgr
         SpellProcEventEntry const* GetSpellProcEvent(uint32 spellId) const
         {
             SpellProcEventMap::const_iterator itr = mSpellProcEventMap.find(spellId);
-            if( itr != mSpellProcEventMap.end( ) )
+            if ( itr != mSpellProcEventMap.end( ) )
                 return &itr->second;
             return NULL;
         }
@@ -991,7 +991,7 @@ class SpellMgr
         SpellEnchantProcEntry const* GetSpellEnchantProcEvent(uint32 enchId) const
         {
             SpellEnchantProcEventMap::const_iterator itr = mSpellEnchantProcEventMap.find(enchId);
-            if( itr != mSpellEnchantProcEventMap.end( ) )
+            if ( itr != mSpellEnchantProcEventMap.end( ) )
                 return &itr->second;
             return NULL;
         }
@@ -1001,13 +1001,13 @@ class SpellMgr
         {
             // Lookup data
             SpellBonusMap::const_iterator itr = mSpellBonusMap.find(spellId);
-            if( itr != mSpellBonusMap.end( ) )
+            if ( itr != mSpellBonusMap.end( ) )
                 return &itr->second;
             // Not found, try lookup for 1 spell rank if exist
             if (uint32 rank_1 = GetFirstSpellInChain(spellId))
             {
                 SpellBonusMap::const_iterator itr2 = mSpellBonusMap.find(rank_1);
-                if( itr2 != mSpellBonusMap.end( ) )
+                if ( itr2 != mSpellBonusMap.end( ) )
                     return &itr2->second;
             }
             return NULL;
@@ -1017,7 +1017,7 @@ class SpellMgr
         SpellTargetPosition const* GetSpellTargetPosition(uint32 spell_id) const
         {
             SpellTargetPositionMap::const_iterator itr = mSpellTargetPositions.find( spell_id );
-            if( itr != mSpellTargetPositions.end( ) )
+            if ( itr != mSpellTargetPositions.end( ) )
                 return &itr->second;
             return NULL;
         }
@@ -1026,7 +1026,7 @@ class SpellMgr
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const
         {
             SpellChainMap::const_iterator itr = mSpellChains.find(spell_id);
-            if(itr == mSpellChains.end())
+            if (itr == mSpellChains.end())
                 return NULL;
 
             return &itr->second;
@@ -1034,7 +1034,7 @@ class SpellMgr
 
         uint32 GetFirstSpellInChain(uint32 spell_id) const
         {
-            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            if (SpellChainNode const* node = GetSpellChainNode(spell_id))
                 return node->first;
 
             return spell_id;
@@ -1042,7 +1042,7 @@ class SpellMgr
 
         uint32 GetSpellWithRank(uint32 spell_id, uint32 rank) const
         {
-            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            if (SpellChainNode const* node = GetSpellChainNode(spell_id))
             {
                 if (rank != node->rank)
                     return GetSpellWithRank(node->rank < rank ? node->next : node->prev, rank);
@@ -1052,7 +1052,7 @@ class SpellMgr
 
         uint32 GetPrevSpellInChain(uint32 spell_id) const
         {
-            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            if (SpellChainNode const* node = GetSpellChainNode(spell_id))
                 return node->prev;
 
             return 0;
@@ -1060,7 +1060,7 @@ class SpellMgr
 
         uint32 GetNextSpellInChain(uint32 spell_id) const
         {
-            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            if (SpellChainNode const* node = GetSpellChainNode(spell_id))
                 return node->next;
 
             return 0;
@@ -1088,7 +1088,7 @@ class SpellMgr
 
         uint8 GetSpellRank(uint32 spell_id) const
         {
-            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            if (SpellChainNode const* node = GetSpellChainNode(spell_id))
                 return node->rank;
 
             return 0;
@@ -1096,7 +1096,7 @@ class SpellMgr
 
         uint32 GetLastSpellInChain(uint32 spell_id) const
         {
-            if(SpellChainNode const* node = GetSpellChainNode(spell_id))
+            if (SpellChainNode const* node = GetSpellChainNode(spell_id))
                 return node->last;
 
             return spell_id;
@@ -1130,7 +1130,7 @@ class SpellMgr
         SpellLearnSkillNode const* GetSpellLearnSkill(uint32 spell_id) const
         {
             SpellLearnSkillMap::const_iterator itr = mSpellLearnSkills.find(spell_id);
-            if(itr != mSpellLearnSkills.end())
+            if (itr != mSpellLearnSkills.end())
                 return &itr->second;
             else
                 return NULL;
@@ -1180,7 +1180,7 @@ class SpellMgr
         PetAura const* GetPetAura(uint32 spell_id, uint8 eff)
         {
             SpellPetAuraMap::const_iterator itr = mSpellPetAuraMap.find((spell_id<<8) + eff);
-            if(itr != mSpellPetAuraMap.end())
+            if (itr != mSpellPetAuraMap.end())
                 return &itr->second;
             else
                 return NULL;
@@ -1189,7 +1189,7 @@ class SpellMgr
         PetLevelupSpellSet const* GetPetLevelupSpellList(uint32 petFamily) const
         {
             PetLevelupSpellMap::const_iterator itr = mPetLevelupSpellMap.find(petFamily);
-            if(itr != mPetLevelupSpellMap.end())
+            if (itr != mPetLevelupSpellMap.end())
                 return &itr->second;
             else
                 return NULL;
@@ -1197,7 +1197,7 @@ class SpellMgr
 
         uint32 GetSpellCustomAttr(uint32 spell_id) const
         {
-            if(spell_id >= mSpellCustomAttr.size())
+            if (spell_id >= mSpellCustomAttr.size())
                 return 0;
             else
                 return mSpellCustomAttr[spell_id];
@@ -1213,7 +1213,7 @@ class SpellMgr
         PetDefaultSpellsEntry const* GetPetDefaultSpellsEntry(int32 id) const
         {
             PetDefaultSpellsMap::const_iterator itr = mPetDefaultSpellsMap.find(id);
-            if(itr != mPetDefaultSpellsMap.end())
+            if (itr != mPetDefaultSpellsMap.end())
                 return &itr->second;
             return NULL;
         }
@@ -1227,7 +1227,7 @@ class SpellMgr
 
         SpellAreaForQuestMapBounds GetSpellAreaForQuestMapBounds(uint32 quest_id, bool active) const
         {
-            if(active)
+            if (active)
                 return SpellAreaForQuestMapBounds(mSpellAreaForActiveQuestMap.lower_bound(quest_id),mSpellAreaForActiveQuestMap.upper_bound(quest_id));
             else
                 return SpellAreaForQuestMapBounds(mSpellAreaForQuestMap.lower_bound(quest_id),mSpellAreaForQuestMap.upper_bound(quest_id));
@@ -1266,8 +1266,8 @@ class SpellMgr
         inline bool IsSpellWithCasterSourceTargetsOnly(SpellEntry const* spellInfo)
         {
             for (int i = 0; i < 3; ++i)
-                if(uint32 target = spellInfo->EffectImplicitTargetA[i])
-                    if(!IsCasterSourceTarget(target))
+                if (uint32 target = spellInfo->EffectImplicitTargetA[i])
+                    if (!IsCasterSourceTarget(target))
                         return false;
             return true;
         }
@@ -1281,7 +1281,7 @@ class SpellMgr
     {
       SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
 
-      if(itr == mSpellReq.end())
+      if (itr == mSpellReq.end())
         return NULL;
 
       return itr->second;

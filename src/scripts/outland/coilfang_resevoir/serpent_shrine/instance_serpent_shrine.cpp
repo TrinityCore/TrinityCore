@@ -131,7 +131,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
     void Update (uint32 diff)
     {
         //Lurker Fishing event
-        if(LurkerSubEvent == LURKER_FISHING)
+        if (LurkerSubEvent == LURKER_FISHING)
         {
             if (FishingTimer <= diff)
             {
@@ -142,7 +142,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
         //Water checks
         if (WaterCheckTimer <= diff)
         {
-            if(TrashCount >= MIN_KILLS)
+            if (TrashCount >= MIN_KILLS)
                 Water = WATERSTATE_SCALDING;
             else
                 Water = WATERSTATE_FRENZY;
@@ -156,19 +156,19 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
                 {
                     if (pPlayer->isAlive() && /*i->getSource()->GetPositionZ() <= -21.434931f*/pPlayer->IsInWater())
                     {
-                        if(Water == WATERSTATE_SCALDING)
+                        if (Water == WATERSTATE_SCALDING)
                         {
 
-                            if(!pPlayer->HasAura(SPELL_SCALDINGWATER))
+                            if (!pPlayer->HasAura(SPELL_SCALDINGWATER))
                             {
                                 pPlayer->CastSpell(pPlayer, SPELL_SCALDINGWATER,true);
                             }
-                        } else if(Water == WATERSTATE_FRENZY)
+                        } else if (Water == WATERSTATE_FRENZY)
                         {
                             //spawn frenzy
-                            if(DoSpawnFrenzy)
+                            if (DoSpawnFrenzy)
                             {
-                                if(Creature* frenzy = pPlayer->SummonCreature(MOB_COILFANG_FRENZY,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ(),pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,2000))
+                                if (Creature* frenzy = pPlayer->SummonCreature(MOB_COILFANG_FRENZY,pPlayer->GetPositionX(),pPlayer->GetPositionY(),pPlayer->GetPositionZ(),pPlayer->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,2000))
                                 {
                                     frenzy->Attack(pPlayer,false);
                                     frenzy->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
@@ -177,7 +177,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
                             }
                         }
                     }
-                    if(!pPlayer->IsInWater())
+                    if (!pPlayer->IsInWater())
                         pPlayer->RemoveAurasDueToSpell(SPELL_SCALDINGWATER);
                 }
 
@@ -215,7 +215,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
                 pGo->setActive(true);
             break;
             case GAMEOBJECT_FISHINGNODE_ENTRY://no way checking if fish is hooked, so we create a timed event
-                if(LurkerSubEvent == LURKER_NOT_STARTED)
+                if (LurkerSubEvent == LURKER_NOT_STARTED)
                 {
                     FishingTimer = 10000+rand()%30000;//random time before lurker emerges
                     LurkerSubEvent = LURKER_FISHING;
@@ -237,7 +237,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
             case 21215: LeotherasTheBlind = pCreature->GetGUID();    break;
             /*case TRASHMOB_COILFANG_PRIESTESS:
             case TRASHMOB_COILFANG_SHATTERER:
-                if(pCreature->isAlive())
+                if (pCreature->isAlive())
                     ++TrashCount;
                 break;*/
         }
@@ -275,7 +275,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
         case DATA_STRANGE_POOL:
             {
                 StrangePool = data;
-                if(data == NOT_STARTED)
+                if (data == NOT_STARTED)
                     LurkerSubEvent = LURKER_NOT_STARTED;
             }
             break;
@@ -289,7 +289,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
             ControlConsole = data;break;
         case DATA_TRASH :
             {
-                if(data == 1 && TrashCount < MIN_KILLS)
+                if (data == 1 && TrashCount < MIN_KILLS)
                     ++TrashCount;//+1 died
                 SaveToDB();
                 break;

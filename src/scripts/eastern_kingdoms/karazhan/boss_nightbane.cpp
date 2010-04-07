@@ -135,7 +135,7 @@ struct boss_nightbaneAI : public ScriptedAI
 
     void HandleTerraceDoors(bool open)
     {
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
             pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);

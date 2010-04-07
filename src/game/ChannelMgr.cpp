@@ -28,9 +28,9 @@ ChannelMgr* channelMgr(uint32 team)
     if (sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
         return &Trinity::Singleton<AllianceChannelMgr>::Instance();        // cross-faction
 
-    if(team == ALLIANCE)
+    if (team == ALLIANCE)
         return &Trinity::Singleton<AllianceChannelMgr>::Instance();
-    if(team == HORDE)
+    if (team == HORDE)
         return &Trinity::Singleton<HordeChannelMgr>::Instance();
 
     return NULL;
@@ -68,9 +68,9 @@ Channel *ChannelMgr::GetChannel(std::string name, Player *p, bool pkt)
 
     ChannelMap::const_iterator i = channels.find(wname);
 
-    if(i == channels.end())
+    if (i == channels.end())
     {
-        if(pkt)
+        if (pkt)
         {
             WorldPacket data;
             MakeNotOnPacket(&data,name);
@@ -91,12 +91,12 @@ void ChannelMgr::LeftChannel(std::string name)
 
     ChannelMap::const_iterator i = channels.find(wname);
 
-    if(i == channels.end())
+    if (i == channels.end())
         return;
 
     Channel* channel = i->second;
 
-    if(channel->GetNumPlayers() == 0 && !channel->IsConstant())
+    if (channel->GetNumPlayers() == 0 && !channel->IsConstant())
     {
         channels.erase(wname);
         delete channel;

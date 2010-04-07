@@ -532,7 +532,7 @@ inline bool CreatureAI::UpdateVictim()
 
     if (!me->HasReactState(REACT_PASSIVE))
     {
-        if(Unit *victim = me->SelectVictim())
+        if (Unit *victim = me->SelectVictim())
             AttackStart(victim);
         return me->getVictim();
     }

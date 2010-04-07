@@ -121,7 +121,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         {
             if (m_cleanFlag & MMCF_UPDATE)
             {
-                if(reset)
+                if (reset)
                     m_cleanFlag |= MMCF_RESET;
                 else
                     m_cleanFlag &= ~MMCF_RESET;
@@ -134,7 +134,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         {
             if (m_cleanFlag & MMCF_UPDATE)
             {
-                if(reset)
+                if (reset)
                     m_cleanFlag |= MMCF_RESET;
                 else
                     m_cleanFlag &= ~MMCF_RESET;

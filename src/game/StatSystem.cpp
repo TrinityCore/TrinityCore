@@ -34,7 +34,7 @@
 
 bool Player::UpdateStats(Stats stat)
 {
-    if(stat > STAT_SPIRIT)
+    if (stat > STAT_SPIRIT)
         return false;
 
     // value = ((base_value * base_pct) + total_value) * total_pct
@@ -45,7 +45,7 @@ bool Player::UpdateStats(Stats stat)
     if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
         Pet *pet = GetPet();
-        if(pet)
+        if (pet)
             pet->UpdateStats(stat);
     }
 
@@ -166,13 +166,13 @@ bool Player::UpdateAllStats()
 
 void Player::UpdateResistances(uint32 school)
 {
-    if(school > SPELL_SCHOOL_NORMAL)
+    if (school > SPELL_SCHOOL_NORMAL)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
 
         Pet *pet = GetPet();
-        if(pet)
+        if (pet)
             pet->UpdateResistances(school);
     }
     else
@@ -193,7 +193,7 @@ void Player::UpdateArmor()
     AuraEffectList const& mResbyIntellect = GetAuraEffectsByType(SPELL_AURA_MOD_RESISTANCE_OF_STAT_PERCENT);
     for (AuraEffectList::const_iterator i = mResbyIntellect.begin(); i != mResbyIntellect.end(); ++i)
     {
-        if((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
+        if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
             value += int32(GetStat(Stats((*i)->GetMiscValueB())) * (*i)->GetAmount() / 100.0f);
     }
 
@@ -202,7 +202,7 @@ void Player::UpdateArmor()
     SetArmor(int32(value));
 
     Pet *pet = GetPet();
-    if(pet)
+    if (pet)
         pet->UpdateArmor();
 
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
@@ -271,7 +271,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     uint16 index_mod = UNIT_FIELD_ATTACK_POWER_MODS;
     uint16 index_mult = UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
 
-    if(ranged)
+    if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
         index_mod = UNIT_FIELD_RANGED_ATTACK_POWER_MODS;
@@ -358,7 +358,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
-    if( ranged )
+    if ( ranged )
     {
         if ((getClassMask() & CLASSMASK_WAND_USERS)==0)
         {
@@ -387,21 +387,21 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
 
     Pet *pet = GetPet();                                //update pet's AP
     //automatically update weapon damage after attack power modification
-    if(ranged)
+    if (ranged)
     {
         UpdateDamagePhysical(RANGED_ATTACK);
-        if(pet && pet->isHunterPet()) // At ranged attack change for hunter pet
+        if (pet && pet->isHunterPet()) // At ranged attack change for hunter pet
             pet->UpdateAttackPowerAndDamage();
     }
     else
     {
         UpdateDamagePhysical(BASE_ATTACK);
-        if(CanDualWield() && haveOffhandWeapon())           //allow update offhand damage only if player knows DualWield Spec and has equipped offhand weapon
+        if (CanDualWield() && haveOffhandWeapon())           //allow update offhand damage only if player knows DualWield Spec and has equipped offhand weapon
             UpdateDamagePhysical(OFF_ATTACK);
-        if(getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
+        if (getClass() == CLASS_SHAMAN || getClass() == CLASS_PALADIN)                      // mental quickness
             UpdateSpellDamageAndHealingBonus();
 
-        if(pet && pet->IsPetGhoul()) // At ranged attack change for hunter pet
+        if (pet && pet->IsPetGhoul()) // At ranged attack change for hunter pet
             pet->UpdateAttackPowerAndDamage();
     }
 }
@@ -452,7 +452,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weapon_mindamage = lvl*0.85f*att_speed;
         weapon_maxdamage = lvl*1.25f*att_speed;
     }
-    else if(!CanUseAttackType(attType))      //check if player not in form but still can't use (disarm case)
+    else if (!CanUseAttackType(attType))      //check if player not in form but still can't use (disarm case)
     {
         //cannot use ranged/off attack, set values to 0
         if (attType != BASE_ATTACK)
@@ -464,7 +464,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
         weapon_mindamage = BASE_MINDAMAGE;
         weapon_maxdamage = BASE_MAXDAMAGE;
     }
-    else if(attType == RANGED_ATTACK)                       //add ammo DPS to ranged damage
+    else if (attType == RANGED_ATTACK)                       //add ammo DPS to ranged damage
     {
         weapon_mindamage += GetAmmoDPS() * att_speed;
         weapon_maxdamage += GetAmmoDPS() * att_speed;
@@ -510,7 +510,7 @@ void Player::UpdateBlockPercentage()
 {
     // No block
     float value = 0.0f;
-    if(CanBlock())
+    if (CanBlock())
     {
         // Base value
         value = 5.0f;
@@ -607,7 +607,7 @@ void Player::UpdateDodgePercentage()
 void Player::UpdateSpellCritChance(uint32 school)
 {
     // For normal school set zero crit chance
-    if(school == SPELL_SCHOOL_NORMAL)
+    if (school == SPELL_SCHOOL_NORMAL)
     {
         SetFloatValue(PLAYER_SPELL_CRIT_PERCENTAGE1, 0.0f);
         return;
@@ -661,7 +661,7 @@ void Player::UpdateAllSpellCritChances()
 
 void Player::UpdateExpertise(WeaponAttackType attack)
 {
-    if(attack==RANGED_ATTACK)
+    if (attack==RANGED_ATTACK)
         return;
 
     int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));
@@ -672,14 +672,14 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     for (AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
     {
         // item neutral spell
-        if((*itr)->GetSpellProto()->EquippedItemClass == -1)
+        if ((*itr)->GetSpellProto()->EquippedItemClass == -1)
             expertise += (*itr)->GetAmount();
         // item dependent spell
-        else if(weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
+        else if (weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
             expertise += (*itr)->GetAmount();
     }
 
-    if(expertise < 0)
+    if (expertise < 0)
         expertise = 0;
 
     switch(attack)
@@ -780,7 +780,7 @@ bool Creature::UpdateAllStats()
 
 void Creature::UpdateResistances(uint32 school)
 {
-    if(school > SPELL_SCHOOL_NORMAL)
+    if (school > SPELL_SCHOOL_NORMAL)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
@@ -817,7 +817,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     uint16 index_mod = UNIT_FIELD_ATTACK_POWER_MODS;
     uint16 index_mult = UNIT_FIELD_ATTACK_POWER_MULTIPLIER;
 
-    if(ranged)
+    if (ranged)
     {
         index = UNIT_FIELD_RANGED_ATTACK_POWER;
         index_mod = UNIT_FIELD_RANGED_ATTACK_POWER_MODS;
@@ -833,7 +833,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
     SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
     //automatically update weapon damage after attack power modification
-    if(ranged)
+    if (ranged)
         UpdateDamagePhysical(RANGED_ATTACK);
     else
     {
@@ -872,7 +872,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
     float dmg_multiplier = GetCreatureInfo()->dmg_multiplier;
 
-    if(!CanUseAttackType(attType))
+    if (!CanUseAttackType(attType))
     {
         weapon_mindamage = 0;
         weapon_maxdamage = 0;
@@ -1017,12 +1017,12 @@ bool Guardian::UpdateAllStats()
 
 void Guardian::UpdateResistances(uint32 school)
 {
-    if(school > SPELL_SCHOOL_NORMAL)
+    if (school > SPELL_SCHOOL_NORMAL)
     {
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
 
         // hunter and warlock pets gain 40% of owner's resistance
-        if(isPet())
+        if (isPet())
             value += float(m_owner->GetResistance(SpellSchools(school))) * 0.4f;
 
         SetResistance(SpellSchools(school), int32(value));
@@ -1038,7 +1038,7 @@ void Guardian::UpdateArmor()
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
     // hunter and warlock pets gain 35% of owner's armor value
-    if(isPet())
+    if (isPet())
         bonus_armor = 0.35f * float(m_owner->GetArmor());
 
     value  = GetModifierValue(unitMod, BASE_VALUE);
@@ -1102,22 +1102,22 @@ void Guardian::UpdateMaxPower(Powers power)
 
 void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 {
-    if(ranged)
+    if (ranged)
         return;
 
     float val = 0.0f;
     float bonusAP = 0.0f;
     UnitMods unitMod = UNIT_MOD_ATTACK_POWER;
 
-    if(GetEntry() == ENTRY_IMP)                                   // imp's attack power
+    if (GetEntry() == ENTRY_IMP)                                   // imp's attack power
         val = GetStat(STAT_STRENGTH) - 10.0f;
     else
         val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
 
     Unit* owner = GetOwner();
-    if( owner && owner->GetTypeId() == TYPEID_PLAYER)
+    if ( owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
-        if(isHunterPet())                      //hunter pets benefit from owner's attack power
+        if (isHunterPet())                      //hunter pets benefit from owner's attack power
         {
         float mod = 1.0f;                                                 //Hunter contribution modifier
             if (this->ToCreature()->isPet())
@@ -1143,21 +1143,21 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             SetBonusDamage( int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
         }
         //demons benefit from warlocks shadow or fire damage
-        else if(isPet())
+        else if (isPet())
         {
             int32 fire  = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
             int32 shadow = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_SHADOW);
             int32 maximum  = (fire > shadow) ? fire : shadow;
-            if(maximum < 0)
+            if (maximum < 0)
                 maximum = 0;
             SetBonusDamage( int32(maximum * 0.15f));
             bonusAP = maximum * 0.57f;
         }
         //water elementals benefit from mage's frost damage
-        else if(GetEntry() == ENTRY_WATER_ELEMENTAL)
+        else if (GetEntry() == ENTRY_WATER_ELEMENTAL)
         {
             int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
-            if(frost < 0)
+            if (frost < 0)
                 frost = 0;
             SetBonusDamage( int32(frost * 0.4f));
         }
@@ -1183,24 +1183,24 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
 
 void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
 {
-    if(attType > BASE_ATTACK)
+    if (attType > BASE_ATTACK)
         return;
 
     float bonusDamage = 0.0f;
-    if(m_owner->GetTypeId() == TYPEID_PLAYER)
+    if (m_owner->GetTypeId() == TYPEID_PLAYER)
     {
         //force of nature
-        if(GetEntry() == ENTRY_TREANT)
+        if (GetEntry() == ENTRY_TREANT)
         {
             int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_NATURE);
-            if(spellDmg > 0)
+            if (spellDmg > 0)
                 bonusDamage = spellDmg * 0.09f;
         }
         //greater fire elemental
-        else if(GetEntry() == ENTRY_FIRE_ELEMENTAL)
+        else if (GetEntry() == ENTRY_FIRE_ELEMENTAL)
         {
             int32 spellDmg = int32(m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FIRE)) - m_owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FIRE);
-            if(spellDmg > 0)
+            if (spellDmg > 0)
                 bonusDamage = spellDmg * 0.4f;
         }
     }

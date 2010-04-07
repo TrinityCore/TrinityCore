@@ -67,7 +67,7 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
 
         void SetGridCleanUpDelay(uint32 t)
         {
-            if( t < MIN_GRID_DELAY )
+            if ( t < MIN_GRID_DELAY )
                 i_gridCleanUpDelay = MIN_GRID_DELAY;
             else
                 i_gridCleanUpDelay = t;
@@ -75,7 +75,7 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
 
         void SetMapUpdateInterval(uint32 t)
         {
-            if( t > MIN_MAP_UPDATE_DELAY )
+            if ( t > MIN_MAP_UPDATE_DELAY )
                 t = MIN_MAP_UPDATE_DELAY;
 
             i_timer.SetInterval(t);

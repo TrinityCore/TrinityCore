@@ -147,7 +147,7 @@ struct boss_curatorAI : public ScriptedAI
                     }
                     else
                     {
-                        if(urand(0,1) == 0)
+                        if (urand(0,1) == 0)
                         {
                             DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), m_creature);
                         }

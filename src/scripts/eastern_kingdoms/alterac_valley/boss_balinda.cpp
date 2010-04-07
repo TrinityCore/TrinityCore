@@ -59,14 +59,14 @@ struct mob_water_elementalAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(uiWaterBoltTimer < diff)
+        if (uiWaterBoltTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_WATERBOLT);
             uiWaterBoltTimer = 5*IN_MILISECONDS;
         } else uiWaterBoltTimer -= diff;
 
         // check if creature is not outside of building
-        if(uiResetTimer < diff)
+        if (uiResetTimer < diff)
         {
             if (Creature *pBalinda = Unit::GetCreature(*m_creature, uiBalindaGUID))
                 if (m_creature->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
@@ -133,7 +133,7 @@ struct boss_balindaAI : public ScriptedAI
 
         if (uiWaterElementalTimer < diff)
         {
-            if(Summons.empty())
+            if (Summons.empty())
                 m_creature->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILISECONDS);
             uiWaterElementalTimer = 50*IN_MILISECONDS;
         } else uiWaterElementalTimer -= diff;
@@ -164,7 +164,7 @@ struct boss_balindaAI : public ScriptedAI
 
 
         // check if creature is not outside of building
-        if(uiResetTimer < diff)
+        if (uiResetTimer < diff)
         {
             if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
             {

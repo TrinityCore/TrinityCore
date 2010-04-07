@@ -232,7 +232,7 @@ void PoolGroup<Pool>::RemoveOneRelation(uint16 child_pool_id)
 {
     for (PoolObjectList::iterator itr = ExplicitlyChanced.begin(); itr != ExplicitlyChanced.end(); ++itr)
     {
-        if(itr->guid == child_pool_id)
+        if (itr->guid == child_pool_id)
         {
             ExplicitlyChanced.erase(itr);
             break;
@@ -240,7 +240,7 @@ void PoolGroup<Pool>::RemoveOneRelation(uint16 child_pool_id)
     }
     for (PoolObjectList::iterator itr = EqualChanced.begin(); itr != EqualChanced.end(); ++itr)
     {
-        if(itr->guid == child_pool_id)
+        if (itr->guid == child_pool_id)
         {
             EqualChanced.erase(itr);
             break;
@@ -634,7 +634,7 @@ void PoolHandler::LoadFromDB()
             for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))
             {
                 checkedPools.insert(poolItr->first);
-                if(checkedPools.find(poolItr->second) != checkedPools.end())
+                if (checkedPools.find(poolItr->second) != checkedPools.end())
                 {
                     std::ostringstream ss;
                     ss<< "The pool(s) ";

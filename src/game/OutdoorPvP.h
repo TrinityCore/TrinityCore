@@ -246,7 +246,7 @@ protected:
     OPvPCapturePoint * GetCapturePoint(uint32 lowguid) const
     {
         OutdoorPvP::OPvPCapturePointMap::const_iterator itr = m_capturePoints.find(lowguid);
-        if(itr != m_capturePoints.end())
+        if (itr != m_capturePoints.end())
             return itr->second;
         return NULL;
     }

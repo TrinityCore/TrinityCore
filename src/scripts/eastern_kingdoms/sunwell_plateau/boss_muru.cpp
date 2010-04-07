@@ -287,7 +287,7 @@ struct boss_muruAI : public Scripted_NoMovementAI
         {
             if (Timer[TIMER_PHASE] <= diff)
             {
-                if(!pInstance)
+                if (!pInstance)
                     return;
                 switch(pInstance->GetData(DATA_MURU_EVENT))
                 {

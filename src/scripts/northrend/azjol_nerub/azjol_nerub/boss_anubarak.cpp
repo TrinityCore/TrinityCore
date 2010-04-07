@@ -153,7 +153,7 @@ struct boss_anub_arakAI : public ScriptedAI
                 bGuardianSummoned = true;
             }
 
-            if(!bVenomancerSummoned)
+            if (!bVenomancerSummoned)
             {
                 if (uiVenomancerTimer <= diff)
                 {
@@ -172,7 +172,7 @@ struct boss_anub_arakAI : public ScriptedAI
                 } else uiVenomancerTimer -= diff;
             }
 
-            if(!bDatterSummoned)
+            if (!bDatterSummoned)
             {
                 if (uiDatterTimer <= diff)
                 {

@@ -86,7 +86,7 @@ struct boss_eckAI : public ScriptedAI
         if (uiSpringTimer <= diff)
         {
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
-            if(pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
+            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
                 DoCast(pTarget, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                 uiSpringTimer = urand(5*IN_MILISECONDS,10*IN_MILISECONDS);
@@ -138,7 +138,7 @@ struct npc_ruins_dwellerAI : public ScriptedAI
 
     void JustDied(Unit *who)
     {
-        if(pInstance)
+        if (pInstance)
         {
             pInstance->SetData64(DATA_RUIN_DWELLER_DIED,m_creature->GetGUID());
             if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)

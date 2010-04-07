@@ -32,7 +32,7 @@ class GridState
         GridState() { i_Magic = MAGIC_TESTVAL; }
         bool checkMagic()
         {
-            if(i_Magic != MAGIC_TESTVAL)
+            if (i_Magic != MAGIC_TESTVAL)
             {
                 sLog.outError("!!! GridState: Magic value gone !!!");
                 return false;

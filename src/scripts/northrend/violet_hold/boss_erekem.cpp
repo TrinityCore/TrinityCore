@@ -158,7 +158,7 @@ struct boss_erekemAI : public ScriptedAI
         {
             if (uint64 TargetGUID = GetChainHealTargetGUID())
             {
-                if(Creature *pTarget = Unit::GetCreature(*m_creature, TargetGUID))
+                if (Creature *pTarget = Unit::GetCreature(*m_creature, TargetGUID))
                     DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
 
                 //If one of the adds is dead spawn heals faster

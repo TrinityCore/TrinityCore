@@ -275,7 +275,7 @@ bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
         pGo->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
         pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
         pGo->SetUInt32Value(GAMEOBJECT_FACTION, 0);
-        if(pInstance)
+        if (pInstance)
             Creature* Kalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ));
         //Kalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
         pGo->GetPosition(x,y,z);
@@ -397,7 +397,7 @@ struct boss_kalecgos_kjAI : public ScriptedAI
                      }
                  }
             }*/
-        if(OrbGUID[random])
+        if (OrbGUID[random])
         {
             if (GameObject* pOrb = m_creature->GetMap()->GetGameObject(OrbGUID[random]))
             {
@@ -548,7 +548,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
 
         // Reset the controller
         if (pInstance)
-            if(Creature* Control = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILJAEDEN_CONTROLLER))))
+            if (Creature* Control = CAST_CRE(Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_KILJAEDEN_CONTROLLER))))
                 CAST_AI(Scripted_NoMovementAI, Control->AI())->Reset();
     }
 
@@ -768,7 +768,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
             {
                 Phase = PHASE_SACRIFICE;
                 if (pInstance)
-                    if(Creature* Anveena =  Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_ANVEENA)))
+                    if (Creature* Anveena =  Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_ANVEENA)))
                         Anveena->CastSpell(m_creature, SPELL_SACRIFICE_OF_ANVEENA, false);
                 OrbActivated = false;
                 ChangeTimers(true, 10000); // He shouldn't cast spells for ~10 seconds after Anveena's sacrifice. This will be done within Anveena's script

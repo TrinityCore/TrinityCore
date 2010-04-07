@@ -38,7 +38,7 @@ WorldLog::WorldLog() : i_file(NULL)
 
 WorldLog::~WorldLog()
 {
-    if( i_file != NULL )
+    if ( i_file != NULL )
         fclose(i_file);
     i_file = NULL;
 }
@@ -48,14 +48,14 @@ void WorldLog::Initialize()
 {
     std::string logsDir = sConfig.GetStringDefault("LogsDir","");
 
-    if(!logsDir.empty())
+    if (!logsDir.empty())
     {
-        if((logsDir.at(logsDir.length()-1)!='/') && (logsDir.at(logsDir.length()-1)!='\\'))
+        if ((logsDir.at(logsDir.length()-1)!='/') && (logsDir.at(logsDir.length()-1)!='\\'))
             logsDir.append("/");
     }
 
     std::string logname = sConfig.GetStringDefault("WorldLogFile", "");
-    if(!logname.empty())
+    if (!logname.empty())
     {
         i_file = fopen((logsDir+logname).c_str(), "w");
     }
@@ -65,7 +65,7 @@ void WorldLog::Initialize()
 
 void WorldLog::outTimestampLog(char const *fmt, ...)
 {
-    if( LogWorld() )
+    if ( LogWorld() )
     {
         Guard guard(*this);
         ASSERT(i_file);
@@ -93,7 +93,7 @@ void WorldLog::outTimestampLog(char const *fmt, ...)
 
 void WorldLog::outLog(char const *fmt, ...)
 {
-    if( LogWorld() )
+    if ( LogWorld() )
     {
         Guard guard(*this);
         ASSERT(i_file);
