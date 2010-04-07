@@ -147,7 +147,7 @@ bool ChatHandler::HandleDebugSendOpcodeCommand(const char* /*args*/)
 
     WorldPacket data(opcode, 0);
 
-    while(!ifs.eof())
+    while (!ifs.eof())
     {
         std::string type;
         ifs >> type;
@@ -689,7 +689,7 @@ bool ChatHandler::HandleDebugHostileRefList(const char * /*args*/)
     HostileReference* ref = target->getHostileRefManager().getFirst();
     uint32 cnt = 0;
     PSendSysMessage("Hostil reference list of %s (guid %u)",target->GetName(), target->GetGUIDLow());
-    while(ref)
+    while (ref)
     {
         if(Unit * unit = ref->getSource()->getOwner())
         {
@@ -806,7 +806,7 @@ bool ChatHandler::HandleDebugSendLargePacketCommand(const char* /*args*/)
 {
     const char* stuffingString = "This is a dummy string to push the packet's size beyond 128000 bytes. ";
     std::ostringstream ss;
-    while(ss.str().size() < 128000)
+    while (ss.str().size() < 128000)
         ss << stuffingString;
     SendSysMessage(ss.str().c_str());
     return true;

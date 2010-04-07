@@ -1143,7 +1143,7 @@ void SpellMgr::LoadSpellTargetPositions()
         mSpellTargetPositions[Spell_ID] = st;
         ++count;
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     // Check all spells
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
@@ -1260,7 +1260,7 @@ void SpellMgr::LoadSpellProcEvents()
             customProc++;
         }
         ++count;
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     if (customProc)
@@ -1307,7 +1307,7 @@ void SpellMgr::LoadSpellBonusess()
 
         mSpellBonusMap[entry] = sbe;
         ++count;
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u extra spell bonus data",  count);
@@ -1484,7 +1484,7 @@ void SpellMgr::LoadSpellGroups()
         groups.insert(std::set<uint32>::value_type(group_id));
         mSpellGroupSpell.insert(SpellGroupSpellMap::value_type((SpellGroup)group_id, spell_id));
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     for (SpellGroupSpellMap::iterator itr = mSpellGroupSpell.begin(); itr!= mSpellGroupSpell.end() ; )
     {
@@ -1580,7 +1580,7 @@ void SpellMgr::LoadSpellGroupStackRules()
         mSpellGroupStack[(SpellGroup)group_id] = (SpellGroupStackRule)stack_rule;
 
         ++count;
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u spell group stack rules", count );
@@ -2670,7 +2670,7 @@ void SpellMgr::LoadSpellAreas()
             mSpellAreaForAuraMap.insert(SpellAreaForAuraMap::value_type(abs(spellArea.auraSpell),sa));
 
         ++count;
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString( ">> Loaded %u spell area requirements", count );
@@ -3267,7 +3267,7 @@ void SpellMgr::LoadSpellEnchantProcData()
         mSpellEnchantProcEventMap[enchantId] = spe;
 
         ++count;
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString( ">> Loaded %u enchant proc data definitions", count);
@@ -3363,7 +3363,7 @@ void SpellMgr::LoadSpellRanks()
         int32 lastSpell = -1;
 
         // fill one chain
-        while(currentSpell == lastSpell && !finished)
+        while (currentSpell == lastSpell && !finished)
         {
             Field *fields = result->Fetch();
 
@@ -3977,7 +3977,7 @@ void SpellMgr::LoadSpellLinked()
         mSpellLinkedMap[trigger].push_back(effect);
 
         ++count;
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u linked spells", count );

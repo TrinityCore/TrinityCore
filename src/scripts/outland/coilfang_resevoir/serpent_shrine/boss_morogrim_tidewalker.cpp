@@ -235,7 +235,7 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
                         if (pTarget)
                             itr = list.find(pTarget->GetGUID());
                         ++counter;
-                    } while(itr != list.end());
+                    } while (itr != list.end());
 
                     if (pTarget)
                     {

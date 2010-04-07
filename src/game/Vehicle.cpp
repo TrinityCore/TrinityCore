@@ -173,7 +173,7 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
     if(seat == m_Seats.end()) return -1;
-    while(seat->second.passenger || !seat->second.seatInfo->IsUsable())
+    while (seat->second.passenger || !seat->second.seatInfo->IsUsable())
     {
         if(next)
         {

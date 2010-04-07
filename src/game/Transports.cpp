@@ -110,7 +110,7 @@ void MapManager::LoadTransports()
 
         //t->GetMap()->Add<GameObject>((GameObject *)t);
         ++count;
-    } while(result->NextRow());
+    } while (result->NextRow());
 
     sLog.outString();
     sLog.outString( ">> Loaded %u transports", count );
@@ -128,7 +128,7 @@ void MapManager::LoadTransports()
             std::string name = fields[2].GetCppString();
             sLog.outErrorDb("Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports DON'T must have any records in `gameobject` or its behavior will be unpredictable/bugged.",entry,name.c_str(),guid);
         }
-        while(result->NextRow());
+        while (result->NextRow());
     }
 }
 

@@ -1379,9 +1379,9 @@ bool Position::HasInArc(float arc, const Position *obj) const
         return true;
 
     // move arc to range 0.. 2*pi
-    while( arc >= 2.0f * M_PI )
+    while ( arc >= 2.0f * M_PI )
         arc -=  2.0f * M_PI;
-    while( arc < 0 )
+    while ( arc < 0 )
         arc +=  2.0f * M_PI;
 
     float angle = GetAngle( obj );
@@ -1397,9 +1397,9 @@ bool Position::HasInArc(float arc, const Position *obj) const
     //}
 
     // move angle to range -pi ... +pi
-    while( angle > M_PI)
+    while ( angle > M_PI)
         angle -= 2.0f * M_PI;
-    while(angle < -M_PI)
+    while (angle < -M_PI)
         angle += 2.0f * M_PI;
 
     float lborder =  -1 * (arc/2.0f);                       // in range -pi..0
@@ -2070,9 +2070,9 @@ namespace Trinity
                 float angle = i_object.GetAngle(u)-i_angle;
 
                 // move angle to range -pi ... +pi
-                while( angle > M_PI)
+                while ( angle > M_PI)
                     angle -= 2.0f * M_PI;
-                while(angle < -M_PI)
+                while (angle < -M_PI)
                     angle += 2.0f * M_PI;
 
                 // dist include size of u
@@ -2167,7 +2167,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     selector.InitializeAngle();
 
     // select in positions after current nodes (selection one by one)
-    while(selector.NextAngle(angle))                        // angle for free pos
+    while (selector.NextAngle(angle))                        // angle for free pos
     {
         GetNearPoint2D(x,y,distance2d,absAngle+angle);
         z = GetPositionZ();
@@ -2207,7 +2207,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     selector.InitializeAngle();
 
     // select in positions after current nodes (selection one by one)
-    while(selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
+    while (selector.NextUsedAngle(angle))                    // angle for used pos but maybe without LOS problem
     {
         GetNearPoint2D(x,y,distance2d,absAngle+angle);
         z = GetPositionZ();

@@ -145,7 +145,7 @@ void WorldSession::HandleCharEnum(QueryResult_AutoPtr result)
             if(Player::BuildEnumData(result, &data))
                 ++num;
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
     }
 
     data.put<uint8>(0, num);

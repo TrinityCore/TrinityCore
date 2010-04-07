@@ -512,7 +512,7 @@ void ReputationMgr::LoadFromDB(QueryResult_AutoPtr result)
                     faction->Changed = false;
             }
         }
-        while( result->NextRow() );
+        while ( result->NextRow() );
     }
 }
 

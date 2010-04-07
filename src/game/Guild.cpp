@@ -307,7 +307,7 @@ bool Guild::LoadRanksFromDB(QueryResult_AutoPtr guildRanksResult)
             rankRights |= GR_RIGHT_ALL;
 
         AddRank(rankName,rankRights,rankMoney);
-    }while( guildRanksResult->NextRow() );
+    }while ( guildRanksResult->NextRow() );
 
     if (m_Ranks.size() < GUILD_RANKS_MIN_COUNT)             // if too few ranks, renew them
     {

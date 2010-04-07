@@ -2782,7 +2782,7 @@ void ObjectMgr::LoadPlayerInfo()
                 bar.step();
                 ++count;
             }
-            while(result->NextRow());
+            while (result->NextRow());
 
             sLog.outString();
             sLog.outString( ">> Loaded %u custom player create items", count );
@@ -2847,7 +2847,7 @@ void ObjectMgr::LoadPlayerInfo()
                 bar.step();
                 ++count;
             }
-            while( result->NextRow() );
+            while ( result->NextRow() );
 
             sLog.outString();
             sLog.outString( ">> Loaded %u player create spells", count );
@@ -2898,7 +2898,7 @@ void ObjectMgr::LoadPlayerInfo()
                 bar.step();
                 ++count;
             }
-            while( result->NextRow() );
+            while ( result->NextRow() );
 
             sLog.outString();
             sLog.outString( ">> Loaded %u player create actions", count );
@@ -3406,7 +3406,7 @@ void ObjectMgr::LoadArenaTeams()
             continue;
         }
         AddArenaTeam(newArenaTeam);
-    }while( result->NextRow() );
+    }while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u arenateam definitions", count );
@@ -3449,7 +3449,7 @@ void ObjectMgr::LoadGroups()
             continue;
         }
         AddGroup(group);
-    }while( result->NextRow() );
+    }while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u group definitions", count );
@@ -3490,7 +3490,7 @@ void ObjectMgr::LoadGroups()
                 sLog.outErrorDb("Incorrect entry in group_member table : member %d cannot be added to player %d's group!", fields[0].GetUInt32(), fields[3].GetUInt32());
                 CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", fields[0].GetUInt32());
             }
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
     }
 
     // clean groups
@@ -3559,7 +3559,7 @@ void ObjectMgr::LoadGroups()
 
             InstanceSave *save = sInstanceSaveManager.AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), (time_t)fields[5].GetUInt64(), (fields[6].GetUInt32() == 0), true);
             group->BindToInstance(save, fields[3].GetBool(), true);
-        }while( result->NextRow() );
+        }while ( result->NextRow() );
     }
 
     sLog.outString();
@@ -3637,7 +3637,7 @@ void ObjectMgr::LoadQuests()
 
         Quest * newQuest = new Quest(fields);
         mQuestTemplates[newQuest->GetQuestId()] = newQuest;
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     std::map<uint32,uint32> usedMailTemplates;
 
@@ -4643,7 +4643,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
         scripts[tmp.id].insert(std::pair<uint32, ScriptInfo>(tmp.delay, tmp));
 
         ++count;
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u script definitions", count );
@@ -5009,7 +5009,7 @@ void ObjectMgr::LoadGossipText()
                 gText.Options[i].Emotes[j]._Emote  = fields[cic++].GetUInt32();
             }
         }
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u npc texts", count );
@@ -5239,7 +5239,7 @@ void ObjectMgr::LoadQuestAreaTriggers()
 
         mQuestAreaTriggerMap[trigger_ID] = quest_ID;
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u quest trigger points", count );
@@ -5282,7 +5282,7 @@ void ObjectMgr::LoadTavernAreaTriggers()
         }
 
         mTavernAreaTriggerSet.insert(Trigger_ID);
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u tavern triggers", count );
@@ -5324,7 +5324,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
             continue;
         }
         mAreaTriggerScripts[Trigger_ID] = GetScriptId(scriptName);
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u areatrigger scripts", count );
@@ -5533,7 +5533,7 @@ void ObjectMgr::LoadGraveyardZones()
 
         if(!AddGraveYardLink(safeLocId,zoneId,team,false))
             sLog.outErrorDb("Table `game_graveyard_zone` has a duplicate record for Graveyard (ID: %u) and Zone (ID: %u), skipped.",safeLocId,zoneId);
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u graveyard-zone links", count );
@@ -5801,7 +5801,7 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         mAreaTriggers[Trigger_ID] = at;
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u area trigger teleport definitions", count );
@@ -5916,7 +5916,7 @@ void ObjectMgr::LoadAccessRequirements()
 
         mAccessRequirements[requiremt_ID] = ar;
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     sLog.outString();
     sLog.outString( ">> Loaded %u access requirement definitions", count );
@@ -8526,7 +8526,7 @@ void ObjectMgr::LoadGossipMenu()
 
         ++count;
     }
-    while(result->NextRow());
+    while (result->NextRow());
 
     sLog.outString();
     sLog.outString( ">> Loaded %u gossip_menu entries", count);
@@ -8652,7 +8652,7 @@ void ObjectMgr::LoadGossipMenuItems()
         ++count;
 
     }
-    while(result->NextRow());
+    while (result->NextRow());
 
     if (!gossipScriptSet.empty())
     {
@@ -8936,7 +8936,7 @@ void ObjectMgr::LoadTransportEvents()
         uint32 event_count = (entry*100)+waypoint_id;
         TransportEventMap[event_count] = event_id;
     }
-    while(result->NextRow());
+    while (result->NextRow());
 
     sLog.outString( "\n>> Loaded %u transport events \n", result->GetRowCount() );
 }
@@ -9002,7 +9002,7 @@ void ObjectMgr::LoadGMTickets()
 
         m_GMTicketList.push_back(ticket);
 
-    } while( result->NextRow() );
+    } while ( result->NextRow() );
 
     result = CharacterDatabase.PQuery("SELECT MAX(guid) from gm_tickets");
 

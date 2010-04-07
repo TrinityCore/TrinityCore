@@ -149,7 +149,7 @@ struct boss_moroesAI : public ScriptedAI
             for (uint8 i = 0; i < 6; ++i)
                 AddList.push_back(Adds[i]);
 
-            while(AddList.size() > 4)
+            while (AddList.size() > 4)
                 AddList.erase((AddList.begin())+(rand()%AddList.size()));
 
             uint8 i = 0;

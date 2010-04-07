@@ -62,7 +62,7 @@ Map::~Map()
 {
     UnloadAll();
 
-    while(!i_worldObjects.empty())
+    while (!i_worldObjects.empty())
     {
         WorldObject *obj = *i_worldObjects.begin();
         assert(obj->m_isWorldObject);
@@ -2240,7 +2240,7 @@ void Map::AddObjectToSwitchList(WorldObject *obj, bool on)
 
 void Map::RemoveAllObjectsInRemoveList()
 {
-    while(!i_objectsToSwitch.empty())
+    while (!i_objectsToSwitch.empty())
     {
         std::map<WorldObject*, bool>::iterator itr = i_objectsToSwitch.begin();
         WorldObject *obj = itr->first;
@@ -2257,7 +2257,7 @@ void Map::RemoveAllObjectsInRemoveList()
     }
 
     //sLog.outDebug("Object remover 1 check.");
-    while(!i_objectsToRemove.empty())
+    while (!i_objectsToRemove.empty())
     {
         std::set<WorldObject*>::iterator itr = i_objectsToRemove.begin();
         WorldObject* obj = *itr;
