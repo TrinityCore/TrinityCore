@@ -96,7 +96,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (!bHealth && HealthBelowPct(50) &&  !HealthBelowPct(6))
+        if (!bHealth && HealthBelowPct(50) &&  !HealthBelowPct(5))
         {
             CreatureState(m_creature, false);
             DoCast(m_creature,SPELL_FREEZE_ANIM);
