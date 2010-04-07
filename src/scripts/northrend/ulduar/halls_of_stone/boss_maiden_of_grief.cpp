@@ -100,7 +100,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
             {
                 Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget, SPELL_PARTING_SORROW);
 
                 PartingSorrowTimer = 30000 + rand()%10000;

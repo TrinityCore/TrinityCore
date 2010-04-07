@@ -223,7 +223,7 @@ WorldSocketMgr::~WorldSocketMgr ()
     if (m_NetThreads)
         delete [] m_NetThreads;
 
-    if(m_Acceptor)
+    if (m_Acceptor)
         delete m_Acceptor;
 }
 

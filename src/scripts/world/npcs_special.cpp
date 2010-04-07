@@ -1250,7 +1250,7 @@ bool GossipSelect_npc_rogue_trainer(Player* pPlayer, Creature* pCreature, uint32
             pPlayer->SendTalentWipeConfirm(pCreature->GetGUID());
             break;
         case GOSSIP_OPTION_LEARNDUALSPEC:
-            if(pPlayer->GetSpecsCount() == 1 && !(pPlayer->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
+            if (pPlayer->GetSpecsCount() == 1 && !(pPlayer->getLevel() < sWorld.getConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
             {
                 if (pPlayer->GetMoney() < 10000000)
                 {
@@ -1805,7 +1805,7 @@ struct npc_ebon_gargoyleAI : CasterAI
         Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(m_creature, targets, u_check);
         m_creature->VisitNearbyObject(30, searcher);
         for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
-            if((*iter)->GetAura(49206,owner->GetGUID()))
+            if ((*iter)->GetAura(49206,owner->GetGUID()))
             {
                 me->Attack((*iter),false);
                 break;
@@ -1822,7 +1822,7 @@ struct npc_ebon_gargoyleAI : CasterAI
     // Fly away when dismissed
     void SpellHit(Unit *source, const SpellEntry *spell)
     {
-        if(spell->Id != 50515 || !me->isAlive() )
+        if (spell->Id != 50515 || !me->isAlive() )
             return;
 
         Unit *owner = me->GetOwner();

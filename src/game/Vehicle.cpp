@@ -31,11 +31,11 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
 {
     for (uint32 i = 0; i < 8; ++i)
     {
-        if(uint32 seatId = m_vehicleInfo->m_seatID[i])
-            if(VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
+        if (uint32 seatId = m_vehicleInfo->m_seatID[i])
+            if (VehicleSeatEntry const *veSeat = sVehicleSeatStore.LookupEntry(seatId))
             {
                 m_Seats.insert(std::make_pair(i, VehicleSeat(veSeat)));
-                if(veSeat->IsUsable())
+                if (veSeat->IsUsable())
                     ++m_usableSeatNum;
             }
     }
@@ -50,14 +50,14 @@ Vehicle::~Vehicle()
 
 void Vehicle::Install()
 {
-    if(Creature *cre = dynamic_cast<Creature*>(me))
+    if (Creature *cre = dynamic_cast<Creature*>(me))
     {
-        if(m_vehicleInfo->m_powerType == POWER_STEAM)
+        if (m_vehicleInfo->m_powerType == POWER_STEAM)
         {
             me->setPowerType(POWER_ENERGY);
             me->SetMaxPower(POWER_ENERGY, 100);
         }
-        else if(m_vehicleInfo->m_powerType == POWER_PYRITE)
+        else if (m_vehicleInfo->m_powerType == POWER_PYRITE)
         {
             me->setPowerType(POWER_ENERGY);
             me->SetMaxPower(POWER_ENERGY, 50);
@@ -66,17 +66,17 @@ void Vehicle::Install()
         {
             for (uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
             {
-                if(!cre->m_spells[i])
+                if (!cre->m_spells[i])
                     continue;
 
                 SpellEntry const *spellInfo = sSpellStore.LookupEntry(cre->m_spells[i]);
-                if(!spellInfo)
+                if (!spellInfo)
                     continue;
 
-                if(spellInfo->powerType == POWER_MANA)
+                if (spellInfo->powerType == POWER_MANA)
                     break;
 
-                if(spellInfo->powerType == POWER_ENERGY)
+                if (spellInfo->powerType == POWER_ENERGY)
                 {
                     me->setPowerType(POWER_ENERGY);
                     me->SetMaxPower(POWER_ENERGY, 100);
@@ -103,8 +103,8 @@ void Vehicle::Uninstall()
 {
     sLog.outDebug("Vehicle::Uninstall %u", me->GetEntry());
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if(Unit *passenger = itr->second.passenger)
-            if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+        if (Unit *passenger = itr->second.passenger)
+            if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 passenger->ToTempSummon()->UnSummon();
     RemoveAllPassengers();
 }
@@ -113,8 +113,8 @@ void Vehicle::Die()
 {
     sLog.outDebug("Vehicle::Die %u", me->GetEntry());
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if(Unit *passenger = itr->second.passenger)
-            if(passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
+        if (Unit *passenger = itr->second.passenger)
+            if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 passenger->setDeathState(JUST_DIED);
     RemoveAllPassengers();
 }
@@ -139,14 +139,14 @@ void Vehicle::RemoveAllPassengers()
 {
     sLog.outDebug("Vehicle::RemoveAllPassengers");
     for (SeatMap::iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
-        if(Unit *passenger = itr->second.passenger)
+        if (Unit *passenger = itr->second.passenger)
         {
-            if(passenger->IsVehicle())
+            if (passenger->IsVehicle())
                 passenger->GetVehicleKit()->RemoveAllPassengers();
-            if(passenger->GetVehicle() != this)
+            if (passenger->GetVehicle() != this)
                 sLog.outCrash("Vehicle %u has invalid passenger %u.", me->GetEntry(), passenger->GetEntry());
             passenger->ExitVehicle();
-            if(itr->second.passenger)
+            if (itr->second.passenger)
             {
                 sLog.outCrash("Vehicle %u cannot remove passenger %u. %u is still on it.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger->GetEntry());
                 //assert(!itr->second.passenger);
@@ -158,36 +158,36 @@ void Vehicle::RemoveAllPassengers()
 bool Vehicle::HasEmptySeat(int8 seatId) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
-    if(seat == m_Seats.end()) return false;
+    if (seat == m_Seats.end()) return false;
     return !seat->second.passenger;
 }
 
 Unit *Vehicle::GetPassenger(int8 seatId) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
-    if(seat == m_Seats.end()) return NULL;
+    if (seat == m_Seats.end()) return NULL;
     return seat->second.passenger;
 }
 
 int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 {
     SeatMap::const_iterator seat = m_Seats.find(seatId);
-    if(seat == m_Seats.end()) return -1;
+    if (seat == m_Seats.end()) return -1;
     while (seat->second.passenger || !seat->second.seatInfo->IsUsable())
     {
-        if(next)
+        if (next)
         {
             ++seat;
-            if(seat == m_Seats.end())
+            if (seat == m_Seats.end())
                 seat = m_Seats.begin();
         }
         else
         {
-            if(seat == m_Seats.begin())
+            if (seat == m_Seats.begin())
                 seat = m_Seats.end();
             --seat;
         }
-        if(seat->first == seatId)
+        if (seat->first == seatId)
             return -1; // no available seat
     }
     return seat->first;
@@ -195,13 +195,13 @@ int8 Vehicle::GetNextEmptySeat(int8 seatId, bool next) const
 
 void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
 {
-    if(Unit *passenger = GetPassenger(seatId))
+    if (Unit *passenger = GetPassenger(seatId))
     {
         // already installed
-        if(passenger->GetEntry() == entry)
+        if (passenger->GetEntry() == entry)
         {
             assert(passenger->GetTypeId() == TYPEID_UNIT);
-            if(me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsInEvadeMode() && passenger->ToCreature()->IsAIEnabled)
+            if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsInEvadeMode() && passenger->ToCreature()->IsAIEnabled)
                 passenger->ToCreature()->AI()->EnterEvadeMode();
             return;
         }
@@ -209,9 +209,9 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
     }
 
     //TODO: accessory should be minion
-    if(Creature *accessory = me->SummonCreature(entry, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
+    if (Creature *accessory = me->SummonCreature(entry, *me, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000))
     {
-        if(minion)
+        if (minion)
             accessory->AddUnitTypeMask(UNIT_MASK_ACCESSORY);
         accessory->EnterVehicle(this, seatId);
         // This is not good, we have to send update twice
@@ -221,26 +221,26 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
 
 bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 {
-    if(unit->GetVehicle() != this)
+    if (unit->GetVehicle() != this)
         return false;
 
     SeatMap::iterator seat;
-    if(seatId < 0) // no specific seat requirement
+    if (seatId < 0) // no specific seat requirement
     {
         for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-            if(!seat->second.passenger && seat->second.seatInfo->IsUsable())
+            if (!seat->second.passenger && seat->second.seatInfo->IsUsable())
                 break;
 
-        if(seat == m_Seats.end()) // no available seat
+        if (seat == m_Seats.end()) // no available seat
             return false;
     }
     else
     {
         seat = m_Seats.find(seatId);
-        if(seat == m_Seats.end())
+        if (seat == m_Seats.end())
             return false;
 
-        if(seat->second.passenger)
+        if (seat->second.passenger)
             seat->second.passenger->ExitVehicle();
 
         assert(!seat->second.passenger);
@@ -249,11 +249,11 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     sLog.outDebug("Unit %s enter vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = unit;
-    if(seat->second.seatInfo->IsUsable())
+    if (seat->second.seatInfo->IsUsable())
     {
         assert(m_usableSeatNum);
         --m_usableSeatNum;
-        if(!m_usableSeatNum)
+        if (!m_usableSeatNum)
         {
             if (me->GetTypeId() == TYPEID_PLAYER)
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
@@ -262,7 +262,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
     }
 
-    if(seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x400))
+    if (seat->second.seatInfo->m_flags && !(seat->second.seatInfo->m_flags & 0x400))
         unit->addUnitState(UNIT_STAT_ONVEHICLE);
 
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
@@ -276,19 +276,19 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
 
-    if(me->GetTypeId() == TYPEID_UNIT
+    if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800) // not right
         if (!me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             assert(false);
 
-    if(me->IsInWorld())
+    if (me->IsInWorld())
     {
         unit->SendMonsterMoveTransport(me);
 
-        if(me->GetTypeId() == TYPEID_UNIT)
+        if (me->GetTypeId() == TYPEID_UNIT)
         {
-            if(me->ToCreature()->IsAIEnabled)
+            if (me->ToCreature()->IsAIEnabled)
                 me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, true);
 
             // update all passenger's positions
@@ -296,7 +296,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
     }
 
-    //if(unit->GetTypeId() == TYPEID_PLAYER)
+    //if (unit->GetTypeId() == TYPEID_PLAYER)
     //    unit->ToPlayer()->SendTeleportAckPacket();
     //unit->SendMovementFlagUpdate();
 
@@ -305,12 +305,12 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
 void Vehicle::RemovePassenger(Unit *unit)
 {
-    if(unit->GetVehicle() != this)
+    if (unit->GetVehicle() != this)
         return;
 
     SeatMap::iterator seat;
     for (seat = m_Seats.begin(); seat != m_Seats.end(); ++seat)
-        if(seat->second.passenger == unit)
+        if (seat->second.passenger == unit)
             break;
 
     assert(seat != m_Seats.end());
@@ -318,9 +318,9 @@ void Vehicle::RemovePassenger(Unit *unit)
     sLog.outDebug("Unit %s exit vehicle entry %u id %u dbguid %u seat %d", unit->GetName(), me->GetEntry(), m_vehicleInfo->m_ID, me->GetGUIDLow(), (int32)seat->first);
 
     seat->second.passenger = NULL;
-    if(seat->second.seatInfo->IsUsable())
+    if (seat->second.seatInfo->IsUsable())
     {
-        if(!m_usableSeatNum)
+        if (!m_usableSeatNum)
         {
             if (me->GetTypeId() == TYPEID_PLAYER)
                 me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
@@ -334,12 +334,12 @@ void Vehicle::RemovePassenger(Unit *unit)
 
     //SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
 
-    if(me->GetTypeId() == TYPEID_UNIT
+    if (me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
         && seat->first == 0 && seat->second.seatInfo->m_flags & 0x800)
         me->RemoveCharmedBy(unit);
 
-    if(me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
+    if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
         me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
     // only for flyable vehicles?

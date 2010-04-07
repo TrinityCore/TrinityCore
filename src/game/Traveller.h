@@ -75,11 +75,11 @@ inline uint32 Traveller<T>::GetTotalTrevelTimeTo(float x, float y, float z)
 template<>
 inline float Traveller<Creature>::Speed()
 {
-    if(i_traveller.hasUnitState(UNIT_STAT_CHARGING))
+    if (i_traveller.hasUnitState(UNIT_STAT_CHARGING))
         return i_traveller.m_TempSpeed;
-    else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
+    else if (i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
         return i_traveller.GetSpeed(MOVE_WALK);
-    else if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
+    else if (i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
         return i_traveller.GetSpeed(MOVE_FLIGHT);
     else
         return i_traveller.GetSpeed(MOVE_RUN);
@@ -98,7 +98,7 @@ inline float Traveller<Creature>::GetMoveDestinationTo(float x, float y, float z
     float dy = y - GetPositionY();
     float dz = z - GetPositionZ();
 
-    //if(i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
+    //if (i_traveller.HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
         return sqrt((dx*dx) + (dy*dy) + (dz*dz));
     //else                                                    //Walking on the ground
     //    return sqrt((dx*dx) + (dy*dy));
@@ -115,9 +115,9 @@ inline void Traveller<Creature>::MoveTo(float x, float y, float z, uint32 t)
 template<>
 inline float Traveller<Player>::Speed()
 {
-    if(i_traveller.hasUnitState(UNIT_STAT_CHARGING))
+    if (i_traveller.hasUnitState(UNIT_STAT_CHARGING))
         return i_traveller.m_TempSpeed;
-    else if(i_traveller.isInFlight())
+    else if (i_traveller.isInFlight())
         return PLAYER_FLIGHT_SPEED;
     else
         return i_traveller.GetSpeed(i_traveller.m_movementInfo.HasMovementFlag(MOVEMENTFLAG_WALK_MODE) ? MOVE_WALK : MOVE_RUN);

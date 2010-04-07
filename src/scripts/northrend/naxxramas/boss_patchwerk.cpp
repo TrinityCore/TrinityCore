@@ -66,13 +66,13 @@ struct boss_patchwerkAI : public BossAI
         _JustDied();
         DoScriptText(SAY_DEATH, me);
 
-        if(EncounterTime <= MAX_ENCOUNTER_TIME)
+        if (EncounterTime <= MAX_ENCOUNTER_TIME)
         {
             AchievementEntry const *AchievMakeQuickWerkOfHim = GetAchievementStore()->LookupEntry(ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM);
-            if(AchievMakeQuickWerkOfHim)
+            if (AchievMakeQuickWerkOfHim)
             {
                 Map *pMap = m_creature->GetMap();
-                if(pMap && pMap->IsDungeon())
+                if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)

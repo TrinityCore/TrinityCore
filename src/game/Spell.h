@@ -182,7 +182,7 @@ class SpellCastTargets
         void setItemTarget(Item* item);
         void updateTradeSlotItem()
         {
-            if(m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
+            if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
             {
                 m_itemTargetGUID = m_itemTarget->GetGUID();
                 m_itemTargetEntry = m_itemTarget->GetEntry();
@@ -443,8 +443,8 @@ class Spell
 
         bool CheckTarget( Unit* target, uint32 eff );
         bool CanAutoCast(Unit* target);
-        void CheckSrc() { if(!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
-        void CheckDst() { if(!m_targets.HasDst()) m_targets.setDst(m_caster); }
+        void CheckSrc() { if (!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
+        void CheckDst() { if (!m_targets.HasDst()) m_targets.setDst(m_caster); }
 
         static void  SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
         void SendCastResult(SpellCastResult result);
@@ -538,7 +538,7 @@ class Spell
         uint8 m_delayAtDamageCount;
         bool isDelayableNoMore()
         {
-            if(m_delayAtDamageCount >= 2)
+            if (m_delayAtDamageCount >= 2)
                 return true;
 
             m_delayAtDamageCount++;
@@ -706,35 +706,35 @@ namespace Trinity
             {
                 Unit *target = (Unit*)itr->getSource();
 
-                if(!target->InSamePhase(i_source))
+                if (!target->InSamePhase(i_source))
                     continue;
 
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_ENEMY:
-                        if(target->isTotem())
+                        if (target->isTotem())
                             continue;
-                        if(!target->isAttackableByAOE())
+                        if (!target->isAttackableByAOE())
                             continue;
-                        if(i_source->IsControlledByPlayer())
+                        if (i_source->IsControlledByPlayer())
                         {
-                            if(i_source->IsFriendlyTo(target))
+                            if (i_source->IsFriendlyTo(target))
                                 continue;
                         }
                         else
                         {
-                            if(!i_source->IsHostileTo(target))
+                            if (!i_source->IsHostileTo(target))
                                 continue;
                         }
                         break;
                     case SPELL_TARGETS_ALLY:
-                        if(target->isTotem())
+                        if (target->isTotem())
                             continue;
-                        if(!target->isAttackableByAOE() || !i_source->IsFriendlyTo(target))
+                        if (!target->isAttackableByAOE() || !i_source->IsFriendlyTo(target))
                             continue;
                         break;
                     case SPELL_TARGETS_ENTRY:
-                        if(target->GetEntry()!= i_entry)
+                        if (target->GetEntry()!= i_entry)
                             continue;
                         break;
                     case SPELL_TARGETS_ANY:
@@ -748,23 +748,23 @@ namespace Trinity
                     case PUSH_DST_CENTER:
                     case PUSH_CHAIN:
                     default:
-                        if(target->IsWithinDist3d(i_pos, i_radius))
+                        if (target->IsWithinDist3d(i_pos, i_radius))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_FRONT:
-                        if(i_source->isInFront(target, i_radius, M_PI/3))
+                        if (i_source->isInFront(target, i_radius, M_PI/3))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_BACK:
-                        if(i_source->isInBack(target, i_radius, M_PI/3))
+                        if (i_source->isInBack(target, i_radius, M_PI/3))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_LINE:
-                        if(i_source->HasInLine(target, i_radius, i_source->GetObjectSize()))
+                        if (i_source->HasInLine(target, i_radius, i_source->GetObjectSize()))
                             i_data->push_back(target);
                         break;
                     case PUSH_IN_THIN_LINE: // only traj
-                        if(i_pos->HasInLine(target, i_radius, 0))
+                        if (i_pos->HasInLine(target, i_radius, 0))
                             i_data->push_back(target);
                         break;
                 }

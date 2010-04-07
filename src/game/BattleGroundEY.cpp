@@ -374,7 +374,7 @@ void BattleGroundEY::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    if(!Source->isAlive())                                  //hack code, must be removed later
+    if (!Source->isAlive())                                  //hack code, must be removed later
         return;
 
     switch(Trigger)
@@ -789,7 +789,7 @@ void BattleGroundEY::EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType
 void BattleGroundEY::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if(itr == m_PlayerScores.end())                         // player not found
+    if (itr == m_PlayerScores.end())                         // player not found
         return;
 
     switch(type)

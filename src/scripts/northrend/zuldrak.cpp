@@ -544,7 +544,7 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
                 pSummon->AI()->AttackStart(m_creature->getVictim());
                 break;
             case NPC_HUNGRY_PENGUIN:
-                if(Unit *pAffected = Unit::GetUnit(*m_creature, AffectedGUID))
+                if (Unit *pAffected = Unit::GetUnit(*m_creature, AffectedGUID))
                 {
                     if (pAffected->isAlive())
                         pSummon->AI()->AttackStart(pAffected);

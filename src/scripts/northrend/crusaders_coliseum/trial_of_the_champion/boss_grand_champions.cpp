@@ -92,17 +92,17 @@ void AggroAllPlayers(Creature* pTemp)
 {
     Map::PlayerList const &PlList = pTemp->GetMap()->GetPlayers();
 
-    if(PlList.isEmpty())
+    if (PlList.isEmpty())
             return;
 
     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
-        if(Player* pPlayer = i->getSource())
+        if (Player* pPlayer = i->getSource())
         {
-            if(pPlayer->isGameMaster())
+            if (pPlayer->isGameMaster())
                 continue;
 
-            if(pPlayer->isAlive())
+            if (pPlayer->isAlive())
             {
                 pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 pTemp->SetReactState(REACT_AGGRESSIVE);

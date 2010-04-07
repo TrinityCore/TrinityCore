@@ -176,13 +176,13 @@ Quest::Quest(Field * questRecord)
 
 uint32 Quest::XPValue( Player *pPlayer ) const
 {
-    if( pPlayer )
+    if ( pPlayer )
     {
 
       const QuestXPEntry *xpentry;
       int32 quest_level = (QuestLevel == -1 ? pPlayer->getLevel() : QuestLevel);
       xpentry = sQuestXPStore.LookupEntry(quest_level);
-      if(!xpentry)
+      if (!xpentry)
     return 0;
 
       int diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
@@ -211,7 +211,7 @@ uint32 Quest::XPValue( Player *pPlayer ) const
 
 int32  Quest::GetRewOrReqMoney() const
 {
-    if(RewOrReqMoney <= 0)
+    if (RewOrReqMoney <= 0)
         return RewOrReqMoney;
 
     return int32(RewOrReqMoney * sWorld.getRate(RATE_DROP_MONEY));

@@ -65,11 +65,11 @@ bool PlayerSocial::AddToSocialList(uint32 friend_guid, bool ignore)
     }
 
     uint32 flag = SOCIAL_FLAG_FRIEND;
-    if(ignore)
+    if (ignore)
         flag = SOCIAL_FLAG_IGNORED;
 
     PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
-    if(itr != m_playerSocialMap.end())
+    if (itr != m_playerSocialMap.end())
     {
         CharacterDatabase.PExecute("UPDATE character_social SET flags = (flags | %u) WHERE guid = '%u' AND friend = '%u'", flag, GetPlayerGUID(), friend_guid);
         m_playerSocialMap[friend_guid].Flags |= flag;
@@ -155,7 +155,7 @@ void PlayerSocial::SendSocialList()
 bool PlayerSocial::HasFriend(uint32 friend_guid)
 {
     PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(friend_guid);
-    if(itr != m_playerSocialMap.end())
+    if (itr != m_playerSocialMap.end())
         return itr->second.Flags & SOCIAL_FLAG_FRIEND;
     return false;
 }
@@ -163,7 +163,7 @@ bool PlayerSocial::HasFriend(uint32 friend_guid)
 bool PlayerSocial::HasIgnore(uint32 ignore_guid)
 {
     PlayerSocialMap::const_iterator itr = m_playerSocialMap.find(ignore_guid);
-    if(itr != m_playerSocialMap.end())
+    if (itr != m_playerSocialMap.end())
         return itr->second.Flags & SOCIAL_FLAG_IGNORED;
     return false;
 }
@@ -178,7 +178,7 @@ SocialMgr::~SocialMgr()
 
 void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &friendInfo)
 {
-    if(!player)
+    if (!player)
         return;
 
     friendInfo.Status = FRIEND_STATUS_OFFLINE;
@@ -187,7 +187,7 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
     friendInfo.Class = 0;
 
     Player *pFriend = ObjectAccessor::FindPlayer(friendGUID);
-    if(!pFriend)
+    if (!pFriend)
         return;
 
     uint32 team = player->GetTeam();
@@ -196,7 +196,7 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
     AccountTypes gmLevelInWhoList = AccountTypes (sWorld.getConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
 
     PlayerSocialMap::iterator itr = player->GetSocial()->m_playerSocialMap.find(friendGUID);
-    if(itr != player->GetSocial()->m_playerSocialMap.end())
+    if (itr != player->GetSocial()->m_playerSocialMap.end())
         friendInfo.Note = itr->second.Note;
 
     // PLAYER see his team only and PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
@@ -207,9 +207,9 @@ void SocialMgr::GetFriendInfo(Player *player, uint32 friendGUID, FriendInfo &fri
         pFriend->IsVisibleGloballyFor(player))
     {
         friendInfo.Status = FRIEND_STATUS_ONLINE;
-        if(pFriend->isAFK())
+        if (pFriend->isAFK())
             friendInfo.Status = FRIEND_STATUS_AFK;
-        if(pFriend->isDND())
+        if (pFriend->isDND())
             friendInfo.Status = FRIEND_STATUS_DND;
         friendInfo.Area = pFriend->GetZoneId();
         friendInfo.Level = pFriend->getLevel();
@@ -296,7 +296,7 @@ PlayerSocial *SocialMgr::LoadFromDB(QueryResult_AutoPtr result, uint32 guid)
     PlayerSocial *social = &m_socialMap[guid];
     social->SetPlayerGUID(guid);
 
-    if(!result)
+    if (!result)
         return social;
 
     uint32 friend_guid = 0;
@@ -314,7 +314,7 @@ PlayerSocial *SocialMgr::LoadFromDB(QueryResult_AutoPtr result, uint32 guid)
         social->m_playerSocialMap[friend_guid] = FriendInfo(flags, note);
 
         // client's friends list and ignore list limit
-        if(social->m_playerSocialMap.size() >= (SOCIALMGR_FRIEND_LIMIT + SOCIALMGR_IGNORE_LIMIT))
+        if (social->m_playerSocialMap.size() >= (SOCIALMGR_FRIEND_LIMIT + SOCIALMGR_IGNORE_LIMIT))
             break;
     }
     while (result->NextRow());

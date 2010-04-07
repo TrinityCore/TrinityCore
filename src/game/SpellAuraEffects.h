@@ -49,8 +49,8 @@ class AuraEffect
         void CalculatePeriodic(Unit * caster, bool create = false);
         void CalculateSpellMod();
         void ChangeAmount(int32 newAmount, bool mark = true);
-        void RecalculateAmount() { if(!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false); }
-        void RecalculateAmount(Unit * caster) { if(!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
+        void RecalculateAmount() { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(GetCaster()), false); }
+        void RecalculateAmount(Unit * caster) { if (!CanBeRecalculated()) return; ChangeAmount(CalculateAmount(caster), false); }
         bool CanBeRecalculated() const { return m_canBeRecalculated; }
         void SetCanBeRecalculated(bool val) { m_canBeRecalculated = val; }
         void HandleEffect(AuraApplication const * aurApp, uint8 mode, bool apply);

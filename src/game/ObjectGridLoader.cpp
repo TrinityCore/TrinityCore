@@ -68,7 +68,7 @@ ObjectGridRespawnMover::Visit(CreatureMapType &m)
         CellPair resp_val = Trinity::ComputeCellPair(resp_x, resp_y);
         Cell resp_cell(resp_val);
 
-        if(cur_cell.DiffGrid(resp_cell))
+        if (cur_cell.DiffGrid(resp_cell))
         {
             c->GetMap()->CreatureRespawnRelocation(c);
             // false result ignored: will be unload with other creatures at grid
@@ -105,7 +105,7 @@ template<> void addUnitState(Creature *obj, CellPair const& cell_pair)
     Cell cell(cell_pair);
 
     obj->SetCurrentCell(cell);
-    if(obj->isSpiritService())
+    if (obj->isSpiritService())
         obj->setDeathState(DEAD);
 }
 
@@ -115,7 +115,7 @@ void AddObjectHelper(CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* m
     obj->GetGridRef().link(&m, obj);
     addUnitState(obj,cell);
     obj->AddToWorld();
-    if(obj->isActiveObject())
+    if (obj->isActiveObject())
         map->AddToActive(obj);
 
     ++count;
@@ -129,7 +129,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
         T* obj = new T;
         uint32 guid = *i_guid;
         //sLog.outString("DEBUG: LoadHelper from table: %s for (guid: %u) Loading",table,guid);
-        if(!obj->LoadFromDB(guid, map))
+        if (!obj->LoadFromDB(guid, map))
         {
             delete obj;
             continue;
@@ -141,18 +141,18 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
 
 void LoadHelper(CellCorpseSet const& cell_corpses, CellPair &cell, CorpseMapType &m, uint32 &count, Map* map)
 {
-    if(cell_corpses.empty())
+    if (cell_corpses.empty())
         return;
 
     for (CellCorpseSet::const_iterator itr = cell_corpses.begin(); itr != cell_corpses.end(); ++itr)
     {
-        if(itr->second != map->GetInstanceId())
+        if (itr->second != map->GetInstanceId())
             continue;
 
         uint32 player_guid = itr->first;
 
         Corpse *obj = ObjectAccessor::Instance().GetCorpseForPlayerGUID(player_guid);
-        if(!obj)
+        if (!obj)
             continue;
 
         // TODO: this is a hack
@@ -264,7 +264,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
     {
         T *obj = m.getFirst()->getSource();
         // if option set then object already saved at this moment
-        if(!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
+        if (!sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY))
             obj->SaveRespawnTime();
         ///- object will get delinked from the manager when deleted
         delete obj;
@@ -285,7 +285,7 @@ ObjectGridStoper::Visit(CreatureMapType &m)
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
         iter->getSource()->RemoveAllDynObjects();
-        if(iter->getSource()->isInCombat())
+        if (iter->getSource()->isInCombat())
         {
             iter->getSource()->CombatStop();
             iter->getSource()->DeleteThreatList();

@@ -280,12 +280,12 @@ struct pyrewood_ambushAI : public ScriptedAI
     {
         //sLog.outString("DEBUG: p(%i) k(%i) d(%u) W(%i)", Phase, KillCount, diff, WaitTimer);
 
-        if(!QuestInProgress)
+        if (!QuestInProgress)
             return;
 
-        if(KillCount && Phase < 6)
+        if (KillCount && Phase < 6)
         {
-            if(!UpdateVictim()) //reset() on target Despawn...
+            if (!UpdateVictim()) //reset() on target Despawn...
                 return;
 
             DoMeleeAttackIfReady();
@@ -295,10 +295,10 @@ struct pyrewood_ambushAI : public ScriptedAI
         switch (Phase)
         {
             case 0:
-                if(WaitTimer == WAIT_SECS)
+                if (WaitTimer == WAIT_SECS)
                     m_creature->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
 
-                if(WaitTimer <= diff)
+                if (WaitTimer <= diff)
                 {
                     WaitTimer -= diff;
                     return;

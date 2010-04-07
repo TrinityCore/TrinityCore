@@ -57,7 +57,7 @@ void Totem::InitStats(uint32 duration)
     Minion::InitStats(duration);
 
     CreatureInfo const *cinfo = GetCreatureInfo();
-    if(m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
+    if (m_owner->GetTypeId() == TYPEID_PLAYER && cinfo)
     {
         uint32 display_id = objmgr.ChooseDisplayId(m_owner->ToPlayer()->GetTeam(), cinfo);
         CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
@@ -107,7 +107,7 @@ void Totem::InitStats(uint32 duration)
             m_type = TOTEM_ACTIVE;
     }
 
-    if(GetEntry() == SENTRY_TOTEM_ENTRY)
+    if (GetEntry() == SENTRY_TOTEM_ENTRY)
         SetReactState(REACT_AGGRESSIVE);
 
     m_duration = duration;
@@ -117,7 +117,7 @@ void Totem::InitStats(uint32 duration)
 
 void Totem::InitSummon()
 {
-    if(m_type == TOTEM_PASSIVE)
+    if (m_type == TOTEM_PASSIVE)
         CastSpell(this, GetSpell(), true);
 
     // Some totems can have both instant effect and passive spell
@@ -133,7 +133,7 @@ void Totem::UnSummon()
     // clear owner's totem slot
     for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
     {
-        if(m_owner->m_SummonSlot[i]==GetGUID())
+        if (m_owner->m_SummonSlot[i]==GetGUID())
         {
             m_owner->m_SummonSlot[i] = 0;
             break;
@@ -154,7 +154,7 @@ void Totem::UnSummon()
             for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* Target = itr->getSource();
-                if(Target && pGroup->SameSubGroup((Player*)m_owner, Target))
+                if (Target && pGroup->SameSubGroup((Player*)m_owner, Target))
                     Target->RemoveAurasDueToSpell(GetSpell());
             }
         }
@@ -166,7 +166,7 @@ void Totem::UnSummon()
 bool Totem::IsImmunedToSpellEffect(SpellEntry const* spellInfo, uint32 index) const
 {
     // TODO: possibly all negative auras immune?
-    if(GetEntry() == 5925)
+    if (GetEntry() == 5925)
         return false;
     switch(spellInfo->EffectApplyAuraName[index])
     {

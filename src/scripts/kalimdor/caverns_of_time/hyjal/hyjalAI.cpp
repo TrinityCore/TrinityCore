@@ -868,7 +868,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
                     CheckTimer = 0;
                     m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     BossGUID[i] = 0;
-                    if(pInstance)
+                    if (pInstance)
                         pInstance->DoUpdateWorldState(WORLD_STATE_ENEMY, 0); // Reset world state for enemies to disable it
                 }
             }

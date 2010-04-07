@@ -43,7 +43,7 @@ AddonMgr::~AddonMgr()
 void AddonMgr::LoadFromDB()
 {
     QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name, crc FROM addons");
-    if(!result)
+    if (!result)
     {
         sLog.outErrorDb("The table `addons` is empty");
         return;

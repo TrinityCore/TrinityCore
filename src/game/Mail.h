@@ -186,7 +186,7 @@ struct Mail
     {
         for (std::vector<MailItemInfo>::iterator itr = items.begin(); itr != items.end(); ++itr)
         {
-            if(itr->item_guid == item_guid)
+            if (itr->item_guid == item_guid)
             {
                 items.erase(itr);
                 return true;

@@ -200,13 +200,13 @@ struct instance_sunwell_plateau : public ScriptedInstance
         {
             case DATA_KALECGOS_EVENT:
                 {
-                    if(data == NOT_STARTED || data == DONE)
+                    if (data == NOT_STARTED || data == DONE)
                     {
                         HandleGameObject(ForceField,true);
                         HandleGameObject(KalecgosWall[0],true);
                         HandleGameObject(KalecgosWall[1],true);
                     }
-                    else if(data == IN_PROGRESS)
+                    else if (data == IN_PROGRESS)
                     {
                         HandleGameObject(ForceField,false);
                         HandleGameObject(KalecgosWall[0],false);

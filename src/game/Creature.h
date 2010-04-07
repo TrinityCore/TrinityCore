@@ -146,11 +146,11 @@ struct CreatureInfo
     // helpers
     SkillType GetRequiredLootSkill() const
     {
-        if(type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
+        if (type_flags & CREATURE_TYPEFLAGS_HERBLOOT)
             return SKILL_HERBALISM;
-        else if(type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
+        else if (type_flags & CREATURE_TYPEFLAGS_MININGLOOT)
             return SKILL_MINING;
-        else if(type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
+        else if (type_flags & CREATURE_TYPEFLAGS_ENGINEERLOOT)
             return SKILL_ENGINERING;
         else
             return SKILL_SKINNING;                          // normal case
@@ -158,7 +158,7 @@ struct CreatureInfo
 
     bool isTameable(bool exotic) const
     {
-        if(type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE)==0)
+        if (type != CREATURE_TYPE_BEAST || family == 0 || (type_flags & CREATURE_TYPEFLAGS_TAMEABLE)==0)
             return false;
 
         // if can tame exotic then can tame any temable
@@ -323,7 +323,7 @@ struct VendorItemData
 
     VendorItem* GetItem(uint32 slot) const
     {
-        if(slot>=m_items.size()) return NULL;
+        if (slot>=m_items.size()) return NULL;
         return m_items[slot];
     }
     bool Empty() const { return m_items.empty(); }
@@ -440,7 +440,7 @@ class Creature : public Unit, public GridObject<Creature>
                                                             // redefine Unit::IsImmunedToSpellEffect
         bool isElite() const
         {
-            if(isPet())
+            if (isPet())
                 return false;
 
             uint32 rank = GetCreatureInfo()->rank;
@@ -449,7 +449,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         bool isWorldBoss() const
         {
-            if(isPet())
+            if (isPet())
                 return false;
 
             return GetCreatureInfo()->rank == CREATURE_ELITE_WORLDBOSS;
@@ -641,7 +641,7 @@ class Creature : public Unit, public GridObject<Creature>
         bool IsDamageEnoughForLootingAndReward() const { return m_PlayerDamageReq == 0; }
         void LowerPlayerDamageReq(uint32 unDamage)
         {
-            if(m_PlayerDamageReq)
+            if (m_PlayerDamageReq)
                 m_PlayerDamageReq > unDamage ? m_PlayerDamageReq -= unDamage : m_PlayerDamageReq = 0;
         }
         void ResetPlayerDamageReq() { m_PlayerDamageReq = GetHealth() / 2; }

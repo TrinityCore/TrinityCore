@@ -209,17 +209,17 @@ struct npc_blastmaster_emi_shortfuseAI : public npc_escortAI
     {
         Map::PlayerList const &PlList = m_creature->GetMap()->GetPlayers();
 
-        if(PlList.isEmpty())
+        if (PlList.isEmpty())
             return;
 
         for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
         {
-            if(Player* pPlayer = i->getSource())
+            if (Player* pPlayer = i->getSource())
             {
-                if(pPlayer->isGameMaster())
+                if (pPlayer->isGameMaster())
                     continue;
 
-                if(pPlayer->isAlive())
+                if (pPlayer->isAlive())
                 {
                     pTemp->SetInCombatWith(pPlayer);
                     pPlayer->SetInCombatWith(pTemp);

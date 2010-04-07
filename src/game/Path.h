@@ -67,7 +67,7 @@ class Path
                 len += sqrtf( xd*xd + yd*yd + zd*zd );
             }
 
-            if(curnode > 0)
+            if (curnode > 0)
             {
                 xd = x - i_nodes[curnode-1].x;
                 yd = y - i_nodes[curnode-1].y;

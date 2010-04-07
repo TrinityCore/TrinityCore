@@ -142,12 +142,12 @@ struct boss_sapphironAI : public BossAI
         me->CastSpell(me, SPELL_DIES, true);
 
         CheckPlayersFrostResist();
-        if(CanTheHundredClub)
+        if (CanTheHundredClub)
         {
             AchievementEntry const *AchievTheHundredClub = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
-            if(AchievTheHundredClub)
+            if (AchievTheHundredClub)
             {
-                if(pMap && pMap->IsDungeon())
+                if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -174,12 +174,12 @@ struct boss_sapphironAI : public BossAI
 
     void CheckPlayersFrostResist()
     {
-        if(CanTheHundredClub && pMap && pMap->IsDungeon())
+        if (CanTheHundredClub && pMap && pMap->IsDungeon())
         {
             Map::PlayerList const &players = pMap->GetPlayers();
             for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                if(itr->getSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
+                if (itr->getSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
                 {
                     CanTheHundredClub = false;
                     break;
@@ -222,7 +222,7 @@ struct boss_sapphironAI : public BossAI
         if (phase != PHASE_BIRTH && !UpdateCombatState() || !CheckInRoom())
             return;
 
-        if(CanTheHundredClub)
+        if (CanTheHundredClub)
         {
             if (CheckFrostResistTimer <= diff)
             {

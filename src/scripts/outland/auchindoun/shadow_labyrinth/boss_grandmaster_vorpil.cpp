@@ -89,7 +89,7 @@ struct mob_voidtravelerAI : public ScriptedAI
         if (move <= diff)
         {
             Creature *Vorpil = Unit::GetCreature(*m_creature, VorpilGUID);
-            if(!Vorpil)
+            if (!Vorpil)
             {
                 VorpilGUID = 0;
                 return;

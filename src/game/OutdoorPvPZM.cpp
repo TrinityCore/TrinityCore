@@ -54,7 +54,7 @@ void OPvPCapturePointZM_Beacon::UpdateTowerState()
 
 bool OPvPCapturePointZM_Beacon::HandlePlayerEnter(Player *plr)
 {
-    if(OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_disp, 1);
         uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
@@ -74,16 +74,16 @@ void OPvPCapturePointZM_Beacon::HandlePlayerLeave(Player *plr)
 void OPvPCapturePointZM_Beacon::ChangeState()
 {
     // if changing from controlling alliance to horde
-    if( m_OldState == OBJECTIVESTATE_ALLIANCE )
+    if ( m_OldState == OBJECTIVESTATE_ALLIANCE )
     {
-        if(((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled)
+        if (((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled)
             ((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled--;
         sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(ZMBeaconLooseA[m_TowerType]));
     }
     // if changing from controlling horde to alliance
     else if ( m_OldState == OBJECTIVESTATE_HORDE )
     {
-        if(((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled)
+        if (((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled)
             ((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled--;
         sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(ZMBeaconLooseH[m_TowerType]));
     }
@@ -92,13 +92,13 @@ void OPvPCapturePointZM_Beacon::ChangeState()
     {
         case OBJECTIVESTATE_ALLIANCE:
             m_TowerState = ZM_TOWERSTATE_A;
-            if(((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled<ZM_NUM_BEACONS)
+            if (((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled<ZM_NUM_BEACONS)
                 ((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled++;
             sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(ZMBeaconCaptureA[m_TowerType]));
             break;
         case OBJECTIVESTATE_HORDE:
             m_TowerState = ZM_TOWERSTATE_H;
-            if(((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled<ZM_NUM_BEACONS)
+            if (((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled<ZM_NUM_BEACONS)
                 ((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled++;
             sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(ZMBeaconCaptureH[m_TowerType]));
             break;
@@ -127,11 +127,11 @@ void OPvPCapturePointZM_Beacon::SendChangePhase()
 bool OutdoorPvPZM::Update(uint32 diff)
 {
     bool changed = false;
-    if(changed = OutdoorPvP::Update(diff))
+    if (changed = OutdoorPvP::Update(diff))
     {
-        if(m_AllianceTowersControlled == ZM_NUM_BEACONS)
+        if (m_AllianceTowersControlled == ZM_NUM_BEACONS)
             m_GraveYard->SetBeaconState(ALLIANCE);
-        else if(m_HordeTowersControlled == ZM_NUM_BEACONS)
+        else if (m_HordeTowersControlled == ZM_NUM_BEACONS)
             m_GraveYard->SetBeaconState(HORDE);
         else
             m_GraveYard->SetBeaconState(0);
@@ -141,14 +141,14 @@ bool OutdoorPvPZM::Update(uint32 diff)
 
 void OutdoorPvPZM::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
-    if(plr->GetTeam() == ALLIANCE)
+    if (plr->GetTeam() == ALLIANCE)
     {
-        if(m_GraveYard->m_GraveYardState & ZM_GRAVEYARD_A)
+        if (m_GraveYard->m_GraveYardState & ZM_GRAVEYARD_A)
             plr->CastSpell(plr,ZM_CAPTURE_BUFF,true);
     }
     else
     {
-        if(m_GraveYard->m_GraveYardState & ZM_GRAVEYARD_H)
+        if (m_GraveYard->m_GraveYardState & ZM_GRAVEYARD_H)
             plr->CastSpell(plr,ZM_CAPTURE_BUFF,true);
     }
     OutdoorPvP::HandlePlayerEnterZone(plr,zone);
@@ -192,12 +192,12 @@ bool OutdoorPvPZM::SetupOutdoorPvP()
 
 void OutdoorPvPZM::HandleKillImpl(Player *plr, Unit * killed)
 {
-    if(killed->GetTypeId() != TYPEID_PLAYER)
+    if (killed->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if(plr->GetTeam() == ALLIANCE && killed->ToPlayer()->GetTeam() != ALLIANCE)
+    if (plr->GetTeam() == ALLIANCE && killed->ToPlayer()->GetTeam() != ALLIANCE)
         plr->CastSpell(plr,ZM_AlliancePlayerKillReward,true);
-    else if(plr->GetTeam() == HORDE && killed->ToPlayer()->GetTeam() != HORDE)
+    else if (plr->GetTeam() == HORDE && killed->ToPlayer()->GetTeam() != HORDE)
         plr->CastSpell(plr,ZM_HordePlayerKillReward,true);
 }
 
@@ -211,11 +211,11 @@ bool OPvPCapturePointZM_GraveYard::Update(uint32 diff)
 int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
 {
     uint32 retval = OPvPCapturePoint::HandleOpenGo(plr, guid);
-    if(retval>=0)
+    if (retval>=0)
     {
-        if(plr->HasAura(ZM_BATTLE_STANDARD_A) && m_GraveYardState != ZM_GRAVEYARD_A)
+        if (plr->HasAura(ZM_BATTLE_STANDARD_A) && m_GraveYardState != ZM_GRAVEYARD_A)
         {
-            if(m_GraveYardState == ZM_GRAVEYARD_H)
+            if (m_GraveYardState == ZM_GRAVEYARD_H)
                 sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOOSE_GY_H));
             m_GraveYardState = ZM_GRAVEYARD_A;
             DelObject(0);   // only one gotype is used in the whole outdoor pvp, no need to call it a constant
@@ -226,9 +226,9 @@ int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player *plr, uint64 guid)
             plr->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_A);
             sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_CAPTURE_GY_A));
         }
-        else if(plr->HasAura(ZM_BATTLE_STANDARD_H) && m_GraveYardState != ZM_GRAVEYARD_H)
+        else if (plr->HasAura(ZM_BATTLE_STANDARD_H) && m_GraveYardState != ZM_GRAVEYARD_H)
         {
-            if(m_GraveYardState == ZM_GRAVEYARD_A)
+            if (m_GraveYardState == ZM_GRAVEYARD_A)
                 sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_ZM_LOOSE_GY_A));
             m_GraveYardState = ZM_GRAVEYARD_H;
             DelObject(0);   // only one gotype is used in the whole outdoor pvp, no need to call it a constant
@@ -284,7 +284,7 @@ void OPvPCapturePointZM_GraveYard::FillInitialWorldStates(WorldPacket &data)
 void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
 {
     // nothing to do here
-    if(m_BothControllingFaction == controlling_faction)
+    if (m_BothControllingFaction == controlling_faction)
         return;
     m_BothControllingFaction = controlling_faction;
 
@@ -292,27 +292,27 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
     {
     case ALLIANCE:
         // if ally already controls the gy and taken back both beacons, return, nothing to do for us
-        if(m_GraveYardState & ZM_GRAVEYARD_A)
+        if (m_GraveYardState & ZM_GRAVEYARD_A)
             return;
         // ally doesn't control the gy, but controls the side beacons -> add gossip option, add neutral banner
         break;
     case HORDE:
         // if horde already controls the gy and taken back both beacons, return, nothing to do for us
-        if(m_GraveYardState & ZM_GRAVEYARD_H)
+        if (m_GraveYardState & ZM_GRAVEYARD_H)
             return;
         // horde doesn't control the gy, but controls the side beacons -> add gossip option, add neutral banner
         break;
     default:
         // if the graveyard is not neutral, then leave it that way
         // if the graveyard is neutral, then we have to dispel the buff from the flag carrier
-        if(m_GraveYardState & ZM_GRAVEYARD_N)
+        if (m_GraveYardState & ZM_GRAVEYARD_N)
         {
             // gy was neutral, thus neutral banner was spawned, it is possible that someone was taking the flag to the gy
-            if(m_FlagCarrierGUID)
+            if (m_FlagCarrierGUID)
             {
                 // remove flag from carrier, reset flag carrier guid
                 Player * p = objmgr.GetPlayer(m_FlagCarrierGUID);
-                if(p)
+                if (p)
                 {
                    p->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_A);
                    p->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_H);
@@ -330,11 +330,11 @@ bool OPvPCapturePointZM_GraveYard::CanTalkTo(Player * plr, Creature * c, GossipM
 {
     uint64 guid = c->GetGUID();
     std::map<uint64,uint32>::iterator itr = m_CreatureTypes.find(guid);
-    if(itr != m_CreatureTypes.end())
+    if (itr != m_CreatureTypes.end())
     {
-        if(itr->second == ZM_ALLIANCE_FIELD_SCOUT && plr->GetTeam() == ALLIANCE && m_BothControllingFaction == ALLIANCE && !m_FlagCarrierGUID && m_GraveYardState != ZM_GRAVEYARD_A)
+        if (itr->second == ZM_ALLIANCE_FIELD_SCOUT && plr->GetTeam() == ALLIANCE && m_BothControllingFaction == ALLIANCE && !m_FlagCarrierGUID && m_GraveYardState != ZM_GRAVEYARD_A)
             return true;
-        else if(itr->second == ZM_HORDE_FIELD_SCOUT && plr->GetTeam() == HORDE && m_BothControllingFaction == HORDE && !m_FlagCarrierGUID && m_GraveYardState != ZM_GRAVEYARD_H)
+        else if (itr->second == ZM_HORDE_FIELD_SCOUT && plr->GetTeam() == HORDE && m_BothControllingFaction == HORDE && !m_FlagCarrierGUID && m_GraveYardState != ZM_GRAVEYARD_H)
             return true;
     }
     return false;
@@ -343,20 +343,20 @@ bool OPvPCapturePointZM_GraveYard::CanTalkTo(Player * plr, Creature * c, GossipM
 bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid)
 {
     std::map<uint64,uint32>::iterator itr = m_CreatureTypes.find(guid);
-    if(itr != m_CreatureTypes.end())
+    if (itr != m_CreatureTypes.end())
     {
         Creature * cr = HashMapHolder<Creature>::Find(guid);
-        if(!cr)
+        if (!cr)
             return true;
         // if the flag is already taken, then return
-        if(m_FlagCarrierGUID)
+        if (m_FlagCarrierGUID)
             return true;
-        if(itr->second == ZM_ALLIANCE_FIELD_SCOUT)
+        if (itr->second == ZM_ALLIANCE_FIELD_SCOUT)
         {
             cr->CastSpell(plr,ZM_BATTLE_STANDARD_A,true);
             m_FlagCarrierGUID = plr->GetGUID();
         }
-        else if(itr->second == ZM_HORDE_FIELD_SCOUT)
+        else if (itr->second == ZM_HORDE_FIELD_SCOUT)
         {
             cr->CastSpell(plr,ZM_BATTLE_STANDARD_H,true);
             m_FlagCarrierGUID = plr->GetGUID();

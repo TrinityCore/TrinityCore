@@ -1320,11 +1320,11 @@ valid examples:
                         negativeNumber = false;
                         while ((c = reader.get())!=':')
                         {
-                            if(c >='0' && c<='9')
+                            if (c >='0' && c<='9')
                             {
                                 propertyId*=10;
                                 propertyId += c-'0';
-                            } else if(c == '-')
+                            } else if (c == '-')
                                 negativeNumber = true;
                             else
                                 return false;
@@ -1339,7 +1339,7 @@ valid examples:
                         if (!itemProperty)
                             return false;
                     }
-                    else if(propertyId < 0)
+                    else if (propertyId < 0)
                     {
                         itemSuffix = sItemRandomSuffixStore.LookupEntry(-propertyId);
                         if (!itemSuffix)

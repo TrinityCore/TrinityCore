@@ -271,7 +271,7 @@ struct BossAI : public ScriptedAI
 
         bool CheckInRoom()
         {
-            if(CheckBoundary(me))
+            if (CheckBoundary(me))
                 return true;
             EnterEvadeMode();
             return false;

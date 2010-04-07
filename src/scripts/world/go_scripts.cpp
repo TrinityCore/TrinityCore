@@ -505,28 +505,28 @@ bool GOHello_go_matrix_punchograph(Player *pPlayer, GameObject *pGO)
     switch(pGO->GetEntry())
     {
         case MATRIX_PUNCHOGRAPH_3005_A:
-            if(pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
+            if (pPlayer->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
             {
                 pPlayer->DestroyItemCount(ITEM_WHITE_PUNCH_CARD, 1, true);
                 pPlayer->CastSpell(pPlayer,SPELL_YELLOW_PUNCH_CARD,true);
             }
             break;
         case MATRIX_PUNCHOGRAPH_3005_B:
-            if(pPlayer->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
+            if (pPlayer->HasItemCount(ITEM_YELLOW_PUNCH_CARD, 1))
             {
                 pPlayer->DestroyItemCount(ITEM_YELLOW_PUNCH_CARD, 1, true);
                 pPlayer->CastSpell(pPlayer,SPELL_BLUE_PUNCH_CARD,true);
             }
             break;
         case MATRIX_PUNCHOGRAPH_3005_C:
-            if(pPlayer->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
+            if (pPlayer->HasItemCount(ITEM_BLUE_PUNCH_CARD, 1))
             {
                 pPlayer->DestroyItemCount(ITEM_BLUE_PUNCH_CARD, 1, true);
                 pPlayer->CastSpell(pPlayer,SPELL_RED_PUNCH_CARD,true);
             }
             break;
         case MATRIX_PUNCHOGRAPH_3005_D:
-            if(pPlayer->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
+            if (pPlayer->HasItemCount(ITEM_RED_PUNCH_CARD, 1))
             {
                 pPlayer->DestroyItemCount(ITEM_RED_PUNCH_CARD, 1, true);
                 pPlayer->CastSpell(pPlayer, SPELL_PRISMATIC_PUNCH_CARD, true);
@@ -549,7 +549,7 @@ enum eRustyCage
 
 bool GOHello_go_rusty_cage(Player *pPlayer, GameObject *pGO)
 {
-    if(Creature *pGoblinPrisoner = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER, 5.0f, true))
+    if (Creature *pGoblinPrisoner = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER, 5.0f, true))
     {
         pGO->SetGoState(GO_STATE_ACTIVE);
         pPlayer->KilledMonsterCredit(NPC_GOBLIN_PRISIONER, pGoblinPrisoner->GetGUID());

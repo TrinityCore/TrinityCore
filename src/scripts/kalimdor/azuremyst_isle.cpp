@@ -490,7 +490,7 @@ struct npc_geezleAI : public ScriptedAI
 
         for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
-            if((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
+            if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
                 &&(*itr)->HasAura(SPELL_TREE_DISGUISE) )
             {
                 (*itr)->KilledMonsterCredit(MOB_SPARK,0);
@@ -613,9 +613,9 @@ enum eRavegerCage
 bool go_ravager_cage(Player* pPlayer, GameObject* pGo)
 {
 
-    if(pPlayer->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
+    if (pPlayer->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
     {
-        if(Creature* ravager = pGo->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+        if (Creature* ravager = pGo->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
         {
             ravager->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
             ravager->SetReactState(REACT_AGGRESSIVE);
@@ -646,14 +646,14 @@ struct npc_death_ravagerAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(RendTimer <= diff)
+        if (RendTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_REND);
             RendTimer = 30000;
         }
         else RendTimer -= diff;
 
-        if(EnragingBiteTimer <= diff)
+        if (EnragingBiteTimer <= diff)
         {
             DoCast(m_creature->getVictim(), SPELL_ENRAGING_BITE);
             EnragingBiteTimer = 15000;

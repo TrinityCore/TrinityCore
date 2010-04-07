@@ -643,7 +643,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         time_t GetRespawnTimeEx() const
         {
             time_t now = time(NULL);
-            if(m_respawnTime > now)
+            if (m_respawnTime > now)
                 return m_respawnTime;
             else
                 return now;

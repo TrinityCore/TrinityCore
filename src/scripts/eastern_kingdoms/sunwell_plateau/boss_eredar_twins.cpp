@@ -575,9 +575,9 @@ struct boss_alythessAI : public Scripted_NoMovementAI
                 }
             }
         }
-        if(!m_creature->getVictim())
+        if (!m_creature->getVictim())
         {
-            if(pInstance)
+            if (pInstance)
             {
                 Creature* sisiter = Unit::GetCreature((*m_creature),pInstance->GetData64(DATA_SACROLASH));
                 if (sisiter && !sisiter->isDead() && sisiter->getVictim())

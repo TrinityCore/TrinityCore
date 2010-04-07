@@ -65,7 +65,7 @@ struct npc_lazy_peonAI : public ScriptedAI
             caster->ToPlayer()->KilledMonsterCredit(m_creature->GetEntry(),m_creature->GetGUID());
             DoScriptText(SAY_SPELL_HIT, m_creature, caster);
             m_creature->RemoveAllAuras();
-            if(GameObject* Lumberpile = m_creature->FindNearestGameObject(GO_LUMBERPILE, 20))
+            if (GameObject* Lumberpile = m_creature->FindNearestGameObject(GO_LUMBERPILE, 20))
                 m_creature->GetMotionMaster()->MovePoint(1,Lumberpile->GetPositionX()-1,Lumberpile->GetPositionY(),Lumberpile->GetPositionZ());
         }
     }

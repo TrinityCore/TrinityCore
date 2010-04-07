@@ -824,7 +824,7 @@ bool GOHello_go_loosely_turned_soil(Player* pPlayer, GameObject* soil)
     ScriptedInstance* pInstance = pPlayer->GetInstanceData();
     if (pInstance)
     {
-        if(pInstance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
+        if (pInstance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
             return true;
         pInstance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
     }

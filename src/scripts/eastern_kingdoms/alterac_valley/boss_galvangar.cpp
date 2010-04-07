@@ -100,7 +100,7 @@ struct boss_galvangarAI : public ScriptedAI
         } else uiMortalStrikeTimer -= diff;
 
         // check if creature is not outside of building
-        if(uiResetTimer <= diff)
+        if (uiResetTimer <= diff)
         {
             if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
             {

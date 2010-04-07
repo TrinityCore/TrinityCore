@@ -1003,7 +1003,7 @@ struct npc_akama_illidanAI : public ScriptedAI
             DoorGUID[0] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
             DoorGUID[1] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
-            if(JustCreated)//close all doors at create
+            if (JustCreated)//close all doors at create
             {
                 pInstance->HandleGameObject(GateGUID, false);
 
@@ -1058,7 +1058,7 @@ struct npc_akama_illidanAI : public ScriptedAI
 
     void MovementInform(uint32 MovementType, uint32 Data)
     {
-        if(MovementType == POINT_MOTION_TYPE)
+        if (MovementType == POINT_MOTION_TYPE)
             Timer = 1;
     }
 
@@ -1107,7 +1107,7 @@ struct npc_akama_illidanAI : public ScriptedAI
     {
         m_creature->setActive(true);
         m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        if(!JustCreated)
+        if (!JustCreated)
             return;
         float x, y, z;
         if (GETGO(Gate, GateGUID))
@@ -1259,7 +1259,7 @@ struct npc_akama_illidanAI : public ScriptedAI
             m_creature->InterruptNonMeleeSpells(true);
             Spirit[0]->InterruptNonMeleeSpells(true);
             Spirit[1]->InterruptNonMeleeSpells(true);
-            if(pInstance)
+            if (pInstance)
                 pInstance->HandleGameObject(GateGUID, true);
             Timer = 2000;
             break;
@@ -1290,7 +1290,7 @@ struct npc_akama_illidanAI : public ScriptedAI
         {
         case 6:
             for (uint8 i = 0; i < 2; ++i)
-                if(pInstance)
+                if (pInstance)
                     pInstance->HandleGameObject(DoorGUID[i], true);
             break;
         case 8:
@@ -1314,11 +1314,11 @@ struct npc_akama_illidanAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if(m_creature->GetVisibility() == VISIBILITY_OFF)
+        if (m_creature->GetVisibility() == VISIBILITY_OFF)
         {
             if (Check_Timer <= diff)
             {
-                if(pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
+                if (pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
                     m_creature->SetVisibility(VISIBILITY_ON);
 
                 Check_Timer = 5000;
@@ -1337,7 +1337,7 @@ struct npc_akama_illidanAI : public ScriptedAI
             switch(Phase)
             {
             case PHASE_CHANNEL:
-                if(JustCreated)
+                if (JustCreated)
                     HandleChannelSequence();
                 else{
                     EnterPhase(PHASE_WALK);

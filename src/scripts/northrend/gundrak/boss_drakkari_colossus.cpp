@@ -54,7 +54,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
     {
         if (pInstance)
             pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
-        if(!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+        if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
@@ -177,10 +177,10 @@ struct boss_drakkari_elementalAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(!bGoToColossus && HealthBelowPct(50))
+        if (!bGoToColossus && HealthBelowPct(50))
         {
             if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             {

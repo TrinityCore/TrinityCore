@@ -248,8 +248,8 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         // currently unused for normal maps
         bool CanUnload(uint32 diff)
         {
-            if(!m_unloadTimer) return false;
-            if(m_unloadTimer <= diff) return true;
+            if (!m_unloadTimer) return false;
+            if (m_unloadTimer <= diff) return true;
             m_unloadTimer -= diff;
             return false;
         }
@@ -368,7 +368,7 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         bool IsBattleGroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattleGroundOrArena(); }
         bool GetEntrancePos(int32 &mapid, float &x, float &y)
         {
-            if(!i_mapEntry)
+            if (!i_mapEntry)
                 return false;
             return i_mapEntry->GetEntrancePos(mapid, x, y);
         }
@@ -538,12 +538,12 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         void RemoveFromActiveHelper(T* obj)
         {
             // Map::Update for active object in proccess
-            if(m_activeNonPlayersIter != m_activeNonPlayers.end())
+            if (m_activeNonPlayersIter != m_activeNonPlayers.end())
             {
                 ActiveNonPlayers::iterator itr = m_activeNonPlayers.find(obj);
-                if(itr == m_activeNonPlayers.end())
+                if (itr == m_activeNonPlayers.end())
                     return;
-                if(itr==m_activeNonPlayersIter)
+                if (itr==m_activeNonPlayersIter)
                     ++m_activeNonPlayersIter;
                 m_activeNonPlayers.erase(itr);
             }
@@ -634,7 +634,7 @@ Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
     const uint32 cell_x = cell.CellX();
     const uint32 cell_y = cell.CellY();
 
-    if( !cell.NoCreate() || loaded(GridPair(x,y)) )
+    if ( !cell.NoCreate() || loaded(GridPair(x,y)) )
     {
         EnsureGridLoaded(cell);
         getNGrid(x, y)->Visit(cell_x, cell_y, visitor);

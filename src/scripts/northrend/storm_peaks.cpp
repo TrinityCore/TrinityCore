@@ -186,9 +186,9 @@ struct npc_goblin_prisonerAI : public ScriptedAI
     {
         m_creature->SetReactState(REACT_PASSIVE);
 
-        if(GameObject* pGO = m_creature->FindNearestGameObject(GO_RUSTY_CAGE,5.0f))
+        if (GameObject* pGO = m_creature->FindNearestGameObject(GO_RUSTY_CAGE,5.0f))
         {
-            if(pGO->GetGoState() == GO_STATE_ACTIVE)
+            if (pGO->GetGoState() == GO_STATE_ACTIVE)
                 pGO->SetGoState(GO_STATE_READY);
         }
     }
@@ -236,13 +236,13 @@ struct npc_victorious_challengerAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if(RendTimer < diff)
+        if (RendTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_REND_VC, true);
             RendTimer = 15000;
         }else RendTimer -= diff;
 
-        if(SunderArmorTimer < diff)
+        if (SunderArmorTimer < diff)
         {
             DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR, true);
             SunderArmorTimer = 10000;
@@ -260,7 +260,7 @@ struct npc_victorious_challengerAI : public ScriptedAI
 
 bool GossipHello_npc_victorious_challenger(Player* pPlayer, Creature* pCreature)
 {
-    if(pCreature->isQuestGiver())
+    if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pPlayer->GetQuestStatus(QUEST_TAKING_ALL_CHALLENGERS) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_DEFENDING_YOUR_TITLE) == QUEST_STATUS_INCOMPLETE)

@@ -156,7 +156,7 @@ class ArenaTeam
         ArenaTeamMember* GetMember(const uint64& guid)
         {
             for (MemberList::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-                if(itr->guid == guid)
+                if (itr->guid == guid)
                     return &(*itr);
 
             return NULL;
@@ -165,7 +165,7 @@ class ArenaTeam
         ArenaTeamMember* GetMember(const std::string& name)
         {
             for (MemberList::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-                if(itr->name == name)
+                if (itr->name == name)
                     return &(*itr);
 
             return NULL;

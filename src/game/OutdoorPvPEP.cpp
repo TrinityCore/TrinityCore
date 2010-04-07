@@ -37,10 +37,10 @@ OPvPCapturePointEP_EWT::OPvPCapturePointEP_EWT(OutdoorPvP *pvp)
 
 void OPvPCapturePointEP_EWT::ChangeState()
 {
-    if(fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
+    if (fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
     {
         // if changing from controlling alliance to horde or vice versa
-        if( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
+        if ( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
         {
             sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_EWT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = 0;
@@ -56,24 +56,24 @@ void OPvPCapturePointEP_EWT::ChangeState()
         switch(m_State)
         {
         case OBJECTIVESTATE_ALLIANCE:
-            if(m_value == m_maxValue)
+            if (m_value == m_maxValue)
                 m_TowerState = EP_TS_A;
             else
                 m_TowerState = EP_TS_A_P;
             artkit = 2;
             SummonSupportUnitAtNorthpassTower(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = ALLIANCE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_A));
             break;
         case OBJECTIVESTATE_HORDE:
-            if(m_value == -m_maxValue)
+            if (m_value == -m_maxValue)
                 m_TowerState = EP_TS_H;
             else
                 m_TowerState = EP_TS_H_P;
             artkit = 1;
             SummonSupportUnitAtNorthpassTower(HORDE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_EWT] = HORDE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_EWT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -90,11 +90,11 @@ void OPvPCapturePointEP_EWT::ChangeState()
 
         GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_EWT_FLAGS]);
-        if(flag)
+        if (flag)
         {
             flag->SetGoArtKit(artkit);
         }
-        if(flag2)
+        if (flag2)
         {
             flag2->SetGoArtKit(artkit);
         }
@@ -102,7 +102,7 @@ void OPvPCapturePointEP_EWT::ChangeState()
         UpdateTowerState();
 
         // complete quest objective
-        if(m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
+        if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
             SendObjectiveComplete(EP_EWT_CM, 0);
     }
 }
@@ -142,7 +142,7 @@ void OPvPCapturePointEP_EWT::UpdateTowerState()
 
 bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player *plr)
 {
-    if(OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
@@ -161,11 +161,11 @@ void OPvPCapturePointEP_EWT::HandlePlayerLeave(Player *plr)
 
 void OPvPCapturePointEP_EWT::SummonSupportUnitAtNorthpassTower(uint32 team)
 {
-    if(m_UnitsSummonedSide != team)
+    if (m_UnitsSummonedSide != team)
     {
         m_UnitsSummonedSide = team;
         const creature_type * ct = NULL;
-        if(team == ALLIANCE)
+        if (team == ALLIANCE)
             ct=EP_EWT_Summons_A;
         else
             ct=EP_EWT_Summons_H;
@@ -188,10 +188,10 @@ OPvPCapturePointEP_NPT::OPvPCapturePointEP_NPT(OutdoorPvP *pvp)
 
 void OPvPCapturePointEP_NPT::ChangeState()
 {
-    if(fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
+    if (fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
     {
         // if changing from controlling alliance to horde or vice versa
-        if( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
+        if ( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
         {
             sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_NPT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = 0;
@@ -207,24 +207,24 @@ void OPvPCapturePointEP_NPT::ChangeState()
         switch(m_State)
         {
         case OBJECTIVESTATE_ALLIANCE:
-            if(m_value == m_maxValue)
+            if (m_value == m_maxValue)
                 m_TowerState = EP_TS_A;
             else
                 m_TowerState = EP_TS_A_P;
             artkit = 2;
             SummonGO(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = ALLIANCE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_A));
             break;
         case OBJECTIVESTATE_HORDE:
-            if(m_value == -m_maxValue)
+            if (m_value == -m_maxValue)
                 m_TowerState = EP_TS_H;
             else
                 m_TowerState = EP_TS_H_P;
             artkit = 1;
             SummonGO(HORDE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_NPT] = HORDE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_NPT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -243,11 +243,11 @@ void OPvPCapturePointEP_NPT::ChangeState()
 
         GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_NPT_FLAGS]);
-        if(flag)
+        if (flag)
         {
             flag->SetGoArtKit(artkit);
         }
-        if(flag2)
+        if (flag2)
         {
             flag2->SetGoArtKit(artkit);
         }
@@ -255,7 +255,7 @@ void OPvPCapturePointEP_NPT::ChangeState()
         UpdateTowerState();
 
         // complete quest objective
-        if(m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
+        if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
             SendObjectiveComplete(EP_NPT_CM, 0);
     }
 }
@@ -295,7 +295,7 @@ void OPvPCapturePointEP_NPT::UpdateTowerState()
 
 bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player *plr)
 {
-    if(OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
@@ -314,13 +314,13 @@ void OPvPCapturePointEP_NPT::HandlePlayerLeave(Player *plr)
 
 void OPvPCapturePointEP_NPT::SummonGO(uint32 team)
 {
-    if(m_SummonedGOSide != team)
+    if (m_SummonedGOSide != team)
     {
         m_SummonedGOSide = team;
         DelObject(EP_NPT_BUFF);
         AddObject(EP_NPT_BUFF,EP_NPT_LordaeronShrine.entry,EP_NPT_LordaeronShrine.map,EP_NPT_LordaeronShrine.x,EP_NPT_LordaeronShrine.y,EP_NPT_LordaeronShrine.z,EP_NPT_LordaeronShrine.o,EP_NPT_LordaeronShrine.rot0,EP_NPT_LordaeronShrine.rot1,EP_NPT_LordaeronShrine.rot2,EP_NPT_LordaeronShrine.rot3);
         GameObject * go = HashMapHolder<GameObject>::Find(m_Objects[EP_NPT_BUFF]);
-        if(go)
+        if (go)
             go->SetUInt32Value(GAMEOBJECT_FACTION,(team == ALLIANCE ? 84 : 83));
     }
 }
@@ -335,10 +335,10 @@ OPvPCapturePointEP_CGT::OPvPCapturePointEP_CGT(OutdoorPvP *pvp)
 
 void OPvPCapturePointEP_CGT::ChangeState()
 {
-    if(fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
+    if (fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
     {
         // if changing from controlling alliance to horde or vice versa
-        if( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
+        if ( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
         {
             sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_CGT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = 0;
@@ -354,24 +354,24 @@ void OPvPCapturePointEP_CGT::ChangeState()
         switch(m_State)
         {
         case OBJECTIVESTATE_ALLIANCE:
-            if(m_value == m_maxValue)
+            if (m_value == m_maxValue)
                 m_TowerState = EP_TS_A;
             else
                 m_TowerState = EP_TS_A_P;
             artkit = 2;
             LinkGraveYard(ALLIANCE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = ALLIANCE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_A));
             break;
         case OBJECTIVESTATE_HORDE:
-            if(m_value == -m_maxValue)
+            if (m_value == -m_maxValue)
                 m_TowerState = EP_TS_H;
             else
                 m_TowerState = EP_TS_H_P;
             artkit = 1;
             LinkGraveYard(HORDE);
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_CGT] = HORDE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_CGT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -388,11 +388,11 @@ void OPvPCapturePointEP_CGT::ChangeState()
 
         GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_CGT_FLAGS]);
-        if(flag)
+        if (flag)
         {
             flag->SetGoArtKit(artkit);
         }
-        if(flag2)
+        if (flag2)
         {
             flag2->SetGoArtKit(artkit);
         }
@@ -400,7 +400,7 @@ void OPvPCapturePointEP_CGT::ChangeState()
         UpdateTowerState();
 
         // complete quest objective
-        if(m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
+        if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
             SendObjectiveComplete(EP_CGT_CM, 0);
     }
 }
@@ -440,7 +440,7 @@ void OPvPCapturePointEP_CGT::UpdateTowerState()
 
 bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player *plr)
 {
-    if(OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
@@ -459,7 +459,7 @@ void OPvPCapturePointEP_CGT::HandlePlayerLeave(Player *plr)
 
 void OPvPCapturePointEP_CGT::LinkGraveYard(uint32 team)
 {
-    if(m_GraveyardSide != team)
+    if (m_GraveyardSide != team)
     {
         m_GraveyardSide = team;
         objmgr.RemoveGraveYardLink(EP_GraveYardId,EP_GraveYardZone,team,false);
@@ -477,10 +477,10 @@ OPvPCapturePointEP_PWT::OPvPCapturePointEP_PWT(OutdoorPvP *pvp)
 
 void OPvPCapturePointEP_PWT::ChangeState()
 {
-    if(fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
+    if (fabs(m_value) == m_maxValue)  // state won't change, only phase when maxed out!
     {
         // if changing from controlling alliance to horde or vice versa
-        if( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
+        if ( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
         {
             sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOOSE_PWT_A));
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = 0;
@@ -496,24 +496,24 @@ void OPvPCapturePointEP_PWT::ChangeState()
         switch(m_State)
         {
         case OBJECTIVESTATE_ALLIANCE:
-            if(m_value == m_maxValue)
+            if (m_value == m_maxValue)
                 m_TowerState = EP_TS_A;
             else
                 m_TowerState = EP_TS_A_P;
             SummonFlightMaster(ALLIANCE);
             artkit = 2;
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = ALLIANCE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_A));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_A));
             break;
         case OBJECTIVESTATE_HORDE:
-            if(m_value == -m_maxValue)
+            if (m_value == -m_maxValue)
                 m_TowerState = EP_TS_H;
             else
                 m_TowerState = EP_TS_H_P;
             SummonFlightMaster(HORDE);
             artkit = 1;
             ((OutdoorPvPEP*)m_PvP)->EP_Controls[EP_PWT] = HORDE;
-            if(m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_H));
+            if (m_OldState != m_State) sWorld.SendZoneText(EP_GraveYardZone,objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_EP_CAPTURE_PWT_H));
             break;
         case OBJECTIVESTATE_NEUTRAL:
             m_TowerState = EP_TS_N;
@@ -532,11 +532,11 @@ void OPvPCapturePointEP_PWT::ChangeState()
 
         GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
         GameObject* flag2 = HashMapHolder<GameObject>::Find(m_Objects[EP_PWT_FLAGS]);
-        if(flag)
+        if (flag)
         {
             flag->SetGoArtKit(artkit);
         }
-        if(flag2)
+        if (flag2)
         {
             flag2->SetGoArtKit(artkit);
         }
@@ -544,7 +544,7 @@ void OPvPCapturePointEP_PWT::ChangeState()
         UpdateTowerState();
 
         // complete quest objective
-        if(m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
+        if (m_TowerState == EP_TS_A || m_TowerState == EP_TS_H)
             SendObjectiveComplete(EP_PWT_CM, 0);
     }
 }
@@ -584,7 +584,7 @@ void OPvPCapturePointEP_PWT::UpdateTowerState()
 
 bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player *plr)
 {
-    if(OPvPCapturePoint::HandlePlayerEnter(plr))
+    if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(EP_UI_TOWER_SLIDER_DISPLAY, 1);
         uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
@@ -603,7 +603,7 @@ void OPvPCapturePointEP_PWT::HandlePlayerLeave(Player *plr)
 
 void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
 {
-    if(m_FlightMasterSpawned != team)
+    if (m_FlightMasterSpawned != team)
     {
         m_FlightMasterSpawned = team;
         DelCreature(EP_PWT_FLIGHTMASTER);
@@ -634,15 +634,15 @@ bool OutdoorPvPEP::SetupOutdoorPvP()
 
 bool OutdoorPvPEP::Update(uint32 diff)
 {
-    if(OutdoorPvP::Update(diff))
+    if (OutdoorPvP::Update(diff))
     {
         m_AllianceTowersControlled = 0;
         m_HordeTowersControlled = 0;
         for (int i = 0; i < EP_TOWER_NUM; ++i)
         {
-            if(EP_Controls[i] == ALLIANCE)
+            if (EP_Controls[i] == ALLIANCE)
                 ++m_AllianceTowersControlled;
-            else if(EP_Controls[i] == HORDE)
+            else if (EP_Controls[i] == HORDE)
                 ++m_HordeTowersControlled;
             SendUpdateWorldState(EP_UI_TOWER_COUNT_A,m_AllianceTowersControlled);
             SendUpdateWorldState(EP_UI_TOWER_COUNT_H,m_HordeTowersControlled);
@@ -656,14 +656,14 @@ bool OutdoorPvPEP::Update(uint32 diff)
 void OutdoorPvPEP::HandlePlayerEnterZone(Player * plr, uint32 zone)
 {
     // add buffs
-    if(plr->GetTeam() == ALLIANCE)
+    if (plr->GetTeam() == ALLIANCE)
     {
-        if(m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
+        if (m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
             plr->CastSpell(plr,EP_AllianceBuffs[m_AllianceTowersControlled-1],true);
     }
     else
     {
-        if(m_HordeTowersControlled && m_HordeTowersControlled < 5)
+        if (m_HordeTowersControlled && m_HordeTowersControlled < 5)
             plr->CastSpell(plr,EP_HordeBuffs[m_HordeTowersControlled-1],true);
     }
     OutdoorPvP::HandlePlayerEnterZone(plr,zone);
@@ -672,7 +672,7 @@ void OutdoorPvPEP::HandlePlayerEnterZone(Player * plr, uint32 zone)
 void OutdoorPvPEP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
 {
     // remove buffs
-    if(plr->GetTeam() == ALLIANCE)
+    if (plr->GetTeam() == ALLIANCE)
     {
         for (int i = 0; i < 4; ++i)
             plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
@@ -693,7 +693,7 @@ void OutdoorPvPEP::BuffTeams()
         {
             for (int i = 0; i < 4; ++i)
                 plr->RemoveAurasDueToSpell(EP_AllianceBuffs[i]);
-            if(m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
+            if (m_AllianceTowersControlled && m_AllianceTowersControlled < 5)
                 plr->CastSpell(plr,EP_AllianceBuffs[m_AllianceTowersControlled-1],true);
         }
     }
@@ -703,7 +703,7 @@ void OutdoorPvPEP::BuffTeams()
         {
             for (int i = 0; i < 4; ++i)
                 plr->RemoveAurasDueToSpell(EP_HordeBuffs[i]);
-            if(m_HordeTowersControlled && m_HordeTowersControlled < 5)
+            if (m_HordeTowersControlled && m_HordeTowersControlled < 5)
                 plr->CastSpell(plr,EP_HordeBuffs[m_HordeTowersControlled-1],true);
         }
     }
