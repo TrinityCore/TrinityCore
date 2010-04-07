@@ -539,7 +539,7 @@ WorldSafeLocsEntry const* BattleGroundSA::GetClosestGraveYard(Player* player)
     ret = sWorldSafeLocsStore.LookupEntry(safeloc);
     nearest = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
 
-    for(uint8 i = BG_SA_LEFT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
+    for(uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
         if(GraveyardStatus[i] != player->GetTeamId())
             continue;
