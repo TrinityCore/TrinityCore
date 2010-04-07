@@ -32,7 +32,7 @@
 
 int PetAI::Permissible(const Creature *creature)
 {
-    if ( creature->isPet())
+    if (creature->isPet())
         return PERMIT_BASE_SPECIAL;
 
     return PERMIT_BASE_NO;
@@ -59,7 +59,7 @@ bool PetAI::_needToStop() const
 
 void PetAI::_stopAttack()
 {
-    if ( !m_creature->isAlive() )
+    if (!m_creature->isAlive())
     {
         DEBUG_LOG("Creature stoped attacking cuz his dead [guid=%u]", m_creature->GetGUIDLow());
         m_creature->GetMotionMaster()->Clear();
@@ -89,9 +89,9 @@ void PetAI::UpdateAI(const uint32 diff)
         m_updateAlliesTimer -= diff;
 
     // m_creature->getVictim() can't be used for check in case stop fighting, m_creature->getVictim() clear at Unit death etc.
-    if ( m_creature->getVictim() )
+    if (m_creature->getVictim())
     {
-        if ( _needToStop() )
+        if (_needToStop())
         {
             DEBUG_LOG("Pet AI stoped attacking [guid=%u]", m_creature->GetGUIDLow());
             _stopAttack();
@@ -203,9 +203,9 @@ void PetAI::UpdateAI(const uint32 diff)
             targetSpellStore.erase(targetSpellStore.begin() + index);
 
             SpellCastTargets targets;
-            targets.setUnitTarget( target );
+            targets.setUnitTarget(target);
 
-            if ( !m_creature->HasInArc(M_PI, target) )
+            if (!m_creature->HasInArc(M_PI, target))
             {
                 m_creature->SetInFront(target);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)

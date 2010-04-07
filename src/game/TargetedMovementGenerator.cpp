@@ -57,7 +57,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
 
-    if ( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) )
+    if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
         return false;
 
     float x, y, z;
@@ -114,7 +114,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
     if (!i_offset)
     {
         // to nearest random contact position
-        i_target->GetRandomContactPoint( &owner, x, y, z, 0, MELEE_RANGE - 0.5f );
+        i_target->GetRandomContactPoint(&owner, x, y, z, 0, MELEE_RANGE - 0.5f);
     }
     else if (!i_angle && !owner.hasUnitState(UNIT_STAT_FOLLOW))
     {
@@ -140,7 +140,7 @@ TargetedMovementGenerator<T>::_setTargetLocation(T &owner)
 
         //We don't update Mob Movement, if the difference between New destination and last destination is < BothObjectSize
         float  bothObjectSize = i_target->GetObjectSize() + owner.GetObjectSize() + CONTACT_DISTANCE;
-        if ( i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize )
+        if (i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize)
             return;
     */
     i_destinationHolder.SetDestination(traveller, x, y, z);

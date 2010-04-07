@@ -315,7 +315,7 @@ MessageDistDeliverer::Visit(DynamicObjectMapType &m)
 void
 MessageDistDeliverer::VisitObject(Player* plr)
 {
-    if ( !i_ownTeamOnly || (i_source.GetTypeId() == TYPEID_PLAYER && plr->GetTeam() == ((Player&)i_source).GetTeam()) )
+    if (!i_ownTeamOnly || (i_source.GetTypeId() == TYPEID_PLAYER && plr->GetTeam() == ((Player&)i_source).GetTeam()))
     {
         SendPacket(plr);
     }
@@ -340,10 +340,10 @@ bool CannibalizeObjectCheck::operator()(Corpse* u)
 
     Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGUID());
 
-    if ( !owner || i_funit->IsFriendlyTo(owner))
+    if (!owner || i_funit->IsFriendlyTo(owner))
         return false;
 
-    if (i_funit->IsWithinDistInMap(u, i_range) )
+    if (i_funit->IsWithinDistInMap(u, i_range))
         return true;
 
     return false;

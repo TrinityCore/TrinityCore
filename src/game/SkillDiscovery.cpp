@@ -60,7 +60,7 @@ void LoadSkillDiscoveryTable()
     if (!result)
     {
         sLog.outString();
-        sLog.outString( ">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty." );
+        sLog.outString(">> Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
         return;
     }
 
@@ -114,7 +114,7 @@ void LoadSkillDiscoveryTable()
                 continue;
             }
 
-            SkillDiscoveryStore[reqSkillOrSpell].push_back( SkillDiscoveryEntry(spellId, reqSkillValue, chance) );
+            SkillDiscoveryStore[reqSkillOrSpell].push_back(SkillDiscoveryEntry(spellId, reqSkillValue, chance));
         }
         else if (reqSkillOrSpell == 0)                      // skill case
         {
@@ -127,7 +127,7 @@ void LoadSkillDiscoveryTable()
             }
 
             for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-                SkillDiscoveryStore[-int32(_spell_idx->second->skillId)].push_back( SkillDiscoveryEntry(spellId, reqSkillValue, chance) );
+                SkillDiscoveryStore[-int32(_spell_idx->second->skillId)].push_back(SkillDiscoveryEntry(spellId, reqSkillValue, chance));
         }
         else
         {
@@ -139,7 +139,7 @@ void LoadSkillDiscoveryTable()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u skill discovery definitions", count );
+    sLog.outString(">> Loaded %u skill discovery definitions", count);
     if (!ssNonDiscoverableEntries.str().empty())
         sLog.outErrorDb("Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n%s",ssNonDiscoverableEntries.str().c_str());
 

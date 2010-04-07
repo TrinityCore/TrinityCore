@@ -32,10 +32,10 @@ template<class T>
 void
 FleeingMovementGenerator<T>::_setTargetLocation(T &owner)
 {
-    if ( !&owner )
+    if (!&owner)
         return;
 
-    if ( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED) )
+    if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
         return;
 
     if (!_setMoveData(owner))
@@ -161,7 +161,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         temp_y = y + distance * sin(angle);
         Trinity::NormalizeMapCoord(temp_x);
         Trinity::NormalizeMapCoord(temp_y);
-        if ( owner.IsWithinLOS(temp_x,temp_y,z))
+        if (owner.IsWithinLOS(temp_x,temp_y,z))
         {
             bool is_water_now = _map->IsInWater(x,y,z);
 
@@ -181,7 +181,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
             if ((is_water_now && !is_water_next && !is_land_ok) || (!is_water_now && is_water_next && !is_water_ok))
                 continue;
 
-            if ( !(new_z - z) || distance / fabs(new_z - z) > 1.0f)
+            if (!(new_z - z) || distance / fabs(new_z - z) > 1.0f)
             {
                 float new_z_left = _map->GetHeight(temp_x + 1.0f*cos(angle+M_PI/2),temp_y + 1.0f*sin(angle+M_PI/2),z,true);
                 float new_z_right = _map->GetHeight(temp_x + 1.0f*cos(angle-M_PI/2),temp_y + 1.0f*sin(angle-M_PI/2),z,true);
@@ -196,7 +196,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
         }
     }
     i_to_distance_from_caster = 0.0f;
-    i_nextCheckTime.Reset( urand(500,1000) );
+    i_nextCheckTime.Reset(urand(500,1000));
     return false;
 }
 
@@ -215,12 +215,12 @@ FleeingMovementGenerator<T>::_setMoveData(T &owner)
            (i_last_distance_from_caster < i_to_distance_from_caster && cur_dist_xyz > i_to_distance_from_caster)   ||
                                                             // if we reach bigger distance
            (cur_dist_xyz > MAX_QUIET_DISTANCE) ||           // if we are too far
-           (i_last_distance_from_caster > MIN_QUIET_DISTANCE && cur_dist_xyz < MIN_QUIET_DISTANCE) )
+           (i_last_distance_from_caster > MIN_QUIET_DISTANCE && cur_dist_xyz < MIN_QUIET_DISTANCE))
                                                             // if we leave 'quiet zone'
         {
             // we are very far or too close, stopping
             i_to_distance_from_caster = 0.0f;
-            i_nextCheckTime.Reset( urand(500,1000) );
+            i_nextCheckTime.Reset(urand(500,1000));
             return false;
         }
         else
@@ -369,16 +369,16 @@ template<class T>
 bool
 FleeingMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
 {
-    if ( !&owner || !owner.isAlive() )
+    if (!&owner || !owner.isAlive())
         return false;
-    if ( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED) )
+    if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
         return true;
 
     Traveller<T> traveller(owner);
 
     i_nextCheckTime.Update(time_diff);
 
-    if ( (owner.IsStopped() && !i_destinationHolder.HasArrived()) || !i_destinationHolder.HasDestination() )
+    if ((owner.IsStopped() && !i_destinationHolder.HasArrived()) || !i_destinationHolder.HasDestination())
     {
         _setTargetLocation(owner);
         return true;
@@ -427,10 +427,10 @@ void TimedFleeingMovementGenerator::Finalize(Unit &owner)
 
 bool TimedFleeingMovementGenerator::Update(Unit & owner, const uint32 & time_diff)
 {
-    if ( !owner.isAlive() )
+    if (!owner.isAlive())
         return false;
 
-    if ( owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED) )
+    if (owner.hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED))
         return true;
 
     i_totalFleeTime.Update(time_diff);

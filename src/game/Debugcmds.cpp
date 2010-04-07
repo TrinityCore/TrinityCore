@@ -626,7 +626,7 @@ bool ChatHandler::HandleDebugGetItemStateCommand(const char* args)
             }
 
             if (item->GetState() == ITEM_REMOVED) continue;
-            Item *test = player->GetItemByPos( item->GetBagSlot(), item->GetSlot());
+            Item *test = player->GetItemByPos(item->GetBagSlot(), item->GetSlot());
 
             if (test == NULL)
             {
@@ -896,7 +896,7 @@ bool ChatHandler::HandleDebugItemExpireCommand(const char* args)
     if (!i)
         return false;
 
-    m_session->GetPlayer()->DestroyItem( i->GetBagSlot(),i->GetSlot(), true);
+    m_session->GetPlayer()->DestroyItem(i->GetBagSlot(),i->GetSlot(), true);
     sScriptMgr.ItemExpire(m_session->GetPlayer(),i->GetProto());
 
     return true;
@@ -980,14 +980,14 @@ bool ChatHandler::HandleDebugSetValueCommand(const char* args)
     {
         iValue = (uint32)atoi(py);
         sLog.outDebug(GetTrinityString(LANG_SET_UINT), GUID_LOPART(guid), Opcode, iValue);
-        target->SetUInt32Value( Opcode , iValue );
+        target->SetUInt32Value(Opcode , iValue);
         PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode,iValue);
     }
     else
     {
         fValue = (float)atof(py);
         sLog.outDebug(GetTrinityString(LANG_SET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
-        target->SetFloatValue( Opcode , fValue );
+        target->SetFloatValue(Opcode , fValue);
         PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode,fValue);
     }
 
@@ -1029,13 +1029,13 @@ bool ChatHandler::HandleDebugGetValueCommand(const char* args)
 
     if (isint32)
     {
-        iValue = target->GetUInt32Value( Opcode );
+        iValue = target->GetUInt32Value(Opcode);
         sLog.outDebug(GetTrinityString(LANG_GET_UINT), GUID_LOPART(guid), Opcode, iValue);
         PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), Opcode,    iValue);
     }
     else
     {
-        fValue = target->GetFloatValue( Opcode );
+        fValue = target->GetFloatValue(Opcode);
         sLog.outDebug(GetTrinityString(LANG_GET_FLOAT), GUID_LOPART(guid), Opcode, fValue);
         PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
     }
@@ -1059,16 +1059,16 @@ bool ChatHandler::HandleDebugMod32ValueCommand(const char* args)
 
     if (Opcode >= m_session->GetPlayer()->GetValuesCount())
     {
-        PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, m_session->GetPlayer()->GetGUIDLow(), m_session->GetPlayer( )->GetValuesCount());
+        PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, m_session->GetPlayer()->GetGUIDLow(), m_session->GetPlayer()->GetValuesCount());
         return false;
     }
 
     sLog.outDebug(GetTrinityString(LANG_CHANGE_32BIT), Opcode, Value);
 
-    int CurrentValue = (int)m_session->GetPlayer( )->GetUInt32Value( Opcode );
+    int CurrentValue = (int)m_session->GetPlayer()->GetUInt32Value(Opcode);
 
     CurrentValue += Value;
-    m_session->GetPlayer( )->SetUInt32Value( Opcode , (uint32)CurrentValue );
+    m_session->GetPlayer()->SetUInt32Value(Opcode , (uint32)CurrentValue);
 
     PSendSysMessage(LANG_CHANGE_32BIT_FIELD, Opcode,CurrentValue);
 

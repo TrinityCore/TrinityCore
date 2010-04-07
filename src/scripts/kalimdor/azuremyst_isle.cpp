@@ -491,7 +491,7 @@ struct npc_geezleAI : public ScriptedAI
         for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         {
             if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY)==QUEST_STATUS_INCOMPLETE
-                &&(*itr)->HasAura(SPELL_TREE_DISGUISE) )
+                &&(*itr)->HasAura(SPELL_TREE_DISGUISE))
             {
                 (*itr)->KilledMonsterCredit(MOB_SPARK,0);
             }

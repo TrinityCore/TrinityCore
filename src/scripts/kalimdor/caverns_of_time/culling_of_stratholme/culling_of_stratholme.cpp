@@ -1155,7 +1155,7 @@ bool GossipHello_npc_arthas(Player* pPlayer, Creature* pCreature)
 }
 
 
-bool GossipSelect_npc_arthas(Player *pPlayer, Creature *pCreature, uint32 sender, uint32 action )
+bool GossipSelect_npc_arthas(Player *pPlayer, Creature *pCreature, uint32 sender, uint32 action)
 {
     npc_arthasAI* pAI = CAST_AI(npc_arthasAI,pCreature->AI());
 

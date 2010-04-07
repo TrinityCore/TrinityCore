@@ -114,7 +114,7 @@ namespace Trinity
         {
             if (u->GetTypeId() == TYPEID_UNIT && (
                 ((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
-                (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ))
+                (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)))
                 return 0;
 
             uint32 xp_gain = BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(),u->GetZoneId()));

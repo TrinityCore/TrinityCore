@@ -119,7 +119,7 @@ class HostileReference : public Reference<Unit, ThreatManager>
 
         //=================================================
 
-        HostileReference* next() { return ((HostileReference* ) Reference<Unit, ThreatManager>::next()); }
+        HostileReference* next() { return ((HostileReference*) Reference<Unit, ThreatManager>::next()); }
 
         //=================================================
 

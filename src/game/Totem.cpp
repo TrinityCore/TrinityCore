@@ -33,7 +33,7 @@ Totem::Totem(SummonPropertiesEntry const *properties, Unit *owner) : Minion(prop
     m_type = TOTEM_PASSIVE;
 }
 
-void Totem::Update( uint32 time )
+void Totem::Update(uint32 time)
 {
     if (!m_owner->isAlive() || !isAlive())
     {
@@ -49,7 +49,7 @@ void Totem::Update( uint32 time )
     else
         m_duration -= time;
 
-    Creature::Update( time );
+    Creature::Update(time);
 }
 
 void Totem::InitStats(uint32 duration)

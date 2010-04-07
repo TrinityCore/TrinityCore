@@ -285,7 +285,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* pAttacker, Hostile
         assert(target);                                     // if the ref has status online the target must be there !
 
         // some units are prefered in comparison to others
-        if (!noPriorityTargetFound && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask()) || target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE)) )
+        if (!noPriorityTargetFound && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask()) || target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
         {
             if (iter != lastRef)
             {
@@ -309,7 +309,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* pAttacker, Hostile
             if (pCurrentVictim)                              // select 1.3/1.1 better target in comparison current target
             {
                 // list sorted and and we check current target, then this is best case
-                if (pCurrentVictim == currentRef || currentRef->getThreat() <= 1.1f * pCurrentVictim->getThreat() )
+                if (pCurrentVictim == currentRef || currentRef->getThreat() <= 1.1f * pCurrentVictim->getThreat())
                 {
                     currentRef = pCurrentVictim;            // for second case
                     found = true;
@@ -423,7 +423,7 @@ void ThreatManager::modifyThreatPercent(Unit *pVictim, int32 iPercent)
 Unit* ThreatManager::getHostilTarget()
 {
     iThreatContainer.update();
-    HostileReference* nextVictim = iThreatContainer.selectNextVictim( getOwner()->ToCreature(), getCurrentVictim());
+    HostileReference* nextVictim = iThreatContainer.selectNextVictim(getOwner()->ToCreature(), getCurrentVictim());
     setCurrentVictim(nextVictim);
     return getCurrentVictim() != NULL ? getCurrentVictim()->getTarget() : NULL;
 }

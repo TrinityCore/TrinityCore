@@ -1285,7 +1285,7 @@ enum BG_AV_WorldStates
     AV_SHOW_A_SCORE                 = 3134,
 
 /*
-    //the comments behind the state shows which icon overlaps the other.. but is, until now, unused and maybe not a good solution (but give few performance (: )
+    //the comments behind the state shows which icon overlaps the other.. but is, until now, unused and maybe not a good solution (but give few performance (:)
 
 // Graves
 

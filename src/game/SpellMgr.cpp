@@ -297,7 +297,7 @@ bool GetDispelChance(Unit* caster, uint32 spellId)
     // Apply dispel mod from aura caster
     if (caster)
     {
-        if ( Player* modOwner = caster->GetSpellModOwner() )
+        if (Player* modOwner = caster->GetSpellModOwner())
             modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance);
     }
     // Try dispel
@@ -403,7 +403,7 @@ uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, Spe
     // Flat mod from caster auras by spell school
     powerCost += caster->GetInt32Value(UNIT_FIELD_POWER_COST_MODIFIER + school);
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
-    if ( spellInfo->AttributesEx4 & SPELL_ATTR_EX4_SPELL_VS_EXTEND_COST )
+    if (spellInfo->AttributesEx4 & SPELL_ATTR_EX4_SPELL_VS_EXTEND_COST)
         powerCost += caster->GetAttackTime(OFF_ATTACK)/100;
     // Apply cost mod by spell
     if (Player* modOwner = caster->GetSpellModOwner())
@@ -461,7 +461,7 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo)
         return AURA_STATE_WARRIOR_VICTORY_RUSH;
 
     // Swiftmend state on Regrowth & Rejuvenation
-    if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x50 )
+    if (spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && spellInfo->SpellFamilyFlags[0] & 0x50)
         return AURA_STATE_SWIFTMEND;
 
     // Deadly poison aura state
@@ -597,7 +597,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
                 return SPELL_SPECIFIC_STING;
 
             // only hunter aspects have this (but not all aspects in hunter family)
-            if ( spellInfo->SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010))
+            if (spellInfo->SpellFamilyFlags.HasFlag(0x00380000, 0x00440000, 0x00001010))
                 return SPELL_SPECIFIC_ASPECT;
 
             break;
@@ -615,7 +615,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
                 return SPELL_SPECIFIC_JUDGEMENT;
 
             // only paladin auras have this (for palaldin class family)
-            if ( spellInfo->SpellFamilyFlags[2] & 0x00000020 )
+            if (spellInfo->SpellFamilyFlags[2] & 0x00000020)
                 return SPELL_SPECIFIC_AURA;
 
             break;
@@ -973,7 +973,7 @@ bool SpellMgr::_isPositiveSpell(uint32 spellId, bool deep) const
 bool IsSingleTargetSpell(SpellEntry const *spellInfo)
 {
     // all other single target spells have if it has AttributesEx5
-    if ( spellInfo->AttributesEx5 & SPELL_ATTR_EX5_SINGLE_TARGET_SPELL )
+    if (spellInfo->AttributesEx5 & SPELL_ATTR_EX5_SINGLE_TARGET_SPELL)
         return true;
 
     switch(GetSpellSpecific(spellInfo))
@@ -991,8 +991,8 @@ bool IsSingleTargetSpells(SpellEntry const *spellInfo1, SpellEntry const *spellI
 {
     // TODO - need better check
     // Equal icon and spellfamily
-    if ( spellInfo1->SpellFamilyName == spellInfo2->SpellFamilyName &&
-        spellInfo1->SpellIconID == spellInfo2->SpellIconID )
+    if (spellInfo1->SpellFamilyName == spellInfo2->SpellFamilyName &&
+        spellInfo1->SpellIconID == spellInfo2->SpellIconID)
         return true;
 
     // TODO - need found Judgements rule
@@ -1016,8 +1016,8 @@ SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 
 {
     // talents that learn spells can have stance requirements that need ignore
     // (this requirement only for client-side stance show in talent description)
-    if ( GetTalentSpellCost(spellInfo->Id) > 0 &&
-        (spellInfo->Effect[0]==SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[1]==SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[2]==SPELL_EFFECT_LEARN_SPELL) )
+    if (GetTalentSpellCost(spellInfo->Id) > 0 &&
+        (spellInfo->Effect[0]==SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[1]==SPELL_EFFECT_LEARN_SPELL || spellInfo->Effect[2]==SPELL_EFFECT_LEARN_SPELL))
         return SPELL_CAST_OK;
 
     uint32 stanceMask = (form ? 1 << (form - 1) : 0);
@@ -1075,19 +1075,19 @@ void SpellMgr::LoadSpellTargetPositions()
 
     //                                                0   1           2                  3                  4                  5
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
-    if ( !result )
+    if (!result)
     {
 
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell target coordinates", count );
+        sLog.outString(">> Loaded %u spell target coordinates", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -1115,7 +1115,7 @@ void SpellMgr::LoadSpellTargetPositions()
         bool found = false;
         for (int i = 0; i < 3; ++i)
         {
-            if ( spellInfo->EffectImplicitTargetA[i]==TARGET_DST_DB || spellInfo->EffectImplicitTargetB[i]==TARGET_DST_DB )
+            if (spellInfo->EffectImplicitTargetA[i]==TARGET_DST_DB || spellInfo->EffectImplicitTargetB[i]==TARGET_DST_DB)
             {
                 found = true;
                 break;
@@ -1143,7 +1143,7 @@ void SpellMgr::LoadSpellTargetPositions()
         mSpellTargetPositions[Spell_ID] = st;
         ++count;
 
-    } while ( result->NextRow() );
+    } while (result->NextRow());
 
     // Check all spells
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
@@ -1180,7 +1180,7 @@ void SpellMgr::LoadSpellTargetPositions()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell teleport coordinates", count );
+    sLog.outString(">> Loaded %u spell teleport coordinates", count);
 }
 
 bool SpellMgr::IsAffectedByMod(SpellEntry const *spellInfo, SpellModifier *mod) const
@@ -1209,16 +1209,16 @@ void SpellMgr::LoadSpellProcEvents()
 
     //                                                0      1           2                3                 4                 5                 6          7       8        9             10
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
-    if ( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell proc event conditions", count  );
+        sLog.outString(">> Loaded %u spell proc event conditions", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
     uint32 customProc = 0;
     do
     {
@@ -1260,13 +1260,13 @@ void SpellMgr::LoadSpellProcEvents()
             customProc++;
         }
         ++count;
-    } while ( result->NextRow() );
+    } while (result->NextRow());
 
     sLog.outString();
     if (customProc)
-        sLog.outString( ">> Loaded %u extra spell proc event conditions + %u custom",  count, customProc );
+        sLog.outString(">> Loaded %u extra spell proc event conditions + %u custom",  count, customProc);
     else
-        sLog.outString( ">> Loaded %u extra spell proc event conditions", count );
+        sLog.outString(">> Loaded %u extra spell proc event conditions", count);
 }
 
 void SpellMgr::LoadSpellBonusess()
@@ -1275,16 +1275,16 @@ void SpellMgr::LoadSpellBonusess()
     uint32 count = 0;
     //                                                0      1             2          3         4
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
-    if ( !result )
+    if (!result)
     {
-        barGoLink bar( 1 );
+        barGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell bonus data", count);
+        sLog.outString(">> Loaded %u spell bonus data", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
     do
     {
         Field *fields = result->Fetch();
@@ -1307,10 +1307,10 @@ void SpellMgr::LoadSpellBonusess()
 
         mSpellBonusMap[entry] = sbe;
         ++count;
-    } while ( result->NextRow() );
+    } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u extra spell bonus data",  count);
+    sLog.outString(">> Loaded %u extra spell bonus data",  count);
 }
 
 bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellProcEvent, uint32 EventProcFlag, SpellEntry const * procSpell, uint32 procFlags, uint32 procExtra, bool active)
@@ -1395,7 +1395,7 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const* spellPr
             // spellFamilyName is Ok need check for spellFamilyMask if present
             if (spellProcEvent->spellFamilyMask)
             {
-                if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags ) == 0)
+                if ((spellProcEvent->spellFamilyMask & procSpell->SpellFamilyFlags) == 0)
                     return false;
                 hasFamilyMask = true;
                 // Some spells are not considered as active even with have spellfamilyflags
@@ -1451,19 +1451,19 @@ void SpellMgr::LoadSpellGroups()
 
     //                                                       0   1
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
-    if ( !result )
+    if (!result)
     {
 
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell group definitions", count );
+        sLog.outString(">> Loaded %u spell group definitions", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     std::set<uint32> groups;
 
@@ -1484,9 +1484,9 @@ void SpellMgr::LoadSpellGroups()
         groups.insert(std::set<uint32>::value_type(group_id));
         mSpellGroupSpell.insert(SpellGroupSpellMap::value_type((SpellGroup)group_id, spell_id));
 
-    } while ( result->NextRow() );
+    } while (result->NextRow());
 
-    for (SpellGroupSpellMap::iterator itr = mSpellGroupSpell.begin(); itr!= mSpellGroupSpell.end() ; )
+    for (SpellGroupSpellMap::iterator itr = mSpellGroupSpell.begin(); itr!= mSpellGroupSpell.end() ;)
     {
         if (itr->second < 0)
         {
@@ -1530,7 +1530,7 @@ void SpellMgr::LoadSpellGroups()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell group definitions", count );
+    sLog.outString(">> Loaded %u spell group definitions", count);
 }
 
 void SpellMgr::LoadSpellGroupStackRules()
@@ -1541,19 +1541,19 @@ void SpellMgr::LoadSpellGroupStackRules()
 
     //                                                       0         1
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
-    if ( !result )
+    if (!result)
     {
 
-        barGoLink bar( 1 );
+        barGoLink bar(1);
 
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell group stack rules", count );
+        sLog.outString(">> Loaded %u spell group stack rules", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -1580,10 +1580,10 @@ void SpellMgr::LoadSpellGroupStackRules()
         mSpellGroupStack[(SpellGroup)group_id] = (SpellGroupStackRule)stack_rule;
 
         ++count;
-    } while ( result->NextRow() );
+    } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell group stack rules", count );
+    sLog.outString(">> Loaded %u spell group stack rules", count);
 }
 
 void SpellMgr::LoadSpellThreats()
@@ -1602,7 +1602,7 @@ void SpellMgr::LoadSpellThreats()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u aggro generating spells", count );
+        sLog.outString(">> Loaded %u aggro generating spells", count);
         return;
     }
 
@@ -1629,7 +1629,7 @@ void SpellMgr::LoadSpellThreats()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u aggro generating spells", count );
+    sLog.outString(">> Loaded %u aggro generating spells", count);
 }
 
 bool SpellMgr::IsRankSpellDueToSpell(SpellEntry const *spellInfo_1,uint32 spellId_2) const
@@ -1770,11 +1770,11 @@ SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spell
     bool needRankSelection = false;
     for (int i=0; i<3; ++i)
     {
-        if ( IsPositiveEffect(spellInfo->Id, i) && (
+        if (IsPositiveEffect(spellInfo->Id, i) && (
             spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AURA ||
             spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_PARTY ||
             spellInfo->Effect[i] == SPELL_EFFECT_APPLY_AREA_AURA_RAID
-            ) )
+))
         {
             needRankSelection = true;
             break;
@@ -1839,7 +1839,7 @@ void SpellMgr::LoadSpellLearnSkills()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u Spell Learn Skills from DBC", dbc_count );
+    sLog.outString(">> Loaded %u Spell Learn Skills from DBC", dbc_count);
 }
 
 void SpellMgr::LoadSpellLearnSpells()
@@ -1854,7 +1854,7 @@ void SpellMgr::LoadSpellLearnSpells()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded 0 spell learn spells" );
+        sLog.outString(">> Loaded 0 spell learn spells");
         sLog.outErrorDb("`spell_learn_spell` table is empty!");
         return;
     }
@@ -1947,7 +1947,7 @@ void SpellMgr::LoadSpellLearnSpells()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell learn spells + %u found in DBC", count, dbc_count );
+    sLog.outString(">> Loaded %u spell learn spells + %u found in DBC", count, dbc_count);
 }
 
 void SpellMgr::LoadSpellScriptTarget()
@@ -2133,7 +2133,7 @@ void SpellMgr::LoadSpellPetAuras()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell pet auras", count);
+        sLog.outString(">> Loaded %u spell pet auras", count);
         return;
     }
 
@@ -2184,7 +2184,7 @@ void SpellMgr::LoadSpellPetAuras()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell pet auras", count );
+    sLog.outString(">> Loaded %u spell pet auras", count);
 }
 
 void SpellMgr::LoadPetLevelupSpellMap()
@@ -2243,7 +2243,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u pet levelup and default spells for %u families", count, family_count );
+    sLog.outString(">> Loaded %u pet levelup and default spells for %u families", count, family_count);
 }
 
 bool LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntry& petDefSpells)
@@ -2372,8 +2372,8 @@ void SpellMgr::LoadPetDefaultSpells()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded addition spells for %u pet spell data entries.", countData );
-    sLog.outString( ">> Loaded %u summonable creature templates.", countCreature );
+    sLog.outString(">> Loaded addition spells for %u pet spell data entries.", countData);
+    sLog.outString(">> Loaded %u summonable creature templates.", countCreature);
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
@@ -2673,7 +2673,7 @@ void SpellMgr::LoadSpellAreas()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell area requirements", count );
+    sLog.outString(">> Loaded %u spell area requirements", count);
 }
 
 SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spellInfo, uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player)
@@ -3238,7 +3238,7 @@ void SpellMgr::LoadSpellEnchantProcData()
         bar.step();
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u spell enchant proc event conditions", count );
+        sLog.outString(">> Loaded %u spell enchant proc event conditions", count);
         return;
     }
 
@@ -3270,7 +3270,7 @@ void SpellMgr::LoadSpellEnchantProcData()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u enchant proc data definitions", count);
+    sLog.outString(">> Loaded %u enchant proc data definitions", count);
 }
 
 void SpellMgr::LoadSpellRequired()
@@ -3330,7 +3330,7 @@ void SpellMgr::LoadSpellRequired()
     } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell required records", rows );
+    sLog.outString(">> Loaded %u spell required records", rows);
 }
 
 void SpellMgr::LoadSpellRanks()
@@ -3444,7 +3444,7 @@ void SpellMgr::LoadSpellRanks()
     } while (!finished);
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u spell rank records", rows );
+    sLog.outString(">> Loaded %u spell rank records", rows);
 }
 
 // set data in core for now
@@ -3854,7 +3854,7 @@ void SpellMgr::LoadSpellCustomAttr()
     CreatureAI::FillAISpellInfo();
 
     sLog.outString();
-    sLog.outString(">> Loaded %u custom spell attributes", count );
+    sLog.outString(">> Loaded %u custom spell attributes", count);
 }
 
 // Fill custom data about enchancments
@@ -3898,7 +3898,7 @@ void SpellMgr::LoadEnchantCustomAttr()
     }
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u custom enchant attributes", count );
+    sLog.outString(">> Loaded %u custom enchant attributes", count);
 }
 
 bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
@@ -3924,11 +3924,11 @@ void SpellMgr::LoadSpellLinked()
         barGoLink bar(1);
         bar.step();
         sLog.outString();
-        sLog.outString( ">> Loaded %u linked spells", count );
+        sLog.outString(">> Loaded %u linked spells", count);
         return;
     }
 
-    barGoLink bar( result->GetRowCount() );
+    barGoLink bar(result->GetRowCount());
 
     do
     {
@@ -3977,8 +3977,8 @@ void SpellMgr::LoadSpellLinked()
         mSpellLinkedMap[trigger].push_back(effect);
 
         ++count;
-    } while ( result->NextRow() );
+    } while (result->NextRow());
 
     sLog.outString();
-    sLog.outString( ">> Loaded %u linked spells", count );
+    sLog.outString(">> Loaded %u linked spells", count);
 }

@@ -178,7 +178,7 @@ Unit* ScriptedAI::SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition)
     switch (pTarget)
     {
     case SELECT_TARGET_RANDOM:
-        advance (itr , uiPosition +  (rand() % (threatlist.size() - uiPosition ) ));
+        advance (itr , uiPosition +  (rand() % (threatlist.size() - uiPosition)));
         return Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
         break;
 
@@ -330,19 +330,19 @@ void FillSpellSummary()
         for (uint32 j = 0; j < 3; ++j)
         {
             //Spell targets self
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER )
+            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SELF-1);
 
             //Spell targets a single enemy
             if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DST_TARGET_ENEMY )
+                pTempSpell->EffectImplicitTargetA[j] == TARGET_DST_TARGET_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_ENEMY-1);
 
             //Spell targets AoE at enemy
             if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_SRC ||
                 pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_DST ||
                 pTempSpell->EffectImplicitTargetA[j] == TARGET_SRC_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DEST_DYNOBJ_ENEMY )
+                pTempSpell->EffectImplicitTargetA[j] == TARGET_DEST_DYNOBJ_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_ENEMY-1);
 
             //Spell targets an enemy
@@ -351,13 +351,13 @@ void FillSpellSummary()
                 pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_SRC ||
                 pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_DST ||
                 pTempSpell->EffectImplicitTargetA[j] == TARGET_SRC_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DEST_DYNOBJ_ENEMY )
+                pTempSpell->EffectImplicitTargetA[j] == TARGET_DEST_DYNOBJ_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_ENEMY-1);
 
             //Spell targets a single friend(or self)
             if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER ||
                 pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ALLY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_PARTY )
+                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_PARTY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_FRIEND-1);
 
             //Spell targets aoe friends
@@ -379,18 +379,18 @@ void FillSpellSummary()
             if (pTempSpell->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE ||
                 pTempSpell->Effect[j] == SPELL_EFFECT_INSTAKILL ||
                 pTempSpell->Effect[j] == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE ||
-                pTempSpell->Effect[j] == SPELL_EFFECT_HEALTH_LEECH )
+                pTempSpell->Effect[j] == SPELL_EFFECT_HEALTH_LEECH)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_DAMAGE-1);
 
             //Make sure that this spell includes a healing effect (or an apply aura with a periodic heal)
             if (pTempSpell->Effect[j] == SPELL_EFFECT_HEAL ||
                 pTempSpell->Effect[j] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
                 pTempSpell->Effect[j] == SPELL_EFFECT_HEAL_MECHANICAL ||
-                (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA  && pTempSpell->EffectApplyAuraName[j]== 8 ))
+                (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA  && pTempSpell->EffectApplyAuraName[j]== 8))
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
 
             //Make sure that this spell applies an aura
-            if (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA )
+            if (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_AURA-1);
         }
     }

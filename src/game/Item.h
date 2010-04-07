@@ -221,12 +221,12 @@ bool ItemCanGoIntoBag(ItemPrototype const *proto, ItemPrototype const *pBagProto
 class Item : public Object
 {
     public:
-        static Item* CreateItem( uint32 item, uint32 count, Player const* player = NULL );
-        Item* CloneItem( uint32 count, Player const* player = NULL ) const;
+        static Item* CreateItem(uint32 item, uint32 count, Player const* player = NULL);
+        Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
-        Item ( );
+        Item ();
 
-        virtual bool Create( uint32 guidlow, uint32 itemid, Player const* owner);
+        virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
 
         ItemPrototype const* GetProto() const;
 
@@ -257,7 +257,7 @@ class Item : public Object
 
         bool IsFitToSpellRequirements(SpellEntry const* spellInfo) const;
         bool IsTargetValidForItemUse(Unit* pUnitTarget);
-        bool IsLimitedToAnotherMapOrZone( uint32 cur_mapId, uint32 cur_zoneId) const;
+        bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
         bool GemsFitSockets() const;
 
         uint32 GetCount() const { return GetUInt32Value(ITEM_FIELD_STACK_COUNT); }
@@ -335,7 +335,7 @@ class Item : public Object
         uint32 GetPlayedTime();
         bool IsRefundExpired();
 
-        void BuildUpdate(UpdateDataMapType& );
+        void BuildUpdate(UpdateDataMapType&);
 
     private:
         uint8 m_slot;

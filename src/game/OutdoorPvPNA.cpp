@@ -113,14 +113,14 @@ void OPvPCapturePointNA::SpawnGOsForTeam(uint32 team)
         return;
     for (int i = 0; i < NA_CONTROL_GO_NUM; ++i)
     {
-        if ( i == NA_ROOST_S ||
+        if (i == NA_ROOST_S ||
             i == NA_ROOST_W ||
             i == NA_ROOST_N ||
             i == NA_ROOST_E ||
             i == NA_BOMB_WAGON_S ||
             i == NA_BOMB_WAGON_W ||
             i == NA_BOMB_WAGON_N ||
-            i == NA_BOMB_WAGON_E )
+            i == NA_BOMB_WAGON_E)
             continue;   // roosts and bomb wagons are spawned when someone uses the matching destroyed roost
         AddObject(i,gos[i].entry,gos[i].map,gos[i].x,gos[i].y,gos[i].z,gos[i].o,gos[i].rot0,gos[i].rot1,gos[i].rot2,gos[i].rot3);
     }
@@ -188,7 +188,7 @@ bool OPvPCapturePointNA::HandlePlayerEnter(Player *plr)
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(NA_UI_TOWER_SLIDER_DISPLAY, 1);
-        uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
+        uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
         plr->SendUpdateWorldState(NA_UI_TOWER_SLIDER_POS, phase);
         plr->SendUpdateWorldState(NA_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
@@ -388,16 +388,16 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player * plr, uint32 spellId, GameObj
         int32 count = 10;
         uint32 itemid = 24538;
                                                                 // bomb id count
-        uint8 msg = plr->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, itemid, count, &noSpaceForCount );
-        if ( msg != EQUIP_ERR_OK )                               // convert to possible store amount
+        uint8 msg = plr->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count, &noSpaceForCount);
+        if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
             count -= noSpaceForCount;
 
-        if ( count == 0 || dest.empty())                         // can't add any
+        if (count == 0 || dest.empty())                         // can't add any
         {
             return true;
         }
 
-        Item* item = plr->StoreNewItem( dest, itemid, true);
+        Item* item = plr->StoreNewItem(dest, itemid, true);
 
         if (count > 0 && item)
         {
@@ -618,18 +618,18 @@ void OPvPCapturePointNA::SendChangePhase()
     // send this too, sometimes the slider disappears, dunno why :(
     SendUpdateWorldState(NA_UI_TOWER_SLIDER_DISPLAY, 1);
     // send these updates to only the ones in this objective
-    uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
+    uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
     SendUpdateWorldState(NA_UI_TOWER_SLIDER_POS, phase);
     SendUpdateWorldState(NA_UI_TOWER_SLIDER_N, m_neutralValuePct);
 }
 
 void OPvPCapturePointNA::UpdateHalaaWorldState()
 {
-    m_PvP->SendUpdateWorldState( NA_MAP_HALAA_NEUTRAL ,uint32(bool(m_HalaaState & HALAA_N)));
-    m_PvP->SendUpdateWorldState( NA_MAP_HALAA_NEU_A ,uint32(bool(m_HalaaState & HALAA_N_A)));
-    m_PvP->SendUpdateWorldState( NA_MAP_HALAA_NEU_H ,uint32(bool(m_HalaaState & HALAA_N_H)));
-    m_PvP->SendUpdateWorldState( NA_MAP_HALAA_HORDE ,uint32(bool(m_HalaaState & HALAA_H)));
-    m_PvP->SendUpdateWorldState( NA_MAP_HALAA_ALLIANCE ,uint32(bool(m_HalaaState & HALAA_A)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEUTRAL ,uint32(bool(m_HalaaState & HALAA_N)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEU_A ,uint32(bool(m_HalaaState & HALAA_N_A)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEU_H ,uint32(bool(m_HalaaState & HALAA_N_H)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_HORDE ,uint32(bool(m_HalaaState & HALAA_H)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_ALLIANCE ,uint32(bool(m_HalaaState & HALAA_A)));
 }
 
 void OPvPCapturePointNA::UpdateWyvernRoostWorldState(uint32 roost)

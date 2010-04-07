@@ -429,7 +429,7 @@ enum eFelCrystalforge
 
 bool GOHello_go_fel_crystalforge(Player *pPlayer, GameObject *pGO)
 {
-    if ( pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER ) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
+    if (pGO->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER) /* != GAMEOBJECT_TYPE_QUESTGIVER) */
         pPlayer->PrepareQuestMenu(pGO->GetGUID()); /* return true*/
 
     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FEL_CRYSTALFORGE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);

@@ -150,7 +150,7 @@ void WorldSession::QueuePacket(WorldPacket* new_packet)
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char *reason)
 {
-    sLog.outError( "SESSION: received unexpected opcode %s (0x%.4X) %s",
+    sLog.outError("SESSION: received unexpected opcode %s (0x%.4X) %s",
         LookupOpcodeName(packet->GetOpcode()),
         packet->GetOpcode(),
         reason);
@@ -159,7 +159,7 @@ void WorldSession::LogUnexpectedOpcode(WorldPacket* packet, const char *reason)
 /// Logging helper for unexpected opcodes
 void WorldSession::LogUnprocessedTail(WorldPacket *packet)
 {
-    sLog.outError( "SESSION: opcode %s (0x%.4X) have unprocessed tail data (read stop at %u from %u)",
+    sLog.outError("SESSION: opcode %s (0x%.4X) have unprocessed tail data (read stop at %u from %u)",
         LookupOpcodeName(packet->GetOpcode()),
         packet->GetOpcode(),
         packet->rpos(),packet->wpos());
@@ -176,14 +176,14 @@ bool WorldSession::Update(uint32 /*diff*/)
     while (_recvQueue.next(packet) && m_Socket && !m_Socket->IsClosed ())
     {
         /*#if 1
-        sLog.outError( "MOEP: %s (0x%.4X)",
+        sLog.outError("MOEP: %s (0x%.4X)",
                         LookupOpcodeName(packet->GetOpcode()),
                         packet->GetOpcode());
         #endif*/
 
         if (packet->GetOpcode() >= NUM_MSG_TYPES)
         {
-            sLog.outError( "SESSION: received non-existed opcode %s (0x%.4X)",
+            sLog.outError("SESSION: received non-existed opcode %s (0x%.4X)",
                 LookupOpcodeName(packet->GetOpcode()),
                 packet->GetOpcode());
         }
@@ -253,7 +253,7 @@ bool WorldSession::Update(uint32 /*diff*/)
                         break;
                     case STATUS_NEVER:
                         break;
-                        sLog.outError( "SESSION: received not allowed opcode %s (0x%.4X)",
+                        sLog.outError("SESSION: received not allowed opcode %s (0x%.4X)",
                             LookupOpcodeName(packet->GetOpcode()),
                             packet->GetOpcode());
                         break;
@@ -446,14 +446,14 @@ void WorldSession::LogoutPlayer(bool Save)
         SetPlayer(NULL);                                    // deleted in Remove call
 
         ///- Send the 'logout complete' packet to the client
-        WorldPacket data( SMSG_LOGOUT_COMPLETE, 0 );
-        SendPacket( &data );
+        WorldPacket data(SMSG_LOGOUT_COMPLETE, 0);
+        SendPacket(&data);
 
         ///- Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
         //No SQL injection as AccountId is uint32
         CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'",
             GetAccountId());
-        sLog.outDebug( "SESSION: Sent SMSG_LOGOUT_COMPLETE Message" );
+        sLog.outDebug("SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
     }
 
     //Hook for OnLogout Event
@@ -480,7 +480,7 @@ void WorldSession::SendNotification(const char *format,...)
         char szStr [1024];
         szStr[0] = '\0';
         va_start(ap, format);
-        vsnprintf( szStr, 1024, format, ap );
+        vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
         WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr)+1));
@@ -498,7 +498,7 @@ void WorldSession::SendNotification(int32 string_id,...)
         char szStr [1024];
         szStr[0] = '\0';
         va_start(ap, string_id);
-        vsnprintf( szStr, 1024, format, ap );
+        vsnprintf(szStr, 1024, format, ap);
         va_end(ap);
 
         WorldPacket data(SMSG_NOTIFICATION, (strlen(szStr)+1));
@@ -507,35 +507,35 @@ void WorldSession::SendNotification(int32 string_id,...)
     }
 }
 
-const char * WorldSession::GetTrinityString( int32 entry ) const
+const char * WorldSession::GetTrinityString(int32 entry) const
 {
     return objmgr.GetTrinityString(entry,GetSessionDbLocaleIndex());
 }
 
-void WorldSession::Handle_NULL( WorldPacket& recvPacket )
+void WorldSession::Handle_NULL(WorldPacket& recvPacket)
 {
-    sLog.outError( "SESSION: received unhandled opcode %s (0x%.4X)",
+    sLog.outError("SESSION: received unhandled opcode %s (0x%.4X)",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
 
-void WorldSession::Handle_EarlyProccess( WorldPacket& recvPacket )
+void WorldSession::Handle_EarlyProccess(WorldPacket& recvPacket)
 {
-    sLog.outError( "SESSION: received opcode %s (0x%.4X) that must be processed in WorldSocket::OnRead",
+    sLog.outError("SESSION: received opcode %s (0x%.4X) that must be processed in WorldSocket::OnRead",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
 
-void WorldSession::Handle_ServerSide( WorldPacket& recvPacket )
+void WorldSession::Handle_ServerSide(WorldPacket& recvPacket)
 {
-    sLog.outError( "SESSION: received server-side opcode %s (0x%.4X)",
+    sLog.outError("SESSION: received server-side opcode %s (0x%.4X)",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
 
-void WorldSession::Handle_Deprecated( WorldPacket& recvPacket )
+void WorldSession::Handle_Deprecated(WorldPacket& recvPacket)
 {
-    sLog.outError( "SESSION: received deprecated opcode %s (0x%.4X)",
+    sLog.outError("SESSION: received deprecated opcode %s (0x%.4X)",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
@@ -544,14 +544,14 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 {
     if (position == 0)
     {
-        WorldPacket packet( SMSG_AUTH_RESPONSE, 1 );
-        packet << uint8( AUTH_OK );
+        WorldPacket packet(SMSG_AUTH_RESPONSE, 1);
+        packet << uint8(AUTH_OK);
         SendPacket(&packet);
     }
     else
     {
-        WorldPacket packet( SMSG_AUTH_RESPONSE, 5 );
-        packet << uint8( AUTH_WAIT_QUEUE );
+        WorldPacket packet(SMSG_AUTH_RESPONSE, 5);
+        packet << uint8(AUTH_WAIT_QUEUE);
         packet << uint32 (position);
         SendPacket(&packet);
     }
@@ -562,7 +562,7 @@ void WorldSession::LoadGlobalAccountData()
     LoadAccountData(
         CharacterDatabase.PQuery("SELECT type, time, data FROM account_data WHERE account='%u'", GetAccountId()),
         GLOBAL_CACHE_MASK
-    );
+);
 }
 
 void WorldSession::LoadAccountData(QueryResult_AutoPtr result, uint32 mask)
@@ -630,7 +630,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t time_, std::strin
 
 void WorldSession::SendAccountDataTimes(uint32 mask)
 {
-    WorldPacket data( SMSG_ACCOUNT_DATA_TIMES, 4+1+4+8*4 ); // changed in WotLK
+    WorldPacket data(SMSG_ACCOUNT_DATA_TIMES, 4+1+4+8*4); // changed in WotLK
     data << uint32(time(NULL));                             // unix time of something
     data << uint8(1);
     data << uint32(mask);                                   // type mask
@@ -642,7 +642,7 @@ void WorldSession::SendAccountDataTimes(uint32 mask)
 
 void WorldSession::LoadTutorialsData()
 {
-    for (int aX = 0 ; aX < 8 ; ++aX )
+    for (int aX = 0 ; aX < 8 ; ++aX)
         m_Tutorials[ aX ] = 0;
 
     QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT tut0,tut1,tut2,tut3,tut4,tut5,tut6,tut7 FROM character_tutorial WHERE account = '%u'", GetAccountId());
@@ -656,7 +656,7 @@ void WorldSession::LoadTutorialsData()
             for (int iI = 0; iI < 8; ++iI)
                 m_Tutorials[iI] = fields[iI].GetUInt32();
         }
-        while ( result->NextRow() );
+        while (result->NextRow());
     }
     m_TutorialsChanged = false;
 }
@@ -933,7 +933,7 @@ void WorldSession::SendAddonsInfo()
     SendPacket(&data);
 }
 
-void WorldSession::SetPlayer( Player *plr )
+void WorldSession::SetPlayer(Player *plr)
 {
     _player = plr;
 

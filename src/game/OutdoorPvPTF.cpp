@@ -104,7 +104,7 @@ bool OPvPCapturePointTF::HandlePlayerEnter(Player *plr)
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
-        uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
+        uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
         plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
         plr->SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_neutralValuePct);
         return true;
@@ -245,14 +245,14 @@ bool OPvPCapturePointTF::Update(uint32 diff)
 void OPvPCapturePointTF::ChangeState()
 {
     // if changing from controlling alliance to horde
-    if ( m_OldState == OBJECTIVESTATE_ALLIANCE )
+    if (m_OldState == OBJECTIVESTATE_ALLIANCE)
     {
         if (((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled)
             ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled--;
         sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_LOOSE_A));
     }
     // if changing from controlling horde to alliance
-    else if ( m_OldState == OBJECTIVESTATE_HORDE )
+    else if (m_OldState == OBJECTIVESTATE_HORDE)
     {
         if (((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled)
             ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled--;
@@ -300,7 +300,7 @@ void OPvPCapturePointTF::SendChangePhase()
     // send this too, sometimes the slider disappears, dunno why :(
     SendUpdateWorldState(TF_UI_TOWER_SLIDER_DISPLAY, 1);
     // send these updates to only the ones in this objective
-    uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
+    uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
     SendUpdateWorldState(TF_UI_TOWER_SLIDER_POS, phase);
     // send this too, sometimes it resets :S
     SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_neutralValuePct);

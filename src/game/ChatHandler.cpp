@@ -62,7 +62,7 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
     return true;
 }
 
-void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
+void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 {
     uint32 type;
     uint32 lang;
@@ -76,7 +76,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
         return;
     }
 
-    //sLog.outDebug("CHAT: packet received. type %u, lang %u", type, lang );
+    //sLog.outDebug("CHAT: packet received. type %u, lang %u", type, lang);
 
     // prevent talking at unknown language (cheating)
     LanguageDesc const* langDesc = GetLanguageDescByID(lang);
@@ -252,11 +252,11 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
                 return;
             }
 
-            if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && tSecurity == SEC_PLAYER && pSecurity == SEC_PLAYER )
+            if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT) && tSecurity == SEC_PLAYER && pSecurity == SEC_PLAYER)
             {
                 uint32 sidea = GetPlayer()->GetTeam();
                 uint32 sideb = player->GetTeam();
-                if ( sidea != sideb )
+                if (sidea != sideb)
                 {
                     SendPlayerNotFoundNotice(to);
                     return;
@@ -566,7 +566,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             std::string msg;
             recv_data >> msg;
 
-            if ((msg.empty() || !_player->isAFK()) && !_player->isInCombat() )
+            if ((msg.empty() || !_player->isAFK()) && !_player->isInCombat())
             {
                 if (!_player->isAFK())
                 {
@@ -605,7 +605,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
     }
 }
 
-void WorldSession::HandleEmoteOpcode( WorldPacket & recv_data )
+void WorldSession::HandleEmoteOpcode(WorldPacket & recv_data)
 {
     if (!GetPlayer()->isAlive())
         return;
@@ -633,7 +633,7 @@ namespace Trinity
                 data << (uint32)i_text_emote;
                 data << i_emote_num;
                 data << (uint32)namlen;
-                if ( namlen > 1 )
+                if (namlen > 1)
                     data.append(nam, namlen);
                 else
                     data << (uint8)0x00;
@@ -647,7 +647,7 @@ namespace Trinity
     };
 }                                                           // namespace Trinity
 
-void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
+void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
 {
     if (!GetPlayer()->isAlive())
         return;
@@ -705,7 +705,7 @@ void WorldSession::HandleTextEmoteOpcode( WorldPacket & recv_data )
         ((Creature*)unit)->AI()->ReceiveEmote(GetPlayer(), text_emote);
 }
 
-void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data )
+void WorldSession::HandleChatIgnoredOpcode(WorldPacket& recv_data)
 {
     uint64 iguid;
     uint8 unk;

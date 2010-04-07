@@ -34,7 +34,7 @@ class Path
 
         void SetLength(const unsigned int sz)
         {
-            i_nodes.resize( sz );
+            i_nodes.resize(sz);
         }
 
         unsigned int Size() const { return i_nodes.size(); }
@@ -51,7 +51,7 @@ class Path
                 xd = i_nodes[ idx ].x - i_nodes[ idx-1 ].x;
                 yd = i_nodes[ idx ].y - i_nodes[ idx-1 ].y;
                 zd = i_nodes[ idx ].z - i_nodes[ idx-1 ].z;
-                len += sqrtf( xd*xd + yd*yd + zd*zd );
+                len += sqrtf(xd*xd + yd*yd + zd*zd);
             }
             return len;
         }
@@ -64,7 +64,7 @@ class Path
                 xd = i_nodes[ idx ].x - i_nodes[ idx-1 ].x;
                 yd = i_nodes[ idx ].y - i_nodes[ idx-1 ].y;
                 zd = i_nodes[ idx ].z - i_nodes[ idx-1 ].z;
-                len += sqrtf( xd*xd + yd*yd + zd*zd );
+                len += sqrtf(xd*xd + yd*yd + zd*zd);
             }
 
             if (curnode > 0)
@@ -72,7 +72,7 @@ class Path
                 xd = x - i_nodes[curnode-1].x;
                 yd = y - i_nodes[curnode-1].y;
                 zd = z - i_nodes[curnode-1].z;
-                len += sqrtf( xd*xd + yd*yd + zd*zd );
+                len += sqrtf(xd*xd + yd*yd + zd*zd);
             }
 
             return len;

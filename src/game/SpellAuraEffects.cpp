@@ -429,7 +429,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                                     for (int t=0; t<MAX_SPELL_EFFECTS; t++)
                                         if (pEnchant->spellid[t] == m_spellProto->Id)
                                     {
-                                        amount = uint32((item_rand_suffix->prefix[k]*castItem->GetItemSuffixFactor()) / 10000 );
+                                        amount = uint32((item_rand_suffix->prefix[k]*castItem->GetItemSuffixFactor()) / 10000);
                                         break;
                                     }
                                 }
@@ -1018,7 +1018,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
             // Haunting Spirits
             if (GetId() == 7057)
             {
-                m_amplitude = irand (0 , 60 ) + 30;
+                m_amplitude = irand (0 , 60) + 30;
                 m_amplitude *= IN_MILISECONDS;
             }
             break;
@@ -1225,7 +1225,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             uint32 absorb=0;
             uint32 resist=0;
-            CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL );
+            CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
 
             // ignore non positive values (can be result apply spellmods to aura damage
             uint32 damage = GetAmount() > 0 ? GetAmount() : 0;
@@ -1236,7 +1236,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
                 // Calculate armor mitigation if it is a physical spell
                 // But not for bleed mechanic spells
-                if ( GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL &&
+                if (GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL &&
                      GetEffectMechanic(GetSpellProto(), m_effIndex) != MECHANIC_BLEED)
                 {
                     uint32 damageReductedArmor = caster->CalcArmorReducedDamage(target, damage, GetSpellProto());
@@ -1321,7 +1321,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (!caster->isAlive())
                 return;
 
-            if ( GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+            if (GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
                 caster->SpellHitResult(target,GetSpellProto(),false)!=SPELL_MISS_NONE)
                 return;
 
@@ -1334,7 +1334,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             uint32 absorb=0;
             uint32 resist=0;
-            CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL );
+            CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
 
             //uint32 damage = GetModifierValuePerStack() > 0 ? GetModifierValuePerStack() : 0;
             uint32 damage = GetAmount() > 0 ? GetAmount() : 0;
@@ -1464,8 +1464,8 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             target->SendPeriodicAuraLog(&pInfo);
 
             // add HoTs to amount healed in bgs
-            if ( caster->GetTypeId() == TYPEID_PLAYER )
-                if ( BattleGround *bg = caster->ToPlayer()->GetBattleGround() )
+            if (caster->GetTypeId() == TYPEID_PLAYER)
+                if (BattleGround *bg = caster->ToPlayer()->GetBattleGround())
                     bg->UpdatePlayerScore(caster->ToPlayer(), SCORE_HEALING_DONE, gain);
 
             target->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, GetSpellProto());
@@ -1481,7 +1481,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 caster->DealDamageMods(caster,damage,&absorb);
                 caster->SendSpellNonMeleeDamageLog(caster, GetId(), damage, GetSpellSchoolMask(GetSpellProto()), absorb, 0, false, 0, false);
 
-                CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL );
+                CleanDamage cleanDamage =  CleanDamage(0, 0, BASE_ATTACK, MELEE_HIT_NORMAL);
                 caster->DealDamage(caster, damage, &cleanDamage, NODAMAGE, GetSpellSchoolMask(GetSpellProto()), GetSpellProto(), true);
             }
 
@@ -1507,7 +1507,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             if (!caster || !caster->isAlive())
                 break;
 
-            if ( GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
+            if (GetSpellProto()->Effect[GetEffIndex()]==SPELL_EFFECT_PERSISTENT_AREA_AURA &&
                 caster->SpellHitResult(target,GetSpellProto(),false) != SPELL_MISS_NONE)
                 break;
 
@@ -1913,12 +1913,12 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
             {
                 // Feeding Frenzy Rank 1
                 case 53511:
-                    if ( target->getVictim() && target->getVictim()->GetHealth() * 100 < target->getVictim()->GetMaxHealth() * 35 )
+                    if (target->getVictim() && target->getVictim()->GetHealth() * 100 < target->getVictim()->GetMaxHealth() * 35)
                         target->CastSpell(target, 60096, true, 0, this);
                     return;
                 // Feeding Frenzy Rank 2
                 case 53512:
-                    if ( target->getVictim() && target->getVictim()->GetHealth() * 100 < target->getVictim()->GetMaxHealth() * 35 )
+                    if (target->getVictim() && target->getVictim()->GetHealth() * 100 < target->getVictim()->GetMaxHealth() * 35)
                         target->CastSpell(target, 60097, true, 0, this);
                     return;
                 default:
@@ -2027,7 +2027,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     case 27746:
                         if (target->GetPower(POWER_MANA) >= 10)
                         {
-                            target->ModifyPower( POWER_MANA, -10 );
+                            target->ModifyPower(POWER_MANA, -10);
                             target->SendEnergizeSpellLog(caster, 27746, -10, POWER_MANA);
                         }
                         else
@@ -2384,7 +2384,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
         {
             if (target->GetTypeId() == TYPEID_PLAYER)
                 target->ToPlayer()->RemoveSpellCooldown(spellId);
-            target->CastSpell(target, spellId, true, NULL, this );
+            target->CastSpell(target, spellId, true, NULL, this);
         }
 
         if (spellId2)
@@ -2764,7 +2764,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
     modelid = target->GetModelForForm(form);
 
     // remove polymorph before changing display id to keep new display id
-    switch ( form )
+    switch (form)
     {
         case FORM_CAT:
         case FORM_TREE:
@@ -2862,12 +2862,12 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
             case FORM_BEAR:
             case FORM_DIREBEAR:
             case FORM_CAT:
-                if (AuraEffect* dummy = target->GetAuraEffect(37315, 0) )
+                if (AuraEffect* dummy = target->GetAuraEffect(37315, 0))
                     target->CastSpell(target,37316,true,NULL,dummy);
                 break;
             // Nordrassil Regalia - bonus
             case FORM_MOONKIN:
-                if (AuraEffect* dummy = target->GetAuraEffect(37324, 0) )
+                if (AuraEffect* dummy = target->GetAuraEffect(37324, 0))
                     target->CastSpell(target,37325,true,NULL,dummy);
                 break;
             case FORM_BATTLESTANCE:
@@ -3042,7 +3042,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
         {
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
-            if (IS_PLAYER_GUID(GetCasterGUID()) )
+            if (IS_PLAYER_GUID(GetCasterGUID()))
                 target->ToPlayer()->setRegenTimerCount(1*IN_MILISECONDS);
 
             //dismount polymorphed target (after patch 2.4.2)
@@ -3145,7 +3145,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const * aurApp, uint8 mode, bo
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    if ( apply )
+    if (apply)
     {
         /*
         WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 9);
@@ -3277,7 +3277,7 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const * aurApp, uint8 mode,
         // This is between the two because there is a check in _ApplyItemMods
         // we must make sure that flag is always removed when call that function
         // refer to DurabilityPointsLoss
-        if (Item *pItem = target->ToPlayer()->GetItemByPos( INVENTORY_SLOT_BAG_0, slot ))
+        if (Item *pItem = target->ToPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
             target->ToPlayer()->_ApplyItemMods(pItem, slot, !apply);
     }
 
@@ -3393,7 +3393,7 @@ void AuraEffect::HandleAuraTrackCreatures(AuraApplication const * aurApp, uint8 
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    target->SetUInt32Value(PLAYER_TRACK_CREATURES, (apply) ? ((uint32)1)<<(GetMiscValue()-1) : 0 );
+    target->SetUInt32Value(PLAYER_TRACK_CREATURES, (apply) ? ((uint32)1)<<(GetMiscValue()-1) : 0);
 }
 
 void AuraEffect::HandleAuraTrackResources(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -3406,7 +3406,7 @@ void AuraEffect::HandleAuraTrackResources(AuraApplication const * aurApp, uint8 
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    target->SetUInt32Value(PLAYER_TRACK_RESOURCES, (apply) ? ((uint32)1)<<(GetMiscValue()-1): 0 );
+    target->SetUInt32Value(PLAYER_TRACK_RESOURCES, (apply) ? ((uint32)1)<<(GetMiscValue()-1): 0);
 }
 
 void AuraEffect::HandleAuraTrackStealthed(AuraApplication const * aurApp, uint8 mode, bool apply) const
@@ -3803,7 +3803,7 @@ void AuraEffect::HandlePreventFleeing(AuraApplication const * aurApp, uint8 mode
     Unit * target = aurApp->GetTarget();
 
     Unit::AuraEffectList const& fearAuras = target->GetAuraEffectsByType(SPELL_AURA_MOD_FEAR);
-    if ( !fearAuras.empty() )
+    if (!fearAuras.empty())
         target->SetControlled(!(apply), UNIT_STAT_FLEEING);
 }
 
@@ -3996,7 +3996,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const * aurApp
                 target->ApplySpellImmune(GetId(),IMMUNITY_MECHANIC,MECHANIC_POLYMORPH,apply);
 
             // Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
-            if ( apply && target->HasAuraEffect(42016,0) && target->GetMountID())
+            if (apply && target->HasAuraEffect(42016,0) && target->GetMountID())
                 target->SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID,16314);
         }
     }
@@ -4132,14 +4132,14 @@ void AuraEffect::HandleAuraModEffectImmunity(AuraApplication const * aurApp, uin
     Unit * target = aurApp->GetTarget();
 
     // when removing flag aura, handle flag drop
-    if ( !(apply) && target->GetTypeId() == TYPEID_PLAYER
-        && (GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION) )
+    if (!(apply) && target->GetTypeId() == TYPEID_PLAYER
+        && (GetSpellProto()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION))
     {
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
             if (target->ToPlayer()->InBattleGround())
             {
-                if ( BattleGround *bg = target->ToPlayer()->GetBattleGround() )
+                if (BattleGround *bg = target->ToPlayer()->GetBattleGround())
                     bg->EventPlayerDroppedFlag(target->ToPlayer());
             }
             else
@@ -4178,14 +4178,14 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uin
     target->ApplySpellImmune(GetId(),IMMUNITY_SCHOOL,GetMiscValue(),(apply));
 
     // remove all flag auras (they are positive, but they must be removed when you are immune)
-    if ( GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY
-        && GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_DAMAGE_REDUCED_SHIELD )
+    if (GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY
+        && GetSpellProto()->AttributesEx2 & SPELL_ATTR_EX2_DAMAGE_REDUCED_SHIELD)
         target->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 
     // TODO: optimalize this cycle - use RemoveAurasWithInterruptFlags call or something else
     if ((apply)
         && GetSpellProto()->AttributesEx & SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY
-        && IsPositiveSpell(GetId()) )                       //Only positive immunity removes auras
+        && IsPositiveSpell(GetId()))                       //Only positive immunity removes auras
     {
         uint32 school_mask = GetMiscValue();
         Unit::AuraApplicationMap& Auras = target->GetAppliedAuras();
@@ -4195,7 +4195,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uin
             if ((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
                 && IsDispelableBySpell(GetSpellProto(),spell->Id, true)
                 && !iter->second->IsPositive()          //Don't remove positive spells
-                && spell->Id != GetId() )               //Don't remove self
+                && spell->Id != GetId())               //Don't remove self
             {
                 target->RemoveAura(iter);
             }
@@ -4205,7 +4205,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uin
     }
     if (GetSpellProto()->Mechanic == MECHANIC_BANISH)
     {
-        if ( apply )
+        if (apply)
             target->addUnitState(UNIT_STAT_ISOLATED);
         else
         {
@@ -4391,7 +4391,7 @@ void AuraEffect::HandleAuraModStat(AuraApplication const * aurApp, uint8 mode, b
 
     for (int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
     {
-        // -1 or -2 is all stats ( misc < -2 checked in function beginning )
+        // -1 or -2 is all stats (misc < -2 checked in function beginning)
         if (GetMiscValue() < 0 || GetMiscValue() == i)
         {
             //target->ApplyStatMod(Stats(i), m_amount,apply);
@@ -4523,7 +4523,7 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
         {
             target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), TOTAL_PCT, float(GetAmount()), apply);
             if (target->GetTypeId() == TYPEID_PLAYER || target->ToCreature()->isPet())
-                target->ApplyStatPercentBuffMod(Stats(i), GetAmount(), apply );
+                target->ApplyStatPercentBuffMod(Stats(i), GetAmount(), apply);
         }
     }
 
@@ -5128,7 +5128,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const * aurApp, uint8 mode,
     }
 
     // GetMiscValue() is bitmask of spell schools
-    // 1 ( 0-bit ) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
+    // 1 (0-bit) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
     // 126 - full bitmask all magic damages (SPELL_SCHOOL_MASK_MAGIC) including wands
     // 127 - full bitmask any damages
     //
@@ -5163,7 +5163,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const * aurApp, uint8 mode,
     if ((GetMiscValue() & SPELL_SCHOOL_MASK_MAGIC) == 0)
         return;
 
-    if ( GetSpellProto()->EquippedItemClass != -1 || GetSpellProto()->EquippedItemInventoryTypeMask != 0 )
+    if (GetSpellProto()->EquippedItemClass != -1 || GetSpellProto()->EquippedItemInventoryTypeMask != 0)
     {
         // wand magic case (skip generic to all item spell bonuses)
         // done in Player::_ApplyWeaponDependentAuraMods
@@ -5215,7 +5215,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const * aurApp, uint
     }
 
     // GetMiscValue() is bitmask of spell schools
-    // 1 ( 0-bit ) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
+    // 1 (0-bit) - normal school damage (SPELL_SCHOOL_MASK_NORMAL)
     // 126 - full bitmask all magic damages (SPELL_SCHOOL_MASK_MAGIC) including wand
     // 127 - full bitmask any damages
     //
@@ -5245,7 +5245,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const * aurApp, uint
     if ((GetMiscValue() & SPELL_SCHOOL_MASK_MAGIC) == 0)
         return;
 
-    if ( GetSpellProto()->EquippedItemClass != -1 || GetSpellProto()->EquippedItemInventoryTypeMask != 0 )
+    if (GetSpellProto()->EquippedItemClass != -1 || GetSpellProto()->EquippedItemInventoryTypeMask != 0)
     {
         // wand magic case (skip generic to all item spell bonuses)
         // done in Player::_ApplyWeaponDependentAuraMods
@@ -5365,7 +5365,7 @@ void AuraEffect::HandleAuraRetainComboPoints(AuraApplication const * aurApp, uin
 
     // combo points was added in SPELL_EFFECT_ADD_COMBO_POINTS handler
     // remove only if aura expire by time (in case combo points amount change aura removed without combo points lost)
-    if ( !(apply) && GetBase()->GetDuration()==0 && target->ToPlayer()->GetComboTarget())
+    if (!(apply) && GetBase()->GetDuration()==0 && target->ToPlayer()->GetComboTarget())
         if (Unit* unit = ObjectAccessor::GetUnit(*target,target->ToPlayer()->GetComboTarget()))
             target->ToPlayer()->AddComboPoints(unit, -GetAmount());
 }
@@ -5418,7 +5418,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
             {
                 case 1515:                                      // Tame beast
                     // FIX_ME: this is 2.0.12 threat effect replaced in 2.1.x by dummy aura, must be checked for correctness
-                    if ( caster && target->CanHaveThreatList())
+                    if (caster && target->CanHaveThreatList())
                         target->AddThreat(caster, 10.0f);
                     break;
                 case 13139:                                     // net-o-matic
@@ -5437,11 +5437,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     // set 3 stacks and 3 charges (to make all auras not disappear at once)
                     Aura * owner_aura = target->GetAura(34027,GetCasterGUID());
                     Aura * pet_aura  = pet->GetAura(58914, GetCasterGUID());
-                    if ( owner_aura )
+                    if (owner_aura)
                     {
                         owner_aura->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
                     }
-                    if ( pet_aura )
+                    if (pet_aura)
                     {
                         pet_aura->SetCharges(0);
                         pet_aura->SetStackAmount(owner_aura->GetSpellProto()->StackAmount);
@@ -5471,7 +5471,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     target->CastSpell(target,55166,true,NULL,this);
                     // set 3 stacks and 3 charges (to make all auras not disappear at once)
                     Aura * owner_aura = target->GetAura(55166,GetCasterGUID());
-                    if ( owner_aura )
+                    if (owner_aura)
                     {
                         // This aura lasts 2 sec, need this hack to properly proc spells
                         // TODO: drop aura charges for ApplySpellMod in ProcDamageAndSpell
@@ -5554,7 +5554,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
         // AT REMOVE
         else
         {
-            if ( (IsQuestTameSpell(GetId())) && caster && caster->isAlive() && target->isAlive())
+            if ((IsQuestTameSpell(GetId())) && caster && caster->isAlive() && target->isAlive())
             {
                 uint32 finalSpelId = 0;
                 switch(GetId())
@@ -5648,7 +5648,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     break;
                 case SPELLFAMILY_DRUID:
                     // Lifebloom
-                    if ( GetSpellProto()->SpellFamilyFlags[1] & 0x10 )
+                    if (GetSpellProto()->SpellFamilyFlags[1] & 0x10)
                     {
                         if (!apply)
                         {
@@ -5686,7 +5686,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         target->SetReducedThreatPercent(0, 0);
                     break;
                 case SPELLFAMILY_DEATHKNIGHT:
-                    // Summon Gargoyle ( will start feeding gargoyle )
+                    // Summon Gargoyle (will start feeding gargoyle)
                     if (GetId()==61777)
                         target->CastSpell(target,m_spellProto->EffectTriggerSpell[m_effIndex],true);
                     break;
@@ -6009,7 +6009,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
 
         ItemPosCountVec dest;
         uint8 msg = plCaster->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, GetSpellProto()->EffectItemType[m_effIndex], count, &noSpaceForCount);
-        if ( msg != EQUIP_ERR_OK )
+        if (msg != EQUIP_ERR_OK)
         {
             count-=noSpaceForCount;
             plCaster->SendEquipError(msg, NULL, NULL);

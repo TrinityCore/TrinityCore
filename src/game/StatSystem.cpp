@@ -260,7 +260,7 @@ void Player::ApplyFeralAPBonus(int32 amount, bool apply)
     UpdateAttackPowerAndDamage();
 }
 
-void Player::UpdateAttackPowerAndDamage(bool ranged )
+void Player::UpdateAttackPowerAndDamage(bool ranged)
 {
     float val2 = 0.0f;
     float level = float(getLevel());
@@ -358,7 +358,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged )
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
-    if ( ranged )
+    if (ranged)
     {
         if ((getClassMask() & CLASSMASK_WAND_USERS)==0)
         {
@@ -1115,7 +1115,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
         val = 2 * GetStat(STAT_STRENGTH) - 20.0f;
 
     Unit* owner = GetOwner();
-    if ( owner && owner->GetTypeId() == TYPEID_PLAYER)
+    if (owner && owner->GetTypeId() == TYPEID_PLAYER)
     {
         if (isHunterPet())                      //hunter pets benefit from owner's attack power
         {
@@ -1135,12 +1135,12 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
           }
         }
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f * mod;
-            SetBonusDamage( int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
+            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f * mod));
         }
         else if (IsPetGhoul()) //ghouls benefit from deathknight's attack power (may be summon pet or not)
         {
             bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.22f;
-            SetBonusDamage( int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
+            SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.1287f));
         }
         //demons benefit from warlocks shadow or fire damage
         else if (isPet())
@@ -1150,7 +1150,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             int32 maximum  = (fire > shadow) ? fire : shadow;
             if (maximum < 0)
                 maximum = 0;
-            SetBonusDamage( int32(maximum * 0.15f));
+            SetBonusDamage(int32(maximum * 0.15f));
             bonusAP = maximum * 0.57f;
         }
         //water elementals benefit from mage's frost damage
@@ -1159,7 +1159,7 @@ void Guardian::UpdateAttackPowerAndDamage(bool ranged)
             int32 frost = int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST)) - owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG + SPELL_SCHOOL_FROST);
             if (frost < 0)
                 frost = 0;
-            SetBonusDamage( int32(frost * 0.4f));
+            SetBonusDamage(int32(frost * 0.4f));
         }
     }
 

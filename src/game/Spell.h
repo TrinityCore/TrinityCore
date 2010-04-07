@@ -128,8 +128,8 @@ class SpellCastTargets
         SpellCastTargets();
         ~SpellCastTargets();
 
-        bool read ( WorldPacket * data, Unit *caster );
-        void write ( WorldPacket * data );
+        bool read (WorldPacket * data, Unit *caster);
+        void write (WorldPacket * data);
 
         SpellCastTargets& operator=(const SpellCastTargets &target)
         {
@@ -266,11 +266,11 @@ enum SpellTargets
 class Spell
 {
     friend struct Trinity::SpellNotifierCreatureAndPlayer;
-    friend void Unit::SetCurrentCastedSpell( Spell * pSpell );
+    friend void Unit::SetCurrentCastedSpell(Spell * pSpell);
     public:
 
-        void EffectNULL(uint32 );
-        void EffectUnused(uint32 );
+        void EffectNULL(uint32);
+        void EffectUnused(uint32);
         void EffectDistract(uint32 i);
         void EffectPull(uint32 i);
         void EffectSchoolDMG(uint32 i);
@@ -388,7 +388,7 @@ class Spell
 
         typedef std::set<Aura *> UsedSpellMods;
 
-        Spell( Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false );
+        Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID = 0, Spell** triggeringContainer = NULL, bool skipCheck = false);
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, AuraEffect const * triggeredByAura = NULL);
@@ -429,19 +429,19 @@ class Spell
         void setState(uint32 state) { m_spellState = state; }
 
         void DoCreateItem(uint32 i, uint32 itemtype);
-        void WriteSpellGoTargets( WorldPacket * data );
-        void WriteAmmoToPacket( WorldPacket * data );
+        void WriteSpellGoTargets(WorldPacket * data);
+        void WriteAmmoToPacket(WorldPacket * data);
 
         void SelectSpellTargets();
         void SelectEffectTargets(uint32 i, uint32 cur);
         void SelectTrajTargets();
-        void FillRaidOrPartyTargets( UnitList &TagUnitMap, Unit* target, float radius, bool raid, bool withPets, bool withcaster );
-        void FillRaidOrPartyManaPriorityTargets( UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster );
-        void FillRaidOrPartyHealthPriorityTargets( UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster );
+        void FillRaidOrPartyTargets(UnitList &TagUnitMap, Unit* target, float radius, bool raid, bool withPets, bool withcaster);
+        void FillRaidOrPartyManaPriorityTargets(UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster);
+        void FillRaidOrPartyHealthPriorityTargets(UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster);
 
         template<typename T> WorldObject* FindCorpseUsing();
 
-        bool CheckTarget( Unit* target, uint32 eff );
+        bool CheckTarget(Unit* target, uint32 eff);
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.setDst(m_caster); }
@@ -772,16 +772,16 @@ namespace Trinity
         }
 
         #ifdef WIN32
-        template<> inline void Visit(CorpseMapType & ) {}
-        template<> inline void Visit(GameObjectMapType & ) {}
-        template<> inline void Visit(DynamicObjectMapType & ) {}
+        template<> inline void Visit(CorpseMapType &) {}
+        template<> inline void Visit(GameObjectMapType &) {}
+        template<> inline void Visit(DynamicObjectMapType &) {}
         #endif
     };
 
     #ifndef WIN32
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType& ) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType& ) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType& ) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType&) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType&) {}
+    template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType&) {}
     #endif
 }
 

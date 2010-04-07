@@ -421,7 +421,7 @@ void BattleGroundAB::EventPlayerClickedOnFlag(Player *source, GameObject* /*targ
 
     uint8 node = BG_AB_NODE_STABLES;
     GameObject* obj=GetBgMap()->GetGameObject(m_BgObjects[node*8+7]);
-    while ( (node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj,10))))
+    while ((node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj,10))))
     {
         ++node;
         obj=GetBgMap()->GetGameObject(m_BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
@@ -553,7 +553,7 @@ bool BattleGroundAB::SetupBattleGround()
             || !AddObject(BG_AB_OBJECT_AURA_ALLY + 8*i,BG_AB_OBJECTID_AURA_A,BG_AB_NodePositions[i][0],BG_AB_NodePositions[i][1],BG_AB_NodePositions[i][2],BG_AB_NodePositions[i][3], 0, 0, sin(BG_AB_NodePositions[i][3]/2), cos(BG_AB_NodePositions[i][3]/2),RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_AURA_HORDE + 8*i,BG_AB_OBJECTID_AURA_H,BG_AB_NodePositions[i][0],BG_AB_NodePositions[i][1],BG_AB_NodePositions[i][2],BG_AB_NodePositions[i][3], 0, 0, sin(BG_AB_NodePositions[i][3]/2), cos(BG_AB_NodePositions[i][3]/2),RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_AURA_CONTESTED + 8*i,BG_AB_OBJECTID_AURA_C,BG_AB_NodePositions[i][0],BG_AB_NodePositions[i][1],BG_AB_NodePositions[i][2],BG_AB_NodePositions[i][3], 0, 0, sin(BG_AB_NodePositions[i][3]/2), cos(BG_AB_NodePositions[i][3]/2),RESPAWN_ONE_DAY)
-        )
+)
         {
             sLog.outErrorDb("BatteGroundAB: Failed to spawn some object BattleGround not created!");
             return false;
@@ -561,7 +561,7 @@ bool BattleGroundAB::SetupBattleGround()
     }
     if (!AddObject(BG_AB_OBJECT_GATE_A,BG_AB_OBJECTID_GATE_A,BG_AB_DoorPositions[0][0],BG_AB_DoorPositions[0][1],BG_AB_DoorPositions[0][2],BG_AB_DoorPositions[0][3],BG_AB_DoorPositions[0][4],BG_AB_DoorPositions[0][5],BG_AB_DoorPositions[0][6],BG_AB_DoorPositions[0][7],RESPAWN_IMMEDIATELY)
         || !AddObject(BG_AB_OBJECT_GATE_H,BG_AB_OBJECTID_GATE_H,BG_AB_DoorPositions[1][0],BG_AB_DoorPositions[1][1],BG_AB_DoorPositions[1][2],BG_AB_DoorPositions[1][3],BG_AB_DoorPositions[1][4],BG_AB_DoorPositions[1][5],BG_AB_DoorPositions[1][6],BG_AB_DoorPositions[1][7],RESPAWN_IMMEDIATELY)
-        )
+)
     {
         sLog.outErrorDb("BatteGroundAB: Failed to spawn door object BattleGround not created!");
         return false;
@@ -572,7 +572,7 @@ bool BattleGroundAB::SetupBattleGround()
         if (!AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i, Buff_Entries[0], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, sin(BG_AB_BuffPositions[i][3]/2), cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
-            )
+)
             sLog.outErrorDb("BatteGroundAB: Failed to spawn buff object!");
     }
 
@@ -646,7 +646,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
         float mindist = 999999.0f;
         for (uint8 i = 0; i < nodes.size(); ++i)
         {
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[nodes[i]] );
+            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[nodes[i]]);
             if (!entry)
                 continue;
             float dist = (entry->x - plr_x)*(entry->x - plr_x)+(entry->y - plr_y)*(entry->y - plr_y);
@@ -660,7 +660,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
     }
     // If not, place ghost on starting location
     if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry( BG_AB_GraveyardIds[teamIndex+5] );
+        good_entry = sWorldSafeLocsStore.LookupEntry(BG_AB_GraveyardIds[teamIndex+5]);
 
     return good_entry;
 }
@@ -668,7 +668,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
 void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if ( itr == m_PlayerScores.end() )                         // player not found...
+    if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
     switch(type)

@@ -44,7 +44,7 @@ enum MailShowFlags
     MAIL_SHOW_RETURN  = 0x0010,
 };
 
-void WorldSession::HandleSendMail(WorldPacket & recv_data )
+void WorldSession::HandleSendMail(WorldPacket & recv_data)
 {
     uint64 mailbox, unk3;
     std::string receiver, subject, body;
@@ -225,9 +225,9 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 
     pl->SendMailResult(0, MAIL_SEND, MAIL_OK);
 
-    uint32 itemTextId = !body.empty() ? objmgr.CreateItemText( body ) : 0;
+    uint32 itemTextId = !body.empty() ? objmgr.CreateItemText(body) : 0;
 
-    pl->ModifyMoney( -int32(reqmoney) );
+    pl->ModifyMoney(-int32(reqmoney));
     pl->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_SPENT_FOR_MAIL, cost);
 
     bool needItemDelay = false;
@@ -284,7 +284,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data )
 }
 
 //called when mail is read
-void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data )
+void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -308,7 +308,7 @@ void WorldSession::HandleMailMarkAsRead(WorldPacket & recv_data )
 }
 
 //called when client deletes mail
-void WorldSession::HandleMailDelete(WorldPacket & recv_data )
+void WorldSession::HandleMailDelete(WorldPacket & recv_data)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -336,7 +336,7 @@ void WorldSession::HandleMailDelete(WorldPacket & recv_data )
     pl->SendMailResult(mailId, MAIL_DELETED, MAIL_OK);
 }
 
-void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data )
+void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -396,7 +396,7 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data )
 }
 
 //called when player takes item attached in mail
-void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
+void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -427,7 +427,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
     Item *it = pl->GetMItem(itemId);
 
     ItemPosCountVec dest;
-    uint8 msg = _player->CanStoreItem( NULL_BAG, NULL_SLOT, dest, it, false );
+    uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, it, false);
     if (msg == EQUIP_ERR_OK)
     {
         m->RemoveItem(itemId);
@@ -470,7 +470,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
                     .SendMailTo(MailReceiver(receive,m->sender),MailSender(MAIL_NORMAL,m->receiver), MAIL_CHECK_MASK_COD_PAYMENT);
             }
 
-            pl->ModifyMoney( -int32(m->COD) );
+            pl->ModifyMoney(-int32(m->COD));
         }
         m->COD = 0;
         m->state = MAIL_STATE_CHANGED;
@@ -491,7 +491,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data )
         pl->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_EQUIP_ERROR, msg);
 }
 
-void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data )
+void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -525,7 +525,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data )
 }
 
 //called when player lists his received mails
-void WorldSession::HandleGetMailList(WorldPacket & recv_data )
+void WorldSession::HandleGetMailList(WorldPacket & recv_data)
 {
     uint64 mailbox;
     recv_data >> mailbox;
@@ -655,7 +655,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data )
 }
 
 ///this function is called when client needs mail message body, or when player clicks on item which has ITEM_FIELD_ITEM_TEXT_ID > 0
-void WorldSession::HandleItemTextQuery(WorldPacket & recv_data )
+void WorldSession::HandleItemTextQuery(WorldPacket & recv_data)
 {
     uint32 itemTextId;
     uint32 mailId;                                          //this value can be item id in bag, but it is also mail id
@@ -669,12 +669,12 @@ void WorldSession::HandleItemTextQuery(WorldPacket & recv_data )
 
     WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));// guess size
     data << itemTextId;
-    data << objmgr.GetItemText( itemTextId );
+    data << objmgr.GetItemText(itemTextId);
     SendPacket(&data);
 }
 
 //used when player copies mail body to his inventory
-void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data )
+void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
 {
     uint64 mailbox;
     uint32 mailId;
@@ -742,7 +742,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data )
 }
 
 //TODO Fix me! ... this void has probably bad condition, but good data are sent
-void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
+void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/)
 {
     WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
 
@@ -801,7 +801,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/ )
     SendPacket(&data);
 }
 
-MailSender::MailSender( Object* sender, MailStationery stationery ) : m_stationery(stationery)
+MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
 {
     switch(sender->GetTypeId())
     {
@@ -829,22 +829,22 @@ MailSender::MailSender( Object* sender, MailStationery stationery ) : m_statione
     }
 }
 
-MailSender::MailSender( AuctionEntry* sender )
+MailSender::MailSender(AuctionEntry* sender)
     : m_messageType(MAIL_AUCTION), m_senderId(sender->GetHouseId()), m_stationery(MAIL_STATIONERY_AUCTION)
 {
 }
 
 
-MailReceiver::MailReceiver( Player* receiver ) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow())
+MailReceiver::MailReceiver(Player* receiver) : m_receiver(receiver), m_receiver_lowguid(receiver->GetGUIDLow())
 {
 }
 
-MailReceiver::MailReceiver( Player* receiver,uint32 receiver_lowguid ) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
+MailReceiver::MailReceiver(Player* receiver,uint32 receiver_lowguid) : m_receiver(receiver), m_receiver_lowguid(receiver_lowguid)
 {
     ASSERT(!receiver || receiver->GetGUIDLow() == receiver_lowguid);
 }
 
-MailDraft& MailDraft::AddItem( Item* item )
+MailDraft& MailDraft::AddItem(Item* item)
 {
     m_items[item->GetGUIDLow()] = item; return *this;
 }
@@ -875,7 +875,7 @@ void MailDraft::prepareItems(Player* receiver)
     }
 }
 
-void MailDraft::deleteIncludedItems( bool inDB /*= false*/ )
+void MailDraft::deleteIncludedItems(bool inDB /*= false*/)
 {
     for (MailItemMap::iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
     {
@@ -890,7 +890,7 @@ void MailDraft::deleteIncludedItems( bool inDB /*= false*/ )
     m_items.clear();
 }
 
-void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid )
+void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid)
 {
     Player *receiver = objmgr.GetPlayer(MAKE_NEW_GUID(receiver_guid, 0, HIGHGUID_PLAYER));
 

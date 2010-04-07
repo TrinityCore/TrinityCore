@@ -160,13 +160,13 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     }
     m_members.push_back(newmember);
 
-    CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", m_TeamId, GUID_LOPART(newmember.guid), newmember.personal_rating );
+    CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", m_TeamId, GUID_LOPART(newmember.guid), newmember.personal_rating);
 
     if (pl)
     {
         pl->SetInArenaTeam(m_TeamId, GetSlot(), GetType());
         pl->SetArenaTeamIdInvited(0);
-        pl->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING, newmember.personal_rating );
+        pl->SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (GetSlot() * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING, newmember.personal_rating);
 
         // hide promote/remove buttons
         if (m_CaptainGuid != PlayerGuid)
@@ -488,7 +488,7 @@ void ArenaTeam::BroadcastPacket(WorldPacket *packet)
     }
 }
 
-uint8 ArenaTeam::GetSlotByType( uint32 type )
+uint8 ArenaTeam::GetSlotByType(uint32 type)
 {
     switch(type)
     {
@@ -502,7 +502,7 @@ uint8 ArenaTeam::GetSlotByType( uint32 type )
     return 0xFF;
 }
 
-bool ArenaTeam::HaveMember( const uint64& guid ) const
+bool ArenaTeam::HaveMember(const uint64& guid) const
 {
     for (MemberList::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
         if (itr->guid == guid)

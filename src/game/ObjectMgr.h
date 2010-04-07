@@ -173,7 +173,7 @@ typedef std::pair<ItemRequiredTargetMap::const_iterator, ItemRequiredTargetMap::
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for (uint8 i=0; i < MAX_STATS; ++i ) stats[i] = 0; }
+    PetLevelInfo() : health(0), mana(0) { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
 
     uint16 stats[MAX_STATS];
     uint16 health;
@@ -374,7 +374,7 @@ typedef std::list<GM_Ticket*> GmTicketList;
 SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
-#define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length ( > MAX_PLAYER_NAME for support declined names )
+#define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
 #define MAX_PET_NAME             12                         // max allowed by client name length
 #define MAX_CHARTER_NAME         24                         // max allowed by client name length
 
@@ -435,8 +435,8 @@ class ObjectMgr
         void AddGameobjectInfo(GameObjectInfo *goinfo);
 
         Group * GetGroupByLeader(const uint64 &guid) const;
-        void AddGroup(Group* group) { mGroupSet.insert( group ); }
-        void RemoveGroup(Group* group) { mGroupSet.erase( group ); }
+        void AddGroup(Group* group) { mGroupSet.insert(group); }
+        void RemoveGroup(Group* group) { mGroupSet.erase(group); }
 
         Guild* GetGuildByLeader(uint64 const&guid) const;
         Guild* GetGuildById(uint32 GuildId) const;
@@ -453,17 +453,17 @@ class ObjectMgr
         ArenaTeamMap::iterator GetArenaTeamMapBegin() { return mArenaTeamMap.begin(); }
         ArenaTeamMap::iterator GetArenaTeamMapEnd()   { return mArenaTeamMap.end(); }
 
-        static CreatureInfo const *GetCreatureTemplate( uint32 id );
-        CreatureModelInfo const *GetCreatureModelInfo( uint32 modelid );
+        static CreatureInfo const *GetCreatureTemplate(uint32 id);
+        CreatureModelInfo const *GetCreatureModelInfo(uint32 modelid);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32 display_id);
         uint32 ChooseDisplayId(uint32 team, const CreatureInfo *cinfo, const CreatureData *data = NULL);
-        EquipmentInfo const *GetEquipmentInfo( uint32 entry );
-        static CreatureDataAddon const *GetCreatureAddon( uint32 lowguid )
+        EquipmentInfo const *GetEquipmentInfo(uint32 entry);
+        static CreatureDataAddon const *GetCreatureAddon(uint32 lowguid)
         {
             return sCreatureDataAddonStorage.LookupEntry<CreatureDataAddon>(lowguid);
         }
 
-        static CreatureDataAddon const *GetCreatureTemplateAddon( uint32 entry )
+        static CreatureDataAddon const *GetCreatureTemplateAddon(uint32 entry)
         {
             return sCreatureInfoAddonStorage.LookupEntry<CreatureDataAddon>(entry);
         }
@@ -500,11 +500,11 @@ class ObjectMgr
         uint32 GetPlayerAccountIdByGUID(const uint64 &guid) const;
         uint32 GetPlayerAccountIdByPlayerName(const std::string& name) const;
 
-        uint32 GetNearestTaxiNode( float x, float y, float z, uint32 mapid, uint32 team );
-        void GetTaxiPath( uint32 source, uint32 destination, uint32 &path, uint32 &cost);
-        uint32 GetTaxiMountDisplayId( uint32 id, uint32 team, bool allowed_alt_team = false);
-        void GetTaxiPathNodes( uint32 path, Path &pathnodes, std::vector<uint32>& mapIds );
-        void GetTransportPathNodes( uint32 path, TransportPath &pathnodes );
+        uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
+        void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
+        uint32 GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team = false);
+        void GetTaxiPathNodes(uint32 path, Path &pathnodes, std::vector<uint32>& mapIds);
+        void GetTransportPathNodes(uint32 path, TransportPath &pathnodes);
 
         Quest const* GetQuestTemplate(uint32 quest_id) const
         {
@@ -540,16 +540,16 @@ class ObjectMgr
 
         AreaTrigger const* GetAreaTrigger(uint32 trigger) const
         {
-            AreaTriggerMap::const_iterator itr = mAreaTriggers.find( trigger );
-            if ( itr != mAreaTriggers.end( ) )
+            AreaTriggerMap::const_iterator itr = mAreaTriggers.find(trigger);
+            if (itr != mAreaTriggers.end())
                 return &itr->second;
             return NULL;
         }
 
         AccessRequirement const* GetAccessRequirement(uint32 requirement) const
         {
-            AccessRequirementMap::const_iterator itr = mAccessRequirements.find( requirement );
-            if ( itr != mAccessRequirements.end( ) )
+            AccessRequirementMap::const_iterator itr = mAccessRequirements.find(requirement);
+            if (itr != mAccessRequirements.end())
                 return &itr->second;
             return NULL;
         }
@@ -721,10 +721,10 @@ class ObjectMgr
 
         uint32 CreateItemText(std::string text);
         void AddItemText(uint32 itemTextId, std::string text) { mItemTexts[itemTextId] = text; }
-        std::string GetItemText( uint32 id )
+        std::string GetItemText(uint32 id)
         {
-            ItemTextMap::const_iterator itr = mItemTexts.find( id );
-            if ( itr != mItemTexts.end() )
+            ItemTextMap::const_iterator itr = mItemTexts.find(id);
+            if (itr != mItemTexts.end())
                 return itr->second;
             else
                 return "There is no info for this item";
@@ -875,9 +875,9 @@ class ObjectMgr
         bool IsReservedName(const std::string& name) const;
 
         // name with valid structure and symbols
-        static uint8 CheckPlayerName( const std::string& name, bool create = false );
-        static PetNameInvalidReason CheckPetName( const std::string& name );
-        static bool IsValidCharterName( const std::string& name );
+        static uint8 CheckPlayerName(const std::string& name, bool create = false);
+        static PetNameInvalidReason CheckPetName(const std::string& name);
+        static bool IsValidCharterName(const std::string& name);
 
         static bool CheckDeclinedNames(std::wstring mainpart, DeclinedName const& names);
 
@@ -937,7 +937,7 @@ class ObjectMgr
         }
         void AddVendorItem(uint32 entry,uint32 item, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, bool savetodb = true); // for event
         bool RemoveVendorItem(uint32 entry,uint32 item, bool savetodb = true); // for event
-        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0 ) const;
+        bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
         ScriptNameMap &GetScriptNames() { return m_scriptNames; }

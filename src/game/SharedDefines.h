@@ -74,7 +74,7 @@ enum Races
     ((1<<(RACE_HUMAN-1))   |(1<<(RACE_ORC-1))          |(1<<(RACE_DWARF-1))   | \
     (1<<(RACE_NIGHTELF-1))|(1<<(RACE_UNDEAD_PLAYER-1))|(1<<(RACE_TAUREN-1))  | \
     (1<<(RACE_GNOME-1))   |(1<<(RACE_TROLL-1))        |(1<<(RACE_BLOODELF-1))| \
-    (1<<(RACE_DRAENEI-1)) )
+    (1<<(RACE_DRAENEI-1)))
 
 // Class value is index in ChrClasses.dbc
 enum Classes
@@ -99,7 +99,7 @@ enum Classes
     ((1<<(CLASS_WARRIOR-1))|(1<<(CLASS_PALADIN-1))|(1<<(CLASS_HUNTER-1))| \
     (1<<(CLASS_ROGUE-1))  |(1<<(CLASS_PRIEST-1)) |(1<<(CLASS_SHAMAN-1))| \
     (1<<(CLASS_MAGE-1))   |(1<<(CLASS_WARLOCK-1))|(1<<(CLASS_DRUID-1)) | \
-    (1<<(CLASS_DEATH_KNIGHT-1)) )
+    (1<<(CLASS_DEATH_KNIGHT-1)))
 
 // valid classes for creature_template.unit_class
 enum UnitClass
@@ -110,7 +110,7 @@ enum UnitClass
     UNIT_CLASS_MAGE                     = 8,
 };
 
-#define CLASSMASK_ALL_CREATURES ((1<<(UNIT_CLASS_WARRIOR-1)) | (1<<(UNIT_CLASS_PALADIN-1)) | (1<<(UNIT_CLASS_ROGUE-1)) | (1<<(UNIT_CLASS_MAGE-1)) )
+#define CLASSMASK_ALL_CREATURES ((1<<(UNIT_CLASS_WARRIOR-1)) | (1<<(UNIT_CLASS_PALADIN-1)) | (1<<(UNIT_CLASS_ROGUE-1)) | (1<<(UNIT_CLASS_MAGE-1)))
 
 #define CLASSMASK_WAND_USERS ((1<<(CLASS_PRIEST-1))|(1<<(CLASS_MAGE-1))|(1<<(CLASS_WARLOCK-1)))
 
@@ -180,24 +180,24 @@ enum SpellSchoolMask
 {
     SPELL_SCHOOL_MASK_NONE    = 0x00,                       // not exist
     SPELL_SCHOOL_MASK_NORMAL  = (1 << SPELL_SCHOOL_NORMAL), // PHYSICAL (Armor)
-    SPELL_SCHOOL_MASK_HOLY    = (1 << SPELL_SCHOOL_HOLY  ),
-    SPELL_SCHOOL_MASK_FIRE    = (1 << SPELL_SCHOOL_FIRE  ),
+    SPELL_SCHOOL_MASK_HOLY    = (1 << SPELL_SCHOOL_HOLY),
+    SPELL_SCHOOL_MASK_FIRE    = (1 << SPELL_SCHOOL_FIRE),
     SPELL_SCHOOL_MASK_NATURE  = (1 << SPELL_SCHOOL_NATURE),
-    SPELL_SCHOOL_MASK_FROST   = (1 << SPELL_SCHOOL_FROST ),
+    SPELL_SCHOOL_MASK_FROST   = (1 << SPELL_SCHOOL_FROST),
     SPELL_SCHOOL_MASK_SHADOW  = (1 << SPELL_SCHOOL_SHADOW),
     SPELL_SCHOOL_MASK_ARCANE  = (1 << SPELL_SCHOOL_ARCANE),
 
     // unions
 
     // 124, not include normal and holy damage
-    SPELL_SCHOOL_MASK_SPELL   = ( SPELL_SCHOOL_MASK_FIRE   |
+    SPELL_SCHOOL_MASK_SPELL   = (SPELL_SCHOOL_MASK_FIRE   |
                                   SPELL_SCHOOL_MASK_NATURE | SPELL_SCHOOL_MASK_FROST  |
-                                  SPELL_SCHOOL_MASK_SHADOW | SPELL_SCHOOL_MASK_ARCANE ),
+                                  SPELL_SCHOOL_MASK_SHADOW | SPELL_SCHOOL_MASK_ARCANE),
     // 126
-    SPELL_SCHOOL_MASK_MAGIC   = ( SPELL_SCHOOL_MASK_HOLY | SPELL_SCHOOL_MASK_SPELL ),
+    SPELL_SCHOOL_MASK_MAGIC   = (SPELL_SCHOOL_MASK_HOLY | SPELL_SCHOOL_MASK_SPELL),
 
     // 127
-    SPELL_SCHOOL_MASK_ALL     = ( SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC )
+    SPELL_SCHOOL_MASK_ALL     = (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_MASK_MAGIC)
 };
 
 inline SpellSchools GetFirstSchoolInMask(SpellSchoolMask mask)
@@ -287,7 +287,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_NEGATIVE                    0x00000080            // 7
 #define SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET        0x00000100            // 8 Spell req target not to be in combat state
 #define SPELL_ATTR_EX_UNK9                        0x00000200            // 9 melee spells
-#define SPELL_ATTR_EX_UNK10                       0x00000400            // 10 no generates threat on cast 100%? ( old NO_INITIAL_AGGRO)
+#define SPELL_ATTR_EX_UNK10                       0x00000400            // 10 no generates threat on cast 100%? (old NO_INITIAL_AGGRO)
 #define SPELL_ATTR_EX_UNK11                       0x00000800            // 11 aura
 #define SPELL_ATTR_EX_UNK12                       0x00001000            // 12
 #define SPELL_ATTR_EX_UNK13                       0x00002000            // 13
@@ -992,7 +992,7 @@ enum AuraState
     AURA_STATE_HEALTH_ABOVE_75_PERCENT      = 23,           // C   |
 };
 
-#define PER_CASTER_AURA_STATE_MASK ( \
+#define PER_CASTER_AURA_STATE_MASK (\
     (1<<(AURA_STATE_CONFLAGRATE-1))|(1<<(AURA_STATE_DEADLY_POISON-1)))
 
 // Spell mechanics
@@ -1033,19 +1033,19 @@ enum Mechanics
 };
 
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967da6)
-#define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ( \
-    (1<<MECHANIC_CHARM   )|(1<<MECHANIC_DISORIENTED )|(1<<MECHANIC_FEAR  )| \
-    (1<<MECHANIC_ROOT    )|(1<<MECHANIC_PACIFY   )|(1<<MECHANIC_SLEEP )| \
-    (1<<MECHANIC_SNARE   )|(1<<MECHANIC_STUN     )|(1<<MECHANIC_FREEZE)| \
+#define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK (\
+    (1<<MECHANIC_CHARM)|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR)| \
+    (1<<MECHANIC_ROOT)|(1<<MECHANIC_PACIFY)|(1<<MECHANIC_SLEEP)| \
+    (1<<MECHANIC_SNARE)|(1<<MECHANIC_STUN)|(1<<MECHANIC_FREEZE)| \
     (1<<MECHANIC_KNOCKOUT)|(1<<MECHANIC_POLYMORPH)|(1<<MECHANIC_BANISH)| \
-    (1<<MECHANIC_SHACKLE )|(1<<MECHANIC_TURN     )|(1<<MECHANIC_HORROR)| \
-    (1<<MECHANIC_DAZE    )|(1<<MECHANIC_SAPPED   ) )
+    (1<<MECHANIC_SHACKLE)|(1<<MECHANIC_TURN)|(1<<MECHANIC_HORROR)| \
+    (1<<MECHANIC_DAZE)|(1<<MECHANIC_SAPPED))
 
 // Daze and all croud control spells except polymorph are not removed
-#define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT ( \
-    (1<<MECHANIC_CHARM )|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR  )|(1<<MECHANIC_PACIFY )| \
-    (1<<MECHANIC_STUN  )|(1<<MECHANIC_FREEZE     )|(1<<MECHANIC_BANISH)|(1<<MECHANIC_SHACKLE)| \
-    (1<<MECHANIC_HORROR)|(1<<MECHANIC_TURN       )|(1<<MECHANIC_DAZE  )|(1<<MECHANIC_SAPPED ) )
+#define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT (\
+    (1<<MECHANIC_CHARM)|(1<<MECHANIC_DISORIENTED)|(1<<MECHANIC_FEAR)|(1<<MECHANIC_PACIFY)| \
+    (1<<MECHANIC_STUN)|(1<<MECHANIC_FREEZE)|(1<<MECHANIC_BANISH)|(1<<MECHANIC_SHACKLE)| \
+    (1<<MECHANIC_HORROR)|(1<<MECHANIC_TURN)|(1<<MECHANIC_DAZE)|(1<<MECHANIC_SAPPED))
 
 // Spell dispell type
 enum DispelType
@@ -1064,7 +1064,7 @@ enum DispelType
     DESPEL_OLD_UNUSED   = 11
 };
 
-#define DISPEL_ALL_MASK ( (1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON) )
+#define DISPEL_ALL_MASK ((1<<DISPEL_MAGIC) | (1<<DISPEL_CURSE) | (1<<DISPEL_DISEASE) | (1<<DISPEL_POISON))
 
 //To all Immune system,if target has immunes,
 //some spell that related to ImmuneToDispel or ImmuneToSchool or ImmuneToDamage type can't cast to it,

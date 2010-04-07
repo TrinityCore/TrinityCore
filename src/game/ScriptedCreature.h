@@ -64,7 +64,7 @@ struct ScriptedAI : public CreatureAI
     void KilledUnit(Unit* who){}
 
     // Called when the creature summon successfully other creature
-    void JustSummoned(Creature* ) {}
+    void JustSummoned(Creature*) {}
 
     // Called when a summoned creature is despawned
     void SummonedCreatureDespawn(Creature*) {}

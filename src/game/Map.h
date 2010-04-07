@@ -200,7 +200,7 @@ struct CreatureMover
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -224,7 +224,7 @@ enum LevelRequirementVsMode
     LEVELREQUIREMENT_HEROIC = 70
 };
 
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -320,8 +320,8 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData *data = 0) const;
 
         uint16 GetAreaFlag(float x, float y, float z) const;
-        uint8 GetTerrainType(float x, float y ) const;
-        float GetWaterLevel(float x, float y ) const;
+        uint8 GetTerrainType(float x, float y) const;
+        float GetWaterLevel(float x, float y) const;
         bool IsUnderWater(float x, float y, float z) const;
 
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag,uint32 map_id);
@@ -380,7 +380,7 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         virtual bool RemoveBones(uint64 guid, float x, float y);
 
         void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
-        void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair );
+        void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair);
 
         void resetMarkedCells() { marked_cells.reset(); }
         bool isCellMarked(uint32 pCellId) { return marked_cells.test(pCellId); }
@@ -443,10 +443,10 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
-        void SendInitSelf( Player * player );
+        void SendInitSelf(Player * player);
 
-        void SendInitTransports( Player * player );
-        void SendRemoveTransports( Player * player );
+        void SendInitTransports(Player * player);
+        void SendRemoveTransports(Player * player);
 
         bool CreatureCellRelocation(Creature *creature, Cell new_cell);
 
@@ -634,7 +634,7 @@ Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
     const uint32 cell_x = cell.CellX();
     const uint32 cell_y = cell.CellY();
 
-    if ( !cell.NoCreate() || loaded(GridPair(x,y)) )
+    if (!cell.NoCreate() || loaded(GridPair(x,y)))
     {
         EnsureGridLoaded(cell);
         getNGrid(x, y)->Visit(cell_x, cell_y, visitor);

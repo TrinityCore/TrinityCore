@@ -46,7 +46,7 @@
 #include "Log.h"
 #include "WorldLog.h"
 
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -93,7 +93,7 @@ struct ClientPktHeader
     uint32 cmd;
 };
 
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -484,7 +484,7 @@ int WorldSocket::handle_input_missing_data (void)
 {
     char buf [4096];
 
-    ACE_Data_Block db ( sizeof (buf),
+    ACE_Data_Block db (sizeof (buf),
                         ACE_Message_Block::MB_DATA,
                         buf,
                         0,
@@ -1015,7 +1015,7 @@ int WorldSocket::iSendPacket (const WorldPacket& pct)
         return -1;
     }
 
-    m_Crypt.EncryptSend ( header.header, header.getHeaderLength());
+    m_Crypt.EncryptSend (header.header, header.getHeaderLength());
 
     if (m_OutBuffer->copy ((char*) header.header, header.getHeaderLength()) == -1)
         ACE_ASSERT (false);

@@ -55,7 +55,7 @@ namespace Trinity
                     va_copy(ap,*i_args);
 
                     char str [2048];
-                    vsnprintf(str,2048,text, ap );
+                    vsnprintf(str,2048,text, ap);
                     va_end(ap);
 
                     do_helper(data,&str[0]);
@@ -96,7 +96,7 @@ namespace Trinity
                 char const* arg2str = i_arg2 ? objmgr.GetTrinityString(i_arg2,loc_idx) : "";
 
                 char str [2048];
-                snprintf(str,2048,text, arg1str, arg2str );
+                snprintf(str,2048,text, arg1str, arg2str);
 
                 uint64 target_guid = i_source  ? i_source ->GetGUID() : 0;
 
@@ -909,19 +909,19 @@ void BattleGround::RewardItem(Player *plr, uint32 item_id, uint32 count)
 
     ItemPosCountVec dest;
     uint32 no_space_count = 0;
-    uint8 msg = plr->CanStoreNewItem( NULL_BAG, NULL_SLOT, dest, item_id, count, &no_space_count );
+    uint8 msg = plr->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item_id, count, &no_space_count);
 
-    if ( msg == EQUIP_ERR_ITEM_NOT_FOUND)
+    if (msg == EQUIP_ERR_ITEM_NOT_FOUND)
     {
         sLog.outErrorDb("Battleground reward item (Entry %u) not exist in `item_template`.",item_id);
         return;
     }
 
-    if ( msg != EQUIP_ERR_OK )                               // convert to possible store amount
+    if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
         count -= no_space_count;
 
-    if ( count != 0 && !dest.empty())                        // can add some
-        if (Item* item = plr->StoreNewItem( dest, item_id, true, 0))
+    if (count != 0 && !dest.empty())                        // can add some
+        if (Item* item = plr->StoreNewItem(dest, item_id, true, 0))
             plr->SendNewItem(item,count,true,false);
 
     if (no_space_count > 0)
@@ -946,7 +946,7 @@ void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
         // subject: item name
         std::string subject = markProto->Name1;
         int loc_idx = plr->GetSession()->GetSessionDbLocaleIndex();
-        if (loc_idx >= 0 )
+        if (loc_idx >= 0)
             if (ItemLocale const *il = objmgr.GetItemLocale(markProto->ItemId))
                 if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
                     subject = il->Name[loc_idx];
@@ -955,7 +955,7 @@ void BattleGround::SendRewardMarkByMail(Player *plr,uint32 mark, uint32 count)
         std::string textFormat = plr->GetSession()->GetTrinityString(LANG_BG_MARK_BY_MAIL);
         char textBuf[300];
         snprintf(textBuf,300,textFormat.c_str(),GetName(),GetName());
-        uint32 itemTextId = objmgr.CreateItemText( textBuf );
+        uint32 itemTextId = objmgr.CreateItemText(textBuf);
 
         MailDraft(subject, itemTextId)
             .AddItem(markItem)
@@ -1087,7 +1087,7 @@ void BattleGround::RemovePlayerAtLeave(uint64 guid, bool Transport, bool SendPac
         // remove from raid group if player is member
         if (Group *group = GetBgRaid(team))
         {
-            if ( !group->RemoveMember(guid, 0) )             // group was disbanded
+            if (!group->RemoveMember(guid, 0))             // group was disbanded
             {
                 SetBgRaid(team, NULL);
                 delete group;
@@ -1800,7 +1800,7 @@ void BattleGround::HandleTriggerBuff(uint64 const& go_guid)
     SpawnBGObject(index, BUFF_RESPAWN_TIME);
 }
 
-void BattleGround::HandleKillPlayer( Player *player, Player *killer )
+void BattleGround::HandleKillPlayer(Player *player, Player *killer)
 {
     //keep in mind that for arena this will have to be changed a bit
 
@@ -1827,7 +1827,7 @@ void BattleGround::HandleKillPlayer( Player *player, Player *killer )
 
     // to be able to remove insignia -- ONLY IN BattleGrounds
     if (!isArena())
-        player->SetFlag( UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE );
+        player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
 }
 
 // return the player's team based on battlegroundplayer info
@@ -1920,7 +1920,7 @@ void BattleGround::UpdateArenaWorldState()
     UpdateWorldState(0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
 }
 
-void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )
+void BattleGround::SetBgRaid(uint32 TeamID, Group *bg_raid)
 {
     Group* &old_raid = TeamID == ALLIANCE ? m_BgRaids[BG_TEAM_ALLIANCE] : m_BgRaids[BG_TEAM_HORDE];
     if (old_raid) old_raid->SetBattlegroundGroup(NULL);
@@ -1928,9 +1928,9 @@ void BattleGround::SetBgRaid( uint32 TeamID, Group *bg_raid )
     old_raid = bg_raid;
 }
 
-WorldSafeLocsEntry const* BattleGround::GetClosestGraveYard( Player* player )
+WorldSafeLocsEntry const* BattleGround::GetClosestGraveYard(Player* player)
 {
-    return objmgr.GetClosestGraveYard( player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() );
+    return objmgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam());
 }
 
 bool BattleGround::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxScore) const
@@ -1940,7 +1940,7 @@ bool BattleGround::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxSc
     return score >= minScore && score <= maxScore;
 }
 
-void BattleGround::SetBracket( PvPDifficultyEntry const* bracketEntry )
+void BattleGround::SetBracket(PvPDifficultyEntry const* bracketEntry)
 {
     m_BracketId  = bracketEntry->GetBracketId();
     SetLevelRange(bracketEntry->minLevel,bracketEntry->maxLevel);

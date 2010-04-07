@@ -59,7 +59,7 @@ enum CreatureFlagsExtra
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack(1)
 #else
 #pragma pack(push,1)
@@ -298,7 +298,7 @@ enum ChatType
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
-#if defined( __GNUC__ )
+#if defined(__GNUC__)
 #pragma pack()
 #else
 #pragma pack(pop)
@@ -328,11 +328,11 @@ struct VendorItemData
     }
     bool Empty() const { return m_items.empty(); }
     uint8 GetItemCount() const { return m_items.size(); }
-    void AddItem( uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost)
+    void AddItem(uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost)
     {
         m_items.push_back(new VendorItem(item, maxcount, ptime, ExtendedCost));
     }
-    bool RemoveItem( uint32 item_id );
+    bool RemoveItem(uint32 item_id);
     VendorItem const* FindItem(uint32 item_id) const;
     size_t FindItemSlot(uint32 item_id) const;
 
@@ -415,7 +415,7 @@ class Creature : public Unit, public GridObject<Creature>
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
         char const* GetSubName() const { return GetCreatureInfo()->SubName; }
 
-        void Update( uint32 time );                         // overwrited Unit::Update
+        void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnCoord(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
         uint32 GetEquipmentId() const { return GetCreatureInfo()->equipmentId; }
 

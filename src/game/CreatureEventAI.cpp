@@ -56,7 +56,7 @@ int CreatureEventAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-CreatureEventAI::CreatureEventAI(Creature *c ) : CreatureAI(c)
+CreatureEventAI::CreatureEventAI(Creature *c) : CreatureAI(c)
 {
     // Need make copy for filter unneeded steps and safe in case table reload
     CreatureEventAI_Event_Map::const_iterator CreatureEvents = CreatureEAI_Mgr.GetCreatureEventAIMap().find(m_creature->GetEntry());
@@ -514,7 +514,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 pCreature = m_creature->SummonCreature(action.summon.creatureId, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
 
             if (!pCreature)
-                sLog.outErrorDb( "CreatureEventAI: failed to spawn creature %u. Spawn event %d is on creature %d", action.summon.creatureId, EventId, m_creature->GetEntry());
+                sLog.outErrorDb("CreatureEventAI: failed to spawn creature %u. Spawn event %d is on creature %d", action.summon.creatureId, EventId, m_creature->GetEntry());
             else if (action.summon.target != TARGET_T_SELF && target)
                 pCreature->AI()->AttackStart(target);
             break;
@@ -610,12 +610,12 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             int32 new_phase = int32(Phase)+action.set_inc_phase.step;
             if (new_phase < 0)
             {
-                sLog.outErrorDb( "CreatureEventAI: Event %d decrease Phase under 0. CreatureEntry = %d", EventId, m_creature->GetEntry());
+                sLog.outErrorDb("CreatureEventAI: Event %d decrease Phase under 0. CreatureEntry = %d", EventId, m_creature->GetEntry());
                 Phase = 0;
             }
             else if (new_phase >= MAX_PHASE)
             {
-                sLog.outErrorDb( "CreatureEventAI: Event %d incremented Phase above %u. Phase mask cannot be used with phases past %u. CreatureEntry = %d", EventId, MAX_PHASE-1, MAX_PHASE-1, m_creature->GetEntry());
+                sLog.outErrorDb("CreatureEventAI: Event %d incremented Phase above %u. Phase mask cannot be used with phases past %u. CreatureEntry = %d", EventId, MAX_PHASE-1, MAX_PHASE-1, m_creature->GetEntry());
                 Phase = MAX_PHASE-1;
             }
             else
@@ -666,7 +666,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             if (action.random_phase_range.phaseMin <= action.random_phase_range.phaseMax)
                 Phase = urand(action.random_phase_range.phaseMin, action.random_phase_range.phaseMax);
             else
-                sLog.outErrorDb( "CreatureEventAI: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 < Param1. Event = %d. CreatureEntry = %d", EventId, m_creature->GetEntry());
+                sLog.outErrorDb("CreatureEventAI: ACTION_T_RANDOM_PHASE_RANGE cannot have Param2 < Param1. Event = %d. CreatureEntry = %d", EventId, m_creature->GetEntry());
             break;
         case ACTION_T_SUMMON_ID:
         {
@@ -675,7 +675,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             CreatureEventAI_Summon_Map::const_iterator i = CreatureEAI_Mgr.GetCreatureEventAISummonMap().find(action.summon_id.spawnId);
             if (i == CreatureEAI_Mgr.GetCreatureEventAISummonMap().end())
             {
-                sLog.outErrorDb( "CreatureEventAI: failed to spawn creature %u. Summon map index %u does not exist. EventID %d. CreatureID %d", action.summon_id.creatureId, action.summon_id.spawnId, EventId, m_creature->GetEntry());
+                sLog.outErrorDb("CreatureEventAI: failed to spawn creature %u. Summon map index %u does not exist. EventID %d. CreatureID %d", action.summon_id.creatureId, action.summon_id.spawnId, EventId, m_creature->GetEntry());
                 return;
             }
 
@@ -686,7 +686,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 pCreature = m_creature->SummonCreature(action.summon_id.creatureId, (*i).second.position_x, (*i).second.position_y, (*i).second.position_z, (*i).second.orientation, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0);
 
             if (!pCreature)
-                sLog.outErrorDb( "CreatureEventAI: failed to spawn creature %u. EventId %d.Creature %d", action.summon_id.creatureId, EventId, m_creature->GetEntry());
+                sLog.outErrorDb("CreatureEventAI: failed to spawn creature %u. EventId %d.Creature %d", action.summon_id.creatureId, EventId, m_creature->GetEntry());
             else if (action.summon_id.target != TARGET_T_SELF && target)
                 pCreature->AI()->AttackStart(target);
 
@@ -1339,7 +1339,7 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
     }
 }
 
-void CreatureEventAI::DamageTaken( Unit* done_by, uint32& damage )
+void CreatureEventAI::DamageTaken(Unit* done_by, uint32& damage)
 {
     if (InvinceabilityHpLevel > 0 && m_creature->GetHealth() < InvinceabilityHpLevel+damage)
     {

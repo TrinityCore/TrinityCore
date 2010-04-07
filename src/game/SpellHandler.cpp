@@ -121,7 +121,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         if (!pItem->IsSoulBound())
         {
             pItem->SetState(ITEM_CHANGED, pUser);
-            pItem->SetBinding( true );
+            pItem->SetBinding(true);
         }
     }
 
@@ -182,14 +182,14 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
     Item *pItem = pUser->GetItemByPos(bagIndex, slot);
     if (!pItem)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL );
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
     ItemPrototype const *proto = pItem->GetProto();
     if (!proto)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL );
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL);
         return;
     }
 
@@ -204,7 +204,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
         if (!lockInfo)
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL );
+            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL);
             sLog.outError("WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", pItem->GetGUIDLow(), lockId);
             return;
         }
@@ -212,7 +212,7 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         // required picklocking
         if (lockInfo->Skill[1] || lockInfo->Skill[0])
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL );
+            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL);
             return;
         }
     }
@@ -243,13 +243,13 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
         pUser->SendLoot(pItem->GetGUID(),LOOT_CORPSE);
 }
 
-void WorldSession::HandleGameObjectUseOpcode( WorldPacket & recv_data )
+void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
 
     recv_data >> guid;
 
-    sLog.outDebug( "WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
+    sLog.outDebug("WORLD: Recvd CMSG_GAMEOBJ_USE Message [guid=%u]", GUID_LOPART(guid));
 
     // ignore for remote control state
     if (_player->m_mover != _player)
@@ -305,7 +305,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
     sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, unk_flags %u, data length = %i", spellId, cast_count, unk_flags, (uint32)recvPacket.size());
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId );
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
 
     if (!spellInfo)
     {
@@ -317,7 +317,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     if (mover->GetTypeId() == TYPEID_PLAYER)
     {
         // not have spell in spellbook or spell passive and not casted by client
-        if (!mover->ToPlayer()->HasActiveSpell (spellId) || IsPassiveSpell(spellId) )
+        if (!mover->ToPlayer()->HasActiveSpell (spellId) || IsPassiveSpell(spellId))
         {
             //cheater? kick? ban?
             recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
@@ -398,7 +398,7 @@ void WorldSession::HandleCancelCastOpcode(WorldPacket& recvPacket)
         _player->InterruptNonMeleeSpells(false,spellId,false);
 }
 
-void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
+void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId;
     recvPacket >> spellId;
@@ -425,7 +425,7 @@ void WorldSession::HandleCancelAuraOpcode( WorldPacket& recvPacket)
     _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
 }
 
-void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
+void WorldSession::HandlePetCancelAuraOpcode(WorldPacket& recvPacket)
 {
     uint64 guid;
     uint32 spellId;
@@ -433,7 +433,7 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
     recvPacket >> guid;
     recvPacket >> spellId;
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId );
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
     {
         sLog.outError("WORLD: unknown PET spell id %u", spellId);
@@ -444,13 +444,13 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
 
     if (!pet)
     {
-        sLog.outError( "Pet %u not exist.", uint32(GUID_LOPART(guid)) );
+        sLog.outError("Pet %u not exist.", uint32(GUID_LOPART(guid)));
         return;
     }
 
     if (pet != GetPlayer()->GetGuardianPet() && pet != GetPlayer()->GetCharm())
     {
-        sLog.outError( "HandlePetCancelAura.Pet %u isn't pet of player %s", uint32(GUID_LOPART(guid)),GetPlayer()->GetName() );
+        sLog.outError("HandlePetCancelAura.Pet %u isn't pet of player %s", uint32(GUID_LOPART(guid)),GetPlayer()->GetName());
         return;
     }
 
@@ -465,18 +465,18 @@ void WorldSession::HandlePetCancelAuraOpcode( WorldPacket& recvPacket)
     pet->AddCreatureSpellCooldown(spellId);
 }
 
-void WorldSession::HandleCancelGrowthAuraOpcode( WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelGrowthAuraOpcode(WorldPacket& /*recvPacket*/)
 {
 }
 
-void WorldSession::HandleCancelAutoRepeatSpellOpcode( WorldPacket& /*recvPacket*/)
+void WorldSession::HandleCancelAutoRepeatSpellOpcode(WorldPacket& /*recvPacket*/)
 {
     // may be better send SMSG_CANCEL_AUTO_REPEAT?
     // cancel and prepare for deleting
     _player->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
 }
 
-void WorldSession::HandleCancelChanneling( WorldPacket & recv_data)
+void WorldSession::HandleCancelChanneling(WorldPacket & recv_data)
 {
     recv_data.read_skip<uint32>();                          // spellid, not used
 
@@ -488,7 +488,7 @@ void WorldSession::HandleCancelChanneling( WorldPacket & recv_data)
     mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
-void WorldSession::HandleTotemDestroyed( WorldPacket& recvPacket)
+void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 {
     // ignore for remote control state
     if (_player->m_mover != _player)
@@ -511,7 +511,7 @@ void WorldSession::HandleTotemDestroyed( WorldPacket& recvPacket)
         totem->ToTotem()->UnSummon();
 }
 
-void WorldSession::HandleSelfResOpcode( WorldPacket & /*recv_data*/ )
+void WorldSession::HandleSelfResOpcode(WorldPacket & /*recv_data*/)
 {
     sLog.outDebug("WORLD: CMSG_SELF_RES");                  // empty opcode
 
@@ -525,7 +525,7 @@ void WorldSession::HandleSelfResOpcode( WorldPacket & /*recv_data*/ )
     }
 }
 
-void WorldSession::HandleSpellClick( WorldPacket & recv_data )
+void WorldSession::HandleSpellClick(WorldPacket & recv_data)
 {
     uint64 guid;
     recv_data >> guid;
@@ -565,7 +565,7 @@ void WorldSession::HandleSpellClick( WorldPacket & recv_data )
     unit->AI()->DoAction(EVENT_SPELLCLICK);
 }
 
-void WorldSession::HandleMirrrorImageDataRequest( WorldPacket & recv_data )
+void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: CMSG_GET_MIRRORIMAGE_DATA");
     uint64 guid;

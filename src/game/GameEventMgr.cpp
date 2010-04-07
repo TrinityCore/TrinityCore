@@ -60,7 +60,7 @@ bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
             time_t currenttime = time(NULL);
             for (std::set<uint16>::const_iterator itr = mGameEvent[entry].prerequisite_events.begin(); itr != mGameEvent[entry].prerequisite_events.end(); ++itr)
             {
-                if ( (mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
+                if ((mGameEvent[*itr].state != GAMEEVENT_WORLD_NEXTPHASE && mGameEvent[*itr].state != GAMEEVENT_WORLD_FINISHED) ||   // if prereq not in nextphase or finished state, then can't start this one
                     mGameEvent[*itr].nextstart > currenttime)               // if not in nextphase state for long enough, can't start this one
                     return false;
             }
@@ -119,7 +119,7 @@ void GameEventMgr::StartInternalEvent(uint16 event_id)
     StartEvent(event_id);
 }
 
-bool GameEventMgr::StartEvent( uint16 event_id, bool overwrite )
+bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 {
     if (mGameEvent[event_id].state == GAMEEVENT_NORMAL
         || mGameEvent[event_id].state == GAMEEVENT_INTERNAL)
@@ -136,7 +136,7 @@ bool GameEventMgr::StartEvent( uint16 event_id, bool overwrite )
     }
     else
     {
-        if ( mGameEvent[event_id].state == GAMEEVENT_WORLD_INACTIVE )
+        if (mGameEvent[event_id].state == GAMEEVENT_WORLD_INACTIVE)
             // set to conditions phase
             mGameEvent[event_id].state = GAMEEVENT_WORLD_CONDITIONS;
 
@@ -159,7 +159,7 @@ bool GameEventMgr::StartEvent( uint16 event_id, bool overwrite )
     }
 }
 
-void GameEventMgr::StopEvent( uint16 event_id, bool overwrite )
+void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 {
     bool serverwide_evt = mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL;
 
@@ -265,10 +265,10 @@ void GameEventMgr::LoadFromDB()
 
             pGameEvent.description  = fields[6].GetCppString();
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u game events", count );
+        sLog.outString(">> Loaded %u game events", count);
     }
 
     // load game event saves
@@ -285,12 +285,12 @@ void GameEventMgr::LoadFromDB()
         bar2.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u game event saves in game events", count );
+        sLog.outString(">> Loaded %u game event saves in game events", count);
     }
     else
     {
 
-        barGoLink bar2( result->GetRowCount() );
+        barGoLink bar2(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -318,9 +318,9 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u game event saves in game events", count );
+        sLog.outString(">> Loaded %u game event saves in game events", count);
     }
 
     // load game event links (prerequisites)
@@ -334,12 +334,12 @@ void GameEventMgr::LoadFromDB()
         bar2.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u game event prerequisites in game events", count );
+        sLog.outString(">> Loaded %u game event prerequisites in game events", count);
     }
     else
     {
 
-        barGoLink bar2( result->GetRowCount() );
+        barGoLink bar2(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -374,7 +374,7 @@ void GameEventMgr::LoadFromDB()
 
         } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u game event prerequisites in game events", count );
+        sLog.outString(">> Loaded %u game event prerequisites in game events", count);
     }
 
     // Creatures
@@ -387,18 +387,18 @@ void GameEventMgr::LoadFromDB()
         "FROM creature JOIN game_event_creature ON creature.guid = game_event_creature.guid");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar(1);
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u creatures in game events", count );
+        sLog.outString(">> Loaded %u creatures in game events", count);
     }
     else
     {
 
-        barGoLink bar( result->GetRowCount() );
+        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -420,10 +420,10 @@ void GameEventMgr::LoadFromDB()
             GuidList& crelist = mGameEventCreatureGuids[internal_event_id];
             crelist.push_back(guid);
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u creatures in game events", count );
+        sLog.outString(">> Loaded %u creatures in game events", count);
     }
 
     // Gameobjects
@@ -436,18 +436,18 @@ void GameEventMgr::LoadFromDB()
         "FROM gameobject JOIN game_event_gameobject ON gameobject.guid=game_event_gameobject.guid");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar(1);
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u gameobjects in game events", count );
+        sLog.outString(">> Loaded %u gameobjects in game events", count);
     }
     else
     {
 
-        barGoLink bar( result->GetRowCount() );
+        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -469,10 +469,10 @@ void GameEventMgr::LoadFromDB()
             GuidList& golist = mGameEventGameobjectGuids[internal_event_id];
             golist.push_back(guid);
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u gameobjects in game events", count );
+        sLog.outString(">> Loaded %u gameobjects in game events", count);
     }
 
     // Model/Equipment Changes
@@ -487,18 +487,18 @@ void GameEventMgr::LoadFromDB()
         "FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar(1);
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u model/equipment changes in game events", count );
+        sLog.outString(">> Loaded %u model/equipment changes in game events", count);
     }
     else
     {
 
-        barGoLink bar( result->GetRowCount() );
+        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -532,10 +532,10 @@ void GameEventMgr::LoadFromDB()
 
             equiplist.push_back(std::pair<uint32, ModelEquip>(guid, newModelEquipSet));
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u model/equipment changes in game events", count );
+        sLog.outString(">> Loaded %u model/equipment changes in game events", count);
     }
 
     // Quests
@@ -547,18 +547,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT id, quest, event FROM game_event_creature_quest");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar(1);
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u quests additions in game events", count );
+        sLog.outString(">> Loaded %u quests additions in game events", count);
     }
     else
     {
 
-        barGoLink bar( result->GetRowCount() );
+        barGoLink bar(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -578,9 +578,9 @@ void GameEventMgr::LoadFromDB()
             QuestRelList& questlist = mGameEventCreatureQuests[event_id];
             questlist.push_back(QuestRelation(id, quest));
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u quests additions in game events", count );
+        sLog.outString(">> Loaded %u quests additions in game events", count);
     }
 
     // GO Quests
@@ -592,18 +592,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT id, quest, event FROM game_event_gameobject_quest");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u go quests additions in game events", count );
+        sLog.outString(">> Loaded %u go quests additions in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -623,10 +623,10 @@ void GameEventMgr::LoadFromDB()
             QuestRelList& questlist = mGameEventGameObjectQuests[event_id];
             questlist.push_back(QuestRelation(id, quest));
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u quests additions in game events", count );
+        sLog.outString(">> Loaded %u quests additions in game events", count);
     }
 
     // Load quest to (event,condition) mapping
@@ -636,18 +636,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT quest, event_id, condition_id, num FROM game_event_quest_condition");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u quest event conditions in game events", count );
+        sLog.outString(">> Loaded %u quest event conditions in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -669,9 +669,9 @@ void GameEventMgr::LoadFromDB()
             mQuestToEventConditions[quest].condition = condition;
             mQuestToEventConditions[quest].num = num;
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u quest event conditions in game events", count );
+        sLog.outString(">> Loaded %u quest event conditions in game events", count);
     }
 
     // load conditions of the events
@@ -682,18 +682,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT event_id, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u conditions in game events", count );
+        sLog.outString(">> Loaded %u conditions in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -715,9 +715,9 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u conditions in game events", count );
+        sLog.outString(">> Loaded %u conditions in game events", count);
     }
 
     // load condition saves
@@ -728,18 +728,18 @@ void GameEventMgr::LoadFromDB()
     result = CharacterDatabase.Query("SELECT event_id, condition_id, done FROM game_event_condition_save");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u condition saves in game events", count );
+        sLog.outString(">> Loaded %u condition saves in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -767,9 +767,9 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u condition saves in game events", count );
+        sLog.outString(">> Loaded %u condition saves in game events", count);
     }
 
     mGameEventNPCFlags.resize(mGameEvent.size());
@@ -781,18 +781,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT guid, event_id, npcflag FROM game_event_npcflag");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u npcflags in game events", count );
+        sLog.outString(">> Loaded %u npcflags in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -812,9 +812,9 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u npcflags in game events", count );
+        sLog.outString(">> Loaded %u npcflags in game events", count);
     }
 
     // Vendor
@@ -826,18 +826,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT event, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u vendor additions in game events", count );
+        sLog.outString(">> Loaded %u vendor additions in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -872,7 +872,7 @@ void GameEventMgr::LoadFromDB()
             // get creature entry
             newEntry.entry = 0;
 
-            if ( CreatureData const* data = objmgr.GetCreatureData(guid) )
+            if (CreatureData const* data = objmgr.GetCreatureData(guid))
                 newEntry.entry = data->id;
 
             // check validity with event's npcflag
@@ -881,9 +881,9 @@ void GameEventMgr::LoadFromDB()
             ++count;
             vendors.push_back(newEntry);
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u vendor additions in game events", count );
+        sLog.outString(">> Loaded %u vendor additions in game events", count);
     }
 
     // load game event npc gossip ids
@@ -894,18 +894,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT guid, event_id, textid FROM game_event_npc_gossip");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u npc gossip textids in game events", count );
+        sLog.outString(">> Loaded %u npc gossip textids in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -925,9 +925,9 @@ void GameEventMgr::LoadFromDB()
 
             ++count;
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u npc gossip textids in game events", count );
+        sLog.outString(">> Loaded %u npc gossip textids in game events", count);
     }
 
     // set all flags to 0
@@ -940,18 +940,18 @@ void GameEventMgr::LoadFromDB()
     result = WorldDatabase.Query("SELECT event, bgflag FROM game_event_battleground_holiday");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar3(1);
         bar3.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u battleground holidays in game events", count );
+        sLog.outString(">> Loaded %u battleground holidays in game events", count);
     }
     else
     {
 
-        barGoLink bar3( result->GetRowCount() );
+        barGoLink bar3(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -970,9 +970,9 @@ void GameEventMgr::LoadFromDB()
 
             mGameEventBattleGroundHolidays[event_id] = fields[1].GetUInt32();
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u battleground holidays in game events", count );
+        sLog.outString(">> Loaded %u battleground holidays in game events", count);
     }
 
     ////////////////////////
@@ -988,18 +988,18 @@ void GameEventMgr::LoadFromDB()
         "FROM pool_template JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
 
     count = 0;
-    if ( !result )
+    if (!result)
     {
         barGoLink bar2(1);
         bar2.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u pools in game events", count );
+        sLog.outString(">> Loaded %u pools in game events", count);
     }
     else
     {
 
-        barGoLink bar2( result->GetRowCount() );
+        barGoLink bar2(result->GetRowCount());
         do
         {
             Field *fields = result->Fetch();
@@ -1027,9 +1027,9 @@ void GameEventMgr::LoadFromDB()
             IdList& poollist = mGameEventPoolIds[internal_event_id];
             poollist.push_back(entry);
 
-        } while ( result->NextRow() );
+        } while (result->NextRow());
         sLog.outString();
-        sLog.outString( ">> Loaded %u pools in game events", count );
+        sLog.outString(">> Loaded %u pools in game events", count);
     }
 }
 
@@ -1063,7 +1063,7 @@ uint32 GameEventMgr::Initialize()                           // return the next e
 {
     m_ActiveEvents.clear();
     uint32 delay = Update();
-    sLog.outBasic("Game Event system initialized." );
+    sLog.outBasic("Game Event system initialized.");
     isSystemInit = true;
     return delay;
 }
@@ -1194,7 +1194,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
     for (NPCFlagList::iterator itr = mGameEventNPCFlags[event_id].begin(); itr != mGameEventNPCFlags[event_id].end(); ++itr)
     {
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
-        if ( CreatureData const* data = objmgr.GetCreatureData(itr->first) )
+        if (CreatureData const* data = objmgr.GetCreatureData(itr->first))
         {
             Creature * cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first,data->id,HIGHGUID_UNIT));
             // if we found the creature, modify its npcflag
@@ -1215,7 +1215,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
 void GameEventMgr::UpdateBattleGroundSettings()
 {
     uint32 mask = 0;
-    for (ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr )
+    for (ActiveEvents::const_iterator itr = m_ActiveEvents.begin(); itr != m_ActiveEvents.end(); ++itr)
         mask |= mGameEventBattleGroundHolidays[*itr];
     sBattleGroundMgr.SetHolidayWeekends(mask);
 }
@@ -1317,14 +1317,14 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin(); itr != mGameEventCreatureGuids[internal_event_id].end(); ++itr)
     {
         // check if it's needed by another event, if so, don't remove
-        if ( event_id > 0 && hasCreatureActiveEventExcept(*itr,event_id) )
+        if (event_id > 0 && hasCreatureActiveEventExcept(*itr,event_id))
             continue;
         // Remove the creature from grid
-        if ( CreatureData const* data = objmgr.GetCreatureData(*itr) )
+        if (CreatureData const* data = objmgr.GetCreatureData(*itr))
         {
             objmgr.RemoveCreatureFromGrid(*itr, data);
 
-            if ( Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_UNIT), (Creature*)NULL) )
+            if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_UNIT), (Creature*)NULL))
                 pCreature->AddObjectToRemoveList();
         }
     }
@@ -1338,14 +1338,14 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin(); itr != mGameEventGameobjectGuids[internal_event_id].end(); ++itr)
     {
         // check if it's needed by another event, if so, don't remove
-        if ( event_id >0 && hasGameObjectActiveEventExcept(*itr,event_id) )
+        if (event_id >0 && hasGameObjectActiveEventExcept(*itr,event_id))
             continue;
         // Remove the gameobject from grid
         if (GameObjectData const* data = objmgr.GetGOData(*itr))
         {
             objmgr.RemoveGameobjectFromGrid(*itr, data);
 
-            if ( GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL) )
+            if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
                 pGameobject->AddObjectToRemoveList();
         }
     }
@@ -1387,7 +1387,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                         pCreature->SetDisplayId(itr->second.modelid);
                         pCreature->SetNativeDisplayId(itr->second.modelid);
                         pCreature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS,minfo->bounding_radius);
-                        pCreature->SetFloatValue(UNIT_FIELD_COMBATREACH,minfo->combat_reach );
+                        pCreature->SetFloatValue(UNIT_FIELD_COMBATREACH,minfo->combat_reach);
                     }
                 }
             }
@@ -1402,7 +1402,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                         pCreature->SetDisplayId(itr->second.modelid_prev);
                         pCreature->SetNativeDisplayId(itr->second.modelid_prev);
                         pCreature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS,minfo->bounding_radius);
-                        pCreature->SetFloatValue(UNIT_FIELD_COMBATREACH,minfo->combat_reach );
+                        pCreature->SetFloatValue(UNIT_FIELD_COMBATREACH,minfo->combat_reach);
                     }
                 }
             }

@@ -37,18 +37,18 @@ static Rates const qualityToRate[MAX_ITEM_QUALITY] = {
     RATE_DROP_ITEM_ARTIFACT,                                // ITEM_QUALITY_ARTIFACT
 };
 
-LootStore LootTemplates_Creature(     "creature_loot_template",     "creature entry",               true);
-LootStore LootTemplates_Disenchant(   "disenchant_loot_template",   "item disenchant id",           true);
-LootStore LootTemplates_Fishing(      "fishing_loot_template",      "area id",                      true);
-LootStore LootTemplates_Gameobject(   "gameobject_loot_template",   "gameobject entry",             true);
-LootStore LootTemplates_Item(         "item_loot_template",         "item entry",                   true);
-LootStore LootTemplates_Mail(         "mail_loot_template",         "mail template id",             false);
-LootStore LootTemplates_Milling(      "milling_loot_template",      "item entry (herb)",            true);
+LootStore LootTemplates_Creature("creature_loot_template",     "creature entry",               true);
+LootStore LootTemplates_Disenchant("disenchant_loot_template",   "item disenchant id",           true);
+LootStore LootTemplates_Fishing("fishing_loot_template",      "area id",                      true);
+LootStore LootTemplates_Gameobject("gameobject_loot_template",   "gameobject entry",             true);
+LootStore LootTemplates_Item("item_loot_template",         "item entry",                   true);
+LootStore LootTemplates_Mail("mail_loot_template",         "mail template id",             false);
+LootStore LootTemplates_Milling("milling_loot_template",      "item entry (herb)",            true);
 LootStore LootTemplates_Pickpocketing("pickpocketing_loot_template","creature pickpocket lootid",   true);
-LootStore LootTemplates_Prospecting(  "prospecting_loot_template",  "item entry (ore)",             true);
-LootStore LootTemplates_Reference(    "reference_loot_template",    "reference id",                 false);
-LootStore LootTemplates_Skinning(     "skinning_loot_template",     "creature skinning id",         true);
-LootStore LootTemplates_Spell(        "spell_loot_template",        "spell id (random item creating)",false);
+LootStore LootTemplates_Prospecting("prospecting_loot_template",  "item entry (ore)",             true);
+LootStore LootTemplates_Reference("reference_loot_template",    "reference id",                 false);
+LootStore LootTemplates_Skinning("skinning_loot_template",     "creature skinning id",         true);
+LootStore LootTemplates_Spell("spell_loot_template",        "spell id (random item creating)",false);
 
 class LootTemplate::LootGroup                               // A set of loot definitions for items (refs are not allowed)
 {
@@ -97,7 +97,7 @@ void LootStore::LoadLootTable()
     // Clearing store (for reloading case)
     Clear();
 
-    sLog.outString( "%s :", GetName());
+    sLog.outString("%s :", GetName());
 
     //                                                 0      1     2                    3         4        5              6         7              8                 9
     QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT entry, item, ChanceOrQuestChance, lootmode, groupid, mincountOrRef, maxcount, lootcondition, condition_value1, condition_value2 FROM %s",GetName());
@@ -148,7 +148,7 @@ void LootStore::LoadLootTable()
             {
                 // Searching the template (in case template Id changed)
                 tab = m_LootTemplates.find(entry);
-                if ( tab == m_LootTemplates.end() )
+                if (tab == m_LootTemplates.end())
                 {
                     std::pair< LootTemplateMap::iterator, bool > pr = m_LootTemplates.insert(LootTemplateMap::value_type(entry, new LootTemplate));
                     tab = pr.first;
@@ -166,12 +166,12 @@ void LootStore::LoadLootTable()
         Verify();                                           // Checks validity of the loot store
 
         sLog.outString();
-        sLog.outString( ">> Loaded %u loot definitions (%lu templates)", count, (unsigned long)m_LootTemplates.size());
+        sLog.outString(">> Loaded %u loot definitions (%lu templates)", count, (unsigned long)m_LootTemplates.size());
     }
     else
     {
         sLog.outString();
-        sLog.outErrorDb( ">> Loaded 0 loot definitions. DB table `%s` is empty.",GetName() );
+        sLog.outErrorDb(">> Loaded 0 loot definitions. DB table `%s` is empty.",GetName());
     }
 }
 
@@ -276,20 +276,20 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
             return false;
         }
 
-        if ( chance == 0 && group == 0)                      // Zero chance is allowed for grouped entries only
+        if (chance == 0 && group == 0)                      // Zero chance is allowed for grouped entries only
         {
             sLog.outErrorDb("Table '%s' entry %d item %d: equal-chanced grouped entry, but group not defined - skipped", store.GetName(), entry, itemid);
             return false;
         }
 
-        if ( chance != 0 && chance < 0.000001f )             // loot with low chance
+        if (chance != 0 && chance < 0.000001f)             // loot with low chance
         {
             sLog.outErrorDb("Table '%s' entry %d item %d: low chance (%f) - skipped",
                 store.GetName(), entry, itemid, chance);
             return false;
         }
 
-        if ( maxcount < mincountOrRef)                       // wrong max count
+        if (maxcount < mincountOrRef)                       // wrong max count
         {
             sLog.outErrorDb("Table '%s' entry %d item %d: max count (%u) less that min count (%i) - skipped", store.GetName(), entry, itemid, int32(maxcount), mincountOrRef);
             return false;
@@ -300,7 +300,7 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
     {
         if (needs_quest)
             sLog.outErrorDb("Table '%s' entry %d item %d: quest chance will be treated as non-quest chance", store.GetName(), entry, itemid);
-        else if ( chance == 0 )                              // no chance for the reference
+        else if (chance == 0)                              // no chance for the reference
         {
             sLog.outErrorDb("Table '%s' entry %d item %d: zero chance is specified for a reference, skipped", store.GetName(), entry, itemid);
             return false;
@@ -454,7 +454,7 @@ QuestItemList* Loot::FillFFALoot(Player* player)
     for (uint8 i = 0; i < items.size(); ++i)
     {
         LootItem &item = items[i];
-        if (!item.is_looted && item.freeforall && item.AllowedForPlayer(player) )
+        if (!item.is_looted && item.freeforall && item.AllowedForPlayer(player))
         {
             ql->push_back(QuestItem(i));
             ++unlootedCount;
@@ -599,7 +599,7 @@ void Loot::NotifyQuestItemRemoved(uint8 questIndex)
     }
 }
 
-void Loot::generateMoneyLoot( uint32 minAmount, uint32 maxAmount )
+void Loot::generateMoneyLoot(uint32 minAmount, uint32 maxAmount)
 {
     if (maxAmount > 0)
     {
@@ -1047,7 +1047,7 @@ float LootTemplate::LootGroup::RawTotalChance() const
     float result = 0;
 
     for (LootStoreItemList::const_iterator i=ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
-        if ( !i->needs_quest )
+        if (!i->needs_quest)
             result += i->chance;
 
     return result;
@@ -1192,7 +1192,7 @@ bool LootTemplate::HasQuestDrop(LootTemplateMap const& store, uint8 groupId) con
         if (i->mincountOrRef < 0)                           // References
         {
             LootTemplateMap::const_iterator Referenced = store.find(-i->mincountOrRef);
-            if ( Referenced ==store.end())
+            if (Referenced ==store.end())
                 continue;                                   // Error message [should be] already printed at loading stage
             if (Referenced->second->HasQuestDrop(store, i->group))
                 return true;
@@ -1502,7 +1502,7 @@ void LoadLootTemplates_Spell()
             continue;
 
         // possible cases
-        if ( !IsLootCraftingSpell(spellInfo))
+        if (!IsLootCraftingSpell(spellInfo))
             continue;
 
         if (ids_set.find(spell_id) == ids_set.end())

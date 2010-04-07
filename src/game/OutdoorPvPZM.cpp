@@ -57,7 +57,7 @@ bool OPvPCapturePointZM_Beacon::HandlePlayerEnter(Player *plr)
     if (OPvPCapturePoint::HandlePlayerEnter(plr))
     {
         plr->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_disp, 1);
-        uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
+        uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
         plr->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_pos, phase);
         plr->SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_n, m_neutralValuePct);
         return true;
@@ -74,14 +74,14 @@ void OPvPCapturePointZM_Beacon::HandlePlayerLeave(Player *plr)
 void OPvPCapturePointZM_Beacon::ChangeState()
 {
     // if changing from controlling alliance to horde
-    if ( m_OldState == OBJECTIVESTATE_ALLIANCE )
+    if (m_OldState == OBJECTIVESTATE_ALLIANCE)
     {
         if (((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled)
             ((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled--;
         sWorld.SendZoneText(ZM_GRAVEYARD_ZONE,objmgr.GetTrinityStringForDBCLocale(ZMBeaconLooseA[m_TowerType]));
     }
     // if changing from controlling horde to alliance
-    else if ( m_OldState == OBJECTIVESTATE_HORDE )
+    else if (m_OldState == OBJECTIVESTATE_HORDE)
     {
         if (((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled)
             ((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled--;
@@ -119,7 +119,7 @@ void OPvPCapturePointZM_Beacon::SendChangePhase()
     // send this too, sometimes the slider disappears, dunno why :(
     SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_disp, 1);
     // send these updates to only the ones in this objective
-    uint32 phase = (uint32)ceil(( m_value + m_maxValue) / ( 2 * m_maxValue ) * 100.0f);
+    uint32 phase = (uint32)ceil((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f);
     SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_pos, phase);
     SendUpdateWorldState(ZMBeaconInfo[m_TowerType].slider_n, m_neutralValuePct);
 }

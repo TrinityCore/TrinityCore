@@ -40,7 +40,7 @@ class TransportPath
 
         void SetLength(const unsigned int sz)
         {
-            i_nodes.resize( sz );
+            i_nodes.resize(sz);
         }
 
         unsigned int Size(void) const { return i_nodes.size(); }
