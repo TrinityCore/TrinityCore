@@ -26,24 +26,41 @@
 
 struct instance_forge_of_souls : public ScriptedInstance
 {
-    instance_forge_of_souls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    instance_forge_of_souls(Map* pMap) : ScriptedInstance(pMap) {};
 
     uint64 uiBronjahm;
     uint64 uiDevourer;
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 uiEncounter[MAX_ENCOUNTER];
+    uint32 uiTeamInInstance;
 
     void Initialize()
     {
         uiBronjahm = 0;
         uiDevourer = 0;
 
+        uiTeamInInstance = 0;
+        
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-            m_auiEncounter[i] = NOT_STARTED;
+            uiEncounter[i] = NOT_STARTED;
+    }
+
+    bool IsEncounterInProgress() const
+    {
+        for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+            if (uiEncounter[i] == IN_PROGRESS) return true;
+
+        return false;
     }
 
     void OnCreatureCreate(Creature* pCreature, bool add)
     {
+        Map::PlayerList const &players = instance->GetPlayers();
+
+        if (!players.isEmpty())
+            if (Player* pPlayer = players.begin()->getSource())
+                uiTeamInInstance = pPlayer->GetTeam();
+
         switch(pCreature->GetEntry())
         {
             case CREATURE_BRONJAHM:
@@ -54,23 +71,16 @@ struct instance_forge_of_souls : public ScriptedInstance
                 break;
         }
     }
-/*
-    void OnGameObjectCreate(GameObject* pGo, bool add)
-    {
-        switch(pGo->GetEntry())
-        {
-        }
-    }
-*/
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
         {
             case DATA_BRONJAHM_EVENT:
-                m_auiEncounter[0] = data;
+                uiEncounter[0] = data;
                 break;
             case DATA_DEVOURER_EVENT:
-                m_auiEncounter[1] = data;
+                uiEncounter[1] = data;
                 break;
         }
 
@@ -82,8 +92,9 @@ struct instance_forge_of_souls : public ScriptedInstance
     {
         switch(type)
         {
-            case DATA_BRONJAHM_EVENT:    return m_auiEncounter[0];
-            case DATA_DEVOURER_EVENT:    return m_auiEncounter[1];
+            case DATA_BRONJAHM_EVENT:    return uiEncounter[0];
+            case DATA_DEVOURER_EVENT:    return uiEncounter[1];
+            case DATA_TEAM_IN_INSTANCE:  return uiTeamInInstance;
         }
 
         return 0;
@@ -94,6 +105,7 @@ struct instance_forge_of_souls : public ScriptedInstance
         switch(identifier)
         {
             case DATA_BRONJAHM:         return uiBronjahm;
+            case DATA_DEVOURER:         return uiBronjahm;
         }
 
         return 0;
@@ -104,7 +116,7 @@ struct instance_forge_of_souls : public ScriptedInstance
         OUT_SAVE_INST_DATA;
 
         std::ostringstream saveStream;
-        saveStream << "F S " << m_auiEncounter[0] << " " << m_auiEncounter[1];
+        saveStream << "F S " << uiEncounter[0] << " " << uiEncounter[1];
 
         OUT_SAVE_INST_DATA_COMPLETE;
         return saveStream.str();
@@ -128,12 +140,12 @@ struct instance_forge_of_souls : public ScriptedInstance
 
         if (dataHead1 == 'F' && dataHead2 == 'S')
         {
-            m_auiEncounter[0] = data0;
-            m_auiEncounter[1] = data1;
+            uiEncounter[0] = data0;
+            uiEncounter[1] = data1;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+                if (uiEncounter[i] == IN_PROGRESS)
+                    uiEncounter[i] = NOT_STARTED;
 
         } else OUT_LOAD_INST_DATA_FAIL;
 
@@ -146,7 +158,7 @@ InstanceData* GetInstanceData_instance_forge_of_souls(Map* pMap)
     return new instance_forge_of_souls(pMap);
 }
 
-void AddSC_forge_of_souls()
+void AddSC_instance_forge_of_souls()
 {
     Script *newscript;
     newscript = new Script;

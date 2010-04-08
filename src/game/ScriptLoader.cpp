@@ -407,6 +407,10 @@ void AddSC_boss_xevozz();
 void AddSC_boss_zuramat();
 void AddSC_instance_violet_hold();
 void AddSC_violet_hold();
+void AddSC_instance_forge_of_souls();   //Forge of Souls
+void AddSC_forge_of_souls();
+void AddSC_boss_bronjahm();
+void AddSC_boss_devourer_of_souls();
 void AddSC_instance_pit_of_saron();     //Pit of Saron
 void AddSC_pit_of_saron();
 void AddSC_boss_garfrost();
@@ -899,6 +903,10 @@ void AddScripts()
     AddSC_boss_zuramat();
     AddSC_instance_violet_hold();
     AddSC_violet_hold();
+    AddSC_instance_forge_of_souls();   //Forge of Souls
+    AddSC_forge_of_souls();
+    AddSC_boss_bronjahm();
+    AddSC_boss_devourer_of_souls();
     AddSC_instance_pit_of_saron();      //Pit of Saron
     AddSC_pit_of_saron();
     AddSC_boss_garfrost();

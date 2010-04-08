@@ -405,18 +405,27 @@ class EventMap : private std::map<uint32, uint32>
             return 0;
         }
 
-        void DelayEvents(uint32 time, uint32 gcd)
+        // Delay all events
+        void DelayEvents(uint32 delay)
         {
-            time += m_time;
+            if (delay < m_time)
+                m_time -= delay;
+            else
+                m_time = 0;
+        }
+
+        // Delay all events having the specified Global Cooldown.
+        void DelayEvents(uint32 delay, uint32 gcd)
+        {
+            uint32 nextTime = m_time + delay;
             gcd = (1 << (gcd + 16));
-            for (iterator itr = begin(); itr != end();)
+            for (iterator itr = begin(); itr != end() && itr->first < nextTime;)
             {
-                if (itr->first >= time)
-                    break;
                 if (itr->second & gcd)
                 {
-                    ScheduleEvent(time, itr->second);
-                    erase(itr++);
+                    ScheduleEvent(itr->second, itr->first-m_time+delay);
+                    erase(itr);
+                    itr = begin();
                 }
                 else
                     ++itr;
@@ -428,7 +437,10 @@ class EventMap : private std::map<uint32, uint32>
             for (iterator itr = begin(); itr != end();)
             {
                 if (eventId == (itr->second & 0x0000FFFF))
-                    erase(itr++);
+                {
+                    erase(itr);
+                    itr = begin();
+                }
                 else
                     ++itr;
             }
@@ -436,10 +448,15 @@ class EventMap : private std::map<uint32, uint32>
 
         void CancelEventsByGCD(uint32 gcd)
         {
+            gcd = (1 << (gcd + 16));
+
             for (iterator itr = begin(); itr != end();)
             {
                 if (itr->second & gcd)
-                    erase(itr++);
+                {
+                    erase(itr);
+                    itr = begin();
+                }
                 else
                     ++itr;
             }
