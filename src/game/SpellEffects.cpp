@@ -1732,7 +1732,7 @@ void Spell::EffectDummy(uint32 i)
 
                     for (int s=0; s<3; s++)
                     {
-                        if (pEnchant->type[s]!=ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
+                        if (pEnchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                             continue;
 
                         SpellEntry const* combatEntry = sSpellStore.LookupEntry(pEnchant->spellid[s]);
@@ -2116,7 +2116,7 @@ void Spell::EffectDummy(uint32 i)
             else if (m_spellInfo->SpellIconID == 1737)
             {
                 // Dummy effect 1 is used only for targeting and damage amount
-                if (i!=0)
+                if (i != 0)
                     return;
                 int32 bp = 0;
                 // Living ghoul as a target
@@ -2470,7 +2470,7 @@ void Spell::EffectJump(uint32 i)
             // explicit cast data from client or server-side cast
             // some spell at client send caster
             Unit* pTarget = NULL;
-            if (m_targets.getUnitTarget() && m_targets.getUnitTarget()!=m_caster)
+            if (m_targets.getUnitTarget() && m_targets.getUnitTarget() != m_caster)
                 pTarget = m_targets.getUnitTarget();
             else if (m_caster->getVictim())
                 pTarget = m_caster->getVictim();
@@ -2744,7 +2744,7 @@ void Spell::EffectPowerBurn(uint32 i)
         return;
     if (!unitTarget->isAlive())
         return;
-    if (unitTarget->getPowerType()!=powertype)
+    if (unitTarget->getPowerType() != powertype)
         return;
     if (damage < 0)
         return;
@@ -4060,7 +4060,7 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
         if (!item_owner)
             return;
 
-        if (item_owner!=p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
+        if (item_owner != p_caster && p_caster->GetSession()->GetSecurity() > SEC_PLAYER && sWorld.getConfig(CONFIG_GM_LOG_TRADE))
         {
             sLog.outCommand(p_caster->GetSession()->GetAccountId(),"GM %s (Account: %u) enchanting(perm): %s (Entry: %d) for player: %s (Account: %u)",
                 p_caster->GetName(),p_caster->GetSession()->GetAccountId(),
@@ -4539,7 +4539,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
                 else
                 {
                     Unit::AuraApplicationMap const& auras = unitTarget->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
+                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
                     {
                         if (itr->second->GetBase()->GetSpellProto()->Dispel == DISPEL_POISON)
                         {
@@ -5502,7 +5502,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                 {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effIndex!=0)
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effIndex != 0)
                         return;
 
                     uint32 spellID = m_spellInfo->CalculateSimpleValue(0);
@@ -7314,7 +7314,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
             data << uint32(m_spellInfo->Id);         // dispel spell id
             data << uint8(0);                        // not used
             data << uint32(success_list.size());     // count
-            for (DispelList::iterator itr = success_list.begin(); itr!=success_list.end(); ++itr)
+            for (DispelList::iterator itr = success_list.begin(); itr != success_list.end(); ++itr)
             {
                 data << uint32(itr->first);          // Spell Id
                 data << uint8(0);                    // 0 - steals !=0 transfers

@@ -603,7 +603,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
     Pet *pet = _player->GetPet();
 
     // can't place in stable dead pet
-    if (!pet||!pet->isAlive()||pet->getPetType()!=HUNTER_PET)
+    if (!pet||!pet->isAlive()||pet->getPetType() != HUNTER_PET)
     {
         WorldPacket data(SMSG_STABLE_RESULT, 1);
         data << uint8(0x06);
@@ -624,7 +624,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
             uint32 slot = fields[1].GetUInt32();
 
             // slots ordered in query, and if not equal then free
-            if (slot!=free_slot)
+            if (slot != free_slot)
                 break;
 
             // this slot not free, skip
@@ -787,7 +787,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
 
     Pet* pet = _player->GetPet();
 
-    if (!pet || pet->getPetType()!=HUNTER_PET)
+    if (!pet || pet->getPetType() != HUNTER_PET)
         return;
 
     // find swapped pet slot in stable

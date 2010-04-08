@@ -2215,8 +2215,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
                 if (!skillLine)
                     continue;
 
-                //if (skillLine->skillId!=creatureFamily->skillLine[0] &&
-                //    (!creatureFamily->skillLine[1] || skillLine->skillId!=creatureFamily->skillLine[1]))
+                //if (skillLine->skillId != creatureFamily->skillLine[0] &&
+                //    (!creatureFamily->skillLine[1] || skillLine->skillId != creatureFamily->skillLine[1]))
                 //    continue;
 
                 if (skillLine->skillId != creatureFamily->skillLine[j])

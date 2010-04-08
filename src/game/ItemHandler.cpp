@@ -515,7 +515,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
     if (pItem)
     {
         // prevent sell not owner item
-        if (_player->GetGUID()!=pItem->GetOwnerGUID())
+        if (_player->GetGUID() != pItem->GetOwnerGUID())
         {
             _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
             return;
@@ -1172,7 +1172,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
                 return;
 
             // not first not-colored (not normaly used) socket
-            if (i!=0 && !itemProto->Socket[i-1].Color && (i+1 >= MAX_GEM_SOCKETS || itemProto->Socket[i+1].Color))
+            if (i != 0 && !itemProto->Socket[i-1].Color && (i+1 >= MAX_GEM_SOCKETS || itemProto->Socket[i+1].Color))
                 return;
 
             // ok, this is first not colored socket for item with prismatic socket

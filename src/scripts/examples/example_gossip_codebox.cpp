@@ -67,7 +67,7 @@ bool GossipSelectWithCode_example_gossip_codebox(Player* pPlayer, Creature* pCre
         switch (uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
-            if (std::strcmp(sCode, pPlayer->GetName())!=0)
+            if (std::strcmp(sCode, pPlayer->GetName()) != 0)
             {
                 DoScriptText(SAY_WRONG, pCreature);
                 pCreature->CastSpell(pPlayer, SPELL_POLYMORPH, true);
