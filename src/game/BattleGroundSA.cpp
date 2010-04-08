@@ -526,6 +526,7 @@ WorldSafeLocsEntry const* BattleGroundSA::GetClosestGraveYard(Player* player)
 {
     uint32 safeloc = 0;
     WorldSafeLocsEntry const* ret;
+    WorldSafeLocsEntry const* closest;
     float dist, nearest;
     float x,y,z;
 
@@ -536,23 +537,24 @@ WorldSafeLocsEntry const* BattleGroundSA::GetClosestGraveYard(Player* player)
     else
         safeloc = BG_SA_GYEntries[BG_SA_DEFENDER_LAST_GY];
 
-    ret = sWorldSafeLocsStore.LookupEntry(safeloc);
-    nearest = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
+    closest = sWorldSafeLocsStore.LookupEntry(safeloc);
+    nearest = sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y)+(closest->z - z)*(closest->z - z));
 
     for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
     {
         if (GraveyardStatus[i] != player->GetTeamId())
             continue;
 
+	ret = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
         dist = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
         if (dist < nearest)
         {
-            ret = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
+            closest = ret;    
             nearest = dist;
         }
     }
 
-    return ret;
+    return closest;
 }
 
 void BattleGroundSA::SendTime()
