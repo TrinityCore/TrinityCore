@@ -515,7 +515,7 @@ namespace Trinity
             ExplodeCorpseObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
             bool operator()(Player* u)
             {
-                if (u->getDeathState()!=CORPSE || u->isInFlight() ||
+                if (u->getDeathState() != CORPSE || u->isInFlight() ||
                     u->HasAuraType(SPELL_AURA_GHOST) || (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
 
@@ -523,9 +523,9 @@ namespace Trinity
             }
             bool operator()(Creature* u)
             {
-                if (u->getDeathState()!=CORPSE || u->isInFlight() || u->isDeadByDefault() ||
+                if (u->getDeathState() != CORPSE || u->isInFlight() || u->isDeadByDefault() ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()) ||
-                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL)!=0)
+                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) != 0)
                     return false;
 
                 return i_funit->IsWithinDistInMap(u, i_range);

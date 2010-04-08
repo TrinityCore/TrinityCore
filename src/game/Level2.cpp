@@ -1310,7 +1310,7 @@ bool ChatHandler::HandleNpcMoveCommand(const char* args)
 
             uint32 map_id = data->mapid;
 
-            if (m_session->GetPlayer()->GetMapId()!=map_id)
+            if (m_session->GetPlayer()->GetMapId() != map_id)
             {
                 PSendSysMessage(LANG_COMMAND_CREATUREATSAMEMAP, lowguid);
                 SetSentErrorMessage(true);
@@ -1670,7 +1670,7 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
     }
 
     if (/*creature->GetMotionMaster()->empty() ||*/
-        creature->GetMotionMaster()->GetCurrentMovementGeneratorType ()!=TARGETED_MOTION_TYPE)
+        creature->GetMotionMaster()->GetCurrentMovementGeneratorType () != TARGETED_MOTION_TYPE)
     {
         PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
         SetSentErrorMessage(true);
@@ -1680,7 +1680,7 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
     TargetedMovementGenerator<Creature> const* mgen
         = static_cast<TargetedMovementGenerator<Creature> const*>((creature->GetMotionMaster()->top()));
 
-    if (mgen->GetTarget()!=player)
+    if (mgen->GetTarget() != player)
     {
         PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
         SetSentErrorMessage(true);
@@ -1836,7 +1836,7 @@ bool ChatHandler::HandleNpcNameCommand(const char* /*args*/)
 
     for (uint8 i = 0; i < strlen(args); ++i)
     {
-        if (!isalpha(args[i]) && args[i]!=' ')
+        if (!isalpha(args[i]) && args[i] != ' ')
         {
             SendSysMessage(LANG_CHARS_ONLY);
             return false;
@@ -1885,7 +1885,7 @@ bool ChatHandler::HandleNpcSubNameCommand(const char* /*args*/)
 
     for (uint8 i = 0; i < strlen(args); i++)
     {
-        if (!isalpha(args[i]) && args[i]!=' ')
+        if (!isalpha(args[i]) && args[i] != ' ')
         {
             SendSysMessage(LANG_CHARS_ONLY);
             return false;

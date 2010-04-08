@@ -170,7 +170,7 @@ struct boss_netherspiteAI : public ScriptedAI
                     Map::PlayerList const& players = map->GetPlayers();
 
                     // get the best suitable target
-                    for (Map::PlayerList::const_iterator i = players.begin(); i!=players.end(); ++i)
+                    for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
                     {
                         Player* p = i->getSource();
                         if (p && p->isAlive() // alive

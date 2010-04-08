@@ -982,7 +982,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
 
         SetSentErrorMessage(false);
         // table[i].Name == "" is special case: send original command to handler
-        if ((this->*(table[i].Handler))(strlen(table[i].Name)!=0 ? text : oldtext))
+        if ((this->*(table[i].Handler))(strlen(table[i].Name) != 0 ? text : oldtext))
         {
             if (table[i].SecurityLevel > SEC_PLAYER)
             {
@@ -1318,7 +1318,7 @@ valid examples:
                     {
                         propertyId = 0;
                         negativeNumber = false;
-                        while ((c = reader.get())!=':')
+                        while ((c = reader.get()) != ':')
                         {
                             if (c >='0' && c <= '9')
                             {
@@ -1378,7 +1378,7 @@ valid examples:
                     }
                     c = reader.peek();
                     // level
-                    while (c !='|' && c!='\0')
+                    while (c !='|' && c != '\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1397,7 +1397,7 @@ valid examples:
 
                     char c = reader.peek();
                     // base64 encoded stuff
-                    while (c !='|' && c!='\0')
+                    while (c !='|' && c != '\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1421,7 +1421,7 @@ valid examples:
 
                     char c = reader.peek();
                     // skillpoints? whatever, drop it
-                    while (c !='|' && c!='\0')
+                    while (c !='|' && c != '\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1478,7 +1478,7 @@ valid examples:
 
                     char c = reader.peek();
                     // skip progress
-                    while (c !='|' && c!='\0')
+                    while (c !='|' && c != '\0')
                     {
                         reader.ignore(1);
                         c = reader.peek();
@@ -1934,7 +1934,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* linkType, char** s
         return NULL;
 
     // return non link case
-    if (text[0]!='|')
+    if (text[0] != '|')
         return strtok(text, " ");
 
     // [name] Shift-click form |color|linkType:key|h[name]|h|r
@@ -1982,7 +1982,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
         return NULL;
 
     // return non link case
-    if (text[0]!='|')
+    if (text[0] != '|')
         return strtok(text, " ");
 
     // [name] Shift-click form |color|linkType:key|h[name]|h|r

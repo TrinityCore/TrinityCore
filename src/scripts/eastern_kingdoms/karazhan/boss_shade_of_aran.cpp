@@ -475,9 +475,9 @@ struct boss_aranAI : public ScriptedAI
     void SpellHit(Unit* pAttacker, const SpellEntry* Spell)
     {
         //We only care about inturrupt effects and only if they are durring a spell currently being casted
-        if ((Spell->Effect[0]!=SPELL_EFFECT_INTERRUPT_CAST &&
-            Spell->Effect[1]!=SPELL_EFFECT_INTERRUPT_CAST &&
-            Spell->Effect[2]!=SPELL_EFFECT_INTERRUPT_CAST) || !m_creature->IsNonMeleeSpellCasted(false))
+        if ((Spell->Effect[0] != SPELL_EFFECT_INTERRUPT_CAST &&
+            Spell->Effect[1] != SPELL_EFFECT_INTERRUPT_CAST &&
+            Spell->Effect[2] != SPELL_EFFECT_INTERRUPT_CAST) || !m_creature->IsNonMeleeSpellCasted(false))
             return;
 
         //Inturrupt effect

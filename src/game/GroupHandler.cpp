@@ -915,11 +915,11 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket & recv_data)
     // ignore if player not loaded
     if (!GetPlayer())                                        // needed because STATUS_AUTHED
     {
-        if (unkn!=0)
+        if (unkn != 0)
             sLog.outError("CMSG_GROUP_PASS_ON_LOOT value<>0 for not-loaded character!");
         return;
     }
 
-    if (unkn!=0)
+    if (unkn != 0)
         sLog.outError("CMSG_GROUP_PASS_ON_LOOT: activation not implemented!");
 }

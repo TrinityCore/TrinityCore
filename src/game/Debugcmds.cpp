@@ -49,7 +49,7 @@ bool ChatHandler::HandleDebugSendSpellFailCommand(const char* args)
         return false;
 
     uint8 failnum = (uint8)atoi(px);
-    if (failnum == 0 && *px!='0')
+    if (failnum == 0 && *px != '0')
         return false;
 
     char* p1 = strtok(NULL, " ");
