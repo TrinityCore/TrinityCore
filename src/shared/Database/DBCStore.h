@@ -194,7 +194,7 @@ class DBCStorage
                                     default:
                                         validSqlColumn = false;
                                 }
-                                if (validSqlColumn)
+                                if (validSqlColumn && (columnNumber != (sql->formatString->size()-1)))
                                     sqlColumnNumber++;
                             }
                             else
