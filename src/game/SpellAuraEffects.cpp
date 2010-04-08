@@ -868,7 +868,7 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark)
 {
     Unit * caster = GetCaster();
     // Reapply if amount change
-    if (newAmount!=GetAmount())
+    if (newAmount != GetAmount())
     {
         UnitList targetList;
         GetTargetList(targetList);
@@ -1322,7 +1322,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 return;
 
             if (GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_PERSISTENT_AREA_AURA &&
-                caster->SpellHitResult(target,GetSpellProto(),false)!=SPELL_MISS_NONE)
+                caster->SpellHitResult(target,GetSpellProto(),false) != SPELL_MISS_NONE)
                 return;
 
             // Check for immune
@@ -1830,7 +1830,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                 {
                     // Converts up to 10 rage per second into health for $d.  Each point of rage is converted into ${$m2/10}.1% of max health.
                     // Should be manauser
-                    if (target->getPowerType()!=POWER_RAGE)
+                    if (target->getPowerType() != POWER_RAGE)
                         break;
                     uint32 rage = target->GetPower(POWER_RAGE);
                     // Nothing todo
@@ -2047,7 +2047,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                         return;
                     // Inoculate Nestlewood Owlkin
                     case 29528:
-                        if (triggerTarget->GetTypeId()!=TYPEID_UNIT)// prevent error reports in case ignored player target
+                        if (triggerTarget->GetTypeId() != TYPEID_UNIT)// prevent error reports in case ignored player target
                             return;
                         break;
                     // Feed Captured Animal
@@ -2241,7 +2241,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
         triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this);
         sLog.outDebug("AuraEffect::TriggerSpell: Spell %u Trigger %u",GetId(), triggeredSpellInfo->Id);
     }
-    else if (target->GetTypeId()!=TYPEID_UNIT || !sScriptMgr.EffectDummyCreature(caster, GetId(), GetEffIndex(), triggerTarget->ToCreature()))
+    else if (target->GetTypeId() != TYPEID_UNIT || !sScriptMgr.EffectDummyCreature(caster, GetId(), GetEffIndex(), triggerTarget->ToCreature()))
         sLog.outError("AuraEffect::TriggerSpell: Spell %u have 0 in EffectTriggered[%d], not handled custom case?",GetId(),GetEffIndex());
 }
 
@@ -2709,7 +2709,7 @@ void AuraEffect::HandlePhase(AuraApplication const * aurApp, uint8 mode, bool ap
         target->SetPhaseMask((apply) ? GetMiscValue() : PHASEMASK_NORMAL,false);
 
     // need triggering visibility update base at phase update of not GM invisible (other GMs anyway see in any phases)
-    if (target->GetVisibility()!=VISIBILITY_OFF)
+    if (target->GetVisibility() != VISIBILITY_OFF)
         target->SetVisibility(target->GetVisibility());
 }
 
@@ -5043,7 +5043,7 @@ void AuraEffect::HandleAuraModRangedAttackPower(AuraApplication const * aurApp, 
 
     Unit * target = aurApp->GetTarget();
 
-    if ((target->getClassMask() & CLASSMASK_WAND_USERS)!=0)
+    if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_VALUE, float(GetAmount()), apply);
@@ -5067,7 +5067,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const * a
 
     Unit * target = aurApp->GetTarget();
 
-    if ((target->getClassMask() & CLASSMASK_WAND_USERS)!=0)
+    if ((target->getClassMask() & CLASSMASK_WAND_USERS) != 0)
         return;
 
     //UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1

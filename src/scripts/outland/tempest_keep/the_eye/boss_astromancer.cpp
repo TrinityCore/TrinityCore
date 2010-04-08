@@ -326,7 +326,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                 m_creature->GetMap()->CreatureRelocation(m_creature, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
                 for (int j=0; j <= 2; j++)
-                    if (j!=i)
+                    if (j != i)
                         SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

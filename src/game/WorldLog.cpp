@@ -50,7 +50,7 @@ void WorldLog::Initialize()
 
     if (!logsDir.empty())
     {
-        if ((logsDir.at(logsDir.length()-1)!='/') && (logsDir.at(logsDir.length()-1)!='\\'))
+        if ((logsDir.at(logsDir.length()-1) != '/') && (logsDir.at(logsDir.length()-1) != '\\'))
             logsDir.append("/");
     }
 

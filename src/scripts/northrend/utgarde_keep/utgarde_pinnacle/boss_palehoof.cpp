@@ -145,7 +145,7 @@ struct boss_palehoofAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (currentPhase!=PHASE_GORTOK_PALEHOOF)
+        if (currentPhase != PHASE_GORTOK_PALEHOOF)
             return;
         //Return since we have no target
         if (!UpdateVictim())

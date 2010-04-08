@@ -263,7 +263,7 @@ bool CreatureEventAI::ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pAction
         case EVENT_T_SUMMONED_UNIT:
         {
             //Prevent event from occuring on no unit or non creatures
-            if (!pActionInvoker || pActionInvoker->GetTypeId()!=TYPEID_UNIT)
+            if (!pActionInvoker || pActionInvoker->GetTypeId() != TYPEID_UNIT)
                 return false;
 
             //Creature id doesn't match up
@@ -567,7 +567,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
             break;
         case ACTION_T_COMBAT_MOVEMENT:
             // ignore no affect case
-            if (CombatMovementEnabled == (action.combat_movement.state!=0))
+            if (CombatMovementEnabled == (action.combat_movement.state != 0))
                 return;
 
             CombatMovementEnabled = action.combat_movement.state != 0;

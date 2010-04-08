@@ -614,7 +614,7 @@ void WorldSession::HandleMirrrorImageDataRequest(WorldPacket & recv_data)
         };
 
         // Display items in visible slots
-        for (EquipmentSlots const* itr = &ItemSlots[0]; *itr!=EQUIPMENT_SLOT_END; ++itr)
+        for (EquipmentSlots const* itr = &ItemSlots[0]; *itr != EQUIPMENT_SLOT_END; ++itr)
         {
             if (*itr == EQUIPMENT_SLOT_HEAD && pCreator->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_HELM))
                 data << uint32(0);

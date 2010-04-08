@@ -134,7 +134,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = archaedasWallMinions.begin(); i != archaedasWallMinions.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
-            if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
+            if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
                 continue;
             pTarget->setDeathState(JUST_DIED);
             pTarget->RemoveCorpse();
@@ -144,7 +144,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = vaultWalker.begin(); i != vaultWalker.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
-            if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
+            if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
                 continue;
             pTarget->setDeathState(JUST_DIED);
             pTarget->RemoveCorpse();
@@ -154,7 +154,7 @@ struct instance_uldaman : public ScriptedInstance
         for (std::vector<uint64>::const_iterator i = earthenGuardian.begin(); i != earthenGuardian.end(); ++i)
         {
             Creature *pTarget = instance->GetCreature(*i);
-            if (!pTarget || pTarget->isDead() || pTarget->getFaction()!=14)
+            if (!pTarget || pTarget->isDead() || pTarget->getFaction() != 14)
                 continue;
             pTarget->setDeathState(JUST_DIED);
             pTarget->RemoveCorpse();
