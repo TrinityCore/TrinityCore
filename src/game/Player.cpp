@@ -498,6 +498,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     for (int i = 0; i < MAX_POWERS; ++i)
         m_powerFraction[i] = 0;
+
+    m_globalCooldowns.clear();
 }
 
 Player::~Player ()
@@ -1142,6 +1144,17 @@ void Player::Update(uint32 p_time)
 
         // It will be recalculate at mailbox open (for unReadMails important non-0 until mailbox open, it also will be recalculated)
         m_nextMailDelivereTime = 0;
+    }
+
+    for (std::map<uint32, uint32>::iterator itr = m_globalCooldowns.begin(); itr != m_globalCooldowns.end(); ++itr)
+    {
+        if (itr->second)
+        {
+            if (itr->second > p_time)
+                itr->second -= p_time;
+            else
+                itr->second = 0;
+        }
     }
 
     // If this is set during update SetSpellModTakingSpell call is missing somewhere in the code
@@ -22032,6 +22045,38 @@ void Player::UpdateCharmedAI()
         GetMotionMaster()->MoveChase(target);
         Attack(target, true);
     }
+}
+
+void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell const *spell)
+{
+    if (!spellInfo || !spellInfo->StartRecoveryTime)
+        return;
+
+    uint32 cdTime = spellInfo->StartRecoveryTime;
+
+    if (!(spellInfo->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_PASSIVE)))
+        cdTime *= GetFloatValue(UNIT_MOD_CAST_SPEED);
+	else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
+        cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
+
+    m_globalCooldowns[spellInfo->StartRecoveryCategory] = ((cdTime < 1000 || cdTime > 2000) ? 1000 : cdTime);
+}
+
+bool Player::HasGlobalCooldown(SpellEntry const *spellInfo) const
+{
+    if (!spellInfo)
+        return false;
+
+    std::map<uint32, uint32>::const_iterator itr = m_globalCooldowns.find(spellInfo->StartRecoveryCategory);
+    return itr != m_globalCooldowns.end() && (itr->second > sWorld.GetUpdateTime());
+}
+
+void Player::RemoveGlobalCooldown(SpellEntry const *spellInfo)
+{
+    if (!spellInfo)
+        return;
+
+    m_globalCooldowns[spellInfo->StartRecoveryCategory] = 0;
 }
 
 uint32 Player::GetRuneBaseCooldown(uint8 index)
