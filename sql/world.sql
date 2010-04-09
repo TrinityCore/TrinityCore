@@ -14219,6 +14219,35 @@ INSERT INTO `spell_threat` VALUES (78,20),(284,39),(285,59),(770,108),(1608,78),
 UNLOCK TABLES;
 
 --
+-- Table structure for table `spell_difficulty_dbc`
+--
+
+DROP TABLE IF EXISTS `spelldifficulty_dbc`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spelldifficulty_dbc` (
+  `id` int(11) unsigned NOT NULL DEFAULT '0',
+  `spellid0` int(11) unsigned NOT NULL DEFAULT '0',
+  `spellid1` int(11) unsigned NOT NULL DEFAULT '0',
+  `spellid2` int(11) unsigned NOT NULL DEFAULT '0',
+  `spellid3` int(11) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `spell_difficulty_dbc`
+--
+
+LOCK TABLES `spell_difficulty_dbc` WRITE;
+/*!40000 ALTER TABLE `spell_difficulty_dbc` DISABLE KEYS */;
+INSERT INTO `spell_difficulty_dbc` VALUES 
+(3000,47772,56935,0,0), -- Magus Telestra - Ice Nova
+(3001,47773,56934,0,0); -- Magus Telestra - Fire Bomb
+/*!40000 ALTER TABLE `spell_difficulty_dbc` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `transport_events`
 --
 
