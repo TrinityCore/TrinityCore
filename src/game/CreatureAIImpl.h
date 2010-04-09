@@ -22,6 +22,7 @@
 #include "Platform/Define.h"
 #include "TemporarySummon.h"
 #include "CreatureAI.h"
+#include "SpellMgr.h"
 
 template<class T>
 inline
@@ -592,10 +593,14 @@ inline bool CreatureAI::_EnterEvadeMode()
     return true;
 }
 
-inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered)
+inline void UnitAI::DoCast(Unit* victim, uint32 spellId, bool triggered, bool useMode)
 {
     if (!victim || (me->hasUnitState(UNIT_STAT_CASTING) && !triggered))
         return;
+
+    //search for instance mode spell
+    if(useMode && me->ToCreature())
+        spellId = me->ToCreature()->GetSpellIdForDifficulty(spellId);
 
     me->CastSpell(victim, spellId, triggered);
 }
