@@ -418,6 +418,7 @@ class Creature : public Unit, public GridObject<Creature>
         void Update(uint32 time);                         // overwrited Unit::Update
         void GetRespawnCoord(float &x, float &y, float &z, float* ori = NULL, float* dist =NULL) const;
         uint32 GetEquipmentId() const { return GetCreatureInfo()->equipmentId; }
+        uint32 GetSpellIdForDifficulty(uint32 spellId);
 
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool isRacialLeader() const { return GetCreatureInfo()->RacialLeader; }

@@ -126,8 +126,8 @@ class UnitAI
         void AttackStartCaster(Unit *victim, float dist);
 
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
-        void DoCast(uint32 spellId);
-        void DoCast(Unit* victim, uint32 spellId, bool triggered = false);
+        void DoCast(uint32 spellId, bool useMode = false);
+        void DoCast(Unit* victim, uint32 spellId, bool triggered = false, bool useMode = false);
         void DoCastToAllHostilePlayers(uint32 spellid, bool triggered = false);
         void DoCastVictim(uint32 spellId, bool triggered = false);
         void DoCastAOE(uint32 spellId, bool triggered = false);
