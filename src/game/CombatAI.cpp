@@ -174,7 +174,9 @@ void CasterAI::UpdateAI(const uint32 diff)
 
 ArchorAI::ArchorAI(Creature *c) : CreatureAI(c)
 {
-    ASSERT(me->m_spells[0]);
+    if (!me->m_spells[0])
+        sLog.outError("ArchorAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
     if (!m_minRange)
         m_minRange = MELEE_RANGE;
@@ -219,7 +221,9 @@ void ArchorAI::UpdateAI(const uint32 diff)
 
 TurretAI::TurretAI(Creature *c) : CreatureAI(c)
 {
-    ASSERT(me->m_spells[0]);
+    if (!me->m_spells[0])
+        sLog.outError("TurretAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+
     m_minRange = GetSpellMinRange(me->m_spells[0], false);
     me->m_CombatDistance = GetSpellMaxRange(me->m_spells[0], false);
     me->m_SightDistance = me->m_CombatDistance;
@@ -246,10 +250,6 @@ void TurretAI::UpdateAI(const uint32 diff)
         return;
 
     DoSpellAttackIfReady(me->m_spells[0]);
-
-    //if (!DoSpellAttackIfReady(me->m_spells[0]))
-        //if (HostileReference *ref = me->getThreatManager().getCurrentVictim())
-            //ref->removeReference();
 }
 
 //////////////
@@ -258,7 +258,9 @@ void TurretAI::UpdateAI(const uint32 diff)
 
 AOEAI::AOEAI(Creature *c) : CreatureAI(c)
 {
-    ASSERT(me->m_spells[0]);
+    if (!me->m_spells[0])
+        sLog.outError("AOEAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
+
     me->SetVisibility(VISIBILITY_ON);//visible to see all spell anims
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);//can't be targeted
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);//can't be damaged
@@ -272,7 +274,6 @@ bool AOEAI::CanAIAttack(const Unit *who) const
 
 void AOEAI::AttackStart(Unit *who)
 {
-
 }
 
 void AOEAI::UpdateAI(const uint32 diff)
