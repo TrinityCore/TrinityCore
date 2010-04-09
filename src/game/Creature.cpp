@@ -2211,6 +2211,18 @@ void Creature::GetRespawnCoord(float &x, float &y, float &z, float* ori, float* 
         *dist = 0;
 }
 
+uint32 Creature::GetSpellIdForDifficulty(uint32 spellId)
+{
+    //search for instance mode spell
+    if (GetMap() && GetMap()->IsDungeon())
+    {
+        spellId = spellmgr.GetSpellIdForDifficultyFromSpellid(spellId, Difficulty(GetMap()->GetSpawnMode()));        
+    }
+    else
+        sLog.outDebug("Unit::GetSpellIdForDifficulty called for non-instanced creature");
+    return spellId;
+}
+
 void Creature::AllLootRemovedFromCorpse()
 {
     if (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE))

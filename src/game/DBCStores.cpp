@@ -128,6 +128,7 @@ SpellCategoryStore sSpellCategoryStore;
 PetFamilySpellsStore sPetFamilySpellsStore;
 
 DBCStorage <SpellCastTimesEntry> sSpellCastTimesStore(SpellCastTimefmt);
+DBCStorage <SpellDifficultyEntry> sSpellDifficultyStore(SpellDifficultyfmt);
 DBCStorage <SpellDurationEntry> sSpellDurationStore(SpellDurationfmt);
 DBCStorage <SpellFocusObjectEntry> sSpellFocusObjectStore(SpellFocusObjectfmt);
 DBCStorage <SpellRadiusEntry> sSpellRadiusStore(SpellRadiusfmt);
@@ -384,6 +385,7 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellCastTimesStore,      dbcPath,"SpellCastTimes.dbc");
+    LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellDifficultyStore,     dbcPath,"SpellDifficulty.dbc", &CustomSpellDifficultyfmt, &CustomSpellDifficultyIndex);
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellDurationStore,       dbcPath,"SpellDuration.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellFocusObjectStore,    dbcPath,"SpellFocusObject.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSpellItemEnchantmentStore,dbcPath,"SpellItemEnchantment.dbc");
@@ -395,6 +397,24 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sStableSlotPricesStore,    dbcPath,"StableSlotPrices.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sSummonPropertiesStore,    dbcPath,"SummonProperties.dbc");
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sTalentStore,              dbcPath,"Talent.dbc");
+
+    // Create Spelldifficulty searcher
+    for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
+    {
+        SpellDifficultyEntry const *spellDiff = sSpellDifficultyStore.LookupEntry(i);
+        if (!spellDiff)
+            continue;      
+        for(int x = 0; x < MAX_DIFFICULTY; ++x)
+        {
+            if(spellDiff->SpellID[x] <= 0 || !sSpellStore.LookupEntry(spellDiff->SpellID[x]))
+            {
+                if(spellDiff->SpellID[x] > 0)//don't drop error if spell is <= 0, not all modes have spells and there are unknown negative values
+                    sLog.outDebug("spelldifficulty_dbc: spell %i at field id:%u at spellid%i does not exist in SpellStore (spell.dbc), skipped loading", spellDiff->SpellID[x], spellDiff->ID, x);
+                continue;
+            }
+            spellmgr.SetSpellDifficultyId(uint32(spellDiff->SpellID[x]), spellDiff->ID);
+        }
+    }
 
     // create talent spells set
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)

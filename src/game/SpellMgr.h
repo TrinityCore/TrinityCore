@@ -813,6 +813,8 @@ typedef std::pair<SkillLineAbilityMap::const_iterator,SkillLineAbilityMap::const
 typedef std::multimap<uint32, uint32> PetLevelupSpellSet;
 typedef std::map<uint32, PetLevelupSpellSet> PetLevelupSpellMap;
 
+typedef std::map<uint32, uint32> SpellDifficultySearcherMap;
+
 struct PetDefaultSpellsEntry
 {
     uint32 spellid[MAX_CREATURE_SPELL_DATA_SLOT];
@@ -1011,6 +1013,46 @@ class SpellMgr
                     return &itr2->second;
             }
             return NULL;
+        }
+
+        // Spell Difficulty data
+        uint32 GetSpellIdForDifficultyFromSpellid(uint32 spellId, Difficulty mapDiff)
+        {
+            /*SpellEntry const*  spell = sSpellStore.LookupEntry(spellId);
+            if (!spell)
+                return spellId;//CastSpell() will handle incorrect spells
+            */
+            uint32 mode = uint32(mapDiff);
+            if(mode >= MAX_DIFFICULTY)
+            {
+                sLog.outError("GetSpellIdForDifficultyFromSpellid: Incorrect Difficulty for spell %u.", spellId);
+                return spellId;//return source spell
+            }
+            uint32 SpellDiffId = GetSpellDifficultyId(spellId);
+            if(!SpellDiffId)
+            {
+                sLog.outDebug("GetSpellIdForDifficultyFromSpellid: Difficulty not found for spell %u.", spellId);
+                return spellId;//return source spell, it has only REGULAR_DIFFICULTY
+            }
+            SpellDifficultyEntry const *SpellDiff = sSpellDifficultyStore.LookupEntry(SpellDiffId);
+            if (!SpellDiff)
+            {
+                sLog.outDebug("GetSpellIdForDifficultyFromSpellid: SpellDifficultyEntry not found for spell %u. This Should never happen.", spellId);
+                return spellId;//return source spell
+            }
+            if(SpellDiff->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
+            {
+                uint8 baseMode = mode;
+                mode -= 2;
+                sLog.outDebug("GetSpellForDifficultyFromSpellid: spell %u mode %u spell is NULL, using mode %u", spellId, baseMode, mode);
+            }
+            if(SpellDiff->SpellID[mode] <= 0)
+            {
+                sLog.outErrorDb("GetSpellForDifficultyFromSpellid: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
+                return spellId;
+            }
+            sLog.outDebug("GetSpellForDifficultyFromSpellid: spellid for spell %u in %u mode is %u ", spellId, mode, uint32(SpellDiff->SpellID[mode]));
+            return uint32(SpellDiff->SpellID[mode]);
         }
 
         // Spell target coordinates
@@ -1271,6 +1313,8 @@ class SpellMgr
                         return false;
             return true;
         }
+        uint32 GetSpellDifficultyId(uint32 spellId) { return mSpellDifficultySearcherMap[spellId] ? mSpellDifficultySearcherMap[spellId] : 0; }
+        void SetSpellDifficultyId(uint32 spellId, uint32 id) { mSpellDifficultySearcherMap[spellId] = id; }
 
     const SpellsRequiringSpellMap GetSpellsRequiringSpell()
     {
@@ -1345,6 +1389,7 @@ class SpellMgr
         SpellAreaForQuestMap mSpellAreaForQuestEndMap;
         SpellAreaForAuraMap  mSpellAreaForAuraMap;
         SpellAreaForAreaMap  mSpellAreaForAreaMap;
+        SpellDifficultySearcherMap mSpellDifficultySearcherMap;
 };
 
 #define spellmgr SpellMgr::Instance()
