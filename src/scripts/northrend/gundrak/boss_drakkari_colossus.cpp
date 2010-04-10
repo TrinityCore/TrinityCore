@@ -267,13 +267,13 @@ struct npc_living_mojoAI : public ScriptedAI
 
         if (uiMojoWaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MOJO_WAVE, H_SPELL_MOJO_WAVE));
+            DoCast(m_creature->getVictim(), SPELL_MOJO_WAVE);
             uiMojoWaveTimer = 15*IN_MILISECONDS;
         } else uiMojoWaveTimer -= diff;
 
         if (uiMojoPuddleTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MOJO_PUDDLE, H_SPELL_MOJO_PUDDLE));
+            DoCast(m_creature->getVictim(), SPELL_MOJO_PUDDLE);
             uiMojoPuddleTimer = 18*IN_MILISECONDS;
         } else uiMojoPuddleTimer -= diff;
 

@@ -156,7 +156,7 @@ struct boss_tyrannusAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FORCEFUL_SMASH:
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FORCEFUL_SMASH, H_SPELL_FORCEFUL_SMASH));
+                    DoCast(m_creature->getVictim(), SPELL_FORCEFUL_SMASH);
                     events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
                     return;
                 case EVENT_OVERLORDS_BRAND:
@@ -167,7 +167,7 @@ struct boss_tyrannusAI : public ScriptedAI
                 case EVENT_DARK_MIGHT:
                     DoScriptText(SAY_DARK_MIGHT_1, m_creature);
                     DoScriptText(SAY_DARK_MIGHT_2, m_creature);
-                    DoCast(m_creature, DUNGEON_MODE(SPELL_DARK_MIGHT, H_SPELL_DARK_MIGHT));
+                    DoCast(m_creature, SPELL_DARK_MIGHT);
                     events.ScheduleEvent(EVENT_DARK_MIGHT, 60000);
                     return;
             }
@@ -235,12 +235,12 @@ struct boss_rimefangAI : public ScriptedAI
                     return;
                 case EVENT_ICY_BLAST:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_ICY_BLAST, H_SPELL_ICY_BLAST));
+                        DoCast(pTarget, SPELL_ICY_BLAST);
                     events.ScheduleEvent(EVENT_ICY_BLAST_2, 5000);
                     return;
                 case EVENT_ICY_BLAST_2:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget->getVictim(), DUNGEON_MODE(SPELL_ICY_BLAST_2, H_SPELL_ICY_BLAST_2));
+                        DoCast(pTarget->getVictim(), SPELL_ICY_BLAST_2);
                     events.ScheduleEvent(EVENT_ICY_BLAST, 30000);
                     return;
             }

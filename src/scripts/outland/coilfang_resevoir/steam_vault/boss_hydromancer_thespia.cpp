@@ -152,7 +152,7 @@ struct mob_coilfang_waterelementalAI : public ScriptedAI
 
         if (WaterBoltVolley_Timer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BOLT_VOLLEY, H_SPELL_WATER_BOLT_VOLLEY));
+            DoCast(m_creature, SPELL_WATER_BOLT_VOLLEY);
             WaterBoltVolley_Timer = 7000+rand()%5000;
         } else WaterBoltVolley_Timer -= diff;
 

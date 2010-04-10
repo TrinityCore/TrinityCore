@@ -164,13 +164,13 @@ struct boss_palehoofAI : public ScriptedAI
         if (uiImpaleTimer <= diff)
         {
           if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-              DoCast(pTarget, DUNGEON_MODE(SPELL_IMPALE, H_SPELL_IMPALE));
+              DoCast(pTarget, SPELL_IMPALE);
           uiImpaleTimer = urand(8000,12000);
         } else uiImpaleTimer -= diff;
 
         if (uiWhiteringRoarTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_WITHERING_ROAR, H_SPELL_WITHERING_ROAR));
+            DoCast(m_creature, SPELL_WITHERING_ROAR);
             uiWhiteringRoarTimer = urand(8000,12000);
         } else uiWhiteringRoarTimer -= diff;
 
@@ -290,7 +290,7 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
 
         if (uiChainLightingTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
+            DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTING);
             uiChainLightingTimer = 5000 + rand()%5000;
         } else uiChainLightingTimer -=  diff;
 
@@ -396,7 +396,7 @@ struct mob_frenzied_worgenAI : public ScriptedAI
 
         if (uiMortalWoundTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
+            DoCast(m_creature->getVictim(), SPELL_MORTAL_WOUND);
             uiMortalWoundTimer = 3000 + rand()%4000;
         } else uiMortalWoundTimer -= diff;
 
@@ -511,14 +511,14 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
 
         if (uiGoreTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_GORE, H_SPELL_GORE));
+            DoCast(m_creature->getVictim(), SPELL_GORE);
             uiGoreTimer = 13000 + rand()%4000;
         } else uiGoreTimer -= diff;
 
         if (uiGrievousWoundTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_GRIEVOUS_WOUND, H_SPELL_GRIEVOUS_WOUND));
+                DoCast(pTarget, SPELL_GRIEVOUS_WOUND);
             uiGrievousWoundTimer = 18000 + rand()%4000;
         } else uiGrievousWoundTimer -= diff;
 
@@ -625,14 +625,14 @@ struct mob_massive_jormungarAI : public ScriptedAI
 
         if (uiAcidSplatterTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_POISON_BREATH, H_SPELL_POISON_BREATH));
+            DoCast(m_creature, SPELL_POISON_BREATH);
             uiAcidSplatterTimer = 10000 + rand()%4000;
         } else uiAcidSplatterTimer -= diff;
 
         if (uiPoisonBreathTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_POISON_BREATH, H_SPELL_POISON_BREATH));
+                DoCast(pTarget, SPELL_POISON_BREATH);
             uiPoisonBreathTimer = 8000 + rand()%4000;
         } else uiPoisonBreathTimer -= diff;
 

@@ -281,7 +281,7 @@ struct boss_magus_telestraAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget, SPELL_ICE_NOVA, false, true);
+                DoCast(pTarget, SPELL_ICE_NOVA, false);
                 uiCooldown = 1.5*IN_MILISECONDS;
             }
             uiIceNovaTimer = 15*IN_MILISECONDS;
@@ -301,7 +301,7 @@ struct boss_magus_telestraAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                DoCast(pTarget, SPELL_FIREBOMB, false, true);
+                DoCast(pTarget, SPELL_FIREBOMB, false);
                 uiCooldown = 2*IN_MILISECONDS;
             }
             uiFireBombTimer = 2*IN_MILISECONDS;

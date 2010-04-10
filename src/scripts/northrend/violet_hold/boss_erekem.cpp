@@ -109,7 +109,7 @@ struct boss_erekemAI : public ScriptedAI
     void EnterCombat(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, DUNGEON_MODE(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
+        DoCast(m_creature, SPELL_EARTH_SHIELD);
 
         if (pInstance)
         {
@@ -150,7 +150,7 @@ struct boss_erekemAI : public ScriptedAI
 
         if (uiEarthShieldTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_EARTH_SHIELD, H_SPELL_EARTH_SHIELD));
+            DoCast(m_creature, SPELL_EARTH_SHIELD);
             uiEarthShieldTimer = 20000;
         } else uiEarthShieldTimer -= diff;
 
@@ -159,7 +159,7 @@ struct boss_erekemAI : public ScriptedAI
             if (uint64 TargetGUID = GetChainHealTargetGUID())
             {
                 if (Creature *pTarget = Unit::GetCreature(*m_creature, TargetGUID))
-                    DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_HEAL, H_SPELL_CHAIN_HEAL));
+                    DoCast(pTarget, SPELL_CHAIN_HEAL);
 
                 //If one of the adds is dead spawn heals faster
                 Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);

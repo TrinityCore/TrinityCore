@@ -292,7 +292,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
             if (uiSinsterStrikeTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SINSTER_STRIKE, H_SPELL_SINSTER_STRIKE));
+                DoCast(m_creature->getVictim(), SPELL_SINSTER_STRIKE);
                 uiSinsterStrikeTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
             } else uiSinsterStrikeTimer -= diff;
 

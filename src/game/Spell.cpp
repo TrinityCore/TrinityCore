@@ -371,7 +371,7 @@ void SpellCastTargets::write (WorldPacket * data)
 }
 
 Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck)
-: m_spellInfo(info), m_spellValue(new SpellValue(m_spellInfo))
+: m_spellInfo(spellmgr.GetSpellForDifficultyFromSpell(info, Caster)), m_spellValue(new SpellValue(m_spellInfo))
 , m_caster(Caster)
 {
     m_customAttr = spellmgr.GetSpellCustomAttr(m_spellInfo->Id);

@@ -169,7 +169,7 @@ struct boss_gal_darahAI : public ScriptedAI
 
                     if (uiWhirlingSlashTimer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_WHIRLING_SLASH, H_SPELL_WHIRLING_SLASH));
+                        DoCast(m_creature->getVictim(), SPELL_WHIRLING_SLASH);
                         uiWhirlingSlashTimer = 21*IN_MILISECONDS;
                         ++uiPhaseCounter;
                     } else uiWhirlingSlashTimer -= diff;
@@ -205,19 +205,19 @@ struct boss_gal_darahAI : public ScriptedAI
                 {
                     if (uiPunctureTimer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_PUNCTURE, H_SPELL_PUNCTURE));
+                        DoCast(m_creature->getVictim(), SPELL_PUNCTURE);
                         uiPunctureTimer = 8*IN_MILISECONDS;
                     } else uiPunctureTimer -= diff;
 
                     if (uiEnrageTimer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_ENRAGE, H_SPELL_ENRAGE));
+                        DoCast(m_creature->getVictim(), SPELL_ENRAGE);
                         uiEnrageTimer = 20*IN_MILISECONDS;
                     } else uiEnrageTimer -= diff;
 
                     if (uiStompTimer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_STOMP, H_SPELL_STOMP));
+                        DoCast(m_creature->getVictim(), SPELL_STOMP);
                         uiStompTimer = 20*IN_MILISECONDS;
                     } else uiStompTimer -= diff;
 
@@ -225,7 +225,7 @@ struct boss_gal_darahAI : public ScriptedAI
                     {
                         if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            DoCast(pTarget, DUNGEON_MODE(SPELL_IMPALING_CHARGE, H_SPELL_IMPALING_CHARGE));
+                            DoCast(pTarget, SPELL_IMPALING_CHARGE);
                             lImpaledPlayers.insert(pTarget->GetGUID());
                         }
                         uiImpalingChargeTimer = 31*IN_MILISECONDS;

@@ -97,19 +97,19 @@ struct boss_cyanigosaAI : public ScriptedAI
         if (uiBlizzardTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_BLIZZARD, H_SPELL_BLIZZARD));
+                DoCast(pTarget, SPELL_BLIZZARD);
             uiBlizzardTimer = 15000;
         } else uiBlizzardTimer -= diff;
 
         if (uiTailSweepTimer <= diff)
         {
-            DoCast(DUNGEON_MODE(SPELL_TAIL_SWEEP, H_SPELL_TAIL_SWEEP));
+            DoCast(SPELL_TAIL_SWEEP);
             uiTailSweepTimer = 20000;
         } else uiTailSweepTimer -= diff;
 
         if (uiUncontrollableEnergyTimer <= diff)
         {
-            DoCastVictim(DUNGEON_MODE(SPELL_UNCONTROLLABLE_ENERGY,H_SPELL_UNCONTROLLABLE_ENERGY));
+            DoCastVictim(SPELL_UNCONTROLLABLE_ENERGY);
             uiUncontrollableEnergyTimer = 25000;
         } else uiUncontrollableEnergyTimer -= diff;
 

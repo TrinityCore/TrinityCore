@@ -283,7 +283,7 @@ struct boss_felblood_kaelthasAI : public ScriptedAI
 
                 if (FireballTimer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FIREBALL_NORMAL, SPELL_FIREBALL_HEROIC));
+                    DoCast(m_creature->getVictim(), SPELL_FIREBALL_NORMAL);
                     FireballTimer = urand(2000,6000);
                 } else FireballTimer -= diff;
 
@@ -439,7 +439,7 @@ struct mob_felkael_flamestrikeAI : public ScriptedAI
     {
         if (FlameStrikeTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_FLAMESTRIKE1_NORMAL, SPELL_FLAMESTRIKE1_HEROIC), true);
+            DoCast(m_creature, SPELL_FLAMESTRIKE1_NORMAL, true);
             m_creature->Kill(m_creature);
         } else FlameStrikeTimer -= diff;
     }

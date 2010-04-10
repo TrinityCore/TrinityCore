@@ -74,7 +74,7 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
         DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(who, DUNGEON_MODE(SPELL_SUMMON_RAGIN_FLAMES, H_SPELL_SUMMON_RAGIN_FLAMES));
+        DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
         DoScriptText(SAY_SUMMON, m_creature);
     }
 
@@ -210,7 +210,7 @@ struct mob_ragin_flamesAI : public ScriptedAI
 
         if (inferno_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFERNO, H_SPELL_INFERNO));
+            DoCast(m_creature->getVictim(), SPELL_INFERNO);
             m_creature->TauntApply(m_creature->getVictim());
             inferno_Timer = 10000;
         } else inferno_Timer -= diff;

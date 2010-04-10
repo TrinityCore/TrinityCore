@@ -123,7 +123,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
         if (uiPlagueTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BROOD_PLAGUE, H_SPELL_BROOD_PLAGUE));
+            DoCast(m_creature->getVictim(), SPELL_BROOD_PLAGUE);
             uiPlagueTimer = 15*IN_MILISECONDS;
         } else uiPlagueTimer -= diff;
 

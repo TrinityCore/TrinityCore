@@ -105,7 +105,7 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         //Arcane Blast
         if (ArcaneBlast_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_ARCANE_BLAST, H_SPELL_ARCANE_BLAST));
+            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
             ArcaneBlast_Timer = 15000+rand()%10000;
         } else ArcaneBlast_Timer -= diff;
 
@@ -113,7 +113,7 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         if (ArcaneDischarge_Timer <= diff)
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_DISCHARGE, H_SPELL_ARCANE_DISCHARGE));
+            DoCast(pTarget, SPELL_ARCANE_DISCHARGE);
             ArcaneDischarge_Timer = 20000+rand()%10000;
         } else ArcaneDischarge_Timer -= diff;
 

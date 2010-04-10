@@ -231,7 +231,7 @@ struct boss_ionarAI : public ScriptedAI
         if (uiStaticOverloadTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_STATIC_OVERLOAD, H_SPELL_STATIC_OVERLOAD));
+                DoCast(pTarget, SPELL_STATIC_OVERLOAD);
 
             uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);
         }
@@ -240,7 +240,7 @@ struct boss_ionarAI : public ScriptedAI
 
         if (uiBallLightningTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BALL_LIGHTNING, H_SPELL_BALL_LIGHTNING));
+            DoCast(m_creature->getVictim(), SPELL_BALL_LIGHTNING);
             uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
         }
         else

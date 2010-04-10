@@ -103,7 +103,7 @@ struct boss_epochAI : public ScriptedAI
 
         if (uiWoundingStrikeTimer < diff)
         {
-            DoCastVictim(DUNGEON_MODE(SPELL_WOUNDING_STRIKE, H_SPELL_WOUNDING_STRIKE));
+            DoCastVictim(SPELL_WOUNDING_STRIKE);
             uiWoundingStrikeTimer = 5300;
         } else uiWoundingStrikeTimer -= diff;
 

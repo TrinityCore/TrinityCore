@@ -138,7 +138,7 @@ struct boss_drakosAI : public ScriptedAI
         if (uiStompTimer < diff)
         {
             DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2,SAY_STOMP_3), m_creature);
-            DoCast(DUNGEON_MODE(SPELL_THUNDERING_STOMP, SPELL_THUNDERING_STOMP_H));
+            DoCast(SPELL_THUNDERING_STOMP);
             uiStompTimer = urand(15*IN_MILISECONDS, 18*IN_MILISECONDS);
         } else uiStompTimer -= diff ;
 

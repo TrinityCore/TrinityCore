@@ -206,7 +206,7 @@ struct boss_ichoronAI : public ScriptedAI
         if (!bIsFrenzy && HealthBelowPct(25) && !bIsExploded)
         {
             DoScriptText(SAY_ENRAGE, m_creature);
-            DoCast(m_creature, DUNGEON_MODE(SPELL_FRENZY, SPELL_FRENZY_H), true);
+            DoCast(m_creature, SPELL_FRENZY, true);
             bIsFrenzy = true;
         }
 
@@ -219,7 +219,7 @@ struct boss_ichoronAI : public ScriptedAI
                     if (!m_creature->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                     {
                         DoScriptText(SAY_SHATTER, m_creature);
-                        DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BLAST, SPELL_WATER_BLAST_H));
+                        DoCast(m_creature, SPELL_WATER_BLAST);
                         DoCast(m_creature, SPELL_DRAINED);
                         bIsExploded = true;
                         m_creature->AttackStop();
@@ -257,7 +257,7 @@ struct boss_ichoronAI : public ScriptedAI
         {
             if (uiWaterBoltVolleyTimer <= uiDiff)
             {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_WATER_BOLT_VOLLEY, SPELL_WATER_BOLT_VOLLEY_H));
+                DoCast(m_creature, SPELL_WATER_BOLT_VOLLEY);
                 uiWaterBoltVolleyTimer = urand(10000, 15000);
             }
             else uiWaterBoltVolleyTimer -= uiDiff;

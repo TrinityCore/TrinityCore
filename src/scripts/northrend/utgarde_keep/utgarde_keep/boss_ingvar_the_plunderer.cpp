@@ -198,7 +198,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
             if (!m_creature->hasUnitState(UNIT_STAT_CASTING))
             {
                 if (bIsUndead)
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_WOE_STRIKE, H_SPELL_WOE_STRIKE));
+                    DoCast(m_creature->getVictim(), SPELL_WOE_STRIKE);
                 else
                     DoCast(m_creature->getVictim(), SPELL_CLEAVE);
                 uiCleaveTimer = rand()%5000 + 2000;
@@ -212,7 +212,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
                 if (bIsUndead)
                     DoCast(m_creature->getVictim(), SPELL_DARK_SMASH);
                 else
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SMASH, H_SPELL_SMASH));
+                    DoCast(m_creature->getVictim(), SPELL_SMASH);
                 uiSmashTimer = 10000;
             }
         } else uiSmashTimer -= diff;
@@ -221,7 +221,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
         {
             if (uiEnrageTimer <= diff)
             {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_ENRAGE, H_SPELL_ENRAGE));
+                DoCast(m_creature, SPELL_ENRAGE);
                 uiEnrageTimer = 10000;
             } else uiEnrageTimer -= diff;
         } else // In Undead form used to summon weapon
@@ -248,9 +248,9 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
             if (!m_creature->hasUnitState(UNIT_STAT_CASTING))
             {
                 if (bIsUndead)
-                    DoCast(m_creature, DUNGEON_MODE(SPELL_DREADFUL_ROAR, H_SPELL_DREADFUL_ROAR));
+                    DoCast(m_creature, SPELL_DREADFUL_ROAR);
                 else
-                    DoCast(m_creature, DUNGEON_MODE(SPELL_STAGGERING_ROAR, H_SPELL_STAGGERING_ROAR));
+                    DoCast(m_creature, SPELL_STAGGERING_ROAR);
                 uiRoarTimer = 10000;
             }
         } else uiRoarTimer -= diff;
@@ -395,7 +395,7 @@ struct mob_ingvar_throw_dummyAI : public ScriptedAI
         Unit *pTarget = m_creature->FindNearestCreature(ENTRY_THROW_TARGET,50);
         if (pTarget)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_SHADOW_AXE_DAMAGE, H_SPELL_SHADOW_AXE_DAMAGE));
+            DoCast(m_creature, SPELL_SHADOW_AXE_DAMAGE);
             float x,y,z;
             pTarget->GetPosition(x,y,z);
             m_creature->GetMotionMaster()->MovePoint(0,x,y,z);

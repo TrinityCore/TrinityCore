@@ -116,19 +116,19 @@ struct boss_tharon_jaAI : public ScriptedAI
                 if (uiCurseOfLifeTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_CURSE_OF_LIFE, H_SPELL_CURSE_OF_LIFE));
+                        DoCast(pTarget, SPELL_CURSE_OF_LIFE);
                     uiCurseOfLifeTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
                 } else uiCurseOfLifeTimer -= diff;
 
                 if (uiShadowVolleyTimer < diff)
                 {
-                    DoCastVictim(DUNGEON_MODE(SPELL_SHADOW_VOLLEY,H_SPELL_SHADOW_VOLLEY));
+                    DoCastVictim(SPELL_SHADOW_VOLLEY);
                     uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
                 } else uiShadowVolleyTimer -= diff;
 
                 if (uiRainOfFireTimer < diff)
                 {
-                    DoCastAOE(DUNGEON_MODE(SPELL_RAIN_OF_FIRE,H_SPELL_RAIN_OF_FIRE));
+                    DoCastAOE(SPELL_RAIN_OF_FIRE);
                     uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
                 } else uiRainOfFireTimer -= diff;
 
@@ -167,20 +167,20 @@ struct boss_tharon_jaAI : public ScriptedAI
                 if (uiLightningBreathTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_LIGHTNING_BREATH, H_SPELL_LIGHTNING_BREATH));
+                        DoCast(pTarget, SPELL_LIGHTNING_BREATH);
                     uiLightningBreathTimer = urand(6*IN_MILISECONDS,7*IN_MILISECONDS);
                 } else uiLightningBreathTimer -= diff;
 
                 if (uiEyeBeamTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_EYE_BEAM, H_SPELL_EYE_BEAM));
+                        DoCast(pTarget, SPELL_EYE_BEAM);
                     uiEyeBeamTimer = urand(4*IN_MILISECONDS,6*IN_MILISECONDS);
                 } else uiEyeBeamTimer -= diff;
 
                 if (uiPoisonCloudTimer < diff)
                 {
-                    DoCastAOE(DUNGEON_MODE(SPELL_POISON_CLOUD, H_SPELL_POISON_CLOUD));
+                    DoCastAOE(SPELL_POISON_CLOUD);
                     uiPoisonCloudTimer = urand(10*IN_MILISECONDS,12*IN_MILISECONDS);
                 } else uiPoisonCloudTimer -= diff;
 
