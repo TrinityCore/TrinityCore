@@ -88,9 +88,9 @@ enum eKaya
     NPC_GRIMTOTEM_BRUTE         = 11912,
     NPC_GRIMTOTEM_SORCERER      = 11913,
 
-    SAY_START                   = -1000347,
-    SAY_AMBUSH                  = -1000348,
-    SAY_END                     = -1000349,
+    SAY_START                   = -1000357,
+    SAY_AMBUSH                  = -1000358,
+    SAY_END                     = -1000359,
 
     QUEST_PROTECT_KAYA          = 6523
 };

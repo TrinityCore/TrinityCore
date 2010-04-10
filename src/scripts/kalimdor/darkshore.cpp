@@ -174,19 +174,19 @@ bool QuestAccept_npc_kerlonian(Player* pPlayer, Creature* pCreature, const Quest
 
 enum eRemtravel
 {
-    SAY_REM_START               = -1000415, // signed for 4966
-    SAY_REM_AGGRO               = -1000427, // signed for 9999
-    SAY_REM_RAMP1_1             = -1000416, // signed for 9999
-    SAY_REM_RAMP1_2             = -1000417, // signed for 9999
-    SAY_REM_BOOK                = -1000418, // signed for 9999
-    SAY_REM_TENT1_1             = -1000419, // signed for 9999
-    SAY_REM_TENT1_2             = -1000420, // signed for 9999
-    SAY_REM_MOSS                = -1000421, // signed for 9999
-    EMOTE_REM_MOSS              = -1000422, // signed for 9999
-    SAY_REM_MOSS_PROGRESS       = -1000423, // signed for 9999
-    SAY_REM_PROGRESS            = -1000424, // signed for 9999
-    SAY_REM_REMEMBER            = -1000425, // signed for 9999
-    EMOTE_REM_END               = -1000426, // signed for 9999
+    SAY_REM_START               = -1000327,
+    SAY_REM_AGGRO               = -1000328,
+    SAY_REM_RAMP1_1             = -1000329,
+    SAY_REM_RAMP1_2             = -1000330,
+    SAY_REM_BOOK                = -1000331,
+    SAY_REM_TENT1_1             = -1000332,
+    SAY_REM_TENT1_2             = -1000333,
+    SAY_REM_MOSS                = -1000334,
+    EMOTE_REM_MOSS              = -1000335,
+    SAY_REM_MOSS_PROGRESS       = -1000336,
+    SAY_REM_PROGRESS            = -1000337,
+    SAY_REM_REMEMBER            = -1000338,
+    EMOTE_REM_END               = -1000339,
 
     FACTION_ESCORTEE            = 10,
     QUEST_ABSENT_MINDED_PT2     = 731,

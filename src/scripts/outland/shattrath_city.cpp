@@ -252,28 +252,28 @@ bool GossipSelect_npc_zephyr(Player* pPlayer, Creature* pCreature, uint32 uiSend
 # npc_kservant
 ######*/
 
-#define SAY1       -1000306
-#define WHISP1     -1000307
-#define WHISP2     -1000308
-#define WHISP3     -1000309
-#define WHISP4     -1000310
-#define WHISP5     -1000311
-#define WHISP6     -1000312
-#define WHISP7     -1000313
-#define WHISP8     -1000314
-#define WHISP9     -1000315
-#define WHISP10    -1000316
-#define WHISP11    -1000317
-#define WHISP12    -1000318
-#define WHISP13    -1000319
-#define WHISP14    -1000320
-#define WHISP15    -1000321
-#define WHISP16    -1000322
-#define WHISP17    -1000323
-#define WHISP18    -1000324
-#define WHISP19    -1000325
-#define WHISP20    -1000326
-#define WHISP21    -1000327
+#define SAY1       -1000234
+#define WHISP1     -1000235
+#define WHISP2     -1000236
+#define WHISP3     -1000237
+#define WHISP4     -1000238
+#define WHISP5     -1000239
+#define WHISP6     -1000240
+#define WHISP7     -1000241
+#define WHISP8     -1000242
+#define WHISP9     -1000243
+#define WHISP10    -1000244
+#define WHISP11    -1000245
+#define WHISP12    -1000246
+#define WHISP13    -1000247
+#define WHISP14    -1000248
+#define WHISP15    -1000249
+#define WHISP16    -1000250
+#define WHISP17    -1000251
+#define WHISP18    -1000252
+#define WHISP19    -1000253
+#define WHISP20    -1000254
+#define WHISP21    -1000255
 
 struct npc_kservantAI : public npc_escortAI
 {
@@ -348,12 +348,12 @@ CreatureAI* GetAI_npc_kservantAI(Creature* pCreature)
 
 #define GOSSIP_BOOK "Ezekiel said that you might have a certain book..."
 
-#define SAY_1       -1000328
-#define SAY_2       -1000329
-#define SAY_3       -1000330
-#define SAY_4       -1000331
-#define SAY_5       -1000332
-#define SAY_GIVEUP  -1000333
+#define SAY_1       -1000274
+#define SAY_2       -1000275
+#define SAY_3       -1000276
+#define SAY_4       -1000277
+#define SAY_5       -1000278
+#define SAY_GIVEUP  -1000279
 
 #define QUEST_WBI       10231
 #define NPC_CREEPJACK   19726
