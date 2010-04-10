@@ -216,7 +216,7 @@ struct boss_anub_arakAI : public ScriptedAI
 
             if (uiPoundTimer <= diff)
             {
-                 DoCastVictim(DUNGEON_MODE(SPELL_POUND, H_SPELL_POUND));
+                 DoCastVictim(SPELL_POUND);
                  uiPoundTimer = 16.5*IN_MILISECONDS;
             } else uiPoundTimer -= diff;
         }

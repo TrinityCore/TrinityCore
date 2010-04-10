@@ -303,7 +303,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
 
             if (uiCycloneTimer <= diff)
             {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_CYCLONE_STRIKE, SPELL_CYCLONE_STRIKE_H), false);
+                DoCast(m_creature, SPELL_CYCLONE_STRIKE, false);
                 uiCycloneTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
             } else uiCycloneTimer -= diff;
 

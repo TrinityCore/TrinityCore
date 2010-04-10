@@ -223,12 +223,12 @@ struct boss_ickAI : public ScriptedAI
                     DoScriptText(SAY_KRICK_POISON_NOVA, pKrick);
 
                 DoScriptText(SAY_ICK_POISON_NOVA, m_creature);
-                DoCastAOE(DUNGEON_MODE(SPELL_POISON_NOVA,H_SPELL_POISON_NOVA));
+                DoCastAOE(SPELL_POISON_NOVA);
                 events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
                 return;
 
             case EVENT_TOXIC_WASTE:
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_TOXIC_WASTE,H_SPELL_TOXIC_WASTE));
+                DoCast(m_creature->getVictim(), SPELL_TOXIC_WASTE);
                 events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
                 return;
 

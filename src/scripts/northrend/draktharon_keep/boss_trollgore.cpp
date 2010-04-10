@@ -119,7 +119,7 @@ struct boss_trollgoreAI : public ScriptedAI
         if (uiConsumeTimer <= diff)
         {
             DoScriptText(SAY_CONSUME, m_creature);
-            DoCast(DUNGEON_MODE(SPELL_CONSUME, H_SPELL_CONSUME));
+            DoCast(SPELL_CONSUME);
             uiConsumeTimer = 15*IN_MILISECONDS;
         } else uiConsumeTimer -= diff;
 
@@ -144,7 +144,7 @@ struct boss_trollgoreAI : public ScriptedAI
 
         if (uiExplodeCorpseTimer <= diff)
         {
-            DoCast(DUNGEON_MODE(SPELL_CORPSE_EXPLODE, H_SPELL_CORPSE_EXPLODE));
+            DoCast(SPELL_CORPSE_EXPLODE);
             DoScriptText(SAY_EXPLODE, m_creature);
             uiExplodeCorpseTimer = urand(15*IN_MILISECONDS,19*IN_MILISECONDS);
         } else uiExplodeCorpseTimer -= diff;

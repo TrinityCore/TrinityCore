@@ -218,13 +218,13 @@ struct boss_ymironAI : public ScriptedAI
             // Normal spells ------------------------------------------------------------------------
             if (m_uiBane_Timer <= diff)
             {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_BANE, H_SPELL_BANE));
+                DoCast(m_creature, SPELL_BANE);
                 m_uiBane_Timer = urand(20000,25000);
             } else m_uiBane_Timer -= diff;
 
             if (m_uiFetidRot_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FETID_ROT, H_SPELL_FETID_ROT));
+                DoCast(m_creature->getVictim(), SPELL_FETID_ROT);
                 m_uiFetidRot_Timer = urand(10000,15000);
             } else m_uiFetidRot_Timer -= diff;
 
@@ -259,13 +259,13 @@ struct boss_ymironAI : public ScriptedAI
 
             if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SPIRIT_STRIKE, H_SPELL_SPIRIT_STRIKE));
+                DoCast(m_creature->getVictim(), SPELL_SPIRIT_STRIKE);
                 m_uiAbility_HALDOR_Timer = 5000; // overtime
             } else m_uiAbility_HALDOR_Timer -= diff;
 
             if (m_bIsActiveWithRANULF && m_uiAbility_RANULF_Timer <= diff)
             {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_SPIRIT_BURST, H_SPELL_SPIRIT_BURST));
+                DoCast(m_creature, SPELL_SPIRIT_BURST);
                 m_uiAbility_RANULF_Timer = 10000; // overtime
             } else m_uiAbility_RANULF_Timer -= diff;
 

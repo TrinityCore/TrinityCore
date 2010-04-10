@@ -134,19 +134,19 @@ struct boss_sjonnirAI : public ScriptedAI
         if (uiChainLightningTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_LIGHTING, H_SPELL_CHAIN_LIGHTING));
+                DoCast(pTarget, SPELL_CHAIN_LIGHTING);
             uiChainLightningTimer = 10000 + rand()%5000;
         } else uiChainLightningTimer -= diff;
 
         if (uiLightningShieldTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_LIGHTING_SHIELD, H_SPELL_LIGHTING_SHIELD));
+            DoCast(m_creature, SPELL_LIGHTING_SHIELD);
             uiLightningShieldTimer -= diff;
         }
 
         if (uiStaticChargeTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_STATIC_CHARGE, H_SPELL_STATIC_CHARGE));
+            DoCast(m_creature->getVictim(), SPELL_STATIC_CHARGE);
             uiStaticChargeTimer = 20000 + rand()%5000;
         } uiStaticChargeTimer -= diff;
 
@@ -154,7 +154,7 @@ struct boss_sjonnirAI : public ScriptedAI
         {
             if (m_creature->IsNonMeleeSpellCasted(false))
                 m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, DUNGEON_MODE(SPELL_LIGHTING_RING, H_SPELL_LIGHTING_RING));
+            DoCast(m_creature, SPELL_LIGHTING_RING);
             uiLightningRingTimer = 30000 + rand()%5000;
         } else uiLightningRingTimer -= diff;
 

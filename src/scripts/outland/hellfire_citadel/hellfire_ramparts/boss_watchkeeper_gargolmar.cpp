@@ -104,7 +104,7 @@ struct boss_watchkeeper_gargolmarAI : public ScriptedAI
 
         if (MortalWound_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MORTAL_WOUND, H_SPELL_MORTAL_WOUND));
+            DoCast(m_creature->getVictim(), SPELL_MORTAL_WOUND);
             MortalWound_Timer = 5000+rand()%8000;
         } else MortalWound_Timer -= diff;
 

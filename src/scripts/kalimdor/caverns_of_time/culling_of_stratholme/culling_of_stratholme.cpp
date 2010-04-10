@@ -1092,7 +1092,7 @@ struct npc_arthasAI : public npc_escortAI
         if (uiExorcismTimer < diff)
         {
             if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(target, DUNGEON_MODE(SPELL_EXORCISM_N, SPELL_EXORCISM_H));
+                DoCast(target, SPELL_EXORCISM_N);
             uiExorcismTimer = 7300;
         } else uiExorcismTimer -= diff;
 

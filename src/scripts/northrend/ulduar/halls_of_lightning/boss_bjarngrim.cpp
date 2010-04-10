@@ -394,7 +394,7 @@ struct mob_stormforged_lieutenantAI : public ScriptedAI
                 if (Creature* pBjarngrim = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->isAlive())
-                        DoCast(pBjarngrim, DUNGEON_MODE(SPELL_RENEW_STEEL_N, SPELL_RENEW_STEEL_H));
+                        DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
                 }
             }
             m_uiRenewSteel_Timer = 10000 + rand()%4000;

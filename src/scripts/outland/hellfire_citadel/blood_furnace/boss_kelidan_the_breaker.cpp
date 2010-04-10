@@ -201,7 +201,7 @@ struct boss_kelidan_the_breakerAI : public ScriptedAI
         {
             if (Firenova_Timer <= diff)
             {
-                DoCast(m_creature, DUNGEON_MODE(SPELL_FIRE_NOVA, H_SPELL_FIRE_NOVA), true);
+                DoCast(m_creature, SPELL_FIRE_NOVA, true);
                 Firenova = false;
                 ShadowVolley_Timer = 2000;
             } else Firenova_Timer -=diff;
@@ -211,7 +211,7 @@ struct boss_kelidan_the_breakerAI : public ScriptedAI
 
         if (ShadowVolley_Timer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
+            DoCast(m_creature, SPELL_SHADOW_BOLT_VOLLEY);
             ShadowVolley_Timer = 5000+rand()%8000;
         } else ShadowVolley_Timer -=diff;
 
@@ -326,7 +326,7 @@ struct mob_shadowmoon_channelerAI : public ScriptedAI
 
         if (ShadowBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+            DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT);
             ShadowBolt_Timer = 5000+rand()%1000;
         } else ShadowBolt_Timer -=diff;
 

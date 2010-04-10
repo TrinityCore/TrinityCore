@@ -105,7 +105,7 @@ struct boss_garfrostAI : public ScriptedAI
             phase2 = true;
             DoCast(m_creature, SPELL_THUNDERING_STOMP);
             // TODO: should go to a forge
-            DoCast(m_creature, DUNGEON_MODE(SPELL_FORGE_BLADE, H_SPELL_FORGE_BLADE));
+            DoCast(m_creature, SPELL_FORGE_BLADE);
             // TODO: should equip when spell completes
             SetEquipmentSlots(false, EQUIP_ID_SWORD, -1, -1);
             m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
@@ -117,7 +117,7 @@ struct boss_garfrostAI : public ScriptedAI
             phase3 = true;
             DoCast(m_creature, SPELL_THUNDERING_STOMP);
             // TODO: should go to a forge
-            DoCast(m_creature, DUNGEON_MODE(SPELL_FORGE_MACE, H_SPELL_FORGE_MACE));
+            DoCast(m_creature, SPELL_FORGE_MACE);
             // TODO: should equip when spell completes
             SetEquipmentSlots(false, EQUIP_ID_MACE, -1, -1);
             m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
@@ -180,11 +180,11 @@ struct boss_garfrostAI : public ScriptedAI
                     return;
                 case EVENT_DEEPFREEZE:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_DEEP_FREEZE, H_SPELL_DEEP_FREEZE));
+                        DoCast(pTarget, SPELL_DEEP_FREEZE);
                     events.RescheduleEvent(EVENT_DEEPFREEZE, 35000);
                     return;
                 case EVENT_CHILLINGWAVE:
-                    DoCastAOE(DUNGEON_MODE(SPELL_CHILLING_WAVE, H_SPELL_CHILLING_WAVE));
+                    DoCastAOE(SPELL_CHILLING_WAVE);
                     events.RescheduleEvent(EVENT_CHILLINGWAVE, 40000);
                     return;
             }

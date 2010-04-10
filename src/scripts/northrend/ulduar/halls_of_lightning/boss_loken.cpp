@@ -175,7 +175,7 @@ struct boss_lokenAI : public ScriptedAI
                 //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
                 DoCast(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
-                DoCast(m_creature, DUNGEON_MODE(SPELL_PULSING_SHOCKWAVE_N, SPELL_PULSING_SHOCKWAVE_H)); // need core support
+                DoCast(m_creature, SPELL_PULSING_SHOCKWAVE_N); // need core support
                 m_bIsAura = true;
                 m_uiResumePulsingShockwave_Timer = 0;
             }
@@ -197,7 +197,7 @@ struct boss_lokenAI : public ScriptedAI
         {
             DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), m_creature);
             DoScriptText(EMOTE_NOVA, m_creature);
-            DoCast(m_creature, DUNGEON_MODE(SPELL_LIGHTNING_NOVA_N, SPELL_LIGHTNING_NOVA_H));
+            DoCast(m_creature, SPELL_LIGHTNING_NOVA_N);
 
             m_bIsAura = false;
             m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura

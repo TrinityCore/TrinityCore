@@ -159,14 +159,14 @@ struct boss_mal_ganisAI : public ScriptedAI
 
                 if (uiCarrionSwarmTimer < diff)
                 {
-                    DoCastVictim(DUNGEON_MODE(SPELL_CARRION_SWARM,H_SPELL_CARRION_SWARM));
+                    DoCastVictim(SPELL_CARRION_SWARM);
                     uiCarrionSwarmTimer = 7000;
                 } else uiCarrionSwarmTimer -= diff;
 
                 if (uiMindBlastTimer < diff)
                 {
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_MIND_BLAST, H_SPELL_MIND_BLAST));
+                        DoCast(pTarget, SPELL_MIND_BLAST);
                     uiMindBlastTimer = 6000;
                 } else uiMindBlastTimer -= diff;
 
@@ -180,7 +180,7 @@ struct boss_mal_ganisAI : public ScriptedAI
                 {
                     DoScriptText(RAND(SAY_SLEEP_1,SAY_SLEEP_2), m_creature);
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_SLEEP, H_SPELL_SLEEP));
+                        DoCast(pTarget, SPELL_SLEEP);
                     uiSleepTimer = urand(15000,20000);
                 } else uiSleepTimer -= diff;
 

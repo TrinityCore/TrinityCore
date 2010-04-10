@@ -120,7 +120,7 @@ struct boss_moorabiAI : public ScriptedAI
         if (uiDeterminedStabTimer <= uiDiff)
         {
             if (bPhase)
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_DETERMINED_GORE, H_SPELL_DETERMINED_GORE));
+                DoCast(m_creature->getVictim(), SPELL_DETERMINED_GORE);
             else
                 DoCast(m_creature->getVictim(), SPELL_DETERMINED_STAB, true);
             uiDeterminedStabTimer = 8*IN_MILISECONDS;

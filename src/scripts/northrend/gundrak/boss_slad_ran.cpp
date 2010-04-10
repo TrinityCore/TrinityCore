@@ -114,19 +114,19 @@ struct boss_slad_ranAI : public ScriptedAI
 
         if (uiPoisonNovaTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_POISON_NOVA, H_SPELL_POISON_NOVA));
+            DoCast(m_creature->getVictim(), SPELL_POISON_NOVA);
             uiPoisonNovaTimer = 15*IN_MILISECONDS;
         } else uiPoisonNovaTimer -= diff;
 
         if (uiPowerfullBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_POWERFULL_BITE, H_SPELL_POWERFULL_BITE));
+            DoCast(m_creature->getVictim(), SPELL_POWERFULL_BITE);
             uiPowerfullBiteTimer = 10*IN_MILISECONDS;
         } else uiPowerfullBiteTimer -= diff;
 
         if (uiVenomBoltTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_VENOM_BOLT, H_SPELL_VENOM_BOLT));
+            DoCast(m_creature->getVictim(), SPELL_VENOM_BOLT);
             uiVenomBoltTimer = 10*IN_MILISECONDS;
         } else uiVenomBoltTimer -= diff;
 
@@ -224,7 +224,7 @@ struct mob_slad_ran_viperAI : public ScriptedAI
 
         if (uiVenomousBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_VENOMOUS_BITE, H_SPELL_VENOMOUS_BITE));
+            DoCast(m_creature->getVictim(), SPELL_VENOMOUS_BITE);
             uiVenomousBiteTimer = 10*IN_MILISECONDS;
         } else uiVenomousBiteTimer -= diff;
     }

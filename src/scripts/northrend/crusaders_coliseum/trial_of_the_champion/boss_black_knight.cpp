@@ -170,17 +170,17 @@ struct boss_black_knightAI : public ScriptedAI
             {
                 if (uiIcyTouchTimer <= uiDiff)
                 {
-                    DoCastVictim(DUNGEON_MODE(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
+                    DoCastVictim(SPELL_ICY_TOUCH);
                     uiIcyTouchTimer = urand(5000,7000);
                 } else uiIcyTouchTimer -= uiDiff;
                 if (uiPlagueStrikeTimer <= uiDiff)
                 {
-                    DoCastVictim(DUNGEON_MODE(SPELL_ICY_TOUCH,SPELL_ICY_TOUCH_H));
+                    DoCastVictim(SPELL_ICY_TOUCH);
                     uiPlagueStrikeTimer = urand(12000,15000);
                 } else uiPlagueStrikeTimer -= uiDiff;
                 if (uiObliterateTimer <= uiDiff)
                 {
-                    DoCastVictim(DUNGEON_MODE(SPELL_OBLITERATE,SPELL_OBLITERATE_H));
+                    DoCastVictim(SPELL_OBLITERATE);
                     uiObliterateTimer = urand(17000,19000);
                 } else uiObliterateTimer -= uiDiff;
                 switch(uiPhase)
@@ -237,7 +237,7 @@ struct boss_black_knightAI : public ScriptedAI
             {
                 if (uiDeathBiteTimer <= uiDiff)
                 {
-                    DoCastAOE(DUNGEON_MODE(SPELL_DEATH_BITE,SPELL_DEATH_BITE_H));
+                    DoCastAOE(SPELL_DEATH_BITE);
                     uiDeathBiteTimer = urand (2000, 4000);
                 } else uiDeathBiteTimer -= uiDiff;
                 if (uiMarkedDeathTimer <= uiDiff)
@@ -311,7 +311,7 @@ struct npc_risen_ghoulAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
             {
                 if (pTarget && pTarget->isAlive())
-                DoCast(pTarget, (DUNGEON_MODE(SPELL_LEAP,SPELL_LEAP_H)));
+                DoCast(pTarget, (SPELL_LEAP));
             }
             uiAttackTimer = 3500;
         } else uiAttackTimer -= uiDiff;

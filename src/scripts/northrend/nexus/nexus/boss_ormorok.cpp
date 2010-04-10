@@ -139,7 +139,7 @@ struct boss_ormorokAI : public ScriptedAI
 
         if (uiTrampleTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_TRAMPLE, H_SPELL_TRAMPLE));
+            DoCast(m_creature, SPELL_TRAMPLE);
             uiTrampleTimer = 10*IN_MILISECONDS;
         } else uiTrampleTimer -= diff;
 
@@ -232,7 +232,7 @@ struct mob_crystal_spikeAI : public Scripted_NoMovementAI
 
         if (SpellCrystalSpikeDamageTimer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_CRYSTALL_SPIKE_DAMAGE, H_SPELL_CRYSTALL_SPIKE_DAMAGE));
+            DoCast(m_creature, SPELL_CRYSTALL_SPIKE_DAMAGE);
             SpellCrystalSpikeDamageTimer = 10*IN_MILISECONDS;
         } else SpellCrystalSpikeDamageTimer -= diff;
     }

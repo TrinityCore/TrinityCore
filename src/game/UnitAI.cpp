@@ -193,12 +193,8 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         return;
 }
 
-void UnitAI::DoCast(uint32 spellId, bool useMode)
-{
-    //search for instance mode spell
-    if(useMode && me->ToCreature())
-        spellId = me->ToCreature()->GetSpellIdForDifficulty(spellId);
-
+void UnitAI::DoCast(uint32 spellId)
+{    
     Unit *target = NULL;
     //sLog.outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
     switch(AISpellInfo[spellId].target)

@@ -340,7 +340,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         {
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
                 ShadowBolt_Timer = 2100;//give a 100ms pause to try cast other spells
             }
         } else ShadowBolt_Timer -= diff;

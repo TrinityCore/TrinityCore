@@ -119,7 +119,7 @@ struct boss_temporusAI : public ScriptedAI
         //Wing ruffet
         if (WingBuffet_Timer <= diff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_WING_BUFFET, H_SPELL_WING_BUFFET));
+            DoCast(m_creature, SPELL_WING_BUFFET);
             WingBuffet_Timer = 20000+rand()%10000;
         } else WingBuffet_Timer -= diff;
 

@@ -109,7 +109,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
 
         if (StormOfGriefTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_STORM_OF_GRIEF_N, SPELL_STORM_OF_GRIEF_H), true);
+            DoCast(m_creature->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
             StormOfGriefTimer = 15000 + rand()%5000;
         } else StormOfGriefTimer -= diff;
 
@@ -117,7 +117,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
         {
             DoResetThreat();
             DoScriptText(SAY_STUN, m_creature);
-            DoCast(m_creature, DUNGEON_MODE(SPELL_SHOCK_OF_SORROW_N, SPELL_SHOCK_OF_SORROW_H));
+            DoCast(m_creature, SPELL_SHOCK_OF_SORROW_N);
             ShockOfSorrowTimer = 20000 + rand()%10000;
         } else ShockOfSorrowTimer -= diff;
 
@@ -126,9 +126,9 @@ struct boss_maiden_of_griefAI : public ScriptedAI
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
             if (pTarget)
-                DoCast(pTarget, DUNGEON_MODE(SPELL_PILLAR_OF_WOE_N, SPELL_PILLAR_OF_WOE_H));
+                DoCast(pTarget, SPELL_PILLAR_OF_WOE_N);
             else
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_PILLAR_OF_WOE_N, SPELL_PILLAR_OF_WOE_H));
+                DoCast(m_creature->getVictim(), SPELL_PILLAR_OF_WOE_N);
 
             PillarOfWoeTimer = 5000 + rand()%20000;
         } else PillarOfWoeTimer -= diff;

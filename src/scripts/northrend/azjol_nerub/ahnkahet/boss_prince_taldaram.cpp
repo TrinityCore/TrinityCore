@@ -176,7 +176,7 @@ struct boss_taldaramAI : public ScriptedAI
                     break;
                 case VANISHED:
                     if (Unit *pEmbraceTarget = GetEmbraceTarget())
-                        DoCast(pEmbraceTarget, DUNGEON_MODE(SPELL_EMBRACE_OF_THE_VAMPYR, H_SPELL_EMBRACE_OF_THE_VAMPYR));
+                        DoCast(pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
                     m_creature->GetMotionMaster()->Clear();
                     m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
                     m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
@@ -338,7 +338,7 @@ struct mob_taldaram_flamesphereAI : public ScriptedAI
         m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
         DoCast(m_creature, SPELL_FLAME_SPHERE_VISUAL);
         DoCast(m_creature, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-        DoCast(m_creature, DUNGEON_MODE(SPELL_FLAME_SPHERE_PERIODIC, H_SPELL_FLAME_SPHERE_PERIODIC));
+        DoCast(m_creature, SPELL_FLAME_SPHERE_PERIODIC);
         uiDespawnTimer = 10*IN_MILISECONDS;
     }
 
