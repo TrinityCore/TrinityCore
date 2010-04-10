@@ -61,19 +61,19 @@ enum Mobs
 
 enum Yells
 {
-    SAY_AGGRO                                     = -1601000,
-    SAY_SLAY_1                                    = -1601001,
-    SAY_SLAY_2                                    = -1601002,
-    SAY_DEATH                                     = -1601003,
+    SAY_AGGRO                                     = -1601011,
+    SAY_SLAY_1                                    = -1601012,
+    SAY_SLAY_2                                    = -1601013,
+    SAY_DEATH                                     = -1601014,
     //Not in db
-    SAY_SEND_GROUP_1                              = -1601004,
-    SAY_SEND_GROUP_2                              = -1601005,
-    SAY_SEND_GROUP_3                              = -1601006,
-    SAY_SWARM_1                                   = -1601007,
-    SAY_SWARM_2                                   = -1601008,
-    SAY_PREFIGHT_1                                = -1601009,
-    SAY_PREFIGHT_2                                = -1601010,
-    SAY_PREFIGHT_3                                = -1601011
+    SAY_SEND_GROUP_1                              = -1601020,
+    SAY_SEND_GROUP_2                              = -1601021,
+    SAY_SEND_GROUP_3                              = -1601022,
+    SAY_SWARM_1                                   = -1601015,
+    SAY_SWARM_2                                   = -1601016,
+    SAY_PREFIGHT_1                                = -1601017,
+    SAY_PREFIGHT_2                                = -1601018,
+    SAY_PREFIGHT_3                                = -1601019
 };
 
 enum Misc
