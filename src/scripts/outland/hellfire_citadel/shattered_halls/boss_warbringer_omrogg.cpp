@@ -344,7 +344,7 @@ struct boss_warbringer_omroggAI : public ScriptedAI
         if (BurningMaul_Timer <= diff)
         {
             DoScriptText(EMOTE_ENRAGE, m_creature);
-            DoCast(m_creature, DUNGEON_MODE(SPELL_BURNING_MAUL, H_SPELL_BURNING_MAUL));
+            DoCast(m_creature, SPELL_BURNING_MAUL);
             BurningMaul_Timer = 40000;
             BlastWave_Timer = 16000;
             BlastCount = 1;

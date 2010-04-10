@@ -243,7 +243,7 @@ struct boss_paletressAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,DUNGEON_MODE(SPELL_HOLY_FIRE,SPELL_HOLY_FIRE_H));
+                    DoCast(pTarget,SPELL_HOLY_FIRE);
             }
              if (m_creature->HasAura(SPELL_SHIELD))
                 uiHolyFireTimer = 13000;
@@ -256,7 +256,7 @@ struct boss_paletressAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,DUNGEON_MODE(SPELL_SMITE,SPELL_SMITE_H));
+                    DoCast(pTarget,SPELL_SMITE);
             }
             if (m_creature->HasAura(SPELL_SHIELD))
                 uiHolySmiteTimer = 9000;
@@ -272,12 +272,12 @@ struct boss_paletressAI : public ScriptedAI
                 switch(uiTarget)
                 {
                     case 0:
-                        DoCast(m_creature,DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
+                        DoCast(m_creature,SPELL_RENEW);
                         break;
                     case 1:
                         if (Creature *pMemory = Unit::GetCreature(*m_creature, MemoryGUID))
                             if (pMemory->isAlive())
-                                DoCast(pMemory, DUNGEON_MODE(SPELL_RENEW,SPELL_RENEW_H));
+                                DoCast(pMemory, SPELL_RENEW);
                         break;
                 }
                 uiRenewTimer = urand(15000,17000);
@@ -334,14 +334,14 @@ struct npc_memoryAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget, DUNGEON_MODE(SPELL_OLD_WOUNDS,SPELL_OLD_WOUNDS_H));
+                    DoCast(pTarget, SPELL_OLD_WOUNDS);
             }
             uiOldWoundsTimer = 12000;
         }else uiOldWoundsTimer -= uiDiff;
 
         if (uiWakingNightmare <= uiDiff)
         {
-            DoCast(m_creature, DUNGEON_MODE(SPELL_WAKING_NIGHTMARE,SPELL_WAKING_NIGHTMARE_H));
+            DoCast(m_creature, SPELL_WAKING_NIGHTMARE);
             uiWakingNightmare = 7000;
         }else uiWakingNightmare -= uiDiff;
 
@@ -350,7 +350,7 @@ struct npc_memoryAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
             {
                 if (pTarget && pTarget->isAlive())
-                    DoCast(pTarget,DUNGEON_MODE(SPELL_SHADOWS_PAST,SPELL_SHADOWS_PAST_H));
+                    DoCast(pTarget,SPELL_SHADOWS_PAST);
             }
             uiShadowPastTimer = 5000;
         }else uiShadowPastTimer -= uiDiff;

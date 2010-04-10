@@ -253,7 +253,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
             if (Cleave_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_CLEAVE, H_SPELL_SHADOW_SLAM));
+                DoCast(m_creature->getVictim(), SPELL_SHADOW_CLEAVE);
                 Cleave_Timer = 6000+rand()%2500;
             } else Cleave_Timer -= diff;
         }

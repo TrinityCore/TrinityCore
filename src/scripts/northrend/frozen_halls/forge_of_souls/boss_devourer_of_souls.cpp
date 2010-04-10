@@ -247,7 +247,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
             {
                 case EVENT_PHANTOM_BLAST:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_PHANTOM_BLAST,H_SPELL_PHANTOM_BLAST));
+                        DoCast(pTarget, SPELL_PHANTOM_BLAST);
                     events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                     break;
                 case EVENT_MIRRORED_SOUL:

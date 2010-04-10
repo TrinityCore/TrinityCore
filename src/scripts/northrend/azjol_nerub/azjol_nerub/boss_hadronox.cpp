@@ -159,7 +159,7 @@ struct boss_hadronoxAI : public ScriptedAI
         if (uiAcidTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_ACID_CLOUD, H_SPELL_ACID_CLOUD));
+                DoCast(pTarget, SPELL_ACID_CLOUD);
 
             uiAcidTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
         } else uiAcidTimer -= diff;
@@ -167,7 +167,7 @@ struct boss_hadronoxAI : public ScriptedAI
         if (uiLeechTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON));
+                DoCast(pTarget, SPELL_LEECH_POISON);
 
             uiLeechTimer = urand(11*IN_MILISECONDS,14*IN_MILISECONDS);
         } else uiLeechTimer -= diff;
@@ -175,7 +175,7 @@ struct boss_hadronoxAI : public ScriptedAI
         if (uiGrabTimer <= diff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
-                DoCast(pTarget, DUNGEON_MODE(SPELL_WEB_GRAB, H_SPELL_WEB_GRAB));
+                DoCast(pTarget, SPELL_WEB_GRAB);
 
             uiGrabTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
         } else uiGrabTimer -= diff;

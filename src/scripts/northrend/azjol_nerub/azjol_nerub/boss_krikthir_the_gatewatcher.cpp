@@ -157,7 +157,7 @@ struct boss_krik_thirAI : public ScriptedAI
 
         if (uiMindFlayTimer <= diff)
         {
-                DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
+                DoCast(m_creature->getVictim(), SPELL_MIND_FLAY);
                 uiMindFlayTimer = 15*IN_MILISECONDS;
             } else uiMindFlayTimer -= diff;
 
@@ -167,8 +167,8 @@ struct boss_krik_thirAI : public ScriptedAI
             Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
             Unit *pTarget_1 = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
-            DoCast(pTarget, DUNGEON_MODE(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
-            DoCast(pTarget_1, DUNGEON_MODE(SPELL_CURSE_OF_FATIGUE, H_SPELL_CURSE_OF_FATIGUE));
+            DoCast(pTarget, SPELL_CURSE_OF_FATIGUE);
+            DoCast(pTarget_1, SPELL_CURSE_OF_FATIGUE);
 
             uiCurseFatigueTimer = 10*IN_MILISECONDS;
         } else uiCurseFatigueTimer -= diff;
@@ -215,7 +215,7 @@ struct npc_skittering_infectorAI : public ScriptedAI
     void JustDied(Unit* killer)
     {
         //The spell is not working propperly
-        DoCast(m_creature->getVictim(),DUNGEON_MODE(SPELL_ACID_SPLASH, H_SPELL_ACID_SPLASH), true);
+        DoCast(m_creature->getVictim(),SPELL_ACID_SPLASH, true);
     }
 
 };
@@ -281,13 +281,13 @@ struct npc_anub_ar_shadowcasterAI : public ScriptedAI
         if (uiShadowBoltTimer <= diff)
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                 DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT), true);
+                 DoCast(pTarget, SPELL_SHADOW_BOLT, true);
             uiShadowBoltTimer = 15*IN_MILISECONDS;
         } else uiShadowBoltTimer -= diff;
 
         if (uiShadowNovaTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_NOVA, H_SPELL_SHADOW_NOVA), true);
+            DoCast(m_creature->getVictim(), SPELL_SHADOW_NOVA, true);
             uiShadowNovaTimer = 17*IN_MILISECONDS;
         } else uiShadowNovaTimer -= diff;
 
@@ -363,7 +363,7 @@ struct npc_watcher_gashraAI : public ScriptedAI
 
         if (uiInfectedBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
+            DoCast(m_creature->getVictim(), SPELL_INFECTED_BITE, true);
             uiInfectedBiteTimer = 15*IN_MILISECONDS;
         } else uiInfectedBiteTimer -= diff;
 
@@ -400,13 +400,13 @@ struct npc_watcher_narjilAI : public ScriptedAI
 
         if (uiInfectedBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
+            DoCast(m_creature->getVictim(), SPELL_INFECTED_BITE, true);
             uiInfectedBiteTimer = 11*IN_MILISECONDS;
         } else uiInfectedBiteTimer -= diff;
 
         if (uiBindingWebsTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_BLINDING_WEBS, H_SPELL_BLINDING_WEBS), true);
+            DoCast(m_creature->getVictim(), SPELL_BLINDING_WEBS, true);
             uiBindingWebsTimer = 17*IN_MILISECONDS;
         } else uiBindingWebsTimer -= diff;
 
@@ -444,13 +444,13 @@ struct npc_watcher_silthikAI : public ScriptedAI
 
         if (uiInfectedBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_INFECTED_BITE, H_SPELL_INFECTED_BITE), true);
+            DoCast(m_creature->getVictim(), SPELL_INFECTED_BITE, true);
             uiInfectedBiteTimer = 15*IN_MILISECONDS;
         } else uiInfectedBiteTimer -= diff;
 
         if (uiPoisonSprayTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_POSION_SPRAY, H_SPELL_POSION_SPRAY), true);
+            DoCast(m_creature->getVictim(), SPELL_POSION_SPRAY, true);
             uiPoisonSprayTimer = 17*IN_MILISECONDS;
         } else uiPoisonSprayTimer -= diff;
 

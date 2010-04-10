@@ -149,14 +149,14 @@ struct boss_skadiAI : public ScriptedAI
 
                 if (uiCrushTimer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_CRUSH, H_SPELL_CRUSH));
+                    DoCast(m_creature->getVictim(), SPELL_CRUSH);
                     uiCrushTimer = 8000;
                 } else uiCrushTimer -= diff;
 
                 if (uiPoisonedSpearTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_POISONED_SPEAR, H_SPELL_POISONED_SPEAR));
+                        DoCast(pTarget, SPELL_POISONED_SPEAR);
                     uiPoisonedSpearTimer = 10000;
                 } else uiPoisonedSpearTimer -= diff;
 

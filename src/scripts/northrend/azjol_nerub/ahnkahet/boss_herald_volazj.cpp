@@ -261,20 +261,20 @@ struct boss_volazjAI : public ScriptedAI
 
         if (uiMindFlayTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_MIND_FLAY, H_SPELL_MIND_FLAY));
+            DoCast(m_creature->getVictim(), SPELL_MIND_FLAY);
             uiMindFlayTimer = 20*IN_MILISECONDS;
         } else uiMindFlayTimer -= diff;
 
         if (uiShadowBoltVolleyTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SHADOW_BOLT_VOLLEY, H_SPELL_SHADOW_BOLT_VOLLEY));
+            DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
             uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
         } else uiShadowBoltVolleyTimer -= diff;
 
         if (uiShiverTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_SHIVER, H_SPELL_SHIVER));
+                DoCast(pTarget, SPELL_SHIVER);
             uiShiverTimer = 15*IN_MILISECONDS;
         } else uiShiverTimer -= diff;
 

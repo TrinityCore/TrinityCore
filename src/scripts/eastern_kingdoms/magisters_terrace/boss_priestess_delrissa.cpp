@@ -267,7 +267,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
                     if (pAdd->isAlive())
                         pTarget = pAdd;
 
-            DoCast(pTarget, DUNGEON_MODE(SPELL_RENEW_NORMAL, SPELL_RENEW_HEROIC));
+            DoCast(pTarget, SPELL_RENEW_NORMAL);
             RenewTimer = 5000;
         } else RenewTimer -= diff;
 
@@ -312,7 +312,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
         if (SWPainTimer <= diff)
         {
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_SW_PAIN_NORMAL, SPELL_SW_PAIN_HEROIC));
+                DoCast(pTarget, SPELL_SW_PAIN_NORMAL);
 
             SWPainTimer = 10000;
         } else SWPainTimer -= diff;

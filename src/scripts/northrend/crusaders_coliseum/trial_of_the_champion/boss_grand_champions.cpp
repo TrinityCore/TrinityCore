@@ -399,7 +399,7 @@ struct boss_warrior_toc5AI : public ScriptedAI
 
         if (uiMortalStrikeTimer <= uiDiff)
         {
-            DoCastVictim(DUNGEON_MODE(SPELL_MORTAL_STRIKE, SPELL_MORTAL_STRIKE_H));
+            DoCastVictim(SPELL_MORTAL_STRIKE);
             uiMortalStrikeTimer = urand(8000,12000);
         } else uiMortalStrikeTimer -= uiDiff;
 
@@ -502,7 +502,7 @@ struct boss_mage_toc5AI : public ScriptedAI
         if (uiFireBallTimer <= uiDiff)
         {
             if (m_creature->getVictim())
-                DoCastVictim(DUNGEON_MODE(SPELL_FIREBALL,SPELL_FIREBALL_H));
+                DoCastVictim(SPELL_FIREBALL);
             uiFireBallTimer = 5000;
         } else uiFireBallTimer -= uiDiff;
 
@@ -512,20 +512,20 @@ struct boss_mage_toc5AI : public ScriptedAI
 
         if (uiFireBallTimer <= uiDiff)
         {
-            DoCastVictim(DUNGEON_MODE(SPELL_FIREBALL,SPELL_FIREBALL_H));
+            DoCastVictim(SPELL_FIREBALL);
             uiFireBallTimer = 5000;
         } else uiFireBallTimer -= uiDiff;
 
         if (uiPolymorphTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_POLYMORPH,SPELL_POLYMORPH_H));
+                DoCast(pTarget, SPELL_POLYMORPH);
             uiPolymorphTimer = 8000;
         } else uiPolymorphTimer -= uiDiff;
 
         if (uiBlastWaveTimer <= uiDiff)
         {
-            DoCastAOE(DUNGEON_MODE(SPELL_BLAST_WAVE,SPELL_BLAST_WAVE_H),false);
+            DoCastAOE(SPELL_BLAST_WAVE,false);
             uiBlastWaveTimer = 13000;
         } else uiBlastWaveTimer -= uiDiff;
 
@@ -645,7 +645,7 @@ struct boss_shaman_toc5AI : public ScriptedAI
         if (uiChainLightningTimer <= uiDiff)
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget,DUNGEON_MODE(SPELL_CHAIN_LIGHTNING,SPELL_CHAIN_LIGHTNING_H));
+                DoCast(pTarget,SPELL_CHAIN_LIGHTNING);
 
             uiChainLightningTimer = 16000;
         } else uiChainLightningTimer -= uiDiff;
@@ -657,9 +657,9 @@ struct boss_shaman_toc5AI : public ScriptedAI
             if (!bChance)
             {
                 if (Unit* pFriend = DoSelectLowestHpFriendly(40))
-                    DoCast(pFriend,DUNGEON_MODE(SPELL_HEALING_WAVE,SPELL_HEALING_WAVE_H));
+                    DoCast(pFriend,SPELL_HEALING_WAVE);
             } else
-                DoCast(m_creature,DUNGEON_MODE(SPELL_HEALING_WAVE,SPELL_HEALING_WAVE_H));
+                DoCast(m_creature,SPELL_HEALING_WAVE);
 
             uiHealingWaveTimer = 12000;
         } else uiHealingWaveTimer -= uiDiff;
@@ -793,7 +793,7 @@ struct boss_hunter_toc5AI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_FARTHEST,0,30.0f))
             {
                 uiTargetGUID = pTarget->GetGUID();
-                DoCast(pTarget, DUNGEON_MODE(SPELL_SHOOT,SPELL_SHOOT_H));
+                DoCast(pTarget, SPELL_SHOOT);
             }
             uiShootTimer = 12000;
             uiMultiShotTimer = 3000;
@@ -925,7 +925,7 @@ struct boss_rouge_toc5AI : public ScriptedAI
 
         if (uiEviscerateTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),DUNGEON_MODE(SPELL_EVISCERATE,SPELL_EVISCERATE_H));
+            DoCast(m_creature->getVictim(),SPELL_EVISCERATE);
             uiEviscerateTimer = 8000;
         } else uiEviscerateTimer -= uiDiff;
 

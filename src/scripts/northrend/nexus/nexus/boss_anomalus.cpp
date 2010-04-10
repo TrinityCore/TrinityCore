@@ -153,7 +153,7 @@ struct boss_anomalusAI : public ScriptedAI
         if (uiSparkTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(pTarget, DUNGEON_MODE(SPELL_SPARK, H_SPELL_SPARK));
+                DoCast(pTarget, SPELL_SPARK);
             uiSparkTimer = 5*IN_MILISECONDS;
         } else uiSparkTimer -= diff;
 

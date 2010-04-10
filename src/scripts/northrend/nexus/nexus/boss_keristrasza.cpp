@@ -186,7 +186,7 @@ struct boss_keristraszaAI : public ScriptedAI
 
         if (uiCrystalfireBreathTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_CRYSTALFIRE_BREATH, H_SPELL_CRYSTALFIRE_BREATH));
+            DoCast(m_creature->getVictim(), SPELL_CRYSTALFIRE_BREATH);
             uiCrystalfireBreathTimer = 14*IN_MILISECONDS;
         } else uiCrystalfireBreathTimer -= diff;
 

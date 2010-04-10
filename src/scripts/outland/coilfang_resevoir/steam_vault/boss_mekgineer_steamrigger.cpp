@@ -223,7 +223,7 @@ struct mob_steamrigger_mechanicAI : public ScriptedAI
                             //m_creature->GetMotionMaster()->MovementExpired();
                             //m_creature->GetMotionMaster()->MoveIdle();
 
-                            DoCast(m_creature, DUNGEON_MODE(SPELL_REPAIR, H_SPELL_REPAIR), true);
+                            DoCast(m_creature, SPELL_REPAIR, true);
                         }
                         Repair_Timer = 5000;
                     }

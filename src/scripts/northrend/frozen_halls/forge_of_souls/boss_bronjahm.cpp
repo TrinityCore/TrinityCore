@@ -180,7 +180,7 @@ struct boss_bronjahmAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
                     break;
                 case EVENT_MAGIC_BANE:
-                    DoCastVictim(DUNGEON_MODE(SPELL_MAGIC_S_BANE,H_SPELL_MAGIC_S_BANE));
+                    DoCastVictim(SPELL_MAGIC_S_BANE);
                     events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000,15000));
                     break;
             }
@@ -217,7 +217,7 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
     {
         if (pInstance)
             if (Creature* pBronjham = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_BRONJAHM)))
-                DoCast(pBronjham,DUNGEON_MODE(SPELL_CONSUME_SOUL,H_SPELL_CONSUME_SOUL));
+                DoCast(pBronjham,SPELL_CONSUME_SOUL);
     }
 
     void UpdateAI(const uint32 diff) {}

@@ -168,7 +168,7 @@ struct boss_omor_the_unscarredAI : public ScriptedAI
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                DoCast(pTarget, DUNGEON_MODE(SPELL_TREACHEROUS_AURA, H_SPELL_BANE_OF_TREACHERY));
+                DoCast(pTarget, SPELL_TREACHEROUS_AURA);
                 Aura_Timer = 8000+rand()%8000;
             }
         } else Aura_Timer -= diff;
@@ -180,7 +180,7 @@ struct boss_omor_the_unscarredAI : public ScriptedAI
                 if (pTarget)
                     pTarget = m_creature->getVictim();
 
-                DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                DoCast(pTarget, SPELL_SHADOW_BOLT);
                 Shadowbolt_Timer = 4000+rand()%2500;
             }
         } else Shadowbolt_Timer -= diff;

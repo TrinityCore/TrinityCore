@@ -411,7 +411,7 @@ struct mob_spiteful_apparitionAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SPITE:
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SPITE,H_SPELL_SPITE));
+                    DoCast(m_creature->getVictim(), SPELL_SPITE);
                     events.RescheduleEvent(EVENT_SPITE, 8000);
                     return;
             }
@@ -461,7 +461,7 @@ struct mob_spectral_wardenAI: public ScriptedAI
                     return;
                 case EVENT_WAIL_OF_SOULS:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_WAIL_OF_SOULS,H_SPELL_WAIL_OF_SOULS));
+                        DoCast(pTarget, SPELL_WAIL_OF_SOULS);
                     events.RescheduleEvent(EVENT_WAIL_OF_SOULS, 5000);
                     return;
             }
@@ -553,7 +553,7 @@ struct mob_soulguard_reaperAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FROST_NOVA:
-                    DoCast(m_creature, DUNGEON_MODE(SPELL_FROST_NOVA,H_SPELL_FROST_NOVA));
+                    DoCast(m_creature, SPELL_FROST_NOVA);
                     events.RescheduleEvent(EVENT_FROST_NOVA, 9600);
                     return;
                 case EVENT_SHADOW_LANCE:
@@ -604,7 +604,7 @@ struct  mob_soulguard_bonecasterAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_BONE_VOLLEY:
-                    DoCastAOE(DUNGEON_MODE(SPELL_BONE_VOLLEY,H_SPELL_BONE_VOLLEY));
+                    DoCastAOE(SPELL_BONE_VOLLEY);
                     events.RescheduleEvent(EVENT_BONE_VOLLEY, 7000);
                     return;
                 case EVENT_RAISE_DEAD:
@@ -612,7 +612,7 @@ struct  mob_soulguard_bonecasterAI: public ScriptedAI
                     events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                     return;
                 case EVENT_SHIELD_OF_BONES:
-                    DoCast(m_creature, DUNGEON_MODE(SPELL_SHIELD_OF_BONES,H_SPELL_SHIELD_OF_BONES));
+                    DoCast(m_creature, SPELL_SHIELD_OF_BONES);
                     events.RescheduleEvent(EVENT_SHIELD_OF_BONES, 8000);
                     return;
             }
@@ -664,7 +664,7 @@ struct mob_soulguard_animatorAI: public ScriptedAI
                     return;
                 case EVENT_SHADOW_BOLT:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT,H_SPELL_SHADOW_BOLT));
+                        DoCast(pTarget, SPELL_SHADOW_BOLT);
                     events.RescheduleEvent(EVENT_SHADOW_BOLT, 5000);
                     return;
                 case EVENT_SOUL_SICKNESS:
@@ -726,16 +726,16 @@ struct mob_soulguard_adeptAI: public ScriptedAI
                     return;
                 case EVENT_SHADOW_BOLT:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_SHADOW_BOLT,H_SPELL_SHADOW_BOLT));
+                        DoCast(pTarget, SPELL_SHADOW_BOLT);
                     events.RescheduleEvent(EVENT_SHADOW_BOLT, 4000);
                     return;
                 case EVENT_DRAIN_LIFE:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pTarget, DUNGEON_MODE(SPELL_DRAIN_LIFE,H_SPELL_DRAIN_LIFE));
+                        DoCast(pTarget, SPELL_DRAIN_LIFE);
                     events.RescheduleEvent(EVENT_DRAIN_LIFE, 9000);
                     return;
                 case EVENT_SHADOW_MEND:
-                    DoCast(m_creature, DUNGEON_MODE(SPELL_SHADOW_MEND,H_SPELL_SHADOW_MEND));
+                    DoCast(m_creature, SPELL_SHADOW_MEND);
                     events.RescheduleEvent(EVENT_SHADOW_MEND, 20000);
                     return;
             }
@@ -779,7 +779,7 @@ struct mob_soul_horrorAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SOUL_STRIKE:
-                    DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_SOUL_STRIKE,H_SPELL_SOUL_STRIKE));
+                    DoCast(m_creature->getVictim(), SPELL_SOUL_STRIKE);
                     events.RescheduleEvent(EVENT_SOUL_STRIKE, 8000);
                     return;
             }

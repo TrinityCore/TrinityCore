@@ -152,7 +152,7 @@ struct boss_vexallusAI : public ScriptedAI
             if (ChainLightningTimer <= diff)
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pTarget, DUNGEON_MODE(SPELL_CHAIN_LIGHTNING, SPELL_H_CHAIN_LIGHTNING));
+                    DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
 
                 ChainLightningTimer = 8000;
             } else ChainLightningTimer -= diff;
@@ -161,7 +161,7 @@ struct boss_vexallusAI : public ScriptedAI
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 if (pTarget)
-                    DoCast(pTarget, DUNGEON_MODE(SPELL_ARCANE_SHOCK, SPELL_H_ARCANE_SHOCK));
+                    DoCast(pTarget, SPELL_ARCANE_SHOCK);
 
                 ArcaneShockTimer = 8000;
             } else ArcaneShockTimer -= diff;
