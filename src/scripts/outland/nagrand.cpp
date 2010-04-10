@@ -82,10 +82,10 @@ CreatureAI* GetAI_mob_shattered_rumbler(Creature* pCreature)
 #define SPELL_VISUAL_SLEEP  16093
 #define SPELL_SPEAR_THROW   32248
 
-#define LUMP_SAY0 -1000293
-#define LUMP_SAY1 -1000294
+#define LUMP_SAY0 -1000190
+#define LUMP_SAY1 -1000191
 
-#define LUMP_DEFEAT -1000295
+#define LUMP_DEFEAT -1000192
 
 #define GOSSIP_HL "I need answers, ogre!"
 #define GOSSIP_SL1 "Why are Boulderfist out this far? You know that this is Kurenai territory."

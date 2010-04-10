@@ -33,8 +33,8 @@ EndContentData */
 ## npc_lady_sylvanas_windrunner
 ######*/
 
-#define SAY_LAMENT_END              -1000357
-#define EMOTE_LAMENT_END            -1000358
+#define SAY_LAMENT_END              -1000196
+#define EMOTE_LAMENT_END            -1000197
 
 #define SOUND_CREDIT                10896
 #define ENTRY_HIGHBORNE_LAMENTER    21628
