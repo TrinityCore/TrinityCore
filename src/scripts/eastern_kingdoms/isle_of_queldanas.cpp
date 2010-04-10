@@ -32,8 +32,8 @@ EndContentData */
 ## npc_converted_sentry
 ######*/
 
-#define SAY_CONVERTED_1         -1000284
-#define SAY_CONVERTED_2         -1000284
+#define SAY_CONVERTED_1         -1000188
+#define SAY_CONVERTED_2         -1000189
 
 #define SPELL_CONVERT_CREDIT    45009
 
