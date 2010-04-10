@@ -2122,11 +2122,30 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (26632,-1600018,'I''m... impossible! Tharon''ja is eternal! Tharon''ja... is...',null,null,null,null,null,null,null,null,13869,1,0,0,'tharon''ja SAY_DEATH'),
 
 -- -1 601 000 AZJOL-NERUB
-   (28684,-1601000, 'This kingdom belongs to the Scourge! Only the dead may enter.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_AGGRO boss_krik_thir'),
-   (28684,-1601001, 'You were foolish to come.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_SLAY_1 boss_krik_thir'),
-   (28684,-1601002, 'As Anub''Arak commands!', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_SLAY_2 boss_krik_thir'),
-   (28684,-1601003, 'I should be grateful. But I long ago lost the capacity.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 0, 0, 'SAY_DEATH boss_krik_thir'),
-   
+   ('29120', '-1601000', 'Eternal aggony awaits you!', null, null, null, null, null, null, null, null, '14054', '1', '0', '0', ''),
+   ('29120', '-1601001', 'Soon, the Master\'s voice will call to you.', null, null, null, null, null, null, null, null, '14057', '1', '0', '0', ''),
+   ('29120', '-1601002', 'You have made your choice.', null, null, null, null, null, null, null, null, '14056', '1', '0', '0', ''),
+   ('29120', '-1601003', 'You shall experience my torment, first-hand!', null, null, null, null, null, null, null, null, '14055', '1', '0', '0', ''),
+   ('29120', '-1601004', 'Ahhh... RAAAAAGH! Never thought... I would be free of him...', null, null, null, null, null, null, null, null, '14069', '1', '0', '0', ''),
+   ('29120', '-1601005', 'Your armor is useless againts my locusts.', null, null, null, null, null, null, null, null, '14060', '1', '0', '0', ''),
+   ('29120', '-1601006', 'Uunak-hissss tik-k-k-k-k!', null, null, null, null, null, null, null, null, '14067', '1', '0', '0', ''),
+   ('29120', '-1601007', 'The pestilence upon you!', null, null, null, null, null, null, null, null, '14068', '1', '0', '0', ''),
+   ('29120', '-1601008', 'Auum na-l ak-k-k-k, isshhh.', null, null, null, null, null, null, null, null, '14058', '1', '0', '0', ''),
+   ('29120', '-1601009', 'Come forth my brethren! Feast on their flesh.', null, null, null, null, null, null, null, null, '14059', '1', '0', '0', ''),
+   ('29120', '-1601010', 'I was king of this empire once\, long ago. In life I stood as champion. In death I returned as conqueror. Now I protect the kingdom once more. Ironic\, yes? ', null, null, null, null, null, null, null, null, '14053', '1', '0', '0', ''),
+   ('28684', '-1601011', 'This kingdom belongs to the Scourge! Only the dead may enter.', null, null, null, null, null, null, null, null, '14075', '1', '0', '0', ''),
+   ('28684', '-1601012', 'You were foolish to come.', null, null, null, null, null, null, null, null, '14077', '1', '0', '0', ''),
+   ('28684', '-1601013', 'As Anub\'Arak commands!', null, null, null, null, null, null, null, null, '14078', '1', '0', '0', ''),
+   ('28684', '-1601014', 'I should be grateful. But I long ago lost the capacity.', null, null, null, null, null, null, null, null, '14087', '1', '0', '0', ''),
+   ('28684', '-1601015', 'They hunger.', null, null, null, null, null, null, null, null, '14085', '1', '0', '0', ''),
+   ('28684', '-1601016', 'Dinner time\, my pets.', null, null, null, null, null, null, null, null, '14086', '1', '0', '0', ''),
+   ('28684', '-1601017', 'Keep an eye on the tunnel. We must not let anyone through!', null, null, null, null, null, null, null, null, '14082', '1', '0', '0', ''),
+   ('28684', '-1601018', 'I hear footsteps. Be on your guard.', null, null, null, null, null, null, null, null, '14083', '1', '0', '0', ''),
+   ('28684', '-1601019', 'I sense the living. Be ready.', null, null, null, null, null, null, null, null, '14084', '1', '0', '0', ''),
+   ('28684', '-1601020', 'We are besieged. Strike out and bring back their corpses!', null, null, null, null, null, null, null, null, '14079', '1', '0', '0', ''),
+   ('28684', '-1601021', 'We must hold the gate. Attack! Tear them limb from limb!', null, null, null, null, null, null, null, null, '14080', '1', '0', '0', ''),
+   ('28684', '-1601022', 'The gate must be protected at all costs. Rip them to shreds!', null, null, null, null, null, null, null, null, '14081', '1', '0', '0', ''),
+
 -- -1 602 000 HALLS OF LIGHTNING
 /* Bjarngrim */
    (28586,-1602000,'I am the greatest of my father''s sons! Your end has come!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,14149,1,0,0,'bjarngrim SAY_AGGRO'),
