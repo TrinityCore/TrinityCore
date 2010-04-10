@@ -34,16 +34,16 @@ EndContentData */
 
 enum eEnums
 {
-    SAY_PROGRESS_1      = -1000235,
-    SAY_PROGRESS_2      = -1000236,
-    SAY_PROGRESS_3      = -1000237,
-    EMOTE_PROGRESS_4    = -1000238,
-    SAY_AGGRO           = -1000239,
-    SAY_PROGRESS_5      = -1000240,
-    SAY_PROGRESS_6      = -1000241,
-    SAY_PROGRESS_7      = -1000242,
-    EMOTE_PROGRESS_8    = -1000243,
-    SAY_PROGRESS_9      = -1000244,
+    SAY_PROGRESS_1      = -1000264,
+    SAY_PROGRESS_2      = -1000265,
+    SAY_PROGRESS_3      = -1000266,
+    EMOTE_PROGRESS_4    = -1000267,
+    SAY_AGGRO           = -1000268,
+    SAY_PROGRESS_5      = -1000269,
+    SAY_PROGRESS_6      = -1000270,
+    SAY_PROGRESS_7      = -1000271,
+    EMOTE_PROGRESS_8    = -1000272,
+    SAY_PROGRESS_9      = -1000273,
 
     QUEST_SUNKEN_TREASURE   = 665,
     MOB_VENGEFUL_SURGE      = 2776

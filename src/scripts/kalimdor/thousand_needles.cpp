@@ -190,9 +190,9 @@ bool QuestAccept_npc_lakota_windsong(Player* pPlayer, Creature* pCreature, const
 
 enum ePacka
 {
-    SAY_START           = -1000147,
-    SAY_WYVERN          = -1000148,
-    SAY_COMPLETE        = -1000149,
+    SAY_START           = -1000362,
+    SAY_WYVERN          = -1000363,
+    SAY_COMPLETE        = -1000364,
 
     QUEST_HOMEWARD      = 4770,
     NPC_WYVERN          = 4107,
