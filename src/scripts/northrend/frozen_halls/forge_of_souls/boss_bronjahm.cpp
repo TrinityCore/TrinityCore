@@ -114,14 +114,16 @@ struct boss_bronjahmAI : public ScriptedAI
     // Cast aura spell on all players farther than 10y
     void ApplySoulStorm()
     {
-        const std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
-        if (threatlist.empty())
+        std::list<Unit*> targetList;
+
+        SelectTargetList(targetList, 100, SELECT_TARGET_TOPAGGRO, -10.0f);
+        if (targetList.empty())
             return;
 
-        for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
+        for (std::list<Unit *>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
         {
-            Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
-            if (pUnit && pUnit->isAlive() && pUnit->GetDistance(m_creature) > 10.0f)
+            Unit* pUnit = (*itr);
+            if (pUnit && pUnit->isAlive())
                 m_creature->CastSpell(pUnit, DUNGEON_MODE(SPELL_SOULSTORM_AURA,H_SPELL_SOULSTORM_AURA), true);
         }
     }
