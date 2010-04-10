@@ -350,7 +350,7 @@ void BattleGround::Update(uint32 diff)
             EndBattleGround(winner);
             m_PrematureCountDown = false;
         }
-        else
+        else if (!sBattleGroundMgr.isTesting())
         {
             uint32 newtime = m_PrematureCountDownTimer - diff;
             // announce every minute
