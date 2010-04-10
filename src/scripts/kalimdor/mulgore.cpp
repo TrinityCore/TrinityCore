@@ -64,9 +64,9 @@ bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature, uin
 enum eKyleFrenzied
 {
     //emote signed for 7780 but propably thats wrong id.
-    EMOTE_SEE_LUNCH         = -1000407,
-    EMOTE_EAT_LUNCH         = -1000408,
-    EMOTE_DANCE             = -1000409,
+    EMOTE_SEE_LUNCH         = -1000340,
+    EMOTE_EAT_LUNCH         = -1000341,
+    EMOTE_DANCE             = -1000342,
 
     SPELL_LUNCH             = 42222,
     NPC_KYLE_FRENZIED       = 23616,

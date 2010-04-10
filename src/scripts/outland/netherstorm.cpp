@@ -36,12 +36,12 @@ EndContentData */
 ######*/
 
 //used by 20209,20417,20418,20440, signed for 20209
-#define EMOTE_START     -1000296
-#define EMOTE_60        -1000297
-#define EMOTE_30        -1000298
-#define EMOTE_10        -1000299
-#define EMOTE_COMPLETE  -1000300
-#define EMOTE_ABORT     -1000301
+#define EMOTE_START     -1000211
+#define EMOTE_60        -1000212
+#define EMOTE_30        -1000213
+#define EMOTE_10        -1000214
+#define EMOTE_COMPLETE  -1000215
+#define EMOTE_ABORT     -1000216
 
 #define ENTRY_BNAAR_C_CONSOLE   20209
 #define ENTRY_CORUU_C_CONSOLE   20417

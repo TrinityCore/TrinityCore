@@ -42,15 +42,15 @@ EndContentData */
 
 enum eEnums
 {
-    SAY_HEAL1           = -1000248,
-    SAY_HEAL2           = -1000249,
-    SAY_HEAL3           = -1000250,
-    SAY_HEAL4           = -1000251,
+    SAY_HEAL1           = -1000176,
+    SAY_HEAL2           = -1000177,
+    SAY_HEAL3           = -1000178,
+    SAY_HEAL4           = -1000179,
 
-    SAY_HELP1           = -1000252,
-    SAY_HELP2           = -1000253,
-    SAY_HELP3           = -1000254,
-    SAY_HELP4           = -1000255,
+    SAY_HELP1           = -1000180,
+    SAY_HELP2           = -1000181,
+    SAY_HELP3           = -1000182,
+    SAY_HELP4           = -1000183,
 
     SPELL_IRRIDATION    = 35046,
     SPELL_STUNNED       = 28630
@@ -168,9 +168,9 @@ CreatureAI* GetAI_npc_draenei_survivor(Creature* pCreature)
 
 enum eOvergrind
 {
-    SAY_TEXT        = -1000256,
-    SAY_EMOTE       = -1000257,
-    ATTACK_YELL     = -1000258,
+    SAY_TEXT        = -1000184,
+    SAY_EMOTE       = -1000185,
+    ATTACK_YELL     = -1000186,
 
     AREA_COVE       = 3579,
     AREA_ISLE       = 3639,

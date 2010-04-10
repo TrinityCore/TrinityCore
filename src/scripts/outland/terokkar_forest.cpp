@@ -38,7 +38,7 @@ EndContentData */
 ## mob_unkor_the_ruthless
 ######*/
 
-#define SAY_SUBMIT                      -1000351
+#define SAY_SUBMIT                      -1000194
 
 #define FACTION_HOSTILE                 45
 #define FACTION_FRIENDLY                35
@@ -302,7 +302,7 @@ CreatureAI* GetAI_mob_netherweb_victim(Creature* pCreature)
 
 enum eFloon
 {
-    SAY_FLOON_ATTACK        = -1000352,
+    SAY_FLOON_ATTACK        = -1000195,
 
     SPELL_SILENCE           = 6726,
     SPELL_FROSTBOLT         = 9672,

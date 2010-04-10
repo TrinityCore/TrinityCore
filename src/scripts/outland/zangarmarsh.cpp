@@ -267,12 +267,12 @@ bool GossipSelect_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature, uin
 
 enum eKayra
 {
-    SAY_START           = -1000360,
-    SAY_AMBUSH1         = -1000361,
-    SAY_PROGRESS        = -1000362,
-    SAY_AMBUSH2         = -1000363,
-    SAY_NEAR_END        = -1000364,
-    SAY_END             = -1000365, //this is signed for 10646
+    SAY_START           = -1000343,
+    SAY_AMBUSH1         = -1000344,
+    SAY_PROGRESS        = -1000345,
+    SAY_AMBUSH2         = -1000346,
+    SAY_NEAR_END        = -1000347,
+    SAY_END             = -1000348, //this is signed for 10646
 
     QUEST_ESCAPE_FROM   = 9752,
     NPC_SLAVEBINDER     = 18042

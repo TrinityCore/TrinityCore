@@ -505,14 +505,14 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature* pCreature)
 
 enum eEnums_Wizzlecrank
 {
-    SAY_START           = -1000272,
-    SAY_STARTUP1        = -1000273,
-    SAY_STARTUP2        = -1000274,
-    SAY_MERCENARY       = -1000275,
-    SAY_PROGRESS_1      = -1000276,
-    SAY_PROGRESS_2      = -1000277,
-    SAY_PROGRESS_3      = -1000278,
-    SAY_END             = -1000279,
+    SAY_START           = -1000298,
+    SAY_STARTUP1        = -1000299,
+    SAY_STARTUP2        = -1000300,
+    SAY_MERCENARY       = -1000301,
+    SAY_PROGRESS_1      = -1000302,
+    SAY_PROGRESS_2      = -1000303,
+    SAY_PROGRESS_3      = -1000304,
+    SAY_END             = -1000305,
 
     QUEST_ESCAPE        = 863,
     FACTION_RATCHET     = 637,
