@@ -83,23 +83,34 @@ bool UnitAI::DoSpellAttackIfReady(uint32 spell)
 }
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit *, bool> {
+struct DefaultTargetSelector : public std::unary_function<Unit *, bool>
+{
     const Unit *me;
     float m_dist;
     bool m_playerOnly;
     int32 m_aura;
 
     // pUnit: the reference unit
-    // dist: if 0: ignored, if not 0: maximum distance to the reference unit
+    // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit 
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
     DefaultTargetSelector(const Unit *pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
-    bool operator() (const Unit *pTarget) {
-        if (m_playerOnly && (!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER))
+    bool operator() (const Unit *pTarget)
+    {
+        if (!me)
             return false;
 
-        if (m_dist && (!me || !pTarget || !me->IsWithinCombatRange(pTarget, m_dist)))
+        if (!pTarget)
+            return false;
+
+        if (m_playerOnly && (pTarget->GetTypeId() != TYPEID_PLAYER))
+            return false;
+
+        if (m_dist > 0.0f && !me->IsWithinCombatRange(pTarget, m_dist))
+            return false;
+
+        if (m_dist < 0.0f && me->IsWithinCombatRange(pTarget, -m_dist))
             return false;
 
         if (m_aura)
