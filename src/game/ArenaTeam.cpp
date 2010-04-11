@@ -312,9 +312,8 @@ void ArenaTeam::Disband(WorldSession *session)
     // event
     if (session)
     {
-        WorldPacket data;
-        session->BuildArenaTeamEventPacket(&data, ERR_ARENA_TEAM_DISBANDED_S, 2, session->GetPlayerName(), GetName(), "");
-        BroadcastPacket(&data);
+        // probably only 1 string required...	
+        BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
     }
 
     while (!m_members.empty())
@@ -487,6 +486,37 @@ void ArenaTeam::BroadcastPacket(WorldPacket *packet)
             player->GetSession()->SendPacket(packet);
     }
 }
+
+void ArenaTeam::BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string str1, std::string str2, std::string str3)	
+{	
+    WorldPacket data(SMSG_ARENA_TEAM_EVENT, 1+1+1);	
+    data << uint8(event);	
+    data << uint8(strCount);	
+    switch (strCount)	
+    {	
+        case 0:	
+            break;	
+        case 1:	
+            data << str1;	
+            break;	
+        case 2:	
+            data << str1 << str2;	
+            break;	
+        case 3:	
+            data << str1 << str2 << str3;	
+            break;	
+        default:	
+            sLog.outError("Unhandled strCount %u in ArenaTeam::BroadcastEvent", strCount);	
+            return;	
+    }
+
+    if (guid)	
+        data << uint64(guid);	
+	
+    BroadcastPacket(&data);	
+	
+    sLog.outDebug("WORLD: Sent SMSG_ARENA_TEAM_EVENT");	
+}	
 
 uint8 ArenaTeam::GetSlotByType(uint32 type)
 {

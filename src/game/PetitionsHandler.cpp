@@ -149,12 +149,12 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     {
         if (objmgr.GetGuildByName(name))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, name, GUILD_NAME_EXISTS);
+            SendGuildCommandResult(GUILD_CREATE_S, name, ERR_GUILD_NAME_EXISTS_S);
             return;
         }
         if (objmgr.IsReservedName(name) || !ObjectMgr::IsValidCharterName(name))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, name, GUILD_NAME_INVALID);
+            SendGuildCommandResult(GUILD_CREATE_S, name, ERR_GUILD_NAME_INVALID);
             return;
         }
     }
@@ -268,17 +268,17 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     sLog.outDebug("CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionguid_low);
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
-    data << petitionguid;                                   // petition guid
-    data << _player->GetGUID();                             // owner guid
-    data << petitionguid_low;                               // guild guid (in Trinity always same as GUID_LOPART(petitionguid)
-    data << signs;                                          // sign's count
+    data << uint64(petitionguid);                           // petition guid	
+    data << uint64(_player->GetGUID());                     // owner guid	
+    data << uint32(petitionguid_low);                       // guild guid (in mangos always same as GUID_LOPART(petitionguid)	
+    data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field *fields2 = result->Fetch();
         uint64 plguid = fields2[0].GetUInt64();
 
-        data << plguid;                                     // Player GUID
+        data << uint64(plguid);                             // Player GUID
         data << (uint32)0;                                  // there 0 ...
 
         result->NextRow();
@@ -429,7 +429,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 
     sLog.outDebug("Petition (GUID: %u) renamed to '%s'", GUID_LOPART(petitionguid), newname.c_str());
     WorldPacket data(MSG_PETITION_RENAME, (8+newname.size()+1));
-    data << petitionguid;
+    data << uint64(petitionguid);
     data << newname;
     SendPacket(&data);
 }
@@ -472,7 +472,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         if (type != 9)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         else
-            SendGuildCommandResult(GUILD_CREATE_S, "", GUILD_NOT_ALLIED);
+            SendGuildCommandResult(GUILD_CREATE_S, "", ERR_GUILD_NOT_ALLIED);
         return;
     }
 
@@ -480,7 +480,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     {
         if (_player->getLevel() < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_PLAYER_TO_LOW);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, "", _player->GetName(), ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -504,7 +504,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     {
         if (_player->GetGuildId())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ALREADY_IN_GUILD);
+            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_IN_GUILD_S);
             return;
         }
         if (_player->GetGuildIdInvited())
@@ -524,8 +524,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     if (result)
     {
         WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
-        data << petitionguid;
-        data << _player->GetGUID();
+        data << uint64(petitionguid);
+        data << uint64(_player->GetGUID());
         data << (uint32)PETITION_SIGN_ALREADY_SIGNED;
 
         // close at signer side
@@ -542,8 +542,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     sLog.outDebug("PETITION SIGN: GUID %u by player: %s (GUID: %u Account: %u)", GUID_LOPART(petitionguid), _player->GetName(),plguidlo,GetAccountId());
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
-    data << petitionguid;
-    data << _player->GetGUID();
+    data << uint64(petitionguid);
+    data << uint64(_player->GetGUID())
     data << (uint32)PETITION_SIGN_OK;
 
     // close at signer side
@@ -580,7 +580,7 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
     if (owner)                                               // petition owner online
     {
         WorldPacket data(MSG_PETITION_DECLINE, 8);
-        data << _player->GetGUID();
+        data << uint64(_player->GetGUID());
         owner->GetSession()->SendPacket(&data);
     }
 }
@@ -616,7 +616,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
         if (type != 9)
             SendArenaTeamCommandResult(ERR_ARENA_TEAM_INVITE_SS, "", "", ERR_ARENA_TEAM_NOT_ALLIED);
         else
-            SendGuildCommandResult(GUILD_CREATE_S, "", GUILD_NOT_ALLIED);
+            SendGuildCommandResult(GUILD_CREATE_S, "", ERR_GUILD_NOT_ALLIED);
         return;
     }
 
@@ -650,7 +650,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     {
         if (player->GetGuildId())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ALREADY_IN_GUILD);
+            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_IN_GUILD_S);
             return;
         }
 
@@ -667,17 +667,17 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
         signs = result->GetRowCount();
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+signs+signs*12));
-    data << petitionguid;                                   // petition guid
-    data << _player->GetGUID();                             // owner guid
-    data << GUID_LOPART(petitionguid);                      // guild guid (in Trinity always same as GUID_LOPART(petition guid)
-    data << signs;                                          // sign's count
+    data << uint64(petitionguid);                           // petition guid
+    data << uint64(_player->GetGUID());                     // owner guid	
+    data << uint32(GUID_LOPART(petitionguid));              // guild guid (in mangos always same as GUID_LOPART(petition guid)	
+    data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)
     {
         Field *fields2 = result->Fetch();
         plguid = fields2[0].GetUInt64();
 
-        data << plguid;                                     // Player GUID
+        data << uint64(plguid);                             // Player GUID
         data << (uint32)0;                                  // there 0 ...
 
         result->NextRow();
@@ -772,7 +772,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     {
         if (objmgr.GetGuildByName(name))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, name, GUILD_NAME_EXISTS);
+            SendGuildCommandResult(GUILD_CREATE_S, name, ERR_GUILD_NAME_EXISTS_S);
             return;
         }
     }
