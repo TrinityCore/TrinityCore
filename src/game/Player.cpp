@@ -614,6 +614,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
     SetUInt32Value(PLAYER_BYTES, (skin | (face << 8) | (hairStyle << 16) | (hairColor << 24)));
     SetUInt32Value(PLAYER_BYTES_2, (facialHair | (0x00 << 8) | (0x00 << 16) | (0x02 << 24)));
     SetByteValue(PLAYER_BYTES_3, 0, gender);
+    SetByteValue(PLAYER_BYTES_3, 3, 0);                     // BattlefieldArenaFaction (0 or 1)
 
     SetUInt32Value(PLAYER_GUILDID, 0);
     SetUInt32Value(PLAYER_GUILDRANK, 0);
@@ -14274,13 +14275,13 @@ bool Player::SatisfyQuestLog(bool msg)
     if (FindQuestSlot(0) < MAX_QUEST_LOG_SIZE)
         return true;
 
-    if (msg)
+    if (msg)	
     {
         WorldPacket data(SMSG_QUESTLOG_FULL, 0);
-        GetSession()->SendPacket(&data);
-        sLog.outDebug("WORLD: Sent QUEST_LOG_FULL_MESSAGE");
+        GetSession()->SendPacket(&data);	
+        sLog.outDebug("WORLD: Sent SMSG_QUESTLOG_FULL");
     }
-    return false;
+    return true;
 }
 
 bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
