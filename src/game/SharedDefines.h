@@ -764,7 +764,9 @@ enum SpellEffects
     SPELL_EFFECT_160                       = 160,
     SPELL_EFFECT_TALENT_SPEC_COUNT         = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT        = 162,
-    TOTAL_SPELL_EFFECTS                    = 163
+    SPELL_EFFECT_163                       = 163,
+    SPELL_EFFECT_164                       = 164,
+    TOTAL_SPELL_EFFECTS                    = 165
 };
 
 enum SpellCastResult
@@ -2657,24 +2659,25 @@ enum ResponseCodes
     CHAR_LOGIN_NO_CHARACTER                                = 0x53,
     CHAR_LOGIN_LOCKED_FOR_TRANSFER                         = 0x54,
     CHAR_LOGIN_LOCKED_BY_BILLING                           = 0x55,
+    CHAR_LOGIN_LOCKED_BY_MOBILE_AH                         = 0x56,
 
-    CHAR_NAME_SUCCESS                                      = 0x56,
-    CHAR_NAME_FAILURE                                      = 0x57,
-    CHAR_NAME_NO_NAME                                      = 0x58,
-    CHAR_NAME_TOO_SHORT                                    = 0x59,
-    CHAR_NAME_TOO_LONG                                     = 0x5A,
-    CHAR_NAME_INVALID_CHARACTER                            = 0x5B,
-    CHAR_NAME_MIXED_LANGUAGES                              = 0x5C,
-    CHAR_NAME_PROFANE                                      = 0x5D,
-    CHAR_NAME_RESERVED                                     = 0x5E,
-    CHAR_NAME_INVALID_APOSTROPHE                           = 0x5F,
-    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 0x60,
-    CHAR_NAME_THREE_CONSECUTIVE                            = 0x61,
-    CHAR_NAME_INVALID_SPACE                                = 0x62,
-    CHAR_NAME_CONSECUTIVE_SPACES                           = 0x63,
-    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x64,
-    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x65,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x66
+    CHAR_NAME_SUCCESS                                      = 0x57,	
+    CHAR_NAME_FAILURE                                      = 0x58,
+    CHAR_NAME_NO_NAME                                      = 0x59,
+    CHAR_NAME_TOO_SHORT                                    = 0x5A,
+    CHAR_NAME_TOO_LONG                                     = 0x5B,
+    CHAR_NAME_INVALID_CHARACTER                            = 0x5C,	
+    CHAR_NAME_MIXED_LANGUAGES                              = 0x5D,	
+    CHAR_NAME_PROFANE                                      = 0x5E,	
+    CHAR_NAME_RESERVED                                     = 0x5F,
+    CHAR_NAME_INVALID_APOSTROPHE                           = 0x60,
+    CHAR_NAME_MULTIPLE_APOSTROPHES                         = 0x61,
+    CHAR_NAME_THREE_CONSECUTIVE                            = 0x62,
+    CHAR_NAME_INVALID_SPACE                                = 0x63,
+    CHAR_NAME_CONSECUTIVE_SPACES                           = 0x64,
+    CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x65,
+    CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x66,
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x67
 };
 
 /// Ban function modes

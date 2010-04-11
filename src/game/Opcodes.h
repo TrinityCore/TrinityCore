@@ -1341,7 +1341,9 @@ enum Opcodes
     SMSG_UNKNOWN_1302                               = 0x516, // something with player movement (move event 58?)	
     CMSG_UNKNOWN_1303                               = 0x517, // something with player movement (move event 58?)
     SMSG_UNKNOWN_1304                               = 0x518, // something with player movement (move event 58?), speed packet	
-    NUM_MSG_TYPES                                   = 0x519
+    UMSG_UNKNOWN_1305                               = 0x519, // not found
+    UMSG_UNKNOWN_1306                               = 0x51A, // not found	
+    NUM_MSG_TYPES                                   = 0x51B
 };
 
 /// Player state

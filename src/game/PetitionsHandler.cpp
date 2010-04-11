@@ -399,12 +399,12 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     {
         if (objmgr.GetGuildByName(newname))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, newname, GUILD_NAME_EXISTS);
+            SendGuildCommandResult(GUILD_CREATE_S, newname, ERR_GUILD_NAME_EXISTS_S);
             return;
         }
         if (objmgr.IsReservedName(newname) || !ObjectMgr::IsValidCharterName(newname))
         {
-            SendGuildCommandResult(GUILD_CREATE_S, newname, GUILD_NAME_INVALID);
+            SendGuildCommandResult(GUILD_CREATE_S, newname, ERR_GUILD_NAME_INVALID);
             return;
         }
     }
@@ -509,7 +509,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         }
         if (_player->GetGuildIdInvited())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ALREADY_INVITED_TO_GUILD);
+            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_INVITED_TO_GUILD_S);
             return;
         }
     }
@@ -543,8 +543,8 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 
     WorldPacket data(SMSG_PETITION_SIGN_RESULTS, (8+8+4));
     data << uint64(petitionguid);
-    data << uint64(_player->GetGUID())
-    data << (uint32)PETITION_SIGN_OK;
+    data << uint64(_player->GetGUID());
+    data << uint32(PETITION_SIGN_OK);
 
     // close at signer side
     SendPacket(&data);
@@ -625,7 +625,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
         if (player->getLevel() < sWorld.getConfig(CONFIG_MAX_PLAYER_LEVEL))
         {
             // player is too low level to join an arena team
-            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_PLAYER_TO_LOW);
+            SendArenaTeamCommandResult(ERR_ARENA_TEAM_CREATE_S, player->GetName(), "", ERR_ARENA_TEAM_TARGET_TOO_LOW_S);
             return;
         }
 
@@ -656,7 +656,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 
         if (player->GetGuildIdInvited())
         {
-            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ALREADY_INVITED_TO_GUILD);
+            SendGuildCommandResult(GUILD_INVITE_S, _player->GetName(), ERR_ALREADY_INVITED_TO_GUILD_S);
             return;
         }
     }

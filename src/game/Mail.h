@@ -44,16 +44,17 @@ enum MailCheckMask
 {
     MAIL_CHECK_MASK_NONE        = 0x00,
     MAIL_CHECK_MASK_READ        = 0x01,
-    MAIL_CHECK_MASK_AUCTION     = 0x04,
+    MAIL_CHECK_MASK_RETURNED    = 0x02,                     /// This mail was returned.
+    MAIL_CHECK_MASK_COPIED      = 0x04,                     /// This mail was copied.
     MAIL_CHECK_MASK_COD_PAYMENT = 0x08,
-    MAIL_CHECK_MASK_RETURNED    = 0x10
+    MAIL_CHECK_MASK_HAS_BODY    = 0x10,                     /// This mail has body text.
 };
 
 // gathered from Stationery.dbc
 enum MailStationery
 {
-    MAIL_STATIONERY_UNKNOWN =  1,
-    MAIL_STATIONERY_NORMAL  = 41,
+    MAIL_STATIONERY_TEST    = 1,
+    MAIL_STATIONERY_DEFAULT = 41,
     MAIL_STATIONERY_GM      = 61,
     MAIL_STATIONERY_AUCTION = 62,
     MAIL_STATIONERY_VAL     = 64,
@@ -81,11 +82,11 @@ enum MailAuctionAnswers
 class MailSender
 {
     public:                                                 // Constructors
-        MailSender(MailMessageType messageType, uint32 sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_NORMAL)
+        MailSender(MailMessageType messageType, uint32 sender_guidlow_or_entry, MailStationery stationery = MAIL_STATIONERY_DEFAULT)
             : m_messageType(messageType), m_senderId(sender_guidlow_or_entry), m_stationery(stationery)
         {
         }
-        MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_NORMAL);
+        MailSender(Object* sender, MailStationery stationery = MAIL_STATIONERY_DEFAULT);
         MailSender(AuctionEntry* sender);
     public:                                                 // Accessors
         MailMessageType GetMailMessageType() const { return m_messageType; }
@@ -117,16 +118,16 @@ class MailDraft
 
     public:                                                 // Constructors
         explicit MailDraft(uint16 mailTemplateId, bool need_items = true)
-            : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_bodyId(0), m_money(0), m_COD(0)
+            : m_mailTemplateId(mailTemplateId), m_mailTemplateItemsNeed(need_items), m_money(0), m_COD(0)
         {}
-        MailDraft(std::string subject, uint32 itemTextId = 0)
-            : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(subject), m_bodyId(itemTextId), m_money(0), m_COD(0) {}
+        MailDraft(std::string subject, std::string body)
+            : m_mailTemplateId(0), m_mailTemplateItemsNeed(false), m_subject(subject), m_body(body), m_money(0), m_COD(0) {}
     public:                                                 // Accessors
         uint16 GetMailTemplateId() const { return m_mailTemplateId; }
         std::string const& GetSubject() const { return m_subject; }
-        uint32 GetBodyId() const { return m_bodyId; }
         uint32 GetMoney() const { return m_money; }
         uint32 GetCOD() const { return m_COD; }
+        std::string const& GetBody() const { return m_body; }
     public:                                                 // modifiers
         MailDraft& AddItem(Item* item);
         MailDraft& AddMoney(uint32 money) { m_money = money; return *this; }
@@ -141,7 +142,7 @@ class MailDraft
         uint16      m_mailTemplateId;
         bool        m_mailTemplateItemsNeed;
         std::string m_subject;
-        uint32      m_bodyId;
+        std::string m_body;
 
         MailItemMap m_items;                                // Keep the items in a map to avoid duplicate guids (which can happen), store only low part of guid
 
@@ -164,7 +165,7 @@ struct Mail
     uint32 sender;
     uint32 receiver;
     std::string subject;
-    uint32 itemTextId;
+    std::string body;
     std::vector<MailItemInfo> items;
     std::vector<uint32> removedItems;
     time_t expire_time;

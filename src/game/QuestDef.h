@@ -108,9 +108,9 @@ enum __QuestGiverStatus
 {
     DIALOG_STATUS_NONE                     = 0,
     DIALOG_STATUS_UNAVAILABLE              = 1,
-    DIALOG_STATUS_CHAT                     = 2,             // 3.1 - may be changed
-    DIALOG_STATUS_UNK1                     = 3,             // 3.1
-    DIALOG_STATUS_UNK2                     = 4,             // 3.1
+    DIALOG_STATUS_LOW_LEVEL_AVAILABLE      = 2,
+    DIALOG_STATUS_LOW_LEVEL_REWARD_REP     = 3,
+    DIALOG_STATUS_LOW_LEVEL_AVAILABLE_REP  = 4,
     DIALOG_STATUS_INCOMPLETE               = 5,
     DIALOG_STATUS_REWARD_REP               = 6,
     DIALOG_STATUS_AVAILABLE_REP            = 7,
@@ -239,7 +239,7 @@ class Quest
         bool   IsRepeatable() const { return QuestFlags & QUEST_TRINITY_FLAGS_REPEATABLE; }
         bool   IsAutoComplete() const { return QuestMethod ? false : true; }
         uint32 GetFlags() const { return QuestFlags; }
-        bool   IsDaily() const { return QuestFlags & (QUEST_FLAGS_DAILY; }
+        bool   IsDaily() const { return QuestFlags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return QuestFlags & QUEST_FLAGS_WEEKLY; }	
         bool   IsAutoAccept() const { return QuestFlags & QUEST_FLAGS_AUTO_ACCEPT; }
 
