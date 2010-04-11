@@ -290,8 +290,8 @@ inline bool IsExplicitDiscoverySpell(SpellEntry const *spellInfo)
 inline bool IsLootCraftingSpell(SpellEntry const *spellInfo)
 {
     return (spellInfo->Effect[0] == SPELL_EFFECT_CREATE_RANDOM_ITEM ||
-        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item	
-        (spellInfo->Effect[0] == SPELL_EFFECT_CREATE_ITEM_2 &&	
+        // different random cards from Inscription (121==Virtuoso Inking Set category) r without explicit item
+        (spellInfo->Effect[0] == SPELL_EFFECT_CREATE_ITEM_2 &&
         (spellInfo->TotemCategory[0] != 0 || spellInfo->EffectItemType[0]==0)));
 }
 
@@ -792,8 +792,8 @@ typedef std::pair<SpellsRequiringSpellMap::const_iterator,SpellsRequiringSpellMa
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
 {
-    uint16 skill;	
-    uint16 step;	
+    uint16 skill;
+    uint16 step;
     uint16 value;                                           // 0  - max skill value for player level
     uint16 maxvalue;                                        // 0  - max skill value for player level
 };
@@ -1056,7 +1056,7 @@ class SpellMgr
             if (!newSpell)
             {
                 sLog.outDebug("GetSpellForDifficultyFromSpell: spell %u not found in spell, this should never happen.", newSpell->Id);//alerady checked at startup
-                return spell;                
+                return spell;
             }
             sLog.outDebug("GetSpellForDifficultyFromSpell: spellid for spell %u in mode %u is %u ", spell->Id, mode, newSpell->Id);
             return newSpell;

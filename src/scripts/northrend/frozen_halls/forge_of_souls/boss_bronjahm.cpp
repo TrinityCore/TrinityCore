@@ -18,7 +18,7 @@
 #include "forge_of_souls.h"
 
 /*
- * TODO: 
+ * TODO:
  * - Fix Soul Storm spell and remove work around.
  */
 
@@ -73,7 +73,7 @@ struct boss_bronjahmAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
     EventMap events;
-    
+
     CombatPhases phase;
 
     void Reset()
@@ -133,7 +133,7 @@ struct boss_bronjahmAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-    
+
         events.Update(diff);
 
         if (m_creature->hasUnitState(UNIT_STAT_CASTING))
@@ -238,7 +238,7 @@ void AddSC_boss_bronjahm()
     newscript->Name = "boss_bronjahm";
     newscript->GetAI = &GetAI_boss_bronjahm;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "mob_corrupted_soul_fragment";
     newscript->GetAI = &GetAI_mob_corrupted_soul_fragment;

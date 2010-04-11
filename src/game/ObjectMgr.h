@@ -719,7 +719,7 @@ class ObjectMgr
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
 
-        void CreateItemText(uint32 guid, std::string text);	
+        void CreateItemText(uint32 guid, std::string text);
         void AddItemText(uint32 guid, std::string text) { mItemTexts[guid] = text; }
         std::string GetItemText(uint32 id)
         {

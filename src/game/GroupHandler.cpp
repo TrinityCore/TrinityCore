@@ -52,7 +52,7 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
     data << (uint32)operation;
     data << member;
     data << (uint32)res;
-    data << uint32(0);                                      // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)	
+    data << uint32(0);                                      // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
 
     SendPacket(&data);
 }
@@ -167,12 +167,12 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 
     // ok, we do it
     WorldPacket data(SMSG_GROUP_INVITE, 10);                // guess size
-    data << uint8(1);                                       // invited/already in group flag	
-    data << GetPlayer()->GetName();                         // max len 48	
-    data << uint32(0);                                      // unk	
-    data << uint8(0);                                       // count	
-    //for(int i = 0; i < count; ++i)	
-    //    data << uint32(0);	
+    data << uint8(1);                                       // invited/already in group flag
+    data << GetPlayer()->GetName();                         // max len 48
+    data << uint32(0);                                      // unk
+    data << uint8(0);                                       // count
+    //for(int i = 0; i < count; ++i)
+    //    data << uint32(0);
     data << uint32(0);                                      // unk
     player->GetSession()->SendPacket(&data);
 

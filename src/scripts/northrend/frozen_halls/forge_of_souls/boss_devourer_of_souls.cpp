@@ -18,7 +18,7 @@
 #include "forge_of_souls.h"
 
 /*
- * TODO: 
+ * TODO:
  * - Fix model id during unleash soul -> seems DB issue 36503 is missing (likewise 36504 is also missing).
  * - Fix outro npc movement
  */
@@ -86,11 +86,11 @@ enum eEnum
     DISPLAY_DESIRE                                = 30150,
 };
 
-struct 
+struct
 {
     uint32 entry[2];
     Position movePosition;
-} outroPositions[] = 
+} outroPositions[] =
 {
     { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE, { 5590.47, 2427.79, 705.935, 0.802851 } },
     { NPC_CHAMPION_1_ALLIANCE, NPC_CHAMPION_1_HORDE, { 5593.59, 2428.34, 705.935, 0.977384 } },
@@ -126,7 +126,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
     }
 
     bool bThreeFaceAchievement;
-    
+
     ScriptedInstance* pInstance;
     EventMap events;
 
@@ -144,10 +144,10 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
         m_creature->SetReactState(REACT_AGGRESSIVE);
 
         events.Reset();
-        
+
         bThreeFaceAchievement = true;
         uiMirroredSoulTarget = 0;
-        
+
         if (pInstance)
             pInstance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
     }
@@ -175,7 +175,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
                 if (Aura *pAura = pPlayer->GetAura(SPELL_MIRRORED_SOUL))
                 {
                     int32 mirrorDamage = (uiDamage * 45)/100;
-                    m_creature->CastCustomSpell(pPlayer, 69034, &mirrorDamage, 0, 0, true); 
+                    m_creature->CastCustomSpell(pPlayer, 69034, &mirrorDamage, 0, 0, true);
 //                    m_creature->DealDamage(pPlayer, (uiDamage * 45)/100, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_SHADOW);
                 }
                 else
@@ -288,7 +288,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
                         m_creature->SetOrientation(m_creature->GetAngle(pTarget));
                         DoCast(m_creature, SPELL_WAILING_SOULS_BEAM);
                     }
-                    
+
                     beamAngle = m_creature->GetOrientation();
 
                     beamAngleDiff = PI/30.0f; // PI/2 in 15 sec = PI/30 per tick
@@ -313,7 +313,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
                     beamAngle += beamAngleDiff;
                     m_creature->SetOrientation(beamAngle);
                     m_creature->StopMoving();
-                    
+
                     DoCast(m_creature, SPELL_WAILING_SOULS);
 
                     if (--wailingSoulTick)

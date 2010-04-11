@@ -240,7 +240,7 @@ class Quest
         bool   IsAutoComplete() const { return QuestMethod ? false : true; }
         uint32 GetFlags() const { return QuestFlags; }
         bool   IsDaily() const { return QuestFlags & QUEST_FLAGS_DAILY; }
-        bool   IsWeekly() const { return QuestFlags & QUEST_FLAGS_WEEKLY; }	
+        bool   IsWeekly() const { return QuestFlags & QUEST_FLAGS_WEEKLY; }
         bool   IsAutoAccept() const { return QuestFlags & QUEST_FLAGS_AUTO_ACCEPT; }
 
         // multiple values

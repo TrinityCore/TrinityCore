@@ -209,11 +209,11 @@ enum AchievementCriteriaTypes
     // 0..115 => 116 criteria types total
     ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS = 115,
     ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
-    // 120	
-    // 121	
-    // 122	
-    // 123	
-    // 0..123 => 124 criteria types total	
+    // 120
+    // 121
+    // 122
+    // 123
+    // 0..123 => 124 criteria types total
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 124,
 };
 
