@@ -6869,7 +6869,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         return false;
                     }
 
-                    int32 extra_attack_power = CalculateSpellDamage(windfurySpellEntry, 1, windfurySpellEntry->EffectBasePoints[1], pVictim);
+                    int32 extra_attack_power = CalculateSpellDamage(pVictim, windfurySpellEntry, 1);
 
                     // Value gained from additional AP
                     basepoints0 = int32(extra_attack_power/14.0f * GetAttackTime(BASE_ATTACK)/1000);
@@ -7378,7 +7378,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         else
                             continue;
 
-                        basepoints0 = CalculateSpellDamage(procSpell,i,procSpell->EffectBasePoints[i],this) * 0.4f;
+                        basepoints0 = CalculateSpellDamage(this, procSpell,i) * 0.4f;
                         CastCustomSpell(this,triggered_spell_id,&basepoints0,NULL,NULL,true,NULL,triggeredByAura);
                     }
                     return true;
@@ -7787,7 +7787,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     {
                         if ((*i)->GetMiscValue() == SPELLMOD_CHANCE_OF_SUCCESS && (*i)->GetSpellProto()->SpellIconID == 113)
                         {
-                            int32 value2 = CalculateSpellDamage((*i)->GetSpellProto(),2,(*i)->GetSpellProto()->EffectBasePoints[2],this);
+                            int32 value2 = CalculateSpellDamage(this, (*i)->GetSpellProto(),2);
                             basepoints0 = value2 * GetMaxPower(POWER_MANA) / 100;
                             // Drain Soul
                             CastCustomSpell(this, 18371, &basepoints0, NULL, NULL, true, castItem, triggeredByAura);
@@ -9719,7 +9719,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                 // effect 1 m_amount
                 int32 maxPercent = (*i)->GetAmount();
                 // effect 0 m_amount
-                int32 stepPercent = CalculateSpellDamage((*i)->GetSpellProto(), 0, (*i)->GetSpellProto()->EffectBasePoints[0], this);
+                int32 stepPercent = CalculateSpellDamage(this, (*i)->GetSpellProto(), 0);
                 // count affliction effects and calc additional damage in percentage
                 int32 modPercent = 0;
                 AuraApplicationMap const &victimAuras = pVictim->GetAppliedAuras();
@@ -12230,7 +12230,7 @@ int32 Unit::ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_inde
     return value;
 }
 
-int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_index, int32 effBasePoints, Unit const* /*target*/)
+int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProto, uint8 effect_index, int32 const* effBasePoints)
 {
     int32 level = int32(getLevel());
     if (level > int32(spellProto->maxLevel) && spellProto->maxLevel > 0)
@@ -12240,12 +12240,13 @@ int32 Unit::CalculateSpellDamage(SpellEntry const* spellProto, uint8 effect_inde
     level -= int32(spellProto->spellLevel);
 
     float basePointsPerLevel = spellProto->EffectRealPointsPerLevel[effect_index];
-    int32 basePoints = int32(effBasePoints + level * basePointsPerLevel);
+    int32 basePoints = effBasePoints ? *effBasePoints - 1 : spellProto->EffectBasePoints[effect_index];
+    basePoints += int32(level * basePointsPerLevel);
     int32 randomPoints = int32(spellProto->EffectDieSides[effect_index]);
 
     switch(randomPoints)
     {
-        case 0: break;                                      // not used	
+        case 0:                                             // not used	
         case 1: basePoints += 1; break;                     // range 1..1
         default:
             // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
