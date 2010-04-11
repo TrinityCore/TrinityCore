@@ -1701,6 +1701,10 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     // Need remove expired auras after
     bool existExpired = false;
     TriggeredSpellInfoVct triggeredSpells;
+
+    // Incanter's Absorption, for converting to spell power 
+    int32 incanterAbsorption = 0;
+
     // absorb without mana cost
     AuraEffectList const& vSchoolAbsorb = pVictim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_ABSORB);
     for (AuraEffectList::const_iterator i = vSchoolAbsorb.begin(); i != vSchoolAbsorb.end() && RemainingDamage > 0; ++i)
@@ -1950,6 +1954,11 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
         RemainingDamage -= currentAbsorb;
 
+        // Fire Ward or Frost Ward or Ice Barrier (or Mana Shield)
+        // for Incanter's Absorption converting to spell power 
+        if (spellProto->SpellFamilyName == SPELLFAMILY_MAGE && spellProto->SpellFamilyFlags[2] & 0x000008)
+            incanterAbsorption += currentAbsorb;
+
         // Reduce shield amount
         (*i)->SetAmount((*i)->GetAmount() -currentAbsorb);
         // Need remove it later
@@ -2014,6 +2023,11 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
             int32 manaReduction = int32(currentAbsorb * manaMultiplier);
             pVictim->ApplyPowerMod(POWER_MANA, manaReduction, false);
         }
+
+        // Mana Shield (or Fire Ward or Frost Ward or Ice Barrier)
+        // for Incanter's Absorption converting to spell power 
+        if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE && (*i)->GetSpellProto()->SpellFamilyFlags[2] & 0x000008)
+            incanterAbsorption += currentAbsorb;
 
         (*i)->SetAmount((*i)->GetAmount()-currentAbsorb);
         if ((*i)->GetAmount() <= 0)
@@ -2137,7 +2151,8 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
 
     *absorb = RemainingDamage > 0 ? (damage - RemainingDamage - *resist) : (damage - *resist);
 
-    if (*absorb)
+    // Incanter's Absorption, if have affective absorbing
+    if (incanterAbsorption)
     {
         // Incanter's Absorption
         // TODO: move this code to procflag
@@ -2151,10 +2166,6 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                     current_dmg += bonusEff->GetAmount();
 
             int32 new_dmg = (int32)*absorb * aurEff->GetAmount() / 100;
-            int32 max_dmg = (int32)pVictim->GetMaxHealth() * 5 / 100;
-            // Do not apply more auras if more than 5% hp
-            if (current_dmg + new_dmg > max_dmg)
-                new_dmg = max_dmg - current_dmg;
             if (new_dmg > 0)
                 pVictim->CastCustomSpell(pVictim, 44413, &new_dmg, NULL, NULL, true);
         }
