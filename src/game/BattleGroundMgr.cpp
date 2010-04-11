@@ -1850,17 +1850,32 @@ void BattleGroundMgr::BuildBattleGroundListPacket(WorldPacket *data, const uint6
     *data << uint64(guid);                                  // battlemaster guid
     *data << uint8(fromWhere);                              // from where you joined
     *data << uint32(bgTypeId);                              // battleground id
+    *data << uint8(0);                                      // unk
+    *data << uint8(0);                                      // unk	
+	
+    // Rewards
+    *data << uint8(0);                                      // 3.3.3 hasWin	
+    *data << uint32(0);                                     // 3.3.3 winHonor	
+    *data << uint32(0);                                     // 3.3.3 winArena	
+    *data << uint32(0);                                     // 3.3.3 lossHonor
+	
+    uint8 isRandom = 0;	
+    *data << uint8(isRandom);                               // 3.3.3 isRandom	
+    if (isRandom)	
+    {	
+        // Rewards (random)	
+        *data << uint8(0);                                  // 3.3.3 hasWin_Random	
+        *data << uint32(0);                                 // 3.3.3 winHonor_Random	
+        *data << uint32(0);                                 // 3.3.3 winArena_Random
+        *data << uint32(0);                                 // 3.3.3 lossHonor_Random
+    }
+	
     if (bgTypeId == BATTLEGROUND_AA)                         // arena
     {
-        *data << uint8(4);                                  // unk
-        *data << uint8(0);                                  // unk
         *data << uint32(0);                                 // unk (count?)
     }
     else                                                    // battleground
     {
-        *data << uint8(0);                                  // unk, different for each bg type
-        *data << uint8(0);                                  // unk
-
         size_t count_pos = data->wpos();
         uint32 count = 0;
         *data << uint32(0);                                 // number of bg instances
