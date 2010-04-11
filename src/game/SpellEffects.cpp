@@ -2073,10 +2073,12 @@ void Spell::EffectDummy(uint32 i)
             // Death Grip
             if (m_spellInfo->Id == 49560)
             {
+                Position pos;
+                GetSummonPosition(i, pos);
                 if (Unit *unit = unitTarget->GetVehicleBase()) // what is this for?
-                    unit->CastSpell(m_caster, damage, true);
+                    unit->CastSpell(pos.GetPositionX(),pos.GetPositionY(),pos.GetPositionZ(),damage,true);
                 else
-                    unitTarget->CastSpell(m_caster, damage, true);
+                    unitTarget->CastSpell(pos.GetPositionX(),pos.GetPositionY(),pos.GetPositionZ(),damage,true);
                 return;
             }
             else if (m_spellInfo->Id == 46584) // Raise dead
