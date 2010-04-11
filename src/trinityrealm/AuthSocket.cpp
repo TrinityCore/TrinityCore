@@ -371,7 +371,7 @@ bool AuthSocket::_HandleLogonChallenge()
     QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT * FROM ip_banned WHERE ip = '%s'",address.c_str());
     if (result)
     {
-        pkt << (uint8)REALM_AUTH_ACCOUNT_BANNED;
+        pkt << (uint8)WOW_FAIL_BANNED;
         sLog.outBasic("[AuthChallenge] Banned ip %s tries to login!", address.c_str ());
     }
     else
@@ -395,7 +395,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 if (strcmp((*result)[3].GetString(),socket().get_remote_address().c_str()))
                 {
                     DEBUG_LOG("[AuthChallenge] Account IP differs");
-                    pkt << (uint8) REALM_AUTH_ACCOUNT_FREEZED;
+                    pkt << (uint8) WOW_FAIL_SUSPENDED;
                     locked=true;
                 }
                 else
@@ -414,12 +414,12 @@ bool AuthSocket::_HandleLogonChallenge()
                 {
                     if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
                     {
-                        pkt << (uint8) REALM_AUTH_ACCOUNT_BANNED;
+                        pkt << (uint8) WOW_FAIL_BANNED;
                         sLog.outBasic("[AuthChallenge] Banned account %s tries to login!",_login.c_str ());
                     }
                     else
                     {
-                        pkt << (uint8) REALM_AUTH_ACCOUNT_FREEZED;
+                        pkt << (uint8) WOW_FAIL_SUSPENDED;
                         sLog.outBasic("[AuthChallenge] Temporarily banned account %s tries to login!",_login.c_str ());
                     }
                 }
@@ -453,7 +453,7 @@ bool AuthSocket::_HandleLogonChallenge()
                     unk3.SetRand(16 * 8);
 
                     ///- Fill the response packet with the result
-                    pkt << uint8(REALM_AUTH_SUCCESS);
+                    pkt << uint8(WOW_SUCCESS);
 
                     // B may be calculated < 32B so we force minimal length to 32B
                     pkt.append(B.AsByteArray(32), 32);      // 32 bytes
@@ -481,7 +481,7 @@ bool AuthSocket::_HandleLogonChallenge()
                         pkt << uint64(0);
                     }
 
-                    if (securityFlags & REALM_AUTH_NO_MATCH)                // Security token input
+                    if (securityFlags & WOW_FAIL_UNKNOWN_ACCOUNT)                // Security token input
                         pkt << uint8(1);
 
                     uint8 secLevel = (*result)[4].GetUInt8();
@@ -497,7 +497,7 @@ bool AuthSocket::_HandleLogonChallenge()
         }
         else                                            //no account
         {
-            pkt<< (uint8) REALM_AUTH_NO_MATCH;
+            pkt<< (uint8) WOW_FAIL_UNKNOWN_ACCOUNT;
         }
     }
 
@@ -647,7 +647,7 @@ bool AuthSocket::_HandleLogonProof()
     }
     else
     {
-        char data[4]= { AUTH_LOGON_PROOF, REALM_AUTH_NO_MATCH, 3, 0};
+        char data[4]= { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0};
         socket().send(data, sizeof(data));
         sLog.outBasic("[AuthChallenge] account %s tried to login with wrong password!",_login.c_str ());
 
