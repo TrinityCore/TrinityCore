@@ -22,6 +22,7 @@
 #define TRINITY_INSTANCE_DATA_H
 
 #include "ZoneScript.h"
+#include "World.h"
 //#include "GameObject.h"
 //#include "Map.h"
 
@@ -163,6 +164,9 @@ class InstanceData : public ZoneScript
 
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
+
+        // Return wether server allow two side groups or not
+        bool ServerAllowsTwoSideGroups() { return sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP); }
 
         virtual bool SetBossState(uint32 id, EncounterState state);
         EncounterState GetBossState(uint32 id) const { return id < bosses.size() ? bosses[id].state : TO_BE_DECIDED; }
