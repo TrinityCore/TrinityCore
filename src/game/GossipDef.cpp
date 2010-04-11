@@ -167,7 +167,7 @@ void PlayerMenu::SendGossipMenu(uint32 TitleTextId, uint64 objectGUID)
         data << uint32(questID);
         data << uint32(qItem.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
-        data << uint32(0);                                  // 3.3.3	
+        data << uint32(pQuest->GetFlags());                 // 3.3.3 quest flags	
         data << uint8(0);                                   // 3.3.3 changes icon: blue question or yellow exclamation	
         std::string Title = pQuest->GetTitle();
 
@@ -411,8 +411,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
         data << uint32(questID);
         data << uint32(qmi.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
-        data << uint32(0);	
-        data << uint8(0);
+        data << uint32(pQuest->GetFlags());             // 3.3.3 quest flags	
+        data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation	
         data << title;
     }
     pSession->SendPacket(&data);

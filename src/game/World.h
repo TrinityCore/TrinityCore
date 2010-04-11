@@ -343,7 +343,21 @@ enum Rates
     MAX_RATES
 };
 
-/// Type of server
+/// Can be used in SMSG_AUTH_RESPONSE packet	
+enum BillingPlanFlags	
+{	
+    SESSION_NONE            = 0x00,
+    SESSION_UNUSED          = 0x01,
+    SESSION_RECURRING_BILL  = 0x02,
+    SESSION_FREE_TRIAL      = 0x04,
+    SESSION_IGR             = 0x08,	
+    SESSION_USAGE           = 0x10,
+    SESSION_TIME_MIXTURE    = 0x20,
+    SESSION_RESTRICTED      = 0x40,	
+    SESSION_ENABLE_CAIS     = 0x80,	
+};	
+
+/// Type of server, this is values from second column of Cfg_Configs.dbc
 enum RealmType
 {
     REALM_TYPE_NORMAL = 0,
@@ -386,7 +400,15 @@ enum RealmZone
     REALM_ZONE_TEST_SERVER   = 26,                          // any language
     REALM_ZONE_TOURNAMENT_27 = 27,                          // basic-Latin at create, any at login
     REALM_ZONE_QA_SERVER     = 28,                          // any language
-    REALM_ZONE_CN9           = 29                           // basic-Latin at create, any at login
+    REALM_ZONE_CN9           = 29,                          // basic-Latin at create, any at login
+    REALM_ZONE_TEST_SERVER_2 = 30,                          // any language
+    REALM_ZONE_CN10          = 31,                          // basic-Latin at create, any at login	
+    REALM_ZONE_CTC           = 32,	
+    REALM_ZONE_CNC           = 33,
+    REALM_ZONE_CN1_4         = 34,                          // basic-Latin at create, any at login
+    REALM_ZONE_CN2_6_9       = 35,                          // basic-Latin at create, any at login	
+    REALM_ZONE_CN3_7         = 36,                          // basic-Latin at create, any at login	
+    REALM_ZONE_CN5_8         = 37                           // basic-Latin at create, any at login
 };
 
 // DB scripting commands
