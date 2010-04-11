@@ -715,12 +715,12 @@ class ObjectMgr
         uint32 GenerateAuctionID();
         uint64 GenerateEquipmentSetGuid();
         uint32 GenerateGuildId();
-        uint32 GenerateItemTextID();
+        //uint32 GenerateItemTextID();
         uint32 GenerateMailID();
         uint32 GeneratePetNumber();
 
-        uint32 CreateItemText(std::string text);
-        void AddItemText(uint32 itemTextId, std::string text) { mItemTexts[itemTextId] = text; }
+        void CreateItemText(uint32 guid, std::string text);	
+        void AddItemText(uint32 guid, std::string text) { mItemTexts[guid] = text; }
         std::string GetItemText(uint32 id)
         {
             ItemTextMap::const_iterator itr = mItemTexts.find(id);

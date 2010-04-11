@@ -790,9 +790,10 @@ typedef std::pair<SpellsRequiringSpellMap::const_iterator,SpellsRequiringSpellMa
 // Spell learning properties (accessed using SpellMgr functions)
 struct SpellLearnSkillNode
 {
-    uint32 skill;
-    uint32 value;                                           // 0  - max skill value for player level
-    uint32 maxvalue;                                        // 0  - max skill value for player level
+    uint16 skill;	
+    uint16 step;	
+    uint16 value;                                           // 0  - max skill value for player level
+    uint16 maxvalue;                                        // 0  - max skill value for player level
 };
 
 typedef std::map<uint32, SpellLearnSkillNode> SpellLearnSkillMap;

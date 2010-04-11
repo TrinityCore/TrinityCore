@@ -438,7 +438,7 @@ Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 origin
     }
 
     for (int i=0; i <3; ++i)
-        m_currentBasePoints[i] = m_spellValue->EffectBasePoints[i];
+        m_currentBasePoints[i] = m_spellInfo->CalculateSimpleValue(i);
 
     m_spellState = SPELL_STATE_NULL;
 
@@ -6752,7 +6752,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                 {
                     // skill bonus provided by casting spell (mostly item spells)
                     // add the damage modifier from the spell casted (cheat lock / skeleton key etc.) (use m_currentBasePoints, CalculateDamage returns wrong value)
-                    uint32 spellSkillBonus = uint32(m_currentBasePoints[effIndex]+1);
+                    uint32 spellSkillBonus = uint32(m_currentBasePoints[effIndex]);
                     reqSkillValue = lockInfo->Skill[j];
 
                     // castitem check: rogue using skeleton keys. the skill values should not be added in this case.
@@ -6781,15 +6781,15 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
     switch(mod)
     {
         case SPELLVALUE_BASE_POINT0:
-            m_spellValue->EffectBasePoints[0] = value - int32(m_spellInfo->EffectBaseDice[0]);
+            m_spellValue->EffectBasePoints[0] = value - int32(1);
             m_currentBasePoints[0] = m_spellValue->EffectBasePoints[0]; //this should be removed in the future
             break;
         case SPELLVALUE_BASE_POINT1:
-            m_spellValue->EffectBasePoints[1] = value - int32(m_spellInfo->EffectBaseDice[1]);
+            m_spellValue->EffectBasePoints[1] = value - int32(1);
             m_currentBasePoints[1] = m_spellValue->EffectBasePoints[1];
             break;
         case SPELLVALUE_BASE_POINT2:
-            m_spellValue->EffectBasePoints[2] = value - int32(m_spellInfo->EffectBaseDice[2]);
+            m_spellValue->EffectBasePoints[2] = value - int32(1);
             m_currentBasePoints[2] = m_spellValue->EffectBasePoints[2];
             break;
         case SPELLVALUE_RADIUS_MOD:

@@ -1813,9 +1813,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
             }
         }
 
-        uint32 itemTextId = objmgr.CreateItemText(text);
-
-        MailDraft draft(subject, itemTextId);
+        MailDraft draft(subject, text);
 
         if (item)
         {

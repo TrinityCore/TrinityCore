@@ -228,6 +228,8 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      unused
     &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
+    &Spell::EffectNULL,                                     //163	
+    &Spell::EffectNULL,                                     //164 cancel's some aura...	
 };
 
 void Spell::EffectNULL(uint32 /*i*/)
@@ -3765,7 +3767,7 @@ void Spell::EffectLearnSpell(uint32 i)
     Player *player = (Player*)unitTarget;
 
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->EffectTriggerSpell[i];
-    player->learnSpell(spellToLearn,false);
+    player->learnSpell(spellToLearn, false);
 
     sLog.outDebug("Spell: Player %u has learned spell %u from NpcGUID=%u", player->GetGUIDLow(), spellToLearn, m_caster->GetGUIDLow());
 }
@@ -3980,7 +3982,7 @@ void Spell::EffectLearnSkill(uint32 i)
 
     uint32 skillid =  m_spellInfo->EffectMiscValue[i];
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, skillval?skillval:1, damage*75);
+    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->CalculateSimpleValue(i), skillval?skillval:1, damage*75);
 }
 
 void Spell::EffectAddHonor(uint32 /*i*/)

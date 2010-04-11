@@ -625,7 +625,7 @@ uint32 WorldSession::getDialogStatus(Player *pPlayer, Object* questgiver, uint32
                             result2 = DIALOG_STATUS_AVAILABLE;
                     }
                     else
-                        result2 = DIALOG_STATUS_CHAT;
+                        result2 = DIALOG_STATUS_LOW_LEVEL_AVAILABLE;
                 }
                 else
                     result2 = DIALOG_STATUS_UNAVAILABLE;
