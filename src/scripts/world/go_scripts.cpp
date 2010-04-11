@@ -894,7 +894,7 @@ enum eProphecy
 bool GOHello_go_stillpine_cage(Player *pPlayer, GameObject *pGO)
 {
     Creature *pPrisoner;
-    if (pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE &&
+    if (pPlayer->GetQuestStatus(QUEST_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE &&
         (pPrisoner = pGO->FindNearestCreature(NPC_STILLPINE_CAPTIVE,1.0f)))
     {
         pGO->UseDoorOrButton();
