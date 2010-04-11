@@ -2959,8 +2959,8 @@ void Spell::cast(bool skipCheck)
         uint32 auraSpellIdx = (*i)->GetEffIndex();
         if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(auraSpellInfo->EffectTriggerSpell[auraSpellIdx]))
         {
-            // Calculate chance at that moment (can be depend for example from combo points)
-            int32 chance = m_caster->CalculateSpellDamage(auraSpellInfo, auraSpellIdx, (*i)->GetBaseAmount(), NULL);
+            int32 auraBaseAmount = (*i)->GetBaseAmount();
+            int32 chance = m_caster->CalculateSpellDamage(NULL, auraSpellInfo, auraSpellIdx, &auraBaseAmount);
             m_ChanceTriggerSpells.push_back(std::make_pair(spellInfo, chance * (*i)->GetBase()->GetStackAmount()));
         }
     }

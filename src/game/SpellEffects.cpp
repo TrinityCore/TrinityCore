@@ -450,7 +450,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 // Shockwave
                 else if (m_spellInfo->Id == 46968)
                 {
-                    int32 pct = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
+                    int32 pct = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
                     if (pct > 0)
                         damage+= int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * pct / 100);
                     break;
@@ -704,7 +704,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                 {
                     // Add main hand dps * effect[2] amount
                     float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
-                    int32 count = m_caster->CalculateSpellDamage(m_spellInfo, 2, m_spellInfo->EffectBasePoints[2], unitTarget);
+                    int32 count = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
                     damage += count * int32(average * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                 }
                 // Shield of Righteousness
@@ -2039,7 +2039,7 @@ void Spell::EffectDummy(uint32 i)
                 int32 bp = count * m_caster->GetMaxHealth() * m_spellInfo->DmgMultiplier[0] / 100;
                 // Improved Death Strike
                 if (AuraEffect const * aurEff = m_caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, 2751, 0))
-                    bp = bp * (m_caster->CalculateSpellDamage(aurEff->GetSpellProto(), 2, aurEff->GetSpellProto()->EffectBasePoints[2], m_caster) + 100.0f) / 100.0f;
+                    bp = bp * (m_caster->CalculateSpellDamage(m_caster, aurEff->GetSpellProto(), 2) + 100.0f) / 100.0f;
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, false);
                 return;
             }
@@ -5837,7 +5837,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     case CREATURE_FAMILY_VOIDWALKER:
                     {
                         SpellEntry const* spellInfo = sSpellStore.LookupEntry(54443);
-                        int32 hp = unitTarget->GetMaxHealth() * m_caster->CalculateSpellDamage(spellInfo, 0, spellInfo->EffectBasePoints[0], unitTarget) /100;
+                        int32 hp = unitTarget->GetMaxHealth() * m_caster->CalculateSpellDamage(unitTarget, spellInfo, 0) /100;
                         unitTarget->CastCustomSpell(unitTarget, 54443,&hp, NULL, NULL,true);
                         //unitTarget->CastSpell(unitTarget, 54441, true);
                         break;

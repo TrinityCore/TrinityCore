@@ -407,7 +407,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
     int32 amount;
     // default amount calculation
     if (caster)
-        amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_baseAmount, NULL);
+        amount = caster->CalculateSpellDamage(NULL, m_spellProto, m_effIndex);
     else
         amount = m_baseAmount + 1;
 
@@ -842,7 +842,7 @@ void AuraEffect::CalculateSpellMod()
                         m_spellmod->spellId = GetId();
                         m_spellmod->mask[1] = 0x0004000;
                     }
-                    m_spellmod->value = GetBase()->GetUnitOwner()->CalculateSpellDamage(GetSpellProto(), 1, GetSpellProto()->EffectBasePoints[1], GetBase()->GetUnitOwner());
+                    m_spellmod->value = GetBase()->GetUnitOwner()->CalculateSpellDamage(GetBase()->GetUnitOwner(), GetSpellProto(), 1);
                     break;
             }
             break;
@@ -1034,7 +1034,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
                         break;
 
                     if (target->ToPlayer()->isMoving())
-                        m_amount = target->CalculateSpellDamage(m_spellProto,m_effIndex,m_baseAmount,target);
+                        m_amount = target->CalculateSpellDamage(target, m_spellProto,m_effIndex);
                     else
                         --m_amount;
                     break;
@@ -1211,7 +1211,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                     {
                         uint32 percent =
                             GetEffIndex() < 2 && GetSpellProto()->Effect[GetEffIndex()] == SPELL_EFFECT_DUMMY ?
-                            caster->CalculateSpellDamage(GetSpellProto(),GetEffIndex()+1,GetSpellProto()->EffectBasePoints[GetEffIndex()+1],target) :
+                            caster->CalculateSpellDamage(target, GetSpellProto(),GetEffIndex()+1) :
                             100;
                         if (target->GetHealth()*100 >= target->GetMaxHealth()*percent)
                         {
@@ -1837,7 +1837,7 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     if (rage == 0)
                         break;
                     int32 mod = (rage < 100) ? rage : 100;
-                    int32 points = target->CalculateSpellDamage(GetSpellProto(), 1, GetSpellProto()->EffectBasePoints[1], target);
+                    int32 points = target->CalculateSpellDamage(target, GetSpellProto(), 1);
                     int32 regen = target->GetMaxHealth() * (mod * points / 10) / 1000;
                     target->CastCustomSpell(target, 22845, &regen, 0, 0, true, 0, this);
                     target->SetPower(POWER_RAGE, rage-mod);
@@ -2476,7 +2476,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                     // Survival of the Fittest
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961, 0))
                     {
-                        int32 bp = target->CalculateSpellDamage(aurEff->GetSpellProto(),2,aurEff->GetSpellProto()->EffectBasePoints[2],target);
+                        int32 bp = target->CalculateSpellDamage(target, GetSpellProto(),2);
                         target->CastCustomSpell(target, 62069,&bp, NULL, NULL, true, 0, this);
                     }
                 break;
@@ -2890,7 +2890,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const * aurApp, uint8 m
                         if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
                         if (spellInfo && spellInfo->SpellFamilyName == SPELLFAMILY_WARRIOR && spellInfo->SpellIconID == 139)
-                            Rage_val += target->CalculateSpellDamage(spellInfo,0,spellInfo->EffectBasePoints[0],target) * 10;
+                            Rage_val += target->CalculateSpellDamage(target,spellInfo,0) * 10;
                     }
                 }
                 if (target->GetPower(POWER_RAGE) > Rage_val)
