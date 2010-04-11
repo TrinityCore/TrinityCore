@@ -107,10 +107,7 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
         bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId);
 
     if (!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
-    {
-        SendBattleGroundOrArenaJoinError(BG_JOIN_ERR_BG_DISABLED);
         return;
-    }
 
     // expected bracket entry
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(),_player->getLevel());
@@ -632,10 +629,8 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
 
     //check if any arena enabled
     if (!sBattleGroundMgr.isAnyArenaEnabled())
-    {
-        SendBattleGroundOrArenaJoinError(BG_JOIN_ERR_ARENA_DISABLED);
         return;
-    }
+
     //check existance
     BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(BATTLEGROUND_AA);
     if (!bg)
