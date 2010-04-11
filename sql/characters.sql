@@ -1682,7 +1682,7 @@ CREATE TABLE `mail` (
   `sender` int(11) unsigned NOT NULL default '0' COMMENT 'Character Global Unique Identifier',
   `receiver` int(11) unsigned NOT NULL default '0' COMMENT 'Character Global Unique Identifier',
   `subject` longtext,
-  `itemTextId` int(11) unsigned NOT NULL default '0',
+  `body` longtext,
   `has_items` tinyint(3) unsigned NOT NULL default '0',
   `expire_time` bigint(40) NOT NULL default '0',
   `deliver_time` bigint(40) NOT NULL default '0',
