@@ -1160,7 +1160,7 @@ bool ChatHandler::HandleNpcAddMoveCommand(const char* args)
         if (pCreature->isAlive())                            // dead creature will reset movement generator at respawn
         {
             pCreature->setDeathState(JUST_DIED);
-            pCreature->Respawn();
+            pCreature->Respawn(true);
         }
         pCreature->SaveToDB();
     }
