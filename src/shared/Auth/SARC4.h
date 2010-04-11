@@ -25,8 +25,8 @@
 class SARC4
 {
     public:
-        SARC4();
-        SARC4(uint8 *seed);
+        SARC4(uint8 len);	
+        SARC4(uint8 *seed, uint8 len);
         ~SARC4();
         void Init(uint8 *seed);
         void UpdateData(int len, uint8 *data);

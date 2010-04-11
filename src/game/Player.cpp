@@ -1607,8 +1607,18 @@ bool Player::BuildEnumData(QueryResult_AutoPtr result, WorldPacket * p_data)
         *p_data << uint8(proto->InventoryType);
         *p_data << uint32(enchant ? enchant->aura_id : 0);
     }
-    *p_data << uint32(0);                                   // first bag display id
-    *p_data << uint8(0);                                    // first bag inventory type
+	
+    *p_data << uint32(0);                                   // bag 1 display id	
+    *p_data << uint8(0);                                    // bag 1 inventory type
+    *p_data << uint32(0);                                   // enchant?	
+    *p_data << uint32(0);                                   // bag 2 display id	
+    *p_data << uint8(0);                                    // bag 2 inventory type
+    *p_data << uint32(0);                                   // enchant?	
+    *p_data << uint32(0);                                   // bag 3 display id	
+    *p_data << uint8(0);                                    // bag 3 inventory type	
+    *p_data << uint32(0);                                   // enchant?	
+    *p_data << uint32(0);                                   // bag 4 display id	
+    *p_data << uint8(0);                                    // bag 4 inventory type
     *p_data << uint32(0);                                   // enchant?
 
     return true;
@@ -23343,18 +23353,21 @@ void Player::ActivateSpec(uint8 spec)
 
 void Player::ResetTimeSync()
 {
-    m_timeSyncCount = 0;
+    m_timeSyncCounter = 0;
     m_timeSyncTimer = 0;
+    m_timeSyncClient = 0;	
+    m_timeSyncServer = getMSTime();
 }
 
 void Player::SendTimeSync()
 {
     WorldPacket data(SMSG_TIME_SYNC_REQ, 4);
-    data << uint32(m_timeSyncCount++);
+    data << uint32(m_timeSyncCounter++);
     GetSession()->SendPacket(&data);
 
-    // Send another opcode in 10s again
-    m_timeSyncTimer = 10000;
+    // Schedule next sync in 10 sec	
+    m_timeSyncTimer = 10000;	
+    m_timeSyncServer = getMSTime();
 }
 
 void Player::SetReputation(uint32 factionentry, uint32 value)
