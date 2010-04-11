@@ -217,8 +217,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     uint32 gmLevelInWhoList  = sWorld.getConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     WorldPacket data(SMSG_WHO, 50);                       // guess size
-    data << clientcount;                                    // clientcount place holder
-    data << clientcount;                                    // clientcount place holder
+    data << uint32(clientcount);                            // clientcount place holder, listed count	
+    data << uint32(clientcount);                            // clientcount place holder, online count
 
     ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = ObjectAccessor::Instance().GetPlayers();
@@ -328,8 +328,9 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
             break;
     }
 
-    data.put(0,              clientcount);                //insert right count
-    data.put(sizeof(uint32), clientcount);                //insert right count
+    uint32 count = m.size();	
+    data.put( 0, clientcount );                             // insert right count, listed count	
+    data.put( 4, count > 50 ? count : clientcount );        // insert right count, online count
 
     SendPacket(&data);
     sLog.outDebug("WORLD: Send SMSG_WHO Message");

@@ -167,39 +167,34 @@ void PlayerMenu::SendGossipMenu(uint32 TitleTextId, uint64 objectGUID)
         data << uint32(questID);
         data << uint32(qItem.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
+        data << uint32(0);                                  // 3.3.3	
+        data << uint8(0);                                   // 3.3.3 changes icon: blue question or yellow exclamation	
         std::string Title = pQuest->GetTitle();
 
         int loc_idx = pSession->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
-        {
-            QuestLocale const *ql = objmgr.GetQuestLocale(questID);
-            if (ql)
-            {
+            if (QuestLocale const *ql = objmgr.GetQuestLocale(questID))
                 if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                    Title=ql->Title[loc_idx];
-            }
-        }
-        data << Title;
+                    Title = ql->Title[loc_idx];	
+        data << Title;                                      // max 0x200
     }
 
     pSession->SendPacket(&data);
-    //sLog.outDebug("WORLD: Sent SMSG_GOSSIP_MESSAGE NPCGuid=%u",GUID_LOPART(npcGUID));
 }
 
 void PlayerMenu::CloseGossip()
 {
     WorldPacket data(SMSG_GOSSIP_COMPLETE, 0);
     pSession->SendPacket(&data);
-
-    //sLog.outDebug("WORLD: Sent SMSG_GOSSIP_COMPLETE");
 }
 
 // Outdated
 void PlayerMenu::SendPointOfInterest(float X, float Y, uint32 Icon, uint32 Flags, uint32 Data, char const * locName)
 {
     WorldPacket data(SMSG_GOSSIP_POI, (4+4+4+4+4+10));    // guess size
-    data << Flags;
-    data << X << Y;
+    data << uint32(Flags);	
+    data << float(X);	
+    data << float(Y);
     data << uint32(Icon);
     data << uint32(Data);
     data << locName;
@@ -416,6 +411,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
         data << uint32(questID);
         data << uint32(qmi.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
+        data << uint32(0);	
+        data << uint8(0);
         data << title;
     }
     pSession->SendPacket(&data);
@@ -463,11 +460,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
     data << Title;
     data << Details;
     data << Objectives;
-    data << uint8(ActivateAccept ? 1 : 0);
+    data << uint8(ActivateAccept ? 1 : 0);                  // auto finish
+    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags
     data << uint32(pQuest->GetSuggestedPlayers());
-    data << uint8(0);                                       // new wotlk
-    data << uint8(0);                                       // new 3.1
-    data << uint8(0);                                       // new 3.3.0
+    data << uint8(0);                                       // IsFinished, value is sent back to server in quest accept packet
 
     if (pQuest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
@@ -711,8 +707,9 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     data << Title;
     data << OfferRewardText;
 
-    data << uint8(EnableNext ? 1 : 0);
-    data << uint32(0);                                      // unk
+    data << uint8(EnableNext ? 1 : 0);                      // Auto Finish	
+    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags	
+    data << uint32(pQuest->GetSuggestedPlayers());          // SuggestedGroupNum
 
     uint32 EmoteCount = 0;
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
@@ -746,7 +743,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     }
 
     data << uint32(pQuest->GetRewItemsCount());
-    for (uint16 i=0; i < pQuest->GetRewItemsCount(); ++i)
+    for (uint32 i = 0; i < pQuest->GetRewItemsCount(); ++i)
     {
         pItem = objmgr.GetItemPrototype(pQuest->RewItemId[i]);
         data << uint32(pQuest->RewItemId[i]);
@@ -813,8 +810,8 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const *pQuest, uint64 npcGUID,
     }
 
     WorldPacket data(SMSG_QUESTGIVER_REQUEST_ITEMS, 50);  // guess size
-    data << npcGUID;
-    data << pQuest->GetQuestId();
+    data << uint64(npcGUID);
+    data << uint32(pQuest->GetQuestId());
     data << Title;
     data << RequestItemsText;
 
@@ -831,7 +828,8 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const *pQuest, uint64 npcGUID,
     else
         data << uint32(0x00);
 
-    data << uint32(0x00);                                   // unknown
+    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags
+    data << uint32(pQuest->GetSuggestedPlayers());          // SuggestedGroupNum
 
     // Required Money
     data << uint32(pQuest->GetRewOrReqMoney() < 0 ? -pQuest->GetRewOrReqMoney() : 0);
