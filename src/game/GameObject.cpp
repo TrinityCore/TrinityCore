@@ -1137,6 +1137,7 @@ void GameObject::Use(Unit* user)
                 {
                     sLog.outDebug("Goober ScriptStart id %u for GO entry %u (GUID %u).", info->goober.eventId, GetEntry(), GetDBTableGUIDLow());
                     GetMap()->ScriptsStart(sEventScripts, info->goober.eventId, player, this);
+                    EventInform(info->goober.eventId);
                 }
 
                 // possible quest objective for active quests
@@ -1147,10 +1148,8 @@ void GameObject::Use(Unit* user)
                         break;
                 }
 
-        if (BattleGround* bg = player->GetBattleGround())
-          {
-            bg->EventPlayerUsedGO(player, this);
-          }
+                if (BattleGround* bg = player->GetBattleGround())
+                    bg->EventPlayerUsedGO(player, this);
 
                 player->CastedCreatureOrGO(info->id, GetGUID(), 0);
             }
