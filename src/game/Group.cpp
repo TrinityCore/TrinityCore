@@ -578,7 +578,7 @@ void Group::SendLooter(Creature *pCreature, Player *pLooter)
     BroadcastPacket(&data, false);
 }
 
-void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject, Creature *creature)
+void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 {
     std::vector<LootItem>::iterator i;
     ItemPrototype const *item;
@@ -625,6 +625,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject, Creature *creature
 
                 loot->items[itemSlot].is_blocked = true;
 
+                Creature *creature;
                 SendLootStartRoll(60000, creature->GetMapId(), *r);
 
                 RollId.push_back(r);
@@ -650,7 +651,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject, Creature *creature
     }
 }
 
-void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject, Creature *creature)
+void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 {
     ItemPrototype const *item;
     uint8 itemSlot = 0;
@@ -690,6 +691,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject, Creature *cr
 
                 loot->items[itemSlot].is_blocked = true;
 
+                Creature *creature;
                 SendLootStartRoll(60000, creature->GetMapId(), *r);
 
                 RollId.push_back(r);
