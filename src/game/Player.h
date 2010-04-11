@@ -57,7 +57,7 @@ class OutdoorPvP;
 typedef std::deque<Mail*> PlayerMails;
 
 #define PLAYER_MAX_SKILLS           127
-#define PLAYER_MAX_DAILY_QUESTS     25	
+#define PLAYER_MAX_DAILY_QUESTS     25
 #define PLAYER_EXPLORED_ZONES_SIZE  128
 
 // Note: SPELLMOD_* values is aura types in fact
@@ -79,13 +79,13 @@ enum PlayerUnderwaterState
     UNDERWATER_EXIST_TIMERS             = 0x10
 };
 
-enum BuyBankSlotResult	
-{	
-    ERR_BANKSLOT_FAILED_TOO_MANY    = 0,	
-    ERR_BANKSLOT_INSUFFICIENT_FUNDS = 1,	
-    ERR_BANKSLOT_NOTBANKER          = 2,	
-    ERR_BANKSLOT_OK                 = 3	
-};	
+enum BuyBankSlotResult
+{
+    ERR_BANKSLOT_FAILED_TOO_MANY    = 0,
+    ERR_BANKSLOT_INSUFFICIENT_FUNDS = 1,
+    ERR_BANKSLOT_NOTBANKER          = 2,
+    ERR_BANKSLOT_OK                 = 3
+};
 
 enum PlayerSpellState
 {
@@ -500,7 +500,7 @@ enum PlayerFlags
 #define PLAYER_TITLE_HAND_OF_ADAL          UI64LIT(0x0000008000000000) // 39
 #define PLAYER_TITLE_VENGEFUL_GLADIATOR    UI64LIT(0x0000010000000000) // 40
 
-#define KNOWN_TITLES_SIZE   3	
+#define KNOWN_TITLES_SIZE   3
 #define MAX_TITLE_INDEX     (KNOWN_TITLES_SIZE*64)          // 3 uint64 fields
 
 // used in PLAYER_FIELD_BYTES values
@@ -1723,7 +1723,7 @@ class Player : public Unit, public GridObject<Player>
             SetArenaTeamInfoField(slot, ARENA_TEAM_ID, ArenaTeamId);
             SetArenaTeamInfoField(slot, ARENA_TEAM_TYPE, type);
         }
-        void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)	
+        void SetArenaTeamInfoField(uint8 slot, ArenaTeamInfoType type, uint32 value)
         {
             SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (slot * ARENA_TEAM_END) + type, value);
         }
@@ -2628,8 +2628,8 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_ChampioningFaction;
 
         uint32 m_timeSyncCounter;
-        uint32 m_timeSyncTimer;	
-        uint32 m_timeSyncClient;	
+        uint32 m_timeSyncTimer;
+        uint32 m_timeSyncClient;
         uint32 m_timeSyncServer;
 };
 

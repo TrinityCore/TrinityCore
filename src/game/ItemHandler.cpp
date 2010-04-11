@@ -854,11 +854,11 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 
     BankBagSlotPricesEntry const* slotEntry = sBankBagSlotPricesStore.LookupEntry(slot);
 
-    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);	
+    WorldPacket data(SMSG_BUY_BANK_SLOT_RESULT, 4);
 
     if (!slotEntry)
     {
-        data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);	
+        data << uint32(ERR_BANKSLOT_FAILED_TOO_MANY);
         SendPacket(&data);
         return;
     }
@@ -867,7 +867,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 
     if (_player->GetMoney() < price)
     {
-        data << uint32(ERR_BANKSLOT_INSUFFICIENT_FUNDS);	
+        data << uint32(ERR_BANKSLOT_INSUFFICIENT_FUNDS);
         SendPacket(&data);
         return;
     }
@@ -876,7 +876,7 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
     _player->ModifyMoney(-int32(price));
 
      data << uint32(ERR_BANKSLOT_OK);
-     SendPacket(&data);	
+     SendPacket(&data);
 
     _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BUY_BANK_SLOT);
 }

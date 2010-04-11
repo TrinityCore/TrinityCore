@@ -268,9 +268,9 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     sLog.outDebug("CMSG_PETITION_SHOW_SIGNATURES petition entry: '%u'", petitionguid_low);
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+1+signs*12));
-    data << uint64(petitionguid);                           // petition guid	
-    data << uint64(_player->GetGUID());                     // owner guid	
-    data << uint32(petitionguid_low);                       // guild guid (in mangos always same as GUID_LOPART(petitionguid)	
+    data << uint64(petitionguid);                           // petition guid
+    data << uint64(_player->GetGUID());                     // owner guid
+    data << uint32(petitionguid_low);                       // guild guid (in mangos always same as GUID_LOPART(petitionguid)
     data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)
@@ -668,8 +668,8 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 
     WorldPacket data(SMSG_PETITION_SHOW_SIGNATURES, (8+8+4+signs+signs*12));
     data << uint64(petitionguid);                           // petition guid
-    data << uint64(_player->GetGUID());                     // owner guid	
-    data << uint32(GUID_LOPART(petitionguid));              // guild guid (in mangos always same as GUID_LOPART(petition guid)	
+    data << uint64(_player->GetGUID());                     // owner guid
+    data << uint32(GUID_LOPART(petitionguid));              // guild guid (in mangos always same as GUID_LOPART(petition guid)
     data << uint8(signs);                                   // sign's count
 
     for (uint8 i = 1; i <= signs; ++i)

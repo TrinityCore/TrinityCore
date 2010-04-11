@@ -167,15 +167,15 @@ void PlayerMenu::SendGossipMenu(uint32 TitleTextId, uint64 objectGUID)
         data << uint32(questID);
         data << uint32(qItem.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
-        data << uint32(pQuest->GetFlags());                 // 3.3.3 quest flags	
-        data << uint8(0);                                   // 3.3.3 changes icon: blue question or yellow exclamation	
+        data << uint32(pQuest->GetFlags());                 // 3.3.3 quest flags
+        data << uint8(0);                                   // 3.3.3 changes icon: blue question or yellow exclamation
         std::string Title = pQuest->GetTitle();
 
         int loc_idx = pSession->GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
             if (QuestLocale const *ql = objmgr.GetQuestLocale(questID))
                 if (ql->Title.size() > loc_idx && !ql->Title[loc_idx].empty())
-                    Title = ql->Title[loc_idx];	
+                    Title = ql->Title[loc_idx];
         data << Title;                                      // max 0x200
     }
 
@@ -192,8 +192,8 @@ void PlayerMenu::CloseGossip()
 void PlayerMenu::SendPointOfInterest(float X, float Y, uint32 Icon, uint32 Flags, uint32 Data, char const * locName)
 {
     WorldPacket data(SMSG_GOSSIP_POI, (4+4+4+4+4+10));    // guess size
-    data << uint32(Flags);	
-    data << float(X);	
+    data << uint32(Flags);
+    data << float(X);
     data << float(Y);
     data << uint32(Icon);
     data << uint32(Data);
@@ -411,8 +411,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
         data << uint32(questID);
         data << uint32(qmi.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
-        data << uint32(pQuest->GetFlags());             // 3.3.3 quest flags	
-        data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation	
+        data << uint32(pQuest->GetFlags());             // 3.3.3 quest flags
+        data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
         data << title;
     }
     pSession->SendPacket(&data);
@@ -707,8 +707,8 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     data << Title;
     data << OfferRewardText;
 
-    data << uint8(EnableNext ? 1 : 0);                      // Auto Finish	
-    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags	
+    data << uint8(EnableNext ? 1 : 0);                      // Auto Finish
+    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags
     data << uint32(pQuest->GetSuggestedPlayers());          // SuggestedGroupNum
 
     uint32 EmoteCount = 0;

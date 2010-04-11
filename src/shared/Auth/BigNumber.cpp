@@ -183,7 +183,7 @@ uint8 *BigNumber::AsByteArray(int minSize, bool reverse)
 
     BN_bn2bin(_bn, (unsigned char *)_array);
 
-    if (reverse)	
+    if (reverse)
         std::reverse(_array, _array + length);
 
     return _array;
