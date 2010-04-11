@@ -1,4 +1,5 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>>
+* Copyright (C) 2006 - 20010 TrinityCore <http://www.trinitycore.org/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -1043,6 +1044,11 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_dragonflayer_cage";
     newscript->pGOHello =           &GOHello_go_dragonflayer_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_black_cage";
+    newscript->pGOHello =           &GOHello_go_black_cage;
     newscript->RegisterSelf();
 
     newscript = new Script;
