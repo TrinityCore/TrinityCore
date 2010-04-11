@@ -14294,7 +14294,7 @@ bool Player::SatisfyQuestLog(bool msg)
         GetSession()->SendPacket(&data);	
         sLog.outDebug("WORLD: Sent SMSG_QUESTLOG_FULL");
     }
-    return true;
+    return false;
 }
 
 bool Player::SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg)
