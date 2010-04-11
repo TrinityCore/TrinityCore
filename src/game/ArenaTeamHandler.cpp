@@ -332,10 +332,10 @@ void WorldSession::HandleArenaTeamLeaderOpcode(WorldPacket & recv_data)
 void WorldSession::SendArenaTeamCommandResult(uint32 team_action, const std::string& team, const std::string& player, uint32 error_id)
 {
     WorldPacket data(SMSG_ARENA_TEAM_COMMAND_RESULT, 4+team.length()+1+player.length()+1+4);
-    data << team_action;
+    data << uint32(team_action);
     data << team;
     data << player;
-    data << error_id;
+    data << uint32(error_id);
     SendPacket(&data);
 }
 
