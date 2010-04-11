@@ -79,6 +79,14 @@ enum PlayerUnderwaterState
     UNDERWATER_EXIST_TIMERS             = 0x10
 };
 
+enum BuyBankSlotResult	
+{	
+    ERR_BANKSLOT_FAILED_TOO_MANY    = 0,	
+    ERR_BANKSLOT_INSUFFICIENT_FUNDS = 1,	
+    ERR_BANKSLOT_NOTBANKER          = 2,	
+    ERR_BANKSLOT_OK                 = 3	
+};	
+
 enum PlayerSpellState
 {
     PLAYERSPELL_UNCHANGED = 0,
