@@ -226,7 +226,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
 
     void SpellHitTarget(Unit* pTarget, const SpellEntry *pSpell)
     {
-        if (pSpell->Id == SPELL_PHANTOM_BLAST)
+        if (pSpell->Id == H_SPELL_PHANTOM_BLAST)
             bThreeFaceAchievement = false;
     }
 
