@@ -2783,13 +2783,11 @@ void Spell::cancel()
     {
         case SPELL_STATE_PREPARING:
         case SPELL_STATE_DELAYED:
-        {
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
-        } break;
+            break;
 
         case SPELL_STATE_CASTING:
-        {
             for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                 if ((*ihit).missCondition == SPELL_MISS_NONE)
                     if (Unit* unit = m_caster->GetGUID() == ihit->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID))
@@ -2801,18 +2799,17 @@ void Spell::cancel()
 
             // spell is canceled-take mods and clear list
             if (m_caster->GetTypeId() == TYPEID_PLAYER)
-            {
-                m_caster->ToPlayer()->RemoveGlobalCooldown(m_spellInfo);
                 m_caster->ToPlayer()->RemoveSpellMods(this);
-            }
 
             m_appliedMods.clear();
-        } break;
+            break;
 
         default:
-        {
-        } break;
+            break;
     }
+
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->RemoveGlobalCooldown(m_spellInfo);
 
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id,true);
