@@ -599,7 +599,7 @@ struct BattlemasterListEntry
     //uint32 canJoinAsGroup;                                // 10 (0 or 1)	
     char*   name[16];                                       // 11-26	
     //uint32 nameFlags                                      // 27 string flag, unused	
-    //uint32 maxGroupSize                                   // 28 maxGroupSize, used for checking if queue as group	
+    uint32 maxGroupSize;                                    // 28 maxGroupSize, used for checking if queue as group	
     //uint32 HolidayWorldStateId;                           // 29 new 3.1	
     //uint32 MinLevel;                                      // 30	
     //uint32 SomeLevel;                                     // 31, may be max level

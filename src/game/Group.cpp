@@ -83,9 +83,9 @@ bool Group::Create(const uint64 &guid, const char * name)
     m_leaderGuid = guid;
     m_leaderName = name;
 
-    m_groupType  = isBGGroup() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
+    m_groupType  = isBGGroup() ? GROUPTYPE_BGRAID : GROUPTYPE_NORMAL;
 
-    if (m_groupType == GROUPTYPE_RAID)
+    if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
 
     m_lootMethod = GROUP_LOOT;
@@ -112,7 +112,7 @@ bool Group::Create(const uint64 &guid, const char * name)
         CharacterDatabase.PExecute("INSERT INTO groups (leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,isRaid,difficulty,raiddifficulty) "
             "VALUES ('%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
             GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
-            GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6], m_targetIcons[7], isRaidGroup(), uint32(m_dungeonDifficulty), m_raidDifficulty);
+            GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6], m_targetIcons[7], uint8(m_groupType), uint32(m_dungeonDifficulty), m_raidDifficulty);
     }
 
     if (!AddMember(guid, name))
@@ -144,9 +144,9 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
     if (!objmgr.GetPlayerNameByGUID(m_leaderGuid, m_leaderName))
         return false;
 
-    m_groupType  = (*result)[11].GetBool() ? GROUPTYPE_RAID : GROUPTYPE_NORMAL;
+    m_groupType  = GroupType(fields[11].GetUInt8());
 
-    if (m_groupType == GROUPTYPE_RAID)
+    if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();
 
     uint32 diff = (*result)[12].GetUInt8();
@@ -205,7 +205,7 @@ bool Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup)
 
 void Group::ConvertToRaid()
 {
-    m_groupType = GROUPTYPE_RAID;
+    m_groupType = GroupType(m_groupType | GROUPTYPE_RAID);
 
     _initRaidSubGroupsCounter();
 
@@ -1487,24 +1487,31 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-uint32 Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot)
+GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot)	
 {
+    BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->GetTypeID());
+    if (!bgEntry)	
+        return ERR_GROUP_JOIN_BATTLEGROUND_FAIL;            // shouldn't happen	
+
     // check for min / max count
     uint32 memberscount = GetMembersCount();
-    if (memberscount < MinPlayerCount)
-        return BG_JOIN_ERR_GROUP_NOT_ENOUGH;
-    if (memberscount > MaxPlayerCount)
-        return BG_JOIN_ERR_GROUP_TOO_MANY;
+	
+    // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...	
+    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)	
+        return ERR_ARENA_TEAM_PARTY_SIZE;	
+	
+    if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
+        return ERR_BATTLEGROUND_NONE;                       // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 
     // get a player as reference, to compare other players' stats to (arena team id, queue id based on level, etc.)
     Player * reference = GetFirstMember()->getSource();
     // no reference found, can't join this way
     if (!reference)
-        return BG_JOIN_ERR_OFFLINE_MEMBER;
+        return ERR_BATTLEGROUND_JOIN_FAILED;
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgOrTemplate->GetMapId(),reference->getLevel());
     if (!bracketEntry)
-        return BG_JOIN_ERR_OFFLINE_MEMBER;
+        return ERR_BATTLEGROUND_JOIN_FAILED;
 
     uint32 arenaTeamId = reference->GetArenaTeamId(arenaSlot);
     uint32 team = reference->GetTeam();
@@ -1515,28 +1522,28 @@ uint32 Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleG
         Player *member = itr->getSource();
         // offline member? don't let join
         if (!member)
-            return BG_JOIN_ERR_OFFLINE_MEMBER;
+            return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't allow cross-faction join as group
         if (member->GetTeam() != team)
-            return BG_JOIN_ERR_MIXED_FACTION;
+            return ERR_BATTLEGROUND_JOIN_TIMED_OUT;
         // not in the same battleground level braket, don't let join
         PvPDifficultyEntry const* memberBracketEntry = GetBattlegroundBracketByLevel(bracketEntry->mapId,member->getLevel());
         if (memberBracketEntry != bracketEntry)
-            return BG_JOIN_ERR_MIXED_LEVELS;
+            return ERR_BATTLEGROUND_JOIN_RANGE_INDEX;
         // don't let join rated matches if the arena team id doesn't match
         if (isRated && member->GetArenaTeamId(arenaSlot) != arenaTeamId)
-            return BG_JOIN_ERR_MIXED_ARENATEAM;
+            return ERR_BATTLEGROUND_JOIN_FAILED;
         // don't let join if someone from the group is already in that bg queue
         if (member->InBattleGroundQueueForBattleGroundQueueType(bgQueueTypeId))
-            return BG_JOIN_ERR_GROUP_MEMBER_ALREADY_IN_QUEUE;
+            return ERR_BATTLEGROUND_JOIN_FAILED;            // not blizz-like
         // check for deserter debuff in case not arena queue
         if (bgOrTemplate->GetTypeID() != BATTLEGROUND_AA && !member->CanJoinToBattleground())
-            return BG_JOIN_ERR_GROUP_DESERTER;
+            return ERR_GROUP_JOIN_BATTLEGROUND_DESERTERS;
         // check if member can join any more battleground queues
         if (!member->HasFreeBattleGroundQueueId())
-            return BG_JOIN_ERR_ALL_QUEUES_USED;
+            return ERR_BATTLEGROUND_TOO_MANY_QUEUES;        // not blizz-like
     }
-    return BG_JOIN_ERR_OK;
+    return GroupJoinBattlegroundResult(bgOrTemplate->GetTypeID());
 }
 
 //===================================================
