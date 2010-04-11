@@ -15414,13 +15414,13 @@ void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
         }
         uint8  arenaSlot = aTeam->GetSlot();
 
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_ID]                 = arenateamid;      // TeamID
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_TYPE]               = aTeam->GetType(); // team type
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_MEMBER]             = ((aTeam->GetCaptain() == GetGUID()) ? (uint32)0 : (uint32)1); // Captain 0, member 1
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_GAMES_WEEK]         = played_week;      // Played Week
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_GAMES_SEASON]       = played_season;    // Played Season
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_WINS_SEASON]        = wons_season;      // wins season
-        m_uint32Values[PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arenaSlot * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING]    = personal_rating;  // Personal Rating
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_ID, arenateamid);
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_TYPE, aTeam->GetType());
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_MEMBER, (aTeam->GetCaptain() == GetGUID()) ? 0 : 1);
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, played_week);	
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, played_season);
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, wons_season);	
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_PERSONAL_RATING, personal_rating);
 
     }while (result->NextRow());
 }
@@ -15673,7 +15673,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
 
         // arena team not exist or not member, cleanup fields
         for (int j = 0; j < 6; ++j)
-            SetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (arena_slot * ARENA_TEAM_END) + j, 0);
+            SetArenaTeamInfoField(arena_slot, ArenaTeamInfoType(j), 0);
     }
 
     SetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY, fields[40].GetUInt32());
@@ -17914,8 +17914,8 @@ void Player::SendAutoRepeatCancel(Unit *target)
 void Player::SendExplorationExperience(uint32 Area, uint32 Experience)
 {
     WorldPacket data(SMSG_EXPLORATION_EXPERIENCE, 8);
-    data << Area;
-    data << Experience;
+    data << uint32(Area);
+    data << uint32(Experience);
     GetSession()->SendPacket(&data);
 }
 
@@ -17998,7 +17998,7 @@ void Player::ResetInstances(uint8 method, bool isRaid)
 void Player::SendResetInstanceSuccess(uint32 MapId)
 {
     WorldPacket data(SMSG_INSTANCE_RESET, 4);
-    data << MapId;
+    data << uint32(MapId);
     GetSession()->SendPacket(&data);
 }
 
@@ -18006,8 +18006,8 @@ void Player::SendResetInstanceFailed(uint32 reason, uint32 MapId)
 {
     // TODO: find what other fail reasons there are besides players in the instance
     WorldPacket data(SMSG_INSTANCE_RESET_FAILED, 4);
-    data << reason;
-    data << MapId;
+    data << uint32(reason);
+    data << uint32(MapId);
     GetSession()->SendPacket(&data);
 }
 
@@ -18669,7 +18669,7 @@ void Player::SetSpellModTakingSpell(Spell * spell, bool apply)
 void Player::SendProficiency(uint8 pr1, uint32 pr2)
 {
     WorldPacket data(SMSG_SET_PROFICIENCY, 8);
-    data << pr1 << pr2;
+    data << uint8(pr1) << uint32(pr2);
     GetSession()->SendPacket (&data);
 }
 
@@ -19090,7 +19090,7 @@ void Player::ProhibitSpellScholl(SpellSchoolMask idSchoolMask, uint32 unTimeMs)
 {
                                                             // last check 2.0.10
     WorldPacket data(SMSG_SPELL_COOLDOWN, 8+1+m_spells.size()*8);
-    data << GetGUID();
+    data << uint64(GetGUID());
     data << uint8(0x0);                                     // flags (0x1, 0x2)
     time_t curTime = time(NULL);
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
@@ -19441,7 +19441,7 @@ uint32 Player::GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot)
     {
         if (ArenaTeam * at = objmgr.GetArenaTeamById(GetArenaTeamId(i)))
         {
-            uint32 p_rating = GetUInt32Value(PLAYER_FIELD_ARENA_TEAM_INFO_1_1 + (i * ARENA_TEAM_END) + ARENA_TEAM_PERSONAL_RATING);
+            uint32 p_rating = GetArenaPersonalRating(i);
             uint32 t_rating = at->GetRating();
             p_rating = p_rating < t_rating ? p_rating : t_rating;
             if (max_personal_rating < p_rating)
