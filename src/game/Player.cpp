@@ -22056,7 +22056,7 @@ void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell const *spell)
 
     if (!(spellInfo->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_PASSIVE)))
         cdTime *= GetFloatValue(UNIT_MOD_CAST_SPEED);
-	else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
+    else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
         cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
 
     m_globalCooldowns[spellInfo->StartRecoveryCategory] = ((cdTime < 1000 || cdTime > 2000) ? 1000 : cdTime);
