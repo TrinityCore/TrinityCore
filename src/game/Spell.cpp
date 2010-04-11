@@ -2007,7 +2007,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             Position pos;
             m_caster->GetNearPosition(pos, dist, angle);
             m_targets.setDst(&pos); // also flag
-            AddUnitTarget(m_caster, i);
             break;
         }
 
