@@ -83,7 +83,7 @@ class BigNumber
         struct bignum_st *BN() { return _bn; }
 
         uint32 AsDword();
-        uint8* AsByteArray(int minSize = 0);
+        uint8* AsByteArray(int minSize = 0, bool reverse = true);
 
         const char *AsHexStr();
         const char *AsDecStr();

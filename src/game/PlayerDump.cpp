@@ -312,8 +312,8 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
             {
                 case DTT_INVENTORY:
                     StoreGUID(result,3,items); break;       // item guid collection
-                case DTT_ITEM:
-                    StoreGUID(result,0,ITEM_FIELD_ITEM_TEXT_ID,texts); break;
+                //case DTT_ITEM:
+                    //StoreGUID(result,0,ITEM_FIELD_ITEM_TEXT_ID,texts); break;
                     // item text id collection
                 case DTT_PET:
                     StoreGUID(result,0,pets);  break;       // pet guid collection

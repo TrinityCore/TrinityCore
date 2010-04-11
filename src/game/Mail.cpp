@@ -717,7 +717,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
         return;
     }
 
-    bodyItem->SetUInt32Value(ITEM_FIELD_ITEM_TEXT_ID , itemTextId);
+    //bodyItem->SetUInt32Value(ITEM_FIELD_ITEM_TEXT_ID , itemTextId);
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
 
     sLog.outDetail("HandleMailCreateTextItem mailid=%u",mailId);
