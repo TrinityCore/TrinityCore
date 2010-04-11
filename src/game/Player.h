@@ -2618,8 +2618,10 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_ChampioningFaction;
 
-        uint32 m_timeSyncCount;
-        uint32 m_timeSyncTimer;
+        uint32 m_timeSyncCounter;
+        uint32 m_timeSyncTimer;	
+        uint32 m_timeSyncClient;	
+        uint32 m_timeSyncServer;
 };
 
 void AddItemsSetItem(Player*player,Item *item);
