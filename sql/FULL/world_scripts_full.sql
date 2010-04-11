@@ -259,6 +259,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_nestlewood_owlkin' WHERE `entry
 UPDATE `creature_template` SET `ScriptName`='npc_draenei_survivor' WHERE `entry`=16483;
 UPDATE `creature_template` SET `ScriptName`='npc_death_ravager' WHERE `entry`=17556;
 UPDATE `gameobject_template` SET `ScriptName`='go_ravager_cage' WHERE `entry`=181849;
+UPDATE `gameobject_template` SET `ScriptName`='go_stillpine_cage' WHERE `entry`=181714;
 
 /* BADLANDS */
 
