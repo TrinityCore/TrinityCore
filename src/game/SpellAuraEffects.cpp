@@ -1765,6 +1765,21 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                     }
                 }
                 break;
+
+            case 51685: // Prey on the Weak
+            case 51686:
+            case 51687:
+            case 51688:
+            case 51689:
+                if (target->getVictim() && (target->GetHealth() * 100 / target->GetMaxHealth() > target->getVictim()->GetHealth() * 100 / target->getVictim()->GetMaxHealth())) {
+                    if (!target->HasAura(58670)) {
+                        int32 basepoints = GetSpellProto()->EffectBasePoints[0];
+                        target->CastCustomSpell(target, 58670, &basepoints, 0, 0, true);
+                    }
+                }
+                else
+                    target->RemoveAurasDueToSpell(58670);
+                break;
             case 58600: // No fly Zone - Dalaran
                 if (GetTickNumber() == 10)
                 {
