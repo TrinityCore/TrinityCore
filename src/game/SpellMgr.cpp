@@ -3818,6 +3818,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
+        case 66588:     // Flaming Spear
+            spellInfo->MaxAffectedTargets = 3;
+            count++;
+            break;
         default:
             break;
         }
