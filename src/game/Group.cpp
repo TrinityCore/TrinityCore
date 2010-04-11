@@ -625,8 +625,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 
                 loot->items[itemSlot].is_blocked = true;
 
-                Creature *creature;
-                SendLootStartRoll(60000, creature->GetMapId(), *r);
+                SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
 
                 RollId.push_back(r);
 
@@ -691,8 +690,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
 
                 loot->items[itemSlot].is_blocked = true;
 
-                Creature *creature;
-                SendLootStartRoll(60000, creature->GetMapId(), *r);
+                SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
 
                 RollId.push_back(r);
 
