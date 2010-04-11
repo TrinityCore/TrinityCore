@@ -1905,6 +1905,14 @@ struct npc_training_dummy : Scripted_NoMovementAI
         DespawnTimer = 15000;
     }
 
+    void EnterEvadeMode()
+    {
+        if (!_EnterEvadeMode())
+            return;
+
+        Reset();
+    }
+
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         ResetTimer = 10000;
