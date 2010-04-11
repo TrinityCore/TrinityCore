@@ -1031,7 +1031,7 @@ const uint8 BattleGroundAV::GetWorldStateType(uint8 state, uint16 team) //this i
 {
     //neutral stuff cant get handled (currently its only snowfall)
     assert(team != AV_NEUTRAL_TEAM);
-//a_c a_a h_c h_a the positions in worldstate-array
+    //a_c a_a h_c h_a the positions in worldstate-array
     if (team == ALLIANCE)
     {
         if (state == POINT_CONTROLED || state == POINT_DESTROYED)
@@ -1088,31 +1088,29 @@ void BattleGroundAV::SendMineWorldStates(uint32 mine)
 
 WorldSafeLocsEntry const* BattleGroundAV::GetClosestGraveYard(Player* player)
 {
-    WorldSafeLocsEntry const* good_entry = NULL;
-    if (GetStatus() == STATUS_IN_PROGRESS)
-    {
-        // Is there any occupied node for this team?
-        float mindist = 9999999.0f;
-        for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
-        {
-            if (m_Nodes[i].Owner != player->GetTeam() || m_Nodes[i].State != POINT_CONTROLED)
-                continue;
-            WorldSafeLocsEntry const*entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[i]);
-            if (!entry)
-                continue;
-            float dist = (entry->x - player->GetPositionX())*(entry->x - player->GetPositionX())+(entry->y - player->GetPositionY())*(entry->y - player->GetPositionY());
-            if (mindist > dist)
-            {
-                mindist = dist;
-                good_entry = entry;
-            }
-        }
-    }
-    // If not, place ghost on starting location
-    if (!good_entry)
-        good_entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
+    WorldSafeLocsEntry const* pGraveyard = NULL;
+    WorldSafeLocsEntry const* entry = NULL;
+    float dist = 0;
+    float minDist = 0;
+    float x, y;
 
-    return good_entry;
+    player->GetPosition(x, y);
+
+    pGraveyard = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[GetTeamIndexByTeamId(player->GetTeam())+7]);
+    minDist = (pGraveyard->x - x)*(pGraveyard->x - x)+(pGraveyard->y - y)*(pGraveyard->y - y);
+
+    for (uint8 i = BG_AV_NODES_FIRSTAID_STATION; i <= BG_AV_NODES_FROSTWOLF_HUT; ++i)
+        if (m_Nodes[i].Owner == player->GetTeam() && m_Nodes[i].State == POINT_CONTROLED)
+            if (entry = sWorldSafeLocsStore.LookupEntry(BG_AV_GraveyardIds[i]))
+            {
+                dist = (entry->x - x)*(entry->x - x)+(entry->y - y)*(entry->y - y);
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    pGraveyard = entry;
+                }
+            }
+    return pGraveyard;
 }
 
 bool BattleGroundAV::SetupBattleGround()
