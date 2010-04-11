@@ -117,26 +117,26 @@ enum Events
 
 enum Yells
 {
-	SAY_JAINA_INTRO_1                           = -1632040,
-	SAY_JAINA_INTRO_2                           = -1632041,
-	SAY_JAINA_INTRO_3                           = -1632042,
-	SAY_JAINA_INTRO_4                           = -1632043,
-	SAY_JAINA_INTRO_5                           = -1632044,
-	SAY_JAINA_INTRO_6                           = -1632045,
-	SAY_JAINA_INTRO_7                           = -1632046,
-	SAY_JAINA_INTRO_8                           = -1632047,
+    SAY_JAINA_INTRO_1                           = -1632040,
+    SAY_JAINA_INTRO_2                           = -1632041,
+    SAY_JAINA_INTRO_3                           = -1632042,
+    SAY_JAINA_INTRO_4                           = -1632043,
+    SAY_JAINA_INTRO_5                           = -1632044,
+    SAY_JAINA_INTRO_6                           = -1632045,
+    SAY_JAINA_INTRO_7                           = -1632046,
+    SAY_JAINA_INTRO_8                           = -1632047,
 
     SAY_SYLVANAS_INTRO_1                        = -1632050,
-	SAY_SYLVANAS_INTRO_2                        = -1632051,
-	SAY_SYLVANAS_INTRO_3                        = -1632052,
-	SAY_SYLVANAS_INTRO_4                        = -1632053,
-	SAY_SYLVANAS_INTRO_5                        = -1632054,
-	SAY_SYLVANAS_INTRO_6                        = -1632055,
+    SAY_SYLVANAS_INTRO_2                        = -1632051,
+    SAY_SYLVANAS_INTRO_3                        = -1632052,
+    SAY_SYLVANAS_INTRO_4                        = -1632053,
+    SAY_SYLVANAS_INTRO_5                        = -1632054,
+    SAY_SYLVANAS_INTRO_6                        = -1632055,
 };
 
 enum eSylvanas
 {
-    GOSSIP_SPEECHINTRO   					    = 13525,
+    GOSSIP_SPEECHINTRO                           = 13525,
     ACTION_INTRO,
 };
 
@@ -183,8 +183,8 @@ struct npc_sylvanas_fosAI: public ScriptedAI
     {
         if (phase == PHASE_INTRO)
         {
-	        if (!pInstance)
-	            return;
+            if (!pInstance)
+                return;
 
             events.Update(diff);
             switch(events.ExecuteEvent())
@@ -279,8 +279,8 @@ struct npc_jaina_fosAI: public ScriptedAI
     {
         if (phase == PHASE_INTRO)
         {
-	        if (!pInstance)
-	            return;
+            if (!pInstance)
+                return;
 
             events.Update(diff);
             switch(events.ExecuteEvent())
@@ -354,9 +354,9 @@ bool GossipHello_npc_jaina_or_slyvanas_fos(Player* pPlayer, Creature* pCreature)
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
     if (pCreature->GetEntry() == NPC_JAINA_PART1)
-    	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_JAINA_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
     else
-    	pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SYLVANAS_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
     pPlayer->SEND_GOSSIP_MENU(DEFAULT_GOSSIP_MESSAGE, pCreature->GetGUID());
     return true;
@@ -367,7 +367,7 @@ bool GossipSelect_npc_jaina_or_slyvanas_fos(Player* pPlayer, Creature* pCreature
     switch(uiAction)
     {
         case GOSSIP_ACTION_INFO_DEF+1:
-			pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CLOSE_GOSSIP_MENU();
 
             if (pCreature->AI())
                 pCreature->AI()->DoAction(ACTION_INTRO);

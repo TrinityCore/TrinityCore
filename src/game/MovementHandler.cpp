@@ -601,8 +601,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
             int8 seatId;
             recv_data >> seatId;
 
-			if (vehicle_base->GetGUID() != guid)
-				return;
+            if (vehicle_base->GetGUID() != guid)
+                return;
 
             if (!accessory)
                 GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
@@ -623,8 +623,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
             int8 seatId;
             recv_data >> seatId;
 
-			if (vehicle_base->GetGUID() == guid)
-	            GetPlayer()->ChangeSeat(seatId);
+            if (vehicle_base->GetGUID() == guid)
+                GetPlayer()->ChangeSeat(seatId);
         }
         break;
     default:
