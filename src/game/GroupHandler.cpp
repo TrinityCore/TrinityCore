@@ -82,10 +82,8 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 
     // restrict invite to GMs
     if (!sWorld.getConfig(CONFIG_ALLOW_GM_GROUP) && !GetPlayer()->isGameMaster() && player->isGameMaster())
-    {
-        SendPartyResult(PARTY_OP_INVITE, membername, PARTY_RESULT_CANT_FIND_TARGET);
         return;
-    }
+
     // can't group with
     if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP) && GetPlayer()->GetTeam() != player->GetTeam())
     {
@@ -106,7 +104,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 
     if (player->GetSocial()->HasIgnore(GetPlayer()->GetGUIDLow()))
     {
-        SendPartyResult(PARTY_OP_INVITE, membername, PARTY_RESULT_TARGET_IGNORE_YOU);
+        SendPartyResult(PARTY_OP_INVITE, membername, ERR_IGNORING_YOU_S);
         return;
     }
 
