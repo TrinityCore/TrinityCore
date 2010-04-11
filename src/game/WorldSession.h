@@ -233,7 +233,6 @@ class WorldSession
         // Guild/Arena Team
         void SendGuildCommandResult(uint32 typecmd, const std::string& str, uint32 cmdresult);
         void SendArenaTeamCommandResult(uint32 team_action, const std::string& team, const std::string& player, uint32 error_id);
-        void BuildArenaTeamEventPacket(WorldPacket *data, uint8 eventid, uint8 str_count, const std::string& str1, const std::string& str2, const std::string& str3);
         void SendNotInArenaTeamPacket(uint8 type);
         void SendPetitionShowList(uint64 guid);
         void SendSaveGuildEmblem(uint32 msg);

@@ -72,61 +72,60 @@ enum Typecommand
     GUILD_INVITE_S  = 0x01,
     GUILD_QUIT_S    = 0x03,
     GUILD_FOUNDER_S = 0x0E,
-    GUILD_UNK1      = 0x10,
-    GUILD_BANK_S    = 0x15,
-    GUILD_UNK3      = 0x16
+    GUILD_UNK1      = 0x13,
+    GUILD_UNK2      = 0x14
 };
 
 enum CommandErrors
 {
-    GUILD_PLAYER_NO_MORE_IN_GUILD   = 0x00,
-    GUILD_INTERNAL                  = 0x01,
-    GUILD_ALREADY_IN_GUILD          = 0x02,
-    ALREADY_IN_GUILD                = 0x03,
-    INVITED_TO_GUILD                = 0x04,
-    ALREADY_INVITED_TO_GUILD        = 0x05,
-    GUILD_NAME_INVALID              = 0x06,
-    GUILD_NAME_EXISTS               = 0x07,
-    GUILD_LEADER_LEAVE              = 0x08,
-    GUILD_PERMISSIONS               = 0x08,
-    GUILD_PLAYER_NOT_IN_GUILD       = 0x09,
-    GUILD_PLAYER_NOT_IN_GUILD_S     = 0x0A,
-    GUILD_PLAYER_NOT_FOUND          = 0x0B,
-    GUILD_NOT_ALLIED                = 0x0C,
-    GUILD_RANK_TOO_HIGH_S           = 0x0D,
-    GUILD_ALREADY_LOWEST_RANK_S     = 0x0E,
-    GUILD_TEMP_ERROR                = 0x11,
-    GUILD_RANK_IN_USE               = 0x12,
-    GUILD_IGNORE                    = 0x13,
-    GUILD_ERR_UNK1                  = 0x17,
-    GUILD_WITHDRAW_TOO_MUCH         = 0x18,
-    GUILD_BANK_NO_MONEY             = 0x19,
-    GUILD_BANK_TAB_IS_FULL          = 0x1B,
-    GUILD_BANK_ITEM_NOT_FOUND       = 0x1C
+    ERR_PLAYER_NO_MORE_IN_GUILD     = 0x00,
+    ERR_GUILD_INTERNAL              = 0x01,
+    ERR_ALREADY_IN_GUILD            = 0x02,
+    ERR_ALREADY_IN_GUILD_S          = 0x03,
+    ERR_INVITED_TO_GUILD            = 0x04,
+    ERR_ALREADY_INVITED_TO_GUILD_S  = 0x05,
+    ERR_GUILD_NAME_INVALID          = 0x06,
+    ERR_GUILD_NAME_EXISTS_S         = 0x07,
+    ERR_GUILD_LEADER_LEAVE          = 0x08,
+    ERR_GUILD_PERMISSIONS           = 0x08,
+    ERR_GUILD_PLAYER_NOT_IN_GUILD   = 0x09,
+    ERR_GUILD_PLAYER_NOT_IN_GUILD_S = 0x0A,
+    ERR_GUILD_PLAYER_NOT_FOUND_S    = 0x0B,
+    ERR_GUILD_NOT_ALLIED            = 0x0C,
+    ERR_GUILD_RANK_TOO_HIGH_S       = 0x0D,
+    ERR_GUILD_RANK_TOO_LOW_S        = 0x0E,
+    ERR_GUILD_RANKS_LOCKED          = 0x11,
+    ERR_GUILD_RANK_IN_USE           = 0x12,
+    ERR_GUILD_IGNORING_YOU_S        = 0x13,
+    ERR_GUILD_UNK1                  = 0x14,
+    ERR_GUILD_WITHDRAW_LIMIT        = 0x19,
+    ERR_GUILD_NOT_ENOUGH_MONEY      = 0x1A,
+    ERR_GUILD_BANK_FULL             = 0x1C,
+    ERR_GUILD_ITEM_NOT_FOUND        = 0x1D
 };
 
 enum GuildEvents
 {
-    GE_PROMOTION        = 0x00,
-    GE_DEMOTION         = 0x01,
-    GE_MOTD             = 0x02,
-    GE_JOINED           = 0x03,
-    GE_LEFT             = 0x04,
-    GE_REMOVED          = 0x05,
-    GE_LEADER_IS        = 0x06,
-    GE_LEADER_CHANGED   = 0x07,
-    GE_DISBANDED        = 0x08,
-    GE_TABARDCHANGE     = 0x09,
-    GE_UNK1             = 0x0A,                             // string, string EVENT_GUILD_ROSTER_UPDATE
-    GE_UNK2             = 0x0B,                             // EVENT_GUILD_ROSTER_UPDATE
-    GE_SIGNED_ON        = 0x0C,                             // ERR_FRIEND_ONLINE_SS
-    GE_SIGNED_OFF       = 0x0D,                             // ERR_FRIEND_OFFLINE_S
-    GE_UNK3             = 0x0E,                             // EVENT_GUILDBANKBAGSLOTS_CHANGED
-    GE_BANKTAB_PURCHASED= 0x0F,                             // EVENT_GUILDBANK_UPDATE_TABS
-    GE_UNK5             = 0x10,                             // EVENT_GUILDBANK_UPDATE_TABS
-    GE_UNK6             = 0x11,                             // EVENT_GUILDBANK_UPDATE_MONEY, string 0000000000002710 is 1 gold
-    GE_UNK7             = 0x12,                             // MSG_GUILD_BANK_MONEY_WITHDRAWN
-    GE_UNK8             = 0x13                              // EVENT_GUILDBANK_TEXT_CHANGED
+    GE_PROMOTION                    = 0x00,
+    GE_DEMOTION                     = 0x01,
+    GE_MOTD                         = 0x02,
+    GE_JOINED                       = 0x03,
+    GE_LEFT                         = 0x04,
+    GE_REMOVED                      = 0x05,
+    GE_LEADER_IS                    = 0x06,
+    GE_LEADER_CHANGED               = 0x07,
+    GE_DISBANDED                    = 0x08,
+    GE_TABARDCHANGE                 = 0x09,
+    GE_UNK1                         = 0x0A,                 // string, string EVENT_GUILD_ROSTER_UPDATE tab content change?
+    GE_UNK2                         = 0x0B,                 // EVENT_GUILD_ROSTER_UPDATE
+    GE_SIGNED_ON                    = 0x0C,                 // ERR_FRIEND_ONLINE_SS
+    GE_SIGNED_OFF                   = 0x0D,                 // ERR_FRIEND_OFFLINE_S
+    GE_GUILDBANKBAGSLOTS_CHANGED    = 0x0E,                 // EVENT_GUILDBANKBAGSLOTS_CHANGED
+    GE_BANKTAB_PURCHASED            = 0x0F,                 // EVENT_GUILDBANK_UPDATE_TABS
+    GE_UNK5                         = 0x10,                 // EVENT_GUILDBANK_UPDATE_TABS
+    GE_GUILDBANK_UPDATE_MONEY       = 0x11,                 // EVENT_GUILDBANK_UPDATE_MONEY, string 0000000000002710 is 1 gold
+    GE_GUILD_BANK_MONEY_WITHDRAWN   = 0x12,                 // MSG_GUILD_BANK_MONEY_WITHDRAWN
+    GE_GUILDBANK_TEXT_CHANGED       = 0x13                  // EVENT_GUILDBANK_TEXT_CHANGED
 };
 
 enum PetitionTurns
@@ -336,6 +335,7 @@ class Guild
         void BroadcastToOfficers(WorldSession *session, const std::string& msg, uint32 language = LANG_UNIVERSAL);
         void BroadcastPacketToRank(WorldPacket *packet, uint32 rankId);
         void BroadcastPacket(WorldPacket *packet);
+        void BroadcastEvent(GuildEvents event, uint64 guid, uint8 strCount, std::string str1, std::string str2, std::string str3);
 
         template<class Do>
         void BroadcastWorker(Do& _do, Player* except = NULL)

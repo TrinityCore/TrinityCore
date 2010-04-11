@@ -663,7 +663,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         Guild* guild = objmgr.GetGuildById(pCurrChar->GetGuildId());
         if (guild)
         {
-            data.Initialize(SMSG_GUILD_EVENT, (2+guild->GetMOTD().size()+1));
+            data.Initialize(SMSG_GUILD_EVENT, (1+1+guild->GetMOTD().size()+1));
             data << uint8(GE_MOTD);
             data << uint8(1);
             data << guild->GetMOTD();
@@ -672,13 +672,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
             guild->DisplayGuildBankTabsInfo(this);
 
-            data.Initialize(SMSG_GUILD_EVENT, (5+10));      // we guess size
-            data<<uint8(GE_SIGNED_ON);
-            data<<uint8(1);
-            data<< pCurrChar->GetName();
-            data<< pCurrChar->GetGUID();
-            guild->BroadcastPacket(&data);
-            DEBUG_LOG("WORLD: Sent guild-signed-on (SMSG_GUILD_EVENT)");
+            guild->BroadcastEvent(GE_SIGNED_ON, pCurrChar->GetGUID(), 1, pCurrChar->GetName(), "", "");
         }
         else
         {

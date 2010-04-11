@@ -25,14 +25,12 @@ enum ArenaTeamCommandTypes
 {
     ERR_ARENA_TEAM_CREATE_S                 = 0x00,
     ERR_ARENA_TEAM_INVITE_SS                = 0x01,
-    //ERR_ARENA_TEAM_QUIT_S                   = 0x02,
     ERR_ARENA_TEAM_QUIT_S                   = 0x03,
-    ERR_ARENA_TEAM_FOUNDER_S                = 0x0C          // need check, probably wrong...
+    ERR_ARENA_TEAM_FOUNDER_S                = 0x0E
 };
 
 enum ArenaTeamCommandErrors
 {
-    //ARENA_TEAM_PLAYER_NO_MORE_IN_ARENA_TEAM = 0x00,
     ERR_ARENA_TEAM_INTERNAL                 = 0x01,
     ERR_ALREADY_IN_ARENA_TEAM               = 0x02,
     ERR_ALREADY_IN_ARENA_TEAM_S             = 0x03,
@@ -46,8 +44,12 @@ enum ArenaTeamCommandErrors
     ERR_ARENA_TEAM_PLAYER_NOT_IN_TEAM_SS    = 0x0A,
     ERR_ARENA_TEAM_PLAYER_NOT_FOUND_S       = 0x0B,
     ERR_ARENA_TEAM_NOT_ALLIED               = 0x0C,
-    ERR_ARENA_TEAM_PLAYER_TO_LOW            = 0x15,
-    ERR_ARENA_TEAM_FULL                     = 0x16
+    ERR_ARENA_TEAM_IGNORING_YOU_S           = 0x13,	
+    ERR_ARENA_TEAM_TARGET_TOO_LOW_S         = 0x15,	
+    ERR_ARENA_TEAM_TARGET_TOO_HIGH_S        = 0x16,	
+    ERR_ARENA_TEAM_TOO_MANY_MEMBERS_S       = 0x17,	
+    ERR_ARENA_TEAM_NOT_FOUND                = 0x1B,	
+    ERR_ARENA_TEAMS_LOCKED                  = 0x1E
 };
 
 enum ArenaTeamEvents
@@ -180,6 +182,7 @@ class ArenaTeam
         void SaveToDB();
 
         void BroadcastPacket(WorldPacket *packet);
+        void BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string str1, std::string str2, std::string str3);
 
         void Roster(WorldSession *session);
         void Query(WorldSession *session);

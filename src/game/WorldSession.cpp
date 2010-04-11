@@ -391,12 +391,7 @@ void WorldSession::LogoutPlayer(bool Save)
             guild->SetMemberStats(_player->GetGUID());
             guild->UpdateLogoutTime(_player->GetGUID());
 
-            WorldPacket data(SMSG_GUILD_EVENT, (1+1+12+8)); // name limited to 12 in character table.
-            data<<(uint8)GE_SIGNED_OFF;
-            data<<(uint8)1;
-            data<<_player->GetName();
-            data<<_player->GetGUID();
-            guild->BroadcastPacket(&data);
+            guild->BroadcastEvent(GE_SIGNED_OFF, _player->GetGUID(), 1, _player->GetName(), "", "");
         }
 
         ///- Remove pet
