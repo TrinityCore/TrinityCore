@@ -144,7 +144,7 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
     if (!objmgr.GetPlayerNameByGUID(m_leaderGuid, m_leaderName))
         return false;
 
-    m_groupType  = GroupType(fields[11].GetUInt8());
+    m_groupType  = GroupType((*result)[11].GetUInt8());
 
     if (m_groupType & GROUPTYPE_RAID)
         _initRaidSubGroupsCounter();

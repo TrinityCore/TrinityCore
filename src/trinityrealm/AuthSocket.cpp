@@ -466,13 +466,13 @@ bool AuthSocket::_HandleLogonChallenge()
                     uint8 securityFlags = 0;
                     pkt << uint8(securityFlags);            // security flags (0x0...0x04)
 
-                    if (securityFlags & REALM_AUTH_FAILURE)                // PIN input
+                    if (securityFlags & 0x01)                // PIN input
                     {
                         pkt << uint32(0);
                         pkt << uint64(0) << uint64(0);      // 16 bytes hash?
                     }
 
-                    if (securityFlags & REALM_AUTH_UNKNOWN1)                // Matrix input
+                    if (securityFlags & 0x02)                // Matrix input
                     {
                         pkt << uint8(0);
                         pkt << uint8(0);
@@ -481,7 +481,7 @@ bool AuthSocket::_HandleLogonChallenge()
                         pkt << uint64(0);
                     }
 
-                    if (securityFlags & WOW_FAIL_UNKNOWN_ACCOUNT)                // Security token input
+                    if (securityFlags & 0x04)                // Security token input
                         pkt << uint8(1);
 
                     uint8 secLevel = (*result)[4].GetUInt8();
