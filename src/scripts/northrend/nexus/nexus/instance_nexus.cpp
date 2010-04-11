@@ -20,6 +20,11 @@
 
 #define NUMBER_OF_ENCOUNTERS      4
 
+enum Factions
+{
+    FACTION_HOSTILE_FOR_ALL                       = 16
+};
+
 struct instance_nexus : public ScriptedInstance
 {
     instance_nexus(Map *pMap) : ScriptedInstance(pMap) { Initialize(); }
@@ -64,30 +69,40 @@ struct instance_nexus : public ScriptedInstance
             // Alliance npcs are spawned by default, if you are alliance, you will fight against horde npcs.
             case 26800:
             {
+                if (ServerAllowsTwoSideGroups())
+                    pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26799, HORDE);
                 break;
             }
             case 26802:
             {
+                if (ServerAllowsTwoSideGroups())
+                    pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26801, HORDE);
                 break;
             }
             case 26805:
             {
+                if (ServerAllowsTwoSideGroups())
+                    pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26803, HORDE);
                 break;
             }
             case 27949:
             {
+                if (ServerAllowsTwoSideGroups())
+                    pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(27947, HORDE);
                 break;
             }
             case 26796:
             {
+                if (ServerAllowsTwoSideGroups())
+                    pCreature->setFaction(FACTION_HOSTILE_FOR_ALL);
                 if (TeamInInstance == ALLIANCE)
                     pCreature->UpdateEntry(26798, HORDE);
                 break;
