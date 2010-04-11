@@ -655,13 +655,13 @@ bool Aura::CheckTarget(Unit *target)
                 case 11946: // Drek'thar
                     return true;
                 default:
+                    return false;
                     break;
             }
-            return false;
             break;
         default:
+            return true;
             break;
-        return true;
     }
 }
 
