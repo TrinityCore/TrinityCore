@@ -15351,27 +15351,21 @@ bool Player::MinimalLoadFromDB(QueryResult_AutoPtr result, uint32 guid)
 {
     if (!result)
     {
-        //                                        0     1     2     3           4           5           6    7          8          9         10    11
-        result = CharacterDatabase.PQuery("SELECT guid, data, name, position_x, position_y, position_z, map, totaltime, leveltime, at_login, zone, level FROM characters WHERE guid = '%u'",guid);
+        //                                        0     1           2           3           4    5          6          7
+        result = CharacterDatabase.PQuery("SELECT name, position_x, position_y, position_z, map, totaltime, leveltime, at_login FROM characters WHERE guid = '%u'",guid);
         if (!result)
             return false;
     }
 
     Field *fields = result->Fetch();
 
-    if (!LoadValues(fields[1].GetString()))
-    {
-        sLog.outError("Player #%d have broken data in `data` field. Can't be loaded for character list.",GUID_LOPART(guid));
-        return false;
-    }
-
     // overwrite possible wrong/corrupted guid
     SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
 
-    m_name = fields[2].GetCppString();
+    m_name = fields[0].GetCppString();
 
-    Relocate(fields[3].GetFloat(),fields[4].GetFloat(),fields[5].GetFloat());
-    Map *map = MapManager::Instance().CreateMap(fields[6].GetUInt32(), this, 0);
+    Relocate(fields[1].GetFloat(),fields[2].GetFloat(),fields[3].GetFloat());
+    Map *map = MapManager::Instance().CreateMap(fields[4].GetUInt32(), this, 0);
     SetMap(map);
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
@@ -15380,10 +15374,10 @@ bool Player::MinimalLoadFromDB(QueryResult_AutoPtr result, uint32 guid)
 
     // the instance id is not needed at character enum
 
-    m_Played_time[PLAYED_TIME_TOTAL] = fields[7].GetUInt32();
-    m_Played_time[PLAYED_TIME_LEVEL] = fields[8].GetUInt32();
+    m_Played_time[PLAYED_TIME_TOTAL] = fields[5].GetUInt32();
+    m_Played_time[PLAYED_TIME_LEVEL] = fields[6].GetUInt32();
 
-    m_atLoginFlags = fields[9].GetUInt32();
+    m_atLoginFlags = fields[7].GetUInt32();
 
     // I don't see these used anywhere ..
     /*_LoadGroup();
