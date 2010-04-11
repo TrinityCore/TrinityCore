@@ -6059,9 +6059,9 @@ uint32 ObjectMgr::GenerateMailID()
 
 void ObjectMgr::CreateItemText(uint32 guid, std::string text)
 {
-    // insert new item text to container	
-    mItemTexts[ guid ] = text;	
-	
+    // insert new item text to container
+    mItemTexts[ guid ] = text;
+
     // save new item text
     CharacterDatabase.escape_string(text);
 

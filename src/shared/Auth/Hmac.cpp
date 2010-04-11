@@ -42,9 +42,9 @@ void HmacHash::UpdateData(const uint8 *data, int length)
     HMAC_Update(&m_ctx, data, length);
 }
 
-void HmacHash::UpdateData(const std::string &str)	
-{	
-    UpdateData((uint8 const*)str.c_str(), str.length());	
+void HmacHash::UpdateData(const std::string &str)
+{
+    UpdateData((uint8 const*)str.c_str(), str.length());
 }
 
 void HmacHash::Finalize()

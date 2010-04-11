@@ -629,7 +629,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
                 if (Vehicle *vehicle = vehUnit->GetVehicleKit())
                     if (vehicle->HasEmptySeat(seatId))
                         GetPlayer()->EnterVehicle(vehicle, seatId);
-		}
+        }
         break;
     default:
         break;

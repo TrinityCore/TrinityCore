@@ -1485,19 +1485,19 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     }
 }
 
-GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot)	
+GroupJoinBattlegroundResult Group::CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot)
 {
     BattlemasterListEntry const* bgEntry = sBattlemasterListStore.LookupEntry(bgOrTemplate->GetTypeID());
-    if (!bgEntry)	
-        return ERR_GROUP_JOIN_BATTLEGROUND_FAIL;            // shouldn't happen	
+    if (!bgEntry)
+        return ERR_GROUP_JOIN_BATTLEGROUND_FAIL;            // shouldn't happen
 
     // check for min / max count
     uint32 memberscount = GetMembersCount();
-	
-    // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...	
-    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)	
-        return ERR_ARENA_TEAM_PARTY_SIZE;	
-	
+
+    // only check for MinPlayerCount since MinPlayerCount == MaxPlayerCount for arenas...
+    if (bgOrTemplate->isArena() && memberscount != MinPlayerCount)
+        return ERR_ARENA_TEAM_PARTY_SIZE;
+
     if (memberscount > bgEntry->maxGroupSize)                // no MinPlayerCount for battlegrounds
         return ERR_BATTLEGROUND_NONE;                       // ERR_GROUP_JOIN_BATTLEGROUND_TOO_MANY handled on client side
 

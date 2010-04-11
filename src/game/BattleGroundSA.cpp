@@ -549,7 +549,7 @@ WorldSafeLocsEntry const* BattleGroundSA::GetClosestGraveYard(Player* player)
         dist = sqrt((ret->x - x)*(ret->x - x) + (ret->y - y)*(ret->y - y)+(ret->z - z)*(ret->z - z));
         if (dist < nearest)
         {
-            closest = ret;    
+            closest = ret;
             nearest = dist;
         }
     }

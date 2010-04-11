@@ -217,7 +217,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     uint32 gmLevelInWhoList  = sWorld.getConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     WorldPacket data(SMSG_WHO, 50);                       // guess size
-    data << uint32(clientcount);                            // clientcount place holder, listed count	
+    data << uint32(clientcount);                            // clientcount place holder, listed count
     data << uint32(clientcount);                            // clientcount place holder, online count
 
     ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
@@ -328,8 +328,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
             break;
     }
 
-    uint32 count = m.size();	
-    data.put( 0, clientcount );                             // insert right count, listed count	
+    uint32 count = m.size();
+    data.put( 0, clientcount );                             // insert right count, listed count
     data.put( 4, count > 50 ? count : clientcount );        // insert right count, online count
 
     SendPacket(&data);
@@ -756,8 +756,8 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket & recv_data)
     recv_data >> guid;
     recv_data >> status;
 
-    if (GetPlayer()->isAlive())	
-        return;	
+    if (GetPlayer()->isAlive())
+        return;
 
     if (status == 0)
     {
@@ -1445,19 +1445,19 @@ void WorldSession::HandleTimeSyncResp(WorldPacket & recv_data)
 {
     sLog.outDebug("CMSG_TIME_SYNC_RESP");
 
-    uint32 counter, clientTicks;	
+    uint32 counter, clientTicks;
     recv_data >> counter >> clientTicks;
 
-    if (counter != _player->m_timeSyncCounter - 1)	
+    if (counter != _player->m_timeSyncCounter - 1)
         sLog.outDebug("Wrong time sync counter from player %s (cheater?)", _player->GetName());
 
-    sLog.outDebug("Time sync received: counter %u, client ticks %u, time since last sync %u", counter, clientTicks, clientTicks - _player->m_timeSyncClient);	
-	
-    uint32 ourTicks = clientTicks + (getMSTime() - _player->m_timeSyncServer);	
-	
-    // diff should be small	
+    sLog.outDebug("Time sync received: counter %u, client ticks %u, time since last sync %u", counter, clientTicks, clientTicks - _player->m_timeSyncClient);
+
+    uint32 ourTicks = clientTicks + (getMSTime() - _player->m_timeSyncServer);
+
+    // diff should be small
     sLog.outDebug("Our ticks: %u, diff %u, latency %u", ourTicks, ourTicks - clientTicks, GetLatency());
-	
+
     _player->m_timeSyncClient = clientTicks;
 }
 

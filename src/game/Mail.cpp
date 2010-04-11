@@ -596,7 +596,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
         data << uint32((*itr)->checked);                    // flags
         data << float(((*itr)->expire_time-time(NULL))/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
-        data << (*itr)->subject;                            // Subject string - once 00, when mail type = 3, max 256	
+        data << (*itr)->subject;                            // Subject string - once 00, when mail type = 3, max 256
         data << (*itr)->body;                               // message? max 8000
         data << uint8(item_count);                           // client limit is 0x10
 
@@ -646,22 +646,22 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
 ///this function is called when client needs mail message body, or when player clicks on item which has ITEM_FIELD_ITEM_TEXT_ID > 0
 void WorldSession::HandleItemTextQuery(WorldPacket & recv_data)
 {
-    uint64 itemGuid;	
+    uint64 itemGuid;
     recv_data >> itemGuid;
 
     sLog.outDebug("CMSG_ITEM_TEXT_QUERY item guid: %u", GUID_LOPART(itemGuid));
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));    // guess size	
-	
-    if (Item *item = _player->GetItemByGuid(itemGuid))	
-    {	
-        data << uint8(0);                                       // has text	
-        data << uint64(itemGuid);                               // item guid	
-        data << objmgr.GetItemText(item->GetGUIDLow());     // max 8000	
-    }
-    else	
+    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));    // guess size
+
+    if (Item *item = _player->GetItemByGuid(itemGuid))
     {
-        data << uint8(1);                                       // no text	
+        data << uint8(0);                                       // has text
+        data << uint64(itemGuid);                               // item guid
+        data << objmgr.GetItemText(item->GetGUIDLow());     // max 8000
+    }
+    else
+    {
+        data << uint8(1);                                       // no text
     }
     SendPacket(&data);
 }
@@ -687,11 +687,11 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
         return;
     }
 
-    Item *bodyItem = new Item;                              // This is not bag and then can be used new Item.	
+    Item *bodyItem = new Item;                              // This is not bag and then can be used new Item.
     if (!bodyItem->Create(objmgr.GenerateLowGuid(HIGHGUID_ITEM), MAIL_BODY_ITEM_TEMPLATE, pl))
-    {	
+    {
         delete bodyItem;
-        return;	
+        return;
     }
 
     // in mail template case we need create new item text
@@ -706,10 +706,10 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
 
         objmgr.CreateItemText(bodyItem->GetGUIDLow(), mailTemplateEntry->content[GetSessionDbcLocale()]);
     }
-    else	
+    else
         objmgr.CreateItemText(bodyItem->GetGUIDLow(), m->body);
 
-    bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);	
+    bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPER | ITEM_FLAGS_REFUNDABLE_2 | ITEM_FLAGS_UNK1);
 
     sLog.outDetail("HandleMailCreateTextItem mailid=%u",mailId);
@@ -960,11 +960,11 @@ void MailDraft::SendMailTo(MailReceiver const& receiver, MailSender const& sende
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.escape_string(safe_subject);
 
-    std::string safe_body = GetBody();	
-    CharacterDatabase.BeginTransaction();	
-    CharacterDatabase.escape_string(safe_body);	
+    std::string safe_body = GetBody();
+    CharacterDatabase.BeginTransaction();
+    CharacterDatabase.escape_string(safe_body);
 
-    CharacterDatabase.PExecute("INSERT INTO mail (id,messageType,stationery,mailTemplateId,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked) "	
+    CharacterDatabase.PExecute("INSERT INTO mail (id,messageType,stationery,mailTemplateId,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked) "
         "VALUES ('%u', '%u', '%u', '%u', '%u', '%u', '%s', '%s', '%u', '" UI64FMTD "','" UI64FMTD "', '%u', '%u', '%d')",
         mailId, sender.GetMailMessageType(), sender.GetStationery(), GetMailTemplateId(), sender.GetSenderId(), receiver.GetPlayerGUIDLow(), safe_subject.c_str(), safe_body.c_str(),(m_items.empty() ? 0 : 1), (uint64)expire_time, (uint64)deliver_time, m_money, m_COD, checked);
 

@@ -27,7 +27,7 @@ enum Spells
     SPELL_VEIL_OF_SHADOWS                       = 69633,
     SPELL_WAIL_OF_SOULS                         = 69148,
     H_SPELL_WAIL_OF_SOULS                       = 70210,
-    
+
     //Soulguard Watchman
     SPELL_SHROUD_OF_RUNES                       = 69056,
     SPELL_UNHOLY_RAGE                           = 69053,
@@ -43,7 +43,7 @@ enum Spells
     SPELL_RAISE_DEAD                            = 69562,
     SPELL_SHIELD_OF_BONES                       = 69069,
     H_SPELL_SHIELD_OF_BONES                     = 70207,
-    
+
     //Soulguard Animator
     // Raise dead 69562
     SPELL_SHADOW_BOLT                           = 69068,
@@ -155,7 +155,7 @@ struct npc_sylvanas_fosAI: public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-    
+
     EventMap events;
     Phase phase;
 
@@ -167,7 +167,7 @@ struct npc_sylvanas_fosAI: public ScriptedAI
 
     void DoAction(const int32 actionId)
     {
-        switch(actionId) 
+        switch(actionId)
         {
             case ACTION_INTRO:
             {
@@ -251,7 +251,7 @@ struct npc_jaina_fosAI: public ScriptedAI
     }
 
     ScriptedInstance* pInstance;
-    
+
     EventMap events;
     Phase phase;
 
@@ -263,7 +263,7 @@ struct npc_jaina_fosAI: public ScriptedAI
 
     void DoAction(const int32 actionId)
     {
-        switch(actionId) 
+        switch(actionId)
         {
             case ACTION_INTRO:
             {

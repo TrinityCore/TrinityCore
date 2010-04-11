@@ -40,7 +40,7 @@ struct instance_forge_of_souls : public ScriptedInstance
         uiDevourer = 0;
 
         uiTeamInInstance = 0;
-        
+
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             uiEncounter[i] = NOT_STARTED;
     }

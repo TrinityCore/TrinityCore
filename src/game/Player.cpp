@@ -1608,17 +1608,17 @@ bool Player::BuildEnumData(QueryResult_AutoPtr result, WorldPacket * p_data)
         *p_data << uint8(proto->InventoryType);
         *p_data << uint32(enchant ? enchant->aura_id : 0);
     }
-	
-    *p_data << uint32(0);                                   // bag 1 display id	
+
+    *p_data << uint32(0);                                   // bag 1 display id
     *p_data << uint8(0);                                    // bag 1 inventory type
-    *p_data << uint32(0);                                   // enchant?	
-    *p_data << uint32(0);                                   // bag 2 display id	
+    *p_data << uint32(0);                                   // enchant?
+    *p_data << uint32(0);                                   // bag 2 display id
     *p_data << uint8(0);                                    // bag 2 inventory type
-    *p_data << uint32(0);                                   // enchant?	
-    *p_data << uint32(0);                                   // bag 3 display id	
-    *p_data << uint8(0);                                    // bag 3 inventory type	
-    *p_data << uint32(0);                                   // enchant?	
-    *p_data << uint32(0);                                   // bag 4 display id	
+    *p_data << uint32(0);                                   // enchant?
+    *p_data << uint32(0);                                   // bag 3 display id
+    *p_data << uint8(0);                                    // bag 3 inventory type
+    *p_data << uint32(0);                                   // enchant?
+    *p_data << uint32(0);                                   // bag 4 display id
     *p_data << uint8(0);                                    // bag 4 inventory type
     *p_data << uint32(0);                                   // enchant?
 
@@ -5817,15 +5817,15 @@ bool Player::HasSkill(uint32 skill) const
     return (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED);
 }
 
-uint16 Player::GetSkillStep(uint16 skill) const	
-{	
-    if (!skill)	
-        return 0;	
+uint16 Player::GetSkillStep(uint16 skill) const
+{
+    if (!skill)
+        return 0;
 
     SkillStatusMap::const_iterator itr = mSkillStatus.find(skill);
     if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
         return 0;
-	
+
     return PAIR32_HIPART(GetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos)));
 }
 
@@ -6358,7 +6358,7 @@ void Player::RewardReputation(Quest const *pQuest)
         }
         else
         {
-            uint32 row = ((pQuest->RewRepValueId[i] < 0) ? 1 : 0) + 1;	
+            uint32 row = ((pQuest->RewRepValueId[i] < 0) ? 1 : 0) + 1;
             uint32 field = abs(pQuest->RewRepValueId[i]);
 
             if (const QuestFactionRewEntry *pRow = sQuestFactionRewardStore.LookupEntry(row))
@@ -14288,10 +14288,10 @@ bool Player::SatisfyQuestLog(bool msg)
     if (FindQuestSlot(0) < MAX_QUEST_LOG_SIZE)
         return true;
 
-    if (msg)	
+    if (msg)
     {
         WorldPacket data(SMSG_QUESTLOG_FULL, 0);
-        GetSession()->SendPacket(&data);	
+        GetSession()->SendPacket(&data);
         sLog.outDebug("WORLD: Sent SMSG_QUESTLOG_FULL");
     }
     return false;
@@ -15441,9 +15441,9 @@ void Player::_LoadArenaTeamInfo(QueryResult_AutoPtr result)
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_ID, arenateamid);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_TYPE, aTeam->GetType());
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_MEMBER, (aTeam->GetCaptain() == GetGUID()) ? 0 : 1);
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, played_week);	
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_WEEK, played_week);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_GAMES_SEASON, played_season);
-        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, wons_season);	
+        SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_WINS_SEASON, wons_season);
         SetArenaTeamInfoField(arenaSlot, ARENA_TEAM_PERSONAL_RATING, personal_rating);
 
     }while (result->NextRow());
@@ -15537,16 +15537,16 @@ float Player::GetFloatValueFromArray(Tokens const& data, uint16 index)
 
 void Player::_LoadIntoDataField(const char* data, uint32 startOffset, uint32 count)
 {
-    if (!data)	
-        return;	
-    
+    if (!data)
+        return;
+
     Tokens tokens = StrSplit(data, " ");
 
     if (tokens.size() != count)
         return;
 
     Tokens::iterator iter;
-    uint32 index;	
+    uint32 index;
     for (iter = tokens.begin(), index = 0; index < count; ++iter, ++index)
     {
         m_uint32Values[startOffset + index] = atol((*iter).c_str());
@@ -15631,7 +15631,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, fields[47].GetUInt64());
 
     SetUInt32Value(PLAYER_AMMO_ID, fields[63].GetUInt32());
- 
+
     InitDisplayIds();
 
     // cleanup inventory related item value fields (its will be filled correctly in _LoadInventory)
@@ -16017,7 +16017,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
         float bubble1 = 0.125f;
         float bubble = fields[23].GetUInt32() > 0
             ? bubble1*sWorld.getRate(RATE_REST_OFFLINE_IN_TAVERN_OR_CITY)
-            : bubble0*sWorld.getRate(RATE_REST_OFFLINE_IN_WILDERNESS);	
+            : bubble0*sWorld.getRate(RATE_REST_OFFLINE_IN_WILDERNESS);
 
         SetRestBonus(GetRestBonus()+ time_diff*((float)GetUInt32Value(PLAYER_NEXT_LEVEL_XP)/72000)*bubble);
     }
@@ -16638,11 +16638,11 @@ void Player::_LoadMail()
             m->sender = fields[2].GetUInt32();
             m->receiver = fields[3].GetUInt32();
             m->subject = fields[4].GetCppString();
-            m->body = fields[5].GetCppString();	
+            m->body = fields[5].GetCppString();
             bool has_items = fields[6].GetBool();
-            m->expire_time = (time_t)fields[7].GetUInt64();	
+            m->expire_time = (time_t)fields[7].GetUInt64();
             m->deliver_time = (time_t)fields[8].GetUInt64();
-            m->money = fields[9].GetUInt32();	
+            m->money = fields[9].GetUInt32();
             m->COD = fields[10].GetUInt32();
             m->checked = fields[11].GetUInt32();
             m->stationery = fields[12].GetUInt8();
@@ -17409,16 +17409,16 @@ void Player::SaveToDB()
     ss << ", ";
     ss << uint32(m_specsCount);
     ss << ", ";
-    ss << uint32(m_activeSpec) << ", '";	
+    ss << uint32(m_activeSpec) << ", '";
     for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
-    {	
+    {
         ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << " ";
     }
 
     ss << "', '";
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i )
     {
-        ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << " ";	
+        ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << " ";
     }
 
     ss << "',";
@@ -23367,7 +23367,7 @@ void Player::ResetTimeSync()
 {
     m_timeSyncCounter = 0;
     m_timeSyncTimer = 0;
-    m_timeSyncClient = 0;	
+    m_timeSyncClient = 0;
     m_timeSyncServer = getMSTime();
 }
 
@@ -23377,8 +23377,8 @@ void Player::SendTimeSync()
     data << uint32(m_timeSyncCounter++);
     GetSession()->SendPacket(&data);
 
-    // Schedule next sync in 10 sec	
-    m_timeSyncTimer = 10000;	
+    // Schedule next sync in 10 sec
+    m_timeSyncTimer = 10000;
     m_timeSyncServer = getMSTime();
 }
 
