@@ -3209,7 +3209,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
             if (!IsInWorld() || disabled)                    // at spells loading, no output, but allow save
                 addSpell(prev_spell,active,true,true,disabled);
             else                                            // at normal learning
-                learnSpell(prev_spell,true);
+                learnSpell(prev_spell, true);
         }
 
         PlayerSpell *newspell = new PlayerSpell;
@@ -3325,7 +3325,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
         if (skill_max_value < new_skill_max_value)
             skill_max_value =  new_skill_max_value;
 
-        SetSkill(spellLearnSkill->skill,skill_value,skill_max_value);
+        SetSkill(spellLearnSkill->skill, spellLearnSkill->step, skill_value, skill_max_value);
     }
     else
     {
@@ -3346,13 +3346,13 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
                 switch(GetSkillRangeType(pSkill,_spell_idx->second->racemask != 0))
                 {
                     case SKILL_RANGE_LANGUAGE:
-                        SetSkill(pSkill->id, 300, 300);
+                        SetSkill(pSkill->id, GetSkillStep(pSkill->id), 300, 300);
                         break;
                     case SKILL_RANGE_LEVEL:
-                        SetSkill(pSkill->id, 1, GetMaxSkillValueForLevel());
+                        SetSkill(pSkill->id, GetSkillStep(pSkill->id), 1, GetMaxSkillValueForLevel());
                         break;
                     case SKILL_RANGE_MONO:
-                        SetSkill(pSkill->id, 1, 1);
+                        SetSkill(pSkill->id, GetSkillStep(pSkill->id), 1, 1);
                         break;
                     default:
                         break;
@@ -3371,7 +3371,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
             if (!IsInWorld() || !itr2->second.active)       // at spells loading, no output, but allow save
                 addSpell(itr2->second.spell,itr2->second.active,true,true,false);
             else                                            // at normal learning
-                learnSpell(itr2->second.spell,true);
+                learnSpell(itr2->second.spell, true);
         }
     }
 
@@ -3445,7 +3445,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
         {
             PlayerSpellMap::iterator iter = m_spells.find(node->next);
             if (iter != m_spells.end() && iter->second->disabled)
-                learnSpell(node->next,false);
+                learnSpell(node->next, false);
         }
     }
 
@@ -3453,8 +3453,9 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     if (!learning || !IsInWorld())
         return;
 
-    WorldPacket data(SMSG_LEARNED_SPELL, 4);
+    WorldPacket data(SMSG_LEARNED_SPELL, 6);
     data << uint32(spell_id);
+    data << uint16(0);
     GetSession()->SendPacket(&data);
 }
 
@@ -3534,7 +3535,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     {
         uint32 prev_spell = spellmgr.GetPrevSpellInChain(spell_id);
         if (!prev_spell)                                    // first rank, remove skill
-            SetSkill(spellLearnSkill->skill,0,0);
+            SetSkill(spellLearnSkill->skill, 0, 0, 0);
         else
         {
             // search prev. skill setting by spell ranks chain
@@ -3546,7 +3547,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
             }
 
             if (!prevSkill)                                 // not found prev skill setting, remove skill
-                SetSkill(spellLearnSkill->skill,0,0);
+                SetSkill(spellLearnSkill->skill, 0, 0, 0);
             else                                            // set to prev. skill setting values
             {
                 uint32 skill_value = GetPureSkillValue(prevSkill->skill);
@@ -3560,7 +3561,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 if (skill_max_value > new_skill_max_value)
                     skill_max_value = new_skill_max_value;
 
-                SetSkill(prevSkill->skill,skill_value,skill_max_value);
+                SetSkill(prevSkill->skill, prevSkill->step, skill_value, skill_max_value);
             }
         }
 
@@ -3586,7 +3587,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                     (IsProfessionSkill(pSkill->id) || _spell_idx->second->racemask != 0))
                     continue;
 
-                SetSkill(pSkill->id, 0, 0);
+                SetSkill(pSkill->id, GetSkillStep(pSkill->id), 0, 0);
             }
         }
     }
@@ -3609,7 +3610,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         {
             // I cannot see why mangos has these lines.
             //if (learn_low_rank)
-            //    learnSpell(prev_id,false);
+            //    learnSpell(prev_id, false);
         }
         // if ranked non-stackable spell: need activate lesser rank and update dendence state
         else if (cur_active && !SpellMgr::canStackSpellRanks(spellInfo) && spellmgr.GetSpellRank(spellInfo->Id) != 0)
@@ -4224,7 +4225,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     RemovePetitionsAndSigns(playerguid, 10);
 
     // return back all mails with COD and Item                 0  1           2              3      4       5          6     7
-    QueryResult_AutoPtr resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,itemTextId,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
+    QueryResult_AutoPtr resultMail = CharacterDatabase.PQuery("SELECT id,messageType,mailTemplateId,sender,subject,body,money,has_items FROM mail WHERE receiver='%u' AND has_items<>0 AND cod<>0", guid);
     if (resultMail)
     {
         do
@@ -4236,7 +4237,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
             uint16 mailTemplateId= fields[2].GetUInt16();
             uint32 sender        = fields[3].GetUInt32();
             std::string subject  = fields[4].GetCppString();
-            uint32 itemTextId    = fields[5].GetUInt32();
+            std::string body     = fields[5].GetCppString();
             uint32 money         = fields[6].GetUInt32();
             bool has_items       = fields[7].GetBool();
 
@@ -4252,7 +4253,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                 continue;
             }
 
-            MailDraft draft(subject, itemTextId);
+            MailDraft draft(subject, body);
             if (mailTemplateId)
                 draft = MailDraft(mailTemplateId,false);    // itesm already included
 
@@ -5434,7 +5435,7 @@ bool Player::UpdateCraftSkill(uint32 spellid)
             if (spellEntry && spellEntry->Mechanic == MECHANIC_DISCOVERY)
             {
                 if (uint32 discoveredSpell = GetSkillDiscoverySpell(_spell_idx->second->skillId, spellid, this))
-                    learnSpell(discoveredSpell,false);
+                    learnSpell(discoveredSpell, false);
             }
 
             uint32 craft_skill_gain = sWorld.getConfig(CONFIG_SKILL_GAIN_CRAFTING);
@@ -5717,7 +5718,7 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
 
 // This functions sets a skill line value (and adds if doesn't exist yet)
 // To "remove" a skill line, set it's values to zero
-void Player::SetSkill(uint32 id, uint16 currVal, uint16 maxVal)
+void Player::SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal)
 {
     if (!id)
         return;
@@ -5729,6 +5730,9 @@ void Player::SetSkill(uint32 id, uint16 currVal, uint16 maxVal)
     {
         if (currVal)
         {
+            // update step
+            SetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos), MAKE_PAIR32(id, step));
+            // update value
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos),MAKE_SKILL_VALUE(currVal,maxVal));
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
@@ -5767,14 +5771,11 @@ void Player::SetSkill(uint32 id, uint16 currVal, uint16 maxVal)
                 sLog.outError("Skill not found in SkillLineStore: skill #%u", id);
                 return;
             }
-            // enable unlearn button for primary professions only
-            if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION)
-                SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id,1));
-            else
-                SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id,0));
-            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(currVal,maxVal));
-            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL,id);
-            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL,id);
+
+            SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id, step));
+            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(currVal, maxVal));
+            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
+            GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
 
             // insert new entry or update if not deleted old entry yet
             if (itr != mSkillStatus.end())
@@ -5814,6 +5815,18 @@ bool Player::HasSkill(uint32 skill) const
 
     SkillStatusMap::const_iterator itr = mSkillStatus.find(skill);
     return (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED);
+}
+
+uint16 Player::GetSkillStep(uint16 skill) const	
+{	
+    if (!skill)	
+        return 0;	
+
+    SkillStatusMap::const_iterator itr = mSkillStatus.find(skill);
+    if (itr == mSkillStatus.end() || itr->second.uState == SKILL_DELETED)
+        return 0;
+	
+    return PAIR32_HIPART(GetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos)));
 }
 
 uint16 Player::GetSkillValue(uint32 skill) const
@@ -13519,11 +13532,11 @@ void Player::PrepareQuestMenu(uint64 guid)
         uint32 quest_id = i->second;
         QuestStatus status = GetQuestStatus(quest_id);
         if (status == QUEST_STATUS_COMPLETE && !GetQuestRewardStatus(quest_id))
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_UNK2);
+            qm.AddMenuItem(quest_id, 4);
         else if (status == QUEST_STATUS_INCOMPLETE)
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_UNK2);
+            qm.AddMenuItem(quest_id, 4);
         //else if (status == QUEST_STATUS_AVAILABLE)
-        //    qm.AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
+        //    qm.AddMenuItem(quest_id, 2);
     }
 
     for (QuestRelations::const_iterator i = pObjectQR->lower_bound(pObject->GetEntry()); i != pObjectQR->upper_bound(pObject->GetEntry()); ++i)
@@ -13535,9 +13548,9 @@ void Player::PrepareQuestMenu(uint64 guid)
         QuestStatus status = GetQuestStatus(quest_id);
 
         if (pQuest->IsAutoComplete() && CanTakeQuest(pQuest, false))
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_UNK2);
+            qm.AddMenuItem(quest_id, 4);
         else if (status == QUEST_STATUS_NONE && CanTakeQuest(pQuest, false))
-            qm.AddMenuItem(quest_id, DIALOG_STATUS_CHAT);
+            qm.AddMenuItem(quest_id, 2);
     }
 }
 
@@ -13549,7 +13562,7 @@ void Player::SendPreparedQuest(uint64 guid)
 
     QuestMenuItem const& qmi0 = questMenu.GetItem(0);
 
-    uint32 status = qmi0.m_qIcon;
+    uint32 icon = qmi0.m_qIcon;
 
     // single element case
     if (questMenu.MenuItemCount() == 1)
@@ -13560,9 +13573,9 @@ void Player::SendPreparedQuest(uint64 guid)
 
         if (pQuest)
         {
-            if (status == DIALOG_STATUS_UNK2 && !GetQuestRewardStatus(quest_id))
+            if (icon == 4 && !GetQuestRewardStatus(quest_id))
                 PlayerTalkClass->SendQuestGiverRequestItems(pQuest, guid, CanRewardQuest(pQuest, false), true);
-            else if (status == DIALOG_STATUS_UNK2)
+            else if (icon == 4)
                 PlayerTalkClass->SendQuestGiverRequestItems(pQuest, guid, CanRewardQuest(pQuest, false), true);
             // Send completable on repeatable and autoCompletable quest if player don't have quest
             // TODO: verify if check for !pQuest->IsDaily() is really correct (possibly not)
@@ -14106,7 +14119,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
 
     // Send reward mail
     if (uint32 mail_template_id = pQuest->GetRewMailTemplateId())
-        MailDraft(mail_template_id).SendMailTo(this, questGiver, MAIL_CHECK_MASK_NONE, pQuest->GetRewMailDelaySecs());
+        MailDraft(mail_template_id).SendMailTo(MailReceiver(this), MailSender(questGiver), MAIL_CHECK_MASK_HAS_BODY, pQuest->GetRewMailDelaySecs());
 
     if (pQuest->IsDaily())
     {
@@ -16532,7 +16545,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
             std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
 
             // fill mail
-            MailDraft draft(subject);
+            MailDraft draft(subject, "There's were problems with equipping item(s).");
 
             for (uint8 i = 0; !problematicItems.empty() && i < MAX_MAIL_ITEMS; ++i)
             {
@@ -16613,7 +16626,7 @@ void Player::_LoadMail()
 {
     m_mail.clear();
     //mails are in right order                             0  1           2      3        4       5          6         7           8            9     10  11      12         13
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,itemTextId,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC",GetGUIDLow());
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT id,messageType,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked,stationery,mailTemplateId FROM mail WHERE receiver = '%u' ORDER BY id DESC",GetGUIDLow());
     if (result)
     {
         do
@@ -16625,11 +16638,11 @@ void Player::_LoadMail()
             m->sender = fields[2].GetUInt32();
             m->receiver = fields[3].GetUInt32();
             m->subject = fields[4].GetCppString();
-            m->itemTextId = fields[5].GetUInt32();
+            m->body = fields[5].GetCppString();	
             bool has_items = fields[6].GetBool();
-            m->expire_time = (time_t)fields[7].GetUInt64();
+            m->expire_time = (time_t)fields[7].GetUInt64();	
             m->deliver_time = (time_t)fields[8].GetUInt64();
-            m->money = fields[9].GetUInt32();
+            m->money = fields[9].GetUInt32();	
             m->COD = fields[10].GetUInt32();
             m->checked = fields[11].GetUInt32();
             m->stationery = fields[12].GetUInt8();
@@ -17643,7 +17656,7 @@ void Player::_SaveMail()
         if (m->state == MAIL_STATE_CHANGED)
         {
             CharacterDatabase.PExecute("UPDATE mail SET itemTextId = '%u',has_items = '%u',expire_time = '" UI64FMTD "', deliver_time = '" UI64FMTD "',money = '%u',cod = '%u',checked = '%u' WHERE id = '%u'",
-                m->itemTextId, m->HasItems() ? 1 : 0, (uint64)m->expire_time, (uint64)m->deliver_time, m->money, m->COD, m->checked, m->messageID);
+                m->HasItems() ? 1 : 0, (uint64)m->expire_time, (uint64)m->deliver_time, m->money, m->COD, m->checked, m->messageID);
             if (m->removedItems.size())
             {
                 for (std::vector<uint32>::iterator itr2 = m->removedItems.begin(); itr2 != m->removedItems.end(); ++itr2)
@@ -17657,8 +17670,6 @@ void Player::_SaveMail()
             if (m->HasItems())
                 for (std::vector<MailItemInfo>::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                     CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", itr2->item_guid);
-            if (m->itemTextId)
-                CharacterDatabase.PExecute("DELETE FROM item_text WHERE id = '%u'", m->itemTextId);
             CharacterDatabase.PExecute("DELETE FROM mail WHERE id = '%u'", m->messageID);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE mail_id = '%u'", m->messageID);
         }
@@ -20677,7 +20688,7 @@ void Player::learnDefaultSpells()
         if (!IsInWorld())                                    // will send in INITIAL_SPELLS in list anyway at map add
             addSpell(tspell,true,true,true,false);
         else                                                // but send in normal spell in game learn case
-            learnSpell(tspell,true);
+            learnSpell(tspell, true);
     }
 }
 
@@ -20804,7 +20815,7 @@ void Player::learnSkillRewardedSpells(uint32 skill_id, uint32 skill_value)
             else if (!IsInWorld())
                 addSpell(pAbility->spellId,true,true,true,false);
             else
-                learnSpell(pAbility->spellId,true);
+                learnSpell(pAbility->spellId, true);
         }
     }
 }
@@ -21096,7 +21107,7 @@ void Player::AutoUnequipOffhandIfNeed(bool force /*= false*/)
         CharacterDatabase.CommitTransaction();
 
         std::string subject = GetSession()->GetTrinityString(LANG_NOT_EQUIPPED_ITEM);
-        MailDraft(subject).AddItem(offItem).SendMailTo(this, MailSender(this, MAIL_STATIONERY_GM));
+        MailDraft(subject, "There's were problems with equipping this item.").AddItem(offItem).SendMailTo(this, MailSender(this, MAIL_STATIONERY_GM));
     }
 }
 
@@ -22198,7 +22209,7 @@ bool Player::IsKnowHowFlyIn(uint32 mapid, uint32 zone) const
 
 void Player::learnSpellHighRank(uint32 spellid)
 {
-    learnSpell(spellid,false);
+    learnSpell(spellid, false);
 
     if (uint32 next = spellmgr.GetNextSpellInChain(spellid))
         learnSpellHighRank(next);
@@ -22287,21 +22298,21 @@ void Player::_LoadSkills(QueryResult_AutoPtr result)
             base_skill = 1;                                 // skill mast be known and then > 0 in any case
 
         if (GetPureSkillValue(SKILL_FIRST_AID) < base_skill)
-            SetSkill(SKILL_FIRST_AID,base_skill, base_skill);
+            SetSkill(SKILL_FIRST_AID, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_AXES) < base_skill)
-            SetSkill(SKILL_AXES, base_skill,base_skill);
+            SetSkill(SKILL_AXES, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_DEFENSE) < base_skill)
-            SetSkill(SKILL_DEFENSE, base_skill,base_skill);
+            SetSkill(SKILL_DEFENSE, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_POLEARMS) < base_skill)
-            SetSkill(SKILL_POLEARMS, base_skill,base_skill);
+            SetSkill(SKILL_POLEARMS, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_SWORDS) < base_skill)
-            SetSkill(SKILL_SWORDS, base_skill,base_skill);
+            SetSkill(SKILL_SWORDS, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_2H_AXES) < base_skill)
-            SetSkill(SKILL_2H_AXES, base_skill,base_skill);
+            SetSkill(SKILL_2H_AXES, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_2H_SWORDS) < base_skill)
-            SetSkill(SKILL_2H_SWORDS, base_skill,base_skill);
+            SetSkill(SKILL_2H_SWORDS, 0, base_skill, base_skill);
         if (GetPureSkillValue(SKILL_UNARMED) < base_skill)
-            SetSkill(SKILL_UNARMED, base_skill,base_skill);
+            SetSkill(SKILL_UNARMED, 0, base_skill, base_skill);
     }
 }
 

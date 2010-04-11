@@ -128,7 +128,7 @@ void WorldSession::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPri
     if (oldBidder || oldBidder_accId)
     {
         std::ostringstream msgAuctionOutbiddedSubject;
-        msgAuctionOutbiddedSubject << auction->item_template << ":0:" << AUCTION_OUTBIDDED;
+        msgAuctionOutbiddedSubject << auction->item_template << ":0:" << AUCTION_OUTBIDDED << ":0:0";
 
         if (oldBidder && !_player)
             oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, auctionbot.GetAHBplayerGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
@@ -136,7 +136,7 @@ void WorldSession::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPri
         if (oldBidder && _player)
             oldBidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, _player->GetGUID(), newPrice, auction->GetAuctionOutBid(), auction->item_template);
 
-        MailDraft(msgAuctionOutbiddedSubject.str())
+        MailDraft(msgAuctionOutbiddedSubject.str(), "")     // TODO: fix body
             .AddMoney(auction->bid)
             .SendMailTo(MailReceiver(oldBidder, auction->bidder), auction);
     }
@@ -156,9 +156,9 @@ void WorldSession::SendAuctionCancelledToBidderMail(AuctionEntry* auction)
     if (bidder || bidder_accId)
     {
         std::ostringstream msgAuctionCancelledSubject;
-        msgAuctionCancelledSubject << auction->item_template << ":0:" << AUCTION_CANCELLED_TO_BIDDER;
+        msgAuctionCancelledSubject << auction->item_template << ":0:" << AUCTION_CANCELLED_TO_BIDDER << ":0:0";
 
-        MailDraft(msgAuctionCancelledSubject.str())
+        MailDraft(msgAuctionCancelledSubject.str(), "")     // TODO: fix body
             .AddMoney(auction->bid)
             .SendMailTo(MailReceiver(bidder, auction->bidder), auction);
     }
@@ -457,10 +457,10 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
             }
             // Return the item by mail
             std::ostringstream msgAuctionCanceledOwner;
-            msgAuctionCanceledOwner << auction->item_template << ":0:" << AUCTION_CANCELED;
+            msgAuctionCanceledOwner << auction->item_template << ":0:" << AUCTION_CANCELED << ":0:0";
 
             // item will deleted or added to received mail list
-            MailDraft(msgAuctionCanceledOwner.str())
+            MailDraft(msgAuctionCanceledOwner.str(), "")    // TODO: fix body
                 .AddItem(pItem)
                 .SendMailTo(pl, auction);
         }

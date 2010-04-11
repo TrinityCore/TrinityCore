@@ -341,7 +341,7 @@ struct boss_headless_horsemanAI : public ScriptedAI
         {
             confl->EffectApplyAuraName[0] = SPELL_AURA_PERIODIC_DAMAGE_PERCENT;
             confl->EffectBasePoints[0] = 10;
-            confl->EffectBaseDice[0] = 10;
+            //confl->EffectBaseDice[0] = 10;
             confl->DmgMultiplier[0] = 1;
         }
 /*

@@ -241,6 +241,7 @@ void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
     recv_data >> guid;
+    recv_data.read_skip<uint8>();
 
     //can't uninvite yourself
     if (guid == GetPlayer()->GetGUID())
@@ -616,8 +617,8 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recv_data)
 
         // everything's fine, do it
         WorldPacket data(MSG_RAID_READY_CHECK_CONFIRM, 9);
-        data << GetPlayer()->GetGUID();
-        data << state;
+        data << uint64(GetPlayer()->GetGUID());
+        data << uint8(state);
         group->BroadcastReadyCheck(&data);
     }
 }

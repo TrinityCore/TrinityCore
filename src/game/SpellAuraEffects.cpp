@@ -376,7 +376,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 AuraEffect::AuraEffect(Aura * base, uint8 effIndex, int32 *baseAmount, Unit * caster) :
     m_base(base), m_spellProto(base->GetSpellProto()), m_spellmod(NULL), m_periodicTimer(0),
     m_tickNumber(0), m_effIndex(effIndex), m_isPeriodic(false), m_canBeRecalculated(true),
-    m_baseAmount (baseAmount ? *baseAmount : m_spellProto->EffectBasePoints[m_effIndex])
+    m_baseAmount (baseAmount ? *baseAmount : m_spellProto->EffectBasePoints[m_effIndex] + 1)
 {
     CalculatePeriodic(caster, true);
 
@@ -409,7 +409,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
     if (caster)
         amount = caster->CalculateSpellDamage(m_spellProto, m_effIndex, m_baseAmount, NULL);
     else
-        amount = m_baseAmount + m_spellProto->EffectBaseDice[m_effIndex];
+        amount = m_baseAmount + 1;
 
     // check item enchant aura cast
     if (!amount && caster)
