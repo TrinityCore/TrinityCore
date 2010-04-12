@@ -382,6 +382,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
         GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_BID, price);
 
         // after this update we should save player's money ...
+        CharacterDatabase.BeginTransaction();
         CharacterDatabase.PExecute("UPDATE auctionhouse SET buyguid = '%u',lastbid = '%u' WHERE id = '%u'", auction->bidder, auction->bid, auction->Id);
 
         SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, AUCTION_OK, 0);
@@ -406,12 +407,13 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
         auctionmgr.SendAuctionWonMail(auction);
 
         SendAuctionCommandResult(auction->Id, AUCTION_PLACE_BID, AUCTION_OK);
+
+        CharacterDatabase.BeginTransaction();
         auction->DeleteFromDB();
         uint32 item_template = auction->item_template;
         auctionmgr.RemoveAItem(auction->item_guidlow);
         auctionHouse->RemoveAuction(auction, item_template);
     }
-    CharacterDatabase.BeginTransaction();
     pl->SaveInventoryAndGoldToDB();
     CharacterDatabase.CommitTransaction();
 }
@@ -481,14 +483,15 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
 
     //inform player, that auction is removed
     SendAuctionCommandResult(auction->Id, AUCTION_CANCEL, AUCTION_OK);
+
     // Now remove the auction
     CharacterDatabase.BeginTransaction();
     pl->SaveInventoryAndGoldToDB();
-    CharacterDatabase.CommitTransaction();
     auction->DeleteFromDB();
     uint32 item_template = auction->item_template;
     auctionmgr.RemoveAItem(auction->item_guidlow);
     auctionHouse->RemoveAuction(auction, item_template);
+    CharacterDatabase.CommitTransaction();
 }
 
 //called when player lists his bids
