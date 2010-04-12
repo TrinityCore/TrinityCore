@@ -391,6 +391,7 @@ CREATE TABLE `characters` (
   `equipmentCache` longtext,
   `ammoId` int(10) UNSIGNED NOT NULL default '0',
   `knownTitles` longtext,
+  `actionBars` tinyint(3) UNSIGNED NOT NULL default '0',
   PRIMARY KEY  (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
