@@ -7192,20 +7192,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             if (dummySpell->Id == 49028)
             {
                 // 1 dummy aura for dismiss rune blade
-                if (effIndex != 2)
+                if (effIndex != 1)
                     return false;
-                uint64 PetGUID = NULL;
+
+                Unit* pPet = NULL;
                 for (ControlList::const_iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr) //Find Rune Weapon
                     if ((*itr)->GetEntry() == 27893)
                     {
-                        PetGUID = (*itr)->GetGUID();
+                        pPet = (*itr);
                         break;
                     }
 
-                if (PetGUID && pVictim && damage && procSpell)
+                if (pPet && pPet->getVictim() && damage && procSpell)
                 {
-                    int32 procDmg = damage / 2;
-                    CastCustomSpell(pVictim, procSpell->Id, &procDmg, NULL, NULL, true, NULL, NULL, PetGUID);
+                    uint32 procDmg = damage / 2;
+                    pPet->SendSpellNonMeleeDamageLog(pPet->getVictim(),procSpell->Id,procDmg,GetSpellSchoolMask(procSpell),0,0,false,0,false);
+                    pPet->DealDamage(pPet->getVictim(),procDmg,NULL,SPELL_DIRECT_DAMAGE,GetSpellSchoolMask(procSpell),procSpell,true);
                     break;
                 }
                 else
