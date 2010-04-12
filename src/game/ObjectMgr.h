@@ -149,6 +149,9 @@ typedef UNORDERED_MAP<uint64/*(instance,guid) pair*/,time_t> RespawnTimes;
 #define MIN_CREATURE_AI_TEXT_STRING_ID (-1)                 // 'creature_ai_texts'
 #define MAX_CREATURE_AI_TEXT_STRING_ID (-1000000)
 
+// Trinity Trainer Reference start range
+#define TRINITY_TRAINER_START_REF      200000
+
 struct TrinityStringLocale
 {
     std::vector<std::string> Content;                       // 0 -> default, i -> i-1 locale index

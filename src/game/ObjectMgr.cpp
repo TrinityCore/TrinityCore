@@ -8133,8 +8133,9 @@ void ObjectMgr::LoadMailLevelRewards()
 bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
 {
     CreatureInfo const* cInfo = GetCreatureTemplate(entry);
-
-    if (!cInfo && entry > 0)
+if (entry < TRINITY_TRAINER_START_REF)
+{
+    if (!cInfo)
     {
         sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
         return false;
@@ -8217,24 +8218,16 @@ bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::
 
     return true;
 }
-
+}
 int ObjectMgr::LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
 {
     QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer WHERE entry='%d'", spell);
     if (!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
         return 0;
-    }
-
-    barGoLink bar(result->GetRowCount());
 
     uint32 count = 0;
     do
     {
-        bar.step();
 
         Field* fields = result->Fetch();
 
