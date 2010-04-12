@@ -5531,8 +5531,9 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         target->ToPlayer()->RemoveAmmo();      // not use ammo and not allow use
                     break;
                 case 49028:
-                    GetBase()->SetDuration(GetBase()->GetDuration() + (caster->GetPower(POWER_RUNIC_POWER) * 10));
-                    caster->SetPower(POWER_RUNIC_POWER, 0);
+                    if (caster)
+                        if (AuraEffect *aurEff = caster->GetAuraEffect(63330, 0)) // glyph of Dancing Rune Weapon
+                            GetBase()->SetDuration(GetBase()->GetDuration() + aurEff->GetAmount());
                     break;
                 case 62061:                                     // Festive Holiday Mount
                     if (target->HasAuraType(SPELL_AURA_MOUNTED))
