@@ -501,11 +501,21 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                     {
                         //+80.68% from sp bonus
                         float bonus = 0.8068f;
-                        // Borrowed Time
-                        if (AuraEffect const * aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
-                            bonus += aurEff->GetAmount() / 100;
+                        AuraEffect const* pAurEff;
 
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus;
+                        // Borrowed Time
+                        if (pAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
+                            bonus += (float)pAurEff->GetAmount() / 100.0f;
+
+                        // Twin Disciplines
+                        if (pAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, caster->GetGUID()))
+                            bonus += (float)pAurEff->GetAmount() / 100.0f;
+
+                        // Focused Power
+                        if (pAurEff = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, 2210, 2))
+                            bonus += (float)pAurEff->GetAmount() / 100.0f;
+
+                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus; 
                     }
                     break;
                 case SPELLFAMILY_PALADIN:
