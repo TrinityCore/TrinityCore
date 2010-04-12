@@ -36,7 +36,10 @@ const Position PortalLocation[] =
 {
   {1936.07, 803.198, 53.3749, 3.12414},
   {1877.51, 850.104, 44.6599, 4.7822 },
-  {1890.64, 753.471, 48.7224, 1.71042}
+  {1890.64, 753.471, 48.7224, 1.71042},
+  {1908.31, 809.657, 38.7037, 3.08701},
+  {1918.37, 853.437, 47.1624, 4.12294},
+  {1927.61, 758.436, 51.4533, 2.20891}
 };
 
 struct instance_violet_hold : public ScriptedInstance
@@ -105,7 +108,7 @@ struct instance_violet_hold : public ScriptedInstance
         uiRemoveNpc = 0;
 
         uiWaveCount = 0;
-        uiLocation = urand(0,2);
+        uiLocation = urand(0,5);
         uiFirstBoss = 0;
         uiSecondBoss = 0;
         uiCountErekemGuards = 0;
@@ -260,7 +263,7 @@ struct instance_violet_hold : public ScriptedInstance
     {
         if (Creature *pSinclari = instance->GetCreature(uiSinclari))
             if (Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL,PortalLocation[uiLocation],TEMPSUMMON_CORPSE_DESPAWN))
-                uiLocation = (uiLocation+urand(1,2))%3;
+                uiLocation = (uiLocation+urand(1,5))%6;
     }
 
     void StartBossEncounter(uint8 uiBoss, bool bForceRespawn = true)
