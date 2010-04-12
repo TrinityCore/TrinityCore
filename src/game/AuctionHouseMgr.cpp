@@ -77,20 +77,15 @@ uint32 AuctionHouseMgr::GetAuctionDeposit(AuctionHouseEntry const* entry, uint32
     else
         deposit = 0;
 
-    sLog.outDebug("SellPrice:\t\t%u", MSV);
-    sLog.outDebug("Deposit Percent:\t%f", ((double)entry->depositPercent / 100.0f));
-    sLog.outDebug("Auction Time1:\t\t%u", time);
-    sLog.outDebug("Auction Time2:\t\t%u", MIN_AUCTION_TIME);
-    sLog.outDebug("Auction Time3:\t\t%u", timeHr);
-    sLog.outDebug("Count:\t\t\t%u", pItem->GetCount());
+    sLog.outDebug("Sellprice: %u / Depositpercent: %f / AT1: %u / AT2: %u / AT3: %u / Count: %u", MSV, ((double)entry->depositPercent / 100.0f), time, MIN_AUCTION_TIME, timeHr, pItem->GetCount() );
     if (deposit > 0)
     {
-        sLog.outDebug("Deposit:\t\t%u", deposit);
+        sLog.outDebug("Deposit: %u", deposit);
         return deposit;
     }
     else
     {
-        sLog.outDebug("Deposit:\t\t0");
+        sLog.outDebug("Deposit: 0");
         return 0;
     }
 }
@@ -155,7 +150,6 @@ void AuctionHouseMgr::SendAuctionWonMail(AuctionEntry *auction)
         // set owner to bidder (to prevent delete item with sender char deleting)
         // owner in `data` will set at mail receive and item extracting
         CharacterDatabase.PExecute("UPDATE item_instance SET owner_guid = '%u' WHERE guid='%u'",auction->bidder,pItem->GetGUIDLow());
-        CharacterDatabase.CommitTransaction();
 
         if (bidder)
             bidder->GetSession()->SendAuctionBidderNotification(auction->GetHouseId(), auction->Id, bidder_guid, 0, 0, auction->item_template);
@@ -539,10 +533,12 @@ void AuctionHouseObject::Update()
         }
 
         ///- In any case clear the auction
+        CharacterDatabase.BeginTransaction();
         auction->DeleteFromDB();
         uint32 item_template = auction->item_template;
         auctionmgr.RemoveAItem(auction->item_guidlow);
         RemoveAuction(auction, item_template);
+        CharacterDatabase.CommitTransaction();
     }
 }
 
