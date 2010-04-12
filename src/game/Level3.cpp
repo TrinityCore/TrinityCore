@@ -777,7 +777,7 @@ bool ChatHandler::HandleReloadGossipMenuCommand(const char*)
 {
     sLog.outString("Re-Loading `gossip_menu` Table!");
     objmgr.LoadGossipMenu();
-    SendGlobalSysMessage("DB table `gossip_menu` reloaded.");
+    SendGlobalGMSysMessage("DB table `gossip_menu` reloaded.");
     return true;
 }
 
@@ -785,7 +785,7 @@ bool ChatHandler::HandleReloadGossipMenuOptionCommand(const char*)
 {
     sLog.outString("Re-Loading `gossip_menu_option` Table!");
     objmgr.LoadGossipMenuItems();
-    SendGlobalSysMessage("DB table `gossip_menu_option` reloaded.");
+    SendGlobalGMSysMessage("DB table `gossip_menu_option` reloaded.");
     return true;
 }
 
@@ -903,7 +903,7 @@ bool ChatHandler::HandleReloadLootTemplatesMailCommand(const char*)
     sLog.outString("Re-Loading Loot Tables... (`mail_loot_template`)");
     LoadLootTemplates_Mail();
     LootTemplates_Mail.CheckLootRefs();
-    SendGlobalSysMessage("DB table `mail_loot_template` reloaded.");
+    SendGlobalGMSysMessage("DB table `mail_loot_template` reloaded.");
     return true;
 }
 
@@ -1387,7 +1387,7 @@ bool ChatHandler::HandleReloadMailLevelRewardCommand(const char* /*arg*/)
 {
     sLog.outString("Re-Loading Player level dependent mail rewards...");
     objmgr.LoadMailLevelRewards();
-    SendGlobalSysMessage("DB table `mail_level_reward` reloaded.");
+    SendGlobalGMSysMessage("DB table `mail_level_reward` reloaded.");
     return true;
 }
 
