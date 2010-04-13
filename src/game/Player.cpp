@@ -15557,8 +15557,8 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty,"
     // 39           40                41                 42                    43          44          45              46           47               48              49
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
-    // 50      51      52      53      54      55      56      57      58           59         60          61             62              63      64           65
-    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars FROM characters WHERE guid = '%u'", guid);
+    // 50      51      52      53      54      55      56      57      58           59         60          61             62              63      64
+    //"health, power1, power2, power3, power4, power5, power6, power7, instance_id, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles FROM characters WHERE guid = '%u'", guid);
     QueryResult_AutoPtr result = holder->GetResult(PLAYER_LOGIN_QUERY_LOADFROM);
 
     if (!result)
@@ -15625,8 +15625,6 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     SetUInt64Value(PLAYER_FIELD_KNOWN_CURRENCIES, fields[47].GetUInt64());
 
     SetUInt32Value(PLAYER_AMMO_ID, fields[63].GetUInt32());
-
-    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[65].GetUInt8());
 
     InitDisplayIds();
 
@@ -17300,7 +17298,7 @@ void Player::SaveToDB()
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
         "death_expire_time, taxi_path, arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, "
         "todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk, health, power1, power2, power3, "
-        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles, actionBars) VALUES ("
+        "power4, power5, power6, power7, latency, speccount, activespec, exploredZones, equipmentCache, ammoId, knownTitles) VALUES ("
         << GetGUIDLow() << ", "
         << GetSession()->GetAccountId() << ", '"
         << sql_name << "', "
@@ -17424,9 +17422,7 @@ void Player::SaveToDB()
     {
         ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << " ";
     }
-    ss << "',";
-    ss << uint32(GetByteValue(PLAYER_FIELD_BYTES, 2));
-    ss << ")";
+    ss << "')";
 
     CharacterDatabase.BeginTransaction();
 
@@ -23249,6 +23245,10 @@ void Player::ActivateSpec(uint8 spec)
     //RemoveAllAuras(this->GetGUID(), NULL, false, true); // removes too many auras
     //ExitVehicle(); // should be impossible to switch specs from inside a vehicle..
 
+    // Let client clear his current Actions
+    SendActionButtons(2);
+    m_actionButtons.clear();
+
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
@@ -23341,9 +23341,6 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
-    // Let client clear his current Actions
-    SendActionButtons(2);
-    m_actionButtons.clear();
     if (QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
         _LoadActions(result, false);
 
