@@ -390,8 +390,7 @@ CREATE TABLE `characters` (
   `exploredZones` longtext,
   `equipmentCache` longtext,
   `ammoId` int(10) UNSIGNED NOT NULL default '0',
-  `knownTitles` longtext,
-  `actionBars` tinyint(3) UNSIGNED NOT NULL default '0',
+  `knownTitles` longtext
   PRIMARY KEY  (`guid`),
   KEY `idx_account` (`account`),
   KEY `idx_online` (`online`),
