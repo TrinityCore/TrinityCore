@@ -8132,9 +8132,10 @@ void ObjectMgr::LoadMailLevelRewards()
 
 bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
 {
+    if (entry >= TRINITY_TRAINER_START_REF)
+        return false;
+
     CreatureInfo const* cInfo = GetCreatureTemplate(entry);
-if (entry < TRINITY_TRAINER_START_REF)
-{
     if (!cInfo)
     {
         sLog.outErrorDb("Table `npc_trainer` have entry for not existed creature template (Entry: %u), ignore", entry);
@@ -8215,9 +8216,7 @@ if (entry < TRINITY_TRAINER_START_REF)
             break;
         }
     }
-
     return true;
-}
 }
 int ObjectMgr::LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
 {
