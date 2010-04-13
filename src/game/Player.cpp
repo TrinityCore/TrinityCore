@@ -23238,8 +23238,6 @@ void Player::ActivateSpec(uint8 spec)
         InterruptNonMeleeSpells(false);
 
     // "Hunter pets should have their talents refunded when a hunter switches talent specs, even if they are dismissed at the time."
-    if (getClass() == CLASS_HUNTER)
-        Pet::resetTalentsForAllPetsOf(this, GetPet());
 
     UnsummonPetTemporaryIfAny();
     ClearComboPointHolders();
