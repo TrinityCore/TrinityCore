@@ -22,6 +22,7 @@ OPTION(DO_RA "With RA" 0)
 OPTION(DO_DEBUG "Debug mode" 0)
 OPTION(DO_WARN "Enable all compile warnings" 0)
 OPTION(CENTOS "CENTOS" 0)
+OPTION(DO_SQL "Copy SQL files" 0)
 
 SET(GENREV_SRC
 src/tools/genrevision/genrevision.cpp
@@ -176,4 +177,8 @@ SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 add_subdirectory(dep)
 #add_subdirectory(doc)
 add_subdirectory(src)
+if(DO_SQL)
+message("* Copy SQL files ON")
 add_subdirectory(sql)
+endif(DO_SQL)
+
