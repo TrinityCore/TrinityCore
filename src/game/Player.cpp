@@ -23237,8 +23237,6 @@ void Player::ActivateSpec(uint8 spec)
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
-    // "Hunter pets should have their talents refunded when a hunter switches talent specs, even if they are dismissed at the time."
-
     UnsummonPetTemporaryIfAny();
     ClearComboPointHolders();
     ClearAllReactives();
