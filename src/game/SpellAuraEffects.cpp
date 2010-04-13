@@ -407,7 +407,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
     int32 amount;
     // default amount calculation
     if (caster)
-        amount = caster->CalculateSpellDamage(NULL, m_spellProto, m_effIndex);
+        amount = caster->CalculateSpellDamage(NULL, m_spellProto, m_effIndex, &m_baseAmount);
     else
         amount = m_baseAmount + 1;
 
@@ -1044,7 +1044,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
                         break;
 
                     if (target->ToPlayer()->isMoving())
-                        m_amount = target->CalculateSpellDamage(target, m_spellProto,m_effIndex);
+                        m_amount = target->CalculateSpellDamage(target, m_spellProto,m_effIndex, &m_baseAmount);
                     else
                         --m_amount;
                     break;
