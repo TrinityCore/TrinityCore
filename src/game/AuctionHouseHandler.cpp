@@ -138,7 +138,7 @@ void WorldSession::SendAuctionOutbiddedMail(AuctionEntry *auction, uint32 newPri
 
         MailDraft(msgAuctionOutbiddedSubject.str(), "")     // TODO: fix body
             .AddMoney(auction->bid)
-            .SendMailTo(MailReceiver(oldBidder, auction->bidder), auction);
+            .SendMailTo(MailReceiver(oldBidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
     }
 }
 
@@ -160,7 +160,7 @@ void WorldSession::SendAuctionCancelledToBidderMail(AuctionEntry* auction)
 
         MailDraft(msgAuctionCancelledSubject.str(), "")     // TODO: fix body
             .AddMoney(auction->bid)
-            .SendMailTo(MailReceiver(bidder, auction->bidder), auction);
+            .SendMailTo(MailReceiver(bidder, auction->bidder), auction, MAIL_CHECK_MASK_COPIED);
     }
 }
 
@@ -464,7 +464,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
             // item will deleted or added to received mail list
             MailDraft(msgAuctionCanceledOwner.str(), "")    // TODO: fix body
                 .AddItem(pItem)
-                .SendMailTo(pl, auction);
+                .SendMailTo(pl, auction, MAIL_CHECK_MASK_COPIED);
         }
         else
         {
