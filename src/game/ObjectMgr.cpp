@@ -4795,41 +4795,6 @@ void ObjectMgr::LoadGossipScripts()
     // checks are done in LoadGossipMenuItems
 }
 
-void ObjectMgr::LoadItemTexts()
-{
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT id, text FROM item_text");
-
-    uint32 count = 0;
-
-    if (!result)
-    {
-        barGoLink bar(1);
-        bar.step();
-
-        sLog.outString();
-        sLog.outString(">> Loaded %u item pages", count);
-        return;
-    }
-
-    barGoLink bar(result->GetRowCount());
-
-    Field* fields;
-    do
-    {
-        bar.step();
-
-        fields = result->Fetch();
-
-        mItemTexts[ fields[0].GetUInt32() ] = fields[1].GetCppString();
-
-        ++count;
-
-    } while (result->NextRow());
-
-    sLog.outString();
-    sLog.outString(">> Loaded %u item texts", count);
-}
-
 void ObjectMgr::LoadPageTexts()
 {
     sPageTextStore.Free();                                  // for reload case
@@ -5986,10 +5951,6 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         m_mailid = (*result)[0].GetUInt32()+1;
 
-    result = CharacterDatabase.Query("SELECT MAX(id) FROM item_text");
-    if (result)
-        m_ItemTextId = (*result)[0].GetUInt32()+1;
-
     result = CharacterDatabase.Query("SELECT MAX(guid) FROM corpse");
     if (result)
         m_hiCorpseGuid = (*result)[0].GetUInt32()+1;
@@ -6055,19 +6016,6 @@ uint32 ObjectMgr::GenerateMailID()
         World::StopNow(ERROR_EXIT_CODE);
     }
     return m_mailid++;
-}
-
-void ObjectMgr::CreateItemText(uint32 guid, std::string text)
-{
-    // insert new item text to container
-    mItemTexts[ guid ] = text;
-
-    // save new item text
-    CharacterDatabase.escape_string(text);
-
-    std::ostringstream query;
-    query << "INSERT INTO item_text (id,text) VALUES ( '" << guid << "', '" << text << "')";
-    CharacterDatabase.Execute(query.str().c_str());         //needs to be run this way, because mail body may be more than 1024 characters
 }
 
 uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)

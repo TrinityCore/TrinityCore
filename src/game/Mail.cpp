@@ -643,29 +643,6 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
     _player->UpdateNextMailTimeAndUnreads();
 }
 
-///this function is called when client needs mail message body, or when player clicks on item which has ITEM_FIELD_ITEM_TEXT_ID > 0
-void WorldSession::HandleItemTextQuery(WorldPacket & recv_data)
-{
-    uint64 itemGuid;
-    recv_data >> itemGuid;
-
-    sLog.outDebug("CMSG_ITEM_TEXT_QUERY item guid: %u", GUID_LOPART(itemGuid));
-
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));    // guess size
-
-    if (Item *item = _player->GetItemByGuid(itemGuid))
-    {
-        data << uint8(0);                                       // has text
-        data << uint64(itemGuid);                               // item guid
-        data << objmgr.GetItemText(item->GetGUIDLow());     // max 8000
-    }
-    else
-    {
-        data << uint8(1);                                       // no text
-    }
-    SendPacket(&data);
-}
-
 //used when player copies mail body to his inventory
 void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
 {
@@ -704,10 +681,10 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
             return;
         }
 
-        objmgr.CreateItemText(bodyItem->GetGUIDLow(), mailTemplateEntry->content[GetSessionDbcLocale()]);
+        bodyItem->SetText(mailTemplateEntry->content[GetSessionDbcLocale()]);
     }
     else
-        objmgr.CreateItemText(bodyItem->GetGUIDLow(), m->body);
+        bodyItem->SetText(m->body);
 
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPER | ITEM_FLAGS_REFUNDABLE_2 | ITEM_FLAGS_UNK1);

@@ -1350,9 +1350,6 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Items...");                   // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     objmgr.LoadItemPrototypes();
 
-    sLog.outString("Loading Item Texts...");
-    objmgr.LoadItemTexts();
-
     sLog.outString("Loading Creature Model Based Info Data...");
     objmgr.LoadCreatureModelInfo();
 
