@@ -2411,6 +2411,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveBGData();
         void _SaveGlyphs();
         void _SaveTalents();
+        void _SaveStats();
 
         void _SetCreateBits(UpdateMask *updateMask, Player *target) const;
         void _SetUpdateBits(UpdateMask *updateMask, Player *target) const;
