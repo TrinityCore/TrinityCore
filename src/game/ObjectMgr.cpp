@@ -3653,23 +3653,23 @@ void ObjectMgr::LoadQuests()
             sLog.outErrorDb("Quest %u has `Method` = %u, expected values are 0, 1 or 2.",qinfo->GetQuestId(),qinfo->GetQuestMethod());
         }
 
-        if (qinfo->QuestFlags & ~QUEST_TRINITY_FLAGS_DB_ALLOWED)
+        if (qinfo->GetFlags() & ~QUEST_TRINITY_FLAGS_DB_ALLOWED)
         {
             sLog.outErrorDb("Quest %u has `SpecialFlags` = %u > max allowed value. Correct `SpecialFlags` to value <= %u",
-                qinfo->GetQuestId(),qinfo->QuestFlags,QUEST_TRINITY_FLAGS_DB_ALLOWED >> 16);
+                qinfo->GetQuestId(),qinfo->GetFlags(),QUEST_TRINITY_FLAGS_DB_ALLOWED >> 20);
             qinfo->QuestFlags &= QUEST_TRINITY_FLAGS_DB_ALLOWED;
         }
 
-        if (qinfo->QuestFlags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY))
+        if (qinfo->GetFlags() & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY))
         {
-            if (!(qinfo->QuestFlags & QUEST_TRINITY_FLAGS_REPEATABLE))
+            if (!(qinfo->GetFlags() & QUEST_TRINITY_FLAGS_REPEATABLE))
             {
                 sLog.outErrorDb("Daily Quest %u not marked as repeatable in `SpecialFlags`, added.",qinfo->GetQuestId());
-                qinfo->QuestFlags |= QUEST_TRINITY_FLAGS_REPEATABLE;
+                qinfo->SetFlag(QUEST_TRINITY_FLAGS_REPEATABLE);
             }
         }
 
-        if (qinfo->QuestFlags & QUEST_FLAGS_AUTO_REWARDED)
+        if (qinfo->GetFlags() & QUEST_FLAGS_AUTO_REWARDED)
         {
             // at auto-reward can be rewarded only RewChoiceItemId[0]
             for (uint8 j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j)
