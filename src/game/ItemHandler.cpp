@@ -1530,3 +1530,31 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     if (arenaRefund)
         _player->ModifyArenaPoints(arenaRefund);
 }
+
+/**
+ * Handles the packet sent by the client when requesting information about item text.
+ *
+ * This function is called when player clicks on item which has some flag set
+ */
+void WorldSession::HandleItemTextQuery(WorldPacket & recv_data )
+{
+    uint64 itemGuid;
+    recv_data >> itemGuid;
+
+    sLog.outDebug("CMSG_ITEM_TEXT_QUERY item guid: %u", GUID_LOPART(itemGuid));
+
+    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));    // guess size
+
+    if (Item *item = _player->GetItemByGuid(itemGuid))
+    {
+        data << uint8(0);                                       // has text
+        data << uint64(itemGuid);                               // item guid
+        data << item->GetText();
+    }
+    else
+    {
+        data << uint8(1);                                       // no text
+    }
+
+    SendPacket(&data);
+}
