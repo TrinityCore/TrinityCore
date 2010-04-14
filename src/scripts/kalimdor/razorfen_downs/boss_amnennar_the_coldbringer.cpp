@@ -57,12 +57,12 @@ struct boss_amnennar_the_coldbringerAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void KilledUnit()
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -73,40 +73,40 @@ struct boss_amnennar_the_coldbringerAI : public ScriptedAI
         //AmnenarsWrath_Timer
         if (AmnenarsWrath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_AMNENNARSWRATH);
+            DoCast(me->getVictim(), SPELL_AMNENNARSWRATH);
             AmnenarsWrath_Timer = 12000;
         } else AmnenarsWrath_Timer -= diff;
 
         //FrostBolt_Timer
         if (FrostBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
+            DoCast(me->getVictim(), SPELL_FROSTBOLT);
             FrostBolt_Timer = 8000;
         } else FrostBolt_Timer -= diff;
 
         if (FrostNova_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_FROST_NOVA);
+            DoCast(me, SPELL_FROST_NOVA);
             FrostNova_Timer = 15000;
         } else FrostNova_Timer -= diff;
 
-        if (!Spectrals60 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 60)
+        if (!Spectrals60 && me->GetHealth()*100 / me->GetMaxHealth() < 60)
         {
-            DoScriptText(SAY_SUMMON60, m_creature);
-            DoCast(m_creature->getVictim(), SPELL_FROST_SPECTRES);
+            DoScriptText(SAY_SUMMON60, me);
+            DoCast(me->getVictim(), SPELL_FROST_SPECTRES);
             Spectrals60 = true;
         }
 
-        if (!Hp && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
+        if (!Hp && me->GetHealth()*100 / me->GetMaxHealth() < 50)
         {
-            DoScriptText(SAY_HP, m_creature);
+            DoScriptText(SAY_HP, me);
             Hp = true;
         }
 
-        if (!Spectrals30 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30)
+        if (!Spectrals30 && me->GetHealth()*100 / me->GetMaxHealth() < 30)
         {
-            DoScriptText(SAY_SUMMON30, m_creature);
-            DoCast(m_creature->getVictim(), SPELL_FROST_SPECTRES);
+            DoScriptText(SAY_SUMMON30, me);
+            DoCast(me->getVictim(), SPELL_FROST_SPECTRES);
             Spectrals30 = true;
         }
 

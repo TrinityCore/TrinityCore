@@ -71,22 +71,22 @@ struct boss_doomwalkerAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (who && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsHostileTo(who))
+        if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
         {
             if (who->HasAura(SPELL_MARK_DEATH,0))
             {
@@ -101,11 +101,11 @@ struct boss_doomwalkerAI : public ScriptedAI
             return;
 
         //Spell Enrage, when hp <= 20% gain enrage
-        if (((m_creature->GetHealth()*100)/ m_creature->GetMaxHealth()) <= 20)
+        if (((me->GetHealth()*100)/ me->GetMaxHealth()) <= 20)
         {
             if (Enrage_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_ENRAGE);
+                DoCast(me, SPELL_ENRAGE);
                 Enrage_Timer = 6000;
                 InEnrage = true;
             } else Enrage_Timer -= diff;
@@ -114,9 +114,9 @@ struct boss_doomwalkerAI : public ScriptedAI
         //Spell Overrun
         if (Overrun_Timer <= diff)
         {
-            DoScriptText(RAND(SAY_OVERRUN_1,SAY_OVERRUN_2), m_creature);
+            DoScriptText(RAND(SAY_OVERRUN_1,SAY_OVERRUN_2), me);
 
-            DoCast(m_creature->getVictim(), SPELL_OVERRUN);
+            DoCast(me->getVictim(), SPELL_OVERRUN);
             Overrun_Timer = 25000 + rand()%15000;
         } else Overrun_Timer -= diff;
 
@@ -126,13 +126,13 @@ struct boss_doomwalkerAI : public ScriptedAI
             if (rand()%2)
                 return;
 
-            DoScriptText(RAND(SAY_EARTHQUAKE_1,SAY_EARTHQUAKE_2), m_creature);
+            DoScriptText(RAND(SAY_EARTHQUAKE_1,SAY_EARTHQUAKE_2), me);
 
             //remove enrage before casting earthquake because enrage + earthquake = 16000dmg over 8sec and all dead
             if (InEnrage)
-                m_creature->RemoveAura(SPELL_ENRAGE);
+                me->RemoveAura(SPELL_ENRAGE);
 
-            DoCast(m_creature, SPELL_EARTHQUAKE);
+            DoCast(me, SPELL_EARTHQUAKE);
             Quake_Timer = 30000 + rand()%25000;
         } else Quake_Timer -= diff;
 
@@ -143,7 +143,7 @@ struct boss_doomwalkerAI : public ScriptedAI
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
 
             if (!pTarget)
-                pTarget = m_creature->getVictim();
+                pTarget = me->getVictim();
 
             if (pTarget)
                 DoCast(pTarget, SPELL_CHAIN_LIGHTNING);
@@ -154,7 +154,7 @@ struct boss_doomwalkerAI : public ScriptedAI
         //Spell Sunder Armor
         if (Armor_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR);
+            DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
             Armor_Timer = 10000 + rand()%15000;
         } else Armor_Timer -= diff;
 

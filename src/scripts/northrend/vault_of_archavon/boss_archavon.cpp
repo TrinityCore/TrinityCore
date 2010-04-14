@@ -127,8 +127,8 @@ struct boss_archavonAI : public ScriptedAI
                     DoCast(me->getVictim(), SPELL_IMPALE);
                     return;
                 case EVENT_BERSERK:
-                    DoCast(m_creature, SPELL_BERSERK);
-                    DoScriptText(EMOTE_BERSERK, m_creature);
+                    DoCast(me, SPELL_BERSERK);
+                    DoScriptText(EMOTE_BERSERK, me);
                     return;
             }
         }
@@ -179,11 +179,11 @@ struct mob_archavon_warderAI : public ScriptedAI //npc 32353
                     return;
                 }
                 case EVENT_SHIELD_CRUSH:
-                    DoCast(m_creature->getVictim(), SPELL_SHIELD_CRUSH);
+                    DoCast(me->getVictim(), SPELL_SHIELD_CRUSH);
                     events.ScheduleEvent(EVENT_SHIELD_CRUSH, 20000);
                     return;
                 case EVENT_WHIRL:
-                    DoCast(m_creature->getVictim(), SPELL_WHIRL);
+                    DoCast(me->getVictim(), SPELL_WHIRL);
                     events.ScheduleEvent(EVENT_WHIRL, 8000);
                     return;
             }

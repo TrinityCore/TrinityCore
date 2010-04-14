@@ -184,9 +184,9 @@ struct npc_goblin_prisonerAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetReactState(REACT_PASSIVE);
 
-        if (GameObject* pGO = m_creature->FindNearestGameObject(GO_RUSTY_CAGE,5.0f))
+        if (GameObject* pGO = me->FindNearestGameObject(GO_RUSTY_CAGE,5.0f))
         {
             if (pGO->GetGoState() == GO_STATE_ACTIVE)
                 pGO->SetGoState(GO_STATE_READY);
@@ -224,7 +224,7 @@ struct npc_victorious_challengerAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->RestoreFaction();
+        me->RestoreFaction();
 
         SunderArmorTimer = 10000;
         RendTimer        = 15000;
@@ -238,13 +238,13 @@ struct npc_victorious_challengerAI : public ScriptedAI
 
         if (RendTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_REND_VC, true);
+            DoCast(me->getVictim(), SPELL_REND_VC, true);
             RendTimer = 15000;
         }else RendTimer -= diff;
 
         if (SunderArmorTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUNDER_ARMOR, true);
+            DoCast(me->getVictim(), SPELL_SUNDER_ARMOR, true);
             SunderArmorTimer = 10000;
         }else SunderArmorTimer -= diff;
 
@@ -253,7 +253,7 @@ struct npc_victorious_challengerAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        m_creature->RestoreFaction();
+        me->RestoreFaction();
     }
 
 };

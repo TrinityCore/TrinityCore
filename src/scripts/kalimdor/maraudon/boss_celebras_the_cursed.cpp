@@ -46,7 +46,7 @@ struct celebras_the_cursedAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        m_creature->SummonCreature(13716, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
+        me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -67,15 +67,15 @@ struct celebras_the_cursedAI : public ScriptedAI
         //EntanglingRoots
         if (EntanglingRoots_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ENTANGLINGROOTS);
+            DoCast(me->getVictim(), SPELL_ENTANGLINGROOTS);
             EntanglingRoots_Timer = 20000;
         } else EntanglingRoots_Timer -= diff;
 
         //CorruptForces
         if (CorruptForces_Timer <= diff)
         {
-            m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, SPELL_CORRUPT_FORCES);
+            me->InterruptNonMeleeSpells(false);
+            DoCast(me, SPELL_CORRUPT_FORCES);
             CorruptForces_Timer = 20000;
         } else CorruptForces_Timer -= diff;
 

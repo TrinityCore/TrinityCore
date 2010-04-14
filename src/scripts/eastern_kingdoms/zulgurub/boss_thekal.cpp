@@ -91,12 +91,12 @@ struct boss_thekalAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
             m_pInstance->SetData(TYPE_THEKAL, DONE);
     }
@@ -120,7 +120,7 @@ struct boss_thekalAI : public ScriptedAI
                     if (m_pInstance->GetData(TYPE_LORKHAN) == SPECIAL)
                     {
                         //Resurrect LorKhan
-                        if (Unit *pLorKhan = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_LORKHAN)))
+                        if (Unit *pLorKhan = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_LORKHAN)))
                         {
                             pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                             pLorKhan->setFaction(14);
@@ -134,7 +134,7 @@ struct boss_thekalAI : public ScriptedAI
                     if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL)
                     {
                         //Resurrect Zath
-                        Unit *pZath = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_ZATH));
+                        Unit *pZath = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_ZATH));
                         if (pZath)
                         {
                             pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
@@ -152,21 +152,21 @@ struct boss_thekalAI : public ScriptedAI
 
             if (!PhaseTwo && MortalCleave_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_MORTALCLEAVE);
+                DoCast(me->getVictim(), SPELL_MORTALCLEAVE);
                 MortalCleave_Timer = 15000 + rand()%5000;
             } else MortalCleave_Timer -= diff;
 
             if (!PhaseTwo && Silence_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SILENCE);
+                DoCast(me->getVictim(), SPELL_SILENCE);
                 Silence_Timer = 20000 + rand()%5000;
             } else Silence_Timer -= diff;
 
-            if (!PhaseTwo && !WasDead && m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05)
+            if (!PhaseTwo && !WasDead && me->GetHealth() <= me->GetMaxHealth() * 0.05)
             {
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
-                m_creature->AttackStop();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetStandState(UNIT_STAND_STATE_SLEEP);
+                me->AttackStop();
 
                 if (m_pInstance)
                     m_pInstance->SetData(TYPE_THEKAL, SPECIAL);
@@ -179,21 +179,21 @@ struct boss_thekalAI : public ScriptedAI
             {
                 if (Resurrect_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_TIGER_FORM);
-                    m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
-                    m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    m_creature->SetHealth(int(m_creature->GetMaxHealth()*1.0));
-                    const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
-                    m_creature->UpdateDamagePhysical(BASE_ATTACK);
+                    DoCast(me, SPELL_TIGER_FORM);
+                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
+                    me->SetStandState(UNIT_STAND_STATE_STAND);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetHealth(int(me->GetMaxHealth()*1.0));
+                    const CreatureInfo *cinfo = me->GetCreatureInfo();
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
+                    me->UpdateDamagePhysical(BASE_ATTACK);
                     DoResetThreat();
                     PhaseTwo = true;
                 } else Resurrect_Timer -= diff;
             }
 
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() == 100) && WasDead)
+            if ((me->GetHealth()*100 / me->GetMaxHealth() == 100) && WasDead)
             {
                 WasDead = false;
             }
@@ -214,25 +214,25 @@ struct boss_thekalAI : public ScriptedAI
 
                 if (Frenzy_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_FRENZY);
+                    DoCast(me, SPELL_FRENZY);
                     Frenzy_Timer = 30000;
                 } else Frenzy_Timer -= diff;
 
                 if (ForcePunch_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_SILENCE);
+                    DoCast(me->getVictim(), SPELL_SILENCE);
                     ForcePunch_Timer = 16000 + rand()%5000;
                 } else ForcePunch_Timer -= diff;
 
                 if (SummonTigers_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_SUMMONTIGERS);
+                    DoCast(me->getVictim(), SPELL_SUMMONTIGERS);
                     SummonTigers_Timer = 10000 + rand()%4000;
                 } else SummonTigers_Timer -= diff;
 
-                if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11) && !Enraged)
+                if ((me->GetHealth()*100 / me->GetMaxHealth() < 11) && !Enraged)
                 {
-                    DoCast(m_creature, SPELL_ENRAGE);
+                    DoCast(me, SPELL_ENRAGE);
                     Enraged = true;
                 }
             }
@@ -273,8 +273,8 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LORKHAN, NOT_STARTED);
 
-        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void EnterCombat(Unit *who)
@@ -289,14 +289,14 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
         //Shield_Timer
         if (Shield_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_SHIELD);
+            DoCast(me, SPELL_SHIELD);
             Shield_Timer = 61000;
         } else Shield_Timer -= diff;
 
         //BloodLust_Timer
         if (BloodLust_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_BLOODLUST);
+            DoCast(me, SPELL_BLOODLUST);
             BloodLust_Timer = 20000+rand()%8000;
         } else BloodLust_Timer -= diff;
 
@@ -305,8 +305,8 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                Unit *pThekal = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_THEKAL));
-                Unit *pZath = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_ZATH));
+                Unit *pThekal = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_THEKAL));
+                Unit *pZath = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_ZATH));
 
                 if (!pThekal || !pZath)
                     return;
@@ -314,11 +314,11 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
                 switch (urand(0,1))
                 {
                     case 0:
-                        if (m_creature->IsWithinMeleeRange(pThekal))
+                        if (me->IsWithinMeleeRange(pThekal))
                             DoCast(pThekal, SPELL_GREATERHEAL);
                         break;
                     case 1:
-                        if (m_creature->IsWithinMeleeRange(pZath))
+                        if (me->IsWithinMeleeRange(pZath))
                             DoCast(pZath, SPELL_GREATERHEAL);
                         break;
                 }
@@ -330,7 +330,7 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
         //Disarm_Timer
         if (Disarm_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DISARM);
+            DoCast(me->getVictim(), SPELL_DISARM);
             Disarm_Timer = 15000+rand()%10000;
         } else Disarm_Timer -= diff;
 
@@ -342,7 +342,7 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
                 if (m_pInstance->GetData(TYPE_THEKAL) == SPECIAL)
                 {
                     //Resurrect Thekal
-                    if (Unit *pThekal = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_THEKAL)))
+                    if (Unit *pThekal = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_THEKAL)))
                     {
                         pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -354,7 +354,7 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
                 if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL)
                 {
                     //Resurrect Zath
-                    if (Unit *pZath = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_ZATH)))
+                    if (Unit *pZath = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_ZATH)))
                     {
                         pZath->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pZath->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -367,12 +367,12 @@ struct mob_zealot_lorkhanAI : public ScriptedAI
             Check_Timer = 5000;
         } else Check_Timer -= diff;
 
-        if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05)
+        if (me->GetHealth() <= me->GetMaxHealth() * 0.05)
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
-            m_creature->setFaction(35);
-            m_creature->AttackStop();
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetStandState(UNIT_STAND_STATE_SLEEP);
+            me->setFaction(35);
+            me->AttackStop();
 
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_LORKHAN, SPECIAL);
@@ -417,8 +417,8 @@ struct mob_zealot_zathAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ZATH, NOT_STARTED);
 
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void EnterCombat(Unit *who)
@@ -433,24 +433,24 @@ struct mob_zealot_zathAI : public ScriptedAI
         //SweepingStrikes_Timer
         if (SweepingStrikes_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SWEEPINGSTRIKES);
+            DoCast(me->getVictim(), SPELL_SWEEPINGSTRIKES);
             SweepingStrikes_Timer = 22000+rand()%4000;
         } else SweepingStrikes_Timer -= diff;
 
         //SinisterStrike_Timer
         if (SinisterStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SINISTERSTRIKE);
+            DoCast(me->getVictim(), SPELL_SINISTERSTRIKE);
             SinisterStrike_Timer = 8000+rand()%8000;
         } else SinisterStrike_Timer -= diff;
 
         //Gouge_Timer
         if (Gouge_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_GOUGE);
+            DoCast(me->getVictim(), SPELL_GOUGE);
 
-            if (DoGetThreat(m_creature->getVictim()))
-                DoModifyThreatPercent(m_creature->getVictim(),-100);
+            if (DoGetThreat(me->getVictim()))
+                DoModifyThreatPercent(me->getVictim(),-100);
 
             Gouge_Timer = 17000+rand()%10000;
         } else Gouge_Timer -= diff;
@@ -458,14 +458,14 @@ struct mob_zealot_zathAI : public ScriptedAI
         //Kick_Timer
         if (Kick_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KICK);
+            DoCast(me->getVictim(), SPELL_KICK);
             Kick_Timer = 15000+rand()%10000;
         } else Kick_Timer -= diff;
 
         //Blind_Timer
         if (Blind_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BLIND);
+            DoCast(me->getVictim(), SPELL_BLIND);
             Blind_Timer = 10000+rand()%10000;
         } else Blind_Timer -= diff;
 
@@ -477,7 +477,7 @@ struct mob_zealot_zathAI : public ScriptedAI
                 if (m_pInstance->GetData(TYPE_LORKHAN) == SPECIAL)
                 {
                     //Resurrect LorKhan
-                    if (Unit *pLorKhan = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_LORKHAN)))
+                    if (Unit *pLorKhan = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_LORKHAN)))
                     {
                         pLorKhan->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pLorKhan->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -489,7 +489,7 @@ struct mob_zealot_zathAI : public ScriptedAI
                 if (m_pInstance->GetData(TYPE_THEKAL) == SPECIAL)
                 {
                     //Resurrect Thekal
-                    if (Unit *pThekal = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_THEKAL)))
+                    if (Unit *pThekal = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_THEKAL)))
                     {
                         pThekal->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         pThekal->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -502,12 +502,12 @@ struct mob_zealot_zathAI : public ScriptedAI
             Check_Timer = 5000;
         } else Check_Timer -= diff;
 
-        if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05)
+        if (me->GetHealth() <= me->GetMaxHealth() * 0.05)
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
-            m_creature->setFaction(35);
-            m_creature->AttackStop();
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetStandState(UNIT_STAND_STATE_SLEEP);
+            me->setFaction(35);
+            me->AttackStop();
 
             if (m_pInstance)
                 m_pInstance->SetData(TYPE_ZATH, SPECIAL);

@@ -181,8 +181,8 @@ struct mob_faerlina_addAI : public ScriptedAI
     void Reset()
     {
         if (getDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL) {
-            m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, SPELL_EFFECT_BIND, true);
-            m_creature->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, SPELL_EFFECT_BIND, true);
+            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_CHARM, true);
         }
     }
 

@@ -54,11 +54,11 @@ struct boss_drakkari_colossusAI : public ScriptedAI
     {
         if (pInstance)
             pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
-        if (!m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
-        m_creature->SetReactState(REACT_PASSIVE);
+        if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+        me->SetReactState(REACT_PASSIVE);
         MightyBlowTimer = 10*IN_MILISECONDS;
         bHealth = false;
         bHealth1 = false;
@@ -79,14 +79,14 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         {
             pWho->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
             pWho->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            if (pWho == m_creature)
-                m_creature->RemoveAura(SPELL_FREEZE_ANIM);
+            if (pWho == me)
+                me->RemoveAura(SPELL_FREEZE_ANIM);
         }else
         {
             pWho->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             pWho->addUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
-            if (pWho == m_creature)
-                DoCast(m_creature,SPELL_FREEZE_ANIM);
+            if (pWho == me)
+                DoCast(me,SPELL_FREEZE_ANIM);
         }
     }
 
@@ -98,27 +98,27 @@ struct boss_drakkari_colossusAI : public ScriptedAI
 
         if (!bHealth && HealthBelowPct(50) &&  !HealthBelowPct(5))
         {
-            CreatureState(m_creature, false);
-            DoCast(m_creature,SPELL_FREEZE_ANIM);
-            DoCast(m_creature,SPELL_EMERGE);
+            CreatureState(me, false);
+            DoCast(me,SPELL_FREEZE_ANIM);
+            DoCast(me,SPELL_EMERGE);
             bHealth = true;
         }
 
         if (!bHealth1 && HealthBelowPct(5))
         {
-            DoCast(m_creature,SPELL_EMERGE);
-            CreatureState(m_creature, false);
+            DoCast(me,SPELL_EMERGE);
+            CreatureState(me, false);
             bHealth1 = true;
-            m_creature->RemoveAllAuras();
+            me->RemoveAllAuras();
         }
 
         if (MightyBlowTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MIGHTY_BLOW, true);
+            DoCast(me->getVictim(), SPELL_MIGHTY_BLOW, true);
             MightyBlowTimer = 10*IN_MILISECONDS;
         } else MightyBlowTimer -= diff;
 
-        if (!m_creature->hasUnitState(UNIT_STAT_STUNNED))
+        if (!me->hasUnitState(UNIT_STAT_STUNNED))
             DoMeleeAttackIfReady();
     }
 
@@ -132,7 +132,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
     {
         if (HealthBelowPct(5))
             pSummon->DealDamage(pSummon, pSummon->GetHealth() * 0.5 , NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-        pSummon->AI()->AttackStart(m_creature->getVictim());
+        pSummon->AI()->AttackStart(me->getVictim());
     }
 };
 
@@ -151,27 +151,27 @@ struct boss_drakkari_elementalAI : public ScriptedAI
 
     void Reset()
     {
-        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
-            CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(m_creature, true);
+        if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(me, true);
         uiSurgeTimer = 7*IN_MILISECONDS;
         bGoToColossus = false;
     }
 
     void EnterEvadeMode()
     {
-        m_creature->RemoveFromWorld();
+        me->RemoveFromWorld();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
-        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+        if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
         {
             CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(pColossus, true);
             CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->bHealth1 = false;
         }
-        m_creature->RemoveFromWorld();
+        me->RemoveFromWorld();
     }
 
     void UpdateAI(const uint32 diff)
@@ -182,11 +182,11 @@ struct boss_drakkari_elementalAI : public ScriptedAI
 
         if (!bGoToColossus && HealthBelowPct(50))
         {
-            if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             {
                 if (!CAST_AI(boss_drakkari_colossusAI,pColossus->AI())->HealthBelowPct(6))
                 {
-                    m_creature->InterruptNonMeleeSpells(true);
+                    me->InterruptNonMeleeSpells(true);
                     DoCast(pColossus, SPELL_MERGE);
                     bGoToColossus = true;
                 }
@@ -195,7 +195,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
 
         if (uiSurgeTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SURGE);
+            DoCast(me->getVictim(), SPELL_SURGE);
             uiSurgeTimer = 7*IN_MILISECONDS;
         } else uiSurgeTimer -= diff;
 
@@ -204,7 +204,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+        if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             pColossus->Kill(pColossus);
     }
 };
@@ -231,20 +231,20 @@ struct npc_living_mojoAI : public ScriptedAI
     {
 
         //Check if the npc is near of Drakkari Colossus.
-        if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+        if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
         {
-            if (pColossus->isAlive() && m_creature->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
-                m_creature->SetReactState(REACT_PASSIVE);
+            if (pColossus->isAlive() && me->IsInRange3d(pColossus->GetHomePosition().GetPositionX(),pColossus->GetHomePosition().GetPositionY(),pColossus->GetHomePosition().GetPositionZ(),0.0f,17.0f))
+                me->SetReactState(REACT_PASSIVE);
             else
-                m_creature->SetReactState(REACT_AGGRESSIVE);
+                me->SetReactState(REACT_AGGRESSIVE);
         }
     }
 
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
-        if (m_creature->HasReactState(REACT_PASSIVE))
+        if (me->HasReactState(REACT_PASSIVE))
         {
-            if (Creature *pColossus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
+            if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             {
                 if (pColossus->isAlive() && !pColossus->isInCombat())
                 {
@@ -267,13 +267,13 @@ struct npc_living_mojoAI : public ScriptedAI
 
         if (uiMojoWaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MOJO_WAVE);
+            DoCast(me->getVictim(), SPELL_MOJO_WAVE);
             uiMojoWaveTimer = 15*IN_MILISECONDS;
         } else uiMojoWaveTimer -= diff;
 
         if (uiMojoPuddleTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MOJO_PUDDLE);
+            DoCast(me->getVictim(), SPELL_MOJO_PUDDLE);
             uiMojoPuddleTimer = 18*IN_MILISECONDS;
         } else uiMojoPuddleTimer -= diff;
 

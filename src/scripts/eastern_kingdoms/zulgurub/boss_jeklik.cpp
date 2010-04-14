@@ -79,13 +79,13 @@ struct boss_jeklikAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_BAT_FORM);
+        DoScriptText(SAY_AGGRO, me);
+        DoCast(me, SPELL_BAT_FORM);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_JEKLIK, DONE);
@@ -96,9 +96,9 @@ struct boss_jeklikAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->getVictim() && m_creature->isAlive())
+        if (me->getVictim() && me->isAlive())
         {
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 50))
+            if ((me->GetHealth()*100 / me->GetMaxHealth() > 50))
             {
                 if (Charge_Timer <= diff)
                 {
@@ -113,13 +113,13 @@ struct boss_jeklikAI : public ScriptedAI
 
                 if (SonicBurst_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_SONICBURST);
+                    DoCast(me->getVictim(), SPELL_SONICBURST);
                     SonicBurst_Timer = 8000 + rand()%5000;
                 } else SonicBurst_Timer -= diff;
 
                 if (Screech_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_SCREECH);
+                    DoCast(me->getVictim(), SPELL_SCREECH);
                     Screech_Timer = 18000 + rand()%8000;
                 } else Screech_Timer -= diff;
 
@@ -128,21 +128,21 @@ struct boss_jeklikAI : public ScriptedAI
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
                     Creature* Bat = NULL;
-                    Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Bat = me->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                    Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Bat = me->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                    Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Bat = me->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                    Bat = m_creature->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Bat = me->SummonCreature(11368,-12291.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
-                    Bat = m_creature->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Bat = me->SummonCreature(11368,-12289.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
-                    Bat = m_creature->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    Bat = me->SummonCreature(11368,-12293.6220,-1380.2640,144.8304,5.483, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     if (pTarget && Bat) Bat ->AI()->AttackStart(pTarget);
 
                     SpawnBats_Timer = 60000;
@@ -163,21 +163,21 @@ struct boss_jeklikAI : public ScriptedAI
 
                     if (MindFlay_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_MIND_FLAY);
+                        DoCast(me->getVictim(), SPELL_MIND_FLAY);
                         MindFlay_Timer = 16000;
                     }MindFlay_Timer -=diff;
 
                     if (ChainMindFlay_Timer <= diff)
                     {
-                        m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(m_creature->getVictim(), SPELL_CHAIN_MIND_FLAY);
+                        me->InterruptNonMeleeSpells(false);
+                        DoCast(me->getVictim(), SPELL_CHAIN_MIND_FLAY);
                         ChainMindFlay_Timer = 15000 + rand()%15000;
                     }ChainMindFlay_Timer -=diff;
 
                     if (GreaterHeal_Timer <= diff)
                     {
-                        m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(m_creature, SPELL_GREATERHEAL);
+                        me->InterruptNonMeleeSpells(false);
+                        DoCast(me, SPELL_GREATERHEAL);
                         GreaterHeal_Timer = 25000 + rand()%10000;
                     }GreaterHeal_Timer -=diff;
 
@@ -187,7 +187,7 @@ struct boss_jeklikAI : public ScriptedAI
                         if (!pTarget)
                             return;
 
-                        Creature* FlyingBat = m_creature->SummonCreature(14965, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        Creature* FlyingBat = me->SummonCreature(14965, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (FlyingBat)
                             FlyingBat->AI()->AttackStart(pTarget);
 
@@ -196,7 +196,7 @@ struct boss_jeklikAI : public ScriptedAI
                 }
                 else
                 {
-                    m_creature->SetDisplayId(15219);
+                    me->SetDisplayId(15219);
                     DoResetThreat();
                     PhaseTwo = true;
                 }
@@ -225,7 +225,7 @@ struct mob_batriderAI : public ScriptedAI
         Bomb_Timer = 2000;
         Check_Timer = 1000;
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void EnterCombat(Unit *who) {}
@@ -252,8 +252,8 @@ struct mob_batriderAI : public ScriptedAI
             {
                 if (m_pInstance->GetData(TYPE_JEKLIK) == DONE)
                 {
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
+                    me->setDeathState(JUST_DIED);
+                    me->RemoveCorpse();
                     return;
                 }
             }

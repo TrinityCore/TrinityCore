@@ -64,7 +64,7 @@ struct boss_salrammAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
         if (pInstance)
-            DoScriptText(SAY_SPAWN,m_creature);
+            DoScriptText(SAY_SPAWN,me);
     }
 
     uint32 uiCurseFleshTimer;
@@ -89,7 +89,7 @@ struct boss_salrammAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
              pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
@@ -104,7 +104,7 @@ struct boss_salrammAI : public ScriptedAI
         //Curse of twisted flesh timer
         if (uiCurseFleshTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
+            DoCast(me->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
             uiCurseFleshTimer = 37000;
         } else uiCurseFleshTimer -= diff;
 
@@ -119,7 +119,7 @@ struct boss_salrammAI : public ScriptedAI
         //Steal Flesh timer
         if (uiStealFleshTimer <= diff)
         {
-            DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), m_creature);
+            DoScriptText(RAND(SAY_STEAL_FLESH_1,SAY_STEAL_FLESH_2,SAY_STEAL_FLESH_3), me);
             if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(random_pTarget, SPELL_STEAL_FLESH);
             uiStealFleshTimer = 10000;
@@ -128,7 +128,7 @@ struct boss_salrammAI : public ScriptedAI
         //Summon ghouls timer
         if (uiSummonGhoulsTimer <= diff)
         {
-            DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), m_creature);
+            DoScriptText(RAND(SAY_SUMMON_GHOULS_1,SAY_SUMMON_GHOULS_2), me);
             if (Unit* random_pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
             uiSummonGhoulsTimer = 10000;
@@ -139,7 +139,7 @@ struct boss_salrammAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_SALRAMM_EVENT, DONE);
@@ -147,10 +147,10 @@ struct boss_salrammAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 };
 

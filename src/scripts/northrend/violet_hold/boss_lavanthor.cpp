@@ -71,14 +71,14 @@ struct boss_lavanthorAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->AddThreat(pWho, 0.0f);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
             DoStartMovement(pWho);
         }
     }
@@ -93,19 +93,19 @@ struct boss_lavanthorAI : public ScriptedAI
 
         if (uiFireboltTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FIREBOLT);
+            DoCast(me->getVictim(), SPELL_FIREBOLT);
             uiFireboltTimer = urand(5000,13000);
         } else uiFireboltTimer -= diff;
 
         if (uiFlameBreathTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FLAME_BREATH);
+            DoCast(me->getVictim(), SPELL_FLAME_BREATH);
             uiFlameBreathTimer = urand(10000,15000);
         } else uiFlameBreathTimer -= diff;
 
         if (uiLavaBurnTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_LAVA_BURN);
+            DoCast(me->getVictim(), SPELL_LAVA_BURN);
             uiLavaBurnTimer = urand(15000,23000);
         }
 
@@ -113,7 +113,7 @@ struct boss_lavanthorAI : public ScriptedAI
         {
             if (uiCauterizingFlamesTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_CAUTERIZING_FLAMES);
+                DoCast(me->getVictim(), SPELL_CAUTERIZING_FLAMES);
                 uiCauterizingFlamesTimer = urand(10000,16000);
             } else uiCauterizingFlamesTimer -= diff;
         }

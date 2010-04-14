@@ -99,7 +99,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         IsIntroEvent = false;
         IntroOnce = false;
@@ -122,7 +122,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         if (PeonEngagedCount >= 4)
             return;
 
-        DoScriptText(PeonAttacked[PeonEngagedCount].id, m_creature);
+        DoScriptText(PeonAttacked[PeonEngagedCount].id, me);
         ++PeonEngagedCount;
     }
 
@@ -131,27 +131,27 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         if (PeonKilledCount >= 4)
             return;
 
-        DoScriptText(PeonDies[PeonKilledCount].id, m_creature);
+        DoScriptText(PeonDies[PeonKilledCount].id, me);
         ++PeonKilledCount;
 
         if (PeonKilledCount == 4)
         {
             IsIntroEvent = false;
             IsMainEvent = true;
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
     }
 
     void DoTauntPeons()
     {
-        DoScriptText(RAND(SAY_TAUNT_1,SAY_TAUNT_2,SAY_TAUNT_3), m_creature);
+        DoScriptText(RAND(SAY_TAUNT_1,SAY_TAUNT_2,SAY_TAUNT_3), me);
 
         //TODO: kill the peons first
         IsIntroEvent = false;
         PeonEngagedCount = 4;
         PeonKilledCount = 4;
         IsMainEvent = true;
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void AttackStart(Unit* who)
@@ -159,7 +159,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         if (IsIntroEvent || !IsMainEvent)
             return;
 
-        if (m_creature->Attack(who, true))
+        if (me->Attack(who, true))
         {
             if (Phase)
                 DoStartNoMovement(who);
@@ -170,12 +170,12 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!IntroOnce && m_creature->IsWithinDistInMap(who, 50.0f))
+        if (!IntroOnce && me->IsWithinDistInMap(who, 50.0f))
             {
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-                DoScriptText(SAY_INTRO, m_creature);
+                DoScriptText(SAY_INTRO, me);
                 IntroOnce = true;
                 IsIntroEvent = true;
 
@@ -191,7 +191,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
 
     void JustSummoned(Creature *summoned)
@@ -202,17 +202,17 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
 
         //triggered spell of consumption does not properly show it's SpellVisual, wrong spellid?
         summoned->CastSpell(summoned,SPELL_TEMPORARY_VISUAL,true);
-        summoned->CastSpell(summoned,SPELL_CONSUMPTION,false,0,0,m_creature->GetGUID());
+        summoned->CastSpell(summoned,SPELL_CONSUMPTION,false,0,0,me->GetGUID());
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DIE, m_creature);
+        DoScriptText(SAY_DIE, me);
 
         if (!pInstance)
             return;
@@ -247,13 +247,13 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         {
             if (!SpinOnce)
             {
-                DoCast(m_creature->getVictim(), SPELL_DARK_SPIN);
+                DoCast(me->getVictim(), SPELL_DARK_SPIN);
                 SpinOnce = true;
             }
 
             if (Cleave_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SHADOW_CLEAVE);
+                DoCast(me->getVictim(), SPELL_SHADOW_CLEAVE);
                 Cleave_Timer = 6000+rand()%2500;
             } else Cleave_Timer -= diff;
         }
@@ -273,7 +273,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
                 DeathCoil_Timer = urand(15000,20000);
             } else DeathCoil_Timer -= diff;
 
-            if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)
+            if ((me->GetHealth()*100) / me->GetMaxHealth() <= 20)
                 Phase = true;
 
             DoMeleeAttackIfReady();
@@ -293,7 +293,7 @@ struct mob_fel_orc_convertAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
+        me->SetNoCallAssistance(true);              //we don't want any assistance (WE R HEROZ!)
         Hemorrhage_Timer = 3000;
     }
 
@@ -307,8 +307,8 @@ struct mob_fel_orc_convertAI : public ScriptedAI
         {
             if (pInstance->GetData64(DATA_NETHEKURSE))
             {
-                Creature *pKurse = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_NETHEKURSE));
-                if (pKurse && m_creature->IsWithinDist(pKurse, 45.0f))
+                Creature *pKurse = Unit::GetCreature(*me,pInstance->GetData64(DATA_NETHEKURSE));
+                if (pKurse && me->IsWithinDist(pKurse, 45.0f))
                 {
                     CAST_AI(boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonAggro();
 
@@ -328,7 +328,7 @@ struct mob_fel_orc_convertAI : public ScriptedAI
             if (pInstance->GetData(TYPE_NETHEKURSE) != IN_PROGRESS)
                 return;
             if (pInstance->GetData64(DATA_NETHEKURSE))
-                if (Creature *pKurse = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_NETHEKURSE)))
+                if (Creature *pKurse = Unit::GetCreature(*me,pInstance->GetData64(DATA_NETHEKURSE)))
                     CAST_AI(boss_grand_warlock_nethekurseAI, pKurse->AI())->DoYellForPeonDeath();
         }
     }
@@ -340,7 +340,7 @@ struct mob_fel_orc_convertAI : public ScriptedAI
 
         if (Hemorrhage_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_HEMORRHAGE);
+            DoCast(me->getVictim(), SPELL_HEMORRHAGE);
             Hemorrhage_Timer = 15000;
         } else Hemorrhage_Timer -= diff;
 

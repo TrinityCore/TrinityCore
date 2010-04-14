@@ -55,14 +55,14 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         //FireNova_Timer
         if (FireNova_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FIRENOVA);
+            DoCast(me->getVictim(), SPELL_FIRENOVA);
             FireNova_Timer = 6000;
         } else FireNova_Timer -= diff;
 
         //FlameBuffet_Timer
         if (FlameBuffet_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FLAMEBUFFET);
+            DoCast(me->getVictim(), SPELL_FLAMEBUFFET);
             FlameBuffet_Timer = 14000;
         } else FlameBuffet_Timer -= diff;
 

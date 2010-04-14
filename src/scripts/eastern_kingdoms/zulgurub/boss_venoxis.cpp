@@ -79,7 +79,7 @@ struct boss_venoxisAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
             m_pInstance->SetData(TYPE_VENOXIS, DONE);
     }
@@ -89,23 +89,23 @@ struct boss_venoxisAI : public ScriptedAI
           if (!UpdateVictim())
             return;
 
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth() > 50))
+            if ((me->GetHealth()*100 / me->GetMaxHealth() > 50))
             {
                 if (Dispell_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_DISPELL);
+                    DoCast(me, SPELL_DISPELL);
                     Dispell_Timer = 15000 + rand()%15000;
                 } else Dispell_Timer -= diff;
 
                 if (Renew_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_RENEW);
+                    DoCast(me, SPELL_RENEW);
                     Renew_Timer = 20000 + rand()%10000;
                 } else Renew_Timer -= diff;
 
                 if (HolyWrath_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_HOLY_WRATH);
+                    DoCast(me->getVictim(), SPELL_HOLY_WRATH);
                     HolyWrath_Timer = 15000 + rand()%10000;
                 } else HolyWrath_Timer -= diff;
 
@@ -115,13 +115,13 @@ struct boss_venoxisAI : public ScriptedAI
                     for (uint8 i = 0; i < 10; ++i)
                     {
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,i))
-                            if (m_creature->IsWithinMeleeRange(pTarget))
+                            if (me->IsWithinMeleeRange(pTarget))
                                 ++TargetInRange;
                     }
 
                     if (TargetInRange > 1)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_HOLY_NOVA);
+                        DoCast(me->getVictim(), SPELL_HOLY_NOVA);
                         HolyNova_Timer = 1000;
                     }
                     else
@@ -143,21 +143,21 @@ struct boss_venoxisAI : public ScriptedAI
             {
                 if (!PhaseTwo)
                 {
-                    DoScriptText(SAY_TRANSFORM, m_creature);
-                    m_creature->InterruptNonMeleeSpells(false);
-                    DoCast(m_creature, SPELL_SNAKE_FORM);
-                    m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
-                    const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 25)));
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 25)));
-                    m_creature->UpdateDamagePhysical(BASE_ATTACK);
+                    DoScriptText(SAY_TRANSFORM, me);
+                    me->InterruptNonMeleeSpells(false);
+                    DoCast(me, SPELL_SNAKE_FORM);
+                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
+                    const CreatureInfo *cinfo = me->GetCreatureInfo();
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 25)));
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 25)));
+                    me->UpdateDamagePhysical(BASE_ATTACK);
                     DoResetThreat();
                     PhaseTwo = true;
                 }
 
                 if (PhaseTwo && PoisonCloud_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_POISON_CLOUD);
+                    DoCast(me->getVictim(), SPELL_POISON_CLOUD);
                     PoisonCloud_Timer = 15000;
                 }PoisonCloud_Timer -=diff;
 
@@ -169,12 +169,12 @@ struct boss_venoxisAI : public ScriptedAI
                     VenomSpit_Timer = 15000 + rand()%5000;
                 } else VenomSpit_Timer -= diff;
 
-                if (PhaseTwo && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11))
+                if (PhaseTwo && (me->GetHealth()*100 / me->GetMaxHealth() < 11))
                 {
                     if (!InBerserk)
                     {
-                        m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(m_creature, SPELL_BERSERK);
+                        me->InterruptNonMeleeSpells(false);
+                        DoCast(me, SPELL_BERSERK);
                         InBerserk = true;
                     }
                 }

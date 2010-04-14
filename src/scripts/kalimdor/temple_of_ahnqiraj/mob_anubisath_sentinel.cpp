@@ -89,7 +89,7 @@ struct aqsentinelAI : public ScriptedAI
 
     void AddBuddyToList(uint64 CreatureGUID)
     {
-        if (CreatureGUID == m_creature->GetGUID())
+        if (CreatureGUID == me->GetGUID())
             return;
 
         for (int i=0; i<3; ++i)
@@ -110,13 +110,13 @@ struct aqsentinelAI : public ScriptedAI
         for (int i=0; i<3; ++i)
             if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
                 cai->AddBuddyToList(NearbyGUID[i]);
-        cai->AddBuddyToList(m_creature->GetGUID());
+        cai->AddBuddyToList(me->GetGUID());
     }
 
     void SendMyListToBuddies()
     {
         for (int i=0; i<3; ++i)
-            if (Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[i]))
+            if (Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[i]))
                 GiveBuddyMyList(pNearby);
     }
 
@@ -124,7 +124,7 @@ struct aqsentinelAI : public ScriptedAI
     {
         for (int i=0; i<3; ++i)
         {
-            Creature *c = Unit::GetCreature(*m_creature, NearbyGUID[i]);
+            Creature *c = Unit::GetCreature(*me, NearbyGUID[i]);
             if (c)
             {
                 if (!c->isInCombat())
@@ -140,7 +140,7 @@ struct aqsentinelAI : public ScriptedAI
     void AddSentinelsNear(Unit *nears)
     {
         std::list<Creature*> assistList;
-        m_creature->GetCreatureListWithEntryInGrid(assistList,15264,70.0f);
+        me->GetCreatureListWithEntryInGrid(assistList,15264,70.0f);
 
         if (assistList.empty())
             return;
@@ -172,14 +172,14 @@ struct aqsentinelAI : public ScriptedAI
         selectAbility(pickAbilityRandom(chosenAbilities));
 
         ClearBuddyList();
-        AddSentinelsNear(m_creature);
+        AddSentinelsNear(me);
         int bli;
         for (bli = 0; bli < 3; ++bli)
         {
             if (!NearbyGUID[bli])
                 break;
 
-            Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[bli]);
+            Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[bli]);
             if (!pNearby)
                 break;
 
@@ -199,13 +199,13 @@ struct aqsentinelAI : public ScriptedAI
 
     void Reset()
     {
-        if (!m_creature->isDead())
+        if (!me->isDead())
         {
             for (int i=0; i<3; ++i)
             {
                 if (!NearbyGUID[i])
                     continue;
-                if (Creature *pNearby = Unit::GetCreature(*m_creature, NearbyGUID[i]))
+                if (Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[i]))
                 {
                     if (pNearby->isDead())
                         pNearby->Respawn();
@@ -218,7 +218,7 @@ struct aqsentinelAI : public ScriptedAI
 
     void GainSentinelAbility(uint32 id)
     {
-        m_creature->AddAura(id, m_creature);
+        me->AddAura(id, me);
     }
 
     void EnterCombat(Unit *who)
@@ -234,7 +234,7 @@ struct aqsentinelAI : public ScriptedAI
     {
         for (int ni=0; ni<3; ++ni)
         {
-            Creature *sent = Unit::GetCreature(*m_creature, NearbyGUID[ni]);
+            Creature *sent = Unit::GetCreature(*me, NearbyGUID[ni]);
             if (!sent)
                 continue;
             if (sent->isDead())
@@ -250,9 +250,9 @@ struct aqsentinelAI : public ScriptedAI
     Unit *GetHatedManaUser() const
     {
         std::list<HostileReference*>::const_iterator i;
-        for (i = m_creature->getThreatManager().getThreatList().begin(); i != m_creature->getThreatManager().getThreatList().end(); ++i)
+        for (i = me->getThreatManager().getThreatList().begin(); i != me->getThreatManager().getThreatList().end(); ++i)
         {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
+            Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
             if (pUnit->getPowerType() == POWER_MANA)
                 return pUnit;
         }
@@ -267,7 +267,7 @@ struct aqsentinelAI : public ScriptedAI
             case SPELL_THUNDER_BUFF:
             case SPELL_MSTRIKE_BUFF:
             case SPELL_STORM_BUFF:
-                return m_creature->getVictim();
+                return me->getVictim();
 
             case SPELL_MANAB_BUFF:
                 return GetHatedManaUser();
@@ -277,7 +277,7 @@ struct aqsentinelAI : public ScriptedAI
             case SPELL_REFLECTSFr_BUFF:
             case SPELL_THORNS_BUFF:
             default:
-                return m_creature;
+                return me;
         }
     }
 };

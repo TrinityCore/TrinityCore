@@ -71,7 +71,7 @@ static float SolarianPos[4] = {432.909, -373.424, 17.9608, 1.06421};
 
 struct boss_high_astromancer_solarianAI : public ScriptedAI
 {
-    boss_high_astromancer_solarianAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
+    boss_high_astromancer_solarianAI(Creature *c) : ScriptedAI(c), Summons(me)
     {
         pInstance = c->GetInstanceData();
 
@@ -122,25 +122,25 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
 
-        m_creature->SetArmor(defaultarmor);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetVisibility(VISIBILITY_ON);
-        m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
-        m_creature->SetDisplayId(MODEL_HUMAN);
+        me->SetArmor(defaultarmor);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetVisibility(VISIBILITY_ON);
+        me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
+        me->SetDisplayId(MODEL_HUMAN);
 
         Summons.DespawnAll();
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), m_creature);
+        DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), me);
     }
 
     void JustDied(Unit *victim)
     {
-        m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
-        m_creature->SetDisplayId(MODEL_HUMAN);
-        DoScriptText(SAY_DEATH, m_creature);
+        me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
+        me->SetDisplayId(MODEL_HUMAN);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
@@ -148,7 +148,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
 
         if (pInstance)
@@ -157,7 +157,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
 
     void SummonMinion(uint32 entry, float x, float y, float z)
     {
-        Creature* Summoned = m_creature->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+        Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
         if (Summoned)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
@@ -189,15 +189,15 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
 
         if (AppearDelay)
         {
-            m_creature->StopMoving();
-            m_creature->AttackStop();
+            me->StopMoving();
+            me->AttackStop();
             if (AppearDelay_Timer <= diff)
             {
                 AppearDelay = false;
                 if (Phase == 2)
                 {
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    m_creature->SetVisibility(VISIBILITY_OFF);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetVisibility(VISIBILITY_OFF);
                 }
                 AppearDelay_Timer = 2000;
             } else AppearDelay_Timer -= diff;
@@ -213,7 +213,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
 
             if (Wrath_Timer <= diff)
             {
-                m_creature->InterruptNonMeleeSpells(false);
+                me->InterruptNonMeleeSpells(false);
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     DoCast(pTarget, SPELL_WRATH_OF_THE_ASTROMANCER, true);
                 Wrath_Timer = 20000+rand()%5000;
@@ -223,13 +223,13 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
             {
                 if (BlindingLight)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_BLINDING_LIGHT);
+                    DoCast(me->getVictim(), SPELL_BLINDING_LIGHT);
                     BlindingLight = false;
                 }else{
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                    if (!m_creature->HasInArc(2.5f, pTarget))
-                        pTarget = m_creature->getVictim();
+                    if (!me->HasInArc(2.5f, pTarget))
+                        pTarget = me->getVictim();
 
                     if (pTarget)
                         DoCast(pTarget, SPELL_ARCANE_MISSILES);
@@ -239,7 +239,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
 
             if (m_uiWrathOfTheAstromancer_Timer <= diff)
             {
-                m_creature->InterruptNonMeleeSpells(false);
+                me->InterruptNonMeleeSpells(false);
 
                 //Target the tank ?
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1))
@@ -258,8 +258,8 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                 Phase = 2;
                 Phase1_Timer = 50000;
                 //After these 50 seconds she portals to the middle of the room and disappears, leaving 3 light portals behind.
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMap()->CreatureRelocation(m_creature, CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
+                me->GetMotionMaster()->Clear();
+                me->GetMap()->CreatureRelocation(me, CENTER_X, CENTER_Y, CENTER_Z, CENTER_O);
                 for (uint8 i=0; i <= 2; ++i)
                 {
                     if (!i)
@@ -285,7 +285,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                 }
                 for (int i=0; i <= 2; ++i)
                 {
-                    if (Creature* Summoned = m_creature->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
+                    if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
                     {
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);
@@ -297,8 +297,8 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
         else if (Phase == 2)
         {
             //10 seconds after Solarian disappears, 12 mobs spawn out of the three portals.
-            m_creature->AttackStop();
-            m_creature->StopMoving();
+            me->AttackStop();
+            me->StopMoving();
             if (Phase2_Timer <= diff)
             {
                 Phase = 3;
@@ -306,14 +306,14 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
                     for (int j=1; j <= 4; j++)
                         SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
-                DoScriptText(SAY_SUMMON1, m_creature);
+                DoScriptText(SAY_SUMMON1, me);
                 Phase2_Timer = 10000;
             } else Phase2_Timer -= diff;
         }
         else if (Phase == 3)
         {
-            m_creature->AttackStop();
-            m_creature->StopMoving();
+            me->AttackStop();
+            me->StopMoving();
 
             //Check Phase3_Timer
             if (Phase3_Timer <= diff)
@@ -322,17 +322,17 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
 
                 //15 seconds later Solarian reappears out of one of the 3 portals. Simultaneously, 2 healers appear in the two other portals.
                 int i = rand()%3;
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMap()->CreatureRelocation(m_creature, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
+                me->GetMotionMaster()->Clear();
+                me->GetMap()->CreatureRelocation(me, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
                 for (int j=0; j <= 2; j++)
                     if (j != i)
                         SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetVisibility(VISIBILITY_ON);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetVisibility(VISIBILITY_ON);
 
-                DoScriptText(SAY_SUMMON2, m_creature);
+                DoScriptText(SAY_SUMMON2, me);
                 AppearDelay = true;
                 Phase3_Timer = 15000;
             } else Phase3_Timer -= diff;
@@ -342,31 +342,31 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
             //Fear_Timer
             if (Fear_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_FEAR);
+                DoCast(me, SPELL_FEAR);
                 Fear_Timer = 20000;
             } else Fear_Timer -= diff;
 
             //VoidBolt_Timer
             if (VoidBolt_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_VOID_BOLT);
+                DoCast(me->getVictim(), SPELL_VOID_BOLT);
                 VoidBolt_Timer = 10000;
             } else VoidBolt_Timer -= diff;
         }
 
         //When Solarian reaches 20% she will transform into a huge void walker.
-        if (Phase != 4 && ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth())<20))
+        if (Phase != 4 && ((me->GetHealth()*100 / me->GetMaxHealth())<20))
         {
             Phase = 4;
 
             //To make sure she wont be invisible or not selecatble
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetVisibility(VISIBILITY_ON);
-            DoScriptText(SAY_VOIDA, m_creature);
-            DoScriptText(SAY_VOIDB, m_creature);
-            m_creature->SetArmor(WV_ARMOR);
-            m_creature->SetDisplayId(MODEL_VOIDWALKER);
-            m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetVisibility(VISIBILITY_ON);
+            DoScriptText(SAY_VOIDA, me);
+            DoScriptText(SAY_VOIDB, me);
+            me->SetArmor(WV_ARMOR);
+            me->SetDisplayId(MODEL_VOIDWALKER);
+            me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize*2.5f);
         }
 
         DoMeleeAttackIfReady();
@@ -410,10 +410,10 @@ struct mob_solarium_priestAI : public ScriptedAI
             {
                 case 0:
                     if (pInstance)
-                        pTarget = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ASTROMANCER));
+                        pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_ASTROMANCER));
                     break;
                 case 1:
-                    pTarget = m_creature;
+                    pTarget = me;
                     break;
             }
 
@@ -426,13 +426,13 @@ struct mob_solarium_priestAI : public ScriptedAI
 
         if (holysmiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SOLARIUM_HOLY_SMITE);
+            DoCast(me->getVictim(), SPELL_SOLARIUM_HOLY_SMITE);
             holysmiteTimer = 4000;
         } else holysmiteTimer -= diff;
 
         if (aoesilenceTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SOLARIUM_ARCANE_TORRENT);
+            DoCast(me->getVictim(), SPELL_SOLARIUM_ARCANE_TORRENT);
             aoesilenceTimer = 13000;
         } else aoesilenceTimer -= diff;
 

@@ -56,12 +56,12 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void KilledUnit(Unit* Victim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -70,37 +70,37 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
             return;
 
         //If we are <35% hp
-        if (!HpYell && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 35))
+        if (!HpYell && ((me->GetHealth()*100) / me->GetMaxHealth() <= 35))
         {
-            DoScriptText(SAY_HEALTH, m_creature);
+            DoScriptText(SAY_HEALTH, me);
             HpYell = true;
         }
 
         //FlameShock_Timer
         if (FlameShock_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FLAMESHOCK);
+            DoCast(me->getVictim(), SPELL_FLAMESHOCK);
             FlameShock_Timer = 10000 + rand()%5000;
         } else FlameShock_Timer -= diff;
 
         //FlameSpike_Timer
         if (FlameSpike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FLAMESPIKE);
+            DoCast(me->getVictim(), SPELL_FLAMESPIKE);
             FlameSpike_Timer = 30000;
         } else FlameSpike_Timer -= diff;
 
         //FireNova_Timer
         if (FireNova_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FIRENOVA);
+            DoCast(me->getVictim(), SPELL_FIRENOVA);
             FireNova_Timer = 40000;
         } else FireNova_Timer -= diff;
 
         //ShadowBolt_Timer
         if (ShadowBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHADOWBOLT);
+            DoCast(me->getVictim(), SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;
         } else ShadowBolt_Timer -= diff;
 

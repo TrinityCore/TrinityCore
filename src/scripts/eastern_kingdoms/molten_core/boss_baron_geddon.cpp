@@ -55,18 +55,18 @@ struct boss_baron_geddonAI : public ScriptedAI
             return;
 
         //If we are <2% hp cast Armageddom
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 2)
+        if (me->GetHealth()*100 / me->GetMaxHealth() <= 2)
         {
-            m_creature->InterruptNonMeleeSpells(true);
-            DoCast(m_creature, SPELL_ARMAGEDDOM);
-            DoScriptText(EMOTE_SERVICE, m_creature);
+            me->InterruptNonMeleeSpells(true);
+            DoCast(me, SPELL_ARMAGEDDOM);
+            DoScriptText(EMOTE_SERVICE, me);
             return;
         }
 
         //Inferno_Timer
         if (Inferno_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_INFERNO);
+            DoCast(me, SPELL_INFERNO);
             Inferno_Timer = 45000;
         } else Inferno_Timer -= diff;
 

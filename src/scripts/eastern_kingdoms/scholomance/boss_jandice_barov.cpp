@@ -62,9 +62,9 @@ struct boss_jandicebarovAI : public ScriptedAI
         if (Invisible && Invisible_Timer <= diff)
         {
             //Become visible again
-            m_creature->setFaction(14);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetDisplayId(11073);     //Jandice Model
+            me->setFaction(14);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetDisplayId(11073);     //Jandice Model
             Invisible = false;
         } else if (Invisible)
         {
@@ -81,7 +81,7 @@ struct boss_jandicebarovAI : public ScriptedAI
         if (CurseOfBlood_Timer <= diff)
         {
             //Cast
-            DoCast(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
+            DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
 
             //45 seconds
             CurseOfBlood_Timer = 30000;
@@ -92,11 +92,11 @@ struct boss_jandicebarovAI : public ScriptedAI
         {
 
             //Inturrupt any spell casting
-            m_creature->InterruptNonMeleeSpells(false);
-            m_creature->setFaction(35);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetDisplayId(11686);  // Invisible Model
-            DoModifyThreatPercent(m_creature->getVictim(),-99);
+            me->InterruptNonMeleeSpells(false);
+            me->setFaction(35);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetDisplayId(11686);  // Invisible Model
+            DoModifyThreatPercent(me->getVictim(),-99);
 
             //Summon 10 Illusions attacking random gamers
             Unit *pTarget = NULL;
@@ -117,7 +117,7 @@ struct boss_jandicebarovAI : public ScriptedAI
         //            if (Illusion_Timer <= diff)
         //            {
         //                  //Cast
-        //                DoCast(m_creature->getVictim(), SPELL_ILLUSION);
+        //                DoCast(me->getVictim(), SPELL_ILLUSION);
         //
         //                  //3 Illusion will be summoned
         //                  if (Illusioncounter < 3)
@@ -148,7 +148,7 @@ struct mob_illusionofjandicebarovAI : public ScriptedAI
     void Reset()
     {
         Cleave_Timer = 2000 + rand()%6000;
-        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+        me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
     }
 
     void EnterCombat(Unit *who)
@@ -165,7 +165,7 @@ struct mob_illusionofjandicebarovAI : public ScriptedAI
         if (Cleave_Timer <= diff)
         {
             //Cast
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
 
             //5-8 seconds
             Cleave_Timer = 5000 + rand()%3000;

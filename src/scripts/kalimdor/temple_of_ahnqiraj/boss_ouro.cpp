@@ -60,7 +60,7 @@ struct boss_ouroAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoCast(m_creature->getVictim(), SPELL_BIRTH);
+        DoCast(me->getVictim(), SPELL_BIRTH);
     }
 
     void UpdateAI(const uint32 diff)
@@ -72,14 +72,14 @@ struct boss_ouroAI : public ScriptedAI
         //Sweep_Timer
         if (!Submerged && Sweep_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SWEEP);
+            DoCast(me->getVictim(), SPELL_SWEEP);
             Sweep_Timer = 15000 + rand()%15000;
         } else Sweep_Timer -= diff;
 
         //SandBlast_Timer
         if (!Submerged && SandBlast_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SANDBLAST);
+            DoCast(me->getVictim(), SPELL_SANDBLAST);
             SandBlast_Timer = 20000 + rand()%15000;
         } else SandBlast_Timer -= diff;
 
@@ -87,10 +87,10 @@ struct boss_ouroAI : public ScriptedAI
         if (!Submerged && Submerge_Timer <= diff)
         {
             //Cast
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->setFaction(35);
-            DoCast(m_creature, SPELL_DIRTMOUND_PASSIVE);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->setFaction(35);
+            DoCast(me, SPELL_DIRTMOUND_PASSIVE);
 
             Submerged = true;
             Back_Timer = 30000 + rand()%15000;
@@ -111,10 +111,10 @@ struct boss_ouroAI : public ScriptedAI
         //Back_Timer
         if (Submerged && Back_Timer <= diff)
         {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->setFaction(14);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->setFaction(14);
 
-            DoCast(m_creature->getVictim(), SPELL_GROUND_RUPTURE);
+            DoCast(me->getVictim(), SPELL_GROUND_RUPTURE);
 
             Submerged = false;
             Submerge_Timer = 60000 + rand()%60000;

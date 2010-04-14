@@ -112,14 +112,14 @@ struct boss_alarAI : public ScriptedAI
 
         cur_wp = 4;
 
-        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
-        m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
-        //m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-        //m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->setActive(false);
+        me->SetDisplayId(me->GetNativeDisplayId());
+        me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
+        //me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
+        //me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->setActive(false);
     }
 
     void EnterCombat(Unit *who)
@@ -127,9 +127,9 @@ struct boss_alarAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_ALAREVENT, IN_PROGRESS);
 
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING); // after enterevademode will be set walk movement
+        me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING); // after enterevademode will be set walk movement
         DoZoneInCombat();
-        m_creature->setActive(true);
+        me->setActive(true);
     }
 
     void JustDied(Unit *victim)
@@ -157,22 +157,22 @@ struct boss_alarAI : public ScriptedAI
 
     void DamageTaken(Unit* pKiller, uint32 &damage)
     {
-        if (damage >= m_creature->GetHealth() && Phase1)
+        if (damage >= me->GetHealth() && Phase1)
         {
             damage = 0;
             if (!WaitEvent)
             {
                 WaitEvent = WE_DIE;
                 WaitTimer = 0;
-                m_creature->SetHealth(0);
-                m_creature->InterruptNonMeleeSpells(true);
-                m_creature->RemoveAllAuras();
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->AttackStop();
-                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
-                m_creature->SetSpeed(MOVE_RUN, 5.0f);
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MovePoint(0, waypoint[5][0], waypoint[5][1], waypoint[5][2]);
+                me->SetHealth(0);
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAllAuras();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->AttackStop();
+                me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                me->SetSpeed(MOVE_RUN, 5.0f);
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MovePoint(0, waypoint[5][0], waypoint[5][1], waypoint[5][2]);
             }
         }
     }
@@ -181,9 +181,9 @@ struct boss_alarAI : public ScriptedAI
     {
         if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
         {
-            m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-            m_creature->SetDisplayId(11686);
-            //m_creature->SendUpdateObjectToAllExcept(NULL);
+            me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+            me->SetDisplayId(11686);
+            //me->SendUpdateObjectToAllExcept(NULL);
         }
     }
 
@@ -199,12 +199,12 @@ struct boss_alarAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->isInCombat()) // sometimes isincombat but !incombat, faction bug?
+        if (!me->isInCombat()) // sometimes isincombat but !incombat, faction bug?
             return;
 
         if (Berserk_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_BERSERK, true);
+            DoCast(me, SPELL_BERSERK, true);
             Berserk_Timer = 60000;
         } else Berserk_Timer -= diff;
 
@@ -212,7 +212,7 @@ struct boss_alarAI : public ScriptedAI
         {
             if (ForceTimer <= diff)
             {
-                m_creature->GetMotionMaster()->MovePoint(0, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2]);
+                me->GetMotionMaster()->MovePoint(0, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2]);
                 ForceTimer = 5000;
             } else ForceTimer -= diff;
 
@@ -225,7 +225,7 @@ struct boss_alarAI : public ScriptedAI
                 {
                     if (AfterMoving)
                     {
-                        m_creature->GetMotionMaster()->MoveIdle();
+                        me->GetMotionMaster()->MoveIdle();
                         AfterMoving = false;
                     }
 
@@ -235,24 +235,24 @@ struct boss_alarAI : public ScriptedAI
                         Platforms_Move_Timer = 30000+rand()%5000;
                         break;
                     case WE_QUILL:
-                        DoCast(m_creature, SPELL_FLAME_QUILLS, true);
+                        DoCast(me, SPELL_FLAME_QUILLS, true);
                         Platforms_Move_Timer = 1;
                         WaitTimer = 10000;
                         WaitEvent = WE_DUMMY;
                         return;
                     case WE_DIE:
                         ForceMove = false;
-                        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
+                        me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_DEAD);
                         WaitTimer = 5000;
                         WaitEvent = WE_REVIVE;
                         return;
                     case WE_REVIVE:
-                        m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
-                        m_creature->SetHealth(m_creature->GetMaxHealth());
-                        m_creature->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
-                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetUInt32Value(UNIT_FIELD_BYTES_1, UNIT_STAND_STATE_STAND);
+                        me->SetHealth(me->GetMaxHealth());
+                        me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         DoZoneInCombat();
-                        DoCast(m_creature, SPELL_REBIRTH, true);
+                        DoCast(me, SPELL_REBIRTH, true);
                         MeltArmor_Timer = 60000;
                         Charge_Timer = 7000;
                         DiveBomb_Timer = 40000+rand()%5000;
@@ -260,22 +260,22 @@ struct boss_alarAI : public ScriptedAI
                         Phase1 = false;
                         break;
                     case WE_METEOR:
-                        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                        DoCast(m_creature, SPELL_DIVE_BOMB_VISUAL, false);
+                        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
+                        DoCast(me, SPELL_DIVE_BOMB_VISUAL, false);
                         WaitEvent = WE_DIVE;
                         WaitTimer = 4000;
                         return;
                     case WE_DIVE:
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         {
-                            m_creature->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
+                            me->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
                             DoCast(pTarget, SPELL_DIVE_BOMB, true);
                             float dist = 3.0f;
-                            if (m_creature->IsWithinDist3d(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 5.0f))
+                            if (me->IsWithinDist3d(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 5.0f))
                                 dist = 5.0f;
                             WaitTimer = 1000 + floor(dist / 80 * 1000.0f);
-                            m_creature->GetMap()->CreatureRelocation(m_creature, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f);
-                            m_creature->StopMoving();
+                            me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f);
+                            me->StopMoving();
                             WaitEvent = WE_LAND;
                         }
                         else
@@ -290,10 +290,10 @@ struct boss_alarAI : public ScriptedAI
                     case WE_SUMMON:
                         for (uint8 i = 0; i < 2; ++i)
                             DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                        m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
-                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
-                        DoCast(m_creature, SPELL_REBIRTH_2, true);
+                        me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetDisplayId(me->GetNativeDisplayId());
+                        DoCast(me, SPELL_REBIRTH_2, true);
                         break;
                     case WE_DUMMY:
                     default:
@@ -309,7 +309,7 @@ struct boss_alarAI : public ScriptedAI
 
         if (Phase1)
         {
-            if (m_creature->getThreatManager().getThreatList().empty())
+            if (me->getThreatManager().getThreatList().empty())
             {
                 EnterEvadeMode();
                 return;
@@ -341,7 +341,7 @@ struct boss_alarAI : public ScriptedAI
                 }
                 ForceMove = true;
                 ForceTimer = 5000;
-                m_creature->GetMotionMaster()->MovePoint(0, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2]);
+                me->GetMotionMaster()->MovePoint(0, waypoint[cur_wp][0], waypoint[cur_wp][1], waypoint[cur_wp][2]);
                 WaitTimer = 0;
                 return;
             } else Platforms_Move_Timer -= diff;
@@ -358,16 +358,16 @@ struct boss_alarAI : public ScriptedAI
 
             if (MeltArmor_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_MELT_ARMOR);
+                DoCast(me->getVictim(), SPELL_MELT_ARMOR);
                 MeltArmor_Timer = 60000;
             } else MeltArmor_Timer -= diff;
 
             if (DiveBomb_Timer <= diff)
             {
-                m_creature->AttackStop();
-                m_creature->GetMotionMaster()->MovePoint(6, waypoint[4][0], waypoint[4][1], waypoint[4][2]);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 50);
+                me->AttackStop();
+                me->GetMotionMaster()->MovePoint(6, waypoint[4][0], waypoint[4][1], waypoint[4][2]);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 50);
                 WaitEvent = WE_METEOR;
                 WaitTimer = 0;
                 DiveBomb_Timer = 40000+rand()%5000;
@@ -378,14 +378,14 @@ struct boss_alarAI : public ScriptedAI
             {
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 {
-                    Creature* Summoned = m_creature->SummonCreature(CREATURE_FLAME_PATCH_ALAR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                    Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
                     if (Summoned)
                     {
                         Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Summoned->SetFloatValue(OBJECT_FIELD_SCALE_X, Summoned->GetFloatValue(OBJECT_FIELD_SCALE_X)*2.5f);
                         Summoned->SetDisplayId(11686);
-                        Summoned->setFaction(m_creature->getFaction());
-                        Summoned->SetLevel(m_creature->getLevel());
+                        Summoned->setFaction(me->getFaction());
+                        Summoned->SetLevel(me->getLevel());
                         Summoned->CastSpell(Summoned, SPELL_FLAME_PATCH, false);
                     }
                 }
@@ -398,23 +398,23 @@ struct boss_alarAI : public ScriptedAI
 
     void DoMeleeAttackIfReady()
     {
-        if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
+        if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
         {
-            if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+            if (me->IsWithinMeleeRange(me->getVictim()))
             {
-                m_creature->AttackerStateUpdate(m_creature->getVictim());
-                m_creature->resetAttackTimer();
+                me->AttackerStateUpdate(me->getVictim());
+                me->resetAttackTimer();
             }
             else
             {
                 Unit *pTarget = NULL;
-                pTarget = m_creature->SelectNearestTarget(5);
+                pTarget = me->SelectNearestTarget(5);
                 if (pTarget)
-                    m_creature->AI()->AttackStart(pTarget);
+                    me->AI()->AttackStart(pTarget);
                 else
                 {
-                    DoCast(m_creature, SPELL_FLAME_BUFFET, true);
-                    m_creature->setAttackTimer(BASE_ATTACK, 1500);
+                    DoCast(me, SPELL_FLAME_BUFFET, true);
+                    me->setAttackTimer(BASE_ATTACK, 1500);
                 }
             }
         }
@@ -440,19 +440,19 @@ struct mob_ember_of_alarAI : public ScriptedAI
 
     void Reset() {toDie = false;}
     void EnterCombat(Unit *who) {DoZoneInCombat();}
-    void EnterEvadeMode() {m_creature->setDeathState(JUST_DIED);}
+    void EnterEvadeMode() {me->setDeathState(JUST_DIED);}
 
     void DamageTaken(Unit* pKiller, uint32 &damage)
     {
-        if (damage >= m_creature->GetHealth() && pKiller != m_creature && !toDie)
+        if (damage >= me->GetHealth() && pKiller != me && !toDie)
         {
             damage = 0;
-            DoCast(m_creature, SPELL_EMBER_BLAST, true);
-            m_creature->SetDisplayId(11686);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            DoCast(me, SPELL_EMBER_BLAST, true);
+            me->SetDisplayId(11686);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             if (pInstance && pInstance->GetData(DATA_ALAREVENT) == 2)
             {
-                if (Unit* Alar = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_ALAR)))
+                if (Unit* Alar = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALAR)))
                 {
                     int AlarHealth = Alar->GetHealth() - Alar->GetMaxHealth()*0.03;
                     if (AlarHealth > 0)
@@ -472,8 +472,8 @@ struct mob_ember_of_alarAI : public ScriptedAI
 
         if (toDie)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            //m_creature->SetVisibility(VISIBILITY_OFF);
+            me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            //me->SetVisibility(VISIBILITY_OFF);
         }
 
         DoMeleeAttackIfReady();

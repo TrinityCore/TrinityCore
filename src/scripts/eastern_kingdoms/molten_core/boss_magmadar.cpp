@@ -45,7 +45,7 @@ struct boss_magmadarAI : public ScriptedAI
         Panic_Timer = 20000;
         Lavabomb_Timer = 12000;
 
-        DoCast(m_creature, SPELL_MAGMASPIT, true);
+        DoCast(me, SPELL_MAGMASPIT, true);
     }
 
     void EnterCombat(Unit *who)
@@ -60,15 +60,15 @@ struct boss_magmadarAI : public ScriptedAI
         //Frenzy_Timer
         if (Frenzy_Timer <= diff)
         {
-            DoScriptText(EMOTE_FRENZY, m_creature);
-            DoCast(m_creature, SPELL_FRENZY);
+            DoScriptText(EMOTE_FRENZY, me);
+            DoCast(me, SPELL_FRENZY);
             Frenzy_Timer = 15000;
         } else Frenzy_Timer -= diff;
 
         //Panic_Timer
         if (Panic_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_PANIC);
+            DoCast(me->getVictim(), SPELL_PANIC);
             Panic_Timer = 35000;
         } else Panic_Timer -= diff;
 

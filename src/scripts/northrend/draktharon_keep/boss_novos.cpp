@@ -89,15 +89,15 @@ struct boss_novosAI : public Scripted_NoMovementAI
         Phase = IDLE;
         luiCrystals.clear();
         bAchiev = true;
-        m_creature->CastStop();
+        me->CastStop();
         lSummons.DespawnAll();
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         if (pInstance)
         {
@@ -116,7 +116,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         Phase = PHASE_1;
         uiCrystalHandlerTimer = 30*IN_MILISECONDS;
         uiTimer = 1*IN_MILISECONDS;
@@ -130,9 +130,9 @@ struct boss_novosAI : public Scripted_NoMovementAI
             }
             pInstance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
         }
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void UpdateAI(const uint32 diff)
@@ -142,16 +142,16 @@ struct boss_novosAI : public Scripted_NoMovementAI
             case PHASE_1:
                 if (uiTimer <= diff)
                 {
-                    Creature *pSummon = m_creature->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                    Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
                     pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                     //If spell is casted stops casting arcane field so no spell casting
-                    //DoCast(m_creature, SPELL_SUMMON_MINIONS);
+                    //DoCast(me, SPELL_SUMMON_MINIONS);
                     uiTimer = 3*IN_MILISECONDS;
                 } else uiTimer -= diff;
                 if (uiCrystalHandlerTimer <= diff)
                 {
-                    DoScriptText(SAY_NECRO_ADD, m_creature);
-                    Creature *pCrystalHandler = m_creature->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                    DoScriptText(SAY_NECRO_ADD, me);
+                    Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
                     pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                     uiCrystalHandlerTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
                 } else uiCrystalHandlerTimer -= diff;
@@ -169,7 +169,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
     }
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (pInstance)
         {
             pInstance->SetData(DATA_NOVOS_EVENT, DONE);
@@ -182,9 +182,9 @@ struct boss_novosAI : public Scripted_NoMovementAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void JustSummoned(Creature *summon)
@@ -203,10 +203,10 @@ struct boss_novosAI : public Scripted_NoMovementAI
         }
         if (luiCrystals.empty())
         {
-            m_creature->CastStop();
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->CastStop();
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             Phase = PHASE_2;
             uiTimer = 1*IN_MILISECONDS;
         }
@@ -242,7 +242,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+        if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             CAST_AI(boss_novosAI,pNovos->AI())->RemoveCrystal();
     }
 
@@ -253,7 +253,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
 
         if (uiFlashOfDarknessTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
+            DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
             uiFlashOfDarknessTimer = 5*IN_MILISECONDS;
         } else uiFlashOfDarknessTimer -= diff;
 
@@ -264,7 +264,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
     {
         if (type != POINT_MOTION_TYPE || id != 0)
             return;
-        if (Creature *pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+        if (Creature *pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
                 AttackStart(pTarget);
     }
@@ -283,7 +283,7 @@ struct mob_novos_minionAI : public ScriptedAI
     {
         if (type != POINT_MOTION_TYPE || id !=0)
             return;
-        if (Creature* pNovos = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+        if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
         {
             CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
             if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())

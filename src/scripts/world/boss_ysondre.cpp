@@ -65,7 +65,7 @@ struct boss_ysondreAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -93,7 +93,7 @@ struct boss_ysondreAI : public ScriptedAI
         //NoxiousBreath_Timer
         if (m_uiNoxiousBreath_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_NOXIOUSBREATH);
+            DoCast(me->getVictim(), SPELL_NOXIOUSBREATH);
             m_uiNoxiousBreath_Timer = 14000 + rand()%6000;
         }
         else
@@ -113,7 +113,7 @@ struct boss_ysondreAI : public ScriptedAI
         //MarkOfNature_Timer
         //if (m_uiMarkOfNature_Timer <= uiDiff)
         //{
-        //    DoCast(m_creature->getVictim(), SPELL_MARKOFNATURE);
+        //    DoCast(me->getVictim(), SPELL_MARKOFNATURE);
         //    m_uiMarkOfNature_Timer = 45000;
         //}
         //else
@@ -132,12 +132,12 @@ struct boss_ysondreAI : public ScriptedAI
             m_uiLightningWave_Timer -= uiDiff;
 
         //Summon Druids
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiSummonDruidModifier)))
+        if ((me->GetHealth()*100 / me->GetMaxHealth()) <= (100-(25*m_uiSummonDruidModifier)))
         {
-            DoScriptText(SAY_SUMMONDRUIDS, m_creature);
+            DoScriptText(SAY_SUMMONDRUIDS, me);
 
             for (int i = 0; i < 10; ++i)
-                DoCast(m_creature, SPELL_SUMMONDRUIDS, true);
+                DoCast(me, SPELL_SUMMONDRUIDS, true);
 
             ++m_uiSummonDruidModifier;
         }
@@ -166,7 +166,7 @@ struct mob_dementeddruidsAI : public ScriptedAI
         //MoonFire_Timer
         if (m_uiMoonFire_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MOONFIRE);
+            DoCast(me->getVictim(), SPELL_MOONFIRE);
             m_uiMoonFire_Timer = 5000;
         }
         else

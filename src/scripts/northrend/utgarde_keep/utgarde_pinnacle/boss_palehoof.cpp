@@ -91,7 +91,7 @@ struct boss_palehoofAI : public ScriptedAI
         uiImpaleTimer = 12000;
         uiWhiteringRoarTimer = 10000;
 
-        m_creature->GetMotionMaster()->MoveTargetedHome();
+        me->GetMotionMaster()->MoveTargetedHome();
 
         for (uint32 i=0;i<4;i++)
             DoneAdds[i]=false;
@@ -104,13 +104,13 @@ struct boss_palehoofAI : public ScriptedAI
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, NOT_STARTED);
 
             Creature* pTemp;
-            if ((pTemp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN))) && !pTemp->isAlive())
+            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN))) && !pTemp->isAlive())
                 pTemp->Respawn();
-            if ((pTemp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO))) && !pTemp->isAlive())
+            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO))) && !pTemp->isAlive())
                 pTemp->Respawn();
-            if ((pTemp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR))) && !pTemp->isAlive())
+            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR))) && !pTemp->isAlive())
                 pTemp->Respawn();
-            if ((pTemp = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG))) && !pTemp->isAlive())
+            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG))) && !pTemp->isAlive())
                 pTemp->Respawn();
 
             if (GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE)))
@@ -123,7 +123,7 @@ struct boss_palehoofAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void AttackStart(Unit* who)
@@ -131,14 +131,14 @@ struct boss_palehoofAI : public ScriptedAI
         if (!who)
             return;
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(who, true))
+        if (me->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
+            me->AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
             DoStartMovement(who);
         }
     }
@@ -151,13 +151,13 @@ struct boss_palehoofAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        Creature* pTemp = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
+        Creature* pTemp = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pTemp && pTemp->isAlive())
             pTemp->DisappearAndDie();
 
         if (uiArcingSmashTimer <= diff)
         {
-            DoCast(m_creature, SPELL_ARCING_SMASH);
+            DoCast(me, SPELL_ARCING_SMASH);
             uiArcingSmashTimer = urand(13000,17000);
         } else uiArcingSmashTimer -= diff;
 
@@ -170,7 +170,7 @@ struct boss_palehoofAI : public ScriptedAI
 
         if (uiWhiteringRoarTimer <= diff)
         {
-            DoCast(m_creature, SPELL_WITHERING_ROAR);
+            DoCast(me, SPELL_WITHERING_ROAR);
             uiWhiteringRoarTimer = urand(8000,12000);
         } else uiWhiteringRoarTimer -= diff;
 
@@ -179,17 +179,17 @@ struct boss_palehoofAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (pInstance)
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, DONE);
-        Creature* pTemp = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
+        Creature* pTemp = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pTemp && pTemp->isAlive())
             pTemp->DisappearAndDie();
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void NextPhase()
@@ -197,7 +197,7 @@ struct boss_palehoofAI : public ScriptedAI
         if (currentPhase == PHASE_NONE)
         {
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
-            m_creature->SummonCreature(MOB_STASIS_CONTROLLER,moveLocs[5].x,moveLocs[5].y,moveLocs[5].z,0,TEMPSUMMON_CORPSE_DESPAWN);
+            me->SummonCreature(MOB_STASIS_CONTROLLER,moveLocs[5].x,moveLocs[5].y,moveLocs[5].z,0,TEMPSUMMON_CORPSE_DESPAWN);
         }
         Phase move = PHASE_NONE;
         if (AddCount >= DUNGEON_MODE(2,4))
@@ -220,11 +220,11 @@ struct boss_palehoofAI : public ScriptedAI
             move = (Phase)(move%4);
         }
         //send orb to summon spot
-        Creature *pOrb = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
+        Creature *pOrb = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_ORB) : 0);
         if (pOrb && pOrb->isAlive())
         {
             if (currentPhase == PHASE_NONE)
-                pOrb->CastSpell(m_creature,SPELL_ORB_VISUAL,true);
+                pOrb->CastSpell(me,SPELL_ORB_VISUAL,true);
             pOrb->GetMotionMaster()->MovePoint(move,moveLocs[move].x,moveLocs[move].y,moveLocs[move].z);
         }
         currentPhase = move;
@@ -232,9 +232,9 @@ struct boss_palehoofAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        DoCast(m_creature, SPELL_FREEZE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        DoCast(me, SPELL_FREEZE);
     }
 };
 
@@ -271,12 +271,12 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
         uiCrazedTimer = 10000;
         uiTerrifyingRoarTimer = 15000;
 
-        m_creature->GetMotionMaster()->MoveTargetedHome();
+        me->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
             if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
             {
-                Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
                     CAST_AI(boss_palehoofAI, pPalehoof->AI())->Reset();
             }
@@ -290,19 +290,19 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
 
         if (uiChainLightingTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTING);
+            DoCast(me->getVictim(), SPELL_CHAIN_LIGHTING);
             uiChainLightingTimer = 5000 + rand()%5000;
         } else uiChainLightingTimer -=  diff;
 
         if (uiCrazedTimer <= diff)
         {
-            DoCast(m_creature, SPELL_CRAZED);
+            DoCast(me, SPELL_CRAZED);
             uiCrazedTimer = 8000 + rand()%4000;
         } else uiCrazedTimer -=  diff;
 
         if (uiTerrifyingRoarTimer <= diff)
         {
-            DoCast(m_creature, SPELL_TERRIFYING_ROAR);
+            DoCast(me, SPELL_TERRIFYING_ROAR);
             uiTerrifyingRoarTimer = 10000 + rand()%10000;
         } else uiTerrifyingRoarTimer -=  diff;
 
@@ -314,14 +314,14 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
         if (!who)
             return;
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(who, true))
+        if (me->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
+            me->AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
             DoStartMovement(who);
         }
     }
@@ -330,7 +330,7 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
     {
         if (pInstance)
         {
-            Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+            Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
             if (pPalehoof)
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
@@ -338,9 +338,9 @@ struct mob_ravenous_furbolgAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        DoCast(m_creature, SPELL_FREEZE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        DoCast(me, SPELL_FREEZE);
     }
 };
 
@@ -377,12 +377,12 @@ struct mob_frenzied_worgenAI : public ScriptedAI
         uint32 uiEnrage1Timer = 15000;
         uint32 uiEnrage2Timer = 10000;
 
-        m_creature->GetMotionMaster()->MoveTargetedHome();
+        me->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
             if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
             {
-                Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
                     CAST_AI(boss_palehoofAI, pPalehoof->AI())->Reset();
             }
@@ -396,19 +396,19 @@ struct mob_frenzied_worgenAI : public ScriptedAI
 
         if (uiMortalWoundTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MORTAL_WOUND);
+            DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
             uiMortalWoundTimer = 3000 + rand()%4000;
         } else uiMortalWoundTimer -= diff;
 
         if (uiEnrage1Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ENRAGE_1);
+            DoCast(me, SPELL_ENRAGE_1);
             uiEnrage1Timer = 15000;
         } else uiEnrage1Timer -= diff;
 
         if (uiEnrage2Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ENRAGE_2);
+            DoCast(me, SPELL_ENRAGE_2);
             uiEnrage2Timer = 10000;
         } else uiEnrage2Timer -= diff;
 
@@ -420,14 +420,14 @@ struct mob_frenzied_worgenAI : public ScriptedAI
         if (!who)
             return;
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(who, true))
+        if (me->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
+            me->AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
             DoStartMovement(who);
         }
         if (pInstance)
@@ -438,7 +438,7 @@ struct mob_frenzied_worgenAI : public ScriptedAI
     {
         if (pInstance)
         {
-            Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_GORTOK_PALEHOOF));
+            Creature *pPalehoof = Unit::GetCreature((*me), pInstance->GetData64(DATA_GORTOK_PALEHOOF));
             if (pPalehoof)
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
@@ -446,9 +446,9 @@ struct mob_frenzied_worgenAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        DoCast(m_creature, SPELL_FREEZE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        DoCast(me, SPELL_FREEZE);
     }
 };
 
@@ -486,12 +486,12 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
         uiGoreTimer = 15000;
         uiGrievousWoundTimer = 20000;
 
-        m_creature->GetMotionMaster()->MoveTargetedHome();
+        me->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
             if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
             {
-                Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
                     CAST_AI(boss_palehoofAI, pPalehoof->AI())->Reset();
             }
@@ -505,13 +505,13 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
 
         if (uiStompTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_STOMP);
+            DoCast(me->getVictim(), SPELL_STOMP);
             uiStompTimer = 8000 + rand()%4000;
         } else uiStompTimer -= diff;
 
         if (uiGoreTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_GORE);
+            DoCast(me->getVictim(), SPELL_GORE);
             uiGoreTimer = 13000 + rand()%4000;
         } else uiGoreTimer -= diff;
 
@@ -530,14 +530,14 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
         if (!who)
             return;
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(who, true))
+        if (me->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
+            me->AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
             DoStartMovement(who);
         }
     }
@@ -546,7 +546,7 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
     {
         if (pInstance)
         {
-            Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+            Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
             if (pPalehoof)
                 CAST_AI(boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }
@@ -554,9 +554,9 @@ struct mob_ferocious_rhinoAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        DoCast(m_creature, SPELL_FREEZE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        DoCast(me, SPELL_FREEZE);
     }
 };
 
@@ -599,12 +599,12 @@ struct mob_massive_jormungarAI : public ScriptedAI
         uiAcidSplatterTimer = 12000;
         uiPoisonBreathTimer = 10000;
 
-        m_creature->GetMotionMaster()->MoveTargetedHome();
+        me->GetMotionMaster()->MoveTargetedHome();
 
         if (pInstance)
             if (pInstance->GetData(DATA_GORTOK_PALEHOOF_EVENT) == IN_PROGRESS)
             {
-                Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+                Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
                 if (pPalehoof && pPalehoof->isAlive())
                     CAST_AI(boss_palehoofAI, pPalehoof->AI())->Reset();
             }
@@ -625,7 +625,7 @@ struct mob_massive_jormungarAI : public ScriptedAI
 
         if (uiAcidSplatterTimer <= diff)
         {
-            DoCast(m_creature, SPELL_POISON_BREATH);
+            DoCast(me, SPELL_POISON_BREATH);
             uiAcidSplatterTimer = 10000 + rand()%4000;
         } else uiAcidSplatterTimer -= diff;
 
@@ -644,14 +644,14 @@ struct mob_massive_jormungarAI : public ScriptedAI
         if (!who)
             return;
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(who, true))
+        if (me->Attack(who, true))
         {
-            m_creature->AddThreat(who, 0.0f);
-            m_creature->SetInCombatWith(who);
-            who->SetInCombatWith(m_creature);
+            me->AddThreat(who, 0.0f);
+            me->SetInCombatWith(who);
+            who->SetInCombatWith(me);
             DoStartMovement(who);
         }
     }
@@ -660,7 +660,7 @@ struct mob_massive_jormungarAI : public ScriptedAI
     {
         if (pInstance)
         {
-            Creature *pPalehoof = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
+            Creature *pPalehoof = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
             if (pPalehoof)
                 CAST_AI(boss_palehoofAI,pPalehoof->AI())->NextPhase();
         }
@@ -668,9 +668,9 @@ struct mob_massive_jormungarAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        DoCast(m_creature, SPELL_FREEZE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        DoCast(me, SPELL_FREEZE);
     }
 };
 
@@ -695,9 +695,9 @@ struct mob_palehoof_orbAI : public ScriptedAI
     {
         currentPhase=PHASE_NONE;
         SummonTimer=5000;
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-        m_creature->RemoveAurasDueToSpell(SPELL_ORB_VISUAL);
-        m_creature->SetSpeed(MOVE_FLIGHT , 0.5f);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+        me->RemoveAurasDueToSpell(SPELL_ORB_VISUAL);
+        me->SetSpeed(MOVE_FLIGHT , 0.5f);
     }
 
     void UpdateAI(const uint32 diff)
@@ -712,11 +712,11 @@ struct mob_palehoof_orbAI : public ScriptedAI
                Creature *pNext;
                switch(currentPhase)
                {
-                    case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
-                    case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
-                    case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
-                    case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
-                    case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
+                    case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
+                    case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
+                    case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
+                    case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
+                    case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
                }
 
                if (pNext)
@@ -742,11 +742,11 @@ struct mob_palehoof_orbAI : public ScriptedAI
         Creature *pNext;
         switch(id)
         {
-            case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
-            case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
-            case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
-            case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
-            case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*m_creature), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
+            case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
+            case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
+            case PHASE_MASSIVE_JORMUNGAR: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR) : 0); break;
+            case PHASE_FEROCIOUS_RHINO: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO) : 0); break;
+            case PHASE_GORTOK_PALEHOOF: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0); break;
         }
         if (pNext)
             DoCast(pNext, SPELL_ORB_CHANNEL, false);

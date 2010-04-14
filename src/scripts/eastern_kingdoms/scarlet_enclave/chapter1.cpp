@@ -355,7 +355,7 @@ struct npc_death_knight_initiateAI : public CombatAI
         me->RestoreFaction();
         CombatAI::Reset();
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
         m_uiDuelerGUID = 0;
         m_uiDuelTimer = 5000;
@@ -377,7 +377,7 @@ struct npc_death_knight_initiateAI : public CombatAI
         {
             if (pDoneBy->GetGUID() != m_uiDuelerGUID && pDoneBy->GetOwnerGUID() != m_uiDuelerGUID) // other players cannot help
                 uiDamage = 0;
-            else if (uiDamage >= m_creature->GetHealth())
+            else if (uiDamage >= me->GetHealth())
             {
                 uiDamage = 0;
 
@@ -402,9 +402,9 @@ struct npc_death_knight_initiateAI : public CombatAI
             {
                 if (m_uiDuelTimer <= uiDiff)
                 {
-                    m_creature->setFaction(FACTION_HOSTILE);
+                    me->setFaction(FACTION_HOSTILE);
 
-                    if (Unit* pUnit = Unit::GetUnit(*m_creature, m_uiDuelerGUID))
+                    if (Unit* pUnit = Unit::GetUnit(*me, m_uiDuelerGUID))
                         AttackStart(pUnit);
                 }
                 else
@@ -519,23 +519,23 @@ struct npc_dark_rider_of_acherusAI : public ScriptedAI
             switch(Phase)
             {
                case 0:
-                    m_creature->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
+                    me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
                     PhaseTimer = 5000;
                     Phase = 1;
                     break;
                 case 1:
-                    if (Unit *pTarget = Unit::GetUnit(*m_creature, TargetGUID))
+                    if (Unit *pTarget = Unit::GetUnit(*me, TargetGUID))
                         DoCast(pTarget, DESPAWN_HORSE, true);
                     PhaseTimer = 3000;
                     Phase = 2;
                     break;
                 case 2:
-                    m_creature->SetVisibility(VISIBILITY_OFF);
+                    me->SetVisibility(VISIBILITY_OFF);
                     PhaseTimer = 2000;
                     Phase = 3;
                     break;
                 case 3:
-                    m_creature->ForcedDespawn();
+                    me->ForcedDespawn();
                     break;
                 default:
                     break;
@@ -550,10 +550,10 @@ struct npc_dark_rider_of_acherusAI : public ScriptedAI
             return;
 
         TargetGUID = who->GetGUID();
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-        m_creature->SetSpeed(MOVE_RUN, 0.4f);
-        m_creature->GetMotionMaster()->MoveChase(who);
-        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, TargetGUID);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->SetSpeed(MOVE_RUN, 0.4f);
+        me->GetMotionMaster()->MoveChase(who);
+        me->SetUInt64Value(UNIT_FIELD_TARGET, TargetGUID);
         Intro = true;
     }
 
@@ -593,7 +593,7 @@ struct npc_salanar_the_horsemanAI : public ScriptedAI
                     caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                     caster->setFaction(35);
                     DoCast(caster, CALL_DARK_RIDER, true);
-                    if (Creature* Dark_Rider = m_creature->FindNearestCreature(28654, 15))
+                    if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
                         CAST_AI(npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
                 }
             }
@@ -723,9 +723,9 @@ struct npc_scarlet_ghoulAI : public ScriptedAI
     {
         // Ghouls should display their Birth Animation
         // Crawling out of the ground
-        //DoCast(m_creature, 35177, true);
-        //m_creature->MonsterSay("Mommy?",LANG_UNIVERSAL,0);
-        m_creature->SetReactState(REACT_DEFENSIVE);
+        //DoCast(me, 35177, true);
+        //me->MonsterSay("Mommy?",LANG_UNIVERSAL,0);
+        me->SetReactState(REACT_DEFENSIVE);
     }
 
     void FindMinions(Unit *owner)
@@ -737,7 +737,7 @@ struct npc_scarlet_ghoulAI : public ScriptedAI
         {
             for (std::list<Creature*>::const_iterator itr = MinionList.begin(); itr != MinionList.end(); ++itr)
             {
-                if (CAST_CRE(*itr)->GetOwner()->GetGUID() == m_creature->GetOwner()->GetGUID())
+                if (CAST_CRE(*itr)->GetOwner()->GetGUID() == me->GetOwner()->GetGUID())
                 {
                     if (CAST_CRE(*itr)->isInCombat() && CAST_CRE(*itr)->getAttackerForHelper())
                     {
@@ -750,9 +750,9 @@ struct npc_scarlet_ghoulAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->isInCombat())
+        if (!me->isInCombat())
         {
-            if (Unit *owner = m_creature->GetOwner())
+            if (Unit *owner = me->GetOwner())
             {
                 if (owner->GetTypeId() == TYPEID_PLAYER && CAST_PLR(owner)->isInCombat())
                 {
@@ -773,15 +773,15 @@ struct npc_scarlet_ghoulAI : public ScriptedAI
 
         //ScriptedAI::UpdateAI(diff);
         //Check if we have a current target
-        if (m_creature->getVictim()->GetEntry() == GHOSTS)
+        if (me->getVictim()->GetEntry() == GHOSTS)
         {
-            if (m_creature->isAttackReady())
+            if (me->isAttackReady())
             {
                 //If we are within range melee the target
-                if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+                if (me->IsWithinMeleeRange(me->getVictim()))
                 {
-                    m_creature->AttackerStateUpdate(m_creature->getVictim());
-                    m_creature->resetAttackTimer();
+                    me->AttackerStateUpdate(me->getVictim());
+                    me->resetAttackTimer();
                 }
             }
         }

@@ -119,11 +119,11 @@ struct npc_tomb_creatureAI : public ScriptedAI
             return;
 
         //from acid
-        if (m_creature->GetEntry() == CREATURE_TOMB_REAVER)
+        if (me->GetEntry() == CREATURE_TOMB_REAVER)
         {
             if (uiWebTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_WEB);
+                DoCast(me->getVictim(), SPELL_WEB);
                 uiWebTimer = urand(7000,16000);
             } else uiWebTimer -= uiDiff;
         }

@@ -66,7 +66,7 @@ struct boss_sulfuronAI : public ScriptedAI
         //DemoralizingShout_Timer
         if (DemoralizingShout_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DEMORALIZINGSHOUT);
+            DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
             DemoralizingShout_Timer = 15000 + rand()%5000;
         } else DemoralizingShout_Timer -= diff;
 
@@ -85,7 +85,7 @@ struct boss_sulfuronAI : public ScriptedAI
             if (pTarget)
                 DoCast(pTarget, SPELL_INSPIRE);
 
-            DoCast(m_creature, SPELL_INSPIRE);
+            DoCast(me, SPELL_INSPIRE);
 
             Inspire_Timer = 20000 + rand()%6000;
         } else Inspire_Timer -= diff;
@@ -93,7 +93,7 @@ struct boss_sulfuronAI : public ScriptedAI
         //Knockdown_Timer
         if (Knockdown_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
+            DoCast(me->getVictim(), SPELL_KNOCKDOWN);
             Knockdown_Timer = 12000 + rand()%3000;
         } else Knockdown_Timer -= diff;
 
@@ -110,7 +110,7 @@ struct boss_sulfuronAI : public ScriptedAI
         //DarkStrike_Timer
         if (Darkstrike_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_DARKSTRIKE);
+            DoCast(me, SPELL_DARKSTRIKE);
             Darkstrike_Timer = 15000 + rand()%3000;
         } else Darkstrike_Timer -= diff;
 

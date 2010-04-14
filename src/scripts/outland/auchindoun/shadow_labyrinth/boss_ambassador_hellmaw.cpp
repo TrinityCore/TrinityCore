@@ -69,10 +69,10 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
         IsBanished = true;
         Enraged = false;
 
-        if (m_pInstance && m_creature->isAlive())
+        if (m_pInstance && me->isAlive())
         {
             if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
-                DoCast(m_creature, SPELL_BANISH, true);
+                DoCast(me, SPELL_BANISH, true);
         }
     }
 
@@ -84,7 +84,7 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (m_creature->HasAura(SPELL_BANISH))
+        if (me->HasAura(SPELL_BANISH))
             return;
 
         npc_escortAI::MoveInLineOfSight(pWho);
@@ -96,8 +96,8 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
 
     void DoIntro()
     {
-        if (m_creature->HasAura(SPELL_BANISH))
-            m_creature->RemoveAurasDueToSpell(SPELL_BANISH);
+        if (me->HasAura(SPELL_BANISH))
+            me->RemoveAurasDueToSpell(SPELL_BANISH);
 
         IsBanished = false;
         Intro = true;
@@ -106,7 +106,7 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
         {
             if (m_pInstance->GetData(TYPE_HELLMAW) != FAIL)
             {
-                DoScriptText(SAY_INTRO, m_creature);
+                DoScriptText(SAY_INTRO, me);
                 Start(true, false, 0, NULL, false, true);
             }
 
@@ -116,17 +116,17 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_HELLMAW, DONE);
@@ -161,7 +161,7 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->HasAura(SPELL_BANISH, 0))
+        if (me->HasAura(SPELL_BANISH, 0))
         {
             EnterEvadeMode();
             return;
@@ -169,13 +169,13 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
 
         if (CorrosiveAcid_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CORROSIVE_ACID);
+            DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
             CorrosiveAcid_Timer = 15000 + rand()%10000;
         } else CorrosiveAcid_Timer -= diff;
 
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_FEAR);
+            DoCast(me, SPELL_FEAR);
             Fear_Timer = 20000 + rand()%15000;
         } else Fear_Timer -= diff;
 
@@ -183,7 +183,7 @@ struct boss_ambassador_hellmawAI : public npc_escortAI
         {
             if (!Enraged && Enrage_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_ENRAGE);
+                DoCast(me, SPELL_ENRAGE);
                 Enraged = true;
             } else Enrage_Timer -= diff;
         }

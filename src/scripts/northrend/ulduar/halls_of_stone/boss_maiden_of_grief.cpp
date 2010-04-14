@@ -43,7 +43,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
 {
     boss_maiden_of_griefAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = m_creature->GetInstanceData();
+        pInstance = me->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -68,7 +68,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
         {
@@ -109,15 +109,15 @@ struct boss_maiden_of_griefAI : public ScriptedAI
 
         if (StormOfGriefTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
+            DoCast(me->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
             StormOfGriefTimer = 15000 + rand()%5000;
         } else StormOfGriefTimer -= diff;
 
         if (ShockOfSorrowTimer <= diff)
         {
             DoResetThreat();
-            DoScriptText(SAY_STUN, m_creature);
-            DoCast(m_creature, SPELL_SHOCK_OF_SORROW_N);
+            DoScriptText(SAY_STUN, me);
+            DoCast(me, SPELL_SHOCK_OF_SORROW_N);
             ShockOfSorrowTimer = 20000 + rand()%10000;
         } else ShockOfSorrowTimer -= diff;
 
@@ -128,7 +128,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
             if (pTarget)
                 DoCast(pTarget, SPELL_PILLAR_OF_WOE_N);
             else
-                DoCast(m_creature->getVictim(), SPELL_PILLAR_OF_WOE_N);
+                DoCast(me->getVictim(), SPELL_PILLAR_OF_WOE_N);
 
             PillarOfWoeTimer = 5000 + rand()%20000;
         } else PillarOfWoeTimer -= diff;
@@ -137,13 +137,13 @@ struct boss_maiden_of_griefAI : public ScriptedAI
     }
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
 
         AchievementEntry const *AchievGoodGrief = GetAchievementStore()->LookupEntry(ACHIEVEMENT_GOOD_GRIEF);
-        Map* pMap = m_creature->GetMap();
+        Map* pMap = me->GetMap();
 
         if (IsHeroic() && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
         {
@@ -154,10 +154,10 @@ struct boss_maiden_of_griefAI : public ScriptedAI
     }
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
     }
 };
 

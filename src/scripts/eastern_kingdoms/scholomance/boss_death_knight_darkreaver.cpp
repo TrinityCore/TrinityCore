@@ -33,8 +33,8 @@ struct boss_death_knight_darkreaverAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if (m_creature->GetHealth() <= damage)
-            DoCast(m_creature, 23261, true);   //Summon Darkreaver's Fallen Charger
+        if (me->GetHealth() <= damage)
+            DoCast(me, 23261, true);   //Summon Darkreaver's Fallen Charger
     }
 
     void EnterCombat(Unit *who)

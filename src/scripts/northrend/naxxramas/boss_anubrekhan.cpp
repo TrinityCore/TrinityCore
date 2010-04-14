@@ -63,13 +63,13 @@ struct boss_anubrekhanAI : public BossAI
 
             // respawn guard using home position,
             // otherwise, after a wipe, they respawn where boss was at wipe moment.
-            pos = m_creature->GetHomePosition();
+            pos = me->GetHomePosition();
             pos.m_positionY -= 10.0f;
-            m_creature->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+            me->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
 
-            pos = m_creature->GetHomePosition();
+            pos = me->GetHomePosition();
             pos.m_positionY += 10.0f;
-            m_creature->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+            me->SummonCreature(MOB_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
         }
     }
 
@@ -110,7 +110,7 @@ struct boss_anubrekhanAI : public BossAI
         BossAI::SummonedCreatureDespawn(summon);
 
         // check if it is an actual killed guard
-        if (!m_creature->isAlive() || summon->isAlive() || summon->GetEntry() != MOB_CRYPT_GUARD)
+        if (!me->isAlive() || summon->isAlive() || summon->GetEntry() != MOB_CRYPT_GUARD)
             return;
 
         summon->CastSpell(summon, SPELL_SUMMON_CORPSE_SCARABS_MOB, true, NULL, NULL, me->GetGUID());
@@ -138,7 +138,7 @@ struct boss_anubrekhanAI : public BossAI
                     break;
                 case EVENT_LOCUST:
                     // TODO : Add Text
-                    DoCast(m_creature, RAID_MODE(SPELL_LOCUST_SWARM_10,SPELL_LOCUST_SWARM_25));
+                    DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10,SPELL_LOCUST_SWARM_25));
                     DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                     events.ScheduleEvent(EVENT_LOCUST, 90000);
                     break;
@@ -147,7 +147,7 @@ struct boss_anubrekhanAI : public BossAI
                     DoSummon(MOB_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
                     break;
                 case EVENT_BERSERK:
-                    DoCast(m_creature, SPELL_BERSERK, true);
+                    DoCast(me, SPELL_BERSERK, true);
                     events.ScheduleEvent(EVENT_BERSERK, 600000);
                     break;
             }

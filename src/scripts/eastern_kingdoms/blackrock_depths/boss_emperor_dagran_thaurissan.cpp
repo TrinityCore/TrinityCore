@@ -52,13 +52,13 @@ struct boss_draganthaurissanAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        m_creature->CallForHelp(VISIBLE_RANGE);
+        DoScriptText(SAY_AGGRO, me);
+        me->CallForHelp(VISIBLE_RANGE);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(SAY_SLAY, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -88,7 +88,7 @@ struct boss_draganthaurissanAI : public ScriptedAI
         //AvatarOfFlame_Timer
         if (AvatarOfFlame_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_AVATAROFFLAME);
+            DoCast(me->getVictim(), SPELL_AVATAROFFLAME);
             AvatarOfFlame_Timer = 18000;
         } else AvatarOfFlame_Timer -= diff;
 

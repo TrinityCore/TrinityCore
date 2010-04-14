@@ -152,7 +152,7 @@ void CreatureAI::EnterEvadeMode()
         if (Unit *owner = me->GetCharmerOrOwner())
         {
             me->GetMotionMaster()->Clear(false);
-            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, m_creature->GetFollowAngle(), MOTION_SLOT_ACTIVE);
+            me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
         }
         else
             me->GetMotionMaster()->MoveTargetedHome();
@@ -166,6 +166,6 @@ void CreatureAI::EnterEvadeMode()
 
 /*void CreatureAI::AttackedBy(Unit* attacker)
 {
-    if (!m_creature->getVictim())
+    if (!me->getVictim())
         AttackStart(attacker);
 }*/

@@ -73,12 +73,12 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         m_uiHammerOfJustice_Timer = 10000;
 
         //Incase wipe during phase that mograine fake death
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
 
         if (m_pInstance)
-            if (m_creature->isAlive())
+            if (me->isAlive())
                 m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT,NOT_STARTED);
 
         m_bHasDied = false;
@@ -97,46 +97,46 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_MO_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_RETRIBUTIONAURA);
+        DoScriptText(SAY_MO_AGGRO, me);
+        DoCast(me, SPELL_RETRIBUTIONAURA);
 
-        m_creature->CallForHelp(VISIBLE_RANGE);
+        me->CallForHelp(VISIBLE_RANGE);
     }
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(SAY_MO_KILL, m_creature);
+        DoScriptText(SAY_MO_KILL, me);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (uiDamage < m_creature->GetHealth() || m_bHasDied || m_bFakeDeath)
+        if (uiDamage < me->GetHealth() || m_bHasDied || m_bFakeDeath)
             return;
 
         if (!m_pInstance)
             return;
 
         //On first death, fake death and open door, as well as initiate whitemane if exist
-        if (Unit* Whitemane = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_WHITEMANE)))
+        if (Unit* Whitemane = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_WHITEMANE)))
         {
             m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
             Whitemane->GetMotionMaster()->MovePoint(1,1163.113370,1398.856812,32.527786);
 
-            m_creature->GetMotionMaster()->MovementExpired();
-            m_creature->GetMotionMaster()->MoveIdle();
+            me->GetMotionMaster()->MovementExpired();
+            me->GetMotionMaster()->MoveIdle();
 
-            m_creature->SetHealth(0);
+            me->SetHealth(0);
 
-            if (m_creature->IsNonMeleeSpellCasted(false))
-                m_creature->InterruptNonMeleeSpells(false);
+            if (me->IsNonMeleeSpellCasted(false))
+                me->InterruptNonMeleeSpells(false);
 
-            m_creature->ClearComboPointHolders();
-            m_creature->RemoveAllAuras();
-            m_creature->ClearAllReactives();
+            me->ClearComboPointHolders();
+            me->RemoveAllAuras();
+            me->ClearAllReactives();
 
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
 
             m_bHasDied = true;
             m_bFakeDeath = true;
@@ -150,7 +150,7 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         //When hit with ressurection say text
         if (pSpell->Id == SPELL_SCARLETRESURRECTION)
         {
-            DoScriptText(SAY_MO_RESSURECTED, m_creature);
+            DoScriptText(SAY_MO_RESSURECTED, me);
             m_bFakeDeath = false;
 
             if (m_pInstance)
@@ -166,17 +166,17 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         if (m_bHasDied && !m_bHeal && m_pInstance && m_pInstance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
         {
             //On ressurection, stop fake death and heal whitemane and resume fight
-            if (Unit* Whitemane = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_WHITEMANE)))
+            if (Unit* Whitemane = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_WHITEMANE)))
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
                 DoCast(Whitemane, SPELL_LAYONHANDS);
 
                 m_uiCrusaderStrike_Timer = 10000;
                 m_uiHammerOfJustice_Timer = 10000;
 
-                if (m_creature->getVictim())
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                if (me->getVictim())
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
 
                 m_bHeal = true;
             }
@@ -189,14 +189,14 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         //m_uiCrusaderStrike_Timer
         if (m_uiCrusaderStrike_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CRUSADERSTRIKE);
+            DoCast(me->getVictim(), SPELL_CRUSADERSTRIKE);
             m_uiCrusaderStrike_Timer = 10000;
         } else m_uiCrusaderStrike_Timer -= uiDiff;
 
         //m_uiHammerOfJustice_Timer
         if (m_uiHammerOfJustice_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_HAMMEROFJUSTICE);
+            DoCast(me->getVictim(), SPELL_HAMMEROFJUSTICE);
             m_uiHammerOfJustice_Timer = 60000;
         } else m_uiHammerOfJustice_Timer -= uiDiff;
 
@@ -232,7 +232,7 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
         m_bCanResurrect = false;
 
         if (m_pInstance)
-            if (m_creature->isAlive())
+            if (me->isAlive())
                 m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
     }
 
@@ -246,12 +246,12 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_WH_INTRO, m_creature);
+        DoScriptText(SAY_WH_INTRO, me);
     }
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(SAY_WH_KILL, m_creature);
+        DoScriptText(SAY_WH_KILL, me);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -264,10 +264,10 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
             //When casting resuruction make sure to delay so on rez when reinstate battle deepsleep runs out
             if (m_pInstance && m_uiWait_Timer <= uiDiff)
             {
-                if (Unit* Mograine = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
+                if (Unit* Mograine = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_MOGRAINE)))
                 {
                     DoCast(Mograine, SPELL_SCARLETRESURRECTION);
-                    DoScriptText(SAY_WH_RESSURECT, m_creature);
+                    DoScriptText(SAY_WH_RESSURECT, me);
                     m_bCanResurrect = false;
                 }
             }
@@ -275,12 +275,12 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
         }
 
         //Cast Deep sleep when health is less than 50%
-        if (!m_bCanResurrectCheck && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
+        if (!m_bCanResurrectCheck && me->GetHealth()*100 / me->GetMaxHealth() <= 50)
         {
-            if (m_creature->IsNonMeleeSpellCasted(false))
-                m_creature->InterruptNonMeleeSpells(false);
+            if (me->IsNonMeleeSpellCasted(false))
+                me->InterruptNonMeleeSpells(false);
 
-            DoCast(m_creature->getVictim(), SPELL_DEEPSLEEP);
+            DoCast(me->getVictim(), SPELL_DEEPSLEEP);
             m_bCanResurrectCheck = true;
             m_bCanResurrect = true;
             return;
@@ -295,12 +295,12 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
         {
             Creature* pTarget = NULL;
 
-            if (m_creature->GetHealth() <= m_creature->GetMaxHealth()*0.75f)
-                pTarget = m_creature;
+            if (me->GetHealth() <= me->GetMaxHealth()*0.75f)
+                pTarget = me;
 
             if (m_pInstance)
             {
-                if (Creature* pMograine = Unit::GetCreature((*m_creature), m_pInstance->GetData64(DATA_MOGRAINE)))
+                if (Creature* pMograine = Unit::GetCreature((*me), m_pInstance->GetData64(DATA_MOGRAINE)))
                 {
                     // checking m_bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                     if (m_bCanResurrectCheck && pMograine->isAlive() && pMograine->GetHealth() <= pMograine->GetMaxHealth()*0.75f)
@@ -317,14 +317,14 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
         //m_uiPowerWordShield_Timer
         if (m_uiPowerWordShield_Timer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_POWERWORDSHIELD);
+            DoCast(me, SPELL_POWERWORDSHIELD);
             m_uiPowerWordShield_Timer = 15000;
         } else m_uiPowerWordShield_Timer -= uiDiff;
 
         //m_uiHolySmite_Timer
         if (m_uiHolySmite_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_HOLYSMITE);
+            DoCast(me->getVictim(), SPELL_HOLYSMITE);
             m_uiHolySmite_Timer = 6000;
         } else m_uiHolySmite_Timer -= uiDiff;
 

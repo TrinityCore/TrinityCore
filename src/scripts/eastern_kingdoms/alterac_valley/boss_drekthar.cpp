@@ -63,13 +63,13 @@ struct boss_drektharAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoScriptText(YELL_AGGRO, m_creature);
+        DoScriptText(YELL_AGGRO, me);
     }
 
     void JustRespawned()
     {
         Reset();
-        DoScriptText(YELL_RESPAWN, m_creature);
+        DoScriptText(YELL_RESPAWN, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -79,41 +79,41 @@ struct boss_drektharAI : public ScriptedAI
 
         if (uiWhirlwindTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND);
             uiWhirlwindTimer =  urand(8*IN_MILISECONDS,18*IN_MILISECONDS);
         } else uiWhirlwindTimer -= diff;
 
         if (uiWhirlwind2Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND2);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND2);
             uiWhirlwind2Timer = urand(7*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiWhirlwind2Timer -= diff;
 
         if (uiKnockdownTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
+            DoCast(me->getVictim(), SPELL_KNOCKDOWN);
             uiKnockdownTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
         } else uiKnockdownTimer -= diff;
 
         if (uiFrenzyTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FRENZY);
+            DoCast(me->getVictim(), SPELL_FRENZY);
             uiFrenzyTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
         } else uiFrenzyTimer -= diff;
 
         if (uiYellTimer <= diff)
         {
-            DoScriptText(RAND(YELL_RANDOM1,YELL_RANDOM2,YELL_RANDOM3,YELL_RANDOM4,YELL_RANDOM5), m_creature);
+            DoScriptText(RAND(YELL_RANDOM1,YELL_RANDOM2,YELL_RANDOM3,YELL_RANDOM4,YELL_RANDOM5), me);
             uiYellTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS); //20 to 30 seconds
         } else uiYellTimer -= diff;
 
         // check if creature is not outside of building
         if (uiResetTimer <= diff)
         {
-            if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
             {
                 EnterEvadeMode();
-                DoScriptText(YELL_EVADE, m_creature);
+                DoScriptText(YELL_EVADE, me);
             }
             uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;

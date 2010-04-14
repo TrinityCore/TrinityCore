@@ -69,7 +69,7 @@ struct boss_the_makerAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
 
         if (!pInstance)
             return;
@@ -80,12 +80,12 @@ struct boss_the_makerAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DIE, m_creature);
+        DoScriptText(SAY_DIE, me);
 
         if (!pInstance)
             return;
@@ -103,7 +103,7 @@ struct boss_the_makerAI : public ScriptedAI
 
         if (AcidSpray_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ACID_SPRAY);
+            DoCast(me->getVictim(), SPELL_ACID_SPRAY);
             AcidSpray_Timer = 15000+rand()%8000;
         } else AcidSpray_Timer -=diff;
 
@@ -128,7 +128,7 @@ struct boss_the_makerAI : public ScriptedAI
 
         if (Knockdown_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKDOWN);
+            DoCast(me->getVictim(), SPELL_KNOCKDOWN);
             Knockdown_Timer = 4000+rand()%8000;
         } else Knockdown_Timer -=diff;
 

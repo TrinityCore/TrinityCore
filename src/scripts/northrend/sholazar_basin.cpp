@@ -84,19 +84,19 @@ struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
         case 16:
         case 17:
         case 18:
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_JUMPING);
-            m_creature->SetSpeed(MOVE_SWIM, 0.85f, true);
-            m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_JUMPING);
+            me->SetSpeed(MOVE_SWIM, 0.85f, true);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
             break;
         case 19:
-            m_creature->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
+            me->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
             break;
         case 28:
             if (Player* pPlayer = GetPlayerForEscort())
-                pPlayer->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, m_creature);
+                pPlayer->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
           //  me->RestoreFaction();
-            DoScriptText(SAY_END_IRO,m_creature);
+            DoScriptText(SAY_END_IRO,me);
             SetRun(false);
             break;
         }
@@ -278,10 +278,10 @@ struct npc_bushwhackerAI : public ScriptedAI
 
     void MoveToSummoner()
     {
-        if (m_creature->isSummon())
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        if (me->isSummon())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 if (pSummoner)
-                    m_creature->GetMotionMaster()->MovePoint(0,pSummoner->GetPositionX(),pSummoner->GetPositionY(),pSummoner->GetPositionZ());
+                    me->GetMotionMaster()->MovePoint(0,pSummoner->GetPositionX(),pSummoner->GetPositionY(),pSummoner->GetPositionZ());
     }
 
     void UpdateAI(const uint32 uiDiff)

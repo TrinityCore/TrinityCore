@@ -76,7 +76,7 @@ EndScriptData */
 
 struct boss_hydross_the_unstableAI : public ScriptedAI
 {
-    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
+    boss_hydross_the_unstableAI(Creature *c) : ScriptedAI(c), Summons(me)
     {
         pInstance = c->GetInstanceData();
     }
@@ -111,11 +111,11 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
         EnrageTimer = 600000;
 
         CorruptedForm = false;
-        m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+        me->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
-        m_creature->SetDisplayId(MODEL_CLEAN);
+        me->SetDisplayId(MODEL_CLEAN);
 
         if (pInstance)
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
@@ -125,18 +125,18 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
 
     void SummonBeams()
     {
-        Creature* beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
+        Creature* beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-258.333,-356.34,22.0499,5.90835,TEMPSUMMON_CORPSE_DESPAWN,0);
         if (beamer)
         {
-            beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
+            beamer->CastSpell(me,SPELL_BLUE_BEAM,true);
             beamer->SetDisplayId(11686);  //invisible
             beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             beams[0]=beamer->GetGUID();
         }
-        beamer = beamer = m_creature->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);
+        beamer = beamer = me->SummonCreature(ENTRY_BEAM_DUMMY,-219.918,-371.308,22.0042,2.73072,TEMPSUMMON_CORPSE_DESPAWN,0);
         if (beamer)
         {
-            beamer->CastSpell(m_creature,SPELL_BLUE_BEAM,true);
+            beamer->CastSpell(me,SPELL_BLUE_BEAM,true);
             beamer->SetDisplayId(11686);  //invisible
             beamer->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             beams[1]=beamer->GetGUID();
@@ -146,7 +146,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
     {
         for (uint8 i=0; i<2; ++i)
         {
-            Creature* mob = Unit::GetCreature(*m_creature,beams[i]);
+            Creature* mob = Unit::GetCreature(*me,beams[i]);
             if (mob)
             {
                 mob->setDeathState(DEAD);
@@ -156,7 +156,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
     }
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
@@ -166,11 +166,11 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
     {
         if (CorruptedForm)
         {
-            DoScriptText(RAND(SAY_CORRUPT_SLAY1,SAY_CORRUPT_SLAY2), m_creature);
+            DoScriptText(RAND(SAY_CORRUPT_SLAY1,SAY_CORRUPT_SLAY2), me);
         }
         else
         {
-            DoScriptText(RAND(SAY_CLEAN_SLAY1,SAY_CLEAN_SLAY2), m_creature);
+            DoScriptText(RAND(SAY_CLEAN_SLAY1,SAY_CLEAN_SLAY2), me);
         }
     }
 
@@ -198,9 +198,9 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         if (CorruptedForm)
-            DoScriptText(SAY_CORRUPT_DEATH, m_creature);
+            DoScriptText(SAY_CORRUPT_DEATH, me);
         else
-            DoScriptText(SAY_CLEAN_DEATH, m_creature);
+            DoScriptText(SAY_CLEAN_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
@@ -238,7 +238,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
                         case 5: mark_spell = SPELL_MARK_OF_CORRUPTION6; break;
                     }
 
-                    DoCast(m_creature->getVictim(), mark_spell);
+                    DoCast(me->getVictim(), mark_spell);
 
                     if (MarkOfCorruption_Count < 5)
                         ++MarkOfCorruption_Count;
@@ -260,14 +260,14 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
             //PosCheck_Timer
             if (PosCheck_Timer <= diff)
             {
-                if (m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
+                if (me->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
                     // switch to clean form
-                    m_creature->SetDisplayId(MODEL_CLEAN);
+                    me->SetDisplayId(MODEL_CLEAN);
                     CorruptedForm = false;
                     MarkOfHydross_Count = 0;
 
-                    DoScriptText(SAY_SWITCH_TO_CLEAN, m_creature);
+                    DoScriptText(SAY_SWITCH_TO_CLEAN, me);
                     DoResetThreat();
                     SummonBeams();
 
@@ -277,9 +277,9 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
                     DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     DoSpawnCreature(ENTRY_PURE_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-                    m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+                    me->SetMeleeDamageSchool(SPELL_SCHOOL_FROST);
+                    me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+                    me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 }
 
                 PosCheck_Timer = 2500;
@@ -305,7 +305,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
                         case 5:  mark_spell = SPELL_MARK_OF_HYDROSS6; break;
                     }
 
-                    DoCast(m_creature->getVictim(), mark_spell);
+                    DoCast(me->getVictim(), mark_spell);
 
                     if (MarkOfHydross_Count < 5)
                         ++MarkOfHydross_Count;
@@ -327,14 +327,14 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
             //PosCheck_Timer
             if (PosCheck_Timer <= diff)
             {
-                if (!m_creature->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
+                if (!me->IsWithinDist2d(HYDROSS_X, HYDROSS_Y, SWITCH_RADIUS))
                 {
                     // switch to corrupted form
-                    m_creature->SetDisplayId(MODEL_CORRUPT);
+                    me->SetDisplayId(MODEL_CORRUPT);
                     MarkOfCorruption_Count = 0;
                     CorruptedForm = true;
 
-                    DoScriptText(SAY_SWITCH_TO_CORRUPT, m_creature);
+                    DoScriptText(SAY_SWITCH_TO_CORRUPT, me);
                     DoResetThreat();
                     DeSummonBeams();
 
@@ -344,9 +344,9 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
                     DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF3, SPAWN_Y_DIFF3, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     DoSpawnCreature(ENTRY_TAINTED_SPAWN, SPAWN_X_DIFF4, SPAWN_Y_DIFF4, 3, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
-                    m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+                    me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
+                    me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+                    me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
                 }
 
                 PosCheck_Timer = 2500;
@@ -356,7 +356,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
         //EnrageTimer
         if (EnrageTimer <= diff)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
             EnrageTimer = 60000;
         } else EnrageTimer -= diff;
 

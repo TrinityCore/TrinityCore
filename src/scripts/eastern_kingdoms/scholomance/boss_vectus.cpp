@@ -56,7 +56,7 @@ struct boss_vectusAI : public ScriptedAI
         //FireShield_Timer
         if (m_uiFireShield_Timer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_FIRESHIELD);
+            DoCast(me, SPELL_FIRESHIELD);
             m_uiFireShield_Timer = 90000;
         }
         else
@@ -65,19 +65,19 @@ struct boss_vectusAI : public ScriptedAI
         //BlastWave_Timer
         if (m_uiBlastWave_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BLAST_WAVE);
+            DoCast(me->getVictim(), SPELL_BLAST_WAVE);
             m_uiBlastWave_Timer = 12000;
         }
         else
             m_uiBlastWave_Timer -= uiDiff;
 
         //Frenzy_Timer
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25)
+        if (me->GetHealth()*100 / me->GetMaxHealth() < 25)
         {
             if (m_uiFrenzy_Timer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_FRENZY);
-                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
+                DoCast(me, SPELL_FRENZY);
+                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
 
                 m_uiFrenzy_Timer = 24000;
             }

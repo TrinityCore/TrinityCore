@@ -95,7 +95,7 @@ struct boss_xevozzAI : public ScriptedAI
     void DespawnSphere()
     {
         std::list<Creature*> assistList;
-        GetCreatureListWithEntryInGrid(assistList,m_creature, NPC_ETHEREAL_SPHERE ,150.0f);
+        GetCreatureListWithEntryInGrid(assistList,me, NPC_ETHEREAL_SPHERE ,150.0f);
 
         if (assistList.empty())
             return;
@@ -119,21 +119,21 @@ struct boss_xevozzAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->AddThreat(pWho, 0.0f);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
             DoStartMovement(pWho);
         }
     }
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         if (pInstance)
         {
             if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_XEVOZZ_CELL)))
@@ -159,7 +159,7 @@ struct boss_xevozzAI : public ScriptedAI
 
         if (uiArcaneBarrageVolley_Timer < uiDiff)
         {
-            DoCast(m_creature, SPELL_ARCANE_BARRAGE_VOLLEY);
+            DoCast(me, SPELL_ARCANE_BARRAGE_VOLLEY);
             uiArcaneBarrageVolley_Timer = urand(20000, 22000);
         }
         else uiArcaneBarrageVolley_Timer -= uiDiff;
@@ -167,17 +167,17 @@ struct boss_xevozzAI : public ScriptedAI
         if (uiArcaneBuffet_Timer)
             if (uiArcaneBuffet_Timer < uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_ARCANE_BUFFET);
+                DoCast(me->getVictim(), SPELL_ARCANE_BUFFET);
                 uiArcaneBuffet_Timer = 0;
             }
             else uiArcaneBuffet_Timer -= uiDiff;
 
         if (uiSummonEtherealSphere_Timer < uiDiff)
         {
-            DoScriptText(SAY_SPAWN, m_creature);
-            DoCast(m_creature, SPELL_SUMMON_ETHEREAL_SPHERE_1);
+            DoScriptText(SAY_SPAWN, me);
+            DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
             if (IsHeroic()) // extra one for heroic
-                m_creature->SummonCreature(NPC_ETHEREAL_SPHERE, m_creature->GetPositionX()-5+rand()%10, m_creature->GetPositionY()-5+rand()%10, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
+                me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
 
             uiSummonEtherealSphere_Timer = urand(45000, 47000);
             uiArcaneBuffet_Timer = urand(5000, 6000);
@@ -189,7 +189,7 @@ struct boss_xevozzAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         DespawnSphere();
 
@@ -209,10 +209,10 @@ struct boss_xevozzAI : public ScriptedAI
     }
     void KilledUnit(Unit* pVictim)
     {
-        if (pVictim == m_creature)
+        if (pVictim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 };
 
@@ -245,20 +245,20 @@ struct mob_ethereal_sphereAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (!m_creature->HasAura(SPELL_POWER_BALL_VISUAL))
-            DoCast(m_creature, SPELL_POWER_BALL_VISUAL);
+        if (!me->HasAura(SPELL_POWER_BALL_VISUAL))
+            DoCast(me, SPELL_POWER_BALL_VISUAL);
 
         if (uiRangeCheck_Timer < uiDiff)
         {
             if (pInstance)
             {
-                if (Creature* pXevozz = Unit::GetCreature(*m_creature, pInstance->GetData64(DATA_XEVOZZ)))
+                if (Creature* pXevozz = Unit::GetCreature(*me, pInstance->GetData64(DATA_XEVOZZ)))
                 {
-                    float fDistance = m_creature->GetDistance2d(pXevozz);
+                    float fDistance = me->GetDistance2d(pXevozz);
                     if (fDistance <= 3)
                         DoCast(pXevozz, SPELL_ARCANE_POWER);
                     else
-                        DoCast(m_creature, 35845); //Is it blizzlike?
+                        DoCast(me, 35845); //Is it blizzlike?
                 }
             }
             uiRangeCheck_Timer = 1000;
@@ -267,9 +267,9 @@ struct mob_ethereal_sphereAI : public ScriptedAI
 
         if (uiSummonPlayers_Timer < uiDiff)
         {
-            DoCast(m_creature, SPELL_SUMMON_PLAYERS); // not working right
+            DoCast(me, SPELL_SUMMON_PLAYERS); // not working right
 
-            Map* pMap = m_creature->GetMap();
+            Map* pMap = me->GetMap();
             if (pMap && pMap->IsDungeon())
             {
                 Map::PlayerList const &PlayerList = pMap->GetPlayers();
@@ -277,7 +277,7 @@ struct mob_ethereal_sphereAI : public ScriptedAI
                 if (!PlayerList.isEmpty())
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         if (i->getSource()->isAlive())
-                            DoTeleportPlayer(i->getSource(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), i->getSource()->GetOrientation());
+                            DoTeleportPlayer(i->getSource(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), i->getSource()->GetOrientation());
             }
 
             uiSummonPlayers_Timer = urand(33000, 35000);

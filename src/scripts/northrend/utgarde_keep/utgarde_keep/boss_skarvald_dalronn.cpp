@@ -81,10 +81,10 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
         Dalronn_isDead = false;
         Check_Timer = 5000;
 
-        ghost = (m_creature->GetEntry() == MOB_SKARVALD_GHOST);
+        ghost = (me->GetEntry() == MOB_SKARVALD_GHOST);
         if (!ghost && pInstance)
         {
-            Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+            Unit* dalronn = Unit::GetUnit((*me),pInstance->GetData64(DATA_DALRONN));
             if (dalronn && dalronn->isDead())
                 CAST_CRE(dalronn)->Respawn();
 
@@ -96,9 +96,9 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if (!ghost && pInstance)
         {
-            DoScriptText(YELL_SKARVALD_AGGRO,m_creature);
+            DoScriptText(YELL_SKARVALD_AGGRO,me);
 
-            Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+            Unit* dalronn = Unit::GetUnit((*me),pInstance->GetData64(DATA_DALRONN));
             if (dalronn && dalronn->isAlive() && !dalronn->getVictim())
                 dalronn->getThreatManager().addThreat(who,0.0f);
 
@@ -110,22 +110,22 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if (!ghost && pInstance)
         {
-            Unit* dalronn = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_DALRONN));
+            Unit* dalronn = Unit::GetUnit((*me),pInstance->GetData64(DATA_DALRONN));
             if (dalronn)
             {
                 if (dalronn->isDead())
                 {
-                    DoScriptText(YELL_SKARVALD_DAL_DIED,m_creature);
+                    DoScriptText(YELL_SKARVALD_DAL_DIED,me);
 
                     pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
-                    DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST,m_creature);
+                    DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST,me);
 
-                    m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    //DoCast(m_creature, SPELL_SUMMON_SKARVALD_GHOST, true);
-                    Creature* temp = m_creature->SummonCreature(MOB_SKARVALD_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
+                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                    //DoCast(me, SPELL_SUMMON_SKARVALD_GHOST, true);
+                    Creature* temp = me->SummonCreature(MOB_SKARVALD_GHOST,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     if (temp)
                     {
                         temp->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
@@ -140,7 +140,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
     {
         if (!ghost)
         {
-            DoScriptText(YELL_SKARVALD_KILL,m_creature);
+            DoScriptText(YELL_SKARVALD_KILL,me);
         }
     }
 
@@ -149,7 +149,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
         if (ghost)
         {
             if (pInstance && pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
         if (!UpdateVictim())
@@ -161,7 +161,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
                 if (Check_Timer <= diff)
                 {
                     Check_Timer = 5000;
-                    Unit* dalronn = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_DALRONN) : 0);
+                    Unit* dalronn = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_DALRONN) : 0);
                     if (dalronn && dalronn->isDead())
                     {
                         Dalronn_isDead = true;
@@ -174,7 +174,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
                 if (Dalronn_isDead)
                     if (Response_Timer <= diff)
                     {
-                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,m_creature);
+                        DoScriptText(YELL_SKARVALD_DAL_DIEDFIRST,me);
 
                         Response_Timer = 0;
                     } else Response_Timer -= diff;
@@ -188,7 +188,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
 
         if (StoneStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_STONE_STRIKE);
+            DoCast(me->getVictim(), SPELL_STONE_STRIKE);
             StoneStrike_Timer = 5000+rand()%5000;
         } else StoneStrike_Timer -= diff;
 
@@ -229,10 +229,10 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         Skarvald_isDead = false;
         AggroYell_Timer = 0;
 
-        ghost = m_creature->GetEntry() == MOB_DALRONN_GHOST;
+        ghost = me->GetEntry() == MOB_DALRONN_GHOST;
         if (!ghost && pInstance)
         {
-            Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+            Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
             if (skarvald && skarvald->isDead())
                 CAST_CRE(skarvald)->Respawn();
 
@@ -244,7 +244,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if (!ghost && pInstance)
         {
-            Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+            Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
             if (skarvald && skarvald->isAlive() && !skarvald->getVictim())
                 skarvald->getThreatManager().addThreat(who,0.0f);
 
@@ -259,22 +259,22 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if (!ghost && pInstance)
         {
-            Unit* skarvald = Unit::GetUnit((*m_creature),pInstance->GetData64(DATA_SKARVALD));
+            Unit* skarvald = Unit::GetUnit((*me),pInstance->GetData64(DATA_SKARVALD));
             if (skarvald)
                 if (skarvald->isDead())
                 {
-                    DoScriptText(YELL_DALRONN_SKA_DIED,m_creature);
+                    DoScriptText(YELL_DALRONN_SKA_DIED,me);
 
                     if (pInstance)
                         pInstance->SetData(DATA_SKARVALD_DALRONN_EVENT, DONE);
                 }
                 else
                 {
-                    DoScriptText(YELL_DALRONN_DAL_DIEDFIRST,m_creature);
+                    DoScriptText(YELL_DALRONN_DAL_DIEDFIRST,me);
 
-                    m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                    //DoCast(m_creature, SPELL_SUMMON_DALRONN_GHOST, true);
-                    Creature* temp = m_creature->SummonCreature(MOB_DALRONN_GHOST,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
+                    me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                    //DoCast(me, SPELL_SUMMON_DALRONN_GHOST, true);
+                    Creature* temp = me->SummonCreature(MOB_DALRONN_GHOST,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),0,TEMPSUMMON_CORPSE_DESPAWN,5000);
                     if (temp)
                     {
                         temp->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
@@ -288,7 +288,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
     {
         if (!ghost)
         {
-            DoScriptText(YELL_DALRONN_KILL,m_creature);
+            DoScriptText(YELL_DALRONN_KILL,me);
         }
     }
 
@@ -297,7 +297,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         if (ghost)
         {
             if (pInstance && pInstance->GetData(DATA_SKARVALD_DALRONN_EVENT) != IN_PROGRESS)
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
         if (!UpdateVictim())
@@ -306,7 +306,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         if (AggroYell_Timer)
             if (AggroYell_Timer <= diff)
             {
-                DoScriptText(YELL_DALRONN_AGGRO,m_creature);
+                DoScriptText(YELL_DALRONN_AGGRO,me);
 
                 AggroYell_Timer = 0;
             } else AggroYell_Timer -= diff;
@@ -317,7 +317,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
                 if (Check_Timer <= diff)
                 {
                     Check_Timer = 5000;
-                    Unit* skarvald = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_SKARVALD) : 0);
+                    Unit* skarvald = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_SKARVALD) : 0);
                     if (skarvald && skarvald->isDead())
                     {
                         Skarvald_isDead = true;
@@ -330,7 +330,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
                 if (Skarvald_isDead)
                     if (Response_Timer <= diff)
                     {
-                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,m_creature);
+                        DoScriptText(YELL_DALRONN_SKA_DIEDFIRST,me);
 
                         Response_Timer = 0;
                     } else Response_Timer -= diff;
@@ -338,7 +338,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
 
         if (ShadowBolt_Timer <= diff)
         {
-            if (!m_creature->IsNonMeleeSpellCasted(false))
+            if (!me->IsNonMeleeSpellCasted(false))
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
                 ShadowBolt_Timer = 2100;//give a 100ms pause to try cast other spells
@@ -347,7 +347,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
 
         if (Debilitate_Timer <= diff)
         {
-            if (!m_creature->IsNonMeleeSpellCasted(false))
+            if (!me->IsNonMeleeSpellCasted(false))
             {
                 DoCast(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
                 Debilitate_Timer = 5000+rand()%5000;
@@ -357,9 +357,9 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         if (IsHeroic())
             if (Summon_Timer <= diff)
             {
-                if (!m_creature->IsNonMeleeSpellCasted(false))
+                if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(m_creature, H_SPELL_SUMMON_SKELETONS);
+                    DoCast(me, H_SPELL_SUMMON_SKELETONS);
                     Summon_Timer = (rand()%10000) + 20000;
                 }
             } else Summon_Timer -= diff;

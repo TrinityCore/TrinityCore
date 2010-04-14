@@ -78,16 +78,16 @@ struct npc_kerlonianAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_LILADRIS)
+        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_LILADRIS)
         {
-            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE*5))
+            if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE*5))
             {
                 if (Player* pPlayer = GetLeaderForFollower())
                 {
                     if (pPlayer->GetQuestStatus(QUEST_SLEEPER_AWAKENED) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->GroupEventHappens(QUEST_SLEEPER_AWAKENED, m_creature);
+                        pPlayer->GroupEventHappens(QUEST_SLEEPER_AWAKENED, me);
 
-                    DoScriptText(SAY_KER_END, m_creature);
+                    DoScriptText(SAY_KER_END, me);
                 }
 
                 SetFollowComplete();
@@ -105,20 +105,20 @@ struct npc_kerlonianAI : public FollowerAI
     {
         SetFollowPaused(true);
 
-        DoScriptText(RAND(EMOTE_KER_SLEEP_1,EMOTE_KER_SLEEP_2,EMOTE_KER_SLEEP_3), m_creature);
+        DoScriptText(RAND(EMOTE_KER_SLEEP_1,EMOTE_KER_SLEEP_2,EMOTE_KER_SLEEP_3), me);
 
-        DoScriptText(RAND(SAY_KER_SLEEP_1,SAY_KER_SLEEP_2,SAY_KER_SLEEP_3,SAY_KER_SLEEP_4), m_creature);
+        DoScriptText(RAND(SAY_KER_SLEEP_1,SAY_KER_SLEEP_2,SAY_KER_SLEEP_3,SAY_KER_SLEEP_4), me);
 
-        m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
-        DoCast(m_creature, SPELL_SLEEP_VISUAL, false);
+        me->SetStandState(UNIT_STAND_STATE_SLEEP);
+        DoCast(me, SPELL_SLEEP_VISUAL, false);
     }
 
     void ClearSleeping()
     {
-        m_creature->RemoveAurasDueToSpell(SPELL_SLEEP_VISUAL);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        me->RemoveAurasDueToSpell(SPELL_SLEEP_VISUAL);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
 
-        DoScriptText(EMOTE_KER_AWAKEN, m_creature);
+        DoScriptText(EMOTE_KER_AWAKEN, me);
 
         SetFollowPaused(false);
     }
@@ -273,7 +273,7 @@ struct npc_prospector_remtravelAI : public npc_escortAI
     void JustSummoned(Creature* pSummoned)
     {
         //unsure if it should be any
-        //pSummoned->AI()->AttackStart(m_creature);
+        //pSummoned->AI()->AttackStart(me);
     }
 };
 
@@ -320,9 +320,9 @@ struct npc_threshwackonatorAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_GELKAK)
+        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_GELKAK)
         {
-            if (m_creature->IsWithinDistInMap(pWho, 10.0f))
+            if (me->IsWithinDistInMap(pWho, 10.0f))
             {
                 DoScriptText(SAY_AT_CLOSE, pWho);
                 DoAtEnd();

@@ -60,17 +60,17 @@ struct boss_grizzleAI : public ScriptedAI
         //GroundTremor_Timer
         if (GroundTremor_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_GROUNDTREMOR);
+            DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
             GroundTremor_Timer = 8000;
         } else GroundTremor_Timer -= diff;
 
         //Frenzy_Timer
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
+        if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
         {
             if (Frenzy_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_FRENZY);
-                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
+                DoCast(me, SPELL_FRENZY);
+                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
 
                 Frenzy_Timer = 15000;
             } else Frenzy_Timer -= diff;

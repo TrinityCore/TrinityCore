@@ -105,7 +105,7 @@ struct example_creatureAI : public ScriptedAI
         m_uiSpell3Timer = 19000;                            // 19 seconds
         m_uiBeserkTimer = 120000;                           //  2 minutes
 
-        m_creature->RestoreFaction();
+        me->RestoreFaction();
     }
 
     //*** HANDLED FUNCTION ***
@@ -113,7 +113,7 @@ struct example_creatureAI : public ScriptedAI
     void EnterCombat(Unit* pWho)
     {
         //Say some stuff
-        DoScriptText(SAY_AGGRO, m_creature, pWho);
+        DoScriptText(SAY_AGGRO, me, pWho);
     }
 
     //*** HANDLED FUNCTION ***
@@ -128,22 +128,22 @@ struct example_creatureAI : public ScriptedAI
     // Called when going out of combat. Reset is called just after.
     void EnterEvadeMode()
     {
-        DoScriptText(SAY_EVADE, m_creature);
+        DoScriptText(SAY_EVADE, me);
     }
 
     //*** HANDLED FUNCTION ***
     //Our Receive emote function
     void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
     {
-        m_creature->HandleEmoteCommand(uiTextEmote);
+        me->HandleEmoteCommand(uiTextEmote);
 
         switch(uiTextEmote)
         {
             case TEXTEMOTE_DANCE:
-                DoScriptText(SAY_DANCE, m_creature);
+                DoScriptText(SAY_DANCE, me);
                 break;
             case TEXTEMOTE_SALUTE:
-                DoScriptText(SAY_SALUTE, m_creature);
+                DoScriptText(SAY_SALUTE, me);
                 break;
         }
      }
@@ -153,13 +153,13 @@ struct example_creatureAI : public ScriptedAI
     void UpdateAI(const uint32 uiDiff)
     {
         //Out of combat timers
-        if (!m_creature->getVictim())
+        if (!me->getVictim())
         {
             //Random Say timer
             if (m_uiSayTimer <= uiDiff)
             {
                 //Random switch between 5 outcomes
-                DoScriptText(RAND(SAY_RANDOM_0,SAY_RANDOM_1,SAY_RANDOM_2,SAY_RANDOM_3,SAY_RANDOM_4), m_creature);
+                DoScriptText(RAND(SAY_RANDOM_0,SAY_RANDOM_1,SAY_RANDOM_2,SAY_RANDOM_3,SAY_RANDOM_4), me);
 
                 m_uiSayTimer = 45000;                      //Say something agian in 45 seconds
             }
@@ -169,7 +169,7 @@ struct example_creatureAI : public ScriptedAI
             //Rebuff timer
             if (m_uiRebuffTimer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_BUFF);
+                DoCast(me, SPELL_BUFF);
                 m_uiRebuffTimer = 900000;                  //Rebuff agian in 15 minutes
             }
             else
@@ -185,9 +185,9 @@ struct example_creatureAI : public ScriptedAI
         {
             //Cast spell one on our current target.
             if (rand()%50 > 10)
-                DoCast(m_creature->getVictim(), SPELL_ONE_ALT);
-            else if (m_creature->IsWithinDist(m_creature->getVictim(), 25.0f))
-                DoCast(m_creature->getVictim(), SPELL_ONE);
+                DoCast(me->getVictim(), SPELL_ONE_ALT);
+            else if (me->IsWithinDist(me->getVictim(), 25.0f))
+                DoCast(me->getVictim(), SPELL_ONE);
 
             m_uiSpell1Timer = 5000;
         }
@@ -198,7 +198,7 @@ struct example_creatureAI : public ScriptedAI
         if (m_uiSpell2Timer <= uiDiff)
         {
             //Cast spell two on our current target.
-            DoCast(m_creature->getVictim(), SPELL_TWO);
+            DoCast(me->getVictim(), SPELL_TWO);
             m_uiSpell2Timer = 37000;
         }
         else
@@ -211,7 +211,7 @@ struct example_creatureAI : public ScriptedAI
             if (m_uiSpell3Timer <= uiDiff)
             {
                 //Cast spell one on our current target.
-                DoCast(m_creature->getVictim(), SPELL_THREE);
+                DoCast(me->getVictim(), SPELL_THREE);
 
                 m_uiSpell3Timer = 19000;
             }
@@ -221,8 +221,8 @@ struct example_creatureAI : public ScriptedAI
             if (m_uiBeserkTimer <= uiDiff)
             {
                 //Say our line then cast uber death spell
-                DoScriptText(SAY_BERSERK, m_creature, m_creature->getVictim());
-                DoCast(m_creature->getVictim(), SPELL_BERSERK);
+                DoScriptText(SAY_BERSERK, me, me->getVictim());
+                DoCast(me->getVictim(), SPELL_BERSERK);
 
                 //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
                 m_uiBeserkTimer = 12000;
@@ -236,8 +236,8 @@ struct example_creatureAI : public ScriptedAI
             {
                 //Go to next phase
                 ++m_uiPhase;
-                DoScriptText(SAY_PHASE, m_creature);
-                DoCast(m_creature, SPELL_FRENZY);
+                DoScriptText(SAY_PHASE, me);
+                DoCast(me, SPELL_FRENZY);
             }
             else
                 m_uiPhaseTimer -= uiDiff;

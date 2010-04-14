@@ -54,13 +54,13 @@ struct boss_grilekAI : public ScriptedAI
         if (Avartar_Timer <= diff)
         {
 
-            DoCast(m_creature, SPELL_AVARTAR);
+            DoCast(me, SPELL_AVARTAR);
             Unit *pTarget = NULL;
 
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-            if (DoGetThreat(m_creature->getVictim()))
-                DoModifyThreatPercent(m_creature->getVictim(),-50);
+            if (DoGetThreat(me->getVictim()))
+                DoModifyThreatPercent(me->getVictim(),-50);
             if (pTarget)
                 AttackStart(pTarget);
 
@@ -70,7 +70,7 @@ struct boss_grilekAI : public ScriptedAI
         //GroundTremor_Timer
         if (GroundTremor_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_GROUNDTREMOR);
+            DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
             GroundTremor_Timer = 12000 + rand()%4000;
         } else GroundTremor_Timer -= diff;
 

@@ -60,8 +60,8 @@ struct npc_kalecgosAI : public ScriptedAI
         m_uiTransformTimer = 0;
 
         // we must assume he appear as dragon somewhere outside the platform of orb, and then move directly to here
-        if (m_creature->GetEntry() != NPC_KAEL)
-            m_creature->GetMotionMaster()->MovePoint(POINT_ID_LAND, afKaelLandPoint[0], afKaelLandPoint[1], afKaelLandPoint[2]);
+        if (me->GetEntry() != NPC_KAEL)
+            me->GetMotionMaster()->MovePoint(POINT_ID_LAND, afKaelLandPoint[0], afKaelLandPoint[1], afKaelLandPoint[2]);
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -76,7 +76,7 @@ struct npc_kalecgosAI : public ScriptedAI
     // some targeting issues with the spell, so use this workaround as temporary solution
     void DoWorkaroundForQuestCredit()
     {
-        Map* pMap = m_creature->GetMap();
+        Map* pMap = me->GetMap();
 
         if (!pMap || pMap->IsHeroic())
             return;
@@ -104,12 +104,12 @@ struct npc_kalecgosAI : public ScriptedAI
         {
             if (m_uiTransformTimer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_ORB_KILL_CREDIT, false);
+                DoCast(me, SPELL_ORB_KILL_CREDIT, false);
                 DoWorkaroundForQuestCredit();
 
                 // Transform and update entry, now ready for quest/read gossip
-                DoCast(m_creature, SPELL_TRANSFORM_TO_KAEL, false);
-                m_creature->UpdateEntry(NPC_KAEL);
+                DoCast(me, SPELL_TRANSFORM_TO_KAEL, false);
+                me->UpdateEntry(NPC_KAEL);
 
                 m_uiTransformTimer = 0;
             } else m_uiTransformTimer -= uiDiff;

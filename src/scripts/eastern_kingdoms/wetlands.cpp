@@ -60,11 +60,11 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
         switch(uiPointId)
         {
             case 2:
-                if (m_creature->HasStealthAura())
-                    m_creature->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
+                if (me->HasStealthAura())
+                    me->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
 
                 SetRun();
-                m_creature->setFaction(FACTION_ENEMY);
+                me->setFaction(FACTION_ENEMY);
                 break;
         }
     }
@@ -76,7 +76,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
         if (HasEscortState(STATE_ESCORT_ESCORTING) && !m_bFriendSummoned && pPlayer)
         {
             for (uint8 i = 0; i < 3; ++i)
-                DoCast(m_creature, SPELL_CALL_FRIENDS, true);
+                DoCast(me, SPELL_CALL_FRIENDS, true);
 
             m_bFriendSummoned = true;
         }
@@ -90,10 +90,10 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (m_creature->getVictim())
+        if (me->getVictim())
             return;
 
-        if (m_creature->IsFriendlyTo(pAttacker))
+        if (me->IsFriendlyTo(pAttacker))
             return;
 
         AttackStart(pAttacker);
@@ -101,19 +101,19 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*20)
+        if (me->GetHealth()*100 < me->GetMaxHealth()*20)
         {
             if (Player* pPlayer = GetPlayerForEscort())
             {
                 if (pPlayer->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(pPlayer)->GroupEventHappens(QUEST_MISSING_DIPLO_PT11, m_creature);
+                    CAST_PLR(pPlayer)->GroupEventHappens(QUEST_MISSING_DIPLO_PT11, me);
 
                 uiDamage = 0;
 
                 me->RestoreFaction();
-                m_creature->RemoveAllAuras();
-                m_creature->DeleteThreatList();
-                m_creature->CombatStop(true);
+                me->RemoveAllAuras();
+                me->DeleteThreatList();
+                me->CombatStop(true);
 
                 SetRun(false);
             }

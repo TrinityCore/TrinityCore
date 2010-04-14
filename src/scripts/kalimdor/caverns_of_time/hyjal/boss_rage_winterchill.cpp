@@ -62,8 +62,8 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
-        DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
-        m_creature->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+        DoPlaySoundToSet(me, SOUND_ONAGGRO);
+        me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
     }
 
     void KilledUnit(Unit *victim)
@@ -71,12 +71,12 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
         switch (urand(0,1))
         {
             case 0:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
-                m_creature->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_ONSLAY1);
+                me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
                 break;
             case 1:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
-                m_creature->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_ONSLAY2);
+                me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
                 break;
         }
     }
@@ -86,9 +86,9 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
         pos = i;
         if (i == 7 && pInstance)
         {
-            Unit *pTarget = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+            Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
             if (pTarget && pTarget->isAlive())
-                m_creature->AddThreat(pTarget,0.0f);
+                me->AddThreat(pTarget,0.0f);
         }
     }
 
@@ -97,8 +97,8 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
         hyjal_trashAI::JustDied(victim);
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
-        DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
-        m_creature->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, NULL);
+        DoPlaySoundToSet(me, SOUND_ONDEATH);
+        me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, NULL);
     }
 
     void UpdateAI(const uint32 diff)
@@ -132,38 +132,38 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
 
         if (FrostArmorTimer <= diff)
         {
-            DoCast(m_creature, SPELL_FROST_ARMOR);
+            DoCast(me, SPELL_FROST_ARMOR);
             FrostArmorTimer = 40000+rand()%20000;
         } else FrostArmorTimer -= diff;
         if (DecayTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DEATH_AND_DECAY);
+            DoCast(me->getVictim(), SPELL_DEATH_AND_DECAY);
             DecayTimer = 60000+rand()%20000;
             switch (urand(0,1))
             {
                 case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_DECAY1);
-                    m_creature->MonsterYell(SAY_DECAY1, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(me, SOUND_DECAY1);
+                    me->MonsterYell(SAY_DECAY1, LANG_UNIVERSAL, NULL);
                     break;
                 case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_DECAY2);
-                    m_creature->MonsterYell(SAY_DECAY2, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(me, SOUND_DECAY2);
+                    me->MonsterYell(SAY_DECAY2, LANG_UNIVERSAL, NULL);
                     break;
             }
         } else DecayTimer -= diff;
         if (NovaTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROST_NOVA);
+            DoCast(me->getVictim(), SPELL_FROST_NOVA);
             NovaTimer = 30000+rand()%15000;
             switch (urand(0,1))
             {
                 case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_NOVA1);
-                    m_creature->MonsterYell(SAY_NOVA1, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(me, SOUND_NOVA1);
+                    me->MonsterYell(SAY_NOVA1, LANG_UNIVERSAL, NULL);
                     break;
                 case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_NOVA2);
-                    m_creature->MonsterYell(SAY_NOVA2, LANG_UNIVERSAL, NULL);
+                    DoPlaySoundToSet(me, SOUND_NOVA2);
+                    me->MonsterYell(SAY_NOVA2, LANG_UNIVERSAL, NULL);
                     break;
             }
         } else NovaTimer -= diff;

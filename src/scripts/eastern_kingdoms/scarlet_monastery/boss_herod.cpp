@@ -56,19 +56,19 @@ struct boss_herodAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_RUSHINGCHARGE);
+        DoScriptText(SAY_AGGRO, me);
+        DoCast(me, SPELL_RUSHINGCHARGE);
     }
 
      void KilledUnit(Unit *victim)
      {
-         DoScriptText(SAY_KILL, m_creature);
+         DoScriptText(SAY_KILL, me);
      }
 
      void JustDied(Unit* killer)
      {
          for (uint8 i = 0; i < 20; ++i)
-             m_creature->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18, -431.58, 17.09, 6.22, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+             me->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18, -431.58, 17.09, 6.22, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
      }
 
     void UpdateAI(const uint32 diff)
@@ -77,26 +77,26 @@ struct boss_herodAI : public ScriptedAI
             return;
 
         //If we are <30% hp goes Enraged
-        if (!Enrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30 && !m_creature->IsNonMeleeSpellCasted(false))
+        if (!Enrage && me->GetHealth()*100 / me->GetMaxHealth() <= 30 && !me->IsNonMeleeSpellCasted(false))
         {
-            DoScriptText(EMOTE_ENRAGE, m_creature);
-            DoScriptText(SAY_ENRAGE, m_creature);
-            DoCast(m_creature, SPELL_FRENZY);
+            DoScriptText(EMOTE_ENRAGE, me);
+            DoScriptText(SAY_ENRAGE, me);
+            DoCast(me, SPELL_FRENZY);
             Enrage = true;
         }
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 12000;
         } else Cleave_Timer -= diff;
 
         // Whirlwind_Timer
         if (Whirlwind_Timer <= diff)
         {
-            DoScriptText(SAY_WHIRLWIND, m_creature);
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND);
+            DoScriptText(SAY_WHIRLWIND, me);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND);
             Whirlwind_Timer = 30000;
         } else Whirlwind_Timer -= diff;
 

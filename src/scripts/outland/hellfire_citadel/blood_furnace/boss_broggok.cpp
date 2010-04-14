@@ -62,7 +62,7 @@ struct boss_broggokAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         if (pInstance)
         {
             pInstance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
@@ -75,7 +75,7 @@ struct boss_broggokAI : public ScriptedAI
         summoned->setFaction(16);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        summoned->CastSpell(summoned,SPELL_POISON,false,0,0,m_creature->GetGUID());
+        summoned->CastSpell(summoned,SPELL_POISON,false,0,0,me->GetGUID());
     }
 
     void UpdateAI(const uint32 diff)
@@ -85,19 +85,19 @@ struct boss_broggokAI : public ScriptedAI
 
         if (AcidSpray_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SLIME_SPRAY);
+            DoCast(me->getVictim(), SPELL_SLIME_SPRAY);
             AcidSpray_Timer = 4000+rand()%8000;
         } else AcidSpray_Timer -=diff;
 
         if (PoisonBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_POISON_BOLT);
+            DoCast(me->getVictim(), SPELL_POISON_BOLT);
             PoisonBolt_Timer = 4000+rand()%8000;
         } else PoisonBolt_Timer -=diff;
 
         if (PoisonSpawn_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_POISON_CLOUD);
+            DoCast(me, SPELL_POISON_CLOUD);
             PoisonSpawn_Timer = 20000;
         } else PoisonSpawn_Timer -=diff;
 

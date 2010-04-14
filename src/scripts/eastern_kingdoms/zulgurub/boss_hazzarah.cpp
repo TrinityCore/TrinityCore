@@ -54,14 +54,14 @@ struct boss_hazzarahAI : public ScriptedAI
         //ManaBurn_Timer
         if (ManaBurn_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MANABURN);
+            DoCast(me->getVictim(), SPELL_MANABURN);
             ManaBurn_Timer = 8000 + rand()%8000;
         } else ManaBurn_Timer -= diff;
 
         //Sleep_Timer
         if (Sleep_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SLEEP);
+            DoCast(me->getVictim(), SPELL_SLEEP);
             Sleep_Timer = 12000 + rand()%8000;
         } else Sleep_Timer -= diff;
 
@@ -77,7 +77,7 @@ struct boss_hazzarahAI : public ScriptedAI
                 if (!pTarget)
                     return;
 
-                Creature *Illusion = m_creature->SummonCreature(15163,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
+                Creature *Illusion = me->SummonCreature(15163,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,30000);
                 if (Illusion)
                     Illusion->AI()->AttackStart(pTarget);
             }

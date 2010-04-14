@@ -166,44 +166,44 @@ struct npc_ranger_lilathaAI : public npc_escortAI
         {
         case 0:
             {
-            m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+            me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_ACTIVE);
-            DoScriptText(SAY_START, m_creature, pPlayer);
+            DoScriptText(SAY_START, me, pPlayer);
             break;
             }
         case 5:
-            DoScriptText(SAY_PROGRESS1, m_creature, pPlayer);
+            DoScriptText(SAY_PROGRESS1, me, pPlayer);
         case 11:
-            DoScriptText(SAY_PROGRESS2, m_creature, pPlayer);
-            m_creature->SetOrientation(4.762841);
+            DoScriptText(SAY_PROGRESS2, me, pPlayer);
+            me->SetOrientation(4.762841);
             break;
         case 18:
             {
-            DoScriptText(SAY_PROGRESS3, m_creature, pPlayer);
-            Creature* Summ1 = m_creature->SummonCreature(16342, 7627.083984, -7532.538086, 152.128616, 1.082733, TEMPSUMMON_DEAD_DESPAWN, 0);
-            Creature* Summ2 = m_creature->SummonCreature(16343, 7620.432129, -7532.550293, 152.454865, 0.827478, TEMPSUMMON_DEAD_DESPAWN, 0);
+            DoScriptText(SAY_PROGRESS3, me, pPlayer);
+            Creature* Summ1 = me->SummonCreature(16342, 7627.083984, -7532.538086, 152.128616, 1.082733, TEMPSUMMON_DEAD_DESPAWN, 0);
+            Creature* Summ2 = me->SummonCreature(16343, 7620.432129, -7532.550293, 152.454865, 0.827478, TEMPSUMMON_DEAD_DESPAWN, 0);
             if (Summ1 && Summ2)
             {
-                Summ1->Attack(m_creature, true);
+                Summ1->Attack(me, true);
                 Summ2->Attack(pPlayer, true);
             }
-            m_creature->AI()->AttackStart(Summ1);
+            me->AI()->AttackStart(Summ1);
             break;
             }
-        case 19: m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-        case 25: m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+        case 19: me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+        case 25: me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         case 30:
             if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,m_creature);
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,me);
             break;
         case 32:
-            m_creature->SetOrientation(2.978281);
-            DoScriptText(SAY_END1, m_creature, pPlayer);
+            me->SetOrientation(2.978281);
+            DoScriptText(SAY_END1, me, pPlayer);
             break;
         case 33:
-            m_creature->SetOrientation(5.858011);
-            DoScriptText(SAY_END2, m_creature, pPlayer);
+            me->SetOrientation(5.858011);
+            DoScriptText(SAY_END2, me, pPlayer);
             Unit* CaptainHelios = me->FindNearestCreature(NPC_CAPTAIN_HELIOS, 50);
             if (CaptainHelios)
             DoScriptText(SAY_CAPTAIN_ANSWER, CaptainHelios, pPlayer);

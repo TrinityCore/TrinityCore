@@ -50,13 +50,13 @@ struct boss_theravenianAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        ScriptedInstance *pInstance = m_creature->GetInstanceData();
+        ScriptedInstance *pInstance = me->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_THERAVENIAN_DEATH, 0);
 
             if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                m_creature->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
         }
     }
 
@@ -72,28 +72,28 @@ struct boss_theravenianAI : public ScriptedAI
         //Trample_Timer
         if (Trample_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TRAMPLE);
+            DoCast(me->getVictim(), SPELL_TRAMPLE);
             Trample_Timer = 10000;
         } else Trample_Timer -= diff;
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 
         //SunderingCleave_Timer
         if (SunderingCleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUNDERINCLEAVE);
+            DoCast(me->getVictim(), SPELL_SUNDERINCLEAVE);
             SunderingCleave_Timer = 20000;
         } else SunderingCleave_Timer -= diff;
 
         //KnockAway_Timer
         if (KnockAway_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKAWAY);
+            DoCast(me->getVictim(), SPELL_KNOCKAWAY);
             KnockAway_Timer = 12000;
         } else KnockAway_Timer -= diff;
 

@@ -99,13 +99,13 @@ struct boss_arlokkAI : public ScriptedAI
 
         MarkedTargetGUID = 0;
 
-        m_creature->SetDisplayId(MODEL_ID_NORMAL);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetDisplayId(MODEL_ID_NORMAL);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void JustReachedHome()
@@ -114,15 +114,15 @@ struct boss_arlokkAI : public ScriptedAI
             m_pInstance->SetData(TYPE_ARLOKK, NOT_STARTED);
 
         //we should be summoned, so despawn
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void JustDied(Unit* pKiller)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
-        m_creature->SetDisplayId(MODEL_ID_NORMAL);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetDisplayId(MODEL_ID_NORMAL);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ARLOKK, DONE);
@@ -130,16 +130,16 @@ struct boss_arlokkAI : public ScriptedAI
 
     void DoSummonPhanters()
     {
-        if (Unit *pMarkedTarget = Unit::GetUnit(*m_creature, MarkedTargetGUID))
-            DoScriptText(SAY_FEAST_PANTHER, m_creature, pMarkedTarget);
+        if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
+            DoScriptText(SAY_FEAST_PANTHER, me, pMarkedTarget);
 
-        m_creature->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998, -1649.6734, 41.4800, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-        m_creature->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970, -1606.4840, 41.2979, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+        me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.7998, -1649.6734, 41.4800, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+        me->SummonCreature(NPC_ZULIAN_PROWLER, -11532.9970, -1606.4840, 41.2979, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
     }
 
     void JustSummoned(Creature* pSummoned)
     {
-        if (Unit *pMarkedTarget = Unit::GetUnit(*m_creature, MarkedTargetGUID))
+        if (Unit *pMarkedTarget = Unit::GetUnit(*me, MarkedTargetGUID))
             pSummoned->AI()->AttackStart(pMarkedTarget);
 
         ++m_uiSummonCount;
@@ -154,7 +154,7 @@ struct boss_arlokkAI : public ScriptedAI
         {
             if (m_uiShadowWordPain_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SHADOWWORDPAIN);
+                DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
                 m_uiShadowWordPain_Timer = 15000;
             }
             else
@@ -182,7 +182,7 @@ struct boss_arlokkAI : public ScriptedAI
             //Cleave_Timer
             if (m_uiCleave_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+                DoCast(me->getVictim(), SPELL_CLEAVE);
                 m_uiCleave_Timer = 16000;
             }
             else
@@ -191,9 +191,9 @@ struct boss_arlokkAI : public ScriptedAI
             //Gouge_Timer
             if (m_uiGouge_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_GOUGE);
+                DoCast(me->getVictim(), SPELL_GOUGE);
 
-                DoModifyThreatPercent(m_creature->getVictim(),-80);
+                DoModifyThreatPercent(me->getVictim(),-80);
 
                 m_uiGouge_Timer = 17000+rand()%10000;
             }
@@ -215,10 +215,10 @@ struct boss_arlokkAI : public ScriptedAI
         if (m_uiVanish_Timer <= uiDiff)
         {
             //Invisble Model
-            m_creature->SetDisplayId(MODEL_ID_BLANK);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetDisplayId(MODEL_ID_BLANK);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            m_creature->AttackStop();
+            me->AttackStop();
             DoResetThreat();
 
             m_bIsVanished = true;
@@ -234,13 +234,13 @@ struct boss_arlokkAI : public ScriptedAI
             if (m_uiVisible_Timer <= uiDiff)
             {
                 //The Panther Model
-                m_creature->SetDisplayId(MODEL_ID_PANTHER);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetDisplayId(MODEL_ID_PANTHER);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
-                m_creature->UpdateDamagePhysical(BASE_ATTACK);
+                const CreatureInfo *cinfo = me->GetCreatureInfo();
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                me->UpdateDamagePhysical(BASE_ATTACK);
 
                 if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     AttackStart(pTarget);

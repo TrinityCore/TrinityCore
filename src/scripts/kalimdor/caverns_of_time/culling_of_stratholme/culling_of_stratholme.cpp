@@ -278,7 +278,7 @@ struct npc_arthasAI : public npc_escortAI
                 case NOT_STARTED:
                     bStepping = true;
                     uiStep = 0;
-                    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                     uiBossEvent = DATA_MEATHOOK_EVENT;
                     uiGossipStep = 0;
                     break;
@@ -291,7 +291,7 @@ struct npc_arthasAI : public npc_escortAI
 
     void EnterCombat(Unit* who)
     {
-        DoCast(m_creature, SPELL_ARTHAS_AURA);
+        DoCast(me, SPELL_ARTHAS_AURA);
     }
 
     void JustDied(Unit *killer)
@@ -302,12 +302,12 @@ struct npc_arthasAI : public npc_escortAI
 
     void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
     {
-        m_creature->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0],RiftAndSpawnsLocations[timeRiftID][1],RiftAndSpawnsLocations[timeRiftID][2],RiftAndSpawnsLocations[timeRiftID][3],RiftAndSpawnsLocations[timeRiftID][4],TEMPSUMMON_TIMED_DESPAWN,11000);
+        me->SummonCreature((uint32)RiftAndSpawnsLocations[timeRiftID][0],RiftAndSpawnsLocations[timeRiftID][1],RiftAndSpawnsLocations[timeRiftID][2],RiftAndSpawnsLocations[timeRiftID][3],RiftAndSpawnsLocations[timeRiftID][4],TEMPSUMMON_TIMED_DESPAWN,11000);
 
         for (uint32 i = timeRiftID+1; i < ENCOUNTER_CHRONO_SPAWNS; ++i)
         {
             if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_TIME_RIFT) break;
-            if (Creature* pTemp = m_creature->SummonCreature((uint32)RiftAndSpawnsLocations[i][0],RiftAndSpawnsLocations[timeRiftID][1],RiftAndSpawnsLocations[timeRiftID][2],RiftAndSpawnsLocations[timeRiftID][3],RiftAndSpawnsLocations[timeRiftID][4],TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
+            if (Creature* pTemp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0],RiftAndSpawnsLocations[timeRiftID][1],RiftAndSpawnsLocations[timeRiftID][2],RiftAndSpawnsLocations[timeRiftID][3],RiftAndSpawnsLocations[timeRiftID][4],TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
             {
                 guidVector[i-timeRiftID-1] = pTemp->GetGUID();
                 pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_UNK_9);
@@ -324,7 +324,7 @@ struct npc_arthasAI : public npc_escortAI
         for (uint32 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
         {
             if ((uint32)WavesLocations[waveID][i][0] == 0) break;
-            if (Creature* pTemp = m_creature->SummonCreature((uint32)WavesLocations[waveID][i][0],WavesLocations[waveID][i][1],WavesLocations[waveID][i][2],WavesLocations[waveID][i][3],WavesLocations[waveID][i][4],TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
+            if (Creature* pTemp = me->SummonCreature((uint32)WavesLocations[waveID][i][0],WavesLocations[waveID][i][1],WavesLocations[waveID][i][2],WavesLocations[waveID][i][3],WavesLocations[waveID][i][4],TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
             {
                 guidVector[i] = pTemp->GetGUID();
             }
@@ -361,27 +361,27 @@ struct npc_arthasAI : public npc_escortAI
                 bStepping = true;
                 break;
             case 7:
-                if (Unit* pCityman0 = m_creature->SummonCreature(NPC_CITY_MAN,2091.977f,1275.021f,140.757f,0.558f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000))
+                if (Unit* pCityman0 = me->SummonCreature(NPC_CITY_MAN,2091.977f,1275.021f,140.757f,0.558f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000))
                     uiCitymenGUID[0] = pCityman0->GetGUID();
-                if (Unit* pCityman1 = m_creature->SummonCreature(NPC_CITY_MAN2,2093.514f,1275.842f,140.408f,3.801f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000))
+                if (Unit* pCityman1 = me->SummonCreature(NPC_CITY_MAN2,2093.514f,1275.842f,140.408f,3.801f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,60000))
                     uiCitymenGUID[1] = pCityman1->GetGUID();
                 break;
             case 8:
                 uiGossipStep = 1;
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 SetHoldState(true);
                 break;
             case 12:
                 SetRun(true);
-                DoScriptText(SAY_PHASE210, m_creature);
-                if (Unit* pDisguised0 = m_creature->SummonCreature(NPC_CITY_MAN3,2398.14f,1207.81f,134.04f,5.155249f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                DoScriptText(SAY_PHASE210, me);
+                if (Unit* pDisguised0 = me->SummonCreature(NPC_CITY_MAN3,2398.14f,1207.81f,134.04f,5.155249f,TEMPSUMMON_DEAD_DESPAWN,180000))
                 {
                     uiInfiniteDraconianGUID[0] = pDisguised0->GetGUID();
-                    if (Unit* pDisguised1 = m_creature->SummonCreature(NPC_CITY_MAN4,2403.22f,1205.54f,134.04f,3.311264f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                    if (Unit* pDisguised1 = me->SummonCreature(NPC_CITY_MAN4,2403.22f,1205.54f,134.04f,3.311264f,TEMPSUMMON_DEAD_DESPAWN,180000))
                     {
                         uiInfiniteDraconianGUID[1] = pDisguised1->GetGUID();
 
-                        if (Unit* pDisguised2 = m_creature->SummonCreature(NPC_CITY_MAN,2400.82f,1201.69f,134.01f,1.534082f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                        if (Unit* pDisguised2 = me->SummonCreature(NPC_CITY_MAN,2400.82f,1201.69f,134.01f,1.534082f,TEMPSUMMON_DEAD_DESPAWN,180000))
                         {
                             uiInfiniteDraconianGUID[2] = pDisguised2->GetGUID();
                             pDisguised0->SetUInt64Value(UNIT_FIELD_TARGET, uiInfiniteDraconianGUID[1]);
@@ -393,23 +393,23 @@ struct npc_arthasAI : public npc_escortAI
                 break;
             case 20:
                 uiGossipStep = 2;
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 SetRun(false);
                 SetHoldState(true);
                 break;
             case 21:
-                DoScriptText(SAY_PHASE301, m_creature);
+                DoScriptText(SAY_PHASE301, me);
                 break;
             case 25:
                 SetRun(false);
                 SpawnTimeRift(0,&uiInfiniteDraconianGUID[0]);
-                DoScriptText(SAY_PHASE307,m_creature);
+                DoScriptText(SAY_PHASE307,me);
                 break;
             case 29:
                 SetRun(false);
                 SpawnTimeRift(5,&uiInfiniteDraconianGUID[0]);
                 SpawnTimeRift(8,&uiInfiniteDraconianGUID[2]);
-                DoScriptText(SAY_PHASE309,m_creature);
+                DoScriptText(SAY_PHASE309,me);
                 SetHoldState(true);
                 bStepping = true;
                 break;
@@ -417,18 +417,18 @@ struct npc_arthasAI : public npc_escortAI
                 SetRun(false);
                 SpawnTimeRift(11,&uiInfiniteDraconianGUID[0]);
                 SpawnTimeRift(14,&uiInfiniteDraconianGUID[2]);
-                DoScriptText(SAY_PHASE311,m_creature);
+                DoScriptText(SAY_PHASE311,me);
                 SetHoldState(true);
                 bStepping = true;
                 break;
             case 32:
-                DoScriptText(SAY_PHASE401,m_creature);
+                DoScriptText(SAY_PHASE401,me);
                 break;
             case 34:
-                DoScriptText(SAY_PHASE402,m_creature);
+                DoScriptText(SAY_PHASE402,me);
                 break;
             case 35:
-                DoScriptText(SAY_PHASE403,m_creature);
+                DoScriptText(SAY_PHASE403,me);
                 break;
             case 36:
                 if (pInstance)
@@ -441,23 +441,23 @@ struct npc_arthasAI : public npc_escortAI
                 SetRun(true);
                 SetDespawnAtFar(false);
                 uiGossipStep = 4;
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 SetHoldState(true);
                 break;
             case 47:
                 SetRun(false);
-                DoScriptText(SAY_PHASE405,m_creature);
+                DoScriptText(SAY_PHASE405,me);
                 break;
             case 48:
                 SetRun(true);
-                DoScriptText(SAY_PHASE406,m_creature);
+                DoScriptText(SAY_PHASE406,me);
                 break;
             case 53:
-                DoScriptText(SAY_PHASE407,m_creature);
+                DoScriptText(SAY_PHASE407,me);
                 break;
             case 54:
                 uiGossipStep = 5;
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 SetHoldState(true);
                 break;
          }
@@ -477,28 +477,28 @@ struct npc_arthasAI : public npc_escortAI
                 {
                     //After reset
                     case 0:
-                        if (Unit* pJaina = GetClosestCreatureWithEntry(m_creature, NPC_JAINA, 50.0f))
+                        if (Unit* pJaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f))
                             uiJainaGUID = pJaina->GetGUID();
-                        else if (Unit* pJaina = m_creature->SummonCreature(NPC_JAINA,1895.48f,1292.66f,143.706f,0.023475f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                        else if (Unit* pJaina = me->SummonCreature(NPC_JAINA,1895.48f,1292.66f,143.706f,0.023475f,TEMPSUMMON_DEAD_DESPAWN,180000))
                             uiJainaGUID = pJaina->GetGUID();
                         bStepping = false;
                         JumpToNextStep(0);
                         break;
                     //After waypoint 0
                     case 1:
-                        m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-                        if (Unit* pUther = m_creature->SummonCreature(NPC_UTHER,1794.357f,1272.183f,140.558f,1.37f,TEMPSUMMON_DEAD_DESPAWN,180000))
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        if (Unit* pUther = me->SummonCreature(NPC_UTHER,1794.357f,1272.183f,140.558f,1.37f,TEMPSUMMON_DEAD_DESPAWN,180000))
                         {
                             uiUtherGUID = pUther->GetGUID();
                             pUther->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pUther->GetMotionMaster()->MovePoint(0, 1897.018f, 1287.487f, 143.481f);
-                            pUther->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiUtherGUID);
+                            pUther->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiUtherGUID);
                         }
                         JumpToNextStep(17000);
                         break;
                     case 2:
-                        DoScriptText(SAY_PHASE101, m_creature);
+                        DoScriptText(SAY_PHASE101, me);
                         JumpToNextStep(2000);
                         break;
                     case 3:
@@ -512,14 +512,14 @@ struct npc_arthasAI : public npc_escortAI
                         SetEscortPaused(false);
                         bStepping = false;
                         SetRun(false);
-                        DoScriptText(SAY_PHASE103, m_creature);
+                        DoScriptText(SAY_PHASE103, me);
                         JumpToNextStep(0);
                         break;
                     //After waypoint 1
                     case 5:
                         if (Creature* pJaina = Unit::GetCreature(*me, uiJainaGUID))
-                            pJaina->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
-                        DoScriptText(SAY_PHASE104, m_creature);
+                            pJaina->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                        DoScriptText(SAY_PHASE104, me);
                         JumpToNextStep(10000);
                         break;
                     case 6:
@@ -528,7 +528,7 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(1000);
                         break;
                     case 7:
-                        DoScriptText(SAY_PHASE106, m_creature);
+                        DoScriptText(SAY_PHASE106, me);
                         JumpToNextStep(4000);
                         break;
                     case 8:
@@ -537,7 +537,7 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(6000);
                         break;
                     case 9:
-                        DoScriptText(SAY_PHASE108, m_creature);
+                        DoScriptText(SAY_PHASE108, me);
                         JumpToNextStep(4000);
                         break;
                     case 10:
@@ -546,7 +546,7 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(8000);
                         break;
                     case 11:
-                        DoScriptText(SAY_PHASE110, m_creature);
+                        DoScriptText(SAY_PHASE110, me);
                         JumpToNextStep(4000);
                         break;
                     case 12:
@@ -555,7 +555,7 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(4000);
                         break;
                     case 13:
-                        DoScriptText(SAY_PHASE112, m_creature);
+                        DoScriptText(SAY_PHASE112, me);
                         JumpToNextStep(11000);
                         break;
                     case 14:
@@ -564,7 +564,7 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(3000);
                         break;
                     case 15:
-                        DoScriptText(SAY_PHASE114, m_creature);
+                        DoScriptText(SAY_PHASE114, me);
                         JumpToNextStep(9000);
                         break;
                     case 16:
@@ -583,14 +583,14 @@ struct npc_arthasAI : public npc_escortAI
                     case 18:
                         if (Creature* pJaina = Unit::GetCreature(*me, uiJainaGUID))
                         {
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiJainaGUID);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiJainaGUID);
                             pJaina->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pJaina->GetMotionMaster()->MovePoint(0, 1794.357f,1272.183f,140.558f);
                         }
                         JumpToNextStep(1000);
                         break;
                     case 19:
-                        DoScriptText(SAY_PHASE116, m_creature);
+                        DoScriptText(SAY_PHASE116, me);
                         JumpToNextStep(1000);
                         break;
                     case 20:
@@ -601,13 +601,13 @@ struct npc_arthasAI : public npc_escortAI
                     case 21:
                         SetEscortPaused(false);
                         bStepping = false;
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                         JumpToNextStep(0);
                         break;
                     //After waypoint 3
                     case 22:
-                        DoScriptText(SAY_PHASE118, m_creature);
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiJainaGUID);
+                        DoScriptText(SAY_PHASE118, me);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiJainaGUID);
                         JumpToNextStep(10000);
                         break;
                     case 23:
@@ -621,35 +621,35 @@ struct npc_arthasAI : public npc_escortAI
                         if (Creature* pUther = Unit::GetCreature(*me, uiUtherGUID))
                             pUther->DisappearAndDie();
 
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                         JumpToNextStep(0);
                         break;
                     //After Gossip 1 (waypoint 8)
                     case 24:
-                        if (Unit* pStalker = m_creature->SummonCreature(NPC_INVIS_TARGET,2026.469f,1287.088f,143.596f,1.37f,TEMPSUMMON_TIMED_DESPAWN,14000))
+                        if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET,2026.469f,1287.088f,143.596f,1.37f,TEMPSUMMON_TIMED_DESPAWN,14000))
                         {
                             uiStalkerGUID = pStalker->GetGUID();
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
                         }
                         JumpToNextStep(1000);
                         break;
                     case 25:
-                        DoScriptText(SAY_PHASE201, m_creature);
+                        DoScriptText(SAY_PHASE201, me);
                         JumpToNextStep(12000);
                         break;
                     case 26:
                         SetEscortPaused(false);
                         bStepping = false;
                         SetRun(false);
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
                         JumpToNextStep(0);
                         break;
                     //After waypoint 9
                     case 27:
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiCitymenGUID[0]);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiCitymenGUID[0]);
                         if (Creature* pCityman = Unit::GetCreature(*me, uiCitymenGUID[0]))
                         {
-                            pCityman->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                            pCityman->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                             pCityman->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                             pCityman->GetMotionMaster()->MovePoint(0, 2088.625f,1279.191f,140.743f);
                         }
@@ -663,12 +663,12 @@ struct npc_arthasAI : public npc_escortAI
                     case 29:
                         SetEscortPaused(false);
                         bStepping = false;
-                        DoScriptText(SAY_PHASE203, m_creature);
+                        DoScriptText(SAY_PHASE203, me);
                         JumpToNextStep(0);
                         break;
                     //After waypoint 10
                     case 30:
-                        m_creature->HandleEmoteCommand(37);
+                        me->HandleEmoteCommand(37);
                         JumpToNextStep(1000);
                         break;
                     case 31:
@@ -677,16 +677,16 @@ struct npc_arthasAI : public npc_escortAI
                         if (Creature* pCityman1 = Unit::GetCreature(*me, uiCitymenGUID[1]))
                         {
                             DoScriptText(SAY_PHASE204, pCityman1);
-                            pCityman1->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                            pCityman1->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                             if (Creature* pCityman0 = Unit::GetCreature(*me, uiCitymenGUID[0]))
                                 pCityman0->Kill(pCityman0);
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiCitymenGUID[1]);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiCitymenGUID[1]);
                         }
                         JumpToNextStep(0);
                         break;
                     //After waypoint 11
                     case 32:
-                        m_creature->HandleEmoteCommand(37);
+                        me->HandleEmoteCommand(37);
                         JumpToNextStep(1000);
                         break;
                     case 33:
@@ -695,31 +695,31 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(1000);
                         break;
                     case 34:
-                        if (Unit* pStalker = m_creature->SummonCreature(NPC_INVIS_TARGET,2081.447f,1287.770f,141.3241f,1.37f,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET,2081.447f,1287.770f,141.3241f,1.37f,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             uiStalkerGUID = pStalker->GetGUID();
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
                         }
-                        DoScriptText(SAY_PHASE205, m_creature);
+                        DoScriptText(SAY_PHASE205, me);
                         JumpToNextStep(3000);
                         break;
                     case 35:
-                        if (Unit* pStalkerM = m_creature->SummonCreature(NPC_INVIS_TARGET,2117.349f,1288.624f,136.271f,1.37f,TEMPSUMMON_TIMED_DESPAWN,60000))
+                        if (Unit* pStalkerM = me->SummonCreature(NPC_INVIS_TARGET,2117.349f,1288.624f,136.271f,1.37f,TEMPSUMMON_TIMED_DESPAWN,60000))
                         {
                             uiStalkerGUID = pStalkerM->GetGUID();
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
                         }
                         JumpToNextStep(1000);
                         break;
                     case 36:
-                        if (Creature* pMalganis = m_creature->SummonCreature(NPC_MAL_GANIS,2117.349f,1288.624f,136.271f,1.37f,TEMPSUMMON_TIMED_DESPAWN,60000))
+                        if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS,2117.349f,1288.624f,136.271f,1.37f,TEMPSUMMON_TIMED_DESPAWN,60000))
                         {
                             if (Creature* pStalkerM = Unit::GetCreature(*me, uiStalkerGUID))
                                 pMalganis->CastSpell(pStalkerM,63793,false);
 
                             uiMalganisGUID = pMalganis->GetGUID();
                             DoScriptText(SAY_PHASE206, pMalganis);
-                            pMalganis->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                            pMalganis->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                             pMalganis->SetReactState(REACT_PASSIVE);
                         }
                         JumpToNextStep(11000);
@@ -746,22 +746,22 @@ struct npc_arthasAI : public npc_escortAI
                     case 39:
                         if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
                             pMalganis->SetVisibility(VISIBILITY_OFF);
-                        DoScriptText(SAY_PHASE208, m_creature);
+                        DoScriptText(SAY_PHASE208, me);
                         JumpToNextStep(7000);
                         break;
                     case 40:
-                        if (Unit* pStalker = m_creature->SummonCreature(NPC_INVIS_TARGET,2081.447f,1287.770f,141.3241f,1.37f,TEMPSUMMON_TIMED_DESPAWN,10000))
+                        if (Unit* pStalker = me->SummonCreature(NPC_INVIS_TARGET,2081.447f,1287.770f,141.3241f,1.37f,TEMPSUMMON_TIMED_DESPAWN,10000))
                         {
                             uiStalkerGUID = pStalker->GetGUID();
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, uiStalkerGUID);
                         }
-                        DoScriptText(SAY_PHASE209, m_creature);
+                        DoScriptText(SAY_PHASE209, me);
 
                         uiBossEvent = DATA_MEATHOOK_EVENT;
                         if (pInstance)
                             pInstance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
 
-                        m_creature->SetReactState(REACT_DEFENSIVE);
+                        me->SetReactState(REACT_DEFENSIVE);
                         SetDespawnAtFar(false);
                         JumpToNextStep(5000);
                         break;
@@ -820,7 +820,7 @@ struct npc_arthasAI : public npc_escortAI
                             else if (uiBossEvent == DATA_SALRAMM_EVENT)
                                 uiBossID = NPC_SALRAMM;
 
-                            if (Unit* pBoss = m_creature->SummonCreature(uiBossID,2232.19f,1331.933f,126.662f,3.15f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
+                            if (Unit* pBoss = me->SummonCreature(uiBossID,2232.19f,1331.933f,126.662f,3.15f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
                             {
                                 uiBossGUID = pBoss->GetGUID();
                                 pBoss->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -853,13 +853,13 @@ struct npc_arthasAI : public npc_escortAI
                         break;
                     //After Gossip 2 (waypoint 22)
                     case 61:
-                        m_creature->SetReactState(REACT_AGGRESSIVE);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         if (Creature* pDisguised0 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[0]))
-                            pDisguised0->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                            pDisguised0->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                         if (Creature* pDisguised1 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[1]))
-                            pDisguised1->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                            pDisguised1->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                         if (Creature* pDisguised2 = Unit::GetCreature(*me, uiInfiniteDraconianGUID[2]))
-                            pDisguised2->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+                            pDisguised2->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                         JumpToNextStep(1000);
                         break;
                     case 62:
@@ -868,14 +868,14 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(7000);
                         break;
                     case 63:
-                        DoScriptText(SAY_PHASE303, m_creature);
+                        DoScriptText(SAY_PHASE303, me);
                         SetHoldState(false);
                         bStepping = false;
                         JumpToNextStep(0);
                         break;
                     //After waypoint 23
                     case 64:
-                        m_creature->HandleEmoteCommand(54);
+                        me->HandleEmoteCommand(54);
                         JumpToNextStep(1000);
                         break;
                     case 65:
@@ -884,7 +884,7 @@ struct npc_arthasAI : public npc_escortAI
                         JumpToNextStep(1000);
                         break;
                     case 66:
-                        DoScriptText(SAY_PHASE304,m_creature);
+                        DoScriptText(SAY_PHASE304,me);
                         JumpToNextStep(2000);
                         break;
                     case 67:
@@ -939,13 +939,13 @@ struct npc_arthasAI : public npc_escortAI
                     case 72:
                     case 74:
                     case 76:
-                        if (m_creature->isInCombat())
+                        if (me->isInCombat())
                             uiPhaseTimer = 1000;
                         else
                         {
-                            if (uiStep == 72) DoScriptText(SAY_PHASE308,m_creature);
-                            if (uiStep == 74) DoScriptText(SAY_PHASE308,m_creature);
-                            if (uiStep == 76) DoScriptText(SAY_PHASE310,m_creature);
+                            if (uiStep == 72) DoScriptText(SAY_PHASE308,me);
+                            if (uiStep == 74) DoScriptText(SAY_PHASE308,me);
+                            if (uiStep == 76) DoScriptText(SAY_PHASE310,me);
                             SetHoldState(false);
                             bStepping = false;
                             SetRun(true);
@@ -953,16 +953,16 @@ struct npc_arthasAI : public npc_escortAI
                         }
                         break;
                     case 78:
-                        if (m_creature->isInCombat())
+                        if (me->isInCombat())
                             uiPhaseTimer = 1000;
                         else
                         {
-                            DoScriptText(SAY_PHASE312,m_creature);
+                            DoScriptText(SAY_PHASE312,me);
                             JumpToNextStep(5000);
                         }
                         break;
                     case 79:
-                        DoScriptText(SAY_PHASE313,m_creature);
+                        DoScriptText(SAY_PHASE313,me);
                         JumpToNextStep(1000);
                         break;
                     case 80:
@@ -972,14 +972,14 @@ struct npc_arthasAI : public npc_escortAI
                                 SpawnTimeRift(17,&uiEpochGUID);
                                 if (Creature* pEpoch = Unit::GetCreature(*me, uiEpochGUID))
                                     DoScriptText(SAY_PHASE314,pEpoch);
-                                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiEpochGUID);
+                                me->SetUInt64Value(UNIT_FIELD_TARGET, uiEpochGUID);
                             }
                         JumpToNextStep(18000);
                         break;
                     case 81:
                         if (pInstance)
                             if (pInstance->GetData(DATA_EPOCH_EVENT) != DONE)
-                                DoScriptText(SAY_PHASE315, m_creature);
+                                DoScriptText(SAY_PHASE315, me);
                         JumpToNextStep(6000);
                         break;
                     case 82:
@@ -1003,7 +1003,7 @@ struct npc_arthasAI : public npc_escortAI
                             if (pInstance->GetData(DATA_EPOCH_EVENT) == DONE)
                             {
                                 uiGossipStep = 3;
-                                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                                 bStepping = false;
                                 uiBossEvent = DATA_MAL_GANIS_EVENT;
                                 JumpToNextStep(15000);
@@ -1016,14 +1016,14 @@ struct npc_arthasAI : public npc_escortAI
                         break;
                     //After Gossip 4
                     case 84:
-                        DoScriptText(SAY_PHASE404,m_creature);
+                        DoScriptText(SAY_PHASE404,me);
                         SetHoldState(false);
                         bStepping = false;
                         break;
                     //After Gossip 5
                     case 85:
-                        DoScriptText(SAY_PHASE501, m_creature);
-                        if (Creature* pMalganis = m_creature->SummonCreature(NPC_MAL_GANIS,2296.665f,1502.362f,128.362f,4.961f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
+                        DoScriptText(SAY_PHASE501, me);
+                        if (Creature* pMalganis = me->SummonCreature(NPC_MAL_GANIS,2296.665f,1502.362f,128.362f,4.961f,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,900000))
                         {
                             uiMalganisGUID = pMalganis->GetGUID();
                             pMalganis->SetReactState(REACT_PASSIVE);
@@ -1039,9 +1039,9 @@ struct npc_arthasAI : public npc_escortAI
                         break;
                     //After waypoint 55
                     case 86:
-                        DoScriptText(SAY_PHASE502, m_creature);
+                        DoScriptText(SAY_PHASE502, me);
                         JumpToNextStep(6000);
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiMalganisGUID);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiMalganisGUID);
                         break;
                     case 87:
                         if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
@@ -1068,17 +1068,17 @@ struct npc_arthasAI : public npc_escortAI
                     //After waypoint 56
                     case 89:
                         SetRun(true);
-                        m_creature->SetUInt64Value(UNIT_FIELD_TARGET, uiMalganisGUID);
-                        DoScriptText(SAY_PHASE503, m_creature);
+                        me->SetUInt64Value(UNIT_FIELD_TARGET, uiMalganisGUID);
+                        DoScriptText(SAY_PHASE503, me);
                         JumpToNextStep(7000);
                         break;
                     case 90:
                         if (pInstance)
                         {
                             pInstance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pInstance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, pInstance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
                         }
-                        DoScriptText(SAY_PHASE504, m_creature);
+                        DoScriptText(SAY_PHASE504, me);
                         bStepping = false;
                         break;
                 }
@@ -1086,7 +1086,7 @@ struct npc_arthasAI : public npc_escortAI
         }
 
         //Battling skills
-        if (!m_creature->getVictim())
+        if (!me->getVictim())
             return;
 
         if (uiExorcismTimer < diff)
@@ -1097,7 +1097,7 @@ struct npc_arthasAI : public npc_escortAI
         } else uiExorcismTimer -= diff;
 
         if (HealthBelowPct(40))
-            DoCast(m_creature, SPELL_HOLY_LIGHT);
+            DoCast(me, SPELL_HOLY_LIGHT);
     }
 };
 

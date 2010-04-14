@@ -53,17 +53,17 @@ struct boss_auriaya_AI : public BossAI
     void EnterCombat(Unit* who)
     {
         _EnterCombat();
-        DoScriptText(SAY_AGGRO,m_creature);
+        DoScriptText(SAY_AGGRO,me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         _JustDied();
     }
 

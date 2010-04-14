@@ -70,39 +70,39 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
         //BlastWave_Timer
         if (BlastWave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BLASTWAVE);
+            DoCast(me->getVictim(), SPELL_BLASTWAVE);
             BlastWave_Timer = 20000;
         } else BlastWave_Timer -= diff;
 
         //Shout_Timer
         if (Shout_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHOUT);
+            DoCast(me->getVictim(), SPELL_SHOUT);
             Shout_Timer = 10000;
         } else Shout_Timer -= diff;
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 
         //Knockaway_Timer
         if (Knockaway_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKAWAY);
+            DoCast(me->getVictim(), SPELL_KNOCKAWAY);
             Knockaway_Timer = 14000;
         } else Knockaway_Timer -= diff;
 
         //Summon two Beserks
-        if (!Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
+        if (!Summoned && me->GetHealth()*100 / me->GetMaxHealth() < 51)
         {
             Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM,0, 100, true);
 
-            if (Creature *SummonedCreature = m_creature->SummonCreature(9216,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000))
+            if (Creature *SummonedCreature = me->SummonCreature(9216,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000))
                 SummonedCreature->AI()->AttackStart(pTarget);
-            if (Creature *SummonedCreature = m_creature->SummonCreature(9268,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,300000))
+            if (Creature *SummonedCreature = me->SummonCreature(9268,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,300000))
                 SummonedCreature->AI()->AttackStart(pTarget);
             Summoned = true;
         }

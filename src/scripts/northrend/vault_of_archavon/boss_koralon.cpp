@@ -112,7 +112,7 @@ struct boss_koralonAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -179,7 +179,7 @@ struct mob_flame_warderAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FW_LAVA_BIRST:
-                    DoCast(m_creature->getVictim(), RAID_MODE(SPELL_FW_LAVA_BIRST,SPELL_FW_LAVA_BIRST_H));
+                    DoCast(me->getVictim(), RAID_MODE(SPELL_FW_LAVA_BIRST,SPELL_FW_LAVA_BIRST_H));
                     events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
                     return;
                 case EVENT_FW_METEOR_FISTS_A:

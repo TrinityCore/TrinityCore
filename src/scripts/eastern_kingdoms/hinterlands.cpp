@@ -61,15 +61,15 @@ struct npc_00x09hlAI : public npc_escortAI
         switch(uiPointId)
         {
             case 26:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, me);
                 break;
             case 43:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
+                DoScriptText(SAY_OOX_AMBUSH, me);
                 break;
             case 64:
-                DoScriptText(SAY_OOX_END, m_creature);
+                DoScriptText(SAY_OOX_END, me);
                 if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_RESQUE_OOX_09, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_RESQUE_OOX_09, me);
                 break;
         }
     }
@@ -92,8 +92,8 @@ struct npc_00x09hlAI : public npc_escortAI
                 {
                     const Position src = {-141.151581f, -4291.213867f, 120.130f, 0};
                     Position dst;
-                    m_creature->GetRandomPoint(src, 7.0f, dst);
-                    m_creature->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                    me->GetRandomPoint(src, 7.0f, dst);
+                    me->SummonCreature(NPC_VILE_AMBUSHER, dst, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
                 }
                 break;
         }
@@ -105,14 +105,14 @@ struct npc_00x09hlAI : public npc_escortAI
             return;
 
         if (rand()%1)
-            DoScriptText(SAY_OOX_AGGRO1, m_creature);
+            DoScriptText(SAY_OOX_AGGRO1, me);
         else
-            DoScriptText(SAY_OOX_AGGRO2, m_creature);
+            DoScriptText(SAY_OOX_AGGRO2, me);
     }
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+        pSummoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
     }
 };
 
@@ -218,7 +218,7 @@ struct npc_rinjiAI : public npc_escortAI
                 return;
 
             //only if attacked and escorter is not in combat?
-            DoScriptText(RAND(SAY_RIN_HELP_1,SAY_RIN_HELP_2), m_creature);
+            DoScriptText(RAND(SAY_RIN_HELP_1,SAY_RIN_HELP_2), me);
         }
     }
 
@@ -227,13 +227,13 @@ struct npc_rinjiAI : public npc_escortAI
         if (!bFirst)
             m_iSpawnId = 1;
 
-        m_creature->SummonCreature(NPC_RANGER,
+        me->SummonCreature(NPC_RANGER,
             m_afAmbushSpawn[m_iSpawnId].m_fX, m_afAmbushSpawn[m_iSpawnId].m_fY, m_afAmbushSpawn[m_iSpawnId].m_fZ, 0.0f,
             TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
 
         for (int i = 0; i < 2; ++i)
         {
-            m_creature->SummonCreature(NPC_OUTRUNNER,
+            me->SummonCreature(NPC_OUTRUNNER,
                 m_afAmbushSpawn[m_iSpawnId].m_fX, m_afAmbushSpawn[m_iSpawnId].m_fY, m_afAmbushSpawn[m_iSpawnId].m_fZ, 0.0f,
                 TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
         }
@@ -255,7 +255,7 @@ struct npc_rinjiAI : public npc_escortAI
         switch(uiPointId)
         {
             case 1:
-                DoScriptText(SAY_RIN_FREE, m_creature, pPlayer);
+                DoScriptText(SAY_RIN_FREE, me, pPlayer);
                 break;
             case 7:
                 DoSpawnAmbush(true);
@@ -264,8 +264,8 @@ struct npc_rinjiAI : public npc_escortAI
                 DoSpawnAmbush(false);
                 break;
             case 17:
-                DoScriptText(SAY_RIN_COMPLETE, m_creature, pPlayer);
-                pPlayer->GroupEventHappens(QUEST_RINJI_TRAPPED, m_creature);
+                DoScriptText(SAY_RIN_COMPLETE, me, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_RINJI_TRAPPED, me);
                 SetRun();
                 m_uiPostEventCount = 1;
                 break;
@@ -288,18 +288,18 @@ struct npc_rinjiAI : public npc_escortAI
                         switch(m_uiPostEventCount)
                         {
                             case 1:
-                                DoScriptText(SAY_RIN_PROGRESS_1, m_creature, pPlayer);
+                                DoScriptText(SAY_RIN_PROGRESS_1, me, pPlayer);
                                 ++m_uiPostEventCount;
                                 break;
                             case 2:
-                                DoScriptText(SAY_RIN_PROGRESS_2, m_creature, pPlayer);
+                                DoScriptText(SAY_RIN_PROGRESS_2, me, pPlayer);
                                 m_uiPostEventCount = 0;
                                 break;
                         }
                     }
                     else
                     {
-                        m_creature->ForcedDespawn();
+                        me->ForcedDespawn();
                         return;
                     }
                 }

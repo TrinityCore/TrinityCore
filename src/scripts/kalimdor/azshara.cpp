@@ -59,7 +59,7 @@ struct mobs_spitelashesAI : public ScriptedAI
             (Spellkind->Id == 118 || Spellkind->Id == 12824 || Spellkind->Id == 12825 || Spellkind->Id == 12826))
         {
             spellhit=true;
-            DoCast(m_creature, 29124);                       //become a sheep
+            DoCast(me, 29124);                       //become a sheep
         }
     }
 
@@ -68,7 +68,7 @@ struct mobs_spitelashesAI : public ScriptedAI
         // we mustn't remove the Creature in the same round in which we cast the summon spell, otherwise there will be no summons
         if (spellhit && morphtimer >= 5000)
         {
-            m_creature->ForcedDespawn();
+            me->ForcedDespawn();
             return;
         }
         // walk 5 seconds before summoning
@@ -77,8 +77,8 @@ struct mobs_spitelashesAI : public ScriptedAI
             morphtimer+=diff;
             if (morphtimer >= 5000)
             {
-                DoCast(m_creature, 28406);                   //summon copies
-                DoCast(m_creature, 6924);                    //visual explosion
+                DoCast(me, 28406);                   //summon copies
+                DoCast(me, 6924);                    //visual explosion
             }
         }
         if (!UpdateVictim())
@@ -282,7 +282,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
         if (Must_Die)
             if (Must_Die_Timer <= diff)
             {
-                m_creature->ForcedDespawn();
+                me->ForcedDespawn();
                 return;
             } else Must_Die_Timer -= diff;
 
@@ -293,27 +293,27 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
 
             if (spellEscape_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_RIZZLE_ESCAPE, false);
+                DoCast(me, SPELL_RIZZLE_ESCAPE, false);
                 spellEscape_Timer = 10000;
             } else spellEscape_Timer -= diff;
 
             if (Teleport_Timer <= diff)
             {
                 //temp solution - unit can't be teleported by core using spelleffect 5, only players
-                Map* pMap = m_creature->GetMap();
+                Map* pMap = me->GetMap();
                 if (pMap)
                 {
-                    pMap->CreatureRelocation(m_creature, 3706.39, -3969.15, 35.9118, 0);
-                    m_creature->AI_SendMoveToPacket(3706.39, -3969.15, 35.9118, 0, 0, 0);
+                    pMap->CreatureRelocation(me, 3706.39, -3969.15, 35.9118, 0);
+                    me->AI_SendMoveToPacket(3706.39, -3969.15, 35.9118, 0, 0, 0);
                 }
                 //begin swimming and summon depth charges
                 Player* pPlayer = Unit::GetPlayer(PlayerGUID);
                 SendText(MSG_ESCAPE_NOTICE, pPlayer);
-                DoCast(m_creature, SPELL_PERIODIC_DEPTH_CHARGE);
-                m_creature->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
-                m_creature->SetSpeed(MOVE_RUN, 0.85f, true);
-                m_creature->GetMotionMaster()->MovementExpired();
-                m_creature->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
+                DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
+                me->SetSpeed(MOVE_RUN, 0.85f, true);
+                me->GetMotionMaster()->MovementExpired();
+                me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
                 Escape = true;
             } else Teleport_Timer -= diff;
 
@@ -322,7 +322,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
 
         if (ContinueWP)
         {
-            m_creature->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
+            me->GetMotionMaster()->MovePoint(CurrWP, WPs[CurrWP][0], WPs[CurrWP][1], WPs[CurrWP][2]);
             ContinueWP = false;
         }
 
@@ -331,7 +331,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
             if (pPlayer)
             {
-               DoScriptText(SAY_RIZZLE_GRENADE, m_creature, pPlayer);
+               DoScriptText(SAY_RIZZLE_GRENADE, me, pPlayer);
                DoCast(pPlayer, SPELL_RIZZLE_FROST_GRENADE, true);
             }
             Grenade_Timer = 30000;
@@ -342,17 +342,17 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
             if (!pPlayer)
             {
-                m_creature->ForcedDespawn();
+                me->ForcedDespawn();
                 return;
             }
 
-            if (m_creature->IsWithinDist(pPlayer, 10) && m_creature->GetPositionX() > pPlayer->GetPositionX() && !Reached)
+            if (me->IsWithinDist(pPlayer, 10) && me->GetPositionX() > pPlayer->GetPositionX() && !Reached)
             {
-                DoScriptText(SAY_RIZZLE_FINAL, m_creature);
-                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, 1);
-                m_creature->setFaction(35);
-                m_creature->GetMotionMaster()->MoveIdle();
-                m_creature->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
+                DoScriptText(SAY_RIZZLE_FINAL, me);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+                me->setFaction(35);
+                me->GetMotionMaster()->MoveIdle();
+                me->RemoveAurasDueToSpell(SPELL_PERIODIC_DEPTH_CHARGE);
                 Reached = true;
             }
 
@@ -377,7 +377,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
         if (who->GetTypeId() == TYPEID_PLAYER && CAST_PLR(who)->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
-            DoScriptText(SAY_RIZZLE_START, m_creature);
+            DoScriptText(SAY_RIZZLE_START, me);
             DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
             return;
         }
@@ -392,7 +392,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
 
         if (id == 57)
         {
-            m_creature->ForcedDespawn();
+            me->ForcedDespawn();
             return;
         }
 
@@ -441,8 +441,8 @@ struct mob_depth_chargeAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         we_must_die = false;
         must_die_timer = 1000;
     }
@@ -452,7 +452,7 @@ struct mob_depth_chargeAI : public ScriptedAI
         if (we_must_die)
             if (must_die_timer <= diff)
             {
-                m_creature->ForcedDespawn();
+                me->ForcedDespawn();
             } else must_die_timer -= diff;
         return;
     }
@@ -462,7 +462,7 @@ struct mob_depth_chargeAI : public ScriptedAI
         if (!who)
             return;
 
-        if (who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 5))
+        if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 5))
         {
             DoCast(who, SPELL_DEPTH_CHARGE_TRAP);
             we_must_die = true;

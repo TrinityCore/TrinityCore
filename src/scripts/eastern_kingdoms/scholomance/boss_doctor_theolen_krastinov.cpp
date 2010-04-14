@@ -50,13 +50,13 @@ struct boss_theolenkrastinovAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        ScriptedInstance* pInstance = m_creature->GetInstanceData();
+        ScriptedInstance* pInstance = me->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_DOCTORTHEOLENKRASTINOV_DEATH, 0);
 
             if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                m_creature->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
         }
     }
 
@@ -68,7 +68,7 @@ struct boss_theolenkrastinovAI : public ScriptedAI
         //Rend_Timer
         if (m_uiRend_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_REND);
+            DoCast(me->getVictim(), SPELL_REND);
             m_uiRend_Timer = 10000;
         }
         else
@@ -77,19 +77,19 @@ struct boss_theolenkrastinovAI : public ScriptedAI
         //Backhand_Timer
         if (m_uiBackhand_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BACKHAND);
+            DoCast(me->getVictim(), SPELL_BACKHAND);
             m_uiBackhand_Timer = 10000;
         }
         else
             m_uiBackhand_Timer -= uiDiff;
 
         //Frenzy_Timer
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26)
+        if (me->GetHealth()*100 / me->GetMaxHealth() < 26)
         {
             if (m_uiFrenzy_Timer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_FRENZY);
-                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, m_creature);
+                DoCast(me, SPELL_FRENZY);
+                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
 
                 m_uiFrenzy_Timer = 120000;
             }

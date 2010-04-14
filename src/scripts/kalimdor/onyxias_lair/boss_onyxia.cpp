@@ -149,8 +149,8 @@ struct boss_onyxiaAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        m_creature->SetInCombatWithZone();
+        DoScriptText(SAY_AGGRO, me);
+        me->SetInCombatWithZone();
     }
 
     void JustSummoned(Creature *pSummoned)
@@ -163,7 +163,7 @@ struct boss_onyxiaAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void SpellHit(Unit *pCaster, const SpellEntry* pSpell)
@@ -177,8 +177,8 @@ struct boss_onyxiaAI : public ScriptedAI
         {
             if (m_pPointData)
             {
-                m_creature->GetMap()->CreatureRelocation(m_creature, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ, 0.0f);
-                m_creature->GetMotionMaster()->MovePoint(0, -10.6155, -219.357, -87.7344);
+                me->GetMap()->CreatureRelocation(me, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ, 0.0f);
+                me->GetMotionMaster()->MovePoint(0, -10.6155, -219.357, -87.7344);
 
             }
         }
@@ -218,7 +218,7 @@ struct boss_onyxiaAI : public ScriptedAI
         {
             if (m_uiFlameBreathTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
+                DoCast(me->getVictim(), SPELL_FLAMEBREATH);
                 m_uiFlameBreathTimer = urand(10000, 20000);
             }
             else
@@ -226,7 +226,7 @@ struct boss_onyxiaAI : public ScriptedAI
 
             if (m_uiTailSweepTimer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_TAILSWEEP);
+                DoCast(me, SPELL_TAILSWEEP);
                 m_uiTailSweepTimer = urand(15000, 20000);
             }
             else
@@ -234,7 +234,7 @@ struct boss_onyxiaAI : public ScriptedAI
 
             if (m_uiCleaveTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+                DoCast(me->getVictim(), SPELL_CLEAVE);
                 m_uiCleaveTimer = urand(2000, 5000);
             }
             else
@@ -242,7 +242,7 @@ struct boss_onyxiaAI : public ScriptedAI
 
             if (m_uiWingBuffetTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_WINGBUFFET);
+                DoCast(me->getVictim(), SPELL_WINGBUFFET);
                 m_uiWingBuffetTimer = urand(15000, 30000);
             }
             else
@@ -252,7 +252,7 @@ struct boss_onyxiaAI : public ScriptedAI
             {
                 if (m_uiBellowingRoarTimer <= uiDiff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
+                    DoCast(me->getVictim(), SPELL_BELLOWINGROAR);
                     m_uiBellowingRoarTimer = 30000;
                 }
                 else
@@ -260,19 +260,19 @@ struct boss_onyxiaAI : public ScriptedAI
             }
             else
             {
-                if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 60)
+                if (me->GetHealth()*100 / me->GetMaxHealth() < 60)
                 {
                     m_uiPhase = PHASE_BREATH;
 
                     SetCombatMovement(false);
 
-                    m_creature->GetMotionMaster()->Clear(false);
-                    m_creature->GetMotionMaster()->MoveIdle();
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveIdle();
 
-                    DoScriptText(SAY_PHASE_2_TRANS, m_creature);
+                    DoScriptText(SAY_PHASE_2_TRANS, me);
 
                     if (m_pPointData)
-                        m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+                        me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
 
                     SetNextRandomPoint();
                     return;
@@ -283,13 +283,13 @@ struct boss_onyxiaAI : public ScriptedAI
         }
         else
         {
-            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 40)
+            if (me->GetHealth()*100 / me->GetMaxHealth() < 40)
             {
                 m_uiPhase = PHASE_END;
-                DoScriptText(SAY_PHASE_3_TRANS, m_creature);
+                DoScriptText(SAY_PHASE_3_TRANS, me);
 
                 SetCombatMovement(true);
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                me->GetMotionMaster()->MoveChase(me->getVictim());
 
                 return;
             }
@@ -307,15 +307,15 @@ struct boss_onyxiaAI : public ScriptedAI
 
                 if (m_uiMovePoint == m_pPointData->uiLocIdEnd)
                 {
-                    if (m_creature->IsNonMeleeSpellCasted(false))
-                        m_creature->InterruptNonMeleeSpells(false);
+                    if (me->IsNonMeleeSpellCasted(false))
+                        me->InterruptNonMeleeSpells(false);
 
-                    DoScriptText(EMOTE_BREATH, m_creature);
-                    DoCast(m_creature, m_pPointData->uiSpellId);
+                    DoScriptText(EMOTE_BREATH, me);
+                    DoCast(me, m_pPointData->uiSpellId);
                 }
                 else
                 {
-                    m_creature->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
+                    me->GetMotionMaster()->MovePoint(m_pPointData->uiLocId, m_pPointData->fX, m_pPointData->fY, m_pPointData->fZ);
                 }
             }
             else
@@ -323,7 +323,7 @@ struct boss_onyxiaAI : public ScriptedAI
 
             if (m_uiEngulfingFlamesTimer <= uiDiff)
             {
-                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
+                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
                 {
                     if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_FIREBALL);
@@ -340,8 +340,8 @@ struct boss_onyxiaAI : public ScriptedAI
                 {
                     if (m_uiWhelpTimer <= uiDiff)
                     {
-                        m_creature->SummonCreature(NPC_WHELP, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                        m_creature->SummonCreature(NPC_WHELP, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                        me->SummonCreature(NPC_WHELP, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                        me->SummonCreature(NPC_WHELP, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                         m_uiWhelpTimer = 1000;
                     }
                     else
@@ -365,8 +365,8 @@ struct boss_onyxiaAI : public ScriptedAI
             {
                 if (m_uiLairGuardTimer <= uiDiff)
                 {
-                    m_creature->SummonCreature(NPC_LAIRGUARD, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
-                    m_creature->SummonCreature(NPC_LAIRGUARD, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    me->SummonCreature(NPC_LAIRGUARD, afSpawnLocations[0][0], afSpawnLocations[0][1], afSpawnLocations[0][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+                    me->SummonCreature(NPC_LAIRGUARD, afSpawnLocations[1][0], afSpawnLocations[1][1], afSpawnLocations[1][2], 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
                     m_uiLairGuardTimer = 30000;
                 }
                 else

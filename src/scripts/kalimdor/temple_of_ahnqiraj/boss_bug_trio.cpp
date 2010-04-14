@@ -71,7 +71,7 @@ struct boss_kriAI : public ScriptedAI
         {
             if (pInstance->GetData(DATA_BUG_TRIO_DEATH) < 2)
                                                             // Unlootable if death
-                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
             pInstance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
@@ -85,20 +85,20 @@ struct boss_kriAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 5000 + rand()%7000;
         } else Cleave_Timer -= diff;
 
         //ToxicVolley_Timer
         if (ToxicVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TOXIC_VOLLEY);
+            DoCast(me->getVictim(), SPELL_TOXIC_VOLLEY);
             ToxicVolley_Timer = 10000 + rand()%5000;
         } else ToxicVolley_Timer -= diff;
 
-        if (m_creature->GetHealth() <= m_creature->GetMaxHealth() * 0.05 && !Death)
+        if (me->GetHealth() <= me->GetMaxHealth() * 0.05 && !Death)
         {
-            DoCast(m_creature->getVictim(), SPELL_POISON_CLOUD);
+            DoCast(me->getVictim(), SPELL_POISON_CLOUD);
             Death = true;
         }
 
@@ -109,7 +109,7 @@ struct boss_kriAI : public ScriptedAI
             {
                 if (pInstance && pInstance->GetData(DATA_VEMISDEAD))
                 {
-                    DoCast(m_creature, SPELL_ENRAGE);
+                    DoCast(me, SPELL_ENRAGE);
                     VemDead = true;
                 }
                 Check_Timer = 2000;
@@ -151,7 +151,7 @@ struct boss_vemAI : public ScriptedAI
             pInstance->SetData(DATA_VEM_DEATH, 0);
             if (pInstance->GetData(DATA_BUG_TRIO_DEATH) < 2)
                                                             // Unlootable if death
-                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             pInstance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
     }
@@ -174,7 +174,7 @@ struct boss_vemAI : public ScriptedAI
             if (pTarget)
             {
                 DoCast(pTarget, SPELL_CHARGE);
-                //m_creature->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
+                //me->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
                 AttackStart(pTarget);
             }
 
@@ -184,16 +184,16 @@ struct boss_vemAI : public ScriptedAI
         //KnockBack_Timer
         if (KnockBack_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKBACK);
-            if (DoGetThreat(m_creature->getVictim()))
-                DoModifyThreatPercent(m_creature->getVictim(),-80);
+            DoCast(me->getVictim(), SPELL_KNOCKBACK);
+            if (DoGetThreat(me->getVictim()))
+                DoModifyThreatPercent(me->getVictim(),-80);
             KnockBack_Timer = 15000 + rand()%10000;
         } else KnockBack_Timer -= diff;
 
         //Enrage_Timer
         if (!Enraged && Enrage_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
             Enraged = true;
         } else Charge_Timer -= diff;
 
@@ -231,14 +231,14 @@ struct boss_yaujAI : public ScriptedAI
         {
             if (pInstance->GetData(DATA_BUG_TRIO_DEATH) < 2)
                                                             // Unlootable if death
-                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             pInstance->SetData(DATA_BUG_TRIO_DEATH, 1);
         }
 
         for (uint8 i = 0; i < 10; ++i)
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            Creature* Summoned = m_creature->SummonCreature(15621,m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,90000);
+            Creature* Summoned = me->SummonCreature(15621,me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(),0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,90000);
             if (Summoned && pTarget)
                 Summoned->AI()->AttackStart(pTarget);
         }
@@ -257,7 +257,7 @@ struct boss_yaujAI : public ScriptedAI
         //Fear_Timer
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FEAR);
+            DoCast(me->getVictim(), SPELL_FEAR);
             DoResetThreat();
             Fear_Timer = 20000;
         } else Fear_Timer -= diff;
@@ -267,8 +267,8 @@ struct boss_yaujAI : public ScriptedAI
         {
             if (pInstance)
             {
-                Unit *pKri = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_KRI));
-                Unit *pVem = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_VEM));
+                Unit *pKri = Unit::GetUnit((*me), pInstance->GetData64(DATA_KRI));
+                Unit *pVem = Unit::GetUnit((*me), pInstance->GetData64(DATA_VEM));
 
                 switch (urand(0,2))
                 {
@@ -281,7 +281,7 @@ struct boss_yaujAI : public ScriptedAI
                             DoCast(pVem, SPELL_HEAL);
                         break;
                     case 2:
-                        DoCast(m_creature, SPELL_HEAL);
+                        DoCast(me, SPELL_HEAL);
                         break;
                 }
             }
@@ -298,7 +298,7 @@ struct boss_yaujAI : public ScriptedAI
                 {
                     if (pInstance->GetData(DATA_VEMISDEAD))
                     {
-                        DoCast(m_creature, SPELL_ENRAGE);
+                        DoCast(me, SPELL_ENRAGE);
                         VemDead = true;
                     }
                 }

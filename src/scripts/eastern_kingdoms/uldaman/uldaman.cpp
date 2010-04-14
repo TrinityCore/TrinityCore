@@ -59,19 +59,19 @@ struct mob_jadespine_basiliskAI : public ScriptedAI
         if (Cslumber_Timer <= diff)
         {
             //Cast
-            // DoCast(m_creature->getVictim(), SPELL_CSLUMBER);
-            DoCast(m_creature->getVictim(), SPELL_CSLUMBER, true);
+            // DoCast(me->getVictim(), SPELL_CSLUMBER);
+            DoCast(me->getVictim(), SPELL_CSLUMBER, true);
 
             //Stop attacking target thast asleep and pick new target
             Cslumber_Timer = 28000;
 
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
-            if (!Target || Target == m_creature->getVictim())
+            if (!Target || Target == me->getVictim())
                 Target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
 
             if (Target)
-                m_creature->TauntApply(Target);
+                me->TauntApply(Target);
 
         } else Cslumber_Timer -= diff;
 

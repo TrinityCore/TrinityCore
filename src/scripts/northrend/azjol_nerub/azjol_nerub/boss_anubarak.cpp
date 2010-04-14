@@ -99,8 +99,8 @@ struct boss_anub_arakAI : public ScriptedAI
         uiPhaseTimer = 0;
         bChanneling = false;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveAura(SPELL_SUBMERGE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveAura(SPELL_SUBMERGE);
 
         lSummons.DespawnAll();
 
@@ -111,7 +111,7 @@ struct boss_anub_arakAI : public ScriptedAI
 
     void EnterCombat(Unit *pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
@@ -127,7 +127,7 @@ struct boss_anub_arakAI : public ScriptedAI
         if (bChanneling == true)
         {
             for (uint8 i = 0; i < 4; ++i)
-                DoCast(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
+                DoCast(me->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
             bChanneling = false;
         }
 
@@ -136,7 +136,7 @@ struct boss_anub_arakAI : public ScriptedAI
             if (uiImpaleTimer <= diff)
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_IMPALE,H_SPELL_IMPALE), true);
+                    me->CastSpell(pTarget, DUNGEON_MODE(SPELL_IMPALE,H_SPELL_IMPALE), true);
                 uiImpaleTimer = 9*IN_MILISECONDS;
             } else uiImpaleTimer -= diff;
 
@@ -144,9 +144,9 @@ struct boss_anub_arakAI : public ScriptedAI
             {
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    if (Creature *Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                    if (Creature *Guardian = me->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                     {
-                        Guardian->AddThreat(m_creature->getVictim(), 0.0f);
+                        Guardian->AddThreat(me->getVictim(), 0.0f);
                         DoZoneInCombat(Guardian);
                     }
                 }
@@ -161,9 +161,9 @@ struct boss_anub_arakAI : public ScriptedAI
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature *Venomancer = m_creature->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                            if (Creature *Venomancer = me->SummonCreature(CREATURE_VENOMANCER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                             {
-                                Venomancer->AddThreat(m_creature->getVictim(), 0.0f);
+                                Venomancer->AddThreat(me->getVictim(), 0.0f);
                                 DoZoneInCombat(Venomancer);
                             }
                         }
@@ -180,9 +180,9 @@ struct boss_anub_arakAI : public ScriptedAI
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
-                            if (Creature *Datter = m_creature->SummonCreature(CREATURE_DATTER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                            if (Creature *Datter = me->SummonCreature(CREATURE_DATTER,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                             {
-                                Datter->AddThreat(m_creature->getVictim(), 0.0f);
+                                Datter->AddThreat(me->getVictim(), 0.0f);
                                 DoZoneInCombat(Datter);
                             }
                         }
@@ -193,8 +193,8 @@ struct boss_anub_arakAI : public ScriptedAI
 
             if (uiUndergroundTimer <= diff)
             {
-                m_creature->RemoveAura(SPELL_SUBMERGE);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveAura(SPELL_SUBMERGE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 uiPhase = 0;
             } else uiUndergroundTimer -= diff;
         }
@@ -203,7 +203,7 @@ struct boss_anub_arakAI : public ScriptedAI
         {
             if (uiLeechingSwarmTimer <= diff)
             {
-                DoCast(m_creature, SPELL_LEECHING_SWARM, true);
+                DoCast(me, SPELL_LEECHING_SWARM, true);
                 uiLeechingSwarmTimer = 19*IN_MILISECONDS;
             } else uiLeechingSwarmTimer -= diff;
 
@@ -235,9 +235,9 @@ struct boss_anub_arakAI : public ScriptedAI
             uiVenomancerTimer = 25*IN_MILISECONDS;
             uiDatterTimer = 32*IN_MILISECONDS;
 
-            DoCast(m_creature, SPELL_SUBMERGE, false);
+            DoCast(me, SPELL_SUBMERGE, false);
 
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
             uiPhase = 1;
         }
@@ -248,7 +248,7 @@ struct boss_anub_arakAI : public ScriptedAI
 
     void JustDied(Unit *pKiller)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
@@ -256,10 +256,10 @@ struct boss_anub_arakAI : public ScriptedAI
 
     void KilledUnit(Unit *pVictim)
     {
-        if (pVictim == m_creature)
+        if (pVictim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void JustSummoned(Creature* summon)

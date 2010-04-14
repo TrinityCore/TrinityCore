@@ -60,12 +60,12 @@ struct boss_noxxionAI : public ScriptedAI
         if (Invisible && Invisible_Timer <= diff)
         {
             //Become visible again
-            m_creature->setFaction(14);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->setFaction(14);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             //Noxxion model
-            m_creature->SetDisplayId(11172);
+            me->SetDisplayId(11172);
             Invisible = false;
-            //m_creature->m_canMove = true;
+            //me->m_canMove = true;
         } else if (Invisible)
         {
             Invisible_Timer -= diff;
@@ -80,14 +80,14 @@ struct boss_noxxionAI : public ScriptedAI
         //ToxicVolley_Timer
         if (ToxicVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TOXICVOLLEY);
+            DoCast(me->getVictim(), SPELL_TOXICVOLLEY);
             ToxicVolley_Timer = 9000;
         } else ToxicVolley_Timer -= diff;
 
         //Uppercut_Timer
         if (Uppercut_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_UPPERCUT);
+            DoCast(me->getVictim(), SPELL_UPPERCUT);
             Uppercut_Timer = 12000;
         } else Uppercut_Timer -= diff;
 
@@ -95,17 +95,17 @@ struct boss_noxxionAI : public ScriptedAI
         if (!Invisible && Adds_Timer <= diff)
         {
             //Inturrupt any spell casting
-            //m_creature->m_canMove = true;
-            m_creature->InterruptNonMeleeSpells(false);
-            m_creature->setFaction(35);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            //me->m_canMove = true;
+            me->InterruptNonMeleeSpells(false);
+            me->setFaction(35);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             // Invisible Model
-            m_creature->SetDisplayId(11686);
-            SummonAdds(m_creature->getVictim());
-            SummonAdds(m_creature->getVictim());
-            SummonAdds(m_creature->getVictim());
-            SummonAdds(m_creature->getVictim());
-            SummonAdds(m_creature->getVictim());
+            me->SetDisplayId(11686);
+            SummonAdds(me->getVictim());
+            SummonAdds(me->getVictim());
+            SummonAdds(me->getVictim());
+            SummonAdds(me->getVictim());
+            SummonAdds(me->getVictim());
             Invisible = true;
             Invisible_Timer = 15000;
 

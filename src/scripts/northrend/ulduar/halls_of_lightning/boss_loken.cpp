@@ -95,7 +95,7 @@ struct boss_lokenAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         EncounterTime = 0;
 
@@ -105,14 +105,14 @@ struct boss_lokenAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (IsHeroic() && EncounterTime <= MAX_ENCOUNTER_TIME)
         {
             AchievementEntry const *AchievTimelyDeath = GetAchievementStore()->LookupEntry(ACHIEVEMENT_TIMELY_DEATH);
             if (AchievTimelyDeath)
             {
-                Map* pMap = m_creature->GetMap();
+                Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
@@ -128,7 +128,7 @@ struct boss_lokenAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -144,7 +144,7 @@ struct boss_lokenAI : public ScriptedAI
             // workaround for PULSING_SHOCKWAVE
             if (m_uiPulsingShockwave_Timer <= uiDiff)
             {
-                Map* pMap = m_creature->GetMap();
+                Map* pMap = me->GetMap();
                 if (pMap->IsDungeon())
                 {
                     Map::PlayerList const &PlayerList = pMap->GetPlayers();
@@ -156,13 +156,13 @@ struct boss_lokenAI : public ScriptedAI
                         if (i->getSource() && i->getSource()->isAlive() && i->getSource()->isTargetableForAttack())
                         {
                             int32 dmg;
-                            float m_fDist = m_creature->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
+                            float m_fDist = me->GetExactDist(i->getSource()->GetPositionX(), i->getSource()->GetPositionY(), i->getSource()->GetPositionZ());
 
                             dmg = DUNGEON_MODE(100, 150); // need to correct damage
                             if (m_fDist > 1.0f) // Further from 1 yard
                                 dmg *= m_fDist;
 
-                            m_creature->CastCustomSpell(i->getSource(), DUNGEON_MODE(52942, 59837), &dmg, 0, 0, false);
+                            me->CastCustomSpell(i->getSource(), DUNGEON_MODE(52942, 59837), &dmg, 0, 0, false);
                         }
                 }
                 m_uiPulsingShockwave_Timer = 2000;
@@ -173,9 +173,9 @@ struct boss_lokenAI : public ScriptedAI
             if (m_uiResumePulsingShockwave_Timer <= uiDiff)
             {
                 //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
-                DoCast(m_creature, SPELL_PULSING_SHOCKWAVE_AURA, true);
+                DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
-                DoCast(m_creature, SPELL_PULSING_SHOCKWAVE_N); // need core support
+                DoCast(me, SPELL_PULSING_SHOCKWAVE_N); // need core support
                 m_bIsAura = true;
                 m_uiResumePulsingShockwave_Timer = 0;
             }
@@ -195,9 +195,9 @@ struct boss_lokenAI : public ScriptedAI
 
         if (m_uiLightningNova_Timer <= uiDiff)
         {
-            DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), m_creature);
-            DoScriptText(EMOTE_NOVA, m_creature);
-            DoCast(m_creature, SPELL_LIGHTNING_NOVA_N);
+            DoScriptText(RAND(SAY_NOVA_1,SAY_NOVA_2,SAY_NOVA_3), me);
+            DoScriptText(EMOTE_NOVA, me);
+            DoCast(me, SPELL_LIGHTNING_NOVA_N);
 
             m_bIsAura = false;
             m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura
@@ -207,13 +207,13 @@ struct boss_lokenAI : public ScriptedAI
             m_uiLightningNova_Timer -= uiDiff;
 
         // Health check
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-(25*m_uiHealthAmountModifier)))
+        if ((me->GetHealth()*100 / me->GetMaxHealth()) < (100-(25*m_uiHealthAmountModifier)))
         {
             switch(m_uiHealthAmountModifier)
             {
-                case 1: DoScriptText(SAY_75HEALTH, m_creature); break;
-                case 2: DoScriptText(SAY_50HEALTH, m_creature); break;
-                case 3: DoScriptText(SAY_25HEALTH, m_creature); break;
+                case 1: DoScriptText(SAY_75HEALTH, me); break;
+                case 2: DoScriptText(SAY_50HEALTH, me); break;
+                case 3: DoScriptText(SAY_25HEALTH, me); break;
             }
 
             ++m_uiHealthAmountModifier;

@@ -159,15 +159,15 @@ struct npc_barnesAI : public npc_escortAI
         switch(i)
         {
             case 0:
-                DoCast(m_creature, SPELL_TUXEDO, false);
+                DoCast(me, SPELL_TUXEDO, false);
                 pInstance->DoUseDoorOrButton(pInstance->GetData64(DATA_GO_STAGEDOORLEFT));
                 break;
             case 4:
                 TalkCount = 0;
                 SetEscortPaused(true);
 
-                if (Creature* pSpotlight = m_creature->SummonCreature(CREATURE_SPOTLIGHT,
-                    m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0.0f,
+                if (Creature* pSpotlight = me->SummonCreature(CREATURE_SPOTLIGHT,
+                    me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
                     TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                 {
                     pSpotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -215,7 +215,7 @@ struct npc_barnesAI : public npc_escortAI
         }
 
         if (text)
-             DoScriptText(text, m_creature);
+             DoScriptText(text, me);
     }
 
     void PrepareEncounter()
@@ -245,7 +245,7 @@ struct npc_barnesAI : public npc_escortAI
             uint32 entry = ((uint32)Spawns[index][0]);
             float PosX = Spawns[index][1];
 
-            if (Creature* pCreature = m_creature->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+            if (Creature* pCreature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
             {
                 // In case database has bad flags
                 pCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -266,7 +266,7 @@ struct npc_barnesAI : public npc_escortAI
             {
                 if (TalkCount > 3)
                 {
-                    if (Creature* pSpotlight = Unit::GetCreature(*m_creature, m_uiSpotlightGUID))
+                    if (Creature* pSpotlight = Unit::GetCreature(*me, m_uiSpotlightGUID))
                         pSpotlight->ForcedDespawn();
 
                     SetEscortPaused(false);
@@ -284,7 +284,7 @@ struct npc_barnesAI : public npc_escortAI
             {
                 if (WipeTimer <= diff)
                 {
-                    Map* pMap = m_creature->GetMap();
+                    Map* pMap = me->GetMap();
                     if (!pMap->IsDungeon())
                         return;
 
@@ -468,13 +468,13 @@ struct npc_image_of_medivhAI : public ScriptedAI
 
         if (pInstance && pInstance->GetData64(DATA_IMAGE_OF_MEDIVH) == 0)
         {
-            pInstance->SetData64(DATA_IMAGE_OF_MEDIVH, m_creature->GetGUID());
-            (*m_creature).GetMotionMaster()->MovePoint(1,MedivPos[0],MedivPos[1],MedivPos[2]);
+            pInstance->SetData64(DATA_IMAGE_OF_MEDIVH, me->GetGUID());
+            (*me).GetMotionMaster()->MovePoint(1,MedivPos[0],MedivPos[1],MedivPos[2]);
             Step = 0;
         }else
         {
-            m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
+            me->DealDamage(me,me->GetHealth(),NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            me->RemoveCorpse();
         }
     }
     void EnterCombat(Unit* who){}
@@ -486,8 +486,8 @@ struct npc_image_of_medivhAI : public ScriptedAI
         if (id == 1)
         {
             StartEvent();
-            m_creature->SetOrientation(MedivPos[3]);
-            m_creature->SetOrientation(MedivPos[3]);
+            me->SetOrientation(MedivPos[3]);
+            me->SetOrientation(MedivPos[3]);
         }
     }
 
@@ -495,40 +495,40 @@ struct npc_image_of_medivhAI : public ScriptedAI
     {
         Step = 1;
         EventStarted = true;
-        Creature* Arcanagos = m_creature->SummonCreature(MOB_ARCANAGOS,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
+        Creature* Arcanagos = me->SummonCreature(MOB_ARCANAGOS,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,20000);
         if (!Arcanagos)
             return;
         ArcanagosGUID = Arcanagos->GetGUID();
         Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         (*Arcanagos).GetMotionMaster()->MovePoint(0,ArcanagosPos[0],ArcanagosPos[1],ArcanagosPos[2]);
         Arcanagos->SetOrientation(ArcanagosPos[3]);
-        m_creature->SetOrientation(MedivPos[3]);
+        me->SetOrientation(MedivPos[3]);
         YellTimer = 10000;
     }
 
     uint32 NextStep(uint32 Step)
     {
-        Unit* arca = Unit::GetUnit((*m_creature),ArcanagosGUID);
-        Map* pMap = m_creature->GetMap();
+        Unit* arca = Unit::GetUnit((*me),ArcanagosGUID);
+        Map* pMap = me->GetMap();
         switch(Step)
         {
         case 0: return 9999999;
         case 1:
-            m_creature->MonsterYell(SAY_DIALOG_MEDIVH_1,LANG_UNIVERSAL,NULL);
+            me->MonsterYell(SAY_DIALOG_MEDIVH_1,LANG_UNIVERSAL,NULL);
             return 10000;
         case 2:
             if (arca)
                 CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_2,LANG_UNIVERSAL,NULL);
             return 20000;
         case 3:
-            m_creature->MonsterYell(SAY_DIALOG_MEDIVH_3,LANG_UNIVERSAL,NULL);
+            me->MonsterYell(SAY_DIALOG_MEDIVH_3,LANG_UNIVERSAL,NULL);
             return 10000;
         case 4:
             if (arca)
                 CAST_CRE(arca)->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, NULL);
             return 20000;
         case 5:
-            m_creature->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, NULL);
+            me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, NULL);
             return 20000;
         case 6:
             if (arca)
@@ -539,10 +539,10 @@ struct npc_image_of_medivhAI : public ScriptedAI
             return 5000;
         case 8:
             FireMedivhTimer = 500;
-            DoCast(m_creature, SPELL_MANA_SHIELD);
+            DoCast(me, SPELL_MANA_SHIELD);
             return 10000;
         case 9:
-            m_creature->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
+            me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
             return 10000;
         case 10:
             if (arca)
@@ -559,11 +559,11 @@ struct npc_image_of_medivhAI : public ScriptedAI
             arca->SetSpeed(MOVE_FLIGHT, 2.0f);
             return 10000;
         case 13:
-            m_creature->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, NULL);
+            me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, NULL);
             return 10000;
         case 14:
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->ClearInCombat();
+            me->SetVisibility(VISIBILITY_OFF);
+            me->ClearInCombat();
 
             if (pMap->IsDungeon())
             {
@@ -597,12 +597,12 @@ struct npc_image_of_medivhAI : public ScriptedAI
 
         if (Step >= 7 && Step <= 12)
         {
-            Unit* arca = Unit::GetUnit((*m_creature),ArcanagosGUID);
+            Unit* arca = Unit::GetUnit((*me),ArcanagosGUID);
 
             if (FireArcanagosTimer <= diff)
             {
                 if (arca)
-                    arca->CastSpell(m_creature, SPELL_FIRE_BALL, false);
+                    arca->CastSpell(me, SPELL_FIRE_BALL, false);
                 FireArcanagosTimer = 6000;
             } else FireArcanagosTimer -= diff;
 

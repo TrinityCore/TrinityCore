@@ -81,29 +81,29 @@ struct boss_skeramAI : public ScriptedAI
         Images25 = false;
         Invisible = false;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetVisibility(VISIBILITY_ON);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetVisibility(VISIBILITY_ON);
 
         if (IsImage)
-            m_creature->setDeathState(JUST_DIED);
+            me->setDeathState(JUST_DIED);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
     void JustDied(Unit* Killer)
     {
         if (!IsImage)
-            DoScriptText(SAY_DEATH, m_creature);
+            DoScriptText(SAY_DEATH, me);
     }
 
     void EnterCombat(Unit *who)
     {
         if (IsImage || Images75)
             return;
-        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -115,25 +115,25 @@ struct boss_skeramAI : public ScriptedAI
         //ArcaneExplosion_Timer
         if (ArcaneExplosion_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANE_EXPLOSION);
+            DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
             ArcaneExplosion_Timer = 8000 + rand()%10000;
         } else ArcaneExplosion_Timer -= diff;
 
         //If we are within range melee the target
-        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (me->IsWithinMeleeRange(me->getVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
-            if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
+            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
             {
-                m_creature->AttackerStateUpdate(m_creature->getVictim());
-                m_creature->resetAttackTimer();
+                me->AttackerStateUpdate(me->getVictim());
+                me->resetAttackTimer();
             }
         }else
         {
             //EarthShock_Timer
             if (EarthShock_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_EARTH_SHOCK);
+                DoCast(me->getVictim(), SPELL_EARTH_SHOCK);
                 EarthShock_Timer = 1000;
             } else EarthShock_Timer -= diff;
         }
@@ -141,19 +141,19 @@ struct boss_skeramAI : public ScriptedAI
         //Blink_Timer
         if (Blink_Timer <= diff)
         {
-            //DoCast(m_creature, SPELL_BLINK);
+            //DoCast(me, SPELL_BLINK);
             switch (urand(0,2))
             {
                 case 0:
-                    m_creature->GetMap()->CreatureRelocation(m_creature, -8340.782227,2083.814453,125.648788,0.0f);
+                    me->GetMap()->CreatureRelocation(me, -8340.782227,2083.814453,125.648788,0.0f);
                     DoResetThreat();
                     break;
                 case 1:
-                    m_creature->GetMap()->CreatureRelocation(m_creature, -8341.546875,2118.504639,133.058151,0.0f);
+                    me->GetMap()->CreatureRelocation(me, -8341.546875,2118.504639,133.058151,0.0f);
                     DoResetThreat();
                     break;
                 case 2:
-                    m_creature->GetMap()->CreatureRelocation(m_creature, -8318.822266,2058.231201,133.058151,0.0f);
+                    me->GetMap()->CreatureRelocation(me, -8318.822266,2058.231201,133.058151,0.0f);
                     DoResetThreat();
                     break;
             }
@@ -162,7 +162,7 @@ struct boss_skeramAI : public ScriptedAI
             Blink_Timer= 20000 + rand()%20000;
         } else Blink_Timer -= diff;
 
-        int procent = (int) (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() +0.5);
+        int procent = (int) (me->GetHealth()*100 / me->GetMaxHealth() +0.5);
 
         //Summoning 2 Images and teleporting to a random position on 75% health
         if ((!Images75 && !IsImage) && (procent <= 75 && procent > 70))
@@ -183,8 +183,8 @@ struct boss_skeramAI : public ScriptedAI
             if (Invisible_Timer <= diff)
             {
                 //Making Skeram visible after telporting
-                m_creature->SetVisibility(VISIBILITY_ON);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetVisibility(VISIBILITY_ON);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
                 Invisible_Timer = 2500;
                 Invisible = false;
@@ -196,7 +196,7 @@ struct boss_skeramAI : public ScriptedAI
 
     void DoSplit(int atPercent /* 75 50 25 */)
     {
-        DoScriptText(SAY_SPLIT, m_creature);
+        DoScriptText(SAY_SPLIT, me);
 
         ov_mycoordinates *place1 = new ov_mycoordinates(-8340.782227,2083.814453,125.648788,0);
         ov_mycoordinates *place2 = new ov_mycoordinates(-8341.546875,2118.504639,133.058151,0);
@@ -230,7 +230,7 @@ struct boss_skeramAI : public ScriptedAI
                 if (Group *pGrp = pTarget->GetGroup())
                     for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                     {
-                        //if (grp->m_targetIcons[ico] == m_creature->GetGUID()) -- private member :(
+                        //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(
                         pGrp->SetTargetIcon(ico, 0, 0);
                     }
 
@@ -238,10 +238,10 @@ struct boss_skeramAI : public ScriptedAI
             }
         }
 
-        m_creature->RemoveAllAuras();
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetVisibility(VISIBILITY_OFF);
-        m_creature->GetMap()->CreatureRelocation(m_creature, bossc->x, bossc->y, bossc->z, bossc->r);
+        me->RemoveAllAuras();
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetVisibility(VISIBILITY_OFF);
+        me->GetMap()->CreatureRelocation(me, bossc->x, bossc->y, bossc->z, bossc->r);
         Invisible = true;
         delete place1;
         delete place2;
@@ -258,21 +258,21 @@ struct boss_skeramAI : public ScriptedAI
 
         Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
 
-        Creature *Image1 = m_creature->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
+        Creature *Image1 = me->SummonCreature(15263, i1->x, i1->y, i1->z, i1->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image1)
         {
-            Image1->SetMaxHealth(m_creature->GetMaxHealth() / 5);
-            Image1->SetHealth(m_creature->GetHealth() / 5);
+            Image1->SetMaxHealth(me->GetMaxHealth() / 5);
+            Image1->SetHealth(me->GetHealth() / 5);
             if (pTarget)
                 Image1->AI()->AttackStart(pTarget);
             CAST_AI(boss_skeramAI, Image1->AI())->IsImage = true;
         }
 
-        Creature *Image2 = m_creature->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
+        Creature *Image2 = me->SummonCreature(15263,i2->x, i2->y, i2->z, i2->r, TEMPSUMMON_CORPSE_DESPAWN, 30000);
         if (Image2)
         {
-            Image2->SetMaxHealth(m_creature->GetMaxHealth() / 5);
-            Image2->SetHealth(m_creature->GetHealth() / 5);
+            Image2->SetMaxHealth(me->GetMaxHealth() / 5);
+            Image2->SetHealth(me->GetHealth() / 5);
             if (pTarget)
                 Image2->AI()->AttackStart(pTarget);
             CAST_AI(boss_skeramAI, Image2->AI())->IsImage = true;

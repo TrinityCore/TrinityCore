@@ -57,14 +57,14 @@ struct mob_shattered_rumblerAI : public ScriptedAI
     {
         if (Spellkind->Id == 32001 && !Spawn)
         {
-            float x = m_creature->GetPositionX();
-            float y = m_creature->GetPositionY();
-            float z = m_creature->GetPositionZ();
+            float x = me->GetPositionX();
+            float y = me->GetPositionY();
+            float z = me->GetPositionZ();
 
             Hitter->SummonCreature(18181,x+(0.7 * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
             Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
             Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5 *(rand()%60)),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-            m_creature->setDeathState(CORPSE);
+            me->setDeathState(CORPSE);
             Spawn = true;
         }
         return;
@@ -108,15 +108,15 @@ struct mob_lumpAI : public ScriptedAI
         Reset_Timer = 60000;
         Spear_Throw_Timer = 2000;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (m_creature->getVictim())
+        if (me->getVictim())
             return;
 
-        if (m_creature->IsFriendlyTo(pAttacker))
+        if (me->IsFriendlyTo(pAttacker))
             return;
 
         AttackStart(pAttacker);
@@ -124,7 +124,7 @@ struct mob_lumpAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 & damage)
     {
-        if (done_by->GetTypeId() == TYPEID_PLAYER && (m_creature->GetHealth() - damage)*100 / m_creature->GetMaxHealth() < 30)
+        if (done_by->GetTypeId() == TYPEID_PLAYER && (me->GetHealth() - damage)*100 / me->GetMaxHealth() < 30)
         {
             if (!bReset && CAST_PLR(done_by)->GetQuestStatus(9918) == QUEST_STATUS_INCOMPLETE)
             {
@@ -132,13 +132,13 @@ struct mob_lumpAI : public ScriptedAI
                 damage = 0;
 
                 CAST_PLR(done_by)->AttackStop();
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                m_creature->RemoveAllAuras();
-                m_creature->DeleteThreatList();
-                m_creature->CombatStop(true);
-                m_creature->setFaction(1080);               //friendly
-                m_creature->SetStandState(UNIT_STAND_STATE_SIT);
-                DoScriptText(LUMP_DEFEAT, m_creature);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveAllAuras();
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                me->setFaction(1080);               //friendly
+                me->SetStandState(UNIT_STAND_STATE_SIT);
+                DoScriptText(LUMP_DEFEAT, me);
 
                 bReset = true;
             }
@@ -147,13 +147,13 @@ struct mob_lumpAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if (m_creature->HasAura(SPELL_VISUAL_SLEEP))
-            m_creature->RemoveAura(SPELL_VISUAL_SLEEP);
+        if (me->HasAura(SPELL_VISUAL_SLEEP))
+            me->RemoveAura(SPELL_VISUAL_SLEEP);
 
-        if (!m_creature->IsStandState())
-             m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        if (!me->IsStandState())
+             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-        DoScriptText(RAND(LUMP_SAY0,LUMP_SAY1), m_creature);
+        DoScriptText(RAND(LUMP_SAY0,LUMP_SAY1), me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -165,7 +165,7 @@ struct mob_lumpAI : public ScriptedAI
             {
                 EnterEvadeMode();
                 bReset = false;
-                m_creature->setFaction(1711);               //hostile
+                me->setFaction(1711);               //hostile
                 return;
             }
             else Reset_Timer -= diff;
@@ -178,7 +178,7 @@ struct mob_lumpAI : public ScriptedAI
         //Spear_Throw_Timer
         if (Spear_Throw_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SPEAR_THROW);
+            DoCast(me->getVictim(), SPELL_SPEAR_THROW);
             Spear_Throw_Timer = 20000;
         } else Spear_Throw_Timer -= diff;
 
@@ -235,8 +235,8 @@ struct mob_sunspring_villagerAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+        me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
     void EnterCombat(Unit *who) {}
@@ -245,8 +245,8 @@ struct mob_sunspring_villagerAI : public ScriptedAI
     {
         if (spell->Id == 32146)
         {
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            m_creature->RemoveCorpse();
+            me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            me->RemoveCorpse();
         }
     }
 };
@@ -566,7 +566,7 @@ struct npc_maghar_captiveAI : public npc_escortAI
 
     void Aggro(Unit* pWho)
     {
-        DoCast(m_creature, SPELL_EARTHBIND_TOTEM, false);
+        DoCast(me, SPELL_EARTHBIND_TOTEM, false);
     }
 
     void WaypointReached(uint32 uiPointId)
@@ -574,21 +574,21 @@ struct npc_maghar_captiveAI : public npc_escortAI
         switch(uiPointId)
         {
             case 7:
-                DoScriptText(SAY_MAG_MORE, m_creature);
+                DoScriptText(SAY_MAG_MORE, me);
 
-                if (Creature* pTemp = m_creature->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                if (Creature* pTemp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
                     DoScriptText(SAY_MAG_MORE_REPLY, pTemp);
 
-                m_creature->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 
-                m_creature->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]+2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_MURK_SCAVENGER, m_afAmbushB[0]+2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 break;
             case 16:
-                DoScriptText(SAY_MAG_COMPLETE, m_creature);
+                DoScriptText(SAY_MAG_COMPLETE, me);
 
                 if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_TOTEM_KARDASH_H, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_TOTEM_KARDASH_H, me);
 
                 SetRun();
                 break;
@@ -604,8 +604,8 @@ struct npc_maghar_captiveAI : public npc_escortAI
             return;
 
         pSummoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-        pSummoned->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
-        pSummoned->AI()->AttackStart(m_creature);
+        pSummoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+        pSummoned->AI()->AttackStart(me);
 
     }
 
@@ -616,28 +616,28 @@ struct npc_maghar_captiveAI : public npc_escortAI
             if (rand()%10)
                 return;
 
-            DoScriptText(SAY_MAG_LIGHTNING, m_creature);
+            DoScriptText(SAY_MAG_LIGHTNING, me);
         }
     }
 
     void UpdateEscortAI(const uint32 uiDiff)
     {
-        if (/*!m_creature->SelectHostilTarget() ||*/ !m_creature->getVictim())
+        if (/*!me->SelectHostilTarget() ||*/ !me->getVictim())
             return;
 
         if (m_uiChainLightningTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
+            DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
             m_uiChainLightningTimer = urand(7000, 14000);
         }
         else
             m_uiChainLightningTimer -= uiDiff;
 
-        if (m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*30)
+        if (me->GetHealth()*100 < me->GetMaxHealth()*30)
         {
             if (m_uiHealTimer <= uiDiff)
             {
-                DoCast(m_creature, SPELL_HEALING_WAVE);
+                DoCast(me, SPELL_HEALING_WAVE);
                 m_uiHealTimer = 5000;
             }
             else
@@ -646,7 +646,7 @@ struct npc_maghar_captiveAI : public npc_escortAI
 
         if (m_uiFrostShockTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROST_SHOCK);
+            DoCast(me->getVictim(), SPELL_FROST_SHOCK);
             m_uiFrostShockTimer = urand(7500, 15000);
         }
         else
@@ -703,12 +703,12 @@ struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
         {
             if (CAST_PLR(who)->GetQuestStatus(10085) == QUEST_STATUS_INCOMPLETE)
             {
-                uint32 creditMarkerId = m_creature->GetEntry();
+                uint32 creditMarkerId = me->GetEntry();
                 if ((creditMarkerId >= 18840) && (creditMarkerId <= 18843))
                 {
                     // 18840: Sunspring, 18841: Laughing, 18842: Garadar, 18843: Bleeding
                     if (!CAST_PLR(who)->GetReqKillOrCastCurrentCount(10085, creditMarkerId))
-                        CAST_PLR(who)->KilledMonsterCredit(creditMarkerId, m_creature->GetGUID());
+                        CAST_PLR(who)->KilledMonsterCredit(creditMarkerId, me->GetGUID());
                 }
             }
         }
@@ -738,7 +738,7 @@ struct mob_sparrowhawkAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->RemoveAurasDueToSpell(SPELL_SPARROWHAWK_NET);
+        me->RemoveAurasDueToSpell(SPELL_SPARROWHAWK_NET);
         Check_Timer = 1000;
         PlayerGUID = 0;
         fleeing = false;
@@ -758,7 +758,7 @@ struct mob_sparrowhawkAI : public ScriptedAI
         if (!who || PlayerGUID)
             return;
 
-        if (!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 30) && CAST_PLR(who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
+        if (!PlayerGUID && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 30) && CAST_PLR(who)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
             return;
@@ -773,22 +773,22 @@ struct mob_sparrowhawkAI : public ScriptedAI
         {
             if (PlayerGUID)
             {
-                if (fleeing && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
+                if (fleeing && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
                     fleeing = false;
 
                 Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-                if (pPlayer && m_creature->IsWithinDistInMap(pPlayer, 30))
+                if (pPlayer && me->IsWithinDistInMap(pPlayer, 30))
                 {
                     if (!fleeing)
                     {
-                        m_creature->DeleteThreatList();
-                        m_creature->GetMotionMaster()->MoveFleeing(pPlayer);
+                        me->DeleteThreatList();
+                        me->GetMotionMaster()->MoveFleeing(pPlayer);
                         fleeing = true;
                     }
                 }
                 else if (fleeing)
                 {
-                    m_creature->GetMotionMaster()->MovementExpired(false);
+                    me->GetMotionMaster()->MovementExpired(false);
                     PlayerGUID = 0;
                     fleeing = false;
                 }
@@ -809,8 +809,8 @@ struct mob_sparrowhawkAI : public ScriptedAI
             if (spell->Id == SPELL_SPARROWHAWK_NET && CAST_PLR(caster)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
             {
                 DoCast(caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             }
         }
         return;

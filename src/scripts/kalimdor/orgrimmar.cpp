@@ -114,7 +114,7 @@ struct npc_shenthulAI : public ScriptedAI
         {
             if (Salute_Timer <= diff)
             {
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
                 CanEmote = true;
                 Reset_Timer = 60000;
             } else Salute_Timer -= diff;
@@ -194,13 +194,13 @@ struct npc_thrall_warchiefAI : public ScriptedAI
 
         if (ChainLightning_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
+            DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
             ChainLightning_Timer = 9000;
         } else ChainLightning_Timer -= diff;
 
         if (Shock_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHOCK);
+            DoCast(me->getVictim(), SPELL_SHOCK);
             Shock_Timer = 15000;
         } else Shock_Timer -= diff;
 

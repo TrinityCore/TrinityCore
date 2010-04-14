@@ -67,25 +67,25 @@ struct npc_torekAI : public npc_escortAI
         switch (i)
         {
         case 1:
-            DoScriptText(SAY_MOVE, m_creature, pPlayer);
+            DoScriptText(SAY_MOVE, me, pPlayer);
             break;
         case 8:
-            DoScriptText(SAY_PREPARE, m_creature, pPlayer);
+            DoScriptText(SAY_PREPARE, me, pPlayer);
             break;
         case 19:
             //TODO: verify location and creatures amount.
-            m_creature->SummonCreature(ENTRY_DURIEL,1776.73,-2049.06,109.83,1.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,25000);
-            m_creature->SummonCreature(ENTRY_SILVERWING_SENTINEL,1774.64,-2049.41,109.83,1.40,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,25000);
-            m_creature->SummonCreature(ENTRY_SILVERWING_WARRIOR,1778.73,-2049.50,109.83,1.67,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,25000);
+            me->SummonCreature(ENTRY_DURIEL,1776.73,-2049.06,109.83,1.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,25000);
+            me->SummonCreature(ENTRY_SILVERWING_SENTINEL,1774.64,-2049.41,109.83,1.40,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,25000);
+            me->SummonCreature(ENTRY_SILVERWING_WARRIOR,1778.73,-2049.50,109.83,1.67,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,25000);
             break;
         case 20:
-            DoScriptText(SAY_WIN, m_creature, pPlayer);
+            DoScriptText(SAY_WIN, me, pPlayer);
             Completed = true;
             if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_TOREK_ASSULT, m_creature);
+                pPlayer->GroupEventHappens(QUEST_TOREK_ASSULT, me);
             break;
         case 21:
-            DoScriptText(SAY_END, m_creature, pPlayer);
+            DoScriptText(SAY_END, me, pPlayer);
             break;
         }
     }
@@ -103,7 +103,7 @@ struct npc_torekAI : public npc_escortAI
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -115,13 +115,13 @@ struct npc_torekAI : public npc_escortAI
 
         if (Rend_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_REND);
+            DoCast(me->getVictim(), SPELL_REND);
             Rend_Timer = 20000;
         } else Rend_Timer -= diff;
 
         if (Thunderclap_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_THUNDERCLAP);
+            DoCast(me, SPELL_THUNDERCLAP);
             Thunderclap_Timer = 30000;
         } else Thunderclap_Timer -= diff;
     }
@@ -168,25 +168,25 @@ struct npc_ruul_snowhoofAI : public npc_escortAI
         switch(i)
         {
         case 0:    {
-                m_creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-                GameObject* Cage = m_creature->FindNearestGameObject(GO_CAGE, 20);
+                me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
+                GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
                 if (Cage)
                     Cage->SetGoState(GO_STATE_ACTIVE);
                 break;}
         case 13:
-                m_creature->SummonCreature(3922, 3449.218018, -587.825073, 174.978867, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                m_creature->SummonCreature(3921, 3446.384521, -587.830872, 175.186279, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                m_creature->SummonCreature(3926, 3444.218994, -587.835327, 175.380600, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                me->SummonCreature(3922, 3449.218018, -587.825073, 174.978867, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                me->SummonCreature(3921, 3446.384521, -587.830872, 175.186279, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                me->SummonCreature(3926, 3444.218994, -587.835327, 175.380600, 4.714445, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 break;
         case 19:
-                m_creature->SummonCreature(3922, 3508.344482, -492.024261, 186.929031, 4.145029, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                m_creature->SummonCreature(3921, 3506.265625, -490.531006, 186.740128, 4.239277, TEMPSUMMON_DEAD_DESPAWN, 60000);
-                m_creature->SummonCreature(3926, 3503.682373, -489.393799, 186.629684, 4.349232, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                me->SummonCreature(3922, 3508.344482, -492.024261, 186.929031, 4.145029, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                me->SummonCreature(3921, 3506.265625, -490.531006, 186.740128, 4.239277, TEMPSUMMON_DEAD_DESPAWN, 60000);
+                me->SummonCreature(3926, 3503.682373, -489.393799, 186.629684, 4.349232, TEMPSUMMON_DEAD_DESPAWN, 60000);
                 break;
 
         case 21:{
                 if (pPlayer)
-                    pPlayer->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
 
                 break;  }
         }
@@ -196,14 +196,14 @@ struct npc_ruul_snowhoofAI : public npc_escortAI
 
     void Reset()
     {
-        GameObject* Cage = m_creature->FindNearestGameObject(GO_CAGE, 20);
+        GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
         if (Cage)
             Cage->SetGoState(GO_STATE_READY);
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 
     void UpdateAI(const uint32 diff)

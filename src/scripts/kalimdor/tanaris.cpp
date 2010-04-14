@@ -59,7 +59,7 @@ struct mob_aquementasAI : public ScriptedAI
     {
         SendItem_Timer = 0;
         SwitchFaction_Timer = 10000;
-        m_creature->setFaction(35);
+        me->setFaction(35);
         isFriendly = true;
 
         AquaJet_Timer = 5000;
@@ -82,7 +82,7 @@ struct mob_aquementasAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(AGGRO_YELL_AQUE, m_creature, who);
+        DoScriptText(AGGRO_YELL_AQUE, me, who);
     }
 
     void UpdateAI(const uint32 diff)
@@ -91,7 +91,7 @@ struct mob_aquementasAI : public ScriptedAI
         {
             if (SwitchFaction_Timer <= diff)
             {
-                m_creature->setFaction(91);
+                me->setFaction(91);
                 isFriendly = false;
             } else SwitchFaction_Timer -= diff;
         }
@@ -103,21 +103,21 @@ struct mob_aquementasAI : public ScriptedAI
         {
             if (SendItem_Timer <= diff)
             {
-                if (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
-                    SendItem(m_creature->getVictim());
+                if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
+                    SendItem(me->getVictim());
                 SendItem_Timer = 5000;
             } else SendItem_Timer -= diff;
         }
 
         if (FrostShock_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROST_SHOCK);
+            DoCast(me->getVictim(), SPELL_FROST_SHOCK);
             FrostShock_Timer = 15000;
         } else FrostShock_Timer -= diff;
 
         if (AquaJet_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_AQUA_JET);
+            DoCast(me, SPELL_AQUA_JET);
             AquaJet_Timer = 15000;
         } else AquaJet_Timer -= diff;
 
@@ -160,25 +160,25 @@ struct npc_custodian_of_timeAI : public npc_escortAI
 
         switch(i)
         {
-            case 0: DoScriptText(WHISPER_CUSTODIAN_1, m_creature, pPlayer); break;
-            case 1: DoScriptText(WHISPER_CUSTODIAN_2, m_creature, pPlayer); break;
-            case 2: DoScriptText(WHISPER_CUSTODIAN_3, m_creature, pPlayer); break;
-            case 3: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
-            case 5: DoScriptText(WHISPER_CUSTODIAN_5, m_creature, pPlayer); break;
-            case 6: DoScriptText(WHISPER_CUSTODIAN_6, m_creature, pPlayer); break;
-            case 7: DoScriptText(WHISPER_CUSTODIAN_7, m_creature, pPlayer); break;
-            case 8: DoScriptText(WHISPER_CUSTODIAN_8, m_creature, pPlayer); break;
-            case 9: DoScriptText(WHISPER_CUSTODIAN_9, m_creature, pPlayer); break;
-            case 10: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
-            case 13: DoScriptText(WHISPER_CUSTODIAN_10, m_creature, pPlayer); break;
-            case 14: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
-            case 16: DoScriptText(WHISPER_CUSTODIAN_11, m_creature, pPlayer); break;
-            case 17: DoScriptText(WHISPER_CUSTODIAN_12, m_creature, pPlayer); break;
-            case 18: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
-            case 22: DoScriptText(WHISPER_CUSTODIAN_13, m_creature, pPlayer); break;
-            case 23: DoScriptText(WHISPER_CUSTODIAN_4, m_creature, pPlayer); break;
+            case 0: DoScriptText(WHISPER_CUSTODIAN_1, me, pPlayer); break;
+            case 1: DoScriptText(WHISPER_CUSTODIAN_2, me, pPlayer); break;
+            case 2: DoScriptText(WHISPER_CUSTODIAN_3, me, pPlayer); break;
+            case 3: DoScriptText(WHISPER_CUSTODIAN_4, me, pPlayer); break;
+            case 5: DoScriptText(WHISPER_CUSTODIAN_5, me, pPlayer); break;
+            case 6: DoScriptText(WHISPER_CUSTODIAN_6, me, pPlayer); break;
+            case 7: DoScriptText(WHISPER_CUSTODIAN_7, me, pPlayer); break;
+            case 8: DoScriptText(WHISPER_CUSTODIAN_8, me, pPlayer); break;
+            case 9: DoScriptText(WHISPER_CUSTODIAN_9, me, pPlayer); break;
+            case 10: DoScriptText(WHISPER_CUSTODIAN_4, me, pPlayer); break;
+            case 13: DoScriptText(WHISPER_CUSTODIAN_10, me, pPlayer); break;
+            case 14: DoScriptText(WHISPER_CUSTODIAN_4, me, pPlayer); break;
+            case 16: DoScriptText(WHISPER_CUSTODIAN_11, me, pPlayer); break;
+            case 17: DoScriptText(WHISPER_CUSTODIAN_12, me, pPlayer); break;
+            case 18: DoScriptText(WHISPER_CUSTODIAN_4, me, pPlayer); break;
+            case 22: DoScriptText(WHISPER_CUSTODIAN_13, me, pPlayer); break;
+            case 23: DoScriptText(WHISPER_CUSTODIAN_4, me, pPlayer); break;
             case 24:
-                DoScriptText(WHISPER_CUSTODIAN_14, m_creature, pPlayer);
+                DoScriptText(WHISPER_CUSTODIAN_14, me, pPlayer);
                 DoCast(pPlayer, 34883);
                 // below here is temporary workaround, to be removed when spell works properly
                 pPlayer->AreaExploredOrEventHappens(10277);
@@ -196,7 +196,7 @@ struct npc_custodian_of_timeAI : public npc_escortAI
             if (who->HasAura(34877) && CAST_PLR(who)->GetQuestStatus(10277) == QUEST_STATUS_INCOMPLETE)
             {
                 float Radius = 10.0;
-                if (m_creature->IsWithinDistInMap(who, Radius))
+                if (me->IsWithinDistInMap(who, Radius))
                 {
                     Start(false, false, who->GetGUID());
                 }
@@ -370,17 +370,17 @@ struct npc_OOX17AI : public npc_escortAI
 
         switch(i) {
             case 23:
-                m_creature->SummonCreature(SPAWN_FIRST, -8350.96, -4445.79, 10.10, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_FIRST, -8355.96, -4447.79, 10.10, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_FIRST, -8353.96, -4442.79, 10.10, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
+                me->SummonCreature(SPAWN_FIRST, -8350.96, -4445.79, 10.10, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, -8355.96, -4447.79, 10.10, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, -8353.96, -4442.79, 10.10, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                DoScriptText(SAY_OOX_AMBUSH, me);
                 break;
 
             case 56:
-                m_creature->SummonCreature(SPAWN_SECOND_1, -7510.07, -4795.50, 9.35, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_SECOND_2, -7515.07, -4797.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
+                me->SummonCreature(SPAWN_SECOND_1, -7510.07, -4795.50, 9.35, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_SECOND_2, -7515.07, -4797.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_SECOND_2, -7518.07, -4792.50, 9.35, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                DoScriptText(SAY_OOX_AMBUSH, me);
                 if (Unit* scoff = me->FindNearestCreature(SPAWN_SECOND_2, 30))
                     DoScriptText(SAY_OOX17_AMBUSH_REPLY, scoff);
                 break;
@@ -388,8 +388,8 @@ struct npc_OOX17AI : public npc_escortAI
             case 86:
                 if (pPlayer)
                 {
-                    DoScriptText(SAY_OOX_END, m_creature);
-                    pPlayer->GroupEventHappens(Q_OOX17, m_creature);
+                    DoScriptText(SAY_OOX_END, me);
+                    pPlayer->GroupEventHappens(Q_OOX17, me);
                 }
                 break;
         }
@@ -399,12 +399,12 @@ struct npc_OOX17AI : public npc_escortAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), m_creature);
+        DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), me);
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 };
 
@@ -476,14 +476,14 @@ struct npc_toogaAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_TORTA)
+        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE | STATE_FOLLOW_POSTEVENT) && pWho->GetEntry() == NPC_TORTA)
         {
-            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
                 if (Player* pPlayer = GetLeaderForFollower())
                 {
                     if (pPlayer->GetQuestStatus(QUEST_TOOGA) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->GroupEventHappens(QUEST_TOOGA, m_creature);
+                        pPlayer->GroupEventHappens(QUEST_TOOGA, me);
                 }
 
                 TortaGUID = pWho->GetGUID();
@@ -514,7 +514,7 @@ struct npc_toogaAI : public FollowerAI
                 {
                     m_uiPostEventTimer = 5000;
 
-                    Unit *pTorta = Unit::GetUnit(*m_creature, TortaGUID);
+                    Unit *pTorta = Unit::GetUnit(*me, TortaGUID);
                     if (!pTorta || !pTorta->isAlive())
                     {
                         //something happened, so just complete
@@ -525,23 +525,23 @@ struct npc_toogaAI : public FollowerAI
                     switch(m_uiPhasePostEvent)
                     {
                         case 1:
-                            DoScriptText(SAY_TOOG_POST_1, m_creature);
+                            DoScriptText(SAY_TOOG_POST_1, me);
                             break;
                         case 2:
                             DoScriptText(SAY_TORT_POST_2, pTorta);
                             break;
                         case 3:
-                            DoScriptText(SAY_TOOG_POST_3, m_creature);
+                            DoScriptText(SAY_TOOG_POST_3, me);
                             break;
                         case 4:
                             DoScriptText(SAY_TORT_POST_4, pTorta);
                             break;
                         case 5:
-                            DoScriptText(SAY_TOOG_POST_5, m_creature);
+                            DoScriptText(SAY_TOOG_POST_5, me);
                             break;
                         case 6:
                             DoScriptText(SAY_TORT_POST_6, pTorta);
-                            m_creature->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, m_afToWaterLoc[0], m_afToWaterLoc[1], m_afToWaterLoc[2]);
+                            me->GetMotionMaster()->MovePoint(POINT_ID_TO_WATER, m_afToWaterLoc[0], m_afToWaterLoc[1], m_afToWaterLoc[2]);
                             break;
                     }
 
@@ -558,7 +558,7 @@ struct npc_toogaAI : public FollowerAI
                     m_uiCheckSpeechTimer = 5000;
 
                     if (urand(0,9) > 8)
-                        DoScriptText(RAND(SAY_TOOG_THIRST,SAY_TOOG_WORRIED), m_creature);
+                        DoScriptText(RAND(SAY_TOOG_THIRST,SAY_TOOG_WORRIED), me);
                 }
                 else
                     m_uiCheckSpeechTimer -= uiDiff;

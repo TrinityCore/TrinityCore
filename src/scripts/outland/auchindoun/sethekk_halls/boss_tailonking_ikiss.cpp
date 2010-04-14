@@ -81,19 +81,19 @@ struct boss_talon_king_ikissAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)) && who->isInAccessiblePlaceFor(m_creature))
+        if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
         {
-            if (!Intro && m_creature->IsWithinDistInMap(who, 100))
+            if (!Intro && me->IsWithinDistInMap(who, 100))
             {
                 Intro = true;
-                DoScriptText(SAY_INTRO, m_creature);
+                DoScriptText(SAY_INTRO, me);
             }
 
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+            if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->IsWithinLOSInMap(who))
+            float attackRadius = me->GetAttackDistance(who);
+            if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
             {
                 //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
                 AttackStart(who);
@@ -103,12 +103,12 @@ struct boss_talon_king_ikissAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_IKISSDOOREVENT, DONE);
@@ -116,7 +116,7 @@ struct boss_talon_king_ikissAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -126,14 +126,14 @@ struct boss_talon_king_ikissAI : public ScriptedAI
 
         if (Blink)
         {
-            DoCast(m_creature, SPELL_ARCANE_EXPLOSION);
-            DoCast(m_creature, SPELL_ARCANE_BUBBLE, true);
+            DoCast(me, SPELL_ARCANE_EXPLOSION);
+            DoCast(me, SPELL_ARCANE_BUBBLE, true);
             Blink = false;
         }
 
         if (ArcaneVolley_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ARCANE_VOLLEY);
+            DoCast(me, SPELL_ARCANE_VOLLEY);
             ArcaneVolley_Timer = 7000+rand()%5000;
         } else ArcaneVolley_Timer -= diff;
 
@@ -153,9 +153,9 @@ struct boss_talon_king_ikissAI : public ScriptedAI
         } else Sheep_Timer -= diff;
 
         //may not be correct time to cast
-        if (!ManaShield && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 20))
+        if (!ManaShield && ((me->GetHealth()*100) / me->GetMaxHealth() < 20))
         {
-            DoCast(m_creature, SPELL_MANA_SHIELD);
+            DoCast(me, SPELL_MANA_SHIELD);
             ManaShield = true;
         }
 
@@ -163,19 +163,19 @@ struct boss_talon_king_ikissAI : public ScriptedAI
         {
             if (Slow_Timer <= diff)
             {
-                DoCast(m_creature, H_SPELL_SLOW);
+                DoCast(me, H_SPELL_SLOW);
                 Slow_Timer = 15000+rand()%25000;
             } else Slow_Timer -= diff;
         }
 
         if (Blink_Timer <= diff)
         {
-            DoScriptText(EMOTE_ARCANE_EXP, m_creature);
+            DoScriptText(EMOTE_ARCANE_EXP, me);
 
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
             {
-                if (m_creature->IsNonMeleeSpellCasted(false))
-                    m_creature->InterruptNonMeleeSpells(false);
+                if (me->IsNonMeleeSpellCasted(false))
+                    me->InterruptNonMeleeSpells(false);
 
                 //Spell doesn't work, but we use for visual effect at least
                 DoCast(pTarget, SPELL_BLINK);

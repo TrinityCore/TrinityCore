@@ -96,7 +96,7 @@ struct boss_hakkarAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -107,14 +107,14 @@ struct boss_hakkarAI : public ScriptedAI
         //BloodSiphon_Timer
         if (BloodSiphon_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BLOODSIPHON);
+            DoCast(me->getVictim(), SPELL_BLOODSIPHON);
             BloodSiphon_Timer = 90000;
         } else BloodSiphon_Timer -= diff;
 
         //CorruptedBlood_Timer
         if (CorruptedBlood_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CORRUPTEDBLOOD);
+            DoCast(me->getVictim(), SPELL_CORRUPTEDBLOOD);
             CorruptedBlood_Timer = 30000 + rand()%15000;
         } else CorruptedBlood_Timer -= diff;
 
@@ -138,7 +138,7 @@ struct boss_hakkarAI : public ScriptedAI
 
         if (!Enraged && Enrage_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
             Enraged = true;
         } else Enrage_Timer -= diff;
 
@@ -151,7 +151,7 @@ struct boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfJeklik_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_JEKLIK);
+                        DoCast(me->getVictim(), SPELL_ASPECT_OF_JEKLIK);
                         AspectOfJeklik_Timer = 10000 + rand()%4000;
                     } else AspectOfJeklik_Timer -= diff;
                 }
@@ -168,7 +168,7 @@ struct boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfVenoxis_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_VENOXIS);
+                        DoCast(me->getVictim(), SPELL_ASPECT_OF_VENOXIS);
                         AspectOfVenoxis_Timer = 8000;
                     } else AspectOfVenoxis_Timer -= diff;
                 }
@@ -185,7 +185,7 @@ struct boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfMarli_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_MARLI);
+                        DoCast(me->getVictim(), SPELL_ASPECT_OF_MARLI);
                         AspectOfMarli_Timer = 10000;
                     } else AspectOfMarli_Timer -= diff;
 
@@ -203,7 +203,7 @@ struct boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfThekal_Timer <= diff)
                     {
-                        DoCast(m_creature, SPELL_ASPECT_OF_THEKAL);
+                        DoCast(me, SPELL_ASPECT_OF_THEKAL);
                         AspectOfThekal_Timer = 15000;
                     } else AspectOfThekal_Timer -= diff;
                 }
@@ -220,7 +220,7 @@ struct boss_hakkarAI : public ScriptedAI
                 {
                     if (AspectOfArlokk_Timer <= diff)
                     {
-                        DoCast(m_creature, SPELL_ASPECT_OF_ARLOKK);
+                        DoCast(me, SPELL_ASPECT_OF_ARLOKK);
                         DoResetThreat();
 
                         AspectOfArlokk_Timer = 10000 + rand()%5000;

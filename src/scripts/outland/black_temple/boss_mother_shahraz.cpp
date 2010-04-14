@@ -129,12 +129,12 @@ struct boss_shahrazAI : public ScriptedAI
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, IN_PROGRESS);
 
         DoZoneInCombat();
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void JustDied(Unit *victim)
@@ -142,7 +142,7 @@ struct boss_shahrazAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_MOTHERSHAHRAZEVENT, DONE);
 
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void TeleportPlayers()
@@ -168,11 +168,11 @@ struct boss_shahrazAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !Enraged)
+        if (((me->GetHealth()*100 / me->GetMaxHealth()) < 10) && !Enraged)
         {
             Enraged = true;
-            DoCast(m_creature, SPELL_ENRAGE, true);
-            DoScriptText(SAY_ENRAGE, m_creature);
+            DoCast(me, SPELL_ENRAGE, true);
+            DoScriptText(SAY_ENRAGE, me);
         }
 
         //Randomly cast one beam.
@@ -212,7 +212,7 @@ struct boss_shahrazAI : public ScriptedAI
         {
             uint32 random = rand()%6;
             if (PrismaticAuras[random])
-                DoCast(m_creature, PrismaticAuras[random]);
+                DoCast(me, PrismaticAuras[random]);
             PrismaticShieldTimer = 15000;
         } else PrismaticShieldTimer -= diff;
 
@@ -223,7 +223,7 @@ struct boss_shahrazAI : public ScriptedAI
 
             TeleportPlayers();
 
-            DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), m_creature);
+            DoScriptText(RAND(SAY_SPELL2,SAY_SPELL3), me);
             FatalAttractionExplodeTimer = 2000;
             FatalAttractionTimer = 40000 + rand()%31 * 1000;
         } else FatalAttractionTimer -= diff;
@@ -238,7 +238,7 @@ struct boss_shahrazAI : public ScriptedAI
                     Unit* pUnit = NULL;
                     if (TargetGUID[i])
                     {
-                        pUnit = Unit::GetUnit((*m_creature), TargetGUID[i]);
+                        pUnit = Unit::GetUnit((*me), TargetGUID[i]);
                         if (pUnit)
                             pUnit->CastSpell(pUnit, SPELL_ATTRACTION, true);
                         TargetGUID[i] = 0;
@@ -257,28 +257,28 @@ struct boss_shahrazAI : public ScriptedAI
 
         if (ShriekTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SILENCING_SHRIEK);
+            DoCast(me->getVictim(), SPELL_SILENCING_SHRIEK);
             ShriekTimer = 25000+rand()%10 * 1000;
         } else ShriekTimer -= diff;
 
         if (SaberTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SABER_LASH);
+            DoCast(me->getVictim(), SPELL_SABER_LASH);
             SaberTimer = 25000+rand()%10 * 1000;
         } else SaberTimer -= diff;
 
         //Enrage
-        if (!m_creature->HasAura(SPELL_BERSERK))
+        if (!me->HasAura(SPELL_BERSERK))
             if (EnrageTimer <= diff)
         {
-            DoCast(m_creature, SPELL_BERSERK);
-            DoScriptText(SAY_ENRAGE, m_creature);
+            DoCast(me, SPELL_BERSERK);
+            DoScriptText(SAY_ENRAGE, me);
         } else EnrageTimer -= diff;
 
         //Random taunts
         if (RandomYellTimer <= diff)
         {
-            DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), m_creature);
+            DoScriptText(RAND(SAY_TAUNT1,SAY_TAUNT2,SAY_TAUNT3), me);
             RandomYellTimer = 60000 + rand()%91 * 1000;
         } else RandomYellTimer -= diff;
 

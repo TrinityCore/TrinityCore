@@ -61,15 +61,15 @@ struct mob_water_elementalAI : public ScriptedAI
 
         if (uiWaterBoltTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WATERBOLT);
+            DoCast(me->getVictim(), SPELL_WATERBOLT);
             uiWaterBoltTimer = 5*IN_MILISECONDS;
         } else uiWaterBoltTimer -= diff;
 
         // check if creature is not outside of building
         if (uiResetTimer < diff)
         {
-            if (Creature *pBalinda = Unit::GetCreature(*m_creature, uiBalindaGUID))
-                if (m_creature->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
+            if (Creature *pBalinda = Unit::GetCreature(*me, uiBalindaGUID))
+                if (me->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
                     EnterEvadeMode();
                 uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;
@@ -80,7 +80,7 @@ struct mob_water_elementalAI : public ScriptedAI
 
 struct boss_balindaAI : public ScriptedAI
 {
-    boss_balindaAI(Creature *c) : ScriptedAI(c), Summons(m_creature) {}
+    boss_balindaAI(Creature *c) : ScriptedAI(c), Summons(me) {}
 
     uint32 uiArcaneExplosionTimer;
     uint32 uiConeOfColdTimer;
@@ -105,7 +105,7 @@ struct boss_balindaAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(YELL_AGGRO, m_creature);
+        DoScriptText(YELL_AGGRO, me);
     }
 
     void JustRespawned()
@@ -115,9 +115,9 @@ struct boss_balindaAI : public ScriptedAI
 
     void JustSummoned(Creature* summoned)
     {
-        ((mob_water_elementalAI*)summoned->AI())->uiBalindaGUID = m_creature->GetGUID();
+        ((mob_water_elementalAI*)summoned->AI())->uiBalindaGUID = me->GetGUID();
         summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
-        summoned->setFaction(m_creature->getFaction());
+        summoned->setFaction(me->getFaction());
         Summons.Summon(summoned);
     }
 
@@ -134,31 +134,31 @@ struct boss_balindaAI : public ScriptedAI
         if (uiWaterElementalTimer < diff)
         {
             if (Summons.empty())
-                m_creature->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILISECONDS);
+                me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILISECONDS);
             uiWaterElementalTimer = 50*IN_MILISECONDS;
         } else uiWaterElementalTimer -= diff;
 
         if (uiArcaneExplosionTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANE_EXPLOSION);
+            DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
             uiArcaneExplosionTimer =  urand(5*IN_MILISECONDS,15*IN_MILISECONDS);
         } else uiArcaneExplosionTimer -= diff;
 
         if (uiConeOfColdTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CONE_OF_COLD);
+            DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
             uiConeOfColdTimer = urand(10*IN_MILISECONDS,20*IN_MILISECONDS);
         } else uiConeOfColdTimer -= diff;
 
         if (uiFireBoltTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FIREBALL);
+            DoCast(me->getVictim(), SPELL_FIREBALL);
             uiFireBoltTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
         } else uiFireBoltTimer -= diff;
 
         if (uiFrostboltTimer < diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
+            DoCast(me->getVictim(), SPELL_FROSTBOLT);
             uiFrostboltTimer = urand(4*IN_MILISECONDS,12*IN_MILISECONDS);
         } else uiFrostboltTimer -= diff;
 
@@ -166,10 +166,10 @@ struct boss_balindaAI : public ScriptedAI
         // check if creature is not outside of building
         if (uiResetTimer < diff)
         {
-            if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
             {
                 EnterEvadeMode();
-                DoScriptText(YELL_EVADE, m_creature);
+                DoScriptText(YELL_EVADE, me);
             }
             uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;
