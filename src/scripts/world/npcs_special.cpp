@@ -2062,6 +2062,56 @@ bool GossipSelect_npc_wormhole(Player* pPlayer, Creature* pCreature, uint32 uiSe
     return true;
 }
 
+enum ePetTrainer
+{
+    TEXT_ISHUNTER               = 5838,
+    TEXT_NOTHUNTER              = 5839,
+    TEXT_PETINFO                = 13474,
+    TEXT_CONFIRM                = 7722
+};
+
+#define GOSSIP_PET1             "How do I train my pet?"
+#define GOSSIP_PET2             "I wish to untrain my pet."
+#define GOSSIP_PET_CONFIRM      "Yes, please do."
+
+bool GossipHello_npc_pet_trainer(Player* pPlayer, Creature* pCreature)
+{
+    if (pPlayer->getClass() == CLASS_HUNTER)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        if (pPlayer->GetPet() && pPlayer->GetPet()->getPetType() == HUNTER_PET)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        
+        pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_ISHUNTER, pCreature->GetGUID());
+        return true;
+    }
+    pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_NOTHUNTER, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_pet_trainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF + 1:
+            pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_PETINFO, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 2:
+            {
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET_CONFIRM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+                pPlayer->PlayerTalkClass->SendGossipMenu(TEXT_CONFIRM, pCreature->GetGUID());
+            }
+            break;
+        case GOSSIP_ACTION_INFO_DEF + 3:
+            {
+                pPlayer->ResetPetTalents();
+                pPlayer->CLOSE_GOSSIP_MENU();
+            }
+            break;
+    }
+    return true;
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -2193,6 +2243,12 @@ void AddSC_npcs_special()
     newscript->Name = "npc_wormhole";
     newscript->pGossipHello =  &GossipHello_npc_wormhole;
     newscript->pGossipSelect = &GossipSelect_npc_wormhole;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_pet_trainer";
+    newscript->pGossipHello =  &GossipHello_npc_pet_trainer;
+    newscript->pGossipSelect = &GossipSelect_npc_pet_trainer;
     newscript->RegisterSelf();
 }
 
