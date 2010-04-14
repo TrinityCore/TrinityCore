@@ -4346,8 +4346,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                                 "AND achievement NOT IN(1463, 3117, 3259) ", guid); // Realm First Northen Vanguard + Raid Achievements
     CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_equipmentsets WHERE guid = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid1 = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid2 = '%u'",guid);
+    CharacterDatabase.PExecute("DELETE FROM guild_eventlog WHERE PlayerGuid1 = '%u' OR PlayerGuid2 = '%u'",guid, guid);
     CharacterDatabase.PExecute("DELETE FROM guild_bank_eventlog WHERE PlayerGuid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_battleground_data WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_glyphs WHERE guid = '%u'",guid);
