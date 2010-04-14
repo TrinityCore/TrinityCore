@@ -1950,7 +1950,7 @@ bool Pet::IsPetAura(Aura const* aura)
         PetAura const* pa = spellmgr.GetPetAura(aura->GetId(),i);
 
         // if the owner has that pet aura, return true
-        if (owner->m_petAuras.find(pa) != m_petAuras.end())
+        if (owner->m_petAuras.find(pa) != owner->m_petAuras.end())
             return true;
     }
     return false;
