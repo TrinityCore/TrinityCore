@@ -43,7 +43,7 @@ struct generic_creatureAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        if (!m_creature->IsWithinMeleeRange(who))
+        if (!me->IsWithinMeleeRange(who))
         {
             IsSelfRooted = true;
         }
@@ -57,16 +57,16 @@ struct generic_creatureAI : public ScriptedAI
         else GlobalCooldown = 0;
 
         //Buff timer (only buff when we are alive and not in combat
-        if (!m_creature->isInCombat() && m_creature->isAlive())
+        if (!me->isInCombat() && me->isAlive())
             if (BuffTimer <= diff)
             {
                 //Find a spell that targets friendly and applies an aura (these are generally buffs)
-                SpellEntry const *info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
+                SpellEntry const *info = SelectSpell(me, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
 
                 if (info && !GlobalCooldown)
                 {
                     //Cast the buff spell
-                    DoCastSpell(m_creature, info);
+                    DoCastSpell(me, info);
 
                     //Set our global cooldown
                     GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -82,52 +82,52 @@ struct generic_creatureAI : public ScriptedAI
             return;
 
         //If we are within range melee the target
-        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (me->IsWithinMeleeRange(me->getVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
-            if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
+            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
             {
                 bool Healing = false;
                 SpellEntry const *info = NULL;
 
                 //Select a healing spell if less than 30% hp
-                if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30)
-                    info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
+                if (me->GetHealth()*100 / me->GetMaxHealth() < 30)
+                    info = SelectSpell(me, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
 
                 //No healing spell available, select a hostile spell
                 if (info) Healing = true;
-                else info = SelectSpell(m_creature->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
+                else info = SelectSpell(me->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
 
                 //50% chance if elite or higher, 20% chance if not, to replace our white hit with a spell
-                if (info && (rand() % (m_creature->GetCreatureInfo()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
+                if (info && (rand() % (me->GetCreatureInfo()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
                 {
                     //Cast the spell
-                    if (Healing)DoCastSpell(m_creature, info);
-                    else DoCastSpell(m_creature->getVictim(), info);
+                    if (Healing)DoCastSpell(me, info);
+                    else DoCastSpell(me->getVictim(), info);
 
                     //Set our global cooldown
                     GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
                 }
-                else m_creature->AttackerStateUpdate(m_creature->getVictim());
+                else me->AttackerStateUpdate(me->getVictim());
 
-                m_creature->resetAttackTimer();
+                me->resetAttackTimer();
             }
         }
         else
         {
             //Only run this code if we arn't already casting
-            if (!m_creature->IsNonMeleeSpellCasted(false))
+            if (!me->IsNonMeleeSpellCasted(false))
             {
                 bool Healing = false;
                 SpellEntry const *info = NULL;
 
                 //Select a healing spell if less than 30% hp ONLY 33% of the time
-                if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 30 && rand() % 3 == 0)
-                    info = SelectSpell(m_creature, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
+                if (me->GetHealth()*100 / me->GetMaxHealth() < 30 && rand() % 3 == 0)
+                    info = SelectSpell(me, -1, -1, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_HEALING);
 
                 //No healing spell available, See if we can cast a ranged spell (Range must be greater than ATTACK_DISTANCE)
                 if (info) Healing = true;
-                else info = SelectSpell(m_creature->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
+                else info = SelectSpell(me->getVictim(), -1, -1, SELECT_TARGET_ANY_ENEMY, 0, 0, NOMINAL_MELEE_RANGE, 0, SELECT_EFFECT_DONTCARE);
 
                 //Found a spell, check if we arn't on cooldown
                 if (info && !GlobalCooldown)
@@ -139,8 +139,8 @@ struct generic_creatureAI : public ScriptedAI
                     }
 
                     //Cast spell
-                    if (Healing) DoCastSpell(m_creature,info);
-                    else DoCastSpell(m_creature->getVictim(),info);
+                    if (Healing) DoCastSpell(me,info);
+                    else DoCastSpell(me->getVictim(),info);
 
                     //Set our global cooldown
                     GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -149,7 +149,7 @@ struct generic_creatureAI : public ScriptedAI
                 else if (IsSelfRooted)
                 {
                     //Cancel our current spell and then allow movement agian
-                    m_creature->InterruptNonMeleeSpells(false);
+                    me->InterruptNonMeleeSpells(false);
                     IsSelfRooted = false;
                 }
             }

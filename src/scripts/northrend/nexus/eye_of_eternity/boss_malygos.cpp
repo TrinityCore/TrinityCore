@@ -98,11 +98,11 @@ struct boss_malygosAI : public ScriptedAI
     void EnterCombat(Unit* who)
     {
         if (phase == 1)
-            DoScriptText(SAY_PHASE1_AGGRO, m_creature);
+            DoScriptText(SAY_PHASE1_AGGRO, me);
         if (phase == 2)
-            DoScriptText(SAY_PHASE1_AGGRO, m_creature);
+            DoScriptText(SAY_PHASE1_AGGRO, me);
         if (phase == 3)
-            DoScriptText(SAY_PHASE1_AGGRO, m_creature);
+            DoScriptText(SAY_PHASE1_AGGRO, me);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
@@ -113,7 +113,7 @@ struct boss_malygosAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= 50){
+        if ((me->GetHealth()*100 / me->GetMaxHealth()) <= 50){
             phase = 2;
             //spawn adds
             //set malygos unatackable untill all adds spawned dead
@@ -124,19 +124,19 @@ struct boss_malygosAI : public ScriptedAI
     }
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
         if (phase == 1)
-            DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), m_creature);
+            DoScriptText(RAND(SAY_PHASE1_SLAY_1,SAY_PHASE1_SLAY_2,SAY_PHASE1_SLAY_3), me);
         if (phase == 2)
-            DoScriptText(RAND(SAY_PHASE2_SLAY_1,SAY_PHASE2_SLAY_2,SAY_PHASE2_SLAY_3), m_creature);
+            DoScriptText(RAND(SAY_PHASE2_SLAY_1,SAY_PHASE2_SLAY_2,SAY_PHASE2_SLAY_3), me);
         if (phase == 3)
-            DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), m_creature);
+            DoScriptText(RAND(SAY_PHASE3_SLAY_1,SAY_PHASE3_SLAY_2,SAY_PHASE3_SLAY_3), me);
     }
 };
 

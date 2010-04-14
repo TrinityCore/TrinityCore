@@ -179,8 +179,8 @@ struct boss_kalecgosAI : public ScriptedAI
     void EnterEvadeMode()
     {
         JustReseted = true;
-        m_creature->SetVisibility(VISIBILITY_OFF);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+        me->SetVisibility(VISIBILITY_OFF);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
         ScriptedAI::EnterEvadeMode();
     }
 
@@ -327,10 +327,10 @@ struct boss_kalecgosAI : public ScriptedAI
     {
         if (JustReseted)//boss is invisible, don't attack
             return;
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)))
+        if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
         {
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius))
+            float attackRadius = me->GetAttackDistance(who);
+            if (me->IsWithinDistInMap(who, attackRadius))
             {
                 AttackStart(who);
             }
@@ -616,7 +616,7 @@ struct boss_sathrovarrAI : public ScriptedAI
         {
             for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
             {
-                if (Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 {
                     if (pUnit->GetPositionZ() > me->GetPositionZ()+5)
                     {

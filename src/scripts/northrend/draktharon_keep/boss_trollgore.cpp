@@ -88,7 +88,7 @@ struct boss_trollgoreAI : public ScriptedAI
 
         lSummons.DespawnAll();
 
-        m_creature->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+        me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
 
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
@@ -96,7 +96,7 @@ struct boss_trollgoreAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
@@ -118,14 +118,14 @@ struct boss_trollgoreAI : public ScriptedAI
 
         if (uiConsumeTimer <= diff)
         {
-            DoScriptText(SAY_CONSUME, m_creature);
+            DoScriptText(SAY_CONSUME, me);
             DoCast(SPELL_CONSUME);
             uiConsumeTimer = 15*IN_MILISECONDS;
         } else uiConsumeTimer -= diff;
 
         if (bAchiev)
         {
-            Aura *pConsumeAura = m_creature->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+            Aura *pConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
             if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
                 bAchiev = false;
         }
@@ -145,7 +145,7 @@ struct boss_trollgoreAI : public ScriptedAI
         if (uiExplodeCorpseTimer <= diff)
         {
             DoCast(SPELL_CORPSE_EXPLODE);
-            DoScriptText(SAY_EXPLODE, m_creature);
+            DoScriptText(SAY_EXPLODE, me);
             uiExplodeCorpseTimer = urand(15*IN_MILISECONDS,19*IN_MILISECONDS);
         } else uiExplodeCorpseTimer -= diff;
 
@@ -154,7 +154,7 @@ struct boss_trollgoreAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         lSummons.DespawnAll();
 
@@ -168,16 +168,16 @@ struct boss_trollgoreAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void JustSummoned(Creature* summon)
     {
         lSummons.push_back(summon->GetGUID());
         if (summon->AI())
-            summon->AI()->AttackStart(m_creature);
+            summon->AI()->AttackStart(me);
     }
 };
 

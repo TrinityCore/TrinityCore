@@ -89,32 +89,32 @@ struct npc_oox22feAI : public npc_escortAI
         {
             // First Ambush(3 Yetis)
             case 11:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
-                m_creature->SummonCreature(NPC_YETI, -4841.01, 1593.91, 73.42, 3.98, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_YETI, -4837.61, 1568.58, 78.21, 3.13, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_YETI, -4841.89, 1569.95, 76.53, 0.68, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                DoScriptText(SAY_OOX_AMBUSH, me);
+                me->SummonCreature(NPC_YETI, -4841.01, 1593.91, 73.42, 3.98, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_YETI, -4837.61, 1568.58, 78.21, 3.13, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_YETI, -4841.89, 1569.95, 76.53, 0.68, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 break;
             //Second Ambush(3 Gorillas)
             case 21:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
-                m_creature->SummonCreature(NPC_GORILLA, -4595.81, 2005.99, 53.08, 3.74, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_GORILLA, -4597.53, 2008.31, 52.70, 3.78, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_GORILLA, -4599.37, 2010.59, 52.77, 3.84, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                DoScriptText(SAY_OOX_AMBUSH, me);
+                me->SummonCreature(NPC_GORILLA, -4595.81, 2005.99, 53.08, 3.74, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_GORILLA, -4597.53, 2008.31, 52.70, 3.78, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_GORILLA, -4599.37, 2010.59, 52.77, 3.84, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 break;
             //Third Ambush(4 Gnolls)
             case 30:
-                DoScriptText(SAY_OOX_AMBUSH, m_creature);
-                m_creature->SummonCreature(NPC_WOODPAW_REAVER, -4425.14, 2075.87, 47.77, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68, 2077.98, 47.57, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33, 2080.24, 47.43, 3.87, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
-                m_creature->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04, 2075.54, 46.83, 3.81, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                DoScriptText(SAY_OOX_AMBUSH, me);
+                me->SummonCreature(NPC_WOODPAW_REAVER, -4425.14, 2075.87, 47.77, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_WOODPAW_BRUTE , -4426.68, 2077.98, 47.57, 3.77, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_WOODPAW_MYSTIC, -4428.33, 2080.24, 47.43, 3.87, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                me->SummonCreature(NPC_WOODPAW_ALPHA , -4430.04, 2075.54, 46.83, 3.81, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
                 break;
             case 37:
-                DoScriptText(SAY_OOX_END, m_creature);
+                DoScriptText(SAY_OOX_END, me);
                 // Award quest credit
                 if (Player* pPlayer = GetPlayerForEscort())
                 {
-                        pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, m_creature);
+                        pPlayer->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
                 }
                 break;
         }
@@ -123,19 +123,19 @@ struct npc_oox22feAI : public npc_escortAI
     void Reset()
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
-            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
     void EnterCombat(Unit* who)
     {
         //For an small probability the npc says something when he get aggro
         if (urand(0,9) > 7)
-            DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), m_creature);
+            DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), me);
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 };
 

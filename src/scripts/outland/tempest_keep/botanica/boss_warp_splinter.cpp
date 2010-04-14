@@ -54,23 +54,23 @@ struct mob_treantAI  : public ScriptedAI
         {
             if (WarpGuid && check_Timer <= diff)
             {
-                if (Unit *Warp = Unit::GetUnit(*m_creature, WarpGuid))
+                if (Unit *Warp = Unit::GetUnit(*me, WarpGuid))
                 {
-                    if (m_creature->IsWithinMeleeRange(Warp,2.5f))
+                    if (me->IsWithinMeleeRange(Warp,2.5f))
                     {
-                        int32 CurrentHP_Treant = (int32)m_creature->GetHealth();
-                        Warp->CastCustomSpell(Warp,SPELL_HEAL_FATHER,&CurrentHP_Treant, 0, 0, true,0 ,0, m_creature->GetGUID());
-                        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        int32 CurrentHP_Treant = (int32)me->GetHealth();
+                        Warp->CastCustomSpell(Warp,SPELL_HEAL_FATHER,&CurrentHP_Treant, 0, 0, true,0 ,0, me->GetGUID());
+                        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                         return;
                     }
-                    m_creature->GetMotionMaster()->MoveFollow(Warp,0,0);
+                    me->GetMotionMaster()->MoveFollow(Warp,0,0);
                 }
                 check_Timer = 1000;
             } else check_Timer -= diff;
             return;
         }
 
-        if (m_creature->getVictim()->GetGUID() !=  WarpGuid)
+        if (me->getVictim()->GetGUID() !=  WarpGuid)
             DoMeleeAttackIfReady();
     }
 };
@@ -125,22 +125,22 @@ struct boss_warp_splinterAI : public ScriptedAI
         Summon_Treants_Timer = 45000;
         Arcane_Volley_Timer = 8000 + rand()%12000;
 
-        m_creature->SetSpeed(MOVE_RUN, 0.7f, true);
+        me->SetSpeed(MOVE_RUN, 0.7f, true);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void SummonTreants()
@@ -151,12 +151,12 @@ struct boss_warp_splinterAI : public ScriptedAI
 
             float X = Treant_Spawn_Pos_X + TREANT_SPAWN_DIST * cos(angle);
             float Y = Treant_Spawn_Pos_Y + TREANT_SPAWN_DIST * sin(angle);
-            float O = - m_creature->GetAngle(X,Y);
+            float O = - me->GetAngle(X,Y);
 
-            if (Creature *pTreant = m_creature->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000))
-                CAST_AI(mob_treantAI, pTreant->AI())->WarpGuid = m_creature->GetGUID();
+            if (Creature *pTreant = me->SummonCreature(CREATURE_TREANT,treant_pos[i][0],treant_pos[i][1],treant_pos[i][2],O,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,25000))
+                CAST_AI(mob_treantAI, pTreant->AI())->WarpGuid = me->GetGUID();
         }
-        DoScriptText(RAND(SAY_SUMMON_1,SAY_SUMMON_2), m_creature);
+        DoScriptText(RAND(SAY_SUMMON_1,SAY_SUMMON_2), me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -167,14 +167,14 @@ struct boss_warp_splinterAI : public ScriptedAI
         //Check for War Stomp
         if (War_Stomp_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), WAR_STOMP);
+            DoCast(me->getVictim(), WAR_STOMP);
             War_Stomp_Timer = 25000 + rand()%15000;
         } else War_Stomp_Timer -= diff;
 
         //Check for Arcane Volley
         if (Arcane_Volley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), ARCANE_VOLLEY);
+            DoCast(me->getVictim(), ARCANE_VOLLEY);
             Arcane_Volley_Timer = 20000 + rand()%15000;
         } else Arcane_Volley_Timer -= diff;
 

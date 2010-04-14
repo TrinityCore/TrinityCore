@@ -88,7 +88,7 @@ struct boss_ormorokAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
@@ -96,7 +96,7 @@ struct boss_ormorokAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_ORMOROK_EVENT, DONE);
@@ -104,7 +104,7 @@ struct boss_ormorokAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -125,47 +125,47 @@ struct boss_ormorokAI : public ScriptedAI
                 fSpikeXY[3][0] = fBaseX-(SPIKE_DISTANCE*uiCrystalSpikesCount*cos(fBaseO-(M_PI/2)));
                 fSpikeXY[3][1] = fBaseY-(SPIKE_DISTANCE*uiCrystalSpikesCount*sin(fBaseO-(M_PI/2)));
                 for (uint8 i = 0; i < 4; ++i)
-                    Creature* Spike = m_creature->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILISECONDS);
+                    Creature* Spike = me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILISECONDS);
                 if (++uiCrystalSpikesCount >= 13)
                     bCrystalSpikes = false;
                 uiCrystalSpikesTimer2 = 200;
             } else uiCrystalSpikesTimer2 -= diff;
 
-        if (!bFrenzy && (m_creature->GetHealth() < m_creature->GetMaxHealth() * 0.25))
+        if (!bFrenzy && (me->GetHealth() < me->GetMaxHealth() * 0.25))
         {
-            DoCast(m_creature, SPELL_FRENZY);
+            DoCast(me, SPELL_FRENZY);
             bFrenzy = true;
         }
 
         if (uiTrampleTimer <= diff)
         {
-            DoCast(m_creature, SPELL_TRAMPLE);
+            DoCast(me, SPELL_TRAMPLE);
             uiTrampleTimer = 10*IN_MILISECONDS;
         } else uiTrampleTimer -= diff;
 
         if (uiSpellReflectionTimer <= diff)
         {
-            DoScriptText(SAY_REFLECT, m_creature);
-            DoCast(m_creature, SPELL_SPELL_REFLECTION);
+            DoScriptText(SAY_REFLECT, me);
+            DoCast(me, SPELL_SPELL_REFLECTION);
             uiSpellReflectionTimer = 30*IN_MILISECONDS;
         } else uiSpellReflectionTimer -= diff;
 
         if (uiCrystalSpikesTimer <= diff)
         {
-            DoScriptText(SAY_CRYSTAL_SPIKES, m_creature);
+            DoScriptText(SAY_CRYSTAL_SPIKES, me);
             bCrystalSpikes = true;
             uiCrystalSpikesCount = 1;
             uiCrystalSpikesTimer2 = 0;
-            fBaseX = m_creature->GetPositionX();
-            fBaseY = m_creature->GetPositionY();
-            fBaseZ = m_creature->GetPositionZ();
-            fBaseO = m_creature->GetOrientation();
+            fBaseX = me->GetPositionX();
+            fBaseY = me->GetPositionY();
+            fBaseZ = me->GetPositionZ();
+            fBaseO = me->GetOrientation();
             uiCrystalSpikesTimer = 20*IN_MILISECONDS;
         } else uiCrystalSpikesTimer -= diff;
 
         if (IsHeroic() && (uiSummonCrystallineTanglerTimer <= diff))
         {
-            Creature* Crystalline_Tangler = m_creature->SummonCreature(MOB_CRYSTALLINE_TANGLER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+            Creature* Crystalline_Tangler = me->SummonCreature(MOB_CRYSTALLINE_TANGLER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
             if (Crystalline_Tangler)
             {
                 Unit *pTarget = NULL;
@@ -179,10 +179,10 @@ struct boss_ormorokAI : public ScriptedAI
                         case 3: Healer = CLASS_DRUID; break;
                         case 4: Healer = CLASS_SHAMAN; break;
                     }
-                    std::list<HostileReference*>::const_iterator i = m_creature->getThreatManager().getThreatList().begin();
-                    for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
+                    std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
+                    for (; i != me->getThreatManager().getThreatList().end(); ++i)
                     {
-                        Unit* pTemp = Unit::GetUnit((*m_creature),(*i)->getUnitGuid());
+                        Unit* pTemp = Unit::GetUnit((*me),(*i)->getUnitGuid());
                         if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER && pTemp->getClass() == Healer)
                         {
                             pTarget = pTemp;
@@ -226,13 +226,13 @@ struct mob_crystal_spikeAI : public Scripted_NoMovementAI
     {
         if (SpellCrystalSpikePrevisualTimer <= diff)
         {
-            DoCast(m_creature, SPELL_CRYSTAL_SPIKE_PREVISUAL);
+            DoCast(me, SPELL_CRYSTAL_SPIKE_PREVISUAL);
             SpellCrystalSpikePrevisualTimer = 10*IN_MILISECONDS;
         } else SpellCrystalSpikePrevisualTimer -= diff;
 
         if (SpellCrystalSpikeDamageTimer <= diff)
         {
-            DoCast(m_creature, SPELL_CRYSTALL_SPIKE_DAMAGE);
+            DoCast(me, SPELL_CRYSTALL_SPIKE_DAMAGE);
             SpellCrystalSpikeDamageTimer = 10*IN_MILISECONDS;
         } else SpellCrystalSpikeDamageTimer -= diff;
     }
@@ -253,9 +253,9 @@ struct mob_crystalline_tanglerAI : public ScriptedAI
     {
         if (uiRootsTimer <= diff)
         {
-            if (m_creature->IsWithinDist(m_creature->getVictim(), 5.0f, false))
+            if (me->IsWithinDist(me->getVictim(), 5.0f, false))
             {
-                DoCast(m_creature->getVictim(), SPELL_ROOTS);
+                DoCast(me->getVictim(), SPELL_ROOTS);
                 uiRootsTimer = 15*IN_MILISECONDS;
             }
         } else uiRootsTimer -= diff;

@@ -100,10 +100,10 @@ struct boss_ionarAI : public ScriptedAI
 
         uiDisperseHealth = 45 + urand(0,10);
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
-        if (m_creature->GetVisibility() == VISIBILITY_OFF)
-            m_creature->SetVisibility(VISIBILITY_ON);
+        if (me->GetVisibility() == VISIBILITY_OFF)
+            me->SetVisibility(VISIBILITY_ON);
 
         if (pInstance)
             pInstance->SetData(TYPE_IONAR, NOT_STARTED);
@@ -111,7 +111,7 @@ struct boss_ionarAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(TYPE_IONAR, IN_PROGRESS);
@@ -119,7 +119,7 @@ struct boss_ionarAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         lSparkList.DespawnAll();
 
@@ -129,7 +129,7 @@ struct boss_ionarAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     //make sparks come back
@@ -140,11 +140,11 @@ struct boss_ionarAI : public ScriptedAI
             return;
 
         Position pos;
-        m_creature->GetPosition(&pos);
+        me->GetPosition(&pos);
 
         for (std::list<uint64>::const_iterator itr = lSparkList.begin(); itr != lSparkList.end(); ++itr)
         {
-            if (Creature* pSpark = Unit::GetCreature(*m_creature, *itr))
+            if (Creature* pSpark = Unit::GetCreature(*me, *itr))
             {
                 if (pSpark->isAlive())
                 {
@@ -160,7 +160,7 @@ struct boss_ionarAI : public ScriptedAI
 
     void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
     {
-        if (m_creature->GetVisibility() == VISIBILITY_OFF)
+        if (me->GetVisibility() == VISIBILITY_OFF)
             uiDamage = 0;
     }
 
@@ -195,7 +195,7 @@ struct boss_ionarAI : public ScriptedAI
             return;
 
         // Splitted
-        if (m_creature->GetVisibility() == VISIBILITY_OFF)
+        if (me->GetVisibility() == VISIBILITY_OFF)
         {
             if (uiSplitTimer <= uiDiff)
             {
@@ -210,16 +210,16 @@ struct boss_ionarAI : public ScriptedAI
                 // Lightning effect and restore Ionar
                 else if (lSparkList.empty())
                 {
-                    m_creature->SetVisibility(VISIBILITY_ON);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
+                    me->SetVisibility(VISIBILITY_ON);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
-                    DoCast(m_creature, SPELL_SPARK_DESPAWN, false);
+                    DoCast(me, SPELL_SPARK_DESPAWN, false);
 
                     uiSplitTimer = 25*IN_MILISECONDS;
                     bIsSplitPhase = true;
 
-                    if (m_creature->getVictim())
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    if (me->getVictim())
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
                 }
             }
             else
@@ -240,7 +240,7 @@ struct boss_ionarAI : public ScriptedAI
 
         if (uiBallLightningTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BALL_LIGHTNING);
+            DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
             uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
         }
         else
@@ -251,12 +251,12 @@ struct boss_ionarAI : public ScriptedAI
         {
             bHasDispersed = true;
 
-            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
+            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), me);
 
-            if (m_creature->IsNonMeleeSpellCasted(false))
-                m_creature->InterruptNonMeleeSpells(false);
+            if (me->IsNonMeleeSpellCasted(false))
+                me->InterruptNonMeleeSpells(false);
 
-            DoCast(m_creature, SPELL_DISPERSE, true);
+            DoCast(me, SPELL_DISPERSE, true);
         }
 
         DoMeleeAttackIfReady();
@@ -310,7 +310,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
     void Reset()
     {
         uiCheckTimer = 2*IN_MILISECONDS;
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -319,7 +319,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
             return;
 
         if (uiPointId == DATA_POINT_CALLBACK)
-            m_creature->ForcedDespawn();
+            me->ForcedDespawn();
     }
 
     void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
@@ -332,7 +332,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
         // Despawn if the encounter is not running
         if (pInstance && pInstance->GetData(TYPE_IONAR) != IN_PROGRESS)
         {
-            m_creature->ForcedDespawn();
+            me->ForcedDespawn();
             return;
         }
 
@@ -344,18 +344,18 @@ struct mob_spark_of_ionarAI : public ScriptedAI
                 Creature* pIonar = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IONAR));
                 if (pIonar && pIonar->isAlive())
                 {
-                    if (m_creature->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)
+                    if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)
                     {
                         Position pos;
                         pIonar->GetPosition(&pos);
 
-                        m_creature->SetSpeed(MOVE_RUN, 2.0f);
-                        m_creature->GetMotionMaster()->Clear();
-                        m_creature->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
+                        me->SetSpeed(MOVE_RUN, 2.0f);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(DATA_POINT_CALLBACK, pos);
                     }
                 }
                 else
-                    m_creature->ForcedDespawn();
+                    me->ForcedDespawn();
             }
             uiCheckTimer = 2*IN_MILISECONDS;
         }

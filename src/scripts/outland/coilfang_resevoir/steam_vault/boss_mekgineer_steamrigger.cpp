@@ -78,7 +78,7 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, DONE);
@@ -86,12 +86,12 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
 
         if (pInstance)
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
@@ -100,7 +100,7 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
     //no known summon spells exist
     void SummonMechanichs()
     {
-        DoScriptText(SAY_MECHANICS, m_creature);
+        DoScriptText(SAY_MECHANICS, me);
 
         DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,5,5,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
         DoSpawnCreature(ENTRY_STREAMRIGGER_MECHANIC,-5,5,0,0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 240000);
@@ -119,7 +119,7 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
 
         if (Shrink_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUPER_SHRINK_RAY);
+            DoCast(me->getVictim(), SPELL_SUPER_SHRINK_RAY);
             Shrink_Timer = 20000;
         } else Shrink_Timer -= diff;
 
@@ -128,21 +128,21 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
                 DoCast(pTarget, SPELL_SAW_BLADE);
             else
-                DoCast(m_creature->getVictim(), SPELL_SAW_BLADE);
+                DoCast(me->getVictim(), SPELL_SAW_BLADE);
 
             Saw_Blade_Timer = 15000;
         } else Saw_Blade_Timer -= diff;
 
         if (Electrified_Net_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ELECTRIFIED_NET);
+            DoCast(me->getVictim(), SPELL_ELECTRIFIED_NET);
             Electrified_Net_Timer = 10000;
         }
         else Electrified_Net_Timer -= diff;
 
         if (!Summon75)
         {
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 75)
+            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 75)
             {
                 SummonMechanichs();
                 Summon75 = true;
@@ -151,7 +151,7 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
 
         if (!Summon50)
         {
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
+            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 50)
             {
                 SummonMechanichs();
                 Summon50 = true;
@@ -160,7 +160,7 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
 
         if (!Summon25)
         {
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
+            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 25)
             {
                 SummonMechanichs();
                 Summon25 = true;
@@ -213,24 +213,24 @@ struct mob_steamrigger_mechanicAI : public ScriptedAI
         {
             if (pInstance && pInstance->GetData64(DATA_MEKGINEERSTEAMRIGGER) && pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
             {
-                if (Unit* pMekgineer = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
+                if (Unit* pMekgineer = Unit::GetUnit((*me), pInstance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
                 {
-                    if (m_creature->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
+                    if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
                     {
                         //are we already channeling? Doesn't work very well, find better check?
-                        if (!m_creature->GetUInt32Value(UNIT_CHANNEL_SPELL))
+                        if (!me->GetUInt32Value(UNIT_CHANNEL_SPELL))
                         {
-                            //m_creature->GetMotionMaster()->MovementExpired();
-                            //m_creature->GetMotionMaster()->MoveIdle();
+                            //me->GetMotionMaster()->MovementExpired();
+                            //me->GetMotionMaster()->MoveIdle();
 
-                            DoCast(m_creature, SPELL_REPAIR, true);
+                            DoCast(me, SPELL_REPAIR, true);
                         }
                         Repair_Timer = 5000;
                     }
                     else
                     {
-                        //m_creature->GetMotionMaster()->MovementExpired();
-                        //m_creature->GetMotionMaster()->MoveFollow(pMekgineer,0,0);
+                        //me->GetMotionMaster()->MovementExpired();
+                        //me->GetMotionMaster()->MoveFollow(pMekgineer,0,0);
                     }
                 }
             } else Repair_Timer = 5000;

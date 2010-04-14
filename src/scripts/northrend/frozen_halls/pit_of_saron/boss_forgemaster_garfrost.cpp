@@ -89,8 +89,8 @@ struct boss_garfrostAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_PERMAFROST);
+        DoScriptText(SAY_AGGRO, me);
+        DoCast(me, SPELL_PERMAFROST);
 
         if (pInstance)
             pInstance->SetData(DATA_GARFROST_EVENT, IN_PROGRESS);
@@ -103,24 +103,24 @@ struct boss_garfrostAI : public ScriptedAI
         if (HealthBelowPct(66) && !phase2)
         {
             phase2 = true;
-            DoCast(m_creature, SPELL_THUNDERING_STOMP);
+            DoCast(me, SPELL_THUNDERING_STOMP);
             // TODO: should go to a forge
-            DoCast(m_creature, SPELL_FORGE_BLADE);
+            DoCast(me, SPELL_FORGE_BLADE);
             // TODO: should equip when spell completes
             SetEquipmentSlots(false, EQUIP_ID_SWORD, -1, -1);
-            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+            me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             events.ScheduleEvent(EVENT_CHILLINGWAVE, 10000);
         }
 
         if (HealthBelowPct(33) && !phase3)
         {
             phase3 = true;
-            DoCast(m_creature, SPELL_THUNDERING_STOMP);
+            DoCast(me, SPELL_THUNDERING_STOMP);
             // TODO: should go to a forge
-            DoCast(m_creature, SPELL_FORGE_MACE);
+            DoCast(me, SPELL_FORGE_MACE);
             // TODO: should equip when spell completes
             SetEquipmentSlots(false, EQUIP_ID_MACE, -1, -1);
-            m_creature->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
+            me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
             events.CancelEvent(EVENT_CHILLINGWAVE); // cast only in phase 2.
             events.ScheduleEvent(EVENT_DEEPFREEZE, 10000);
         }
@@ -128,18 +128,18 @@ struct boss_garfrostAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (pInstance)
         {
-            if (Creature *pTyrannus = m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_TYRANNUS)))
+            if (Creature *pTyrannus = me->GetCreature(*me, pInstance->GetData64(DATA_TYRANNUS)))
                 DoScriptText(SAY_TYRANNUS_DEATH, pTyrannus);
 
             pInstance->SetData(DATA_GARFROST_EVENT, DONE);
@@ -166,7 +166,7 @@ struct boss_garfrostAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())

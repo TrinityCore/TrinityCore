@@ -107,15 +107,15 @@ struct boss_mal_ganisAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         if (pInstance)
             pInstance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if (damage >= m_creature->GetHealth() && done_by != m_creature)
-            damage = m_creature->GetHealth()-1;
+        if (damage >= me->GetHealth() && done_by != me)
+            damage = me->GetHealth()-1;
     }
 
     void UpdateAI(const uint32 diff)
@@ -129,30 +129,30 @@ struct boss_mal_ganisAI : public ScriptedAI
 
                 if (!bYelled && HealthBelowPct(30))
                 {
-                    DoScriptText(SAY_30HEALTH, m_creature);
+                    DoScriptText(SAY_30HEALTH, me);
                     bYelled = true;
                 }
 
                 if (!bYelled2 && HealthBelowPct(15))
                 {
-                    DoScriptText(SAY_15HEALTH, m_creature);
+                    DoScriptText(SAY_15HEALTH, me);
                     bYelled2 = true;
                 }
 
                 if (HealthBelowPct(1))
                 {
                     //Handle Escape Event: Don't forget to add Player::RewardPlayerAndGroupAtEvent
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     uiOutroStep = 1;
                     Phase = OUTRO;
                     return;
                 }
 
-                if (Creature* pArthas = m_creature->GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0))
+                if (Creature* pArthas = me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0))
                     if (pArthas->isDead())
                     {
                         EnterEvadeMode();
-                        m_creature->DisappearAndDie();
+                        me->DisappearAndDie();
                         if (pInstance)
                             pInstance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
                     }
@@ -172,13 +172,13 @@ struct boss_mal_ganisAI : public ScriptedAI
 
                 if (uiVampiricTouchTimer < diff)
                 {
-                    DoCast(m_creature, SPELL_VAMPIRIC_TOUCH);
+                    DoCast(me, SPELL_VAMPIRIC_TOUCH);
                     uiVampiricTouchTimer = 32000;
                 } else uiVampiricTouchTimer -= diff;
 
                 if (uiSleepTimer < diff)
                 {
-                    DoScriptText(RAND(SAY_SLEEP_1,SAY_SLEEP_2), m_creature);
+                    DoScriptText(RAND(SAY_SLEEP_1,SAY_SLEEP_2), me);
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_SLEEP);
                     uiSleepTimer = urand(15000,20000);
@@ -192,31 +192,31 @@ struct boss_mal_ganisAI : public ScriptedAI
                     switch(uiOutroStep)
                     {
                         case 1:
-                            DoScriptText(SAY_ESCAPE_SPEECH_1, m_creature);
+                            DoScriptText(SAY_ESCAPE_SPEECH_1, me);
                             me->GetMotionMaster()->MoveTargetedHome();
                             ++uiOutroStep;
                             uiOutroTimer = 8000;
                             break;
                         case 2:
-                            m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0);
-                            m_creature->HandleEmoteCommand(29);
-                            DoScriptText(SAY_ESCAPE_SPEECH_2, m_creature);
+                            me->SetUInt64Value(UNIT_FIELD_TARGET, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0);
+                            me->HandleEmoteCommand(29);
+                            DoScriptText(SAY_ESCAPE_SPEECH_2, me);
                             ++uiOutroStep;
                             uiOutroTimer = 9000;
                             break;
                         case 3:
-                            DoScriptText(SAY_OUTRO, m_creature);
+                            DoScriptText(SAY_OUTRO, me);
                             ++uiOutroStep;
                             uiOutroTimer = 16000;
                             break;
                         case 4:
-                            m_creature->HandleEmoteCommand(33);
+                            me->HandleEmoteCommand(33);
                             ++uiOutroStep;
                             uiOutroTimer = 500;
                             break;
                         case 5:
-                            m_creature->SetVisibility(VISIBILITY_OFF);
-                            m_creature->Kill(m_creature);
+                            me->SetVisibility(VISIBILITY_OFF);
+                            me->Kill(me);
                             break;
 
                     }
@@ -239,10 +239,10 @@ struct boss_mal_ganisAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
     }
 };
 

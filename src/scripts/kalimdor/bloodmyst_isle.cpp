@@ -56,7 +56,7 @@ struct mob_webbed_creatureAI : public ScriptedAI
             case 0:
                 spawnCreatureID = 17681;
                 if (Killer->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(Killer)->KilledMonsterCredit(spawnCreatureID, m_creature->GetGUID());
+                    CAST_PLR(Killer)->KilledMonsterCredit(spawnCreatureID, me->GetGUID());
                 break;
             case 1:
             case 2:
@@ -65,7 +65,7 @@ struct mob_webbed_creatureAI : public ScriptedAI
         }
 
         if (spawnCreatureID)
-            m_creature->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+            me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
     }
 };
 CreatureAI* GetAI_mob_webbed_creature(Creature* pCreature)

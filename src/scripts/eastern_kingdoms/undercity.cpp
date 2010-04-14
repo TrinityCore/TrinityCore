@@ -79,7 +79,7 @@ struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
             if (Unit *pTarget = Unit::GetUnit(*summoned,targetGUID))
             {
                 pTarget->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0,0);
-                pTarget->GetMap()->CreatureRelocation(m_creature, pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0, 0.0f);
+                pTarget->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), me->GetPositionZ()+15.0, 0.0f);
                 summoned->CastSpell(pTarget, SPELL_RIBBON_OF_SOULS, false);
             }
 
@@ -97,10 +97,10 @@ struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
                 DoSummon(ENTRY_HIGHBORNE_BUNNY, me, 10.0f, 3000, TEMPSUMMON_TIMED_DESPAWN);
 
                 LamentEvent_Timer = 2000;
-                if (!m_creature->HasAura(SPELL_SYLVANAS_CAST))
+                if (!me->HasAura(SPELL_SYLVANAS_CAST))
                 {
-                    DoScriptText(SAY_LAMENT_END, m_creature);
-                    DoScriptText(EMOTE_LAMENT_END, m_creature);
+                    DoScriptText(SAY_LAMENT_END, me);
+                    DoScriptText(EMOTE_LAMENT_END, me);
                     LamentEvent = false;
                 }
             } else LamentEvent_Timer -= diff;
@@ -161,9 +161,9 @@ struct npc_highborne_lamenterAI : public ScriptedAI
         {
             if (EventMove_Timer <= diff)
             {
-                m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                m_creature->SendMonsterMoveWithSpeed(m_creature->GetPositionX(),m_creature->GetPositionY(),HIGHBORNE_LOC_Y_NEW,5000);
-                m_creature->GetMap()->CreatureRelocation(m_creature,m_creature->GetPositionX(),m_creature->GetPositionY(),HIGHBORNE_LOC_Y_NEW,m_creature->GetOrientation());
+                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SendMonsterMoveWithSpeed(me->GetPositionX(),me->GetPositionY(),HIGHBORNE_LOC_Y_NEW,5000);
+                me->GetMap()->CreatureRelocation(me,me->GetPositionX(),me->GetPositionY(),HIGHBORNE_LOC_Y_NEW,me->GetOrientation());
                 EventMove = false;
             } else EventMove_Timer -= diff;
         }
@@ -171,7 +171,7 @@ struct npc_highborne_lamenterAI : public ScriptedAI
         {
             if (EventCast_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_HIGHBORNE_AURA);
+                DoCast(me, SPELL_HIGHBORNE_AURA);
                 EventCast = false;
             } else EventCast_Timer -= diff;
         }

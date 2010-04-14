@@ -68,7 +68,7 @@ struct boss_bronjahmAI : public ScriptedAI
 {
     boss_bronjahmAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = m_creature->GetInstanceData();
+        pInstance = me->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -79,7 +79,7 @@ struct boss_bronjahmAI : public ScriptedAI
     void Reset()
     {
         phase = PHASE_1;
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
         events.Reset();
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
@@ -92,7 +92,7 @@ struct boss_bronjahmAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_BRONJAHM_EVENT, IN_PROGRESS);
@@ -100,7 +100,7 @@ struct boss_bronjahmAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_BRONJAHM_EVENT, DONE);
@@ -108,7 +108,7 @@ struct boss_bronjahmAI : public ScriptedAI
 
     void KilledUnit(Unit *pWho)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     // Cast aura spell on all players farther than 10y
@@ -124,7 +124,7 @@ struct boss_bronjahmAI : public ScriptedAI
         {
             Unit* pUnit = (*itr);
             if (pUnit && pUnit->isAlive())
-                m_creature->CastSpell(pUnit, DUNGEON_MODE(SPELL_SOULSTORM_AURA,H_SPELL_SOULSTORM_AURA), true);
+                me->CastSpell(pUnit, DUNGEON_MODE(SPELL_SOULSTORM_AURA,H_SPELL_SOULSTORM_AURA), true);
         }
     }
 
@@ -136,15 +136,15 @@ struct boss_bronjahmAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         if (phase == PHASE_1 && HealthBelowPct(30))
         {
             phase = PHASE_2;
-            DoCast(m_creature,SPELL_TELEPORT);
-            m_creature->GetMotionMaster()->Clear();
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            DoCast(me,SPELL_TELEPORT);
+            me->GetMotionMaster()->Clear();
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             events.CancelEvent(EVENT_CORRUPT_SOUL);
             events.ScheduleEvent(EVENT_SOUL_STORM, 1000);
             events.ScheduleEvent(EVENT_FEAR, urand(8000,12000));
@@ -158,14 +158,14 @@ struct boss_bronjahmAI : public ScriptedAI
                 case EVENT_CORRUPT_SOUL:
                     if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,1))
                     {
-                        DoScriptText(SAY_CORRUPT_SOUL, m_creature);
+                        DoScriptText(SAY_CORRUPT_SOUL, me);
                         DoCast(pTarget,SPELL_CORRUPT_SOUL);
                     }
                     events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(15000,25000));
                     break;
                 case EVENT_SOUL_STORM:
-                    DoScriptText(SAY_SOUL_STORM, m_creature);
-                    // DoCast(m_creature, SPELL_SOULSTORM); bug: put the aura without the limit of 10 yards.
+                    DoScriptText(SAY_SOUL_STORM, me);
+                    // DoCast(me, SPELL_SOULSTORM); bug: put the aura without the limit of 10 yards.
                     events.ScheduleEvent(EVENT_SOUL_STORM_AURA, 1000);
                     break;
                 case EVENT_SOUL_STORM_AURA:
@@ -201,7 +201,7 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
 {
     mob_corrupted_soul_fragmentAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = m_creature->GetInstanceData();
+        pInstance = me->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -210,15 +210,15 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
     {
         SetCombatMovement(false);
         if (pInstance)
-            if (Creature* pBronjham = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_BRONJAHM)))
-                m_creature->GetMotionMaster()->MoveChase(pBronjham);
+            if (Creature* pBronjham = Unit::GetCreature(*me,pInstance->GetData64(DATA_BRONJAHM)))
+                me->GetMotionMaster()->MoveChase(pBronjham);
 
     }
 
     void MovementInform(uint32 type, uint32 id)
     {
         if (pInstance)
-            if (Creature* pBronjham = Unit::GetCreature(*m_creature,pInstance->GetData64(DATA_BRONJAHM)))
+            if (Creature* pBronjham = Unit::GetCreature(*me,pInstance->GetData64(DATA_BRONJAHM)))
                 DoCast(pBronjham,SPELL_CONSUME_SOUL);
     }
 

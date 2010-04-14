@@ -69,15 +69,15 @@ struct boss_emalonAI : public BossAI
         _Reset();
 
         for (uint8 i = 0; i < MAX_TEMPEST_MINIONS; ++i)
-            m_creature->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(MOB_TEMPEST_MINION, TempestMinions[i], TEMPSUMMON_CORPSE_DESPAWN, 0);
     }
 
     void JustSummoned(Creature *summoned)
     {
         BossAI::JustSummoned(summoned);
 
-        if (m_creature->getVictim() && summoned->AI())
-            summoned->AI()->AttackStart(m_creature->getVictim());
+        if (me->getVictim() && summoned->AI())
+            summoned->AI()->AttackStart(me->getVictim());
     }
 
     void EnterCombat(Unit *who)
@@ -86,7 +86,7 @@ struct boss_emalonAI : public BossAI
         {
             for (std::list<uint64>::const_iterator itr = summons.begin(); itr != summons.end(); ++itr)
             {
-                Creature *minion = Unit::GetCreature(*m_creature, *itr);
+                Creature *minion = Unit::GetCreature(*me, *itr);
                 if (minion && minion->isAlive() && !minion->getVictim() && minion->AI())
                     minion->AI()->AttackStart(who);
             }
@@ -129,19 +129,19 @@ struct boss_emalonAI : public BossAI
                 {
                     std::list<uint64>::const_iterator itr = summons.begin();
                     std::advance(itr, urand(0, summons.size()-1));
-                    Creature *minion = Unit::GetCreature(*m_creature, *itr);
+                    Creature *minion = Unit::GetCreature(*me, *itr);
                     if (minion && minion->isAlive())
                     {
                         minion->CastSpell(me, SPELL_OVERCHARGED, true);
                         minion->SetHealth(minion->GetMaxHealth());
-                        DoScriptText(EMOTE_OVERCHARGE, m_creature);
+                        DoScriptText(EMOTE_OVERCHARGE, me);
                         events.ScheduleEvent(EVENT_OVERCHARGE, 45000);
                     }
                 }
                 break;
             case EVENT_BERSERK:
-                DoCast(m_creature, SPELL_BERSERK);
-                DoScriptText(EMOTE_BERSERK, m_creature);
+                DoCast(me, SPELL_BERSERK);
+                DoScriptText(EMOTE_BERSERK, me);
                 break;
             }
         }
@@ -175,12 +175,12 @@ struct mob_tempest_minionAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if (Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
+        if (Creature *pEmalon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
         {
             if (pEmalon->isAlive())
             {
                 pEmalon->SummonCreature(MOB_TEMPEST_MINION, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
+                DoScriptText(EMOTE_MINION_RESPAWN, me);
             }
         }
     }
@@ -190,7 +190,7 @@ struct mob_tempest_minionAI : public ScriptedAI
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_SHOCK, 20000);
 
-        if (Creature *pEmalon = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
+        if (Creature *pEmalon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
         {
             if (!pEmalon->getVictim() && pEmalon->AI())
                 pEmalon->AI()->AttackStart(who);
@@ -208,7 +208,7 @@ struct mob_tempest_minionAI : public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        if (Aura *overchargedAura = m_creature->GetAura(SPELL_OVERCHARGED))
+        if (Aura *overchargedAura = me->GetAura(SPELL_OVERCHARGED))
         {
             if (overchargedAura->GetStackAmount() < 10)
             {
@@ -223,8 +223,8 @@ struct mob_tempest_minionAI : public ScriptedAI
                 if (overchargedAura->GetStackAmount() == 10)
                 {
                     DoCast(me, SPELL_OVERCHARGED_BLAST);
-                    m_creature->ForcedDespawn();
-                    DoScriptText(EMOTE_MINION_RESPAWN, m_creature);
+                    me->ForcedDespawn();
+                    DoScriptText(EMOTE_MINION_RESPAWN, me);
                 }
             }
         }

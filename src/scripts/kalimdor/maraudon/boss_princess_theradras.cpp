@@ -51,7 +51,7 @@ struct boss_ptheradrasAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        m_creature->SummonCreature(12238,28.067,61.875,-123.405,4.67,TEMPSUMMON_TIMED_DESPAWN,600000);
+        me->SummonCreature(12238,28.067,61.875,-123.405,4.67,TEMPSUMMON_TIMED_DESPAWN,600000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -62,7 +62,7 @@ struct boss_ptheradrasAI : public ScriptedAI
         //Dustfield_Timer
         if (Dustfield_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_DUSTFIELD);
+            DoCast(me, SPELL_DUSTFIELD);
             Dustfield_Timer = 14000;
         } else Dustfield_Timer -= diff;
 
@@ -79,14 +79,14 @@ struct boss_ptheradrasAI : public ScriptedAI
         //RepulsiveGaze_Timer
         if (RepulsiveGaze_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_REPULSIVEGAZE);
+            DoCast(me->getVictim(), SPELL_REPULSIVEGAZE);
             RepulsiveGaze_Timer = 20000;
         } else RepulsiveGaze_Timer -= diff;
 
         //Thrash_Timer
         if (Thrash_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_THRASH);
+            DoCast(me, SPELL_THRASH);
             Thrash_Timer = 18000;
         } else Thrash_Timer -= diff;
 

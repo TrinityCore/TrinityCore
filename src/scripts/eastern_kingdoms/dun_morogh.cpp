@@ -44,8 +44,8 @@ struct npc_narm_faulkAI : public ScriptedAI
     void Reset()
     {
         lifeTimer = 120000;
-        m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+        me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+        me->SetStandState(UNIT_STAND_STATE_DEAD);
         spellHit = false;
     }
 
@@ -60,7 +60,7 @@ struct npc_narm_faulkAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-       if (m_creature->IsStandState())
+       if (me->IsStandState())
         {
             if (lifeTimer <= diff)
             {
@@ -76,11 +76,11 @@ struct npc_narm_faulkAI : public ScriptedAI
     {
         if (Spellkind->Id == 8593 && !spellHit)
         {
-            DoCast(m_creature, 32343);
-            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-            m_creature->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-            //m_creature->RemoveAllAuras();
-            DoScriptText(SAY_HEAL, m_creature);
+            DoCast(me, 32343);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+            //me->RemoveAllAuras();
+            DoScriptText(SAY_HEAL, me);
             spellHit = true;
         }
     }

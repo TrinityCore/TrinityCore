@@ -75,7 +75,7 @@ struct boss_sapphironAI : public BossAI
     boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
         , phase(PHASE_NULL)
     {
-        pMap = m_creature->GetMap();
+        pMap = me->GetMap();
     }
 
     Phases phase;
@@ -238,7 +238,7 @@ struct boss_sapphironAI : public BossAI
                 switch(eventId)
                 {
                     case EVENT_BERSERK:
-                        DoScriptText(EMOTE_ENRAGE, m_creature);
+                        DoScriptText(EMOTE_ENRAGE, me);
                         DoCast(me, SPELL_BERSERK);
                         return;
                     case EVENT_CLEAVE:

@@ -66,8 +66,8 @@ struct boss_amanitarAI : public ScriptedAI
         uiBoltTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
         uiSpawnTimer = 0;
 
-        m_creature->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+        me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
 
         if (pInstance)
         {
@@ -93,7 +93,7 @@ struct boss_amanitarAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
-        DoCast(m_creature, SPELL_MINI, false);
+        DoCast(me, SPELL_MINI, false);
     }
 
     void SpawnAdds()
@@ -106,10 +106,10 @@ struct boss_amanitarAI : public ScriptedAI
             {
                 Position pos;
                 victim->GetPosition(&pos);
-                m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
-                m_creature->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILISECONDS);
-                m_creature->GetRandomNearPosition(pos, float(urand(5,80)));
-                m_creature->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILISECONDS);
+                me->GetRandomNearPosition(pos, float(urand(5,80)));
+                me->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILISECONDS);
+                me->GetRandomNearPosition(pos, float(urand(5,80)));
+                me->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILISECONDS);
             }
         }
     }
@@ -159,10 +159,10 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        DoCast(m_creature, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
+        DoCast(me, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
 
-        if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
-            DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
+        if (me->GetEntry() == NPC_POISONOUS_MUSHROOM)
+            DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
 
         uiAuraTimer = 0;
         uiDeathTimer = 30*IN_MILISECONDS;
@@ -173,9 +173,9 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
         if (!killer)
             return;
 
-        if (m_creature->GetEntry() == NPC_HEALTHY_MUSHROOM && killer->GetTypeId() == TYPEID_PLAYER)
+        if (me->GetEntry() == NPC_HEALTHY_MUSHROOM && killer->GetTypeId() == TYPEID_PLAYER)
         {
-            m_creature->InterruptNonMeleeSpells(false);
+            me->InterruptNonMeleeSpells(false);
             DoCast(killer, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, false);
         }
     }
@@ -185,17 +185,17 @@ struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (m_creature->GetEntry() == NPC_POISONOUS_MUSHROOM)
+        if (me->GetEntry() == NPC_POISONOUS_MUSHROOM)
         {
             if (uiAuraTimer <= diff)
             {
-                DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
-                DoCast(m_creature, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
+                DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
+                DoCast(me, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
                 uiAuraTimer = 7*IN_MILISECONDS;
             } else uiAuraTimer -= diff;
         }
         if (uiDeathTimer <= diff)
-            m_creature->DisappearAndDie();
+            me->DisappearAndDie();
         else uiDeathTimer -= diff;
     }
 };

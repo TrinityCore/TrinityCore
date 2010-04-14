@@ -82,7 +82,7 @@ struct boss_epochAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
@@ -115,7 +115,7 @@ struct boss_epochAI : public ScriptedAI
 
         if (uiTimeWarpTimer < diff)
         {
-            DoScriptText(RAND(SAY_TIME_WARP_1,SAY_TIME_WARP_2,SAY_TIME_WARP_3), m_creature);
+            DoScriptText(RAND(SAY_TIME_WARP_1,SAY_TIME_WARP_2,SAY_TIME_WARP_3), me);
             DoCastAOE(SPELL_TIME_WARP);
             uiTimeWarpTimer = 25300;
         } else uiTimeWarpTimer -= diff;
@@ -125,7 +125,7 @@ struct boss_epochAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_EPOCH_EVENT, DONE);
@@ -133,10 +133,10 @@ struct boss_epochAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 };
 

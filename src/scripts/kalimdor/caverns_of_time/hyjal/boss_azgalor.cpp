@@ -67,8 +67,8 @@ struct boss_azgalorAI : public hyjal_trashAI
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
-        DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
-        m_creature->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
+        DoPlaySoundToSet(me, SOUND_ONAGGRO);
+        me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
     }
 
     void KilledUnit(Unit *victim)
@@ -76,16 +76,16 @@ struct boss_azgalorAI : public hyjal_trashAI
         switch (urand(0,2))
         {
             case 0:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
-                m_creature->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_ONSLAY1);
+                me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
                 break;
             case 1:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
-                m_creature->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_ONSLAY2);
+                me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
                 break;
             case 2:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY3);
-                m_creature->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_ONSLAY3);
+                me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, NULL);
                 break;
         }
     }
@@ -95,9 +95,9 @@ struct boss_azgalorAI : public hyjal_trashAI
         pos = i;
         if (i == 7 && pInstance)
         {
-            Unit *pTarget = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_THRALL));
+            Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
             if (pTarget && pTarget->isAlive())
-                m_creature->AddThreat(pTarget,0.0);
+                me->AddThreat(pTarget,0.0);
         }
     }
 
@@ -106,7 +106,7 @@ struct boss_azgalorAI : public hyjal_trashAI
         hyjal_trashAI::JustDied(victim);
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, DONE);
-        DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
+        DoPlaySoundToSet(me, SOUND_ONDEATH);
     }
 
     void UpdateAI(const uint32 diff)
@@ -152,20 +152,20 @@ struct boss_azgalorAI : public hyjal_trashAI
 
         if (HowlTimer <= diff)
         {
-            DoCast(m_creature, SPELL_HOWL_OF_AZGALOR);
+            DoCast(me, SPELL_HOWL_OF_AZGALOR);
             HowlTimer = 30000;
         } else HowlTimer -= diff;
 
         if (CleaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             CleaveTimer = 10000+rand()%5000;
         } else CleaveTimer -= diff;
 
         if (EnrageTimer < diff && !enraged)
         {
-            m_creature->InterruptNonMeleeSpells(false);
-            DoCast(m_creature, SPELL_BERSERK, true);
+            me->InterruptNonMeleeSpells(false);
+            DoCast(me, SPELL_BERSERK, true);
             enraged = true;
             EnrageTimer = 600000;
         } else EnrageTimer -= diff;
@@ -202,7 +202,7 @@ struct mob_lesser_doomguardAI : public hyjal_trashAI
     {
         CrippleTimer = 50000;
         WarstompTimer = 10000;
-        DoCast(m_creature, SPELL_THRASH);
+        DoCast(me, SPELL_THRASH);
         CheckTimer = 5000;
     }
 
@@ -222,7 +222,7 @@ struct mob_lesser_doomguardAI : public hyjal_trashAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->IsWithinDist(who, 50) && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
+        if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
             AttackStart(who);
     }
 
@@ -237,11 +237,11 @@ struct mob_lesser_doomguardAI : public hyjal_trashAI
         {
             if (AzgalorGUID)
             {
-                Creature* boss = Unit::GetCreature((*m_creature),AzgalorGUID);
+                Creature* boss = Unit::GetCreature((*me),AzgalorGUID);
                 if (!boss || (boss && boss->isDead()))
                 {
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
+                    me->setDeathState(JUST_DIED);
+                    me->RemoveCorpse();
                     return;
                 }
             }
@@ -254,7 +254,7 @@ struct mob_lesser_doomguardAI : public hyjal_trashAI
 
         if (WarstompTimer <= diff)
         {
-            DoCast(m_creature, SPELL_WARSTOMP);
+            DoCast(me, SPELL_WARSTOMP);
             WarstompTimer = 10000+rand()%5000;
         } else WarstompTimer -= diff;
 

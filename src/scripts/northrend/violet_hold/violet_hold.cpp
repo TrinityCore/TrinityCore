@@ -49,11 +49,11 @@ struct npc_sinclariAI : public ScriptedAI
         uiPhase = 0;
         uiTimer = 0;
 
-        m_creature->SetVisibility(VISIBILITY_ON);
-        m_creature->SetReactState(REACT_AGGRESSIVE);
+        me->SetVisibility(VISIBILITY_ON);
+        me->SetReactState(REACT_AGGRESSIVE);
 
         std::list<Creature*> GuardList;
-        m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+        me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
         if (!GuardList.empty())
         {
             for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
@@ -81,8 +81,8 @@ struct npc_sinclariAI : public ScriptedAI
         }
 
         //She should not be despawned, she will be used by the instance to summon some npcs
-        m_creature->SetVisibility(VISIBILITY_OFF);
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetVisibility(VISIBILITY_OFF);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -96,14 +96,14 @@ struct npc_sinclariAI : public ScriptedAI
                 switch(uiPhase)
                 {
                     case 1:
-                       DoScriptText(SAY_SINCLARI_1, m_creature);
+                       DoScriptText(SAY_SINCLARI_1, me);
                        uiTimer = 4000;
                        uiPhase = 2;
                        break;
                     case 2:
                     {
                         std::list<Creature*> GuardList;
-                        m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+                        me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
                         if (!GuardList.empty())
                             for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
                             {
@@ -120,7 +120,7 @@ struct npc_sinclariAI : public ScriptedAI
                     case 3:
                     {
                         std::list<Creature*> GuardList;
-                        m_creature->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
+                        me->GetCreatureListWithEntryInGrid(GuardList, NPC_VIOLET_HOLD_GUARD, 40.0f);
                         if (!GuardList.empty())
                             for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
                             {
@@ -135,7 +135,7 @@ struct npc_sinclariAI : public ScriptedAI
                         break;
                     }
                     case 4:
-                        m_creature->GetMotionMaster()->MovePoint(0, MovePosition);
+                        me->GetMotionMaster()->MovePoint(0, MovePosition);
                         uiTimer = 0;
                         uiPhase = 0;
                         break;
@@ -210,7 +210,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
     {
         if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
         {
-            m_creature->ForcedDespawn();
+            me->ForcedDespawn();
             pInstance->SetData(DATA_REMOVE_NPC, 0);
         }
 
@@ -222,7 +222,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                 for (uint8 i = 0; i < k; ++i)
                 {
                     uint32 entry = RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR);
-                    if (Creature* pSummon = DoSummon(entry, m_creature, 2.0f, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+                    if (Creature* pSummon = DoSummon(entry, me, 2.0f, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                         pSummon->GetMotionMaster()->MovePoint(0, DoorPosition);
                 }
             }
@@ -230,16 +230,16 @@ struct npc_teleportation_portalAI : public ScriptedAI
             {
                 bPortalGuardianOrKeeperSpawn = true;
                 uint32 entry = RAND(CREATURE_PORTAL_GUARDIAN, CREATURE_PORTAL_KEEPER);
-                if (Creature *pPortalKeeper = DoSummon(entry, m_creature, 2.0f, 0, TEMPSUMMON_DEAD_DESPAWN))
-                    m_creature->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL, false);
+                if (Creature *pPortalKeeper = DoSummon(entry, me, 2.0f, 0, TEMPSUMMON_DEAD_DESPAWN))
+                    me->CastSpell(pPortalKeeper, SPELL_PORTAL_CHANNEL, false);
             }
             uiSpawnTimer = SPAWN_TIME;
         } else uiSpawnTimer -= diff;
 
-        if (bPortalGuardianOrKeeperSpawn && !m_creature->IsNonMeleeSpellCasted(false))
+        if (bPortalGuardianOrKeeperSpawn && !me->IsNonMeleeSpellCasted(false))
         {
-            m_creature->Kill(m_creature, false);
-            m_creature->RemoveCorpse();
+            me->Kill(me, false);
+            me->RemoveCorpse();
             return;
         }
     }

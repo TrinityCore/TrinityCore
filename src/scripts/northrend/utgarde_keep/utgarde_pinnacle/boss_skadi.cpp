@@ -96,9 +96,9 @@ struct boss_skadiAI : public ScriptedAI
 
         Phase = SKADI;
 
-        m_creature->Unmount();
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->Unmount();
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         if (pInstance)
             pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
@@ -106,12 +106,12 @@ struct boss_skadiAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
-        m_creature->Mount(DATA_MOUNT);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->GetMotionMaster()->MovePoint(uiWaypointId, 340.259, -510.541, 120.869);
+        me->Mount(DATA_MOUNT);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->GetMotionMaster()->MovePoint(uiWaypointId, 340.259, -510.541, 120.869);
 
         Phase = FLYING;
 
@@ -128,14 +128,14 @@ struct boss_skadiAI : public ScriptedAI
                 {
                     switch(uiWaypointId)
                     {
-                        case 0: m_creature->GetMotionMaster()->MovePoint(uiWaypointId, 340.259, -510.541, 120.869); break;
-                        case 1: m_creature->GetMotionMaster()->MovePoint(uiWaypointId, 472.977, -513.636, 120.869); break;
+                        case 0: me->GetMotionMaster()->MovePoint(uiWaypointId, 340.259, -510.541, 120.869); break;
+                        case 1: me->GetMotionMaster()->MovePoint(uiWaypointId, 472.977, -513.636, 120.869); break;
                         case 200:
-                            m_creature->GetMotionMaster()->Clear();
-                            m_creature->Unmount();
+                            me->GetMotionMaster()->Clear();
+                            me->Unmount();
                             Phase = SKADI;
-                            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 AttackStart(pTarget);
                             break;
@@ -149,7 +149,7 @@ struct boss_skadiAI : public ScriptedAI
 
                 if (uiCrushTimer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_CRUSH);
+                    DoCast(me->getVictim(), SPELL_CRUSH);
                     uiCrushTimer = 8000;
                 } else uiCrushTimer -= diff;
 
@@ -163,7 +163,7 @@ struct boss_skadiAI : public ScriptedAI
                 if (uiWhirlwindTimer <= diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);
+                        me->CastSpell(pTarget, DUNGEON_MODE(SPELL_WHIRLWIND, H_SPELL_WHIRLWIND), false);
                 } else uiWhirlwindTimer = 20000;
 
                 DoMeleeAttackIfReady();
@@ -173,7 +173,7 @@ struct boss_skadiAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
@@ -181,7 +181,7 @@ struct boss_skadiAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), m_creature);
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), me);
     }
 
     void MovementInform(uint32 type, uint32 id)
@@ -222,9 +222,9 @@ struct boss_skadiAI : public ScriptedAI
             Creature* pTemp;
             switch (urand(0,2))
             {
-                case 0: pTemp = m_creature->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
-                case 1: pTemp = m_creature->SummonCreature(CREATURE_YMIRJAR_WITCH_DOCTOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
-                case 2: pTemp = m_creature->SummonCreature(CREATURE_YMIRJAR_HARPOONER, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
+                case 0: pTemp = me->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
+                case 1: pTemp = me->SummonCreature(CREATURE_YMIRJAR_WITCH_DOCTOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
+                case 2: pTemp = me->SummonCreature(CREATURE_YMIRJAR_HARPOONER, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;
             }
             if (pTemp)
             {

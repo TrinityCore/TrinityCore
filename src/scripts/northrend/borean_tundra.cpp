@@ -243,27 +243,27 @@ struct npc_sinkhole_kill_creditAI : public ScriptedAI
             switch (Phase)
             {
                 case 1:
-                    DoCast(m_creature, SPELL_EXPLODE_CART, true);
-                    DoCast(m_creature, SPELL_SUMMON_CART, true);
-                    if (GameObject* cart = m_creature->FindNearestGameObject(188160,3))
+                    DoCast(me, SPELL_EXPLODE_CART, true);
+                    DoCast(me, SPELL_SUMMON_CART, true);
+                    if (GameObject* cart = me->FindNearestGameObject(188160,3))
                         cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
                     uiPhaseTimer = 3000;
                     Phase = 2;
                     break;
                 case 2:
-                    if (GameObject* cart = m_creature->FindNearestGameObject(188160,3))
+                    if (GameObject* cart = me->FindNearestGameObject(188160,3))
                         cart->UseDoorOrButton();
-                    DoCast(m_creature, SPELL_EXPLODE_CART, true);
+                    DoCast(me, SPELL_EXPLODE_CART, true);
                     uiPhaseTimer = 3000;
                     Phase = 3;
                     break;
                 case 3:
-                    DoCast(m_creature, SPELL_EXPLODE_CART, true);
+                    DoCast(me, SPELL_EXPLODE_CART, true);
                     uiPhaseTimer = 2000;
                     Phase = 4;
                 case 5:
-                    DoCast(m_creature, SPELL_SUMMON_WORM, true);
-                    if (Unit* worm = m_creature->FindNearestCreature(26250, 3))
+                    DoCast(me, SPELL_SUMMON_WORM, true);
+                    if (Unit* worm = me->FindNearestCreature(26250, 3))
                     {
                         worm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         worm->HandleEmoteCommand(EMOTE_ONESHOT_EMERGE);
@@ -272,19 +272,19 @@ struct npc_sinkhole_kill_creditAI : public ScriptedAI
                     Phase = 6;
                     break;
                 case 6:
-                    DoCast(m_creature, SPELL_EXPLODE_CART, true);
-                    if (Unit* worm = m_creature->FindNearestCreature(26250, 3))
+                    DoCast(me, SPELL_EXPLODE_CART, true);
+                    if (Unit* worm = me->FindNearestCreature(26250, 3))
                     {
-                        m_creature->Kill(worm);
+                        me->Kill(worm);
                         worm->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                     }
                     uiPhaseTimer = 2000;
                     Phase = 7;
                     break;
                 case 7:
-                    DoCast(m_creature, SPELL_EXPLODE_CART, true);
+                    DoCast(me, SPELL_EXPLODE_CART, true);
                     if (Player *caster = Unit::GetPlayer(casterGuid))
-                        caster->KilledMonster(m_creature->GetCreatureInfo(),m_creature->GetGUID());
+                        caster->KilledMonster(me->GetCreatureInfo(),me->GetGUID());
                     uiPhaseTimer = 5000;
                     Phase = 8;
                     break;
@@ -475,11 +475,11 @@ struct mob_nerubar_victimAI : public ScriptedAI
                 uint8 uiRand = urand(0,99);
                 if (uiRand < 25)
                 {
-                    Killer->CastSpell(m_creature,45532,true);
+                    Killer->CastSpell(me,45532,true);
                     CAST_PLR(Killer)->KilledMonsterCredit(WARSONG_PEON, 0);
                 }
                 else if (uiRand < 75)
-                    Killer->CastSpell(m_creature, nerubarVictims[urand(0,2)], true);
+                    Killer->CastSpell(me, nerubarVictims[urand(0,2)], true);
             }
         }
     }
@@ -503,9 +503,9 @@ struct npc_scourge_prisonerAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetReactState(REACT_PASSIVE);
 
-        if (GameObject* pGO = m_creature->FindNearestGameObject(GO_SCOURGE_CAGE,5.0f))
+        if (GameObject* pGO = me->FindNearestGameObject(GO_SCOURGE_CAGE,5.0f))
             if (pGO->GetGoState() == GO_STATE_ACTIVE)
                 pGO->SetGoState(GO_STATE_READY);
     }
@@ -542,35 +542,35 @@ struct npc_jennyAI : public ScriptedAI
         if (!setCrateNumber)
             setCrateNumber = true;
 
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetReactState(REACT_PASSIVE);
 
-        switch (CAST_PLR(m_creature->GetOwner())->GetTeamId())
+        switch (CAST_PLR(me->GetOwner())->GetTeamId())
         {
             case TEAM_ALLIANCE:
-                m_creature->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
+                me->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
                 break;
             default:
             case TEAM_HORDE:
-                m_creature->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
+                me->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
                 break;
         }
     }
 
     void DamageTaken(Unit* pDone_by, uint32& uiDamage)
     {
-        DoCast(m_creature, SPELL_DROP_CRATE, true);
+        DoCast(me, SPELL_DROP_CRATE, true);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (setCrateNumber)
         {
-            m_creature->AddAura(SPELL_CRATES_CARRIED,m_creature);
+            me->AddAura(SPELL_CRATES_CARRIED,me);
             setCrateNumber = false;
         }
 
-        if (!setCrateNumber && !m_creature->HasAura(SPELL_CRATES_CARRIED))
-            m_creature->DisappearAndDie();
+        if (!setCrateNumber && !me->HasAura(SPELL_CRATES_CARRIED))
+            me->DisappearAndDie();
 
         if (!UpdateVictim())
             return;
@@ -597,7 +597,7 @@ struct npc_fezzix_geartwistAI : public ScriptedAI
         if (pWho->GetTypeId() != TYPEID_UNIT)
             return;
 
-        if (pWho->GetEntry() == NPC_JENNY && m_creature->IsWithinDistInMap(pWho, 10.0f))
+        if (pWho->GetEntry() == NPC_JENNY && me->IsWithinDistInMap(pWho, 10.0f))
         {
             if (Unit* pOwner = pWho->GetOwner())
             {
@@ -659,7 +659,7 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetVisibility(VISIBILITY_OFF);
+        me->SetVisibility(VISIBILITY_OFF);
         uiPhaseTimer = 2500;
         Phase = 1;
         go_caribouGUID = 0;
@@ -669,16 +669,16 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
 
     void JustDied(Unit *who)
     {
-        if (GameObject *go_caribou = m_creature->GetMap()->GetGameObject(go_caribouGUID))
+        if (GameObject *go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
             go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
-        if (TempSummon *summon = m_creature->ToTempSummon())
+        if (TempSummon *summon = me->ToTempSummon())
             if (summon->isSummon())
                 if (Unit *pTemp = summon->GetSummoner())
                     if (pTemp->GetTypeId() == TYPEID_PLAYER)
-                        CAST_PLR(pTemp)->KilledMonsterCredit(m_creature->GetEntry(),0);
+                        CAST_PLR(pTemp)->KilledMonsterCredit(me->GetEntry(),0);
 
-        if (GameObject *go_caribou = m_creature->GetMap()->GetGameObject(go_caribouGUID))
+        if (GameObject *go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
             go_caribou->SetGoState(GO_STATE_READY);
     }
 
@@ -689,34 +689,34 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
             switch (Phase)
             {
                 case 1:
-                    m_creature->SetVisibility(VISIBILITY_ON);
+                    me->SetVisibility(VISIBILITY_ON);
                     uiPhaseTimer = 2000;
                     Phase = 2;
                     break;
 
                 case 2:
-                    if (GameObject *go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
-                        m_creature->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
+                    if (GameObject *go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
+                        me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
                     uiPhaseTimer = 1500;
                     Phase = 3;
                     break;
                 case 3:
-                    //DoScriptText(SAY_NESINGWARY_1, m_creature);
+                    //DoScriptText(SAY_NESINGWARY_1, me);
                     uiPhaseTimer = 2000;
                     Phase = 4;
                     break;
                 case 4:
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
                     uiPhaseTimer = 1000;
                     Phase = 5;
                     break;
                 case 5:
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_NONE);
                     uiPhaseTimer = 500;
                     Phase = 6;
                     break;
                 case 6:
-                    if (GameObject *go_fur = m_creature->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
+                    if (GameObject *go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                         go_fur->Delete();
                     uiPhaseTimer = 500;
                     Phase = 7;
@@ -725,21 +725,21 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
                 case 7:
                 {
                     GameObject *go_caribou = NULL;
-                    if ((go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_4, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_5, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_6, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_7, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_8, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_9, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_10, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_11, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_12, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
-                        (go_caribou = m_creature->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
+                    if ((go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_4, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_5, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_6, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_7, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_8, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_9, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_10, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_11, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_12, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
+                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
                     {
                         go_caribou->SetGoState(GO_STATE_ACTIVE);
                         go_caribouGUID = go_caribou->GetGUID();
@@ -749,7 +749,7 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
                 }
                     break;
                 case 8:
-                    DoCast(m_creature, SPELL_TRAPPED, true);
+                    DoCast(me, SPELL_TRAPPED, true);
                     Phase = 0;
                     break;
             }
@@ -821,27 +821,27 @@ struct npc_lurgglbrAI : public npc_escortAI
                 switch(IntroPhase)
                 {
                     case 1:
-                        //DoScriptText(SAY_WP_1_LUR_START,m_creature);
+                        //DoScriptText(SAY_WP_1_LUR_START,me);
                         IntroPhase = 2;
                         IntroTimer = 7500;
                         break;
                     case 2:
-                        //DoScriptText(SAY_WP_1_LUR_END,m_creature);
+                        //DoScriptText(SAY_WP_1_LUR_END,me);
                         IntroPhase = 3;
                         IntroTimer = 7500;
                         break;
                     case 3:
-                        m_creature->SetReactState(REACT_AGGRESSIVE);
+                        me->SetReactState(REACT_AGGRESSIVE);
                         IntroPhase = 0;
                         IntroTimer = 0;
                         break;
                     case 4:
-                        //DoScriptText(SAY_WP_41_LUR_START,m_creature);
+                        //DoScriptText(SAY_WP_41_LUR_START,me);
                         IntroPhase = 5;
                         IntroTimer = 8000;
                         break;
                     case 5:
-                        //DoScriptText(SAY_WP_41_LUR_END,m_creature);
+                        //DoScriptText(SAY_WP_41_LUR_END,me);
                         IntroPhase = 6;
                         IntroTimer = 2500;
                         break;
@@ -854,7 +854,7 @@ struct npc_lurgglbrAI : public npc_escortAI
                         break;
 
                     case 7:
-                        m_creature->ForcedDespawn();
+                        me->ForcedDespawn();
                         IntroPhase = 0;
                         IntroTimer = 0;
                         break;
@@ -935,7 +935,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
 
     void EnterCombat(Unit* pWho)
     {
-        if (m_creature->canAttack(pWho))
+        if (me->canAttack(pWho))
             AttackStart(pWho);
     }
 
@@ -944,7 +944,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
         if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
         {
             HarpoonerGUID = caster->GetGUID();
-            DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
+            DoCast(me, SPELL_RED_DRAGONBLOOD, true);
         }
         WithRedDragonBlood = true;
     }
@@ -956,9 +956,9 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
         if (!HarpoonerGUID)
             return;
 
-        if (m_creature->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
+        if (me->HasAura(SPELL_SUBDUED) && pWho->GetEntry() == NPC_RAELORASZ)
         {
-            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
                 if (Player *pHarpooner = Unit::GetPlayer(HarpoonerGUID))
                 {
@@ -966,7 +966,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
                     pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
                     SetFollowComplete();
                     HarpoonerGUID = 0;
-                    m_creature->DisappearAndDie();
+                    me->DisappearAndDie();
                 }
             }
         }
@@ -974,17 +974,17 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
 
     void UpdateAI(const uint32 diff)
     {
-        if (WithRedDragonBlood && HarpoonerGUID && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+        if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
         {
             if (Player *pHarpooner = Unit::GetPlayer(HarpoonerGUID))
             {
                 EnterEvadeMode();
                 StartFollow(pHarpooner, 35, NULL);
 
-                DoCast(m_creature, SPELL_SUBDUED, true);
+                DoCast(me, SPELL_SUBDUED, true);
                 pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
 
-                m_creature->AttackStop();
+                me->AttackStop();
                 WithRedDragonBlood = false;
             }
         }
@@ -1064,8 +1064,8 @@ struct npc_thassarianAI : public npc_escortAI
 
     void Reset()
     {
-        m_creature->RestoreFaction();
-        m_creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+        me->RestoreFaction();
+        me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
 
         uiArthas = 0;
         uiTalbot = 0;
@@ -1092,7 +1092,7 @@ struct npc_thassarianAI : public npc_escortAI
         {
             case 3:
                 SetEscortPaused(true);
-                if (Creature *pArthas = m_creature->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313, 3518.689, 473.324, 1.562, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
+                if (Creature *pArthas = me->SummonCreature(NPC_IMAGE_LICH_KING, 3730.313, 3518.689, 473.324, 1.562, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                 {
                     uiArthas = pArthas->GetGUID();
                     pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1100,13 +1100,13 @@ struct npc_thassarianAI : public npc_escortAI
                     pArthas->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                     pArthas->GetMotionMaster()->MovePoint(0, 3737.374756,3564.841309,477.433014);
                 }
-                if (Creature *pTalbot = m_creature->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23, 3614.936, 473.321, 4.462012, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                if (Creature *pTalbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23, 3614.936, 473.321, 4.462012, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                 {
                     uiTalbot = pTalbot->GetGUID();
                     pTalbot->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                     pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977,3568.882080,477.433014);
                 }
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 break;
 
             case 4:
@@ -1131,14 +1131,14 @@ struct npc_thassarianAI : public npc_escortAI
         {
             bArlosInPosition   = false;
             bLeryssaInPosition = false;
-            DoScriptText(SAY_THASSARIAN_1, m_creature);
+            DoScriptText(SAY_THASSARIAN_1, me);
             SetEscortPaused(false);
         }
 
         if (uiPhaseTimer <= uiDiff)
         {
-            Creature* pTalbot = m_creature->GetCreature(*m_creature, uiTalbot);
-            Creature* pArthas = m_creature->GetCreature(*m_creature, uiArthas);
+            Creature* pTalbot = me->GetCreature(*me, uiTalbot);
+            Creature* pArthas = me->GetCreature(*me, uiArthas);
             switch (uiPhase)
             {
                 case 1:
@@ -1182,13 +1182,13 @@ struct npc_thassarianAI : public npc_escortAI
                     break;
 
                 case 6:
-                    if (Creature* pArlos = m_creature->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100, 3615.655029, 473.321533, 4.447805, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    if (Creature* pArlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100, 3615.655029, 473.321533, 4.447805, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                     {
                         uiArlos = pArlos->GetGUID();
                         pArlos->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                         pArlos->GetMotionMaster()->MovePoint(0, 3735.570068, 3572.419922, 477.441010);
                     }
-                    if (Creature *pLeryssa = m_creature->SummonCreature(NPC_LERYSSA, 3749.654541, 3614.959717, 473.323486, 4.524959, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    if (Creature *pLeryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541, 3614.959717, 473.323486, 4.524959, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                     {
                         uiLeryssa = pLeryssa->GetGUID();
                         pLeryssa->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
@@ -1201,7 +1201,7 @@ struct npc_thassarianAI : public npc_escortAI
                     break;
 
                 case 7:
-                    DoScriptText(SAY_THASSARIAN_2, m_creature);
+                    DoScriptText(SAY_THASSARIAN_2, me);
                     uiPhaseTimer = 5000;
                     ++uiPhase;
                     break;
@@ -1209,7 +1209,7 @@ struct npc_thassarianAI : public npc_escortAI
                 case 8:
                     if (pArthas && pTalbot)
                     {
-                        pArthas->SetInFront(m_creature); //The client doesen't update with the new orientation :l
+                        pArthas->SetInFront(me); //The client doesen't update with the new orientation :l
                         pTalbot->SetStandState(UNIT_STAND_STATE_STAND);
                         DoScriptText(SAY_LICH_2, pArthas);
                     }
@@ -1218,7 +1218,7 @@ struct npc_thassarianAI : public npc_escortAI
                     break;
 
                case 9:
-                    DoScriptText(SAY_THASSARIAN_3, m_creature);
+                    DoScriptText(SAY_THASSARIAN_3, me);
                     uiPhaseTimer = 5000;
                     uiPhase = 10;
                     break;
@@ -1251,37 +1251,37 @@ struct npc_thassarianAI : public npc_escortAI
                     break;
 
                 case 14:
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     if (pTalbot)
                     {
                         pTalbot->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pTalbot->SetReactState(REACT_AGGRESSIVE);
-                        pTalbot->CastSpell(m_creature, SPELL_SHADOW_BOLT, false);
+                        pTalbot->CastSpell(me, SPELL_SHADOW_BOLT, false);
                     }
                     uiPhaseTimer = 1500;
                     ++uiPhase;
                     break;
 
                 case 15:
-                    m_creature->SetReactState(REACT_AGGRESSIVE);
+                    me->SetReactState(REACT_AGGRESSIVE);
                     AttackStart(pTalbot);
                     uiPhase = 0;
                     break;
 
                 case 16:
-                    m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                     uiPhaseTimer = 20000;
                     ++uiPhase;
                     break;
 
                case 17:
-                    if (Creature* pLeryssa = m_creature->GetCreature(*m_creature, uiLeryssa))
+                    if (Creature* pLeryssa = me->GetCreature(*me, uiLeryssa))
                         pLeryssa->RemoveFromWorld();
-                    if (Creature* pArlos= m_creature->GetCreature(*m_creature, uiArlos))
+                    if (Creature* pArlos= me->GetCreature(*me, uiArlos))
                         pArlos->RemoveFromWorld();
                     if (pTalbot)
                         pTalbot->RemoveFromWorld();
-                    m_creature->RemoveStandFlags(UNIT_STAND_STATE_SIT);
+                    me->RemoveStandFlags(UNIT_STAND_STATE_SIT);
                     SetEscortPaused(false);
                     uiPhaseTimer = 0;
                     uiPhase = 0;
@@ -1296,16 +1296,16 @@ struct npc_thassarianAI : public npc_escortAI
 
     void JustDied(Unit* pKiller)
     {
-        if (Creature* pTalbot = m_creature->GetCreature(*m_creature, uiTalbot))
+        if (Creature* pTalbot = me->GetCreature(*me, uiTalbot))
             pTalbot->RemoveFromWorld();
 
-        if (Creature* pLeryssa = m_creature->GetCreature(*m_creature, uiLeryssa))
+        if (Creature* pLeryssa = me->GetCreature(*me, uiLeryssa))
             pLeryssa->RemoveFromWorld();
 
-        if (Creature* pArlos = m_creature->GetCreature(*m_creature, uiArlos))
+        if (Creature* pArlos = me->GetCreature(*me, uiArlos))
             pArlos->RemoveFromWorld();
 
-        if (Creature* pArthas = m_creature->GetCreature(*m_creature, uiArthas))
+        if (Creature* pArthas = me->GetCreature(*me, uiArthas))
             pArthas->RemoveFromWorld();
     }
 };
@@ -1350,7 +1350,7 @@ struct npc_image_lich_kingAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->RestoreFaction();
+        me->RestoreFaction();
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
@@ -1358,8 +1358,8 @@ struct npc_image_lich_kingAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (m_creature->isSummon())
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        if (me->isSummon())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArthasInPosition = true;
     }
 };
@@ -1382,10 +1382,10 @@ struct npc_general_arlosAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        m_creature->addUnitState(UNIT_STAT_STUNNED);
-        m_creature->CastSpell(m_creature, SPELL_STUN, true);
-        if (m_creature->isSummon())
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        me->addUnitState(UNIT_STAT_STUNNED);
+        me->CastSpell(me, SPELL_STUN, true);
+        if (me->isSummon())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bArlosInPosition = true;
     }
 };
@@ -1435,8 +1435,8 @@ struct npc_counselor_talbotAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (m_creature->isSummon())
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+        if (me->isSummon())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bTalbotInPosition = true;
     }
 
@@ -1444,9 +1444,9 @@ struct npc_counselor_talbotAI : public ScriptedAI
     {
         if (bCheck)
         {
-            if (Creature *pLeryssa = m_creature->FindNearestCreature(NPC_LERYSSA, 50.0f, true))
+            if (Creature *pLeryssa = me->FindNearestCreature(NPC_LERYSSA, 50.0f, true))
                 LeryssaGUID = pLeryssa->GetGUID();
-            if (Creature *pArlos = m_creature->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true))
+            if (Creature *pArlos = me->FindNearestCreature(NPC_GENERAL_ARLOS, 50.0f, true))
                 ArlosGUID = pArlos->GetGUID();
             bCheck = false;
         }
@@ -1454,23 +1454,23 @@ struct npc_counselor_talbotAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->GetAreaId() == 4125)
+        if (me->GetAreaId() == 4125)
         {
             if (uiShadowBoltTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT);
+                DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
                 uiShadowBoltTimer = urand(5000,12000);
             } else uiShadowBoltTimer -= uiDiff;
 
             if (uiDeflectionTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_DEFLECTION);
+                DoCast(me->getVictim(), SPELL_DEFLECTION);
                 uiDeflectionTimer = urand(20000,25000);
             } else uiDeflectionTimer -= uiDiff;
 
             if (uiSoulBlastTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SOUL_BLAST);
+                DoCast(me->getVictim(), SPELL_SOUL_BLAST);
                 uiSoulBlastTimer  = urand (12000,18000);
             } else uiSoulBlastTimer -= uiDiff;
         }
@@ -1483,8 +1483,8 @@ struct npc_counselor_talbotAI : public ScriptedAI
         if (!LeryssaGUID || !ArlosGUID)
             return;
 
-        Creature *pLeryssa = Unit::GetCreature(*m_creature, LeryssaGUID);
-        Creature *pArlos = Unit::GetCreature(*m_creature, ArlosGUID);
+        Creature *pLeryssa = Unit::GetCreature(*me, LeryssaGUID);
+        Creature *pArlos = Unit::GetCreature(*me, ArlosGUID);
         if (!pLeryssa || !pArlos)
             return;
 
@@ -1534,22 +1534,22 @@ struct npc_leryssaAI : public ScriptedAI
 
         if (!bDone)
         {
-            if (Creature* pTalbot = m_creature->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
+            if (Creature* pTalbot = me->FindNearestCreature(NPC_PRINCE_VALANAR, 50.0f, true))
                 CAST_AI(npc_counselor_talbotAI, pTalbot->AI())->bCheck = true;
 
-            m_creature->addUnitState(UNIT_STAT_STUNNED);
-            m_creature->CastSpell(m_creature, SPELL_STUN, true);
+            me->addUnitState(UNIT_STAT_STUNNED);
+            me->CastSpell(me, SPELL_STUN, true);
 
-            if (m_creature->isSummon())
-                if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            if (me->isSummon())
+                if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                     CAST_AI(npc_thassarianAI,CAST_CRE(pSummoner)->AI())->bLeryssaInPosition = true;
             bDone = true;
         }
         else
         {
-            m_creature->SetStandState(UNIT_STAND_STATE_SIT);
-            if (m_creature->isSummon())
-                if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            me->SetStandState(UNIT_STAND_STATE_SIT);
+            if (me->isSummon())
+                if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
                 pSummoner->SetStandState(UNIT_STAND_STATE_SIT);
             uiPhaseTimer = 1500;
             Phase = 1;
@@ -1565,45 +1565,45 @@ struct npc_leryssaAI : public ScriptedAI
             switch (Phase)
             {
                 case 1:
-                    if (m_creature->isSummon())
-                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    if (me->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(me)->GetSummoner())
                             DoScriptText(SAY_THASSARIAN_4, pThassarian);
                     uiPhaseTimer = 5000;
                     ++Phase;
                     break;
                 case 2:
-                    DoScriptText(SAY_LERYSSA_2, m_creature);
+                    DoScriptText(SAY_LERYSSA_2, me);
                     uiPhaseTimer = 5000;
                     ++Phase;
                     break;
                 case 3:
-                    if (m_creature->isSummon())
-                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    if (me->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(me)->GetSummoner())
                             DoScriptText(SAY_THASSARIAN_5, pThassarian);
                     uiPhaseTimer = 5000;
                     ++Phase;
                     break;
                 case 4:
-                    DoScriptText(SAY_LERYSSA_3, m_creature);
+                    DoScriptText(SAY_LERYSSA_3, me);
                     uiPhaseTimer = 5000;
                     ++Phase;
                     break;
                 case 5:
-                    if (m_creature->isSummon())
-                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    if (me->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(me)->GetSummoner())
                     DoScriptText(SAY_THASSARIAN_6, pThassarian);
                     uiPhaseTimer = 5000;
                     ++Phase;
                     break;
 
                 case 6:
-                    DoScriptText(SAY_LERYSSA_4, m_creature);
+                    DoScriptText(SAY_LERYSSA_4, me);
                     uiPhaseTimer = 5000;
                     ++Phase;
                     break;
                 case 7:
-                    if (m_creature->isSummon())
-                        if (Unit* pThassarian = CAST_SUM(m_creature)->GetSummoner())
+                    if (me->isSummon())
+                        if (Unit* pThassarian = CAST_SUM(me)->GetSummoner())
                         {
                             DoScriptText(SAY_THASSARIAN_7, pThassarian);
                             CAST_AI(npc_thassarianAI,CAST_CRE(pThassarian)->AI())->uiPhase = 16;
@@ -1648,25 +1648,25 @@ struct npc_beryl_sorcererAI : public FollowerAI
 
     void Reset()
     {
-        m_creature->SetReactState(REACT_AGGRESSIVE);
+        me->SetReactState(REACT_AGGRESSIVE);
         bEnslaved = false;
     }
 
     void EnterCombat(Unit* pWho)
     {
-        if (m_creature->canAttack(pWho))
+        if (me->canAttack(pWho))
             AttackStart(pWho);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
-        if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50 && !bEnslaved)
+        if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && me->GetHealth()*100 / me->GetMaxHealth() <= 50 && !bEnslaved)
         {
             EnterEvadeMode(); //We make sure that the npc is not attacking the player!
-            m_creature->SetReactState(REACT_PASSIVE);
+            me->SetReactState(REACT_PASSIVE);
             StartFollow(CAST_PLR(pCaster), NULL, NULL);
-            m_creature->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
-            DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+            me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
+            DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
             CAST_PLR(pCaster)->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
             bEnslaved = true;
         }
@@ -1676,10 +1676,10 @@ struct npc_beryl_sorcererAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+        if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
         {
             SetFollowComplete();
-            m_creature->DisappearAndDie();
+            me->DisappearAndDie();
         }
     }
 
@@ -1750,18 +1750,18 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
     {
         ScriptedAI::UpdateAI(uiDiff);
 
-        if (!m_creature->HasAura(SPELL_COSMETIC_ENSLAVE_CHAINS_SELF))
-            DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
+        if (!me->HasAura(SPELL_COSMETIC_ENSLAVE_CHAINS_SELF))
+            DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
 
-        if (m_creature->GetReactState() != REACT_PASSIVE)
-            m_creature->SetReactState(REACT_PASSIVE);
+        if (me->GetReactState() != REACT_PASSIVE)
+            me->SetReactState(REACT_PASSIVE);
 
         switch (uiPhase)
         {
             case 1:
                 if (uiStep == 1)
                 {
-                    DoScriptText(SAY_IMPRISIONED_BERYL_1, m_creature);
+                    DoScriptText(SAY_IMPRISIONED_BERYL_1, me);
                     uiStep = 2;
                 }
                 break;
@@ -1769,7 +1769,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 2:
                 if (uiStep == 2)
                 {
-                    DoScriptText(SAY_IMPRISIONED_BERYL_2, m_creature);
+                    DoScriptText(SAY_IMPRISIONED_BERYL_2, me);
                     uiStep = 3;
                 }
                 break;
@@ -1777,7 +1777,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 3:
                 if (uiStep == 3)
                 {
-                    DoScriptText(SAY_IMPRISIONED_BERYL_3, m_creature);
+                    DoScriptText(SAY_IMPRISIONED_BERYL_3, me);
                     uiStep = 4;
                 }
                 break;
@@ -1785,7 +1785,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 4:
                 if (uiStep == 4)
                 {
-                    DoScriptText(SAY_IMPRISIONED_BERYL_4, m_creature);
+                    DoScriptText(SAY_IMPRISIONED_BERYL_4, me);
                     uiStep = 5;
                 }
                 break;
@@ -1795,7 +1795,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
                 {
                     if (Player *pCaster = Unit::GetPlayer(CasterGUID))
                     {
-                        DoScriptText(SAY_IMPRISIONED_BERYL_5, m_creature);
+                        DoScriptText(SAY_IMPRISIONED_BERYL_5, me);
                         pCaster->KilledMonsterCredit(25478,0);
                         uiStep = 6;
                     }
@@ -1805,7 +1805,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 6:
                 if (uiStep == 6)
                 {
-                    DoScriptText(SAY_IMPRISIONED_BERYL_6, m_creature);
+                    DoScriptText(SAY_IMPRISIONED_BERYL_6, me);
                     uiStep = 7;
                 }
                 break;
@@ -1813,7 +1813,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 7:
                 if (uiStep == 7)
                 {
-                    DoScriptText(SAY_IMPRISIONED_BERYL_7, m_creature);
+                    DoScriptText(SAY_IMPRISIONED_BERYL_7, me);
                     uiStep  = 1;
                     uiPhase = 0;
                 }
@@ -1886,23 +1886,23 @@ struct npc_mootoo_the_youngerAI : public npc_escortAI
         switch(i)
         {
         case 10:
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
-            DoScriptText(SAY_2, m_creature);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            DoScriptText(SAY_2, me);
             break;
         case 12:
-            DoScriptText(SAY_3, m_creature);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
+            DoScriptText(SAY_3, me);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_LOOT);
             break;
         case 16:
-            DoScriptText(SAY_4, m_creature);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            DoScriptText(SAY_4, me);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
             break;
         case 20:
             me->SetPhaseMask(1,true);
-            DoScriptText(SAY_5, m_creature);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+            DoScriptText(SAY_5, me);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
             if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_MIST, m_creature);
+                pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_MIST, me);
             SetRun(true);
             break;
         }
@@ -1969,7 +1969,7 @@ struct npc_bonker_togglevoltAI : public npc_escortAI
         {
             if (Bonker_agro == 0)
             {
-                DoScriptText(SAY_bonker_1,m_creature);
+                DoScriptText(SAY_bonker_1,me);
                 Bonker_agro++;
             }
             DoMeleeAttackIfReady();
@@ -1988,7 +1988,7 @@ struct npc_bonker_togglevoltAI : public npc_escortAI
         {
         case 29:
             if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, m_creature);
+                pPlayer->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
             break;
         }
     }
@@ -2044,28 +2044,28 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
         uiTimer = 1500;
         bStarted = false;
 
-        if ((pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_1,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_2,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_3,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_4,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_5,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_6,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_7,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_8,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_9,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_10,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_11,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_12,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_13,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_14,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_15,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_16,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_17,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_18,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_19,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_20,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_21,1.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_22,1.0f)))
+        if ((pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_1,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_2,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_3,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_4,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_5,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_6,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_7,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_8,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_9,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_10,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_11,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_12,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_13,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_14,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_15,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_16,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_17,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_18,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_19,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_20,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_21,1.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_22,1.0f)))
             pTrap->SetGoState(GO_STATE_ACTIVE);
     }
 
@@ -2076,8 +2076,8 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
             if (uiTimer <= diff)
             {
                 Position pos;
-                m_creature->GetRandomNearPosition(pos, 10.0f);
-                m_creature->GetMotionMaster()->MovePoint(0,pos);
+                me->GetRandomNearPosition(pos, 10.0f);
+                me->GetMotionMaster()->MovePoint(0,pos);
                 bStarted = false;
             }
             else uiTimer -= diff;
@@ -2095,30 +2095,30 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
         GameObject* pTrap;
         if (uiType != POINT_MOTION_TYPE)
             return;
-        m_creature->DisappearAndDie();
+        me->DisappearAndDie();
 
-        if ((pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_1,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_2,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_3,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_4,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_5,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_6,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_7,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_8,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_9,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_10,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_11,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_12,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_13,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_14,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_15,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_16,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_17,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_18,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_19,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_20,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_21,11.0f)) ||
-            (pTrap = m_creature->FindNearestGameObject(GO_MAMMOTH_TRAP_22,11.0f)))
+        if ((pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_1,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_2,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_3,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_4,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_5,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_6,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_7,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_8,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_9,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_10,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_11,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_12,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_13,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_14,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_15,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_16,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_17,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_18,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_19,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_20,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_21,11.0f)) ||
+            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_22,11.0f)))
             pTrap->SetLootState(GO_JUST_DEACTIVATED);
     }
 };
@@ -2149,8 +2149,8 @@ struct npc_magmoth_crusherAI : public ScriptedAI
     {
         if (pKiller->GetTypeId() == TYPEID_PLAYER &&
             CAST_PLR(pKiller)->GetQuestStatus(QUEST_YOU_RE_NOT_SO_BIG_NOW) == QUEST_STATUS_INCOMPLETE &&
-            (m_creature->HasAura(SPELL_AURA_NOTSOBIG_1) || m_creature->HasAura(SPELL_AURA_NOTSOBIG_2) ||
-            m_creature->HasAura(SPELL_AURA_NOTSOBIG_3) || m_creature->HasAura(SPELL_AURA_NOTSOBIG_4)))
+            (me->HasAura(SPELL_AURA_NOTSOBIG_1) || me->HasAura(SPELL_AURA_NOTSOBIG_2) ||
+            me->HasAura(SPELL_AURA_NOTSOBIG_3) || me->HasAura(SPELL_AURA_NOTSOBIG_4)))
         {
             Quest const* qInfo = objmgr.GetQuestTemplate(QUEST_YOU_RE_NOT_SO_BIG_NOW);
             if (qInfo)
@@ -2187,9 +2187,9 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
             DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (Creature* cCredit = m_creature->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
+                if (Creature* cCredit = me->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
                 {
-                    if (Unit* uOwner = m_creature->GetOwner(true))
+                    if (Unit* uOwner = me->GetOwner(true))
                     {
                         Player* pOwner = uOwner->ToPlayer();
                         if (pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)
@@ -2197,7 +2197,7 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
                     }
                 }
             }
-            m_creature->Kill(m_creature);
+            me->Kill(me);
             return;
         } else uiExplosionTimer -= diff;
     }
@@ -2233,10 +2233,10 @@ struct npc_valiance_keep_cannoneerAI : public ScriptedAI
     {
         if (uiTimer <= diff)
         {
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
             GameObject* pCannon;
-            if ((pCannon = m_creature->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_1,10)) || (pCannon = m_creature->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_2,10)))
-                pCannon->Use(m_creature);
+            if ((pCannon = me->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_1,10)) || (pCannon = me->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_2,10)))
+                pCannon->Use(me);
             uiTimer = urand(13000,18000);
         }
         else uiTimer -= diff;
@@ -2289,7 +2289,7 @@ struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
         if (m_uiTimer <= uiDiff)
         {
             std::list<Creature*> orbList;
-            GetCreatureListWithEntryInGrid(orbList, m_creature, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+            GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
 
             switch(me->GetEntry())
             {

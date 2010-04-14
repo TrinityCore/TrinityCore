@@ -59,7 +59,7 @@ struct boss_razorgoreAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -70,40 +70,40 @@ struct boss_razorgoreAI : public ScriptedAI
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = urand(7000,10000);
         } else Cleave_Timer -= diff;
 
         //WarStomp_Timer
         if (WarStomp_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WARSTOMP);
+            DoCast(me->getVictim(), SPELL_WARSTOMP);
             WarStomp_Timer = urand(15000,25000);
         } else WarStomp_Timer -= diff;
 
         //FireballVolley_Timer
         if (FireballVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FIREBALLVOLLEY);
+            DoCast(me->getVictim(), SPELL_FIREBALLVOLLEY);
             FireballVolley_Timer = urand(12000,15000);
         } else FireballVolley_Timer -= diff;
 
         //Conflagration_Timer
         if (Conflagration_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CONFLAGRATION);
+            DoCast(me->getVictim(), SPELL_CONFLAGRATION);
             //We will remove this threat reduction and add an aura check.
 
-            //if (DoGetThreat(m_creature->getVictim()))
-            //DoModifyThreatPercent(m_creature->getVictim(),-50);
+            //if (DoGetThreat(me->getVictim()))
+            //DoModifyThreatPercent(me->getVictim(),-50);
 
             Conflagration_Timer = 12000;
         } else Conflagration_Timer -= diff;
 
         // Aura Check. If the gamer is affected by confliguration we attack a random gamer.
-        if (m_creature->getVictim() && m_creature->getVictim()->HasAura(SPELL_CONFLAGRATION))
+        if (me->getVictim() && me->getVictim()->HasAura(SPELL_CONFLAGRATION))
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                m_creature->TauntApply(pTarget);
+                me->TauntApply(pTarget);
 
         DoMeleeAttackIfReady();
     }

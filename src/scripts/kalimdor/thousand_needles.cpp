@@ -58,12 +58,12 @@ struct npc_kanatiAI : public npc_escortAI
         switch(uiPointId)
         {
             case 0:
-                DoScriptText(SAY_KAN_START, m_creature);
+                DoScriptText(SAY_KAN_START, me);
                 DoSpawnGalak();
                 break;
             case 1:
                 if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_PROTECT_KANATI, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_PROTECT_KANATI, me);
                 break;
         }
     }
@@ -71,14 +71,14 @@ struct npc_kanatiAI : public npc_escortAI
     void DoSpawnGalak()
     {
         for (int i = 0; i < 3; ++i)
-            m_creature->SummonCreature(NPC_GALAK_ASS,
+            me->SummonCreature(NPC_GALAK_ASS,
             m_afGalakLoc[0], m_afGalakLoc[1], m_afGalakLoc[2], 0.0f,
             TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
     }
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->AI()->AttackStart(m_creature);
+        pSummoned->AI()->AttackStart(me);
     }
 };
 
@@ -139,20 +139,20 @@ struct npc_lakota_windsongAI : public npc_escortAI
         switch(uiPointId)
         {
             case 8:
-                DoScriptText(SAY_LAKO_LOOK_OUT, m_creature);
+                DoScriptText(SAY_LAKO_LOOK_OUT, me);
                 DoSpawnBandits(ID_AMBUSH_1);
                 break;
             case 14:
-                DoScriptText(SAY_LAKO_HERE_COME, m_creature);
+                DoScriptText(SAY_LAKO_HERE_COME, me);
                 DoSpawnBandits(ID_AMBUSH_2);
                 break;
             case 21:
-                DoScriptText(SAY_LAKO_MORE, m_creature);
+                DoScriptText(SAY_LAKO_MORE, me);
                 DoSpawnBandits(ID_AMBUSH_3);
                 break;
             case 45:
                 if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_FREE_AT_LAST, me);
                 break;
         }
     }
@@ -160,7 +160,7 @@ struct npc_lakota_windsongAI : public npc_escortAI
     void DoSpawnBandits(int uiAmbushId)
     {
         for (int i = 0; i < 2; ++i)
-            m_creature->SummonCreature(NPC_GRIM_BANDIT,
+            me->SummonCreature(NPC_GRIM_BANDIT,
             m_afBanditLoc[i+uiAmbushId][0], m_afBanditLoc[i+uiAmbushId][1], m_afBanditLoc[i+uiAmbushId][2], 0.0f,
             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
     }
@@ -217,15 +217,15 @@ struct npc_paoka_swiftmountainAI : public npc_escortAI
         switch(uiPointId)
         {
             case 15:
-                DoScriptText(SAY_WYVERN, m_creature);
+                DoScriptText(SAY_WYVERN, me);
                 DoSpawnWyvern();
                 break;
             case 26:
-                DoScriptText(SAY_COMPLETE, m_creature);
+                DoScriptText(SAY_COMPLETE, me);
                 break;
             case 27:
                 if (Player* pPlayer = GetPlayerForEscort())
-                    pPlayer->GroupEventHappens(QUEST_HOMEWARD, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_HOMEWARD, me);
                 break;
         }
     }
@@ -233,7 +233,7 @@ struct npc_paoka_swiftmountainAI : public npc_escortAI
     void DoSpawnWyvern()
     {
         for (int i = 0; i < 3; ++i)
-            m_creature->SummonCreature(NPC_WYVERN,
+            me->SummonCreature(NPC_WYVERN,
             m_afWyvernLoc[i][0], m_afWyvernLoc[i][1], m_afWyvernLoc[i][2], 0.0f,
             TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
     }
@@ -282,13 +282,13 @@ struct npc_pluckyAI : public ScriptedAI
     {
         m_uiResetTimer = 120000;
 
-        if (m_creature->getFaction() != m_uiNormFaction)
-            m_creature->setFaction(m_uiNormFaction);
+        if (me->getFaction() != m_uiNormFaction)
+            me->setFaction(m_uiNormFaction);
 
-        if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
-            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-        DoCast(m_creature, SPELL_PLUCKY_CHICKEN, false);
+        DoCast(me, SPELL_PLUCKY_CHICKEN, false);
     }
 
     void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
@@ -297,36 +297,36 @@ struct npc_pluckyAI : public ScriptedAI
         {
             if (uiTextEmote == TEXTEMOTE_BECKON)
             {
-                m_creature->setFaction(FACTION_FRIENDLY);
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                DoCast(m_creature, SPELL_PLUCKY_HUMAN, false);
+                me->setFaction(FACTION_FRIENDLY);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                DoCast(me, SPELL_PLUCKY_HUMAN, false);
             }
         }
 
         if (uiTextEmote == TEXTEMOTE_CHICKEN)
         {
-            if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 return;
             else
             {
-                m_creature->setFaction(FACTION_FRIENDLY);
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                DoCast(m_creature, SPELL_PLUCKY_HUMAN, false);
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                me->setFaction(FACTION_FRIENDLY);
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                DoCast(me, SPELL_PLUCKY_HUMAN, false);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
             }
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+        if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
         {
             if (m_uiResetTimer <= uiDiff)
             {
-                if (!m_creature->getVictim())
+                if (!me->getVictim())
                     EnterEvadeMode();
                 else
-                    m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
                 return;
             }
@@ -394,8 +394,8 @@ struct npc_enraged_pantherAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     void UpdateAI(const uint32 diff)

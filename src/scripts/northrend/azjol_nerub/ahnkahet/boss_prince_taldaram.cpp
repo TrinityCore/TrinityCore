@@ -78,8 +78,8 @@ struct boss_taldaramAI : public ScriptedAI
     boss_taldaramAI(Creature *c) : ScriptedAI(c)
     {
         pInstance = c->GetInstanceData();
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     uint32 uiBloodthirstTimer;
@@ -114,7 +114,7 @@ struct boss_taldaramAI : public ScriptedAI
     {
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -129,7 +129,7 @@ struct boss_taldaramAI : public ScriptedAI
                 {
                     Creature* pSpheres[3];
 
-                    //DoCast(m_creature, SPELL_FLAME_SPHERE_SUMMON_1);
+                    //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
                     pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
                     Unit *pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pSphereTarget && pSpheres[0])
@@ -142,9 +142,9 @@ struct boss_taldaramAI : public ScriptedAI
                     }
                     if (IsHeroic())
                     {
-                        //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_1);
+                        //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
                         pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
-                        //DoCast(m_creature, H_SPELL_FLAME_SPHERE_SUMMON_2);
+                        //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
                         pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
                         if (pSphereTarget && pSpheres[1] && pSpheres[2])
                         {
@@ -167,9 +167,9 @@ struct boss_taldaramAI : public ScriptedAI
                 case JUST_VANISHED:
                     if (Unit *pEmbraceTarget = GetEmbraceTarget())
                     {
-                        m_creature->GetMotionMaster()->Clear();
-                        m_creature->SetSpeed(MOVE_WALK, 2.0f, true);
-                        m_creature->GetMotionMaster()->MoveChase(pEmbraceTarget);
+                        me->GetMotionMaster()->Clear();
+                        me->SetSpeed(MOVE_WALK, 2.0f, true);
+                        me->GetMotionMaster()->MoveChase(pEmbraceTarget);
                     }
                     Phase = VANISHED;
                     uiPhaseTimer = 1300;
@@ -177,9 +177,9 @@ struct boss_taldaramAI : public ScriptedAI
                 case VANISHED:
                     if (Unit *pEmbraceTarget = GetEmbraceTarget())
                         DoCast(pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
-                    m_creature->GetMotionMaster()->Clear();
-                    m_creature->SetSpeed(MOVE_WALK, 1.0f, true);
-                    m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    me->GetMotionMaster()->Clear();
+                    me->SetSpeed(MOVE_WALK, 1.0f, true);
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
                     Phase = FEEDING;
                     uiPhaseTimer = 20*IN_MILISECONDS;
                     break;
@@ -191,13 +191,13 @@ struct boss_taldaramAI : public ScriptedAI
                 case NORMAL:
                     if (uiBloodthirstTimer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_BLOODTHIRST);
+                        DoCast(me->getVictim(), SPELL_BLOODTHIRST);
                         uiBloodthirstTimer = 10*IN_MILISECONDS;
                     } else uiBloodthirstTimer -= diff;
 
                     if (uiFlamesphereTimer <= diff)
                     {
-                        DoCast(m_creature, SPELL_CONJURE_FLAME_SPHERE);
+                        DoCast(me, SPELL_CONJURE_FLAME_SPHERE);
                         Phase = CASTING_FLAME_SPHERES;
                         uiPhaseTimer = 3*IN_MILISECONDS + diff;
                         uiFlamesphereTimer = 15*IN_MILISECONDS;
@@ -207,11 +207,11 @@ struct boss_taldaramAI : public ScriptedAI
                     {
                         //Count alive players
                         Unit *pTarget = NULL;
-                        std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
+                        std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                         std::vector<Unit *> target_list;
                         for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                         {
-                            pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                            pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                             // exclude pets & totems
                             if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive())
                                 target_list.push_back(pTarget);
@@ -220,8 +220,8 @@ struct boss_taldaramAI : public ScriptedAI
                         //He only vanishes if there are 3 or more alive players
                         if (target_list.size() > 2)
                         {
-                            DoScriptText(RAND(SAY_VANISH_1,SAY_VANISH_2), m_creature);
-                            DoCast(m_creature, SPELL_VANISH);
+                            DoScriptText(RAND(SAY_VANISH_1,SAY_VANISH_2), me);
+                            DoCast(me, SPELL_VANISH);
                             Phase = JUST_VANISHED;
                             uiPhaseTimer = 500;
                             if (Unit* pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -249,14 +249,14 @@ struct boss_taldaramAI : public ScriptedAI
               Phase = NORMAL;
               uiPhaseTimer = 0;
               uiEmbraceTarget = 0;
-              m_creature->CastStop();
+              me->CastStop();
           }
         }
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
@@ -264,7 +264,7 @@ struct boss_taldaramAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
         Unit* pEmbraceTarget = GetEmbraceTarget();
@@ -274,7 +274,7 @@ struct boss_taldaramAI : public ScriptedAI
             uiPhaseTimer = 0;
             uiEmbraceTarget = 0;
         }
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     bool CheckSpheres()
@@ -303,18 +303,18 @@ struct boss_taldaramAI : public ScriptedAI
         if (!uiEmbraceTarget)
             return NULL;
 
-        return Unit::GetUnit(*m_creature, uiEmbraceTarget);
+        return Unit::GetUnit(*me, uiEmbraceTarget);
     }
 
     void RemovePrison()
     {
         if (!pInstance)
             return;
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
-        m_creature->SetHomePosition(m_creature->GetPositionX(), m_creature->GetPositionY(), DATA_GROUND_POSITION_Z, m_creature->GetOrientation());
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+        me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
         uint64 prison_GUID = pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
         pInstance->HandleGameObject(prison_GUID,true);
     }
@@ -332,13 +332,13 @@ struct mob_taldaram_flamesphereAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
-        m_creature->setFaction(16);
-        m_creature->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
-        DoCast(m_creature, SPELL_FLAME_SPHERE_VISUAL);
-        DoCast(m_creature, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-        DoCast(m_creature, SPELL_FLAME_SPHERE_PERIODIC);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
+        me->setFaction(16);
+        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+        DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
+        DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
+        DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
         uiDespawnTimer = 10*IN_MILISECONDS;
     }
 
@@ -347,13 +347,13 @@ struct mob_taldaram_flamesphereAI : public ScriptedAI
 
     void JustDied(Unit* slayer)
     {
-        DoCast(m_creature, SPELL_FLAME_SPHERE_DEATH_EFFECT);
+        DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (uiDespawnTimer <= diff)
-            m_creature->DisappearAndDie();
+            me->DisappearAndDie();
         else
             uiDespawnTimer -= diff;
     }

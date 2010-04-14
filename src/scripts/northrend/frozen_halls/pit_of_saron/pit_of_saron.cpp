@@ -174,7 +174,7 @@ struct mob_ymirjar_wrathbringerAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -220,7 +220,7 @@ struct mob_ymirjar_skyCallerAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -228,7 +228,7 @@ struct mob_ymirjar_skyCallerAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_GLACIAL_STRIKE:
-                    DoCast(m_creature->getVictim(), SPELL_GLACIAL_STRIKE);
+                    DoCast(me->getVictim(), SPELL_GLACIAL_STRIKE);
                     events.RescheduleEvent(EVENT_GLACIAL_STRIKE, 8000);
                     return;
                 case EVENT_FROSTBLADE:
@@ -270,7 +270,7 @@ struct mob_ymirjar_flamebearerAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -325,7 +325,7 @@ struct mob_ymirjar_deathbringerAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -372,7 +372,7 @@ struct mob_wrathbone_laborerAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -385,7 +385,7 @@ struct mob_wrathbone_laborerAI: public ScriptedAI
                     events.RescheduleEvent(EVENT_BLINDING_DIRT, 10000);
                     return;
                 case EVENT_PUNCTURE_WOUND:
-                    DoCast(m_creature->getVictim(), SPELL_PUNCTURE_WOUND);
+                    DoCast(me->getVictim(), SPELL_PUNCTURE_WOUND);
                     events.RescheduleEvent(EVENT_PUNCTURE_WOUND, 9000);
                     return;
                 case EVENT_SHOVELLED:
@@ -427,7 +427,7 @@ struct mob_wrathbone_coldwraithAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -477,7 +477,7 @@ struct mob_stonespine_gargoyleAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -528,7 +528,7 @@ struct mob_plagueborn_horrorAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -581,7 +581,7 @@ struct mob_iceborn_protodrakeAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -589,7 +589,7 @@ struct mob_iceborn_protodrakeAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FROST_BREATH:
-                    DoCast(m_creature->getVictim(), SPELL_FROST_BREATH);
+                    DoCast(me->getVictim(), SPELL_FROST_BREATH);
                     events.RescheduleEvent(EVENT_FROST_BREATH, 10000);
                     return;
             }
@@ -625,7 +625,7 @@ struct mob_hungering_ghoulAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -633,7 +633,7 @@ struct mob_hungering_ghoulAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_DEVOUR_FLESH:
-                    DoCast(m_creature->getVictim(), SPELL_DEVOUR_FLESH);
+                    DoCast(me->getVictim(), SPELL_DEVOUR_FLESH);
                     events.RescheduleEvent(EVENT_DEVOUR_FLESH, 8000);
                     return;
             }
@@ -671,7 +671,7 @@ struct mob_fallen_warriorAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -679,7 +679,7 @@ struct mob_fallen_warriorAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_ARCING_SLICE:
-                    DoCast(m_creature->getVictim(), SPELL_ARCING_SLICE);
+                    DoCast(me->getVictim(), SPELL_ARCING_SLICE);
                     events.RescheduleEvent(EVENT_ARCING_SLICE, 10000);
                     return;
                 case EVENT_DEMORALIZING_SHOUT:
@@ -687,7 +687,7 @@ struct mob_fallen_warriorAI: public ScriptedAI
                     events.RescheduleEvent(EVENT_DEMORALIZING_SHOUT, 20000);
                     return;
                 case EVENT_SHIELD_BLOCK:
-                    DoCast(m_creature->getVictim(), SPELL_SHIELD_BLOCK);
+                    DoCast(me->getVictim(), SPELL_SHIELD_BLOCK);
                     events.RescheduleEvent(EVENT_SHIELD_BLOCK, 8000);
                     return;
             }
@@ -724,7 +724,7 @@ struct mob_deathwhisper_torturerAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -774,7 +774,7 @@ struct mob_deathwhisper_shadowcasterAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -820,7 +820,7 @@ struct mob_deathwhisper_necrolyteAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -870,7 +870,7 @@ struct mob_wrathbone_sorcererAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -916,7 +916,7 @@ struct mob_geist_ambusherAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())

@@ -102,8 +102,8 @@ struct boss_magus_telestraAI : public ScriptedAI
         bIsAchievementTimerRunning = false;
         bIsWaitingToAppear = false;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetVisibility(VISIBILITY_ON);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetVisibility(VISIBILITY_ON);
 
         if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
@@ -111,7 +111,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
@@ -119,7 +119,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -131,12 +131,12 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     uint64 SplitPersonality(uint32 entry)
     {
-        if (Creature* Summoned = m_creature->SummonCreature(entry, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS))
+        if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS))
         {
             switch (entry)
             {
@@ -193,11 +193,11 @@ struct boss_magus_telestraAI : public ScriptedAI
 
         if (bIsWaitingToAppear)
         {
-            m_creature->StopMoving();
-            m_creature->AttackStop();
+            me->StopMoving();
+            me->AttackStop();
             if (uiIsWaitingToAppearTimer <= diff)
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 bIsWaitingToAppear = false;
             } else uiIsWaitingToAppearTimer -= diff;
             return;
@@ -211,10 +211,10 @@ struct boss_magus_telestraAI : public ScriptedAI
             {
                 if (uiAchievementTimer <= ACHIEV_TIMER)
                     uiAchievementProgress +=1;
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMap()->CreatureRelocation(m_creature, CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
-                DoCast(m_creature, SPELL_TELESTRA_BACK);
-                m_creature->SetVisibility(VISIBILITY_ON);
+                me->GetMotionMaster()->Clear();
+                me->GetMap()->CreatureRelocation(me, CenterOfRoom.GetPositionX(), CenterOfRoom.GetPositionY(), CenterOfRoom.GetPositionZ(), CenterOfRoom.GetOrientation());
+                DoCast(me, SPELL_TELESTRA_BACK);
+                me->SetVisibility(VISIBILITY_ON);
                 if (Phase == 1)
                     Phase = 2;
                 if (Phase == 3)
@@ -224,7 +224,7 @@ struct boss_magus_telestraAI : public ScriptedAI
                 uiArcaneMagusGUID = 0;
                 bIsWaitingToAppear = true;
                 uiIsWaitingToAppearTimer = 4*IN_MILISECONDS;
-                DoScriptText(SAY_MERGE, m_creature);
+                DoScriptText(SAY_MERGE, me);
                 bIsAchievementTimerRunning = false;
                 uiAchievementTimer = 0;
             }
@@ -235,34 +235,34 @@ struct boss_magus_telestraAI : public ScriptedAI
         if ((Phase == 0) && HealthBelowPct(50))
         {
             Phase = 1;
-            m_creature->CastStop();
-            m_creature->RemoveAllAuras();
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->CastStop();
+            me->RemoveAllAuras();
+            me->SetVisibility(VISIBILITY_OFF);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
             uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
             uiArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
             bFireMagusDead = false;
             bFrostMagusDead = false;
             bArcaneMagusDead = false;
-            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
+            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), me);
             return;
         }
 
         if (IsHeroic() && (Phase == 2) && HealthBelowPct(10))
         {
             Phase = 3;
-            m_creature->CastStop();
-            m_creature->RemoveAllAuras();
-            m_creature->SetVisibility(VISIBILITY_OFF);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->CastStop();
+            me->RemoveAllAuras();
+            me->SetVisibility(VISIBILITY_OFF);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             uiFireMagusGUID = SplitPersonality(MOB_FIRE_MAGUS);
             uiFrostMagusGUID = SplitPersonality(MOB_FROST_MAGUS);
             uiArcaneMagusGUID = SplitPersonality(MOB_ARCANE_MAGUS);
             bFireMagusDead = false;
             bFrostMagusDead = false;
             bArcaneMagusDead = false;
-            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), m_creature);
+            DoScriptText(RAND(SAY_SPLIT_1,SAY_SPLIT_2), me);
             return;
         }
 
@@ -289,7 +289,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
         if (uiGravityWellTimer <= diff)
         {
-            if (Unit *pTarget = m_creature->getVictim())
+            if (Unit *pTarget = me->getVictim())
             {
                 DoCast(pTarget, SPELL_GRAVITY_WELL);
                 uiCooldown = 6*IN_MILISECONDS;

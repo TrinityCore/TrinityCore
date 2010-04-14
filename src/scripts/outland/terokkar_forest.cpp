@@ -60,27 +60,27 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
         CanDoQuest = false;
         UnkorUnfriendly_Timer = 0;
         Pulverize_Timer = 3000;
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        m_creature->setFaction(FACTION_HOSTILE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        me->setFaction(FACTION_HOSTILE);
     }
 
     void EnterCombat(Unit *who) {}
 
     void DoNice()
     {
-        DoScriptText(SAY_SUBMIT, m_creature);
-        m_creature->setFaction(FACTION_FRIENDLY);
-        m_creature->SetStandState(UNIT_STAND_STATE_SIT);
-        m_creature->RemoveAllAuras();
-        m_creature->DeleteThreatList();
-        m_creature->CombatStop(true);
+        DoScriptText(SAY_SUBMIT, me);
+        me->setFaction(FACTION_FRIENDLY);
+        me->SetStandState(UNIT_STAND_STATE_SIT);
+        me->RemoveAllAuras();
+        me->DeleteThreatList();
+        me->CombatStop(true);
         UnkorUnfriendly_Timer = 60000;
     }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER)
-            if ((m_creature->GetHealth()-damage)*100 / m_creature->GetMaxHealth() < 30)
+            if ((me->GetHealth()-damage)*100 / me->GetMaxHealth() < 30)
         {
             if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
             {
@@ -112,7 +112,7 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
         {
             if (!UnkorUnfriendly_Timer)
             {
-                //DoCast(m_creature, SPELL_QUID9889);        //not using spell for now
+                //DoCast(me, SPELL_QUID9889);        //not using spell for now
                 DoNice();
             }
             else
@@ -130,7 +130,7 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
 
         if (Pulverize_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_PULVERIZE);
+            DoCast(me, SPELL_PULVERIZE);
             Pulverize_Timer = 9000;
         } else Pulverize_Timer -= diff;
 
@@ -157,10 +157,10 @@ struct mob_infested_root_walkerAI : public ScriptedAI
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
-            if (m_creature->GetHealth() <= damage)
+            if (me->GetHealth() <= damage)
                 if (rand()%100 < 75)
                     //Summon Wood Mites
-                    DoCast(m_creature, 39130, true);
+                    DoCast(me, 39130, true);
     }
 };
 CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
@@ -202,7 +202,7 @@ public:
             if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
             {
                 float Radius = 10.0;
-                if (m_creature->IsWithinDistInMap(who, Radius))
+                if (me->IsWithinDistInMap(who, Radius))
                 {
                     Start(false, false, who->GetGUID());
                 }
@@ -237,10 +237,10 @@ struct mob_rotting_forest_ragerAI : public ScriptedAI
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER)
-            if (m_creature->GetHealth() <= damage)
+            if (me->GetHealth() <= damage)
                 if (rand()%100 < 75)
                     //Summon Lots of Wood Mights
-                    DoCast(m_creature, 39134, true);
+                    DoCast(me, 39134, true);
     }
 };
 CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
@@ -275,15 +275,15 @@ struct mob_netherweb_victimAI : public ScriptedAI
             {
                 if (rand()%100 < 25)
                 {
-                    m_creature->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                    CAST_PLR(Killer)->KilledMonsterCredit(QUEST_TARGET, m_creature->GetGUID());
+                    me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    CAST_PLR(Killer)->KilledMonsterCredit(QUEST_TARGET, me->GetGUID());
                 }
                 else
-                    m_creature->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                 if (rand()%100 < 75)
-                    m_creature->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f,0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                m_creature->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f,0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
             }
         }
     }
@@ -329,8 +329,8 @@ struct npc_floonAI : public ScriptedAI
         Silence_Timer = 2000;
         Frostbolt_Timer = 4000;
         FrostNova_Timer = 9000;
-        if (m_creature->getFaction() != m_uiNormFaction)
-            m_creature->setFaction(m_uiNormFaction);
+        if (me->getFaction() != m_uiNormFaction)
+            me->setFaction(m_uiNormFaction);
     }
 
     void EnterCombat(Unit *who) {}
@@ -342,19 +342,19 @@ struct npc_floonAI : public ScriptedAI
 
         if (Silence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SILENCE);
+            DoCast(me->getVictim(), SPELL_SILENCE);
             Silence_Timer = 30000;
         } else Silence_Timer -= diff;
 
         if (FrostNova_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_FROST_NOVA);
+            DoCast(me, SPELL_FROST_NOVA);
             FrostNova_Timer = 20000;
         } else FrostNova_Timer -= diff;
 
         if (Frostbolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
+            DoCast(me->getVictim(), SPELL_FROSTBOLT);
             Frostbolt_Timer = 5000;
         } else Frostbolt_Timer -= diff;
 
@@ -427,21 +427,21 @@ struct npc_isla_starmaneAI : public npc_escortAI
                 Cage->SetGoState(GO_STATE_ACTIVE);
             }
             break;
-        case 2: DoScriptText(SAY_PROGRESS_1, m_creature, pPlayer); break;
-        case 5: DoScriptText(SAY_PROGRESS_2, m_creature, pPlayer); break;
-        case 6: DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer); break;
-        case 29:DoScriptText(SAY_PROGRESS_4, m_creature, pPlayer);
+        case 2: DoScriptText(SAY_PROGRESS_1, me, pPlayer); break;
+        case 5: DoScriptText(SAY_PROGRESS_2, me, pPlayer); break;
+        case 6: DoScriptText(SAY_PROGRESS_3, me, pPlayer); break;
+        case 29:DoScriptText(SAY_PROGRESS_4, me, pPlayer);
             if (pPlayer)
             {
                 if (pPlayer->GetTeam() == ALLIANCE)
-                    pPlayer->GroupEventHappens(QUEST_EFTW_A, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_EFTW_A, me);
                 else if (pPlayer->GetTeam() == HORDE)
-                    pPlayer->GroupEventHappens(QUEST_EFTW_H, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_EFTW_H, me);
             }
-            m_creature->SetInFront(pPlayer); break;
-        case 30: m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-        case 31: DoCast(m_creature, SPELL_CAT);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+            me->SetInFront(pPlayer); break;
+        case 30: me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+        case 31: DoCast(me, SPELL_CAT);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
         }
     }
 
@@ -581,19 +581,19 @@ struct npc_akunoAI : public npc_escortAI
         switch(i)
         {
             case 3:
-                m_creature->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 break;
             case 11:
                 if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                    pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB,m_creature);
+                    pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB,me);
                 break;
         }
     }
 
     void JustSummoned(Creature* summon)
     {
-        summon->AI()->AttackStart(m_creature);
+        summon->AI()->AttackStart(me);
     }
 };
 

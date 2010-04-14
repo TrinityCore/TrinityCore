@@ -63,7 +63,7 @@ struct boss_aeonusAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -71,10 +71,10 @@ struct boss_aeonusAI : public ScriptedAI
         //Despawn Time Keeper
         if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
         {
-            if (m_creature->IsWithinDistInMap(who,20.0f))
+            if (me->IsWithinDistInMap(who,20.0f))
             {
-                DoScriptText(SAY_BANISH, m_creature);
-                m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                DoScriptText(SAY_BANISH, me);
+                me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
         }
 
@@ -83,7 +83,7 @@ struct boss_aeonusAI : public ScriptedAI
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
          if (pInstance)
          {
@@ -94,7 +94,7 @@ struct boss_aeonusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -106,22 +106,22 @@ struct boss_aeonusAI : public ScriptedAI
         //Sand Breath
         if (SandBreath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
+            DoCast(me->getVictim(), SPELL_SAND_BREATH);
             SandBreath_Timer = 15000+rand()%10000;
         } else SandBreath_Timer -= diff;
 
         //Time Stop
         if (TimeStop_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TIME_STOP);
+            DoCast(me->getVictim(), SPELL_TIME_STOP);
             TimeStop_Timer = 20000+rand()%15000;
         } else TimeStop_Timer -= diff;
 
         //Frenzy
         if (Frenzy_Timer <= diff)
         {
-            DoScriptText(EMOTE_FRENZY, m_creature);
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoScriptText(EMOTE_FRENZY, me);
+            DoCast(me, SPELL_ENRAGE);
             Frenzy_Timer = 20000+rand()%15000;
         } else Frenzy_Timer -= diff;
 

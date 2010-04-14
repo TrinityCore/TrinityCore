@@ -54,18 +54,18 @@ struct boss_ignis_AI : public BossAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO,m_creature);
+        DoScriptText(SAY_AGGRO,me);
         _EnterCombat();
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         _JustDied();
     }
 
@@ -76,12 +76,12 @@ struct boss_ignis_AI : public BossAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->GetPositionY() < 150 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
+        if (me->GetPositionY() < 150 || me->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
         {
-            m_creature->RemoveAllAuras();
-            m_creature->DeleteThreatList();
-            m_creature->CombatStop(false);
-            m_creature->GetMotionMaster()->MoveTargetedHome();
+            me->RemoveAllAuras();
+            me->DeleteThreatList();
+            me->CombatStop(false);
+            me->GetMotionMaster()->MoveTargetedHome();
         }
 
         if (uiFlameJetsTimer <= diff)
@@ -92,7 +92,7 @@ struct boss_ignis_AI : public BossAI
 
         if (uiScorchTimer <= diff)
         {
-            DoScriptText(RAND(SAY_SCORCH_1,SAY_SCORCH_2), m_creature);
+            DoScriptText(RAND(SAY_SCORCH_1,SAY_SCORCH_2), me);
             DoCast(SPELL_SCORCH);
             uiScorchTimer = 20000;
         } else uiScorchTimer -= diff;
@@ -101,7 +101,7 @@ struct boss_ignis_AI : public BossAI
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
-                DoScriptText(SAY_SLAG_POT, m_creature);
+                DoScriptText(SAY_SLAG_POT, me);
                 DoCast(pTarget, SPELL_SLAG_POT);
             }
             uiSlagPotTimer = 30000;

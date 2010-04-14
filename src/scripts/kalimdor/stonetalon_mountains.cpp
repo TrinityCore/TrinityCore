@@ -109,22 +109,22 @@ struct npc_kaya_flathoofAI : public npc_escortAI
         switch(i)
         {
         case 16:
-            DoScriptText(SAY_AMBUSH, m_creature);
-            m_creature->SummonCreature(NPC_GRIMTOTEM_BRUTE, -48.53, -503.34, -46.31, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-            m_creature->SummonCreature(NPC_GRIMTOTEM_RUFFIAN, -38.85, -503.77, -45.90, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
-            m_creature->SummonCreature(NPC_GRIMTOTEM_SORCERER, -36.37, -496.23, -45.71, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            DoScriptText(SAY_AMBUSH, me);
+            me->SummonCreature(NPC_GRIMTOTEM_BRUTE, -48.53, -503.34, -46.31, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            me->SummonCreature(NPC_GRIMTOTEM_RUFFIAN, -38.85, -503.77, -45.90, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+            me->SummonCreature(NPC_GRIMTOTEM_SORCERER, -36.37, -496.23, -45.71, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
             break;
-        case 18: m_creature->SetInFront(pPlayer);
-            DoScriptText(SAY_END, m_creature, pPlayer);
+        case 18: me->SetInFront(pPlayer);
+            DoScriptText(SAY_END, me, pPlayer);
             if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_PROTECT_KAYA, m_creature);
+                pPlayer->GroupEventHappens(QUEST_PROTECT_KAYA, me);
             break;
         }
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 
     void Reset(){}

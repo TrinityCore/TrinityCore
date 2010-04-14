@@ -39,18 +39,18 @@ struct boss_lordalexeibarovAI : public ScriptedAI
         Immolate_Timer = 7000;
         VeilofShadow_Timer = 15000;
 
-        m_creature->LoadCreaturesAddon();
+        me->LoadCreaturesAddon();
     }
 
     void JustDied(Unit *killer)
     {
-        ScriptedInstance *pInstance = m_creature->GetInstanceData();
+        ScriptedInstance *pInstance = me->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_LORDALEXEIBAROV_DEATH, 0);
 
             if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                m_creature->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
         }
     }
 
@@ -76,7 +76,7 @@ struct boss_lordalexeibarovAI : public ScriptedAI
         //VeilofShadow_Timer
         if (VeilofShadow_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_VEILOFSHADOW);
+            DoCast(me->getVictim(), SPELL_VEILOFSHADOW);
             VeilofShadow_Timer = 20000;
         } else VeilofShadow_Timer -= diff;
 

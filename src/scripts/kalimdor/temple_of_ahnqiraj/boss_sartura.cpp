@@ -69,17 +69,17 @@ struct boss_sarturaAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
      void JustDied(Unit* Killer)
      {
-         DoScriptText(SAY_DEATH, m_creature);
+         DoScriptText(SAY_DEATH, me);
      }
 
      void KilledUnit(Unit* victim)
      {
-         DoScriptText(SAY_SLAY, m_creature);
+         DoScriptText(SAY_SLAY, me);
      }
 
     void UpdateAI(const uint32 diff)
@@ -96,8 +96,8 @@ struct boss_sarturaAI : public ScriptedAI
                 Unit *pTarget = NULL;
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
                 if (pTarget)
-                m_creature->AddThreat(pTarget, 1.0f);
-                m_creature->TauntApply(pTarget);
+                me->AddThreat(pTarget, 1.0f);
+                me->TauntApply(pTarget);
                 AttackStart(pTarget);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
@@ -114,7 +114,7 @@ struct boss_sarturaAI : public ScriptedAI
         {
             if (WhirlWind_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_WHIRLWIND);
+                DoCast(me, SPELL_WHIRLWIND);
                 WhirlWind = true;
                 WhirlWindEnd_Timer = 15000;
             } else WhirlWind_Timer -= diff;
@@ -125,8 +125,8 @@ struct boss_sarturaAI : public ScriptedAI
                 Unit *pTarget = NULL;
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
                 if (pTarget)
-                m_creature->AddThreat(pTarget, 1.0f);
-                m_creature->TauntApply(pTarget);
+                me->AddThreat(pTarget, 1.0f);
+                me->TauntApply(pTarget);
                 AttackStart(pTarget);
 
                     AggroReset = true;
@@ -146,9 +146,9 @@ struct boss_sarturaAI : public ScriptedAI
             //If she is 20% enrage
             if (!Enraged)
             {
-                if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 20 && !m_creature->IsNonMeleeSpellCasted(false))
+                if (me->GetHealth()*100 / me->GetMaxHealth() <= 20 && !me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(m_creature, SPELL_ENRAGE);
+                    DoCast(me, SPELL_ENRAGE);
                     Enraged = true;
                 }
             }
@@ -158,7 +158,7 @@ struct boss_sarturaAI : public ScriptedAI
             {
                 if (EnrageHard_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_ENRAGEHARD);
+                    DoCast(me, SPELL_ENRAGEHARD);
                     EnragedHard = true;
                 } else EnrageHard_Timer -= diff;
             }
@@ -207,7 +207,7 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
 
         if (!WhirlWind && WhirlWind_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_WHIRLWINDADD);
+            DoCast(me, SPELL_WHIRLWINDADD);
             WhirlWind = true;
             WhirlWind_Timer = 25000 + rand()%15000;
             WhirlWindEnd_Timer = 15000;
@@ -221,8 +221,8 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
                 Unit *pTarget = NULL;
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
                 if (pTarget)
-                m_creature->AddThreat(pTarget, 1.0f);
-                m_creature->TauntApply(pTarget);
+                me->AddThreat(pTarget, 1.0f);
+                me->TauntApply(pTarget);
                 AttackStart(pTarget);
 
                 WhirlWindRandom_Timer = 3000 + rand()%4000;
@@ -242,8 +242,8 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
                 Unit *pTarget = NULL;
                 pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
                 if (pTarget)
-                m_creature->AddThreat(pTarget, 1.0f);
-                m_creature->TauntApply(pTarget);
+                me->AddThreat(pTarget, 1.0f);
+                me->TauntApply(pTarget);
                 AttackStart(pTarget);
 
                 AggroReset = true;
@@ -252,7 +252,7 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
 
             if (KnockBack_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_WHIRLWINDADD);
+                DoCast(me, SPELL_WHIRLWINDADD);
                 KnockBack_Timer = 10000 + rand()%10000;
             } else KnockBack_Timer -= diff;
         }

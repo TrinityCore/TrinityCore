@@ -73,19 +73,19 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
-        DoScriptText(SAY_SUMMON, m_creature);
+        DoScriptText(SAY_SUMMON, me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, DONE);
@@ -100,26 +100,26 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
         //Frost Attack
         if (frost_attack_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROST_ATTACK);
+            DoCast(me->getVictim(), SPELL_FROST_ATTACK);
             frost_attack_Timer = 7000 + rand()%3000;
         } else frost_attack_Timer -= diff;
 
         //Arcane Blast
         if (arcane_blast_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
+            DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
             arcane_blast_Timer = 15000;
         } else arcane_blast_Timer -= diff;
 
         //Dragons Breath
         if (dragons_breath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DRAGONS_BREATH);
+            DoCast(me->getVictim(), SPELL_DRAGONS_BREATH);
             {
                 if (rand()%2)
                     return;
 
-                DoScriptText(RAND(SAY_DRAGONS_BREATH_1,SAY_DRAGONS_BREATH_2), m_creature);
+                DoScriptText(RAND(SAY_DRAGONS_BREATH_1,SAY_DRAGONS_BREATH_2), me);
             }
             dragons_breath_Timer = 12000 + rand()%10000;
         } else dragons_breath_Timer -= diff;
@@ -127,14 +127,14 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
         //Knockback
         if (knockback_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKBACK);
+            DoCast(me->getVictim(), SPELL_KNOCKBACK);
             knockback_Timer = 15000 + rand()%10000;
         } else knockback_Timer -= diff;
 
         //Solarburn
         if (solarburn_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SOLARBURN);
+            DoCast(me->getVictim(), SPELL_SOLARBURN);
             solarburn_Timer = 30000;
         } else solarburn_Timer -= diff;
 
@@ -172,9 +172,9 @@ struct mob_ragin_flamesAI : public ScriptedAI
         flame_timer = 500;
         Check_Timer = 2000;
         onlyonce = false;
-        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-        m_creature->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
+        me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+        me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
+        me->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
     }
 
     void EnterCombat(Unit* who)
@@ -191,8 +191,8 @@ struct mob_ragin_flamesAI : public ScriptedAI
                 if (pInstance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
                 {
                     //remove
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
+                    me->setDeathState(JUST_DIED);
+                    me->RemoveCorpse();
                 }
             }
             Check_Timer = 1000;
@@ -204,20 +204,20 @@ struct mob_ragin_flamesAI : public ScriptedAI
         if (!onlyonce)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                m_creature->GetMotionMaster()->MoveChase(pTarget);
+                me->GetMotionMaster()->MoveChase(pTarget);
             onlyonce = true;
         }
 
         if (inferno_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_INFERNO);
-            m_creature->TauntApply(m_creature->getVictim());
+            DoCast(me->getVictim(), SPELL_INFERNO);
+            me->TauntApply(me->getVictim());
             inferno_Timer = 10000;
         } else inferno_Timer -= diff;
 
         if (flame_timer <= diff)
         {
-            DoCast(m_creature, SPELL_FIRE_TAIL);
+            DoCast(me, SPELL_FIRE_TAIL);
             flame_timer = 500;
         } else flame_timer -=diff;
 

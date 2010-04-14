@@ -66,10 +66,10 @@ struct npc_aeranasAI : public ScriptedAI
         EnvelopingWinds_Timer = 9000;
         Shock_Timer = 5000;
 
-        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-        m_creature->setFaction(FACTION_FRIENDLY);
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        me->setFaction(FACTION_FRIENDLY);
 
-        DoScriptText(SAY_SUMMON, m_creature);
+        DoScriptText(SAY_SUMMON, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -78,7 +78,7 @@ struct npc_aeranasAI : public ScriptedAI
         {
             if (Faction_Timer <= diff)
             {
-                m_creature->setFaction(FACTION_HOSTILE);
+                me->setFaction(FACTION_HOSTILE);
                 Faction_Timer = 0;
             } else Faction_Timer -= diff;
         }
@@ -86,26 +86,26 @@ struct npc_aeranasAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() < 30)
+        if ((me->GetHealth()*100) / me->GetMaxHealth() < 30)
         {
-            m_creature->setFaction(FACTION_FRIENDLY);
-            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-            m_creature->RemoveAllAuras();
-            m_creature->DeleteThreatList();
-            m_creature->CombatStop(true);
-            DoScriptText(SAY_FREE, m_creature);
+            me->setFaction(FACTION_FRIENDLY);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+            me->RemoveAllAuras();
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            DoScriptText(SAY_FREE, me);
             return;
         }
 
         if (Shock_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHOCK);
+            DoCast(me->getVictim(), SPELL_SHOCK);
             Shock_Timer = 10000;
         } else Shock_Timer -= diff;
 
         if (EnvelopingWinds_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ENVELOPING_WINDS);
+            DoCast(me->getVictim(), SPELL_ENVELOPING_WINDS);
             EnvelopingWinds_Timer = 25000;
         } else EnvelopingWinds_Timer -= diff;
 
@@ -151,12 +151,12 @@ struct npc_ancestral_wolfAI : public npc_escortAI
     void Reset()
     {
         pRyga = NULL;
-        DoCast(m_creature, SPELL_ANCESTRAL_WOLF_BUFF, true);
+        DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
     }
 
     void MoveInLineOfSight(Unit* pWho)
     {
-        if (!pRyga && pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_RYGA && m_creature->IsWithinDistInMap(pWho, 15.0f))
+        if (!pRyga && pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_RYGA && me->IsWithinDistInMap(pWho, 15.0f))
             pRyga = pWho;
 
         npc_escortAI::MoveInLineOfSight(pWho);
@@ -167,10 +167,10 @@ struct npc_ancestral_wolfAI : public npc_escortAI
         switch(uiPointId)
         {
             case 0:
-                DoScriptText(EMOTE_WOLF_LIFT_HEAD, m_creature);
+                DoScriptText(EMOTE_WOLF_LIFT_HEAD, me);
                 break;
             case 2:
-                DoScriptText(EMOTE_WOLF_HOWL, m_creature);
+                DoScriptText(EMOTE_WOLF_HOWL, me);
                 break;
             case 50:
                 if (pRyga && pRyga->isAlive() && !pRyga->isInCombat())
@@ -347,27 +347,27 @@ struct npc_wounded_blood_elfAI : public npc_escortAI
         switch (i)
         {
         case 0:
-            DoScriptText(SAY_ELF_START, m_creature, pPlayer);
+            DoScriptText(SAY_ELF_START, me, pPlayer);
             break;
         case 9:
-            DoScriptText(SAY_ELF_SUMMON1, m_creature, pPlayer);
+            DoScriptText(SAY_ELF_SUMMON1, me, pPlayer);
             // Spawn two Haal'eshi Talonguard
             DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             break;
         case 13:
-            DoScriptText(SAY_ELF_RESTING, m_creature, pPlayer);
+            DoScriptText(SAY_ELF_RESTING, me, pPlayer);
             break;
         case 14:
-            DoScriptText(SAY_ELF_SUMMON2, m_creature, pPlayer);
+            DoScriptText(SAY_ELF_SUMMON2, me, pPlayer);
             // Spawn two Haal'eshi Windwalker
             DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
             break;
         case 27:
-            DoScriptText(SAY_ELF_COMPLETE, m_creature, pPlayer);
+            DoScriptText(SAY_ELF_COMPLETE, me, pPlayer);
             // Award quest credit
-            pPlayer->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,m_creature);
+            pPlayer->GroupEventHappens(QUEST_ROAD_TO_FALCON_WATCH,me);
             break;
         }
     }
@@ -377,12 +377,12 @@ struct npc_wounded_blood_elfAI : public npc_escortAI
     void EnterCombat(Unit* who)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
-            DoScriptText(SAY_ELF_AGGRO, m_creature);
+            DoScriptText(SAY_ELF_AGGRO, me);
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 };
 

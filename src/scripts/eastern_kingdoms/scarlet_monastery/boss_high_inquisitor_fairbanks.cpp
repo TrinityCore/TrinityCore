@@ -66,9 +66,9 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
             return;
 
         //If we are <25% hp cast Heal
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25 && !m_creature->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
+        if (me->GetHealth()*100 / me->GetMaxHealth() <= 25 && !me->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_HEAL);
+            DoCast(me, SPELL_HEAL);
             Heal_Timer = 30000;
         } else Heal_Timer -= diff;
 
@@ -91,9 +91,9 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
         } else Sleep_Timer -= diff;
 
         //PowerWordShield_Timer
-        if (!PowerWordShield && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 25)
+        if (!PowerWordShield && me->GetHealth()*100 / me->GetMaxHealth() <= 25)
         {
-            DoCast(m_creature, SPELL_POWERWORDSHIELD);
+            DoCast(me, SPELL_POWERWORDSHIELD);
             PowerWordShield = true;
         }
 
@@ -109,7 +109,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
         //CurseOfBlood_Timer
         if (CurseOfBlood_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CURSEOFBLOOD);
+            DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
             CurseOfBlood_Timer = 25000;
         } else CurseOfBlood_Timer -= diff;
 

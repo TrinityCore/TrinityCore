@@ -62,38 +62,38 @@ struct npc_professor_phizzlethorpeAI : public npc_escortAI
 
         switch(uiPointId)
         {
-        case 4:DoScriptText(SAY_PROGRESS_2, m_creature, pPlayer);break;
-        case 5:DoScriptText(SAY_PROGRESS_3, m_creature, pPlayer);break;
-        case 8:DoScriptText(EMOTE_PROGRESS_4, m_creature);break;
+        case 4:DoScriptText(SAY_PROGRESS_2, me, pPlayer);break;
+        case 5:DoScriptText(SAY_PROGRESS_3, me, pPlayer);break;
+        case 8:DoScriptText(EMOTE_PROGRESS_4, me);break;
         case 9:
             {
-            m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
-            m_creature->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            me->SummonCreature(MOB_VENGEFUL_SURGE, -2052.96, -2142.49, 20.15, 1.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             break;
             }
-        case 10:DoScriptText(SAY_PROGRESS_5, m_creature, pPlayer);break;
+        case 10:DoScriptText(SAY_PROGRESS_5, me, pPlayer);break;
         case 11:
-            DoScriptText(SAY_PROGRESS_6, m_creature, pPlayer);
+            DoScriptText(SAY_PROGRESS_6, me, pPlayer);
             SetRun();
             break;
-        case 19:DoScriptText(SAY_PROGRESS_7, m_creature, pPlayer); break;
+        case 19:DoScriptText(SAY_PROGRESS_7, me, pPlayer); break;
         case 20:
-            DoScriptText(EMOTE_PROGRESS_8, m_creature);
-            DoScriptText(SAY_PROGRESS_9, m_creature, pPlayer);
+            DoScriptText(EMOTE_PROGRESS_8, me);
+            DoScriptText(SAY_PROGRESS_9, me, pPlayer);
             if (pPlayer)
-                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_SUNKEN_TREASURE, m_creature);
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_SUNKEN_TREASURE, me);
             break;
         }
     }
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->AI()->AttackStart(m_creature);
+        pSummoned->AI()->AttackStart(me);
     }
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)

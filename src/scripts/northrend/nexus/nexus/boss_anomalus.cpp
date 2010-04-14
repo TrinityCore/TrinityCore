@@ -88,7 +88,7 @@ struct boss_anomalusAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
@@ -96,7 +96,7 @@ struct boss_anomalusAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -111,21 +111,21 @@ struct boss_anomalusAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->GetDistance(m_creature->GetHomePosition()) > 60.0f)
+        if (me->GetDistance(me->GetHomePosition()) > 60.0f)
         {
             //Not blizzlike, hack to avoid an exploit
             EnterEvadeMode();
             return;
         }
 
-        if (m_creature->HasAura(SPELL_RIFT_SHIELD))
+        if (me->HasAura(SPELL_RIFT_SHIELD))
         {
             if (uiChaoticRiftGUID)
             {
-                Unit* Rift = Unit::GetUnit((*m_creature), uiChaoticRiftGUID);
+                Unit* Rift = Unit::GetUnit((*me), uiChaoticRiftGUID);
                 if (Rift && Rift->isDead())
                 {
-                    m_creature->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
+                    me->RemoveAurasDueToSpell(SPELL_RIFT_SHIELD);
                     uiChaoticRiftGUID = 0;
                 }
                 return;
@@ -136,16 +136,16 @@ struct boss_anomalusAI : public ScriptedAI
         if ((Phase == 0) && HealthBelowPct(50))
         {
             Phase = 1;
-            DoScriptText(SAY_SHIELD, m_creature);
-            DoCast(m_creature, SPELL_RIFT_SHIELD);
-            Creature* Rift = m_creature->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0,5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
+            DoScriptText(SAY_SHIELD, me);
+            DoCast(me, SPELL_RIFT_SHIELD);
+            Creature* Rift = me->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0,5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
             if (Rift)
             {
                 //DoCast(Rift, SPELL_CHARGE_RIFT);
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     Rift->AI()->AttackStart(pTarget);
                 uiChaoticRiftGUID = Rift->GetGUID();
-                DoScriptText(SAY_RIFT , m_creature);
+                DoScriptText(SAY_RIFT , me);
             }
         }
 
@@ -189,15 +189,15 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
     {
         uiChaoticEnergyBurstTimer = 1*IN_MILISECONDS;
         uiSummonCrazedManaWraithTimer = 5*IN_MILISECONDS;
-        //m_creature->SetDisplayId(25206); //For some reason in DB models for ally and horde are different.
+        //me->SetDisplayId(25206); //For some reason in DB models for ally and horde are different.
                                          //Model for ally (1126) does not show auras. Horde model works perfect.
                                          //Set model to horde number
-        DoCast(m_creature, SPELL_ARCANEFORM, false);
+        DoCast(me, SPELL_ARCANEFORM, false);
     }
 
     void JustDied(Unit *killer)
     {
-        if (Creature* pAnomalus = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0))
+        if (Creature* pAnomalus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0))
             CAST_AI(boss_anomalusAI,pAnomalus->AI())->bDeadChaoticRift = true;
     }
 
@@ -208,7 +208,7 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 
         if (uiChaoticEnergyBurstTimer <= diff)
         {
-            Unit* pAnomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
+            Unit* pAnomalus = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 if (pAnomalus && pAnomalus->HasAura(SPELL_RIFT_SHIELD))
                     DoCast(pTarget, SPELL_CHARGED_CHAOTIC_ENERGY_BURST);
@@ -219,11 +219,11 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 
         if (uiSummonCrazedManaWraithTimer <= diff)
         {
-            Creature* Wraith = m_creature->SummonCreature(MOB_CRAZED_MANA_WRAITH, m_creature->GetPositionX()+1, m_creature->GetPositionY()+1, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
+            Creature* Wraith = me->SummonCreature(MOB_CRAZED_MANA_WRAITH, me->GetPositionX()+1, me->GetPositionY()+1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
             if (Wraith)
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     Wraith->AI()->AttackStart(pTarget);
-            Unit* Anomalus = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
+            Unit* Anomalus = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
                 uiSummonCrazedManaWraithTimer = 5*IN_MILISECONDS;
             else

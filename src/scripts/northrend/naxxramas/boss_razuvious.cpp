@@ -82,7 +82,7 @@ struct boss_razuviousAI : public BossAI
     void EnterCombat(Unit *who)
     {
         _EnterCombat();
-        DoPlaySoundToSet(m_creature, SOUND_AGGRO);
+        DoPlaySoundToSet(me, SOUND_AGGRO);
         events.ScheduleEvent(EVENT_STRIKE, 30000);
         events.ScheduleEvent(EVENT_SHOUT, 25000);
         events.ScheduleEvent(EVENT_COMMAND, 40000);

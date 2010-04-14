@@ -68,32 +68,32 @@ struct npc_shadowfang_prisonerAI : public npc_escortAI
         {
             case 0:
                 if (uiNpcEntry == NPC_ASH)
-                    DoScriptText(SAY_FREE_AS, m_creature);
+                    DoScriptText(SAY_FREE_AS, me);
                 else
-                    DoScriptText(SAY_FREE_AD, m_creature);
+                    DoScriptText(SAY_FREE_AD, me);
                 break;
             case 10:
                 if (uiNpcEntry == NPC_ASH)
-                    DoScriptText(SAY_OPEN_DOOR_AS, m_creature);
+                    DoScriptText(SAY_OPEN_DOOR_AS, me);
                 else
-                    DoScriptText(SAY_OPEN_DOOR_AD, m_creature);
+                    DoScriptText(SAY_OPEN_DOOR_AD, me);
                 break;
             case 11:
                 if (uiNpcEntry == NPC_ASH)
-                    DoCast(m_creature, SPELL_UNLOCK);
+                    DoCast(me, SPELL_UNLOCK);
                 break;
             case 12:
                 if (uiNpcEntry == NPC_ASH)
-                    DoScriptText(SAY_POST_DOOR_AS, m_creature);
+                    DoScriptText(SAY_POST_DOOR_AS, me);
                 else
-                    DoScriptText(SAY_POST1_DOOR_AD, m_creature);
+                    DoScriptText(SAY_POST1_DOOR_AD, me);
 
                 if (pInstance)
                     pInstance->SetData(TYPE_FREE_NPC, DONE);
                 break;
             case 13:
                 if (uiNpcEntry != NPC_ASH)
-                    DoScriptText(SAY_POST2_DOOR_AD, m_creature);
+                    DoScriptText(SAY_POST2_DOOR_AD, me);
                 break;
         }
     }
@@ -154,13 +154,13 @@ struct npc_arugal_voidwalkerAI : public ScriptedAI
 
         if (uiDarkOffering <= uiDiff)
         {
-            if (Creature* pFriend = m_creature->FindNearestCreature(m_creature->GetEntry(),25.0f,true))
+            if (Creature* pFriend = me->FindNearestCreature(me->GetEntry(),25.0f,true))
             {
                 if (pFriend)
                     DoCast(pFriend,SPELL_DARK_OFFERING);
             }
             else
-                DoCast(m_creature,SPELL_DARK_OFFERING);
+                DoCast(me,SPELL_DARK_OFFERING);
             uiDarkOffering = urand(4400,12500);
         } else uiDarkOffering -= uiDiff;
 

@@ -71,7 +71,7 @@ struct boss_patchwerkAI : public BossAI
             AchievementEntry const *AchievMakeQuickWerkOfHim = GetAchievementStore()->LookupEntry(ACHIEVEMENT_MAKE_QUICK_WERK_OF_HIM);
             if (AchievMakeQuickWerkOfHim)
             {
-                Map *pMap = m_creature->GetMap();
+                Map *pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
@@ -129,12 +129,12 @@ struct boss_patchwerkAI : public BossAI
                     break;
                 }
                 case EVENT_BERSERK:
-                    DoCast(m_creature, SPELL_BERSERK, true);
-                    DoScriptText(EMOTE_BERSERK, m_creature);
+                    DoCast(me, SPELL_BERSERK, true);
+                    DoScriptText(EMOTE_BERSERK, me);
                     events.ScheduleEvent(EVENT_SLIME, 2000);
                     break;
                 case EVENT_SLIME:
-                    DoCast(m_creature->getVictim(), SPELL_SLIME_BOLT);
+                    DoCast(me->getVictim(), SPELL_SLIME_BOLT);
                     events.ScheduleEvent(EVENT_SLIME, 2000);
                     break;
             }
@@ -142,8 +142,8 @@ struct boss_patchwerkAI : public BossAI
 
         if (!Enraged && HealthBelowPct(5))
         {
-            DoCast(m_creature, SPELL_FRENZY, true);
-            DoScriptText(EMOTE_ENRAGE, m_creature);
+            DoCast(me, SPELL_FRENZY, true);
+            DoScriptText(EMOTE_ENRAGE, me);
             Enraged = true;
         }
 

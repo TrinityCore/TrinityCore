@@ -70,8 +70,8 @@ struct mobs_risen_husk_spiritAI : public ScriptedAI
 
         if (m_uiConsumeFlesh_Timer <= uiDiff)
         {
-            if (m_creature->GetEntry() == NPC_RISEN_HUSK)
-                DoCast(m_creature->getVictim(), SPELL_CONSUME_FLESH);
+            if (me->GetEntry() == NPC_RISEN_HUSK)
+                DoCast(me->getVictim(), SPELL_CONSUME_FLESH);
 
             m_uiConsumeFlesh_Timer = 15000;
         }
@@ -80,8 +80,8 @@ struct mobs_risen_husk_spiritAI : public ScriptedAI
 
         if (m_uiIntangiblePresence_Timer <= uiDiff)
         {
-            if (m_creature->GetEntry() == NPC_RISEN_SPIRIT)
-                DoCast(m_creature->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+            if (me->GetEntry() == NPC_RISEN_SPIRIT)
+                DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
 
             m_uiIntangiblePresence_Timer = 20000;
         }
@@ -124,7 +124,7 @@ struct npc_restless_apparitionAI : public ScriptedAI
 
     void Reset()
     {
-        DoScriptText(RAND(SAY_RESTLESS_1,SAY_RESTLESS_2,SAY_RESTLESS_3), m_creature);
+        DoScriptText(RAND(SAY_RESTLESS_1,SAY_RESTLESS_2,SAY_RESTLESS_3), me);
     }
 };
 
@@ -272,10 +272,10 @@ struct npc_private_hendelAI : public ScriptedAI
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (m_creature->getVictim())
+        if (me->getVictim())
             return;
 
-        if (m_creature->IsFriendlyTo(pAttacker))
+        if (me->IsFriendlyTo(pAttacker))
             return;
 
         AttackStart(pAttacker);
@@ -283,14 +283,14 @@ struct npc_private_hendelAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 20))
+        if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage)*100 / me->GetMaxHealth() < 20))
         {
             uiDamage = 0;
 
             if (Player* pPlayer = pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
-                pPlayer->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, m_creature);
+                pPlayer->GroupEventHappens(QUEST_MISSING_DIPLO_PT16, me);
 
-            DoScriptText(EMOTE_SURRENDER, m_creature);
+            DoScriptText(EMOTE_SURRENDER, me);
             EnterEvadeMode();
         }
     }
@@ -333,13 +333,13 @@ struct npc_zelfraxAI : public ScriptedAI
         if (!pWho)
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
 
             if (IsCombatMovement())
-                m_creature->GetMotionMaster()->MoveChase(pWho);
+                me->GetMotionMaster()->MoveChase(pWho);
         }
     }
 
@@ -348,21 +348,21 @@ struct npc_zelfraxAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+        me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
         SetCombatMovement(true);
 
-        if (m_creature->isInCombat())
-            if (Unit* pUnit = m_creature->getVictim())
-                m_creature->GetMotionMaster()->MoveChase(pUnit);
+        if (me->isInCombat())
+            if (Unit* pUnit = me->getVictim())
+                me->GetMotionMaster()->MoveChase(pUnit);
     }
 
     void MoveToDock()
     {
         SetCombatMovement(false);
-        m_creature->GetMotionMaster()->MovePoint(0,MovePosition);
-        DoScriptText(SAY_ZELFRAX,m_creature);
-        DoScriptText(SAY_ZELFRAX_2,m_creature);
+        me->GetMotionMaster()->MovePoint(0,MovePosition);
+        DoScriptText(SAY_ZELFRAX,me);
+        DoScriptText(SAY_ZELFRAX_2,me);
     }
 
     void UpdateAI(uint32 const uiDiff)

@@ -78,11 +78,11 @@ struct npc_medivh_bmAI : public ScriptedAI
             return;
 
         if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
-            DoCast(m_creature, SPELL_CHANNEL, true);
-        else if (m_creature->HasAura(SPELL_CHANNEL))
-            m_creature->RemoveAura(SPELL_CHANNEL);
+            DoCast(me, SPELL_CHANNEL, true);
+        else if (me->HasAura(SPELL_CHANNEL))
+            me->RemoveAura(SPELL_CHANNEL);
 
-        DoCast(m_creature, SPELL_PORTAL_RUNE, true);
+        DoCast(me, SPELL_PORTAL_RUNE, true);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -90,17 +90,17 @@ struct npc_medivh_bmAI : public ScriptedAI
         if (!pInstance)
             return;
 
-        if (who->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(who, 10.0f))
+        if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
         {
             if (pInstance->GetData(TYPE_MEDIVH) == IN_PROGRESS || pInstance->GetData(TYPE_MEDIVH) == DONE)
                 return;
 
-            DoScriptText(SAY_INTRO, m_creature);
+            DoScriptText(SAY_INTRO, me);
             pInstance->SetData(TYPE_MEDIVH,IN_PROGRESS);
-            DoCast(m_creature, SPELL_CHANNEL, false);
+            DoCast(me, SPELL_CHANNEL, false);
             Check_Timer = 5000;
                  }
-        else if (who->GetTypeId() == TYPEID_UNIT && m_creature->IsWithinDistInMap(who, 15.0f))
+        else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
         {
             if (pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
                 return;
@@ -109,12 +109,12 @@ struct npc_medivh_bmAI : public ScriptedAI
             if (entry == C_ASSAS || entry == C_WHELP || entry == C_CHRON || entry == C_EXECU || entry == C_VANQU)
             {
                 who->StopMoving();
-                who->CastSpell(m_creature,SPELL_CORRUPT,false);
+                who->CastSpell(me,SPELL_CORRUPT,false);
             }
             else if (entry == C_AEONUS)
             {
                 who->StopMoving();
-                who->CastSpell(m_creature,SPELL_CORRUPT_AEONUS,false);
+                who->CastSpell(me,SPELL_CORRUPT_AEONUS,false);
             }
         }
     }
@@ -143,10 +143,10 @@ struct npc_medivh_bmAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        if (Killer->GetEntry() == m_creature->GetEntry())
+        if (Killer->GetEntry() == me->GetEntry())
             return;
 
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -160,9 +160,9 @@ struct npc_medivh_bmAI : public ScriptedAI
             {
                     pInstance->SetData(TYPE_MEDIVH,SPECIAL);
 
-                if (m_creature->HasAura(SPELL_CORRUPT_AEONUS))
+                if (me->HasAura(SPELL_CORRUPT_AEONUS))
                     SpellCorrupt_Timer = 1000;
-                else if (m_creature->HasAura(SPELL_CORRUPT))
+                else if (me->HasAura(SPELL_CORRUPT))
                     SpellCorrupt_Timer = 3000;
                 else
                     SpellCorrupt_Timer = 0;
@@ -179,36 +179,36 @@ struct npc_medivh_bmAI : public ScriptedAI
 
                 if (Life25 && pct <= 25)
                 {
-                    DoScriptText(SAY_WEAK25, m_creature);
+                    DoScriptText(SAY_WEAK25, me);
                     Life25 = false;
                 }
                 else if (Life50 && pct <= 50)
                 {
-                    DoScriptText(SAY_WEAK50, m_creature);
+                    DoScriptText(SAY_WEAK50, me);
                     Life50 = false;
                 }
                 else if (Life75 && pct <= 75)
                 {
-                    DoScriptText(SAY_WEAK75, m_creature);
+                    DoScriptText(SAY_WEAK75, me);
                     Life75 = false;
                 }
 
                 //if we reach this it means event was running but at some point reset.
                 if (pInstance->GetData(TYPE_MEDIVH) == NOT_STARTED)
                 {
-                    m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                    m_creature->RemoveCorpse();
-                    m_creature->Respawn();
+                    me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                    me->RemoveCorpse();
+                    me->Respawn();
                     return;
                 }
 
                 if (pInstance->GetData(TYPE_RIFT) == DONE)
                 {
-                    DoScriptText(SAY_WIN, m_creature);
+                    DoScriptText(SAY_WIN, me);
                     Check_Timer = 0;
 
-                    if (m_creature->HasAura(SPELL_CHANNEL))
-                        m_creature->RemoveAura(SPELL_CHANNEL);
+                    if (me->HasAura(SPELL_CHANNEL))
+                        me->RemoveAura(SPELL_CHANNEL);
 
                     //TODO: start the post-event here
                     pInstance->SetData(TYPE_MEDIVH,DONE);
@@ -281,19 +281,19 @@ struct npc_time_riftAI : public ScriptedAI
 
         if (pInstance && pInstance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
         {
-            m_creature->InterruptNonMeleeSpells(true);
-            m_creature->RemoveAllAuras();
+            me->InterruptNonMeleeSpells(true);
+            me->RemoveAllAuras();
             return;
         }
 
         Position pos;
-        m_creature->GetRandomNearPosition(pos, 10.0f);
+        me->GetRandomNearPosition(pos, 10.0f);
 
         //normalize Z-level if we can, if rift is not at ground level.
-        pos.m_positionZ = std::max(m_creature->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), m_creature->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
+        pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
         if (Unit *Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
-            if (Unit *temp = Unit::GetUnit(*m_creature, pInstance ? pInstance->GetData64(DATA_MEDIVH) : 0))
+            if (Unit *temp = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_MEDIVH) : 0))
                 Summon->AddThreat(temp,0.0f);
     }
 
@@ -327,11 +327,11 @@ struct npc_time_riftAI : public ScriptedAI
             TimeRiftWave_Timer = 15000;
         } else TimeRiftWave_Timer -= diff;
 
-        if (m_creature->IsNonMeleeSpellCasted(false))
+        if (me->IsNonMeleeSpellCasted(false))
             return;
 
         debug_log("TSCR: npc_time_rift: not casting anylonger, i need to die.");
-        m_creature->setDeathState(JUST_DIED);
+        me->setDeathState(JUST_DIED);
 
         if (pInstance->GetData(TYPE_RIFT) == IN_PROGRESS)
             pInstance->SetData(TYPE_RIFT,SPECIAL);

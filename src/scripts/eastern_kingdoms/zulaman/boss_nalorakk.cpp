@@ -120,15 +120,15 @@ struct boss_nalorakkAI : public ScriptedAI
     {
         if (MoveEvent)
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             inMove = false;
             waitTimer = 0;
-            m_creature->SetSpeed(MOVE_RUN,2);
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->SetSpeed(MOVE_RUN,2);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
         }else
         {
-            (*m_creature).GetMotionMaster()->MovePoint(0,NalorakkWay[7][0],NalorakkWay[7][1],NalorakkWay[7][2]);
+            (*me).GetMotionMaster()->MovePoint(0,NalorakkWay[7][0],NalorakkWay[7][1],NalorakkWay[7][2]);
         }
 
         if (pInstance)
@@ -141,14 +141,14 @@ struct boss_nalorakkAI : public ScriptedAI
         Berserk_Timer = 600000;
 
         inBearForm = false;
-        // m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  // TODO: find the correct equipment id
+        // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);  // TODO: find the correct equipment id
     }
 
     void SendAttacker(Unit *pTarget)
     {
         std::list<Creature*> templist;
         float x, y, z;
-        m_creature->GetPosition(x, y, z);
+        me->GetPosition(x, y, z);
 
         {
             CellPair pair(Trinity::ComputeCellPair(x, y));
@@ -156,12 +156,12 @@ struct boss_nalorakkAI : public ScriptedAI
             cell.data.Part.reserved = ALL_DISTRICT;
             cell.SetNoCreate();
 
-            Trinity::AllFriendlyCreaturesInGrid check(m_creature);
-            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(m_creature, templist, check);
+            Trinity::AllFriendlyCreaturesInGrid check(me);
+            Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid> searcher(me, templist, check);
 
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllFriendlyCreaturesInGrid>, GridTypeMapContainer> cSearcher(searcher);
 
-            cell.Visit(pair, cSearcher, *(m_creature->GetMap()));
+            cell.Visit(pair, cSearcher, *(me->GetMap()));
         }
 
         if (!templist.size())
@@ -169,7 +169,7 @@ struct boss_nalorakkAI : public ScriptedAI
 
         for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
         {
-            if ((*i) && m_creature->IsWithinDistInMap((*i),25))
+            if ((*i) && me->IsWithinDistInMap((*i),25))
             {
                 (*i)->SetNoCallAssistance(true);
                 (*i)->AI()->AttackStart(pTarget);
@@ -191,19 +191,19 @@ struct boss_nalorakkAI : public ScriptedAI
         }
         else
         {
-            if (m_creature->IsHostileTo(who))
+            if (me->IsHostileTo(who))
             {
                 if (!inMove)
                 {
                     switch(MovePhase)
                     {
                         case 0:
-                            if (m_creature->IsWithinDistInMap(who, 50))
+                            if (me->IsWithinDistInMap(who, 50))
                             {
-                                m_creature->MonsterYell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL, NULL);
-                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE1);
+                                me->MonsterYell(YELL_NALORAKK_WAVE1, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE1);
 
-                                (*m_creature).GetMotionMaster()->MovePoint(1,NalorakkWay[1][0],NalorakkWay[1][1],NalorakkWay[1][2]);
+                                (*me).GetMotionMaster()->MovePoint(1,NalorakkWay[1][0],NalorakkWay[1][1],NalorakkWay[1][2]);
                                 MovePhase ++;
                                 inMove = true;
 
@@ -211,12 +211,12 @@ struct boss_nalorakkAI : public ScriptedAI
                             }
                             break;
                         case 2:
-                            if (m_creature->IsWithinDistInMap(who, 40))
+                            if (me->IsWithinDistInMap(who, 40))
                             {
-                                m_creature->MonsterYell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL, NULL);
-                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE2);
+                                me->MonsterYell(YELL_NALORAKK_WAVE2, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE2);
 
-                                (*m_creature).GetMotionMaster()->MovePoint(3,NalorakkWay[3][0],NalorakkWay[3][1],NalorakkWay[3][2]);
+                                (*me).GetMotionMaster()->MovePoint(3,NalorakkWay[3][0],NalorakkWay[3][1],NalorakkWay[3][2]);
                                 MovePhase ++;
                                 inMove = true;
 
@@ -224,12 +224,12 @@ struct boss_nalorakkAI : public ScriptedAI
                             }
                             break;
                         case 5:
-                            if (m_creature->IsWithinDistInMap(who, 40))
+                            if (me->IsWithinDistInMap(who, 40))
                             {
-                                m_creature->MonsterYell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL, NULL);
-                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE3);
+                                me->MonsterYell(YELL_NALORAKK_WAVE3, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE3);
 
-                                (*m_creature).GetMotionMaster()->MovePoint(6,NalorakkWay[6][0],NalorakkWay[6][1],NalorakkWay[6][2]);
+                                (*me).GetMotionMaster()->MovePoint(6,NalorakkWay[6][0],NalorakkWay[6][1],NalorakkWay[6][2]);
                                 MovePhase ++;
                                 inMove = true;
 
@@ -237,15 +237,15 @@ struct boss_nalorakkAI : public ScriptedAI
                             }
                             break;
                         case 7:
-                            if (m_creature->IsWithinDistInMap(who, 50))
+                            if (me->IsWithinDistInMap(who, 50))
                             {
                                 SendAttacker(who);
 
-                                m_creature->MonsterYell(YELL_NALORAKK_WAVE4, LANG_UNIVERSAL, NULL);
-                                DoPlaySoundToSet(m_creature, SOUND_NALORAKK_WAVE4);
+                                me->MonsterYell(YELL_NALORAKK_WAVE4, LANG_UNIVERSAL, NULL);
+                                DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE4);
 
-                                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                                 MoveEvent = false;
                             }
@@ -261,8 +261,8 @@ struct boss_nalorakkAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
 
-        m_creature->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
-        DoPlaySoundToSet(m_creature, SOUND_YELL_AGGRO);
+        me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, NULL);
+        DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
         DoZoneInCombat();
     }
 
@@ -271,8 +271,8 @@ struct boss_nalorakkAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, DONE);
 
-        m_creature->MonsterYell(YELL_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_YELL_DEATH);
+        me->MonsterYell(YELL_DEATH,LANG_UNIVERSAL,NULL);
+        DoPlaySoundToSet(me, SOUND_YELL_DEATH);
     }
 
     void KilledUnit(Unit* victim)
@@ -280,12 +280,12 @@ struct boss_nalorakkAI : public ScriptedAI
         switch (urand(0,1))
         {
             case 0:
-                m_creature->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_ONE);
+                me->MonsterYell(YELL_KILL_ONE, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_YELL_KILL_ONE);
                 break;
             case 1:
-                m_creature->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_YELL_KILL_TWO);
+                me->MonsterYell(YELL_KILL_TWO, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_YELL_KILL_TWO);
                 break;
         }
     }
@@ -306,7 +306,7 @@ struct boss_nalorakkAI : public ScriptedAI
             switch(MovePhase)
             {
                 case 2:
-                    m_creature->SetOrientation(3.1415*2);
+                    me->SetOrientation(3.1415*2);
                     inMove = false;
                     return;
                 case 1:
@@ -318,11 +318,11 @@ struct boss_nalorakkAI : public ScriptedAI
                     inMove = true;
                     return;
                 case 5:
-                    m_creature->SetOrientation(3.1415*0.5);
+                    me->SetOrientation(3.1415*0.5);
                     inMove = false;
                     return;
                 case 7:
-                    m_creature->SetOrientation(3.1415*0.5);
+                    me->SetOrientation(3.1415*0.5);
                     inMove = false;
                     return;
             }
@@ -337,8 +337,8 @@ struct boss_nalorakkAI : public ScriptedAI
             if (inMove)
                 if (waitTimer <= diff)
                 {
-                    (*m_creature).GetMotionMaster()->MovementExpired();
-                    (*m_creature).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
+                    (*me).GetMotionMaster()->MovementExpired();
+                    (*me).GetMotionMaster()->MovePoint(MovePhase,NalorakkWay[MovePhase][0],NalorakkWay[MovePhase][1],NalorakkWay[MovePhase][2]);
                     waitTimer = 0;
                 } else waitTimer -= diff;
         }
@@ -348,9 +348,9 @@ struct boss_nalorakkAI : public ScriptedAI
 
         if (Berserk_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_BERSERK, true);
-            m_creature->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
-            DoPlaySoundToSet(m_creature, SOUND_YELL_BERSERK);
+            DoCast(me, SPELL_BERSERK, true);
+            me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, NULL);
+            DoPlaySoundToSet(me, SOUND_YELL_BERSERK);
             Berserk_Timer = 600000;
         } else Berserk_Timer -= diff;
 
@@ -358,10 +358,10 @@ struct boss_nalorakkAI : public ScriptedAI
         {
             if (inBearForm)
             {
-                // m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);
-                m_creature->MonsterYell(YELL_SHIFTEDTOTROLL, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_YELL_TOTROLL);
-                m_creature->RemoveAurasDueToSpell(SPELL_BEARFORM);
+                // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 5122);
+                me->MonsterYell(YELL_SHIFTEDTOTROLL, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_YELL_TOTROLL);
+                me->RemoveAurasDueToSpell(SPELL_BEARFORM);
                 Surge_Timer = 15000 + rand()%5000;
                 BrutalSwipe_Timer = 7000 + rand()%5000;
                 Mangle_Timer = 10000 + rand()%5000;
@@ -370,10 +370,10 @@ struct boss_nalorakkAI : public ScriptedAI
             }
             else
             {
-                // m_creature->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
-                m_creature->MonsterYell(YELL_SHIFTEDTOBEAR, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_YELL_TOBEAR);
-                DoCast(m_creature, SPELL_BEARFORM, true);
+                // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
+                me->MonsterYell(YELL_SHIFTEDTOBEAR, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_YELL_TOBEAR);
+                DoCast(me, SPELL_BEARFORM, true);
                 LaceratingSlash_Timer = 2000; // dur 18s
                 RendFlesh_Timer = 3000;  // dur 5s
                 DeafeningRoar_Timer = 5000 + rand()%5000;  // dur 2s
@@ -386,15 +386,15 @@ struct boss_nalorakkAI : public ScriptedAI
         {
             if (BrutalSwipe_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_BRUTALSWIPE);
+                DoCast(me->getVictim(), SPELL_BRUTALSWIPE);
                 BrutalSwipe_Timer = 7000 + rand()%5000;
             } else BrutalSwipe_Timer -= diff;
 
             if (Mangle_Timer <= diff)
             {
-                if (m_creature->getVictim() && !m_creature->getVictim()->HasAura(SPELL_MANGLEEFFECT))
+                if (me->getVictim() && !me->getVictim()->HasAura(SPELL_MANGLEEFFECT))
                 {
-                    DoCast(m_creature->getVictim(), SPELL_MANGLE);
+                    DoCast(me->getVictim(), SPELL_MANGLE);
                     Mangle_Timer = 1000;
                 }
                 else Mangle_Timer = 10000 + rand()%5000;
@@ -402,8 +402,8 @@ struct boss_nalorakkAI : public ScriptedAI
 
             if (Surge_Timer <= diff)
             {
-                m_creature->MonsterYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
-                DoPlaySoundToSet(m_creature, SOUND_YELL_SURGE);
+                me->MonsterYell(YELL_SURGE, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_YELL_SURGE);
                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
                 if (pTarget)
                     DoCast(pTarget, SPELL_SURGE);
@@ -414,19 +414,19 @@ struct boss_nalorakkAI : public ScriptedAI
         {
             if (LaceratingSlash_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_LACERATINGSLASH);
+                DoCast(me->getVictim(), SPELL_LACERATINGSLASH);
                 LaceratingSlash_Timer = 18000 + rand()%5000;
             } else LaceratingSlash_Timer -= diff;
 
             if (RendFlesh_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_RENDFLESH);
+                DoCast(me->getVictim(), SPELL_RENDFLESH);
                 RendFlesh_Timer = 5000 + rand()%5000;
             } else RendFlesh_Timer -= diff;
 
             if (DeafeningRoar_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_DEAFENINGROAR);
+                DoCast(me->getVictim(), SPELL_DEAFENINGROAR);
                 DeafeningRoar_Timer = 15000 + rand()%5000;
             } else DeafeningRoar_Timer -= diff;
         }

@@ -60,7 +60,7 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
 
         if (pInstance)
         {
-            switch(m_creature->GetEntry())
+            switch(me->GetEntry())
             {
                 case SH_AELMAR:
                     pInstance->SetData(TYPE_SH_AELMAR, 0);
@@ -89,7 +89,7 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
     {
         if (pInstance)
         {
-            switch(m_creature->GetEntry())
+            switch(me->GetEntry())
             {
                 case SH_AELMAR:
                     pInstance->SetData(TYPE_SH_AELMAR, 2);
@@ -108,7 +108,7 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
                     break;
             }
             if (pInstance->GetData(TYPE_SH_QUEST) && Killer->GetTypeId() == TYPEID_PLAYER)
-                CAST_PLR(Killer)->KilledMonsterCredit(SH_QUEST_CREDIT,m_creature->GetGUID());
+                CAST_PLR(Killer)->KilledMonsterCredit(SH_QUEST_CREDIT,me->GetGUID());
         }
     }
 
@@ -120,18 +120,18 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
 
         if (HolyLight_Timer <= diff)
         {
-            if (m_creature->GetHealth()*5 < m_creature->GetMaxHealth())
+            if (me->GetHealth()*5 < me->GetMaxHealth())
             {
-                DoCast(m_creature, SPELL_HOLY_LIGHT);
+                DoCast(me, SPELL_HOLY_LIGHT);
                 HolyLight_Timer = 20000;
             }
         } else HolyLight_Timer -= diff;
 
         if (DivineShield_Timer <= diff)
         {
-            if (m_creature->GetHealth()*20 < m_creature->GetMaxHealth())
+            if (me->GetHealth()*20 < me->GetMaxHealth())
             {
-                DoCast(m_creature, SPELL_DIVINE_SHIELD);
+                DoCast(me, SPELL_DIVINE_SHIELD);
                 DivineShield_Timer = 40000;
             }
         } else DivineShield_Timer -= diff;

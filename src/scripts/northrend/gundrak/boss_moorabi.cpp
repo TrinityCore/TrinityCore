@@ -79,8 +79,8 @@ struct boss_moorabiAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_MOJO_FRENZY, true);
+        DoScriptText(SAY_AGGRO, me);
+        DoCast(me, SPELL_MOJO_FRENZY, true);
 
         if (pInstance)
             pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
@@ -92,45 +92,45 @@ struct boss_moorabiAI : public ScriptedAI
          if (!UpdateVictim())
              return;
 
-        if (!bPhase && m_creature->HasAura(SPELL_TRANSFORMATION))
+        if (!bPhase && me->HasAura(SPELL_TRANSFORMATION))
         {
             bPhase = true;
-            m_creature->RemoveAura(SPELL_MOJO_FRENZY);
+            me->RemoveAura(SPELL_MOJO_FRENZY);
         }
 
         if (uiGroundTremorTimer <= uiDiff)
         {
-            DoScriptText(SAY_QUAKE, m_creature);
+            DoScriptText(SAY_QUAKE, me);
             if (bPhase)
-                DoCast(m_creature->getVictim(), SPELL_QUAKE, true);
+                DoCast(me->getVictim(), SPELL_QUAKE, true);
             else
-                DoCast(m_creature->getVictim(), SPELL_GROUND_TREMOR, true);
+                DoCast(me->getVictim(), SPELL_GROUND_TREMOR, true);
             uiGroundTremorTimer = 10*IN_MILISECONDS;
         } else uiGroundTremorTimer -= uiDiff;
 
         if (uiNumblingShoutTimer <= uiDiff)
         {
             if (bPhase)
-                DoCast(m_creature->getVictim(), SPELL_NUMBING_ROAR, true);
+                DoCast(me->getVictim(), SPELL_NUMBING_ROAR, true);
             else
-                DoCast(m_creature->getVictim(), SPELL_NUMBING_SHOUT, true);
+                DoCast(me->getVictim(), SPELL_NUMBING_SHOUT, true);
             uiNumblingShoutTimer = 10*IN_MILISECONDS;
         } else uiNumblingShoutTimer -=uiDiff;
 
         if (uiDeterminedStabTimer <= uiDiff)
         {
             if (bPhase)
-                DoCast(m_creature->getVictim(), SPELL_DETERMINED_GORE);
+                DoCast(me->getVictim(), SPELL_DETERMINED_GORE);
             else
-                DoCast(m_creature->getVictim(), SPELL_DETERMINED_STAB, true);
+                DoCast(me->getVictim(), SPELL_DETERMINED_STAB, true);
             uiDeterminedStabTimer = 8*IN_MILISECONDS;
         } else uiDeterminedStabTimer -=uiDiff;
 
         if (!bPhase && uiTransformationTImer <= uiDiff)
         {
-            DoScriptText(EMOTE_TRANSFORM, m_creature);
-            DoScriptText(SAY_TRANSFORM, m_creature);
-            DoCast(m_creature, SPELL_TRANSFORMATION, false);
+            DoScriptText(EMOTE_TRANSFORM, me);
+            DoScriptText(SAY_TRANSFORM, me);
+            DoCast(me, SPELL_TRANSFORMATION, false);
             uiTransformationTImer = 10*IN_MILISECONDS;
         } else uiTransformationTImer -= uiDiff;
 
@@ -139,7 +139,7 @@ struct boss_moorabiAI : public ScriptedAI
 
      void JustDied(Unit* pKiller)
      {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -152,10 +152,10 @@ struct boss_moorabiAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        if (pVictim == m_creature)
+        if (pVictim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_3), me);
     }
 };
 

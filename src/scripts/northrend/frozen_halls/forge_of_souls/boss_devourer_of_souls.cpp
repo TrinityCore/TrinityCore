@@ -139,9 +139,9 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-        m_creature->SetDisplayId(DISPLAY_ANGER);
-        m_creature->SetReactState(REACT_AGGRESSIVE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+        me->SetDisplayId(DISPLAY_ANGER);
+        me->SetReactState(REACT_AGGRESSIVE);
 
         events.Reset();
 
@@ -157,7 +157,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_DEVOURER_EVENT, IN_PROGRESS);
 
-        DoScriptText(RAND(SAY_FACE_ANGER_AGGRO,SAY_FACE_DESIRE_AGGRO), m_creature);
+        DoScriptText(RAND(SAY_FACE_ANGER_AGGRO,SAY_FACE_DESIRE_AGGRO), me);
 
         events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
         events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
@@ -168,15 +168,15 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
 
     void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
     {
-        if (uiMirroredSoulTarget && m_creature->HasAura(SPELL_MIRRORED_SOUL))
+        if (uiMirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
         {
             if (Player *pPlayer = Unit::GetPlayer(uiMirroredSoulTarget))
             {
                 if (Aura *pAura = pPlayer->GetAura(SPELL_MIRRORED_SOUL))
                 {
                     int32 mirrorDamage = (uiDamage * 45)/100;
-                    m_creature->CastCustomSpell(pPlayer, 69034, &mirrorDamage, 0, 0, true);
-//                    m_creature->DealDamage(pPlayer, (uiDamage * 45)/100, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_SHADOW);
+                    me->CastCustomSpell(pPlayer, 69034, &mirrorDamage, 0, 0, true);
+//                    me->DealDamage(pPlayer, (uiDamage * 45)/100, 0, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_SHADOW);
                 }
                 else
                     uiMirroredSoulTarget = 0;
@@ -187,14 +187,14 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
     void KilledUnit(Unit *victim)
     {
         DoScriptText(RAND(SAY_FACE_ANGER_SLAY_1,SAY_FACE_SORROW_SLAY_1,SAY_FACE_DESIRE_SLAY_1,
-            SAY_FACE_ANGER_SLAY_2,SAY_FACE_SORROW_SLAY_2,SAY_FACE_DESIRE_SLAY_2), m_creature);
+            SAY_FACE_ANGER_SLAY_2,SAY_FACE_SORROW_SLAY_2,SAY_FACE_DESIRE_SLAY_2), me);
     }
 
     void JustDied(Unit* killer)
     {
         Position spawnPoint = { 5618.139, 2451.873, 705.854 };
 
-        DoScriptText(RAND(SAY_FACE_SORROW_DEATH,SAY_FACE_DESIRE_DEATH), m_creature);
+        DoScriptText(RAND(SAY_FACE_SORROW_DEATH,SAY_FACE_DESIRE_DEATH), me);
 
         if (pInstance)
         {
@@ -211,7 +211,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
 
             for (int8 i = 0; outroPositions[i].entry[entryIndex] != 0; ++i)
             {
-                if (Creature *pSummon = m_creature->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint, TEMPSUMMON_DEAD_DESPAWN))
+                if (Creature *pSummon = me->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint, TEMPSUMMON_DEAD_DESPAWN))
                 {
                     pSummon->GetMotionMaster()->MovePoint(0, outroPositions[i].movePosition);
 
@@ -238,7 +238,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -255,7 +255,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
                     {
                         uiMirroredSoulTarget = pTarget->GetGUID();
                         DoCast(pTarget, SPELL_MIRRORED_SOUL);
-                        DoScriptText(EMOTE_MIRRORED_SOUL, m_creature);
+                        DoScriptText(EMOTE_MIRRORED_SOUL, me);
                     }
                     events.ScheduleEvent(EVENT_MIRRORED_SOUL, urand(15000,30000));
                     break;
@@ -267,42 +267,42 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
                 case EVENT_UNLEASHED_SOULS:
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_UNLEASHED_SOULS);
-                    m_creature->SetDisplayId(DISPLAY_SORROW);
-                    DoScriptText(RAND(SAY_FACE_ANGER_UNLEASH_SOUL,SAY_FACE_SORROW_UNLEASH_SOUL,SAY_FACE_DESIRE_UNLEASH_SOUL), m_creature);
-                    DoScriptText(EMOTE_UNLEASH_SOUL, m_creature);
+                    me->SetDisplayId(DISPLAY_SORROW);
+                    DoScriptText(RAND(SAY_FACE_ANGER_UNLEASH_SOUL,SAY_FACE_SORROW_UNLEASH_SOUL,SAY_FACE_DESIRE_UNLEASH_SOUL), me);
+                    DoScriptText(EMOTE_UNLEASH_SOUL, me);
                     events.ScheduleEvent(EVENT_UNLEASHED_SOULS, 30000);
                     events.ScheduleEvent(EVENT_FACE_ANGER, 5000);
                     break;
                 case EVENT_FACE_ANGER:
-                    m_creature->SetDisplayId(DISPLAY_ANGER);
+                    me->SetDisplayId(DISPLAY_ANGER);
                     break;
 
                 case EVENT_WAILING_SOULS:
-                    m_creature->SetDisplayId(DISPLAY_DESIRE);
-                    DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL,SAY_FACE_DESIRE_WAILING_SOUL), m_creature);
-                    DoScriptText(EMOTE_WAILING_SOUL, m_creature);
-                    DoCast(m_creature, SPELL_WAILING_SOULS_STARTING);
+                    me->SetDisplayId(DISPLAY_DESIRE);
+                    DoScriptText(RAND(SAY_FACE_ANGER_WAILING_SOUL,SAY_FACE_DESIRE_WAILING_SOUL), me);
+                    DoScriptText(EMOTE_WAILING_SOUL, me);
+                    DoCast(me, SPELL_WAILING_SOULS_STARTING);
 
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
-                        m_creature->SetOrientation(m_creature->GetAngle(pTarget));
-                        DoCast(m_creature, SPELL_WAILING_SOULS_BEAM);
+                        me->SetOrientation(me->GetAngle(pTarget));
+                        DoCast(me, SPELL_WAILING_SOULS_BEAM);
                     }
 
-                    beamAngle = m_creature->GetOrientation();
+                    beamAngle = me->GetOrientation();
 
                     beamAngleDiff = PI/30.0f; // PI/2 in 15 sec = PI/30 per tick
                     if (RAND(true,false))
                         beamAngleDiff = -beamAngleDiff;
 
-                    m_creature->InterruptNonMeleeSpells(false);
-                    m_creature->SetReactState(REACT_PASSIVE);
+                    me->InterruptNonMeleeSpells(false);
+                    me->SetReactState(REACT_PASSIVE);
 
                     //Remove any target
-                    m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
+                    me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
 
-                    m_creature->GetMotionMaster()->Clear();
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                    me->GetMotionMaster()->Clear();
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
                     wailingSoulTick = 15;
                     events.DelayEvents(18000); // no other events during wailing souls
@@ -311,19 +311,19 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
 
                 case EVENT_WAILING_SOULS_TICK:
                     beamAngle += beamAngleDiff;
-                    m_creature->SetOrientation(beamAngle);
-                    m_creature->StopMoving();
+                    me->SetOrientation(beamAngle);
+                    me->StopMoving();
 
-                    DoCast(m_creature, SPELL_WAILING_SOULS);
+                    DoCast(me, SPELL_WAILING_SOULS);
 
                     if (--wailingSoulTick)
                         events.ScheduleEvent(EVENT_WAILING_SOULS_TICK, 1000);
                     else
                     {
-                        m_creature->SetReactState(REACT_AGGRESSIVE);
-                        m_creature->SetDisplayId(DISPLAY_ANGER);
-                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetDisplayId(DISPLAY_ANGER);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
                         events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000,70000));
                     }
                     break;

@@ -117,7 +117,7 @@ struct mobs_nether_drakeAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -131,9 +131,9 @@ struct mobs_nether_drakeAI : public ScriptedAI
 
         if (id == 0)
         {
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->RemoveCorpse();
-            m_creature->SetHealth(0);
+            me->setDeathState(JUST_DIED);
+            me->RemoveCorpse();
+            me->SetHealth(0);
         }
     }
 
@@ -144,23 +144,23 @@ struct mobs_nether_drakeAI : public ScriptedAI
             const uint32 entry_list[4] = {ENTRY_PROTO, ENTRY_ADOLE, ENTRY_MATUR, ENTRY_NIHIL};
             int cid = rand()%(4-1);
 
-            if (entry_list[cid] == m_creature->GetEntry())
+            if (entry_list[cid] == me->GetEntry())
                 ++cid;
 
             //we are nihil, so say before transform
-            if (m_creature->GetEntry() == ENTRY_NIHIL)
+            if (me->GetEntry() == ENTRY_NIHIL)
             {
-                DoScriptText(SAY_NIHIL_INTERRUPT, m_creature);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                DoScriptText(SAY_NIHIL_INTERRUPT, me);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 IsNihil = false;
             }
 
-            if (m_creature->UpdateEntry(entry_list[cid]))
+            if (me->UpdateEntry(entry_list[cid]))
             {
                 if (entry_list[cid] == ENTRY_NIHIL)
                 {
                     EnterEvadeMode();
-                    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     IsNihil = true;
                 }else
                     AttackStart(caster);
@@ -177,25 +177,25 @@ struct mobs_nether_drakeAI : public ScriptedAI
                 switch(NihilSpeech_Phase)
                 {
                     case 0:
-                        DoScriptText(SAY_NIHIL_1, m_creature);
+                        DoScriptText(SAY_NIHIL_1, me);
                         ++NihilSpeech_Phase;
                         break;
                     case 1:
-                        DoScriptText(SAY_NIHIL_2, m_creature);
+                        DoScriptText(SAY_NIHIL_2, me);
                         ++NihilSpeech_Phase;
                         break;
                     case 2:
-                        DoScriptText(SAY_NIHIL_3, m_creature);
+                        DoScriptText(SAY_NIHIL_3, me);
                         ++NihilSpeech_Phase;
                         break;
                     case 3:
-                        DoScriptText(SAY_NIHIL_4, m_creature);
+                        DoScriptText(SAY_NIHIL_4, me);
                         ++NihilSpeech_Phase;
                         break;
                     case 4:
-                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         //take off to location above
-                        m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+50.0f, m_creature->GetPositionY(), m_creature->GetPositionZ()+50.0f);
+                        me->GetMotionMaster()->MovePoint(0, me->GetPositionX()+50.0f, me->GetPositionY(), me->GetPositionZ()+50.0f);
                         ++NihilSpeech_Phase;
                         break;
                 }
@@ -211,13 +211,13 @@ struct mobs_nether_drakeAI : public ScriptedAI
 
         if (IntangiblePresence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+            DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
             IntangiblePresence_Timer = 15000+rand()%15000;
         } else IntangiblePresence_Timer -= diff;
 
         if (ManaBurn_Timer <= diff)
         {
-            Unit *pTarget = m_creature->getVictim();
+            Unit *pTarget = me->getVictim();
             if (pTarget && pTarget->getPowerType() == POWER_MANA)
                 DoCast(pTarget, SPELL_MANA_BURN);
             ManaBurn_Timer = 8000+rand()%8000;
@@ -225,7 +225,7 @@ struct mobs_nether_drakeAI : public ScriptedAI
 
         if (ArcaneBlast_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANE_BLAST);
+            DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
             ArcaneBlast_Timer = 2500+rand()%5000;
         } else ArcaneBlast_Timer -= diff;
 
@@ -260,9 +260,9 @@ struct npc_daranelleAI : public ScriptedAI
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            if (who->HasAura(SPELL_LASHHAN_CHANNEL) && m_creature->IsWithinDistInMap(who, 10.0f))
+            if (who->HasAura(SPELL_LASHHAN_CHANNEL) && me->IsWithinDistInMap(who, 10.0f))
             {
-                DoScriptText(SAY_SPELL_INFLUENCE, m_creature, who);
+                DoScriptText(SAY_SPELL_INFLUENCE, me, who);
                 //TODO: Move the below to updateAI and run if this statement == true
                 DoCast(who, 37028, true);
             }

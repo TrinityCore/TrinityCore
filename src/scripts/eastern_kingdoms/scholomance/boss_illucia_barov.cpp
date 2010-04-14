@@ -48,13 +48,13 @@ struct boss_illuciabarovAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        ScriptedInstance *pInstance = m_creature->GetInstanceData();
+        ScriptedInstance *pInstance = me->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_LADYILLUCIABAROV_DEATH, 0);
 
             if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                m_creature->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
         }
     }
 
@@ -70,7 +70,7 @@ struct boss_illuciabarovAI : public ScriptedAI
         //CurseOfAgony_Timer
         if (CurseOfAgony_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CURSEOFAGONY);
+            DoCast(me->getVictim(), SPELL_CURSEOFAGONY);
             CurseOfAgony_Timer = 30000;
         } else CurseOfAgony_Timer -= diff;
 
@@ -87,14 +87,14 @@ struct boss_illuciabarovAI : public ScriptedAI
         //Silence_Timer
         if (Silence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SILENCE);
+            DoCast(me->getVictim(), SPELL_SILENCE);
             Silence_Timer = 14000;
         } else Silence_Timer -= diff;
 
         //Fear_Timer
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FEAR);
+            DoCast(me->getVictim(), SPELL_FEAR);
             Fear_Timer = 30000;
         } else Fear_Timer -= diff;
 

@@ -158,7 +158,7 @@ struct boss_ymironAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
@@ -170,12 +170,12 @@ struct boss_ymironAI : public ScriptedAI
         {
             if (m_uiPause_Timer <= diff)
             {
-                DoScriptText(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].say, m_creature);
-                DoCast(m_creature, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
-                if (Creature* pTemp = m_creature->SummonCreature(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                DoScriptText(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].say, me);
+                DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
+                if (Creature* pTemp = me->SummonCreature(ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBot[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
                 {
                     m_uiActivedCreatureGUID = pTemp->GetGUID();
-                    pTemp->CastSpell(m_creature, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
+                    pTemp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pTemp->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -218,40 +218,40 @@ struct boss_ymironAI : public ScriptedAI
             // Normal spells ------------------------------------------------------------------------
             if (m_uiBane_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_BANE);
+                DoCast(me, SPELL_BANE);
                 m_uiBane_Timer = urand(20000,25000);
             } else m_uiBane_Timer -= diff;
 
             if (m_uiFetidRot_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_FETID_ROT);
+                DoCast(me->getVictim(), SPELL_FETID_ROT);
                 m_uiFetidRot_Timer = urand(10000,15000);
             } else m_uiFetidRot_Timer -= diff;
 
             if (m_uiDarkSlash_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_DARK_SLASH);
+                DoCast(me->getVictim(), SPELL_DARK_SLASH);
                 m_uiDarkSlash_Timer = urand(30000,35000);
             } else m_uiDarkSlash_Timer -= diff;
 
             if (m_uiAncestors_Vengeance_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_ANCESTORS_VENGEANCE);
+                DoCast(me, SPELL_ANCESTORS_VENGEANCE);
                 m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(urand(60000,65000),urand(45000,50000));
             } else m_uiAncestors_Vengeance_Timer -= diff;
 
             // Abilities ------------------------------------------------------------------------------
             if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
             {
-                //DoCast(m_creature, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
-                if (Creature* pTemp = m_creature->SummonCreature(CREATURE_SPIRIT_FOUNT, 385+rand()%10, -330+rand()%10, 104.756, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
+                if (Creature* pTemp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385+rand()%10, -330+rand()%10, 104.756, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                 {
                     pTemp->SetSpeed(MOVE_RUN, 0.4f);
                     pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     pTemp->SetDisplayId(11686);
-                    //pTemp->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    //pTemp->GetMotionMaster()->MoveChase(me->getVictim());
                     m_uiOrbGUID = pTemp->GetGUID();
                 }
                 m_bIsActiveWithBJORN = false; // only one orb
@@ -259,26 +259,26 @@ struct boss_ymironAI : public ScriptedAI
 
             if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SPIRIT_STRIKE);
+                DoCast(me->getVictim(), SPELL_SPIRIT_STRIKE);
                 m_uiAbility_HALDOR_Timer = 5000; // overtime
             } else m_uiAbility_HALDOR_Timer -= diff;
 
             if (m_bIsActiveWithRANULF && m_uiAbility_RANULF_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_SPIRIT_BURST);
+                DoCast(me, SPELL_SPIRIT_BURST);
                 m_uiAbility_RANULF_Timer = 10000; // overtime
             } else m_uiAbility_RANULF_Timer -= diff;
 
             if (m_bIsActiveWithTORGYN && m_uiAbility_TORGYN_Timer <= diff)
             {
                 float x,y,z;
-                x = m_creature->GetPositionX()-5;
-                y = m_creature->GetPositionY()-5;
-                z = m_creature->GetPositionZ();
+                x = me->GetPositionX()-5;
+                y = me->GetPositionY()-5;
+                z = me->GetPositionZ();
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    //DoCast(m_creature, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
-                    if (Creature* pTemp = m_creature->SummonCreature(CREATURE_AVENGING_SPIRIT, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                    //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
+                    if (Creature* pTemp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                     {
                         if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         {
@@ -291,17 +291,17 @@ struct boss_ymironAI : public ScriptedAI
             } else m_uiAbility_TORGYN_Timer -= diff;
 
             // Health check -----------------------------------------------------------------------------
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < (100-(m_uiHealthAmountMultipler * m_uiHealthAmountModifier)))
+            if ((me->GetHealth()*100 / me->GetMaxHealth()) < (100-(m_uiHealthAmountMultipler * m_uiHealthAmountModifier)))
             {
                uint8 m_uiOrder = m_uiHealthAmountModifier - 1;
                ++m_uiHealthAmountModifier;
 
-                m_creature->InterruptNonMeleeSpells(true);
-                DoCast(m_creature, SPELL_SCREAMS_OF_THE_DEAD);
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->StopMoving();
-                m_creature->AttackStop();
-                m_creature->GetMotionMaster()->MovePoint(0, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveX, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveY, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveZ);
+                me->InterruptNonMeleeSpells(true);
+                DoCast(me, SPELL_SCREAMS_OF_THE_DEAD);
+                me->GetMotionMaster()->Clear();
+                me->StopMoving();
+                me->AttackStop();
+                me->GetMotionMaster()->MovePoint(0, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveX, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveY, ActiveBot[m_uiActiveOrder[m_uiOrder]].MoveZ);
 
                 DespawnBoatGhosts(m_uiActivedCreatureGUID);
                 DespawnBoatGhosts(m_uiOrbGUID);
@@ -327,7 +327,7 @@ struct boss_ymironAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         DespawnBoatGhosts(m_uiActivedCreatureGUID);
         DespawnBoatGhosts(m_uiOrbGUID);
@@ -338,13 +338,13 @@ struct boss_ymironAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
     }
 
     void DespawnBoatGhosts(uint64& m_uiCreatureGUID)
     {
         if (m_uiCreatureGUID)
-            if (Creature* pTemp = Unit::GetCreature(*m_creature, m_uiCreatureGUID))
+            if (Creature* pTemp = Unit::GetCreature(*me, m_uiCreatureGUID))
                 pTemp->DisappearAndDie();
 
         m_uiCreatureGUID = 0;

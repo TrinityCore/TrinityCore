@@ -61,24 +61,24 @@ struct npc_ameAI : public npc_escortAI
         {
 
          case 19:
-            m_creature->SummonCreature(ENTRY_STOMPER, -6391.69, -1730.49, -272.83, 4.96, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO1, m_creature, pPlayer);
+            me->SummonCreature(ENTRY_STOMPER, -6391.69, -1730.49, -272.83, 4.96, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            DoScriptText(SAY_AGGRO1, me, pPlayer);
             break;
             case 28:
-            DoScriptText(SAY_SEARCH, m_creature, pPlayer);
+            DoScriptText(SAY_SEARCH, me, pPlayer);
             break;
             case 38:
-            m_creature->SummonCreature(ENTRY_TARLORD, -6370.75, -1382.84, -270.51, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO2, m_creature, pPlayer);
+            me->SummonCreature(ENTRY_TARLORD, -6370.75, -1382.84, -270.51, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            DoScriptText(SAY_AGGRO2, me, pPlayer);
             break;
             case 49:
-            m_creature->SummonCreature(ENTRY_TARLORD1, -6324.44, -1181.05, -270.17, 4.34, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-            DoScriptText(SAY_AGGRO3, m_creature, pPlayer);
+            me->SummonCreature(ENTRY_TARLORD1, -6324.44, -1181.05, -270.17, 4.34, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            DoScriptText(SAY_AGGRO3, me, pPlayer);
             break;
          case 55:
-            DoScriptText(SAY_FINISH, m_creature, pPlayer);
+            DoScriptText(SAY_FINISH, me, pPlayer);
             if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_CHASING_AME,m_creature);
+                pPlayer->GroupEventHappens(QUEST_CHASING_AME,me);
             break;
 
         }
@@ -91,7 +91,7 @@ struct npc_ameAI : public npc_escortAI
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 
     void JustDied(Unit* killer)
@@ -108,7 +108,7 @@ struct npc_ameAI : public npc_escortAI
 
         if (DEMORALIZINGSHOUT_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DEMORALIZINGSHOUT);
+            DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
             DEMORALIZINGSHOUT_Timer = 70000;
         } else DEMORALIZINGSHOUT_Timer -= diff;
 
@@ -189,14 +189,14 @@ struct npc_ringoAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
+        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_SPRAGGLE)
         {
-            if (m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
                 if (Player* pPlayer = GetLeaderForFollower())
                 {
                     if (pPlayer->GetQuestStatus(QUEST_A_LITTLE_HELP) == QUEST_STATUS_INCOMPLETE)
-                        pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, m_creature);
+                        pPlayer->GroupEventHappens(QUEST_A_LITTLE_HELP, me);
                 }
 
                 SpraggleGUID = pWho->GetGUID();
@@ -217,21 +217,21 @@ struct npc_ringoAI : public FollowerAI
         {
             SetFollowPaused(true);
 
-            DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), m_creature);
+            DoScriptText(RAND(SAY_FAINT_1,SAY_FAINT_2,SAY_FAINT_3,SAY_FAINT_4), me);
         }
 
         //what does actually happen here? Emote? Aura?
-        m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
+        me->SetStandState(UNIT_STAND_STATE_SLEEP);
     }
 
     void ClearFaint()
     {
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
 
         if (HasFollowState(STATE_FOLLOW_POSTEVENT))
             return;
 
-        DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), m_creature);
+        DoScriptText(RAND(SAY_WAKE_1,SAY_WAKE_2,SAY_WAKE_3,SAY_WAKE_4), me);
 
         SetFollowPaused(false);
     }
@@ -244,7 +244,7 @@ struct npc_ringoAI : public FollowerAI
             {
                 if (m_uiEndEventTimer <= uiDiff)
                 {
-                    Unit *pSpraggle = Unit::GetUnit(*m_creature, SpraggleGUID);
+                    Unit *pSpraggle = Unit::GetUnit(*me, SpraggleGUID);
                     if (!pSpraggle || !pSpraggle->isAlive())
                     {
                         SetFollowComplete();
@@ -254,7 +254,7 @@ struct npc_ringoAI : public FollowerAI
                     switch(m_uiEndEventProgress)
                     {
                         case 1:
-                            DoScriptText(SAY_RIN_END_1, m_creature);
+                            DoScriptText(SAY_RIN_END_1, me);
                             m_uiEndEventTimer = 3000;
                             break;
                         case 2:
@@ -262,21 +262,21 @@ struct npc_ringoAI : public FollowerAI
                             m_uiEndEventTimer = 5000;
                             break;
                         case 3:
-                            DoScriptText(SAY_RIN_END_3, m_creature);
+                            DoScriptText(SAY_RIN_END_3, me);
                             m_uiEndEventTimer = 1000;
                             break;
                         case 4:
-                            DoScriptText(EMOTE_RIN_END_4, m_creature);
+                            DoScriptText(EMOTE_RIN_END_4, me);
                             SetFaint();
                             m_uiEndEventTimer = 9000;
                             break;
                         case 5:
-                            DoScriptText(EMOTE_RIN_END_5, m_creature);
+                            DoScriptText(EMOTE_RIN_END_5, me);
                             ClearFaint();
                             m_uiEndEventTimer = 1000;
                             break;
                         case 6:
-                            DoScriptText(SAY_RIN_END_6, m_creature);
+                            DoScriptText(SAY_RIN_END_6, me);
                             m_uiEndEventTimer = 3000;
                             break;
                         case 7:
@@ -284,7 +284,7 @@ struct npc_ringoAI : public FollowerAI
                             m_uiEndEventTimer = 10000;
                             break;
                         case 8:
-                            DoScriptText(EMOTE_RIN_END_8, m_creature);
+                            DoScriptText(EMOTE_RIN_END_8, me);
                             m_uiEndEventTimer = 5000;
                             break;
                         case 9:

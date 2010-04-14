@@ -132,27 +132,27 @@ struct boss_dorotheeAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_DOROTHEE_AGGRO, m_creature);
+        DoScriptText(SAY_DOROTHEE_AGGRO, me);
     }
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void SummonTito();                                      // See below
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DOROTHEE_DEATH, m_creature);
+        DoScriptText(SAY_DOROTHEE_DEATH, me);
 
         if (pInstance)
-            SummonCroneIfReady(pInstance, m_creature);
+            SummonCroneIfReady(pInstance, me);
     }
 
     void AttackStart(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::AttackStart(who);
@@ -160,7 +160,7 @@ struct boss_dorotheeAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -172,7 +172,7 @@ struct boss_dorotheeAI : public ScriptedAI
         {
             if (AggroTimer <= diff)
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 AggroTimer = 0;
             } else AggroTimer -= diff;
         }
@@ -188,7 +188,7 @@ struct boss_dorotheeAI : public ScriptedAI
 
         if (FearTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SCREAM);
+            DoCast(me->getVictim(), SPELL_SCREAM);
             FearTimer = 30000;
         } else FearTimer -= diff;
 
@@ -222,7 +222,7 @@ struct mob_titoAI : public ScriptedAI
     {
         if (DorotheeGUID)
         {
-            Creature* Dorothee = (Unit::GetCreature((*m_creature), DorotheeGUID));
+            Creature* Dorothee = (Unit::GetCreature((*me), DorotheeGUID));
             if (Dorothee && Dorothee->isAlive())
             {
                 CAST_AI(boss_dorotheeAI, Dorothee->AI())->TitoDied = true;
@@ -238,7 +238,7 @@ struct mob_titoAI : public ScriptedAI
 
         if (YipTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_YIPPING);
+            DoCast(me->getVictim(), SPELL_YIPPING);
             YipTimer = 10000;
         } else YipTimer -= diff;
 
@@ -248,11 +248,11 @@ struct mob_titoAI : public ScriptedAI
 
 void boss_dorotheeAI::SummonTito()
 {
-    if (Creature* pTito = m_creature->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+    if (Creature* pTito = me->SummonCreature(CREATURE_TITO, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
     {
-        DoScriptText(SAY_DOROTHEE_SUMMON, m_creature);
-        CAST_AI(mob_titoAI, pTito->AI())->DorotheeGUID = m_creature->GetGUID();
-        pTito->AI()->AttackStart(m_creature->getVictim());
+        DoScriptText(SAY_DOROTHEE_SUMMON, me);
+        CAST_AI(mob_titoAI, pTito->AI())->DorotheeGUID = me->GetGUID();
+        pTito->AI()->AttackStart(me->getVictim());
         SummonedTito = true;
         TitoDied = false;
     }
@@ -280,7 +280,7 @@ struct boss_strawmanAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::AttackStart(who);
@@ -288,7 +288,7 @@ struct boss_strawmanAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -296,12 +296,12 @@ struct boss_strawmanAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_STRAWMAN_AGGRO, m_creature);
+        DoScriptText(SAY_STRAWMAN_AGGRO, me);
     }
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void SpellHit(Unit* caster, const SpellEntry *Spell)
@@ -313,21 +313,21 @@ struct boss_strawmanAI : public ScriptedAI
                     return;
             */
 
-            DoCast(m_creature, SPELL_BURNING_STRAW, true);
+            DoCast(me, SPELL_BURNING_STRAW, true);
         }
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_STRAWMAN_DEATH, m_creature);
+        DoScriptText(SAY_STRAWMAN_DEATH, me);
 
         if (pInstance)
-            SummonCroneIfReady(pInstance, m_creature);
+            SummonCroneIfReady(pInstance, me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_STRAWMAN_SLAY, m_creature);
+        DoScriptText(SAY_STRAWMAN_SLAY, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -336,7 +336,7 @@ struct boss_strawmanAI : public ScriptedAI
         {
             if (AggroTimer <= diff)
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 AggroTimer = 0;
             } else AggroTimer -= diff;
         }
@@ -346,7 +346,7 @@ struct boss_strawmanAI : public ScriptedAI
 
         if (BrainBashTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BRAIN_BASH);
+            DoCast(me->getVictim(), SPELL_BRAIN_BASH);
             BrainBashTimer = 15000;
         } else BrainBashTimer -= diff;
 
@@ -387,17 +387,17 @@ struct boss_tinheadAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_TINHEAD_AGGRO, m_creature);
+        DoScriptText(SAY_TINHEAD_AGGRO, me);
     }
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void AttackStart(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::AttackStart(who);
@@ -405,7 +405,7 @@ struct boss_tinheadAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -413,15 +413,15 @@ struct boss_tinheadAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_TINHEAD_DEATH, m_creature);
+        DoScriptText(SAY_TINHEAD_DEATH, me);
 
         if (pInstance)
-            SummonCroneIfReady(pInstance, m_creature);
+            SummonCroneIfReady(pInstance, me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_TINHEAD_SLAY, m_creature);
+        DoScriptText(SAY_TINHEAD_SLAY, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -430,7 +430,7 @@ struct boss_tinheadAI : public ScriptedAI
         {
             if (AggroTimer <= diff)
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 AggroTimer = 0;
             } else AggroTimer -= diff;
         }
@@ -440,7 +440,7 @@ struct boss_tinheadAI : public ScriptedAI
 
         if (CleaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             CleaveTimer = 5000;
         } else CleaveTimer -= diff;
 
@@ -449,8 +449,8 @@ struct boss_tinheadAI : public ScriptedAI
             if (RustTimer <= diff)
             {
                 ++RustCount;
-                DoScriptText(EMOTE_RUST, m_creature);
-                DoCast(m_creature, SPELL_RUST);
+                DoScriptText(EMOTE_RUST, me);
+                DoCast(me, SPELL_RUST);
                 RustTimer = 6000;
             } else RustTimer -= diff;
         }
@@ -483,7 +483,7 @@ struct boss_roarAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -491,7 +491,7 @@ struct boss_roarAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::AttackStart(who);
@@ -499,25 +499,25 @@ struct boss_roarAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_ROAR_AGGRO, m_creature);
+        DoScriptText(SAY_ROAR_AGGRO, me);
     }
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_ROAR_DEATH, m_creature);
+        DoScriptText(SAY_ROAR_DEATH, me);
 
         if (pInstance)
-            SummonCroneIfReady(pInstance, m_creature);
+            SummonCroneIfReady(pInstance, me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_ROAR_SLAY, m_creature);
+        DoScriptText(SAY_ROAR_SLAY, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -526,7 +526,7 @@ struct boss_roarAI : public ScriptedAI
         {
             if (AggroTimer <= diff)
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 AggroTimer = 0;
             } else AggroTimer -= diff;
         }
@@ -536,19 +536,19 @@ struct boss_roarAI : public ScriptedAI
 
         if (MangleTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MANGLE);
+            DoCast(me->getVictim(), SPELL_MANGLE);
             MangleTimer = urand(5000,8000);
         } else MangleTimer -= diff;
 
         if (ShredTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHRED);
+            DoCast(me->getVictim(), SPELL_SHRED);
             ShredTimer = urand(10000,15000);
         } else ShredTimer -= diff;
 
         if (ScreamTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FRIGHTENED_SCREAM);
+            DoCast(me->getVictim(), SPELL_FRIGHTENED_SCREAM);
             ScreamTimer = urand(20000,30000);
         } else ScreamTimer -= diff;
 
@@ -576,19 +576,19 @@ struct boss_croneAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(RAND(SAY_CRONE_AGGRO,SAY_CRONE_AGGRO2), m_creature);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        DoScriptText(RAND(SAY_CRONE_AGGRO,SAY_CRONE_AGGRO2), me);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_CRONE_DEATH, m_creature);
+        DoScriptText(SAY_CRONE_DEATH, me);
 
         if (pInstance)
         {
@@ -606,8 +606,8 @@ struct boss_croneAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         if (CycloneTimer <= diff)
         {
@@ -618,7 +618,7 @@ struct boss_croneAI : public ScriptedAI
 
         if (ChainLightningTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING);
+            DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
             ChainLightningTimer = 15000;
         } else ChainLightningTimer -= diff;
 
@@ -645,14 +645,14 @@ struct mob_cycloneAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->HasAura(SPELL_KNOCKBACK))
-            DoCast(m_creature, SPELL_KNOCKBACK, true);
+        if (!me->HasAura(SPELL_KNOCKBACK))
+            DoCast(me, SPELL_KNOCKBACK, true);
 
         if (MoveTimer <= diff)
         {
             Position pos;
-            m_creature->GetRandomNearPosition(pos, 10);
-            m_creature->GetMotionMaster()->MovePoint(0, pos);
+            me->GetRandomNearPosition(pos, 10);
+            me->GetMotionMaster()->MovePoint(0, pos);
             MoveTimer = urand(5000,8000);
         } else MoveTimer -= diff;
     }
@@ -766,17 +766,17 @@ struct boss_bigbadwolfAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_WOLF_AGGRO, m_creature);
+        DoScriptText(SAY_WOLF_AGGRO, me);
     }
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void JustDied(Unit* killer)
     {
-        DoPlaySoundToSet(m_creature, SOUND_WOLF_DEATH);
+        DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
 
         if (pInstance)
         {
@@ -802,13 +802,13 @@ struct boss_bigbadwolfAI : public ScriptedAI
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    DoScriptText(SAY_WOLF_HOOD, m_creature);
+                    DoScriptText(SAY_WOLF_HOOD, me);
                     DoCast(pTarget, SPELL_LITTLE_RED_RIDING_HOOD, true);
                     TempThreat = DoGetThreat(pTarget);
                     if (TempThreat)
                         DoModifyThreatPercent(pTarget, -100);
                     HoodGUID = pTarget->GetGUID();
-                    m_creature->AddThreat(pTarget, 1000000.0f);
+                    me->AddThreat(pTarget, 1000000.0f);
                     ChaseTimer = 20000;
                     IsChasing = true;
                 }
@@ -817,12 +817,12 @@ struct boss_bigbadwolfAI : public ScriptedAI
             {
                 IsChasing = false;
 
-                if (Unit *pTarget = Unit::GetUnit((*m_creature), HoodGUID))
+                if (Unit *pTarget = Unit::GetUnit((*me), HoodGUID))
                 {
                     HoodGUID = 0;
                     if (DoGetThreat(pTarget))
                         DoModifyThreatPercent(pTarget, -100);
-                    m_creature->AddThreat(pTarget, TempThreat);
+                    me->AddThreat(pTarget, TempThreat);
                     TempThreat = 0;
                 }
 
@@ -835,13 +835,13 @@ struct boss_bigbadwolfAI : public ScriptedAI
 
         if (FearTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TERRIFYING_HOWL);
+            DoCast(me->getVictim(), SPELL_TERRIFYING_HOWL);
             FearTimer = urand(25000,35000);
         } else FearTimer -= diff;
 
         if (SwipeTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WIDE_SWIPE);
+            DoCast(me->getVictim(), SPELL_WIDE_SWIPE);
             SwipeTimer = urand(25000,30000);
         } else SwipeTimer -= diff;
 
@@ -973,7 +973,7 @@ struct boss_julianneAI : public ScriptedAI
 
         if (IsFakingDeath)
         {
-            Resurrect(m_creature);
+            Resurrect(me);
             IsFakingDeath = false;
         }
 
@@ -985,7 +985,7 @@ struct boss_julianneAI : public ScriptedAI
 
     void AttackStart(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::AttackStart(who);
@@ -993,7 +993,7 @@ struct boss_julianneAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -1001,14 +1001,14 @@ struct boss_julianneAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void SpellHit(Unit* caster, const SpellEntry *Spell)
     {
         if (Spell->Id == SPELL_DRINK_POISON)
         {
-            DoScriptText(SAY_JULIANNE_DEATH01, m_creature);
+            DoScriptText(SAY_JULIANNE_DEATH01, me);
             DrinkPoisonTimer = 2500;
         }
     }
@@ -1017,7 +1017,7 @@ struct boss_julianneAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_JULIANNE_DEATH02, m_creature);
+        DoScriptText(SAY_JULIANNE_DEATH02, me);
 
         if (pInstance)
         {
@@ -1031,7 +1031,7 @@ struct boss_julianneAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-       DoScriptText(SAY_JULIANNE_SLAY, m_creature);
+       DoScriptText(SAY_JULIANNE_SLAY, me);
     }
 
     void UpdateAI(const uint32 diff);
@@ -1079,20 +1079,20 @@ struct boss_romuloAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        m_creature->ForcedDespawn();
+        me->ForcedDespawn();
     }
 
     void DamageTaken(Unit* done_by, uint32 &damage);
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_ROMULO_AGGRO, m_creature);
+        DoScriptText(SAY_ROMULO_AGGRO, me);
         if (JulianneGUID)
         {
-            Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
+            Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID));
             if (Julianne && Julianne->getVictim())
             {
-                m_creature->AddThreat(Julianne->getVictim(), 1.0f);
+                me->AddThreat(Julianne->getVictim(), 1.0f);
                 AttackStart(Julianne->getVictim());
             }
         }
@@ -1100,7 +1100,7 @@ struct boss_romuloAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
         ScriptedAI::MoveInLineOfSight(who);
@@ -1108,7 +1108,7 @@ struct boss_romuloAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_ROMULO_DEATH, m_creature);
+        DoScriptText(SAY_ROMULO_DEATH, me);
 
         if (pInstance)
         {
@@ -1123,7 +1123,7 @@ struct boss_romuloAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(SAY_ROMULO_SLAY, m_creature);
+        DoScriptText(SAY_ROMULO_SLAY, me);
     }
 
     void UpdateAI(const uint32 diff);
@@ -1131,7 +1131,7 @@ struct boss_romuloAI : public ScriptedAI
 
 void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
 {
-    if (damage < m_creature->GetHealth())
+    if (damage < me->GetHealth())
         return;
 
     //anything below only used if incoming damage will kill
@@ -1144,11 +1144,11 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
         if (IsFakingDeath)
             return;
 
-        m_creature->InterruptNonMeleeSpells(true);
-        DoCast(m_creature, SPELL_DRINK_POISON);
+        me->InterruptNonMeleeSpells(true);
+        DoCast(me, SPELL_DRINK_POISON);
 
         IsFakingDeath = true;
-        //IS THIS USEFULL? Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
+        //IS THIS USEFULL? Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID));
         return;
     }
 
@@ -1164,7 +1164,7 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
         //if this is true then we have to kill romulo too
         if (RomuloDead)
         {
-            if (Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID)))
+            if (Creature* Romulo = (Unit::GetCreature((*me), RomuloGUID)))
             {
                 Romulo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 Romulo->GetMotionMaster()->Clear();
@@ -1178,9 +1178,9 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
         }
 
         //if not already returned, then romulo is alive and we can pretend die
-        if (Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID)))
+        if (Creature* Romulo = (Unit::GetCreature((*me), RomuloGUID)))
         {
-            PretendToDie(m_creature);
+            PretendToDie(me);
             IsFakingDeath = true;
             CAST_AI(boss_romuloAI, Romulo->AI())->ResurrectTimer = 10000;
             CAST_AI(boss_romuloAI, Romulo->AI())->JulianneDead = true;
@@ -1193,19 +1193,19 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
 
 void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
 {
-    if (damage < m_creature->GetHealth())
+    if (damage < me->GetHealth())
         return;
 
     //anything below only used if incoming damage will kill
 
     if (Phase == PHASE_ROMULO)
     {
-        DoScriptText(SAY_ROMULO_DEATH, m_creature);
-        PretendToDie(m_creature);
+        DoScriptText(SAY_ROMULO_DEATH, me);
+        PretendToDie(me);
         IsFakingDeath = true;
         Phase = PHASE_BOTH;
 
-        if (Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID)))
+        if (Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID)))
         {
             CAST_AI(boss_julianneAI, Julianne->AI())->RomuloDead = true;
             CAST_AI(boss_julianneAI, Julianne->AI())->ResurrectSelfTimer = 10000;
@@ -1219,7 +1219,7 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
     {
         if (JulianneDead)
         {
-            if (Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID)))
+            if (Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID)))
             {
                 Julianne->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 Julianne->GetMotionMaster()->Clear();
@@ -1231,9 +1231,9 @@ void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
             return;
         }
 
-        if (Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID)))
+        if (Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID)))
         {
-            PretendToDie(m_creature);
+            PretendToDie(me);
             IsFakingDeath = true;
             CAST_AI(boss_julianneAI, Julianne->AI())->ResurrectTimer = 10000;
             CAST_AI(boss_julianneAI, Julianne->AI())->RomuloDead = true;
@@ -1251,7 +1251,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (EntryYellTimer <= diff)
         {
-            DoScriptText(SAY_JULIANNE_ENTER, m_creature);
+            DoScriptText(SAY_JULIANNE_ENTER, me);
             EntryYellTimer = 0;
         } else EntryYellTimer -= diff;
     }
@@ -1260,9 +1260,9 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (AggroYellTimer <= diff)
         {
-            DoScriptText(SAY_JULIANNE_AGGRO, m_creature);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->setFaction(16);
+            DoScriptText(SAY_JULIANNE_AGGRO, me);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->setFaction(16);
             AggroYellTimer = 0;
         } else AggroYellTimer -= diff;
     }
@@ -1272,7 +1272,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
         //will do this 2secs after spell hit. this is time to display visual as expected
         if (DrinkPoisonTimer <= diff)
         {
-            PretendToDie(m_creature);
+            PretendToDie(me);
             Phase = PHASE_ROMULO;
             SummonRomuloTimer = 10000;
             DrinkPoisonTimer = 0;
@@ -1283,10 +1283,10 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (SummonRomuloTimer <= diff)
         {
-            if (Creature* pRomulo = m_creature->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+            if (Creature* pRomulo = me->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
             {
                 RomuloGUID = pRomulo->GetGUID();
-                CAST_AI(boss_romuloAI, pRomulo->AI())->JulianneGUID = m_creature->GetGUID();
+                CAST_AI(boss_romuloAI, pRomulo->AI())->JulianneGUID = me->GetGUID();
                 CAST_AI(boss_romuloAI, pRomulo->AI())->Phase = PHASE_ROMULO;
                 DoZoneInCombat(pRomulo);
 
@@ -1300,12 +1300,12 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (ResurrectSelfTimer <= diff)
         {
-            Resurrect(m_creature);
+            Resurrect(me);
             Phase = PHASE_BOTH;
             IsFakingDeath = false;
 
-            if (m_creature->getVictim())
-                AttackStart(m_creature->getVictim());
+            if (me->getVictim())
+                AttackStart(me->getVictim());
 
             ResurrectSelfTimer = 0;
             ResurrectTimer = 1000;
@@ -1319,10 +1319,10 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (ResurrectTimer <= diff)
         {
-            Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID));
+            Creature* Romulo = (Unit::GetCreature((*me), RomuloGUID));
             if (Romulo && CAST_AI(boss_romuloAI, Romulo->AI())->IsFakingDeath)
             {
-                DoScriptText(SAY_JULIANNE_RESURRECT, m_creature);
+                DoScriptText(SAY_JULIANNE_RESURRECT, me);
                 Resurrect(Romulo);
                 CAST_AI(boss_romuloAI, Romulo->AI())->IsFakingDeath = false;
                 RomuloDead = false;
@@ -1340,7 +1340,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (DevotionTimer <= diff)
     {
-        DoCast(m_creature, SPELL_DEVOTION);
+        DoCast(me, SPELL_DEVOTION);
         DevotionTimer = urand(15000,45000);
     } else DevotionTimer -= diff;
 
@@ -1354,10 +1354,10 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (urand(0,1) && SummonedRomulo)
         {
-            Creature* Romulo = (Unit::GetCreature((*m_creature), RomuloGUID));
+            Creature* Romulo = (Unit::GetCreature((*me), RomuloGUID));
             if (Romulo && Romulo->isAlive() && !RomuloDead)
                 DoCast(Romulo, SPELL_ETERNAL_AFFECTION);
-        } else DoCast(m_creature, SPELL_ETERNAL_AFFECTION);
+        } else DoCast(me, SPELL_ETERNAL_AFFECTION);
 
         EternalAffectionTimer = urand(45000,60000);
     } else EternalAffectionTimer -= diff;
@@ -1374,10 +1374,10 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
     {
         if (ResurrectTimer <= diff)
         {
-            Creature* Julianne = (Unit::GetCreature((*m_creature), JulianneGUID));
+            Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID));
             if (Julianne && CAST_AI(boss_julianneAI, Julianne->AI())->IsFakingDeath)
             {
-                DoScriptText(SAY_ROMULO_RESURRECT, m_creature);
+                DoScriptText(SAY_ROMULO_RESURRECT, me);
                 Resurrect(Julianne);
                 CAST_AI(boss_julianneAI, Julianne->AI())->IsFakingDeath = false;
                 JulianneDead = false;
@@ -1389,7 +1389,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
     if (BackwardLungeTimer <= diff)
     {
         Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
-        if (pTarget && !m_creature->HasInArc(M_PI, pTarget))
+        if (pTarget && !me->HasInArc(M_PI, pTarget))
         {
             DoCast(pTarget, SPELL_BACKWARD_LUNGE);
             BackwardLungeTimer = urand(15000,30000);
@@ -1398,7 +1398,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
 
     if (DaringTimer <= diff)
     {
-        DoCast(m_creature, SPELL_DARING);
+        DoCast(me, SPELL_DARING);
         DaringTimer = urand(20000,40000);
     } else DaringTimer -= diff;
 
@@ -1411,7 +1411,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
 
     if (PoisonThrustTimer <= diff)
     {
-        DoCast(m_creature->getVictim(), SPELL_POISON_THRUST);
+        DoCast(me->getVictim(), SPELL_POISON_THRUST);
         PoisonThrustTimer = urand(10000,20000);
     } else PoisonThrustTimer -= diff;
 

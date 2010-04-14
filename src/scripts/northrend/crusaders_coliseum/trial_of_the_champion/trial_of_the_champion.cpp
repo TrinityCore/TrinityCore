@@ -69,9 +69,9 @@ struct npc_announcer_toc5AI : public ScriptedAI
         Champion2List.clear();
         Champion3List.clear();
 
-        m_creature->SetReactState(REACT_PASSIVE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         SetGrandChampionsForEncounter();
         SetArgentChampion();
@@ -120,8 +120,8 @@ struct npc_announcer_toc5AI : public ScriptedAI
                 NextStep(10000,false,1);
                 break;
             case DATA_IN_POSITION: //movement done.
-                m_creature->GetMotionMaster()->MovePoint(1,735.81,661.92,412.39);
-                if (GameObject* pGO = GameObject::GetGameObject(*m_creature, pInstance->GetData64(DATA_MAIN_GATE)))
+                me->GetMotionMaster()->MovePoint(1,735.81,661.92,412.39);
+                if (GameObject* pGO = GameObject::GetGameObject(*me, pInstance->GetData64(DATA_MAIN_GATE)))
                     pInstance->HandleGameObject(pGO->GetGUID(),false);
                 NextStep(10000,false,3);
                 break;
@@ -142,7 +142,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                     }
 
                     for (std::list<uint64>::const_iterator itr = TempList.begin(); itr != TempList.end(); ++itr)
-                        if (Creature* pSummon = Unit::GetCreature(*m_creature, *itr))
+                        if (Creature* pSummon = Unit::GetCreature(*me, *itr))
                             AggroAllPlayers(pSummon);
                 }else if (uiLesserChampions == 9)
                     StartGrandChampionsAttack();
@@ -154,9 +154,9 @@ struct npc_announcer_toc5AI : public ScriptedAI
 
     void StartGrandChampionsAttack()
     {
-        Creature* pGrandChampion1 = Unit::GetCreature(*m_creature, uiVehicle1GUID);
-        Creature* pGrandChampion2 = Unit::GetCreature(*m_creature, uiVehicle2GUID);
-        Creature* pGrandChampion3 = Unit::GetCreature(*m_creature, uiVehicle3GUID);
+        Creature* pGrandChampion1 = Unit::GetCreature(*me, uiVehicle1GUID);
+        Creature* pGrandChampion2 = Unit::GetCreature(*me, uiVehicle2GUID);
+        Creature* pGrandChampion3 = Unit::GetCreature(*me, uiVehicle3GUID);
 
         if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
         {
@@ -173,8 +173,8 @@ struct npc_announcer_toc5AI : public ScriptedAI
 
         if (uiPointId == 1)
         {
-            m_creature->SetOrientation(ORIENTATION);
-            m_creature->SendMovementFlagUpdate();
+            me->SetOrientation(ORIENTATION);
+            me->SendMovementFlagUpdate();
         }
     }
 
@@ -209,7 +209,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                 return;
         }
 
-        if (Creature* pBoss = m_creature->SummonCreature(VEHICLE_TO_SUMMON1,SpawnPosition))
+        if (Creature* pBoss = me->SummonCreature(VEHICLE_TO_SUMMON1,SpawnPosition))
         {
             switch(uiSummonTimes)
             {
@@ -217,7 +217,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                 {
                     uiVehicle1GUID = pBoss->GetGUID();
                     uint64 uiGrandChampionBoss1 = 0;
-                    if (Creature* pBoss = Unit::GetCreature(*m_creature, uiVehicle1GUID))
+                    if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* pUnit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss1 = pUnit->GetGUID();
@@ -233,7 +233,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                 {
                     uiVehicle2GUID = pBoss->GetGUID();
                     uint64 uiGrandChampionBoss2 = 0;
-                    if (Creature* pBoss = Unit::GetCreature(*m_creature, uiVehicle2GUID))
+                    if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* pUnit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss2 = pUnit->GetGUID();
@@ -249,7 +249,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                 {
                     uiVehicle3GUID = pBoss->GetGUID();
                     uint64 uiGrandChampionBoss3 = 0;
-                    if (Creature* pBoss = Unit::GetCreature(*m_creature, uiVehicle3GUID))
+                    if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
                         if (Vehicle* pVehicle = pBoss->GetVehicleKit())
                             if (Unit* pUnit = pVehicle->GetPassenger(0))
                                 uiGrandChampionBoss3 = pUnit->GetGUID();
@@ -267,7 +267,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
 
             for (uint8 i = 0; i < 3; ++i)
             {
-                if (Creature* pAdd = m_creature->SummonCreature(VEHICLE_TO_SUMMON2,SpawnPosition,TEMPSUMMON_CORPSE_DESPAWN))
+                if (Creature* pAdd = me->SummonCreature(VEHICLE_TO_SUMMON2,SpawnPosition,TEMPSUMMON_CORPSE_DESPAWN))
                 {
                     switch(uiSummonTimes)
                     {
@@ -302,17 +302,17 @@ struct npc_announcer_toc5AI : public ScriptedAI
 
     void DoStartArgentChampionEncounter()
     {
-        m_creature->GetMotionMaster()->MovePoint(1,735.81,661.92,412.39);
+        me->GetMotionMaster()->MovePoint(1,735.81,661.92,412.39);
 
-        if (Creature* pBoss = m_creature->SummonCreature(uiArgentChampion,SpawnPosition))
+        if (Creature* pBoss = me->SummonCreature(uiArgentChampion,SpawnPosition))
         {
             for (uint8 i = 0; i < 3; ++i)
             {
-                if (Creature* pTrash = m_creature->SummonCreature(NPC_ARGENT_LIGHWIELDER,SpawnPosition))
+                if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_LIGHWIELDER,SpawnPosition))
                     pTrash->AI()->SetData(i,0);
-                if (Creature* pTrash = m_creature->SummonCreature(NPC_ARGENT_MONK,SpawnPosition))
+                if (Creature* pTrash = me->SummonCreature(NPC_ARGENT_MONK,SpawnPosition))
                     pTrash->AI()->SetData(i,0);
-                if (Creature* pTrash = m_creature->SummonCreature(NPC_PRIESTESS,SpawnPosition))
+                if (Creature* pTrash = me->SummonCreature(NPC_PRIESTESS,SpawnPosition))
                     pTrash->AI()->SetData(i,0);
             }
         }
@@ -349,14 +349,14 @@ struct npc_announcer_toc5AI : public ScriptedAI
         if (!pInstance)
             return;
 
-        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
         if (pInstance->GetData(BOSS_BLACK_KNIGHT) == NOT_STARTED)
         {
             if (pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == NOT_STARTED && pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == NOT_STARTED)
             {
                 if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == NOT_STARTED)
-                    m_creature->AI()->SetData(DATA_START,0);
+                    me->AI()->SetData(DATA_START,0);
 
                 if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE)
                     DoStartArgentChampionEncounter();
@@ -365,13 +365,13 @@ struct npc_announcer_toc5AI : public ScriptedAI
            if (pInstance->GetData(BOSS_GRAND_CHAMPIONS) == DONE &&
                pInstance->GetData(BOSS_ARGENT_CHALLENGE_E) == DONE ||
                pInstance->GetData(BOSS_ARGENT_CHALLENGE_P) == DONE)
-                m_creature->SummonCreature(VEHICLE_BLACK_KNIGHT,769.834,651.915,447.035,0);
+                me->SummonCreature(VEHICLE_BLACK_KNIGHT,769.834,651.915,447.035,0);
         }
     }
 
     void AggroAllPlayers(Creature* pTemp)
     {
-        Map::PlayerList const &PlList = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
         if (PlList.isEmpty())
             return;
@@ -385,7 +385,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
 
                 if (pPlayer->isAlive())
                 {
-                    pTemp->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
+                    pTemp->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
                     pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                     pTemp->SetReactState(REACT_AGGRESSIVE);
                     pTemp->SetInCombatWith(pPlayer);
@@ -417,7 +417,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
                     if (!Champion1List.empty())
                     {
                         for (std::list<uint64>::const_iterator itr = Champion1List.begin(); itr != Champion1List.end(); ++itr)
-                            if (Creature* pSummon = Unit::GetCreature(*m_creature, *itr))
+                            if (Creature* pSummon = Unit::GetCreature(*me, *itr))
                                 AggroAllPlayers(pSummon);
                         NextStep(0,false);
                     }
@@ -452,7 +452,7 @@ struct npc_announcer_toc5AI : public ScriptedAI
             case VEHICLE_ORGRIMMAR_WOLF:
             case VEHICLE_SILVERMOON_HAWKSTRIDER:
             case VEHICLE_DARKSPEAR_RAPTOR:
-                m_creature->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED,0);
+                me->AI()->SetData(DATA_LESSER_CHAMPIONS_DEFEATED,0);
                 break;
         }
     }

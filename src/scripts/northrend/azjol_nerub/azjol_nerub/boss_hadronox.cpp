@@ -69,8 +69,8 @@ struct boss_hadronoxAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
-        m_creature->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
+        me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
+        me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
 
         uiAcidTimer = urand(10*IN_MILISECONDS,14*IN_MILISECONDS);
         uiLeechTimer = urand(3*IN_MILISECONDS,9*IN_MILISECONDS);
@@ -89,15 +89,15 @@ struct boss_hadronoxAI : public ScriptedAI
     void KilledUnit(Unit* Victim)
     {
         // not sure if this aura check is correct, I think it is though
-        if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !m_creature->isAlive())
+        if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->isAlive())
             return;
 
-        uint32 health = m_creature->GetMaxHealth()/10;
+        uint32 health = me->GetMaxHealth()/10;
 
-        if ((m_creature->GetHealth()+health) >= m_creature->GetMaxHealth())
-            m_creature->SetHealth(m_creature->GetMaxHealth());
+        if ((me->GetHealth()+health) >= me->GetMaxHealth())
+            me->SetHealth(me->GetMaxHealth());
         else
-            m_creature->SetHealth(m_creature->GetHealth()+health);
+            me->SetHealth(me->GetHealth()+health);
     }
 
     void JustDied(Unit* Killer)
@@ -110,16 +110,16 @@ struct boss_hadronoxAI : public ScriptedAI
     {
         if (pInstance)
             pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
-        m_creature->SetInCombatWithZone();
+        me->SetInCombatWithZone();
     }
 
     void CheckDistance(float dist, const uint32 uiDiff)
     {
-        if (!m_creature->isInCombat())
+        if (!me->isInCombat())
             return;
 
         float x=0.0f, y=0.0f, z=0.0f;
-        m_creature->GetRespawnCoord(x,y,z);
+        me->GetRespawnCoord(x,y,z);
 
         if (uiCheckDistanceTimer <= uiDiff)
             uiCheckDistanceTimer = 5*IN_MILISECONDS;
@@ -128,9 +128,9 @@ struct boss_hadronoxAI : public ScriptedAI
             uiCheckDistanceTimer -= uiDiff;
             return;
         }
-        if (m_creature->IsInEvadeMode() || !m_creature->getVictim())
+        if (me->IsInEvadeMode() || !me->getVictim())
             return;
-        if (m_creature->GetDistance(x,y,z) > dist)
+        if (me->GetDistance(x,y,z) > dist)
             EnterEvadeMode();
     }
 
@@ -142,7 +142,7 @@ struct boss_hadronoxAI : public ScriptedAI
         // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
         CheckDistance(fMaxDistance, diff);
 
-        if (m_creature->HasAura(SPELL_WEB_FRONT_DOORS) || m_creature->HasAura(SPELL_WEB_SIDE_DOORS))
+        if (me->HasAura(SPELL_WEB_FRONT_DOORS) || me->HasAura(SPELL_WEB_SIDE_DOORS))
         {
             if (IsCombatMovement())
                 SetCombatMovement(false);
@@ -152,7 +152,7 @@ struct boss_hadronoxAI : public ScriptedAI
 
         if (uiPierceTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_PIERCE_ARMOR);
+            DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
             uiPierceTimer = 8*IN_MILISECONDS;
         } else uiPierceTimer -= diff;
 
@@ -182,7 +182,7 @@ struct boss_hadronoxAI : public ScriptedAI
 
         if (uiDoorsTimer <= diff)
         {
-            //DoCast(m_creature, RAND(SPELL_WEB_FRONT_DOORS, SPELL_WEB_SIDE_DOORS));
+            //DoCast(me, RAND(SPELL_WEB_FRONT_DOORS, SPELL_WEB_SIDE_DOORS));
             uiDoorsTimer = urand(30*IN_MILISECONDS,60*IN_MILISECONDS);
         } else uiDoorsTimer -= diff;
 

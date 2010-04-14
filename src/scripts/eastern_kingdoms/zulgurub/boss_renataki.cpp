@@ -66,12 +66,12 @@ struct boss_renatakiAI : public ScriptedAI
         //Invisible_Timer
         if (Invisible_Timer <= diff)
         {
-            m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
+            me->InterruptSpell(CURRENT_GENERIC_SPELL);
 
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
-            m_creature->SetDisplayId(11686);
+            me->SetDisplayId(11686);
 
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             Invisible = true;
 
             Invisible_Timer = 15000 + rand()%15000;
@@ -98,12 +98,12 @@ struct boss_renatakiAI : public ScriptedAI
         {
             if (Visible_Timer <= diff)
             {
-                m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
+                me->InterruptSpell(CURRENT_GENERIC_SPELL);
 
-                m_creature->SetDisplayId(15268);
+                me->SetDisplayId(15268);
                 SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 Invisible = false;
 
                 Visible_Timer = 4000;
@@ -117,8 +117,8 @@ struct boss_renatakiAI : public ScriptedAI
             Unit *pTarget = NULL;
             pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
 
-            if (DoGetThreat(m_creature->getVictim()))
-                DoModifyThreatPercent(m_creature->getVictim(),-50);
+            if (DoGetThreat(me->getVictim()))
+                DoModifyThreatPercent(me->getVictim(),-50);
 
             if (pTarget)
                 AttackStart(pTarget);
@@ -129,7 +129,7 @@ struct boss_renatakiAI : public ScriptedAI
         if (!Invisible)
             if (ThousandBlades_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_THOUSANDBLADES);
+            DoCast(me->getVictim(), SPELL_THOUSANDBLADES);
             ThousandBlades_Timer = 7000 + rand()%5000;
         } else ThousandBlades_Timer -= diff;
 

@@ -58,7 +58,7 @@ struct boss_golemaggAI : public ScriptedAI
         m_uiBuffTimer = 2.5*IN_MILISECONDS;
         m_bEnraged = false;
 
-        DoCast(m_creature, SPELL_MAGMASPLASH, true);
+        DoCast(me, SPELL_MAGMASPLASH, true);
     }
 
     void JustDied(Unit* pKiller)
@@ -84,9 +84,9 @@ struct boss_golemaggAI : public ScriptedAI
             m_uiPyroblastTimer -= uiDiff;
 
         // Enrage
-        if (!m_bEnraged && m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*10)
+        if (!m_bEnraged && me->GetHealth()*100 < me->GetMaxHealth()*10)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
             m_bEnraged = true;
         }
 
@@ -95,7 +95,7 @@ struct boss_golemaggAI : public ScriptedAI
         {
             if (m_uiEarthquakeTimer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_EARTHQUAKE);
+                DoCast(me->getVictim(), SPELL_EARTHQUAKE);
                 m_uiEarthquakeTimer = 3*IN_MILISECONDS;
             }
             else
@@ -106,7 +106,7 @@ struct boss_golemaggAI : public ScriptedAI
         // Golemagg's Trust
         if (m_uiBuffTimer <= uidiff)
         {
-            DoCast(m_creature, SPELL_GOLEMAGG_TRUST);
+            DoCast(me, SPELL_GOLEMAGG_TRUST);
             m_uiBuffTimer = 2.5*IN_MILISECONDS;
         }
         else
@@ -135,7 +135,7 @@ struct mob_core_ragerAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (m_creature->GetHealth()*100 < m_creature->GetMaxHealth()*50)
+        if (me->GetHealth()*100 < me->GetMaxHealth()*50)
         {
             if (m_pInstance)
             {
@@ -143,11 +143,11 @@ struct mob_core_ragerAI : public ScriptedAI
                 {
                     if (pGolemagg->isAlive())
                     {
-                        DoScriptText(EMOTE_LOWHP, m_creature);
-                        m_creature->SetHealth(m_creature->GetMaxHealth());
+                        DoScriptText(EMOTE_LOWHP, me);
+                        me->SetHealth(me->GetMaxHealth());
                     }
                     else
-                        uiDamage = m_creature->GetHealth();
+                        uiDamage = me->GetHealth();
                 }
             }
         }
@@ -161,7 +161,7 @@ struct mob_core_ragerAI : public ScriptedAI
         // Mangle
         if (m_uiMangleTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MANGLE);
+            DoCast(me->getVictim(), SPELL_MANGLE);
             m_uiMangleTimer = 10*IN_MILISECONDS;
         }
         else

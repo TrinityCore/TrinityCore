@@ -59,7 +59,7 @@ struct boss_emerissAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -82,7 +82,7 @@ struct boss_emerissAI : public ScriptedAI
         //NoxiousBreath_Timer
         if (m_uiNoxiousBreath_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_NOXIOUSBREATH);
+            DoCast(me->getVictim(), SPELL_NOXIOUSBREATH);
             m_uiNoxiousBreath_Timer = 14000 + rand()%6000;
         }
         else
@@ -91,7 +91,7 @@ struct boss_emerissAI : public ScriptedAI
         //Tailsweep every 2 seconds
         if (m_uiTailSweep_Timer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_TAILSWEEP);
+            DoCast(me, SPELL_TAILSWEEP);
             m_uiTailSweep_Timer = 2000;
         }
         else
@@ -100,7 +100,7 @@ struct boss_emerissAI : public ScriptedAI
         //MarkOfNature_Timer
         //if (m_uiMarkOfNature_Timer <= uiDiff)
         //{
-        //    DoCast(m_creature->getVictim(), SPELL_MARKOFNATURE);
+        //    DoCast(me->getVictim(), SPELL_MARKOFNATURE);
         //    m_uiMarkOfNature_Timer = 45000;
         //}
         //else
@@ -109,7 +109,7 @@ struct boss_emerissAI : public ScriptedAI
         //VolatileInfection_Timer
         if (m_uiVolatileInfection_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_VOLATILEINFECTION);
+            DoCast(me->getVictim(), SPELL_VOLATILEINFECTION);
             m_uiVolatileInfection_Timer = 7000 + rand()%5000;
         }
         else
@@ -117,11 +117,11 @@ struct boss_emerissAI : public ScriptedAI
 
         //CorruptionofEarth_Timer
         //CorruptionofEarth at 75%, 50% and 25%
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiCorruptionsCasted)))
+        if ((me->GetHealth()*100 / me->GetMaxHealth()) <= (100-(25*m_uiCorruptionsCasted)))
         {
             ++m_uiCorruptionsCasted;                        // prevent casting twice on same hp
-            DoScriptText(SAY_CASTCORRUPTION, m_creature);
-            DoCast(m_creature->getVictim(), SPELL_CORRUPTIONOFEARTH);
+            DoScriptText(SAY_CASTCORRUPTION, me);
+            DoCast(me->getVictim(), SPELL_CORRUPTIONOFEARTH);
         }
 
         DoMeleeAttackIfReady();

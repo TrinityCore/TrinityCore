@@ -86,7 +86,7 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
 
     void AttackPlayer()
     {
-        Map::PlayerList const &PlList = m_creature->GetMap()->GetPlayers();
+        Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
         if (PlList.isEmpty())
             return;
@@ -100,9 +100,9 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
 
                 if (pPlayer->isAlive())
                 {
-                    m_creature->SetInCombatWith(pPlayer);
-                    pPlayer->SetInCombatWith(m_creature);
-                    m_creature->AddThreat(pPlayer, 0.0f);
+                    me->SetInCombatWith(pPlayer);
+                    pPlayer->SetInCombatWith(me);
+                    me->AddThreat(pPlayer, 0.0f);
                 }
             }
         }
@@ -113,13 +113,13 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        switch (m_creature->GetEntry())
+        switch (me->GetEntry())
         {
             case NPC_AKU_MAI_SNAPJAW:
             {
                 if (uiRavageTimer <= uiDiff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_RAVAGE);
+                    DoCast(me->getVictim(), SPELL_RAVAGE);
                     uiRavageTimer = urand(9000,14000);
                 } else uiRavageTimer -= uiDiff;
                 break;
@@ -130,7 +130,7 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
                 if (!bFlee && HealthBelowPct(15))
                 {
                     bFlee = true;
-                    m_creature->DoFleeToGetAssistance();
+                    me->DoFleeToGetAssistance();
                 }
                 break;
             }
@@ -159,7 +159,7 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
-        if (m_creature->isSummon()) //we are not a normal spawn.
+        if (me->isSummon()) //we are not a normal spawn.
             if (pInstance)
                 pInstance->SetData(DATA_EVENT, pInstance->GetData(DATA_EVENT) + 1);
     }
@@ -181,7 +181,7 @@ struct npc_morriduneAI : public npc_escortAI
     npc_morriduneAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
         DoScriptText(SAY_MORRIDUNE_1,pCreature);
-        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         Start(false,false,NULL);
     }
 
@@ -191,10 +191,10 @@ struct npc_morriduneAI : public npc_escortAI
         {
             case 4:
                 SetEscortPaused(true);
-                m_creature->SetOrientation(1.775791);
-                m_creature->SendMovementFlagUpdate();
-                m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                DoScriptText(SAY_MORRIDUNE_2,m_creature);
+                me->SetOrientation(1.775791);
+                me->SendMovementFlagUpdate();
+                me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                DoScriptText(SAY_MORRIDUNE_2,me);
                 break;
         }
     }

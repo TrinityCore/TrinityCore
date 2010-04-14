@@ -83,7 +83,7 @@ struct mob_freed_soulAI : public ScriptedAI
 
     void Reset()
     {
-        DoScriptText(RAND(SAY_ZAPPED0,SAY_ZAPPED1,SAY_ZAPPED2,SAY_ZAPPED3), m_creature);
+        DoScriptText(RAND(SAY_ZAPPED0,SAY_ZAPPED1,SAY_ZAPPED2,SAY_ZAPPED3), me);
     }
 
     void EnterCombat(Unit* who) {}
@@ -141,7 +141,7 @@ struct mob_restless_soulAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         if (Tagged)
-            m_creature->SummonCreature(ENTRY_FREED, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
+            me->SummonCreature(ENTRY_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -150,10 +150,10 @@ struct mob_restless_soulAI : public ScriptedAI
         {
             if (Die_Timer <= diff)
             {
-                if (Unit* pTemp = Unit::GetUnit(*m_creature,Tagger))
+                if (Unit* pTemp = Unit::GetUnit(*me,Tagger))
                 {
-                    CAST_PLR(pTemp)->KilledMonsterCredit(ENTRY_RESTLESS, m_creature->GetGUID());
-                    m_creature->Kill(m_creature);
+                    CAST_PLR(pTemp)->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
+                    me->Kill(me);
                 }
             } else Die_Timer -= diff;
         }
@@ -214,7 +214,7 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
         if (Tagged)
         {
             if (Die_Timer <= diff)
-                m_creature->Kill(m_creature);
+                me->Kill(me);
             else Die_Timer -= diff;
         }
 
@@ -232,19 +232,19 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
                 EnterEvadeMode();
                 break;
             case TEXTEMOTE_RUDE:
-                if (m_creature->IsWithinDistInMap(pPlayer, 5))
+                if (me->IsWithinDistInMap(pPlayer, 5))
                     DoCast(pPlayer, SPELL_SLAP, false);
                 else
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
                 break;
             case TEXTEMOTE_WAVE:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
                 break;
             case TEXTEMOTE_BOW:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);
                 break;
             case TEXTEMOTE_KISS:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_FLEX);
                 break;
         }
     }

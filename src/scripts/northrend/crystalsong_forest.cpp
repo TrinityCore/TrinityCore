@@ -62,7 +62,7 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
     {
         if (m_uiTimer <= uiDiff)
         {
-            m_creature->CastStop();
+            me->CastStop();
             Creature* pTarget = GetClosestCreatureWithEntry(me,NPC_TRANSITUS_SHIELD_DUMMY,32.0f);
 
             switch(me->GetEntry())
@@ -70,7 +70,7 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
                 case NPC_WARMAGE_SARINA:
                 {
                     std::list<Creature*> orbList;
-                    GetCreatureListWithEntryInGrid(orbList, m_creature, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+                    GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
                     if (!orbList.empty())
                     {
                         for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)

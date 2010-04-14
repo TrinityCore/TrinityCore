@@ -65,18 +65,18 @@ struct boss_void_reaverAI : public ScriptedAI
 
         Enraged = false;
 
-        if (pInstance && m_creature->isAlive())
+        if (pInstance && me->isAlive())
             pInstance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         DoZoneInCombat();
 
         if (pInstance)
@@ -85,7 +85,7 @@ struct boss_void_reaverAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
@@ -99,9 +99,9 @@ struct boss_void_reaverAI : public ScriptedAI
         // Pounding
         if (Pounding_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_POUNDING);
+            DoCast(me->getVictim(), SPELL_POUNDING);
 
-            DoScriptText(RAND(SAY_POUNDING1,SAY_POUNDING2), m_creature);
+            DoScriptText(RAND(SAY_POUNDING1,SAY_POUNDING2), me);
              Pounding_Timer = 15000;                         //cast time(3000) + cooldown time(12000)
         } else Pounding_Timer -= diff;
 
@@ -109,11 +109,11 @@ struct boss_void_reaverAI : public ScriptedAI
         if (ArcaneOrb_Timer <= diff)
         {
             Unit *pTarget = NULL;
-            std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
+            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
             std::vector<Unit *> target_list;
             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (!pTarget)
                     continue;
 
@@ -122,7 +122,7 @@ struct boss_void_reaverAI : public ScriptedAI
                     continue;
 
                 //18 yard radius minimum
-                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive() && !pTarget->IsWithinDist(m_creature, 18, false))
+                if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && pTarget->isAlive() && !pTarget->IsWithinDist(me, 18, false))
                     target_list.push_back(pTarget);
                 pTarget = NULL;
             }
@@ -130,10 +130,10 @@ struct boss_void_reaverAI : public ScriptedAI
             if (target_list.size())
                 pTarget = *(target_list.begin()+rand()%target_list.size());
             else
-                pTarget = m_creature->getVictim();
+                pTarget = me->getVictim();
 
             if (pTarget)
-                m_creature->CastSpell(pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, NULL, pTarget);
+                me->CastSpell(pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, NULL, pTarget);
 
             ArcaneOrb_Timer = 3000;
         } else ArcaneOrb_Timer -= diff;
@@ -141,11 +141,11 @@ struct boss_void_reaverAI : public ScriptedAI
         // Single Target knock back, reduces aggro
         if (KnockAway_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCK_AWAY);
+            DoCast(me->getVictim(), SPELL_KNOCK_AWAY);
 
             //Drop 25% aggro
-            if (DoGetThreat(m_creature->getVictim()))
-                DoModifyThreatPercent(m_creature->getVictim(),-25);
+            if (DoGetThreat(me->getVictim()))
+                DoModifyThreatPercent(me->getVictim(),-25);
 
             KnockAway_Timer = 30000;
         } else KnockAway_Timer -= diff;
@@ -153,7 +153,7 @@ struct boss_void_reaverAI : public ScriptedAI
         //Berserk
         if (Berserk_Timer < diff && !Enraged)
         {
-            DoCast(m_creature, SPELL_BERSERK);
+            DoCast(me, SPELL_BERSERK);
             Enraged = true;
         } else Berserk_Timer -= diff;
 

@@ -124,9 +124,9 @@ struct mob_omrogg_headsAI : public ScriptedAI
 
         if (Death_Timer <= diff)
         {
-            DoScriptText(YELL_DIE_R, m_creature);
+            DoScriptText(YELL_DIE_R, me);
             Death_Timer = false;
-            m_creature->setDeathState(JUST_DIED);
+            me->setDeathState(JUST_DIED);
         } else Death_Timer -= diff;
     }
 };
@@ -163,13 +163,13 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
     void Reset()
     {
-        if (Unit* pLeftHead  = Unit::GetUnit(*m_creature,LeftHeadGUID))
+        if (Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID))
         {
             pLeftHead->setDeathState(JUST_DIED);
             LeftHeadGUID = 0;
         }
 
-        if (Unit* pRightHead  = Unit::GetUnit(*m_creature,RightHeadGUID))
+        if (Unit* pRightHead  = Unit::GetUnit(*me,RightHeadGUID))
         {
             pRightHead->setDeathState(JUST_DIED);
             RightHeadGUID = 0;
@@ -194,8 +194,8 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
     void DoYellForThreat()
     {
-        Unit *pLeftHead  = Unit::GetUnit(*m_creature,LeftHeadGUID);
-        Unit *pRightHead = Unit::GetUnit(*m_creature,RightHeadGUID);
+        Unit *pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
+        Unit *pRightHead = Unit::GetUnit(*me,RightHeadGUID);
 
         if (!pLeftHead || !pRightHead)
             return;
@@ -212,10 +212,10 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        m_creature->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
-        m_creature->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+        me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+        me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
 
-        if (Unit *pLeftHead = Unit::GetUnit(*m_creature,LeftHeadGUID))
+        if (Unit *pLeftHead = Unit::GetUnit(*me,LeftHeadGUID))
         {
             iaggro = rand()%3;
 
@@ -244,8 +244,8 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        Unit* pLeftHead  = Unit::GetUnit(*m_creature,LeftHeadGUID);
-        Unit* pRightHead = Unit::GetUnit(*m_creature,RightHeadGUID);
+        Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
+        Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
 
         if (!pLeftHead || !pRightHead)
             return;
@@ -270,8 +270,8 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        Unit* pLeftHead  = Unit::GetUnit(*m_creature,LeftHeadGUID);
-        Unit* pRightHead = Unit::GetUnit(*m_creature,RightHeadGUID);
+        Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
+        Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
 
         if (!pLeftHead || !pRightHead)
             return;
@@ -290,8 +290,8 @@ struct boss_warbringer_omroggAI : public ScriptedAI
         {
             Delay_Timer = 3500;
 
-            Unit* pLeftHead  = Unit::GetUnit(*m_creature,LeftHeadGUID);
-            Unit* pRightHead = Unit::GetUnit(*m_creature,RightHeadGUID);
+            Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
+            Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
 
             if (!pLeftHead || !pRightHead)
                 return;
@@ -333,7 +333,7 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
         if (BlastCount && BlastWave_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_BLAST_WAVE);
+            DoCast(me, SPELL_BLAST_WAVE);
             BlastWave_Timer = 5000;
             ++BlastCount;
 
@@ -343,8 +343,8 @@ struct boss_warbringer_omroggAI : public ScriptedAI
 
         if (BurningMaul_Timer <= diff)
         {
-            DoScriptText(EMOTE_ENRAGE, m_creature);
-            DoCast(m_creature, SPELL_BURNING_MAUL);
+            DoScriptText(EMOTE_ENRAGE, me);
+            DoCast(me, SPELL_BURNING_MAUL);
             BurningMaul_Timer = 40000;
             BlastWave_Timer = 16000;
             BlastCount = 1;
@@ -356,20 +356,20 @@ struct boss_warbringer_omroggAI : public ScriptedAI
             {
                 DoYellForThreat();
                 DoResetThreat();
-                m_creature->AddThreat(pTarget, 0.0f);
+                me->AddThreat(pTarget, 0.0f);
             }
             ResetThreat_Timer = 25000+rand()%15000;
         } else ResetThreat_Timer -= diff;
 
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_FEAR);
+            DoCast(me, SPELL_FEAR);
             Fear_Timer = 15000+rand()%20000;
         } else Fear_Timer -= diff;
 
         if (ThunderClap_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_THUNDERCLAP);
+            DoCast(me, SPELL_THUNDERCLAP);
             ThunderClap_Timer = 15000+rand()%15000;
         } else ThunderClap_Timer -= diff;
 

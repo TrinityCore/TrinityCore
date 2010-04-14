@@ -43,7 +43,7 @@ struct boss_houndmaster_lokseyAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -53,7 +53,7 @@ struct boss_houndmaster_lokseyAI : public ScriptedAI
 
         if (BloodLust_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_BLOODLUST);
+            DoCast(me, SPELL_BLOODLUST);
             BloodLust_Timer = 20000;
         } else BloodLust_Timer -= diff;
 

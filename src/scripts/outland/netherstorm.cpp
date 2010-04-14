@@ -94,14 +94,14 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(EMOTE_ABORT, m_creature);
+        DoScriptText(EMOTE_ABORT, me);
 
         if (someplayer)
         {
-            Unit* p = Unit::GetUnit((*m_creature),someplayer);
+            Unit* p = Unit::GetUnit((*me),someplayer);
             if (p && p->GetTypeId() == TYPEID_PLAYER)
             {
-                switch(m_creature->GetEntry())
+                switch(me->GetEntry())
                 {
                     case ENTRY_BNAAR_C_CONSOLE:
                         CAST_PLR(p)->FailQuest(10299);
@@ -125,7 +125,7 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
 
         if (goConsole)
         {
-            if (GameObject* pGo = GameObject::GetGameObject((*m_creature),goConsole))
+            if (GameObject* pGo = GameObject::GetGameObject((*me),goConsole))
                 pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
     }
@@ -137,47 +137,47 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
             case ENTRY_BNAAR_C_CONSOLE:
                 if (rand()%2)
                 {
-                    add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2933.68,4162.55,164.00,1.60,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2933.68,4162.55,164.00,1.60,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,2927.36,4212.97,164.00);
                 }
                 else
                 {
-                    add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2927.36,4212.97,164.00,4.94,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_SUNFURY_TECH,2927.36,4212.97,164.00,4.94,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,2933.68,4162.55,164.00);
                 }
                 Wave_Timer = 30000;
                 break;
             case ENTRY_CORUU_C_CONSOLE:
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2445.21,2765.26,134.49,3.93,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2445.21,2765.26,134.49,3.93,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2424.21,2740.15,133.81);
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2429.86,2731.85,134.53,1.31,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2429.86,2731.85,134.53,1.31,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2435.37,2766.04,133.81);
                 Wave_Timer = 20000;
                 break;
             case ENTRY_DURO_C_CONSOLE:
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2986.80,2205.36,165.37,3.74,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2986.80,2205.36,165.37,3.74,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2985.15,2197.32,164.79);
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2952.91,2191.20,165.32,0.22,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2952.91,2191.20,165.32,0.22,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2060.01,2185.27,164.67);
                 Wave_Timer = 15000;
                 break;
             case ENTRY_ARA_C_CONSOLE:
                 if (rand()%2)
                 {
-                    add = m_creature->SummonCreature(ENTRY_ARA_TECH,4035.11,4038.97,194.27,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_ARA_TECH,4035.11,4038.97,194.27,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,4003.42,4040.19,193.49);
-                    add = m_creature->SummonCreature(ENTRY_ARA_TECH,4033.66,4036.79,194.28,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_ARA_TECH,4033.66,4036.79,194.28,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,4003.42,4040.19,193.49);
-                    add = m_creature->SummonCreature(ENTRY_ARA_TECH,4037.13,4037.30,194.23,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_ARA_TECH,4037.13,4037.30,194.23,2.57,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,4003.42,4040.19,193.49);
                 }
                 else
                 {
-                    add = m_creature->SummonCreature(ENTRY_ARA_TECH,3099.59,4049.30,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_ARA_TECH,3099.59,4049.30,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,4028.01,4035.17,193.59);
-                    add = m_creature->SummonCreature(ENTRY_ARA_TECH,3999.72,4046.75,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_ARA_TECH,3999.72,4046.75,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,4028.01,4035.17,193.59);
-                    add = m_creature->SummonCreature(ENTRY_ARA_TECH,3996.81,4048.26,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                    add = me->SummonCreature(ENTRY_ARA_TECH,3996.81,4048.26,194.22,0.05,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     if (add) add->GetMotionMaster()->MovePoint(0,4028.01,4035.17,193.59);
                 }
                 Wave_Timer = 15000;
@@ -189,29 +189,29 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
         switch(pCreature->GetEntry())
         {
             case ENTRY_BNAAR_C_CONSOLE:
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2946.52,4201.42,163.47,3.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2946.52,4201.42,163.47,3.54,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2927.49,4192.81,163.00);
                 break;
             case ENTRY_CORUU_C_CONSOLE:
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2453.88,2737.85,133.27,2.59,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2453.88,2737.85,133.27,2.59,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2433.96,2751.53,133.85);
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2441.62,2735.32,134.49,1.97,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2441.62,2735.32,134.49,1.97,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2433.96,2751.53,133.85);
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2450.73,2754.50,134.49,3.29,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2450.73,2754.50,134.49,3.29,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2433.96,2751.53,133.85);
                 break;
             case ENTRY_DURO_C_CONSOLE:
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2956.18,2202.85,165.32,5.45,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2956.18,2202.85,165.32,5.45,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2972.27,2193.22,164.48);
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_TECH,2975.30,2211.50,165.32,4.55,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_TECH,2975.30,2211.50,165.32,4.55,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2972.27,2193.22,164.48);
-                add = m_creature->SummonCreature(ENTRY_SUNFURY_PROT,2965.02,2217.45,164.16,4.96,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_SUNFURY_PROT,2965.02,2217.45,164.16,4.96,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,2972.27,2193.22,164.48);
                 break;
             case ENTRY_ARA_C_CONSOLE:
-                add = m_creature->SummonCreature(ENTRY_ARA_ENGI,3994.51,4020.46,192.18,0.91,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_ARA_ENGI,3994.51,4020.46,192.18,0.91,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,4008.35,4035.04,192.70);
-                add = m_creature->SummonCreature(ENTRY_ARA_GORKLONN,4021.56,4059.35,193.59,4.44,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                add = me->SummonCreature(ENTRY_ARA_GORKLONN,4021.56,4059.35,193.59,4.44,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 if (add) add->GetMotionMaster()->MovePoint(0,4016.62,4039.89,193.46);
                 break;
         }
@@ -226,42 +226,42 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
                 case 1:
                     if (someplayer)
                     {
-                        Unit* u = Unit::GetUnit((*m_creature), someplayer);
-                        if (u && u->GetTypeId() == TYPEID_PLAYER) DoScriptText(EMOTE_START, m_creature, u);
+                        Unit* u = Unit::GetUnit((*me), someplayer);
+                        if (u && u->GetTypeId() == TYPEID_PLAYER) DoScriptText(EMOTE_START, me, u);
                     }
                     Event_Timer = 60000;
                     Wave = true;
                     ++Phase;
                     break;
                 case 2:
-                    DoScriptText(EMOTE_60, m_creature);
+                    DoScriptText(EMOTE_60, me);
                     Event_Timer = 30000;
                     ++Phase;
                     break;
                 case 3:
-                    DoScriptText(EMOTE_30, m_creature);
+                    DoScriptText(EMOTE_30, me);
                     Event_Timer = 20000;
-                    DoFinalSpawnForCreature(m_creature);
+                    DoFinalSpawnForCreature(me);
                     ++Phase;
                     break;
                 case 4:
-                    DoScriptText(EMOTE_10, m_creature);
+                    DoScriptText(EMOTE_10, me);
                     Event_Timer = 10000;
                     Wave = false;
                     ++Phase;
                     break;
                 case 5:
-                    DoScriptText(EMOTE_COMPLETE, m_creature);
+                    DoScriptText(EMOTE_COMPLETE, me);
                     if (someplayer)
                     {
-                        Unit* u = Unit::GetUnit((*m_creature),someplayer);
+                        Unit* u = Unit::GetUnit((*me),someplayer);
                         if (u && u->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(u)->KilledMonsterCredit(m_creature->GetEntry(),m_creature->GetGUID());
-                        DoCast(m_creature, SPELL_DISABLE_VISUAL);
+                            CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(),me->GetGUID());
+                        DoCast(me, SPELL_DISABLE_VISUAL);
                     }
                     if (goConsole)
                     {
-                        if (GameObject* pGo = GameObject::GetGameObject((*m_creature),goConsole))
+                        if (GameObject* pGo = GameObject::GetGameObject((*me),goConsole))
                             pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                     }
                     ++Phase;
@@ -273,7 +273,7 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
         {
             if (Wave_Timer <= diff)
             {
-                DoWaveSpawnForCreature(m_creature);
+                DoWaveSpawnForCreature(me);
             } else Wave_Timer -= diff;
         }
     }
@@ -397,51 +397,51 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
     // Emote Ardonis and Pathaleon
     void Turn_to_Pathaleons_Image()
     {
-        Creature *ardonis = Unit::GetCreature(*m_creature,ardonisGUID);
-        Creature *pathaleon = Unit::GetCreature(*m_creature,pathaleonGUID);
+        Creature *ardonis = Unit::GetCreature(*me,ardonisGUID);
+        Creature *pathaleon = Unit::GetCreature(*me,pathaleonGUID);
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
         if (!ardonis || !pathaleon || !pPlayer)
             return;
 
         //Calculate the angle to Pathaleon
-        angle_dawnforge = m_creature->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
+        angle_dawnforge = me->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
         angle_ardonis = ardonis->GetAngle(pathaleon->GetPositionX(), pathaleon->GetPositionY());
 
         //Turn Dawnforge and update
-        m_creature->SetOrientation(angle_dawnforge);
-        m_creature->SendUpdateToPlayer(pPlayer);
+        me->SetOrientation(angle_dawnforge);
+        me->SendUpdateToPlayer(pPlayer);
         //Turn Ardonis and update
         ardonis->SetOrientation(angle_ardonis);
         ardonis->SendUpdateToPlayer(pPlayer);
 
         //Set them to kneel
-        m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
+        me->SetStandState(UNIT_STAND_STATE_KNEEL);
         ardonis->SetStandState(UNIT_STAND_STATE_KNEEL);
     }
 
     //Set them back to each other
     void Turn_to_eachother()
     {
-        if (Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID))
+        if (Unit *ardonis = Unit::GetUnit(*me,ardonisGUID))
         {
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
             if (!pPlayer)
                 return;
 
-            angle_dawnforge = m_creature->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
-            angle_ardonis = ardonis->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY());
+            angle_dawnforge = me->GetAngle(ardonis->GetPositionX(), ardonis->GetPositionY());
+            angle_ardonis = ardonis->GetAngle(me->GetPositionX(), me->GetPositionY());
 
             //Turn Dawnforge and update
-            m_creature->SetOrientation(angle_dawnforge);
-            m_creature->SendUpdateToPlayer(pPlayer);
+            me->SetOrientation(angle_dawnforge);
+            me->SendUpdateToPlayer(pPlayer);
             //Turn Ardonis and update
             ardonis->SetOrientation(angle_ardonis);
             ardonis->SendUpdateToPlayer(pPlayer);
 
             //Set state
-            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
             ardonis->SetStandState(UNIT_STAND_STATE_STAND);
         }
     }
@@ -480,8 +480,8 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
             return;
         }
 
-        Unit *ardonis = Unit::GetUnit(*m_creature,ardonisGUID);
-        Unit *pathaleon = Unit::GetUnit(*m_creature,pathaleonGUID);
+        Unit *ardonis = Unit::GetUnit(*me,ardonisGUID);
+        Unit *pathaleon = Unit::GetUnit(*me,pathaleonGUID);
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
 
         if (!ardonis || !pPlayer)
@@ -500,7 +500,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
         switch (Phase)
         {
         case 1:
-            DoScriptText(SAY_COMMANDER_DAWNFORGE_1, m_creature);
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_1, me);
             ++Phase;
             Phase_Timer = 16000;
             break;
@@ -512,14 +512,14 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
             break;
             //Phase 3 Dawnforge say
         case 3:
-            DoScriptText(SAY_COMMANDER_DAWNFORGE_2, m_creature);
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_2, me);
             ++Phase;
             Phase_Timer = 16000;
             break;
             //Phase 4 Pathaleon spawns up to phase 9
         case 4:
             //spawn pathaleon's image
-            m_creature->SummonCreature(CreatureEntry[2], 2325.851563, 2799.534668, 133.084229, 6.038996, TEMPSUMMON_TIMED_DESPAWN, 90000);
+            me->SummonCreature(CreatureEntry[2], 2325.851563, 2799.534668, 133.084229, 6.038996, TEMPSUMMON_TIMED_DESPAWN, 90000);
             ++Phase;
             Phase_Timer = 500;
             break;
@@ -541,7 +541,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
                 break;
                 //Subphase 2 Dawnforge say
             case 1:
-                DoScriptText(SAY_COMMANDER_DAWNFORGE_3, m_creature);
+                DoScriptText(SAY_COMMANDER_DAWNFORGE_3, me);
                 PhaseSubphase = 0;
                 ++Phase;
                 Phase_Timer = 8000;
@@ -575,7 +575,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
             break;
             //Phase 8 Dawnforge & Ardonis say
         case 8:
-            DoScriptText(SAY_COMMANDER_DAWNFORGE_4, m_creature);
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_4, me);
             DoScriptText(SAY_ARCANIST_ARDONIS_2, ardonis);
             ++Phase;
             Phase_Timer = 4000;
@@ -591,7 +591,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
             break;
             //Phase 10 Dawnforge say
         case 10:
-            DoScriptText(SAY_COMMANDER_DAWNFORGE_5, m_creature);
+            DoScriptText(SAY_COMMANDER_DAWNFORGE_5, me);
             pPlayer->AreaExploredOrEventHappens(QUEST_INFO_GATHERING);
             Reset();
             break;
@@ -711,8 +711,8 @@ struct mob_phase_hunterAI : public ScriptedAI
 
         ManaBurnTimer = 5000 + (rand() % 3 * 1000); // 5-8 sec cd
 
-        if (m_creature->GetEntry() == NPC_DRAINED_PHASE_HUNTER_ENTRY)
-            m_creature->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
+        if (me->GetEntry() == NPC_DRAINED_PHASE_HUNTER_ENTRY)
+            me->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
     }
 
     void EnterCombat(Unit *who)
@@ -723,19 +723,19 @@ struct mob_phase_hunterAI : public ScriptedAI
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        DoCast(m_creature, SPELL_DE_MATERIALIZE);
+        DoCast(me, SPELL_DE_MATERIALIZE);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (!Materialize)
         {
-            DoCast(m_creature, SPELL_MATERIALIZE);
+            DoCast(me, SPELL_MATERIALIZE);
             Materialize = true;
         }
 
-        if (m_creature->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || m_creature->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
-            DoCast(m_creature, SPELL_PHASE_SLIP);
+        if (me->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || me->hasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
+            DoCast(me, SPELL_PHASE_SLIP);
 
         if (!UpdateVictim())
             return;
@@ -743,12 +743,12 @@ struct mob_phase_hunterAI : public ScriptedAI
         // some code to cast spell Mana Burn on random target which has mana
         if (ManaBurnTimer <= diff)
         {
-            std::list<HostileReference*> AggroList = m_creature->getThreatManager().getThreatList();
+            std::list<HostileReference*> AggroList = me->getThreatManager().getThreatList();
             std::list<Unit*> UnitsWithMana;
 
             for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
             {
-                if (Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit *pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                 {
                     if (pUnit->GetCreateMana() > 0)
                         UnitsWithMana.push_back(pUnit);
@@ -767,22 +767,22 @@ struct mob_phase_hunterAI : public ScriptedAI
 
         if (Player *pPlayer = Unit::GetPlayer(PlayerGUID)) // start: support for quest 10190
         {
-            if (!Weak && m_creature->GetHealth() < (m_creature->GetMaxHealth() / 100 * WeakPercent)
+            if (!Weak && me->GetHealth() < (me->GetMaxHealth() / 100 * WeakPercent)
                 && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)
             {
-                DoScriptText(EMOTE_WEAK, m_creature);
+                DoScriptText(EMOTE_WEAK, me);
                 Weak = true;
             }
-            if (Weak && !Drained && m_creature->HasAura(SPELL_RECHARGING_BATTERY))
+            if (Weak && !Drained && me->HasAura(SPELL_RECHARGING_BATTERY))
             {
                 Drained = true;
-                HpPercent = float(m_creature->GetHealth()) / float(m_creature->GetMaxHealth());
+                HpPercent = float(me->GetHealth()) / float(me->GetMaxHealth());
 
-                m_creature->UpdateEntry(NPC_DRAINED_PHASE_HUNTER_ENTRY);
+                me->UpdateEntry(NPC_DRAINED_PHASE_HUNTER_ENTRY);
 
-                m_creature->SetHealth(m_creature->GetMaxHealth() * HpPercent);
-                m_creature->LowerPlayerDamageReq(m_creature->GetMaxHealth() - m_creature->GetHealth());
-                m_creature->SetInCombatWith(pPlayer);
+                me->SetHealth(me->GetMaxHealth() * HpPercent);
+                me->LowerPlayerDamageReq(me->GetMaxHealth() - me->GetHealth());
+                me->SetInCombatWith(pPlayer);
             }
         } // end: support for quest 10190
 
@@ -827,30 +827,30 @@ struct npc_bessyAI : public npc_escortAI
         switch(i)
         {
             case 3: //first spawn
-                m_creature->SummonCreature(SPAWN_FIRST, 2449.67, 2183.11, 96.85, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_FIRST, 2449.53, 2184.43, 96.36, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_FIRST, 2449.85, 2186.34, 97.57, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, 2449.67, 2183.11, 96.85, 6.20, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, 2449.53, 2184.43, 96.36, 6.27, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_FIRST, 2449.85, 2186.34, 97.57, 6.08, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 break;
 
             case 7:
-                m_creature->SummonCreature(SPAWN_SECOND, 2309.64, 2186.24, 92.25, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                m_creature->SummonCreature(SPAWN_SECOND, 2309.25, 2183.46, 91.75, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_SECOND, 2309.64, 2186.24, 92.25, 6.06, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                me->SummonCreature(SPAWN_SECOND, 2309.25, 2183.46, 91.75, 6.22, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                 break;
 
             case 12:
                 if (pPlayer)
-                    pPlayer->GroupEventHappens(Q_ALMABTRIEB, m_creature);
+                    pPlayer->GroupEventHappens(Q_ALMABTRIEB, me);
                 if (Unit* Thadell = me->FindNearestCreature(N_THADELL, 30))
-                    DoScriptText(SAY_THADELL_1, m_creature); break;
+                    DoScriptText(SAY_THADELL_1, me); break;
             case 13:
                 if (Unit* Thadell = me->FindNearestCreature(N_THADELL, 30))
-                    DoScriptText(SAY_THADELL_2, m_creature, pPlayer); break;
+                    DoScriptText(SAY_THADELL_2, me, pPlayer); break;
         }
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->AI()->AttackStart(m_creature);
+        summoned->AI()->AttackStart(me);
     }
 
     void Reset()

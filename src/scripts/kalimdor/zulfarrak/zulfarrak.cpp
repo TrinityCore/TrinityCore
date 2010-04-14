@@ -50,14 +50,14 @@ struct npc_sergeant_blyAI : public ScriptedAI
     //ScriptedInstance* pInstance;
 
     uint32 ShieldBash_Timer;
-    uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless m_creature->getVictim() dodge, parry or block attack. Trinity support required.
+    uint32 Revenge_Timer;                                   //this is wrong, spell should never be used unless me->getVictim() dodge, parry or block attack. Trinity support required.
 
     void Reset()
     {
         ShieldBash_Timer = 5000;
         Revenge_Timer = 8000;
 
-        m_creature->setFaction(FACTION_FRIENDLY);
+        me->setFaction(FACTION_FRIENDLY);
 
         /*if (pInstance)
             pInstance->SetData(0, NOT_STARTED);*/
@@ -82,13 +82,13 @@ struct npc_sergeant_blyAI : public ScriptedAI
 
         if (ShieldBash_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHIELD_BASH);
+            DoCast(me->getVictim(), SPELL_SHIELD_BASH);
             ShieldBash_Timer = 15000;
         } else ShieldBash_Timer -= diff;
 
         if (Revenge_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_REVENGE);
+            DoCast(me->getVictim(), SPELL_REVENGE);
             Revenge_Timer = 10000;
         } else Revenge_Timer -= diff;
 

@@ -56,7 +56,7 @@ struct boss_arcanist_doanAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -66,22 +66,22 @@ struct boss_arcanist_doanAI : public ScriptedAI
 
         if (bShielded && bCanDetonate)
         {
-            DoCast(m_creature, SPELL_FIREAOE);
+            DoCast(me, SPELL_FIREAOE);
             bCanDetonate = false;
         }
 
-        if (m_creature->HasAura(SPELL_ARCANEBUBBLE))
+        if (me->HasAura(SPELL_ARCANEBUBBLE))
             return;
 
         //If we are <50% hp cast Arcane Bubble
-        if (!bShielded && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
+        if (!bShielded && me->GetHealth()*100 / me->GetMaxHealth() <= 50)
         {
             //wait if we already casting
-            if (m_creature->IsNonMeleeSpellCasted(false))
+            if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            DoScriptText(SAY_SPECIALAE, m_creature);
-            DoCast(m_creature, SPELL_ARCANEBUBBLE);
+            DoScriptText(SAY_SPECIALAE, me);
+            DoCast(me, SPELL_ARCANEBUBBLE);
 
             bCanDetonate = true;
             bShielded = true;
@@ -98,14 +98,14 @@ struct boss_arcanist_doanAI : public ScriptedAI
         //AoESilence_Timer
         if (AoESilence_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_AOESILENCE);
+            DoCast(me->getVictim(), SPELL_AOESILENCE);
             AoESilence_Timer = 15000 + rand()%5000;
         } else AoESilence_Timer -= diff;
 
         //ArcaneExplosion_Timer
         if (ArcaneExplosion_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANEEXPLOSION);
+            DoCast(me->getVictim(), SPELL_ARCANEEXPLOSION);
             ArcaneExplosion_Timer = 8000;
         } else ArcaneExplosion_Timer -= diff;
 

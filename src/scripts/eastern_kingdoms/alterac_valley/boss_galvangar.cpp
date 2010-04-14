@@ -56,7 +56,7 @@ struct boss_galvangarAI : public ScriptedAI
 
     void Aggro(Unit *who)
     {
-        DoScriptText(YELL_AGGRO, m_creature);
+        DoScriptText(YELL_AGGRO, me);
     }
 
     void JustRespawned()
@@ -71,41 +71,41 @@ struct boss_galvangarAI : public ScriptedAI
 
         if (uiCleaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             uiCleaveTimer =  urand(10*IN_MILISECONDS,16*IN_MILISECONDS);
         } else uiCleaveTimer -= diff;
 
         if (uiFrighteningShoutTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FRIGHTENING_SHOUT);
+            DoCast(me->getVictim(), SPELL_FRIGHTENING_SHOUT);
             uiFrighteningShoutTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
         } else uiFrighteningShoutTimer -= diff;
 
         if (uiWhirlwind1Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND1);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND1);
             uiWhirlwind1Timer = urand(6*IN_MILISECONDS,10*IN_MILISECONDS);
         } else uiWhirlwind1Timer -= diff;
 
         if (uiWhirlwind2Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND2);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND2);
             uiWhirlwind2Timer = urand(10*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiWhirlwind2Timer -= diff;
 
         if (uiMortalStrikeTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
+            DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
             uiMortalStrikeTimer = urand(10*IN_MILISECONDS,30*IN_MILISECONDS);
         } else uiMortalStrikeTimer -= diff;
 
         // check if creature is not outside of building
         if (uiResetTimer <= diff)
         {
-            if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
             {
                 EnterEvadeMode();
-                DoScriptText(YELL_EVADE, m_creature);
+                DoScriptText(YELL_EVADE, me);
             }
             uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;

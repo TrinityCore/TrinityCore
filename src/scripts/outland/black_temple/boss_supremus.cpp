@@ -25,7 +25,7 @@ EndScriptData */
 #include "black_temple.h"
 
 #define EMOTE_NEW_TARGET            -1564010
-#define EMOTE_PUNCH_GROUND          -1564011                //DoScriptText(EMOTE_PUNCH_GROUND, m_creature);
+#define EMOTE_PUNCH_GROUND          -1564011                //DoScriptText(EMOTE_PUNCH_GROUND, me);
 #define EMOTE_GROUND_CRACK          -1564012
 
 //Spells
@@ -67,7 +67,7 @@ struct molten_flameAI : public NullCreatureAI
 
 struct boss_supremusAI : public ScriptedAI
 {
-    boss_supremusAI(Creature *c) : ScriptedAI(c), summons(m_creature)
+    boss_supremusAI(Creature *c) : ScriptedAI(c), summons(me)
     {
         pInstance = c->GetInstanceData();
     }
@@ -81,7 +81,7 @@ struct boss_supremusAI : public ScriptedAI
     {
         if (pInstance)
         {
-            if (m_creature->isAlive())
+            if (me->isAlive())
             {
                 pInstance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
                 //ToggleDoors(true);
@@ -112,18 +112,18 @@ struct boss_supremusAI : public ScriptedAI
             phase = PHASE_STRIKE;
             summons.DoAction(EVENT_VOLCANO, 0);
             events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
-            m_creature->SetSpeed(MOVE_RUN, 1.2f);
-            m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-            m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
+            me->SetSpeed(MOVE_RUN, 1.2f);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
         }
         else
         {
             phase = PHASE_CHASE;
             events.ScheduleEvent(EVENT_VOLCANO, 5000, GCD_CAST, PHASE_CHASE);
             events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
-            m_creature->SetSpeed(MOVE_RUN, 0.9f);
-            m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-            m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+            me->SetSpeed(MOVE_RUN, 0.9f);
+            me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+            me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
         }
         DoResetThreat();
         DoZoneInCombat();
@@ -149,12 +149,12 @@ struct boss_supremusAI : public ScriptedAI
         uint32 health = 0;
         Unit *pTarget = NULL;
 
-        std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
         std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
         for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
         {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
-            if (pUnit && m_creature->IsWithinMeleeRange(pUnit))
+            Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+            if (pUnit && me->IsWithinMeleeRange(pUnit))
             {
                 if (pUnit->GetHealth() > health)
                 {
@@ -179,10 +179,10 @@ struct boss_supremusAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_BERSERK:
-                    DoCast(m_creature, SPELL_BERSERK, true);
+                    DoCast(me, SPELL_BERSERK, true);
                     break;
                 case EVENT_FLAME:
-                    DoCast(m_creature, SPELL_MOLTEN_PUNCH);
+                    DoCast(me, SPELL_MOLTEN_PUNCH);
                     events.DelayEvents(1500, GCD_CAST);
                     events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
                     break;
@@ -196,20 +196,20 @@ struct boss_supremusAI : public ScriptedAI
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                     {
                         DoResetThreat();
-                        m_creature->AddThreat(pTarget, 5000000.0f);
-                        DoScriptText(EMOTE_NEW_TARGET, m_creature);
+                        me->AddThreat(pTarget, 5000000.0f);
+                        DoScriptText(EMOTE_NEW_TARGET, me);
                     }
                     events.ScheduleEvent(EVENT_SWITCH_TARGET, 10000, 0, PHASE_CHASE);
                     break;
                 case EVENT_VOLCANO:
                 {
                     Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 999, true);
-                    if (!pTarget) pTarget = m_creature->getVictim();
+                    if (!pTarget) pTarget = me->getVictim();
                     if (pTarget)
                     {
                         //DoCast(pTarget, SPELL_VOLCANIC_SUMMON);//movement bugged
-                        m_creature->SummonCreature(CREATURE_VOLCANO,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
-                        DoScriptText(EMOTE_GROUND_CRACK, m_creature);
+                        me->SummonCreature(CREATURE_VOLCANO,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,30000);
+                        DoScriptText(EMOTE_GROUND_CRACK, me);
                         events.DelayEvents(1500, GCD_CAST);
                     }
                     events.ScheduleEvent(EVENT_VOLCANO, 10000, GCD_CAST, PHASE_CHASE);
@@ -231,9 +231,9 @@ struct npc_volcanoAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        //DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        //DoCast(me, SPELL_VOLCANIC_ERUPTION);
         me->SetReactState(REACT_PASSIVE);
         wait = 3000;
     }
@@ -245,14 +245,14 @@ struct npc_volcanoAI : public Scripted_NoMovementAI
 
     void DoAction(const uint32 info)
     {
-        m_creature->RemoveAura(SPELL_VOLCANIC_ERUPTION);
+        me->RemoveAura(SPELL_VOLCANIC_ERUPTION);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (wait <= diff)//wait 3secs before casting
         {
-            DoCast(m_creature, SPELL_VOLCANIC_ERUPTION);
+            DoCast(me, SPELL_VOLCANIC_ERUPTION);
             wait = 60000;
         }
         else wait -= diff;

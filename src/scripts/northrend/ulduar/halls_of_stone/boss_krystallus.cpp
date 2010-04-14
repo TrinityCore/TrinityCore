@@ -64,7 +64,7 @@ struct boss_krystallusAI : public ScriptedAI
     }
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, IN_PROGRESS);
@@ -92,13 +92,13 @@ struct boss_krystallusAI : public ScriptedAI
 
         if (uiStompTimer <= diff)
         {
-            DoCast(m_creature, SPELL_STOMP);
+            DoCast(me, SPELL_STOMP);
             uiStompTimer = 20000 + rand()%9000;
         } else uiStompTimer -= diff;
 
         if (uiGroundSlamTimer <= diff)
         {
-            DoCast(m_creature, SPELL_GROUND_SLAM);
+            DoCast(me, SPELL_GROUND_SLAM);
             bIsSlam = true;
             uiShatterTimer = 10000;
             uiGroundSlamTimer = 15000 + rand()%3000;
@@ -108,7 +108,7 @@ struct boss_krystallusAI : public ScriptedAI
         {
             if (uiShatterTimer <= diff)
             {
-                DoCast(m_creature, SPELL_SHATTER);
+                DoCast(me, SPELL_SHATTER);
                 bIsSlam = false;
             } else uiShatterTimer -= diff;
         }
@@ -118,7 +118,7 @@ struct boss_krystallusAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, DONE);
@@ -126,9 +126,9 @@ struct boss_krystallusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 };
 

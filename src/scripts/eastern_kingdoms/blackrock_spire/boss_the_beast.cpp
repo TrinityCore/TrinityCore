@@ -55,7 +55,7 @@ struct boss_thebeastAI : public ScriptedAI
         //Flamebreak_Timer
         if (Flamebreak_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FLAMEBREAK);
+            DoCast(me->getVictim(), SPELL_FLAMEBREAK);
             Flamebreak_Timer = 10000;
         } else Flamebreak_Timer -= diff;
 
@@ -70,7 +70,7 @@ struct boss_thebeastAI : public ScriptedAI
         //TerrifyingRoar_Timer
         if (TerrifyingRoar_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_TERRIFYINGROAR);
+            DoCast(me->getVictim(), SPELL_TERRIFYINGROAR);
             TerrifyingRoar_Timer = 20000;
         } else TerrifyingRoar_Timer -= diff;
 

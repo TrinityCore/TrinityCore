@@ -44,7 +44,7 @@ struct mob_yennikuAI : public ScriptedAI
     void Reset()
     {
         Reset_Timer = 0;
-        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -54,10 +54,10 @@ struct mob_yennikuAI : public ScriptedAI
                                                             //Yenniku's Release
             if (!bReset && CAST_PLR(caster)->GetQuestStatus(592) == QUEST_STATUS_INCOMPLETE && spell->Id == 3607)
             {
-                m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
-                m_creature->CombatStop();                   //stop combat
-                m_creature->DeleteThreatList();             //unsure of this
-                m_creature->setFaction(83);                 //horde generic
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STUN);
+                me->CombatStop();                   //stop combat
+                me->DeleteThreatList();             //unsure of this
+                me->setFaction(83);                 //horde generic
 
                 bReset = true;
                 Reset_Timer = 60000;
@@ -76,20 +76,20 @@ struct mob_yennikuAI : public ScriptedAI
             {
                 EnterEvadeMode();
                 bReset = false;
-                m_creature->setFaction(28);                     //troll, bloodscalp
+                me->setFaction(28);                     //troll, bloodscalp
                 return;
             }
             else Reset_Timer -= diff;
 
-            if (m_creature->isInCombat() && m_creature->getVictim())
+            if (me->isInCombat() && me->getVictim())
             {
-                if (m_creature->getVictim()->GetTypeId() == TYPEID_PLAYER)
+                if (me->getVictim()->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Unit *victim = m_creature->getVictim();
+                    Unit *victim = me->getVictim();
                     if (CAST_PLR(victim)->GetTeam() == HORDE)
                     {
-                        m_creature->CombatStop();
-                        m_creature->DeleteThreatList();
+                        me->CombatStop();
+                        me->DeleteThreatList();
                     }
                 }
             }

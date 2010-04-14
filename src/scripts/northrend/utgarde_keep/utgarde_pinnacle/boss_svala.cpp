@@ -117,12 +117,12 @@ struct boss_svalaAI : public ScriptedAI
         if (!pWho)
             return;
 
-        if (Phase == IDLE && pWho->isTargetableForAttack() && m_creature->IsHostileTo(pWho) && m_creature->IsWithinDistInMap(pWho, 40))
+        if (Phase == IDLE && pWho->isTargetableForAttack() && me->IsHostileTo(pWho) && me->IsWithinDistInMap(pWho, 40))
         {
             Phase = INTRO;
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            if (Creature *pArthas = m_creature->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
+            if (Creature *pArthas = me->SummonCreature(CREATURE_ARTHAS, ArthasPos, TEMPSUMMON_MANUAL_DESPAWN))
             {
                 pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 pArthas->SetFloatValue(OBJECT_FIELD_SCALE_X, 5);
@@ -140,14 +140,14 @@ struct boss_svalaAI : public ScriptedAI
 
         if (uiIntroTimer <= diff)
         {
-            Creature *pArthas = Unit::GetCreature(*m_creature, uiArthasGUID);
+            Creature *pArthas = Unit::GetCreature(*me, uiArthasGUID);
             if (!pArthas)
                 return;
 
             switch (uiIntroPhase)
             {
                 case 0:
-                    DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, m_creature);
+                    DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, me);
                     ++uiIntroPhase;
                     uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
@@ -157,7 +157,7 @@ struct boss_svalaAI : public ScriptedAI
                     uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
                 case 2:
-                    DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, m_creature);
+                    DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, me);
                     ++uiIntroPhase;
                     uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
@@ -167,21 +167,21 @@ struct boss_svalaAI : public ScriptedAI
                     uiIntroTimer = 3.5*IN_MILISECONDS;
                     break;
                 case 4:
-                    DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, m_creature);
-                    DoCast(m_creature, SPELL_SVALA_TRANSFORMING1);
+                    DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, me);
+                    DoCast(me, SPELL_SVALA_TRANSFORMING1);
                     ++uiIntroPhase;
                     uiIntroTimer = 2.8*IN_MILISECONDS;
                     break;
                 case 5:
-                    DoCast(m_creature, SPELL_SVALA_TRANSFORMING2);
+                    DoCast(me, SPELL_SVALA_TRANSFORMING2);
                     ++uiIntroPhase;
                     uiIntroTimer = 200;
                     break;
                 case 6:
-                    if (Creature* pSvalaSorrowgrave = m_creature->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILISECONDS))
+                    if (Creature* pSvalaSorrowgrave = me->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILISECONDS))
                     {
-                        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                        m_creature->SetDisplayId(DATA_SVALA_DISPLAY_ID);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetDisplayId(DATA_SVALA_DISPLAY_ID);
                         pArthas->ToTempSummon()->UnSummon();
                         uiArthasGUID = 0;
                         Phase = FINISHED;
@@ -205,14 +205,14 @@ struct mob_ritual_channelerAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        DoCast(m_creature, SPELL_SHADOWS_IN_THE_DARK);
+        DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
     }
 
     // called by svala sorrowgrave to set guid of victim
     void DoAction(uint32 action)
     {
         if (pInstance)
-            if (Unit *pVictim = m_creature->GetUnit(*m_creature, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
+            if (Unit *pVictim = me->GetUnit(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
                 DoCast(pVictim, SPELL_PARALYZE);
     }
 
@@ -253,7 +253,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         Phase = NORMAL;
 
         DoTeleportTo(296.632, -346.075, 90.6307);
-        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
 
         summons.DespawnAll();
 
@@ -266,7 +266,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
@@ -292,7 +292,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
             if (uiSinsterStrikeTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SINSTER_STRIKE);
+                DoCast(me->getVictim(), SPELL_SINSTER_STRIKE);
                 uiSinsterStrikeTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
             } else uiSinsterStrikeTimer -= diff;
 
@@ -310,11 +310,11 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 {
                     if (Unit* pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),m_creature);
+                        DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1,SAY_SACRIFICE_PLAYER_2,SAY_SACRIFICE_PLAYER_3,SAY_SACRIFICE_PLAYER_4,SAY_SACRIFICE_PLAYER_5),me);
                         DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
                         //Spell doesn't teleport
                         DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
-                        m_creature->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
+                        me->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
                         DoTeleportTo(296.632, -346.075, 120.85);
                         Phase = SACRIFICING;
                         if (pInstance)
@@ -322,7 +322,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                             pInstance->SetData64(DATA_SACRIFICED_PLAYER,pSacrificeTarget->GetGUID());
 
                             for (uint8 i = 0; i < 3; ++i)
-                                if (Creature* pSummon = m_creature->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+                                if (Creature* pSummon = me->SummonCreature(CREATURE_RITUAL_CHANNELER, RitualChannelerPos[i], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
                                     pSummon->AI()->DoAction(0);
                         }
 
@@ -336,16 +336,16 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         {
             if (uiSacrificeTimer <= diff)
             {
-                Unit* pSacrificeTarget = pInstance ? Unit::GetUnit(*m_creature, pInstance->GetData64(DATA_SACRIFICED_PLAYER)) : NULL;
+                Unit* pSacrificeTarget = pInstance ? Unit::GetUnit(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)) : NULL;
                 if (pInstance && !summons.empty() && pSacrificeTarget && pSacrificeTarget->isAlive())
-                    m_creature->Kill(pSacrificeTarget, false); // durability damage?
+                    me->Kill(pSacrificeTarget, false); // durability damage?
 
                 //go down
                 Phase = NORMAL;
                 pSacrificeTarget = NULL;
-                m_creature->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    m_creature->GetMotionMaster()->MoveChase(pTarget);
+                    me->GetMotionMaster()->MoveChase(pTarget);
 
                 uiSacrificeTimer = 8*IN_MILISECONDS;
             }
@@ -355,20 +355,20 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void JustDied(Unit* pKiller)
     {
         if (pInstance)
         {
-            Creature* pSvala = Unit::GetCreature((*m_creature), pInstance->GetData64(DATA_SVALA));
+            Creature* pSvala = Unit::GetCreature((*me), pInstance->GetData64(DATA_SVALA));
             if (pSvala && pSvala->isAlive())
                 pKiller->Kill(pSvala);
 
             pInstance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, DONE);
         }
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 };
 

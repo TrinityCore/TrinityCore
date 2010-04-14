@@ -101,7 +101,7 @@ struct boss_toravonAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -162,7 +162,7 @@ struct mob_frost_warderAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FROST_BLAST:
-                    DoCast(m_creature->getVictim(), SPELL_FROST_BLAST);
+                    DoCast(me->getVictim(), SPELL_FROST_BLAST);
                     events.ScheduleEvent(EVENT_FROST_BLAST, 20000);
                     return;
             }
@@ -205,7 +205,7 @@ struct mob_frozen_orbAI : public ScriptedAI
         if (killtimer <= diff)
         {
             if (!UpdateVictim())
-                m_creature->ForcedDespawn();
+                me->ForcedDespawn();
             killtimer = 10000;
         }
         else
@@ -236,14 +236,14 @@ struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
         if (!spawned)
         {
             Unit* pToravon;
-            if (pInstance && (pToravon = m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_TORAVON))))
+            if (pInstance && (pToravon = me->GetCreature(*me, pInstance->GetData64(DATA_TORAVON))))
             {
                 uint8 num_orbs = RAID_MODE(1, 3);
                 for (uint8 i=0; i<num_orbs; ++i)
                 {
                     Position pos;
-                    m_creature->GetNearPoint(pToravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
-                    m_creature->SetPosition(pos, true);
+                    me->GetNearPoint(pToravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
+                    me->SetPosition(pos, true);
                     DoCast(me, SPELL_FROZEN_ORB_SUMMON);
                 }
             }
