@@ -70,15 +70,15 @@ struct boss_azuregosAI : public ScriptedAI
 
         if (Teleport_Timer <= diff)
         {
-            DoScriptText(SAY_TELEPORT, m_creature);
-            std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+            DoScriptText(SAY_TELEPORT, me);
+            std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*m_creature), (*i)->getUnitGuid());
+                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
                 if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
                 {
-                    DoTeleportPlayer(pUnit, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+3, pUnit->GetOrientation());
+                    DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, pUnit->GetOrientation());
                 }
             }
 
@@ -89,21 +89,21 @@ struct boss_azuregosAI : public ScriptedAI
         //        //MarkOfFrost_Timer
         //        if (MarkOfFrost_Timer <= diff)
         //        {
-        //            DoCast(m_creature->getVictim(), SPELL_MARKOFFROST);
+        //            DoCast(me->getVictim(), SPELL_MARKOFFROST);
         //            MarkOfFrost_Timer = 25000;
         //        } else MarkOfFrost_Timer -= diff;
 
         //Chill_Timer
         if (Chill_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHILL);
+            DoCast(me->getVictim(), SPELL_CHILL);
             Chill_Timer = 13000 + rand()%12000;
         } else Chill_Timer -= diff;
 
         //Breath_Timer
         if (Breath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROSTBREATH);
+            DoCast(me->getVictim(), SPELL_FROSTBREATH);
             Breath_Timer = 10000 + rand()%5000;
         } else Breath_Timer -= diff;
 
@@ -118,21 +118,21 @@ struct boss_azuregosAI : public ScriptedAI
         //Reflect_Timer
         if (Reflect_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_REFLECT);
+            DoCast(me, SPELL_REFLECT);
             Reflect_Timer = 20000 + rand()%15000;
         } else Reflect_Timer -= diff;
 
         //Cleave_Timer
         if (Cleave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             Cleave_Timer = 7000;
         } else Cleave_Timer -= diff;
 
         //Enrage_Timer
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 26 && !Enraged)
+        if (me->GetHealth()*100 / me->GetMaxHealth() < 26 && !Enraged)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
             Enraged = true;
         }
 

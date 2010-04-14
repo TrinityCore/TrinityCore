@@ -147,12 +147,12 @@ struct boss_aranAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_KILL1,SAY_KILL2), m_creature);
+        DoScriptText(RAND(SAY_KILL1,SAY_KILL2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -163,7 +163,7 @@ struct boss_aranAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
 
         if (pInstance)
         {
@@ -175,7 +175,7 @@ struct boss_aranAI : public ScriptedAI
     void FlameWreathEffect()
     {
         std::vector<Unit*> targets;
-        std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
 
         if (!t_list.size())
             return;
@@ -183,7 +183,7 @@ struct boss_aranAI : public ScriptedAI
         //store the threat list in a different container
         for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
-            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
             //only on alive players
             if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
                 targets.push_back(pTarget);
@@ -246,19 +246,19 @@ struct boss_aranAI : public ScriptedAI
         else FrostCooldown = 0;
         }
 
-        if (!Drinking && m_creature->GetMaxPower(POWER_MANA) && (m_creature->GetPower(POWER_MANA)*100 / m_creature->GetMaxPower(POWER_MANA)) < 20)
+        if (!Drinking && me->GetMaxPower(POWER_MANA) && (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA)) < 20)
         {
             Drinking = true;
-            m_creature->InterruptNonMeleeSpells(false);
+            me->InterruptNonMeleeSpells(false);
 
-            DoScriptText(SAY_DRINK, m_creature);
+            DoScriptText(SAY_DRINK, me);
 
             if (!DrinkInturrupted)
             {
-                DoCast(m_creature, SPELL_MASS_POLY, true);
-                DoCast(m_creature, SPELL_CONJURE, false);
-                DoCast(m_creature, SPELL_DRINK, false);
-                m_creature->SetStandState(UNIT_STAND_STATE_SIT);
+                DoCast(me, SPELL_MASS_POLY, true);
+                DoCast(me, SPELL_CONJURE, false);
+                DoCast(me, SPELL_DRINK, false);
+                me->SetStandState(UNIT_STAND_STATE_SIT);
                 DrinkInturruptTimer = 10000;
             }
         }
@@ -267,10 +267,10 @@ struct boss_aranAI : public ScriptedAI
         if (Drinking && DrinkInturrupted)
         {
             Drinking = false;
-            m_creature->RemoveAurasDueToSpell(SPELL_DRINK);
-            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-            m_creature->SetPower(POWER_MANA, m_creature->GetMaxPower(POWER_MANA)-32000);
-            DoCast(m_creature, SPELL_POTION, false);
+            me->RemoveAurasDueToSpell(SPELL_DRINK);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA)-32000);
+            DoCast(me, SPELL_POTION, false);
         }
 
         //Drink Inturrupt Timer
@@ -279,9 +279,9 @@ struct boss_aranAI : public ScriptedAI
                 DrinkInturruptTimer -= diff;
         else
         {
-            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(m_creature, SPELL_POTION, true);
-            DoCast(m_creature, SPELL_AOE_PYROBLAST, false);
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            DoCast(me, SPELL_POTION, true);
+            DoCast(me, SPELL_AOE_PYROBLAST, false);
             DrinkInturrupted = true;
             Drinking = false;
         }
@@ -293,7 +293,7 @@ struct boss_aranAI : public ScriptedAI
         //Normal casts
         if (NormalCastTimer <= diff)
         {
-            if (!m_creature->IsNonMeleeSpellCasted(false))
+            if (!me->IsNonMeleeSpellCasted(false))
             {
                 Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (!pTarget)
@@ -334,7 +334,7 @@ struct boss_aranAI : public ScriptedAI
             switch (urand(0,1))
             {
                 case 0:
-                    DoCast(m_creature, SPELL_AOE_CS);
+                    DoCast(me, SPELL_AOE_CS);
                     break;
                 case 1:
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -369,16 +369,16 @@ struct boss_aranAI : public ScriptedAI
             switch (LastSuperSpell)
             {
                 case SUPER_AE:
-                    DoScriptText(RAND(SAY_EXPLOSION1,SAY_EXPLOSION2), m_creature);
+                    DoScriptText(RAND(SAY_EXPLOSION1,SAY_EXPLOSION2), me);
 
-                    DoCast(m_creature, SPELL_BLINK_CENTER, true);
-                    DoCast(m_creature, SPELL_PLAYERPULL, true);
-                    DoCast(m_creature, SPELL_MASSSLOW, true);
-                    DoCast(m_creature, SPELL_AEXPLOSION, false);
+                    DoCast(me, SPELL_BLINK_CENTER, true);
+                    DoCast(me, SPELL_PLAYERPULL, true);
+                    DoCast(me, SPELL_MASSSLOW, true);
+                    DoCast(me, SPELL_AEXPLOSION, false);
                     break;
 
                 case SUPER_FLAME:
-                    DoScriptText(RAND(SAY_FLAMEWREATH1,SAY_FLAMEWREATH2), m_creature);
+                    DoScriptText(RAND(SAY_FLAMEWREATH1,SAY_FLAMEWREATH2), me);
 
                     FlameWreathTimer = 20000;
                     FlameWreathCheckTime = 500;
@@ -391,11 +391,11 @@ struct boss_aranAI : public ScriptedAI
                     break;
 
                 case SUPER_BLIZZARD:
-                    DoScriptText(RAND(SAY_BLIZZARD1,SAY_BLIZZARD2), m_creature);
+                    DoScriptText(RAND(SAY_BLIZZARD1,SAY_BLIZZARD2), me);
 
-                    if (Creature* pSpawn = m_creature->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
-                        pSpawn->setFaction(m_creature->getFaction());
+                        pSpawn->setFaction(me->getFaction());
                         pSpawn->CastSpell(pSpawn, SPELL_CIRCULAR_BLIZZARD, false);
                     }
                     break;
@@ -404,34 +404,34 @@ struct boss_aranAI : public ScriptedAI
             SuperCastTimer = urand(35000,40000);
         } else SuperCastTimer -= diff;
 
-        if (!ElementalsSpawned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 40)
+        if (!ElementalsSpawned && me->GetHealth()*100 / me->GetMaxHealth() < 40)
         {
             ElementalsSpawned = true;
 
             for (uint32 i = 0; i < 4; ++i)
             {
-                if (Creature* pUnit = m_creature->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                if (Creature* pUnit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                 {
-                    pUnit->Attack(m_creature->getVictim(), true);
-                    pUnit->setFaction(m_creature->getFaction());
+                    pUnit->Attack(me->getVictim(), true);
+                    pUnit->setFaction(me->getFaction());
                 }
             }
 
-            DoScriptText(SAY_ELEMENTALS, m_creature);
+            DoScriptText(SAY_ELEMENTALS, me);
         }
 
         if (BerserkTimer <= diff)
         {
             for (uint32 i = 0; i < 5; ++i)
             {
-                if (Creature* pUnit = m_creature->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                if (Creature* pUnit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                 {
-                    pUnit->Attack(m_creature->getVictim(), true);
-                    pUnit->setFaction(m_creature->getFaction());
+                    pUnit->Attack(me->getVictim(), true);
+                    pUnit->setFaction(me->getFaction());
                 }
             }
 
-            DoScriptText(SAY_TIMEOVER, m_creature);
+            DoScriptText(SAY_TIMEOVER, me);
 
             BerserkTimer = 60000;
         } else BerserkTimer -= diff;
@@ -450,10 +450,10 @@ struct boss_aranAI : public ScriptedAI
                     if (!FlameWreathTarget[i])
                         continue;
 
-                    Unit* pUnit = Unit::GetUnit(*m_creature, FlameWreathTarget[i]);
+                    Unit* pUnit = Unit::GetUnit(*me, FlameWreathTarget[i]);
                     if (pUnit && !pUnit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                     {
-                        pUnit->CastSpell(pUnit, 20476, true, 0, 0, m_creature->GetGUID());
+                        pUnit->CastSpell(pUnit, 20476, true, 0, 0, me->GetGUID());
                         pUnit->CastSpell(pUnit, 11027, true);
                         FlameWreathTarget[i] = 0;
                     }
@@ -477,11 +477,11 @@ struct boss_aranAI : public ScriptedAI
         //We only care about inturrupt effects and only if they are durring a spell currently being casted
         if ((Spell->Effect[0] != SPELL_EFFECT_INTERRUPT_CAST &&
             Spell->Effect[1] != SPELL_EFFECT_INTERRUPT_CAST &&
-            Spell->Effect[2] != SPELL_EFFECT_INTERRUPT_CAST) || !m_creature->IsNonMeleeSpellCasted(false))
+            Spell->Effect[2] != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCasted(false))
             return;
 
         //Inturrupt effect
-        m_creature->InterruptNonMeleeSpells(false);
+        me->InterruptNonMeleeSpells(false);
 
         //Normally we would set the cooldown equal to the spell duration
         //but we do not have access to the DurationStore
@@ -515,7 +515,7 @@ struct water_elementalAI : public ScriptedAI
 
         if (CastTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WATERBOLT);
+            DoCast(me->getVictim(), SPELL_WATERBOLT);
             CastTimer = urand(2000,5000);
         } else CastTimer -= diff;
     }

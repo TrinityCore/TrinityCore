@@ -89,8 +89,8 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
         m_uiMindControl_Timer = 10000;
         m_bTransformed = false;
 
-        if (m_creature->GetEntry() == NPC_BALNAZZAR)
-            m_creature->UpdateEntry(NPC_DATHROHAN);
+        if (me->GetEntry() == NPC_BALNAZZAR)
+            me->UpdateEntry(NPC_DATHROHAN);
     }
 
     void JustDied(Unit* Victim)
@@ -98,7 +98,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
         static uint32 uiCount = sizeof(m_aSummonPoint)/sizeof(SummonDef);
 
         for (uint8 i=0; i<uiCount; ++i)
-            m_creature->SummonCreature(NPC_ZOMBIE,
+            me->SummonCreature(NPC_ZOMBIE,
             m_aSummonPoint[i].m_fX, m_aSummonPoint[i].m_fY, m_aSummonPoint[i].m_fZ, m_aSummonPoint[i].m_fOrient,
             TEMPSUMMON_TIMED_DESPAWN, HOUR*IN_MILISECONDS);
     }
@@ -118,40 +118,40 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             //MindBlast
             if (m_uiMindBlast_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_MINDBLAST);
+                DoCast(me->getVictim(), SPELL_MINDBLAST);
                 m_uiMindBlast_Timer = 15000 + rand()%5000;
             } else m_uiMindBlast_Timer -= uiDiff;
 
             //CrusadersHammer
             if (m_uiCrusadersHammer_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_CRUSADERSHAMMER);
+                DoCast(me->getVictim(), SPELL_CRUSADERSHAMMER);
                 m_uiCrusadersHammer_Timer = 12000;
             } else m_uiCrusadersHammer_Timer -= uiDiff;
 
             //CrusaderStrike
             if (m_uiCrusaderStrike_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_CRUSADERSTRIKE);
+                DoCast(me->getVictim(), SPELL_CRUSADERSTRIKE);
                 m_uiCrusaderStrike_Timer = 15000;
             } else m_uiCrusaderStrike_Timer -= uiDiff;
 
             //HolyStrike
             if (m_uiHolyStrike_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_HOLYSTRIKE);
+                DoCast(me->getVictim(), SPELL_HOLYSTRIKE);
                 m_uiHolyStrike_Timer = 15000;
             } else m_uiHolyStrike_Timer -= uiDiff;
 
             //BalnazzarTransform
-            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 40)
+            if (me->GetHealth()*100 / me->GetMaxHealth() < 40)
             {
-                if (m_creature->IsNonMeleeSpellCasted(false))
-                    m_creature->InterruptNonMeleeSpells(false);
+                if (me->IsNonMeleeSpellCasted(false))
+                    me->InterruptNonMeleeSpells(false);
 
                 //restore hp, mana and stun
-                DoCast(m_creature, SPELL_BALNAZZARTRANSFORM);
-                m_creature->UpdateEntry(NPC_BALNAZZAR);
+                DoCast(me, SPELL_BALNAZZARTRANSFORM);
+                me->UpdateEntry(NPC_BALNAZZAR);
                 m_bTransformed = true;
             }
         }
@@ -160,14 +160,14 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             //MindBlast
             if (m_uiMindBlast_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_MINDBLAST);
+                DoCast(me->getVictim(), SPELL_MINDBLAST);
                 m_uiMindBlast_Timer = 15000 + rand()%5000;
             } else m_uiMindBlast_Timer -= uiDiff;
 
             //ShadowShock
             if (m_uiShadowShock_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_SHADOWSHOCK);
+                DoCast(me->getVictim(), SPELL_SHADOWSHOCK);
                 m_uiShadowShock_Timer = 11000;
             } else m_uiShadowShock_Timer -= uiDiff;
 
@@ -192,7 +192,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             //MindControl
             if (m_uiMindControl_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_MINDCONTROL);
+                DoCast(me->getVictim(), SPELL_MINDCONTROL);
                 m_uiMindControl_Timer = 15000;
             } else m_uiMindControl_Timer -= uiDiff;
         }

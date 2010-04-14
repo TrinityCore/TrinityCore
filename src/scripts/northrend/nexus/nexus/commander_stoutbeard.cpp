@@ -30,7 +30,7 @@ struct boss_commander_stoutbeardAI : public ScriptedAI
     void Reset() {}
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
     void AttackStart(Unit* who) {}
     void MoveInLineOfSight(Unit* who) {}
@@ -44,7 +44,7 @@ struct boss_commander_stoutbeardAI : public ScriptedAI
     }
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 };
 

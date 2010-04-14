@@ -70,7 +70,7 @@ struct boss_aku_maiAI : public ScriptedAI
 
         if (!bIsEnraged && HealthBelowPct(30))
         {
-            DoCast(m_creature,SPELL_FRENZIED_RAGE);
+            DoCast(me,SPELL_FRENZIED_RAGE);
             bIsEnraged = true;
         }
 

@@ -142,8 +142,8 @@ struct npc_cooshcooshAI : public ScriptedAI
     void Reset()
     {
         LightningBolt_Timer = 2000;
-        if (m_creature->getFaction() != m_uiNormFaction)
-            m_creature->setFaction(m_uiNormFaction);
+        if (me->getFaction() != m_uiNormFaction)
+            me->setFaction(m_uiNormFaction);
     }
 
     void EnterCombat(Unit *who) {}
@@ -155,7 +155,7 @@ struct npc_cooshcooshAI : public ScriptedAI
 
         if (LightningBolt_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_LIGHTNING_BOLT);
+            DoCast(me->getVictim(), SPELL_LIGHTNING_BOLT);
             LightningBolt_Timer = 5000;
         } else LightningBolt_Timer -= diff;
 
@@ -294,26 +294,26 @@ struct npc_kayra_longmaneAI : public npc_escortAI
         switch(i)
         {
             case 4:
-                DoScriptText(SAY_AMBUSH1, m_creature, pPlayer);
+                DoScriptText(SAY_AMBUSH1, me, pPlayer);
                 DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 5:
-                DoScriptText(SAY_PROGRESS, m_creature, pPlayer);
+                DoScriptText(SAY_PROGRESS, me, pPlayer);
                 SetRun();
                 break;
             case 16:
-                DoScriptText(SAY_AMBUSH2, m_creature, pPlayer);
+                DoScriptText(SAY_AMBUSH2, me, pPlayer);
                 DoSpawnCreature(NPC_SLAVEBINDER, -10.0f, -5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 DoSpawnCreature(NPC_SLAVEBINDER, -8.0f, 5.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                 break;
             case 17:
                 SetRun(false);
-                DoScriptText(SAY_NEAR_END, m_creature, pPlayer);
+                DoScriptText(SAY_NEAR_END, me, pPlayer);
                 break;
             case 25:
-                DoScriptText(SAY_END, m_creature, pPlayer);
-                pPlayer->GroupEventHappens(QUEST_ESCAPE_FROM, m_creature);
+                DoScriptText(SAY_END, me, pPlayer);
+                pPlayer->GroupEventHappens(QUEST_ESCAPE_FROM, me);
                 break;
         }
     }

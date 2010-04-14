@@ -40,15 +40,15 @@ GuardAI::GuardAI(Creature *c) : CreatureAI(c), i_victimGuid(0), i_state(STATE_NO
 void GuardAI::MoveInLineOfSight(Unit *u)
 {
     // Ignore Z for flying creatures
-    if (!m_creature->canFly() && m_creature->GetDistanceZ(u) > CREATURE_Z_ATTACK_RANGE)
+    if (!me->canFly() && me->GetDistanceZ(u) > CREATURE_Z_ATTACK_RANGE)
         return;
 
-    if (!m_creature->getVictim() && m_creature->canAttack(u) &&
-        (u->IsHostileToPlayers() || m_creature->IsHostileTo(u) /*|| u->getVictim() && m_creature->IsFriendlyTo(u->getVictim())*/) &&
-        u->isInAccessiblePlaceFor(m_creature))
+    if (!me->getVictim() && me->canAttack(u) &&
+        (u->IsHostileToPlayers() || me->IsHostileTo(u) /*|| u->getVictim() && me->IsFriendlyTo(u->getVictim())*/) &&
+        u->isInAccessiblePlaceFor(me))
     {
-        float attackRadius = m_creature->GetAttackDistance(u);
-        if (m_creature->IsWithinDistInMap(u,attackRadius))
+        float attackRadius = me->GetAttackDistance(u);
+        if (me->IsWithinDistInMap(u,attackRadius))
         {
             //Need add code to let guard support player
             AttackStart(u);
@@ -59,80 +59,80 @@ void GuardAI::MoveInLineOfSight(Unit *u)
 
 void GuardAI::EnterEvadeMode()
 {
-    if (!m_creature->isAlive())
+    if (!me->isAlive())
     {
-        DEBUG_LOG("Creature stopped attacking because he's dead [guid=%u]", m_creature->GetGUIDLow());
-        m_creature->GetMotionMaster()->MoveIdle();
+        DEBUG_LOG("Creature stopped attacking because he's dead [guid=%u]", me->GetGUIDLow());
+        me->GetMotionMaster()->MoveIdle();
 
         i_state = STATE_NORMAL;
 
         i_victimGuid = 0;
-        m_creature->CombatStop(true);
-        m_creature->DeleteThreatList();
+        me->CombatStop(true);
+        me->DeleteThreatList();
         return;
     }
 
-    Unit* victim = ObjectAccessor::GetUnit(*m_creature, i_victimGuid);
+    Unit* victim = ObjectAccessor::GetUnit(*me, i_victimGuid);
 
     if (!victim)
     {
-        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", m_creature->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", me->GetGUIDLow());
     }
     else if (!victim ->isAlive())
     {
-        DEBUG_LOG("Creature stopped attacking because victim is dead [guid=%u]", m_creature->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim is dead [guid=%u]", me->GetGUIDLow());
     }
     else if (victim ->HasStealthAura())
     {
-        DEBUG_LOG("Creature stopped attacking because victim is using stealth [guid=%u]", m_creature->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim is using stealth [guid=%u]", me->GetGUIDLow());
     }
     else if (victim ->isInFlight())
     {
-        DEBUG_LOG("Creature stopped attacking because victim is flying away [guid=%u]", m_creature->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim is flying away [guid=%u]", me->GetGUIDLow());
     }
     else
     {
-        DEBUG_LOG("Creature stopped attacking because victim outran him [guid=%u]", m_creature->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim outran him [guid=%u]", me->GetGUIDLow());
     }
 
-    m_creature->RemoveAllAuras();
-    m_creature->DeleteThreatList();
+    me->RemoveAllAuras();
+    me->DeleteThreatList();
     i_victimGuid = 0;
-    m_creature->CombatStop(true);
+    me->CombatStop(true);
     i_state = STATE_NORMAL;
 
     // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
-        m_creature->GetMotionMaster()->MoveTargetedHome();
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+        me->GetMotionMaster()->MoveTargetedHome();
 }
 
 void GuardAI::UpdateAI(const uint32 /*diff*/)
 {
-    // update i_victimGuid if m_creature->getVictim() !=0 and changed
+    // update i_victimGuid if me->getVictim() !=0 and changed
     if (!UpdateVictim())
         return;
 
-    i_victimGuid = m_creature->getVictim()->GetGUID();
+    i_victimGuid = me->getVictim()->GetGUID();
 
-    if (m_creature->isAttackReady())
+    if (me->isAttackReady())
     {
-        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (me->IsWithinMeleeRange(me->getVictim()))
         {
-            m_creature->AttackerStateUpdate(m_creature->getVictim());
-            m_creature->resetAttackTimer();
+            me->AttackerStateUpdate(me->getVictim());
+            me->resetAttackTimer();
         }
     }
 }
 
 bool GuardAI::IsVisible(Unit *pl) const
 {
-    return m_creature->IsWithinDist(pl,sWorld.getConfig(CONFIG_SIGHT_GUARDER))
-        && pl->isVisibleForOrDetect(m_creature,true);
+    return me->IsWithinDist(pl,sWorld.getConfig(CONFIG_SIGHT_GUARDER))
+        && pl->isVisibleForOrDetect(me,true);
 }
 
 void GuardAI::JustDied(Unit *killer)
 {
     if (Player* pkiller = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-        m_creature->SendZoneUnderAttackMessage(pkiller);
+        me->SendZoneUnderAttackMessage(pkiller);
 }
 

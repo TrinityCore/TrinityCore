@@ -71,8 +71,8 @@ struct boss_gythAI : public ScriptedAI
             Line2Count = 2;
 
         //Invisible for event start
-        m_creature->SetDisplayId(11686);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetDisplayId(11686);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void EnterCombat(Unit *who)
@@ -81,7 +81,7 @@ struct boss_gythAI : public ScriptedAI
 
     void SummonCreatureWithRandomTarget(uint32 creatureId)
     {
-        Unit* Summoned = m_creature->SummonCreature(creatureId, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240000);
+        Unit* Summoned = me->SummonCreature(creatureId, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240000);
         if (Summoned)
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
@@ -100,8 +100,8 @@ struct boss_gythAI : public ScriptedAI
 
         if (!RootSelf)
         {
-            //m_creature->m_canMove = true;
-            DoCast(m_creature, 33356);
+            //me->m_canMove = true;
+            DoCast(me, 33356);
             RootSelf = true;
         }
 
@@ -111,9 +111,9 @@ struct boss_gythAI : public ScriptedAI
             {
                 bAggro = true;
                 // Visible now!
-                m_creature->SetDisplayId(9723);
-                m_creature->setFaction(14);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->SetDisplayId(9723);
+                me->setFaction(14);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             } else Aggro_Timer -= diff;
         }
 
@@ -153,34 +153,34 @@ struct boss_gythAI : public ScriptedAI
             // CorrosiveAcid_Timer
             if (CorrosiveAcid_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_CORROSIVEACID);
+                DoCast(me->getVictim(), SPELL_CORROSIVEACID);
                 CorrosiveAcid_Timer = 7000;
             } else CorrosiveAcid_Timer -= diff;
 
             // Freeze_Timer
             if (Freeze_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_FREEZE);
+                DoCast(me->getVictim(), SPELL_FREEZE);
                 Freeze_Timer = 16000;
             } else Freeze_Timer -= diff;
 
             // Flamebreath_Timer
             if (Flamebreath_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_FLAMEBREATH);
+                DoCast(me->getVictim(), SPELL_FLAMEBREATH);
                 Flamebreath_Timer = 10500;
             } else Flamebreath_Timer -= diff;
 
             //Summon Rend
-            if (!SummonedRend && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 11
-                && m_creature->GetHealth() > 0)
+            if (!SummonedRend && me->GetHealth()*100 / me->GetMaxHealth() < 11
+                && me->GetHealth() > 0)
             {
                 //summon Rend and Change model to normal Gyth
                 //Inturrupt any spell casting
-                m_creature->InterruptNonMeleeSpells(false);
+                me->InterruptNonMeleeSpells(false);
                 //Gyth model
-                m_creature->SetDisplayId(9806);
-                m_creature->SummonCreature(10429, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000);
+                me->SetDisplayId(9806);
+                me->SummonCreature(10429, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000);
                 SummonedRend = true;
             }
 

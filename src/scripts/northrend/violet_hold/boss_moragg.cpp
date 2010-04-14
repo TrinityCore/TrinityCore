@@ -64,14 +64,14 @@ struct boss_moraggAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->AddThreat(pWho, 0.0f);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
             DoStartMovement(pWho);
         }
     }
@@ -93,7 +93,7 @@ struct boss_moraggAI : public ScriptedAI
 
         if (uiCorrosiveSalivaTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CORROSIVE_SALIVA);
+            DoCast(me->getVictim(), SPELL_CORROSIVE_SALIVA);
             uiCorrosiveSalivaTimer = 10000;
         } else uiCorrosiveSalivaTimer -= diff;
 

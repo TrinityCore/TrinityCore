@@ -64,17 +64,17 @@ struct boss_epoch_hunterAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2), m_creature);
+        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2), me);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
             pInstance->SetData(TYPE_THRALL_PART4, DONE);
@@ -89,19 +89,19 @@ struct boss_epoch_hunterAI : public ScriptedAI
         //Sand Breath
         if (SandBreath_Timer <= diff)
         {
-            if (m_creature->IsNonMeleeSpellCasted(false))
-                m_creature->InterruptNonMeleeSpells(false);
+            if (me->IsNonMeleeSpellCasted(false))
+                me->InterruptNonMeleeSpells(false);
 
-            DoCast(m_creature->getVictim(), SPELL_SAND_BREATH);
+            DoCast(me->getVictim(), SPELL_SAND_BREATH);
 
-            DoScriptText(RAND(SAY_BREATH1,SAY_BREATH2), m_creature);
+            DoScriptText(RAND(SAY_BREATH1,SAY_BREATH2), me);
 
             SandBreath_Timer = 10000 + rand()%10000;
         } else SandBreath_Timer -= diff;
 
         if (ImpendingDeath_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_IMPENDING_DEATH);
+            DoCast(me->getVictim(), SPELL_IMPENDING_DEATH);
             ImpendingDeath_Timer = 25000+rand()%5000;
         } else ImpendingDeath_Timer -= diff;
 
@@ -114,7 +114,7 @@ struct boss_epoch_hunterAI : public ScriptedAI
 
         if (Mda_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_MAGIC_DISRUPTION_AURA);
+            DoCast(me, SPELL_MAGIC_DISRUPTION_AURA);
             Mda_Timer = 15000;
         } else Mda_Timer -= diff;
 

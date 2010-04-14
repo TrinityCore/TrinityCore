@@ -55,12 +55,12 @@ struct boss_lajAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetDisplayId(MODEL_DEFAULT);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-        m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+        me->SetDisplayId(MODEL_DEFAULT);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+        me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
 
         CanSummon = false;
         Teleport_Timer = 20000;
@@ -74,44 +74,44 @@ struct boss_lajAI : public ScriptedAI
         switch(rand()%5)
         {
             case 0:
-                m_creature->SetDisplayId(MODEL_DEFAULT);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+                me->SetDisplayId(MODEL_DEFAULT);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, true);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 1:
-                m_creature->SetDisplayId(MODEL_ARCANE);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+                me->SetDisplayId(MODEL_ARCANE);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 2:
-                m_creature->SetDisplayId(MODEL_FIRE);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+                me->SetDisplayId(MODEL_FIRE);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 3:
-                m_creature->SetDisplayId(MODEL_FROST);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
+                me->SetDisplayId(MODEL_FROST);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, true);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, false);
                 break;
             case 4:
-                m_creature->SetDisplayId(MODEL_NATURE);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
+                me->SetDisplayId(MODEL_NATURE);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_SHADOW, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FROST, false);
+                me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_NATURE, true);
                 break;
         }
     }
@@ -121,20 +121,20 @@ struct boss_lajAI : public ScriptedAI
         switch(rand()%4)
         {
             case 0:
-                DoCast(m_creature, SPELL_SUMMON_LASHER_1, true);
-                DoCast(m_creature, SPELL_SUMMON_FLAYER_1, true);
+                DoCast(me, SPELL_SUMMON_LASHER_1, true);
+                DoCast(me, SPELL_SUMMON_FLAYER_1, true);
                 break;
             case 1:
-                DoCast(m_creature, SPELL_SUMMON_LASHER_2, true);
-                DoCast(m_creature, SPELL_SUMMON_FLAYER_2, true);
+                DoCast(me, SPELL_SUMMON_LASHER_2, true);
+                DoCast(me, SPELL_SUMMON_FLAYER_2, true);
                 break;
             case 2:
-                DoCast(m_creature, SPELL_SUMMON_LASHER_3, true);
-                DoCast(m_creature, SPELL_SUMMON_FLAYER_3, true);
+                DoCast(me, SPELL_SUMMON_LASHER_3, true);
+                DoCast(me, SPELL_SUMMON_FLAYER_3, true);
                 break;
             case 3:
-                DoCast(m_creature, SPELL_SUMMON_LASHER_4, true);
-                DoCast(m_creature, SPELL_SUMMON_FLAYER_4, true);
+                DoCast(me, SPELL_SUMMON_LASHER_4, true);
+                DoCast(me, SPELL_SUMMON_FLAYER_4, true);
                 break;
         }
         CanSummon = false;
@@ -146,7 +146,7 @@ struct boss_lajAI : public ScriptedAI
 
     void JustSummoned(Creature *summon)
     {
-        if (summon && m_creature->getVictim())
+        if (summon && me->getVictim())
             summon->AI()->AttackStart(SelectUnit(SELECT_TARGET_RANDOM, 0));
     }
 
@@ -159,7 +159,7 @@ struct boss_lajAI : public ScriptedAI
         {
             if (Summon_Timer <= diff)
             {
-                DoScriptText(EMOTE_SUMMON, m_creature);
+                DoScriptText(EMOTE_SUMMON, me);
                 DoSummons();
                 Summon_Timer = 2500;
             } else Summon_Timer -= diff;
@@ -167,13 +167,13 @@ struct boss_lajAI : public ScriptedAI
 
         if (Allergic_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ALLERGIC_REACTION);
+            DoCast(me->getVictim(), SPELL_ALLERGIC_REACTION);
             Allergic_Timer = 25000+rand()%15000;
         } else Allergic_Timer -= diff;
 
         if (Teleport_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_TELEPORT_SELF);
+            DoCast(me, SPELL_TELEPORT_SELF);
             Teleport_Timer = 30000+rand()%10000;
             CanSummon = true;
         } else Teleport_Timer -= diff;

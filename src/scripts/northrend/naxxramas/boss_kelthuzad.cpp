@@ -254,7 +254,7 @@ struct boss_kelthuzadAI : public BossAI
 {
     boss_kelthuzadAI(Creature* c) : BossAI(c, BOSS_KELTHUZAD), spawns(c)
     {
-        uiFaction = m_creature->getFaction();
+        uiFaction = me->getFaction();
     }
 
     uint32 Phase;
@@ -293,7 +293,7 @@ struct boss_kelthuzadAI : public BossAI
 
         FindGameObjects();
 
-        if (GameObject *pKTTrigger = m_creature->GetMap()->GetGameObject(KTTriggerGUID))
+        if (GameObject *pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
         {
             pKTTrigger->ResetDoorOrButton();
             pKTTrigger->SetPhaseMask(1, true);
@@ -301,7 +301,7 @@ struct boss_kelthuzadAI : public BossAI
 
         for (uint8 i = 0; i <= 3; ++i)
         {
-            if (GameObject *pPortal = m_creature->GetMap()->GetGameObject(PortalsGUID[i]))
+            if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
             {
                 if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
                     pPortal->ResetDoorOrButton();
@@ -318,13 +318,13 @@ struct boss_kelthuzadAI : public BossAI
 
     void KilledUnit()
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit* Killer)
     {
         _JustDied();
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         std::map<uint64, float>::const_iterator itr;
         for (itr = chained.begin(); itr != chained.end(); ++itr)
@@ -343,7 +343,7 @@ struct boss_kelthuzadAI : public BossAI
         FindGameObjects();
         for (uint8 i = 0; i <= 3; ++i)
         {
-            if (GameObject *pPortal = m_creature->GetMap()->GetGameObject(PortalsGUID[i]))
+            if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                 pPortal->ResetDoorOrButton();
         }
         DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
@@ -406,7 +406,7 @@ struct boss_kelthuzadAI : public BossAI
                             events.PopEvent();
                         break;
                     case EVENT_TRIGGER:
-                        if (GameObject *pKTTrigger = m_creature->GetMap()->GetGameObject(KTTriggerGUID))
+                        if (GameObject *pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
                             pKTTrigger->SetPhaseMask(2, true);
                         events.PopEvent();
                         break;
@@ -441,14 +441,14 @@ struct boss_kelthuzadAI : public BossAI
                 if (HealthBelowPct(45))
                 {
                     Phase = 3 ;
-                    DoScriptText(SAY_REQUEST_AID, m_creature);
+                    DoScriptText(SAY_REQUEST_AID, me);
                     //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
                     //so for now just make Kelthuzad says it.
-                    DoScriptText(SAY_ANSWER_REQUEST, m_creature);
+                    DoScriptText(SAY_ANSWER_REQUEST, me);
 
                     for (uint8 i = 0; i <= 3; ++i)
                     {
-                        if (GameObject *pPortal = m_creature->GetMap()->GetGameObject(PortalsGUID[i]))
+                        if (GameObject *pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                         {
                             if (pPortal->getLootState() == GO_READY)
                                 pPortal->UseDoorOrButton();
@@ -529,7 +529,7 @@ struct boss_kelthuzadAI : public BossAI
                                             if (urand(0,1))
                                                 player->CastSpell(pTarget, SPELL_MOONFIRE, false);
                                             else
-                                                player->CastSpell(m_creature, SPELL_LIFEBLOOM, false);
+                                                player->CastSpell(me, SPELL_LIFEBLOOM, false);
                                             break;
                                         case CLASS_HUNTER:
                                             player->CastSpell(pTarget, RAND(SPELL_MULTI_SHOT, SPELL_VOLLEY), false);
@@ -547,19 +547,19 @@ struct boss_kelthuzadAI : public BossAI
                                             if (urand(0,1))
                                                 player->CastSpell(pTarget, SPELL_HAMMER_OF_JUSTICE, false);
                                             else
-                                                player->CastSpell(m_creature, SPELL_HOLY_SHOCK, false);
+                                                player->CastSpell(me, SPELL_HOLY_SHOCK, false);
                                             break;
                                         case CLASS_PRIEST:
                                             if (urand(0,1))
                                                 player->CastSpell(pTarget, SPELL_VAMPIRIC_TOUCH, false);
                                             else
-                                                player->CastSpell(m_creature, SPELL_RENEW, false);
+                                                player->CastSpell(me, SPELL_RENEW, false);
                                             break;
                                         case CLASS_SHAMAN:
                                             if (urand(0,1))
                                                 player->CastSpell(pTarget, SPELL_EARTH_SHOCK, false);
                                             else
-                                                player->CastSpell(m_creature, SPELL_HEALING_WAVE, false);
+                                                player->CastSpell(me, SPELL_HEALING_WAVE, false);
                                             break;
                                         case CLASS_ROGUE:
                                             player->CastSpell(pTarget, RAND(SPELL_HEMORRHAGE, SPELL_MUTILATE), false);
@@ -615,7 +615,7 @@ struct boss_kelthuzadAI : public BossAI
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1,0), 0, true))
                             DoCast(pTarget, SPELL_FROST_BLAST);
                         if (rand()%2)
-                            DoScriptText(SAY_FROST_BLAST, m_creature);
+                            DoScriptText(SAY_FROST_BLAST, me);
                         events.RepeatEvent(urand(30000,90000));
                         break;
                     default:

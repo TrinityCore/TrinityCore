@@ -150,8 +150,8 @@ struct npc_sylvanas_fosAI: public ScriptedAI
 {
     npc_sylvanas_fosAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = m_creature->GetInstanceData();
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        pInstance = me->GetInstanceData();
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
 
     ScriptedInstance* pInstance;
@@ -172,7 +172,7 @@ struct npc_sylvanas_fosAI: public ScriptedAI
             case ACTION_INTRO:
             {
                 phase = PHASE_INTRO;
-                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
                 events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
@@ -190,32 +190,32 @@ struct npc_sylvanas_fosAI: public ScriptedAI
             switch(events.ExecuteEvent())
             {
                 case EVENT_INTRO_1:
-                    DoScriptText(SAY_SYLVANAS_INTRO_1, m_creature);
+                    DoScriptText(SAY_SYLVANAS_INTRO_1, me);
                     events.ScheduleEvent(EVENT_INTRO_2, 11500);
                     break;
 
                 case EVENT_INTRO_2:
-                    DoScriptText(SAY_SYLVANAS_INTRO_2, m_creature);
+                    DoScriptText(SAY_SYLVANAS_INTRO_2, me);
                     events.ScheduleEvent(EVENT_INTRO_3, 10500);
                     break;
 
                 case EVENT_INTRO_3:
-                    DoScriptText(SAY_SYLVANAS_INTRO_3, m_creature);
+                    DoScriptText(SAY_SYLVANAS_INTRO_3, me);
                     events.ScheduleEvent(EVENT_INTRO_4, 9500);
                     break;
 
                 case EVENT_INTRO_4:
-                    DoScriptText(SAY_SYLVANAS_INTRO_4, m_creature);
+                    DoScriptText(SAY_SYLVANAS_INTRO_4, me);
                     events.ScheduleEvent(EVENT_INTRO_5, 10500);
                     break;
 
                 case EVENT_INTRO_5:
-                    DoScriptText(SAY_SYLVANAS_INTRO_5, m_creature);
+                    DoScriptText(SAY_SYLVANAS_INTRO_5, me);
                     events.ScheduleEvent(EVENT_INTRO_6, 9500);
                     break;
 
                 case EVENT_INTRO_6:
-                    DoScriptText(SAY_SYLVANAS_INTRO_6, m_creature);
+                    DoScriptText(SAY_SYLVANAS_INTRO_6, me);
                     // End of Intro
                     phase = PHASE_NORMAL;
                     break;
@@ -228,7 +228,7 @@ struct npc_sylvanas_fosAI: public ScriptedAI
 
         events.Update(diff);
 
-        //if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        //if (me->hasUnitState(UNIT_STAT_CASTING))
         //    return;
 
         //while(uint32 eventId = events.ExecuteEvent())
@@ -246,8 +246,8 @@ struct npc_jaina_fosAI: public ScriptedAI
 {
     npc_jaina_fosAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = m_creature->GetInstanceData();
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        pInstance = me->GetInstanceData();
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
 
     ScriptedInstance* pInstance;
@@ -268,7 +268,7 @@ struct npc_jaina_fosAI: public ScriptedAI
             case ACTION_INTRO:
             {
                 phase = PHASE_INTRO;
-                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
                 events.Reset();
                 events.ScheduleEvent(EVENT_INTRO_1, 1000);
             }
@@ -286,42 +286,42 @@ struct npc_jaina_fosAI: public ScriptedAI
             switch(events.ExecuteEvent())
             {
                 case EVENT_INTRO_1:
-                    DoScriptText(SAY_JAINA_INTRO_1, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_1, me);
                     events.ScheduleEvent(EVENT_INTRO_2, 8000);
                     break;
 
                 case EVENT_INTRO_2:
-                    DoScriptText(SAY_JAINA_INTRO_2, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_2, me);
                     events.ScheduleEvent(EVENT_INTRO_3, 8500);
                     break;
 
                 case EVENT_INTRO_3:
-                    DoScriptText(SAY_JAINA_INTRO_3, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_3, me);
                     events.ScheduleEvent(EVENT_INTRO_4, 8000);
                     break;
 
                 case EVENT_INTRO_4:
-                    DoScriptText(SAY_JAINA_INTRO_4, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_4, me);
                     events.ScheduleEvent(EVENT_INTRO_5, 10000);
                     break;
 
                 case EVENT_INTRO_5:
-                    DoScriptText(SAY_JAINA_INTRO_5, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_5, me);
                     events.ScheduleEvent(EVENT_INTRO_6, 8000);
                     break;
 
                 case EVENT_INTRO_6:
-                    DoScriptText(SAY_JAINA_INTRO_6, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_6, me);
                     events.ScheduleEvent(EVENT_INTRO_7, 12000);
                     break;
 
                 case EVENT_INTRO_7:
-                    DoScriptText(SAY_JAINA_INTRO_7, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_7, me);
                     events.ScheduleEvent(EVENT_INTRO_8, 8000);
                     break;
 
                 case EVENT_INTRO_8:
-                    DoScriptText(SAY_JAINA_INTRO_8, m_creature);
+                    DoScriptText(SAY_JAINA_INTRO_8, me);
                     // End of Intro
                     phase = PHASE_NORMAL;
                     break;
@@ -334,7 +334,7 @@ struct npc_jaina_fosAI: public ScriptedAI
 
         events.Update(diff);
 
-        //if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        //if (me->hasUnitState(UNIT_STAT_CASTING))
         //    return;
 
         //while(uint32 eventId = events.ExecuteEvent())
@@ -403,7 +403,7 @@ struct mob_spiteful_apparitionAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -411,7 +411,7 @@ struct mob_spiteful_apparitionAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SPITE:
-                    DoCast(m_creature->getVictim(), SPELL_SPITE);
+                    DoCast(me->getVictim(), SPELL_SPITE);
                     events.RescheduleEvent(EVENT_SPITE, 8000);
                     return;
             }
@@ -448,7 +448,7 @@ struct mob_spectral_wardenAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -456,7 +456,7 @@ struct mob_spectral_wardenAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_VEIL_OF_SHADOWS:
-                    DoCast(m_creature->getVictim(), SPELL_VEIL_OF_SHADOWS);
+                    DoCast(me->getVictim(), SPELL_VEIL_OF_SHADOWS);
                     events.RescheduleEvent(EVENT_VEIL_OF_SHADOWS, 10000);
                     return;
                 case EVENT_WAIL_OF_SOULS:
@@ -497,7 +497,7 @@ struct mob_soulguard_watchmanAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -505,11 +505,11 @@ struct mob_soulguard_watchmanAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SHROUD_OF_RUNES:
-                    DoCast(m_creature, SPELL_SHROUD_OF_RUNES);
+                    DoCast(me, SPELL_SHROUD_OF_RUNES);
                     events.RescheduleEvent(EVENT_SHROUD_OF_RUNES, 5000);
                     return;
                 case EVENT_UNHOLY_RAGE:
-                    DoCast(m_creature, SPELL_UNHOLY_RAGE);
+                    DoCast(me, SPELL_UNHOLY_RAGE);
                     events.RescheduleEvent(EVENT_UNHOLY_RAGE, 99999);
                     return;
             }
@@ -545,7 +545,7 @@ struct mob_soulguard_reaperAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -553,7 +553,7 @@ struct mob_soulguard_reaperAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FROST_NOVA:
-                    DoCast(m_creature, SPELL_FROST_NOVA);
+                    DoCast(me, SPELL_FROST_NOVA);
                     events.RescheduleEvent(EVENT_FROST_NOVA, 9600);
                     return;
                 case EVENT_SHADOW_LANCE:
@@ -596,7 +596,7 @@ struct  mob_soulguard_bonecasterAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -608,11 +608,11 @@ struct  mob_soulguard_bonecasterAI: public ScriptedAI
                     events.RescheduleEvent(EVENT_BONE_VOLLEY, 7000);
                     return;
                 case EVENT_RAISE_DEAD:
-                    DoCast(m_creature, SPELL_RAISE_DEAD);
+                    DoCast(me, SPELL_RAISE_DEAD);
                     events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                     return;
                 case EVENT_SHIELD_OF_BONES:
-                    DoCast(m_creature, SPELL_SHIELD_OF_BONES);
+                    DoCast(me, SPELL_SHIELD_OF_BONES);
                     events.RescheduleEvent(EVENT_SHIELD_OF_BONES, 8000);
                     return;
             }
@@ -651,7 +651,7 @@ struct mob_soulguard_animatorAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -659,7 +659,7 @@ struct mob_soulguard_animatorAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_RAISE_DEAD:
-                    DoCast(m_creature, SPELL_RAISE_DEAD);
+                    DoCast(me, SPELL_RAISE_DEAD);
                     events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                     return;
                 case EVENT_SHADOW_BOLT:
@@ -713,7 +713,7 @@ struct mob_soulguard_adeptAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -721,7 +721,7 @@ struct mob_soulguard_adeptAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_RAISE_DEAD:
-                    DoCast(m_creature, SPELL_RAISE_DEAD);
+                    DoCast(me, SPELL_RAISE_DEAD);
                     events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                     return;
                 case EVENT_SHADOW_BOLT:
@@ -735,7 +735,7 @@ struct mob_soulguard_adeptAI: public ScriptedAI
                     events.RescheduleEvent(EVENT_DRAIN_LIFE, 9000);
                     return;
                 case EVENT_SHADOW_MEND:
-                    DoCast(m_creature, SPELL_SHADOW_MEND);
+                    DoCast(me, SPELL_SHADOW_MEND);
                     events.RescheduleEvent(EVENT_SHADOW_MEND, 20000);
                     return;
             }
@@ -771,7 +771,7 @@ struct mob_soul_horrorAI: public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while(uint32 eventId = events.ExecuteEvent())
@@ -779,7 +779,7 @@ struct mob_soul_horrorAI: public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SOUL_STRIKE:
-                    DoCast(m_creature->getVictim(), SPELL_SOUL_STRIKE);
+                    DoCast(me->getVictim(), SPELL_SOUL_STRIKE);
                     events.RescheduleEvent(EVENT_SOUL_STRIKE, 8000);
                     return;
             }

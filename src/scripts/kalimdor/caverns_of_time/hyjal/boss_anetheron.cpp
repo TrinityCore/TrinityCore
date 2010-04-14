@@ -74,8 +74,8 @@ struct boss_anetheronAI : public hyjal_trashAI
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
-        DoPlaySoundToSet(m_creature, SOUND_ONAGGRO);
-        m_creature->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+        DoPlaySoundToSet(me, SOUND_ONAGGRO);
+        me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
     }
 
     void KilledUnit(Unit *victim)
@@ -83,16 +83,16 @@ struct boss_anetheronAI : public hyjal_trashAI
         switch (urand(0,2))
         {
             case 0:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY1);
-                m_creature->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
+                DoPlaySoundToSet(me, SOUND_ONSLAY1);
+                me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, 0);
                 break;
             case 1:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY2);
-                m_creature->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
+                DoPlaySoundToSet(me, SOUND_ONSLAY2);
+                me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, 0);
                 break;
             case 2:
-                DoPlaySoundToSet(m_creature, SOUND_ONSLAY3);
-                m_creature->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
+                DoPlaySoundToSet(me, SOUND_ONSLAY3);
+                me->MonsterYell(SAY_ONSLAY3, LANG_UNIVERSAL, 0);
                 break;
         }
     }
@@ -102,9 +102,9 @@ struct boss_anetheronAI : public hyjal_trashAI
         pos = i;
         if (i == 7 && pInstance)
         {
-            Unit *pTarget = Unit::GetUnit((*m_creature), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+            Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
             if (pTarget && pTarget->isAlive())
-                m_creature->AddThreat(pTarget,0.0);
+                me->AddThreat(pTarget,0.0);
         }
     }
 
@@ -113,8 +113,8 @@ struct boss_anetheronAI : public hyjal_trashAI
         hyjal_trashAI::JustDied(victim);
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_ANETHERONEVENT, DONE);
-        DoPlaySoundToSet(m_creature, SOUND_ONDEATH);
-        m_creature->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
+        DoPlaySoundToSet(me, SOUND_ONDEATH);
+        me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
     }
 
     void UpdateAI(const uint32 diff)
@@ -155,12 +155,12 @@ struct boss_anetheronAI : public hyjal_trashAI
             switch (urand(0,1))
             {
                 case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_SWARM1);
-                    m_creature->MonsterYell(SAY_SWARM1, LANG_UNIVERSAL, 0);
+                    DoPlaySoundToSet(me, SOUND_SWARM1);
+                    me->MonsterYell(SAY_SWARM1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_SWARM2);
-                    m_creature->MonsterYell(SAY_SWARM2, LANG_UNIVERSAL, 0);
+                    DoPlaySoundToSet(me, SOUND_SWARM2);
+                    me->MonsterYell(SAY_SWARM2, LANG_UNIVERSAL, 0);
                     break;
             }
         } else SwarmTimer -= diff;
@@ -176,18 +176,18 @@ struct boss_anetheronAI : public hyjal_trashAI
             switch (urand(0,1))
             {
                 case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_SLEEP1);
-                    m_creature->MonsterYell(SAY_SLEEP1, LANG_UNIVERSAL, 0);
+                    DoPlaySoundToSet(me, SOUND_SLEEP1);
+                    me->MonsterYell(SAY_SLEEP1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_SLEEP2);
-                    m_creature->MonsterYell(SAY_SLEEP2, LANG_UNIVERSAL, 0);
+                    DoPlaySoundToSet(me, SOUND_SLEEP2);
+                    me->MonsterYell(SAY_SLEEP2, LANG_UNIVERSAL, 0);
                     break;
             }
         } else SleepTimer -= diff;
         if (AuraTimer <= diff)
         {
-            DoCast(m_creature, SPELL_VAMPIRIC_AURA, true);
+            DoCast(me, SPELL_VAMPIRIC_AURA, true);
             AuraTimer = urand(10000,20000);
         } else AuraTimer -= diff;
         if (InfernoTimer <= diff)
@@ -197,12 +197,12 @@ struct boss_anetheronAI : public hyjal_trashAI
             switch (urand(0,1))
             {
                 case 0:
-                    DoPlaySoundToSet(m_creature, SOUND_INFERNO1);
-                    m_creature->MonsterYell(SAY_INFERNO1, LANG_UNIVERSAL, 0);
+                    DoPlaySoundToSet(me, SOUND_INFERNO1);
+                    me->MonsterYell(SAY_INFERNO1, LANG_UNIVERSAL, 0);
                     break;
                 case 1:
-                    DoPlaySoundToSet(m_creature, SOUND_INFERNO2);
-                    m_creature->MonsterYell(SAY_INFERNO2, LANG_UNIVERSAL, 0);
+                    DoPlaySoundToSet(me, SOUND_INFERNO2);
+                    me->MonsterYell(SAY_INFERNO2, LANG_UNIVERSAL, 0);
                     break;
             }
         } else InfernoTimer -= diff;
@@ -235,7 +235,7 @@ struct mob_towering_infernalAI : public ScriptedAI
 
     void Reset()
     {
-        DoCast(m_creature, SPELL_INFERNO_EFFECT);
+        DoCast(me, SPELL_INFERNO_EFFECT);
         ImmolationTimer = 5000;
         CheckTimer = 5000;
     }
@@ -254,7 +254,7 @@ struct mob_towering_infernalAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (m_creature->IsWithinDist(who, 50) && !m_creature->isInCombat() && m_creature->IsHostileTo(who))
+        if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
             AttackStart(who);
     }
 
@@ -264,11 +264,11 @@ struct mob_towering_infernalAI : public ScriptedAI
         {
             if (AnetheronGUID)
             {
-                Creature* boss = Unit::GetCreature((*m_creature),AnetheronGUID);
+                Creature* boss = Unit::GetCreature((*me),AnetheronGUID);
                 if (!boss || (boss && boss->isDead()))
                 {
-                    m_creature->setDeathState(JUST_DIED);
-                    m_creature->RemoveCorpse();
+                    me->setDeathState(JUST_DIED);
+                    me->RemoveCorpse();
                     return;
                 }
             }
@@ -281,7 +281,7 @@ struct mob_towering_infernalAI : public ScriptedAI
 
         if (ImmolationTimer <= diff)
         {
-            DoCast(m_creature, SPELL_IMMOLATION);
+            DoCast(me, SPELL_IMMOLATION);
             ImmolationTimer = 5000;
         } else ImmolationTimer -= diff;
 

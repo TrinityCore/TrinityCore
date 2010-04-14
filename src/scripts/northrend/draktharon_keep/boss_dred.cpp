@@ -127,8 +127,8 @@ struct boss_dredAI : public ScriptedAI
 
             float x,y,z;
 
-            m_creature->GetClosePoint(x,y,z,m_creature->GetObjectSize()/3,10.0f);
-            m_creature->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILISECONDS);
+            me->GetClosePoint(x,y,z,me->GetObjectSize()/3,10.0f);
+            me->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILISECONDS);
 
             uiRaptorCallTimer = urand(20*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiRaptorCallTimer -=diff;

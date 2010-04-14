@@ -101,7 +101,7 @@ struct boss_brutallusAI : public ScriptedAI
         IsIntro = false;
         Enraged = false;
 
-        DoCast(m_creature, SPELL_DUAL_WIELD, true);
+        DoCast(me, SPELL_DUAL_WIELD, true);
 
         if (pInstance)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
@@ -109,7 +109,7 @@ struct boss_brutallusAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(YELL_AGGRO, m_creature);
+        DoScriptText(YELL_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
@@ -117,19 +117,19 @@ struct boss_brutallusAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(YELL_KILL1,YELL_KILL2,YELL_KILL3), m_creature);
+        DoScriptText(RAND(YELL_KILL1,YELL_KILL2,YELL_KILL3), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(YELL_DEATH, m_creature);
+        DoScriptText(YELL_DEATH, me);
 
         if (pInstance)
         {
             pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
             float x,y,z;
-            m_creature->GetPosition(x,y,z);
-            m_creature->SummonCreature(FELMYST, x,y, z+30, m_creature->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+            me->GetPosition(x,y,z);
+            me->SummonCreature(FELMYST, x,y, z+30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
         }
     }
 
@@ -144,17 +144,17 @@ struct boss_brutallusAI : public ScriptedAI
         if (!Intro || IsIntro)
             return;
         error_log("Start Intro");
-        Creature *Madrigosa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
+        Creature *Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
         if (Madrigosa)
         {
             Madrigosa->Respawn();
             Madrigosa->setActive(true);
             IsIntro = true;
-            Madrigosa->SetMaxHealth(m_creature->GetMaxHealth());
-            Madrigosa->SetHealth(m_creature->GetMaxHealth());
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->Attack(Madrigosa, true);
-            Madrigosa->Attack(m_creature, true);
+            Madrigosa->SetMaxHealth(me->GetMaxHealth());
+            Madrigosa->SetHealth(me->GetMaxHealth());
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->Attack(Madrigosa, true);
+            Madrigosa->Attack(me, true);
         }else
         {
             //Madrigosa not found, end intro
@@ -165,7 +165,7 @@ struct boss_brutallusAI : public ScriptedAI
 
     void EndIntro()
     {
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         Intro = false;
         IsIntro = false;
         error_log("End Intro");
@@ -180,7 +180,7 @@ struct boss_brutallusAI : public ScriptedAI
 
     void DoIntro()
     {
-        Creature *Madrigosa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
+        Creature *Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
         if (!Madrigosa)
             return;
 
@@ -192,61 +192,61 @@ struct boss_brutallusAI : public ScriptedAI
                 ++IntroPhase;
                 break;
             case 1:
-                m_creature->SetInFront(Madrigosa);
-                Madrigosa->SetInFront(m_creature);
-                DoScriptText(YELL_MADR_INTRO, Madrigosa, m_creature);
+                me->SetInFront(Madrigosa);
+                Madrigosa->SetInFront(me);
+                DoScriptText(YELL_MADR_INTRO, Madrigosa, me);
                 IntroPhaseTimer = 9000;
                 ++IntroPhase;
                 break;
             case 2:
-                DoScriptText(YELL_INTRO, m_creature, Madrigosa);
+                DoScriptText(YELL_INTRO, me, Madrigosa);
                 IntroPhaseTimer = 13000;
                 ++IntroPhase;
                 break;
             case 3:
-                DoCast(m_creature, SPELL_INTRO_FROST_BLAST);
+                DoCast(me, SPELL_INTRO_FROST_BLAST);
                 Madrigosa->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                m_creature->AttackStop();
+                me->AttackStop();
                 Madrigosa->AttackStop();
                 IntroFrostBoltTimer = 3000;
                 IntroPhaseTimer = 28000;
                 ++IntroPhase;
                 break;
             case 4:
-                DoScriptText(YELL_INTRO_BREAK_ICE, m_creature);
+                DoScriptText(YELL_INTRO_BREAK_ICE, me);
                 IntroPhaseTimer = 6000;
                 ++IntroPhase;
                 break;
             case 5:
-                Madrigosa->CastSpell(m_creature, SPELL_INTRO_ENCAPSULATE_CHANELLING, false);
+                Madrigosa->CastSpell(me, SPELL_INTRO_ENCAPSULATE_CHANELLING, false);
                 DoScriptText(YELL_MADR_TRAP, Madrigosa);
-                DoCast(m_creature, SPELL_INTRO_ENCAPSULATE);
+                DoCast(me, SPELL_INTRO_ENCAPSULATE);
                 IntroPhaseTimer = 11000;
                 ++IntroPhase;
                 break;
             case 6:
-                DoScriptText(YELL_INTRO_CHARGE, m_creature);
+                DoScriptText(YELL_INTRO_CHARGE, me);
                 IntroPhaseTimer = 5000;
                 ++IntroPhase;
                 break;
             case 7:
-                m_creature->Kill(Madrigosa);
+                me->Kill(Madrigosa);
                 DoScriptText(YELL_MADR_DEATH, Madrigosa);
-                m_creature->SetHealth(m_creature->GetMaxHealth());
-                m_creature->AttackStop();
+                me->SetHealth(me->GetMaxHealth());
+                me->AttackStop();
                 IntroPhaseTimer = 4000;
                 ++IntroPhase;
                 break;
             case 8:
-                DoScriptText(YELL_INTRO_KILL_MADRIGOSA, m_creature);
-                m_creature->SetOrientation(0.14f);
-                m_creature->StopMoving();
+                DoScriptText(YELL_INTRO_KILL_MADRIGOSA, me);
+                me->SetOrientation(0.14f);
+                me->StopMoving();
                 Madrigosa->setDeathState(CORPSE);
                 IntroPhaseTimer = 8000;
                 ++IntroPhase;
                 break;
             case 9:
-                DoScriptText(YELL_INTRO_TAUNT, m_creature);
+                DoScriptText(YELL_INTRO_TAUNT, me);
                 IntroPhaseTimer = 5000;
                 ++IntroPhase;
                 break;
@@ -258,7 +258,7 @@ struct boss_brutallusAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who->isTargetableForAttack() || !m_creature->IsHostileTo(who))
+        if (!who->isTargetableForAttack() || !me->IsHostileTo(who))
             return;
         if (pInstance && Intro)
             pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
@@ -281,9 +281,9 @@ struct boss_brutallusAI : public ScriptedAI
             {
                 if (IntroFrostBoltTimer <= diff)
                 {
-                    if (Creature *Madrigosa = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0))
+                    if (Creature *Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0))
                     {
-                        Madrigosa->CastSpell(m_creature, SPELL_INTRO_FROSTBOLT, true);
+                        Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                         IntroFrostBoltTimer = 2000;
                     }
                 } else IntroFrostBoltTimer -= diff;
@@ -298,14 +298,14 @@ struct boss_brutallusAI : public ScriptedAI
 
         if (SlashTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_METEOR_SLASH);
+            DoCast(me->getVictim(), SPELL_METEOR_SLASH);
             SlashTimer = 11000;
         } else SlashTimer -= diff;
 
         if (StompTimer <= diff)
         {
-            DoScriptText(RAND(YELL_LOVE1,YELL_LOVE2,YELL_LOVE3), m_creature);
-            DoCast(m_creature->getVictim(), SPELL_STOMP);
+            DoScriptText(RAND(YELL_LOVE1,YELL_LOVE2,YELL_LOVE3), me);
+            DoCast(me->getVictim(), SPELL_STOMP);
             StompTimer = 30000;
         } else StompTimer -= diff;
 
@@ -324,8 +324,8 @@ struct boss_brutallusAI : public ScriptedAI
 
         if (BerserkTimer < diff && !Enraged)
         {
-            DoScriptText(YELL_BERSERK, m_creature);
-            DoCast(m_creature, SPELL_BERSERK);
+            DoScriptText(YELL_BERSERK, me);
+            DoCast(me, SPELL_BERSERK);
             Enraged = true;
         } else BerserkTimer -= diff;
 

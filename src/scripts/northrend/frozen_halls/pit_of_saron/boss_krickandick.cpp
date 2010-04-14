@@ -139,7 +139,7 @@ struct boss_ickAI : public ScriptedAI
 
     Creature* GetKrick()
     {
-        return m_creature->GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_KRICK) : 0);
+        return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KRICK) : 0);
     }
 
     void EnterCombat(Unit *pWho)
@@ -149,7 +149,7 @@ struct boss_ickAI : public ScriptedAI
 
         Creature* pKrick = GetKrick();
         if (!pKrick)
-            pKrick = m_creature->SummonCreature(CREATURE_KRICK, *m_creature, TEMPSUMMON_MANUAL_DESPAWN);
+            pKrick = me->SummonCreature(CREATURE_KRICK, *me, TEMPSUMMON_MANUAL_DESPAWN);
 
         if (pKrick)
             DoScriptText(SAY_KRICK_AGGRO, pKrick);
@@ -164,7 +164,7 @@ struct boss_ickAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        m_creature->GetMotionMaster()->Clear();
+        me->GetMotionMaster()->Clear();
         ScriptedAI::EnterEvadeMode();
     }
 
@@ -182,10 +182,10 @@ struct boss_ickAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->isInCombat())
+        if (!me->isInCombat())
             return;
 
-        if (!m_creature->getVictim() && m_creature->getThreatManager().isThreatListEmpty())
+        if (!me->getVictim() && me->getThreatManager().isThreatListEmpty())
         {
             EnterEvadeMode();
             return;
@@ -193,7 +193,7 @@ struct boss_ickAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         switch(events.ExecuteEvent())
@@ -204,8 +204,8 @@ struct boss_ickAI : public ScriptedAI
 
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 {
-                    m_creature->Attack(pTarget,false);
-                    DoScriptText(SAY_ICK_CHASE_1, m_creature, pTarget);
+                    me->Attack(pTarget,false);
+                    DoScriptText(SAY_ICK_CHASE_1, me, pTarget);
                     DoCast(pTarget, SPELL_PURSUED);
                 }
 
@@ -214,7 +214,7 @@ struct boss_ickAI : public ScriptedAI
                 return;
 
             case EVENT_MIGHTY_KICK:
-                DoCast(m_creature->getVictim(), SPELL_MIGHTY_KICK);
+                DoCast(me->getVictim(), SPELL_MIGHTY_KICK);
                 events.ScheduleEvent(EVENT_MIGHTY_KICK, 25000, GCD_1);
                 return;
 
@@ -222,18 +222,18 @@ struct boss_ickAI : public ScriptedAI
                 if (Creature* pKrick = GetKrick())
                     DoScriptText(SAY_KRICK_POISON_NOVA, pKrick);
 
-                DoScriptText(SAY_ICK_POISON_NOVA, m_creature);
+                DoScriptText(SAY_ICK_POISON_NOVA, me);
                 DoCastAOE(SPELL_POISON_NOVA);
                 events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
                 return;
 
             case EVENT_TOXIC_WASTE:
-                DoCast(m_creature->getVictim(), SPELL_TOXIC_WASTE);
+                DoCast(me->getVictim(), SPELL_TOXIC_WASTE);
                 events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
                 return;
 
             case EVENT_SHADOW_BOLT:
-                DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT);
+                DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
                 return;
 
@@ -245,14 +245,14 @@ struct boss_ickAI : public ScriptedAI
                 }
 
                 DoCastAOE(SPELL_EXPLOSIVE_BARRAGE);
-                m_creature->GetMotionMaster()->MoveIdle();
+                me->GetMotionMaster()->MoveIdle();
                 events.DelayEvents(20000, GCD_1); // 2 sec cast + 18 sec
                 events.ScheduleEvent(EVENT_END_EXPLOSIVE_BARRAGE, 20000);
                 return;
 
             case EVENT_END_EXPLOSIVE_BARRAGE:
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveChase(me->getVictim());
                 events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 25000);
                 break;
         }
@@ -281,22 +281,22 @@ struct boss_krickAI : public ScriptedAI
         uiTyrannus = 0;
         phase = PHASE_COMBAT;
 
-        m_creature->SetReactState(REACT_PASSIVE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetVisibility(VISIBILITY_OFF);
+        me->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetVisibility(VISIBILITY_OFF);
     }
 
     Creature* GetIck()
     {
-        return m_creature->GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_ICK) : 0);
+        return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ICK) : 0);
     }
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_KRICK_SLAY_1,SAY_KRICK_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_KRICK_SLAY_1,SAY_KRICK_SLAY_2), me);
     }
 
     void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
@@ -316,28 +316,28 @@ struct boss_krickAI : public ScriptedAI
                 {
                     // TODO: tele on Ick then run some distance.
                     pIck->GetNearPosition(pos, 5.0f, 3.14);
-                    m_creature->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0.0f);
+                    me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0.0f);
                 }
-                m_creature->SetVisibility(VISIBILITY_ON);
+                me->SetVisibility(VISIBILITY_ON);
 
-                Creature* pJainaOrSylvanas = m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_JAINA_SYLVANAS_1));
+                Creature* pJainaOrSylvanas = me->GetCreature(*me, pInstance->GetData64(DATA_JAINA_SYLVANAS_1));
                 if (pJainaOrSylvanas) {
                     Position pos;
-                    m_creature->GetNearPosition(pos, 5.0f, 0);
+                    me->GetNearPosition(pos, 5.0f, 0);
                     pJainaOrSylvanas->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(),
-                        pos.GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY()));
+                        pos.GetAngle(me->GetPositionX(), me->GetPositionY()));
                 }
                 else {
                     if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
-                        pJainaOrSylvanas = m_creature->SummonCreature(NPC_SYLVANAS_PART1, *m_creature, TEMPSUMMON_MANUAL_DESPAWN);
+                        pJainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, *me, TEMPSUMMON_MANUAL_DESPAWN);
                     else
-                        pJainaOrSylvanas = m_creature->SummonCreature(NPC_JAINA_PART1, *m_creature, TEMPSUMMON_MANUAL_DESPAWN);
+                        pJainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, *me, TEMPSUMMON_MANUAL_DESPAWN);
                 }
 
                 if (pJainaOrSylvanas)
                 {
-                    pJainaOrSylvanas->SetOrientation(pJainaOrSylvanas->GetAngle(m_creature->GetPositionX(), m_creature->GetPositionY()));
-                    m_creature->SetOrientation(m_creature->GetAngle(pJainaOrSylvanas->GetPositionX(), pJainaOrSylvanas->GetPositionY()));
+                    pJainaOrSylvanas->SetOrientation(pJainaOrSylvanas->GetAngle(me->GetPositionX(), me->GetPositionY()));
+                    me->SetOrientation(me->GetAngle(pJainaOrSylvanas->GetPositionX(), pJainaOrSylvanas->GetPositionY()));
                     uiNpcOutroDialog = pJainaOrSylvanas->GetGUID();
                 }
 
@@ -361,13 +361,13 @@ struct boss_krickAI : public ScriptedAI
             {
                 case EVENT_OUTRO_1:
                 {
-                    DoScriptText(SAY_KRICK_OUTRO_1, m_creature);
+                    DoScriptText(SAY_KRICK_OUTRO_1, me);
                     events.ScheduleEvent(EVENT_OUTRO_2, 14000);
                     break;
                 }
                 case EVENT_OUTRO_2:
                 {
-                    Creature* pNpcDialog = m_creature->GetCreature(*m_creature, uiNpcOutroDialog);
+                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
                     if (pNpcDialog)
                     {
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
@@ -379,12 +379,12 @@ struct boss_krickAI : public ScriptedAI
                     break;
                 }
                 case EVENT_OUTRO_3:
-                    DoScriptText(SAY_KRICK_OUTRO_3, m_creature);
+                    DoScriptText(SAY_KRICK_OUTRO_3, me);
                     events.ScheduleEvent(EVENT_OUTRO_4, 12000);
                     break;
                 case EVENT_OUTRO_4:
                 {
-                    Creature* pNpcDialog = m_creature->GetCreature(*m_creature, uiNpcOutroDialog);
+                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
                     if (pNpcDialog)
                     {
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
@@ -396,7 +396,7 @@ struct boss_krickAI : public ScriptedAI
                     break;
                 }
                 case EVENT_OUTRO_5:
-                    DoScriptText(SAY_KRICK_OUTRO_5, m_creature);
+                    DoScriptText(SAY_KRICK_OUTRO_5, me);
                     events.ScheduleEvent(EVENT_OUTRO_6, 4000);
                     break;
                 case EVENT_OUTRO_6:
@@ -407,29 +407,29 @@ struct boss_krickAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_OUTRO_7, 1);
                     break;
                 case EVENT_OUTRO_7:
-                    if (Creature *pTyrannus = m_creature->GetCreature(*m_creature, uiTyrannus))
+                    if (Creature *pTyrannus = me->GetCreature(*me, uiTyrannus))
                         DoScriptText(SAY_TYRANNUS_OUTRO_7, pTyrannus);
                     events.ScheduleEvent(EVENT_OUTRO_8, 7000);
                     break;
                 case EVENT_OUTRO_8:
-                    DoScriptText(SAY_KRICK_OUTRO_8, m_creature);
+                    DoScriptText(SAY_KRICK_OUTRO_8, me);
                     // TODO: Tyrannus starts killing Krick.
                     // there shall be some visual spell effect
                     events.ScheduleEvent(EVENT_OUTRO_9, 6000);
                     break;
                 case EVENT_OUTRO_9:
                     // tyrannus kills krick
-                    m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
-                    m_creature->SetHealth(0);
+                    me->SetStandState(UNIT_STAND_STATE_DEAD);
+                    me->SetHealth(0);
 
-                    if (Creature *pTyrannus = m_creature->GetCreature(*m_creature, uiTyrannus))
+                    if (Creature *pTyrannus = me->GetCreature(*me, uiTyrannus))
                         DoScriptText(SAY_TYRANNUS_OUTRO_9, pTyrannus);
 
                     events.ScheduleEvent(EVENT_OUTRO_10, 12000);
                     break;
                 case EVENT_OUTRO_10:
                 {
-                    Creature* pNpcDialog = m_creature->GetCreature(*m_creature, uiNpcOutroDialog);
+                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
                     if (pNpcDialog)
                     {
                         if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
@@ -444,11 +444,11 @@ struct boss_krickAI : public ScriptedAI
                 }
                 case EVENT_OUTRO_END:
                 {
-                    Creature* pNpcDialog = m_creature->GetCreature(*m_creature, uiNpcOutroDialog);
+                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
                     if (pNpcDialog)
                         pNpcDialog->DisappearAndDie();
 
-                    m_creature->DisappearAndDie();
+                    me->DisappearAndDie();
                     break;
                 }
             }

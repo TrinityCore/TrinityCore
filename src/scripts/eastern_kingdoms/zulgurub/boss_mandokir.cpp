@@ -92,7 +92,7 @@ struct boss_mandokirAI : public ScriptedAI
         RaptorDead = false;
         CombatStart = false;
 
-        DoCast(m_creature, 23243);
+        DoCast(me, 23243);
     }
 
     void KilledUnit(Unit* victim)
@@ -103,21 +103,21 @@ struct boss_mandokirAI : public ScriptedAI
 
             if (KillCount == 3)
             {
-                DoScriptText(SAY_DING_KILL, m_creature);
+                DoScriptText(SAY_DING_KILL, me);
 
                 if (m_pInstance)
                 {
                     uint64 JindoGUID = m_pInstance->GetData64(DATA_JINDO);
                     if (JindoGUID)
                     {
-                        if (Unit* jTemp = Unit::GetUnit(*m_creature,JindoGUID))
+                        if (Unit* jTemp = Unit::GetUnit(*me,JindoGUID))
                         {
                             if (jTemp->isAlive())
                                 DoScriptText(SAY_GRATS_JINDO, jTemp);
                         }
                     }
                 }
-            DoCast(m_creature, SPELL_LEVEL_UP, true);
+            DoCast(me, SPELL_LEVEL_UP, true);
              KillCount = 0;
             }
         }
@@ -125,7 +125,7 @@ struct boss_mandokirAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-     DoScriptText(SAY_AGGRO, m_creature);
+     DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -133,15 +133,15 @@ struct boss_mandokirAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->getVictim() && m_creature->isAlive())
+        if (me->getVictim() && me->isAlive())
         {
             if (!CombatStart)
             {
                 //At combat Start Mandokir is mounted so we must unmount it first
-                m_creature->Unmount();
+                me->Unmount();
 
                 //And summon his raptor
-                m_creature->SummonCreature(14988, m_creature->getVictim()->GetPositionX(), m_creature->getVictim()->GetPositionY(), m_creature->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
+                me->SummonCreature(14988, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
                 CombatStart = true;
             }
 
@@ -149,7 +149,7 @@ struct boss_mandokirAI : public ScriptedAI
             {
                 if (WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
                 {
-                    Unit* pUnit = Unit::GetUnit(*m_creature, WatchTarget);
+                    Unit* pUnit = Unit::GetUnit(*me, WatchTarget);
 
                     if (pUnit && (
                         targetX != pUnit->GetPositionX() ||
@@ -157,14 +157,14 @@ struct boss_mandokirAI : public ScriptedAI
                         targetZ != pUnit->GetPositionZ() ||
                         pUnit->isInCombat()))
                     {
-                        if (m_creature->IsWithinMeleeRange(pUnit))
+                        if (me->IsWithinMeleeRange(pUnit))
                         {
                             DoCast(pUnit, 24316);
                         }
                         else
                         {
                             DoCast(pUnit, SPELL_CHARGE);
-                            //m_creature->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true,1);
+                            //me->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true,1);
                             AttackStart(pUnit);
                         }
                     }
@@ -177,7 +177,7 @@ struct boss_mandokirAI : public ScriptedAI
             {
                 if (Unit* p = SelectUnit(SELECT_TARGET_RANDOM,0))
                 {
-                    DoScriptText(SAY_WATCH, m_creature, p);
+                    DoScriptText(SAY_WATCH, me, p);
                     DoCast(p, SPELL_WATCH);
                     WatchTarget = p->GetGUID();
                     someWatched = true;
@@ -187,7 +187,7 @@ struct boss_mandokirAI : public ScriptedAI
 
             if ((Watch_Timer < 1000) && endWatch)           //1 sec before the debuf expire, store the target position
             {
-                Unit* pUnit = Unit::GetUnit(*m_creature, WatchTarget);
+                Unit* pUnit = Unit::GetUnit(*me, WatchTarget);
                 if (pUnit)
                 {
                     targetX = pUnit->GetPositionX();
@@ -202,14 +202,14 @@ struct boss_mandokirAI : public ScriptedAI
                 //Cleave
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+                    DoCast(me->getVictim(), SPELL_CLEAVE);
                     Cleave_Timer = 7000;
                 } else Cleave_Timer -= diff;
 
                 //Whirlwind
                 if (Whirlwind_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_WHIRLWIND);
+                    DoCast(me, SPELL_WHIRLWIND);
                     Whirlwind_Timer = 18000;
                 } else Whirlwind_Timer -= diff;
 
@@ -218,26 +218,26 @@ struct boss_mandokirAI : public ScriptedAI
                 {
                     TargetInRange = 0;
 
-                    std::list<HostileReference*>::const_iterator i = m_creature->getThreatManager().getThreatList().begin();
-                    for (; i != m_creature->getThreatManager().getThreatList().end(); ++i)
+                    std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
+                    for (; i != me->getThreatManager().getThreatList().end(); ++i)
                     {
-                        Unit* pUnit = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
-                        if (pUnit && m_creature->IsWithinMeleeRange(pUnit))
+                        Unit* pUnit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                        if (pUnit && me->IsWithinMeleeRange(pUnit))
                             ++TargetInRange;
                     }
 
                     if (TargetInRange > 3)
-                        DoCast(m_creature->getVictim(), SPELL_FEAR);
+                        DoCast(me->getVictim(), SPELL_FEAR);
 
                     Fear_Timer = 4000;
                 } else Fear_Timer -=diff;
 
                 //Mortal Strike if target below 50% hp
-                if (m_creature->getVictim() && m_creature->getVictim()->GetHealth() < m_creature->getVictim()->GetMaxHealth()*0.5)
+                if (me->getVictim() && me->getVictim()->GetHealth() < me->getVictim()->GetMaxHealth()*0.5)
                 {
                     if (MortalStrike_Timer <= diff)
                     {
-                        DoCast(m_creature->getVictim(), SPELL_MORTAL_STRIKE);
+                        DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
                         MortalStrike_Timer = 15000;
                     } else MortalStrike_Timer -= diff;
                 }
@@ -251,7 +251,7 @@ struct boss_mandokirAI : public ScriptedAI
                     {
                         if (!RaptorDead)
                         {
-                            DoCast(m_creature, SPELL_ENRAGE);
+                            DoCast(me, SPELL_ENRAGE);
                             RaptorDead = true;
                         }
                     }
@@ -298,7 +298,7 @@ struct mob_ohganAI : public ScriptedAI
         //SunderArmor_Timer
         if (SunderArmor_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUNDERARMOR);
+            DoCast(me->getVictim(), SPELL_SUNDERARMOR);
             SunderArmor_Timer = 10000 + rand()%5000;
         } else SunderArmor_Timer -= diff;
 

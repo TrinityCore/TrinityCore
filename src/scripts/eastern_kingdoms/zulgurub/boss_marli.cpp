@@ -74,12 +74,12 @@ struct boss_marliAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MARLI, DONE);
     }
@@ -89,23 +89,23 @@ struct boss_marliAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->getVictim() && m_creature->isAlive())
+        if (me->getVictim() && me->isAlive())
         {
             if (PoisonVolley_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_POISONVOLLEY);
+                DoCast(me->getVictim(), SPELL_POISONVOLLEY);
                 PoisonVolley_Timer = 10000 + rand()%10000;
             } else PoisonVolley_Timer -= diff;
 
             if (!PhaseTwo && Aspect_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_ASPECT_OF_MARLI);
+                DoCast(me->getVictim(), SPELL_ASPECT_OF_MARLI);
                 Aspect_Timer = 13000 + rand()%5000;
             } else Aspect_Timer -= diff;
 
             if (!Spawned && SpawnStartSpiders_Timer <= diff)
             {
-                DoScriptText(SAY_SPIDER_SPAWN, m_creature);
+                DoScriptText(SAY_SPIDER_SPAWN, me);
 
                 Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
                 if (!pTarget)
@@ -113,16 +113,16 @@ struct boss_marliAI : public ScriptedAI
 
                 Creature *Spider = NULL;
 
-                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Spider = me->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
-                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Spider = me->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
-                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Spider = me->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
-                Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Spider = me->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
 
@@ -135,7 +135,7 @@ struct boss_marliAI : public ScriptedAI
                 if (!pTarget)
                     return;
 
-                Creature *Spider = m_creature->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                Creature *Spider = me->SummonCreature(15041,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 if (Spider)
                     Spider->AI()->AttackStart(pTarget);
                 SpawnSpider_Timer = 12000 + rand()%5000;
@@ -143,16 +143,16 @@ struct boss_marliAI : public ScriptedAI
 
             if (!PhaseTwo && Transform_Timer <= diff)
             {
-                DoScriptText(SAY_TRANSFORM, m_creature);
-                DoCast(m_creature, SPELL_SPIDER_FORM);
-                const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
-                m_creature->UpdateDamagePhysical(BASE_ATTACK);
-                DoCast(m_creature->getVictim(), SPELL_ENVOLWINGWEB);
+                DoScriptText(SAY_TRANSFORM, me);
+                DoCast(me, SPELL_SPIDER_FORM);
+                const CreatureInfo *cinfo = me->GetCreatureInfo();
+                me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
+                me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
+                me->UpdateDamagePhysical(BASE_ATTACK);
+                DoCast(me->getVictim(), SPELL_ENVOLWINGWEB);
 
-                if (DoGetThreat(m_creature->getVictim()))
-                    DoModifyThreatPercent(m_creature->getVictim(),-100);
+                if (DoGetThreat(me->getVictim()))
+                    DoModifyThreatPercent(me->getVictim(),-100);
 
                 PhaseTwo = true;
                 Transform_Timer = urand(35000,60000);
@@ -174,8 +174,8 @@ struct boss_marliAI : public ScriptedAI
                     if (pTarget)
                     {
                         DoCast(pTarget, SPELL_CHARGE);
-                        //m_creature->GetMap()->CreatureRelocation(m_creature, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
-                        //m_creature->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
+                        //me->GetMap()->CreatureRelocation(me, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0);
+                        //me->SendMonsterMove(pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, true,1);
                         AttackStart(pTarget);
                     }
 
@@ -184,11 +184,11 @@ struct boss_marliAI : public ScriptedAI
 
                 if (TransformBack_Timer <= diff)
                 {
-                    m_creature->SetDisplayId(15220);
-                    const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
-                    m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
-                    m_creature->UpdateDamagePhysical(BASE_ATTACK);
+                    me->SetDisplayId(15220);
+                    const CreatureInfo *cinfo = me->GetCreatureInfo();
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
+                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
+                    me->UpdateDamagePhysical(BASE_ATTACK);
 
                     PhaseTwo = false;
                     TransformBack_Timer = urand(25000,40000);
@@ -226,7 +226,7 @@ struct mob_spawn_of_marliAI : public ScriptedAI
         //LevelUp_Timer
         if (LevelUp_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_LEVELUP);
+            DoCast(me, SPELL_LEVELUP);
             LevelUp_Timer = 3000;
         } else LevelUp_Timer -= diff;
 

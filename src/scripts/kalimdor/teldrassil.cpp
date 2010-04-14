@@ -51,9 +51,9 @@ struct npc_mistAI : public FollowerAI
     {
         FollowerAI::MoveInLineOfSight(pWho);
 
-        if (!m_creature->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_ARYNIA)
+        if (!me->getVictim() && !HasFollowState(STATE_FOLLOW_COMPLETE) && pWho->GetEntry() == NPC_ARYNIA)
         {
-            if (m_creature->IsWithinDistInMap(pWho, 10.0f))
+            if (me->IsWithinDistInMap(pWho, 10.0f))
             {
                 DoScriptText(SAY_AT_HOME, pWho);
                 DoComplete();
@@ -63,12 +63,12 @@ struct npc_mistAI : public FollowerAI
 
     void DoComplete()
     {
-        DoScriptText(EMOTE_AT_HOME, m_creature);
+        DoScriptText(EMOTE_AT_HOME, me);
 
         if (Player* pPlayer = GetLeaderForFollower())
         {
             if (pPlayer->GetQuestStatus(QUEST_MIST) == QUEST_STATUS_INCOMPLETE)
-                pPlayer->GroupEventHappens(QUEST_MIST, m_creature);
+                pPlayer->GroupEventHappens(QUEST_MIST, me);
         }
 
         //The follow is over (and for later development, run off to the woods before really end)

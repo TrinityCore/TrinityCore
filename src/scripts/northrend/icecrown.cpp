@@ -206,18 +206,18 @@ struct npc_argent_valiantAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        m_creature->setFaction(14);
+        me->setFaction(14);
     }
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
         {
             uiDamage = 0;
             CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
-            m_creature->setFaction(35);
-            m_creature->ForcedDespawn(5000);
-            m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(),m_creature->GetOrientation());
+            me->setFaction(35);
+            me->ForcedDespawn(5000);
+            me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
             EnterEvadeMode();
         }
     }
@@ -265,7 +265,7 @@ struct npc_argent_tournament_postAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_creature->IsNonMeleeSpellCasted(false))
+        if (me->IsNonMeleeSpellCasted(false))
             return;
 
         if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))

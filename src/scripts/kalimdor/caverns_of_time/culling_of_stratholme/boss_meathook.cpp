@@ -52,7 +52,7 @@ struct boss_meathookAI : public ScriptedAI
     {
         pInstance = c->GetInstanceData();
         if (pInstance)
-            DoScriptText(SAY_SPAWN,m_creature);
+            DoScriptText(SAY_SPAWN,me);
     }
 
     uint32 uiChainTimer;
@@ -73,7 +73,7 @@ struct boss_meathookAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_MEATHOOK_EVENT, IN_PROGRESS);
@@ -93,7 +93,7 @@ struct boss_meathookAI : public ScriptedAI
 
         if (uiFrenzyTimer <= diff)
         {
-            DoCast(m_creature, SPELL_FRENZY);
+            DoCast(me, SPELL_FRENZY);
             uiFrenzyTimer = urand(21000,26000);
         } else uiFrenzyTimer -= diff;
 
@@ -109,7 +109,7 @@ struct boss_meathookAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_MEATHOOK_EVENT, DONE);
@@ -117,10 +117,10 @@ struct boss_meathookAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 };
 

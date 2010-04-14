@@ -51,16 +51,16 @@ struct mob_naga_distillerAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         //hack, due to really weird spell behaviour :(
         if (pInstance)
         {
             if (pInstance->GetData(TYPE_DISTILLER) == IN_PROGRESS)
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
         }
     }
@@ -69,10 +69,10 @@ struct mob_naga_distillerAI : public ScriptedAI
 
     void StartRageGen(Unit *caster)
     {
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-        DoCast(m_creature, SPELL_WARLORDS_RAGE_NAGA, true);
+        DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
         if (pInstance)
             pInstance->SetData(TYPE_DISTILLER,IN_PROGRESS);
@@ -80,7 +80,7 @@ struct mob_naga_distillerAI : public ScriptedAI
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if (m_creature->GetHealth() <= damage)
+        if (me->GetHealth() <= damage)
             if (pInstance)
                 pInstance->SetData(TYPE_DISTILLER,DONE);
     }
@@ -113,7 +113,7 @@ struct boss_warlord_kalithreshAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
 
         if (pInstance)
             pInstance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
@@ -121,7 +121,7 @@ struct boss_warlord_kalithreshAI : public ScriptedAI
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -130,12 +130,12 @@ struct boss_warlord_kalithreshAI : public ScriptedAI
         if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
             if (pInstance)
                 if (pInstance->GetData(TYPE_DISTILLER) == DONE)
-                    m_creature->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
+                    me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(TYPE_WARLORD_KALITHRESH, DONE);
@@ -150,9 +150,9 @@ struct boss_warlord_kalithreshAI : public ScriptedAI
         {
             if (Creature* distiller = me->FindNearestCreature(17954, 100.0f))
             {
-                DoScriptText(SAY_REGEN, m_creature);
-                DoCast(m_creature, SPELL_WARLORDS_RAGE);
-                CAST_AI(mob_naga_distillerAI, distiller->AI())->StartRageGen(m_creature);
+                DoScriptText(SAY_REGEN, me);
+                DoCast(me, SPELL_WARLORDS_RAGE);
+                CAST_AI(mob_naga_distillerAI, distiller->AI())->StartRageGen(me);
             }
             Rage_Timer = 3000+rand()%15000;
         } else Rage_Timer -= diff;
@@ -160,7 +160,7 @@ struct boss_warlord_kalithreshAI : public ScriptedAI
         //Reflection_Timer
         if (Reflection_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_SPELL_REFLECTION);
+            DoCast(me, SPELL_SPELL_REFLECTION);
             Reflection_Timer = 15000+rand()%10000;
         } else Reflection_Timer -= diff;
 

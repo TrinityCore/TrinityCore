@@ -104,16 +104,16 @@ struct boss_tyrannusAI : public ScriptedAI
 
     Creature* GetRimefang()
     {
-        return m_creature->GetCreature(*m_creature, pInstance->GetData64(DATA_RIMEFANG));
+        return me->GetCreature(*me, pInstance->GetData64(DATA_RIMEFANG));
     }
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        m_creature->ExitVehicle();
+        DoScriptText(SAY_AGGRO, me);
+        me->ExitVehicle();
 
         // restore health if any damage done during intro
-        m_creature->SetHealth(m_creature->GetMaxHealth());
+        me->SetHealth(me->GetMaxHealth());
 
         if (pInstance)
             pInstance->SetData(DATA_TYRANNUS_EVENT, IN_PROGRESS);
@@ -125,12 +125,12 @@ struct boss_tyrannusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -148,7 +148,7 @@ struct boss_tyrannusAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -156,7 +156,7 @@ struct boss_tyrannusAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_FORCEFUL_SMASH:
-                    DoCast(m_creature->getVictim(), SPELL_FORCEFUL_SMASH);
+                    DoCast(me->getVictim(), SPELL_FORCEFUL_SMASH);
                     events.ScheduleEvent(EVENT_FORCEFUL_SMASH, 10000);
                     return;
                 case EVENT_OVERLORDS_BRAND:
@@ -165,9 +165,9 @@ struct boss_tyrannusAI : public ScriptedAI
                     events.ScheduleEvent(EVENT_OVERLORDS_BRAND, 45000);
                     return;
                 case EVENT_DARK_MIGHT:
-                    DoScriptText(SAY_DARK_MIGHT_1, m_creature);
-                    DoScriptText(SAY_DARK_MIGHT_2, m_creature);
-                    DoCast(m_creature, SPELL_DARK_MIGHT);
+                    DoScriptText(SAY_DARK_MIGHT_1, me);
+                    DoScriptText(SAY_DARK_MIGHT_2, me);
+                    DoCast(me, SPELL_DARK_MIGHT);
                     events.ScheduleEvent(EVENT_DARK_MIGHT, 60000);
                     return;
             }
@@ -189,18 +189,18 @@ struct boss_rimefangAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
-        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+        me->InterruptSpell(CURRENT_GENERIC_SPELL);
+        me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         events.Reset();
     }
 
     void EnterCombat(Unit* who)
     {
-        m_creature->InterruptSpell(CURRENT_GENERIC_SPELL);
-        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        me->InterruptSpell(CURRENT_GENERIC_SPELL);
+        me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, 25000);
         events.ScheduleEvent(EVENT_ICY_BLAST, 35000);
     }
@@ -213,7 +213,7 @@ struct boss_rimefangAI : public ScriptedAI
 
         events.Update(diff);
 
-        if (m_creature->hasUnitState(UNIT_STAT_CASTING))
+        if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -221,8 +221,8 @@ struct boss_rimefangAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_MARK_OF_RIMEFANG:
-                    DoScriptText(SAY_MARK_RIMEFANG_1, m_creature);
-                    DoScriptText(SAY_MARK_RIMEFANG_2, m_creature);
+                    DoScriptText(SAY_MARK_RIMEFANG_1, me);
+                    DoScriptText(SAY_MARK_RIMEFANG_2, me);
 
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                         DoCast(pTarget, SPELL_MARK_OF_RIMEFANG);

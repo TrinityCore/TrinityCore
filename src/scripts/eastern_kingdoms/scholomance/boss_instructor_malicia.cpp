@@ -55,13 +55,13 @@ struct boss_instructormaliciaAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        ScriptedInstance *pInstance = m_creature->GetInstanceData();
+        ScriptedInstance *pInstance = me->GetInstanceData();
         if (pInstance)
         {
             pInstance->SetData(DATA_INSTRUCTORMALICIA_DEATH, 0);
 
             if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                m_creature->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
         }
     }
 
@@ -77,7 +77,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
         //CallOfGraves_Timer
         if (CallOfGraves_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CALLOFGRAVES);
+            DoCast(me->getVictim(), SPELL_CALLOFGRAVES);
             CallOfGraves_Timer = 65000;
         } else CallOfGraves_Timer -= diff;
 
@@ -94,14 +94,14 @@ struct boss_instructormaliciaAI : public ScriptedAI
         //Renew_Timer
         if (Renew_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_RENEW);
+            DoCast(me, SPELL_RENEW);
             Renew_Timer = 10000;
         } else Renew_Timer -= diff;
 
         //FlashHeal_Timer
         if (FlashHeal_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_FLASHHEAL);
+            DoCast(me, SPELL_FLASHHEAL);
 
             //5 Flashheals will be casted
             if (FlashCounter < 2)
@@ -119,7 +119,7 @@ struct boss_instructormaliciaAI : public ScriptedAI
         //HealingTouch_Timer
         if (HealingTouch_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_HEALINGTOUCH);
+            DoCast(me, SPELL_HEALINGTOUCH);
 
             //3 Healingtouchs will be casted
             if (HealingTouch_Timer < 2)

@@ -50,7 +50,7 @@ struct boss_rasfrostAI : public ScriptedAI
         FrostVolley_Timer = 24000;
         Fear_Timer = 45000;
 
-        DoCast(m_creature, SPELL_ICEARMOR, true);
+        DoCast(me, SPELL_ICEARMOR, true);
     }
 
     void EnterCombat(Unit *who){}
@@ -63,7 +63,7 @@ struct boss_rasfrostAI : public ScriptedAI
         //IceArmor_Timer
         if (IceArmor_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ICEARMOR);
+            DoCast(me, SPELL_ICEARMOR);
             IceArmor_Timer = 180000;
         } else IceArmor_Timer -= diff;
 
@@ -79,28 +79,28 @@ struct boss_rasfrostAI : public ScriptedAI
         //Freeze_Timer
         if (Freeze_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FREEZE);
+            DoCast(me->getVictim(), SPELL_FREEZE);
             Freeze_Timer = 24000;
         } else Freeze_Timer -= diff;
 
         //Fear_Timer
         if (Fear_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FEAR);
+            DoCast(me->getVictim(), SPELL_FEAR);
             Fear_Timer = 30000;
         } else Fear_Timer -= diff;
 
         //ChillNova_Timer
         if (ChillNova_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHILLNOVA);
+            DoCast(me->getVictim(), SPELL_CHILLNOVA);
             ChillNova_Timer = 14000;
         } else ChillNova_Timer -= diff;
 
         //FrostVolley_Timer
         if (FrostVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FROSTVOLLEY);
+            DoCast(me->getVictim(), SPELL_FROSTVOLLEY);
             FrostVolley_Timer = 15000;
         } else FrostVolley_Timer -= diff;
 

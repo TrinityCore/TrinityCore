@@ -55,14 +55,14 @@ struct boss_kelrisAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         if (pInstance)
             pInstance->SetData(TYPE_KELRIS, IN_PROGRESS);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         if (pInstance)
             pInstance->SetData(TYPE_KELRIS, DONE);
     }
@@ -82,7 +82,7 @@ struct boss_kelrisAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
-                DoScriptText(SAY_SLEEP, m_creature);
+                DoScriptText(SAY_SLEEP, me);
                 DoCast(pTarget, SPELL_SLEEP);
             }
             uiSleepTimer = urand(15000,20000);

@@ -67,12 +67,12 @@ struct boss_erekemAI : public ScriptedAI
                 pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
         }
 
-        if (Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+        if (Creature *pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
         {
             if (!pGuard1->isAlive())
                 pGuard1->Respawn();
         }
-        if (Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+        if (Creature *pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
         {
             if (!pGuard2->isAlive())
                 pGuard2->Respawn();
@@ -81,23 +81,23 @@ struct boss_erekemAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->AddThreat(pWho, 0.0f);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
             DoStartMovement(pWho);
 
-            if (Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+            if (Creature *pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
             {
                 pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 if (!pGuard1->getVictim() && pGuard1->AI())
                     pGuard1->AI()->AttackStart(pWho);
             }
-            if (Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+            if (Creature *pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
             {
                 pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 if (!pGuard2->getVictim() && pGuard2->AI())
@@ -108,8 +108,8 @@ struct boss_erekemAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
-        DoCast(m_creature, SPELL_EARTH_SHIELD);
+        DoScriptText(SAY_AGGRO, me);
+        DoCast(me, SPELL_EARTH_SHIELD);
 
         if (pInstance)
         {
@@ -138,19 +138,19 @@ struct boss_erekemAI : public ScriptedAI
         //spam stormstrike in hc mode if spawns are dead
         if (IsHeroic())
         {
-            if (Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+            if (Creature *pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
             {
-                if (Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+                if (Creature *pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
                 {
                     if (!pGuard1->isAlive() && !pGuard2->isAlive())
-                        DoCast(m_creature->getVictim(), SPELL_STORMSTRIKE);
+                        DoCast(me->getVictim(), SPELL_STORMSTRIKE);
                 }
             }
         }
 
         if (uiEarthShieldTimer <= diff)
         {
-            DoCast(m_creature, SPELL_EARTH_SHIELD);
+            DoCast(me, SPELL_EARTH_SHIELD);
             uiEarthShieldTimer = 20000;
         } else uiEarthShieldTimer -= diff;
 
@@ -158,25 +158,25 @@ struct boss_erekemAI : public ScriptedAI
         {
             if (uint64 TargetGUID = GetChainHealTargetGUID())
             {
-                if (Creature *pTarget = Unit::GetCreature(*m_creature, TargetGUID))
+                if (Creature *pTarget = Unit::GetCreature(*me, TargetGUID))
                     DoCast(pTarget, SPELL_CHAIN_HEAL);
 
                 //If one of the adds is dead spawn heals faster
-                Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
-                Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
+                Creature *pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
+                Creature *pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
                 uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
             }
         } else uiChainHealTimer -= diff;
 
         if (uiBloodlustTimer <= diff)
         {
-            DoCast(m_creature, SPELL_BLOODLUST);
+            DoCast(me, SPELL_BLOODLUST);
             uiBloodlustTimer = urand(35000,45000);
         } else uiBloodlustTimer -= diff;
 
         if (uiEarthShockTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_EARTH_SHOCK);
+            DoCast(me->getVictim(), SPELL_EARTH_SHOCK);
             uiEarthShockTimer = urand(8000,13000);
         } else uiEarthShockTimer -= diff;
 
@@ -192,7 +192,7 @@ struct boss_erekemAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -211,21 +211,21 @@ struct boss_erekemAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     uint64 GetChainHealTargetGUID()
     {
         if (HealthBelowPct(85))
-            return m_creature->GetGUID();
+            return me->GetGUID();
 
-        Creature *pGuard1 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
+        Creature *pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
         if (pGuard1 && pGuard1->isAlive() && (pGuard1->GetHealth()*100 <= pGuard1->GetMaxHealth() * 75))
             return pGuard1->GetGUID();
 
-        Creature *pGuard2 = Unit::GetCreature(*m_creature, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
+        Creature *pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
         if (pGuard2 && pGuard2->isAlive() && (pGuard2->GetHealth()*100 <= pGuard2->GetMaxHealth() * 75))
             return pGuard2->GetGUID();
 
@@ -267,14 +267,14 @@ struct mob_erekem_guardAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->AddThreat(pWho, 0.0f);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
             DoStartMovement(pWho);
         }
     }
@@ -290,19 +290,19 @@ struct mob_erekem_guardAI : public ScriptedAI
 
         if (uiStrikeTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_STRIKE);
+            DoCast(me->getVictim(), SPELL_STRIKE);
             uiStrikeTimer = urand(4000,8000);
         } else uiStrikeTimer -= diff;
 
         if (uiHowlingScreechTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_HOWLING_SCREECH);
+            DoCast(me->getVictim(), SPELL_HOWLING_SCREECH);
             uiHowlingScreechTimer = urand(8000,13000);
         } else uiHowlingScreechTimer -= diff;
 
         if (uiGushingWoundTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_GUSHING_WOUND);
+            DoCast(me->getVictim(), SPELL_GUSHING_WOUND);
             uiGushingWoundTimer = urand(7000,12000);
         } else uiGushingWoundTimer -= diff;
     }

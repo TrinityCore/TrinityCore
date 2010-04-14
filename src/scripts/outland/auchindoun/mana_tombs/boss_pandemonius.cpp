@@ -58,17 +58,17 @@ struct boss_pandemoniusAI : public ScriptedAI
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), m_creature);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -96,12 +96,12 @@ struct boss_pandemoniusAI : public ScriptedAI
         {
             if (DarkShell_Timer <= diff)
             {
-                if (m_creature->IsNonMeleeSpellCasted(false))
-                    m_creature->InterruptNonMeleeSpells(true);
+                if (me->IsNonMeleeSpellCasted(false))
+                    me->InterruptNonMeleeSpells(true);
 
-                DoScriptText(EMOTE_DARK_SHELL, m_creature);
+                DoScriptText(EMOTE_DARK_SHELL, me);
 
-                DoCast(m_creature, SPELL_DARK_SHELL);
+                DoCast(me, SPELL_DARK_SHELL);
                 DarkShell_Timer = 20000;
             } else DarkShell_Timer -= diff;
         }

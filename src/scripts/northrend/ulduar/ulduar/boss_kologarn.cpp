@@ -70,13 +70,13 @@ struct boss_kologarnAI : public BossAI
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
         _JustDied();
     }
 
     void KilledUnit(Unit* who)
     {
-        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), me);
     }
 
     void PassengerBoarded(Unit *who, int8 seatId, bool apply)
@@ -94,7 +94,7 @@ struct boss_kologarnAI : public BossAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         _EnterCombat();
         events.ScheduleEvent(EVENT_SMASH, 5000);
         events.ScheduleEvent(EVENT_SWEEP, 10000);

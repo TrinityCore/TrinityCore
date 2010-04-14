@@ -86,7 +86,7 @@ struct boss_vexallusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void JustDied(Unit *victim)
@@ -97,7 +97,7 @@ struct boss_vexallusAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
@@ -109,7 +109,7 @@ struct boss_vexallusAI : public ScriptedAI
             summoned->GetMotionMaster()->MoveFollow(temp,0,0);
 
         //spells are SUMMON_TYPE_GUARDIAN, so using setOwner should be ok
-        summoned->CastSpell(summoned,SPELL_ENERGY_BOLT,false,0,0,m_creature->GetGUID());
+        summoned->CastSpell(summoned,SPELL_ENERGY_BOLT,false,0,0,me->GetGUID());
     }
 
     void UpdateAI(const uint32 diff)
@@ -120,7 +120,7 @@ struct boss_vexallusAI : public ScriptedAI
         if (!Enraged)
         {
             //used for check, when Vexallus cast adds 85%, 70%, 55%, 40%, 25%
-            if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(INTERVAL_MODIFIER*IntervalHealthAmount)))
+            if ((me->GetHealth()*100 / me->GetMaxHealth()) <= (100-(INTERVAL_MODIFIER*IntervalHealthAmount)))
             {
                 //increase amount, unless we're at 10%, then we switch and return
                 if (IntervalHealthAmount == INTERVAL_SWITCH)
@@ -131,22 +131,22 @@ struct boss_vexallusAI : public ScriptedAI
                 else
                     ++IntervalHealthAmount;
 
-                DoScriptText(SAY_ENERGY, m_creature);
-                DoScriptText(EMOTE_DISCHARGE_ENERGY, m_creature);
+                DoScriptText(SAY_ENERGY, me);
+                DoScriptText(EMOTE_DISCHARGE_ENERGY, me);
 
                 if (IsHeroic())
                 {
-                    DoCast(m_creature, H_SPELL_SUMMON_PURE_ENERGY1, false);
-                    DoCast(m_creature, H_SPELL_SUMMON_PURE_ENERGY2, false);
+                    DoCast(me, H_SPELL_SUMMON_PURE_ENERGY1, false);
+                    DoCast(me, H_SPELL_SUMMON_PURE_ENERGY2, false);
                 }
                 else
-                    DoCast(m_creature, SPELL_SUMMON_PURE_ENERGY, false);
+                    DoCast(me, SPELL_SUMMON_PURE_ENERGY, false);
 
                 //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in the core
-                m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                me->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                 if (IsHeroic())
-                    m_creature->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
             }
 
             if (ChainLightningTimer <= diff)
@@ -170,7 +170,7 @@ struct boss_vexallusAI : public ScriptedAI
         {
             if (OverloadTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_OVERLOAD);
+                DoCast(me->getVictim(), SPELL_OVERLOAD);
 
                 OverloadTimer = 2000;
             } else OverloadTimer -= diff;
@@ -193,7 +193,7 @@ struct mob_pure_energyAI : public ScriptedAI
 
     void JustDied(Unit* slayer)
     {
-        if (Unit *temp = m_creature->GetOwner())
+        if (Unit *temp = me->GetOwner())
         {
             if (temp && temp->isAlive())
                 slayer->CastSpell(slayer, SPELL_ENERGY_FEEDBACK, true, 0, 0, temp->GetGUID());

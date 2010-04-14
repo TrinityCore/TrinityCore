@@ -493,7 +493,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
         PlayerGUID = 0;
         eventEnd = false;
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void HandleAnimation()
@@ -502,10 +502,10 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
         if (!plr)
             return;
 
-        Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100, m_creature);
-        Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100,m_creature);
-        Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100, m_creature);
-        Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100,m_creature);
+        Unit* Fandral = plr->FindNearestCreature(C_FANDRAL_STAGHELM, 100, me);
+        Unit* Arygos = plr->FindNearestCreature(C_ARYGOS, 100,me);
+        Unit* Caelestrasz = plr->FindNearestCreature(C_CAELESTRASZ, 100, me);
+        Unit* Merithra = plr->FindNearestCreature(C_MERITHRA, 100,me);
 
         if (!Fandral || !Arygos || !Caelestrasz || !Merithra)
             return;
@@ -517,11 +517,11 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
             switch(AnimationCount)
             {
                 case 0:
-                    DoScriptText(ANACHRONOS_SAY_1, m_creature , Fandral);
+                    DoScriptText(ANACHRONOS_SAY_1, me , Fandral);
                     break;
                 case 1:
-                    Fandral->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
-                    DoScriptText(FANDRAL_SAY_1, Fandral,m_creature);
+                    Fandral->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
+                    DoScriptText(FANDRAL_SAY_1, Fandral,me);
                     break;
                 case 2:
                     Fandral->SetUInt64Value(UNIT_FIELD_TARGET,NULL);
@@ -611,143 +611,143 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     Caelestrasz->CastSpell(Caelestrasz,54293,false);
                     break;
                 case 28:
-                    DoScriptText(ANACHRONOS_SAY_2,m_creature, Fandral);
+                    DoScriptText(ANACHRONOS_SAY_2,me, Fandral);
                     break;
                 case 29:
                     Caelestrasz->GetMotionMaster()->MoveCharge(-8150,1530,50,7);
-                    DoScriptText(FANDRAL_SAY_2, Fandral, m_creature);
+                    DoScriptText(FANDRAL_SAY_2, Fandral, me);
                     break;
                 case 30:
                     break;
                 case 31:
-                    DoScriptText(ANACHRONOS_SAY_3, m_creature, Fandral);
+                    DoScriptText(ANACHRONOS_SAY_3, me, Fandral);
                     break;
                 case 32:
                     Caelestrasz->SetVisibility(VISIBILITY_OFF);
                     Fandral->GetMotionMaster()->MoveCharge(-8108,1529,2.77,8);
-                    m_creature->GetMotionMaster()->MoveCharge(-8113,1525,2.77,8);
+                    me->GetMotionMaster()->MoveCharge(-8113,1525,2.77,8);
                     break;//both run to the gate
                 case 33:
-                    DoScriptText(ANACHRONOS_SAY_4, m_creature);
+                    DoScriptText(ANACHRONOS_SAY_4, me);
                     Caelestrasz->GetMotionMaster()->MoveCharge(-8165,1530,65,7);
                     break; //Text: sands will stop
                 case 34:
                     DoCast(plr, 23017, true);//Arcane Channeling
                     break;
                 case 35:
-                    m_creature->CastSpell(-8088,1520.43,2.67,25158,true);
+                    me->CastSpell(-8088,1520.43,2.67,25158,true);
                     break;
                 case 36:
                     DoCast(plr, 25159, true);
                     break;
                 case 37:
-                    m_creature->SummonGameObject(GO_GATE_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
+                    me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
                     break;
                 case 38:
                     DoCast(plr, 25166, true);
-                    m_creature->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
+                    me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
                     break;
                 case 39:
-                    DoScriptText(ANACHRONOS_SAY_5, m_creature, Fandral);
+                    DoScriptText(ANACHRONOS_SAY_5, me, Fandral);
                     break;
                 case 40:
-                    Fandral->CastSpell(m_creature, 25167, true);
+                    Fandral->CastSpell(me, 25167, true);
                     break;
                 case 41:
                     Fandral->SummonGameObject(GO_ROOTS_OF_AHN_QIRAJ,-8130,1525,17.5,0,0,0,0,0,0);
                     DoScriptText(FANDRAL_SAY_3, Fandral);
                     break;
                 case 42:
-                    m_creature->CastStop();
+                    me->CastStop();
                     DoScriptText(FANDRAL_EMOTE_1, Fandral);
                     break;
                 case 43:
                     Fandral->CastStop();
                     break;
                 case 44:
-                    DoScriptText(ANACHRONOS_SAY_6, m_creature);
+                    DoScriptText(ANACHRONOS_SAY_6, me);
                     break;
                 case 45:
-                    DoScriptText(ANACHRONOS_SAY_7, m_creature);
+                    DoScriptText(ANACHRONOS_SAY_7, me);
                     break;
                 case 46:
-                    DoScriptText(ANACHRONOS_SAY_8, m_creature);
-                    m_creature->GetMotionMaster()->MoveCharge(-8110,1527,2.77,4);
+                    DoScriptText(ANACHRONOS_SAY_8, me);
+                    me->GetMotionMaster()->MoveCharge(-8110,1527,2.77,4);
                     break;
                 case 47:
-                    DoScriptText(ANACHRONOS_EMOTE_1, m_creature);
+                    DoScriptText(ANACHRONOS_EMOTE_1, me);
                     break;
                 case 48:
-                    DoScriptText(FANDRAL_SAY_4,Fandral,m_creature);
+                    DoScriptText(FANDRAL_SAY_4,Fandral,me);
                     break;
                 case 49:
-                    DoScriptText(FANDRAL_SAY_5,Fandral,m_creature);
+                    DoScriptText(FANDRAL_SAY_5,Fandral,me);
                     break;
                 case 50:
                     DoScriptText(FANDRAL_EMOTE_2,Fandral);
                     Fandral->CastSpell(-8127,1525,17.5,33806,true);
                     break;
                 case 51:
-                    while (mob = plr->FindNearestCreature(15423,50,m_creature))
+                    while (mob = plr->FindNearestCreature(15423,50,me))
                         mob->RemoveFromWorld();
-                    while (mob = plr->FindNearestCreature(15424,50,m_creature))
+                    while (mob = plr->FindNearestCreature(15424,50,me))
                         mob->RemoveFromWorld();
-                    while (mob = plr->FindNearestCreature(15414,50,m_creature))
+                    while (mob = plr->FindNearestCreature(15414,50,me))
                         mob->RemoveFromWorld();
-                    while (mob = plr->FindNearestCreature(15422,50,m_creature))
+                    while (mob = plr->FindNearestCreature(15422,50,me))
                         mob->RemoveFromWorld();
                     break;
                 case 52:
                     Fandral->GetMotionMaster()->MoveCharge(-8028.75, 1538.795, 2.61,4);
-                    DoScriptText(ANACHRONOS_SAY_9, m_creature,Fandral);
+                    DoScriptText(ANACHRONOS_SAY_9, me,Fandral);
                     break;
                 case 53:
                     DoScriptText(FANDRAL_SAY_6,Fandral);
                     break;
                 case 54:
-                    DoScriptText(ANACHRONOS_EMOTE_2,m_creature);
+                    DoScriptText(ANACHRONOS_EMOTE_2,me);
                     break;
                 case 55:
                     Fandral->SetVisibility(VISIBILITY_OFF);
                     break;
                 case 56:
-                    DoScriptText(ANACHRONOS_EMOTE_3, m_creature);
-                    m_creature->GetMotionMaster()->MoveCharge(-8116,1522,3.65,4);
+                    DoScriptText(ANACHRONOS_EMOTE_3, me);
+                    me->GetMotionMaster()->MoveCharge(-8116,1522,3.65,4);
                     break;
                 case 57:
-                    m_creature->GetMotionMaster()->MoveCharge(-8116.7,1527,3.7,4);
+                    me->GetMotionMaster()->MoveCharge(-8116.7,1527,3.7,4);
                     break;
                 case 58:
-                    m_creature->GetMotionMaster()->MoveCharge(-8112.67,1529.9,2.86,4);
+                    me->GetMotionMaster()->MoveCharge(-8112.67,1529.9,2.86,4);
                     break;
                 case 59:
-                    m_creature->GetMotionMaster()->MoveCharge(-8117.99,1532.24,3.94,4);
+                    me->GetMotionMaster()->MoveCharge(-8117.99,1532.24,3.94,4);
                     break;
                 case 60:
                     if (plr)
-                        DoScriptText(ANACHRONOS_SAY_10, m_creature,plr);
-                    m_creature->GetMotionMaster()->MoveCharge(-8113.46,1524.16,2.89,4);
+                        DoScriptText(ANACHRONOS_SAY_10, me,plr);
+                    me->GetMotionMaster()->MoveCharge(-8113.46,1524.16,2.89,4);
                     break;
                 case 61:
-                    m_creature->GetMotionMaster()->MoveCharge(-8057.1,1470.32,2.61,6);
-                    if (plr->IsInRange(m_creature,0,15))
-                        plr->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD ,m_creature);
+                    me->GetMotionMaster()->MoveCharge(-8057.1,1470.32,2.61,6);
+                    if (plr->IsInRange(me,0,15))
+                        plr->GroupEventHappens(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD ,me);
                     break;
                 case 62:
-                    m_creature->SetDisplayId(15500);
+                    me->SetDisplayId(15500);
                     break;
                 case 63:
-                    m_creature->HandleEmoteCommand(254);
-                    m_creature->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->HandleEmoteCommand(254);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     break;
                 case 64:
-                    m_creature->GetMotionMaster()->MoveCharge(-8000,1400,150,9);
+                    me->GetMotionMaster()->MoveCharge(-8000,1400,150,9);
                     break;
                 case 65:
-                    m_creature->SetVisibility(VISIBILITY_OFF);
-                    if (Creature* AnachronosQuestTrigger = (Unit::GetCreature(*m_creature, AnachronosQuestTriggerGUID)))
+                    me->SetVisibility(VISIBILITY_OFF);
+                    if (Creature* AnachronosQuestTrigger = (Unit::GetCreature(*me, AnachronosQuestTriggerGUID)))
                     {
-                        DoScriptText(ARYGOS_YELL_1,m_creature);
+                        DoScriptText(ARYGOS_YELL_1,me);
                         AnachronosQuestTrigger->AI()->EnterEvadeMode();
                         eventEnd=true;
                     }
@@ -765,9 +765,9 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
             else AnimationTimer -= diff;
         }
         if (AnimationCount < 65)
-            m_creature->CombatStop();
+            me->CombatStop();
         if (AnimationCount == 65 || eventEnd)
-            m_creature->AI()->EnterEvadeMode();
+            me->AI()->EnterEvadeMode();
     }
 };
 
@@ -799,70 +799,70 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         Unit *pTarget;
-        Player* plr = m_creature->GetPlayer(PlayerGUID);
+        Player* plr = me->GetPlayer(PlayerGUID);
 
         if (!Timers)
         {
-            if (m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414) //all but Kaldorei Soldiers
+            if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414) //all but Kaldorei Soldiers
             {
                 SpellTimer1 = SpawnCast[1].Timer1;
                 SpellTimer2 = SpawnCast[2].Timer1;
                 SpellTimer3 = SpawnCast[3].Timer1;
             }
-            if (m_creature->GetEntry() == 15423 || m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
+            if (me->GetEntry() == 15423 || me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
                 SpellTimer4 = SpawnCast[0].Timer1;
             Timers = true;
         }
-        if (m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422|| m_creature->GetEntry() == 15414)
+        if (me->GetEntry() == 15424 || me->GetEntry() == 15422|| me->GetEntry() == 15414)
         {
             if (SpellTimer1 <= diff)
             {
-                DoCast(m_creature, SpawnCast[1].SpellId);
-                DoCast(m_creature, 24319);
+                DoCast(me, SpawnCast[1].SpellId);
+                DoCast(me, 24319);
                 SpellTimer1 = SpawnCast[1].Timer2;
             } else SpellTimer1 -= diff;
             if (SpellTimer2 <= diff)
             {
-                DoCast(m_creature, SpawnCast[2].SpellId);
+                DoCast(me, SpawnCast[2].SpellId);
                 SpellTimer2 = SpawnCast[2].Timer2;
             } else SpellTimer2 -= diff;
             if (SpellTimer3 <= diff)
             {
-                DoCast(m_creature, SpawnCast[3].SpellId);
+                DoCast(me, SpawnCast[3].SpellId);
                 SpellTimer3 = SpawnCast[3].Timer2;
             } else SpellTimer3 -= diff;
         }
-        if (m_creature->GetEntry() == 15423 || m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
+        if (me->GetEntry() == 15423 || me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
         {
             if (SpellTimer4 <= diff)
             {
-                m_creature->RemoveAllAttackers();
-                m_creature->AttackStop();
-                DoCast(m_creature, 15533);
+                me->RemoveAllAttackers();
+                me->AttackStop();
+                DoCast(me, 15533);
                 SpellTimer4 = SpawnCast[0].Timer2;
             } else SpellTimer4 -= diff;
         }
         if (!hasTarget)
         {
-            if (m_creature->GetEntry() == 15424 || m_creature->GetEntry() == 15422 || m_creature->GetEntry() == 15414)
-                pTarget = m_creature->FindNearestCreature(15423,20,true);
-            if (m_creature->GetEntry() == 15423)
+            if (me->GetEntry() == 15424 || me->GetEntry() == 15422 || me->GetEntry() == 15414)
+                pTarget = me->FindNearestCreature(15423,20,true);
+            if (me->GetEntry() == 15423)
             {
                 uint8 tar = urand(0,2);
 
                 if (tar == 0)
-                    pTarget = m_creature->FindNearestCreature(15422,20,true);
+                    pTarget = me->FindNearestCreature(15422,20,true);
                 else if (tar == 1)
-                    pTarget = m_creature->FindNearestCreature(15424,20,true);
+                    pTarget = me->FindNearestCreature(15424,20,true);
                 else if (tar == 2)
-                    pTarget = m_creature->FindNearestCreature(15414,20,true);
+                    pTarget = me->FindNearestCreature(15414,20,true);
             }
             hasTarget = true;
             if (pTarget)
-                m_creature->AI()->AttackStart(pTarget);
+                me->AI()->AttackStart(pTarget);
         }
-        if (!(m_creature->FindNearestCreature(15379,100)))
-            DoCast(m_creature, 33652);
+        if (!(me->FindNearestCreature(15379,100)))
+            DoCast(me, 33652);
 
         if (!UpdateVictim())
         {
@@ -907,7 +907,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
         Announced = false;
         Failed = false;
 
-        m_creature->SetVisibility(VISIBILITY_OFF);
+        me->SetVisibility(VISIBILITY_OFF);
     }
 
     void SummonNextWave()
@@ -926,7 +926,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
             float Z = SpawnLocation[locIndex + i].z;
             float O = SpawnLocation[locIndex + i].o;
             uint32 desptimer = WavesInfo[WaveCount].DespTimer;
-            Spawn = m_creature->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
+            Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, desptimer);
 
             if (Spawn)
             {
@@ -940,7 +940,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
 
                 if (WaveCount < 5) //1-4 Wave
                 {
-                    CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->MobGUID = m_creature->GetGUID();
+                    CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->MobGUID = me->GetGUID();
                     CAST_AI(mob_qiraj_war_spawnAI, Spawn->AI())->PlayerGUID = PlayerGUID;
                 }
             }
@@ -971,7 +971,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
                 GroupMember = (Unit::GetPlayer(itr->guid));
                 if (!GroupMember)
                     continue;
-                if (!GroupMember->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
+                if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
                 {
                      GroupMember->FailQuest(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD);
                      GroupMember->SetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD, QUEST_STATUS_NONE);
@@ -983,7 +983,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
                     ++DeadMemberCount;
             }
 
-            if (GroupMemberCount == FailedMemberCount || !pPlayer->IsWithinDistInMap(m_creature, EVENT_AREA_RADIUS))
+            if (GroupMemberCount == FailedMemberCount || !pPlayer->IsWithinDistInMap(me, EVENT_AREA_RADIUS))
                 Failed = true; //only so event can restart
         }
     }
@@ -1004,7 +1004,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
         {
             if (!Announced && AnnounceTimer <= diff)
             {
-                DoScriptText(WavesInfo[WaveCount].WaveTextId, m_creature);
+                DoScriptText(WavesInfo[WaveCount].WaveTextId, me);
                 Announced = true;
             } else AnnounceTimer -= diff;
 
@@ -1019,8 +1019,8 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
 };
 void mob_qiraj_war_spawnAI::JustDied(Unit* slayer)
 {
-    m_creature->RemoveCorpse();
-    if (Creature* Mob = (Unit::GetCreature(*m_creature, MobGUID)))
+    me->RemoveCorpse();
+    if (Creature* Mob = (Unit::GetCreature(*me, MobGUID)))
         CAST_AI(npc_anachronos_quest_triggerAI, Mob->AI())->LiveCounter();
 
 };

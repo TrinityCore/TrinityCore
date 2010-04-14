@@ -92,27 +92,27 @@ struct npc_kyle_frenziedAI : public ScriptedAI
         uiEventTimer = 5000;
         uiEventPhase = 0;
 
-        if (m_creature->GetEntry() == NPC_KYLE_FRIENDLY)
-            m_creature->UpdateEntry(NPC_KYLE_FRENZIED);
+        if (me->GetEntry() == NPC_KYLE_FRIENDLY)
+            me->UpdateEntry(NPC_KYLE_FRENZIED);
     }
 
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
-        if (!m_creature->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
+        if (!me->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
         {
             if (pCaster->GetTypeId() == TYPEID_PLAYER)
                 uiPlayerGUID = pCaster->GetGUID();
 
-            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+            if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
             {
-                m_creature->GetMotionMaster()->MovementExpired();
-                m_creature->GetMotionMaster()->MoveIdle();
-                m_creature->StopMoving();
+                me->GetMotionMaster()->MovementExpired();
+                me->GetMotionMaster()->MoveIdle();
+                me->StopMoving();
             }
 
             bEvent = true;
-            DoScriptText(EMOTE_SEE_LUNCH, m_creature);
-            m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
+            DoScriptText(EMOTE_SEE_LUNCH, me);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_CREATURE_SPECIAL);
         }
     }
 
@@ -140,34 +140,34 @@ struct npc_kyle_frenziedAI : public ScriptedAI
                 switch(uiEventPhase)
                 {
                     case 1:
-                        if (Unit* pUnit = Unit::GetUnit(*m_creature,uiPlayerGUID))
+                        if (Unit* pUnit = Unit::GetUnit(*me,uiPlayerGUID))
                         {
                             if (GameObject* pGo = pUnit->GetGameObject(SPELL_LUNCH))
                             {
                                 m_bIsMovingToLunch = true;
-                                m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                                me->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
                             }
                         }
                         break;
                     case 2:
-                        DoScriptText(EMOTE_EAT_LUNCH, m_creature);
-                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                        DoScriptText(EMOTE_EAT_LUNCH, me);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
                         break;
                     case 3:
                         if (Player* pUnit = Unit::GetPlayer(uiPlayerGUID))
-                            pUnit->TalkedToCreature(m_creature->GetEntry(), m_creature->GetGUID());
+                            pUnit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
-                        m_creature->UpdateEntry(NPC_KYLE_FRIENDLY);
+                        me->UpdateEntry(NPC_KYLE_FRIENDLY);
                         break;
                     case 4:
                         uiEventTimer = 30000;
-                        DoScriptText(EMOTE_DANCE, m_creature);
-                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
+                        DoScriptText(EMOTE_DANCE, me);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_DANCESPECIAL);
                         break;
                     case 5:
-                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
                         Reset();
-                        m_creature->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->Clear();
                         break;
                 }
             }
@@ -269,8 +269,8 @@ struct npc_plains_visionAI  : public ScriptedAI
         }
         else
         {
-            m_creature->setDeathState(JUST_DIED);
-            m_creature->RemoveCorpse();
+            me->setDeathState(JUST_DIED);
+            me->RemoveCorpse();
         }
     }
 
@@ -278,7 +278,7 @@ struct npc_plains_visionAI  : public ScriptedAI
     {
         if (newWaypoint)
         {
-            m_creature->GetMotionMaster()->MovePoint(WayPointId, wp_plain_vision[WayPointId][0], wp_plain_vision[WayPointId][1], wp_plain_vision[WayPointId][2]);
+            me->GetMotionMaster()->MovePoint(WayPointId, wp_plain_vision[WayPointId][0], wp_plain_vision[WayPointId][1], wp_plain_vision[WayPointId][2]);
             newWaypoint = false;
         }
     }

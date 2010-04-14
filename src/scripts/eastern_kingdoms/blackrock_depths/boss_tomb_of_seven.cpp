@@ -116,16 +116,16 @@ struct boss_doomrelAI : public ScriptedAI
         DemonArmor_Timer = 16000;
         Voidwalkers = false;
 
-        m_creature->setFaction(FACTION_FRIEND);
+        me->setFaction(FACTION_FRIEND);
 
         // was set before event start, so set again
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         if (pInstance)
             if (pInstance->GetData(DATA_GHOSTKILL) >= 7)
-                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
             else
-                m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
 
     void EnterCombat(Unit *who)
@@ -134,13 +134,13 @@ struct boss_doomrelAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        m_creature->RemoveAllAuras();
-        m_creature->DeleteThreatList();
-        m_creature->CombatStop(true);
-        m_creature->LoadCreaturesAddon();
-        if (m_creature->isAlive())
-            m_creature->GetMotionMaster()->MoveTargetedHome();
-        m_creature->SetLootRecipient(NULL);
+        me->RemoveAllAuras();
+        me->DeleteThreatList();
+        me->CombatStop(true);
+        me->LoadCreaturesAddon();
+        if (me->isAlive())
+            me->GetMotionMaster()->MoveTargetedHome();
+        me->SetLootRecipient(NULL);
         if (pInstance)
             pInstance->SetData64(DATA_EVENSTARTER, 0);
     }
@@ -159,7 +159,7 @@ struct boss_doomrelAI : public ScriptedAI
         //ShadowVolley_Timer
         if (ShadowVolley_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHADOWBOLTVOLLEY);
+            DoCast(me->getVictim(), SPELL_SHADOWBOLTVOLLEY);
             ShadowVolley_Timer = 12000;
         } else ShadowVolley_Timer -= diff;
 
@@ -175,21 +175,21 @@ struct boss_doomrelAI : public ScriptedAI
         //CurseOfWeakness_Timer
         if (CurseOfWeakness_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CURSEOFWEAKNESS);
+            DoCast(me->getVictim(), SPELL_CURSEOFWEAKNESS);
             CurseOfWeakness_Timer = 45000;
         } else CurseOfWeakness_Timer -= diff;
 
         //DemonArmor_Timer
         if (DemonArmor_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_DEMONARMOR);
+            DoCast(me, SPELL_DEMONARMOR);
             DemonArmor_Timer = 300000;
         } else DemonArmor_Timer -= diff;
 
         //Summon Voidwalkers
-        if (!Voidwalkers && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 51)
+        if (!Voidwalkers && me->GetHealth()*100 / me->GetMaxHealth() < 51)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
+            DoCast(me->getVictim(), SPELL_SUMMON_VOIDWALKERS, true);
             Voidwalkers = true;
         }
 

@@ -88,7 +88,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         AfterTeleportTimer = 0;
         Abuse_Bug_Timer = 10000 + rand()%7000;
         BugsTimer = 2000;
-        m_creature->clearUnitState(UNIT_STAT_STUNNED);
+        me->clearUnitState(UNIT_STAT_STUNNED);
         DontYellWhenDead = false;
         EnrageTimer = 15*60000;
     }
@@ -96,7 +96,7 @@ struct boss_twinemperorsAI : public ScriptedAI
     Creature *GetOtherBoss()
     {
         if (pInstance)
-            return Unit::GetCreature(*m_creature, pInstance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
+            return Unit::GetCreature(*me, pInstance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
         else
             return NULL;
     }
@@ -106,7 +106,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         Unit *pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
-            float dPercent = ((float)damage) / ((float)m_creature->GetMaxHealth());
+            float dPercent = ((float)damage) / ((float)me->GetMaxHealth());
             int odmg = (int)(dPercent * ((float)pOtherBoss->GetMaxHealth()));
             int ohealth = pOtherBoss->GetHealth()-odmg;
             pOtherBoss->SetHealth(ohealth > 0 ? ohealth : 0);
@@ -129,12 +129,12 @@ struct boss_twinemperorsAI : public ScriptedAI
             CAST_AI(boss_twinemperorsAI, pOtherBoss->AI())->DontYellWhenDead = true;
         }
         if (!DontYellWhenDead)                              // I hope AI is not threaded
-            DoPlaySoundToSet(m_creature, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
+            DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
     }
 
     void KilledUnit(Unit* victim)
     {
-        DoPlaySoundToSet(m_creature, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
+        DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
 
     void EnterCombat(Unit *who)
@@ -148,7 +148,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             ScriptedAI *otherAI = CAST_AI(ScriptedAI, pOtherBoss->AI());
             if (!pOtherBoss->isInCombat())
             {
-                DoPlaySoundToSet(m_creature, IAmVeklor() ? SOUND_VL_AGGRO : SOUND_VN_AGGRO);
+                DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_AGGRO : SOUND_VN_AGGRO);
                 otherAI->AttackStart(who);
                 otherAI->DoZoneInCombat();
             }
@@ -157,7 +157,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void SpellHit(Unit *caster, const SpellEntry *entry)
     {
-        if (caster == m_creature)
+        if (caster == me)
             return;
 
         Creature *pOtherBoss = GetOtherBoss();
@@ -165,19 +165,19 @@ struct boss_twinemperorsAI : public ScriptedAI
             return;
 
         // add health so we keep same percentage for both brothers
-        uint32 mytotal = m_creature->GetMaxHealth(), histotal = pOtherBoss->GetMaxHealth();
+        uint32 mytotal = me->GetMaxHealth(), histotal = pOtherBoss->GetMaxHealth();
         float mult = ((float)mytotal) / ((float)histotal);
         if (mult < 1)
             mult = 1.0f/mult;
         #define HEAL_BROTHER_AMOUNT 30000.0f
         uint32 largerAmount = (uint32)((HEAL_BROTHER_AMOUNT * mult) - HEAL_BROTHER_AMOUNT);
 
-        uint32 myh = m_creature->GetHealth();
+        uint32 myh = me->GetHealth();
         uint32 hish = pOtherBoss->GetHealth();
         if (mytotal > histotal)
         {
-            uint32 h = m_creature->GetHealth()+largerAmount;
-            m_creature->SetHealth(std::min(mytotal, h));
+            uint32 h = me->GetHealth()+largerAmount;
+            me->SetHealth(std::min(mytotal, h));
         }
         else
         {
@@ -194,7 +194,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (Heal_Timer <= diff)
         {
             Unit *pOtherBoss = GetOtherBoss();
-            if (pOtherBoss && pOtherBoss->IsWithinDist(m_creature,60))
+            if (pOtherBoss && pOtherBoss->IsWithinDist(me,60))
             {
                 DoCast(pOtherBoss, SPELL_HEAL_BROTHER);
                 Heal_Timer = 1000;
@@ -215,16 +215,16 @@ struct boss_twinemperorsAI : public ScriptedAI
         Creature *pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
         {
-            //m_creature->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
+            //me->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
             float other_x = pOtherBoss->GetPositionX();
             float other_y = pOtherBoss->GetPositionY();
             float other_z = pOtherBoss->GetPositionZ();
             float other_o = pOtherBoss->GetOrientation();
 
-            Map *thismap = m_creature->GetMap();
-            thismap->CreatureRelocation(pOtherBoss, m_creature->GetPositionX(),
-                m_creature->GetPositionY(),    m_creature->GetPositionZ(), m_creature->GetOrientation());
-            thismap->CreatureRelocation(m_creature, other_x, other_y, other_z, other_o);
+            Map *thismap = me->GetMap();
+            thismap->CreatureRelocation(pOtherBoss, me->GetPositionX(),
+                me->GetPositionY(),    me->GetPositionZ(), me->GetOrientation());
+            thismap->CreatureRelocation(me, other_x, other_y, other_z, other_o);
 
             SetAfterTeleport();
             CAST_AI(boss_twinemperorsAI,  pOtherBoss->AI())->SetAfterTeleport();
@@ -233,11 +233,11 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void SetAfterTeleport()
     {
-        m_creature->InterruptNonMeleeSpells(false);
+        me->InterruptNonMeleeSpells(false);
         DoStopAttack();
         DoResetThreat();
-        DoCast(m_creature, SPELL_TWIN_TELEPORT_VISUAL);
-        m_creature->addUnitState(UNIT_STAT_STUNNED);
+        DoCast(me, SPELL_TWIN_TELEPORT_VISUAL);
+        me->addUnitState(UNIT_STAT_STUNNED);
         AfterTeleport = true;
         AfterTeleportTimer = 2000;
         tspellcasted = false;
@@ -249,9 +249,9 @@ struct boss_twinemperorsAI : public ScriptedAI
         {
             if (!tspellcasted)
             {
-                m_creature->clearUnitState(UNIT_STAT_STUNNED);
-                DoCast(m_creature, SPELL_TWIN_TELEPORT);
-                m_creature->addUnitState(UNIT_STAT_STUNNED);
+                me->clearUnitState(UNIT_STAT_STUNNED);
+                DoCast(me, SPELL_TWIN_TELEPORT);
+                me->addUnitState(UNIT_STAT_STUNNED);
             }
 
             tspellcasted = true;
@@ -259,13 +259,13 @@ struct boss_twinemperorsAI : public ScriptedAI
             if (AfterTeleportTimer <= diff)
             {
                 AfterTeleport = false;
-                m_creature->clearUnitState(UNIT_STAT_STUNNED);
-                Unit *nearu = m_creature->SelectNearestTarget(100);
+                me->clearUnitState(UNIT_STAT_STUNNED);
+                Unit *nearu = me->SelectNearestTarget(100);
                 //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
                 if (nearu)
                 {
                     AttackStart(nearu);
-                    m_creature->getThreatManager().addThreat(nearu, 10000);
+                    me->getThreatManager().addThreat(nearu, 10000);
                 }
                 return true;
             }
@@ -292,15 +292,15 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || m_creature->getVictim())
+        if (!who || me->getVictim())
             return;
 
-        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who))
+        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
         {
-            float attackRadius = m_creature->GetAttackDistance(who);
+            float attackRadius = me->GetAttackDistance(who);
             if (attackRadius < PULL_RANGE)
                 attackRadius = PULL_RANGE;
-            if (m_creature->IsWithinDistInMap(who, attackRadius) && m_creature->GetDistanceZ(who) <= /*CREATURE_Z_ATTACK_RANGE*/7 /*there are stairs*/)
+            if (me->IsWithinDistInMap(who, attackRadius) && me->GetDistanceZ(who) <= /*CREATURE_Z_ATTACK_RANGE*/7 /*there are stairs*/)
             {
                 //if (who->HasStealthAura())
                 //    who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
@@ -312,8 +312,8 @@ struct boss_twinemperorsAI : public ScriptedAI
     Creature *RespawnNearbyBugsAndGetOne()
     {
         std::list<Creature*> lUnitList;
-        m_creature->GetCreatureListWithEntryInGrid(lUnitList,15316,150.0f);
-        m_creature->GetCreatureListWithEntryInGrid(lUnitList,15317,150.0f);
+        me->GetCreatureListWithEntryInGrid(lUnitList,15316,150.0f);
+        me->GetCreatureListWithEntryInGrid(lUnitList,15317,150.0f);
 
         if (lUnitList.empty())
             return NULL;
@@ -331,7 +331,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                     c->setFaction(7);
                     c->RemoveAllAuras();
                 }
-                if (c->IsWithinDistInMap(m_creature, ABUSE_BUG_RANGE))
+                if (c->IsWithinDistInMap(me, ABUSE_BUG_RANGE))
                 {
                     if (!nearb || (rand()%4) == 0)
                         nearb = c;
@@ -375,9 +375,9 @@ struct boss_twinemperorsAI : public ScriptedAI
     {
         if (EnrageTimer <= diff)
         {
-            if (!m_creature->IsNonMeleeSpellCasted(true))
+            if (!me->IsNonMeleeSpellCasted(true))
             {
-                DoCast(m_creature, SPELL_BERSERK);
+                DoCast(me, SPELL_BERSERK);
                 EnrageTimer = 60*60000;
             } else EnrageTimer = 0;
         } else EnrageTimer-=diff;
@@ -406,13 +406,13 @@ struct boss_veknilashAI : public boss_twinemperorsAI
         Scarabs_Timer = 7000 + rand()%7000;
 
                                                             //Added. Can be removed if its included in DB.
-        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+        me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
     }
 
     void CastSpellOnBug(Creature *pTarget)
     {
         pTarget->setFaction(14);
-        pTarget->AI()->AttackStart(m_creature->getThreatManager().getHostilTarget());
+        pTarget->AI()->AttackStart(me->getThreatManager().getHostilTarget());
         pTarget->AddAura(SPELL_MUTATE_BUG, pTarget);
         pTarget->SetHealth(pTarget->GetMaxHealth());
     }
@@ -429,7 +429,7 @@ struct boss_veknilashAI : public boss_twinemperorsAI
         //UnbalancingStrike_Timer
         if (UnbalancingStrike_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_UNBALANCING_STRIKE);
+            DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
             UnbalancingStrike_Timer = 8000+rand()%12000;
         } else UnbalancingStrike_Timer -= diff;
 
@@ -482,9 +482,9 @@ struct boss_veklorAI : public boss_twinemperorsAI
         Scorpions_Timer = 7000 + rand()%7000;
 
         //Added. Can be removed if its included in DB.
-        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-        m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0);
-        m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
+        me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
+        me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 0);
+        me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 0);
     }
 
     void CastSpellOnBug(Creature *pTarget)
@@ -511,10 +511,10 @@ struct boss_veklorAI : public boss_twinemperorsAI
         //ShadowBolt_Timer
         if (ShadowBolt_Timer <= diff)
         {
-            if (!m_creature->IsWithinDist(m_creature->getVictim(), 45.0f))
-                m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), VEKLOR_DIST, 0);
+            if (!me->IsWithinDist(me->getVictim(), 45.0f))
+                me->GetMotionMaster()->MoveChase(me->getVictim(), VEKLOR_DIST, 0);
             else
-                DoCast(m_creature->getVictim(), SPELL_SHADOWBOLT);
+                DoCast(me->getVictim(), SPELL_SHADOWBOLT);
             ShadowBolt_Timer = 2000;
         } else ShadowBolt_Timer -= diff;
 
@@ -563,10 +563,10 @@ struct boss_veklorAI : public boss_twinemperorsAI
         if (who->isTargetableForAttack())
         {
             // VL doesn't melee
-            if (m_creature->Attack(who, false))
+            if (me->Attack(who, false))
             {
-                m_creature->GetMotionMaster()->MoveChase(who, VEKLOR_DIST, 0);
-                m_creature->AddThreat(who, 0.0f);
+                me->GetMotionMaster()->MoveChase(who, VEKLOR_DIST, 0);
+                me->AddThreat(who, 0.0f);
             }
         }
     }

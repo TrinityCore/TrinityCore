@@ -46,7 +46,7 @@ struct boss_ironayaAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -56,18 +56,18 @@ struct boss_ironayaAI : public ScriptedAI
             return;
 
         //If we are <50% hp do knockaway ONCE
-        if (!hasCastedKnockaway && m_creature->GetHealth()*2 < m_creature->GetMaxHealth())
+        if (!hasCastedKnockaway && me->GetHealth()*2 < me->GetMaxHealth())
         {
-            DoCast(m_creature->getVictim(), SPELL_KNOCKAWAY, true);
+            DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
 
             // current aggro target is knocked away pick new target
             Unit* Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
 
-            if (!Target || Target == m_creature->getVictim())
+            if (!Target || Target == me->getVictim())
                 Target = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
 
             if (Target)
-                m_creature->TauntApply(Target);
+                me->TauntApply(Target);
 
             //Shouldn't cast this agian
             hasCastedKnockaway = true;
@@ -76,13 +76,13 @@ struct boss_ironayaAI : public ScriptedAI
         //Arcing_Timer
         if (Arcing_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_ARCINGSMASH);
+            DoCast(me, SPELL_ARCINGSMASH);
             Arcing_Timer = 13000;
         } else Arcing_Timer -= diff;
 
-        if (!hasCastedWstomp && m_creature->GetHealth()*4 < m_creature->GetMaxHealth())
+        if (!hasCastedWstomp && me->GetHealth()*4 < me->GetMaxHealth())
         {
-            DoCast(m_creature, SPELL_WSTOMP);
+            DoCast(me, SPELL_WSTOMP);
             hasCastedWstomp = true;
         }
 

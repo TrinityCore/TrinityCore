@@ -66,7 +66,7 @@ enum Achievements
 
 struct boss_volazjAI : public ScriptedAI
 {
-    boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature),Summons(m_creature)
+    boss_volazjAI(Creature* pCreature) : ScriptedAI(pCreature),Summons(me)
     {
         pInstance = pCreature->GetInstanceData();
     }
@@ -119,7 +119,7 @@ struct boss_volazjAI : public ScriptedAI
             // phase mask
             pTarget->CastSpell(pTarget, SPELL_INSANITY_TARGET+insanityHandled, true);
             // summon twisted party members for this target
-            Map::PlayerList const &players = m_creature->GetMap()->GetPlayers();
+            Map::PlayerList const &players = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             {
                 Player *plr = i->getSource();
@@ -163,7 +163,7 @@ struct boss_volazjAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
@@ -207,7 +207,7 @@ struct boss_volazjAI : public ScriptedAI
         // Check if all summons in this phase killed
         for (SummonList::const_iterator iter = Summons.begin(); iter != Summons.end(); ++iter)
         {
-            if (Creature *visage = Unit::GetCreature(*m_creature, *iter))
+            if (Creature *visage = Unit::GetCreature(*me, *iter))
             {
                 // Not all are dead
                 if (phase == visage->GetPhaseMask())
@@ -220,7 +220,7 @@ struct boss_volazjAI : public ScriptedAI
         // Roll Insanity
         uint32 spell = GetSpellForPhaseMask(phase);
         uint32 spell2 = GetSpellForPhaseMask(nextPhase);
-        Map* pMap = m_creature->GetMap();
+        Map* pMap = me->GetMap();
         if (!pMap)
             return;
 
@@ -261,13 +261,13 @@ struct boss_volazjAI : public ScriptedAI
 
         if (uiMindFlayTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MIND_FLAY);
+            DoCast(me->getVictim(), SPELL_MIND_FLAY);
             uiMindFlayTimer = 20*IN_MILISECONDS;
         } else uiMindFlayTimer -= diff;
 
         if (uiShadowBoltVolleyTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
+            DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
             uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
         } else uiShadowBoltVolleyTimer -= diff;
 
@@ -284,7 +284,7 @@ struct boss_volazjAI : public ScriptedAI
     }
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH_1, m_creature);
+        DoScriptText(SAY_DEATH_1, me);
 
         if (pInstance)
         {
@@ -298,7 +298,7 @@ struct boss_volazjAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 };
 

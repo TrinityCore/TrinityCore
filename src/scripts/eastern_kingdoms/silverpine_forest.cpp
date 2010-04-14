@@ -43,7 +43,7 @@ struct npc_astor_hadrenAI : public ScriptedAI
 
     void Reset()
     {
-        m_creature->setFaction(68);
+        me->setFaction(68);
     }
 
     void EnterCombat(Unit* who)
@@ -52,7 +52,7 @@ struct npc_astor_hadrenAI : public ScriptedAI
 
     void JustDied(Unit *who)
     {
-        m_creature->setFaction(68);
+        me->setFaction(68);
     }
 };
 
@@ -128,25 +128,25 @@ struct npc_deathstalker_erlandAI : public npc_escortAI
 
         switch(i)
         {
-        case 1: DoScriptText(SAY_START, m_creature, pPlayer);break;
+        case 1: DoScriptText(SAY_START, me, pPlayer);break;
         case 13:
-            DoScriptText(SAY_LAST, m_creature, pPlayer);
-            pPlayer->GroupEventHappens(QUEST_ESCORTING, m_creature); break;
-        case 14: DoScriptText(SAY_THANKS, m_creature, pPlayer); break;
+            DoScriptText(SAY_LAST, me, pPlayer);
+            pPlayer->GroupEventHappens(QUEST_ESCORTING, me); break;
+        case 14: DoScriptText(SAY_THANKS, me, pPlayer); break;
         case 15: {
                 Unit* Rane = me->FindNearestCreature(NPC_RANE, 20);
                 if (Rane)
                     DoScriptText(SAY_RANE, Rane);
                 break;}
-        case 16: DoScriptText(SAY_ANSWER, m_creature); break;
-        case 17: DoScriptText(SAY_MOVE_QUINN, m_creature); break;
-        case 24: DoScriptText(SAY_GREETINGS, m_creature); break;
+        case 16: DoScriptText(SAY_ANSWER, me); break;
+        case 17: DoScriptText(SAY_MOVE_QUINN, me); break;
+        case 24: DoScriptText(SAY_GREETINGS, me); break;
         case 25: {
                 Unit* Quinn = me->FindNearestCreature(NPC_QUINN, 20);
                 if (Quinn)
                     DoScriptText(SAY_QUINN, Quinn);
                 break;}
-        case 26: DoScriptText(SAY_ON_BYE, m_creature, NULL); break;
+        case 26: DoScriptText(SAY_ON_BYE, me, NULL); break;
 
         }
     }
@@ -155,7 +155,7 @@ struct npc_deathstalker_erlandAI : public npc_escortAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), m_creature, who);
+        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me, who);
     }
 };
 
@@ -205,7 +205,7 @@ static float PyrewoodSpawnPoints[3][4] =
 
 struct pyrewood_ambushAI : public ScriptedAI
 {
-    pyrewood_ambushAI(Creature *c) : ScriptedAI(c), Summons(m_creature)
+    pyrewood_ambushAI(Creature *c) : ScriptedAI(c), Summons(me)
     {
        QuestInProgress = false;
     }
@@ -247,7 +247,7 @@ struct pyrewood_ambushAI : public ScriptedAI
 
     void SummonCreatureWithRandomTarget(uint32 creatureId, int position)
     {
-        if (Creature *pSummoned = m_creature->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
+        if (Creature *pSummoned = me->SummonCreature(creatureId, PyrewoodSpawnPoints[position][0], PyrewoodSpawnPoints[position][1], PyrewoodSpawnPoints[position][2], PyrewoodSpawnPoints[position][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 15000))
         {
             Player *pPlayer = NULL;
             Unit *pTarget = NULL;
@@ -255,9 +255,9 @@ struct pyrewood_ambushAI : public ScriptedAI
             {
                 pPlayer = Unit::GetPlayer(PlayerGUID);
                 if (pPlayer)
-                    pTarget = RAND((Unit*)m_creature, (Unit*)pPlayer);
+                    pTarget = RAND((Unit*)me, (Unit*)pPlayer);
             } else
-                pTarget = m_creature;
+                pTarget = me;
 
             if (pTarget)
             {
@@ -296,7 +296,7 @@ struct pyrewood_ambushAI : public ScriptedAI
         {
             case 0:
                 if (WaitTimer == WAIT_SECS)
-                    m_creature->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
+                    me->MonsterSay(NPCSAY_INIT, LANG_UNIVERSAL, 0); //no blizzlike
 
                 if (WaitTimer <= diff)
                 {
@@ -326,8 +326,8 @@ struct pyrewood_ambushAI : public ScriptedAI
                 {
                     if (Player *pPlayer = Unit::GetPlayer(PlayerGUID))
                     {
-                        m_creature->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
-                        pPlayer->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, m_creature);
+                        me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
+                        pPlayer->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);
                     }
                 }
                 QuestInProgress = false;

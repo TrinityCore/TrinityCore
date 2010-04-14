@@ -104,8 +104,8 @@ struct boss_black_knightAI : public ScriptedAI
     void Reset()
     {
         RemoveSummons();
-        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
-        m_creature->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+        me->SetDisplayId(me->GetNativeDisplayId());
+        me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
 
         bEventInProgress = false;
         bEvent = false;
@@ -133,7 +133,7 @@ struct boss_black_knightAI : public ScriptedAI
 
         for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
         {
-            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                 if (pTemp)
                     pTemp->DisappearAndDie();
         }
@@ -143,7 +143,7 @@ struct boss_black_knightAI : public ScriptedAI
     void JustSummoned(Creature* pSummon)
     {
         SummonList.push_back(pSummon->GetGUID());
-        pSummon->AI()->AttackStart(m_creature->getVictim());
+        pSummon->AI()->AttackStart(me->getVictim());
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -155,12 +155,12 @@ struct boss_black_knightAI : public ScriptedAI
         if (bEventInProgress)
             if (uiResurrectTimer <= uiDiff)
             {
-                m_creature->SetHealth(m_creature->GetMaxHealth());
-                DoCast(m_creature,SPELL_BLACK_KNIGHT_RES,true);
+                me->SetHealth(me->GetMaxHealth());
+                DoCast(me,SPELL_BLACK_KNIGHT_RES,true);
                 uiPhase++;
                 uiResurrectTimer = 4000;
                 bEventInProgress = false;
-                m_creature->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
             } else uiResurrectTimer -= uiDiff;
 
         switch(uiPhase)
@@ -203,13 +203,13 @@ struct boss_black_knightAI : public ScriptedAI
                         if (!bSummonArmy)
                         {
                             bSummonArmy = true;
-                            m_creature->addUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
-                            DoCast(m_creature, SPELL_ARMY_DEAD);
+                            me->addUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                            DoCast(me, SPELL_ARMY_DEAD);
                         }
                         if (!bDeathArmyDone)
                             if (uiDeathArmyCheckTimer <= uiDiff)
                             {
-                                m_creature->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                me->clearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                                 uiDeathArmyCheckTimer = 0;
                                 bDeathArmyDone = true;
                             } else uiDeathArmyCheckTimer -= uiDiff;
@@ -224,7 +224,7 @@ struct boss_black_knightAI : public ScriptedAI
                         } else uiDesecration -= uiDiff;
                         if (uiGhoulExplodeTimer <= uiDiff)
                         {
-                            DoCast(m_creature, SPELL_GHOUL_EXPLODE);
+                            DoCast(me, SPELL_GHOUL_EXPLODE);
                             uiGhoulExplodeTimer = 8000;
                         } else uiGhoulExplodeTimer -= uiDiff;
                         break;
@@ -253,25 +253,25 @@ struct boss_black_knightAI : public ScriptedAI
             }
         }
 
-        if (!m_creature->hasUnitState(UNIT_STAT_ROOT) && !m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 0)
+        if (!me->hasUnitState(UNIT_STAT_ROOT) && !me->GetHealth()*100 / me->GetMaxHealth() <= 0)
             DoMeleeAttackIfReady();
     }
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() && uiPhase <= PHASE_SKELETON)
+        if (uiDamage > me->GetHealth() && uiPhase <= PHASE_SKELETON)
         {
             uiDamage = 0;
-            m_creature->SetHealth(0);
-            m_creature->addUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->SetHealth(0);
+            me->addUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
             RemoveSummons();
             switch(uiPhase)
             {
                 case PHASE_UNDEAD:
-                    m_creature->SetDisplayId(MODEL_SKELETON);
+                    me->SetDisplayId(MODEL_SKELETON);
                     break;
                 case PHASE_SKELETON:
-                    m_creature->SetDisplayId(MODEL_GHOST);
+                    me->SetDisplayId(MODEL_GHOST);
                     break;
             }
             bEventInProgress = true;

@@ -91,7 +91,7 @@ struct mob_ancient_wispAI : public ScriptedAI
         if (pInstance)
             ArchimondeGUID = pInstance->GetData64(DATA_ARCHIMONDE);
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void EnterCombat(Unit* who) {}
@@ -102,10 +102,10 @@ struct mob_ancient_wispAI : public ScriptedAI
     {
         if (CheckTimer <= diff)
         {
-            if (Unit* Archimonde = Unit::GetUnit((*m_creature), ArchimondeGUID))
+            if (Unit* Archimonde = Unit::GetUnit((*me), ArchimondeGUID))
             {
                 if ((((Archimonde->GetHealth()*100) / Archimonde->GetMaxHealth()) < 2) || !Archimonde->isAlive())
-                    DoCast(m_creature, SPELL_DENOUEMENT_WISP);
+                    DoCast(me, SPELL_DENOUEMENT_WISP);
                 else
                     DoCast(Archimonde, SPELL_ANCIENT_SPARK);
             }
@@ -158,16 +158,16 @@ struct mob_doomfire_targettingAI : public ScriptedAI
     {
         if (ChangeTargetTimer <= diff)
         {
-            if (Unit *temp = Unit::GetUnit(*m_creature,TargetGUID))
+            if (Unit *temp = Unit::GetUnit(*me,TargetGUID))
             {
-                m_creature->GetMotionMaster()->MoveFollow(temp,0.0f,0.0f);
+                me->GetMotionMaster()->MoveFollow(temp,0.0f,0.0f);
                 TargetGUID = 0;
             }
             else
             {
                 Position pos;
-                m_creature->GetRandomNearPosition(pos, 40);
-                m_creature->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
+                me->GetRandomNearPosition(pos, 40);
+                me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
             }
 
             ChangeTargetTimer = 5000;
@@ -245,8 +245,8 @@ struct boss_archimondeAI : public hyjal_trashAI
 
     void EnterCombat(Unit *who)
     {
-        m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
-        DoScriptText(SAY_AGGRO, m_creature);
+        me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
 
         if (pInstance)
@@ -255,7 +255,7 @@ struct boss_archimondeAI : public hyjal_trashAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
 
         if (victim && (victim->GetTypeId() == TYPEID_PLAYER))
             GainSoulCharge(CAST_PLR(victim));
@@ -268,17 +268,17 @@ struct boss_archimondeAI : public hyjal_trashAI
             case CLASS_PRIEST:
             case CLASS_PALADIN:
             case CLASS_WARLOCK:
-                victim->CastSpell(m_creature, SPELL_SOUL_CHARGE_RED, true);
+                victim->CastSpell(me, SPELL_SOUL_CHARGE_RED, true);
                 break;
             case CLASS_MAGE:
             case CLASS_ROGUE:
             case CLASS_WARRIOR:
-                victim->CastSpell(m_creature, SPELL_SOUL_CHARGE_YELLOW, true);
+                victim->CastSpell(me, SPELL_SOUL_CHARGE_YELLOW, true);
                 break;
             case CLASS_DRUID:
             case CLASS_SHAMAN:
             case CLASS_HUNTER:
-                victim->CastSpell(m_creature, SPELL_SOUL_CHARGE_GREEN, true);
+                victim->CastSpell(me, SPELL_SOUL_CHARGE_GREEN, true);
                 break;
         }
 
@@ -289,7 +289,7 @@ struct boss_archimondeAI : public hyjal_trashAI
     void JustDied(Unit *victim)
     {
         hyjal_trashAI::JustDied(victim);
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_ARCHIMONDEEVENT, DONE);
@@ -298,11 +298,11 @@ struct boss_archimondeAI : public hyjal_trashAI
     bool CanUseFingerOfDeath()
     {
         // First we check if our current victim is in melee range or not.
-        Unit* victim = m_creature->getVictim();
-        if (victim && m_creature->IsWithinDistInMap(victim, m_creature->GetAttackDistance(victim)))
+        Unit* victim = me->getVictim();
+        if (victim && me->IsWithinDistInMap(victim, me->GetAttackDistance(victim)))
             return false;
 
-        std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
         if (m_threatlist.empty())
             return false;
 
@@ -310,7 +310,7 @@ struct boss_archimondeAI : public hyjal_trashAI
         std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
         for (; itr != m_threatlist.end(); ++itr)
         {
-            Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid());
+            Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
             if (pUnit && pUnit->isAlive())
                 targets.push_back(pUnit);
         }
@@ -318,14 +318,14 @@ struct boss_archimondeAI : public hyjal_trashAI
         if (targets.empty())
             return false;
 
-        targets.sort(ObjectDistanceOrder(m_creature));
+        targets.sort(ObjectDistanceOrder(me));
         Unit *pTarget = targets.front();
         if (pTarget)
         {
-            if (!m_creature->IsWithinDistInMap(pTarget, m_creature->GetAttackDistance(pTarget)))
+            if (!me->IsWithinDistInMap(pTarget, me->GetAttackDistance(pTarget)))
                 return true;                                // Cast Finger of Death
             else                                            // This target is closest, he is our new tank
-                m_creature->AddThreat(pTarget, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
+                me->AddThreat(pTarget, me->getThreatManager().getThreat(me->getVictim()));
         }
 
         return false;
@@ -334,10 +334,10 @@ struct boss_archimondeAI : public hyjal_trashAI
     void JustSummoned(Creature *summoned)
     {
         if (summoned->GetEntry() == CREATURE_ANCIENT_WISP)
-            summoned->AI()->AttackStart(m_creature);
+            summoned->AI()->AttackStart(me);
         else
         {
-            summoned->setFaction(m_creature->getFaction());
+            summoned->setFaction(me->getFaction());
             summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -350,9 +350,9 @@ struct boss_archimondeAI : public hyjal_trashAI
         if (summoned->GetEntry() == CREATURE_DOOMFIRE)
         {
             summoned->CastSpell(summoned,SPELL_DOOMFIRE_SPAWN,false);
-            summoned->CastSpell(summoned,SPELL_DOOMFIRE,true,0,0,m_creature->GetGUID());
+            summoned->CastSpell(summoned,SPELL_DOOMFIRE,true,0,0,me->GetGUID());
 
-            if (Unit *DoomfireSpirit = Unit::GetUnit(*m_creature, DoomfireSpiritGUID))
+            if (Unit *DoomfireSpirit = Unit::GetUnit(*me, DoomfireSpiritGUID))
             {
                 summoned->GetMotionMaster()->MoveFollow(DoomfireSpirit,0.0f,0.0f);
                 DoomfireSpiritGUID = 0;
@@ -363,18 +363,18 @@ struct boss_archimondeAI : public hyjal_trashAI
     //this is code doing close to what the summoning spell would do (spell 31903)
     void SummonDoomfire(Unit *pTarget)
     {
-        m_creature->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
+        me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
             pTarget->GetPositionX()+15.0,pTarget->GetPositionY()+15.0,pTarget->GetPositionZ(),0,
             TEMPSUMMON_TIMED_DESPAWN, 27000);
 
-        m_creature->SummonCreature(CREATURE_DOOMFIRE,
+        me->SummonCreature(CREATURE_DOOMFIRE,
             pTarget->GetPositionX()-15.0,pTarget->GetPositionY()-15.0,pTarget->GetPositionZ(),0,
             TEMPSUMMON_TIMED_DESPAWN, 27000);
     }
 
     void UnleashSoulCharge()
     {
-        m_creature->InterruptNonMeleeSpells(false);
+        me->InterruptNonMeleeSpells(false);
 
         bool HasCast = false;
         uint32 chargeSpell = 0;
@@ -396,10 +396,10 @@ struct boss_archimondeAI : public hyjal_trashAI
                 break;
         }
 
-        if (m_creature->HasAura(chargeSpell))
+        if (me->HasAura(chargeSpell))
         {
-            m_creature->RemoveAuraFromStack(chargeSpell);
-            DoCast(m_creature->getVictim(), unleashSpell);
+            me->RemoveAuraFromStack(chargeSpell);
+            DoCast(me->getVictim(), unleashSpell);
             HasCast = true;
             SoulChargeCount--;
         }
@@ -410,20 +410,20 @@ struct boss_archimondeAI : public hyjal_trashAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->isInCombat())
+        if (!me->isInCombat())
         {
             if (pInstance)
             {
                 // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
-                if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && ((m_creature->GetVisibility() != VISIBILITY_OFF) || (m_creature->getFaction() != 35)))
+                if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && ((me->GetVisibility() != VISIBILITY_OFF) || (me->getFaction() != 35)))
                 {
-                    m_creature->SetVisibility(VISIBILITY_OFF);
-                    m_creature->setFaction(35);
+                    me->SetVisibility(VISIBILITY_OFF);
+                    me->setFaction(35);
                 }
-                else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && ((m_creature->GetVisibility() != VISIBILITY_ON) || (m_creature->getFaction() == 35)))
+                else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && ((me->GetVisibility() != VISIBILITY_ON) || (me->getFaction() == 35)))
                 {
-                    m_creature->setFaction(1720);
-                    m_creature->SetVisibility(VISIBILITY_ON);
+                    me->setFaction(1720);
+                    me->SetVisibility(VISIBILITY_ON);
                 }
             }
 
@@ -431,12 +431,12 @@ struct boss_archimondeAI : public hyjal_trashAI
             {
                 if (!IsChanneling)
                 {
-                    Creature *temp = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                    Creature *temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 1200000);
 
                     if (temp)
                         WorldTreeGUID = temp->GetGUID();
 
-                    if (Unit *Nordrassil = Unit::GetUnit(*m_creature, WorldTreeGUID))
+                    if (Unit *Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
                     {
                         Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         Nordrassil->SetDisplayId(11686);
@@ -445,9 +445,9 @@ struct boss_archimondeAI : public hyjal_trashAI
                     }
                 }
 
-                if (Unit *Nordrassil = Unit::GetUnit(*m_creature, WorldTreeGUID))
+                if (Unit *Nordrassil = Unit::GetUnit(*me, WorldTreeGUID))
                 {
-                    Nordrassil->CastSpell(m_creature, SPELL_DRAIN_WORLD_TREE_2, true);
+                    Nordrassil->CastSpell(me, SPELL_DRAIN_WORLD_TREE_2, true);
                     DrainNordrassilTimer = 1000;
                 }
             } else DrainNordrassilTimer -= diff;
@@ -456,36 +456,36 @@ struct boss_archimondeAI : public hyjal_trashAI
         if (!UpdateVictim())
             return;
 
-        if (((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 10) && !BelowTenPercent && !Enraged)
+        if (((me->GetHealth()*100 / me->GetMaxHealth()) < 10) && !BelowTenPercent && !Enraged)
             BelowTenPercent = true;
 
         if (!Enraged)
         {
             if (EnrageTimer <= diff)
             {
-                if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) > 10)
+                if ((me->GetHealth()*100 / me->GetMaxHealth()) > 10)
                 {
-                    m_creature->GetMotionMaster()->Clear(false);
-                    m_creature->GetMotionMaster()->MoveIdle();
+                    me->GetMotionMaster()->Clear(false);
+                    me->GetMotionMaster()->MoveIdle();
                     Enraged = true;
-                    DoScriptText(SAY_ENRAGE, m_creature);
+                    DoScriptText(SAY_ENRAGE, me);
                 }
             } else EnrageTimer -= diff;
 
             if (CheckDistanceTimer <= diff)
             {
                 // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
-                Creature* Check = m_creature->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
+                Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NORDRASSIL_X, NORDRASSIL_Y, NORDRASSIL_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
                 if (Check)
                 {
                     Check->SetVisibility(VISIBILITY_OFF);
 
-                    if (m_creature->IsWithinDistInMap(Check, 75))
+                    if (me->IsWithinDistInMap(Check, 75))
                     {
-                        m_creature->GetMotionMaster()->Clear(false);
-                        m_creature->GetMotionMaster()->MoveIdle();
+                        me->GetMotionMaster()->Clear(false);
+                        me->GetMotionMaster()->MoveIdle();
                         Enraged = true;
-                        DoScriptText(SAY_ENRAGE, m_creature);
+                        DoScriptText(SAY_ENRAGE, me);
                     }
                 }
                 CheckDistanceTimer = 5000;
@@ -496,11 +496,11 @@ struct boss_archimondeAI : public hyjal_trashAI
         {
             if (!HasProtected)
             {
-                m_creature->GetMotionMaster()->Clear(false);
-                m_creature->GetMotionMaster()->MoveIdle();
+                me->GetMotionMaster()->Clear(false);
+                me->GetMotionMaster()->MoveIdle();
 
                 //all members of raid must get this buff
-                DoCast(m_creature->getVictim(), SPELL_PROTECTION_OF_ELUNE);
+                DoCast(me->getVictim(), SPELL_PROTECTION_OF_ELUNE);
                 HasProtected = true;
                 Enraged = true;
             }
@@ -513,14 +513,14 @@ struct boss_archimondeAI : public hyjal_trashAI
             } else SummonWispTimer -= diff;
 
             if (WispCount >= 30)
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
         if (Enraged)
         {
             if (HandOfDeathTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_HAND_OF_DEATH);
+                DoCast(me->getVictim(), SPELL_HAND_OF_DEATH);
                 HandOfDeathTimer = 2000;
             } else HandOfDeathTimer -= diff;
             return;                                         // Don't do anything after this point.
@@ -542,9 +542,9 @@ struct boss_archimondeAI : public hyjal_trashAI
         if (AirBurstTimer <= diff)
         {
             if (urand(0,1))
-                DoScriptText(SAY_AIR_BURST1, m_creature);
+                DoScriptText(SAY_AIR_BURST1, me);
             else
-                DoScriptText(SAY_AIR_BURST2, m_creature);
+                DoScriptText(SAY_AIR_BURST2, me);
 
             DoCast(SelectUnit(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
             AirBurstTimer = urand(25000,40000);
@@ -552,20 +552,20 @@ struct boss_archimondeAI : public hyjal_trashAI
 
         if (FearTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FEAR);
+            DoCast(me->getVictim(), SPELL_FEAR);
             FearTimer = 42000;
         } else FearTimer -= diff;
 
         if (DoomfireTimer <= diff)
         {
             if (urand(0,1))
-                DoScriptText(SAY_DOOMFIRE1, m_creature);
+                DoScriptText(SAY_DOOMFIRE1, me);
             else
-                DoScriptText(SAY_DOOMFIRE2, m_creature);
+                DoScriptText(SAY_DOOMFIRE2, me);
 
             Unit *temp = SelectUnit(SELECT_TARGET_RANDOM, 1);
             if (!temp)
-                temp = m_creature->getVictim();
+                temp = me->getVictim();
 
             //replace with spell cast 31903 once implicitTarget 73 implemented
             SummonDoomfire(temp);

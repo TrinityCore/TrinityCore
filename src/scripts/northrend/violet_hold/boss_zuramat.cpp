@@ -67,21 +67,21 @@ struct boss_zuramatAI : public ScriptedAI
 
     void AttackStart(Unit* pWho)
     {
-        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
 
-        if (m_creature->Attack(pWho, true))
+        if (me->Attack(pWho, true))
         {
-            m_creature->AddThreat(pWho, 0.0f);
-            m_creature->SetInCombatWith(pWho);
-            pWho->SetInCombatWith(m_creature);
+            me->AddThreat(pWho, 0.0f);
+            me->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(me);
             DoStartMovement(pWho);
         }
     }
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         if (pInstance)
         {
             if (GameObject *pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_ZURAMAT_CELL)))
@@ -107,7 +107,7 @@ struct boss_zuramatAI : public ScriptedAI
 
         if (SpellSummonVoidTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SUMMON_VOID_SENTRY, false);
+            DoCast(me->getVictim(), SPELL_SUMMON_VOID_SENTRY, false);
             SpellSummonVoidTimer = 20000;
         } else SpellSummonVoidTimer -=diff;
 
@@ -120,7 +120,7 @@ struct boss_zuramatAI : public ScriptedAI
 
         if (SpellShroudOfDarknessTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHROUD_OF_DARKNESS);
+            DoCast(me->getVictim(), SPELL_SHROUD_OF_DARKNESS);
             SpellShroudOfDarknessTimer = 20000;
         } else SpellShroudOfDarknessTimer -=diff;
 
@@ -129,7 +129,7 @@ struct boss_zuramatAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -148,15 +148,15 @@ struct boss_zuramatAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void JustSummoned(Creature* summon)
     {
-        summon->AI()->AttackStart(m_creature->getVictim());
+        summon->AI()->AttackStart(me->getVictim());
         summon->AI()->DoCastAOE(SPELL_ZURAMAT_ADD_2);
         summon->SetPhaseMask(17,true);
     }

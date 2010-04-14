@@ -66,7 +66,7 @@ float AddPos[9][3] =
 
 struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
 {
-    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c), Summons(m_creature)
+    boss_the_lurker_belowAI(Creature *c) : Scripted_NoMovementAI(c), Summons(me)
     {
         pInstance = c->GetInstanceData();
         SpellEntry *TempSpell = GET_SPELL(SPELL_SPOUT_ANIM);
@@ -104,7 +104,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
     }
     void Reset()
     {
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_LEVITATING);
         SpoutAnimTimer = 1000;
         RotTimer = 0;
         WaterboltTimer = 15000;//give time to get in range when fight starts
@@ -128,10 +128,10 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
             pInstance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
         }
-        DoCast(m_creature, SPELL_SUBMERGE);//submerge anim
-        m_creature->SetVisibility(VISIBILITY_OFF);//we start invis under water, submerged
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        DoCast(me, SPELL_SUBMERGE);//submerge anim
+        me->SetVisibility(VISIBILITY_OFF);//we start invis under water, submerged
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     void JustDied(Unit* Killer)
@@ -153,10 +153,10 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
     {
         if (!CanStartEvent)//boss is invisible, don't attack
             return;
-        if (!m_creature->getVictim() && who->isTargetableForAttack() && (m_creature->IsHostileTo(who)))
+        if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
         {
-            float attackRadius = m_creature->GetAttackDistance(who);
-            if (m_creature->IsWithinDistInMap(who, attackRadius))
+            float attackRadius = me->GetAttackDistance(who);
+            if (me->IsWithinDistInMap(who, attackRadius))
             {
                 AttackStart(who);
             }
@@ -177,15 +177,15 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
             {
                 if (Submerged)
                 {
-                    m_creature->SetVisibility(VISIBILITY_ON);
+                    me->SetVisibility(VISIBILITY_ON);
                     Submerged = false;
                     WaitTimer2 = 500;
                 }
                 if (!Submerged && WaitTimer2 <= diff)//wait 500ms before emerge anim
                 {
-                    m_creature->RemoveAllAuras();
-                    m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
-                    DoCast(m_creature, SPELL_EMERGE, false);
+                    me->RemoveAllAuras();
+                    me->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
+                    DoCast(me, SPELL_EMERGE, false);
                     WaitTimer2 = 60000;//never reached
                     WaitTimer = 3000;
                 } else WaitTimer2 -= diff;
@@ -194,16 +194,16 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 {
                     WaitTimer = 3000;
                     CanStartEvent=true;//fresh fished from pool
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 } else WaitTimer -= diff;
             }
             return;
         }
 
-        if (m_creature->getThreatManager().getThreatList().empty())//check if should evade
+        if (me->getThreatManager().getThreatList().empty())//check if should evade
         {
-            if (m_creature->isInCombat())
+            if (me->isInCombat())
                 EnterEvadeMode();
             return;
         }
@@ -211,15 +211,15 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
         {
             if (PhaseTimer <= diff)
             {
-                m_creature->InterruptNonMeleeSpells(false);
-                DoCast(m_creature, SPELL_SUBMERGE);
+                me->InterruptNonMeleeSpells(false);
+                DoCast(me, SPELL_SUBMERGE);
                 PhaseTimer = 60000;//60secs submerged
                 Submerged = true;
             } else PhaseTimer-=diff;
 
             if (SpoutTimer <= diff)
             {
-                m_creature->MonsterTextEmote(EMOTE_SPOUT,0,true);
+                me->MonsterTextEmote(EMOTE_SPOUT,0,true);
                 me->SetReactState(REACT_PASSIVE);
                 me->GetMotionMaster()->MoveRotate(20000, rand()%2 ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                 SpoutTimer = 45000;
@@ -232,19 +232,19 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (WhirlTimer <= diff)
             {
                 WhirlTimer = 18000;
-                DoCast(m_creature, SPELL_WHIRL);
+                DoCast(me, SPELL_WHIRL);
             } else WhirlTimer -= diff;
 
             if (CheckTimer <= diff)//check if there are players in melee range
             {
                 InRange = false;
-                Map* pMap = m_creature->GetMap();
+                Map* pMap = me->GetMap();
                 Map::PlayerList const &PlayerList = pMap->GetPlayers();
                 if (!PlayerList.isEmpty())
                 {
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if (m_creature->IsWithinMeleeRange(i->getSource()))
+                        if (me->IsWithinMeleeRange(i->getSource()))
                             InRange = true;
                     }
                 }
@@ -253,20 +253,20 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
 
             if (RotTimer)
             {
-                Map* pMap = m_creature->GetMap();
+                Map* pMap = me->GetMap();
                 if (pMap->IsDungeon())
                 {
                     Map::PlayerList const &PlayerList = pMap->GetPlayers();
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     {
-                        if (i->getSource() && i->getSource()->isAlive() && m_creature->HasInArc((double)diff/20000*(double)M_PI*2,i->getSource()) && m_creature->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
+                        if (i->getSource() && i->getSource()->isAlive() && me->HasInArc((double)diff/20000*(double)M_PI*2,i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
                             DoCast(i->getSource(), SPELL_SPOUT, true);//only knock back palyers in arc, in 100yards, not in water
                     }
                 }
 
                 if (SpoutAnimTimer <= diff)
                 {
-                    DoCast(m_creature, SPELL_SPOUT_ANIM, true);
+                    DoCast(me, SPELL_SPOUT_ANIM, true);
                     SpoutAnimTimer = 1000;
                 } else SpoutAnimTimer -= diff;
 
@@ -280,8 +280,8 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (GeyserTimer <= diff)
             {
                 Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,1);
-                if (!pTarget && m_creature->getVictim())
-                    pTarget = m_creature->getVictim();
+                if (!pTarget && me->getVictim())
+                    pTarget = me->getVictim();
                 if (pTarget)
                     DoCast(pTarget, SPELL_GEYSER, true);
                 GeyserTimer = rand()%5000 + 15000;
@@ -292,8 +292,8 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
                 if (WaterboltTimer <= diff)
                 {
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-                    if (!pTarget && m_creature->getVictim())
-                        pTarget = m_creature->getVictim();
+                    if (!pTarget && me->getVictim())
+                        pTarget = me->getVictim();
                     if (pTarget)
                         DoCast(pTarget, SPELL_WATERBOLT, true);
                     WaterboltTimer = 3000;
@@ -310,35 +310,35 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
             if (PhaseTimer <= diff)
             {
                 Submerged = false;
-                m_creature->InterruptNonMeleeSpells(false);//shouldn't be any
-                m_creature->RemoveAllAuras();
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                m_creature->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
-                DoCast(m_creature, SPELL_EMERGE, true);
+                me->InterruptNonMeleeSpells(false);//shouldn't be any
+                me->RemoveAllAuras();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->RemoveFlag(UNIT_NPC_EMOTESTATE,EMOTE_STATE_SUBMERGED);
+                DoCast(me, SPELL_EMERGE, true);
                 Spawned = false;
                 SpoutTimer = 3000; // directly cast Spout after emerging!
                 PhaseTimer = 120000;
                 return;
             } else PhaseTimer-=diff;
 
-            if (m_creature->getThreatManager().getThreatList().empty())//check if should evade
+            if (me->getThreatManager().getThreatList().empty())//check if should evade
             {
                 EnterEvadeMode();
                 return;
             }
-            if (!m_creature->isInCombat())
+            if (!me->isInCombat())
                 DoZoneInCombat();
 
             if (!Spawned)
             {
-                m_creature->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 //spawn adds
                 for (uint8 i = 0; i < 9; ++i)
                 {
                     Creature* Summoned;
                     if (i < 6)
-                        Summoned = m_creature->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                    else Summoned = m_creature->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        Summoned = me->SummonCreature(MOB_COILFANG_AMBUSHER,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    else Summoned = me->SummonCreature(MOB_COILFANG_GUARDIAN,AddPos[i][0],AddPos[i][1],AddPos[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     if (Summoned)
                         Summons.Summon(Summoned);
@@ -394,9 +394,9 @@ struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (!who || m_creature->getVictim()) return;
+        if (!who || me->getVictim()) return;
 
-        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(m_creature) && m_creature->IsHostileTo(who) && m_creature->IsWithinDistInMap(who, 45))
+        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who) && me->IsWithinDistInMap(who, 45))
         {
             AttackStart(who);
         }
@@ -406,8 +406,8 @@ struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     {
         if (MultiShotTimer <= diff)
         {
-            if (m_creature->getVictim())
-                DoCast(m_creature->getVictim(), SPELL_SPREAD_SHOT, true);
+            if (me->getVictim())
+                DoCast(me->getVictim(), SPELL_SPREAD_SHOT, true);
 
             MultiShotTimer = 10000+rand()%10000;
             ShootBowTimer += 1500;//add global cooldown
@@ -419,7 +419,7 @@ struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
             pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
             int bp0 = 1100;
             if (pTarget)
-                m_creature->CastCustomSpell(pTarget,SPELL_SHOOT,&bp0,NULL,NULL,true);
+                me->CastCustomSpell(pTarget,SPELL_SHOOT,&bp0,NULL,NULL,true);
             ShootBowTimer = 4000+rand()%5000;
             MultiShotTimer += 1500;//add global cooldown
         } else ShootBowTimer -= diff;

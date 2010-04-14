@@ -64,15 +64,15 @@ struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
         if (pWho->GetEntry() == NPC_SMEED)
         {
-            if (m_creature->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
+            if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 return;
 
-            if (m_creature->IsWithinDistInMap(pWho, 10.0f))
+            if (me->IsWithinDistInMap(pWho, 10.0f))
             {
                 DoScriptText(RAND(SAY_SMEED_HOME_1,SAY_SMEED_HOME_2,SAY_SMEED_HOME_3), pWho);
 
                 //spell have no implemented effect (dummy), so useful to notify spellHit
-                DoCast(m_creature, SPELL_KODO_KOMBO_GOSSIP, true);
+                DoCast(me, SPELL_KODO_KOMBO_GOSSIP, true);
             }
         }
     }
@@ -81,7 +81,7 @@ struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
         if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
         {
-            m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
             m_uiDespawnTimer = 60000;
         }
     }
@@ -91,11 +91,11 @@ struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
         //timer should always be == 0 unless we already updated entry of creature. Then not expect this updated to ever be in combat.
         if (m_uiDespawnTimer && m_uiDespawnTimer <= diff)
         {
-            if (!m_creature->getVictim() && m_creature->isAlive())
+            if (!me->getVictim() && me->isAlive())
             {
                 Reset();
-                m_creature->setDeathState(JUST_DIED);
-                m_creature->Respawn();
+                me->setDeathState(JUST_DIED);
+                me->Respawn();
                 return;
             }
         } else m_uiDespawnTimer -= diff;

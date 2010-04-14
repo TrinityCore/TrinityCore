@@ -148,11 +148,11 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
     void DoDie()
     {
         //summoner dies here
-        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         //override any database `spawntimesecs` to prevent duplicated summons
-        uint32 rTime = m_creature->GetRespawnDelay();
+        uint32 rTime = me->GetRespawnDelay();
         if (rTime<600)
-            m_creature->SetRespawnDelay(600);
+            me->SetRespawnDelay(600);
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -162,13 +162,13 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
 
         if (who->GetTypeId() == TYPEID_PLAYER)
         {
-            switch(m_creature->GetAreaId())
+            switch(me->GetAreaId())
             {
                 case 199:                                   //felstone
                     if (CAST_PLR(who)->GetQuestStatus(5216) == QUEST_STATUS_INCOMPLETE ||
                         CAST_PLR(who)->GetQuestStatus(5229) == QUEST_STATUS_INCOMPLETE)
                     {
-                        m_creature->SummonCreature(11075, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        me->SummonCreature(11075, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                         DoDie();
                     }
                     break;
@@ -176,7 +176,7 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
                     if (CAST_PLR(who)->GetQuestStatus(5219) == QUEST_STATUS_INCOMPLETE ||
                         CAST_PLR(who)->GetQuestStatus(5231) == QUEST_STATUS_INCOMPLETE)
                     {
-                        m_creature->SummonCreature(11077, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                        me->SummonCreature(11077, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                         DoDie();
                     }
                     break;
@@ -184,7 +184,7 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
                     if (CAST_PLR(who)->GetQuestStatus(5225) == QUEST_STATUS_INCOMPLETE ||
                         CAST_PLR(who)->GetQuestStatus(5235) == QUEST_STATUS_INCOMPLETE)
                     {
-                        m_creature->SummonCreature(11078, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                        me->SummonCreature(11078, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                         DoDie();
                     }
                     break;
@@ -192,7 +192,7 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
                     if (CAST_PLR(who)->GetQuestStatus(5222) == QUEST_STATUS_INCOMPLETE ||
                         CAST_PLR(who)->GetQuestStatus(5233) == QUEST_STATUS_INCOMPLETE)
                     {
-                        m_creature->SummonCreature(11076, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
+                        me->SummonCreature(11076, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000);
                         DoDie();
                     }
                     break;
@@ -223,8 +223,8 @@ struct npc_andorhal_towerAI : public Scripted_NoMovementAI
         if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        if (m_creature->FindNearestGameObject(GO_BEACON_TORCH, 10.0f))
-            CAST_PLR(pWho)->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID());
+        if (me->FindNearestGameObject(GO_BEACON_TORCH, 10.0f))
+            CAST_PLR(pWho)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
     }
 };
 

@@ -50,20 +50,20 @@ TotemAI::MoveInLineOfSight(Unit *)
 
 void TotemAI::EnterEvadeMode()
 {
-    m_creature->CombatStop(true);
+    me->CombatStop(true);
 }
 
 void
 TotemAI::UpdateAI(const uint32 /*diff*/)
 {
-  if (m_creature->ToTotem()->GetTotemType() != TOTEM_ACTIVE)
+  if (me->ToTotem()->GetTotemType() != TOTEM_ACTIVE)
         return;
 
-    if (!m_creature->isAlive() || m_creature->IsNonMeleeSpellCasted(false))
+    if (!me->isAlive() || me->IsNonMeleeSpellCasted(false))
         return;
 
     // Search spell
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(m_creature->ToTotem()->GetSpell());
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(me->ToTotem()->GetSpell());
     if (!spellInfo)
         return;
 
@@ -74,17 +74,17 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
     // SPELLMOD_RANGE not applied in this place just because not existence range mods for attacking totems
 
     // pointer to appropriate target if found any
-    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*m_creature, i_victimGuid) : NULL;
+    Unit* victim = i_victimGuid ? ObjectAccessor::GetUnit(*me, i_victimGuid) : NULL;
 
     // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
     if (!victim ||
-        !victim->isTargetableForAttack() || !m_creature->IsWithinDistInMap(victim, max_range) ||
-        m_creature->IsFriendlyTo(victim) || !victim->isVisibleForOrDetect(m_creature,false))
+        !victim->isTargetableForAttack() || !me->IsWithinDistInMap(victim, max_range) ||
+        me->IsFriendlyTo(victim) || !victim->isVisibleForOrDetect(me,false))
     {
         victim = NULL;
-        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(m_creature, m_creature, max_range);
-        Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(m_creature, victim, u_check);
-        m_creature->VisitNearbyObject(max_range, checker);
+        Trinity::NearestAttackableUnitInObjectRangeCheck u_check(me, me, max_range);
+        Trinity::UnitLastSearcher<Trinity::NearestAttackableUnitInObjectRangeCheck> checker(me, victim, u_check);
+        me->VisitNearbyObject(max_range, checker);
     }
 
     // If have target
@@ -94,8 +94,8 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
         i_victimGuid = victim->GetGUID();
 
         // attack
-        m_creature->SetInFront(victim);                         // client change orientation by self
-        m_creature->CastSpell(victim, m_creature->ToTotem()->GetSpell(), false);
+        me->SetInFront(victim);                         // client change orientation by self
+        me->CastSpell(victim, me->ToTotem()->GetSpell(), false);
     }
     else
         i_victimGuid = 0;
@@ -105,12 +105,12 @@ void
 TotemAI::AttackStart(Unit *)
 {
     // Sentry totem sends ping on attack
-    if (m_creature->GetEntry() == SENTRY_TOTEM_ENTRY && m_creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+    if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)
     {
         WorldPacket data(MSG_MINIMAP_PING, (8+4+4));
-        data << m_creature->GetGUID();
-        data << m_creature->GetPositionX();
-        data << m_creature->GetPositionY();
-        ((Player*)m_creature->GetOwner())->GetSession()->SendPacket(&data);
+        data << me->GetGUID();
+        data << me->GetPositionX();
+        data << me->GetPositionY();
+        ((Player*)me->GetOwner())->GetSession()->SendPacket(&data);
     }
 }

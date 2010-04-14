@@ -70,7 +70,7 @@ struct boss_moamAI : public ScriptedAI
         uiDrainManaTimer = urand(3000,7000);
         uiPhaseTimer = 90000;
         Phase = NORMAL;
-        m_creature->SetPower(POWER_MANA,0);
+        me->SetPower(POWER_MANA,0);
 
         if (pInstance)
             pInstance->SetData(DATA_MOAM_EVENT, NOT_STARTED);
@@ -78,7 +78,7 @@ struct boss_moamAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(EMOTE_AGGRO, m_creature);
+        DoScriptText(EMOTE_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_MOAM_EVENT, IN_PROGRESS);
@@ -97,7 +97,7 @@ struct boss_moamAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
             {
                 pTarget->ModifyPower(POWER_MANA, -500);
-                m_creature->ModifyPower(POWER_MANA, 1000);
+                me->ModifyPower(POWER_MANA, 1000);
             }
         }
     }
@@ -110,17 +110,17 @@ struct boss_moamAI : public ScriptedAI
                 return;
 
             //If we are 100%MANA cast Arcane Erruption
-            if (m_creature->GetPower(POWER_MANA) == m_creature->GetMaxPower(POWER_MANA))
+            if (me->GetPower(POWER_MANA) == me->GetMaxPower(POWER_MANA))
             {
-                DoCast(m_creature->getVictim(), SPELL_ARCANEERUPTION);
-                DoScriptText(EMOTE_MANA_FULL, m_creature);
-                m_creature->SetPower(POWER_MANA,0);
+                DoCast(me->getVictim(), SPELL_ARCANEERUPTION);
+                DoScriptText(EMOTE_MANA_FULL, me);
+                me->SetPower(POWER_MANA,0);
             }
 
             //Trample Spell
             if (uiTrampleTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_TRAMPLE);
+                DoCast(me->getVictim(), SPELL_TRAMPLE);
                 uiTrampleTimer = urand(3000,7000);
             } else uiTrampleTimer -= diff;
 
@@ -137,10 +137,10 @@ struct boss_moamAI : public ScriptedAI
             if (uiPhaseTimer <= diff)
             {
                 Phase = STONE;
-                DoCast(m_creature, SPELL_SUMMONMANA);
-                DoCast(m_creature, SPELL_SUMMONMANA);
-                DoCast(m_creature, SPELL_SUMMONMANA);
-                DoCast(m_creature, SPELL_GRDRSLEEP);
+                DoCast(me, SPELL_SUMMONMANA);
+                DoCast(me, SPELL_SUMMONMANA);
+                DoCast(me, SPELL_SUMMONMANA);
+                DoCast(me, SPELL_GRDRSLEEP);
             } else uiPhaseTimer -= diff;
         }
     }

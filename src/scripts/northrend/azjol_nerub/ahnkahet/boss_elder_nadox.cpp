@@ -93,7 +93,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_DEATH,m_creature);
+        DoScriptText(SAY_DEATH,me);
 
         if (pInstance)
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
@@ -101,12 +101,12 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_SLAY_3,m_creature); //SAY_SLAY_3 on death?
+        DoScriptText(SAY_SLAY_3,me); //SAY_SLAY_3 on death?
 
         if (pInstance)
         {
@@ -123,14 +123,14 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
         if (uiPlagueTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BROOD_PLAGUE);
+            DoCast(me->getVictim(), SPELL_BROOD_PLAGUE);
             uiPlagueTimer = 15*IN_MILISECONDS;
         } else uiPlagueTimer -= diff;
 
         if (IsHeroic())
             if (uiRagueTimer <= diff)
             {
-                if (Creature *pSwarmer = m_creature->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35))
+                if (Creature *pSwarmer = me->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35))
                 {
                     DoCast(pSwarmer, H_SPELL_BROOD_RAGE, true);
                     uiRagueTimer = 15*IN_MILISECONDS;
@@ -139,31 +139,31 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
         if (uiSwarmerSpawnTimer <= diff)
         {
-            DoCast(m_creature, SPELL_SUMMON_SWARMERS, true);
-            DoCast(m_creature, SPELL_SUMMON_SWARMERS);
+            DoCast(me, SPELL_SUMMON_SWARMERS, true);
+            DoCast(me, SPELL_SUMMON_SWARMERS);
             if (urand(1,3) == 3) // 33% chance of dialog
-                DoScriptText(RAND(SAY_EGG_SAC_1,SAY_EGG_SAC_2), m_creature);
+                DoScriptText(RAND(SAY_EGG_SAC_1,SAY_EGG_SAC_2), me);
 
             uiSwarmerSpawnTimer = 10*IN_MILISECONDS;
         } else uiSwarmerSpawnTimer -= diff;
 
         if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
         {
-            m_creature->MonsterTextEmote(EMOTE_HATCHES,m_creature->GetGUID(),true);
-            DoCast(m_creature, SPELL_SUMMON_SWARM_GUARD);
+            me->MonsterTextEmote(EMOTE_HATCHES,me->GetGUID(),true);
+            DoCast(me, SPELL_SUMMON_SWARM_GUARD);
             bGuardSpawned = true;
         } else uiGuardSpawnTimer -= diff;
 
         if (uiEnragueTimer <= diff)
         {
-            if (m_creature->HasAura(SPELL_ENRAGE,0))
+            if (me->HasAura(SPELL_ENRAGE,0))
                 return;
 
             float x, y, z, o;
-            m_creature->GetHomePosition(x, y, z, o);
+            me->GetHomePosition(x, y, z, o);
             if (z < 24)
-                if (!m_creature->IsNonMeleeSpellCasted(false))
-                    DoCast(m_creature, SPELL_ENRAGE, true);
+                if (!me->IsNonMeleeSpellCasted(false))
+                    DoCast(me, SPELL_ENRAGE, true);
 
             uiEnragueTimer = 5*IN_MILISECONDS;
         } else uiEnragueTimer -= diff;
@@ -195,14 +195,14 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
 
     void Reset()
     {
-        if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY) //magic numbers are bad!
-            DoCast(m_creature, SPELL_GUARDIAN_AURA, true);
+        if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY) //magic numbers are bad!
+            DoCast(me, SPELL_GUARDIAN_AURA, true);
         uiSprintTimer = 10*IN_MILISECONDS;
     }
 
     void JustDied(Unit *killer)
     {
-        if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+        if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
             DeadAhnkaharGuardian = true;
     }
 
@@ -213,14 +213,14 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
-            m_creature->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
+        if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
+            me->RemoveAurasDueToSpell(SPELL_GUARDIAN_AURA);
 
         if (pInstance)
         {
             if (pInstance->GetData(DATA_ELDER_NADOX_EVENT) != IN_PROGRESS)
             {
-                m_creature->DisappearAndDie();
+                me->DisappearAndDie();
             }
         }
 
@@ -229,7 +229,7 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
 
         if (uiSprintTimer <= diff)
         {
-            DoCast(m_creature, SPELL_SPRINT);
+            DoCast(me, SPELL_SPRINT);
             uiSprintTimer = 25*IN_MILISECONDS;
         } else uiSprintTimer -= diff;
 

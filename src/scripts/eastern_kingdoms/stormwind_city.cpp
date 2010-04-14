@@ -86,16 +86,16 @@ struct npc_bartlebyAI : public ScriptedAI
 
     void Reset()
     {
-        if (m_creature->getFaction() != m_uiNormalFaction)
-            m_creature->setFaction(m_uiNormalFaction);
+        if (me->getFaction() != m_uiNormalFaction)
+            me->setFaction(m_uiNormalFaction);
     }
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (m_creature->getVictim())
+        if (me->getVictim())
             return;
 
-        if (m_creature->IsFriendlyTo(pAttacker))
+        if (me->IsFriendlyTo(pAttacker))
             return;
 
         AttackStart(pAttacker);
@@ -103,7 +103,7 @@ struct npc_bartlebyAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
+        if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage)*100 / me->GetMaxHealth() < 15))
         {
             //Take 0 damage
             uiDamage = 0;
@@ -151,16 +151,16 @@ struct npc_dashel_stonefistAI : public ScriptedAI
 
     void Reset()
     {
-        if (m_creature->getFaction() != m_uiNormalFaction)
-            m_creature->setFaction(m_uiNormalFaction);
+        if (me->getFaction() != m_uiNormalFaction)
+            me->setFaction(m_uiNormalFaction);
     }
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (m_creature->getVictim())
+        if (me->getVictim())
             return;
 
-        if (m_creature->IsFriendlyTo(pAttacker))
+        if (me->IsFriendlyTo(pAttacker))
             return;
 
         AttackStart(pAttacker);
@@ -168,7 +168,7 @@ struct npc_dashel_stonefistAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
+        if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage)*100 / me->GetMaxHealth() < 15))
         {
             uiDamage = 0;
 
@@ -284,9 +284,9 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
 
     void EnterEvadeMode()
     {
-        m_creature->DisappearAndDie();
+        me->DisappearAndDie();
 
-        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
+        if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
         {
             if (pMarzon->isAlive())
                 pMarzon->DisappearAndDie();
@@ -295,7 +295,7 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
 
     void EnterCombat(Unit* pWho)
     {
-        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
+        if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
         {
             if (pMarzon->isAlive() && !pMarzon->isInCombat())
                 pMarzon->AI()->AttackStart(pWho);
@@ -308,13 +308,13 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
         {
             case 14:
                 SetEscortPaused(true);
-                DoScriptText(SAY_LESCOVAR_2, m_creature);
+                DoScriptText(SAY_LESCOVAR_2, me);
                 uiTimer = 3000;
                 uiPhase = 1;
                 break;
             case 16:
                 SetEscortPaused(true);
-                if (Creature *pMarzon = m_creature->SummonCreature(NPC_MARZON_BLADE,-8411.360352, 480.069733, 123.760895, 4.941504, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+                if (Creature *pMarzon = me->SummonCreature(NPC_MARZON_BLADE,-8411.360352, 480.069733, 123.760895, 4.941504, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
                 {
                     pMarzon->GetMotionMaster()->MovePoint(0,-8408.000977, 468.611450, 123.759903);
                     MarzonGUID = pMarzon->GetGUID();
@@ -328,7 +328,7 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
     void DoGuardsDisappearAndDie()
     {
         std::list<Creature*> GuardList;
-        m_creature->GetCreatureListWithEntryInGrid(GuardList,NPC_STORMWIND_ROYAL,8.0f);
+        me->GetCreatureListWithEntryInGrid(GuardList,NPC_STORMWIND_ROYAL,8.0f);
         if (!GuardList.empty())
         {
             for (std::list<Creature*>::const_iterator itr = GuardList.begin(); itr != GuardList.end(); ++itr)
@@ -348,7 +348,7 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
                 switch(uiPhase)
                 {
                     case 1:
-                        if (Creature* pGuard = m_creature->FindNearestCreature(NPC_STORMWIND_ROYAL, 8.0f, true))
+                        if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 8.0f, true))
                             DoScriptText(SAY_GUARD_2, pGuard);
                         uiTimer = 3000;
                         uiPhase = 2;
@@ -364,29 +364,29 @@ struct npc_lord_gregor_lescovarAI : public npc_escortAI
                         uiPhase = 0;
                         break;
                     case 4:
-                        DoScriptText(SAY_LESCOVAR_3, m_creature);
+                        DoScriptText(SAY_LESCOVAR_3, me);
                         uiTimer = 0;
                         uiPhase = 0;
                         break;
                     case 5:
-                        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
+                        if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
                             DoScriptText(SAY_MARZON_1, pMarzon);
                         uiTimer = 3000;
                         uiPhase = 6;
                         break;
                     case 6:
-                        DoScriptText(SAY_LESCOVAR_4, m_creature);
+                        DoScriptText(SAY_LESCOVAR_4, me);
                         if (Player* pPlayer = GetPlayerForEscort())
                             pPlayer->AreaExploredOrEventHappens(QUEST_THE_ATTACK);
                         uiTimer = 2000;
                         uiPhase = 7;
                         break;
                     case 7:
-                        if (Creature* pTyrion = m_creature->FindNearestCreature(NPC_TYRION, 20.0f, true))
+                        if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION, 20.0f, true))
                             DoScriptText(SAY_TYRION_2, pTyrion);
-                        if (Creature *pMarzon = Unit::GetCreature(*m_creature, MarzonGUID))
+                        if (Creature *pMarzon = Unit::GetCreature(*me, MarzonGUID))
                             pMarzon->setFaction(14);
-                        m_creature->setFaction(14);
+                        me->setFaction(14);
                         uiTimer = 0;
                         uiPhase = 0;
                         break;
@@ -415,21 +415,21 @@ struct npc_marzon_silent_bladeAI : public ScriptedAI
 {
     npc_marzon_silent_bladeAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
     }
 
     void Reset()
     {
-        m_creature->RestoreFaction();
+        me->RestoreFaction();
     }
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_MARZON_2, m_creature);
+        DoScriptText(SAY_MARZON_2, me);
 
-        if (m_creature->isSummon())
+        if (me->isSummon())
         {
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
             {
                 if (pSummoner && pSummoner->isAlive() && !pSummoner->isInCombat())
                     CAST_CRE(pSummoner)->AI()->AttackStart(pWho);
@@ -439,11 +439,11 @@ struct npc_marzon_silent_bladeAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        m_creature->DisappearAndDie();
+        me->DisappearAndDie();
 
-        if (m_creature->isSummon())
+        if (me->isSummon())
         {
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
             {
                 if (pSummoner && pSummoner->isAlive())
                     CAST_CRE(pSummoner)->DisappearAndDie();
@@ -456,13 +456,13 @@ struct npc_marzon_silent_bladeAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        if (m_creature->isSummon())
+        if (me->isSummon())
         {
-            if (Unit* pSummoner = CAST_SUM(m_creature)->GetSummoner())
+            if (Unit* pSummoner = CAST_SUM(me)->GetSummoner())
             {
                 CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiTimer = 2000;
                 CAST_AI(npc_lord_gregor_lescovarAI, CAST_CRE(pSummoner)->AI())->uiPhase = 5;
-                //m_creature->ChangeOrient(0.0f, pSummoner);
+                //me->ChangeOrient(0.0f, pSummoner);
             }
         }
     }
@@ -524,13 +524,13 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                 break;
             case 5:
                 SetEscortPaused(true);
-                DoScriptText(SAY_SPYBOT_1, m_creature);
+                DoScriptText(SAY_SPYBOT_1, me);
                 uiTimer = 2000;
                 uiPhase = 5;
                 break;
             case 17:
                 SetEscortPaused(true);
-                DoScriptText(SAY_SPYBOT_3, m_creature);
+                DoScriptText(SAY_SPYBOT_3, me);
                 uiTimer = 3000;
                 uiPhase = 8;
                 break;
@@ -546,7 +546,7 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                 switch(uiPhase)
                 {
                     case 1:
-                        DoScriptText(SAY_QUEST_ACCEPT_ATTACK, m_creature);
+                        DoScriptText(SAY_QUEST_ACCEPT_ATTACK, me);
                         uiTimer = 3000;
                         uiPhase = 2;
                         break;
@@ -560,7 +560,7 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 3;
                         break;
                     case 3:
-                        m_creature->UpdateEntry(NPC_PRIESTESS_TYRIONA, ALLIANCE);
+                        me->UpdateEntry(NPC_PRIESTESS_TYRIONA, ALLIANCE);
                         uiTimer = 2000;
                         uiPhase = 4;
                         break;
@@ -570,13 +570,13 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                        uiTimer = 0;
                        break;
                     case 5:
-                        if (Creature* pGuard = m_creature->FindNearestCreature(NPC_STORMWIND_ROYAL, 10.0f, true))
+                        if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 10.0f, true))
                             DoScriptText(SAY_GUARD_1, pGuard);
                         uiTimer = 3000;
                         uiPhase = 6;
                         break;
                     case 6:
-                        DoScriptText(SAY_SPYBOT_2, m_creature);
+                        DoScriptText(SAY_SPYBOT_2, me);
                         uiTimer = 3000;
                         uiPhase = 7;
                         break;
@@ -595,7 +595,7 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 9;
                         break;
                     case 9:
-                        DoScriptText(SAY_SPYBOT_4, m_creature);
+                        DoScriptText(SAY_SPYBOT_4, me);
                         uiTimer = 3000;
                         uiPhase = 10;
                         break;
@@ -609,7 +609,7 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                             CAST_AI(npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
                         }
                         */
-                        m_creature->DisappearAndDie();
+                        me->DisappearAndDie();
                         uiTimer = 0;
                         uiPhase = 0;
                         break;

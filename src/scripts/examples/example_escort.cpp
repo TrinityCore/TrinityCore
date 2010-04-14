@@ -60,7 +60,7 @@ struct example_escortAI : public npc_escortAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->AI()->AttackStart(m_creature);
+        pSummoned->AI()->AttackStart(me);
     }
 
     // Pure Virtual Functions (Have to be implemented)
@@ -69,17 +69,17 @@ struct example_escortAI : public npc_escortAI
         switch (uiWP)
         {
             case 1:
-                DoScriptText(SAY_WP_1, m_creature);
+                DoScriptText(SAY_WP_1, me);
                 break;
             case 3:
-                DoScriptText(SAY_WP_2, m_creature);
-                m_creature->SummonCreature(NPC_FELBOAR, m_creature->GetPositionX()+5.0f, m_creature->GetPositionY()+7.0f, m_creature->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+                DoScriptText(SAY_WP_2, me);
+                me->SummonCreature(NPC_FELBOAR, me->GetPositionX()+5.0f, me->GetPositionY()+7.0f, me->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
                 break;
             case 4:
                 if (Player* pPlayer = GetPlayerForEscort())
                 {
                     //pTmpPlayer is the target of the text
-                    DoScriptText(SAY_WP_3, m_creature, pPlayer);
+                    DoScriptText(SAY_WP_3, me, pPlayer);
                     //pTmpPlayer is the source of the text
                     DoScriptText(SAY_WP_4, pPlayer);
                 }
@@ -92,10 +92,10 @@ struct example_escortAI : public npc_escortAI
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (Player* pPlayer = GetPlayerForEscort())
-                DoScriptText(SAY_AGGRO1, m_creature, pPlayer);
+                DoScriptText(SAY_AGGRO1, me, pPlayer);
         }
         else
-            DoScriptText(SAY_AGGRO2, m_creature);
+            DoScriptText(SAY_AGGRO2, me);
     }
 
     void Reset()
@@ -111,16 +111,16 @@ struct example_escortAI : public npc_escortAI
             if (Player* pPlayer = GetPlayerForEscort())
             {
                 // not a likely case, code here for the sake of example
-                if (pKiller == m_creature)
+                if (pKiller == me)
                 {
-                    DoScriptText(SAY_DEATH_1, m_creature, pPlayer);
+                    DoScriptText(SAY_DEATH_1, me, pPlayer);
                 }
                 else
-                    DoScriptText(SAY_DEATH_2, m_creature, pPlayer);
+                    DoScriptText(SAY_DEATH_2, me, pPlayer);
             }
         }
         else
-            DoScriptText(SAY_DEATH_3, m_creature);
+            DoScriptText(SAY_DEATH_3, me);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -129,12 +129,12 @@ struct example_escortAI : public npc_escortAI
         npc_escortAI::UpdateAI(uiDiff);
 
         //Combat check
-        if (m_creature->getVictim())
+        if (me->getVictim())
         {
             if (m_uiDeathCoilTimer <= uiDiff)
             {
-                DoScriptText(SAY_SPELL, m_creature);
-                DoCast(m_creature->getVictim(), SPELL_DEATH_COIL, false);
+                DoScriptText(SAY_SPELL, me);
+                DoCast(me->getVictim(), SPELL_DEATH_COIL, false);
                 m_uiDeathCoilTimer = 4000;
             }
             else
@@ -147,15 +147,15 @@ struct example_escortAI : public npc_escortAI
             {
                 if (m_uiChatTimer <= uiDiff)
                 {
-                    if (m_creature->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
+                    if (me->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
                     {
-                        DoScriptText(SAY_RAND_1, m_creature);
-                        DoCast(m_creature, SPELL_BLUE_FIREWORK, false);
+                        DoScriptText(SAY_RAND_1, me);
+                        DoCast(me, SPELL_BLUE_FIREWORK, false);
                     }
                     else
                     {
-                        DoScriptText(SAY_RAND_2, m_creature);
-                        DoCast(m_creature, SPELL_ELIXIR_OF_FORTITUDE, false);
+                        DoScriptText(SAY_RAND_2, me);
+                        DoCast(me, SPELL_ELIXIR_OF_FORTITUDE, false);
                     }
 
                     m_uiChatTimer = 12000;

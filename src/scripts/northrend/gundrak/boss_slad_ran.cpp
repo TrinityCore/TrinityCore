@@ -100,7 +100,7 @@ struct boss_slad_ranAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
@@ -114,19 +114,19 @@ struct boss_slad_ranAI : public ScriptedAI
 
         if (uiPoisonNovaTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_POISON_NOVA);
+            DoCast(me->getVictim(), SPELL_POISON_NOVA);
             uiPoisonNovaTimer = 15*IN_MILISECONDS;
         } else uiPoisonNovaTimer -= diff;
 
         if (uiPowerfullBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_POWERFULL_BITE);
+            DoCast(me->getVictim(), SPELL_POWERFULL_BITE);
             uiPowerfullBiteTimer = 10*IN_MILISECONDS;
         } else uiPowerfullBiteTimer -= diff;
 
         if (uiVenomBoltTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_VENOM_BOLT);
+            DoCast(me->getVictim(), SPELL_VENOM_BOLT);
             uiVenomBoltTimer = 10*IN_MILISECONDS;
         } else uiVenomBoltTimer -= diff;
 
@@ -136,23 +136,23 @@ struct boss_slad_ranAI : public ScriptedAI
             {
                 if (uiPhase == 1)
                     for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                        m_creature->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                        me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
                 if (uiPhase == 2)
                     for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                        m_creature->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                        me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
                 uiSpawnTimer = 5*IN_MILISECONDS;
             } else uiSpawnTimer -= diff;
         }
 
         if (uiPhase == 0 && HealthBelowPct(30))
         {
-            DoScriptText(SAY_SUMMON_SNAKES,m_creature);
+            DoScriptText(SAY_SUMMON_SNAKES,me);
             uiPhase = 1;
         }
 
         if (uiPhase == 1 && HealthBelowPct(25))
         {
-            DoScriptText(SAY_SUMMON_CONSTRICTORS,m_creature);
+            DoScriptText(SAY_SUMMON_CONSTRICTORS,me);
             uiPhase = 2;
         }
 
@@ -161,7 +161,7 @@ struct boss_slad_ranAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
@@ -169,12 +169,12 @@ struct boss_slad_ranAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
     void JustSummoned(Creature* summoned)
     {
-        summoned->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ());
+        summoned->GetMotionMaster()->MovePoint(0,me->GetPositionX(),me->GetPositionY(),me->GetPositionZ());
         lSummons.Summon(summoned);
     }
 };
@@ -196,7 +196,7 @@ struct mob_slad_ran_constrictorAI : public ScriptedAI
             return;
         if (uiGripOfSladRanTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
+            DoCast(me->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
             uiGripOfSladRanTimer = 5*IN_MILISECONDS;
         } else uiGripOfSladRanTimer -= diff;
     }
@@ -224,7 +224,7 @@ struct mob_slad_ran_viperAI : public ScriptedAI
 
         if (uiVenomousBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_VENOMOUS_BITE);
+            DoCast(me->getVictim(), SPELL_VENOMOUS_BITE);
             uiVenomousBiteTimer = 10*IN_MILISECONDS;
         } else uiVenomousBiteTimer -= diff;
     }

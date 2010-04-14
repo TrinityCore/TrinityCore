@@ -943,7 +943,7 @@ namespace Trinity
     class NearestHostileUnitInAttackDistanceCheck
     {
         public:
-            explicit NearestHostileUnitInAttackDistanceCheck(Creature const* creature, float dist = 0) : m_creature(creature)
+            explicit NearestHostileUnitInAttackDistanceCheck(Creature const* creature, float dist = 0) : me(creature)
             {
                 m_range = (dist == 0 ? 9999 : dist);
                 m_force = (dist == 0 ? false : true);
@@ -951,26 +951,26 @@ namespace Trinity
             bool operator()(Unit* u)
             {
                 // TODO: addthreat for every enemy in range?
-                if (!m_creature->IsWithinDistInMap(u, m_range))
+                if (!me->IsWithinDistInMap(u, m_range))
                     return false;
 
                 if (m_force)
                 {
-                    if (!m_creature->canAttack(u))
+                    if (!me->canAttack(u))
                         return false;
                 }
                 else
                 {
-                    if (!m_creature->canStartAttack(u, false))
+                    if (!me->canStartAttack(u, false))
                         return false;
                 }
 
-                m_range = m_creature->GetDistance(u);
+                m_range = me->GetDistance(u);
                 return true;
             }
             float GetLastRange() const { return m_range; }
         private:
-            Creature const *m_creature;
+            Creature const *me;
             float m_range;
             bool m_force;
             NearestHostileUnitInAttackDistanceCheck(NearestHostileUnitInAttackDistanceCheck const&);

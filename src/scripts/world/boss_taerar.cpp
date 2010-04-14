@@ -81,7 +81,7 @@ struct boss_taerarAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -95,8 +95,8 @@ struct boss_taerarAI : public ScriptedAI
         if (m_bShades && m_uiShades_Timer <= uiDiff)
         {
             //Become unbanished again
-            m_creature->setFaction(14);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->setFaction(14);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             m_bShades = false;
         }
         else if (m_bShades)
@@ -124,7 +124,7 @@ struct boss_taerarAI : public ScriptedAI
         //NoxiousBreath_Timer
         if (m_uiNoxiousBreath_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_NOXIOUSBREATH);
+            DoCast(me->getVictim(), SPELL_NOXIOUSBREATH);
             m_uiNoxiousBreath_Timer = 14000 + rand()%6000;
         }
         else
@@ -133,7 +133,7 @@ struct boss_taerarAI : public ScriptedAI
         //Tailsweep every 2 seconds
         if (m_uiTailSweep_Timer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_TAILSWEEP);
+            DoCast(me, SPELL_TAILSWEEP);
             m_uiTailSweep_Timer = 2000;
         }
         else
@@ -142,7 +142,7 @@ struct boss_taerarAI : public ScriptedAI
         //MarkOfNature_Timer
         //if (m_uiMarkOfNature_Timer <= uiDiff)
         //{
-        //    DoCast(m_creature->getVictim(), SPELL_MARKOFNATURE);
+        //    DoCast(me->getVictim(), SPELL_MARKOFNATURE);
         //    m_uiMarkOfNature_Timer = 45000;
         //}
         //else
@@ -151,7 +151,7 @@ struct boss_taerarAI : public ScriptedAI
         //ArcaneBlast_Timer
         if (m_uiArcaneBlast_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCANEBLAST);
+            DoCast(me->getVictim(), SPELL_ARCANEBLAST);
             m_uiArcaneBlast_Timer = 7000 + rand()%5000;
         }
         else
@@ -160,25 +160,25 @@ struct boss_taerarAI : public ScriptedAI
         //BellowingRoar_Timer
         if (m_uiBellowingRoar_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BELLOWINGROAR);
+            DoCast(me->getVictim(), SPELL_BELLOWINGROAR);
             m_uiBellowingRoar_Timer = 20000 + rand()%10000;
         }
         else
             m_uiBellowingRoar_Timer -= uiDiff;
 
         //Summon 3 Shades at 75%, 50% and 25% (if bShades is true we already left in line 117, no need to check here again)
-        if (!m_bShades && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) <= (100-(25*m_uiShadesSummoned)))
+        if (!m_bShades && (me->GetHealth()*100 / me->GetMaxHealth()) <= (100-(25*m_uiShadesSummoned)))
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 //Inturrupt any spell casting
-                m_creature->InterruptNonMeleeSpells(false);
+                me->InterruptNonMeleeSpells(false);
 
                 //horrible workaround, need to fix
-                m_creature->setFaction(35);
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                me->setFaction(35);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                DoScriptText(SAY_SUMMONSHADE, m_creature);
+                DoScriptText(SAY_SUMMONSHADE, me);
 
                 int iSize = sizeof(m_auiSpellSummonShade) / sizeof(uint32);
 
@@ -217,7 +217,7 @@ struct boss_shadeoftaerarAI : public ScriptedAI
         //PoisonCloud_Timer
         if (m_uiPoisonCloud_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_POSIONCLOUD);
+            DoCast(me->getVictim(), SPELL_POSIONCLOUD);
             m_uiPoisonCloud_Timer = 30000;
         }
         else
@@ -226,7 +226,7 @@ struct boss_shadeoftaerarAI : public ScriptedAI
         //PosionBreath_Timer
         if (m_uiPosionBreath_Timer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_POSIONBREATH);
+            DoCast(me->getVictim(), SPELL_POSIONBREATH);
             m_uiPosionBreath_Timer = 12000;
         }
         else

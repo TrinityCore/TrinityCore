@@ -62,8 +62,8 @@ struct npc_corporal_keeshanAI : public npc_escortAI
         if (!pPlayer)
             return;
 
-        if (uiI >= 65 && m_creature->GetUnitMovementFlags() == MOVEMENTFLAG_WALK_MODE)
-            m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        if (uiI >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALK_MODE)
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
 
         switch(uiI)
         {
@@ -73,7 +73,7 @@ struct npc_corporal_keeshanAI : public npc_escortAI
                 uiPhase = 1;
                 break;
             case 65:
-                m_creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 break;
             case 115:
                 pPlayer->AreaExploredOrEventHappens(QUEST_MISSING_IN_ACTION);
@@ -97,28 +97,28 @@ struct npc_corporal_keeshanAI : public npc_escortAI
                 switch(uiPhase)
                 {
                     case 1:
-                        m_creature->SetStandState(UNIT_STAND_STATE_SIT);
+                        me->SetStandState(UNIT_STAND_STATE_SIT);
                         uiTimer = 1000;
                         uiPhase = 2;
                         break;
                     case 2:
-                        DoScriptText(SAY_CORPORAL_2,m_creature);
+                        DoScriptText(SAY_CORPORAL_2,me);
                         uiTimer = 15000;
                         uiPhase = 3;
                         break;
                     case 3:
-                        DoScriptText(SAY_CORPORAL_3,m_creature);
-                        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                        DoScriptText(SAY_CORPORAL_3,me);
+                        me->SetStandState(UNIT_STAND_STATE_STAND);
                         SetEscortPaused(false);
                         uiTimer = 0;
                         uiPhase = 0;
                         break;
                     case 4:
-                        DoScriptText(SAY_CORPORAL_4, m_creature);
+                        DoScriptText(SAY_CORPORAL_4, me);
                         uiTimer = 2500;
                         uiPhase = 5;
                     case 5:
-                        DoScriptText(SAY_CORPORAL_5, m_creature);
+                        DoScriptText(SAY_CORPORAL_5, me);
                         uiTimer = 0;
                         uiPhase = 0;
                 }
@@ -130,13 +130,13 @@ struct npc_corporal_keeshanAI : public npc_escortAI
 
         if (uiMockingBlowTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MOCKING_BLOW);
+            DoCast(me->getVictim(),SPELL_MOCKING_BLOW);
             uiMockingBlowTimer = 5000;
         } else uiMockingBlowTimer -= uiDiff;
 
         if (uiShieldBashTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MOCKING_BLOW);
+            DoCast(me->getVictim(),SPELL_MOCKING_BLOW);
             uiShieldBashTimer = 8000;
         } else uiShieldBashTimer -= uiDiff;
 

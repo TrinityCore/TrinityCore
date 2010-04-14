@@ -59,7 +59,7 @@ struct boss_varosAI : public ScriptedAI
     }
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
@@ -76,16 +76,16 @@ struct boss_varosAI : public ScriptedAI
     }
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, DONE);
     }
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), m_creature);
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
     }
 };
 

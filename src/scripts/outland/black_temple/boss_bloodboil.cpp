@@ -101,21 +101,21 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
 
         Phase1 = true;
 
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-        m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
+        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+        me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
     }
 
     void EnterCombat(Unit *who)
     {
         DoZoneInCombat();
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         if (pInstance)
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void JustDied(Unit *victim)
@@ -123,14 +123,14 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
 
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     // Note: This seems like a very complicated fix. The fix needs to be handled by the core, as implementation of limited-target AoE spells are still not limited.
     void CastBloodboil()
     {
         // Get the Threat List
-        std::list<HostileReference *> m_threatlist = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference *> m_threatlist = me->getThreatManager().getThreatList();
 
         if (!m_threatlist.size()) // He doesn't have anyone in his threatlist, useless to continue
             return;
@@ -139,14 +139,14 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
         std::list<HostileReference *>::const_iterator itr = m_threatlist.begin();
         for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
         {
-            Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                             //only on alive players
             if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
                 targets.push_back(pTarget);
         }
 
         //Sort the list of players
-        targets.sort(ObjectDistanceOrderReversed(m_creature));
+        targets.sort(ObjectDistanceOrderReversed(me));
         //Resize so we only get top 5
         targets.resize(5);
 
@@ -174,13 +174,13 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
     void RevertThreatOnTarget(uint64 guid)
     {
         Unit* pUnit = NULL;
-        pUnit = Unit::GetUnit((*m_creature), guid);
+        pUnit = Unit::GetUnit((*me), guid);
         if (pUnit)
         {
             if (DoGetThreat(pUnit))
                 DoModifyThreatPercent(pUnit, -100);
             if (TargetThreat)
-                m_creature->AddThreat(pUnit, TargetThreat);
+                me->AddThreat(pUnit, TargetThreat);
         }
     }
 
@@ -191,22 +191,22 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
 
         if (ArcingSmashTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ARCING_SMASH);
+            DoCast(me->getVictim(), SPELL_ARCING_SMASH);
             ArcingSmashTimer = 10000;
         } else ArcingSmashTimer -= diff;
 
         if (FelAcidTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_FEL_ACID);
+            DoCast(me->getVictim(), SPELL_FEL_ACID);
             FelAcidTimer = 25000;
         } else FelAcidTimer -= diff;
 
-        if (!m_creature->HasAura(SPELL_BERSERK))
+        if (!me->HasAura(SPELL_BERSERK))
         {
             if (EnrageTimer <= diff)
             {
-                DoCast(m_creature, SPELL_BERSERK);
-                DoScriptText(RAND(SAY_ENRAGE1,SAY_ENRAGE2), m_creature);
+                DoCast(me, SPELL_BERSERK);
+                DoScriptText(RAND(SAY_ENRAGE1,SAY_ENRAGE2), me);
             } else EnrageTimer -= diff;
         }
 
@@ -214,23 +214,23 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
         {
             if (BewilderingStrikeTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_BEWILDERING_STRIKE);
-                float mt_threat = DoGetThreat(m_creature->getVictim());
+                DoCast(me->getVictim(), SPELL_BEWILDERING_STRIKE);
+                float mt_threat = DoGetThreat(me->getVictim());
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
-                    m_creature->AddThreat(pTarget, mt_threat);
+                    me->AddThreat(pTarget, mt_threat);
                 BewilderingStrikeTimer = 20000;
             } else BewilderingStrikeTimer -= diff;
 
             if (EjectTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_EJECT1);
-                DoModifyThreatPercent(m_creature->getVictim(), -40);
+                DoCast(me->getVictim(), SPELL_EJECT1);
+                DoModifyThreatPercent(me->getVictim(), -40);
                 EjectTimer = 15000;
             } else EjectTimer -= diff;
 
             if (AcidicWoundTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_ACIDIC_WOUND);
+                DoCast(me->getVictim(), SPELL_ACIDIC_WOUND);
                 AcidicWoundTimer = 10000;
             } else AcidicWoundTimer -= diff;
 
@@ -239,7 +239,7 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
                 if (BloodboilCount < 5)                      // Only cast it five times.
                 {
                     //CastBloodboil(); // Causes issues on windows, so is commented out.
-                    DoCast(m_creature->getVictim(), SPELL_BLOODBOIL);
+                    DoCast(me->getVictim(), SPELL_BLOODBOIL);
                     ++BloodboilCount;
                     BloodboilTimer = 10000*BloodboilCount;
                 }
@@ -250,13 +250,13 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
         {
             if (AcidGeyserTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_ACID_GEYSER);
+                DoCast(me->getVictim(), SPELL_ACID_GEYSER);
                 AcidGeyserTimer = 30000;
             } else AcidGeyserTimer -= diff;
 
             if (EjectTimer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_EJECT2);
+                DoCast(me->getVictim(), SPELL_EJECT2);
                 EjectTimer = 15000;
             } else EjectTimer -= diff;
         }
@@ -272,14 +272,14 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
 
                     TargetThreat = DoGetThreat(pTarget);
                     TargetGUID = pTarget->GetGUID();
-                    pTarget->CastSpell(m_creature, SPELL_TAUNT_GURTOGG, true);
+                    pTarget->CastSpell(me, SPELL_TAUNT_GURTOGG, true);
                     if (DoGetThreat(pTarget))
                         DoModifyThreatPercent(pTarget, -100);
-                    m_creature->AddThreat(pTarget, 50000000.0f);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-                    m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+                    me->AddThreat(pTarget, 50000000.0f);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+                    me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
                                                             // If VMaps are disabled, this spell can call the whole instance
-                    DoCast(m_creature, SPELL_INSIGNIFIGANCE, true);
+                    DoCast(me, SPELL_INSIGNIFIGANCE, true);
                     DoCast(pTarget, SPELL_FEL_RAGE_TARGET, true);
                     DoCast(pTarget, SPELL_FEL_RAGE_2, true);
                     /* These spells do not work, comment them out for now.
@@ -287,9 +287,9 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
                     DoCast(pTarget, SPELL_FEL_RAGE_3, true);*/
 
                     //Cast this without triggered so that it appears in combat logs and shows visual.
-                    DoCast(m_creature, SPELL_FEL_RAGE_SELF);
+                    DoCast(me, SPELL_FEL_RAGE_SELF);
 
-                    DoScriptText(RAND(SAY_SPECIAL1,SAY_SPECIAL2), m_creature);
+                    DoScriptText(RAND(SAY_SPECIAL1,SAY_SPECIAL2), me);
 
                     AcidGeyserTimer = 1000;
                     PhaseChangeTimer = 30000;
@@ -307,8 +307,8 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
                 FelAcidTimer += 2000;
                 EjectTimer += 2000;
                 PhaseChangeTimer = 60000;
-                m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
-                m_creature->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
             }
         } else PhaseChangeTimer -= diff;
 

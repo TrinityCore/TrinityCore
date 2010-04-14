@@ -39,7 +39,7 @@ struct boss_interrogator_vishasAI : public ScriptedAI
 {
     boss_interrogator_vishasAI(Creature *c) : ScriptedAI(c)
     {
-        pInstance = m_creature->GetInstanceData();
+        pInstance = me->GetInstanceData();
     }
 
     ScriptedInstance* pInstance;
@@ -55,12 +55,12 @@ struct boss_interrogator_vishasAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void KilledUnit(Unit* Victim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void JustDied(Unit* Killer)
@@ -69,7 +69,7 @@ struct boss_interrogator_vishasAI : public ScriptedAI
             return;
 
         //Any other actions to do with vorrel? setStandState?
-        if (Unit *vorrel = Unit::GetUnit(*m_creature,pInstance->GetData64(DATA_VORREL)))
+        if (Unit *vorrel = Unit::GetUnit(*me,pInstance->GetData64(DATA_VORREL)))
             DoScriptText(SAY_TRIGGER_VORREL, vorrel);
     }
 
@@ -79,22 +79,22 @@ struct boss_interrogator_vishasAI : public ScriptedAI
             return;
 
         //If we are low on hp Do sayings
-        if (!Yell60 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 60))
+        if (!Yell60 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 60))
         {
-            DoScriptText(SAY_HEALTH1, m_creature);
+            DoScriptText(SAY_HEALTH1, me);
             Yell60 = true;
         }
 
-        if (!Yell30 && ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 30))
+        if (!Yell30 && ((me->GetHealth()*100) / me->GetMaxHealth() <= 30))
         {
-            DoScriptText(SAY_HEALTH2, m_creature);
+            DoScriptText(SAY_HEALTH2, me);
             Yell30 = true;
         }
 
         //ShadowWordPain_Timer
         if (ShadowWordPain_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SHADOWWORDPAIN);
+            DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
             ShadowWordPain_Timer = 5000 + rand()%10000;
         } else ShadowWordPain_Timer -= diff;
 

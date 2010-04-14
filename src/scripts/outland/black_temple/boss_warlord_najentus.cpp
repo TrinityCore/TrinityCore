@@ -82,7 +82,7 @@ struct boss_najentusAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(rand()%2 ? SAY_SLAY1 : SAY_SLAY2, m_creature);
+        DoScriptText(rand()%2 ? SAY_SLAY1 : SAY_SLAY2, me);
         events.DelayEvents(5000, GCD_YELL);
     }
 
@@ -91,15 +91,15 @@ struct boss_najentusAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if (spell->Id == SPELL_HURL_SPINE && m_creature->HasAura(SPELL_TIDAL_SHIELD))
+        if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
         {
-            m_creature->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
-            DoCast(m_creature, SPELL_TIDAL_BURST, true);
+            me->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
+            DoCast(me, SPELL_TIDAL_BURST, true);
             ResetTimer();
         }
     }
@@ -109,7 +109,7 @@ struct boss_najentusAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
 
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_BERSERK, 480000, GCD_CAST);
         events.ScheduleEvent(EVENT_YELL, 45000 + (rand()%76)*1000, GCD_YELL);
@@ -119,7 +119,7 @@ struct boss_najentusAI : public ScriptedAI
     bool RemoveImpalingSpine()
     {
         if (!SpineTargetGUID) return false;
-        Unit *pTarget = Unit::GetUnit(*m_creature, SpineTargetGUID);
+        Unit *pTarget = Unit::GetUnit(*me, SpineTargetGUID);
         if (pTarget && pTarget->HasAura(SPELL_IMPALING_SPINE))
             pTarget->RemoveAurasDueToSpell(SPELL_IMPALING_SPINE);
         SpineTargetGUID=0;
@@ -145,25 +145,25 @@ struct boss_najentusAI : public ScriptedAI
             switch(eventId)
             {
                 case EVENT_SHIELD:
-                    DoCast(m_creature, SPELL_TIDAL_SHIELD, true);
+                    DoCast(me, SPELL_TIDAL_SHIELD, true);
                     ResetTimer(45000);
                     break;
                 case EVENT_BERSERK:
-                    DoScriptText(SAY_ENRAGE2, m_creature);
-                    DoCast(m_creature, SPELL_BERSERK, true);
+                    DoScriptText(SAY_ENRAGE2, me);
+                    DoCast(me, SPELL_BERSERK, true);
                     events.DelayEvents(15000, GCD_YELL);
                     break;
                 case EVENT_SPINE:
                 {
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                    if (!pTarget) pTarget = m_creature->getVictim();
+                    if (!pTarget) pTarget = me->getVictim();
                     if (pTarget)
                     {
                         DoCast(pTarget, SPELL_IMPALING_SPINE, true);
                         SpineTargetGUID = pTarget->GetGUID();
                         //must let target summon, otherwise you cannot click the spine
-                        pTarget->SummonGameObject(GOBJECT_SPINE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), m_creature->GetOrientation(), 0, 0, 0, 0, 30);
-                        DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, m_creature);
+                        pTarget->SummonGameObject(GOBJECT_SPINE, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
+                        DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, me);
                         events.DelayEvents(1500, GCD_CAST);
                         events.DelayEvents(15000, GCD_YELL);
                     }
@@ -172,7 +172,7 @@ struct boss_najentusAI : public ScriptedAI
                 }
                 case EVENT_NEEDLE:
                 {
-                    //DoCast(m_creature, SPELL_NEEDLE_SPINE, true);
+                    //DoCast(me, SPELL_NEEDLE_SPINE, true);
                     std::list<Unit*> pTargets;
                     SelectTargetList(pTargets, 3, SELECT_TARGET_RANDOM, 80, true);
                     for (std::list<Unit*>::const_iterator i = pTargets.begin(); i != pTargets.end(); ++i)
@@ -182,7 +182,7 @@ struct boss_najentusAI : public ScriptedAI
                     return;
                 }
                 case EVENT_YELL:
-                    DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), m_creature);
+                    DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
                     events.ScheduleEvent(EVENT_YELL, urand(25000,100000), GCD_YELL);
                     events.DelayEvents(15000, GCD_YELL);
                     break;

@@ -72,7 +72,7 @@ struct boss_mr_smiteAI : public ScriptedAI
 
     void EnterCombat(Unit* pWho)
     {
-       DoScriptText(SAY_AGGRO, m_creature);
+       DoScriptText(SAY_AGGRO, me);
     }
 
     bool bCheckChances()
@@ -93,35 +93,35 @@ struct boss_mr_smiteAI : public ScriptedAI
         if (uiTrashTimer <= uiDiff)
         {
             if (bCheckChances())
-                DoCast(m_creature, SPELL_TRASH);
+                DoCast(me, SPELL_TRASH);
             uiTrashTimer = urand(6000,15500);
         } else uiTrashTimer -= uiDiff;
 
         if (uiSlamTimer <= uiDiff)
         {
             if (bCheckChances())
-                DoCast(m_creature->getVictim(), SPELL_SMITE_SLAM);
+                DoCast(me->getVictim(), SPELL_SMITE_SLAM);
             uiSlamTimer = 11000;
         } else uiSlamTimer -= uiDiff;
 
         if (uiNimbleReflexesTimer <= uiDiff)
         {
             if (bCheckChances())
-                DoCast(m_creature, SPELL_NIMBLE_REFLEXES);
+                DoCast(me, SPELL_NIMBLE_REFLEXES);
             uiNimbleReflexesTimer = urand(27300,60100);
         } else uiNimbleReflexesTimer -= uiDiff;
     /*END ACID-AI*/
 
-        if (uiHealth == 0 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 66 || uiHealth == 1 && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 33)
+        if (uiHealth == 0 && me->GetHealth()*100 / me->GetMaxHealth() <= 66 || uiHealth == 1 && me->GetHealth()*100 / me->GetMaxHealth() <= 33)
         {
             ++uiHealth;
             DoCastAOE(SPELL_SMITE_STOMP,false);
             SetCombatMovement(false);
             if (pInstance)
-                if (GameObject* pGo = GameObject::GetGameObject((*m_creature),pInstance->GetData64(DATA_SMITE_CHEST)))
+                if (GameObject* pGo = GameObject::GetGameObject((*me),pInstance->GetData64(DATA_SMITE_CHEST)))
                 {
-                    m_creature->GetMotionMaster()->Clear();
-                    m_creature->GetMotionMaster()->MovePoint(1,-3.00+pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ());
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MovePoint(1,-3.00+pGo->GetPositionX(),pGo->GetPositionY(),pGo->GetPositionZ());
                 }
         }
 
@@ -132,7 +132,7 @@ struct boss_mr_smiteAI : public ScriptedAI
                 switch(uiPhase)
                 {
                     case 1:
-                        m_creature->HandleEmoteCommand(EMOTE_STATE_KNEEL); //dosen't work?
+                        me->HandleEmoteCommand(EMOTE_STATE_KNEEL); //dosen't work?
                         uiTimer = 1000;
                         uiPhase = 2;
                         break;
@@ -146,7 +146,7 @@ struct boss_mr_smiteAI : public ScriptedAI
                         break;
                     case 3:
                         SetCombatMovement(true);
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim(), me->m_CombatDistance);
+                        me->GetMotionMaster()->MoveChase(me->getVictim(), me->m_CombatDistance);
                         uiPhase = 0;
                         break;
 

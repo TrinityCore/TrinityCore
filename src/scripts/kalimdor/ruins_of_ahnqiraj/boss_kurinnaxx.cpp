@@ -81,16 +81,16 @@ struct boss_kurinnaxxAI : public ScriptedAI
             return;
 
         //If we are <30% cast enrage
-        if (!bIsEnraged && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 30 && !m_creature->IsNonMeleeSpellCasted(false))
+        if (!bIsEnraged && me->GetHealth()*100 / me->GetMaxHealth() <= 30 && !me->IsNonMeleeSpellCasted(false))
         {
             bIsEnraged = true;
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
         }
 
         //Mortal Wound spell
         if (uiMortalWoundTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MORTALWOUND);
+            DoCast(me->getVictim(), SPELL_MORTALWOUND);
             uiMortalWoundTimer = urand(2000,7000);
         } else uiMortalWoundTimer -= diff;
 
@@ -105,14 +105,14 @@ struct boss_kurinnaxxAI : public ScriptedAI
         //Wide Slash spell
         if (uiWideSlashTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WIDE_SLASH);
+            DoCast(me->getVictim(), SPELL_WIDE_SLASH);
             uiWideSlashTimer = urand(10000,15000);
         } else uiWideSlashTimer -= diff;
 
         //Trash spell
         if (uiTrashTimer <= diff)
         {
-            DoCast(m_creature, SPELL_TRASH);
+            DoCast(me, SPELL_TRASH);
             uiTrashTimer = urand(20000,25000);
         } else uiTrashTimer -= diff;
 

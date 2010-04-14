@@ -82,12 +82,12 @@ struct mob_frost_tombAI : public ScriptedAI
 
     void JustDied(Unit *killer)
     {
-        if (killer->GetGUID() != m_creature->GetGUID())
+        if (killer->GetGUID() != me->GetGUID())
             ShatterFrostTomb = true;
 
         if (FrostTombGUID)
         {
-            Unit* FrostTomb = Unit::GetUnit((*m_creature),FrostTombGUID);
+            Unit* FrostTomb = Unit::GetUnit((*me),FrostTombGUID);
             if (FrostTomb)
                 FrostTomb->RemoveAurasDueToSpell(SPELL_FROST_TOMB);
         }
@@ -95,9 +95,9 @@ struct mob_frost_tombAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        Unit* temp = Unit::GetUnit((*m_creature),FrostTombGUID);
+        Unit* temp = Unit::GetUnit((*me),FrostTombGUID);
         if ((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp)
-            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
     }
 };
 
@@ -133,22 +133,22 @@ struct boss_kelesethAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        if (victim == m_creature)
+        if (victim == me)
             return;
 
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (IsHeroic() && !ShatterFrostTomb)
         {
             AchievementEntry const *AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
             if (AchievOnTheRocks)
             {
-                Map* pMap = m_creature->GetMap();
+                Map* pMap = me->GetMap();
                 if (pMap && pMap->IsDungeon())
                 {
                     Map::PlayerList const &players = pMap->GetPlayers();
@@ -164,7 +164,7 @@ struct boss_kelesethAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
 
         if (pInstance)
@@ -186,7 +186,7 @@ struct boss_kelesethAI : public ScriptedAI
         {
             Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 0);
             if (pTarget && pTarget->isAlive() && pTarget->GetTypeId() == TYPEID_PLAYER)
-                m_creature->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
+                me->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHADOWBOLT, SPELL_SHADOWBOLT_HEROIC), true);
             ShadowboltTimer = 10000;
         } else ShadowboltTimer -= diff;
 
@@ -194,14 +194,14 @@ struct boss_kelesethAI : public ScriptedAI
             if ((SummonSkeletonsTimer <= diff))
             {
                 Creature* Skeleton;
-                DoScriptText(SAY_SKELETONS, m_creature);
+                DoScriptText(SAY_SKELETONS, me);
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    if (Skeleton = m_creature->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-                        Skeleton->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY() , m_creature->GetPositionZ());
-                        Skeleton->AddThreat(m_creature->getVictim(), 0.0f);
+                        Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());
+                        Skeleton->AddThreat(me->getVictim(), 0.0f);
                         DoZoneInCombat(Skeleton);
                     }
                 }
@@ -214,12 +214,12 @@ struct boss_kelesethAI : public ScriptedAI
                 if (pTarget->isAlive())
                 {
                     //DoCast(pTarget, SPELL_FROST_TOMB_SUMMON, true);
-                    if (Creature *pChains = m_creature->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                    if (Creature *pChains = me->SummonCreature(CREATURE_FROSTTOMB, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
                     {
                         CAST_AI(mob_frost_tombAI, pChains->AI())->SetPrisoner(pTarget);
                         pChains->CastSpell(pTarget, SPELL_FROST_TOMB, true);
 
-                        DoScriptText(SAY_FROST_TOMB, m_creature);
+                        DoScriptText(SAY_FROST_TOMB, me);
                     }
                 }
             FrostTombTimer = 15000;
@@ -253,10 +253,10 @@ struct mob_vrykul_skeletonAI : public ScriptedAI
     void EnterCombat(Unit *who){}
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
-        if (done_by->GetGUID() == m_creature->GetGUID())
+        if (done_by->GetGUID() == me->GetGUID())
             return;
 
-        if (damage >= m_creature->GetHealth())
+        if (damage >= me->GetHealth())
         {
             PretendToDie();
             damage = 0;
@@ -266,28 +266,28 @@ struct mob_vrykul_skeletonAI : public ScriptedAI
     void PretendToDie()
     {
         isDead = true;
-        m_creature->InterruptNonMeleeSpells(true);
-        m_creature->RemoveAllAuras();
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->GetMotionMaster()->MovementExpired(false);
-        m_creature->GetMotionMaster()->MoveIdle();
-        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+        me->InterruptNonMeleeSpells(true);
+        me->RemoveAllAuras();
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->GetMotionMaster()->MovementExpired(false);
+        me->GetMotionMaster()->MoveIdle();
+        me->SetStandState(UNIT_STAND_STATE_DEAD);
     };
 
     void Resurrect()
     {
         isDead = false;
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
-        DoCast(m_creature, SPELL_SCOURGE_RESSURRECTION, true);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetStandState(UNIT_STAND_STATE_STAND);
+        DoCast(me, SPELL_SCOURGE_RESSURRECTION, true);
 
-        if (m_creature->getVictim())
+        if (me->getVictim())
         {
-            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
-            m_creature->AI()->AttackStart(m_creature->getVictim());
+            me->GetMotionMaster()->MoveChase(me->getVictim());
+            me->AI()->AttackStart(me->getVictim());
         }
         else
-            m_creature->GetMotionMaster()->Initialize();
+            me->GetMotionMaster()->Initialize();
     };
 
     void UpdateAI(const uint32 diff)
@@ -309,7 +309,7 @@ struct mob_vrykul_skeletonAI : public ScriptedAI
 
                 if (Decrepify_Timer <= diff)
                 {
-                    DoCast(m_creature->getVictim(), SPELL_DECREPIFY);
+                    DoCast(me->getVictim(), SPELL_DECREPIFY);
                     Decrepify_Timer = 30000;
                 } else Decrepify_Timer -= diff;
 
@@ -317,8 +317,8 @@ struct mob_vrykul_skeletonAI : public ScriptedAI
             }
         }else
         {
-            if (m_creature->isAlive())
-                m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+            if (me->isAlive())
+                me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
     }

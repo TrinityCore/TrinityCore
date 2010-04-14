@@ -57,15 +57,15 @@ struct npc_calvin_montagueAI : public ScriptedAI
 
         me->RestoreFaction();
 
-        if (!m_creature->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE))
-            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        if (!me->HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE))
+            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
     void EnterCombat(Unit* who) { }
 
     void AttackedBy(Unit* pAttacker)
     {
-        if (m_creature->getVictim() || m_creature->IsFriendlyTo(pAttacker))
+        if (me->getVictim() || me->IsFriendlyTo(pAttacker))
             return;
 
         AttackStart(pAttacker);
@@ -73,13 +73,13 @@ struct npc_calvin_montagueAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
     {
-        if (uiDamage > m_creature->GetHealth() || ((m_creature->GetHealth() - uiDamage)*100 / m_creature->GetMaxHealth() < 15))
+        if (uiDamage > me->GetHealth() || ((me->GetHealth() - uiDamage)*100 / me->GetMaxHealth() < 15))
         {
             uiDamage = 0;
 
             me->RestoreFaction();
-            m_creature->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            m_creature->CombatStop(true);
+            me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->CombatStop(true);
 
             m_uiPhase = 1;
 
@@ -103,14 +103,14 @@ struct npc_calvin_montagueAI : public ScriptedAI
             switch(m_uiPhase)
             {
                 case 1:
-                    DoScriptText(SAY_COMPLETE, m_creature);
+                    DoScriptText(SAY_COMPLETE, me);
                     ++m_uiPhase;
                     break;
                 case 2:
                     if (Player *pPlayer = Unit::GetPlayer(m_uiPlayerGUID))
                         pPlayer->AreaExploredOrEventHappens(QUEST_590);
 
-                    DoCast(m_creature, SPELL_DRINK, true);
+                    DoCast(me, SPELL_DRINK, true);
                     ++m_uiPhase;
                     break;
                 case 3:

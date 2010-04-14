@@ -42,12 +42,12 @@ struct npc_drakuru_shacklesAI : public ScriptedAI
     void Reset()
     {
         RageclawGUID = 0;
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         float x, y, z;
-        m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize() / 3, 0.1f);
+        me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.1f);
 
-        if (Unit* summon = m_creature->SummonCreature(NPC_RAGECLAW, x, y, z,
+        if (Unit* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z,
             0, TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             RageclawGUID = summon->GetGUID();
@@ -57,10 +57,10 @@ struct npc_drakuru_shacklesAI : public ScriptedAI
 
     void LockRageclaw()
     {
-        Unit *Rageclaw = Unit::GetCreature(*m_creature, RageclawGUID);
+        Unit *Rageclaw = Unit::GetCreature(*me, RageclawGUID);
         // pointer check not needed
-        m_creature->SetInFront(Rageclaw);
-        Rageclaw->SetInFront(m_creature);
+        me->SetInFront(Rageclaw);
+        Rageclaw->SetInFront(me);
 
         DoCast(Rageclaw, SPELL_LEFT_CHAIN, true);
         DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
@@ -71,21 +71,21 @@ struct npc_drakuru_shacklesAI : public ScriptedAI
         if (!pWho)
             return;
 
-        Creature *Rageclaw = Unit::GetCreature(*m_creature, RageclawGUID);
+        Creature *Rageclaw = Unit::GetCreature(*me, RageclawGUID);
         // pointer check not needed
         DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
 
-        m_creature->setDeathState(DEAD);
+        me->setDeathState(DEAD);
     }
 
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_UNLOCK_SHACKLE)
         {
-            if (Creature *Rageclaw = Unit::GetCreature(*m_creature, RageclawGUID))
+            if (Creature *Rageclaw = Unit::GetCreature(*me, RageclawGUID))
                 UnlockRageclaw(pCaster);
             else
-                m_creature->setDeathState(JUST_DIED);
+                me->setDeathState(JUST_DIED);
         }
     }
 };
@@ -123,8 +123,8 @@ struct npc_captured_rageclawAI : public ScriptedAI
     {
         Despawn = false;
         DespawnTimer = 0;
-        m_creature->setFaction(35);
-        DoCast(m_creature, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
+        me->setFaction(35);
+        DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
     }
 
     void MoveInLineOfSight(Unit *who){}
@@ -133,17 +133,17 @@ struct npc_captured_rageclawAI : public ScriptedAI
     {
         if (pSpell->Id == SPELL_FREE_RAGECLAW)
         {
-            m_creature->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
+            me->RemoveAurasDueToSpell(SPELL_LEFT_CHAIN);
 
-            m_creature->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
+            me->RemoveAurasDueToSpell(SPELL_RIGHT_CHAIN);
 
-            m_creature->RemoveAurasDueToSpell(SPELL_KNEEL);
+            me->RemoveAurasDueToSpell(SPELL_KNEEL);
 
-            m_creature->setFaction(m_creature->GetCreatureInfo()->faction_H);
+            me->setFaction(me->GetCreatureInfo()->faction_H);
 
-            DoCast(m_creature, SPELL_UNSHACKLED, true);
-            m_creature->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, NULL);
-            m_creature->GetMotionMaster()->MoveRandom(10);
+            DoCast(me, SPELL_UNSHACKLED, true);
+            me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, NULL);
+            me->GetMotionMaster()->MoveRandom(10);
 
             DespawnTimer = 10000;
             Despawn = true;
@@ -162,7 +162,7 @@ struct npc_captured_rageclawAI : public ScriptedAI
             return;
 
         if (DespawnTimer <= uiDiff)
-            m_creature->DisappearAndDie();
+            me->DisappearAndDie();
         else DespawnTimer -= uiDiff;
    }
 };
@@ -261,7 +261,7 @@ struct npc_gurgthockAI : public ScriptedAI
     void Reset()
     {
         SummonGUID = 0;
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
         uiTimer = 0;
         uiPhase = 0;
         uiQuest = 0;
@@ -277,11 +277,11 @@ struct npc_gurgthockAI : public ScriptedAI
 
         bEventInProgress = false;
 
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
         for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
         {
-            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*me, *itr))
                 if (pTemp)
                     pTemp->RemoveFromWorld();
         }
@@ -300,12 +300,12 @@ struct npc_gurgthockAI : public ScriptedAI
                     switch(uiValue)
                     {
                         case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
-                            DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, m_creature);
+                            DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, me);
                             uiPhase = 1;
                             uiTimer = 4000;
                             break;
                         case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
-                            DoScriptText(SAY_QUEST_ACCEPT_KORRAK_1, m_creature);
+                            DoScriptText(SAY_QUEST_ACCEPT_KORRAK_1, me);
                             uiPhase = 3;
                             uiTimer = 3000;
                             break;
@@ -335,7 +335,7 @@ struct npc_gurgthockAI : public ScriptedAI
         {
             if (uiRemoveFlagTimer <= uiDiff)
             {
-                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                 bRemoveFlag = false;
                 uiRemoveFlagTimer = 5000;
             } else uiRemoveFlagTimer -= uiDiff;
@@ -348,39 +348,39 @@ struct npc_gurgthockAI : public ScriptedAI
                 switch(uiPhase)
                 {
                     case 1:
-                        if (Creature *pSummon = m_creature->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                        if (Creature *pSummon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
                             SummonGUID = pSummon->GetGUID();
                         uiPhase = 2;
                         uiTimer = 4000;
                         break;
                      case 2:
-                        if (Creature *pSummon = Unit::GetCreature(*m_creature, SummonGUID))
+                        if (Creature *pSummon = Unit::GetCreature(*me, SummonGUID))
                             pSummon->GetMotionMaster()->MoveJump(5776.319824, -2981.005371, 273.100037, 10.0f, 20.0f);
                         uiPhase = 0;
                         SummonGUID = 0;
                         break;
                     case 3:
-                        DoScriptText(SAY_QUEST_ACCEPT_KORRAK_2, m_creature);
+                        DoScriptText(SAY_QUEST_ACCEPT_KORRAK_2, me);
                         uiTimer = 3000;
                         uiPhase = 4;
                         break;
                     case 4:
-                        if (Creature *pSummon = m_creature->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                        if (Creature *pSummon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
                             SummonGUID = pSummon->GetGUID();
                         uiTimer = 3000;
                         uiPhase = 0;
                         break;
                     case 6:
-                        m_creature->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiPhase = 0;
                         break;
                     case 7:
-                        DoScriptText(SAY_QUEST_ACCEPT_MAGNATAUR, m_creature);
+                        DoScriptText(SAY_QUEST_ACCEPT_MAGNATAUR, me);
                         uiTimer = 3000;
                         uiPhase = 8;
                         break;
                     case 8:
-                        m_creature->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                        me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000);
                         uiPhase = 0;
                         break;
                 }
@@ -398,7 +398,7 @@ struct npc_gurgthockAI : public ScriptedAI
         if (bEventInProgress)
             bEventInProgress = false;
 
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
     }
 };
 
@@ -449,8 +449,8 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
 {
     npc_orinoko_tuskbreakerAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
     }
 
     bool bSummoned;
@@ -477,11 +477,11 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
     void EnterEvadeMode()
     {
         if (uiWhisker)
-            if (Creature *pWhisker = m_creature->GetCreature(*m_creature, uiWhisker))
+            if (Creature *pWhisker = me->GetCreature(*me, uiWhisker))
                 pWhisker->RemoveFromWorld();
 
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->RemoveSummons();
     }
@@ -491,9 +491,9 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE)
             return;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetReactState(REACT_AGGRESSIVE);
-        m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), 0);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetReactState(REACT_AGGRESSIVE);
+        me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), 0);
         uiBattleShoutTimer  = 7000;
     }
 
@@ -509,7 +509,7 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
 
         if (!bBattleShout && uiBattleShoutTimer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_BATTLE_SHOUT);
+            DoCast(me, SPELL_BATTLE_SHOUT);
             bBattleShout = true;
         } else uiBattleShoutTimer -= uiDiff;
 
@@ -523,12 +523,12 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
             uiFishyScentTimer = 20000;
         } else uiFishyScentTimer -= uiDiff;
 
-        if (!bSummoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 50)
+        if (!bSummoned && me->GetHealth()*100 / me->GetMaxHealth() <= 50)
         {
-            DoScriptText(SAY_CALL_FOR_HELP ,m_creature);
-            //DoCast(m_creature->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
+            DoScriptText(SAY_CALL_FOR_HELP ,me);
+            //DoCast(me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
 
-            if (Creature *pWhisker = m_creature->SummonCreature(NPC_WHISKER, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+            if (Creature *pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                 uiWhisker = pWhisker->GetGUID();
             bSummoned = true;
         }
@@ -541,10 +541,10 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
         switch(pSummon->GetEntry())
         {
             case NPC_WHISKER:
-                pSummon->AI()->AttackStart(m_creature->getVictim());
+                pSummon->AI()->AttackStart(me->getVictim());
                 break;
             case NPC_HUNGRY_PENGUIN:
-                if (Unit *pAffected = Unit::GetUnit(*m_creature, AffectedGUID))
+                if (Unit *pAffected = Unit::GetUnit(*me, AffectedGUID))
                 {
                     if (pAffected->isAlive())
                         pSummon->AI()->AttackStart(pAffected);
@@ -556,14 +556,14 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         if (uiWhisker)
-            if (Creature *pWhisker = m_creature->GetCreature(*m_creature, uiWhisker))
+            if (Creature *pWhisker = me->GetCreature(*me, uiWhisker))
                 pWhisker->RemoveFromWorld();
 
         if (pKiller->GetTypeId() == TYPEID_PLAYER)
             CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, CAST_PLR(pKiller));
 
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->bEventInProgress = false;
     }
@@ -601,8 +601,8 @@ struct npc_korrak_bloodragerAI : public npc_escortAI
 
     void Reset()
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
         uiChargeTimer = 15000;
         uiUppercutTimer = 12000;
         bEnrage = false;
@@ -610,8 +610,8 @@ struct npc_korrak_bloodragerAI : public npc_escortAI
 
     void EnterEvadeMode()
     {
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->RemoveSummons();
     }
@@ -621,16 +621,16 @@ struct npc_korrak_bloodragerAI : public npc_escortAI
         switch(uiI)
         {
             case 6:
-                m_creature->SetHomePosition(m_creature->GetPositionX(),m_creature->GetPositionY(),m_creature->GetPositionZ(), 0);
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                m_creature->SetReactState(REACT_AGGRESSIVE);
+                me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), 0);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetReactState(REACT_AGGRESSIVE);
                 break;
         }
     }
 
     void EnterCombat(Unit* pWho)
     {
-        DoCast(m_creature, SPELL_GROW);
+        DoCast(me, SPELL_GROW);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -654,9 +654,9 @@ struct npc_korrak_bloodragerAI : public npc_escortAI
             uiChargeTimer = 15000;
         } else uiChargeTimer -= uiDiff;
 
-        if (!bEnrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 20)
+        if (!bEnrage && me->GetHealth()*100 / me->GetMaxHealth() <= 20)
         {
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoCast(me, SPELL_ENRAGE);
             bEnrage = true;
         }
         DoMeleeAttackIfReady();
@@ -667,8 +667,8 @@ struct npc_korrak_bloodragerAI : public npc_escortAI
         if (pKiller->GetTypeId() == TYPEID_PLAYER)
             CAST_PLR(pKiller)->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER, CAST_PLR(pKiller));
 
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->bEventInProgress = false;
     }
@@ -705,15 +705,15 @@ struct npc_yggdrasAI : public ScriptedAI
 
     void EnterEvadeMode() //If you lose the combat, then the npc go away
     {
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->RemoveSummons();
     }
 
     void EnterCombat(Unit* pWho)
     {
-        DoCast(m_creature, SPELL_GROW);
+        DoCast(me, SPELL_GROW);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -723,13 +723,13 @@ struct npc_yggdrasAI : public ScriptedAI
 
         if (uiCleaveTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             uiCleaveTimer = 12000;
         } else uiCleaveTimer -= uiDiff;
 
         if (uiCorrodeFleshTimer <= uiDiff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHARGE);
+            DoCast(me->getVictim(), SPELL_CHARGE);
             uiCorrodeFleshTimer = 18000;
         } else uiCorrodeFleshTimer -= uiDiff;
 
@@ -747,8 +747,8 @@ struct npc_yggdrasAI : public ScriptedAI
         for (uint8 i = 0; i < 2; ++i)
             DoCast(pKiller, SPELL_JORMUNGAR_SPAWN, true);
 
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->bEventInProgress = false;
     }
@@ -776,8 +776,8 @@ struct npc_stinkbeardAI : public npc_escortAI
 {
     npc_stinkbeardAI(Creature* pCreature) : npc_escortAI(pCreature)
     {
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        m_creature->SetReactState(REACT_PASSIVE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+        me->SetReactState(REACT_PASSIVE);
         Start(true,true, 0, NULL);
         SetDespawnAtEnd(false);
     }
@@ -790,7 +790,7 @@ struct npc_stinkbeardAI : public npc_escortAI
 
     void Reset()
     {
-        DoCast(m_creature, SPELL_THUNDERBLADE);
+        DoCast(me, SPELL_THUNDERBLADE);
         uiThunderclapTimer = 5000;
         uiKnockAwayTimer   = 10000;
         uiStinkyBeardTimer = 15000;
@@ -799,8 +799,8 @@ struct npc_stinkbeardAI : public npc_escortAI
 
     void EnterEvadeMode()
     {
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->RemoveSummons();
     }
@@ -810,9 +810,9 @@ struct npc_stinkbeardAI : public npc_escortAI
         switch(uiI)
         {
             case 7:
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                m_creature->SetReactState(REACT_AGGRESSIVE);
-                m_creature->SetHomePosition(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation());
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetReactState(REACT_AGGRESSIVE);
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 break;
         }
     }
@@ -850,9 +850,9 @@ struct npc_stinkbeardAI : public npc_escortAI
             uiStinkyBeardTimer = 15000;
         } else uiStinkyBeardTimer -= uiDiff;
 
-       if (!bEnrage && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 20)
+       if (!bEnrage && me->GetHealth()*100 / me->GetMaxHealth() <= 20)
         {
-            DoCast(m_creature, SPELL_ENRAGE_STINKBEARD);
+            DoCast(me, SPELL_ENRAGE_STINKBEARD);
             bEnrage = true;
         }
         DoMeleeAttackIfReady();
@@ -860,8 +860,8 @@ struct npc_stinkbeardAI : public npc_escortAI
 
     void JustDied(Unit* pKiller)
     {
-        if (m_creature->isSummon())
-            if (Creature* pSummoner = CAST_CRE(CAST_SUM(m_creature)->GetSummoner()))
+        if (me->isSummon())
+            if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))
                 if (npc_gurgthockAI* pAI = CAST_AI(npc_gurgthockAI,pSummoner->AI()))
                     pAI->bEventInProgress = false;
 
@@ -886,15 +886,15 @@ struct npc_released_offspring_harkoaAI : public ScriptedAI
     void Reset()
     {
         float x, y, z;
-        m_creature->GetClosePoint(x, y, z, m_creature->GetObjectSize() / 3, 25.0f);
-        m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+        me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 25.0f);
+        me->GetMotionMaster()->MovePoint(0, x, y, z);
     }
 
     void MovementInform(uint32 uiType, uint32 uiId)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
-        m_creature->DisappearAndDie();
+        me->DisappearAndDie();
     }
 };
 
@@ -934,9 +934,9 @@ struct npc_crusade_recruitAI : public ScriptedAI
     {
         m_uiTimer = 0;
         m_uiPhase = 0;
-        m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
-        m_heading = m_creature->GetOrientation();
+        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_COWER);
+        m_heading = me->GetOrientation();
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -949,22 +949,22 @@ struct npc_crusade_recruitAI : public ScriptedAI
                 {
                     case 1:
                         // say random text
-                        m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
-                        DoScriptText(RAND(SAY_RECRUIT_1,SAY_RECRUIT_2,SAY_RECRUIT_3), m_creature);
+                        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
+                        DoScriptText(RAND(SAY_RECRUIT_1,SAY_RECRUIT_2,SAY_RECRUIT_3), me);
                         m_uiTimer = 3000;
                         m_uiPhase = 2;
                         break;
                     case 2:
                         // walk forward
-                        m_creature->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
-                        m_creature->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX() + (cos(m_heading) * 10), m_creature->GetPositionY() + (sin(m_heading) * 10), m_creature->GetPositionZ());
+                        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        me->GetMotionMaster()->MovePoint(0,me->GetPositionX() + (cos(m_heading) * 10), me->GetPositionY() + (sin(m_heading) * 10), me->GetPositionZ());
                         m_uiTimer = 5000;
                         m_uiPhase = 3;
                         break;
                     case 3:
                         // despawn
-                        m_creature->DisappearAndDie();
+                        me->DisappearAndDie();
                         m_uiTimer = 0;
                         m_uiPhase = 0;
                         break;

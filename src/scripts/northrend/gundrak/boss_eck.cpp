@@ -73,13 +73,13 @@ struct boss_eckAI : public ScriptedAI
 
         if (uiBiteTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ECK_BITE);
+            DoCast(me->getVictim(), SPELL_ECK_BITE);
             uiBiteTimer = urand(8*IN_MILISECONDS,12*IN_MILISECONDS);
         } else uiBiteTimer -= diff;
 
         if (uiSpitTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ECK_SPIT);
+            DoCast(me->getVictim(), SPELL_ECK_SPIT);
             uiSpitTimer = urand(6*IN_MILISECONDS,14*IN_MILISECONDS);
         } else uiSpitTimer -= diff;
 
@@ -98,7 +98,7 @@ struct boss_eckAI : public ScriptedAI
         {
             if (uiBerserkTimer <= diff)
             {
-                DoCast(m_creature, SPELL_ECK_BERSERK);
+                DoCast(me, SPELL_ECK_BERSERK);
                 bBerserk = true;
             }
             else
@@ -106,7 +106,7 @@ struct boss_eckAI : public ScriptedAI
                 uiBerserkTimer -= diff;
                 if (HealthBelowPct(20))
                 {
-                    DoCast(m_creature, SPELL_ECK_BERSERK);
+                    DoCast(me, SPELL_ECK_BERSERK);
                     bBerserk = true;
                 }
             }
@@ -140,9 +140,9 @@ struct npc_ruins_dwellerAI : public ScriptedAI
     {
         if (pInstance)
         {
-            pInstance->SetData64(DATA_RUIN_DWELLER_DIED,m_creature->GetGUID());
+            pInstance->SetData64(DATA_RUIN_DWELLER_DIED,me->GetGUID());
             if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                m_creature->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILISECONDS);
+                me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILISECONDS);
         }
     }
 };

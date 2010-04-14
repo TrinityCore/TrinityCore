@@ -59,21 +59,21 @@ struct boss_halyconAI : public ScriptedAI
         //CrowdPummel_Timer
         if (CrowdPummel_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CROWDPUMMEL);
+            DoCast(me->getVictim(), SPELL_CROWDPUMMEL);
             CrowdPummel_Timer = 14000;
         } else CrowdPummel_Timer -= diff;
 
         //MightyBlow_Timer
         if (MightyBlow_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MIGHTYBLOW);
+            DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
             MightyBlow_Timer = 10000;
         } else MightyBlow_Timer -= diff;
 
         //Summon Gizrul
-        if (!Summoned && m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 25)
+        if (!Summoned && me->GetHealth()*100 / me->GetMaxHealth() < 25)
         {
-            m_creature->SummonCreature(10268,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000);
+            me->SummonCreature(10268,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,300000);
             Summoned = true;
         }
 

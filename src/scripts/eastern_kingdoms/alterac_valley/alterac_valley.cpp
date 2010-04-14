@@ -82,31 +82,31 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
     {
         if (!bHasAura)
         {
-            switch(m_creature->GetEntry())
+            switch(me->GetEntry())
             {
                 case NPC_NORTH_MARSHAL:
-                    DoCast(m_creature,SPELL_NORTH_MARSHAL);
+                    DoCast(me,SPELL_NORTH_MARSHAL);
                     break;
                 case NPC_SOUTH_MARSHAL:
-                    DoCast(m_creature,SPELL_SOUTH_MARSHAL);
+                    DoCast(me,SPELL_SOUTH_MARSHAL);
                     break;
                 case NPC_STONEHEARTH_MARSHAL:
-                    DoCast(m_creature,SPELL_STONEHEARTH_MARSHAL);
+                    DoCast(me,SPELL_STONEHEARTH_MARSHAL);
                     break;
                 case NPC_ICEWING_MARSHAL:
-                    DoCast(m_creature,SPELL_ICEWING_MARSHAL);
+                    DoCast(me,SPELL_ICEWING_MARSHAL);
                     break;
                 case NPC_EAST_FROSTWOLF_WARMASTER:
-                    DoCast(m_creature,SPELL_EAST_FROSTWOLF_WARMASTER);
+                    DoCast(me,SPELL_EAST_FROSTWOLF_WARMASTER);
                     break;
                 case NPC_WEST_FROSTWOLF_WARMASTER:
-                    DoCast(m_creature,SPELL_WEST_FROSTWOLF_WARMASTER);
+                    DoCast(me,SPELL_WEST_FROSTWOLF_WARMASTER);
                     break;
                 case NPC_ICEBLOOD_WARMASTER:
-                    DoCast(m_creature,SPELL_ICEBLOOD_WARMASTER);
+                    DoCast(me,SPELL_ICEBLOOD_WARMASTER);
                     break;
                 case NPC_TOWER_POINT_WARMASTER:
-                    DoCast(m_creature,SPELL_TOWER_POINT_WARMASTER);
+                    DoCast(me,SPELL_TOWER_POINT_WARMASTER);
                     break;
             }
 
@@ -118,37 +118,37 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
 
         if (uiChargeTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CHARGE);
+            DoCast(me->getVictim(), SPELL_CHARGE);
             uiChargeTimer = urand(10*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiChargeTimer -= diff;
 
         if (uiCleaveTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCast(me->getVictim(), SPELL_CLEAVE);
             uiCleaveTimer =  urand(10*IN_MILISECONDS,16*IN_MILISECONDS);
         } else uiCleaveTimer -= diff;
 
         if (uiDemoralizingShoutTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_DEMORALIZING_SHOUT);
+            DoCast(me->getVictim(), SPELL_DEMORALIZING_SHOUT);
             uiDemoralizingShoutTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
         } else uiDemoralizingShoutTimer -= diff;
 
         if (uiWhirlwind1Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND1);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND1);
             uiWhirlwind1Timer = urand(6*IN_MILISECONDS,20*IN_MILISECONDS);
         } else uiWhirlwind1Timer -= diff;
 
         if (uiWhirlwind2Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WHIRLWIND2);
+            DoCast(me->getVictim(), SPELL_WHIRLWIND2);
             uiWhirlwind2Timer = urand(10*IN_MILISECONDS,25*IN_MILISECONDS);
         } else uiWhirlwind2Timer -= diff;
 
         if (uiEnrageTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ENRAGE);
+            DoCast(me->getVictim(), SPELL_ENRAGE);
             uiEnrageTimer = urand(10*IN_MILISECONDS,30*IN_MILISECONDS);
         }else uiEnrageTimer -= diff;
 
@@ -156,7 +156,7 @@ struct mob_av_marshal_or_warmasterAI : public ScriptedAI
         // check if creature is not outside of building
         if (uiResetTimer <= diff)
         {
-            if (m_creature->GetDistance2d(m_creature->GetHomePosition().GetPositionX(), m_creature->GetHomePosition().GetPositionY()) > 50)
+            if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 EnterEvadeMode();
             uiResetTimer = 5*IN_MILISECONDS;
         } else uiResetTimer -= diff;

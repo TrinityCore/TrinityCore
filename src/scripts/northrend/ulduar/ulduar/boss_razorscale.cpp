@@ -86,13 +86,13 @@ struct boss_razorscaleAI : public BossAI
         InitialSpawn = true;
         IsFlying = true;
 
-        m_creature->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
-        m_creature->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
+        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
+        me->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
     }
 
@@ -102,7 +102,7 @@ struct boss_razorscaleAI : public BossAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -110,28 +110,28 @@ struct boss_razorscaleAI : public BossAI
         if (!UpdateVictim())
             return;
 
-        if (m_creature->GetPositionY() > -60 || m_creature->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
+        if (me->GetPositionY() > -60 || me->GetPositionX() < 450) // Not Blizzlike, anti-exploit to prevent players from pulling bosses to vehicles.
         {
-            m_creature->RemoveAllAuras();
-            m_creature->DeleteThreatList();
-            m_creature->CombatStop(false);
-            m_creature->GetMotionMaster()->MoveTargetedHome();
+            me->RemoveAllAuras();
+            me->DeleteThreatList();
+            me->CombatStop(false);
+            me->GetMotionMaster()->MoveTargetedHome();
         }
 
         // Victim is not controlled by a player (should never happen)
-        if (m_creature->getVictim() && !m_creature->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
-            m_creature->Kill(m_creature->getVictim());
+        if (me->getVictim() && !me->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+            me->Kill(me->getVictim());
 
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 99 && Phase == 1) // TODO: Only land (exit Phase 1) if brought down with harpoon guns! This is important!
+        if ((me->GetHealth()*100 / me->GetMaxHealth()) < 99 && Phase == 1) // TODO: Only land (exit Phase 1) if brought down with harpoon guns! This is important!
         {
             Phase = 2;
-            DoScriptText(SAY_PHASE_2_TRANS, m_creature); // Audio: "Move quickly! She won't remain grounded for long!"
+            DoScriptText(SAY_PHASE_2_TRANS, me); // Audio: "Move quickly! She won't remain grounded for long!"
         }
 
-        if ((m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 33 && Phase == 2) // Health under 33%, Razorscale can't fly anymore.
+        if ((me->GetHealth()*100 / me->GetMaxHealth()) < 33 && Phase == 2) // Health under 33%, Razorscale can't fly anymore.
         {
             Phase = 3;
-            DoScriptText(SAY_PHASE_3_TRANS, m_creature); // "Razorscale lands permanently!"
+            DoScriptText(SAY_PHASE_3_TRANS, me); // "Razorscale lands permanently!"
             // TODO: Cast Devouring Flame on all harpoon guns simultaneously, briefly after Phase 3 starts (lasts until the harpoon guns are destroyed)
         }
 
@@ -164,7 +164,7 @@ struct boss_razorscaleAI : public BossAI
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    m_creature->SetInFront(pTarget);
+                    me->SetInFront(pTarget);
                     DoCast(pTarget, SPELL_FIREBALL);
                 }
 
@@ -173,7 +173,7 @@ struct boss_razorscaleAI : public BossAI
 
             if (FlameBreathTimer <= diff)
             {
-                DoScriptText(EMOTE_BREATH, m_creature); // TODO: "Razorscale takes a deep breath..."
+                DoScriptText(EMOTE_BREATH, me); // TODO: "Razorscale takes a deep breath..."
                 DoCastVictim(SPELL_FLAMEBREATH);
                 FlameBreathTimer = 15000;
                 WingBuffetTimer = 0;
@@ -183,13 +183,13 @@ struct boss_razorscaleAI : public BossAI
             {
                 if (FlameBuffetTimer <= diff)
                 {
-                    DoScriptText(EMOTE_BREATH, m_creature);
+                    DoScriptText(EMOTE_BREATH, me);
                     std::list<Unit*> pTargets;
                     SelectTargetList(pTargets, RAID_MODE(3,9), SELECT_TARGET_RANDOM, 100, true);
                     uint8 i = 0;
                     for (std::list<Unit*>::const_iterator itr = pTargets.begin(); itr != pTargets.end();)
                     {
-                        if (m_creature->HasInArc(M_PI, *itr))
+                        if (me->HasInArc(M_PI, *itr))
                         {
                             DoCast(*itr, SPELL_FLAMEBUFFET, true);
                             ++i;
@@ -217,7 +217,7 @@ struct boss_razorscaleAI : public BossAI
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    m_creature->SetInFront(pTarget);
+                    me->SetInFront(pTarget);
                     DoCast(pTarget, SPELL_FIREBALL);
                 }
 
@@ -228,7 +228,7 @@ struct boss_razorscaleAI : public BossAI
             {
                 if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 200, true))
                 {
-                    m_creature->SetInFront(pTarget);
+                    me->SetInFront(pTarget);
                     DoCast(pTarget, SPELL_DEVOURINGFLAME);
                 }
 
@@ -252,9 +252,9 @@ struct boss_razorscaleAI : public BossAI
             {
                 float x = std::max(500.0f, std::min(650.0f, pTarget->GetPositionX() + irand(-20,20)));   // Safe range is between 500 and 650
                 float y = std::max(-235.0f, std::min(-145.0f, pTarget->GetPositionY() + irand(-20,20))); // Safe range is between -235 and -145
-                float z = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);                         // Ground level
+                float z = me->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);                         // Ground level
                 // TODO: Spawn drillers, then spawn adds 5 seconds later
-                if (Creature *pAdd = m_creature->SummonCreature(NPC_DARK_RUNE_SENTINEL, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
+                if (Creature *pAdd = me->SummonCreature(NPC_DARK_RUNE_SENTINEL, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000))
                     pAdd->AI()->AttackStart(pTarget);
             }
         }
@@ -265,34 +265,34 @@ struct boss_razorscaleAI : public BossAI
     {
         const float x = 587.54;
         const float y = -174.92;
-        const float GroundLevel = m_creature->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);
+        const float GroundLevel = me->GetBaseMap()->GetHeight(x, y, MAX_HEIGHT);
         const float FlightHeight = GroundLevel + 4.0f; // TODO: Fly out of range of attacks (442 is sufficient height for this), minus ~(10*number of harpoon gun chains attached to Razorscale)
 
         if (Phase == 1) // Always flying during Phase 1
             IsFlying = true;
 
-        m_creature->SetFlying(IsFlying);
-        m_creature->SendMovementFlagUpdate();
-        m_creature->SetSpeed(MOVE_WALK, IsFlying ? 7.0f : 2.5f, IsFlying);
+        me->SetFlying(IsFlying);
+        me->SendMovementFlagUpdate();
+        me->SetSpeed(MOVE_WALK, IsFlying ? 7.0f : 2.5f, IsFlying);
 
         if (Phase == 1) // Flying Phase
         {
-            if (m_creature->GetPositionZ() > FlightHeight) // Correct height, stop moving
-                m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+            if (me->GetPositionZ() > FlightHeight) // Correct height, stop moving
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
             else        // Incorrect height
             {
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                m_creature->GetMotionMaster()->MovePoint(0, x, y, FlightHeight + 0.5f); // Fly to slightly above (x, y, FlightHeight)
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                me->GetMotionMaster()->MovePoint(0, x, y, FlightHeight + 0.5f); // Fly to slightly above (x, y, FlightHeight)
             }
         }
         else // Ground Phases
         {
-            const float CurrentGroundLevel = m_creature->GetBaseMap()->GetHeight(m_creature->GetPositionX(), m_creature->GetPositionY(), MAX_HEIGHT);
+            const float CurrentGroundLevel = me->GetBaseMap()->GetHeight(me->GetPositionX(), me->GetPositionY(), MAX_HEIGHT);
             //if (StunTimer == 30000) // Only fly around if not stunned.
             //{
-                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
-                if (IsFlying && m_creature->GetPositionZ() > CurrentGroundLevel) // Fly towards the ground
-                    m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), CurrentGroundLevel);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
+                if (IsFlying && me->GetPositionZ() > CurrentGroundLevel) // Fly towards the ground
+                    me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), CurrentGroundLevel);
                     // TODO: Swoop up just before landing
                 else
                     IsFlying = false; // Landed, no longer flying

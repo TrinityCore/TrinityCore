@@ -86,7 +86,7 @@ struct boss_gruulAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
@@ -94,12 +94,12 @@ struct boss_gruulAI : public ScriptedAI
 
     void KilledUnit()
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -118,8 +118,8 @@ struct boss_gruulAI : public ScriptedAI
             {
                 switch (urand(0,1))
                 {
-                    case 0: pTarget->CastSpell(pTarget, SPELL_MAGNETIC_PULL, true, NULL, NULL, m_creature->GetGUID()); break;
-                    case 1: pTarget->CastSpell(pTarget, SPELL_KNOCK_BACK, true, NULL, NULL, m_creature->GetGUID()); break;
+                    case 0: pTarget->CastSpell(pTarget, SPELL_MAGNETIC_PULL, true, NULL, NULL, me->GetGUID()); break;
+                    case 1: pTarget->CastSpell(pTarget, SPELL_KNOCK_BACK, true, NULL, NULL, me->GetGUID()); break;
                 }
             }
         }
@@ -139,10 +139,10 @@ struct boss_gruulAI : public ScriptedAI
                 m_bPerformingGroundSlam = false;
 
                 //and correct movement, if not already
-                if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
                 {
-                    if (m_creature->getVictim())
-                        m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+                    if (me->getVictim())
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
                 }
             }
         }
@@ -158,8 +158,8 @@ struct boss_gruulAI : public ScriptedAI
         // Gruul can cast this spell up to 30 times
         if (m_uiGrowth_Timer <= uiDiff)
         {
-            DoScriptText(EMOTE_GROW, m_creature);
-            DoCast(m_creature, SPELL_GROWTH);
+            DoScriptText(EMOTE_GROW, me);
+            DoCast(me, SPELL_GROWTH);
             m_uiGrowth_Timer = 30000;
         }
         else
@@ -175,7 +175,7 @@ struct boss_gruulAI : public ScriptedAI
                 if (m_uiReverberation_Timer < 10000)     //Give a little time to the players to undo the damage from shatter
                     m_uiReverberation_Timer += 10000;
 
-                DoCast(m_creature, SPELL_SHATTER);
+                DoCast(me, SPELL_SHATTER);
             }
             else
                 m_uiGroundSlamTimer -= uiDiff;
@@ -187,10 +187,10 @@ struct boss_gruulAI : public ScriptedAI
             {
                 Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
 
-                if (pTarget && m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+                if (pTarget && me->IsWithinMeleeRange(me->getVictim()))
                     DoCast(pTarget, SPELL_HURTFUL_STRIKE);
                 else
-                    DoCast(m_creature->getVictim(), SPELL_HURTFUL_STRIKE);
+                    DoCast(me->getVictim(), SPELL_HURTFUL_STRIKE);
 
                 m_uiHurtfulStrike_Timer= 8000;
             }
@@ -200,7 +200,7 @@ struct boss_gruulAI : public ScriptedAI
             // Reverberation
             if (m_uiReverberation_Timer <= uiDiff)
             {
-                DoCast(m_creature->getVictim(), SPELL_REVERBERATION, true);
+                DoCast(me->getVictim(), SPELL_REVERBERATION, true);
                 m_uiReverberation_Timer = 15000 + rand()%10000;
             }
             else
@@ -223,13 +223,13 @@ struct boss_gruulAI : public ScriptedAI
             // Ground Slam, Gronn Lord's Grasp, Stoned, Shatter
             if (m_uiGroundSlamTimer <= uiDiff)
             {
-                m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MoveIdle();
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveIdle();
 
                 m_bPerformingGroundSlam= true;
                 m_uiGroundSlamTimer = 10000;
 
-                DoCast(m_creature, SPELL_GROUND_SLAM);
+                DoCast(me, SPELL_GROUND_SLAM);
             }
             else
                 m_uiGroundSlamTimer -= uiDiff;

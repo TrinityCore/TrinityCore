@@ -78,7 +78,7 @@ struct boss_keristraszaAI : public ScriptedAI
         uiCheckIntenseColdTimer = 2*IN_MILISECONDS;
         bMoreThanTwoIntenseCold = false;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
         RemovePrison(CheckContainmentSpheres());
 
@@ -88,7 +88,7 @@ struct boss_keristraszaAI : public ScriptedAI
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
         DoCastAOE(SPELL_INTENSE_COLD);
 
         if (pInstance)
@@ -97,7 +97,7 @@ struct boss_keristraszaAI : public ScriptedAI
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
         {
@@ -109,7 +109,7 @@ struct boss_keristraszaAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(SAY_SLAY, me);
     }
 
     bool CheckContainmentSpheres(bool remove_prison = false)
@@ -140,16 +140,16 @@ struct boss_keristraszaAI : public ScriptedAI
     {
         if (remove)
         {
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            if (m_creature->HasAura(SPELL_FROZEN_PRISON))
-                m_creature->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (me->HasAura(SPELL_FROZEN_PRISON))
+                me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
         }
         else
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            DoCast(m_creature, SPELL_FROZEN_PRISON, false);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            DoCast(me, SPELL_FROZEN_PRISON, false);
         }
     }
 
@@ -160,10 +160,10 @@ struct boss_keristraszaAI : public ScriptedAI
 
         if (uiCheckIntenseColdTimer < diff && !bMoreThanTwoIntenseCold)
         {
-            std::list<HostileReference*> ThreatList = m_creature->getThreatManager().getThreatList();
+            std::list<HostileReference*> ThreatList = me->getThreatManager().getThreatList();
             for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
             {
-                Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (!pTarget || pTarget->GetTypeId() != TYPEID_PLAYER)
                     continue;
 
@@ -179,28 +179,28 @@ struct boss_keristraszaAI : public ScriptedAI
 
         if (!bEnrage && HealthBelowPct(25))
         {
-            DoScriptText(SAY_ENRAGE, m_creature);
-            DoCast(m_creature, SPELL_ENRAGE);
+            DoScriptText(SAY_ENRAGE, me);
+            DoCast(me, SPELL_ENRAGE);
             bEnrage = true;
         }
 
         if (uiCrystalfireBreathTimer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CRYSTALFIRE_BREATH);
+            DoCast(me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
             uiCrystalfireBreathTimer = 14*IN_MILISECONDS;
         } else uiCrystalfireBreathTimer -= diff;
 
         if (uiTailSweepTimer <= diff)
         {
-            DoCast(m_creature, SPELL_TAIL_SWEEP);
+            DoCast(me, SPELL_TAIL_SWEEP);
             uiTailSweepTimer = 5*IN_MILISECONDS;
         } else uiTailSweepTimer -= diff;
 
         if (uiCrystalChainsCrystalizeTimer <= diff)
         {
-            DoScriptText(SAY_CRYSTAL_NOVA, m_creature);
+            DoScriptText(SAY_CRYSTAL_NOVA, me);
             if (IsHeroic())
-                DoCast(m_creature, SPELL_CRYSTALIZE);
+                DoCast(me, SPELL_CRYSTALIZE);
             else if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_CRYSTAL_CHAINS);
             uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILISECONDS,11*IN_MILISECONDS);

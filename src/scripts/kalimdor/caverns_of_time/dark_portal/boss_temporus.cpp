@@ -64,17 +64,17 @@ struct boss_temporusAI : public ScriptedAI
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), m_creature);
+        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(TYPE_RIFT,SPECIAL);
@@ -85,11 +85,11 @@ struct boss_temporusAI : public ScriptedAI
         //Despawn Time Keeper
         if (who->GetTypeId() == TYPEID_UNIT && who->GetEntry() == C_TIME_KEEPER)
         {
-            if (m_creature->IsWithinDistInMap(who,20.0f))
+            if (me->IsWithinDistInMap(who,20.0f))
             {
-                DoScriptText(SAY_BANISH, m_creature);
+                DoScriptText(SAY_BANISH, me);
 
-                m_creature->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                me->DealDamage(who, who->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
         }
 
@@ -105,21 +105,21 @@ struct boss_temporusAI : public ScriptedAI
         //Attack Haste
         if (Haste_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_HASTE);
+            DoCast(me, SPELL_HASTE);
             Haste_Timer = 20000+rand()%5000;
         } else Haste_Timer -= diff;
 
         //MortalWound_Timer
         if (MortalWound_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_MORTAL_WOUND);
+            DoCast(me, SPELL_MORTAL_WOUND);
             MortalWound_Timer = 10000+rand()%10000;
         } else MortalWound_Timer -= diff;
 
         //Wing ruffet
         if (WingBuffet_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_WING_BUFFET);
+            DoCast(me, SPELL_WING_BUFFET);
             WingBuffet_Timer = 20000+rand()%10000;
         } else WingBuffet_Timer -= diff;
 
@@ -127,7 +127,7 @@ struct boss_temporusAI : public ScriptedAI
         {
             if (SpellReflection_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_REFLECT);
+                DoCast(me, SPELL_REFLECT);
                 SpellReflection_Timer = 25000+rand()%10000;
             } else SpellReflection_Timer -= diff;
         }

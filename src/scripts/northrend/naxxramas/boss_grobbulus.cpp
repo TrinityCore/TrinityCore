@@ -104,14 +104,14 @@ struct npc_grobbulus_poison_cloudAI : public Scripted_NoMovementAI
     void Reset()
     {
         Cloud_Timer = 1000;
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void UpdateAI(const uint32 diff)
     {
         if (Cloud_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_POISON_CLOUD_ADD);
+            DoCast(me, SPELL_POISON_CLOUD_ADD);
             Cloud_Timer = 10000;
         } else Cloud_Timer -= diff;
     }

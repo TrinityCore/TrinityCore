@@ -50,13 +50,13 @@ struct npc_dragonflayer_forge_masterAI : public ScriptedAI
             switch(fm_Type)
             {
             case 1:
-                pInstance->SetData(EVENT_FORGE_1,m_creature->isAlive() ? NOT_STARTED : DONE);
+                pInstance->SetData(EVENT_FORGE_1,me->isAlive() ? NOT_STARTED : DONE);
                 break;
             case 2:
-                pInstance->SetData(EVENT_FORGE_2,m_creature->isAlive() ? NOT_STARTED : DONE);
+                pInstance->SetData(EVENT_FORGE_2,me->isAlive() ? NOT_STARTED : DONE);
                 break;
             case 3:
-                pInstance->SetData(EVENT_FORGE_3,m_creature->isAlive() ? NOT_STARTED : DONE);
+                pInstance->SetData(EVENT_FORGE_3,me->isAlive() ? NOT_STARTED : DONE);
                 break;
             }
         }
@@ -100,7 +100,7 @@ struct npc_dragonflayer_forge_masterAI : public ScriptedAI
                 break;
             }
         }
-        m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE ,EMOTE_ONESHOT_NONE);
+        me->SetUInt32Value(UNIT_NPC_EMOTESTATE ,EMOTE_ONESHOT_NONE);
     }
 
     uint8 GetForgeMasterType()
@@ -111,13 +111,13 @@ struct npc_dragonflayer_forge_masterAI : public ScriptedAI
         for (uint8 i = 0; i < 3 ; ++i)
         {
             GameObject* temp;
-            temp = m_creature->FindNearestGameObject(entry_search[i],30);
+            temp = me->FindNearestGameObject(entry_search[i],30);
             if (temp)
             {
-                if (m_creature->IsWithinDist(temp,diff,false))
+                if (me->IsWithinDist(temp,diff,false))
                 {
                     near_f = i + 1;
-                    diff = m_creature->GetDistance2d(temp);
+                    diff = me->GetDistance2d(temp);
 
                 }
             }

@@ -60,22 +60,22 @@ struct boss_curatorAI : public ScriptedAI
         Enraged = false;
         Evocating = false;
 
-        m_creature->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
+        me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, true);
     }
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_KILL1,SAY_KILL2), m_creature);
+        DoScriptText(RAND(SAY_KILL1,SAY_KILL2), me);
     }
 
     void JustDied(Unit *victim)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -89,17 +89,17 @@ struct boss_curatorAI : public ScriptedAI
             //if evocate, then break evocate
             if (Evocating)
             {
-                if (m_creature->HasAura(SPELL_EVOCATION))
-                    m_creature->RemoveAurasDueToSpell(SPELL_EVOCATION);
+                if (me->HasAura(SPELL_EVOCATION))
+                    me->RemoveAurasDueToSpell(SPELL_EVOCATION);
 
                 Evocating = false;
             }
 
             //may not be correct SAY (generic hard enrage)
-            DoScriptText(SAY_ENRAGE, m_creature);
+            DoScriptText(SAY_ENRAGE, me);
 
-            m_creature->InterruptNonMeleeSpells(true);
-            DoCast(m_creature, SPELL_BERSERK);
+            me->InterruptNonMeleeSpells(true);
+            DoCast(me, SPELL_BERSERK);
 
             //don't know if he's supposed to do summon/evocate after hard enrage (probably not)
             Enraged = true;
@@ -108,7 +108,7 @@ struct boss_curatorAI : public ScriptedAI
         if (Evocating)
         {
             //not supposed to do anything while evocate
-            if (m_creature->HasAura(SPELL_EVOCATION))
+            if (me->HasAura(SPELL_EVOCATION))
                 return;
             else
                 Evocating = false;
@@ -130,17 +130,17 @@ struct boss_curatorAI : public ScriptedAI
                 }
 
                 //Reduce Mana by 10% of max health
-                if (int32 mana = m_creature->GetMaxPower(POWER_MANA))
+                if (int32 mana = me->GetMaxPower(POWER_MANA))
                 {
                     mana /= 10;
-                    m_creature->ModifyPower(POWER_MANA, -mana);
+                    me->ModifyPower(POWER_MANA, -mana);
 
                     //if this get's us below 10%, then we evocate (the 10th should be summoned now)
-                    if (m_creature->GetPower(POWER_MANA)*100 / m_creature->GetMaxPower(POWER_MANA) < 10)
+                    if (me->GetPower(POWER_MANA)*100 / me->GetMaxPower(POWER_MANA) < 10)
                     {
-                        DoScriptText(SAY_EVOCATE, m_creature);
-                        m_creature->InterruptNonMeleeSpells(false);
-                        DoCast(m_creature, SPELL_EVOCATION);
+                        DoScriptText(SAY_EVOCATE, me);
+                        me->InterruptNonMeleeSpells(false);
+                        DoCast(me, SPELL_EVOCATION);
                         Evocating = true;
                         //no AddTimer cooldown, this will make first flare appear instantly after evocate end, like expected
                         return;
@@ -149,7 +149,7 @@ struct boss_curatorAI : public ScriptedAI
                     {
                         if (urand(0,1) == 0)
                         {
-                            DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), m_creature);
+                            DoScriptText(RAND(SAY_SUMMON1,SAY_SUMMON2), me);
                         }
                     }
                 }
@@ -157,11 +157,11 @@ struct boss_curatorAI : public ScriptedAI
                 AddTimer = 10000;
             } else AddTimer -= diff;
 
-            if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() <= 15)
+            if (me->GetHealth()*100 / me->GetMaxHealth() <= 15)
             {
                 Enraged = true;
-                DoCast(m_creature, SPELL_ENRAGE);
-                DoScriptText(SAY_ENRAGE, m_creature);
+                DoCast(me, SPELL_ENRAGE);
+                DoScriptText(SAY_ENRAGE, me);
             }
         }
 

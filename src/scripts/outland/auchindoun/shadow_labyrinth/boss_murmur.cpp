@@ -60,21 +60,21 @@ struct boss_murmurAI : public ScriptedAI
         SonicBoom = false;
 
         //database should have `RegenHealth`=0 to prevent regen
-        uint32 hp = (m_creature->GetMaxHealth()*40)/100;
-        if (hp) m_creature->SetHealth(hp);
-        m_creature->ResetPlayerDamageReq();
+        uint32 hp = (me->GetMaxHealth()*40)/100;
+        if (hp) me->SetHealth(hp);
+        me->ResetPlayerDamageReq();
     }
 
     void SonicBoomEffect()
     {
-        std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
+        std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
         for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
-           Unit *pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+           Unit *pTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
            if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
            {
                //Not do anything without aura, spell can be resisted!
-               if (pTarget->HasAura(SPELL_SONIC_BOOM_CAST) && m_creature->IsWithinDistInMap(pTarget, 34.0f))
+               if (pTarget->HasAura(SPELL_SONIC_BOOM_CAST) && me->IsWithinDistInMap(pTarget, 34.0f))
                {
                    //This will be wrong calculation. Also, comments suggest it must deal damage
                    pTarget->SetHealth(uint32(pTarget->GetMaxHealth() - pTarget->GetMaxHealth() * 0.8));
@@ -89,19 +89,19 @@ struct boss_murmurAI : public ScriptedAI
     void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
     {
         if (pTarget && pTarget->isAlive() && spell && spell->Id == SPELL_SONIC_BOOM_EFFECT)
-            m_creature->DealDamage(pTarget,(pTarget->GetHealth()*90)/100,NULL,SPELL_DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NATURE,spell);
+            me->DealDamage(pTarget,(pTarget->GetHealth()*90)/100,NULL,SPELL_DIRECT_DAMAGE,SPELL_SCHOOL_MASK_NATURE,spell);
     }
 
     void UpdateAI(const uint32 diff)
     {
         //Return since we have no target or casting
-        if (!UpdateVictim() || m_creature->IsNonMeleeSpellCasted(false))
+        if (!UpdateVictim() || me->IsNonMeleeSpellCasted(false))
             return;
 
         // Sonic Boom
         if (SonicBoom)
         {
-            DoCast(m_creature, SPELL_SONIC_BOOM_EFFECT, true);
+            DoCast(me, SPELL_SONIC_BOOM_EFFECT, true);
             SonicBoomEffect();
 
             SonicBoom = false;
@@ -109,8 +109,8 @@ struct boss_murmurAI : public ScriptedAI
         }
         if (SonicBoom_Timer <= diff)
         {
-            DoScriptText(EMOTE_SONIC_BOOM, m_creature);
-            DoCast(m_creature, SPELL_SONIC_BOOM_CAST);
+            DoScriptText(EMOTE_SONIC_BOOM, me);
+            DoCast(me, SPELL_SONIC_BOOM_CAST);
             SonicBoom_Timer = 30000;
             SonicBoom = true;
             return;
@@ -125,11 +125,11 @@ struct boss_murmurAI : public ScriptedAI
         } else MurmursTouch_Timer -= diff;
 
         // Resonance
-        if (!SonicBoom && !(m_creature->IsWithinMeleeRange(m_creature->getVictim())))
+        if (!SonicBoom && !(me->IsWithinMeleeRange(me->getVictim())))
         {
             if (Resonance_Timer <= diff)
             {
-                DoCast(m_creature, SPELL_RESONANCE);
+                DoCast(me, SPELL_RESONANCE);
                 Resonance_Timer = 5000;
             } else Resonance_Timer -= diff;
         }
@@ -152,10 +152,10 @@ struct boss_murmurAI : public ScriptedAI
             // Thundering Storm
             if (ThunderingStorm_Timer <= diff)
             {
-                std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+                std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
-                    if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                        if (pTarget->isAlive() && !m_creature->IsWithinDist(pTarget, 35, false))
+                    if (Unit *pTarget = Unit::GetUnit((*me),(*i)->getUnitGuid()))
+                        if (pTarget->isAlive() && !me->IsWithinDist(pTarget, 35, false))
                             DoCast(pTarget, SPELL_THUNDERING_STORM, true);
                 ThunderingStorm_Timer = 15000;
             } else ThunderingStorm_Timer -= diff;
@@ -171,16 +171,16 @@ struct boss_murmurAI : public ScriptedAI
         }
 
         // Select nearest most aggro target if top aggro too far
-        if (!m_creature->isAttackReady())
+        if (!me->isAttackReady())
             return;
-        if (!m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (!me->IsWithinMeleeRange(me->getVictim()))
         {
-            std::list<HostileReference*>& m_threatlist = m_creature->getThreatManager().getThreatList();
+            std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
             for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
-                if (Unit *pTarget = Unit::GetUnit((*m_creature),(*i)->getUnitGuid()))
-                    if (pTarget->isAlive() && m_creature->IsWithinMeleeRange(pTarget))
+                if (Unit *pTarget = Unit::GetUnit((*me),(*i)->getUnitGuid()))
+                    if (pTarget->isAlive() && me->IsWithinMeleeRange(pTarget))
                     {
-                        m_creature->TauntApply(pTarget);
+                        me->TauntApply(pTarget);
                         break;
                     }
         }

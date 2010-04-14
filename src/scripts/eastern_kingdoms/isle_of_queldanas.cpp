@@ -63,13 +63,13 @@ struct npc_converted_sentryAI : public ScriptedAI
             {
                 uint32 i = urand(1,2);
                 if (i == 1)
-                    DoScriptText(SAY_CONVERTED_1, m_creature);
+                    DoScriptText(SAY_CONVERTED_1, me);
                 else
-                    DoScriptText(SAY_CONVERTED_2, m_creature);
+                    DoScriptText(SAY_CONVERTED_2, me);
 
-                DoCast(m_creature, SPELL_CONVERT_CREDIT);
-                if (m_creature->isPet())
-                    CAST_PET(m_creature)->SetDuration(7500);
+                DoCast(me, SPELL_CONVERT_CREDIT);
+                if (me->isPet())
+                    CAST_PET(me)->SetDuration(7500);
                 Credit = true;
             } else Timer -= diff;
         }
@@ -107,20 +107,20 @@ struct npc_greengill_slaveAI : public ScriptedAI
         if (!caster)
             return;
 
-        if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !m_creature->HasAura(ENRAGE))
+        if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == ORB && !me->HasAura(ENRAGE))
         {
             PlayerGUID = caster->GetGUID();
             if (PlayerGUID)
             {
-                Unit* plr = Unit::GetUnit((*m_creature), PlayerGUID);
+                Unit* plr = Unit::GetUnit((*me), PlayerGUID);
                 if (plr && CAST_PLR(plr)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
                     DoCast(plr, 45110, true);
             }
-            DoCast(m_creature, ENRAGE);
+            DoCast(me, ENRAGE);
             Unit* Myrmidon = me->FindNearestCreature(DM, 70);
             if (Myrmidon)
             {
-                m_creature->AddThreat(Myrmidon, 100000.0f);
+                me->AddThreat(Myrmidon, 100000.0f);
                 AttackStart(Myrmidon);
             }
         }

@@ -91,14 +91,14 @@ struct boss_tharon_jaAI : public ScriptedAI
         uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
         uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
         Phase = SKELETAL;
-        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
+        me->SetDisplayId(me->GetNativeDisplayId());
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
     }
 
     void EnterCombat(Unit* who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_THARON_JA_EVENT, IN_PROGRESS);
@@ -144,15 +144,15 @@ struct boss_tharon_jaAI : public ScriptedAI
             case GOING_FLESH:
                 if (uiPhaseTimer < diff)
                 {
-                    DoScriptText(RAND(SAY_FLESH_1,SAY_FLESH_2),m_creature);
-                    m_creature->SetDisplayId(MODEL_FLESH);
-                    std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+                    DoScriptText(RAND(SAY_FLESH_1,SAY_FLESH_2),me);
+                    me->SetDisplayId(MODEL_FLESH);
+                    std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
-                        Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
+                        Unit *pTemp = Unit::GetUnit((*me),(*itr)->getUnitGuid());
                         if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
                         {
-                            m_creature->AddAura(SPELL_GIFT_OF_THARON_JA,pTemp);
+                            me->AddAura(SPELL_GIFT_OF_THARON_JA,pTemp);
                             pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                     }
@@ -195,17 +195,17 @@ struct boss_tharon_jaAI : public ScriptedAI
             case GOING_SKELETAL:
                 if (uiPhaseTimer < diff)
                 {
-                    DoScriptText(RAND(SAY_SKELETON_1,SAY_SKELETON_2), m_creature);
-                    m_creature->DeMorph();
+                    DoScriptText(RAND(SAY_SKELETON_1,SAY_SKELETON_2), me);
+                    me->DeMorph();
                     Phase = SKELETAL;
                     uiPhaseTimer = 20*IN_MILISECONDS;
                     uiCurseOfLifeTimer = 1*IN_MILISECONDS;
                     uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
                     uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
-                    std::list<HostileReference*>& threatlist = m_creature->getThreatManager().getThreatList();
+                    std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {
-                        Unit *pTemp = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid());
+                        Unit *pTemp = Unit::GetUnit((*me),(*itr)->getUnitGuid());
                         if (pTemp && pTemp->GetTypeId() == TYPEID_PLAYER)
                         {
                             if (pTemp->HasAura(SPELL_GIFT_OF_THARON_JA))
@@ -220,12 +220,12 @@ struct boss_tharon_jaAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2),m_creature);
+        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2),me);
     }
 
     void JustDied(Unit* killer)
     {
-        DoScriptText(SAY_DEATH,m_creature);
+        DoScriptText(SAY_DEATH,me);
 
         if (pInstance)
         {

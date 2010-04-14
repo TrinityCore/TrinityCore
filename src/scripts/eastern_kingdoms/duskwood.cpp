@@ -70,7 +70,7 @@ struct boss_twilight_corrupterAI : public ScriptedAI
     }
     void EnterCombat(Unit* who)
     {
-        m_creature->MonsterYell("The Nightmare cannot be stopped!",0,m_creature->GetGUID());
+        me->MonsterYell("The Nightmare cannot be stopped!",0,me->GetGUID());
     }
 
     void KilledUnit(Unit* victim)
@@ -78,11 +78,11 @@ struct boss_twilight_corrupterAI : public ScriptedAI
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
             ++KillCount;
-            m_creature->MonsterTextEmote("Twilight Corrupter squeezes the last bit of life out of $N and swallows their soul.", victim->GetGUID(),true);
+            me->MonsterTextEmote("Twilight Corrupter squeezes the last bit of life out of $N and swallows their soul.", victim->GetGUID(),true);
 
             if (KillCount == 3)
             {
-                DoCast(m_creature, SPELL_LEVEL_UP, true);
+                DoCast(me, SPELL_LEVEL_UP, true);
                 KillCount = 0;
             }
         }
@@ -94,12 +94,12 @@ struct boss_twilight_corrupterAI : public ScriptedAI
             return;
         if (SoulCorruption_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_SOUL_CORRUPTION);
+            DoCast(me->getVictim(), SPELL_SOUL_CORRUPTION);
             SoulCorruption_Timer = rand()%4000+15000; //gotta confirm Timers
         } else SoulCorruption_Timer-=diff;
         if (CreatureOfNightmare_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_CREATURE_OF_NIGHTMARE);
+            DoCast(me->getVictim(), SPELL_CREATURE_OF_NIGHTMARE);
             CreatureOfNightmare_Timer = 45000; //gotta confirm Timers
         } else CreatureOfNightmare_Timer-=diff;
         DoMeleeAttackIfReady();

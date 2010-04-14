@@ -118,7 +118,7 @@ struct boss_ragnarosAI : public ScriptedAI
         HasSubmergedOnce = false;
         WasBanished = false;
 
-        DoCast(m_creature, SPELL_MELTWEAPON, true);
+        DoCast(me, SPELL_MELTWEAPON, true);
         HasAura = true;
     }
 
@@ -127,7 +127,7 @@ struct boss_ragnarosAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoScriptText(SAY_KILL, m_creature);
+        DoScriptText(SAY_KILL, me);
     }
 
     void EnterCombat(Unit *who)
@@ -139,9 +139,9 @@ struct boss_ragnarosAI : public ScriptedAI
         if (WasBanished && Attack_Timer <= diff)
         {
             //Become unbanished again
-            m_creature->setFaction(14);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            DoCast(m_creature, SPELL_RAGEMERGE);
+            me->setFaction(14);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            DoCast(me, SPELL_RAGEMERGE);
             WasBanished = false;
         } else if (WasBanished)
         {
@@ -157,10 +157,10 @@ struct boss_ragnarosAI : public ScriptedAI
         //WrathOfRagnaros_Timer
         if (WrathOfRagnaros_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_WRATHOFRAGNAROS);
+            DoCast(me->getVictim(), SPELL_WRATHOFRAGNAROS);
 
             if (urand(0,1))
-                DoScriptText(SAY_WRATH, m_creature);
+                DoScriptText(SAY_WRATH, me);
 
             WrathOfRagnaros_Timer = 30000;
         } else WrathOfRagnaros_Timer -= diff;
@@ -168,10 +168,10 @@ struct boss_ragnarosAI : public ScriptedAI
         //HandOfRagnaros_Timer
         if (HandOfRagnaros_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_HANDOFRAGNAROS);
+            DoCast(me, SPELL_HANDOFRAGNAROS);
 
             if (urand(0,1))
-                DoScriptText(SAY_HAND, m_creature);
+                DoScriptText(SAY_HAND, me);
 
             HandOfRagnaros_Timer = 25000;
         } else HandOfRagnaros_Timer -= diff;
@@ -179,21 +179,21 @@ struct boss_ragnarosAI : public ScriptedAI
         //LavaBurst_Timer
         if (LavaBurst_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_LAVABURST);
+            DoCast(me->getVictim(), SPELL_LAVABURST);
             LavaBurst_Timer = 10000;
         } else LavaBurst_Timer -= diff;
 
         //Erruption_Timer
         if (LavaBurst_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ERRUPTION);
+            DoCast(me->getVictim(), SPELL_ERRUPTION);
             Erruption_Timer = urand(20000,45000);
         } else Erruption_Timer -= diff;
 
         //ElementalFire_Timer
         if (ElementalFire_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_ELEMENTALFIRE);
+            DoCast(me->getVictim(), SPELL_ELEMENTALFIRE);
             ElementalFire_Timer = urand(10000,14000);
         } else ElementalFire_Timer -= diff;
 
@@ -204,48 +204,48 @@ struct boss_ragnarosAI : public ScriptedAI
             //is not very well supported in the core
             //so added normaly spawning and banish workaround and attack again after 90 secs.
 
-            m_creature->InterruptNonMeleeSpells(false);
+            me->InterruptNonMeleeSpells(false);
             //Root self
-            DoCast(m_creature, 23973);
-            m_creature->setFaction(35);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
+            DoCast(me, 23973);
+            me->setFaction(35);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
 
             if (!HasSubmergedOnce)
             {
-                DoScriptText(SAY_REINFORCEMENTS1, m_creature);
+                DoScriptText(SAY_REINFORCEMENTS1, me);
 
                 // summon 10 elementals
                 for (uint8 i = 0; i < 9; ++i)
                 {
                     if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
-                        if (Creature* pSummoned = m_creature->SummonCreature(12143,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
+                        if (Creature* pSummoned = me->SummonCreature(12143,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
                             pSummoned->AI()->AttackStart(pTarget);
                     }
                 }
 
                 HasSubmergedOnce = true;
                 WasBanished = true;
-                DoCast(m_creature, SPELL_RAGSUBMERGE);
+                DoCast(me, SPELL_RAGSUBMERGE);
                 Attack_Timer = 90000;
 
             }
             else
             {
-                DoScriptText(SAY_REINFORCEMENTS2, m_creature);
+                DoScriptText(SAY_REINFORCEMENTS2, me);
 
                 for (uint8 i = 0; i < 9; ++i)
                 {
                     if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                     {
-                        if (Creature* pSummoned = m_creature->SummonCreature(12143,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
+                        if (Creature* pSummoned = me->SummonCreature(12143,pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(),0.0f,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,900000))
                         pSummoned->AI()->AttackStart(pTarget);
                     }
                 }
 
                 WasBanished = true;
-                DoCast(m_creature, SPELL_RAGSUBMERGE);
+                DoCast(me, SPELL_RAGSUBMERGE);
                 Attack_Timer = 90000;
             }
 
@@ -253,13 +253,13 @@ struct boss_ragnarosAI : public ScriptedAI
         } else Submerge_Timer -= diff;
 
         //If we are within range melee the target
-        if (m_creature->IsWithinMeleeRange(m_creature->getVictim()))
+        if (me->IsWithinMeleeRange(me->getVictim()))
         {
             //Make sure our attack is ready and we arn't currently casting
-            if (m_creature->isAttackReady() && !m_creature->IsNonMeleeSpellCasted(false))
+            if (me->isAttackReady() && !me->IsNonMeleeSpellCasted(false))
             {
-                m_creature->AttackerStateUpdate(m_creature->getVictim());
-                m_creature->resetAttackTimer();
+                me->AttackerStateUpdate(me->getVictim());
+                me->resetAttackTimer();
             }
         }
         else
@@ -267,12 +267,12 @@ struct boss_ragnarosAI : public ScriptedAI
             //MagmaBurst_Timer
             if (MagmaBurst_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), SPELL_MAGMABURST);
+                DoCast(me->getVictim(), SPELL_MAGMABURST);
 
                 if (!HasYelledMagmaBurst)
                 {
                     //Say our dialog
-                    DoScriptText(SAY_MAGMABURST, m_creature);
+                    DoScriptText(SAY_MAGMABURST, me);
                     HasYelledMagmaBurst = true;
                 }
 

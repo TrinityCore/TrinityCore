@@ -52,11 +52,11 @@ struct boss_hungarfenAI : public ScriptedAI
         if (!UpdateVictim())
             return;
 
-        if ((m_creature->GetHealth()*100) / m_creature->GetMaxHealth() <= 20)
+        if ((me->GetHealth()*100) / me->GetMaxHealth() <= 20)
         {
             if (!Root)
             {
-                DoCast(m_creature, SPELL_FOUL_SPORES);
+                DoCast(me, SPELL_FOUL_SPORES);
                 Root = true;
             }
         }
@@ -64,9 +64,9 @@ struct boss_hungarfenAI : public ScriptedAI
         if (Mushroom_Timer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                m_creature->SummonCreature(17990, pTarget->GetPositionX()+(rand()%8), pTarget->GetPositionY()+(rand()%8), pTarget->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
+                me->SummonCreature(17990, pTarget->GetPositionX()+(rand()%8), pTarget->GetPositionY()+(rand()%8), pTarget->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
             else
-                m_creature->SummonCreature(17990, m_creature->GetPositionX()+(rand()%8), m_creature->GetPositionY()+(rand()%8), m_creature->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
+                me->SummonCreature(17990, me->GetPositionX()+(rand()%8), me->GetPositionY()+(rand()%8), me->GetPositionZ(), (rand()%5), TEMPSUMMON_TIMED_DESPAWN, 22000);
 
             Mushroom_Timer = 10000;
         } else Mushroom_Timer -= diff;
@@ -104,8 +104,8 @@ struct mob_underbog_mushroomAI : public ScriptedAI
         Grow_Timer = 0;
         Shrink_Timer = 20000;
 
-        DoCast(m_creature, SPELL_PUTRID_MUSHROOM, true);
-        DoCast(m_creature, SPELL_SPORE_CLOUD, true);
+        DoCast(me, SPELL_PUTRID_MUSHROOM, true);
+        DoCast(me, SPELL_SPORE_CLOUD, true);
     }
 
     void MoveInLineOfSight(Unit *who) { return; }
@@ -121,13 +121,13 @@ struct mob_underbog_mushroomAI : public ScriptedAI
 
         if (Grow_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_GROW);
+            DoCast(me, SPELL_GROW);
             Grow_Timer = 3000;
         } else Grow_Timer -= diff;
 
         if (Shrink_Timer <= diff)
         {
-            m_creature->RemoveAurasDueToSpell(SPELL_GROW);
+            me->RemoveAurasDueToSpell(SPELL_GROW);
             Stop = true;
         } else Shrink_Timer -= diff;
     }

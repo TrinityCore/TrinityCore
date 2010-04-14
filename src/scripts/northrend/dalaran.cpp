@@ -70,7 +70,7 @@ struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         if (!pPlayer || pPlayer->isGameMaster() || pPlayer->IsBeingTeleported())
             return;
 
-        switch (m_creature->GetEntry())
+        switch (me->GetEntry())
         {
             case 29254:
                 if (pPlayer->GetTeam() == HORDE)              // Horde unit found in Alliance area

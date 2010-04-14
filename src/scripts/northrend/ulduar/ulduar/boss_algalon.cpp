@@ -114,14 +114,14 @@ struct boss_algalonAI : public ScriptedAI
     {
         if (Summon)
         {
-            DoScriptText(SAY_AGGRO, m_creature);
-            m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL);
+            DoScriptText(SAY_AGGRO, me);
+            me->InterruptSpell(CURRENT_CHANNELED_SPELL);
             DoZoneInCombat(who->ToCreature());
         }
         else
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetReactState(REACT_PASSIVE);
             uiStep = 1;
         }
 
@@ -131,14 +131,14 @@ struct boss_algalonAI : public ScriptedAI
 
     void KilledUnit(Unit *victim)
     {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), m_creature);
+        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
     void Reset()
     {
         Phase = 1;
 
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         if (pInstance)
             pInstance->SetData(TYPE_ALGALON, NOT_STARTED);
 
@@ -168,7 +168,7 @@ struct boss_algalonAI : public ScriptedAI
 
         for (std::list<uint64>::const_iterator itr = m_lCollapsingStarGUIDList.begin(); itr != m_lCollapsingStarGUIDList.end(); ++itr)
         {
-            if (Creature* pTemp = Unit::GetCreature(*m_creature, *itr))
+            if (Creature* pTemp = Unit::GetCreature(*me, *itr))
             {
                 if (pTemp->isAlive())
                     pTemp->ForcedDespawn();
@@ -182,17 +182,17 @@ struct boss_algalonAI : public ScriptedAI
         if (pSummoned->GetEntry() == CREATURE_COLLAPSING_STAR)
         {
             Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (m_creature->getVictim())
-                pSummoned->AI()->AttackStart(pTarget ? pTarget : m_creature->getVictim());
+            if (me->getVictim())
+                pSummoned->AI()->AttackStart(pTarget ? pTarget : me->getVictim());
             m_lCollapsingStarGUIDList.push_back(pSummoned->GetGUID());
         }
     }
 
     void SummonCollapsingStar(Unit* target)
     {
-        DoScriptText(SAY_SUMMON_COLLAPSING_STAR, m_creature);
-        m_creature->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
-        m_creature->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
+        DoScriptText(SAY_SUMMON_COLLAPSING_STAR, me);
+        me->SummonCreature(CREATURE_COLLAPSING_STAR,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 100000);
+        me->SummonCreature(CREATURE_BLACK_HOLE,target->GetPositionX()+15.0,target->GetPositionY()+15.0,target->GetPositionZ(),0, TEMPSUMMON_TIMED_DESPAWN, 27000);
     }
 
     void UpdateAI(const uint32 diff)
@@ -204,21 +204,21 @@ struct boss_algalonAI : public ScriptedAI
         if (Phase == 1 && HealthBelowPct(20))
         {
             Phase = 2;
-            DoScriptText(SAY_PHASE_2, m_creature);
+            DoScriptText(SAY_PHASE_2, me);
         }
 
         if (HealthBelowPct(2))
         {
-            m_creature->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,-10);
+            me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,-10);
 
             // All of them. or random?
-            DoScriptText(SAY_DEATH_1, m_creature);
-            DoScriptText(SAY_DEATH_2, m_creature);
-            DoScriptText(SAY_DEATH_3, m_creature);
-            DoScriptText(SAY_DEATH_4, m_creature);
-            DoScriptText(SAY_DEATH_5, m_creature);
+            DoScriptText(SAY_DEATH_1, me);
+            DoScriptText(SAY_DEATH_2, me);
+            DoScriptText(SAY_DEATH_3, me);
+            DoScriptText(SAY_DEATH_4, me);
+            DoScriptText(SAY_DEATH_5, me);
 
-            m_creature->DisappearAndDie();
+            me->DisappearAndDie();
 
             if (pInstance)
                 pInstance->SetData(TYPE_ALGALON, DONE);
@@ -235,24 +235,24 @@ struct boss_algalonAI : public ScriptedAI
                     switch(uiStep)
                     {
                         case 1:
-                            DoScriptText(SAY_SUMMON_1, m_creature);
+                            DoScriptText(SAY_SUMMON_1, me);
                             JumpToNextStep(3000);
                             break;
                         case 2:
-                            DoScriptText(SAY_SUMMON_2, m_creature);
+                            DoScriptText(SAY_SUMMON_2, me);
                             JumpToNextStep(3000);
                             break;
                         case 3:
-                            DoScriptText(SAY_SUMMON_3, m_creature);
+                            DoScriptText(SAY_SUMMON_3, me);
                             JumpToNextStep(3000);
                             break;
                         case 4:
-                            DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, m_creature);
+                            DoScriptText(SAY_ENGADED_FOR_FIRTS_TIME, me);
                             JumpToNextStep(3000);
                             break;
                         case 5:
-                            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                            m_creature->SetReactState(REACT_AGGRESSIVE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            me->SetReactState(REACT_AGGRESSIVE);
                             Summon = true;
                             break;
                     }
@@ -263,29 +263,29 @@ struct boss_algalonAI : public ScriptedAI
 
             if (QuantumStrike_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE), true);
+                DoCast(me->getVictim(), RAID_MODE(SPELL_QUANTUM_STRIKE,H_SPELL_QUANTUM_STRIKE), true);
 
                 QuantumStrike_Timer = urand(4000, 14000);
             } else QuantumStrike_Timer -= diff;
 
             if (BigBang_Timer <= diff)
             {
-                DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), m_creature);
-                DoCast(m_creature->getVictim(), RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG), true);
+                DoScriptText(RAND(SAY_BIG_BANG_1,SAY_BIG_BANG_2), me);
+                DoCast(me->getVictim(), RAID_MODE(SPELL_BIG_BANG,H_SPELL_BIG_BANG), true);
 
                 BigBang_Timer = 90000;
             } else BigBang_Timer -= diff;
 
             if (Ascend_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_ASCEND, true);
+                DoCast(me->getVictim(),SPELL_ASCEND, true);
 
                 Ascend_Timer = 480000;
             } else Ascend_Timer -= diff;
 
             if (PhasePunch_Timer <= diff)
             {
-                DoCast(m_creature->getVictim(),SPELL_PHASE_PUNCH, true);
+                DoCast(me->getVictim(),SPELL_PHASE_PUNCH, true);
 
                 PhasePunch_Timer = 8000;
             } else PhasePunch_Timer -= diff;
@@ -299,8 +299,8 @@ struct boss_algalonAI : public ScriptedAI
 
             if (Berserk_Timer <= diff)
             {
-                DoScriptText(SAY_BERSERK, m_creature);
-                DoCast(m_creature->getVictim(),SPELL_BERSERK, true);
+                DoScriptText(SAY_BERSERK, me);
+                DoCast(me->getVictim(),SPELL_BERSERK, true);
 
                 Berserk_Timer = 360000;
             } else Berserk_Timer -= diff;
@@ -316,8 +316,8 @@ struct boss_algalonAI : public ScriptedAI
             {
                 if (Ascend_Timer <= diff)
                 {
-                    DoCast(m_creature, SPELL_ASCEND);
-                    DoScriptText(SAY_BERSERK, m_creature);
+                    DoCast(me, SPELL_ASCEND);
+                    DoScriptText(SAY_BERSERK, me);
                     Ascend_Timer = urand(360000,365000);
                     Enrage = false;
                 } else Ascend_Timer -= diff;
@@ -352,7 +352,7 @@ struct mob_collapsing_starAI : public ScriptedAI
 
         if (BlackHoleExplosion_Timer <= diff)
         {
-            m_creature->CastSpell(m_creature, SPELL_BLACK_HOLE_EXPLOSION, false);
+            me->CastSpell(me, SPELL_BLACK_HOLE_EXPLOSION, false);
             BlackHoleExplosion_Timer = 0;
         } else BlackHoleExplosion_Timer -= diff;
     }

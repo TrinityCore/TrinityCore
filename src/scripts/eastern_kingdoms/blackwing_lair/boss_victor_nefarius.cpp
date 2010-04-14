@@ -178,27 +178,27 @@ struct boss_victor_nefariusAI : public ScriptedAI
         NefarianGUID = 0;
         NefCheckTime = 2000;
 
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS,1);
-        m_creature->setFaction(35);
-        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUInt32Value(UNIT_NPC_FLAGS,1);
+        me->setFaction(35);
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
     void BeginEvent(Player *pTarget)
     {
-        DoScriptText(SAY_GAMESBEGIN_2, m_creature);
+        DoScriptText(SAY_GAMESBEGIN_2, me);
 
-        //Trinity::Singleton<MapManager>::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
+        //Trinity::Singleton<MapManager>::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
         /*
-        list <Player*>::const_iterator i = MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin();
+        list <Player*>::const_iterator i = MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
 
-        for (i = MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().begin(); i != MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->GetPlayers().end(); ++i)
+        for (i = MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
         {
         AttackStart((*i));
         }
         */
-        m_creature->SetUInt32Value(UNIT_NPC_FLAGS,0);
-        m_creature->setFaction(103);
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        me->SetUInt32Value(UNIT_NPC_FLAGS,0);
+        me->setFaction(103);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         AttackStart(pTarget);
     }
 
@@ -210,10 +210,10 @@ struct boss_victor_nefariusAI : public ScriptedAI
     {
         //We simply use this function to find players until we can use pMap->GetPlayers()
 
-        if (who && who->GetTypeId() == TYPEID_PLAYER && m_creature->IsHostileTo(who))
+        if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
         {
             //Add them to our threat list
-            m_creature->AddThreat(who, 0.0f);
+            me->AddThreat(who, 0.0f);
         }
     }
 
@@ -260,7 +260,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
                 ++SpawnedAdds;
 
                 //Spawn Creature and force it to start attacking a random target
-                Spawned = m_creature->SummonCreature(CreatureID,ADD_X1,ADD_Y1,ADD_Z1,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                Spawned = me->SummonCreature(CreatureID,ADD_X1,ADD_Y1,ADD_Z1,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (pTarget && Spawned)
                 {
@@ -276,7 +276,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
 
                 ++SpawnedAdds;
 
-                Spawned = m_creature->SummonCreature(CreatureID,ADD_X2,ADD_Y2,ADD_Z2,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
+                Spawned = me->SummonCreature(CreatureID,ADD_X2,ADD_Y2,ADD_Z2,5.000,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,5000);
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (pTarget && Spawned)
                 {
@@ -288,23 +288,23 @@ struct boss_victor_nefariusAI : public ScriptedAI
                 if (SpawnedAdds >= 42)
                 {
                     //Teleport Victor Nefarius way out of the map
-                    //MapManager::Instance().GetMap(m_creature->GetMapId(), m_creature)->CreatureRelocation(m_creature,0,0,-5000,0);
+                    //MapManager::Instance().GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
 
                     //Inturrupt any spell casting
-                    m_creature->InterruptNonMeleeSpells(false);
+                    me->InterruptNonMeleeSpells(false);
 
                     //Root self
-                    DoCast(m_creature, 33356);
+                    DoCast(me, 33356);
 
                     //Make super invis
-                    DoCast(m_creature, 8149);
+                    DoCast(me, 8149);
 
                     //Teleport self to a hiding spot (this causes errors in the Trinity log but no real issues)
                     DoTeleportTo(HIDE_X,HIDE_Y,HIDE_Z);
-                    m_creature->addUnitState(UNIT_STAT_FLEEING);
+                    me->addUnitState(UNIT_STAT_FLEEING);
 
                     //Spawn nef and have him attack a random target
-                    Creature* Nefarian = m_creature->SummonCreature(CREATURE_NEFARIAN,NEF_X,NEF_Y,NEF_Z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
+                    Creature* Nefarian = me->SummonCreature(CREATURE_NEFARIAN,NEF_X,NEF_Y,NEF_Z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,120000);
                     pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pTarget && Nefarian)
                     {
@@ -322,14 +322,14 @@ struct boss_victor_nefariusAI : public ScriptedAI
         {
             if (NefCheckTime <= diff)
             {
-                Unit* Nefarian = Unit::GetCreature((*m_creature),NefarianGUID);
+                Unit* Nefarian = Unit::GetCreature((*me),NefarianGUID);
 
                 //If nef is dead then we die to so the players get out of combat
                 //and cannot repeat the event
                 if (!Nefarian || !Nefarian->isAlive())
                 {
                     NefarianGUID = 0;
-                    m_creature->ForcedDespawn();
+                    me->ForcedDespawn();
                 }
 
                 NefCheckTime = 2000;

@@ -62,21 +62,21 @@ struct npc_lazy_peonAI : public ScriptedAI
         if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
             && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
         {
-            caster->ToPlayer()->KilledMonsterCredit(m_creature->GetEntry(),m_creature->GetGUID());
-            DoScriptText(SAY_SPELL_HIT, m_creature, caster);
-            m_creature->RemoveAllAuras();
-            if (GameObject* Lumberpile = m_creature->FindNearestGameObject(GO_LUMBERPILE, 20))
-                m_creature->GetMotionMaster()->MovePoint(1,Lumberpile->GetPositionX()-1,Lumberpile->GetPositionY(),Lumberpile->GetPositionZ());
+            caster->ToPlayer()->KilledMonsterCredit(me->GetEntry(),me->GetGUID());
+            DoScriptText(SAY_SPELL_HIT, me, caster);
+            me->RemoveAllAuras();
+            if (GameObject* Lumberpile = me->FindNearestGameObject(GO_LUMBERPILE, 20))
+                me->GetMotionMaster()->MovePoint(1,Lumberpile->GetPositionX()-1,Lumberpile->GetPositionY(),Lumberpile->GetPositionZ());
         }
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
         if (work = true)
-            m_creature->HandleEmoteCommand(466);
+            me->HandleEmoteCommand(466);
         if (m_uiRebuffTimer <= uiDiff)
         {
-            DoCast(m_creature, SPELL_BUFF_SLEEP);
+            DoCast(me, SPELL_BUFF_SLEEP);
             m_uiRebuffTimer = 300000;                 //Rebuff agian in 5 minutes
         }
         else

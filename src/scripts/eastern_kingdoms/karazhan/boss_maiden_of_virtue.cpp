@@ -63,17 +63,17 @@ struct boss_maiden_of_virtueAI : public ScriptedAI
     void KilledUnit(Unit* Victim)
     {
         if (urand(0,1) == 0)
-            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), m_creature);
+            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
     void JustDied(Unit* Killer)
     {
-        DoScriptText(SAY_DEATH, m_creature);
+        DoScriptText(SAY_DEATH, me);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -83,20 +83,20 @@ struct boss_maiden_of_virtueAI : public ScriptedAI
 
         if (Enrage_Timer < diff && !Enraged)
         {
-            DoCast(m_creature, SPELL_BERSERK, true);
+            DoCast(me, SPELL_BERSERK, true);
             Enraged = true;
         } else Enrage_Timer -= diff;
 
         if (Holyground_Timer <= diff)
         {
-            DoCast(m_creature, SPELL_HOLYGROUND, true);   //Triggered so it doesn't interrupt her at all
+            DoCast(me, SPELL_HOLYGROUND, true);   //Triggered so it doesn't interrupt her at all
             Holyground_Timer = 3000;
         } else Holyground_Timer -= diff;
 
         if (Repentance_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_REPENTANCE);
-            DoScriptText(RAND(SAY_REPENTANCE1,SAY_REPENTANCE2), m_creature);
+            DoCast(me->getVictim(), SPELL_REPENTANCE);
+            DoScriptText(RAND(SAY_REPENTANCE1,SAY_REPENTANCE2), me);
 
             Repentance_Timer = urand(25000,35000);        //A little randomness on that spell
         } else Repentance_Timer -= diff;

@@ -71,7 +71,7 @@ struct npc_raliq_the_drunkAI : public ScriptedAI
 
         if (Uppercut_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_UPPERCUT);
+            DoCast(me->getVictim(), SPELL_UPPERCUT);
             Uppercut_Timer = 15000;
         } else Uppercut_Timer -= diff;
 
@@ -129,9 +129,9 @@ struct npc_salsalabimAI : public ScriptedAI
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetTypeId() == TYPEID_PLAYER)
-            if ((m_creature->GetHealth()-damage)*100 / m_creature->GetMaxHealth() < 20)
+            if ((me->GetHealth()-damage)*100 / me->GetMaxHealth() < 20)
         {
-            CAST_PLR(done_by)->GroupEventHappens(QUEST_10004,m_creature);
+            CAST_PLR(done_by)->GroupEventHappens(QUEST_10004,me);
             damage = 0;
             EnterEvadeMode();
         }
@@ -144,7 +144,7 @@ struct npc_salsalabimAI : public ScriptedAI
 
         if (MagneticPull_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_MAGNETIC_PULL);
+            DoCast(me->getVictim(), SPELL_MAGNETIC_PULL);
             MagneticPull_Timer = 15000;
         } else MagneticPull_Timer -= diff;
 
@@ -289,30 +289,30 @@ public:
 
         switch(i)
         {
-            case 0: DoScriptText(SAY1, m_creature, pPlayer); break;
-            case 4: DoScriptText(WHISP1, m_creature, pPlayer); break;
-            case 6: DoScriptText(WHISP2, m_creature, pPlayer); break;
-            case 7: DoScriptText(WHISP3, m_creature, pPlayer); break;
-            case 8: DoScriptText(WHISP4, m_creature, pPlayer); break;
-            case 17: DoScriptText(WHISP5, m_creature, pPlayer); break;
-            case 18: DoScriptText(WHISP6, m_creature, pPlayer); break;
-            case 19: DoScriptText(WHISP7, m_creature, pPlayer); break;
-            case 33: DoScriptText(WHISP8, m_creature, pPlayer); break;
-            case 34: DoScriptText(WHISP9, m_creature, pPlayer); break;
-            case 35: DoScriptText(WHISP10, m_creature, pPlayer); break;
-            case 36: DoScriptText(WHISP11, m_creature, pPlayer); break;
-            case 43: DoScriptText(WHISP12, m_creature, pPlayer); break;
-            case 44: DoScriptText(WHISP13, m_creature, pPlayer); break;
-            case 49: DoScriptText(WHISP14, m_creature, pPlayer); break;
-            case 50: DoScriptText(WHISP15, m_creature, pPlayer); break;
-            case 51: DoScriptText(WHISP16, m_creature, pPlayer); break;
-            case 52: DoScriptText(WHISP17, m_creature, pPlayer); break;
-            case 53: DoScriptText(WHISP18, m_creature, pPlayer); break;
-            case 54: DoScriptText(WHISP19, m_creature, pPlayer); break;
-            case 55: DoScriptText(WHISP20, m_creature, pPlayer); break;
-            case 56: DoScriptText(WHISP21, m_creature, pPlayer);
+            case 0: DoScriptText(SAY1, me, pPlayer); break;
+            case 4: DoScriptText(WHISP1, me, pPlayer); break;
+            case 6: DoScriptText(WHISP2, me, pPlayer); break;
+            case 7: DoScriptText(WHISP3, me, pPlayer); break;
+            case 8: DoScriptText(WHISP4, me, pPlayer); break;
+            case 17: DoScriptText(WHISP5, me, pPlayer); break;
+            case 18: DoScriptText(WHISP6, me, pPlayer); break;
+            case 19: DoScriptText(WHISP7, me, pPlayer); break;
+            case 33: DoScriptText(WHISP8, me, pPlayer); break;
+            case 34: DoScriptText(WHISP9, me, pPlayer); break;
+            case 35: DoScriptText(WHISP10, me, pPlayer); break;
+            case 36: DoScriptText(WHISP11, me, pPlayer); break;
+            case 43: DoScriptText(WHISP12, me, pPlayer); break;
+            case 44: DoScriptText(WHISP13, me, pPlayer); break;
+            case 49: DoScriptText(WHISP14, me, pPlayer); break;
+            case 50: DoScriptText(WHISP15, me, pPlayer); break;
+            case 51: DoScriptText(WHISP16, me, pPlayer); break;
+            case 52: DoScriptText(WHISP17, me, pPlayer); break;
+            case 53: DoScriptText(WHISP18, me, pPlayer); break;
+            case 54: DoScriptText(WHISP19, me, pPlayer); break;
+            case 55: DoScriptText(WHISP20, me, pPlayer); break;
+            case 56: DoScriptText(WHISP21, me, pPlayer);
                 if (pPlayer)
-                    pPlayer->GroupEventHappens(10211,m_creature);
+                    pPlayer->GroupEventHappens(10211,me);
                 break;
         }
     }
@@ -327,7 +327,7 @@ public:
             if (CAST_PLR(pWho)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
             {
                 float Radius = 10.0;
-                if (m_creature->IsWithinDistInMap(pWho, Radius))
+                if (me->IsWithinDistInMap(pWho, Radius))
                 {
                     Start(false, false, pWho->GetGUID());
                 }
@@ -382,8 +382,8 @@ struct npc_dirty_larryAI : public ScriptedAI
         SayTimer = 0;
         Step = 0;
 
-        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        m_creature->setFaction(1194);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        me->setFaction(1194);
         Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
         if (Creepjack)
         {
@@ -406,19 +406,19 @@ struct npc_dirty_larryAI : public ScriptedAI
 
         switch(Step)
         {
-        case 0:{ m_creature->SetInFront(pPlayer);
+        case 0:{ me->SetInFront(pPlayer);
             Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
             if (Creepjack)
                 Creepjack->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
             Unit* Malone = me->FindNearestCreature(NPC_MALONE, 20);
             if (Malone)
                 Malone->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
-        case 1: DoScriptText(SAY_1, m_creature, pPlayer); return 3000;
-        case 2: DoScriptText(SAY_2, m_creature, pPlayer); return 5000;
-        case 3: DoScriptText(SAY_3, m_creature, pPlayer); return 2000;
-        case 4: DoScriptText(SAY_4, m_creature, pPlayer); return 2000;
-        case 5: DoScriptText(SAY_5, m_creature, pPlayer); return 2000;
+            me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP); }return 2000;
+        case 1: DoScriptText(SAY_1, me, pPlayer); return 3000;
+        case 2: DoScriptText(SAY_2, me, pPlayer); return 5000;
+        case 3: DoScriptText(SAY_3, me, pPlayer); return 2000;
+        case 4: DoScriptText(SAY_4, me, pPlayer); return 2000;
+        case 5: DoScriptText(SAY_5, me, pPlayer); return 2000;
         case 6: Attack = true; return 2000;
         default: return 0;
         }
@@ -437,8 +437,8 @@ struct npc_dirty_larryAI : public ScriptedAI
         if (Attack)
         {
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-            m_creature->setFaction(14);
-            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->setFaction(14);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             if (pPlayer)
             {
             Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
@@ -463,10 +463,10 @@ struct npc_dirty_larryAI : public ScriptedAI
             Attack = false;
         }
 
-        if ((m_creature->GetHealth()*100)/m_creature->GetMaxHealth() < 5 && !Done)
+        if ((me->GetHealth()*100)/me->GetMaxHealth() < 5 && !Done)
         {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->RemoveAllAuras();
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->RemoveAllAuras();
 
             Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
             if (Creepjack)
@@ -484,15 +484,15 @@ struct npc_dirty_larryAI : public ScriptedAI
                 Malone->GetMotionMaster()->MoveTargetedHome();
                 Malone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
-            m_creature->setFaction(1194);
+            me->setFaction(1194);
             Done = true;
-            DoScriptText(SAY_GIVEUP, m_creature, NULL);
-            m_creature->DeleteThreatList();
-            m_creature->CombatStop();
-            m_creature->GetMotionMaster()->MoveTargetedHome();
+            DoScriptText(SAY_GIVEUP, me, NULL);
+            me->DeleteThreatList();
+            me->CombatStop();
+            me->GetMotionMaster()->MoveTargetedHome();
             Player* pPlayer = Unit::GetPlayer(PlayerGUID);
             if (pPlayer)
-                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WBI, m_creature);
+                CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WBI, me);
         }
         DoMeleeAttackIfReady();
     }

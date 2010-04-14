@@ -71,12 +71,12 @@ struct boss_majordomoAI : public ScriptedAI
         if (rand()%5)
             return;
 
-        DoScriptText(SAY_SLAY, m_creature);
+        DoScriptText(SAY_SLAY, me);
     }
 
     void EnterCombat(Unit *who)
     {
-        DoScriptText(SAY_AGGRO, m_creature);
+        DoScriptText(SAY_AGGRO, me);
     }
 
     void UpdateAI(const uint32 diff)
@@ -85,15 +85,15 @@ struct boss_majordomoAI : public ScriptedAI
             return;
 
         //Cast Ageis if less than 50% hp
-        if (m_creature->GetHealth()*100 / m_creature->GetMaxHealth() < 50)
+        if (me->GetHealth()*100 / me->GetMaxHealth() < 50)
         {
-            DoCast(m_creature, SPELL_AEGIS);
+            DoCast(me, SPELL_AEGIS);
         }
 
         //MagicReflection_Timer
         //        if (MagicReflection_Timer <= diff)
         //        {
-        //            DoCast(m_creature, SPELL_MAGICREFLECTION);
+        //            DoCast(me, SPELL_MAGICREFLECTION);
 
         //60 seconds until we should cast this agian
         //            MagicReflection_Timer = 30000;
@@ -102,7 +102,7 @@ struct boss_majordomoAI : public ScriptedAI
         //DamageReflection_Timer
         //        if (DamageReflection_Timer <= diff)
         //        {
-        //            DoCast(m_creature, SPELL_DAMAGEREFLECTION);
+        //            DoCast(me, SPELL_DAMAGEREFLECTION);
 
         //60 seconds until we should cast this agian
         //            DamageReflection_Timer = 30000;
@@ -111,7 +111,7 @@ struct boss_majordomoAI : public ScriptedAI
         //Blastwave_Timer
         if (Blastwave_Timer <= diff)
         {
-            DoCast(m_creature->getVictim(), SPELL_BLASTWAVE);
+            DoCast(me->getVictim(), SPELL_BLASTWAVE);
             Blastwave_Timer = 10000;
         } else Blastwave_Timer -= diff;
 
