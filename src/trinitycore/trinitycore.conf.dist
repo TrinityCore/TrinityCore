@@ -145,6 +145,16 @@ EAIErrorLevel = 2
 #        Player save interval (in milliseconds)
 #        Default: 900000 (15 min)
 #
+#    PlayerSave.Stats.MinLevel
+#        Minimum level for saving character stats for external usage in database	
+#        Default: 0  (do not save character stats)	
+#                 1+ (save stats for characters with level 1+)	
+#
+#    PlayerSave.Stats.SaveOnlyOnLogout	
+#        Enable/Disable saving of character stats only on logout
+#        Default: 1 (only save on logout)
+#                 0 (save on every player save)
+#
 #    vmap.enableLOS
 #    vmap.enableHeight
 #        Enable/Disable VMmap support for line of sight and height calculation
@@ -227,6 +237,8 @@ GridCleanUpDelay = 300000
 MapUpdateInterval = 100
 ChangeWeatherInterval = 600000
 PlayerSaveInterval = 900000
+PlayerSave.Stats.MinLevel = 0
+PlayerSave.Stats.SaveOnlyOnLogout = 1
 vmap.enableLOS = 0
 vmap.enableHeight = 0
 vmap.ignoreMapIds = "369"
