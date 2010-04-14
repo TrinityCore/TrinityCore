@@ -167,7 +167,7 @@ void PlayerMenu::SendGossipMenu(uint32 TitleTextId, uint64 objectGUID)
         data << uint32(questID);
         data << uint32(qItem.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
-        data << uint32(pQuest->GetFlags());                 // 3.3.3 quest flags
+        data << uint32(pQuest->GetClientFlags());           // 3.3.3 quest flags
         data << uint8(0);                                   // 3.3.3 changes icon: blue question or yellow exclamation
         std::string Title = pQuest->GetTitle();
 
@@ -411,7 +411,7 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
         data << uint32(questID);
         data << uint32(qmi.m_qIcon);
         data << uint32(pSession->GetPlayer()->GetQuestLevel(pQuest));
-        data << uint32(pQuest->GetFlags());             // 3.3.3 quest flags
+        data << uint32(pQuest->GetClientFlags());       // 3.3.3 quest flags
         data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
         data << title;
     }
@@ -461,7 +461,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
     data << Details;
     data << Objectives;
     data << uint8(ActivateAccept ? 1 : 0);                  // auto finish
-    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags
+    data << uint32(pQuest->GetClientFlags());               // 3.3.3 questFlags
     data << uint32(pQuest->GetSuggestedPlayers());
     data << uint8(0);                                       // IsFinished, value is sent back to server in quest accept packet
 
@@ -603,7 +603,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const *pQuest)
     data << uint32(Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
     data << float(0);                                       // new reward honor (multipled by ~62 at client side)
     data << uint32(pQuest->GetSrcItemId());                 // source item id
-    data << uint32(pQuest->GetFlags() & 0xFFFF);            // quest flags
+    data << uint32(pQuest->GetClientFlags());               // quest flags
     data << uint32(pQuest->GetCharTitleId());               // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(pQuest->GetPlayersSlain());              // players slain
     data << uint32(pQuest->GetBonusTalents());              // bonus talents
@@ -708,7 +708,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     data << OfferRewardText;
 
     data << uint8(EnableNext ? 1 : 0);                      // Auto Finish
-    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags
+    data << uint32(pQuest->GetClientFlags());               // 3.3.3 questFlags
     data << uint32(pQuest->GetSuggestedPlayers());          // SuggestedGroupNum
 
     uint32 EmoteCount = 0;
@@ -828,7 +828,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const *pQuest, uint64 npcGUID,
     else
         data << uint32(0x00);
 
-    data << uint32(pQuest->GetFlags());                     // 3.3.3 questFlags
+    data << uint32(pQuest->GetClientFlags());               // 3.3.3 questFlags
     data << uint32(pQuest->GetSuggestedPlayers());          // SuggestedGroupNum
 
     // Required Money
