@@ -1605,6 +1605,7 @@ CREATE TABLE `item_instance` (
   `guid` int(11) unsigned NOT NULL default '0',
   `owner_guid` int(11) unsigned NOT NULL default '0',
   `data` longtext,
+  `text` longtext,
   PRIMARY KEY  (`guid`),
   KEY `idx_owner_guid` (`owner_guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Item System';
@@ -1642,29 +1643,6 @@ CREATE TABLE `item_refund_instance` (
 LOCK TABLES `item_refund_instance` WRITE;
 /*!40000 ALTER TABLE `item_refund_instance` DISABLE KEYS */;
 /*!40000 ALTER TABLE `item_refund_instance` ENABLE KEYS */;
-UNLOCK TABLES;
-                      
---
--- Table structure for table `item_text`
---
-
-DROP TABLE IF EXISTS `item_text`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `item_text` (
-  `id` int(11) unsigned NOT NULL default '0',
-  `text` longtext,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Item System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `item_text`
---
-
-LOCK TABLES `item_text` WRITE;
-/*!40000 ALTER TABLE `item_text` DISABLE KEYS */;
-/*!40000 ALTER TABLE `item_text` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

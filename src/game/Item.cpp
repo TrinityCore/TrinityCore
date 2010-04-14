@@ -308,20 +308,25 @@ void Item::SaveToDB()
     {
         case ITEM_NEW:
         {
+            std::string text = m_text;
+            CharacterDatabase.escape_string(text);
             std::ostringstream ss;
-            ss << "REPLACE INTO item_instance (guid,owner_guid,data) VALUES (" << guid << "," << GUID_LOPART(GetOwnerGUID()) << ",'";
+            ss << "REPLACE INTO item_instance (guid, owner_guid, data, text) VALUES (" << guid << "," << GUID_LOPART(GetOwnerGUID()) << ",'";
             for (uint16 i = 0; i < m_valuesCount; ++i)
                 ss << GetUInt32Value(i) << " ";
-            ss << "')";
+            ss << "', '" << text << "')";
             CharacterDatabase.Execute(ss.str().c_str());
         }break;
         case ITEM_CHANGED:
         {
+            std::string text = m_text;
+            CharacterDatabase.escape_string(text);
             std::ostringstream ss;
             ss << "UPDATE item_instance SET data = '";
             for (uint16 i = 0; i < m_valuesCount; ++i)
                 ss << GetUInt32Value(i) << " ";
-            ss << "', owner_guid = '" << GUID_LOPART(GetOwnerGUID()) << "' WHERE guid = '" << guid << "'";
+            ss << "', owner_guid = '" << GUID_LOPART(GetOwnerGUID());
+            ss << "', text = '" << text << "' WHERE guid = '" << guid << "'";
 
             CharacterDatabase.Execute(ss.str().c_str());
 
@@ -330,8 +335,6 @@ void Item::SaveToDB()
         }break;
         case ITEM_REMOVED:
         {
-            //if (GetUInt32Value(ITEM_FIELD_ITEM_TEXT_ID) > 0)
-            //    CharacterDatabase.PExecute("DELETE FROM item_text WHERE id = '%u'", GetUInt32Value(ITEM_FIELD_ITEM_TEXT_ID));
             CharacterDatabase.PExecute("DELETE FROM item_instance WHERE guid = '%u'", guid);
             if (HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED))
                 CharacterDatabase.PExecute("DELETE FROM character_gifts WHERE item_guid = '%u'", GetGUIDLow());
