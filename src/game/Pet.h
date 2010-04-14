@@ -186,6 +186,7 @@ class Pet : public Guardian
         void LearnPetPassives();
         void CastPetAuras(bool current);
         void CastPetAura(PetAura const* aura);
+        bool IsPetAura(Aura const* aura);
 
         void _LoadSpellCooldowns();
         void _SaveSpellCooldowns();
