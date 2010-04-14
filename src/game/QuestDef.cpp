@@ -142,7 +142,7 @@ Quest::Quest(Field * questRecord)
     QuestStartScript = questRecord[142].GetUInt32();
     QuestCompleteScript = questRecord[143].GetUInt32();
 
-    QuestFlags |= SpecialFlags << 16;
+    QuestFlags |= SpecialFlags << 20;
 
     m_reqitemscount = 0;
     m_reqCreatureOrGOcount = 0;
