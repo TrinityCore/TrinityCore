@@ -15359,50 +15359,9 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, ui
 /***                   LOAD SYSTEM                     ***/
 /*********************************************************/
 
-bool Player::MinimalLoadFromDB(QueryResult_AutoPtr result, uint32 guid)
+void Player::Initialize(uint32 guid)
 {
-    if (!result)
-    {
-        //                                        0     1           2           3           4    5          6          7
-        result = CharacterDatabase.PQuery("SELECT name, position_x, position_y, position_z, map, totaltime, leveltime, at_login FROM characters WHERE guid = '%u'",guid);
-        if (!result)
-            return false;
-    }
-
-    Field *fields = result->Fetch();
-
-    // overwrite possible wrong/corrupted guid
-    SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-
-    m_name = fields[0].GetCppString();
-
-    Relocate(fields[1].GetFloat(),fields[2].GetFloat(),fields[3].GetFloat());
-    Map *map = MapManager::Instance().CreateMap(fields[4].GetUInt32(), this, 0);
-    SetMap(map);
-
-    // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
-    // this must help in case next save after mass player load after server startup
-    m_nextSave = urand(m_nextSave/2,m_nextSave*3/2);
-
-    // the instance id is not needed at character enum
-
-    m_Played_time[PLAYED_TIME_TOTAL] = fields[5].GetUInt32();
-    m_Played_time[PLAYED_TIME_LEVEL] = fields[6].GetUInt32();
-
-    m_atLoginFlags = fields[7].GetUInt32();
-
-    // I don't see these used anywhere ..
-    /*_LoadGroup();
-
-    _LoadBoundInstances();*/
-
-    for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; i++)
-        m_items[i] = NULL;
-
-    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-        m_deathState = DEAD;
-
-    return true;
+    Object::_Create(guid, 0, HIGHGUID_PLAYER);
 }
 
 void Player::_LoadDeclinedNames(QueryResult_AutoPtr result)
