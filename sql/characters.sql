@@ -1936,7 +1936,6 @@ DROP TABLE IF EXISTS `worldstates`;
 CREATE TABLE `worldstates` (
   `entry` mediumint(11) UNSIGNED NOT NULL DEFAULT '0',
   `value` bigint(40) UNSIGNED NOT NULL DEFAULT '0',
-  `NextWeeklyQuestResetTime` bigint(40) unsigned NOT NULL default '0',
   `comment` text NOT NULL,
   PRIMARY KEY  (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Variable Saves';

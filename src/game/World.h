@@ -413,6 +413,11 @@ enum RealmZone
     REALM_ZONE_CN5_8         = 37                           // basic-Latin at create, any at login
 };
 
+enum WorldStates
+{
+    WS_WEEKLY_QUEST_RESET_TIME = 20002                      // Next weekly reset time
+};
+
 // DB scripting commands
 #define SCRIPT_COMMAND_TALK                  0              // source = unit, target=any, datalong (0=say, 1=whisper, 2=yell, 3=emote text, 4=boss emote text)
 #define SCRIPT_COMMAND_EMOTE                 1              // source = unit, datalong = anim_id
