@@ -550,6 +550,7 @@ class World
         void SetRecordDiffInterval(int32 t) { if (t >= 0) m_configs[CONFIG_INTERVAL_LOG_UPDATE] = (uint32)t; }
         /// Next daily quests reset time
         time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
+        time_t GetNextWeeklyQuestsResetTime() const { return m_NextWeeklyQuestReset; }
 
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
@@ -670,7 +671,9 @@ class World
         void _UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 accountId);
 
         void InitDailyQuestResetTime();
+        void InitWeeklyQuestResetTime();
         void ResetDailyQuests();
+        void ResetWeeklyQuests();
     private:
         static volatile bool m_stopEvent;
         static uint8 m_ExitCode;
@@ -738,6 +741,7 @@ class World
 
         // next daily quests reset time
         time_t m_NextDailyQuestReset;
+        time_t m_NextWeeklyQuestReset;
 
         //Player Queue
         Queue m_QueuedPlayer;

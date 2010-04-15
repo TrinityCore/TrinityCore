@@ -851,7 +851,8 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADTALENTS              = 23,
     PLAYER_LOGIN_QUERY_LOADACCOUNTDATA          = 24,
     PLAYER_LOGIN_QUERY_LOADSKILLS               = 25,
-    MAX_PLAYER_LOGIN_QUERY                      = 26
+    PLAYER_LOGIN_QUERY_LOADWEKLYQUESTSTATUS     = 26,
+    MAX_PLAYER_LOGIN_QUERY                      = 27
 };
 
 enum PlayerDelayedOperations
@@ -1328,6 +1329,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestNextChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg);
+        bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
         bool GiveQuestSourceItem(Quest const *pQuest);
         bool TakeQuestSourceItem(uint32 quest_id, bool msg);
         bool GetQuestRewardStatus(uint32 quest_id) const;
@@ -1335,7 +1337,9 @@ class Player : public Unit, public GridObject<Player>
         void SetQuestStatus(uint32 quest_id, QuestStatus status);
 
         void SetDailyQuestStatus(uint32 quest_id);
+        void SetWeeklyQuestStatus(uint32 quest_id);
         void ResetDailyQuestStatus();
+        void ResetWeeklyQuestStatus();
 
         uint16 FindQuestSlot(uint32 quest_id) const;
         uint32 GetQuestSlotQuestId(uint16 slot) const { return GetUInt32Value(PLAYER_QUEST_LOG_1_1 + slot * MAX_QUEST_OFFSET + QUEST_ID_OFFSET); }
@@ -2363,7 +2367,9 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         //We allow only one timed quest active at the same time. Below can then be simple value instead of set.
-        std::set<uint32> m_timedquests;
+        typedef std::set<uint32> QuestSet;
+        QuestSet m_timedquests;
+        QuestSet m_weeklyquests;
 
         uint64 m_divider;
         uint32 m_ingametime;
@@ -2382,6 +2388,7 @@ class Player : public Unit, public GridObject<Player>
         void _LoadMailedItems(Mail *mail);
         void _LoadQuestStatus(QueryResult_AutoPtr result);
         void _LoadDailyQuestStatus(QueryResult_AutoPtr result);
+        void _LoadWeeklyQuestStatus(QueryResult_AutoPtr result);
         void _LoadGroup(QueryResult_AutoPtr result);
         void _LoadSkills(QueryResult_AutoPtr result);
         void _LoadSpells(QueryResult_AutoPtr result);
@@ -2405,6 +2412,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveMail();
         void _SaveQuestStatus();
         void _SaveDailyQuestStatus();
+        void _SaveWeeklyQuestStatus();
         void _SaveSkills();
         void _SaveSpells();
         void _SaveEquipmentSets();
@@ -2508,6 +2516,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 tradeGold;
 
         bool   m_DailyQuestChanged;
+        bool   m_WeeklyQuestChanged;
         time_t m_lastDailyQuestTime;
 
         uint32 m_drunkTimer;
