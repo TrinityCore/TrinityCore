@@ -1936,7 +1936,7 @@ DROP TABLE IF EXISTS `worldstates`;
 CREATE TABLE `worldstates` (
   `entry` mediumint(11) UNSIGNED NOT NULL DEFAULT '0',
   `value` bigint(40) UNSIGNED NOT NULL DEFAULT '0',
-  `comment` text NOT NULL,
+  `comment` text,
   PRIMARY KEY  (`entry`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Variable Saves';
 /*!40101 SET character_set_client = @saved_cs_client */;
