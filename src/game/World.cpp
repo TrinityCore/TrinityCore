@@ -2497,17 +2497,15 @@ void World::_UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 ac
 }
 
 void World::InitWeeklyQuestResetTime()	
-{	
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT NextWeeklyQuestResetTime FROM worldstates");
-    if (!result)
+{
+    time_t time = uint64(sWorld.getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
+    if (!time)
     {	
         m_NextWeeklyQuestReset = time_t(m_gameTime + WEEK);
-        CharacterDatabase.PExecute("INSERT INTO worldstates (NextWeeklyQuestResetTime) VALUES ('"UI64FMTD"')", uint64(m_NextWeeklyQuestReset));	
+        sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
     }
     else	
     {	
-        m_NextWeeklyQuestReset = time_t((*result)[0].GetUInt64());	
-	
         // move to just before if need	
         time_t cur = time(NULL);	
         if (m_NextWeeklyQuestReset < cur)
@@ -2580,7 +2578,7 @@ void World::ResetWeeklyQuests()
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
 
     m_NextWeeklyQuestReset = time_t(m_NextWeeklyQuestReset + WEEK);
-    CharacterDatabase.PExecute("UPDATE worldstates SET NextWeeklyQuestResetTime = '"UI64FMTD"'", uint64(m_NextWeeklyQuestReset));	
+    sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
 }	
 
 void World::SetPlayerLimit(int32 limit, bool needUpdate)
