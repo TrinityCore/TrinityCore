@@ -1947,6 +1947,9 @@ CREATE TABLE `worldstates` (
 
 LOCK TABLES `worldstates` WRITE;
 /*!40000 ALTER TABLE `worldstates` DISABLE KEYS */;
+INSERT INTO `worldstates` (`entry`,`value`, `comment`) VALUES 
+(20001, 0, `='NextArenaPointDistributionTime'),
+(20002, 0, 'NextWeeklyQuestResetTime');
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
