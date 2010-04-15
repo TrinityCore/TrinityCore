@@ -692,22 +692,8 @@ void AuctionHouseBot::Update()
 
     WorldSession _session(AHBplayerAccount, NULL, SEC_PLAYER, true, 0, LOCALE_enUS);
     Player _AHBplayer(&_session);
-    _AHBplayer.MinimalLoadFromDB(QueryResult_AutoPtr(NULL), AHBplayerGUID);
+    _AHBplayer.Initialize(AHBplayerGUID);
     ObjectAccessor::Instance().AddObject(&_AHBplayer);
-
-    // Only for testing, this can likely be removed, once I know it's working as expected.
-    /*
-    AuctionHouseObject* auctionHouse1 = auctionmgr.GetAuctionsMap(55);
-    AuctionHouseObject* auctionHouse2 = auctionmgr.GetAuctionsMap(29);
-    AuctionHouseObject* auctionHouse3 = auctionmgr.GetAuctionsMap(120);
-    uint32 totalItemsAH = (auctionHouse1->Getcount() + auctionHouse2->Getcount() + auctionHouse3->Getcount());
-    uint32 totalItems = (AllianceConfig.TotalItemCounts() + HordeConfig.TotalItemCounts() + NeutralConfig.TotalItemCounts());
-    if (totalItemsAH != totalItems)
-    {
-        sLog.outError("AHBot: The AuctionHouses say there are %u auctions, but, I think there are %u auctions...", totalItemsAH, totalItems);
-        return;
-    }
-    */
 
     // Add New Bids
     if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_AUCTION))
