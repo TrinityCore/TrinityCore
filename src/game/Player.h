@@ -1419,7 +1419,7 @@ class Player : public Unit, public GridObject<Player>
         bool LoadFromDB(uint32 guid, SqlQueryHolder *holder);
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
-        bool MinimalLoadFromDB(QueryResult_AutoPtr result, uint32 guid);
+        void Initialize(uint32 guid);
         static uint32 GetUInt32ValueFromArray(Tokens const& data, uint16 index);
         static float  GetFloatValueFromArray(Tokens const& data, uint16 index);
         static uint32 GetZoneIdFromDB(uint64 guid);
