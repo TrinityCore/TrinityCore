@@ -1945,12 +1945,10 @@ bool Pet::IsPetAura(Aura const* aura)
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return false;
 
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    // if the owner has that pet aura, return true
+    for (PetAuraSet::const_iterator itr = owner->m_petAuras.begin(); itr != owner->m_petAuras.end(); ++itr)
     {
-        PetAura const* pa = spellmgr.GetPetAura(aura->GetId(),i);
-
-        // if the owner has that pet aura, return true
-        if (owner->m_petAuras.find(pa) != owner->m_petAuras.end())
+        if ((*itr)->GetAura(GetEntry()) == aura->GetId())
             return true;
     }
     return false;
