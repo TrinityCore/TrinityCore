@@ -246,7 +246,10 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recv_data)
     Quest const* pQuest = objmgr.GetQuestTemplate(quest);
     if (pQuest)
     {
-        _player->PlayerTalkClass->SendQuestGiverQuestDetails(pQuest, pObject->GetGUID(), true);
+        if (pQuest->GetFlags() & QUEST_FLAGS_AUTOCOMPLETE)
+            _player->PlayerTalkClass->SendQuestGiverRequestItems(pQuest, pObject->GetGUID(), _player->CanCompleteQuest(pQuest->GetQuestId()), true);
+        else
+            _player->PlayerTalkClass->SendQuestGiverQuestDetails(pQuest, pObject->GetGUID(), true);
     }
 }
 
