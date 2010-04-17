@@ -914,17 +914,16 @@ void WorldSession::HandleOptOutOfLootOpcode(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: Received CMSG_OPT_OUT_OF_LOOT");
 
-    uint32 unkn;
-    recv_data >> unkn;
+    uint32 passOnLoot;
+    recv_data >> passOnLoot; // 1 always pass, 0 do not pass
 
     // ignore if player not loaded
     if (!GetPlayer())                                        // needed because STATUS_AUTHED
     {
-        if (unkn != 0)
-            sLog.outError("CMSG_GROUP_PASS_ON_LOOT value<>0 for not-loaded character!");
+        if (passOnLoot != 0)
+            sLog.outError("CMSG_OPT_OUT_OF_LOOT value<>0 for not-loaded character!");
         return;
     }
 
-    if (unkn != 0)
-        sLog.outError("CMSG_GROUP_PASS_ON_LOOT: activation not implemented!");
+    GetPlayer()->SetPassOnGroupLoot(passOnLoot);
 }
