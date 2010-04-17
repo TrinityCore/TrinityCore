@@ -337,6 +337,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     SetGroupInvite(NULL);
     m_groupUpdateMask = 0;
     m_auraRaidUpdateMask = 0;
+    m_bPassOnGroupLoot = false;
 
     duel = NULL;
 
