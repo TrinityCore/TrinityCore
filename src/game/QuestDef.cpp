@@ -44,7 +44,7 @@ Quest::Quest(Field * questRecord)
     RequiredMaxRepValue = questRecord[17].GetInt32();
     SuggestedPlayers = questRecord[18].GetUInt32();
     LimitTime = questRecord[19].GetUInt32();
-    QuestFlags = questRecord[20].GetUInt16();
+    QuestFlags = questRecord[20].GetUInt32();
     uint32 SpecialFlags = questRecord[21].GetUInt16();
     CharTitleId = questRecord[22].GetUInt32();
     PlayersSlain = questRecord[23].GetUInt32();
