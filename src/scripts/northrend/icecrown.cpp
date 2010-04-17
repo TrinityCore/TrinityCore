@@ -284,6 +284,56 @@ CreatureAI* GetAI_npc_argent_tournament_post(Creature* pCreature)
     return new npc_argent_tournament_postAI (pCreature);
 }
 
+/*######
+## npc_alorah_and_grimmin
+######*/
+
+enum ealorah_and_grimmin
+{
+    SPELL_CHAIN                     = 68341,
+    NPC_FJOLA_LIGHTBANE             = 36065,
+    NPC_EYDIS_DARKBANE              = 36066,
+    NPC_PRIESTESS_ALORAH            = 36101,
+    NPC_PRIEST_GRIMMIN              = 36102
+};
+
+struct npc_alorah_and_grimminAI : public ScriptedAI
+{
+    npc_alorah_and_grimminAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+    uint8  uiCast;
+
+    void Reset()
+    {
+        uiCast = 1;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (uiCast = 1)
+        {
+            Creature* pTarget1 = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
+            Creature* pTarget2 = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
+            switch(me->GetEntry())
+            {
+                case NPC_PRIESTESS_ALORAH:
+                    DoCast(pTarget1, SPELL_CHAIN);
+                    uiCast = 0;
+                case NPC_PRIEST_GRIMMIN:
+                    DoCast(pTarget2, SPELL_CHAIN);
+                    uiCast = 0;
+            }
+        }
+        if (!UpdateVictim())
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_alorah_and_grimmin(Creature* pCreature)
+{
+    return new npc_alorah_and_grimminAI (pCreature);
+}
+
 void AddSC_icecrown()
 {
     Script *newscript;
@@ -314,5 +364,10 @@ void AddSC_icecrown()
     newscript = new Script;
     newscript->Name = "npc_argent_tournament_post";
     newscript->GetAI = &GetAI_npc_argent_tournament_post;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_alorah_and_grimmin";
+    newscript->GetAI = &GetAI_npc_alorah_and_grimmin;
     newscript->RegisterSelf();
 }
