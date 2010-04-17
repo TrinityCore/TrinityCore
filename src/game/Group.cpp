@@ -489,7 +489,7 @@ void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
         if (!p || !p->GetSession())
             continue;
 
-        if (itr->second != NOT_VALID)
+        if (itr->second == NOT_EMITED_YET)
             p->GetSession()->SendPacket(&data);
     }
 }
@@ -505,7 +505,7 @@ void Group::SendLootRoll(const uint64& SourceGuid, const uint64& TargetGuid, uin
     data << uint32(r.itemRandomPropId);                     // Item random property ID
     data << uint8(RollNumber);                              // 0: "Need for: [item name]" > 127: "you passed on: [item name]"      Roll number
     data << uint8(RollType);                                // 0: "Need for: [item name]" 0: "You have selected need for [item name] 1: need roll 2: greed roll
-    data << uint8(0);                                       // auto pass on loot
+    data << uint8(0);                                       // auto pass on NeedBeforeGreed loot because player cannot use the object
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
@@ -612,8 +612,18 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
                 {
                     if (member->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     {
-                        r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
                         r->totalPlayersRolling++;
+
+                        if (member->GetPassOnGroupLoot())
+                        {
+                            r->playerVote[member->GetGUID()] = PASS;
+                            r->totalPass++;
+                            // can't broadcast the pass now. need to wait until all rolling players are known.
+                        }
+                        else
+                        {
+                            r->playerVote[member->GetGUID()] = NOT_EMITED_YET;
+                        }
                     }
                 }
             }
@@ -625,6 +635,20 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
 
                 loot->items[itemSlot].is_blocked = true;
 
+                // If there is any "auto pass", broadcast the pass now.
+                if (r->totalPass)
+                {
+                    for (Roll::PlayerVote::const_iterator itr=r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+                    {
+                        Player *p = objmgr.GetPlayer(itr->first);
+                        if (!p || !p->GetSession())
+                            continue;
+
+                        if (itr->second == PASS)
+                            SendLootRoll(newitemGUID, p->GetGUID(), 128, ROLL_PASS, *r);
+                    }
+                }
+                    
                 SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
 
                 RollId.push_back(r);
@@ -677,8 +701,18 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
                 {
                     if (playerToRoll->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     {
-                        r->playerVote[playerToRoll->GetGUID()] = NOT_EMITED_YET;
                         r->totalPlayersRolling++;
+
+                        if (playerToRoll->GetPassOnGroupLoot())
+                        {
+                            r->playerVote[playerToRoll->GetGUID()] = PASS;
+                            r->totalPass++;
+                            // can't broadcast the pass now. need to wait until all rolling players are known.
+                        }
+                        else
+                        {
+                            r->playerVote[playerToRoll->GetGUID()] = NOT_EMITED_YET;
+                        }
                     }
                 }
             }
@@ -689,6 +723,20 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
                 r->itemSlot = itemSlot;
 
                 loot->items[itemSlot].is_blocked = true;
+
+                // If there is any "auto pass", broadcast the pass now.
+                if (r->totalPass)
+                {
+                    for (Roll::PlayerVote::const_iterator itr=r->playerVote.begin(); itr != r->playerVote.end(); ++itr)
+                    {
+                        Player *p = objmgr.GetPlayer(itr->first);
+                        if (!p || !p->GetSession())
+                            continue;
+
+                        if (itr->second == PASS)
+                            SendLootRoll(newitemGUID, p->GetGUID(), 128, ROLL_PASS, *r);
+                    }
+                }
 
                 SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
 

@@ -2290,6 +2290,9 @@ class Player : public Unit, public GridObject<Player>
         uint8 GetOriginalSubGroup() const { return m_originalGroup.getSubGroup(); }
         void SetOriginalGroup(Group *group, int8 subgroup = -1);
 
+        void SetPassOnGroupLoot(bool bPassOnGroupLoot) { m_bPassOnGroupLoot = bPassOnGroupLoot; }
+        bool GetPassOnGroupLoot() const { return m_bPassOnGroupLoot; }
+
         MapReference &GetMapRef() { return m_mapRef; }
 
         // Set map to player and add reference
@@ -2563,6 +2566,7 @@ class Player : public Unit, public GridObject<Player>
         Group *m_groupInvite;
         uint32 m_groupUpdateMask;
         uint64 m_auraRaidUpdateMask;
+        bool m_bPassOnGroupLoot;
 
         // last used pet number (for BG's)
         uint32 m_lastpetnumber;
