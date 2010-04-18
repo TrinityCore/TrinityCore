@@ -2657,7 +2657,7 @@ void ObjectMgr::LoadPlayerInfo()
             uint32 current_race = fields[0].GetUInt32();
             uint32 current_class = fields[1].GetUInt32();
             uint32 mapId     = fields[2].GetUInt32();
-            uint32 zoneId    = fields[3].GetUInt32();
+            uint32 areaId    = fields[3].GetUInt32();
             float  positionX = fields[4].GetFloat();
             float  positionY = fields[5].GetFloat();
             float  positionZ = fields[6].GetFloat();
@@ -2703,7 +2703,7 @@ void ObjectMgr::LoadPlayerInfo()
             PlayerInfo* pInfo = &playerInfo[current_race][current_class];
 
             pInfo->mapId     = mapId;
-            pInfo->zoneId    = zoneId;
+            pInfo->areaId    = areaId;
             pInfo->positionX = positionX;
             pInfo->positionY = positionY;
             pInfo->positionZ = positionZ;

@@ -76,7 +76,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectPowerDrain,                               //  8 SPELL_EFFECT_POWER_DRAIN
     &Spell::EffectHealthLeech,                              //  9 SPELL_EFFECT_HEALTH_LEECH
     &Spell::EffectHeal,                                     // 10 SPELL_EFFECT_HEAL
-    &Spell::EffectUnused,                                   // 11 SPELL_EFFECT_BIND
+    &Spell::EffectBind,                                     // 11 SPELL_EFFECT_BIND
     &Spell::EffectNULL,                                     // 12 SPELL_EFFECT_PORTAL
     &Spell::EffectUnused,                                   // 13 SPELL_EFFECT_RITUAL_BASE              unused
     &Spell::EffectUnused,                                   // 14 SPELL_EFFECT_RITUAL_SPECIALIZE        unused
@@ -3069,7 +3069,7 @@ void Spell::DoCreateItem(uint32 i, uint32 itemtype)
         }
 
         // set the "Crafted by ..." property of the item
-        if (pItem->GetProto()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetProto()->Class != ITEM_CLASS_QUEST && newitemid != 6265)
+        if (pItem->GetProto()->Class != ITEM_CLASS_CONSUMABLE && pItem->GetProto()->Class != ITEM_CLASS_QUEST && newitemid != 6265 && newitemid != 6948)
             pItem->SetUInt32Value(ITEM_FIELD_CREATOR, player->GetGUIDLow());
 
         // send info to the client
@@ -7639,4 +7639,59 @@ void Spell::EffectRechargeManaGem(uint32 i)
             pItem->SetSpellCharges(x,pProto->Spells[x].SpellCharges);
         pItem->SetState(ITEM_CHANGED,player);
     }
+}
+
+void Spell::EffectBind(uint32 i)
+{
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+
+    Player* player = (Player*)unitTarget;
+
+    uint32 area_id;
+    WorldLocation loc;
+    if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DST_DB || m_spellInfo->EffectImplicitTargetB[i] == TARGET_DST_DB)
+    {
+        SpellTargetPosition const* st = spellmgr.GetSpellTargetPosition(m_spellInfo->Id);
+        if (!st)
+        {
+            sLog.outError( "Spell::EffectBind - unknown teleport coordinates for spell ID %u", m_spellInfo->Id );
+            return;
+        }
+
+        loc.m_mapId         = st->target_mapId;
+        loc.m_positionX   = st->target_X;
+        loc.m_positionY   = st->target_Y;
+        loc.m_positionZ   = st->target_Y;
+        loc.m_orientation = st->target_Orientation;
+        area_id = player->GetAreaId();
+    }
+    else
+    {
+        player->GetPosition(&loc);
+        area_id = player->GetAreaId();
+    }
+
+    player->SetHomebind(loc, area_id);
+
+    // binding
+    WorldPacket data( SMSG_BINDPOINTUPDATE, (4+4+4+4+4) );
+    data << float(loc.m_positionX);
+    data << float(loc.m_positionY);
+    data << float(loc.m_positionZ);
+    data << uint32(loc.m_mapId);
+    data << uint32(area_id);
+    player->SendDirectMessage( &data );
+
+    DEBUG_LOG("New homebind X      : %f", loc.m_positionX);
+    DEBUG_LOG("New homebind Y      : %f", loc.m_positionY);
+    DEBUG_LOG("New homebind Z      : %f", loc.m_positionZ);
+    DEBUG_LOG("New homebind MapId  : %u", loc.m_mapId);
+    DEBUG_LOG("New homebind AreaId : %u", area_id);
+
+    // zone update
+    data.Initialize(SMSG_PLAYERBOUND, 8+4);
+    data << uint64(player->GetGUID());
+    data << uint32(area_id);
+    player->SendDirectMessage( &data );
 }
