@@ -47,56 +47,50 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
 {
     npc_warmage_violetstandAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature){}
 
-    uint32 m_uiTimer;                 //Timer until recast
+    uint64 uiTargetGUID;
 
     void Reset()
     {
-        m_uiTimer = 0;
+        uiTargetGUID = 0;
     }
-
-    void Aggro(Unit* pWho){}
-
-    void AttackStart(Unit* pWho){}
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_uiTimer <= uiDiff)
-        {
-            me->CastStop();
-            Creature* pTarget = GetClosestCreatureWithEntry(me,NPC_TRANSITUS_SHIELD_DUMMY,32.0f);
+        if (me->IsNonMeleeSpellCasted(false))
+            return;
 
-            switch(me->GetEntry())
+        if (me->GetEntry() == NPC_WARMAGE_SARINA)
+        {
+            if (!uiTargetGUID)
             {
-                case NPC_WARMAGE_SARINA:
+                std::list<Creature*> orbList;
+                GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+                if (!orbList.empty())
                 {
-                    std::list<Creature*> orbList;
-                    GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
-                    if (!orbList.empty())
+                    for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
                     {
-                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                        if (Creature* pOrb = *itr)
                         {
-                            if (Creature* pOrb = *itr)
-                                if (pOrb->GetPositionY() < 1000)
-                                    DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
+                            if (pOrb->GetPositionY() < 1000)
+                            {
+                                uiTargetGUID = pOrb->GetGUID();
+                                break;
+                            }
                         }
                     }
-                    m_uiTimer = 90000;
                 }
-                    break;
-                case NPC_WARMAGE_HALISTER:
-                case NPC_WARMAGE_ILSUDRIA:
-                    if (pTarget)
-                        DoCast(pTarget,SPELL_TRANSITUS_SHIELD_BEAM);
-                    m_uiTimer = 90000;
-                    break;
             }
+        }else
+        {
+            if (!uiTargetGUID)
+                if (Creature* pOrb = GetClosestCreatureWithEntry(me,NPC_TRANSITUS_SHIELD_DUMMY,32.0f))
+                    uiTargetGUID = pOrb->GetGUID();
+
         }
-        else m_uiTimer -= uiDiff;
+        
+        if (Creature* pOrb = me->GetCreature(*me,uiTargetGUID))
+            DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
 
-        ScriptedAI::UpdateAI(uiDiff);
-
-        if (!UpdateVictim())
-            return;
     }
 };
 
