@@ -245,7 +245,7 @@ struct PlayerInfo
     }
 
     uint32 mapId;
-    uint32 zoneId;
+    uint32 areaId;
     float positionX;
     float positionY;
     float positionZ;
@@ -2190,9 +2190,11 @@ class Player : public Unit, public GridObject<Player>
         float  m_recallO;
         void   SaveRecallPosition();
 
+        void SetHomebind(WorldLocation const& loc, uint32 area_id);
+
         // Homebind coordinates
         uint32 m_homebindMapId;
-        uint16 m_homebindZoneId;
+        uint16 m_homebindAreaId;
         float m_homebindX;
         float m_homebindY;
         float m_homebindZ;

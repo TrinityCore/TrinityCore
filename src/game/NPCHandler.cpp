@@ -463,43 +463,22 @@ void WorldSession::SendBindPoint(Creature *npc)
         return;
 
     uint32 bindspell = 3286;
-    uint32 zone_id = _player->GetZoneId();
 
     // update sql homebind
-    CharacterDatabase.PExecute("UPDATE character_homebind SET map = '%u', zone = '%u', position_x = '%f', position_y = '%f', position_z = '%f' WHERE guid = '%u'", _player->GetMapId(), zone_id, _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetGUIDLow());
+    CharacterDatabase.PExecute("UPDATE character_homebind SET map = '%u', zone = '%u', position_x = '%f', position_y = '%f', position_z = '%f' WHERE guid = '%u'",
+        _player->GetMapId(), _player->GetAreaId(), _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetGUIDLow());
     _player->m_homebindMapId = _player->GetMapId();
-    _player->m_homebindZoneId = zone_id;
+    _player->m_homebindAreaId = _player->GetAreaId();
     _player->m_homebindX = _player->GetPositionX();
     _player->m_homebindY = _player->GetPositionY();
     _player->m_homebindZ = _player->GetPositionZ();
 
-    // send spell for bind 3286 bind magic
-    _player->CastSpell(_player, bindspell, true);
+    // send spell for homebinding (3286)
+    npc->CastSpell(_player, bindspell, true);
 
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
-    data << npc->GetGUID();
-    data << bindspell;
-    SendPacket(&data);
-
-    // binding
-    data.Initialize(SMSG_BINDPOINTUPDATE, (4+4+4+4+4));
-    data << float(_player->GetPositionX());
-    data << float(_player->GetPositionY());
-    data << float(_player->GetPositionZ());
-    data << uint32(_player->GetMapId());
-    data << uint32(zone_id);
-    SendPacket(&data);
-
-    DEBUG_LOG("New Home Position X is %f",_player->GetPositionX());
-    DEBUG_LOG("New Home Position Y is %f",_player->GetPositionY());
-    DEBUG_LOG("New Home Position Z is %f",_player->GetPositionZ());
-    DEBUG_LOG("New Home MapId is %u",_player->GetMapId());
-    DEBUG_LOG("New Home ZoneId is %u",zone_id);
-
-    // zone update
-    data.Initialize(SMSG_PLAYERBOUND, 8+4);
-    data << uint64(_player->GetGUID());
-    data << uint32(zone_id);
+    data << uint64(npc->GetGUID());
+    data << uint32(bindspell);
     SendPacket(&data);
 
     _player->PlayerTalkClass->CloseGossip();
