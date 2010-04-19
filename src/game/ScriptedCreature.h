@@ -156,7 +156,7 @@ struct ScriptedAI : public CreatureAI
     bool HealthBelowPct(uint32 pct) const { return me->GetHealth() * 100 < me->GetMaxHealth() * pct; }
 
     //Returns spells that meet the specified criteria from the creatures spell list
-    SpellEntry const* SelectSpell(Unit* Target, int32 School, int32 Mechanic, SelectTargetType Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);
+    SpellEntry const* SelectSpell(Unit* Target, uint32 School, uint32 Mechanic, SelectTargetType Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);
 
     //Checks if you can cast the specified spell
     bool CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggered = false);
