@@ -87,7 +87,7 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
                     uiTargetGUID = pOrb->GetGUID();
 
         }
-        
+
         if (Creature* pOrb = me->GetCreature(*me,uiTargetGUID))
             DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
 

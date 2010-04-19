@@ -255,7 +255,7 @@ enum ePileFakeFur
 };
 
 #define CaribouTrapsNum 15
-const uint32 CaribouTraps[CaribouTrapsNum] = 
+const uint32 CaribouTraps[CaribouTrapsNum] =
 {
     GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
     GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
@@ -383,7 +383,7 @@ bool ItemUse_item_dehta_trap_smasher(Player* pPlayer, Item* /*pItem*/, const Spe
             pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH_CALF,0);
             return true;
         }
-    }        
+    }
     return false;
 }
 

@@ -374,7 +374,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                             target = owner;
                     }
                 }
-                else 
+                else
                 {
                     target = me->getVictim();
                     if (target && target->GetTypeId() != TYPEID_PLAYER)
