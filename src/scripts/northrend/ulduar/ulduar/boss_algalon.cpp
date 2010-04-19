@@ -209,7 +209,7 @@ struct boss_algalonAI : public ScriptedAI
 
         if (HealthBelowPct(2))
         {
-            me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,-10);
+            me->SummonGameObject(GAMEOBJECT_GIVE_OF_THE_OBSERVER, 1634.258667, -295.101166,417.321381,0,0,0,0,0,0);
 
             // All of them. or random?
             DoScriptText(SAY_DEATH_1, me);
