@@ -210,7 +210,7 @@ struct boss_zuljinAI : public ScriptedAI
         //me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
@@ -223,7 +223,7 @@ struct boss_zuljinAI : public ScriptedAI
         EnterPhase(0);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (Intro_Timer)
             return;
@@ -241,7 +241,7 @@ struct boss_zuljinAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ZULJINEVENT, DONE);
@@ -586,7 +586,7 @@ struct feather_vortexAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit *pTarget) {}
+    void EnterCombat(Unit * /*pTarget*/) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -594,7 +594,7 @@ struct feather_vortexAI : public ScriptedAI
             DoCast(caster, SPELL_ZAP_DAMAGE, true);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         //if the vortex reach the target, it change his target to another player
         if (me->IsWithinMeleeRange(me->getVictim()))

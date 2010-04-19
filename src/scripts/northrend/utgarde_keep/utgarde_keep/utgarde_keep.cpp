@@ -62,7 +62,7 @@ struct npc_dragonflayer_forge_masterAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (fm_Type == 0) fm_Type = GetForgeMasterType();
         if (pInstance)
@@ -82,7 +82,7 @@ struct npc_dragonflayer_forge_masterAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (fm_Type == 0) fm_Type = GetForgeMasterType();
         if (pInstance)
@@ -132,7 +132,7 @@ struct npc_dragonflayer_forge_masterAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (fm_Type == 0)
             fm_Type = GetForgeMasterType();

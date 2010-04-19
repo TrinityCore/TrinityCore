@@ -110,7 +110,7 @@ struct mob_omrogg_headsAI : public ScriptedAI
         Death_Timer = 4000;
         DeathYell = false;
     }
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void DoDeathYell()
     {
@@ -210,7 +210,7 @@ struct boss_warbringer_omroggAI : public ScriptedAI
         ThreatYell = true;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
         me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
@@ -242,7 +242,7 @@ struct boss_warbringer_omroggAI : public ScriptedAI
         summoned->SetVisibility(VISIBILITY_OFF);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
         Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);
@@ -268,7 +268,7 @@ struct boss_warbringer_omroggAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         Unit* pLeftHead  = Unit::GetUnit(*me,LeftHeadGUID);
         Unit* pRightHead = Unit::GetUnit(*me,RightHeadGUID);

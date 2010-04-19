@@ -86,7 +86,7 @@ struct boss_keristraszaAI : public ScriptedAI
             pInstance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoCastAOE(SPELL_INTENSE_COLD);
@@ -95,7 +95,7 @@ struct boss_keristraszaAI : public ScriptedAI
             pInstance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -107,7 +107,7 @@ struct boss_keristraszaAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_SLAY, me);
     }
@@ -215,7 +215,7 @@ CreatureAI* GetAI_boss_keristrasza(Creature* pCreature)
     return new boss_keristraszaAI (pCreature);
 }
 
-bool GOHello_containment_sphere(Player *pPlayer, GameObject *pGO)
+bool GOHello_containment_sphere(Player * /*pPlayer*/, GameObject *pGO)
 {
     ScriptedInstance *pInstance = pGO->GetInstanceData();
 

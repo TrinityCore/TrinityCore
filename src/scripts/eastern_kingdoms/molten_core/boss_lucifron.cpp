@@ -42,7 +42,7 @@ struct boss_lucifronAI : public ScriptedAI
         ShadowShock_Timer = 6000;                           //6 seconds
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

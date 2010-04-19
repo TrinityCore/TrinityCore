@@ -184,9 +184,9 @@ struct boss_hexlord_addAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit* who) {DoZoneInCombat();}
+    void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (pInstance && pInstance->GetData(DATA_HEXLORDEVENT) != IN_PROGRESS)
         {
@@ -242,7 +242,7 @@ struct boss_hex_lord_malacrassAI : public ScriptedAI
         me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_HEXLORDEVENT, IN_PROGRESS);
@@ -264,7 +264,7 @@ struct boss_hex_lord_malacrassAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         switch (urand(0,1))
         {
@@ -279,7 +279,7 @@ struct boss_hex_lord_malacrassAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* victim)
+    void JustDied(Unit* /*victim*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_HEXLORDEVENT, DONE);

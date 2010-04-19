@@ -48,7 +48,7 @@ bool GoHello_ulduar_teleporter(Player *pPlayer, GameObject *pGO)
     return true;
 }
 
-bool GOSelect_ulduar_teleporter(Player *pPlayer, GameObject *pGO, uint32 sender, uint32 action)
+bool GOSelect_ulduar_teleporter(Player *pPlayer, GameObject * /*pGO*/, uint32 sender, uint32 action)
 {
     if (sender != GOSSIP_SENDER_MAIN) return true;
     if (!pPlayer->getAttackers().empty()) return true;

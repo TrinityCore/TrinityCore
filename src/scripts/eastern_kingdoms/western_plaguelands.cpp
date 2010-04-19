@@ -61,7 +61,7 @@ bool GossipHello_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature
     return true;
 }
 
-bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npcs_dithers_and_arbington(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -123,7 +123,7 @@ bool GossipHello_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_myranda_the_hag(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
@@ -143,7 +143,7 @@ struct npc_the_scourge_cauldronAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void DoDie()
     {

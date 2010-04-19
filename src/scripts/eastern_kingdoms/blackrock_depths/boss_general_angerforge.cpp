@@ -49,7 +49,7 @@ struct boss_general_angerforgeAI : public ScriptedAI
         Medics = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

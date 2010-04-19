@@ -66,7 +66,7 @@ struct boss_faerlinaAI : public BossAI
     bool doDelayFrenzy;
     bool bAchievement;
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3,SAY_AGGRO_4), me);
@@ -92,13 +92,13 @@ struct boss_faerlinaAI : public BossAI
         BossAI::MoveInLineOfSight(who);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (!(rand()%3))
             DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         _JustDied();
         DoScriptText(SAY_DEATH, me);
@@ -186,7 +186,7 @@ struct mob_faerlina_addAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (pInstance && getDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
         {

@@ -47,7 +47,7 @@ struct boss_shazzrahAI : public ScriptedAI
         Blink_Timer = 30000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

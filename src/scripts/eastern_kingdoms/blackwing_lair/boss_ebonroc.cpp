@@ -45,7 +45,7 @@ struct boss_ebonrocAI : public ScriptedAI
         Heal_Timer = 1000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }

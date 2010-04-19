@@ -80,7 +80,7 @@ struct boss_epochAI : public ScriptedAI
             pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -123,7 +123,7 @@ struct boss_epochAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -131,7 +131,7 @@ struct boss_epochAI : public ScriptedAI
             pInstance->SetData(DATA_EPOCH_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

@@ -55,7 +55,7 @@ struct boss_amnennar_the_coldbringerAI : public ScriptedAI
         Hp = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

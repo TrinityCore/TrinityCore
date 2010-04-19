@@ -54,7 +54,7 @@ bool GossipHello_npc_archmage_malin(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_archmage_malin(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_archmage_malin(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -217,7 +217,7 @@ bool GossipHello_npc_lady_katrana_prestor(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lady_katrana_prestor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lady_katrana_prestor(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -451,7 +451,7 @@ struct npc_marzon_silent_bladeAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -467,7 +467,7 @@ struct npc_marzon_silent_bladeAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;

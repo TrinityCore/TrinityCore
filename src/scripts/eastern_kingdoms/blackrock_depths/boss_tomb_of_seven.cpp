@@ -57,7 +57,7 @@ bool GossipHello_boss_gloomrel(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_boss_gloomrel(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -128,7 +128,7 @@ struct boss_doomrelAI : public ScriptedAI
                 me->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
@@ -145,7 +145,7 @@ struct boss_doomrelAI : public ScriptedAI
             pInstance->SetData64(DATA_EVENSTARTER, 0);
     }
 
-    void JustDied(Unit *who)
+    void JustDied(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_GHOSTKILL, 1);
@@ -213,7 +213,7 @@ bool GossipHello_boss_doomrel(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_boss_doomrel(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_boss_doomrel(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

@@ -42,9 +42,9 @@ struct celebras_the_cursedAI : public ScriptedAI
         CorruptForces_Timer = 30000;
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         me->SummonCreature(13716, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 600000);
     }

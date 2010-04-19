@@ -70,7 +70,7 @@ struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
         targetGUID = 0;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void JustSummoned(Creature *summoned)
     {
@@ -117,7 +117,7 @@ CreatureAI* GetAI_npc_lady_sylvanas_windrunner(Creature* pCreature)
     return new npc_lady_sylvanas_windrunnerAI (pCreature);
 }
 
-bool ChooseReward_npc_lady_sylvanas_windrunner(Player* pPlayer, Creature* pCreature, const Quest *_Quest, uint32 slot)
+bool ChooseReward_npc_lady_sylvanas_windrunner(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*slot*/)
 {
     if (_Quest->GetQuestId() == 9180)
     {
@@ -153,7 +153,7 @@ struct npc_highborne_lamenterAI : public ScriptedAI
         EventCast = true;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -210,7 +210,7 @@ bool GossipHello_npc_parqual_fintallas(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_parqual_fintallas(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_parqual_fintallas(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {

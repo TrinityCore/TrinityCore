@@ -31,15 +31,13 @@ struct npc_rookey_whelpAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    void JustDied(Unit *who)
+    void JustDied(Unit * /*who*/)
     {
         if (pInstance)
-        {
             pInstance->SetData(WHELP_DEATH_COUNT, pInstance->GetData(WHELP_DEATH_COUNT)+1);
-        }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -53,7 +51,7 @@ CreatureAI* GetAI_rookey_whelp(Creature* pCreature)
     return new npc_rookey_whelpAI(pCreature);
 }
 
-bool GOHello_rookey_egg(Player *pPlayer, GameObject *pGO)
+bool GOHello_rookey_egg(Player *pPlayer, GameObject * /*pGO*/)
 {
     Position pos;
     pPlayer->GetPosition(&pos);

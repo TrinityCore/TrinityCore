@@ -68,7 +68,7 @@ struct instance_shadow_labyrinth : public ScriptedInstance
         return false;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -85,7 +85,7 @@ struct instance_shadow_labyrinth : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

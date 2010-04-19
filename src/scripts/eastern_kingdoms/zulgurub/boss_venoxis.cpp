@@ -73,11 +73,11 @@ struct boss_venoxisAI : public ScriptedAI
         InBerserk= false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)

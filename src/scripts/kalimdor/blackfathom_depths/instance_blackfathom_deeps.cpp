@@ -82,7 +82,7 @@ struct instance_blackfathom_deeps : public ScriptedInstance
         uiDeathTimes = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch (pCreature->GetEntry())
         {
@@ -95,7 +95,7 @@ struct instance_blackfathom_deeps : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {

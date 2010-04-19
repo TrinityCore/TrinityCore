@@ -105,7 +105,7 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
         me->ApplySpellImmune(0, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, false);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
         DoScriptText(SAY_AGGRO, me);
@@ -113,12 +113,12 @@ struct boss_gurtogg_bloodboilAI : public ScriptedAI
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);

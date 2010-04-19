@@ -45,13 +45,13 @@ struct boss_aku_maiAI : public ScriptedAI
             pInstance->SetData(TYPE_AKU_MAI, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_AKU_MAI, DONE);

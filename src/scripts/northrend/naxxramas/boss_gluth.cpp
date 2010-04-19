@@ -72,7 +72,7 @@ struct boss_gluthAI : public BossAI
             BossAI::MoveInLineOfSight(who);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         for (uint32 i = 0; i < 3; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummon[i]))

@@ -56,7 +56,7 @@ struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
         PowerWordShield = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

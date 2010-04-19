@@ -52,7 +52,7 @@ struct mobs_bladespire_ogreAI : public ScriptedAI
 
     void Reset() { }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (!UpdateVictim())
             return;
@@ -113,7 +113,7 @@ struct mobs_nether_drakeAI : public ScriptedAI
         IntangiblePresence_Timer = 15000;
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -254,7 +254,7 @@ struct npc_daranelleAI : public ScriptedAI
 
     void Reset() { }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -293,7 +293,7 @@ bool GossipHello_npc_overseer_nuaar(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_overseer_nuaar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_overseer_nuaar(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -320,7 +320,7 @@ bool GossipHello_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_saikkal_the_elder(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

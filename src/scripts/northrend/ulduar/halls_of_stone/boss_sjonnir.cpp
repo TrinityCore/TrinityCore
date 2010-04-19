@@ -106,7 +106,7 @@ struct boss_sjonnirAI : public ScriptedAI
             pInstance->SetData(DATA_SJONNIR_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -191,7 +191,7 @@ struct boss_sjonnirAI : public ScriptedAI
         lSummons.Summon(summon);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         lSummons.DespawnAll();
@@ -203,7 +203,7 @@ struct boss_sjonnirAI : public ScriptedAI
                 pInstance->DoCompleteAchievement(ACHIEV_ABUSE_THE_OOZE);
         }
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -266,7 +266,7 @@ struct mob_iron_sludgeAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (pInstance)
             if (Creature* pSjonnir = Unit::GetCreature(*me, pInstance->GetData64(DATA_SJONNIR)))

@@ -41,7 +41,7 @@ struct boss_ambassador_flamelashAI : public ScriptedAI
         Spirit_Timer = 24000;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void SummonSpirits(Unit* victim)
     {

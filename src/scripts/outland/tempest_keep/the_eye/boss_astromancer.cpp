@@ -131,12 +131,12 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
         Summons.DespawnAll();
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
         me->SetDisplayId(MODEL_HUMAN);
@@ -146,7 +146,7 @@ struct boss_high_astromancer_solarianAI : public ScriptedAI
             pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
@@ -393,7 +393,7 @@ struct mob_solarium_priestAI : public ScriptedAI
         aoesilenceTimer = 15000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

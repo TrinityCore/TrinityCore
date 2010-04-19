@@ -45,7 +45,7 @@ struct boss_scornAI : public ScriptedAI
         FrostNova_Timer = 30000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

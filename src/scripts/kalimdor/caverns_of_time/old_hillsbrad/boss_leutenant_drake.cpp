@@ -29,7 +29,7 @@ EndScriptData */
 ## go_barrel_old_hillsbrad
 ######*/
 
-bool GOHello_go_barrel_old_hillsbrad(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_barrel_old_hillsbrad(Player* /*pPlayer*/, GameObject* pGO)
 {
     if (ScriptedInstance* pInstance = pGO->GetInstanceData())
     {
@@ -113,17 +113,17 @@ struct boss_lieutenant_drakeAI : public ScriptedAI
         ExplodingShout_Timer = 25000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
     }

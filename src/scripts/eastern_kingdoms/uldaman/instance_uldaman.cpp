@@ -55,7 +55,7 @@ struct instance_uldaman : public ScriptedInstance
     std::vector<uint64> earthenGuardian;
     std::vector<uint64> archaedasWallMinions;    // minions lined up around the wall
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch (pGo->GetEntry())
         {
@@ -213,7 +213,7 @@ struct instance_uldaman : public ScriptedInstance
         }
     }
 
-    void SetData (uint32 type, uint32 data)
+    void SetData (uint32 /*type*/, uint32 data)
     {
         //error_log ("SetData: data = %d", data);
         if (data == 0) OpenDoor (altarOfTheKeeperTempleDoor);
@@ -234,7 +234,7 @@ struct instance_uldaman : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch (pCreature->GetEntry()) {
             case 4857:    // Stone Keeper

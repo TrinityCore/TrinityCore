@@ -91,7 +91,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_DEATH,me);
 
@@ -99,12 +99,12 @@ struct boss_elder_nadoxAI : public ScriptedAI
             pInstance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_SLAY_3,me); //SAY_SLAY_3 on death?
 
@@ -200,13 +200,13 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
         uiSprintTimer = 10*IN_MILISECONDS;
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
             DeadAhnkaharGuardian = true;
     }
 
-    void EnterCombat(Unit *who){}
+    void EnterCombat(Unit * /*who*/){}
 
     void UpdateAI(const uint32 diff)
     {
@@ -246,10 +246,10 @@ struct mob_nadox_eggsAI : public Scripted_NoMovementAI
         c->UpdateAllStats();
     }
     void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* victim) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*victim*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 };
 
 CreatureAI* GetAI_mob_ahnkahar_nerubian(Creature* pCreature)

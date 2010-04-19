@@ -47,7 +47,7 @@ struct boss_magmusAI : public ScriptedAI
         WarStomp_Timer =0;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

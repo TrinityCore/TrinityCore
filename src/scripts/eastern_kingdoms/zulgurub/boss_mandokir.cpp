@@ -123,7 +123,7 @@ struct boss_mandokirAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
      DoScriptText(SAY_AGGRO, me);
     }
@@ -281,9 +281,9 @@ struct mob_ohganAI : public ScriptedAI
         SunderArmor_Timer = 5000;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (m_pInstance)
             m_pInstance->SetData(TYPE_OHGAN, DONE);

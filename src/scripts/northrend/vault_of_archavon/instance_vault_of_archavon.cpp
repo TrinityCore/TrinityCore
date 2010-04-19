@@ -41,7 +41,7 @@ struct instance_archavon : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature *creature, bool add)
+    void OnCreatureCreate(Creature *creature, bool /*add*/)
     {
         switch(creature->GetEntry())
         {

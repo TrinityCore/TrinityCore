@@ -63,13 +63,13 @@ struct npc_sergeant_blyAI : public ScriptedAI
             pInstance->SetData(0, NOT_STARTED);*/
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         /*if (pInstance)
             pInstance->SetData(0, IN_PROGRESS);*/
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         /*if (pInstance)
             pInstance->SetData(0, DONE);*/
@@ -115,7 +115,7 @@ bool GossipHello_npc_sergeant_bly(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_sergeant_bly(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_sergeant_bly(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -152,19 +152,19 @@ struct npc_weegli_blastfuseAI : public ScriptedAI
             pInstance->SetData(0, NOT_STARTED);*/
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         /*if (pInstance)
             pInstance->SetData(0, IN_PROGRESS);*/
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         /*if (pInstance)
             pInstance->SetData(0, DONE);*/
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -192,7 +192,7 @@ bool GossipHello_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_weegli_blastfuse(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -213,7 +213,7 @@ enum {
     DEAD_HERO_CHANCE = 10
 };
 
-bool GOHello_go_shallow_grave(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_shallow_grave(Player* /*pPlayer*/, GameObject* pGo)
 {
     // randomly summon a zombie or dead hero the first time a grave is used
     if (pGo->GetUseCount() == 0)
@@ -237,7 +237,7 @@ enum {
     ZUMRAH_HOSTILE_FACTION = 37
 };
 
-bool AreaTrigger_at_zumrah(Player* pPlayer, const AreaTriggerEntry *at)
+bool AreaTrigger_at_zumrah(Player* pPlayer, const AreaTriggerEntry * /*at*/)
 {
     Creature* Zumrah = pPlayer->FindNearestCreature(ZUMRAH_ID, 30.0f);
 

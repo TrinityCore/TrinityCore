@@ -295,7 +295,7 @@ std::string ChatHandler::PGetParseString(int32 entry, ...)
         return (std::string)str;
 }
 
-bool ChatHandler::HandleGMTicketListCommand(const char* args)
+bool ChatHandler::HandleGMTicketListCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWLIST);
     for (GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
@@ -317,7 +317,7 @@ bool ChatHandler::HandleGMTicketListCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
+bool ChatHandler::HandleGMTicketListOnlineCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWONLINELIST);
     for (GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
@@ -340,7 +340,7 @@ bool ChatHandler::HandleGMTicketListOnlineCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleGMTicketListClosedCommand(const char* args)
+bool ChatHandler::HandleGMTicketListClosedCommand(const char* /*args*/)
 {
     SendSysMessage(LANG_COMMAND_TICKETSHOWCLOSEDLIST);
     for (GmTicketList::iterator itr = objmgr.m_GMTicketList.begin(); itr != objmgr.m_GMTicketList.end(); ++itr)
@@ -946,7 +946,7 @@ bool ChatHandler::HandleGonameCommand(const char* args)
         }
         else if (cMap->IsDungeon())
         {
-            Map* pMap = _player->GetMap();
+            //Map* pMap = _player->GetMap();
 
             // we have to go to instance, and can go to player only if:
             //   1) we are in his group (either as leader or as member)

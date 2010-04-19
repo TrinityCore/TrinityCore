@@ -84,18 +84,18 @@ struct boss_vexallusAI : public ScriptedAI
             pInstance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_KILL, me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_VEXALLUS_EVENT, DONE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -200,9 +200,9 @@ struct mob_pure_energyAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit *who) {}
-    void AttackStart(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
+    void AttackStart(Unit * /*who*/) {}
 };
 
 CreatureAI* GetAI_mob_pure_energy(Creature* pCreature)

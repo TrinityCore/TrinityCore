@@ -102,7 +102,7 @@ struct npc_willixAI : public npc_escortAI
 
     void Reset() {}
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO1, me, NULL);
     }
@@ -112,7 +112,7 @@ struct npc_willixAI : public npc_escortAI
         summoned->AI()->AttackStart(me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             CAST_PLR(pPlayer)->FailQuest(QUEST_WILLIX_THE_IMPORTER);

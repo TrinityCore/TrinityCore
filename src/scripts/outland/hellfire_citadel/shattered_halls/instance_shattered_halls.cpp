@@ -44,7 +44,7 @@ struct instance_shattered_halls : public ScriptedInstance
         nethekurseDoorGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -52,7 +52,7 @@ struct instance_shattered_halls : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

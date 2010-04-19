@@ -63,7 +63,7 @@ struct boss_ysondreAI : public ScriptedAI
         m_uiSummonDruidModifier = 0;
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

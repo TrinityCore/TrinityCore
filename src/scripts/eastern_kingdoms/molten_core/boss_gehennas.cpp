@@ -42,7 +42,7 @@ struct boss_gehennasAI : public ScriptedAI
         GehennasCurse_Timer = 12000;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {

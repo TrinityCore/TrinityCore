@@ -53,14 +53,14 @@ struct boss_kelrisAI : public ScriptedAI
             pInstance->SetData(TYPE_KELRIS, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         if (pInstance)
             pInstance->SetData(TYPE_KELRIS, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (pInstance)

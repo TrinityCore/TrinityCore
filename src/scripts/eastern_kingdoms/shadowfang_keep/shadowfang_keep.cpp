@@ -99,7 +99,7 @@ struct npc_shadowfang_prisonerAI : public npc_escortAI
     }
 
     void Reset() {}
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 };
 
 CreatureAI* GetAI_npc_shadowfang_prisoner(Creature* pCreature)
@@ -119,7 +119,7 @@ bool GossipHello_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_shadowfang_prisoner(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -167,7 +167,7 @@ struct npc_arugal_voidwalkerAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_FENRUS, pInstance->GetData(TYPE_FENRUS) + 1);

@@ -27,7 +27,7 @@ EndScriptData */
 # at_twilight_grove
 ######*/
 
-bool AreaTrigger_at_twilight_grove(Player* pPlayer, const AreaTriggerEntry *at)
+bool AreaTrigger_at_twilight_grove(Player* pPlayer, const AreaTriggerEntry * /*at*/)
 {
     if (pPlayer->HasQuestForItem(21149))
     {
@@ -68,7 +68,7 @@ struct boss_twilight_corrupterAI : public ScriptedAI
         CreatureOfNightmare_Timer = 30000;
         KillCount = 0;
     }
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         me->MonsterYell("The Nightmare cannot be stopped!",0,me->GetGUID());
     }

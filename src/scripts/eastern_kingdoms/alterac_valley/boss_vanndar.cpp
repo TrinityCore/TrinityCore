@@ -59,7 +59,7 @@ struct boss_vanndarAI : public ScriptedAI
         uiYellTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit * /*who*/)
     {
         DoScriptText(YELL_AGGRO, me);
     }

@@ -45,7 +45,7 @@ struct boss_baron_geddonAI : public ScriptedAI
         LivingBomb_Timer = 35000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

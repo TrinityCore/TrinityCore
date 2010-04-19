@@ -114,7 +114,7 @@ struct boss_krik_thirAI : public ScriptedAI
             pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         Summon();
@@ -178,7 +178,7 @@ struct boss_krik_thirAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -194,7 +194,7 @@ struct boss_krik_thirAI : public ScriptedAI
                 pInstance->DoCompleteAchievement(ACHIEV_WATH_HIM_DIE);
         }
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -212,7 +212,7 @@ struct npc_skittering_infectorAI : public ScriptedAI
 {
     npc_skittering_infectorAI(Creature *c) : ScriptedAI(c) {}
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         //The spell is not working propperly
         DoCast(me->getVictim(),SPELL_ACID_SPLASH, true);
@@ -344,7 +344,7 @@ struct npc_watcher_gashraAI : public ScriptedAI
         uiInfectedBiteTimer = 4*IN_MILISECONDS;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_ENRAGE, true);
     }

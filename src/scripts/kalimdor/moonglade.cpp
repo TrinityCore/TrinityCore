@@ -70,7 +70,7 @@ bool GossipHello_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_bunthen_plainswind(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -112,7 +112,7 @@ bool GossipHello_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_great_bear_spirit(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -169,7 +169,7 @@ bool GossipHello_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_silva_filnaveth(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -284,7 +284,7 @@ public:
         }
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (!PlayerGUID)
             return;

@@ -2,67 +2,67 @@
 #include <cstring>
 
 //This function is called when the player logs in (every login)
-void OnLogin(Player *pPlayer)
+void OnLogin(Player * /*pPlayer*/)
 {
 
 }
 
 //This function is called when the player logs out
-void OnLogout(Player *pPlayer)
+void OnLogout(Player * /*pPlayer*/)
 {
 
 }
 
 //This function is called when the player kills another player
-void OnPVPKill(Player *killer, Player *killed)
+void OnPVPKill(Player * /*killer*/, Player * /*killed*/)
 {
 
 }
 
 //This function is called when a players AreaID changes
-void OnAreaChange(Player *pPlayer, AreaTableEntry const *pArea)
+void OnAreaChange(Player * /*pPlayer*/, AreaTableEntry const * /*pArea*/)
 {
 
 }
 
 //This is called when a player kills a creature (non pvp)
-void OnCreatureKill(Player *pPlayer, Creature *pCreature)
+void OnCreatureKill(Player * /*pPlayer*/, Creature * /*pCreature*/)
 {
 
 }
 
 //This function is called when a player has a money exchange
-int32 OnGetMoney(Player *pPlayer, int32 amount)
+int32 OnGetMoney(Player * /*pPlayer*/, int32 amount)
 {
     return amount;
 }
 
 //This function is called whenever a player gets XP
-uint32 OnGetXP(Player *pPlayer, uint32 amount)
+uint32 OnGetXP(Player * /*pPlayer*/, uint32 amount)
 {
     return amount;
 }
 
 //This function is called when a player clicks a GO Object
-bool OnGoClick(Player *pPlayer, GameObject *pGameObject)
+bool OnGoClick(Player * /*pPlayer*/, GameObject * /*pGameObject*/)
 {
     return true;
 }
 
 //This function is called when a player clicks and item
-bool OnItemClick(Player *pPlayer, Item *pItem)
+bool OnItemClick(Player * /*pPlayer*/, Item * /*pItem*/)
 {
     return true;
 }
 
 //This function is called when a player opens an item (like a clam)
-bool OnItemOpen(Player *pPlayer, Item *pItem)
+bool OnItemOpen(Player * /*pPlayer*/, Item * /*pItem*/)
 {
     return true;
 }
 
 //This function is called when a player sends a chat message
-bool OnPlayerChat(Player *pPlayer, const char *text)
+bool OnPlayerChat(Player * /*pPlayer*/, const char * /*text*/)
 {
     return true;
 }
@@ -79,7 +79,7 @@ void OnServerShutdown()
 }
 
 //this function is called when a player casts a spell
-bool OnSpellCast(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGoTarget, uint32 i, SpellEntry const *spell)
+bool OnSpellCast(Unit * /*pUnitTarget*/, Item * /*pItemTarget*/, GameObject * /*pGoTarget*/, uint32 /*i*/, SpellEntry const * /*spell*/)
 {
     return true;
 }

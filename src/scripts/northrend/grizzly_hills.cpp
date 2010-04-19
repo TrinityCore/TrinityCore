@@ -86,7 +86,7 @@ bool GossipHello_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_orsonn_and_kodian(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -267,7 +267,7 @@ struct npc_emilyAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* Who)
+    void EnterCombat(Unit* /*Who*/)
     {
         DoScriptText(SAY_RANDOMAGGRO, me);
     }
@@ -348,9 +348,9 @@ struct npc_mrfloppyAI : public ScriptedAI
 
     void EnterEvadeMode() {}
 
-    void MoveInLineOfSight(Unit *who) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -437,7 +437,7 @@ struct npc_tallhorn_stagAI : public ScriptedAI
         m_uiPhase = 1;
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (m_uiPhase = 1)
         {

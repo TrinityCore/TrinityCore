@@ -39,22 +39,22 @@ void AggressorAI::UpdateAI(const uint32 /*diff*/)
 }
 
 // some day we will delete these useless things
-int CombatAI::Permissible(const Creature *creature)
+int CombatAI::Permissible(const Creature * /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
 
-int ArchorAI::Permissible(const Creature *creature)
+int ArchorAI::Permissible(const Creature * /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
 
-int TurretAI::Permissible(const Creature *creature)
+int TurretAI::Permissible(const Creature * /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
 
-int AOEAI::Permissible(const Creature *creature)
+int AOEAI::Permissible(const Creature * /*creature*/)
 {
     return PERMIT_BASE_NO;
 }
@@ -204,7 +204,7 @@ void ArchorAI::AttackStart(Unit *who)
         me->GetMotionMaster()->MoveIdle();
 }
 
-void ArchorAI::UpdateAI(const uint32 diff)
+void ArchorAI::UpdateAI(const uint32 /*diff*/)
 {
     if (!UpdateVictim())
         return;
@@ -229,7 +229,7 @@ TurretAI::TurretAI(Creature *c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-bool TurretAI::CanAIAttack(const Unit *who) const
+bool TurretAI::CanAIAttack(const Unit * /*who*/) const
 {
     // TODO: use one function to replace it
     if (!me->IsWithinCombatRange(me->getVictim(), me->m_CombatDistance)
@@ -244,7 +244,7 @@ void TurretAI::AttackStart(Unit *who)
         me->Attack(who, false);
 }
 
-void TurretAI::UpdateAI(const uint32 diff)
+void TurretAI::UpdateAI(const uint32 /*diff*/)
 {
     if (!UpdateVictim())
         return;
@@ -267,16 +267,16 @@ AOEAI::AOEAI(Creature *c) : CreatureAI(c)
     me->SetDisplayId(11686);//invisible model,around a size of a player
 }
 
-bool AOEAI::CanAIAttack(const Unit *who) const
+bool AOEAI::CanAIAttack(const Unit * /*who*/) const
 {
     return false;
 }
 
-void AOEAI::AttackStart(Unit *who)
+void AOEAI::AttackStart(Unit * /*who*/)
 {
 }
 
-void AOEAI::UpdateAI(const uint32 diff)
+void AOEAI::UpdateAI(const uint32 /*diff*/)
 {
     if (!me->HasAura(me->m_spells[0]))
         me->CastSpell(me, me->m_spells[0],false);

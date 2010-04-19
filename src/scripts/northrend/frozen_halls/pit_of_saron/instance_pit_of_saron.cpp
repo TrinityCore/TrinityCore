@@ -61,7 +61,7 @@ struct instance_pit_of_saron : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         Map::PlayerList const &players = instance->GetPlayers();
 

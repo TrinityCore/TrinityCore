@@ -53,9 +53,9 @@ struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 
     void Reset(){}
 
-    void Aggro(Unit* pWho){}
+    void Aggro(Unit* /*pWho*/){}
 
-    void AttackStart(Unit* pWho){}
+    void AttackStart(Unit* /*pWho*/){}
 
     void MoveInLineOfSight(Unit *pWho)
     {
@@ -97,7 +97,7 @@ struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
         return;
     }
 
-    void UpdateAI(const uint32 diff){}
+    void UpdateAI(const uint32 /*diff*/){}
 };
 
 CreatureAI* GetAI_npc_mageguard_dalaran(Creature* pCreature)
@@ -131,7 +131,7 @@ bool GossipHello_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_hira_snowdawn(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRAIN)
         pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());

@@ -49,7 +49,7 @@ struct mobs_spitelashesAI : public ScriptedAI
         spellhit = false;
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
     {
@@ -121,7 +121,7 @@ bool GossipHello_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_loramus_thalipedes(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -383,7 +383,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void MovementInform(uint32 type, uint32 id)
     {
@@ -411,7 +411,7 @@ bool GossipHello_mob_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_mob_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_mob_rizzle_sprysprocket(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1 && pPlayer->GetQuestStatus(10994) == QUEST_STATUS_INCOMPLETE)
     {
@@ -470,14 +470,12 @@ struct mob_depth_chargeAI : public ScriptedAI
         }
     }
 
-    void AttackStart(Unit *who)
+    void AttackStart(Unit * /*who*/)
     {
-        return;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
-        return;
     }
 };
 

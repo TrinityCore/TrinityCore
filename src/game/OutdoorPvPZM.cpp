@@ -201,7 +201,7 @@ void OutdoorPvPZM::HandleKillImpl(Player *plr, Unit * killed)
         plr->CastSpell(plr,ZM_HordePlayerKillReward,true);
 }
 
-bool OPvPCapturePointZM_GraveYard::Update(uint32 diff)
+bool OPvPCapturePointZM_GraveYard::Update(uint32 /*diff*/)
 {
     bool retval = m_State != m_OldState;
     m_State = m_OldState;
@@ -340,7 +340,7 @@ bool OPvPCapturePointZM_GraveYard::CanTalkTo(Player * plr, Creature * c, GossipM
     return false;
 }
 
-bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid)
+bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player *plr, uint64 guid, uint32 /*gossipid*/)
 {
     std::map<uint64,uint32>::iterator itr = m_CreatureTypes.find(guid);
     if (itr != m_CreatureTypes.end())
@@ -368,7 +368,7 @@ bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player *plr, uint64 guid, 
     return false;
 }
 
-bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player * plr, uint32 spellId)
+bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player * /*plr*/, uint32 spellId)
 {
     switch(spellId)
     {

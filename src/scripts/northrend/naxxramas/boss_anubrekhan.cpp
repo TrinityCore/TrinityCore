@@ -83,7 +83,7 @@ struct boss_anubrekhanAI : public BossAI
         DoScriptText(SAY_SLAY, me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);

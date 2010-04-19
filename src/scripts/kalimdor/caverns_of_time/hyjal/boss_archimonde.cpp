@@ -94,9 +94,9 @@ struct mob_ancient_wispAI : public ScriptedAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void DamageTaken(Unit* done_by, uint32 &damage) { damage = 0; }
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage) { damage = 0; }
 
     void UpdateAI(const uint32 diff)
     {
@@ -122,9 +122,9 @@ struct mob_doomfireAI : public ScriptedAI
 
     void Reset() { }
 
-    void MoveInLineOfSight(Unit* who) { }
-    void EnterCombat(Unit* who) { }
-    void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage) { damage = 0; }
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
@@ -150,9 +150,9 @@ struct mob_doomfire_targettingAI : public ScriptedAI
             TargetGUID = who->GetGUID();
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void DamageTaken(Unit *done_by, uint32 &damage) { damage = 0; }
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage) { damage = 0; }
 
     void UpdateAI(const uint32 diff)
     {
@@ -243,7 +243,7 @@ struct boss_archimondeAI : public hyjal_trashAI
         IsChanneling = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->InterruptSpell(CURRENT_CHANNELED_SPELL);
         DoScriptText(SAY_AGGRO, me);
@@ -253,7 +253,7 @@ struct boss_archimondeAI : public hyjal_trashAI
             pInstance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
 
@@ -587,7 +587,7 @@ struct boss_archimondeAI : public hyjal_trashAI
 
         DoMeleeAttackIfReady();
     }
-    void WaypointReached(uint32 i){}
+    void WaypointReached(uint32 /*i*/){}
 };
 
 CreatureAI* GetAI_boss_archimonde(Creature* pCreature)

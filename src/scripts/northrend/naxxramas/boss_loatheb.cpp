@@ -41,7 +41,7 @@ struct boss_loathebAI : public BossAI
 {
     boss_loathebAI(Creature *c) : BossAI(c, BOSS_LOATHEB) {}
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         events.ScheduleEvent(EVENT_AURA, 10000);

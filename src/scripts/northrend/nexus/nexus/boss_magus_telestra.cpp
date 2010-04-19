@@ -109,7 +109,7 @@ struct boss_magus_telestraAI : public ScriptedAI
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -117,7 +117,7 @@ struct boss_magus_telestraAI : public ScriptedAI
             pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -129,7 +129,7 @@ struct boss_magus_telestraAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_KILL, me);
     }

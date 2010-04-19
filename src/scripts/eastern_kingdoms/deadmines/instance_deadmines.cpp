@@ -172,7 +172,7 @@ struct instance_deadmines : public ScriptedInstance
             pDoorLever->SetUInt32Value(GAMEOBJECT_FLAGS, 4);
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {

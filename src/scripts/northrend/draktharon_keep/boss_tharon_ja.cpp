@@ -96,7 +96,7 @@ struct boss_tharon_jaAI : public ScriptedAI
             pInstance->SetData(DATA_THARON_JA_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -218,12 +218,12 @@ struct boss_tharon_jaAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2),me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH,me);
 

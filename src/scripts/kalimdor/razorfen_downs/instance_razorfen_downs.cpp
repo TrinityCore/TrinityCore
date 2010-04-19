@@ -90,7 +90,7 @@ struct instance_razorfen_downs : public ScriptedInstance
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool bAdd)
+    void OnGameObjectCreate(GameObject* pGo, bool /*bAdd*/)
     {
         switch(pGo->GetEntry())
         {

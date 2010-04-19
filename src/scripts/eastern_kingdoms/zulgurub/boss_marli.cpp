@@ -72,12 +72,12 @@ struct boss_marliAI : public ScriptedAI
         PhaseTwo = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
@@ -213,7 +213,7 @@ struct mob_spawn_of_marliAI : public ScriptedAI
         LevelUp_Timer = 3000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

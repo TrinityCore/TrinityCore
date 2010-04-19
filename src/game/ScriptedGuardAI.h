@@ -18,7 +18,7 @@ struct guardAI : public ScriptedAI
 
     void Reset();
 
-    void EnterCombat(Unit *who);
+    void EnterCombat(Unit * /*who*/);
 
     void JustDied(Unit *Killer);
 

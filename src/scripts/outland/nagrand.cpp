@@ -51,7 +51,7 @@ struct mob_shattered_rumblerAI : public ScriptedAI
         Spawn = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void SpellHit(Unit *Hitter, const SpellEntry *Spellkind)
     {
@@ -145,7 +145,7 @@ struct mob_lumpAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (me->HasAura(SPELL_VISUAL_SLEEP))
             me->RemoveAura(SPELL_VISUAL_SLEEP);
@@ -201,7 +201,7 @@ bool GossipHello_mob_lump(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_mob_lump(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_mob_lump(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -239,9 +239,9 @@ struct mob_sunspring_villagerAI : public ScriptedAI
         me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
     {
         if (spell->Id == 32146)
         {
@@ -292,7 +292,7 @@ bool GossipHello_npc_altruis_the_sufferer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_altruis_the_sufferer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_altruis_the_sufferer(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -337,7 +337,7 @@ bool GossipSelect_npc_altruis_the_sufferer(Player* pPlayer, Creature* pCreature,
     return true;
 }
 
-bool QuestAccept_npc_altruis_the_sufferer(Player* pPlayer, Creature* pCreature, Quest const *quest)
+bool QuestAccept_npc_altruis_the_sufferer(Player* pPlayer, Creature* /*pCreature*/, Quest const * /*quest*/)
 {
     if (!pPlayer->GetQuestRewardStatus(9991))              //Survey the Land, q-id 9991
     {
@@ -389,7 +389,7 @@ bool GossipHello_npc_greatmother_geyah(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_greatmother_geyah(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_greatmother_geyah(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -476,7 +476,7 @@ bool GossipHello_npc_lantresor_of_the_blade(Player* pPlayer, Creature* pCreature
     return true;
 }
 
-bool GossipSelect_npc_lantresor_of_the_blade(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lantresor_of_the_blade(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -564,7 +564,7 @@ struct npc_maghar_captiveAI : public npc_escortAI
         m_uiFrostShockTimer = 6000;
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/)
     {
         DoCast(me, SPELL_EARTHBIND_TOTEM, false);
     }
@@ -609,7 +609,7 @@ struct npc_maghar_captiveAI : public npc_escortAI
 
     }
 
-    void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
+    void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_CHAIN_LIGHTNING)
         {
@@ -692,7 +692,7 @@ struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -751,7 +751,7 @@ struct mob_sparrowhawkAI : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {

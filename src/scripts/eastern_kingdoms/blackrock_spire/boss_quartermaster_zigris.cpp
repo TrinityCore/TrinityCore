@@ -43,7 +43,7 @@ struct boss_quatermasterzigrisAI : public ScriptedAI
         //HelingPotion_Timer = 25000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

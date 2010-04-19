@@ -131,7 +131,7 @@ struct boss_xevozzAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
         if (pInstance)
@@ -149,7 +149,7 @@ struct boss_xevozzAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* pWho) {}
+    void MoveInLineOfSight(Unit* /*pWho*/) {}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -187,7 +187,7 @@ struct boss_xevozzAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
 

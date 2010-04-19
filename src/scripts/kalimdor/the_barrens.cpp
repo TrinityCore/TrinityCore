@@ -53,7 +53,7 @@ bool GossipHello_npc_beaten_corpse(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_beaten_corpse(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
     {
@@ -176,7 +176,7 @@ bool GossipHello_npc_sputtervalve(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_sputtervalve(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -230,7 +230,7 @@ struct npc_taskmaster_fizzuleAI : public ScriptedAI
         me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
         {
@@ -241,7 +241,7 @@ struct npc_taskmaster_fizzuleAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -260,7 +260,7 @@ struct npc_taskmaster_fizzuleAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void ReceiveEmote(Player* pPlayer, uint32 emote)
+    void ReceiveEmote(Player* /*pPlayer*/, uint32 emote)
     {
         if (emote == TEXTEMOTE_SALUTE)
         {
@@ -339,7 +339,7 @@ struct npc_twiggy_flatheadAI : public ScriptedAI
         BigWill = 0;
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -352,7 +352,7 @@ struct npc_twiggy_flatheadAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim) { }
+    void KilledUnit(Unit * /*victim*/) { }
 
     void UpdateAI(const uint32 diff)
     {

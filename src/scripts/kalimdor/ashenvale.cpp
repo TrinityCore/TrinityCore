@@ -97,7 +97,7 @@ struct npc_torekAI : public npc_escortAI
         Completed = false;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
     }
 
@@ -192,7 +192,7 @@ struct npc_ruul_snowhoofAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void Reset()
     {

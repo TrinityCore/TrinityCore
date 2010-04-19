@@ -43,7 +43,7 @@ struct mob_webbed_creatureAI : public ScriptedAI
     {
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
     }
 
@@ -99,7 +99,7 @@ bool GossipHello_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreature
     return true;
 }
 
-bool GossipSelect_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_captured_sunhawk_agent(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

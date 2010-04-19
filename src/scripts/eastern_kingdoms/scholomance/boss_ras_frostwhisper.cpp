@@ -53,7 +53,7 @@ struct boss_rasfrostAI : public ScriptedAI
         DoCast(me, SPELL_ICEARMOR, true);
     }
 
-    void EnterCombat(Unit *who){}
+    void EnterCombat(Unit * /*who*/){}
 
     void UpdateAI(const uint32 diff)
     {

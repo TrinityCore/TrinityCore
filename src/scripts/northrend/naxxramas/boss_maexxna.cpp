@@ -63,7 +63,7 @@ struct boss_maexxnaAI : public BossAI
 
     bool enraged;
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         enraged = false;
@@ -142,7 +142,7 @@ struct mob_webwrapAI : public NullCreatureAI
 
     uint64 victimGUID;
 
-    void SetGUID(const uint64 &guid, int32 param)
+    void SetGUID(const uint64 &guid, int32 /*param*/)
     {
         victimGUID = guid;
         if (me->m_spells[0] && victimGUID)
@@ -150,7 +150,7 @@ struct mob_webwrapAI : public NullCreatureAI
                 victim->CastSpell(victim, me->m_spells[0], true, NULL, NULL, me->GetGUID());
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (me->m_spells[0] && victimGUID)
             if (Unit *victim = Unit::GetUnit(*me, victimGUID))

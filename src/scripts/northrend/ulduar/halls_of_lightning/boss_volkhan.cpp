@@ -114,7 +114,7 @@ struct boss_volkhanAI : public ScriptedAI
             m_pInstance->SetData(TYPE_VOLKHAN, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -135,7 +135,7 @@ struct boss_volkhanAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
         DespawnGolem();
@@ -159,7 +159,7 @@ struct boss_volkhanAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
@@ -200,7 +200,7 @@ struct boss_volkhanAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_TEMPER_DUMMY)
             m_bIsStriking = true;
@@ -397,7 +397,7 @@ struct mob_molten_golemAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
     {
         if (uiDamage > me->GetHealth())
         {
@@ -415,7 +415,7 @@ struct mob_molten_golemAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
     {
         //this is the dummy effect of the spells
         if (pSpell->Id == SPELL_SHATTER_N || pSpell->Id == SPELL_SHATTER_H)

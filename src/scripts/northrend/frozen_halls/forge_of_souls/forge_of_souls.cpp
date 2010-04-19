@@ -362,7 +362,7 @@ bool GossipHello_npc_jaina_or_slyvanas_fos(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_jaina_or_slyvanas_fos(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_jaina_or_slyvanas_fos(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -390,7 +390,7 @@ struct mob_spiteful_apparitionAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_SPITE, 8000);
     }
@@ -434,7 +434,7 @@ struct mob_spectral_wardenAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_VEIL_OF_SHADOWS, 5000);
         events.ScheduleEvent(EVENT_WAIL_OF_SOULS, 10000);
@@ -483,7 +483,7 @@ struct mob_soulguard_watchmanAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_SHROUD_OF_RUNES, 1000);
         events.ScheduleEvent(EVENT_UNHOLY_RAGE, 1000);
@@ -531,7 +531,7 @@ struct mob_soulguard_reaperAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_FROST_NOVA, 8000);
         events.ScheduleEvent(EVENT_SHADOW_LANCE, 5000);
@@ -581,7 +581,7 @@ struct  mob_soulguard_bonecasterAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_BONE_VOLLEY, 6000);
         events.ScheduleEvent(EVENT_RAISE_DEAD, 25000);
@@ -635,7 +635,7 @@ struct mob_soulguard_animatorAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_RAISE_DEAD, 25000);
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 5000);
@@ -697,7 +697,7 @@ struct mob_soulguard_adeptAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_RAISE_DEAD, 25000);
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 8000);
@@ -758,7 +758,7 @@ struct mob_soul_horrorAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_SOUL_STRIKE, 6000);
     }

@@ -43,7 +43,7 @@ struct boss_hungarfenAI : public ScriptedAI
         AcidGeyser_Timer = 10000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
@@ -108,11 +108,11 @@ struct mob_underbog_mushroomAI : public ScriptedAI
         DoCast(me, SPELL_SPORE_CLOUD, true);
     }
 
-    void MoveInLineOfSight(Unit *who) { return; }
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
-    void AttackStart(Unit* who) { return; }
+    void AttackStart(Unit* /*who*/) {}
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {

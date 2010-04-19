@@ -161,7 +161,7 @@ struct mob_ymirjar_wrathbringerAI : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_BLIGHT, 7000);
     }
@@ -206,7 +206,7 @@ struct mob_ymirjar_skyCallerAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_FROSTBLADE, 1);
         events.ScheduleEvent(EVENT_GLACIAL_STRIKE, 8000);
@@ -255,7 +255,7 @@ struct mob_ymirjar_flamebearerAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_FIREBALL, 4000);
         events.ScheduleEvent(EVENT_HELLFIRE, 8000);
@@ -312,7 +312,7 @@ struct mob_ymirjar_deathbringerAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_EMPOWERED_SHADOW_BOLT, 8000);
     }
@@ -357,7 +357,7 @@ struct mob_wrathbone_laborerAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_BLINDING_DIRT, 8000);
         events.ScheduleEvent(EVENT_PUNCTURE_WOUND, 9000);
@@ -413,7 +413,7 @@ struct mob_wrathbone_coldwraithAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_FREEZING_CIRCLE, 9000);
         events.ScheduleEvent(EVENT_FROSTBOLT, 5000);
@@ -464,7 +464,7 @@ struct mob_stonespine_gargoyleAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_GARGOYLE_STRIKE, 5000);
     }
@@ -513,7 +513,7 @@ struct mob_plagueborn_horrorAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_BLIGHT_BOMB, 999999);
         events.ScheduleEvent(EVENT_PUSTULANT_FLESH, 5000);
@@ -568,7 +568,7 @@ struct mob_iceborn_protodrakeAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_FROST_BREATH, 5000);
     }
@@ -612,7 +612,7 @@ struct mob_hungering_ghoulAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_DEVOUR_FLESH, 4000);
     }
@@ -656,7 +656,7 @@ struct mob_fallen_warriorAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_ARCING_SLICE, 8000);
         events.ScheduleEvent(EVENT_DEMORALIZING_SHOUT, 20000);
@@ -710,7 +710,7 @@ struct mob_deathwhisper_torturerAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_BLACK_BRAND, 10000);
         events.ScheduleEvent(EVENT_CURSE_OF_AGONY, 6000);
@@ -761,7 +761,7 @@ struct mob_deathwhisper_shadowcasterAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 3000);
     }
@@ -806,7 +806,7 @@ struct mob_deathwhisper_necrolyteAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_CONVERSION_BEAM, 12000);
         events.ScheduleEvent(EVENT_SHADOW_BOLT_2, 4000);
@@ -857,7 +857,7 @@ struct mob_wrathbone_sorcererAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         events.ScheduleEvent(EVENT_SHADOW_BOLT_3, 3000);
     }
@@ -902,7 +902,7 @@ struct mob_geist_ambusherAI: public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         //Only here so when I figure out how to make it cast on an NPC i can do that.
         events.ScheduleEvent(EVENT_LEAPING_FACE_MAUL, 99999);

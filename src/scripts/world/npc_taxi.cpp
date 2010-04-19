@@ -177,7 +177,7 @@ bool GossipHello_npc_taxi(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction) {
     case GOSSIP_ACTION_INFO_DEF:

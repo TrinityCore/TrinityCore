@@ -708,9 +708,7 @@ void BattleGroundAV::PopulateNode(BG_AV_Nodes node)
 
     }
     for (uint8 i=0; i<4; i++)
-    {
-        Creature* cr = AddAVCreature(creatureid,c_place+i);
-    }
+        AddAVCreature(creatureid,c_place+i);
 }
 void BattleGroundAV::DePopulateNode(BG_AV_Nodes node)
 {

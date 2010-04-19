@@ -91,7 +91,7 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
         SummonRifleman_Timer = 15000;
     }
 
-    void JustDied(Unit* Victim)
+    void JustDied(Unit* /*Victim*/)
     {
         me->SummonCreature(11054,ADD_1X,ADD_1Y,ADD_1Z,ADD_1O,TEMPSUMMON_TIMED_DESPAWN,240000);
         me->SummonCreature(11054,ADD_2X,ADD_2Y,ADD_2Z,ADD_2O,TEMPSUMMON_TIMED_DESPAWN,240000);
@@ -102,7 +102,7 @@ struct boss_cannon_master_willeyAI : public ScriptedAI
         me->SummonCreature(11054,ADD_9X,ADD_9Y,ADD_9Z,ADD_9O,TEMPSUMMON_TIMED_DESPAWN,240000);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

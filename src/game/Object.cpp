@@ -1176,7 +1176,7 @@ void WorldObject::setActive(bool on)
     }
 }
 
-void WorldObject::CleanupsBeforeDelete(bool finalCleanup)
+void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 {
 }
 
@@ -1799,7 +1799,7 @@ void WorldObject::SetZoneScript()
     }
 }
 
-TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 vehId) const
+TempSummon* WorldObject::SummonCreature(uint32 entry, const Position &pos, TempSummonType spwtype, uint32 duration, uint32 /*vehId*/) const
 {
     if (Map *map = FindMap())
     {
@@ -2099,7 +2099,7 @@ void WorldObject::GetNearPoint2D(float &x, float &y, float distance2d, float abs
     Trinity::NormalizeMapCoord(y);
 }
 
-void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
+void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float &y, float &z, float searcher_size, float distance2d, float absAngle) const
 {
     GetNearPoint2D(x,y,distance2d+searcher_size,absAngle);
     z = GetPositionZ();

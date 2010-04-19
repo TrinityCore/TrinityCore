@@ -135,7 +135,7 @@ struct boss_felblood_kaelthasAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -146,13 +146,13 @@ struct boss_felblood_kaelthasAI : public ScriptedAI
         // Open the encounter door
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage)
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage)
     {
         if (damage > me->GetHealth())
             RemoveGravityLapse();                           // Remove Gravity Lapse so that players fall to ground if they kill him when in air.
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (!pInstance)
             return;
@@ -433,8 +433,8 @@ struct mob_felkael_flamestrikeAI : public ScriptedAI
         DoCast(me, SPELL_FLAMESTRIKE2, true);
     }
 
-    void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
     void UpdateAI(const uint32 diff)
     {
         if (FlameStrikeTimer <= diff)
@@ -469,9 +469,9 @@ struct mob_felkael_phoenixAI : public ScriptedAI
         FakeDeath = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void DamageTaken(Unit* pKiller, uint32 &damage)
+    void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
     {
         if (damage < me->GetHealth())
             return;
@@ -508,7 +508,7 @@ struct mob_felkael_phoenixAI : public ScriptedAI
 
     }
 
-    void JustDied(Unit* slayer)
+    void JustDied(Unit* /*slayer*/)
     {
         me->SummonCreature(CREATURE_PHOENIX_EGG, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
     }
@@ -564,8 +564,8 @@ struct mob_felkael_phoenix_eggAI : public ScriptedAI
         HatchTimer = 10000;
     }
 
-    void EnterCombat(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -596,7 +596,7 @@ struct mob_arcane_sphereAI : public ScriptedAI
         DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {

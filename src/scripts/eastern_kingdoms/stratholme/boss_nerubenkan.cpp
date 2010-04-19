@@ -51,11 +51,11 @@ struct boss_nerubenkanAI : public ScriptedAI
         RaiseUndeadScarab_Timer = 3000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_NERUB,IN_PROGRESS);

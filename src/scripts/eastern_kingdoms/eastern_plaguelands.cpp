@@ -40,7 +40,7 @@ struct mobs_ghoul_flayerAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void JustDied(Unit* Killer)
     {
@@ -70,7 +70,7 @@ bool GossipHello_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_augustus_the_touched(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -93,7 +93,7 @@ struct npc_darrowshire_spiritAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
 };
 CreatureAI* GetAI_npc_darrowshire_spirit(Creature* pCreature)
@@ -131,7 +131,7 @@ bool GossipHello_npc_tirion_fordring(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_tirion_fordring(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_tirion_fordring(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

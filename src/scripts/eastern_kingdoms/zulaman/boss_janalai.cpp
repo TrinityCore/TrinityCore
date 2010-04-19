@@ -155,7 +155,7 @@ struct boss_janalaiAI : public ScriptedAI
         HatchAllEggs(1);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -163,12 +163,12 @@ struct boss_janalaiAI : public ScriptedAI
             pInstance->SetData(DATA_JANALAIEVENT, DONE);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
@@ -440,19 +440,19 @@ struct mob_janalai_firebombAI : public ScriptedAI
 
     void Reset() {}
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_FIRE_BOMB_THROW)
             DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void AttackStart(Unit* who) {}
+    void AttackStart(Unit* /*who*/) {}
 
-    void MoveInLineOfSight(Unit* who) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
-    void UpdateAI(const uint32 diff) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 };
 
 CreatureAI* GetAI_mob_janalai_firebombAI(Creature* pCreature)
@@ -520,9 +520,9 @@ struct mob_amanishi_hatcherAI : public ScriptedAI
         return num == 0;   // if num == 0, no more templist
     }
 
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
     void MovementInform(uint32, uint32)
     {
         if (waypoint == 5)
@@ -604,7 +604,7 @@ struct mob_hatchlingAI : public ScriptedAI
         me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
     }
 
-    void EnterCombat(Unit *who) {/*DoZoneInCombat();*/}
+    void EnterCombat(Unit * /*who*/) {/*DoZoneInCombat();*/}
 
     void UpdateAI(const uint32 diff)
     {
@@ -636,12 +636,12 @@ struct mob_eggAI : public ScriptedAI
 {
     mob_eggAI(Creature *c) : ScriptedAI(c){}
     void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_HATCH_EGG)
         {

@@ -507,7 +507,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                 break;
             case 3:
             {
-                Unit* pTirion = Unit::GetCreature(*me, uiTirionGUID);
+                //Unit* pTirion = Unit::GetCreature(*me, uiTirionGUID);
 
                 DoScriptText(EMOTE_LIGHT_OF_DAWN05, me);
                 if (me->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
@@ -963,7 +963,9 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
 
                     case 42: // Maxwell yells for attack
                         {
-                            float fLichPositionX, fLichPositionY, fLichPositionZ;
+                            float fLichPositionX = 0,
+                                  fLichPositionY = 0,
+                                  fLichPositionZ = 0;
                             if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
                             {
                                 fLichPositionX = pTemp->GetPositionX();
@@ -1619,7 +1621,7 @@ bool GossipHello_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreatu
     return true;
 }
 
-bool GossipSelect_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_highlord_darion_mograine(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -1639,9 +1641,9 @@ struct npc_the_lich_king_tirion_dawnAI : public ScriptedAI
 {
     npc_the_lich_king_tirion_dawnAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
     void Reset() {}
-    void AttackStart(Unit *who) { return; } // very sample, just don't make them aggreesive
-    void UpdateAI(const uint32 diff) { return; }
-    void JustDied(Unit* killer) {}
+    void AttackStart(Unit * /*who*/) {} // very sample, just don't make them aggreesive
+    void UpdateAI(const uint32 /*diff*/) {}
+    void JustDied(Unit* /*killer*/) {}
 };
 
 CreatureAI* GetAI_npc_highlord_darion_mograine(Creature* pCreature)

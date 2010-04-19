@@ -521,7 +521,7 @@ bool GossipHello_npc_blastmaster_emi_shortfuse(Player* pPlayer, Creature* pCreat
     return true;
 }
 
-bool GossipSelect_npc_blastmaster_emi_shortfuse(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_blastmaster_emi_shortfuse(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -552,7 +552,7 @@ struct boss_grubbisAI : public ScriptedAI
             CAST_CRE(pSummon)->AI()->SetData(2,1);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;
@@ -560,7 +560,7 @@ struct boss_grubbisAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (!me->isSummon())
             return;

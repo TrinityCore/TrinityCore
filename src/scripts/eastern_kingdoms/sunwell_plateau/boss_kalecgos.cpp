@@ -343,7 +343,7 @@ struct boss_kalecgosAI : public ScriptedAI
             damage = 0;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         me->SetStandState(UNIT_STAND_STATE_STAND);
         DoScriptText(SAY_EVIL_AGGRO, me);
@@ -353,12 +353,12 @@ struct boss_kalecgosAI : public ScriptedAI
             pInstance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_EVIL_SLAY1,SAY_EVIL_SLAY2), me);
     }
 
-    void MovementInform(uint32 type,uint32 id)
+    void MovementInform(uint32 type,uint32 /*id*/)
     {
         if (type != POINT_MOTION_TYPE)
             return;
@@ -480,7 +480,7 @@ struct boss_sathrovarrAI : public ScriptedAI
         TeleportAllPlayersBack();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (Creature *Kalec = me->SummonCreature(MOB_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
         {
@@ -514,7 +514,7 @@ struct boss_sathrovarrAI : public ScriptedAI
         DoScriptText(RAND(SAY_SATH_SLAY1,SAY_SATH_SLAY2), me);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         DoScriptText(SAY_SATH_DEATH, me);
         me->GetMap()->CreatureRelocation(me, me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());

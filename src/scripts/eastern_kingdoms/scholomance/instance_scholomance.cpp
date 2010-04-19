@@ -69,7 +69,7 @@ struct instance_scholomance : public ScriptedInstance
             IsBossDied[i] = false;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {

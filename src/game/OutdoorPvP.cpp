@@ -234,12 +234,12 @@ OutdoorPvP::~OutdoorPvP()
     DeleteSpawns();
 }
 
-void OutdoorPvP::HandlePlayerEnterZone(Player * plr, uint32 zone)
+void OutdoorPvP::HandlePlayerEnterZone(Player * plr, uint32 /*zone*/)
 {
     m_players[plr->GetTeamId()].insert(plr);
 }
 
-void OutdoorPvP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
+void OutdoorPvP::HandlePlayerLeaveZone(Player * plr, uint32 /*zone*/)
 {
     // inform the objectives of the leaving
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
@@ -251,7 +251,7 @@ void OutdoorPvP::HandlePlayerLeaveZone(Player * plr, uint32 zone)
     sLog.outDebug("Player %s left an outdoorpvp zone", plr->GetName());
 }
 
-void OutdoorPvP::HandlePlayerResurrects(Player * plr, uint32 zone)
+void OutdoorPvP::HandlePlayerResurrects(Player * /*plr*/, uint32 /*zone*/)
 {
 }
 
@@ -481,7 +481,7 @@ bool OutdoorPvP::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go)
     return false;
 }
 
-bool OPvPCapturePoint::HandleCustomSpell(Player *plr, uint32 spellId, GameObject * go)
+bool OPvPCapturePoint::HandleCustomSpell(Player *plr, uint32 /*spellId*/, GameObject * /*go*/)
 {
     if (!plr->IsOutdoorPvPActive())
         return false;
@@ -524,22 +524,22 @@ bool OutdoorPvP::HandleDropFlag(Player * plr, uint32 id)
     return false;
 }
 
-bool OPvPCapturePoint::HandleGossipOption(Player * plr, uint64 guid, uint32 id)
+bool OPvPCapturePoint::HandleGossipOption(Player * /*plr*/, uint64 /*guid*/, uint32 /*id*/)
 {
     return false;
 }
 
-bool OPvPCapturePoint::CanTalkTo(Player * plr, Creature * c, GossipMenuItems gso)
+bool OPvPCapturePoint::CanTalkTo(Player * /*plr*/, Creature * /*c*/, GossipMenuItems /*gso*/)
 {
     return false;
 }
 
-bool OPvPCapturePoint::HandleDropFlag(Player * plr, uint32 id)
+bool OPvPCapturePoint::HandleDropFlag(Player * /*plr*/, uint32 /*id*/)
 {
     return false;
 }
 
-int32 OPvPCapturePoint::HandleOpenGo(Player *plr, uint64 guid)
+int32 OPvPCapturePoint::HandleOpenGo(Player * /*plr*/, uint64 guid)
 {
     std::map<uint64,uint32>::iterator itr = m_ObjectTypes.find(guid);
     if (itr != m_ObjectTypes.end())
@@ -549,7 +549,7 @@ int32 OPvPCapturePoint::HandleOpenGo(Player *plr, uint64 guid)
     return -1;
 }
 
-bool OutdoorPvP::HandleAreaTrigger(Player *plr, uint32 trigger)
+bool OutdoorPvP::HandleAreaTrigger(Player * /*plr*/, uint32 /*trigger*/)
 {
     return false;
 }

@@ -114,7 +114,7 @@ struct boss_baron_rivendareAI : public ScriptedAI
             summoned->AI()->AttackStart(pTarget);
     }
 
-     void JustDied(Unit* Killer)
+     void JustDied(Unit* /*Killer*/)
      {
          if (pInstance)
              pInstance->SetData(TYPE_BARON,DONE);

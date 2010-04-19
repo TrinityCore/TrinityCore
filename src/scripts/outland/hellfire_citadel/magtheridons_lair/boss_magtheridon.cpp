@@ -128,7 +128,7 @@ struct mob_abyssalAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who) {DoZoneInCombat();}
+    void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
     void AttackStart(Unit *who) {if (!trigger) ScriptedAI::AttackStart(who);}
     void MoveInLineOfSight(Unit *who) {if (!trigger) ScriptedAI::MoveInLineOfSight(who);}
 
@@ -279,12 +279,12 @@ struct boss_magtheridonAI : public ScriptedAI
         if (!ClickerNum) NeedCheckCube = false;
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(SAY_PLAYER_KILLED, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
@@ -292,7 +292,7 @@ struct boss_magtheridonAI : public ScriptedAI
         DoScriptText(SAY_DEATH, me);
     }
 
-    void MoveInLineOfSight(Unit* who) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void AttackStart(Unit *who)
     {
@@ -300,7 +300,7 @@ struct boss_magtheridonAI : public ScriptedAI
             ScriptedAI::AttackStart(who);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
@@ -437,7 +437,7 @@ struct mob_hellfire_channelerAI : public ScriptedAI
         Check_Timer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
@@ -465,7 +465,7 @@ struct mob_hellfire_channelerAI : public ScriptedAI
             DoCast(me, SPELL_SOUL_TRANSFER, true);
     }
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_CHANNELER_EVENT, DONE);

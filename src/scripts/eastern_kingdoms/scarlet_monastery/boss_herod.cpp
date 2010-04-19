@@ -54,18 +54,18 @@ struct boss_herodAI : public ScriptedAI
         Whirlwind_Timer = 60000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, SPELL_RUSHINGCHARGE);
     }
 
-     void KilledUnit(Unit *victim)
+     void KilledUnit(Unit * /*victim*/)
      {
          DoScriptText(SAY_KILL, me);
      }
 
-     void JustDied(Unit* killer)
+     void JustDied(Unit* /*killer*/)
      {
          for (uint8 i = 0; i < 20; ++i)
              me->SummonCreature(ENTRY_SCARLET_TRAINEE, 1939.18, -431.58, 17.09, 6.22, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
@@ -119,8 +119,8 @@ struct mob_scarlet_traineeAI : public npc_escortAI
     uint32 Start_Timer;
 
     void Reset() {}
-    void WaypointReached(uint32 uiPoint) {}
-    void EnterCombat(Unit* who) {}
+    void WaypointReached(uint32 /*uiPoint*/) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {

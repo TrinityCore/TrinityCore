@@ -251,7 +251,7 @@ TargetedMovementGenerator<T>::GetTarget() const
 }
 
 template<class T>
-void TargetedMovementGenerator<T>::MovementInform(T &unit)
+void TargetedMovementGenerator<T>::MovementInform(T & /*unit*/)
 {
 }
 

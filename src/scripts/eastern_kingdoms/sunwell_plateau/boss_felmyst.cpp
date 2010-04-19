@@ -170,7 +170,7 @@ struct boss_felmystAI : public ScriptedAI
             pInstance->SetData(DATA_FELMYST_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->setActive(true);
         DoZoneInCombat();
@@ -194,7 +194,7 @@ struct boss_felmystAI : public ScriptedAI
             ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(YELL_KILL1,YELL_KILL2), me);
     }
@@ -204,7 +204,7 @@ struct boss_felmystAI : public ScriptedAI
         DoScriptText(YELL_BIRTH, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(YELL_DEATH, me);
 
@@ -556,12 +556,12 @@ struct mob_felmyst_vaporAI : public ScriptedAI
         me->SetSpeed(MOVE_RUN, 0.8);
     }
     void Reset() {}
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoZoneInCombat();
         //DoCast(me, SPELL_VAPOR_FORCE, true); core bug
     }
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!me->getVictim())
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -579,10 +579,10 @@ struct mob_felmyst_trailAI : public ScriptedAI
         me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01); // core bug
     }
     void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 };
 
 CreatureAI* GetAI_boss_felmyst(Creature* pCreature)

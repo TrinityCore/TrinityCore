@@ -50,7 +50,7 @@ void WaypointStore::Load()
         return;
     }
 
-    WaypointPath* path_data;
+    WaypointPath* path_data = NULL;
     uint32 total_records = result->GetRowCount();
 
     barGoLink bar(total_records);

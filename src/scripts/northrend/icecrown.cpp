@@ -68,7 +68,7 @@ bool GossipHello_npc_arete(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_arete(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_arete(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -123,7 +123,7 @@ bool GossipHello_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -160,7 +160,7 @@ bool GossipHello_npc_squire_david(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_squire_david(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_squire_david(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -201,7 +201,7 @@ struct npc_argent_valiantAI : public ScriptedAI
         uiShieldBreakerTimer = 10000;
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -263,7 +263,7 @@ struct npc_argent_tournament_postAI : public ScriptedAI
 {
     npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (me->IsNonMeleeSpellCasted(false))
             return;
@@ -308,7 +308,7 @@ struct npc_alorah_and_grimminAI : public ScriptedAI
         uiCast = 1;
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (uiCast = 1)
         {

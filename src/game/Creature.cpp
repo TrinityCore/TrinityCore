@@ -263,7 +263,7 @@ void Creature::RemoveCorpse()
 /**
  * change the entry of creature until respawn
  */
-bool Creature::InitEntry(uint32 Entry, uint32 team, const CreatureData *data)
+bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data)
 {
     CreatureInfo const *normalInfo = objmgr.GetCreatureTemplate(Entry);
     if (!normalInfo)
@@ -936,7 +936,7 @@ bool Creature::isCanTrainingAndResetTalentsOf(Player* pPlayer) const
         && pPlayer->getClass() == GetCreatureInfo()->trainer_class;
 }
 
-void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type)
+void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 /*MovementFlags*/, uint8 /*type*/)
 {
     /*    uint32 timeElap = getMSTime();
         if ((timeElap - m_startMove) < m_moveTime)
@@ -1356,7 +1356,7 @@ void Creature::DeleteFromDB()
     WorldDatabase.CommitTransaction();
 }
 
-bool Creature::canSeeOrDetect(Unit const* u, bool detect, bool inVisibleList, bool is3dDistance) const
+bool Creature::canSeeOrDetect(Unit const* u, bool detect, bool /*inVisibleList*/, bool /*is3dDistance*/) const
 {
     // not in world
     if (!IsInWorld() || !u->IsInWorld())

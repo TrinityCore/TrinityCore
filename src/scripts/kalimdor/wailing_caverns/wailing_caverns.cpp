@@ -132,7 +132,7 @@ struct npc_disciple_of_naralexAI : public npc_escortAI
         DoScriptText(SAY_ATTACKED, me, who);
     }
 
-    void JustDied(Unit *slayer)
+    void JustDied(Unit * /*slayer*/)
     {
         if (pInstance)
         {
@@ -362,7 +362,7 @@ bool GossipHello_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     ScriptedInstance *pInstance = pCreature->GetInstanceData();
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
