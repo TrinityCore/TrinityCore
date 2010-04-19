@@ -54,17 +54,15 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
         //load not built in channel if saved
         std::string _name(name);
         CharacterDatabase.escape_string(_name);
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT m_name, m_team, m_announce, m_moderate, m_public, m_password, BannedList FROM channels WHERE m_name = '%s' AND m_team = '%u'", _name.c_str(), m_Team);
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT m_announce, m_moderate, m_public, m_password, BannedList FROM channels WHERE m_name = '%s' AND m_team = '%u'", _name.c_str(), m_Team);
         if (result)//load
         {
             Field *fields = result->Fetch();
-            const char* db_name = fields[0].GetString();
-            uint32 db_team = fields[1].GetUInt32();
-            m_announce = fields[2].GetBool();
-            m_moderate = fields[3].GetBool();
-            m_public = fields[4].GetBool();
-            m_password  = fields[5].GetString();
-            const char* db_BannedList = fields[6].GetString();
+            m_announce = fields[0].GetBool();
+            m_moderate = fields[1].GetBool();
+            m_public = fields[2].GetBool();
+            m_password  = fields[3].GetString();
+            const char* db_BannedList = fields[4].GetString();
 
             m_IsSaved = true;
 
