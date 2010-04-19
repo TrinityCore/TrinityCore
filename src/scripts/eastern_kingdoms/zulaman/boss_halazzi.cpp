@@ -112,7 +112,7 @@ struct boss_halazziAI : public ScriptedAI
         EnterPhase(PHASE_LYNX);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
@@ -130,7 +130,7 @@ struct boss_halazziAI : public ScriptedAI
             LynxGUID = summon->GetGUID();
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage >= me->GetHealth() && Phase != PHASE_ENRAGE)
             damage = 0;
@@ -298,7 +298,7 @@ struct boss_halazziAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         switch (urand(0,1))
         {
@@ -314,7 +314,7 @@ struct boss_halazziAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_HALAZZIEVENT, DONE);
@@ -339,7 +339,7 @@ struct boss_spiritlynxAI : public ScriptedAI
         shredder_timer = 4000;
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage >= me->GetHealth())
             damage = 0;
@@ -351,7 +351,7 @@ struct boss_spiritlynxAI : public ScriptedAI
             ScriptedAI::AttackStart(who);
     }
 
-    void EnterCombat(Unit *who) {/*DoZoneInCombat();*/}
+    void EnterCombat(Unit * /*who*/) {/*DoZoneInCombat();*/}
 
     void UpdateAI(const uint32 diff)
     {

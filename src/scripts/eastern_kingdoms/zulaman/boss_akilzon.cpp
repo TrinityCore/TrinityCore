@@ -112,7 +112,7 @@ struct boss_akilzonAI : public ScriptedAI
         SetWeather(WEATHER_STATE_FINE, 0.0f);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(me, SOUND_ONAGGRO);
@@ -121,7 +121,7 @@ struct boss_akilzonAI : public ScriptedAI
             pInstance->SetData(DATA_AKILZONEVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         me->MonsterYell(SAY_ONDEATH,LANG_UNIVERSAL,NULL);
         DoPlaySoundToSet(me, SOUND_ONDEATH);
@@ -130,7 +130,7 @@ struct boss_akilzonAI : public ScriptedAI
         DespawnSummons();
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         switch (urand(0,1))
         {
@@ -388,9 +388,9 @@ struct mob_soaring_eagleAI : public ScriptedAI
         me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
     }
 
-    void EnterCombat(Unit *who) {DoZoneInCombat();}
+    void EnterCombat(Unit * /*who*/) {DoZoneInCombat();}
 
-    void MoveInLineOfSight(Unit* who) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void MovementInform(uint32, uint32)
     {

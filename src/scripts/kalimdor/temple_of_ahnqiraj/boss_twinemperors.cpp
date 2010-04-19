@@ -101,7 +101,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             return NULL;
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         Unit *pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
@@ -118,7 +118,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         Creature *pOtherBoss = GetOtherBoss();
         if (pOtherBoss)
@@ -132,12 +132,12 @@ struct boss_twinemperorsAI : public ScriptedAI
             DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_DEATH : SOUND_VN_DEATH);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_KILL : SOUND_VN_KILL);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         DoZoneInCombat();
         Creature *pOtherBoss = GetOtherBoss();
@@ -172,8 +172,6 @@ struct boss_twinemperorsAI : public ScriptedAI
         #define HEAL_BROTHER_AMOUNT 30000.0f
         uint32 largerAmount = (uint32)((HEAL_BROTHER_AMOUNT * mult) - HEAL_BROTHER_AMOUNT);
 
-        uint32 myh = me->GetHealth();
-        uint32 hish = pOtherBoss->GetHealth();
         if (mytotal > histotal)
         {
             uint32 h = me->GetHealth()+largerAmount;

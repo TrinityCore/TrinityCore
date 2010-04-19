@@ -187,12 +187,12 @@ struct boss_fathomlord_karathressAI : public ScriptedAI
         pInstance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -203,7 +203,7 @@ struct boss_fathomlord_karathressAI : public ScriptedAI
         me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         StartEvent(who);
     }
@@ -266,27 +266,24 @@ struct boss_fathomlord_karathressAI : public ScriptedAI
         if ((me->GetHealth()*100 / me->GetMaxHealth()) <= 75 && !BlessingOfTides)
         {
             BlessingOfTides = true;
-            bool continueTriggering;
+            bool continueTriggering = false;
             Creature* Advisor;
             for (uint8 i = 0; i < 4; ++i)
                 if (Advisors[i])
                 {
                     Advisor = (Unit::GetCreature(*me, Advisors[i]));
-                    if (Advisor)
+                    if (Advisor && Advisor->isAlive())
                     {
-                        if (Advisor->isAlive())
-                        {
-                            continueTriggering = true;
-                            break;
-                        }
+                        continueTriggering = true;
+                        break;
                     }
                 }
-                if (continueTriggering)
-                {
-                    DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, NULL);
-                    DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
-                }
+            if (continueTriggering)
+            {
+                DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
+                me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, NULL);
+                DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
+            }
         }
 
         DoMeleeAttackIfReady();
@@ -333,7 +330,7 @@ struct boss_fathomguard_sharkkisAI : public ScriptedAI
             pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance)
         {
@@ -346,7 +343,7 @@ struct boss_fathomguard_sharkkisAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
         {
@@ -411,16 +408,15 @@ struct boss_fathomguard_sharkkisAI : public ScriptedAI
             pet = true;
             //uint32 spell_id;
             uint32 pet_id;
-            switch (urand(0,1))
+            if (!urand(0,1))
             {
-            case 0:
                 //spell_id = SPELL_SUMMON_FATHOM_LURKER;
                 pet_id = CREATURE_FATHOM_LURKER;
-                break;
-            case 1:
+            }
+            else
+            {
                 //spell_id = SPELL_SUMMON_FATHOM_SPOREBAT;
                 pet_id = CREATURE_FATHOM_SPOREBAT;
-                break;
             }
             //DoCast(me, spell_id, true);
             Creature *Pet = DoSpawnCreature(pet_id,0,0,0,0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
@@ -462,7 +458,7 @@ struct boss_fathomguard_tidalvessAI : public ScriptedAI
             pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance)
         {
@@ -475,7 +471,7 @@ struct boss_fathomguard_tidalvessAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
         {
@@ -577,7 +573,7 @@ struct boss_fathomguard_caribdisAI : public ScriptedAI
             pInstance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance)
         {
@@ -590,7 +586,7 @@ struct boss_fathomguard_caribdisAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
         {

@@ -60,7 +60,7 @@ bool GossipHello_npc_braug_dimspirit(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_braug_dimspirit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_braug_dimspirit(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {

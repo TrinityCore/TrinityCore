@@ -136,7 +136,7 @@ struct boss_entropiusAI : public ScriptedAI
             pInstance->SetData(DATA_MURU_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoCastAOE(SPELL_NEGATIVE_ENERGY_E, true);
         DoCast(me, SPELL_ENTROPIUS_SPAWN, false);
@@ -163,7 +163,7 @@ struct boss_entropiusAI : public ScriptedAI
         Summons.Summon(summoned);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         Summons.DespawnAll();
 
@@ -241,7 +241,7 @@ struct boss_muruAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_MURU_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoCastAOE(SPELL_NEGATIVE_ENERGY,false);
 
@@ -249,7 +249,7 @@ struct boss_muruAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage > me->GetHealth() && Phase == 1)
         {
@@ -401,7 +401,7 @@ struct npc_muru_portalAI : public Scripted_NoMovementAI
         Summons.Summon(summoned);
     }
 
-    void SpellHit(Unit* caster, const SpellEntry* Spell)
+    void SpellHit(Unit* /*caster*/, const SpellEntry* Spell)
     {
         float x,y,z,o;
         me->GetHomePosition(x,y,z,o);
@@ -456,7 +456,7 @@ struct npc_dark_fiendAI : public ScriptedAI
         me->addUnitState(UNIT_STAT_STUNNED);
     }
 
-    void SpellHit(Unit* caster, const SpellEntry* Spell)
+    void SpellHit(Unit* /*caster*/, const SpellEntry* Spell)
     {
         for (uint8 i = 0; i < 3; ++i)
             if (Spell->Effect[i] == 38)
@@ -514,7 +514,7 @@ struct npc_void_sentinelAI : public ScriptedAI
         DoTeleportTo(x,y,71);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         for (uint8 i = 0; i < 8; ++i)
             me->SummonCreature(CREATURE_VOID_SPAWN, me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(), rand()%6, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 180000);

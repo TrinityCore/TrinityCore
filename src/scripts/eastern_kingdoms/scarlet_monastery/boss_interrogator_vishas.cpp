@@ -53,17 +53,17 @@ struct boss_interrogator_vishasAI : public ScriptedAI
         ShadowWordPain_Timer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
 
-    void KilledUnit(Unit* Victim)
+    void KilledUnit(Unit* /*Victim*/)
     {
         DoScriptText(SAY_KILL, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (!pInstance)
             return;

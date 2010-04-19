@@ -47,7 +47,7 @@ bool GossipHello_npc_blood_knight_dawnstar(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_blood_knight_dawnstar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_blood_knight_dawnstar(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -80,7 +80,7 @@ bool GossipHello_npc_budd_nedreck(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_budd_nedreck(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_budd_nedreck(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -109,7 +109,7 @@ bool GossipHello_npc_rathis_tomber(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_rathis_tomber(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_rathis_tomber(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -120,7 +120,7 @@ bool GossipSelect_npc_rathis_tomber(Player* pPlayer, Creature* pCreature, uint32
 ## go_gilded_brazier (Paladin First Trail quest (9678))
 #####*/
 
-bool GOHello_gilded_brazier(Player* pPlayer, GameObject* pGo)
+bool GOHello_gilded_brazier(Player* pPlayer, GameObject* /*pGo*/)
 {
     if (pPlayer->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
     {

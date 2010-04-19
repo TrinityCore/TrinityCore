@@ -262,7 +262,7 @@ struct boss_four_horsemenAI : public BossAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (!(rand()%5))
         {
@@ -273,7 +273,7 @@ struct boss_four_horsemenAI : public BossAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         events.Reset();
         summons.DespawnAll();
@@ -294,7 +294,7 @@ struct boss_four_horsemenAI : public BossAI
         DoScriptText(SAY_DEATH[id], me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
 

@@ -155,7 +155,7 @@ struct instance_blood_furnace : public ScriptedInstance
         return 0;
     }
 
-    void SetData(uint32 type, uint32 data)
+    void SetData(uint32 /*type*/, uint32 data)
     {
          switch(data)
          {

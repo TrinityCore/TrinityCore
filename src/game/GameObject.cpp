@@ -74,7 +74,7 @@ GameObject::~GameObject()
     //    CleanupsBeforeDelete();
 }
 
-void GameObject::CleanupsBeforeDelete(bool finalCleanup)
+void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 {
     if (IsInWorld())
         RemoveFromWorld();

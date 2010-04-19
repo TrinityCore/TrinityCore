@@ -81,7 +81,7 @@ struct boss_silver_hand_bossesAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
     }
 

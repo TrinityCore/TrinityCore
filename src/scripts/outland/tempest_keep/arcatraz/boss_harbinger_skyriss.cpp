@@ -99,9 +99,9 @@ struct boss_harbinger_skyrissAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (pInstance)
@@ -268,7 +268,7 @@ struct boss_harbinger_skyriss_illusionAI : public ScriptedAI
 
     void Reset() { }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 };
 
 CreatureAI* GetAI_boss_harbinger_skyriss_illusion(Creature* pCreature)

@@ -94,7 +94,7 @@ struct boss_hakkarAI : public ScriptedAI
         Enraged = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

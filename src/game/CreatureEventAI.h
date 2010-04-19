@@ -594,7 +594,7 @@ class CreatureEventAI : public CreatureAI
         void JustReachedHome();
         void EnterCombat(Unit *enemy);
         void EnterEvadeMode();
-        void JustDied(Unit* killer);
+        void JustDied(Unit* /*killer*/);
         void KilledUnit(Unit* victim);
         void JustSummoned(Creature* pUnit);
         void AttackStart(Unit *who);

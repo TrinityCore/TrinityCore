@@ -202,7 +202,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
         AttackStart(pTarget);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
@@ -350,7 +350,7 @@ bool GossipHello_boss_victor_nefarius(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_boss_victor_nefarius(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_boss_victor_nefarius(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

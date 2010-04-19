@@ -109,7 +109,7 @@ struct boss_ionarAI : public ScriptedAI
             pInstance->SetData(TYPE_IONAR, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -117,7 +117,7 @@ struct boss_ionarAI : public ScriptedAI
             pInstance->SetData(TYPE_IONAR, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -127,7 +127,7 @@ struct boss_ionarAI : public ScriptedAI
             pInstance->SetData(TYPE_IONAR, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
@@ -158,7 +158,7 @@ struct boss_ionarAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
     {
         if (me->GetVisibility() == VISIBILITY_OFF)
             uiDamage = 0;
@@ -268,7 +268,7 @@ CreatureAI* GetAI_boss_ionar(Creature* pCreature)
     return new boss_ionarAI(pCreature);
 }
 
-bool EffectDummyCreature_boss_ionar(Unit* pCaster, uint32 uiSpellId, uint32 uiEffIndex, Creature* pCreatureTarget)
+bool EffectDummyCreature_boss_ionar(Unit* /*pCaster*/, uint32 uiSpellId, uint32 uiEffIndex, Creature* pCreatureTarget)
 {
     //always check spellid and effectindex
     if (uiSpellId == SPELL_DISPERSE && uiEffIndex == 0)
@@ -322,7 +322,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
             me->ForcedDespawn();
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
     {
         uiDamage = 0;
     }

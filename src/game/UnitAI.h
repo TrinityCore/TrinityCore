@@ -47,7 +47,7 @@ class UnitAI
         explicit UnitAI(Unit *u) : me(u) {}
         virtual ~UnitAI() {}
 
-        virtual bool CanAIAttack(const Unit *who) const { return true; }
+        virtual bool CanAIAttack(const Unit * /*who*/) const { return true; }
         virtual void AttackStart(Unit *);
         virtual void UpdateAI(const uint32 diff) = 0;
 
@@ -60,9 +60,9 @@ class UnitAI
 
         // Pass parameters between AI
         virtual void DoAction(const int32 param = 0) {}
-        virtual uint32 GetData(uint32 id = 0) { return 0; }
-        virtual void SetData(uint32 id, uint32 value) {}
-        virtual void SetGUID(const uint64 &guid, int32 id = 0) {}
+        virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
+        virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
+        virtual void SetGUID(const uint64 &/*guid*/, int32 id = 0) {}
         virtual uint64 GetGUID(int32 id = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -155,6 +155,7 @@ class SimpleCharmedAI : public PlayerAI
 {
     public:
         void UpdateAI(const uint32 diff);
+        SimpleCharmedAI(Player *p): PlayerAI(p) {}
 };
 
 #endif

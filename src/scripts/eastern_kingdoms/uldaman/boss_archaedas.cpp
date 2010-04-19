@@ -91,14 +91,14 @@ struct boss_archaedasAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->setFaction (14);
         me->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->RemoveFlag (UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE);
     }
 
-    void SpellHit (Unit* caster, const SpellEntry *spell)
+    void SpellHit (Unit* /*caster*/, const SpellEntry *spell)
     {
         // Being woken up from the altar, start the awaken sequence
         if (spell == GetSpellStore()->LookupEntry(SPELL_ARCHAEDAS_AWAKEN)) {
@@ -109,7 +109,7 @@ struct boss_archaedasAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         me->MonsterYell(SAY_KILL,LANG_UNIVERSAL, NULL);
         DoPlaySoundToSet(me, SOUND_KILL);
@@ -176,7 +176,7 @@ struct boss_archaedasAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied (Unit *killer) {
+    void JustDied (Unit * /*killer*/) {
         if (pInstance)
         {
             pInstance->SetData(NULL,3);        // open the vault door
@@ -228,7 +228,7 @@ struct mob_archaedas_minionsAI : public ScriptedAI
         me->RemoveAllAuras();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->setFaction (14);
         me->RemoveAllAuras();
@@ -237,7 +237,7 @@ struct mob_archaedas_minionsAI : public ScriptedAI
         amIAwake = true;
     }
 
-    void SpellHit (Unit* caster, const SpellEntry *spell) {
+    void SpellHit (Unit* /*caster*/, const SpellEntry *spell) {
         // time to wake up, start animation
         if (spell == GetSpellStore()->LookupEntry(SPELL_ARCHAEDAS_AWAKEN)){
             Awaken_Timer = 5000;
@@ -293,7 +293,7 @@ EndScriptData */
 //uint64 altarOfArchaedasCount[5];
 //int32 altarOfArchaedasCounter=0;
 
-bool GOHello_go_altar_of_archaedas(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_altar_of_archaedas(Player* pPlayer, GameObject* /*pGo*/)
 {
     //bool alreadyUsed;
     //pGo->AddUse ();
@@ -369,14 +369,14 @@ struct mob_stonekeepersAI : public ScriptedAI
         me->RemoveAllAuras();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->setFaction (14);
         me->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->RemoveFlag (UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
 
         //Return since we have no target
@@ -386,7 +386,7 @@ struct mob_stonekeepersAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit *attacker)
+    void JustDied(Unit * /*attacker*/)
     {
         DoCast (me, SPELL_SELF_DESTRUCT,true);
         if (pInstance)
@@ -414,7 +414,7 @@ EndScriptData */
 //static uint64 altarOfTheKeeperCount[5];
 //static uint32 altarOfTheKeeperCounter=0;
 
-bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* /*pGo*/)
 {
     ScriptedInstance* pInstance = pPlayer->GetInstanceData();
     if (!pInstance)

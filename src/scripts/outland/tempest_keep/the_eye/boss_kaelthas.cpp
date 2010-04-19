@@ -193,7 +193,7 @@ struct advisorbase_ai : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void Revive(Unit* Target)
+    void Revive(Unit* /*Target*/)
     {
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         // double health for phase 3
@@ -414,7 +414,7 @@ struct boss_kaelthasAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit * /*who*/)
     {
         if (m_pInstance && !m_pInstance->GetData(DATA_KAELTHASEVENT) && !Phase)
             StartEvent();
@@ -439,7 +439,7 @@ struct boss_kaelthasAI : public ScriptedAI
 
     void SummonedCreatureDespawn(Creature *summon) {summons.Despawn(summon);}
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -995,7 +995,7 @@ struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         me->AddThreat(who, 5000000.0f);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
             DoScriptText(SAY_THALADRED_DEATH, me);
@@ -1067,7 +1067,7 @@ struct boss_lord_sanguinarAI : public advisorbase_ai
         DoScriptText(SAY_SANGUINAR_AGGRO, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
             DoScriptText(SAY_SANGUINAR_DEATH, me);
@@ -1118,7 +1118,7 @@ struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         advisorbase_ai::Reset();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
             DoScriptText(SAY_CAPERNIAN_DEATH, me);
@@ -1235,7 +1235,7 @@ struct boss_master_engineer_telonicusAI : public advisorbase_ai
         advisorbase_ai::Reset();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
             DoScriptText(SAY_TELONICUS_DEATH, me);
@@ -1303,9 +1303,9 @@ struct mob_kael_flamestrikeAI : public Scripted_NoMovementAI
         me->setFaction(14);
     }
 
-    void MoveInLineOfSight(Unit *who) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
-    void EnterCombat(Unit *who) {return;}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -1343,7 +1343,7 @@ struct mob_phoenix_tkAI : public ScriptedAI
         DoCast(me, SPELL_BURN, true);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         //is this spell in use anylonger?
         //DoCast(me, SPELL_EMBER_BLAST, true);
@@ -1381,7 +1381,7 @@ struct mob_phoenix_egg_tkAI : public ScriptedAI
     }
 
     //ignore any
-    void MoveInLineOfSight(Unit* who) { return; }
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void AttackStart(Unit* who)
     {

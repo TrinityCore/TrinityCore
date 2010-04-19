@@ -42,7 +42,7 @@ struct boss_landslideAI : public ScriptedAI
         Landslide_Timer = 0;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

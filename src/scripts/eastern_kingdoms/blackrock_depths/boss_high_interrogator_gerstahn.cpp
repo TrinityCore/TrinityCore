@@ -48,7 +48,7 @@ struct boss_high_interrogator_gerstahnAI : public ScriptedAI
         ShadowShield_Timer = 8000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

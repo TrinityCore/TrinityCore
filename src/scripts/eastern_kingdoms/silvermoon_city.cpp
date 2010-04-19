@@ -52,13 +52,12 @@ struct npc_blood_knight_stillbladeAI : public ScriptedAI
         spellHit = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-    void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit * /*who*/)
     {
-        return;
     }
 
     void UpdateAI(const uint32 diff)

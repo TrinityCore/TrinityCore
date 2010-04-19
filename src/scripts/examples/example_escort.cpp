@@ -87,7 +87,7 @@ struct example_escortAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
@@ -186,7 +186,7 @@ bool GossipHello_example_escort(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_example_escort(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     npc_escortAI* pEscortAI = CAST_AI(example_escortAI, pCreature->AI());
 

@@ -69,7 +69,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/)
     {
         Player* pPlayer = GetPlayerForEscort();
 
@@ -99,7 +99,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
         AttackStart(pAttacker);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
     {
         if (me->GetHealth()*100 < me->GetMaxHealth()*20)
         {

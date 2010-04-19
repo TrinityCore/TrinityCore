@@ -257,7 +257,7 @@ struct boss_black_knightAI : public ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
     {
         if (uiDamage > me->GetHealth() && uiPhase <= PHASE_SKELETON)
         {
@@ -278,7 +278,7 @@ struct boss_black_knightAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (pInstance)
             pInstance->SetData(BOSS_BLACK_KNIGHT,DONE);
@@ -332,7 +332,7 @@ struct npc_black_knight_skeletal_gryphonAI : public npc_escortAI
         Start(false,true,0,NULL);
     }
 
-    void WaypointReached(uint32 i)
+    void WaypointReached(uint32 /*i*/)
     {
 
     }

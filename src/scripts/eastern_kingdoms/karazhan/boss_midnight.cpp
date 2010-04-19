@@ -62,9 +62,9 @@ struct boss_midnightAI : public ScriptedAI
         me->SetVisibility(VISIBILITY_ON);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (Phase == 2)
         {
@@ -181,14 +181,14 @@ struct boss_attumenAI : public ScriptedAI
         ResetTimer = 2000;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL1,SAY_KILL2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (Unit *pMidnight = Unit::GetUnit(*me, Midnight))
@@ -243,7 +243,7 @@ struct boss_attumenAI : public ScriptedAI
         {
             if (ChargeTimer <= diff)
             {
-                Unit *pTarget;
+                Unit *pTarget = NULL;
                 std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
                 std::vector<Unit *> target_list;
                 for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
@@ -277,7 +277,7 @@ struct boss_attumenAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void SpellHit(Unit *source, const SpellEntry *spell)
+    void SpellHit(Unit * /*source*/, const SpellEntry *spell)
     {
         if (spell->Mechanic == MECHANIC_DISARM)
             DoScriptText(SAY_DISARMED, me);

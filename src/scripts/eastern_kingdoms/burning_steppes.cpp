@@ -64,7 +64,7 @@ struct npc_ragged_johnAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 };
 
 CreatureAI* GetAI_npc_ragged_john(Creature* pCreature)
@@ -84,7 +84,7 @@ bool GossipHello_npc_ragged_john(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_ragged_john(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_ragged_john(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

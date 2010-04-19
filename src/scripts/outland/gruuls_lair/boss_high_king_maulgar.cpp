@@ -161,7 +161,7 @@ struct boss_high_king_maulgarAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -339,7 +339,7 @@ struct boss_olm_the_summonerAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
         {
@@ -433,7 +433,7 @@ struct boss_kiggler_the_crazedAI : public ScriptedAI
             pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit* who)
     {
         if (pInstance)
         {
@@ -442,7 +442,7 @@ struct boss_kiggler_the_crazedAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
         {
@@ -541,7 +541,7 @@ struct boss_blindeye_the_seerAI : public ScriptedAI
             pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
         {
@@ -550,7 +550,7 @@ struct boss_blindeye_the_seerAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
         {
@@ -639,7 +639,7 @@ struct boss_krosh_firehandAI : public ScriptedAI
             pInstance->SetData(DATA_MAULGAREVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
         {
@@ -648,7 +648,7 @@ struct boss_krosh_firehandAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
         {
@@ -705,7 +705,7 @@ struct boss_krosh_firehandAI : public ScriptedAI
         //BlastWave_Timer
         if (BlastWave_Timer <= diff)
         {
-            Unit *pTarget;
+            Unit *pTarget = NULL;
             std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
             std::vector<Unit *> target_list;
             for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
@@ -720,7 +720,7 @@ struct boss_krosh_firehandAI : public ScriptedAI
                 pTarget = *(target_list.begin()+rand()%target_list.size());
 
             me->InterruptNonMeleeSpells(false);
-                       DoCast(pTarget, SPELL_BLAST_WAVE);
+            DoCast(pTarget, SPELL_BLAST_WAVE);
             BlastWave_Timer = 60000;
         } else BlastWave_Timer -= diff;
     }

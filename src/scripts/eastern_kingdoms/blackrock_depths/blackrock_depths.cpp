@@ -44,7 +44,7 @@ EndContentData */
 +## go_shadowforge_brazier
 +######*/
 
-bool GOHello_go_shadowforge_brazier(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_shadowforge_brazier(Player* /*pPlayer*/, GameObject* pGo)
 {
     if (ScriptedInstance* pInstance = pGo->GetInstanceData())
     {
@@ -94,7 +94,7 @@ uint32 RingBoss[]=
     9032,                                                   // Hedrum
 };
 
-bool AreaTrigger_at_ring_of_law(Player* pPlayer, const AreaTriggerEntry *at)
+bool AreaTrigger_at_ring_of_law(Player* pPlayer, const AreaTriggerEntry * /*at*/)
 {
     if (ScriptedInstance* pInstance = pPlayer->GetInstanceData())
     {
@@ -451,7 +451,7 @@ bool GossipHello_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_kharan_mighthammer(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -545,7 +545,7 @@ bool GossipHello_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lokhtos_darkbargainer(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
@@ -1235,7 +1235,7 @@ CreatureAI* GetAI_npc_rocknot(Creature* pCreature)
     return new npc_rocknotAI(pCreature);
 }
 
-bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest *_Quest, uint32 item)
+bool ChooseReward_npc_rocknot(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest, uint32 /*item*/)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
 

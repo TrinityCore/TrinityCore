@@ -54,7 +54,7 @@ bool GossipHello_npc_agnetta_tyrsdottar(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_agnetta_tyrsdottar(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_agnetta_tyrsdottar(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -92,7 +92,7 @@ bool GossipHello_npc_frostborn_scout(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_frostborn_scout(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_frostborn_scout(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -145,7 +145,7 @@ bool GossipHello_npc_thorim(Player* pPlayer, Creature* pCreature)
     return false;
 }
 
-bool GossipSelect_npc_thorim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_thorim(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -251,7 +251,7 @@ struct npc_victorious_challengerAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         me->RestoreFaction();
     }
@@ -273,7 +273,7 @@ bool GossipHello_npc_victorious_challenger(Player* pPlayer, Creature* pCreature)
     return false;
 }
 
-bool GossipSelect_npc_victorious_challenger(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_victorious_challenger(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -322,7 +322,7 @@ bool GossipHello_npc_loklira_crone(Player* pPlayer, Creature* pCreature)
     return false;
 }
 
-bool GossipSelect_npc_loklira_crone(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_loklira_crone(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

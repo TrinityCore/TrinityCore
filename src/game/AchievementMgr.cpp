@@ -258,7 +258,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             sLog.outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) have data for not supported data type (%u), ignore.", criteria->ID, criteria->requiredType,dataType);
             return false;
     }
-    return false;
 }
 
 bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Unit const* target, uint32 miscvalue1 /*= 0*/) const

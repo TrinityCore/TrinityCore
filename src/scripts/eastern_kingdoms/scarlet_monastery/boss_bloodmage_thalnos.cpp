@@ -54,12 +54,12 @@ struct boss_bloodmage_thalnosAI : public ScriptedAI
         FireNova_Timer = 40000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
 
-    void KilledUnit(Unit* Victim)
+    void KilledUnit(Unit* /*Victim*/)
     {
         DoScriptText(SAY_KILL, me);
     }

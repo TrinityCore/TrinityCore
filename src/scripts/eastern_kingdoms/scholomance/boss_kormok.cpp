@@ -45,7 +45,7 @@ struct boss_kormokAI : public ScriptedAI
         Mages = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

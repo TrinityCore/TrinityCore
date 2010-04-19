@@ -48,7 +48,7 @@ struct instance_nexus : public ScriptedInstance
         Keristrasza = 0;
     }
 
-    void OnCreatureCreate(Creature *pCreature, bool bAdd)
+    void OnCreatureCreate(Creature *pCreature, bool /*bAdd*/)
     {
         Map::PlayerList const &players = instance->GetPlayers();
         uint32 TeamInInstance = 0;
@@ -110,7 +110,7 @@ struct instance_nexus : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject *pGo, bool bAdd)
+    void OnGameObjectCreate(GameObject *pGo, bool /*bAdd*/)
     {
         switch (pGo->GetEntry())
         {

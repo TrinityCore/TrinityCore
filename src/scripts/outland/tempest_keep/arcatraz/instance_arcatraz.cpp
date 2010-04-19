@@ -86,7 +86,7 @@ struct instance_arcatraz : public ScriptedInstance
         return false;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -102,7 +102,7 @@ struct instance_arcatraz : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         if (pCreature->GetEntry() == MELLICHAR)
             MellicharGUID = pCreature->GetGUID();

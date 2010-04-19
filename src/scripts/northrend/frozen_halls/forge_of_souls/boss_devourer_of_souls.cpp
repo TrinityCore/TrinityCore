@@ -152,7 +152,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
             pInstance->SetData(DATA_DEVOURER_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_DEVOURER_EVENT, IN_PROGRESS);
@@ -166,7 +166,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
         events.ScheduleEvent(EVENT_WAILING_SOULS, urand(60000,70000));
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
     {
         if (uiMirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
         {
@@ -184,13 +184,13 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_FACE_ANGER_SLAY_1,SAY_FACE_SORROW_SLAY_1,SAY_FACE_DESIRE_SLAY_1,
             SAY_FACE_ANGER_SLAY_2,SAY_FACE_SORROW_SLAY_2,SAY_FACE_DESIRE_SLAY_2), me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         Position spawnPoint = { 5618.139, 2451.873, 705.854 };
 
@@ -224,7 +224,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
         }
     }
 
-    void SpellHitTarget(Unit* pTarget, const SpellEntry *pSpell)
+    void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry *pSpell)
     {
         if (pSpell->Id == H_SPELL_PHANTOM_BLAST)
             bThreeFaceAchievement = false;

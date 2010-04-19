@@ -154,7 +154,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
             }
         }
     }
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -162,7 +162,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
             pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (CorruptedForm)
         {
@@ -195,7 +195,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
         Summons.Despawn(summon);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (CorruptedForm)
             DoScriptText(SAY_CORRUPT_DEATH, me);
@@ -226,7 +226,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
             {
                 if (MarkOfCorruption_Count <= 5)
                 {
-                    uint32 mark_spell;
+                    uint32 mark_spell = 0;
 
                     switch (MarkOfCorruption_Count)
                     {
@@ -293,7 +293,7 @@ struct boss_hydross_the_unstableAI : public ScriptedAI
             {
                 if (MarkOfHydross_Count <= 5)
                 {
-                    uint32 mark_spell;
+                    uint32 mark_spell = NULL;
 
                     switch(MarkOfHydross_Count)
                     {

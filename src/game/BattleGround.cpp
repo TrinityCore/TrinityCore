@@ -1474,7 +1474,7 @@ void BattleGround::RemovePlayerFromResurrectQueue(uint64 player_guid)
     }
 }
 
-bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
+bool BattleGround::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
     Map *map = GetBgMap();
     if (!map)
@@ -1600,7 +1600,7 @@ void BattleGround::SpawnBGObject(uint32 type, uint32 respawntime)
     }
 }
 
-Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime)
+Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 /*respawntime*/)
 {
     Map * map = GetBgMap();
     if (!map)
@@ -1901,7 +1901,7 @@ int32 BattleGround::GetObjectType(uint64 guid)
     return -1;
 }
 
-void BattleGround::HandleKillUnit(Creature *creature, Player *killer)
+void BattleGround::HandleKillUnit(Creature * /*creature*/, Player * /*killer*/)
 {
 }
 

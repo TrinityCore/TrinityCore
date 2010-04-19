@@ -87,7 +87,7 @@ struct boss_garfrostAI : public ScriptedAI
             pInstance->SetData(DATA_GARFROST_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, SPELL_PERMAFROST);
@@ -98,7 +98,7 @@ struct boss_garfrostAI : public ScriptedAI
         events.ScheduleEvent(EVENT_THROW_SARONITE, 45000);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& /*uiDamage*/)
     {
         if (HealthBelowPct(66) && !phase2)
         {
@@ -126,7 +126,7 @@ struct boss_garfrostAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -134,7 +134,7 @@ struct boss_garfrostAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (pInstance)

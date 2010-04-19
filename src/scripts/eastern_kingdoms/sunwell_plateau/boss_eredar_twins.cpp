@@ -146,7 +146,7 @@ struct boss_sacrolashAI : public ScriptedAI
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         DoZoneInCombat();
 
@@ -161,13 +161,13 @@ struct boss_sacrolashAI : public ScriptedAI
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (rand()%4 == 0)
             DoScriptText(RAND(YELL_SAC_KILL_1,YELL_SAC_KILL_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         // only if ALY death
         if (SisterDeath)
@@ -406,7 +406,7 @@ struct boss_alythessAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         DoZoneInCombat();
 
@@ -452,7 +452,7 @@ struct boss_alythessAI : public Scripted_NoMovementAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (rand()%4 == 0)
         {
@@ -460,7 +460,7 @@ struct boss_alythessAI : public Scripted_NoMovementAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (SisterDeath)
         {
@@ -689,7 +689,7 @@ struct mob_shadow_imageAI : public ScriptedAI
         KillTimer = 15000;
     }
 
-    void EnterCombat(Unit *who){}
+    void EnterCombat(Unit * /*who*/){}
 
     void SpellHitTarget(Unit *pTarget,const SpellEntry* spell)
     {

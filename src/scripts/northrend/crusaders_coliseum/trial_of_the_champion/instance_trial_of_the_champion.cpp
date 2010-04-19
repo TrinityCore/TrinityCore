@@ -90,7 +90,7 @@ struct instance_trial_of_the_champion : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool bAdd)
+    void OnCreatureCreate(Creature* pCreature, bool /*bAdd*/)
     {
         Map::PlayerList const &players = instance->GetPlayers();
         uint32 TeamInInstance = 0;
@@ -141,7 +141,7 @@ struct instance_trial_of_the_champion : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGO, bool bAdd)
+    void OnGameObjectCreate(GameObject* pGO, bool /*bAdd*/)
     {
         switch(pGO->GetEntry())
         {

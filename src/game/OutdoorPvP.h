@@ -91,7 +91,7 @@ class OPvPCapturePoint
 public:
     OPvPCapturePoint(OutdoorPvP * pvp);
 
-    virtual void FillInitialWorldStates(WorldPacket & data) {}
+    virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
 
     // send world state update to all players present
     void SendUpdateWorldState(uint32 field, uint32 value);
@@ -112,7 +112,7 @@ public:
     // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
     virtual bool Update(uint32 diff);
     virtual void ChangeState() = 0;
-    virtual void ChangeTeam(TeamId oldTeam) {}
+    virtual void ChangeTeam(TeamId /*oldTeam*/) {}
     virtual void SendChangePhase();
 
     virtual bool HandleGossipOption(Player *plr, uint64 guid, uint32 gossipid);
@@ -181,7 +181,7 @@ public:
 
     typedef std::map<uint32/*lowguid*/, OPvPCapturePoint*> OPvPCapturePointMap;
 
-    virtual void FillInitialWorldStates(WorldPacket & data) {}
+    virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
     // called when a player triggers an areatrigger
     virtual bool HandleAreaTrigger(Player * plr, uint32 trigger);
     // called on custom spell
@@ -193,7 +193,7 @@ public:
     virtual bool SetupOutdoorPvP() {return true;}
 
     void OnGameObjectCreate(GameObject *go, bool add);
-    void OnCreatureCreate(Creature *, bool add) {}
+    void OnCreatureCreate(Creature *, bool /*add*/) {}
 
     // send world state update to all players present
     void SendUpdateWorldState(uint32 field, uint32 value);
@@ -203,13 +203,13 @@ public:
 
     // handle npc/player kill
     virtual void HandleKill(Player * killer, Unit * killed);
-    virtual void HandleKillImpl(Player * killer, Unit * killed) {}
+    virtual void HandleKillImpl(Player * /*killer*/, Unit * /*killed*/) {}
 
     // checks if player is in range of a capture credit marker
     bool IsInsideObjective(Player * plr) const;
 
     // awards rewards for player kill
-    virtual void AwardKillBonus(Player * plr) {}
+    virtual void AwardKillBonus(Player * /*plr*/) {}
 
     uint32 GetTypeId() {return m_TypeId;}
 
@@ -230,7 +230,7 @@ protected:
     bool m_sendUpdate;
 
     // world state stuff
-    virtual void SendRemoveWorldStates(Player * plr) {}
+    virtual void SendRemoveWorldStates(Player * /*plr*/) {}
 
     void BroadcastPacket(WorldPacket & data) const;
 

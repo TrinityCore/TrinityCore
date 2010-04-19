@@ -48,7 +48,7 @@ bool ChatHandler::HandleHelpCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCommandsCommand(const char* args)
+bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 {
     ShowHelpForCommand(getCommandTable(), "");
     return true;

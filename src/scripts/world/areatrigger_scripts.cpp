@@ -74,7 +74,7 @@ enum eCoilfangGOs
     GO_COILFANG_WATERFALL   = 184212
 };
 
-bool AreaTrigger_at_coilfang_waterfall(Player *pPlayer, const AreaTriggerEntry *pAt)
+bool AreaTrigger_at_coilfang_waterfall(Player *pPlayer, const AreaTriggerEntry * /*pAt*/)
 {
     if (GameObject* pGo = GetClosestGameObjectWithEntry(pPlayer, GO_COILFANG_WATERFALL, 35.0f))
         if (pGo->getLootState() == GO_READY)
@@ -96,7 +96,7 @@ enum eLegionTeleporter
     QUEST_GAINING_ACCESS_H  = 10604
 };
 
-bool AreaTrigger_at_legion_teleporter(Player *pPlayer, const AreaTriggerEntry *pAt)
+bool AreaTrigger_at_legion_teleporter(Player *pPlayer, const AreaTriggerEntry * /*pAt*/)
 {
     if (pPlayer->isAlive() && !pPlayer->isInCombat())
     {
@@ -123,7 +123,7 @@ enum eRavenholdt
     NPC_RAVENHOLDT          = 13936
 };
 
-bool AreaTrigger_at_ravenholdt(Player* pPlayer, const AreaTriggerEntry* pAt)
+bool AreaTrigger_at_ravenholdt(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
 {
     if (pPlayer->GetQuestStatus(QUEST_MANOR_RAVENHOLDT) == QUEST_STATUS_INCOMPLETE)
         pPlayer->KilledMonsterCredit(NPC_RAVENHOLDT, 0);
@@ -173,7 +173,7 @@ enum eStormwrightShelf
     SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST      = 53067
 };
 
-bool AreaTrigger_at_stormwright_shelf(Player* pPlayer, const AreaTriggerEntry* pAt)
+bool AreaTrigger_at_stormwright_shelf(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
 {
     if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_STRENGTH_OF_THE_TEMPEST) == QUEST_STATUS_INCOMPLETE)
         pPlayer->CastSpell(pPlayer, SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST, false);

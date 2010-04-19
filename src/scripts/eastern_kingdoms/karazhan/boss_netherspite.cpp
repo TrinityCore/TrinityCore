@@ -245,13 +245,13 @@ struct boss_netherspiteAI : public ScriptedAI
             Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit * /*who*/)
     {
         HandleDoors(false);
         SwitchToPortalPhase();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         HandleDoors(true);
         DestroyPortals();

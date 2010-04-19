@@ -100,7 +100,7 @@ class CreatureAI : public UnitAI
         // Called at any Damage from any attacker (before damage apply)
         // Note: it for recalculation damage or special reaction at damage
         // for attack reaction use AttackedBy called for not DOT damage in Unit::DealDamage also
-        virtual void DamageTaken(Unit *done_by, uint32 & /*damage*/) {}
+        virtual void DamageTaken(Unit * /*done_by*/, uint32 & /*damage*/) {}
 
         // Called when the creature is killed
         virtual void JustDied(Unit *) {}
@@ -110,7 +110,7 @@ class CreatureAI : public UnitAI
 
         // Called when the creature summon successfully other creature
         virtual void JustSummoned(Creature*) {}
-        virtual void IsSummonedBy(Unit *summoner) {}
+        virtual void IsSummonedBy(Unit * /*summoner*/) {}
 
         virtual void SummonedCreatureDespawn(Creature* /*unit*/) {}
 
@@ -118,10 +118,10 @@ class CreatureAI : public UnitAI
         virtual void SpellHit(Unit*, const SpellEntry*) {}
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* target, const SpellEntry*) {}
+        virtual void SpellHitTarget(Unit* /*target*/, const SpellEntry*) {}
 
         // Called to get trigger target for aura effect
-        virtual Unit * GetAuraEffectTriggerTarget(uint32 spellId, uint8 effIndex) {return NULL;}
+        virtual Unit * GetAuraEffectTriggerTarget(uint32 /*spellId*/, uint8 /*effIndex*/) {return NULL;}
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
@@ -143,7 +143,7 @@ class CreatureAI : public UnitAI
         void DoZoneInCombat(Creature* pUnit = NULL);
 
         // Called at text emote receive from player
-        virtual void ReceiveEmote(Player* pPlayer, uint32 text_emote) {}
+        virtual void ReceiveEmote(Player* /*pPlayer*/, uint32 /*text_emote*/) {}
 
         /// == Triggered Actions Requested ==================
 
@@ -152,7 +152,7 @@ class CreatureAI : public UnitAI
         //virtual void AttackStart(Unit *) {}
 
         // Called at World update tick
-        //virtual void UpdateAI(const uint32 diff) {}
+        //virtual void UpdateAI(const uint32 /*diff*/) {}
 
         /// == State checks =================================
 
@@ -170,7 +170,7 @@ class CreatureAI : public UnitAI
         // Pointer to controlled by AI creature
         //Creature* const me;
 
-        virtual void PassengerBoarded(Unit *who, int8 seatId, bool apply) {}
+        virtual void PassengerBoarded(Unit * /*who*/, int8 /*seatId*/, bool /*apply*/) {}
 
     protected:
         virtual void MoveInLineOfSight(Unit *);

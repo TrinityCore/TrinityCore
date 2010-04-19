@@ -42,7 +42,7 @@ struct boss_firemawAI : public ScriptedAI
         FlameBuffet_Timer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }

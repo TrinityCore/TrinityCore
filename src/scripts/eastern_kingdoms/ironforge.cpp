@@ -53,7 +53,7 @@ bool GossipHello_npc_royal_historian_archesonus(Player* pPlayer, Creature* pCrea
     return true;
 }
 
-bool GossipSelect_npc_royal_historian_archesonus(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_royal_historian_archesonus(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

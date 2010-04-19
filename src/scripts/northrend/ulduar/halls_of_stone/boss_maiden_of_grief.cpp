@@ -66,7 +66,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -135,7 +135,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -152,7 +152,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
                         itr->getSource()->CompletedAchievement(AchievGoodGrief);
         }
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

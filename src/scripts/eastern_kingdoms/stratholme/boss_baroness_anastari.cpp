@@ -51,11 +51,11 @@ struct boss_baroness_anastariAI : public ScriptedAI
         //Possess_Timer = 35000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-     void JustDied(Unit* Killer)
+     void JustDied(Unit* /*Killer*/)
      {
          if (pInstance)
              pInstance->SetData(TYPE_BARONESS,IN_PROGRESS);

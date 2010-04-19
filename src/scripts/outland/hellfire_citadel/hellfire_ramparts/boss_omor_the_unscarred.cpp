@@ -73,12 +73,12 @@ struct boss_omor_the_unscarredAI : public ScriptedAI
         CanPullBack = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (rand()%2)
             return;
@@ -96,7 +96,7 @@ struct boss_omor_the_unscarredAI : public ScriptedAI
         ++SummonedCount;
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DIE, me);
     }

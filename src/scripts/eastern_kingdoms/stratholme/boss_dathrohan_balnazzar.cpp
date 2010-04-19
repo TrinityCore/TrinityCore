@@ -93,7 +93,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             me->UpdateEntry(NPC_DATHROHAN);
     }
 
-    void JustDied(Unit* Victim)
+    void JustDied(Unit* /*Victim*/)
     {
         static uint32 uiCount = sizeof(m_aSummonPoint)/sizeof(SummonDef);
 
@@ -103,7 +103,7 @@ struct boss_dathrohan_balnazzarAI : public ScriptedAI
             TEMPSUMMON_TIMED_DESPAWN, HOUR*IN_MILISECONDS);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

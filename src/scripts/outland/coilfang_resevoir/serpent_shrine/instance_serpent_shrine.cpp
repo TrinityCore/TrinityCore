@@ -45,7 +45,7 @@ EndScriptData */
 5 - Lady Vashj Event
 */
 
-bool GOHello_go_bridge_console(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_bridge_console(Player* /*pPlayer*/, GameObject* pGo)
 {
     ScriptedInstance* pInstance = pGo->GetInstanceData();
 
@@ -191,7 +191,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
         } else FrenzySpawnTimer -= diff;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -224,7 +224,7 @@ struct instance_serpentshrine_cavern : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

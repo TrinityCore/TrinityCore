@@ -45,7 +45,7 @@ struct boss_noxxionAI : public ScriptedAI
         Invisible = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

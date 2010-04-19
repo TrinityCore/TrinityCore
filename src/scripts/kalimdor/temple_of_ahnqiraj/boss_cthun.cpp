@@ -219,7 +219,7 @@ struct eye_of_cthunAI : public Scripted_NoMovementAI
             pPortal->SetReactState(REACT_PASSIVE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
         if (pInst)
@@ -404,7 +404,7 @@ struct eye_of_cthunAI : public Scripted_NoMovementAI
         }
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         //No instance
         if (!pInst)
@@ -522,7 +522,7 @@ struct cthunAI : public Scripted_NoMovementAI
             pInst->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }
@@ -850,13 +850,13 @@ struct cthunAI : public Scripted_NoMovementAI
         }
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (pInst)
             pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         //No instance
         if (!pInst)
@@ -912,7 +912,7 @@ struct eye_tentacleAI : public Scripted_NoMovementAI
     uint32 KillSelfTimer;
     uint64 Portal;
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         if (Unit* p = Unit::GetUnit(*me, Portal))
             p->Kill(p);
@@ -927,7 +927,7 @@ struct eye_tentacleAI : public Scripted_NoMovementAI
         KillSelfTimer = 35000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }
@@ -976,7 +976,7 @@ struct claw_tentacleAI : public Scripted_NoMovementAI
     uint32 EvadeTimer;
     uint64 Portal;
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         if (Unit* p = Unit::GetUnit(*me, Portal))
             p->Kill(p);
@@ -990,7 +990,7 @@ struct claw_tentacleAI : public Scripted_NoMovementAI
         EvadeTimer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }
@@ -1073,7 +1073,7 @@ struct giant_claw_tentacleAI : public Scripted_NoMovementAI
     uint32 EvadeTimer;
     uint64 Portal;
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         if (Unit* p = Unit::GetUnit(*me, Portal))
             p->Kill(p);
@@ -1088,7 +1088,7 @@ struct giant_claw_tentacleAI : public Scripted_NoMovementAI
         EvadeTimer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }
@@ -1177,7 +1177,7 @@ struct giant_eye_tentacleAI : public Scripted_NoMovementAI
     uint32 BeamTimer;
     uint64 Portal;
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         if (Unit* p = Unit::GetUnit(*me, Portal))
             p->Kill(p);
@@ -1189,7 +1189,7 @@ struct giant_eye_tentacleAI : public Scripted_NoMovementAI
         BeamTimer = 500;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }
@@ -1220,7 +1220,7 @@ struct flesh_tentacleAI : public Scripted_NoMovementAI
         SetCombatMovement(false);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (CAST_SUM(me))
             if (Creature* pSummoner = CAST_CRE(CAST_SUM(me)->GetSummoner()))

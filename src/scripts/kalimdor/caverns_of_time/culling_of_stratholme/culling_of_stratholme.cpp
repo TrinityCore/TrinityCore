@@ -289,12 +289,12 @@ struct npc_arthasAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_ARTHAS_AURA);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ARTHAS_EVENT, FAIL);
@@ -1155,7 +1155,7 @@ bool GossipHello_npc_arthas(Player* pPlayer, Creature* pCreature)
 }
 
 
-bool GossipSelect_npc_arthas(Player *pPlayer, Creature *pCreature, uint32 sender, uint32 action)
+bool GossipSelect_npc_arthas(Player *pPlayer, Creature *pCreature, uint32 /*sender*/, uint32 action)
 {
     npc_arthasAI* pAI = CAST_AI(npc_arthasAI,pCreature->AI());
 

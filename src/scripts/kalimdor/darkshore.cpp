@@ -95,7 +95,7 @@ struct npc_kerlonianAI : public FollowerAI
         }
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
     {
         if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_AWAKEN)
             ClearSleeping();
@@ -270,7 +270,7 @@ struct npc_prospector_remtravelAI : public npc_escortAI
             DoScriptText(SAY_REM_AGGRO, me, who);
     }
 
-    void JustSummoned(Creature* pSummoned)
+    void JustSummoned(Creature* /*pSummoned*/)
     {
         //unsure if it should be any
         //pSummoned->AI()->AttackStart(me);
@@ -355,7 +355,7 @@ bool GossipHello_npc_threshwackonator(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_threshwackonator(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_threshwackonator(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {

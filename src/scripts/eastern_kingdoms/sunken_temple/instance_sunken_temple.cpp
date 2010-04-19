@@ -81,7 +81,7 @@ struct instance_sunken_temple : public ScriptedInstance
         s6 = false;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -95,7 +95,7 @@ struct instance_sunken_temple : public ScriptedInstance
         }
     }
 
-     virtual void Update(uint32 diff) // correct order goes form 1-6
+     virtual void Update(uint32 /*diff*/) // correct order goes form 1-6
      {
          switch(State)
          {

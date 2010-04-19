@@ -49,7 +49,7 @@ bool GossipHello_example_gossip_codebox(Player* pPlayer, Creature* pCreature)
 }
 
 //This function is called when the player clicks an option on the gossip menubool
-bool GossipSelect_example_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_example_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {

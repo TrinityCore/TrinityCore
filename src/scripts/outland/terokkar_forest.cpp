@@ -64,7 +64,7 @@ struct mob_unkor_the_ruthlessAI : public ScriptedAI
         me->setFaction(FACTION_HOSTILE);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void DoNice()
     {
@@ -152,7 +152,7 @@ struct mob_infested_root_walkerAI : public ScriptedAI
     mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -190,7 +190,7 @@ public:
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -232,7 +232,7 @@ struct mob_rotting_forest_ragerAI : public ScriptedAI
     mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
@@ -264,8 +264,8 @@ struct mob_netherweb_victimAI : public ScriptedAI
     mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void EnterCombat(Unit *who) { }
-    void MoveInLineOfSight(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
+    void MoveInLineOfSight(Unit * /*who*/) { }
 
     void JustDied(Unit* Killer)
     {
@@ -333,7 +333,7 @@ struct npc_floonAI : public ScriptedAI
             me->setFaction(m_uiNormFaction);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -376,7 +376,7 @@ bool GossipHello_npc_floon(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -450,7 +450,7 @@ struct npc_isla_starmaneAI : public npc_escortAI
         me->RestoreFaction();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Player* pPlayer = GetPlayerForEscort())
         {
@@ -499,7 +499,7 @@ bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
-void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiAction)
+void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* /*pGo*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -549,7 +549,7 @@ bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());

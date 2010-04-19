@@ -258,7 +258,7 @@ void WorldSession::HandleLookingForGroup(WorldPacket& recv_data)
     SendLfgUpdate(0, 1, 0);
 }
 
-void WorldSession::SendLfgResult(uint32 type, uint32 entry, uint8 lfg_type)
+void WorldSession::SendLfgResult(uint32 /*type*/, uint32 /*entry*/, uint8 /*lfg_type*/)
 {/*
     uint32 number = 0;
 
@@ -428,7 +428,7 @@ void WorldSession::HandleLfgSetRoles(WorldPacket &recv_data)
     _player->m_lookingForGroup.roles = roles;
 }
 
-void WorldSession::SendLfgUpdate(uint8 unk1, uint8 unk2, uint8 unk3)
+void WorldSession::SendLfgUpdate(uint8 /*unk1*/, uint8 /*unk2*/, uint8 /*unk3*/)
 {
 
 }

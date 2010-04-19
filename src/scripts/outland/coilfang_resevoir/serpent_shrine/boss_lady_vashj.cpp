@@ -214,12 +214,12 @@ struct boss_lady_vashjAI : public ScriptedAI
         if (TaintedElemental_Timer > 50000)
             TaintedElemental_Timer = 50000;
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -237,7 +237,7 @@ struct boss_lady_vashjAI : public ScriptedAI
             pInstance->SetData(DATA_LADYVASHJEVENT, IN_PROGRESS);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
         {
@@ -608,9 +608,9 @@ struct mob_enchanted_elementalAI : public ScriptedAI
             VashjGUID = pInstance->GetData64(DATA_LADYVASHJ);
     }
 
-    void EnterCombat(Unit *who) { return; }
+    void EnterCombat(Unit * /*who*/) {}
 
-    void MoveInLineOfSight(Unit *who){return;}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -671,7 +671,7 @@ struct mob_tainted_elementalAI : public ScriptedAI
         Despawn_Timer = 30000;
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (pInstance)
         {
@@ -683,7 +683,7 @@ struct mob_tainted_elementalAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         me->AddThreat(who, 0.1f);
     }
@@ -741,12 +741,12 @@ struct mob_toxic_sporebatAI : public ScriptedAI
         Check_Timer = 1000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
 
     }
 
-    void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit * /*who*/)
     {
 
     }
@@ -867,9 +867,9 @@ struct mob_shield_generator_channelAI : public ScriptedAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void EnterCombat(Unit *who) { return; }
+    void EnterCombat(Unit * /*who*/) {}
 
-    void MoveInLineOfSight(Unit *who) { return; }
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
     void UpdateAI (const uint32 diff)
     {
@@ -895,7 +895,7 @@ struct mob_shield_generator_channelAI : public ScriptedAI
     }
 };
 
-bool ItemUse_item_tainted_core(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+bool ItemUse_item_tainted_core(Player* pPlayer, Item* /*_Item*/, SpellCastTargets const& targets)
 {
     ScriptedInstance *pInstance = pPlayer->GetInstanceData();
 

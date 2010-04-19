@@ -61,7 +61,7 @@ class NullCreatureAI : public CreatureAI
         void AttackStart(Unit *) {}
         void UpdateAI(const uint32) {}
         void EnterEvadeMode() {}
-        void OnCharmed(bool apply) {}
+        void OnCharmed(bool /*apply*/) {}
 
         static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
 };

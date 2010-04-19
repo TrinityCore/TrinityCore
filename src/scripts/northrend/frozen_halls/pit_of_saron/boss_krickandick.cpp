@@ -142,7 +142,7 @@ struct boss_ickAI : public ScriptedAI
         return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KRICK) : 0);
     }
 
-    void EnterCombat(Unit *pWho)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_KRICKANDICK_EVENT, IN_PROGRESS);
@@ -168,7 +168,7 @@ struct boss_ickAI : public ScriptedAI
         ScriptedAI::EnterEvadeMode();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (Creature* pKrick = GetKrick())
         {
@@ -291,7 +291,7 @@ struct boss_krickAI : public ScriptedAI
         return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ICK) : 0);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -299,7 +299,7 @@ struct boss_krickAI : public ScriptedAI
         DoScriptText(RAND(SAY_KRICK_SLAY_1,SAY_KRICK_SLAY_2), me);
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
     {
         // if killed whatever the reason, it breaks the outro
         uiDamage = 0;

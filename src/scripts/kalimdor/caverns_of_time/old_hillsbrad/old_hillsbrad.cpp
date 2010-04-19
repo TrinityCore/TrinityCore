@@ -61,7 +61,7 @@ bool GossipHello_npc_erozion(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_erozion(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -399,7 +399,7 @@ struct npc_thrall_old_hillsbradAI : public npc_escortAI
         me->Unmount();
         me->SetSpeed(MOVE_RUN,SPEED_RUN);
     }
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(RAND(SAY_TH_RANDOM_AGGRO1,SAY_TH_RANDOM_AGGRO2,SAY_TH_RANDOM_AGGRO3,SAY_TH_RANDOM_AGGRO4), me);
         if (me->IsMounted())
@@ -426,7 +426,7 @@ struct npc_thrall_old_hillsbradAI : public npc_escortAI
          }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_TH_RANDOM_KILL1,SAY_TH_RANDOM_KILL2,SAY_TH_RANDOM_KILL3), me);
     }
@@ -495,7 +495,7 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
     switch(uiAction)
@@ -575,7 +575,7 @@ struct npc_tarethaAI : public npc_escortAI
         }
     }
     void Reset() {}
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -598,7 +598,7 @@ bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)

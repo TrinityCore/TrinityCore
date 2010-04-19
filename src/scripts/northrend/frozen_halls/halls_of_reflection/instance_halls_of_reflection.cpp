@@ -45,7 +45,7 @@ struct instance_halls_of_reflection : public ScriptedInstance
             m_auiEncounter[i] = NOT_STARTED;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

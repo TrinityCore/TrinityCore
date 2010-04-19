@@ -60,7 +60,7 @@ struct boss_huhuranAI : public ScriptedAI
         Berserk = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

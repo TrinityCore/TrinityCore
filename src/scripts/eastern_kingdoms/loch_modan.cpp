@@ -53,7 +53,7 @@ bool GossipHello_npc_mountaineer_pebblebitty(Player* pPlayer, Creature* pCreatur
     return true;
 }
 
-bool GossipSelect_npc_mountaineer_pebblebitty(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_mountaineer_pebblebitty(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

@@ -107,7 +107,7 @@ struct boss_tyrannusAI : public ScriptedAI
         return me->GetCreature(*me, pInstance->GetData64(DATA_RIMEFANG));
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         me->ExitVehicle();
@@ -123,12 +123,12 @@ struct boss_tyrannusAI : public ScriptedAI
         events.ScheduleEvent(EVENT_DARK_MIGHT, 40000);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -196,7 +196,7 @@ struct boss_rimefangAI : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         me->InterruptSpell(CURRENT_GENERIC_SPELL);
         me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);

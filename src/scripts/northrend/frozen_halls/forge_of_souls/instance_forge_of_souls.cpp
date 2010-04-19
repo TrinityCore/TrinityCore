@@ -53,7 +53,7 @@ struct instance_forge_of_souls : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         Map::PlayerList const &players = instance->GetPlayers();
 

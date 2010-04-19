@@ -28,10 +28,10 @@ struct boss_commander_kolurgAI : public ScriptedAI
     boss_commander_kolurgAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff)
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/)
     {
         //Return since we have no target
         if (!UpdateVictim())
@@ -39,7 +39,7 @@ struct boss_commander_kolurgAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)  {}
+    void JustDied(Unit* /*killer*/)  {}
 };
 
 CreatureAI* GetAI_boss_commander_kolurg(Creature* pCreature)

@@ -114,7 +114,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         Phase = PHASE_1;
@@ -167,7 +167,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
                 break;
         }
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         if (pInstance)
@@ -180,7 +180,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
         lSummons.DespawnAll();
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -240,7 +240,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
         uiFlashOfDarknessTimer = 5*IN_MILISECONDS;
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
             CAST_AI(boss_novosAI,pNovos->AI())->RemoveCrystal();

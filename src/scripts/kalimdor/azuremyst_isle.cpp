@@ -86,7 +86,7 @@ struct npc_draenei_survivorAI : public ScriptedAI
         me->SetStandState(UNIT_STAND_STATE_SLEEP);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -257,7 +257,7 @@ bool GossipHello_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreatu
     return true;
 }
 
-bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_engineer_spark_overgrind(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -287,16 +287,14 @@ struct npc_injured_draeneiAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
-    void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit * /*who*/)
     {
-        return;                                             //ignore everyone around them (won't aggro anything)
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
-        return;
     }
 
 };
@@ -419,7 +417,7 @@ struct npc_geezleAI : public ScriptedAI
         StartEvent();
     }
 
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/){}
 
     void StartEvent()
     {
@@ -581,7 +579,7 @@ CreatureAI* GetAI_npc_nestlewood_owlkinAI(Creature* pCreature)
     return new npc_nestlewood_owlkinAI (pCreature);
 }
 
-bool EffectDummyCreature_npc_nestlewood_owlkin(Unit *pCaster, uint32 spellId, uint32 effIndex, Creature *pCreatureTarget)
+bool EffectDummyCreature_npc_nestlewood_owlkin(Unit * /*pCaster*/, uint32 spellId, uint32 effIndex, Creature *pCreatureTarget)
 {
     //always check spellid and effectindex
     if (spellId == SPELL_INOCULATE_OWLKIN && effIndex == 0)

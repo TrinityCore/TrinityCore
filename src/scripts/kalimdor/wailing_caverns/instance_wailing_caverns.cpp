@@ -43,7 +43,7 @@ struct instance_wailing_caverns : public ScriptedInstance
         NaralexGUID = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         if (pCreature->GetEntry() == DATA_NARALEX)
             NaralexGUID = pCreature->GetGUID();

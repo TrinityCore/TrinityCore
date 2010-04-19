@@ -61,7 +61,7 @@ struct npc_calvin_montagueAI : public ScriptedAI
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void AttackedBy(Unit* pAttacker)
     {
@@ -156,7 +156,7 @@ enum eMausoleum
     GO_DOOR         = 176594
 };
 
-bool GOHello_go_mausoleum_door(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_mausoleum_door(Player* pPlayer, GameObject* /*pGo*/)
 {
     if (pPlayer->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
         return false;

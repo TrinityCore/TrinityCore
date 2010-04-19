@@ -72,15 +72,15 @@ struct boss_archavonAI : public ScriptedAI
             pInstance->SetData(DATA_ARCHAVON_EVENT, NOT_STARTED);
     }
 
-    void KilledUnit(Unit* Victim){}
+    void KilledUnit(Unit* /*Victim*/) {}
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ARCHAVON_EVENT, DONE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
@@ -151,7 +151,7 @@ struct mob_archavon_warderAI : public ScriptedAI //npc 32353
         events.Reset();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_ROCK_SHOWER, 2000);

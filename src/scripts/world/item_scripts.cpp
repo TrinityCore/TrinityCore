@@ -41,7 +41,7 @@ enum eOnlyForFlight
     SPELL_ARCANE_CHARGES    = 45072
 };
 
-bool ItemUse_item_only_for_flight(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_only_for_flight(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
 {
     uint32 itemId = pItem->GetEntry();
     bool disabled = false;
@@ -78,7 +78,7 @@ bool ItemUse_item_only_for_flight(Player* pPlayer, Item* pItem, SpellCastTargets
 
 //This is just a hack and should be removed from here.
 //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
 {
     //if (targets.getGOTarget() && targets.getGOTarget()->GetTypeId() == TYPEID_GAMEOBJECT &&
     //targets.getGOTarget()->GetGOInfo()->type == GAMEOBJECT_TYPE_SPELL_FOCUS && targets.getGOTarget()->GetEntry() == 181616)
@@ -111,7 +111,7 @@ bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* pItem, SpellCastTar
 # item_nether_wraith_beacon
 #####*/
 
-bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
 {
     if (pPlayer->GetQuestStatus(10832) == QUEST_STATUS_INCOMPLETE)
     {
@@ -128,7 +128,7 @@ bool ItemUse_item_nether_wraith_beacon(Player* pPlayer, Item* pItem, SpellCastTa
 # item_flying_machine
 #####*/
 
-bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, SpellCastTargets const& /*targets*/)
 {
     uint32 itemId = pItem->GetEntry();
     if (itemId == 34060)
@@ -162,7 +162,7 @@ bool ItemUse_item_gor_dreks_ointment(Player *pPlayer, Item *pItem, SpellCastTarg
 # item_incendiary_explosives
 #####*/
 
-bool ItemUse_item_incendiary_explosives(Player *pPlayer, Item *pItem, SpellCastTargets const &targets)
+bool ItemUse_item_incendiary_explosives(Player *pPlayer, Item *pItem, SpellCastTargets const & /*targets*/)
 {
     if (pPlayer->FindNearestCreature(26248,15) || pPlayer->FindNearestCreature(26249,15))
         return false;
@@ -177,7 +177,7 @@ bool ItemUse_item_incendiary_explosives(Player *pPlayer, Item *pItem, SpellCastT
 # item_mysterious_egg
 #####*/
 
-bool ItemExpire_item_mysterious_egg(Player *pPlayer, ItemPrototype const *pItemProto)
+bool ItemExpire_item_mysterious_egg(Player *pPlayer, ItemPrototype const * /*pItemProto*/)
 {
     ItemPosCountVec dest;
     uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 39883, 1); // Cracked Egg
@@ -191,7 +191,7 @@ bool ItemExpire_item_mysterious_egg(Player *pPlayer, ItemPrototype const *pItemP
 # item_disgusting_jar
 #####*/
 
-bool ItemExpire_item_disgusting_jar(Player *pPlayer, ItemPrototype const *pItemProto)
+bool ItemExpire_item_disgusting_jar(Player *pPlayer, ItemPrototype const * /*pItemProto*/)
 {
     ItemPosCountVec dest;
     uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 44718, 1); // Ripe Disgusting Jar
@@ -205,7 +205,7 @@ bool ItemExpire_item_disgusting_jar(Player *pPlayer, ItemPrototype const *pItemP
 # item_harvesters_gift
 #####*/
 #define GHOULS 28845
-bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* pItem, SpellCastTargets const& targets)
+bool ItemUse_item_harvesters_gift(Player* pPlayer, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
 {
     std::list<Creature*> MinionList;
     pPlayer->GetAllMinionsByEntry(MinionList,GHOULS);
@@ -253,7 +253,7 @@ enum ePileFakeFur
     GO_HIGH_QUALITY_FUR                                    = 187983,
     NPC_NESINGWARY_TRAPPER                                 = 25835
 };
-bool ItemUse_item_pile_fake_furs(Player *pPlayer, Item *pItem, SpellCastTargets const &targets)
+bool ItemUse_item_pile_fake_furs(Player *pPlayer, Item * /*pItem*/, SpellCastTargets const & /*targets*/)
 {
     GameObject *pGo;
     if ((pGo = pPlayer->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
@@ -298,7 +298,7 @@ enum ePetrovClusterBombs
     ZONE_ID_HOWLING             = 495
 };
 
-bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const SpellCastTargets & /*pTargets*/)
 {
     if (pPlayer->GetZoneId() != ZONE_ID_HOWLING)
         return false;
@@ -348,7 +348,7 @@ enum eHelpThemselves
     GO_MAMMOTH_TRAP_22                            = 188044,
 };
 
-bool ItemUse_item_dehta_trap_smasher(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+bool ItemUse_item_dehta_trap_smasher(Player* pPlayer, Item* /*pItem*/, const SpellCastTargets & /*pTargets*/)
 {
     Creature* pMammoth;
     GameObject* pTrap;

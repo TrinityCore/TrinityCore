@@ -77,7 +77,7 @@ struct boss_moorabiAI : public ScriptedAI
             pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, SPELL_MOJO_FRENZY, true);
@@ -137,7 +137,7 @@ struct boss_moorabiAI : public ScriptedAI
         DoMeleeAttackIfReady();
      }
 
-     void JustDied(Unit* pKiller)
+     void JustDied(Unit* /*pKiller*/)
      {
         DoScriptText(SAY_DEATH, me);
 

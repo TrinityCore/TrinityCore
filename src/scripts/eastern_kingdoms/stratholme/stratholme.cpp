@@ -86,7 +86,7 @@ struct mob_freed_soulAI : public ScriptedAI
         DoScriptText(RAND(SAY_ZAPPED0,SAY_ZAPPED1,SAY_ZAPPED2,SAY_ZAPPED3), me);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 };
 
 CreatureAI* GetAI_mob_freed_soul(Creature* pCreature)
@@ -119,7 +119,7 @@ struct mob_restless_soulAI : public ScriptedAI
         Tagged = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -138,7 +138,7 @@ struct mob_restless_soulAI : public ScriptedAI
         summoned->CastSpell(summoned,SPELL_SOUL_FREED,false);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (Tagged)
             me->SummonCreature(ENTRY_FREED, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 300000);
@@ -188,15 +188,15 @@ struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
         Tagged = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
     {
         if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
             Tagged = true;
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (Tagged)
         {

@@ -57,7 +57,7 @@ struct boss_overlordwyrmthalakAI : public ScriptedAI
         Summoned = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

@@ -156,7 +156,7 @@ struct boss_ymironAI : public ScriptedAI
             pInstance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -325,7 +325,7 @@ struct boss_ymironAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -336,7 +336,7 @@ struct boss_ymironAI : public ScriptedAI
             pInstance->SetData(DATA_KING_YMIRON_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3,SAY_SLAY_4), me);
     }

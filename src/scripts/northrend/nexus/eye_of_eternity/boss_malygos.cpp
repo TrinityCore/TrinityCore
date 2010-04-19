@@ -95,7 +95,7 @@ struct boss_malygosAI : public ScriptedAI
         //Source Deadly Boss Mod
         enrage = 615000; //10 min
     }
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (phase == 1)
             DoScriptText(SAY_PHASE1_AGGRO, me);
@@ -104,9 +104,9 @@ struct boss_malygosAI : public ScriptedAI
         if (phase == 3)
             DoScriptText(SAY_PHASE1_AGGRO, me);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff)
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/)
     {
         phase =1;
         //Return since we have no target
@@ -122,11 +122,11 @@ struct boss_malygosAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

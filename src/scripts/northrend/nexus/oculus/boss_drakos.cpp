@@ -74,7 +74,7 @@ struct boss_drakosAI : public ScriptedAI
             pInstance->SetData(DATA_DRAKOS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -144,14 +144,14 @@ struct boss_drakosAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_DRAKOS_EVENT, DONE);
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), me);
     }

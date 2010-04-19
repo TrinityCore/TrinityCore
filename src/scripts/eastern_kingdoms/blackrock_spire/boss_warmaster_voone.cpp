@@ -51,7 +51,7 @@ struct boss_warmastervooneAI : public ScriptedAI
         ThrowAxe_Timer = 1000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

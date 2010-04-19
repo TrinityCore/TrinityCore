@@ -33,14 +33,14 @@ enum eSpells
 
 const Position HomePosition = {-815.817,-145.299,-25.870, 0};
 
-bool GoHello_blackfathom_altar(Player *pPlayer, GameObject* pGo)
+bool GoHello_blackfathom_altar(Player *pPlayer, GameObject* /*pGo*/)
 {
     if (!pPlayer->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
         pPlayer->AddAura(SPELL_BLESSING_OF_BLACKFATHOM,pPlayer);
     return true;
 }
 
-bool GoHello_blackfathom_fire(Player *pPlayer, GameObject* pGo)
+bool GoHello_blackfathom_fire(Player * /*pPlayer*/, GameObject* pGo)
 {
     ScriptedInstance *pInstance = pGo->GetInstanceData();
 
@@ -157,7 +157,7 @@ struct npc_blackfathom_deeps_eventAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (me->isSummon()) //we are not a normal spawn.
             if (pInstance)
@@ -213,7 +213,7 @@ bool GossipHello_npc_morridune(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_morridune(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_morridune(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {

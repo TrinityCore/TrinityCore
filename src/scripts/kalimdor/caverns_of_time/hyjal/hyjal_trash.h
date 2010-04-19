@@ -13,7 +13,7 @@ struct hyjal_trashAI : public npc_escortAI
 
     void UpdateAI(const uint32 diff);
 
-    void JustDied(Unit* killer);
+    void JustDied(Unit* /*killer*/);
 
     void DamageTaken(Unit *done_by, uint32 &damage);
 

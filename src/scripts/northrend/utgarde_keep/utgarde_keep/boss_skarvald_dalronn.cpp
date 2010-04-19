@@ -92,7 +92,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (!ghost && pInstance)
         {
@@ -136,7 +136,7 @@ struct boss_skarvald_the_constructorAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (!ghost)
         {
@@ -240,7 +240,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (!ghost && pInstance)
         {
@@ -284,7 +284,7 @@ struct boss_dalronn_the_controllerAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (!ghost)
         {

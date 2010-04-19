@@ -32,12 +32,12 @@ EndContentData */
 # at_malfurion_Stormrage_trigger
 #####*/
 
-bool AreaTrigger_at_malfurion_stormrage(Player* pPlayer, const AreaTriggerEntry *at)
+bool AreaTrigger_at_malfurion_stormrage(Player* pPlayer, const AreaTriggerEntry * /*at*/)
 {
     if (ScriptedInstance* pInstance = pPlayer->GetInstanceData())
     {
         if (!pPlayer->FindNearestCreature(15362,15))
-            Unit* Malfurion = pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
+            pPlayer->SummonCreature(15362, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), -1.52, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
         return false;
     }
 return false;

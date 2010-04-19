@@ -46,7 +46,7 @@ struct SqlDbc
         DBCFileLoader::GetFormatRecordSize(fmt, &indexPos);
         if (indexPos>=0)
         {
-            for (uint32 x=0; x < formatString->size(); x++)
+            for (int32 x=0; x < formatString->size(); x++)
             {
                 // Count only fields present in sql
                 if ((*formatString)[x] == FT_SQL_PRESENT)

@@ -112,7 +112,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
             pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage >= me->GetHealth() && !bIsUndead)
         {
@@ -151,7 +151,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
         DoScriptText(YELL_AGGRO_2,me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(YELL_AGGRO_1,me);
 
@@ -159,7 +159,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
             pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(YELL_DEAD_2,me);
 
@@ -167,7 +167,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
             pInstance->SetData(DATA_INGVAR_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         if (bIsUndead)
             DoScriptText(YELL_KILL_1,me);
@@ -234,7 +234,7 @@ struct boss_ingvar_the_plundererAI : public ScriptedAI
                     Unit *pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1);
                     if (pTarget)
                     {
-                        Creature* temp = me->SummonCreature(ENTRY_THROW_TARGET,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
+                        me->SummonCreature(ENTRY_THROW_TARGET,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),0,TEMPSUMMON_TIMED_DESPAWN,2000);
 
                         DoCast(me, SPELL_SHADOW_AXE_SUMMON);
                     }
@@ -333,9 +333,9 @@ struct mob_annhylde_the_callerAI : public ScriptedAI
         }
     }
 
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void EnterCombat(Unit *who) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void EnterCombat(Unit * /*who*/) {}
     void UpdateAI(const uint32 diff)
     {
         if (uiResurectTimer)
@@ -402,9 +402,9 @@ struct mob_ingvar_throw_dummyAI : public ScriptedAI
         }
         uiDespawnTimer = 7000;
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void EnterCombat(Unit *who) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void EnterCombat(Unit * /*who*/) {}
     void UpdateAI(const uint32 diff)
     {
         if (uiDespawnTimer <= diff)

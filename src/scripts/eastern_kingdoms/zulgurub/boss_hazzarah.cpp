@@ -42,7 +42,7 @@ struct boss_hazzarahAI : public ScriptedAI
         Illusions_Timer = 10000 + rand()%8000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

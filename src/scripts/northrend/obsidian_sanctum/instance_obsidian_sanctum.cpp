@@ -27,7 +27,7 @@ struct instance_obsidian_sanctum : public ScriptedInstance
         m_uiVesperonGUID   = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

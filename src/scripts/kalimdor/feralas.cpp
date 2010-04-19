@@ -42,7 +42,7 @@ bool GossipHello_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_gregan_brewspewer(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -126,7 +126,7 @@ struct npc_oox22feAI : public npc_escortAI
             me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         //For an small probability the npc says something when he get aggro
         if (urand(0,9) > 7)

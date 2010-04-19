@@ -69,7 +69,7 @@ struct npc_sinclariAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -169,7 +169,7 @@ bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -203,8 +203,8 @@ struct npc_teleportation_portalAI : public ScriptedAI
         bPortalGuardianOrKeeperSpawn = false;
     }
 
-    void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -244,7 +244,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_WAVE_COUNT,pInstance->GetData(DATA_WAVE_COUNT)+1);

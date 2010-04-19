@@ -142,7 +142,7 @@ struct boss_nightbaneAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
@@ -157,7 +157,7 @@ struct boss_nightbaneAI : public ScriptedAI
             ScriptedAI::AttackStart(who);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_NIGHTBANE, DONE);

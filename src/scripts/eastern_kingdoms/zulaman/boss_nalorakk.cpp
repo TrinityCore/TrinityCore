@@ -256,7 +256,7 @@ struct boss_nalorakkAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
@@ -266,7 +266,7 @@ struct boss_nalorakkAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_NALORAKKEVENT, DONE);
@@ -275,7 +275,7 @@ struct boss_nalorakkAI : public ScriptedAI
         DoPlaySoundToSet(me, SOUND_YELL_DEATH);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         switch (urand(0,1))
         {

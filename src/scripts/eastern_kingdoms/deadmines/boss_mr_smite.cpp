@@ -70,7 +70,7 @@ struct boss_mr_smiteAI : public ScriptedAI
         SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
        DoScriptText(SAY_AGGRO, me);
     }
@@ -157,7 +157,7 @@ struct boss_mr_smiteAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;

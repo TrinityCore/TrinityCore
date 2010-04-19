@@ -72,7 +72,7 @@ struct npc_Apothecary_HanesAI : public npc_escortAI
         PotTimer = 10000; //10 sec cooldown on potion
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_TRAIL_OF_FIRE);
@@ -250,7 +250,7 @@ bool GossipHello_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -292,7 +292,7 @@ bool GossipHello_npc_mcgoyver(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_mcgoyver(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_mcgoyver(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {

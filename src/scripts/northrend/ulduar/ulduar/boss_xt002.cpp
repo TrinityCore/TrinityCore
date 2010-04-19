@@ -215,7 +215,7 @@ struct boss_xt002_AI : public BossAI
         heart_exposed = 0;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         _EnterCombat();
@@ -253,12 +253,12 @@ struct boss_xt002_AI : public BossAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
         _JustDied();
@@ -516,7 +516,7 @@ struct mob_xt002_heartAI : public ScriptedAI
 
     ScriptedInstance* m_pInstance;
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (m_pInstance)
             if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(TYPE_XT002)))
@@ -527,7 +527,7 @@ struct mob_xt002_heartAI : public ScriptedAI
         me->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
     }
 
-    void DamageTaken(Unit *pDone, uint32 &damage)
+    void DamageTaken(Unit * /*pDone*/, uint32 &damage)
     {
         if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(TYPE_XT002)))
             if (pXT002->AI())
@@ -569,7 +569,7 @@ struct mob_scrapbotAI : public ScriptedAI
             me->GetMotionMaster()->MoveChase(pXT002);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(TYPE_XT002)))
         {
@@ -673,12 +673,12 @@ struct mob_boombotAI : public ScriptedAI
             me->GetMotionMaster()->MoveChase(pXT002);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         DoCast(SPELL_BOOM);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (Creature* pXT002 = me->GetCreature(*me, m_pInstance->GetData64(TYPE_XT002)))
         {

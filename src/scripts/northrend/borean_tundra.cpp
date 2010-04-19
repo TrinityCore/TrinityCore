@@ -76,7 +76,7 @@ bool GossipHello_npc_fizzcrank_fullthrottle(Player* pPlayer, Creature* pCreature
     return true;
 }
 
-bool GossipSelect_npc_fizzcrank_fullthrottle(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_fizzcrank_fullthrottle(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -147,7 +147,7 @@ bool GossipHello_npc_surristrasz(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_surristrasz(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_OPTION_GOSSIP)
     {
@@ -181,7 +181,7 @@ bool GossipHello_npc_tiare(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_tiare(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_tiare(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_OPTION_GOSSIP)
     {
@@ -231,7 +231,7 @@ struct npc_sinkhole_kill_creditAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/){}
 
     void UpdateAI(const uint32 diff)
     {
@@ -361,7 +361,7 @@ bool GossipHello_npc_keristrasza(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_keristrasza(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_keristrasza(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
@@ -399,7 +399,7 @@ bool GossipHello_npc_corastrasza(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_corastrasza(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_corastrasza(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -436,7 +436,7 @@ bool GossipHello_npc_iruk(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_iruk(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_iruk(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -463,8 +463,8 @@ struct mob_nerubar_victimAI : public ScriptedAI
     mob_nerubar_victimAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
     void JustDied(Unit* Killer)
     {
@@ -556,12 +556,12 @@ struct npc_jennyAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* pDone_by, uint32& uiDamage)
+    void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/)
     {
         DoCast(me, SPELL_DROP_CRATE, true);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (setCrateNumber)
         {
@@ -664,10 +664,10 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
         Phase = 1;
         go_caribouGUID = 0;
     }
-    void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
-    void JustDied(Unit *who)
+    void JustDied(Unit * /*who*/)
     {
         if (GameObject *go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
             go_caribou->SetLootState(GO_JUST_DEACTIVATED);
@@ -972,7 +972,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
         {
@@ -1294,7 +1294,7 @@ struct npc_thassarianAI : public npc_escortAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (Creature* pTalbot = me->GetCreature(*me, uiTalbot))
             pTalbot->RemoveFromWorld();
@@ -1323,7 +1323,7 @@ bool GossipHello_npc_thassarian(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thassarian(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_thassarian(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -1353,7 +1353,7 @@ struct npc_image_lich_kingAI : public ScriptedAI
         me->RestoreFaction();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -1377,7 +1377,7 @@ struct npc_general_arlosAI : public ScriptedAI
 {
     npc_general_arlosAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -1430,7 +1430,7 @@ struct npc_counselor_talbotAI : public ScriptedAI
         uiDeflectionTimer   = urand(20000,25000);
         uiSoulBlastTimer    = urand (12000,18000);
     }
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -1527,7 +1527,7 @@ struct npc_leryssaAI : public ScriptedAI
     uint32 Phase;
     uint32 uiPhaseTimer;
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -1683,7 +1683,7 @@ struct npc_beryl_sorcererAI : public FollowerAI
         }
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (!UpdateVictim())
             return;
@@ -1732,9 +1732,8 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
         CasterGUID = NULL;
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
-        return;
     }
 
     void SpellHit(Unit* pUnit, const SpellEntry* pSpell)
@@ -1870,7 +1869,7 @@ struct npc_mootoo_the_youngerAI : public npc_escortAI
         SetDespawnAtFar(false);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Player* pPlayer=GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
@@ -1957,13 +1956,13 @@ struct npc_bonker_togglevoltAI : public npc_escortAI
     SetDespawnAtFar(false);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             pPlayer->FailQuest(QUEST_ESCAPING_THE_MIST);
     }
 
-    void UpdateEscortAI(const uint32 diff)
+    void UpdateEscortAI(const uint32 /*diff*/)
     {
         if (GetAttack() && UpdateVictim())
         {
@@ -2090,7 +2089,7 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
             bStarted = true;
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         GameObject* pTrap;
         if (uiType != POINT_MOTION_TYPE)
@@ -2280,9 +2279,9 @@ struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
         m_uiTimer = 0;
     }
 
-    void Aggro(Unit* pWho){}
+    void Aggro(Unit* /*pWho*/) {}
 
-    void AttackStart(Unit* pWho){}
+    void AttackStart(Unit* /*pWho*/) {}
 
     void UpdateAI(const uint32 uiDiff)
     {

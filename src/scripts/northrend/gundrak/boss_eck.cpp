@@ -59,7 +59,7 @@ struct boss_eckAI : public ScriptedAI
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
@@ -115,7 +115,7 @@ struct boss_eckAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
@@ -136,7 +136,7 @@ struct npc_ruins_dwellerAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
-    void JustDied(Unit *who)
+    void JustDied(Unit * /*who*/)
     {
         if (pInstance)
         {

@@ -1147,7 +1147,7 @@ bool ChatHandler::HandleNpcAddMoveCommand(const char* args)
     if (wait < 0)
         wait = 0;
 
-    Player* player = m_session->GetPlayer();
+    //Player* player = m_session->GetPlayer();
 
     //WaypointMgr.AddLastNode(lowguid, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), wait, 0);
 
@@ -2354,7 +2354,7 @@ bool ChatHandler::HandleWpAddCommand(const char* args)
         point = (*result)[0].GetUInt32();
 
     Player* player = m_session->GetPlayer();
-    Map *map = player->GetMap();
+    //Map *map = player->GetMap();
 
     WorldDatabase.PExecuteLog("INSERT INTO waypoint_data (id, point, position_x, position_y, position_z) VALUES ('%u','%u','%f', '%f', '%f')",
         pathid, point+1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
@@ -2437,7 +2437,7 @@ bool ChatHandler::HandleReloadAllPaths(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleWpUnLoadPathCommand(const char *args)
+bool ChatHandler::HandleWpUnLoadPathCommand(const char * /*args*/)
 {
     uint32 guidlow = 0;
     Creature* target = getSelectedCreature();
@@ -3425,7 +3425,7 @@ bool ChatHandler::HandleLookupEventCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleEventActiveListCommand(const char* args)
+bool ChatHandler::HandleEventActiveListCommand(const char* /*args*/)
 {
     uint32 counter = 0;
 
@@ -3674,8 +3674,6 @@ bool ChatHandler::HandleLearnAllRecipesCommand(const char* args)
     if (!Utf8toWStr(args,wnamepart))
         return false;
 
-    uint32 counter = 0;                                     // Counter for figure out that we found smth.
-
     // converting string that we try to find to lower case
     wstrToLower(wnamepart);
 
@@ -3893,7 +3891,7 @@ bool ChatHandler::HandleWaterwalkCommand(const char* args)
     return true;
 }
 
-bool ChatHandler::HandleCreatePetCommand(const char* args)
+bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
 {
     Player *player = m_session->GetPlayer();
     Creature *creatureTarget = getSelectedCreature();

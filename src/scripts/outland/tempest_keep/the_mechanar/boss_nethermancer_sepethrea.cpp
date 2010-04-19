@@ -68,7 +68,7 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
             pInstance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit* who)
     {
         if (pInstance)
             pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
@@ -78,12 +78,12 @@ struct boss_nethermancer_sepethreaAI : public ScriptedAI
         DoScriptText(SAY_SUMMON, me);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -177,7 +177,7 @@ struct mob_ragin_flamesAI : public ScriptedAI
         me->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
     }
 

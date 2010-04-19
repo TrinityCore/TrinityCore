@@ -147,7 +147,7 @@ struct boss_onyxiaAI : public ScriptedAI
         m_bIsSummoningLairGuards = false;
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
         me->SetInCombatWithZone();
@@ -161,12 +161,12 @@ struct boss_onyxiaAI : public ScriptedAI
         ++m_uiSummonCount;
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/)
     {
         DoScriptText(SAY_KILL, me);
     }
 
-    void SpellHit(Unit *pCaster, const SpellEntry* pSpell)
+    void SpellHit(Unit * /*pCaster*/, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_BREATH_EAST_TO_WEST ||
             pSpell->Id == SPELL_BREATH_WEST_TO_EAST ||

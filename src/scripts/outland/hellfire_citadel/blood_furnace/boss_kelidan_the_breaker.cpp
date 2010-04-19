@@ -98,7 +98,7 @@ struct boss_kelidan_the_breakerAI : public ScriptedAI
             pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit* who)
     {
         DoScriptText(SAY_WAKE, me);
         if (me->IsNonMeleeSpellCasted(false))
@@ -108,7 +108,7 @@ struct boss_kelidan_the_breakerAI : public ScriptedAI
             pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (rand()%2)
             return;
@@ -172,7 +172,7 @@ struct boss_kelidan_the_breakerAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DIE, me);
 

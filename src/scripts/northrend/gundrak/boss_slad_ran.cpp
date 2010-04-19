@@ -98,7 +98,7 @@ struct boss_slad_ranAI : public ScriptedAI
             pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -159,7 +159,7 @@ struct boss_slad_ranAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -167,7 +167,7 @@ struct boss_slad_ranAI : public ScriptedAI
             pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }

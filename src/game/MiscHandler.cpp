@@ -1673,7 +1673,7 @@ void WorldSession::HandleQueryInspectAchievements(WorldPacket & recv_data)
     player->GetAchievementMgr().SendRespondInspectAchievements(_player);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& recv_data)
+void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recv_data*/)
 {
     // empty opcode
     sLog.outDebug("WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
@@ -1683,7 +1683,7 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& recv_data)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& recv_data)
+void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recv_data*/)
 {
     // empty opcode
     sLog.outDebug("WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");

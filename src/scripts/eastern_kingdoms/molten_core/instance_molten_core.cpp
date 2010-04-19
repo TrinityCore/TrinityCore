@@ -93,7 +93,7 @@ struct instance_molten_core : public ScriptedInstance
         return false;
     };
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -124,7 +124,7 @@ struct instance_molten_core : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch (pCreature->GetEntry())
         {
@@ -243,7 +243,7 @@ struct instance_molten_core : public ScriptedInstance
         return 0;
     }
 
-    void SetData(uint32 type, uint32 data)
+    void SetData(uint32 type, uint32 /*data*/)
     {
         if (type == DATA_GOLEMAGG_DEATH)
             IsBossDied[7] = true;

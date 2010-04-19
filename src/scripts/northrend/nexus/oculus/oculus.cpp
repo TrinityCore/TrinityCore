@@ -63,7 +63,7 @@ bool GossipHello_npc_oculus_drake(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_oculus_drake(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_oculus_drake(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(pCreature->GetEntry())
     {

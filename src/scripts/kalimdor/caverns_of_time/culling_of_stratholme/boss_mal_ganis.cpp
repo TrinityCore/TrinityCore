@@ -105,7 +105,7 @@ struct boss_mal_ganisAI : public ScriptedAI
              pInstance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         if (pInstance)
@@ -225,7 +225,7 @@ struct boss_mal_ganisAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
         {
@@ -237,7 +237,7 @@ struct boss_mal_ganisAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

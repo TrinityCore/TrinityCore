@@ -104,7 +104,7 @@ struct boss_skadiAI : public ScriptedAI
             pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -171,7 +171,7 @@ struct boss_skadiAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -179,7 +179,7 @@ struct boss_skadiAI : public ScriptedAI
             pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), me);
     }
@@ -219,7 +219,7 @@ struct boss_skadiAI : public ScriptedAI
         uint8 uiMaxSpawn = DUNGEON_MODE(5, 6);
         for (uint8 i = 0; i < uiMaxSpawn; ++i)
         {
-            Creature* pTemp;
+            Creature* pTemp = NULL;
             switch (urand(0,2))
             {
                 case 0: pTemp = me->SummonCreature(CREATURE_YMIRJAR_WARRIOR, SpawnLoc[spot].x+rand()%5, SpawnLoc[spot].y+rand()%5, SpawnLoc[spot].z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000); break;

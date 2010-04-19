@@ -57,16 +57,16 @@ struct boss_varosAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, NOT_STARTED);
     }
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, IN_PROGRESS);
     }
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff)
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/)
     {
         //Return since we have no target
         if (!UpdateVictim())
@@ -74,14 +74,14 @@ struct boss_varosAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_VAROS_EVENT, DONE);
     }
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

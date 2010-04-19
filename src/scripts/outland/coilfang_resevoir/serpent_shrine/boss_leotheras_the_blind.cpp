@@ -82,7 +82,7 @@ struct mob_inner_demonAI : public ScriptedAI
         ShadowBolt_Timer = 10000;
         Link_Timer = 1000;
     }
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         Unit* pUnit = Unit::GetUnit((*me),victimGUID);
         if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER))
@@ -98,7 +98,7 @@ struct mob_inner_demonAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (!victimGUID) return;
     }
@@ -342,7 +342,7 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim->GetTypeId() != TYPEID_PLAYER)
             return;
@@ -357,7 +357,7 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -371,7 +371,7 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
             pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (me->HasAura(AURA_BANISH))
         return;
@@ -486,7 +486,7 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
                     if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
                         TargetList.push_back(tempTarget);
                 }
-                SpellEntry *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
+                //SpellEntry *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
                 for (std::vector<Unit *>::const_iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                 {
                     if ((*itr) && (*itr)->isAlive())
@@ -575,7 +575,7 @@ struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
         DoScriptText(SAY_FREE, me);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim->GetTypeId() != TYPEID_PLAYER)
             return;
@@ -583,13 +583,13 @@ struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
         DoScriptText(RAND(SAY_DEMON_SLAY1,SAY_DEMON_SLAY2,SAY_DEMON_SLAY3), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         //invisibility (blizzlike, at the end of the fight he doesn't die, he disappears)
         DoCast(me, 8149, true);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         StartEvent();
     }
@@ -650,7 +650,7 @@ struct mob_greyheart_spellbinderAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         me->InterruptNonMeleeSpells(false);
         if (pInstance)
@@ -739,7 +739,7 @@ struct mob_greyheart_spellbinderAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit *killer) {}
+    void JustDied(Unit * /*killer*/) {}
 };
 CreatureAI* GetAI_boss_leotheras_the_blind(Creature* pCreature)
 {

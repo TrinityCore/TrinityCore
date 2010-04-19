@@ -37,7 +37,7 @@ struct instance_oculus : public ScriptedInstance
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

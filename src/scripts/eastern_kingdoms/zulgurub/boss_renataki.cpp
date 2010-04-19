@@ -54,7 +54,7 @@ struct boss_renatakiAI : public ScriptedAI
         Ambushed = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

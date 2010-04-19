@@ -155,7 +155,7 @@ struct boss_steelbreakerAI : public ScriptedAI
     ScriptedInstance* pInstance;
     uint32 phase;
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_STEELBREAKER_AGGRO, me);
         DoZoneInCombat();
@@ -175,7 +175,7 @@ struct boss_steelbreakerAI : public ScriptedAI
             events.RescheduleEvent(EVENT_OVERWHELMING_POWER, rand()%5000);
     }
 
-    void DamageTaken(Unit* pKiller, uint32 &damage)
+    void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
     {
         if (damage >= me->GetHealth())
         {
@@ -191,14 +191,14 @@ struct boss_steelbreakerAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(RAND(SAY_STEELBREAKER_DEATH_1,SAY_STEELBREAKER_DEATH_2), me);
         if (IsEncounterComplete(pInstance, me) && pInstance)
             pInstance->SetData(TYPE_ASSEMBLY, DONE);
     }
 
-    void KilledUnit(Unit *who)
+    void KilledUnit(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1,SAY_STEELBREAKER_SLAY_2), me);
 
@@ -206,7 +206,7 @@ struct boss_steelbreakerAI : public ScriptedAI
             DoCast(me, SPELL_ELECTRICAL_CHARGE);
     }
 
-    void SpellHit(Unit *from, const SpellEntry *spell)
+    void SpellHit(Unit * /*from*/, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_SUPERCHARGE)
             UpdatePhase();
@@ -268,7 +268,7 @@ struct boss_runemaster_molgeimAI : public ScriptedAI
     EventMap events;
     uint32 phase;
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_MOLGEIM_AGGRO, me);
         DoZoneInCombat();
@@ -288,7 +288,7 @@ struct boss_runemaster_molgeimAI : public ScriptedAI
             events.RescheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(20000,30000));
     }
 
-    void DamageTaken(Unit* pKiller, uint32 &damage)
+    void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
     {
         if (damage >= me->GetHealth())
         {
@@ -304,19 +304,19 @@ struct boss_runemaster_molgeimAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(RAND(SAY_MOLGEIM_DEATH_1,SAY_MOLGEIM_DEATH_2), me);
         if (IsEncounterComplete(pInstance, me) && pInstance)
             pInstance->SetData(TYPE_ASSEMBLY, DONE);
     }
 
-    void KilledUnit(Unit *who)
+    void KilledUnit(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_MOLGEIM_SLAY_1,SAY_MOLGEIM_SLAY_2), me);
     }
 
-    void SpellHit(Unit *from, const SpellEntry *spell)
+    void SpellHit(Unit * /*from*/, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_SUPERCHARGE)
             UpdatePhase();
@@ -383,7 +383,7 @@ struct mob_lightning_elementalAI : public ScriptedAI
         AttackStart(pTarget);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!me->isInCombat())
             return;
@@ -435,7 +435,7 @@ struct boss_stormcaller_brundirAI : public ScriptedAI
     ScriptedInstance* pInstance;
     uint32 phase;
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_BRUNDIR_AGGRO, me);
         DoZoneInCombat();
@@ -458,7 +458,7 @@ struct boss_stormcaller_brundirAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* pKiller, uint32 &damage)
+    void DamageTaken(Unit* /*pKiller*/, uint32 &damage)
     {
         if (damage >= me->GetHealth())
         {
@@ -474,19 +474,19 @@ struct boss_stormcaller_brundirAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(RAND(SAY_BRUNDIR_DEATH_1,SAY_BRUNDIR_DEATH_2), me);
         if (IsEncounterComplete(pInstance, me) && pInstance)
             pInstance->SetData(TYPE_ASSEMBLY, DONE);
     }
 
-    void KilledUnit(Unit *who)
+    void KilledUnit(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_BRUNDIR_SLAY_1,SAY_BRUNDIR_SLAY_2), me);
     }
 
-    void SpellHit(Unit *from, const SpellEntry *spell)
+    void SpellHit(Unit * /*from*/, const SpellEntry *spell)
     {
         if (spell->Id == SPELL_SUPERCHARGE)
             UpdatePhase();

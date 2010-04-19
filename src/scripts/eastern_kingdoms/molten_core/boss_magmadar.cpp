@@ -48,7 +48,7 @@ struct boss_magmadarAI : public ScriptedAI
         DoCast(me, SPELL_MAGMASPIT, true);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

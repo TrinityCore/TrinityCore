@@ -49,7 +49,7 @@ bool GossipHello_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_neeru_fireblade(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -93,7 +93,7 @@ struct npc_shenthulAI : public ScriptedAI
         PlayerGUID = 0;
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -185,7 +185,7 @@ struct npc_thrall_warchiefAI : public ScriptedAI
         Shock_Timer = 8000;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -224,7 +224,7 @@ bool GossipHello_npc_thrall_warchief(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

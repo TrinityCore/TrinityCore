@@ -196,7 +196,7 @@ bool GossipHello_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lady_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_SENDER_INFO)
     {
@@ -231,7 +231,7 @@ bool GossipHello_npc_nat_pagle(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_nat_pagle(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -296,7 +296,7 @@ struct npc_private_hendelAI : public ScriptedAI
     }
 };
 
-bool QuestAccept_npc_private_hendel(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+bool QuestAccept_npc_private_hendel(Player* /*pPlayer*/, Creature* pCreature, const Quest* pQuest)
 {
     if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
         pCreature->setFaction(FACTION_HOSTILE);
@@ -343,7 +343,7 @@ struct npc_zelfraxAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -365,7 +365,7 @@ struct npc_zelfraxAI : public ScriptedAI
         DoScriptText(SAY_ZELFRAX_2,me);
     }
 
-    void UpdateAI(uint32 const uiDiff)
+    void UpdateAI(uint32 const /*uiDiff*/)
     {
         if (!UpdateVictim())
             return;

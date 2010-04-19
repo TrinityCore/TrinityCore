@@ -91,7 +91,7 @@ struct npc_professor_phizzlethorpeAI : public npc_escortAI
         pSummoned->AI()->AttackStart(me);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

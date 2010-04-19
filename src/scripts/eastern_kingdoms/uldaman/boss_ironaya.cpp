@@ -44,7 +44,7 @@ struct boss_ironayaAI : public ScriptedAI
         hasCastedWstomp = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

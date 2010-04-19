@@ -72,7 +72,7 @@ struct npc_prospector_anvilwardAI : public npc_escortAI
         me->RestoreFaction();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         me->RestoreFaction();
     }
@@ -92,7 +92,7 @@ bool GossipHello_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_prospector_anvilward(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -224,7 +224,7 @@ struct npc_secondTrialAI : public ScriptedAI
       }
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -316,7 +316,7 @@ struct master_kelerun_bloodmournAI : public ScriptedAI
         uint64 paladinGuid[] = {0,0,0,0};
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -385,7 +385,7 @@ struct master_kelerun_bloodmournAI : public ScriptedAI
     }
 
     void SecondTrialKill();
-    void SummonedCreatureDespawn(Creature* c) {}
+    void SummonedCreatureDespawn(Creature* /*c*/) {}
 };
 
 bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature)
@@ -405,7 +405,7 @@ bool GossipHello_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool QuestAccept_master_kelerun_bloodmourn(Player* pPlayer, Creature* pCreature, Quest const *quest)
+bool QuestAccept_master_kelerun_bloodmourn(Player* /*pPlayer*/, Creature* pCreature, Quest const *quest)
 {
     // One Player exclusive quest, wait for user go activation
     if (quest->GetQuestId() == QUEST_SECOND_TRIAL)
@@ -481,7 +481,7 @@ CreatureAI* GetAI_npc_secondTrial(Creature* pCreature)
 ## go_second_trial
 ######*/
 
-bool GOHello_go_second_trial(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_second_trial(Player* /*pPlayer*/, GameObject* pGO)
 {
     // find spawn :: master_kelerun_bloodmourn
     if (Creature *pCreature = pGO->FindNearestCreature(MASTER_KELERUN_BLOODMOURN, 30.0f))
@@ -515,7 +515,7 @@ struct npc_apprentice_mirvedaAI : public ScriptedAI
         Summon = false;
     }
 
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/){}
 
     void JustSummoned(Creature *summoned)
     {
@@ -529,14 +529,14 @@ struct npc_apprentice_mirvedaAI : public ScriptedAI
         ++KillCount;
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (PlayerGUID)
             if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
                 CAST_PLR(pPlayer)->FailQuest(QUEST_UNEXPECTED_RESULT);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (KillCount >= 3 && PlayerGUID)
             if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))
@@ -630,7 +630,7 @@ struct npc_infused_crystalAI : public Scripted_NoMovementAI
         summoned->AI()->AttackStart(me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (PlayerGUID && !Completed)
             if (Player* pPlayer = Unit::GetPlayer(PlayerGUID))

@@ -43,7 +43,7 @@ struct instance_sethekk_halls : public ScriptedInstance
         m_uiIkissDoorGUID = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         if (pCreature->GetEntry() == NPC_ANZU)
         {
@@ -54,7 +54,7 @@ struct instance_sethekk_halls : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
          if (pGo->GetEntry() == IKISS_DOOR)
             m_uiIkissDoorGUID = pGo->GetGUID();

@@ -334,7 +334,7 @@ bool OutdoorPvPNA::Update(uint32 diff)
     return m_obj->Update(diff);
 }
 
-bool OPvPCapturePointNA::HandleCustomSpell(Player * plr, uint32 spellId, GameObject * go)
+bool OPvPCapturePointNA::HandleCustomSpell(Player * plr, uint32 spellId, GameObject * /*go*/)
 {
     std::vector<uint32> nodes;
     nodes.resize(2);

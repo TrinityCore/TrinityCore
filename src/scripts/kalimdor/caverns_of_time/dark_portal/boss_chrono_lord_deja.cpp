@@ -63,7 +63,7 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         Attraction_Timer = 25000+rand()%10000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
@@ -83,12 +83,12 @@ struct boss_chrono_lord_dejaAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
 

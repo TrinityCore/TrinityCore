@@ -24,7 +24,7 @@ EndScriptData */
 #include "ScriptedPch.h"
 #include "zulgurub.h"
 
-bool GOHello_go_gong_of_bethekk(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_gong_of_bethekk(Player* /*pPlayer*/, GameObject* pGo)
 {
     if (ScriptedInstance* m_pInstance = pGo->GetInstanceData())
     {
@@ -103,7 +103,7 @@ struct boss_arlokkAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
@@ -117,7 +117,7 @@ struct boss_arlokkAI : public ScriptedAI
         me->ForcedDespawn();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
 

@@ -67,17 +67,17 @@ struct boss_sarturaAI : public ScriptedAI
 
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
 
-     void JustDied(Unit* Killer)
+     void JustDied(Unit* /*Killer*/)
      {
          DoScriptText(SAY_DEATH, me);
      }
 
-     void KilledUnit(Unit* victim)
+     void KilledUnit(Unit* /*victim*/)
      {
          DoScriptText(SAY_SLAY, me);
      }
@@ -195,7 +195,7 @@ struct mob_sartura_royal_guardAI : public ScriptedAI
         AggroReset = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

@@ -90,7 +90,7 @@ struct boss_bronjahmAI : public ScriptedAI
             pInstance->SetData(DATA_BRONJAHM_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -98,7 +98,7 @@ struct boss_bronjahmAI : public ScriptedAI
             pInstance->SetData(DATA_BRONJAHM_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -106,7 +106,7 @@ struct boss_bronjahmAI : public ScriptedAI
             pInstance->SetData(DATA_BRONJAHM_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *pWho)
+    void KilledUnit(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
@@ -215,14 +215,14 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
 
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 /*type*/, uint32 /*id*/)
     {
         if (pInstance)
             if (Creature* pBronjham = Unit::GetCreature(*me,pInstance->GetData64(DATA_BRONJAHM)))
                 DoCast(pBronjham,SPELL_CONSUME_SOUL);
     }
 
-    void UpdateAI(const uint32 diff) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 };
 
 CreatureAI* GetAI_mob_corrupted_soul_fragment(Creature* pCreature)

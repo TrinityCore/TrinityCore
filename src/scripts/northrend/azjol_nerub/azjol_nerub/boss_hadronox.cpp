@@ -100,13 +100,13 @@ struct boss_hadronoxAI : public ScriptedAI
             me->SetHealth(me->GetHealth()+health);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_HADRONOX_EVENT, DONE);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);

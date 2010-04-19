@@ -80,7 +80,7 @@ struct boss_emalonAI : public BossAI
             summoned->AI()->AttackStart(me->getVictim());
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (!summons.empty())
         {
@@ -173,7 +173,7 @@ struct mob_tempest_minionAI : public ScriptedAI
         uiOverchargedTimer = 0;
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (Creature *pEmalon = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EMALON) : 0))
         {
@@ -185,7 +185,7 @@ struct mob_tempest_minionAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         DoZoneInCombat();
         events.ScheduleEvent(EVENT_SHOCK, 20000);

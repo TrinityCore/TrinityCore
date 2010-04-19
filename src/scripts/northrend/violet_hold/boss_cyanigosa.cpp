@@ -65,7 +65,7 @@ struct boss_cyanigosaAI : public ScriptedAI
             pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, SPELL_TRANSFORM);
@@ -74,7 +74,7 @@ struct boss_cyanigosaAI : public ScriptedAI
             pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
     }
 
-    void MoveInLineOfSight(Unit* who) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -124,7 +124,7 @@ struct boss_cyanigosaAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -132,7 +132,7 @@ struct boss_cyanigosaAI : public ScriptedAI
             pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

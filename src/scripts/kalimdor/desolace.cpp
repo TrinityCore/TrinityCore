@@ -77,7 +77,7 @@ struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+    void SpellHit(Unit* /*pCaster*/, SpellEntry const* pSpell)
     {
         if (pSpell->Id == SPELL_KODO_KOMBO_GOSSIP)
         {
@@ -161,7 +161,7 @@ bool GossipHello_npc_aged_dying_ancient_kodo(Player* pPlayer, Creature* pCreatur
 ## go_iruxos. Quest 5381
 ######*/
 
-bool GOHello_go_iruxos(Player *pPlayer, GameObject* pGO)
+bool GOHello_go_iruxos(Player *pPlayer, GameObject* /*pGO*/)
 {
         if (pPlayer->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
             pPlayer->SummonCreature(11876, pPlayer->GetInnPosX(),pPlayer->GetInnPosY(),pPlayer->GetInnPosZ(),0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT,10000);

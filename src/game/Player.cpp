@@ -560,7 +560,7 @@ void Player::CleanupsBeforeDelete(bool finalCleanup)
             itr->second.save->RemovePlayer(this);
 }
 
-bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId)
+bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 class_, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 /*outfitId*/)
 {
     //FIXME: outfitId not used in player creating
 
@@ -963,7 +963,6 @@ int32 Player::getMaxTimer(MirrorTimerType timer)
         default:
             return 0;
     }
-    return 0;
 }
 
 void Player::UpdateMirrorTimers()
@@ -1168,7 +1167,7 @@ void Player::Update(uint32 p_time)
         //if (m_spellModTakingSpell)
             sLog.outCrash("Player has m_spellModTakingSpell %u during update!", m_spellModTakingSpell->m_spellInfo->Id);
             return;
-        m_spellModTakingSpell = NULL;
+        //m_spellModTakingSpell = NULL;
     }
 
     //used to implement delayed far teleports
@@ -6433,8 +6432,8 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
     uint64 victim_guid = 0;
     uint32 victim_rank = 0;
-    uint32 rank_diff = 0;
-    time_t now = time(NULL);
+    //uint32 rank_diff = 0;
+    //time_t now = time(NULL);
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
@@ -12981,8 +12980,8 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                             break;
 //                        case ITEM_MOD_FERAL_ATTACK_POWER:
 //                            ((Player*)this)->ApplyFeralAPBonus(enchant_amount, apply);
-                            sLog.outDebug("+ %u FERAL_ATTACK_POWER", enchant_amount);
-                            break;
+//                            sLog.outDebug("+ %u FERAL_ATTACK_POWER", enchant_amount);
+//                            break;
                         case ITEM_MOD_MANA_REGENERATION:
                             ((Player*)this)->ApplyManaRegenBonus(enchant_amount, apply);
                             sLog.outDebug("+ %u MANA_REGENERATION", enchant_amount);
@@ -14579,7 +14578,7 @@ bool Player::SatisfyQuestDay(Quest const* qInfo, bool msg)
     return true;
 }
 
-bool Player::SatisfyQuestWeek( Quest const* qInfo, bool msg )
+bool Player::SatisfyQuestWeek(Quest const* qInfo, bool /*msg*/)
 {
     if (!qInfo->IsWeekly() || m_weeklyquests.empty())
         return true;
@@ -15324,7 +15323,7 @@ void Player::SendPushToPartyResponse(Player *pPlayer, uint32 msg)
     }
 }
 
-void Player::SendQuestUpdateAddItem(Quest const* pQuest, uint32 item_idx, uint32 count)
+void Player::SendQuestUpdateAddItem(Quest const* /*pQuest*/, uint32 /*item_idx*/, uint32 /*count*/)
 {
     WorldPacket data(SMSG_QUESTUPDATE_ADD_ITEM, 0);
     sLog.outDebug("WORLD: Sent SMSG_QUESTUPDATE_ADD_ITEM");
@@ -15484,7 +15483,7 @@ bool Player::LoadPositionFromDB(uint32& mapid, float& x,float& y,float& z,float&
     return true;
 }
 
-void Player::SetHomebind(WorldLocation const& loc, uint32 area_id)
+void Player::SetHomebind(WorldLocation const& /*loc*/, uint32 /*area_id*/)
 {
     m_homebindMapId = GetMapId();
     m_homebindAreaId = GetAreaId();
@@ -16211,7 +16210,7 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
-void Player::_LoadActions(QueryResult_AutoPtr result, bool startup)
+void Player::_LoadActions(QueryResult_AutoPtr result, bool /*startup*/)
 {
     if (result)
     {
@@ -18533,14 +18532,12 @@ void Player::CharmSpellInitialize()
     uint8 addlist = 0;
     if (charm->GetTypeId() != TYPEID_PLAYER)
     {
-        CreatureInfo const *cinfo = charm->ToCreature()->GetCreatureInfo();
+        //CreatureInfo const *cinfo = charm->ToCreature()->GetCreatureInfo();
         //if (cinfo && cinfo->type == CREATURE_TYPE_DEMON && getClass() == CLASS_WARLOCK)
         {
             for (uint32 i = 0; i < MAX_SPELL_CHARM; ++i)
-            {
                 if (charmInfo->GetCharmSpell(i)->GetAction())
                     ++addlist;
-            }
         }
     }
 
@@ -20247,13 +20244,13 @@ bool Player::IsVisibleGloballyFor(Player* u) const
 }
 
 template<class T>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target, std::set<Unit*>& v)
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, T* target, std::set<Unit*>& /*v*/)
 {
     s64.insert(target->GetGUID());
 }
 
 template<>
-inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target, std::set<Unit*>& v)
+inline void UpdateVisibilityOf_helper(std::set<uint64>& s64, GameObject* target, std::set<Unit*>& /*v*/)
 {
     if (!target->IsTransport())
         s64.insert(target->GetGUID());
