@@ -1842,6 +1842,7 @@ void SpellMgr::LoadSpellLearnSkills()
                     dbc_node.value = dbc_node.step * 75;
                 dbc_node.maxvalue = dbc_node.step * 75;
 
+                // FIXME: db_node not used... remove it? 
                 SpellLearnSkillNode const* db_node = GetSpellLearnSkill(spell);
 
                 mSpellLearnSkills[spell] = dbc_node;
@@ -3919,7 +3920,7 @@ void SpellMgr::LoadEnchantCustomAttr()
             {
                 uint32 enchId = spellInfo->EffectMiscValue[j];
                 SpellItemEnchantmentEntry const *ench = sSpellItemEnchantmentStore.LookupEntry(enchId);
-                if (!enchId)
+                if (!ench)
                     continue;
                 mEnchantCustomAttr[enchId] = true;
                 count++;
