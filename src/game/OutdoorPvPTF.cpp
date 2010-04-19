@@ -120,9 +120,9 @@ void OPvPCapturePointTF::HandlePlayerLeave(Player *plr)
 
 bool OutdoorPvPTF::Update(uint32 diff)
 {
-    bool changed = false;
+    bool changed = OutdoorPvP::Update(diff);
 
-    if (changed = OutdoorPvP::Update(diff))
+    if (changed)
     {
         if (m_AllianceTowersControlled == TF_TOWER_NUM)
         {

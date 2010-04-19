@@ -98,7 +98,7 @@ struct boss_nazanAI : public ScriptedAI
 
     void SpellHitTarget(Unit *pTarget, const SpellEntry* entry)
     {
-        if (pTarget && entry->Id == SPELL_FIREBALL)
+        if (pTarget && entry->Id == uint32(SPELL_FIREBALL))
             me->SummonCreature(ENTRY_LIQUID_FIRE,pTarget->GetPositionX(),pTarget->GetPositionY(),pTarget->GetPositionZ(),pTarget->GetOrientation(),TEMPSUMMON_TIMED_DESPAWN,30000);
     }
 
@@ -260,13 +260,18 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
         if (summoned)
         {
             Creature *Nazan = Unit::GetCreature(*me, NazanGUID);
-            Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
-            if (Nazan || (Nazan = me->FindNearestCreature(ENTRY_NAZAN, 5000)))
+            if (!Nazan)
+                Nazan = me->FindNearestCreature(ENTRY_NAZAN, 5000);
+            if (Nazan)
             {
                 Nazan->DisappearAndDie();
                 NazanGUID = 0;
             }
-            if (Vazruden || (Vazruden = me->FindNearestCreature(ENTRY_VAZRUDEN, 5000)))
+
+            Creature *Vazruden = Unit::GetCreature(*me, VazrudenGUID);
+            if (!Vazruden)
+                Vazruden = me->FindNearestCreature(ENTRY_VAZRUDEN, 5000);
+            if (Vazruden)
             {
                 Vazruden->DisappearAndDie();
                 VazrudenGUID = 0;

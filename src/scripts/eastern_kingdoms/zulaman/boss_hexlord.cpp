@@ -559,11 +559,10 @@ struct boss_alyson_antilleAI : public boss_hexlord_addAI
             else
             {
                 if (urand(0,1))
-                {
-                    if (pTarget = DoSelectLowestHpFriendly(50, 0))
-                        DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
-                }
-                else if (pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                    pTarget = DoSelectLowestHpFriendly(50, 0);
+                else
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                if (pTarget)
                     DoCast(pTarget, SPELL_DISPEL_MAGIC, false);
             }
             flashheal_timer = 2500;

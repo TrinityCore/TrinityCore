@@ -68,7 +68,7 @@ bool WaypointMovementGenerator<Player>::GetDestination(float & /*x*/, float & /*
 }
 
 template<>
-void WaypointMovementGenerator<Creature>::Reset(Creature & /*unit*/unit)
+void WaypointMovementGenerator<Creature>::Reset(Creature & /*unit*/)
 {
     StopedByPlayer = true;
     i_nextMoveTime.Reset(0);

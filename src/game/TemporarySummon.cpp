@@ -249,16 +249,10 @@ void TempSummon::RemoveFromWorld()
         return;
 
     if (m_Properties)
-    {
         if (uint32 slot = m_Properties->Slot)
-        {
             if (Unit* owner = GetSummoner())
-            {
-                if (owner->m_SummonSlot[slot] = GetGUID())
+                if (owner->m_SummonSlot[slot] == GetGUID())
                     owner->m_SummonSlot[slot] = 0;
-            }
-        }
-    }
 
     //if (GetOwnerGUID())
     //    sLog.outError("Unit %u has owner guid when removed from world", GetEntry());

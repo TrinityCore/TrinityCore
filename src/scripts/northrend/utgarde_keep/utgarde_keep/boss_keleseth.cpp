@@ -197,7 +197,8 @@ struct boss_kelesethAI : public ScriptedAI
                 DoScriptText(SAY_SKELETONS, me);
                 for (uint8 i = 0; i < 5; ++i)
                 {
-                    if (Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                    if (Skeleton)
                     {
                         Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                         Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());

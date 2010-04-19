@@ -6902,13 +6902,13 @@ bool ChatHandler::HandleServerSetClosedCommand(const char *args)
 {
     std::string arg = args;
 
-    if (args == "on")
+    if (strncmp(args, "on", 3) == 0)
     {
         SendSysMessage(LANG_WORLD_CLOSED);
         sWorld.SetClosed(true);
         return true;
     }
-    if (args == "off")
+    else if (strncmp(args, "off", 4) == 0)
     {
         SendSysMessage(LANG_WORLD_OPENED);
         sWorld.SetClosed(false);

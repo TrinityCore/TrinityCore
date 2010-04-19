@@ -103,17 +103,24 @@ struct boss_palehoofAI : public ScriptedAI
         {
             pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, NOT_STARTED);
 
-            Creature* pTemp;
-            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN))) && !pTemp->isAlive())
-                pTemp->Respawn();
-            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO))) && !pTemp->isAlive())
-                pTemp->Respawn();
-            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR))) && !pTemp->isAlive())
-                pTemp->Respawn();
-            if ((pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG))) && !pTemp->isAlive())
+            Creature* pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN));
+            if (pTemp && !pTemp->isAlive())
                 pTemp->Respawn();
 
-            if (GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE)))
+            pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_FEROCIOUS_RHINO));
+            if (pTemp && !pTemp->isAlive())
+                pTemp->Respawn();
+
+            pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_MASSIVE_JORMUNGAR));
+            if (pTemp && !pTemp->isAlive())
+                pTemp->Respawn();
+
+            pTemp = Unit::GetCreature((*me), pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG));
+            if (pTemp && !pTemp->isAlive())
+                pTemp->Respawn();
+
+            GameObject* pGo = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE));
+            if (pGo)
             {
                 pGo->SetGoState(GO_STATE_READY);
                 pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
