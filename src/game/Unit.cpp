@@ -7636,7 +7636,7 @@ bool Unit::HandleAuraProc(Unit * /*pVictim*/, uint32 damage, Aura * triggeredByA
                     if (!aurEff)
                         return false;
                     // Reset amplitude - set death rune remove timer to 30s
-                    aurEff->ResetPeriodic();
+                    aurEff->ResetPeriodic(true);
                     uint32 runesLeft;
 
                     if (dummySpell->SpellIconID == 2622)
