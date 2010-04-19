@@ -137,10 +137,9 @@ struct instance_karazhan : public ScriptedInstance
                 m_auiEncounter[9]  = uiData;
                 break;
             case TYPE_MALCHEZZAR:           m_auiEncounter[10] = uiData; break;
-            case TYPE_NIGHTBANE:            m_auiEncounter[11] = uiData; break;
-                if (m_auiEncounter[11] == DONE)
-                    break;
-                m_auiEncounter[11] = uiData;
+            case TYPE_NIGHTBANE:
+                if (m_auiEncounter[11] != DONE)
+                    m_auiEncounter[11] = uiData;
                 break;
             case DATA_OPERA_OZ_DEATHCOUNT:
                 if (uiData == SPECIAL)
