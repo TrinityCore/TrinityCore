@@ -102,7 +102,7 @@ struct boss_sapphironAI : public BossAI
     {
         _Reset();
 
-        if (phase = PHASE_FLIGHT)
+        if (phase == PHASE_FLIGHT)
             ClearIceBlock();
 
         phase = PHASE_NULL;
