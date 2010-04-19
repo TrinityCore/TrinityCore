@@ -313,7 +313,8 @@ struct master_kelerun_bloodmournAI : public ScriptedAI
         questPhase = 0;
         timer = 60000;
         paladinPhase = 0;
-        uint64 paladinGuid[] = {0,0,0,0};
+        for (uint8 i = 0; i < 4; ++i)
+            paladinGuid[i] = 0;
     }
 
     void EnterCombat(Unit * /*who*/) {}
