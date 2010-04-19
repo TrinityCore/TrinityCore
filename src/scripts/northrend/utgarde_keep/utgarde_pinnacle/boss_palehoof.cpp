@@ -373,9 +373,9 @@ struct mob_frenzied_worgenAI : public ScriptedAI
 
     void Reset()
     {
-        uint32 uiMortalWoundTimer = 5000;
-        uint32 uiEnrage1Timer = 15000;
-        uint32 uiEnrage2Timer = 10000;
+        uiMortalWoundTimer = 5000;
+        uiEnrage1Timer = 15000;
+        uiEnrage2Timer = 10000;
 
         me->GetMotionMaster()->MoveTargetedHome();
 
