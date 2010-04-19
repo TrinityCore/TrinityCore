@@ -518,7 +518,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         if (pAurEff)
                             bonus += (float)pAurEff->GetAmount() / 100.0f;
 
-                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus; 
+                        DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus;
                     }
                     break;
                 case SPELLFAMILY_PALADIN:

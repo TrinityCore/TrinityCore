@@ -1097,7 +1097,7 @@ void AddSC_go_scripts()
     newscript->Name = "go_stillpine_cage";
     newscript->pGOHello =           &GOHello_go_stillpine_cage;
     newscript->RegisterSelf();
-    
+
     newscript = new Script;
     newscript->Name = "go_amberpine_outhouse";
     newscript->pGOHello =           &GOHello_go_amberpine_outhouse;

@@ -243,7 +243,7 @@ struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
         Unit* pToravon = me->GetCreature(*me, pInstance->GetData64(DATA_TORAVON));
         if (!pToravon)
             return;
-                
+
         uint8 num_orbs = RAID_MODE(1, 3);
         for (uint8 i=0; i<num_orbs; ++i)
         {

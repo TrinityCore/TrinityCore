@@ -14129,7 +14129,7 @@ void Player::RewardQuest(Quest const *pQuest, uint32 reward, Object* questGiver,
     }
 
     if (pQuest->IsWeekly())
-        SetWeeklyQuestStatus(quest_id);	
+        SetWeeklyQuestStatus(quest_id);
 
     if (!pQuest->IsRepeatable())
         SetQuestStatus(quest_id, QUEST_STATUS_COMPLETE);
@@ -15492,7 +15492,7 @@ void Player::SetHomebind(WorldLocation const& /*loc*/, uint32 /*area_id*/)
     m_homebindX = GetPositionX();
     m_homebindY = GetPositionY();
     m_homebindZ = GetPositionZ();
- 
+
     // update sql homebind
     CharacterDatabase.PExecute("UPDATE character_homebind SET map = '%u', zone = '%u', position_x = '%f', position_y = '%f', position_z = '%f' WHERE guid = '%u'",
         m_homebindMapId, m_homebindAreaId, m_homebindX, m_homebindY, m_homebindZ, GetGUIDLow());
@@ -16811,11 +16811,11 @@ void Player::_LoadDailyQuestStatus(QueryResult_AutoPtr result)
     m_DailyQuestChanged = false;
 }
 
-void Player::_LoadWeeklyQuestStatus(QueryResult_AutoPtr result)	
+void Player::_LoadWeeklyQuestStatus(QueryResult_AutoPtr result)
 {
     m_weeklyquests.clear();
 
-    if (result)	
+    if (result)
     {
         do
         {
@@ -16825,9 +16825,9 @@ void Player::_LoadWeeklyQuestStatus(QueryResult_AutoPtr result)
 
             Quest const* pQuest = objmgr.GetQuestTemplate(quest_id);
 
-            if (!pQuest)	
-                continue;	
-	
+            if (!pQuest)
+                continue;
+
             m_weeklyquests.insert(quest_id);
 
             sLog.outDebug("Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
@@ -17473,7 +17473,7 @@ void Player::SaveToDB()
     // check if stats should only be saved on logout
     // save stats can be out of transaction
     if (m_session->isLogingOut() || !sWorld.getConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
-        _SaveStats();	
+        _SaveStats();
 
     // save pet (hunter pet level and experience and all type pets health/mana).
     if (Pet* pet = GetPet())
@@ -20943,7 +20943,7 @@ void Player::SetDailyQuestStatus(uint32 quest_id)
 }
 
 
-void Player::SetWeeklyQuestStatus(uint32 quest_id)	
+void Player::SetWeeklyQuestStatus(uint32 quest_id)
 {
     m_weeklyquests.insert(quest_id);
     m_WeeklyQuestChanged = true;
@@ -20964,7 +20964,7 @@ void Player::ResetWeeklyQuestStatus()
     if (m_weeklyquests.empty())
         return;
 
-    m_weeklyquests.clear();	
+    m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
 }
