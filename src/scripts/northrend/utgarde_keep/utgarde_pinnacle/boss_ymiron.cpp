@@ -68,7 +68,7 @@ enum Creatures
 struct ActiveBoatStruct
 {
     uint32 npc;
-    uint32 say;
+    int32 say;
     float MoveX,MoveY,MoveZ,SpawnX,SpawnY,SpawnZ,SpawnO;
 };
 
