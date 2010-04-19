@@ -81,11 +81,11 @@ struct instance_zulaman : public ScriptedInstance
         AshlisBagGUID = 0;
         KrazsPackageGUID = 0;
 
-        uint64 HexLordGateGUID = 0;
-        uint64 ZulJinGateGUID = 0;
-        uint64 AkilzonDoorGUID = 0;
-        uint64 HalazziDoorGUID = 0;
-        uint64 ZulJinDoorGUID = 0;
+        HexLordGateGUID = 0;
+        ZulJinGateGUID = 0;
+        AkilzonDoorGUID = 0;
+        HalazziDoorGUID = 0;
+        ZulJinDoorGUID = 0;
 
         QuestTimer = 0;
         QuestMinute = 21;
