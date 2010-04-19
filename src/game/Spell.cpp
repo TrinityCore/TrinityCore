@@ -562,12 +562,6 @@ void Spell::SelectSpellTargets()
             continue;
         }
 
-        if (/*tmpUnitMap.empty() && */m_spellInfo->Targets & TARGET_FLAG_CASTER)
-        {
-            AddUnitTarget(m_caster, i);
-            continue;
-        }
-
         if (!targetA && !targetB)
         {
             if (!GetSpellMaxRangeForFriend(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex)))
