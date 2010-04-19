@@ -97,7 +97,7 @@ struct instance_gnomeregan : public ScriptedInstance
         switch(uiType)
         {
             case TYPE_EVENT:
-                m_auiEncounter[0] = uiData; break;
+                m_auiEncounter[0] = uiData;
                 if (uiData == DONE)
                     SaveToDB();
                 break;
