@@ -439,7 +439,7 @@ struct npc_tallhorn_stagAI : public ScriptedAI
 
     void UpdateAI(const uint32 /*uiDiff*/)
     {
-        if (m_uiPhase = 1)
+        if (m_uiPhase == 1)
         {
             if (GameObject* haunch = me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
             {
