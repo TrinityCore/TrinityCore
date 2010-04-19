@@ -118,10 +118,10 @@ static Locations Spawn[]=
 
 static const char* Text[]=
 {
-    {"Horseman rise..."},
-    {"Your time is nigh..."},
-    {"You felt death once..."},
-    {"Now, know demise!"}
+    "Horseman rise...",
+    "Your time is nigh...",
+    "You felt death once...",
+    "Now, know demise!"}
 };
 
 #define EMOTE_LAUGHS    "Headless Horseman laughs"
