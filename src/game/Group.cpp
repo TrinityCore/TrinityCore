@@ -648,7 +648,7 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
                             SendLootRoll(newitemGUID, p->GetGUID(), 128, ROLL_PASS, *r);
                     }
                 }
-                    
+
                 SendLootStartRoll(60000, pLootedObject->GetMapId(), *r);
 
                 RollId.push_back(r);

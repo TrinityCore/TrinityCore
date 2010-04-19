@@ -198,7 +198,7 @@ struct boss_krik_thirAI : public ScriptedAI
         pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_NARJIL));
         if (!pAdd || !pAdd->isAlive())
             return;
-        
+
         pInstance->DoCompleteAchievement(ACHIEV_WATH_HIM_DIE);
     }
 

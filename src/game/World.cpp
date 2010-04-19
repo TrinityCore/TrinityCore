@@ -1850,9 +1850,9 @@ void World::Update(uint32 diff)
 
     if (m_gameTime > m_NextWeeklyQuestReset)
     {
-        ResetWeeklyQuests();	
+        ResetWeeklyQuests();
         m_NextWeeklyQuestReset += WEEK;
-    }	
+    }
 
     /// <ul><li> Handle auctions when the timer has passed
     if (m_timers[WUPDATE_AUCTIONS].Passed())
@@ -2496,22 +2496,22 @@ void World::_UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 ac
     }
 }
 
-void World::InitWeeklyQuestResetTime()	
+void World::InitWeeklyQuestResetTime()
 {
     time_t wtime = uint64(sWorld.getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
     if (!wtime)
-    {	
+    {
         m_NextWeeklyQuestReset = time_t(m_gameTime + WEEK);
         sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
     }
-    else	
-    {	
-        // move to just before if need	
-        time_t cur = time(NULL);	
+    else
+    {
+        // move to just before if need
+        time_t cur = time(NULL);
         if (m_NextWeeklyQuestReset < cur)
-            m_NextWeeklyQuestReset += WEEK * ((cur - m_NextWeeklyQuestReset) / WEEK);	
-    }	
-}	
+            m_NextWeeklyQuestReset += WEEK * ((cur - m_NextWeeklyQuestReset) / WEEK);
+    }
+}
 
 void World::InitDailyQuestResetTime()
 {
@@ -2570,16 +2570,16 @@ void World::UpdateAllowedSecurity()
     }
 }
 
-void World::ResetWeeklyQuests()	
-{	
+void World::ResetWeeklyQuests()
+{
     CharacterDatabase.Execute("DELETE FROM character_queststatus_weekly");
-    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)	
-        if (itr->second->GetPlayer())	
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetWeeklyQuestStatus();
 
     m_NextWeeklyQuestReset = time_t(m_NextWeeklyQuestReset + WEEK);
     sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
-}	
+}
 
 void World::SetPlayerLimit(int32 limit, bool /*needUpdate*/)
 {

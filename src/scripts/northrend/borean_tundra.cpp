@@ -648,7 +648,7 @@ enum eNesingwaryTrapper
 };
 
 #define CaribouTrapsNum 15
-const uint32 CaribouTraps[CaribouTrapsNum] = 
+const uint32 CaribouTraps[CaribouTrapsNum] =
 {
     GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
     GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
@@ -2084,7 +2084,7 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
-        
+
         if (uiType != POINT_MOTION_TYPE)
             return;
         me->DisappearAndDie();
