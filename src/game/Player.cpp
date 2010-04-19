@@ -1600,7 +1600,8 @@ bool Player::BuildEnumData(QueryResult_AutoPtr result, WorldPacket * p_data)
             if (!enchantId)
                 continue;
 
-            if ((enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId)))
+            enchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+            if (enchant)
                 break;
         }
 
@@ -7262,7 +7263,8 @@ void Player::_ApplyItemBonuses(ItemPrototype const *proto, uint8 slot, bool appl
     // If set dpsMod in ScalingStatValue use it for min (70% from average), max (130% from average) damage
     if (ssv)
     {
-        if ((extraDPS = ssv->getDPSMod(proto->ScalingStatValue)))
+        extraDPS = ssv->getDPSMod(proto->ScalingStatValue);
+        if (extraDPS)
         {
             float average = extraDPS * proto->Delay / 1000.0f;
             minDamage = 0.7f * average;
@@ -12172,7 +12174,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     {
         uint8 msg;
         ItemPosCountVec sDest;
-        uint16 eDest;
+        uint16 eDest = 0;
         if (IsInventoryPos(dst))
             msg = CanStoreItem(dstbag, dstslot, sDest, pSrcItem, false);
         else if (IsBankPos (dst))
@@ -12216,7 +12218,7 @@ void Player::SwapItem(uint16 src, uint16 dst)
     }
 
     // impossible merge/fill, do real swap
-    uint8 msg;
+    uint8 msg = EQUIP_ERR_OK;
 
     // check src->dest move possibility
     ItemPosCountVec sDest;
@@ -20707,11 +20709,8 @@ void Player::resetSpells(bool myClassOnly)
         if (!clsEntry)
             return;
         family = clsEntry->spellfamily;
-    }
 
-    for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
-    {
-        if (myClassOnly)
+        for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
         {
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(iter->first);
             if (!spellInfo)
@@ -20738,8 +20737,10 @@ void Player::resetSpells(bool myClassOnly)
             if (!SpellMgr::IsSpellValid(spellInfo,this,false))
                 continue;
         }
-        removeSpell(iter->first,false,false);               // only iter->first can be accessed, object by iter->second can be deleted already
     }
+    else
+        for (PlayerSpellMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
+            removeSpell(iter->first,false,false);           // only iter->first can be accessed, object by iter->second can be deleted already
 
     learnDefaultSpells();
     learnQuestRewardedSpells();

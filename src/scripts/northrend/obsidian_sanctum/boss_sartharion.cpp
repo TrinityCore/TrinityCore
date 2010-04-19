@@ -1072,7 +1072,7 @@ struct mob_acolyte_of_shadronAI : public ScriptedAI
         if (pInstance)
         {
             Unit *pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
-            Creature* pShadron = NULL;
+
             Creature* pSartharion = Unit::GetCreature(*me, pInstance->GetData64(DATA_SARTHARION));
             if (Creature* pShadron = Unit::GetCreature(*me, pInstance->GetData64(DATA_SHADRON)))
             //if not solo figth, buff main boss, else place debuff on mini-boss. both spells TARGET_SCRIPT

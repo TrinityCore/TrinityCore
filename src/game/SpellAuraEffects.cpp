@@ -504,15 +504,18 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         AuraEffect const* pAurEff;
 
                         // Borrowed Time
-                        if (pAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1))
+                        pAurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_PRIEST, 2899, 1);
+                        if (pAurEff)
                             bonus += (float)pAurEff->GetAmount() / 100.0f;
 
                         // Twin Disciplines
-                        if (pAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, caster->GetGUID()))
+                        pAurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 0x400000, 0, 0, caster->GetGUID());
+                        if (pAurEff)
                             bonus += (float)pAurEff->GetAmount() / 100.0f;
 
                         // Focused Power
-                        if (pAurEff = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, 2210, 2))
+                        pAurEff = caster->GetAuraEffect(SPELL_AURA_MOD_HEALING_DONE_PERCENT, SPELLFAMILY_PRIEST, 2210, 2);
+                        if (pAurEff)
                             bonus += (float)pAurEff->GetAmount() / 100.0f;
 
                         DoneActualBenefit = caster->SpellBaseHealingBonus(GetSpellSchoolMask(GetSpellProto())) * bonus; 
@@ -2053,7 +2056,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                         if (target->GetPower(POWER_MANA) >= 10)
                         {
                             target->ModifyPower(POWER_MANA, -10);
-                            target->SendEnergizeSpellLog(caster, 27746, -10, POWER_MANA);
+                            target->SendEnergizeSpellLog(caster, 27746, 10, POWER_MANA);
                         }
                         else
                             target->RemoveAurasDueToSpell(27746);
@@ -3039,7 +3042,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
             }
             else
             {
-                uint32 model_id;
+                uint32 model_id = 0;
 
                 if (uint32 modelid = ci->GetRandomValidModelId())
                     model_id = modelid;                     // Will use the default model here

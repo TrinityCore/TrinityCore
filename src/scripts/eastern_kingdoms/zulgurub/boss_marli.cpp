@@ -167,8 +167,8 @@ struct boss_marliAI : public ScriptedAI
                     while (i < 3)                           // max 3 tries to get a random target with power_mana
                     {
                         ++i;
-                        if (pTarget = SelectTarget(SELECT_TARGET_RANDOM,1, 100, true)) // not aggro leader
-                            if (pTarget->getPowerType() == POWER_MANA)
+                        pTarget = SelectTarget(SELECT_TARGET_RANDOM,1, 100, true);  // not aggro leader
+                        if (pTarget && pTarget->getPowerType() == POWER_MANA)
                                 i = 3;
                     }
                     if (pTarget)

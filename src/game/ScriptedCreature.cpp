@@ -709,12 +709,14 @@ void LoadOverridenSQLData()
     GameObjectInfo *goInfo;
 
     // Sunwell Plateau : Kalecgos : Spectral Rift
-    if (goInfo = GOBJECT(187055))
+    goInfo = GOBJECT(187055);
+    if (goInfo)
         if (goInfo->type == GAMEOBJECT_TYPE_GOOBER)
             goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
 
     // Naxxramas : Sapphiron Birth
-    if (goInfo = GOBJECT(181356))
+    goInfo = GOBJECT(181356);
+    if (goInfo)
         if (goInfo->type == GAMEOBJECT_TYPE_TRAP)
             goInfo->trap.radius = 50;
 }

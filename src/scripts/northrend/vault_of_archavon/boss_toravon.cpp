@@ -233,21 +233,24 @@ struct mob_frozen_orb_stalkerAI : public Scripted_NoMovementAI
 
     void UpdateAI(const uint32 /*diff*/)
     {
-        if (!spawned)
+        if (spawned)
+            return;
+
+        spawned = true;
+        if (!pInstance)
+            return;
+
+        Unit* pToravon = me->GetCreature(*me, pInstance->GetData64(DATA_TORAVON));
+        if (!pToravon)
+            return;
+                
+        uint8 num_orbs = RAID_MODE(1, 3);
+        for (uint8 i=0; i<num_orbs; ++i)
         {
-            Unit* pToravon;
-            if (pInstance && (pToravon = me->GetCreature(*me, pInstance->GetData64(DATA_TORAVON))))
-            {
-                uint8 num_orbs = RAID_MODE(1, 3);
-                for (uint8 i=0; i<num_orbs; ++i)
-                {
-                    Position pos;
-                    me->GetNearPoint(pToravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
-                    me->SetPosition(pos, true);
-                    DoCast(me, SPELL_FROZEN_ORB_SUMMON);
-                }
-            }
-            spawned = true;
+            Position pos;
+            me->GetNearPoint(pToravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
+            me->SetPosition(pos, true);
+            DoCast(me, SPELL_FROZEN_ORB_SUMMON);
         }
     }
 };

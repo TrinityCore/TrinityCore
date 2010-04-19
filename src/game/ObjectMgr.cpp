@@ -3392,7 +3392,7 @@ void ObjectMgr::LoadArenaTeams()
 
     do
     {
-        Field *fields = result->Fetch();
+        //Field *fields = result->Fetch();
 
         bar.step();
         ++count;
@@ -5308,7 +5308,7 @@ void ObjectMgr::LoadAreaTriggerScripts()
 uint32 ObjectMgr::GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team)
 {
     bool found = false;
-    float dist;
+    float dist = 10000;
     uint32 id = 0;
 
     for (uint32 i = 1; i < sTaxiNodesStore.GetNumRows(); ++i)
@@ -5394,7 +5394,8 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
         CreatureInfo const *mount_info = GetCreatureTemplate(mount_entry);
         if (mount_info)
         {
-            if (! (mount_id = mount_info->GetRandomValidModelId()))
+            mount_id = mount_info->GetRandomValidModelId();
+            if (!mount_id)
             {
                 sLog.outErrorDb("No displayid found for the taxi mount with the entry %u! Can't load it!", mount_entry);
                 return false;
@@ -5539,12 +5540,12 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
 
     // at corpse map
     bool foundNear = false;
-    float distNear;
+    float distNear = 10000;
     WorldSafeLocsEntry const* entryNear = NULL;
 
     // at entrance map for corpse map
     bool foundEntr = false;
-    float distEntr;
+    float distEntr = 10000;
     WorldSafeLocsEntry const* entryEntr = NULL;
 
     // some where other

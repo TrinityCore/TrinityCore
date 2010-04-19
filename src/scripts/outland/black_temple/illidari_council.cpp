@@ -220,15 +220,16 @@ struct mob_illidari_councilAI : public ScriptedAI
         Creature* pMember = NULL;
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (pMember = (Unit::GetCreature((*me), Council[i])))
+            pMember = Unit::GetCreature((*me), Council[i]);
+            if (!pMember)
+                continue;
+
+            if (!pMember->isAlive())
             {
-                if (!pMember->isAlive())
-                {
-                    pMember->RemoveCorpse();
-                    pMember->Respawn();
-                }
-                pMember->AI()->EnterEvadeMode();
+                pMember->RemoveCorpse();
+                pMember->Respawn();
             }
+            pMember->AI()->EnterEvadeMode();
         }
 
         if (pInstance)

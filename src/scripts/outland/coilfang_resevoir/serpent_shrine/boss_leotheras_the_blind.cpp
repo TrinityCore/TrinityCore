@@ -204,7 +204,7 @@ struct boss_leotheras_the_blindAI : public ScriptedAI
             pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
     }
 
-    void CheckChannelers(bool DoEvade = true)
+    void CheckChannelers(/*bool DoEvade = true*/)
     {
         for (uint8 i = 0; i < 3; ++i)
         {
@@ -646,7 +646,7 @@ struct mob_greyheart_spellbinderAI : public ScriptedAI
             pInstance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
             Creature *leotheras = Unit::GetCreature(*me, leotherasGUID);
             if (leotheras && leotheras->isAlive())
-                CAST_AI(boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(false);
+                CAST_AI(boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
         }
     }
 

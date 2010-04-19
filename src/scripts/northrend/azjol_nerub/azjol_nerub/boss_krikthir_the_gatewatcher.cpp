@@ -182,18 +182,26 @@ struct boss_krik_thirAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, me);
 
-        if (pInstance)
-        {
-            pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
-            //Achievement: Watch him die
-            Creature *pAdd1, *pAdd2, *pAdd3;
-            if ((pAdd1 = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_GASHRA))) && pAdd1->isAlive() &&
-                (pAdd2 = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_SILTHIK))) && pAdd2->isAlive() &&
-                (pAdd3 = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_NARJIL))) && pAdd3->isAlive() &&
-                IsHeroic())
-                pInstance->DoCompleteAchievement(ACHIEV_WATH_HIM_DIE);
-        }
+        if (!pInstance)
+            return;
+
+        pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
+        //Achievement: Watch him die
+        Creature *pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_GASHRA));
+        if (!pAdd || !pAdd->isAlive())
+            return;
+
+        pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_SILTHIK));
+        if (!pAdd || !pAdd->isAlive())
+            return;
+
+        pAdd = Unit::GetCreature(*me, pInstance->GetData64(DATA_WATCHER_NARJIL));
+        if (!pAdd || !pAdd->isAlive())
+            return;
+        
+        pInstance->DoCompleteAchievement(ACHIEV_WATH_HIM_DIE);
     }
+
     void KilledUnit(Unit * victim)
     {
         if (victim == me)

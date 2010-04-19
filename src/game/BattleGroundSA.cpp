@@ -488,7 +488,7 @@ void BattleGroundSA::DestroyGate(uint32 i, Player* pl)
         if (g->GetGOValue()->building.health == 0)
         {
             GateStatus[i] = BG_SA_GATE_DESTROYED;
-            uint32 uws;
+            uint32 uws = 0;
             switch(i)
             {
                 case 0:

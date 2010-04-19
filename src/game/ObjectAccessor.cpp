@@ -252,7 +252,7 @@ void ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair, GridType& grid, 
     }
 }
 
-Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia)
+Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool /*insignia*/)
 {
     Corpse* corpse = GetCorpseForPlayerGUID(player_guid);
     if (!corpse)
@@ -266,7 +266,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
 
     DEBUG_LOG("Deleting Corpse and spawning bones.");
 
-    Map* map = corpse->FindMap();
+    //Map* map = corpse->FindMap();
 
     // remove corpse from player_guid -> corpse map
     RemoveCorpse(corpse);
@@ -285,6 +285,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
     delete corpse;
     return NULL;
 
+    /*
     Corpse* bones = NULL;
     // create the bones only if the map and the grid is loaded at the corpse's location
     // ignore bones creating option in case insignia
@@ -323,9 +324,10 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
     delete corpse;
 
     return bones;
+    */
 }
 
-void ObjectAccessor::Update(uint32 diff)
+void ObjectAccessor::Update(uint32 /*diff*/)
 {
     UpdateDataMapType update_players;
 
