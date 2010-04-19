@@ -11721,7 +11721,7 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
                 uint32 owner_speed_mod = 0;
 
                 if (Unit * owner = GetCharmer())
-                    uint32 owner_speed_mod  = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+                    owner_speed_mod = owner->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
 
                 main_speed_mod = main_speed_mod>owner_speed_mod ? main_speed_mod : owner_speed_mod;
             }
