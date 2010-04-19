@@ -393,6 +393,15 @@ void CliRunnable::run()
     {
         fflush(stdout);
 
+        // Safe exit thread
+        #ifdef linux
+        while (!kb_hit_return() && !World::IsStopped())
+            // With this, we limit CLI to 10commands/second
+            usleep(100);
+        if (World::IsStopped())
+            break;
+        #endif
+
         char *command_str ;             // = fgets(commandbuf,sizeof(commandbuf),stdin);
 
         #if PLATFORM == WINDOWS
