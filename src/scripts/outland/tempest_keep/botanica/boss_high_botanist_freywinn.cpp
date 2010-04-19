@@ -64,7 +64,7 @@ struct boss_high_botanist_freywinnAI : public ScriptedAI
         MoveFree = true;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
@@ -86,12 +86,12 @@ struct boss_high_botanist_freywinnAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
     }

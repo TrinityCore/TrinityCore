@@ -73,7 +73,7 @@ struct boss_doomlordkazzakAI : public ScriptedAI
         DoScriptText(SAY_INTRO, me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2), me);
     }
@@ -89,7 +89,7 @@ struct boss_doomlordkazzakAI : public ScriptedAI
             DoScriptText(RAND(SAY_KILL1,SAY_KILL2,SAY_KILL3), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
     }

@@ -95,7 +95,7 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_MO_AGGRO, me);
         DoCast(me, SPELL_RETRIBUTIONAURA);
@@ -103,12 +103,12 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         me->CallForHelp(VISIBLE_RANGE);
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/)
     {
         DoScriptText(SAY_MO_KILL, me);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit* /*pDoneBy*/, uint32 &uiDamage)
     {
         if (uiDamage < me->GetHealth() || m_bHasDied || m_bFakeDeath)
             return;
@@ -145,7 +145,7 @@ struct boss_scarlet_commander_mograineAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* pWho, const SpellEntry* pSpell)
+    void SpellHit(Unit* /*pWho*/, const SpellEntry* pSpell)
     {
         //When hit with ressurection say text
         if (pSpell->Id == SPELL_SCARLETRESURRECTION)
@@ -244,12 +244,12 @@ struct boss_high_inquisitor_whitemaneAI : public ScriptedAI
         ScriptedAI::AttackStart(pWho);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_WH_INTRO, me);
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/)
     {
         DoScriptText(SAY_WH_KILL, me);
     }

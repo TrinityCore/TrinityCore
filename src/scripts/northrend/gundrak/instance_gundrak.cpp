@@ -128,7 +128,7 @@ struct instance_gundrak : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {
@@ -144,7 +144,7 @@ struct instance_gundrak : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {
@@ -490,10 +490,10 @@ struct instance_gundrak : public ScriptedInstance
      }
 };
 
-bool GOHello_altar(Player *pPlayer, GameObject *pGO)
+bool GOHello_altar(Player * /*pPlayer*/, GameObject *pGO)
 {
     ScriptedInstance *pInstance = pGO->GetInstanceData();
-    uint64 uiStatue;
+    uint64 uiStatue = 0;
 
     pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
     pGO->SetGoState(GO_STATE_ACTIVE);

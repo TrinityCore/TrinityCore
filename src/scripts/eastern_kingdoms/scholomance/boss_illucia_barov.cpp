@@ -46,7 +46,7 @@ struct boss_illuciabarovAI : public ScriptedAI
         Fear_Timer = 30000;
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         ScriptedInstance *pInstance = me->GetInstanceData();
         if (pInstance)
@@ -58,7 +58,7 @@ struct boss_illuciabarovAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

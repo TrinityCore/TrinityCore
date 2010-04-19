@@ -208,7 +208,7 @@ struct boss_priestess_delrissaAI : public ScriptedAI
             ++PlayersKilled;
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -396,7 +396,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (!pInstance)
             return;
@@ -595,7 +595,7 @@ struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
         boss_priestess_lackey_commonAI::Reset();
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/)
     {
         DoCast(me, SPELL_SUMMON_IMP);
     }
@@ -861,7 +861,7 @@ struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
         boss_priestess_lackey_commonAI::Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoCast(me, SPELL_BATTLE_SHOUT);
     }
@@ -1247,7 +1247,7 @@ CreatureAI* GetAI_zelfan(Creature* pCreature)
 //
 //    void JustDied(Unit *Killer){}
 //
-//    void EnterCombat(Unit *who){}
+//    void EnterCombat(Unit * /*who*/){}
 //
 //    void UpdateAI(const uint32 diff)
 //    {

@@ -102,7 +102,7 @@ void BattleGroundIC::SpawnLeader(uint32 teamid)
         AddCreature(34922, 1, HORDE, 1264.42f, -766.80f, 48.91f, 3.28f, 10*MINUTE);
 }
 
-void BattleGroundIC::HandleKillUnit(Creature *unit, Player *killer)
+void BattleGroundIC::HandleKillUnit(Creature *unit, Player * /*killer*/)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
@@ -124,7 +124,8 @@ void BattleGroundIC::EndBattleGround(uint32 winner)
 {
     BattleGround::EndBattleGround(winner);
 }
-void BattleGroundIC::EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/)
+
+void BattleGroundIC::EventPlayerClickedOnFlag(Player * /*source*/, GameObject* /*target_obj*/)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

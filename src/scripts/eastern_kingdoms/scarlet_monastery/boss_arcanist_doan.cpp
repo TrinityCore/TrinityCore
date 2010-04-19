@@ -54,7 +54,7 @@ struct boss_arcanist_doanAI : public ScriptedAI
         bShielded = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

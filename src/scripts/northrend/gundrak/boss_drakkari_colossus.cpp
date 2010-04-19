@@ -64,7 +64,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         bHealth1 = false;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, IN_PROGRESS);
@@ -122,7 +122,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
@@ -162,7 +162,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
         me->RemoveFromWorld();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -202,7 +202,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             pColossus->Kill(pColossus);
@@ -227,7 +227,7 @@ struct npc_living_mojoAI : public ScriptedAI
         uiMojoPuddleTimer = 7*IN_MILISECONDS;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
 
         //Check if the npc is near of Drakkari Colossus.
@@ -240,7 +240,7 @@ struct npc_living_mojoAI : public ScriptedAI
         }
     }
 
-    void DamageTaken(Unit* pDone_by, uint32& uiDamage)
+    void DamageTaken(Unit* pDone_by, uint32& /*uiDamage*/)
     {
         if (me->HasReactState(REACT_PASSIVE))
         {

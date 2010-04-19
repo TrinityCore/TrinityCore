@@ -60,18 +60,18 @@ struct boss_maiden_of_virtueAI : public ScriptedAI
         Enraged = false;
     }
 
-    void KilledUnit(Unit* Victim)
+    void KilledUnit(Unit* /*Victim*/)
     {
         if (urand(0,1) == 0)
             DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

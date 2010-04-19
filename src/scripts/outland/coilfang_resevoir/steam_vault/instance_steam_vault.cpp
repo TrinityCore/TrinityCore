@@ -36,7 +36,7 @@ EndScriptData */
 3 - Warlord Kalithresh Event
 */
 
-bool GOHello_go_main_chambers_access_panel(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_main_chambers_access_panel(Player* /*pPlayer*/, GameObject* pGo)
 {
     ScriptedInstance* pInstance = pGo->GetInstanceData();
 
@@ -87,7 +87,7 @@ struct instance_steam_vault : public ScriptedInstance
         return false;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
           switch(pCreature->GetEntry())
         {
@@ -97,7 +97,7 @@ struct instance_steam_vault : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {

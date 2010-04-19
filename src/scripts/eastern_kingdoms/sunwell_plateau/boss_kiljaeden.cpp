@@ -269,16 +269,16 @@ bool GOHello_go_orb_of_the_blue_flight(Player* pPlayer, GameObject* pGo)
 {
     if (pGo->GetUInt32Value(GAMEOBJECT_FACTION) == 35)
     {
-        ScriptedInstance* pInstance = pGo->GetInstanceData();
-        float x,y,z;
+        //ScriptedInstance* pInstance = pGo->GetInstanceData();
+        //float x,y,z;
         //float dx,dy,dz;
         pGo->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
         pPlayer->CastSpell(pPlayer, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, true);
         pGo->SetUInt32Value(GAMEOBJECT_FACTION, 0);
-        if (pInstance)
-            Creature* Kalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ));
+        //if (pInstance)
+        //    Creature* Kalec = Unit::GetCreature(*pPlayer, pInstance->GetData64(DATA_KALECGOS_KJ));
         //Kalec->RemoveDynObject(SPELL_RING_OF_BLUE_FLAMES);
-        pGo->GetPosition(x,y,z);
+        //pGo->GetPosition(x,y,z);
         // this won't work. need rewritten
         /*
         for (uint8 i = 0; i < 4; ++i)
@@ -420,7 +420,7 @@ struct boss_kalecgos_kjAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!Searched)
         {
@@ -528,7 +528,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
         Summons.Summon(summoned);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_KJ_DEATH, me);
 
@@ -536,7 +536,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
             pInstance->SetData(DATA_KILJAEDEN_EVENT, DONE);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_KJ_SLAY1,SAY_KJ_SLAY2), me);
     }
@@ -552,7 +552,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                 CAST_AI(Scripted_NoMovementAI, Control->AI())->Reset();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoZoneInCombat();
         DoScriptText(SAY_KJ_EMERGE, me);
@@ -565,7 +565,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
         for (uint8 i = 0; i < 4; ++i)
         {
             float x,y,z;
-            Unit *pTarget;
+            Unit *pTarget = NULL;
             for (uint8 z = 0; z < 6; ++z)
             {
                 pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
@@ -617,7 +617,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                     case TIMER_LEGION_LIGHTNING:
                         if (!me->IsNonMeleeSpellCasted(false))
                         {
-                            Unit *RandomPlayer;
+                            Unit *RandomPlayer = NULL;
                             me->RemoveAurasDueToSpell(SPELL_SOUL_FLAY);
                             for (uint8 z = 0; z < 6; ++z)
                             {
@@ -708,7 +708,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                         TimerIsDeactiveted[TIMER_ORBS_EMPOWER] = true;
                         break;
                     case TIMER_ARMAGEDDON: //Phase 4
-                        Unit *pTarget;
+                        Unit *pTarget = NULL;
                         for (uint8 z = 0; z < 6; ++z)
                         {
                             pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
@@ -914,7 +914,7 @@ struct mob_hand_of_the_deceiverAI : public ScriptedAI
         me->InterruptNonMeleeSpells(true);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (!pInstance)
             return;
@@ -1026,7 +1026,7 @@ struct mob_volatile_felfire_fiendAI : public ScriptedAI
         LockedTarget = false;
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage > me->GetHealth())
             DoCast(me, SPELL_FELFIRE_FISSION, true);
@@ -1180,7 +1180,7 @@ struct mob_shield_orbAI : public ScriptedAI
         } else Timer -= diff;
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 type, uint32 /*id*/)
     {
         if (type != POINT_MOTION_TYPE)
             return;

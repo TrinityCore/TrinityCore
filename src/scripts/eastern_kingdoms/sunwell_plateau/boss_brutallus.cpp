@@ -107,7 +107,7 @@ struct boss_brutallusAI : public ScriptedAI
             pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(YELL_AGGRO, me);
 
@@ -115,12 +115,12 @@ struct boss_brutallusAI : public ScriptedAI
             pInstance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(YELL_KILL1,YELL_KILL2,YELL_KILL3), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(YELL_DEATH, me);
 

@@ -189,7 +189,7 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
             ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
@@ -205,12 +205,12 @@ struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         summoned->CastSpell(summoned,SPELL_CONSUMPTION,false,0,0,me->GetGUID());
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DIE, me);
 
@@ -297,11 +297,11 @@ struct mob_fel_orc_convertAI : public ScriptedAI
         Hemorrhage_Timer = 3000;
     }
 
-    void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit * /*who*/)
     {
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
         {
@@ -321,7 +321,7 @@ struct mob_fel_orc_convertAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
         {
@@ -354,9 +354,9 @@ struct mob_lesser_shadow_fissureAI : public ScriptedAI
     mob_lesser_shadow_fissureAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() { }
-    void MoveInLineOfSight(Unit *who) { }
-    void AttackStart(Unit* who) { }
-    void EnterCombat(Unit* who) { }
+    void MoveInLineOfSight(Unit * /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void EnterCombat(Unit* /*who*/) {}
 };
 
 CreatureAI* GetAI_boss_grand_warlock_nethekurse(Creature* pCreature)

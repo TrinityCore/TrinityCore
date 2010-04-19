@@ -57,7 +57,7 @@ struct instance_razorfen_kraul : public ScriptedInstance
         return NULL;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool apply)
+    void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
     {
         switch(pGo->GetEntry())
         {

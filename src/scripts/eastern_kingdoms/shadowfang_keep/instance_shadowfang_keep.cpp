@@ -86,7 +86,7 @@ struct instance_shadowfang_keep : public ScriptedInstance
         uiTimer = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {
@@ -96,7 +96,7 @@ struct instance_shadowfang_keep : public ScriptedInstance
         }
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {

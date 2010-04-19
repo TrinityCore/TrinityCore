@@ -31,19 +31,19 @@
 
 template<class T>
 void
-WaypointMovementGenerator<T>::Initialize(T &u){}
+WaypointMovementGenerator<T>::Initialize(T & /*u*/){}
 
 template<>
 void
-WaypointMovementGenerator<Creature>::Finalize(Creature &u){}
+WaypointMovementGenerator<Creature>::Finalize(Creature & /*u*/){}
 
 template<>
 void
-WaypointMovementGenerator<Player>::Finalize(Player &u){}
+WaypointMovementGenerator<Player>::Finalize(Player & /*u*/){}
 
 template<class T>
 void
-WaypointMovementGenerator<T>::MovementInform(T &unit){}
+WaypointMovementGenerator<T>::MovementInform(T & /*unit*/){}
 
 template<>
 void WaypointMovementGenerator<Creature>::MovementInform(Creature &unit)
@@ -62,20 +62,20 @@ bool WaypointMovementGenerator<Creature>::GetDestination(float &x, float &y, flo
 }
 
 template<>
-bool WaypointMovementGenerator<Player>::GetDestination(float &x, float &y, float &z) const
+bool WaypointMovementGenerator<Player>::GetDestination(float & /*x*/, float & /*y*/, float & /*z*/) const
 {
     return false;
 }
 
 template<>
-void WaypointMovementGenerator<Creature>::Reset(Creature &unit)
+void WaypointMovementGenerator<Creature>::Reset(Creature & /*unit*/unit)
 {
     StopedByPlayer = true;
     i_nextMoveTime.Reset(0);
 }
 
 template<>
-void WaypointMovementGenerator<Player>::Reset(Player &unit){}
+void WaypointMovementGenerator<Player>::Reset(Player & /*unit*/){}
 
 template<>
 void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const WaypointData &node)
@@ -122,11 +122,11 @@ WaypointMovementGenerator<Creature>::Initialize(Creature &u)
 }
 
 template<>
-void WaypointMovementGenerator<Player>::InitTraveller(Player &unit, const WaypointData &node){}
+void WaypointMovementGenerator<Player>::InitTraveller(Player & /*unit*/, const WaypointData & /*node*/){}
 
 template<class T>
 bool
-WaypointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
+WaypointMovementGenerator<T>::Update(T & /*unit*/, const uint32 & /*diff*/)
 {
     return false;
 }

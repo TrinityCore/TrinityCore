@@ -42,13 +42,13 @@ struct boss_gelihastAI : public ScriptedAI
             pInstance->SetData(TYPE_GELIHAST, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_GELIHAST, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_GELIHAST, DONE);

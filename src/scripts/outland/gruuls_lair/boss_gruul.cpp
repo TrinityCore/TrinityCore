@@ -84,7 +84,7 @@ struct boss_gruulAI : public ScriptedAI
             pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -97,7 +97,7 @@ struct boss_gruulAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2,SAY_SLAY3), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 

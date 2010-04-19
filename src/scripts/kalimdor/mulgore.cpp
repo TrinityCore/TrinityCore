@@ -49,7 +49,7 @@ bool GossipHello_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_skorn_whitecloud(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
         pPlayer->SEND_GOSSIP_MENU(523, pCreature->GetGUID());
@@ -255,7 +255,7 @@ struct npc_plains_visionAI  : public ScriptedAI
         amountWP  = 49;
     }
 
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/){}
 
     void MovementInform(uint32 type, uint32 id)
     {
@@ -274,7 +274,7 @@ struct npc_plains_visionAI  : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (newWaypoint)
         {

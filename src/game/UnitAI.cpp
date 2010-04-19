@@ -217,7 +217,7 @@ void UnitAI::DoCast(uint32 spellId)
         {
             const SpellEntry * spellInfo = GetSpellStore()->LookupEntry(spellId);
             bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR_EX3_PLAYERS_ONLY;
-            float range = GetSpellMaxRange(spellInfo, false);
+            //float range = GetSpellMaxRange(spellInfo, false);
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, GetSpellMaxRange(spellInfo, false), playerOnly);
             break;
         }

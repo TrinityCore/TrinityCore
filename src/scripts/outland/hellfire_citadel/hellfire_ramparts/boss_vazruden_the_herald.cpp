@@ -83,7 +83,7 @@ struct boss_nazanAI : public ScriptedAI
         UnsummonCheck = 5000;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void JustSummoned(Creature *summoned)
     {
@@ -184,7 +184,7 @@ struct boss_vazrudenAI : public ScriptedAI
         WipeSaid = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
@@ -291,7 +291,7 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (phase == 0)
         {
@@ -392,7 +392,7 @@ struct mob_hellfire_sentryAI : public ScriptedAI
         KidneyShot_Timer = urand(3000,7000);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void JustDied(Unit* who)
     {

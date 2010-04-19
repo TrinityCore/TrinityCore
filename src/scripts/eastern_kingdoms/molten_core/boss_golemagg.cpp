@@ -61,7 +61,7 @@ struct boss_golemaggAI : public ScriptedAI
         DoCast(me, SPELL_MAGMASPLASH, true);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (m_pInstance)
             m_pInstance->SetData(DATA_GOLEMAGG_DEATH, 0);
@@ -133,7 +133,7 @@ struct mob_core_ragerAI : public ScriptedAI
         m_uiMangleTimer = 7*IN_MILISECONDS;                 // These times are probably wrong
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
     {
         if (me->GetHealth()*100 < me->GetMaxHealth()*50)
         {

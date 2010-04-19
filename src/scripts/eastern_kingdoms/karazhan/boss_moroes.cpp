@@ -110,7 +110,7 @@ struct boss_moroesAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         StartEvent();
 
@@ -119,12 +119,12 @@ struct boss_moroesAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), me);
     }
 
-    void JustDied(Unit* victim)
+    void JustDied(Unit* /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -353,7 +353,7 @@ struct boss_moroes_guestAI : public ScriptedAI
         return me;
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (pInstance && !pInstance->GetData(TYPE_MOROES))
             EnterEvadeMode();

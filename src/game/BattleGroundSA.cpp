@@ -420,7 +420,7 @@ void BattleGroundSA::TeleportPlayers()
     }
 }
 
-void BattleGroundSA::EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 event)
+void BattleGroundSA::EventPlayerDamagedGO(Player* plr, GameObject* /*go*/, uint32 event)
 {
     switch(event)
     {
@@ -565,7 +565,7 @@ void BattleGroundSA::SendTime()
     UpdateWorldState(BG_SA_TIMER_SEC_DECS, ((end_of_round%60000)%10000)/1000);
 }
 
-void BattleGroundSA::EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj)
+void BattleGroundSA::EventPlayerClickedOnFlag(Player * /*Source*/, GameObject* target_obj)
 {
     switch(target_obj->GetEntry())
     {

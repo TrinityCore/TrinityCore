@@ -62,17 +62,17 @@ struct boss_epoch_hunterAI : public ScriptedAI
         Mda_Timer = 40000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2), me);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
 

@@ -57,7 +57,7 @@ bool GossipHello_npc_henry_stern (Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_henry_stern (Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_henry_stern (Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
@@ -78,7 +78,7 @@ bool GossipSelect_npc_henry_stern (Player* pPlayer, Creature* pCreature, uint32 
 ## go_gong
 ######*/
 
-bool GOHello_go_gong(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_gong(Player* /*pPlayer*/, GameObject* pGO)
 {
     //basic support, not blizzlike data is missing...
     ScriptedInstance* pInstance = pGO->GetInstanceData();
@@ -131,7 +131,7 @@ struct npc_tomb_creatureAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_GONG_WAVES,pInstance->GetData(DATA_GONG_WAVES)+1);

@@ -164,7 +164,7 @@ void hyjal_trashAI::DamageTaken(Unit *done_by, uint32 &damage)
     }
 }
 
-void hyjal_trashAI::UpdateAI(const uint32 diff)
+void hyjal_trashAI::UpdateAI(const uint32 /*diff*/)
 {
     if (IsOverrun && !SetupOverrun)
     {
@@ -361,7 +361,7 @@ void hyjal_trashAI::UpdateAI(const uint32 diff)
     }
 }
 
-void hyjal_trashAI::JustDied(Unit *victim)
+void hyjal_trashAI::JustDied(Unit * /*victim*/)
 {
     if (!pInstance)
         return;
@@ -404,7 +404,7 @@ struct mob_giant_infernalAI : public hyjal_trashAI
         imol = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void WaypointReached(uint32 i)
     {
@@ -549,7 +549,7 @@ struct mob_abominationAI : public hyjal_trashAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -649,7 +649,7 @@ struct mob_ghoulAI : public hyjal_trashAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -746,7 +746,7 @@ struct mob_necromancerAI : public hyjal_trashAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         switch (urand(0,2))
         {
@@ -764,7 +764,7 @@ struct mob_necromancerAI : public hyjal_trashAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -855,7 +855,7 @@ struct mob_bansheeAI : public hyjal_trashAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -949,7 +949,7 @@ struct mob_crypt_fiendAI : public hyjal_trashAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -1034,7 +1034,7 @@ struct mob_fel_stalkerAI : public hyjal_trashAI
         }
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -1119,7 +1119,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         }
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_TRASH, 0);//signal trash is dead
@@ -1131,7 +1131,7 @@ struct mob_frost_wyrmAI : public hyjal_trashAI
         me->GetMap()->CreatureRelocation(me, x,y,z,0);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -1335,7 +1335,7 @@ struct alliance_riflemanAI : public Scripted_NoMovementAI
 
     uint32 ExplodeTimer;
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
     }
 
@@ -1351,15 +1351,13 @@ struct alliance_riflemanAI : public Scripted_NoMovementAI
 
         if (who->isTargetableForAttack() && me->IsHostileTo(who))
         {
-            float attackRadius = me->GetAttackDistance(who);
+            //float attackRadius = me->GetAttackDistance(who);
             if (me->IsWithinDistInMap(who, 30))
-            {
                 AttackStart(who);
-            }
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

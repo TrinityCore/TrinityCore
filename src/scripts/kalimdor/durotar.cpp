@@ -51,7 +51,7 @@ struct npc_lazy_peonAI : public ScriptedAI
         work = false;
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 /*type*/, uint32 id)
     {
         if (id == 1)
             work = true;

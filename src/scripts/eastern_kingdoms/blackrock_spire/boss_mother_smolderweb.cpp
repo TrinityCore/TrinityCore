@@ -40,9 +40,9 @@ struct boss_mothersmolderwebAI : public ScriptedAI
         MothersMilk_Timer = 10000;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (me->GetHealth() <= damage)
             DoCast(me, SPELL_SUMMON_SPIRE_SPIDERLING, true);

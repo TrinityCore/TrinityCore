@@ -128,13 +128,13 @@ struct boss_thaddiusAI : public BossAI
     bool checkFeugenAlive;
     uint32 uiAddsTimer;
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         _JustDied();
         DoScriptText(SAY_DEATH, me);
@@ -171,7 +171,7 @@ struct boss_thaddiusAI : public BossAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
@@ -180,7 +180,7 @@ struct boss_thaddiusAI : public BossAI
         events.ScheduleEvent(EVENT_BERSERK, 360000);
     }
 
-    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    void DamageTaken(Unit * /*pDoneBy*/, uint32 & /*uiDamage*/)
     {
         me->SetReactState(REACT_AGGRESSIVE);
     }
@@ -270,12 +270,12 @@ struct mob_stalaggAI : public ScriptedAI
         magneticPullTimer = 20000;
     }
 
-    void EnterCombat(Unit *pWho)
+    void EnterCombat(Unit * /*pWho*/)
     {
         DoCast(SPELL_STALAGG_TESLA);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (pInstance)
             if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))
@@ -347,12 +347,12 @@ struct mob_feugenAI : public ScriptedAI
         staticFieldTimer = 5000;
     }
 
-    void EnterCombat(Unit *pWho)
+    void EnterCombat(Unit * /*pWho*/)
     {
         DoCast(SPELL_FEUGEN_TESLA);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (pInstance)
             if (Creature *pThaddius = me->GetCreature(*me, pInstance->GetData64(DATA_THADDIUS)))

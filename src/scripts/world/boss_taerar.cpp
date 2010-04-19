@@ -79,7 +79,7 @@ struct boss_taerarAI : public ScriptedAI
         m_bShades = false;
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

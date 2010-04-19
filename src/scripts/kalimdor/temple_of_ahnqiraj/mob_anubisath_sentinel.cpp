@@ -137,7 +137,7 @@ struct aqsentinelAI : public ScriptedAI
         }
     }
 
-    void AddSentinelsNear(Unit *nears)
+    void AddSentinelsNear(Unit * /*nears*/)
     {
         std::list<Creature*> assistList;
         me->GetCreatureListWithEntryInGrid(assistList,15264,70.0f);
@@ -221,7 +221,7 @@ struct aqsentinelAI : public ScriptedAI
         me->AddAura(id, me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (gatherOthersWhenAggro)
             GetOtherSentinels(who);
@@ -230,7 +230,7 @@ struct aqsentinelAI : public ScriptedAI
         DoZoneInCombat();
     }
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         for (int ni=0; ni<3; ++ni)
         {
@@ -259,7 +259,7 @@ struct aqsentinelAI : public ScriptedAI
         return NULL;
     }
 
-    Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 effIndex) const
+    Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 /*effIndex*/) const
     {
         switch (spellId)
         {

@@ -44,7 +44,7 @@ struct mob_crystalcore_devastatorAI : public ScriptedAI
         Knockaway_Timer = 25000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

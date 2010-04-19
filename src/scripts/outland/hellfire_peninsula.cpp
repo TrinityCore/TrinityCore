@@ -189,7 +189,7 @@ CreatureAI* GetAI_npc_ancestral_wolf(Creature* pCreature)
 ## go_haaleshi_altar
 ######*/
 
-bool GOHello_go_haaleshi_altar(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_haaleshi_altar(Player* /*pPlayer*/, GameObject* pGo)
 {
     pGo->SummonCreature(C_AERANAS,-1321.79, 4043.80, 116.24, 1.25, TEMPSUMMON_TIMED_DESPAWN, 180000);
     return false;
@@ -216,7 +216,7 @@ bool GossipHello_npc_naladu(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_naladu(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_naladu(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_NALADU1, pCreature->GetGUID());
@@ -253,7 +253,7 @@ bool GossipHello_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_tracy_proudwell(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -298,7 +298,7 @@ bool GossipHello_npc_trollbane(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_trollbane(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_trollbane(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -374,7 +374,7 @@ struct npc_wounded_blood_elfAI : public npc_escortAI
 
     void Reset() { }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING))
             DoScriptText(SAY_ELF_AGGRO, me);

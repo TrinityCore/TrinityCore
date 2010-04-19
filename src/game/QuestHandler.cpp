@@ -693,7 +693,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     SendPacket(&data);
 }
 
-void WorldSession::HandleQueryQuestsCompleted(WorldPacket & recv_data)
+void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recv_data*/)
 {
     uint32 count = 0;
 

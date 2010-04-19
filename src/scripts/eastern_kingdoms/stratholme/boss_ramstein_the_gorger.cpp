@@ -47,11 +47,11 @@ struct boss_ramstein_the_gorgerAI : public ScriptedAI
         Knockout_Timer = 12000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         for (uint8 i = 0; i < 30; ++i)
         {

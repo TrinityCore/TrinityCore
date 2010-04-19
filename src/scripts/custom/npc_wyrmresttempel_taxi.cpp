@@ -19,7 +19,7 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DOWN, GOSSIP_SENDER_MAIN, GOSS
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_wyrmresttempel_middle_taxi(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
@@ -45,7 +45,7 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_MIDDLE, GOSSIP_SENDER_MAIN, GO
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_wyrmresttempel_bottom_taxi(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 4)
     {
@@ -71,7 +71,7 @@ pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ONEDOWN, GOSSIP_SENDER_MAIN, G
     return true;
 }
 
-bool GossipSelect_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_wyrmresttempel_top_taxi(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 5)
     {

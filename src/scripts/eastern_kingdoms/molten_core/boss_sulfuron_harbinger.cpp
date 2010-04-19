@@ -54,7 +54,7 @@ struct boss_sulfuronAI : public ScriptedAI
         Flamespear_Timer = 2000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
@@ -133,7 +133,7 @@ struct mob_flamewaker_priestAI : public ScriptedAI
         Immolate_Timer = 8000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

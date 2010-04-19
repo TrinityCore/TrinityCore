@@ -130,7 +130,7 @@ struct boss_dorotheeAI : public ScriptedAI
         TitoDied = false;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_DOROTHEE_AGGRO, me);
     }
@@ -142,7 +142,7 @@ struct boss_dorotheeAI : public ScriptedAI
 
     void SummonTito();                                      // See below
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DOROTHEE_DEATH, me);
 
@@ -216,9 +216,9 @@ struct mob_titoAI : public ScriptedAI
         YipTimer = 10000;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (DorotheeGUID)
         {
@@ -294,7 +294,7 @@ struct boss_strawmanAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_STRAWMAN_AGGRO, me);
     }
@@ -304,7 +304,7 @@ struct boss_strawmanAI : public ScriptedAI
         me->ForcedDespawn();
     }
 
-    void SpellHit(Unit* caster, const SpellEntry *Spell)
+    void SpellHit(Unit* /*caster*/, const SpellEntry *Spell)
     {
         if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
         {
@@ -317,7 +317,7 @@ struct boss_strawmanAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_STRAWMAN_DEATH, me);
 
@@ -325,7 +325,7 @@ struct boss_strawmanAI : public ScriptedAI
             SummonCroneIfReady(pInstance, me);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(SAY_STRAWMAN_SLAY, me);
     }
@@ -385,7 +385,7 @@ struct boss_tinheadAI : public ScriptedAI
         RustCount   = 0;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_TINHEAD_AGGRO, me);
     }
@@ -411,7 +411,7 @@ struct boss_tinheadAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_TINHEAD_DEATH, me);
 
@@ -419,7 +419,7 @@ struct boss_tinheadAI : public ScriptedAI
             SummonCroneIfReady(pInstance, me);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(SAY_TINHEAD_SLAY, me);
     }
@@ -497,7 +497,7 @@ struct boss_roarAI : public ScriptedAI
         ScriptedAI::AttackStart(who);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_ROAR_AGGRO, me);
     }
@@ -507,7 +507,7 @@ struct boss_roarAI : public ScriptedAI
         me->ForcedDespawn();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_ROAR_DEATH, me);
 
@@ -515,7 +515,7 @@ struct boss_roarAI : public ScriptedAI
             SummonCroneIfReady(pInstance, me);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(SAY_ROAR_SLAY, me);
     }
@@ -579,14 +579,14 @@ struct boss_croneAI : public ScriptedAI
         me->ForcedDespawn();
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(RAND(SAY_CRONE_AGGRO,SAY_CRONE_AGGRO2), me);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_CRONE_DEATH, me);
 
@@ -637,9 +637,9 @@ struct mob_cycloneAI : public ScriptedAI
         MoveTimer = 1000;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void MoveInLineOfSight(Unit* who)
+    void MoveInLineOfSight(Unit* /*who*/)
     {
     }
 
@@ -721,7 +721,7 @@ bool GossipHello_npc_grandmother(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_grandmother(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_grandmother(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -764,7 +764,7 @@ struct boss_bigbadwolfAI : public ScriptedAI
         IsChasing = false;
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_WOLF_AGGRO, me);
     }
@@ -774,7 +774,7 @@ struct boss_bigbadwolfAI : public ScriptedAI
         me->ForcedDespawn();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
 
@@ -981,7 +981,7 @@ struct boss_julianneAI : public ScriptedAI
         RomuloDead = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void AttackStart(Unit* who)
     {
@@ -1004,7 +1004,7 @@ struct boss_julianneAI : public ScriptedAI
         me->ForcedDespawn();
     }
 
-    void SpellHit(Unit* caster, const SpellEntry *Spell)
+    void SpellHit(Unit* /*caster*/, const SpellEntry *Spell)
     {
         if (Spell->Id == SPELL_DRINK_POISON)
         {
@@ -1015,7 +1015,7 @@ struct boss_julianneAI : public ScriptedAI
 
     void DamageTaken(Unit* done_by, uint32 &damage);
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_JULIANNE_DEATH02, me);
 
@@ -1029,7 +1029,7 @@ struct boss_julianneAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
        DoScriptText(SAY_JULIANNE_SLAY, me);
     }
@@ -1084,7 +1084,7 @@ struct boss_romuloAI : public ScriptedAI
 
     void DamageTaken(Unit* done_by, uint32 &damage);
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_ROMULO_AGGRO, me);
         if (JulianneGUID)
@@ -1106,7 +1106,7 @@ struct boss_romuloAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_ROMULO_DEATH, me);
 
@@ -1121,7 +1121,7 @@ struct boss_romuloAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(SAY_ROMULO_SLAY, me);
     }
@@ -1129,7 +1129,7 @@ struct boss_romuloAI : public ScriptedAI
     void UpdateAI(const uint32 diff);
 };
 
-void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
+void boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
 {
     if (damage < me->GetHealth())
         return;
@@ -1191,7 +1191,7 @@ void boss_julianneAI::DamageTaken(Unit* done_by, uint32 &damage)
     error_log("TSCR: boss_julianneAI: DamageTaken reach end of code, that should not happen.");
 }
 
-void boss_romuloAI::DamageTaken(Unit* done_by, uint32 &damage)
+void boss_romuloAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
 {
     if (damage < me->GetHealth())
         return;

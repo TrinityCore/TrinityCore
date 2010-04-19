@@ -106,7 +106,7 @@ struct boss_erekemAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoCast(me, SPELL_EARTH_SHIELD);
@@ -127,7 +127,7 @@ struct boss_erekemAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* who) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -190,7 +190,7 @@ struct boss_erekemAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -209,7 +209,7 @@ struct boss_erekemAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -279,7 +279,7 @@ struct mob_erekem_guardAI : public ScriptedAI
         }
     }
 
-    void MoveInLineOfSight(Unit* who) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {

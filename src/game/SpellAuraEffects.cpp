@@ -876,7 +876,7 @@ void AuraEffect::CalculateSpellMod()
 
 void AuraEffect::ChangeAmount(int32 newAmount, bool mark)
 {
-    Unit * caster = GetCaster();
+    //Unit * caster = GetCaster();
     // Reapply if amount change
     if (newAmount != GetAmount())
     {
@@ -2331,7 +2331,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
 {
     uint32 spellId = 0;
     uint32 spellId2 = 0;
-    uint32 spellId3 = 0;
+    //uint32 spellId3 = 0;
     uint32 HotWSpellId = 0;
 
     switch(GetMiscValue())
@@ -3495,7 +3495,7 @@ void AuraEffect::HandleAuraUntrackable(AuraApplication const * aurApp, uint8 mod
 /***  SKILLS & TALENTS    ***/
 /****************************/
 
-void AuraEffect::HandleAuraModPetTalentsPoints(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModPetTalentsPoints(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
@@ -3510,7 +3510,7 @@ void AuraEffect::HandleAuraModPetTalentsPoints(AuraApplication const * aurApp, u
         pet->InitTalentForLevel();
 }
 
-void AuraEffect::HandleAuraModSkill(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModSkill(AuraApplication const * aurApp, uint8 /*mode*/, bool apply) const
 {
     Unit * target = aurApp->GetTarget();
 
@@ -3679,7 +3679,7 @@ void AuraEffect::HandleAuraHover(AuraApplication const * aurApp, uint8 mode, boo
     target->SendMessageToSet(&data,true);
 }
 
-void AuraEffect::HandleWaterBreathing(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleWaterBreathing(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK))
         return;
@@ -3968,7 +3968,7 @@ void AuraEffect::HandleAuraControlVehicle(AuraApplication const * aurApp, uint8 
 /*********************************************************/
 /***                  MODIFY SPEED                     ***/
 /*********************************************************/
-void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
@@ -3978,7 +3978,7 @@ void AuraEffect::HandleAuraModIncreaseSpeed(AuraApplication const * aurApp, uint
     target->UpdateSpeed(MOVE_RUN, true);
 }
 
-void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModIncreaseMountedSpeed(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
@@ -4030,7 +4030,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const * aurApp
         target->UpdateSpeed(MOVE_FLIGHT, true);
 }
 
-void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
@@ -4040,7 +4040,7 @@ void AuraEffect::HandleAuraModIncreaseSwimSpeed(AuraApplication const * aurApp, 
     target->UpdateSpeed(MOVE_SWIM, true);
 }
 
-void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK))
         return;
@@ -4055,7 +4055,7 @@ void AuraEffect::HandleAuraModDecreaseSpeed(AuraApplication const * aurApp, uint
     target->UpdateSpeed(MOVE_FLIGHT_BACK, true);
 }
 
-void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModUseNormalSpeed(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;
@@ -4451,7 +4451,7 @@ void AuraEffect::HandleModPercentStat(AuraApplication const * aurApp, uint8 mode
     }
 }
 
-void AuraEffect::HandleModSpellDamagePercentFromStat(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModSpellDamagePercentFromStat(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4467,7 +4467,7 @@ void AuraEffect::HandleModSpellDamagePercentFromStat(AuraApplication const * aur
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleModSpellHealingPercentFromStat(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModSpellHealingPercentFromStat(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4481,7 +4481,7 @@ void AuraEffect::HandleModSpellHealingPercentFromStat(AuraApplication const * au
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4497,7 +4497,7 @@ void AuraEffect::HandleModSpellDamagePercentFromAttackPower(AuraApplication cons
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleModSpellHealingPercentFromAttackPower(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModSpellHealingPercentFromAttackPower(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4511,7 +4511,7 @@ void AuraEffect::HandleModSpellHealingPercentFromAttackPower(AuraApplication con
     target->ToPlayer()->UpdateSpellDamageAndHealingBonus();
 }
 
-void AuraEffect::HandleModHealingDone(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModHealingDone(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4561,7 +4561,7 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const * aurApp, uint8
     }
 }
 
-void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4583,7 +4583,7 @@ void AuraEffect::HandleAuraModResistenceOfStatPercent(AuraApplication const * au
     target->UpdateArmor();
 }
 
-void AuraEffect::HandleAuraModExpertise(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModExpertise(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4600,7 +4600,7 @@ void AuraEffect::HandleAuraModExpertise(AuraApplication const * aurApp, uint8 mo
 /********************************/
 /***      HEAL & ENERGIZE     ***/
 /********************************/
-void AuraEffect::HandleModPowerRegen(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModPowerRegen(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4616,7 +4616,7 @@ void AuraEffect::HandleModPowerRegen(AuraApplication const * aurApp, uint8 mode,
     // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
 }
 
-void AuraEffect::HandleModPowerRegenPCT(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModPowerRegenPCT(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4632,7 +4632,7 @@ void AuraEffect::HandleModPowerRegenPCT(AuraApplication const * aurApp, uint8 mo
     // other powers are not immediate effects - implemented in Player::Regenerate, Creature::Regenerate
 }
 
-void AuraEffect::HandleModManaRegen(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModManaRegen(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4764,7 +4764,7 @@ void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const * aur
 /***          FIGHT           ***/
 /********************************/
 
-void AuraEffect::HandleAuraModParryPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModParryPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4777,7 +4777,7 @@ void AuraEffect::HandleAuraModParryPercent(AuraApplication const * aurApp, uint8
     target->ToPlayer()->UpdateParryPercentage();
 }
 
-void AuraEffect::HandleAuraModDodgePercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModDodgePercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4790,7 +4790,7 @@ void AuraEffect::HandleAuraModDodgePercent(AuraApplication const * aurApp, uint8
     target->ToPlayer()->UpdateDodgePercentage();
 }
 
-void AuraEffect::HandleAuraModBlockPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModBlockPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4803,7 +4803,7 @@ void AuraEffect::HandleAuraModBlockPercent(AuraApplication const * aurApp, uint8
     target->ToPlayer()->UpdateBlockPercentage();
 }
 
-void AuraEffect::HandleAuraModRegenInterrupt(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModRegenInterrupt(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4891,7 +4891,7 @@ void AuraEffect::HandleModSpellCritChance(AuraApplication const * aurApp, uint8 
         target->m_baseSpellCritChance += (apply) ? GetAmount():-GetAmount();
 }
 
-void AuraEffect::HandleModSpellCritChanceShool(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleModSpellCritChanceShool(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5099,7 +5099,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const * a
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER_RANGED, TOTAL_PCT, float(GetAmount()), apply);
 }
 
-void AuraEffect::HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5111,7 +5111,7 @@ void AuraEffect::HandleAuraModRangedAttackPowerOfStatPercent(AuraApplication con
         target->ToPlayer()->UpdateAttackPowerAndDamage(true);
 }
 
-void AuraEffect::HandleAuraModAttackPowerOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModAttackPowerOfStatPercent(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5123,7 +5123,7 @@ void AuraEffect::HandleAuraModAttackPowerOfStatPercent(AuraApplication const * a
         target->ToPlayer()->UpdateAttackPowerAndDamage(false);
 }
 
-void AuraEffect::HandleAuraModAttackPowerOfArmor(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModAttackPowerOfArmor(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -5358,7 +5358,7 @@ void AuraEffect::HandleArenaPreparation(AuraApplication const * aurApp, uint8 mo
     }
 }
 
-void AuraEffect::HandleNoReagentUseAura(AuraApplication const * aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleNoReagentUseAura(AuraApplication const * aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & AURA_EFFECT_HANDLE_REAL))
         return;

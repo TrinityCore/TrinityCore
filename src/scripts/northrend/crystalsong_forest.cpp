@@ -54,7 +54,7 @@ struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
         uiTargetGUID = 0;
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (me->IsNonMeleeSpellCasted(false))
             return;

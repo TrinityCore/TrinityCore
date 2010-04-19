@@ -40,7 +40,7 @@ struct instance_ramparts : public ScriptedInstance
         m_uiChestHGUID = 0;
     }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
     {
         switch(pGo->GetEntry())
         {

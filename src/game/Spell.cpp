@@ -773,7 +773,7 @@ void Spell::SelectSpellTargets()
     }
 }
 
-void Spell::prepareDataForTriggerSystem(AuraEffect const * triggeredByAura)
+void Spell::prepareDataForTriggerSystem(AuraEffect const * /*triggeredByAura*/)
 {
     //==========================================================================================
     // Now fill data for trigger system, need know:
@@ -1527,7 +1527,7 @@ bool Spell::UpdateChanneledTargetList()
 
     needAuraMask &= needAliveTargetMask;
 
-    float range;
+    float range = 0;
     if (needAuraMask)
     {
         range = GetSpellMaxRange(m_spellInfo, IsPositiveSpell(m_spellInfo->Id));
@@ -3516,7 +3516,7 @@ void Spell::SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 ca
             break;
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
-             uint32 item;
+             uint32 item = 0;
              for (int8 x=0;x < 3;x++)
                  if (spellInfo->EffectItemType[x])
                      item = spellInfo->EffectItemType[x];

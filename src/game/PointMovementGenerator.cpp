@@ -73,7 +73,7 @@ void PointMovementGenerator<T>:: Finalize(T &unit)
 }
 
 template<class T>
-void PointMovementGenerator<T>::MovementInform(T &unit)
+void PointMovementGenerator<T>::MovementInform(T & /*unit*/)
 {
 }
 

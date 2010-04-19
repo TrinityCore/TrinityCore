@@ -757,7 +757,7 @@ bool ChatHandler::HandleReloadCreatureQuestRelationsCommand(const char*)
     return true;
 }
 
-bool ChatHandler::HandleReloadCreatureLinkedRespawnCommand(const char *args)
+bool ChatHandler::HandleReloadCreatureLinkedRespawnCommand(const char * /*args*/)
 {
     sLog.outString("Loading Linked Respawns... (`creature_linked_respawn`)");
     objmgr.LoadCreatureLinkedRespawn();
@@ -1193,7 +1193,7 @@ bool ChatHandler::HandleReloadWpScriptsCommand(const char* arg)
     return true;
 }
 
-bool ChatHandler::HandleReloadEventAITextsCommand(const char* arg)
+bool ChatHandler::HandleReloadEventAITextsCommand(const char* /*args*/)
 {
 
     sLog.outString("Re-Loading Texts from `creature_ai_texts`...");
@@ -1202,7 +1202,7 @@ bool ChatHandler::HandleReloadEventAITextsCommand(const char* arg)
     return true;
 }
 
-bool ChatHandler::HandleReloadEventAISummonsCommand(const char* arg)
+bool ChatHandler::HandleReloadEventAISummonsCommand(const char* /*args*/)
 {
     sLog.outString("Re-Loading Summons from `creature_ai_summons`...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Summons();
@@ -1210,7 +1210,7 @@ bool ChatHandler::HandleReloadEventAISummonsCommand(const char* arg)
     return true;
 }
 
-bool ChatHandler::HandleReloadEventAIScriptsCommand(const char* arg)
+bool ChatHandler::HandleReloadEventAIScriptsCommand(const char* /*args*/)
 {
     sLog.outString("Re-Loading Scripts from `creature_ai_scripts`...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Scripts();
@@ -1391,7 +1391,7 @@ bool ChatHandler::HandleReloadMailLevelRewardCommand(const char* /*arg*/)
     return true;
 }
 
-bool ChatHandler::HandleReloadAuctionsCommand(const char *args)
+bool ChatHandler::HandleReloadAuctionsCommand(const char * /*args*/)
 {
     ///- Reload dynamic data tables from the database
     sLog.outString("Re-Loading Auctions...");
@@ -5113,7 +5113,7 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
         PSendSysMessage(LANG_COMMAND_TARGET_LISTAURATYPE, uAuraList.size(), i);
         for (Unit::AuraEffectList::const_iterator itr = uAuraList.begin(); itr != uAuraList.end(); ++itr)
         {
-            bool talent = GetTalentSpellCost((*itr)->GetId()) > 0;
+            //bool talent = GetTalentSpellCost((*itr)->GetId()) > 0;
 
             char const* name = (*itr)->GetSpellProto()->SpellName[GetSessionDbcLocale()];
 
@@ -7414,7 +7414,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleListFreezeCommand(const char *args)
+bool ChatHandler::HandleListFreezeCommand(const char * /*args*/)
 {
     //Get names from DB
     QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT characters.name FROM characters LEFT JOIN character_aura ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
@@ -7479,7 +7479,7 @@ bool ChatHandler::HandleGroupRemoveCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandlePossessCommand(const char *args)
+bool ChatHandler::HandlePossessCommand(const char * /*args*/)
 {
     Unit *pUnit = getSelectedUnit();
     if (!pUnit)
@@ -7489,7 +7489,7 @@ bool ChatHandler::HandlePossessCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleUnPossessCommand(const char *args)
+bool ChatHandler::HandleUnPossessCommand(const char * /*args*/)
 {
     Unit *pUnit = getSelectedUnit();
     if (!pUnit)
@@ -7500,7 +7500,7 @@ bool ChatHandler::HandleUnPossessCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleBindSightCommand(const char *args)
+bool ChatHandler::HandleBindSightCommand(const char * /*args*/)
 {
     Unit *pUnit = getSelectedUnit();
     if (!pUnit)
@@ -7510,7 +7510,7 @@ bool ChatHandler::HandleBindSightCommand(const char *args)
     return true;
 }
 
-bool ChatHandler::HandleUnbindSightCommand(const char *args)
+bool ChatHandler::HandleUnbindSightCommand(const char * /*args*/)
 {
     if (m_session->GetPlayer()->isPossessing())
         return false;

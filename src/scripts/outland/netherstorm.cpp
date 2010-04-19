@@ -82,7 +82,7 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
         add = NULL;
     }
 
-    void EnterCombat(Unit *who) { return; }
+    void EnterCombat(Unit * /*who*/) {}
 
     /*void SpellHit(Unit *caster, const SpellEntry *spell)
     {
@@ -92,7 +92,7 @@ struct npc_manaforge_control_consoleAI : public ScriptedAI
             DoSay("Silence! I kill you!",LANG_UNIVERSAL, NULL);
     }*/
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(EMOTE_ABORT, me);
 
@@ -387,7 +387,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
         isEvent = false;
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     void JustSummoned(Creature *summoned)
     {
@@ -604,7 +604,7 @@ CreatureAI* GetAI_npc_commander_dawnforge(Creature* pCreature)
     return new npc_commander_dawnforgeAI(pCreature);
 }
 
-bool AreaTrigger_at_commander_dawnforge(Player* pPlayer, const AreaTriggerEntry *at)
+bool AreaTrigger_at_commander_dawnforge(Player* pPlayer, const AreaTriggerEntry * /*at*/)
 {
     //if player lost aura or not have at all, we should not try start event.
     if (!pPlayer->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -647,7 +647,7 @@ bool GossipHello_npc_professor_dabiri(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_professor_dabiri(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -715,13 +715,13 @@ struct mob_phase_hunterAI : public ScriptedAI
             me->UpdateEntry(NPC_PHASE_HUNTER_ENTRY);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
             PlayerGUID = who->GetGUID();
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry * /*spell*/)
     {
         DoCast(me, SPELL_DE_MATERIALIZE);
     }
@@ -811,7 +811,7 @@ struct npc_bessyAI : public npc_escortAI
 
     npc_bessyAI(Creature *c) : npc_escortAI(c) {}
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (Player* pPlayer = GetPlayerForEscort())
             pPlayer->FailQuest(Q_ALMABTRIEB);

@@ -235,7 +235,7 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
     va_list ap;
     char szQueryTail [MAX_QUERY_LEN];
     va_start(ap, queryTail);
-    int res = vsnprintf(szQueryTail, MAX_QUERY_LEN, queryTail, ap);
+    vsnprintf(szQueryTail, MAX_QUERY_LEN, queryTail, ap);
     va_end(ap);
 
     QueryResult_AutoPtr result = db.PQuery("SELECT %s FROM %s %s", fields, table, szQueryTail);
@@ -258,8 +258,6 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
 
 void InstanceSaveManager::CleanupInstances()
 {
-    uint64 now = (uint64)time(NULL);
-
     barGoLink bar(2);
     bar.step();
 

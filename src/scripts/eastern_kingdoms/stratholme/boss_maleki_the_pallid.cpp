@@ -49,11 +49,11 @@ struct boss_maleki_the_pallidAI : public ScriptedAI
         DrainLife_Timer = 31000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(TYPE_PALLID,IN_PROGRESS);

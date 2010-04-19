@@ -122,7 +122,7 @@ struct boss_ragnarosAI : public ScriptedAI
         HasAura = true;
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (rand()%5)
             return;
@@ -130,7 +130,7 @@ struct boss_ragnarosAI : public ScriptedAI
         DoScriptText(SAY_KILL, me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

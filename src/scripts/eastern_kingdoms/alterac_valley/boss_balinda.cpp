@@ -103,7 +103,7 @@ struct boss_balindaAI : public ScriptedAI
         Summons.DespawnAll();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(YELL_AGGRO, me);
     }
@@ -121,7 +121,7 @@ struct boss_balindaAI : public ScriptedAI
         Summons.Summon(summoned);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         Summons.DespawnAll();
     }

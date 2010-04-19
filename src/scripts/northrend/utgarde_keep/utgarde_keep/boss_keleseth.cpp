@@ -76,9 +76,9 @@ struct mob_frost_tombAI : public ScriptedAI
     }
 
     void Reset(){ FrostTombGUID = 0; }
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void JustDied(Unit *killer)
     {
@@ -93,7 +93,7 @@ struct mob_frost_tombAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         Unit* temp = Unit::GetUnit((*me),FrostTombGUID);
         if ((temp && temp->isAlive() && !temp->HasAura(SPELL_FROST_TOMB)) || !temp)
@@ -131,7 +131,7 @@ struct boss_kelesethAI : public ScriptedAI
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -139,7 +139,7 @@ struct boss_kelesethAI : public ScriptedAI
         DoScriptText(SAY_KILL, me);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -162,7 +162,7 @@ struct boss_kelesethAI : public ScriptedAI
             pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
@@ -250,7 +250,7 @@ struct mob_vrykul_skeletonAI : public ScriptedAI
         isDead = false;
     }
 
-    void EnterCombat(Unit *who){}
+    void EnterCombat(Unit * /*who*/){}
     void DamageTaken(Unit *done_by, uint32 &damage)
     {
         if (done_by->GetGUID() == me->GetGUID())

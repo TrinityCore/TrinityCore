@@ -67,7 +67,7 @@ struct boss_the_makerAI : public ScriptedAI
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
 
@@ -78,12 +78,12 @@ struct boss_the_makerAI : public ScriptedAI
         pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), false);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DIE, me);
 

@@ -87,7 +87,7 @@ bool GossipHello_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_jaina_proudmoore(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     hyjalAI* ai = CAST_AI(hyjalAI, pCreature->AI());
     switch(uiAction)
@@ -156,7 +156,7 @@ bool GossipHello_npc_thrall(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_thrall(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_thrall(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     hyjalAI* ai = CAST_AI(hyjalAI, pCreature->AI());
     ai->DeSpawnVeins();//despawn the alliance veins
@@ -201,7 +201,7 @@ bool GossipHello_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -214,7 +214,7 @@ bool GossipSelect_npc_tyrande_whisperwind(Player* pPlayer, Creature* pCreature, 
                      pPlayer->SendNewItem(item,1,true,false,true);
             }
             pPlayer->SEND_GOSSIP_MENU(907, pCreature->GetGUID());
-            hyjalAI* ai = CAST_AI(hyjalAI, pCreature->AI());
+            CAST_AI(hyjalAI, pCreature->AI());
     }
     return true;
 }

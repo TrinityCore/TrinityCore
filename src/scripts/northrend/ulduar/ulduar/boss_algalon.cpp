@@ -129,7 +129,7 @@ struct boss_algalonAI : public ScriptedAI
             pInstance->SetData(TYPE_ALGALON, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }

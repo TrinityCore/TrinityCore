@@ -161,11 +161,11 @@ struct hyjalAI : public npc_escortAI
 
     void EnterEvadeMode();                                  // Send creature back to spawn location and evade.
 
-    void EnterCombat(Unit *who);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
+    void EnterCombat(Unit * /*who*/);                                  // Used to reset cooldowns for our spells and to inform the raid that we're under attack
 
     void UpdateAI(const uint32 diff);                       // Called to summon waves, check for boss deaths and to cast our spells.
 
-    void JustDied(Unit* killer);                             // Called on death, informs the raid that they have failed.
+    void JustDied(Unit* /*killer*/);                             // Called on death, informs the raid that they have failed.
 
     void SetFaction(uint32 _faction)                        // Set the faction to either Alliance or Horde in Hyjal
     {

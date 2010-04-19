@@ -60,7 +60,7 @@ struct boss_broggokAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         if (pInstance)
@@ -104,7 +104,7 @@ struct boss_broggokAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         if (pInstance)
         {

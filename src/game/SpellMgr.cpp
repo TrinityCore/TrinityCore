@@ -3053,7 +3053,6 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
         default:
             return false;
     }
-    return false;
 }
 
 DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
@@ -3065,7 +3064,6 @@ DiminishingLevels GetDiminishingReturnsMaxLevel(DiminishingGroup group)
         default:
             return DIMINISHING_LEVEL_IMMUNE;
     }
-    return DIMINISHING_LEVEL_IMMUNE;
 }
 
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group)

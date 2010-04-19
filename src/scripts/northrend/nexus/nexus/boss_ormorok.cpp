@@ -86,7 +86,7 @@ struct boss_ormorokAI : public ScriptedAI
             pInstance->SetData(DATA_ORMOROK_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -94,7 +94,7 @@ struct boss_ormorokAI : public ScriptedAI
             pInstance->SetData(DATA_ORMOROK_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -102,7 +102,7 @@ struct boss_ormorokAI : public ScriptedAI
             pInstance->SetData(DATA_ORMOROK_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_KILL, me);
     }
@@ -125,7 +125,7 @@ struct boss_ormorokAI : public ScriptedAI
                 fSpikeXY[3][0] = fBaseX-(SPIKE_DISTANCE*uiCrystalSpikesCount*cos(fBaseO-(M_PI/2)));
                 fSpikeXY[3][1] = fBaseY-(SPIKE_DISTANCE*uiCrystalSpikesCount*sin(fBaseO-(M_PI/2)));
                 for (uint8 i = 0; i < 4; ++i)
-                    Creature* Spike = me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILISECONDS);
+                    me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILISECONDS);
                 if (++uiCrystalSpikesCount >= 13)
                     bCrystalSpikes = false;
                 uiCrystalSpikesTimer2 = 200;

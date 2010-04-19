@@ -1913,8 +1913,8 @@ void World::Update(uint32 diff)
     {
         if (m_timers[WUPDATE_CLEANDB].Passed())
         {
-            uint32 tmpDiff = (m_gameTime - m_startTime);
-            uint32 maxClientsNum = sWorld.GetMaxActiveSessionCount();
+            //uint32 tmpDiff = (m_gameTime - m_startTime);
+            //uint32 maxClientsNum = sWorld.GetMaxActiveSessionCount();
 
             m_timers[WUPDATE_CLEANDB].Reset();
             loginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < "UI64FMTD";",
@@ -2581,7 +2581,7 @@ void World::ResetWeeklyQuests()
     sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
 }	
 
-void World::SetPlayerLimit(int32 limit, bool needUpdate)
+void World::SetPlayerLimit(int32 limit, bool /*needUpdate*/)
 {
     m_playerLimit = limit;
 }

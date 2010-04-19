@@ -149,7 +149,7 @@ struct npc_barnesAI : public npc_escortAI
         Start(false, false);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void WaypointReached(uint32 i)
     {
@@ -354,7 +354,7 @@ bool GossipHello_npc_barnes(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     npc_barnesAI* pBarnesAI = CAST_AI(npc_barnesAI, pCreature->AI());
 
@@ -412,7 +412,7 @@ bool GossipHello_npc_berthold(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_berthold(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_berthold(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CastSpell(pPlayer, SPELL_TELEPORT, true);
@@ -477,7 +477,7 @@ struct npc_image_of_medivhAI : public ScriptedAI
             me->RemoveCorpse();
         }
     }
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/) {}
 
     void MovementInform(uint32 type, uint32 id)
     {

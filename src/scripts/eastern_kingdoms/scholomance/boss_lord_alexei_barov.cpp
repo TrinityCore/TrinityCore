@@ -42,7 +42,7 @@ struct boss_lordalexeibarovAI : public ScriptedAI
         me->LoadCreaturesAddon();
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         ScriptedInstance *pInstance = me->GetInstanceData();
         if (pInstance)
@@ -54,7 +54,7 @@ struct boss_lordalexeibarovAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

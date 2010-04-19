@@ -50,10 +50,8 @@ struct npc_converted_sentryAI : public ScriptedAI
         Timer = 2500;
     }
 
-    void MoveInLineOfSight(Unit *who)
-        { return; }
-    void EnterCombat(Unit* who)
-        { }
+    void MoveInLineOfSight(Unit * /*who*/) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -95,7 +93,7 @@ struct npc_greengill_slaveAI : public ScriptedAI
 
     uint64 PlayerGUID;
 
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/){}
 
     void Reset()
     {
@@ -126,7 +124,7 @@ struct npc_greengill_slaveAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         DoMeleeAttackIfReady();
     }

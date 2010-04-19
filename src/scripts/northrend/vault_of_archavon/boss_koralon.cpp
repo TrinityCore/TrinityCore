@@ -82,15 +82,15 @@ struct boss_koralonAI : public ScriptedAI
             pInstance->SetData(DATA_KORALON_EVENT, NOT_STARTED);
     }
 
-    void KilledUnit(Unit* Victim) {}
+    void KilledUnit(Unit* /*Victim*/) {}
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_KORALON_EVENT, DONE);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
 
@@ -159,7 +159,7 @@ struct mob_flame_warderAI : public ScriptedAI
         events.Reset();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
 

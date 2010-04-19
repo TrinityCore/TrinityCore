@@ -131,7 +131,7 @@ struct boss_svalaAI : public ScriptedAI
         }
     }
 
-    void AttackStart(Unit* who) {}
+    void AttackStart(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -209,14 +209,14 @@ struct mob_ritual_channelerAI : public Scripted_NoMovementAI
     }
 
     // called by svala sorrowgrave to set guid of victim
-    void DoAction(uint32 action)
+    void DoAction(uint32 /*action*/)
     {
         if (pInstance)
             if (Unit *pVictim = me->GetUnit(*me, pInstance->GetData64(DATA_SACRIFICED_PLAYER)))
                 DoCast(pVictim, SPELL_PARALYZE);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
     }
 };
@@ -264,7 +264,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -353,7 +353,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }

@@ -121,7 +121,7 @@ struct npc_unworthy_initiateAI : public ScriptedAI
         me->LoadEquipment(0, true);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         events.ScheduleEvent(EVENT_ICY_TOUCH, 1000, GCD_CAST);
         events.ScheduleEvent(EVENT_PLAGUE_STRIKE, 3000, GCD_CAST);
@@ -176,13 +176,13 @@ struct npc_unworthy_initiate_anchorAI : public PassiveAI
 
     uint64 prisonerGUID;
 
-    void SetGUID(const uint64 &guid, int32 id)
+    void SetGUID(const uint64 &guid, int32 /*id*/)
     {
         if (!prisonerGUID)
             prisonerGUID = guid;
     }
 
-    uint64 GetGUID(int32 id) { return prisonerGUID; }
+    uint64 GetGUID(int32 /*id*/) { return prisonerGUID; }
 };
 
 void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
@@ -458,7 +458,7 @@ bool GossipHello_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_death_knight_initiate(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -640,7 +640,7 @@ struct npc_ros_dark_riderAI : public ScriptedAI
 {
     npc_ros_dark_riderAI(Creature *c) : ScriptedAI(c) {}
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         me->ExitVehicle();
     }
@@ -748,7 +748,7 @@ struct npc_scarlet_ghoulAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!me->isInCombat())
         {
@@ -810,12 +810,12 @@ struct npc_scarlet_miner_cartAI : public PassiveAI
 
     uint64 minerGUID;
 
-    void SetGUID(const uint64 &guid, int32 id)
+    void SetGUID(const uint64 &guid, int32 /*id*/)
     {
         minerGUID = guid;
     }
 
-    void DoAction(const int32 param)
+    void DoAction(const int32 /*param*/)
     {
         if (Creature *miner = Unit::GetCreature(*me, minerGUID))
         {
@@ -827,7 +827,7 @@ struct npc_scarlet_miner_cartAI : public PassiveAI
         }
     }
 
-    void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+    void PassengerBoarded(Unit * /*who*/, int8 /*seatId*/, bool apply)
     {
         if (!apply)
             if (Creature *miner = Unit::GetCreature(*me, minerGUID))
@@ -975,7 +975,7 @@ CreatureAI* GetAI_npc_scarlet_miner(Creature *_Creature)
 
 #define SPELL_CART_SUMM   52463
 
-bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* pGO)
+bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* /*pGO*/)
 {
     if (pPlayer->GetQuestStatus(12701) == QUEST_STATUS_INCOMPLETE)
     {

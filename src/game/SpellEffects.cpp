@@ -312,7 +312,7 @@ void Spell::EffectEnvirinmentalDMG(uint32 i)
         m_caster->ToPlayer()->EnvironmentalDamage(DAMAGE_FIRE, damage);
 }
 
-void Spell::EffectSchoolDMG(uint32 effect_idx)
+void Spell::EffectSchoolDMG(uint32 /*effect_idx*/)
 {
 }
 
@@ -356,7 +356,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                                             ++count;
                             if (count)
                             {
-                                uint32 spellId;
+                                uint32 spellId = 0;
                                 switch (m_spellInfo->Id)
                                 {
                                     case 28062: spellId = 29659; break;
@@ -989,7 +989,7 @@ void Spell::EffectDummy(uint32 i)
 
                     Creature* creatureTarget = unitTarget->ToCreature();
 
-                    GameObject* Crystal_Prison = m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-time(NULL));
+                    m_caster->SummonGameObject(179644, creatureTarget->GetPositionX(), creatureTarget->GetPositionY(), creatureTarget->GetPositionZ(), creatureTarget->GetOrientation(), 0, 0, 0, 0, creatureTarget->GetRespawnTime()-time(NULL));
                     sLog.outDebug("SummonGameObject at SpellEfects.cpp EffectDummy for Spell 23019");
 
                     creatureTarget->ForcedDespawn();
@@ -2514,7 +2514,7 @@ void Spell::EffectJump(uint32 i)
     m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void Spell::EffectTeleportUnits(uint32 i)
+void Spell::EffectTeleportUnits(uint32 /*i*/)
 {
     if (!unitTarget || unitTarget->isInFlight())
         return;
@@ -2753,7 +2753,7 @@ void Spell::EffectPowerBurn(uint32 i)
     if (damage < 0)
         return;
 
-    Unit* caster = m_originalCaster ? m_originalCaster : m_caster;
+    //Unit* caster = m_originalCaster ? m_originalCaster : m_caster;
 
     // burn x% of target's mana, up to maximum of 2x% of caster's mana (Mana Burn)
     if (m_spellInfo->ManaCostPercentage)
@@ -2980,7 +2980,7 @@ void Spell::EffectHealthLeech(uint32 i)
 //    m_damage+=new_damage;
 }
 
-void Spell::DoCreateItem(uint32 i, uint32 itemtype)
+void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -3125,7 +3125,7 @@ void Spell::EffectCreateItem2(uint32 i)
     }
 }
 
-void Spell::EffectCreateRandomItem(uint32 i)
+void Spell::EffectCreateRandomItem(uint32 /*i*/)
 {
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -4435,7 +4435,7 @@ void Spell::EffectTaunt(uint32 /*i*/)
         unitTarget->ToCreature()->AI()->AttackStart(m_caster);
 }
 
-void Spell::EffectWeaponDmg(uint32 i)
+void Spell::EffectWeaponDmg(uint32 /*i*/)
 {
 }
 
@@ -4755,7 +4755,7 @@ void Spell::EffectHealMaxHealth(uint32 /*i*/)
     }
 }
 
-void Spell::EffectInterruptCast(uint32 i)
+void Spell::EffectInterruptCast(uint32 /*i*/)
 {
     if (!unitTarget)
         return;
@@ -6701,7 +6701,7 @@ void Spell::EffectQuestComplete(uint32 i)
     pPlayer->AreaExploredOrEventHappens(quest_id);
 }
 
-void Spell::EffectForceDeselect(uint32 i)
+void Spell::EffectForceDeselect(uint32 /*i*/)
 {
     WorldPacket data(SMSG_CLEAR_TARGET, 8);
     data << uint64(m_caster->GetGUID());
@@ -7456,7 +7456,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
-    TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    //TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
     Map *map = caster->GetMap();
 
     for (uint32 count = 0; count < amount; ++count)
@@ -7614,7 +7614,7 @@ void Spell::EffectCastButtons(uint32 i)
     }
 }
 
-void Spell::EffectRechargeManaGem(uint32 i)
+void Spell::EffectRechargeManaGem(uint32 /*i*/)
 {
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;

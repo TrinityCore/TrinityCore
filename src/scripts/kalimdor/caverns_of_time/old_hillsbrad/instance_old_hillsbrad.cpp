@@ -89,7 +89,7 @@ struct instance_old_hillsbrad : public ScriptedInstance
         }
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
         {

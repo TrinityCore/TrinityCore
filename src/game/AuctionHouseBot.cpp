@@ -185,11 +185,11 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     uint32 purpleIcount = config->GetPercents(AHB_PURPLE_I);
     uint32 orangeIcount = config->GetPercents(AHB_ORANGE_I);
     uint32 yellowIcount = config->GetPercents(AHB_YELLOW_I);
-    uint32 total = greyTGcount + whiteTGcount + greenTGcount + blueTGcount
+/*    uint32 total = greyTGcount + whiteTGcount + greenTGcount + blueTGcount
         + purpleTGcount + orangeTGcount + yellowTGcount
         + whiteIcount + greenIcount + blueIcount + purpleIcount
         + orangeIcount + yellowIcount;
-
+*/
     uint32 greyTGoods = config->GetItemCounts(AHB_GREY_TG);
     uint32 whiteTGoods = config->GetItemCounts(AHB_WHITE_TG);
     uint32 greenTGoods = config->GetItemCounts(AHB_GREEN_TG);
@@ -1434,7 +1434,7 @@ void AuctionHouseBot::DecrementItemCounts(AuctionEntry* ah, uint32 item_template
 
 void AuctionHouseBot::Commands(uint32 command, uint32 ahMapID, uint32 col, char* args)
 {
-    AHBConfig *config;
+    AHBConfig *config = NULL;
     switch (ahMapID)
     {
     case 2:
@@ -1751,7 +1751,7 @@ void AuctionHouseBot::LoadValues(AHBConfig *config)
             sLog.outString("maxStackOrange          = %u", config->GetMaxStack(AHB_ORANGE));
             sLog.outString("maxStackYellow          = %u", config->GetMaxStack(AHB_YELLOW));
         }
-        AuctionHouseEntry const* ahEntry = auctionmgr.GetAuctionHouseEntry(config->GetAHFID());
+        //AuctionHouseEntry const* ahEntry = auctionmgr.GetAuctionHouseEntry(config->GetAHFID());
         AuctionHouseObject* auctionHouse = auctionmgr.GetAuctionsMap(config->GetAHFID());
 
         config->ResetItemCounts();

@@ -76,7 +76,7 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -84,12 +84,12 @@ struct boss_mekgineer_steamriggerAI : public ScriptedAI
             pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, DONE);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
 
@@ -199,13 +199,12 @@ struct mob_steamrigger_mechanicAI : public ScriptedAI
         Repair_Timer = 2000;
     }
 
-    void MoveInLineOfSight(Unit* who)
+    void MoveInLineOfSight(Unit* /*who*/)
     {
         //react only if attacked
-        return;
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     void UpdateAI(const uint32 diff)
     {

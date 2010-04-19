@@ -141,7 +141,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
         DoScriptText(RAND(TEXT_SLAY_1, TEXT_SLAY_2, TEXT_SLAY_3), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(TEXT_DEATH, me);
         if (pInstance)
@@ -508,11 +508,11 @@ struct npc_jedogas_aufseher_triggerAI : public Scripted_NoMovementAI
     bool bCasted2;
 
     void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* victim) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*victim*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!pInstance)
             return;

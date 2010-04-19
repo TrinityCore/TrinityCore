@@ -66,7 +66,7 @@ struct boss_majordomoAI : public ScriptedAI
         Blastwave_Timer = 10000;
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (rand()%5)
             return;
@@ -74,7 +74,7 @@ struct boss_majordomoAI : public ScriptedAI
         DoScriptText(SAY_SLAY, me);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

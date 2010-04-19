@@ -83,7 +83,7 @@ struct boss_murmurAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who) { }
+    void EnterCombat(Unit * /*who*/) { }
 
     // Sonic Boom instant damage (needs core fix instead of this)
     void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)

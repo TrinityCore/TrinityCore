@@ -75,7 +75,7 @@ struct boss_nothAI : public BossAI
         _Reset();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
@@ -100,7 +100,7 @@ struct boss_nothAI : public BossAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (!(rand()%5))
             DoScriptText(SAY_SLAY, me);
@@ -113,7 +113,7 @@ struct boss_nothAI : public BossAI
         summon->AI()->DoZoneInCombat();
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         _JustDied();
         DoScriptText(SAY_DEATH, me);

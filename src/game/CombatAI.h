@@ -60,7 +60,7 @@ class CasterAI : public CombatAI
         void InitializeAI();
         void AttackStart(Unit * victim) { AttackStartCaster(victim, m_attackDist); }
         void UpdateAI(const uint32 diff);
-        void EnterCombat(Unit *who);
+        void EnterCombat(Unit * /*who*/);
     private:
         float m_attackDist;
 };

@@ -88,7 +88,7 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
         resetcheck_timer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
     }
@@ -109,7 +109,7 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit* victim)
     {
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
@@ -117,7 +117,7 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         removeAdds();
@@ -240,8 +240,6 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
 
             if (Summon_Assistant_Timer <= diff)
             {
-                Unit *pTarget = NULL;
-
                 for (uint8 i = 0; i < summoned; ++i)
                 {
                     switch (urand(0,2))

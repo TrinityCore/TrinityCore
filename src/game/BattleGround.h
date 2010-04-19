@@ -500,8 +500,8 @@ class BattleGround
         virtual void EventPlayerCapturedFlag(Player* /*player*/) {}
         void EventPlayerLoggedIn(Player* player, uint64 plr_guid);
         void EventPlayerLoggedOut(Player* player);
-    virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*target_obj*/, uint32 /*eventId*/) {}
-    virtual void EventPlayerUsedGO(Player* player, GameObject* go){}
+        virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*target_obj*/, uint32 /*eventId*/) {}
+        virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         /* Death related */
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);

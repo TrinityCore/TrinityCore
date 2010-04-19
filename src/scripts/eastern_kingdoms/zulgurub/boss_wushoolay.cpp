@@ -40,7 +40,7 @@ struct boss_wushoolayAI : public ScriptedAI
         LightningWave_Timer = 8000 + rand()%8000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

@@ -85,7 +85,7 @@ struct boss_eadricAI : public ScriptedAI
         bDone = false;
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage >= me->GetHealth())
         {
@@ -96,7 +96,7 @@ struct boss_eadricAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 MovementType, uint32 Data)
+    void MovementInform(uint32 MovementType, uint32 /*Data*/)
     {
         if (MovementType != POINT_MOTION_TYPE)
             return;
@@ -199,13 +199,13 @@ struct boss_paletressAI : public ScriptedAI
                 pMemory->RemoveFromWorld();
     }
 
-    void SetData(uint32 uiId, uint32 uiValue)
+    void SetData(uint32 uiId, uint32 /*uiValue*/)
     {
         if (uiId == 1)
             me->RemoveAura(SPELL_SHIELD);
     }
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    void DamageTaken(Unit * /*done_by*/, uint32 &damage)
     {
         if (damage >= me->GetHealth())
         {
@@ -358,7 +358,7 @@ struct npc_memoryAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (me->isSummon())
         {
@@ -412,7 +412,7 @@ struct npc_argent_soldierAI : public npc_escortAI
         }
     }
 
-    void SetData(uint32 uiType, uint32 uiData)
+    void SetData(uint32 uiType, uint32 /*uiData*/)
     {
         switch(me->GetEntry())
         {
@@ -474,7 +474,7 @@ struct npc_argent_soldierAI : public npc_escortAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED,pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);

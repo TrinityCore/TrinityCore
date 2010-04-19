@@ -58,7 +58,7 @@ struct boss_jindoAI : public ScriptedAI
         Teleport_Timer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }
@@ -175,7 +175,7 @@ struct mob_healing_wardAI : public ScriptedAI
         Heal_Timer = 2000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
@@ -210,7 +210,7 @@ struct mob_shade_of_jindoAI : public ScriptedAI
         DoCast(me, SPELL_INVISIBLE, true);
     }
 
-    void EnterCombat(Unit *who){}
+    void EnterCombat(Unit * /*who*/){}
 
     void UpdateAI (const uint32 diff)
     {

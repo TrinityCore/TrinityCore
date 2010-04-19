@@ -361,7 +361,7 @@ struct npc_brann_hosAI : public npc_escortAI
         Start();
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage)
+    void DamageTaken(Unit* /*done_by*/, uint32 & /*damage*/)
     {
         if (!bHasBeenDamaged)
             bHasBeenDamaged = true;
@@ -685,7 +685,7 @@ bool GossipHello_npc_brann_hos(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_brann_hos(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_brann_hos(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1 || uiAction == GOSSIP_ACTION_INFO_DEF+2)
     {

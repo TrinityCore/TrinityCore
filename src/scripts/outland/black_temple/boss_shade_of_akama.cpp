@@ -112,11 +112,11 @@ struct mob_ashtongue_channelerAI : public ScriptedAI
     uint64 ShadeGUID;
 
     void Reset() {}
-    void JustDied(Unit* killer);
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
+    void JustDied(Unit* /*killer*/);
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 };
 
 struct mob_ashtongue_sorcererAI : public ScriptedAI
@@ -133,10 +133,10 @@ struct mob_ashtongue_sorcererAI : public ScriptedAI
         CheckTimer = 5000;
     }
 
-    void JustDied(Unit* killer);
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void JustDied(Unit* /*killer*/);
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
     void UpdateAI(const uint32 diff)
     {
         if (StartBanishing)
@@ -236,7 +236,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
 
         reseting = false;
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         summons.DespawnAll();
     }
@@ -251,7 +251,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
             summons.Despawn(summon);
     }
 
-    void MoveInLineOfSight(Unit *who)
+    void MoveInLineOfSight(Unit * /*who*/)
     {
         if (!GridSearcherSucceeded)
         {
@@ -480,7 +480,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
     }
 };
 
-void mob_ashtongue_channelerAI::JustDied(Unit* killer)
+void mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
@@ -488,7 +488,7 @@ void mob_ashtongue_channelerAI::JustDied(Unit* killer)
     else error_log("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
 
-void mob_ashtongue_sorcererAI::JustDied(Unit* killer)
+void mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
 {
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
@@ -563,7 +563,7 @@ struct npc_akamaAI : public ScriptedAI
             summons.Despawn(summon);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void BeginEvent(Player* pl)
     {
@@ -613,7 +613,7 @@ struct npc_akamaAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         EventBegun = false;
@@ -821,7 +821,7 @@ CreatureAI* GetAI_npc_akama_shade(Creature* pCreature)
     return new npc_akamaAI (pCreature);
 }
 
-bool GossipSelect_npc_akama(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_akama(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
     {

@@ -50,7 +50,7 @@ bool GossipHello_npc_kalaran_windblade(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_kalaran_windblade(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_kalaran_windblade(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -89,7 +89,7 @@ bool GossipHello_npc_lothos_riftwaker(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lothos_riftwaker(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lothos_riftwaker(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
     {
@@ -121,7 +121,7 @@ bool GossipHello_npc_zamael_lunthistle(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_zamael_lunthistle(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_zamael_lunthistle(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

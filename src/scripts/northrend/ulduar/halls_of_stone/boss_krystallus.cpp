@@ -62,7 +62,7 @@ struct boss_krystallusAI : public ScriptedAI
         if (pInstance)
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, NOT_STARTED);
     }
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -116,7 +116,7 @@ struct boss_krystallusAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -124,7 +124,7 @@ struct boss_krystallusAI : public ScriptedAI
             pInstance->SetData(DATA_KRYSTALLUS_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;

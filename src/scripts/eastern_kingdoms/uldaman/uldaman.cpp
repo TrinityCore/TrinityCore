@@ -45,7 +45,7 @@ struct mob_jadespine_basiliskAI : public ScriptedAI
         Cslumber_Timer = 2000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
@@ -115,7 +115,7 @@ bool GossipHello_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreatu
     return true;
 }
 
-bool GossipSelect_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {

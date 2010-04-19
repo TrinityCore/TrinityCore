@@ -391,7 +391,7 @@ bool GossipHello_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_drake_dealer_hurlunk(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -418,7 +418,7 @@ bool GossipHello_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* pC
     return true;
 }
 
-bool GossipSelect_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npcs_flanis_swiftwing_and_kagrosh(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -465,7 +465,7 @@ bool GossipHello_npc_murkblood_overseer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_murkblood_overseer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_murkblood_overseer(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -526,7 +526,7 @@ bool GossipHello_npc_neltharaku(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_neltharaku(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_neltharaku(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -579,7 +579,7 @@ bool GossipHello_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_oronok_tornheart(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -629,7 +629,7 @@ enum eKarynaku
     TAXI_PATH_ID            = 649
 };
 
-bool QuestAccept_npc_karynaku(Player* pPlayer, Creature* pCreature, Quest const* quest)
+bool QuestAccept_npc_karynaku(Player* pPlayer, Creature* /*pCreature*/, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
         pPlayer->ActivateTaxiPathTo(TAXI_PATH_ID);        //pPlayer->ActivateTaxiPathTo(649);
@@ -1138,7 +1138,7 @@ struct mob_illidari_spawnAI : public ScriptedAI
         Timers = false;
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
     void JustDied(Unit* slayer);
 
     void UpdateAI(const uint32 diff)
@@ -1251,7 +1251,7 @@ struct mob_torloth_the_magnificentAI : public ScriptedAI
         me->SetUInt64Value(UNIT_FIELD_TARGET, 0);
     }
 
-    void EnterCombat(Unit* who){}
+    void EnterCombat(Unit* /*who*/){}
 
     void HandleAnimation()
     {
@@ -1407,9 +1407,9 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
         me->SetVisibility(VISIBILITY_OFF);
     }
 
-    void EnterCombat(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void AttackStart(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
 
     void SummonNextWave()
     {
@@ -1573,7 +1573,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
     }
 };
 
-void mob_illidari_spawnAI::JustDied(Unit *slayer)
+void mob_illidari_spawnAI::JustDied(Unit * /*slayer*/)
 {
     me->RemoveCorpse();
     if (Creature* LordIllidan = (Unit::GetCreature(*me, LordIllidanGUID)))
@@ -1585,7 +1585,7 @@ void mob_illidari_spawnAI::JustDied(Unit *slayer)
 # go_crystal_prison
 ######*/
 
-bool GOQuestAccept_GO_crystal_prison(Player* plr, GameObject* go, Quest const* quest)
+bool GOQuestAccept_GO_crystal_prison(Player* plr, GameObject* /*go*/, Quest const* quest)
 {
     if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
     {
@@ -1666,9 +1666,9 @@ struct npc_enraged_spiritAI : public ScriptedAI
 
     void Reset()   { }
 
-    void EnterCombat(Unit *who){}
+    void EnterCombat(Unit * /*who*/){}
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         // always spawn spirit on death
         // if totem around

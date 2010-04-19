@@ -58,7 +58,7 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
@@ -66,7 +66,7 @@ struct boss_rage_winterchillAI : public hyjal_trashAI
         me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         switch (urand(0,1))
         {

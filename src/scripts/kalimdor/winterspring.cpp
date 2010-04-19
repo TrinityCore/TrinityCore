@@ -54,7 +54,7 @@ bool GossipHello_npc_lorax(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_lorax(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_lorax(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -103,7 +103,7 @@ bool GossipHello_npc_rivern_frostwind(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_rivern_frostwind(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_rivern_frostwind(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -132,7 +132,7 @@ bool GossipHello_npc_witch_doctor_mauari(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_witch_doctor_mauari(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_witch_doctor_mauari(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {

@@ -116,7 +116,7 @@ struct boss_ichoronAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -195,7 +195,7 @@ struct boss_ichoronAI : public ScriptedAI
         me->GetMotionMaster()->MoveChase(me->getVictim());
     }
 
-    void MoveInLineOfSight(Unit* pWho) {}
+    void MoveInLineOfSight(Unit* /*pWho*/) {}
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -266,7 +266,7 @@ struct boss_ichoronAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -309,7 +309,7 @@ struct boss_ichoronAI : public ScriptedAI
         m_waterElements.remove(pSummoned->GetGUID());
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -338,7 +338,7 @@ struct mob_ichor_globuleAI : public ScriptedAI
         uiRangeCheck_Timer = 1000;
     }
 
-    void AttackStart(Unit* pWho)
+    void AttackStart(Unit* /*pWho*/)
     {
         return;
     }
@@ -364,7 +364,7 @@ struct mob_ichor_globuleAI : public ScriptedAI
         else uiRangeCheck_Timer -= uiDiff;
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         DoCast(me, SPELL_SPLASH);
         if (Creature* pIchoron = Unit::GetCreature(*me, pInstance->GetData64(DATA_ICHORON)))

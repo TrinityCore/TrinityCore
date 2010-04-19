@@ -48,7 +48,7 @@ struct boss_theolenkrastinovAI : public ScriptedAI
         m_uiFrenzy_Timer = 1000;
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         ScriptedInstance* pInstance = me->GetInstanceData();
         if (pInstance)

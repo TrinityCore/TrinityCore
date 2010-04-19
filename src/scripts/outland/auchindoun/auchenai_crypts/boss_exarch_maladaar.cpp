@@ -51,7 +51,7 @@ struct mob_stolen_soulAI : public ScriptedAI
         Class_Timer = 1000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     { }
 
     void SetMyClass(uint8 myclass)
@@ -183,7 +183,7 @@ struct boss_exarch_maladaarAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
     }
@@ -206,7 +206,7 @@ struct boss_exarch_maladaarAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (rand()%2)
             return;
@@ -214,7 +214,7 @@ struct boss_exarch_maladaarAI : public ScriptedAI
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
         //When Exarch Maladar is defeated D'ore appear.
@@ -302,7 +302,7 @@ struct mob_avatar_of_martyredAI : public ScriptedAI
         Mortal_Strike_timer = 10000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

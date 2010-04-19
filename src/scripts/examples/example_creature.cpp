@@ -133,7 +133,7 @@ struct example_creatureAI : public ScriptedAI
 
     //*** HANDLED FUNCTION ***
     //Our Receive emote function
-    void ReceiveEmote(Player* pPlayer, uint32 uiTextEmote)
+    void ReceiveEmote(Player* /*pPlayer*/, uint32 uiTextEmote)
     {
         me->HandleEmoteCommand(uiTextEmote);
 
@@ -255,7 +255,7 @@ CreatureAI* GetAI_example_creature(Creature* pCreature)
 }
 
 //This function is called when the player clicks an option on the gossip menu
-bool GossipSelect_example_creature(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_example_creature(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {

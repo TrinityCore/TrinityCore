@@ -145,12 +145,12 @@ struct boss_aranAI : public ScriptedAI
         }
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL1,SAY_KILL2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -161,7 +161,7 @@ struct boss_aranAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
 
@@ -466,13 +466,13 @@ struct boss_aranAI : public ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    void DamageTaken(Unit* pAttacker, uint32 &damage)
+    void DamageTaken(Unit* /*pAttacker*/, uint32 &damage)
     {
         if (!DrinkInturrupted && Drinking && damage)
             DrinkInturrupted = true;
     }
 
-    void SpellHit(Unit* pAttacker, const SpellEntry* Spell)
+    void SpellHit(Unit* /*pAttacker*/, const SpellEntry* Spell)
     {
         //We only care about inturrupt effects and only if they are durring a spell currently being casted
         if ((Spell->Effect[0] != SPELL_EFFECT_INTERRUPT_CAST &&
@@ -506,7 +506,7 @@ struct water_elementalAI : public ScriptedAI
         CastTimer = 2000 + (rand()%3000);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {

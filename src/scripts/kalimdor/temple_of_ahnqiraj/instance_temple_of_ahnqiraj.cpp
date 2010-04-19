@@ -59,7 +59,7 @@ struct instance_temple_of_ahnqiraj : public ScriptedInstance
         CthunPhase = 0;
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool add)
+    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch (pCreature->GetEntry())
         {

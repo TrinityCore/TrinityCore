@@ -93,7 +93,7 @@ struct boss_lokenAI : public ScriptedAI
             m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -103,7 +103,7 @@ struct boss_lokenAI : public ScriptedAI
             m_pInstance->SetData(TYPE_LOKEN, IN_PROGRESS);
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -126,7 +126,7 @@ struct boss_lokenAI : public ScriptedAI
             m_pInstance->SetData(TYPE_LOKEN, DONE);
     }
 
-    void KilledUnit(Unit* pVictim)
+    void KilledUnit(Unit* /*pVictim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }

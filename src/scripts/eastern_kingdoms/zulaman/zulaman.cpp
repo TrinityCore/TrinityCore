@@ -47,7 +47,7 @@ struct npc_forest_frogAI : public ScriptedAI
 
     void Reset() {}
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void DoSpawnRandom()
     {
@@ -110,13 +110,13 @@ struct npc_zulaman_hostageAI : public ScriptedAI
     bool IsLoot;
     uint64 PlayerGUID;
     void Reset() {}
-    void EnterCombat(Unit *who) {}
-    void JustDied(Unit* who)
+    void EnterCombat(Unit * /*who*/) {}
+    void JustDied(Unit* /*who*/)
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
         if (pPlayer) pPlayer->SendLoot(me->GetGUID(), LOOT_CORPSE);
     }
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (IsLoot)
             DoCast(me, 7, false);
@@ -130,7 +130,7 @@ bool GossipHello_npc_zulaman_hostage(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_zulaman_hostage(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_zulaman_hostage(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CLOSE_GOSSIP_MENU();

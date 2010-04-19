@@ -87,7 +87,7 @@ struct boss_volazjAI : public ScriptedAI
         return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
     }
 
-    void DamageTaken(Unit *pAttacker, uint32 &damage)
+    void DamageTaken(Unit * /*pAttacker*/, uint32 &damage)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
             damage = 0;
@@ -161,7 +161,7 @@ struct boss_volazjAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -282,7 +282,7 @@ struct boss_volazjAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH_1, me);
 
@@ -296,7 +296,7 @@ struct boss_volazjAI : public ScriptedAI
         Summons.DespawnAll();
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }

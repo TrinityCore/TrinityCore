@@ -90,17 +90,17 @@ struct boss_razorscaleAI : public BossAI
         me->ApplySpellImmune(1, IMMUNITY_EFFECT,SPELL_EFFECT_ATTACK_ME, true);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         DoZoneInCombat();
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_KILL, me);
     }
@@ -261,7 +261,7 @@ struct boss_razorscaleAI : public BossAI
         SummonAddsTimer = 45000;
     }
 
-    void FlyPhase(uint8 Phase, const uint32 diff)
+    void FlyPhase(uint8 Phase, const uint32 /*diff*/)
     {
         const float x = 587.54;
         const float y = -174.92;

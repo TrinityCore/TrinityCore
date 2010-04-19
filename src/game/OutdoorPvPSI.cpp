@@ -62,7 +62,7 @@ bool OutdoorPvPSI::SetupOutdoorPvP()
     return true;
 }
 
-bool OutdoorPvPSI::Update(uint32 diff)
+bool OutdoorPvPSI::Update(uint32 /*diff*/)
 {
     return false;
 }

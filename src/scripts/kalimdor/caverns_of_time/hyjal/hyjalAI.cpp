@@ -420,7 +420,7 @@ void hyjalAI::EnterEvadeMode()
     me->SetLootRecipient(NULL);
 }
 
-void hyjalAI::EnterCombat(Unit *who)
+void hyjalAI::EnterCombat(Unit * /*who*/)
 {
     if (IsDummy)return;
     for (uint8 i = 0; i < 3; ++i)
@@ -908,7 +908,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
 
     DoMeleeAttackIfReady();
 }
-void hyjalAI::JustDied(Unit* killer)
+void hyjalAI::JustDied(Unit* /*killer*/)
 {
     if (IsDummy)return;
     me->Respawn();

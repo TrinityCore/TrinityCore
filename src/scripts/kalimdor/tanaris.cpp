@@ -204,7 +204,7 @@ struct npc_custodian_of_timeAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
     void Reset() { }
 
     void UpdateAI(const uint32 diff)
@@ -235,7 +235,7 @@ bool GossipHello_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_marin_noggenfogger(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
         pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
@@ -265,7 +265,7 @@ bool GossipHello_npc_steward_of_time(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool QuestAccept_npc_steward_of_time(Player* pPlayer, Creature* pCreature, Quest const *quest)
+bool QuestAccept_npc_steward_of_time(Player* pPlayer, Creature* /*pCreature*/, Quest const *quest)
 {
     if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
         pPlayer->CastSpell(pPlayer,34891,true);               //(Flight through Caverns)
@@ -273,7 +273,7 @@ bool QuestAccept_npc_steward_of_time(Player* pPlayer, Creature* pCreature, Quest
     return false;
 }
 
-bool GossipSelect_npc_steward_of_time(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_steward_of_time(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         pPlayer->CastSpell(pPlayer,34891,true);               //(Flight through Caverns)
@@ -305,7 +305,7 @@ bool GossipHello_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCrea
     return true;
 }
 
-bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_stone_watcher_of_norgannon(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -397,7 +397,7 @@ struct npc_OOX17AI : public npc_escortAI
 
     void Reset(){}
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(RAND(SAY_OOX_AGGRO1,SAY_OOX_AGGRO2), me);
     }

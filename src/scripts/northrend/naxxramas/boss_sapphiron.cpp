@@ -111,7 +111,7 @@ struct boss_sapphironAI : public BossAI
         CheckFrostResistTimer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
 
@@ -136,7 +136,7 @@ struct boss_sapphironAI : public BossAI
         }
     }
 
-    void JustDied(Unit* who)
+    void JustDied(Unit* /*who*/)
     {
         _JustDied();
         me->CastSpell(me, SPELL_DIES, true);

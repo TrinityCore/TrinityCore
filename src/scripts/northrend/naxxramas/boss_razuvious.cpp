@@ -57,7 +57,7 @@ struct boss_razuviousAI : public BossAI
 {
     boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (!(rand()%3))
             DoPlaySoundToSet(me, SOUND_SLAY);
@@ -72,14 +72,14 @@ struct boss_razuviousAI : public BossAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         _JustDied();
         DoPlaySoundToSet(me, SOUND_DEATH);
         me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();
         DoPlaySoundToSet(me, SOUND_AGGRO);

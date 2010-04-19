@@ -171,7 +171,7 @@ struct boss_gothikAI : public BossAI
         thirtyPercentReached = false;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         for (uint32 i = 0; i < POS_LIVE; ++i)
             if (Creature *trigger = DoSummon(WORLD_TRIGGER, PosSummonLive[i]))
@@ -219,13 +219,13 @@ struct boss_gothikAI : public BossAI
         summons.Despawn(summon);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         if (!(rand()%5))
             DoScriptText(SAY_KILL, me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         LiveTriggerGUID.clear();
         DeadTriggerGUID.clear();
@@ -334,7 +334,7 @@ struct boss_gothikAI : public BossAI
         return false;
     }
 
-    void SpellHit(Unit *caster, const SpellEntry *spell)
+    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
     {
         uint32 spellId = 0;
         switch(spell->Id)
@@ -504,7 +504,7 @@ struct mob_gothik_minionAI : public CombatAI
             damage = 0;
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (me->isSummon())
         {

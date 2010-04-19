@@ -52,12 +52,12 @@ struct boss_razorgoreAI : public ScriptedAI
         Conflagration_Timer = 12000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoZoneInCombat();
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEATH, me);
     }

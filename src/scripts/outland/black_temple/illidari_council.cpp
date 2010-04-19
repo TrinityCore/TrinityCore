@@ -146,10 +146,10 @@ struct mob_blood_elf_council_voice_triggerAI : public ScriptedAI
         } else error_log(ERROR_INST_DATA);
     }
 
-    void EnterCombat(Unit* who) {}
+    void EnterCombat(Unit* /*who*/) {}
 
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -245,9 +245,9 @@ struct mob_illidari_councilAI : public ScriptedAI
         me->SetDisplayId(11686);
     }
 
-    void EnterCombat(Unit *who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void StartEvent(Unit *pTarget)
     {
@@ -454,12 +454,12 @@ struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
         BlessingTimer = 60000;
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_GATH_SLAY, me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_GATH_DEATH, me);
     }
@@ -571,12 +571,12 @@ struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
         Cooldown = 0;
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_ZERE_SLAY, me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_ZERE_DEATH, me);
     }
@@ -659,12 +659,12 @@ struct boss_lady_malandeAI : public boss_illidari_councilAI
         ReflectiveShieldTimer = 0;
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_MALA_SLAY, me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_MALA_DEATH, me);
     }
@@ -733,12 +733,12 @@ struct boss_veras_darkshadowAI : public boss_illidari_councilAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(SAY_VERA_SLAY, me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_VERA_DEATH, me);
     }

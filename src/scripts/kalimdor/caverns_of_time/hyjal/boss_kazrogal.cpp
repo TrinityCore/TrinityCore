@@ -58,7 +58,7 @@ struct boss_kazrogalAI : public hyjal_trashAI
             pInstance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
@@ -66,7 +66,7 @@ struct boss_kazrogalAI : public hyjal_trashAI
         me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         switch (urand(0,2))
         {

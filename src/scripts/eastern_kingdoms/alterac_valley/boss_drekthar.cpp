@@ -61,7 +61,7 @@ struct boss_drektharAI : public ScriptedAI
         uiYellTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS); //20 to 30 seconds
     }
 
-    void Aggro(Unit *who)
+    void Aggro(Unit * /*who*/)
     {
         DoScriptText(YELL_AGGRO, me);
     }

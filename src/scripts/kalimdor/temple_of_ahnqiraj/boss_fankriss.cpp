@@ -80,7 +80,7 @@ struct boss_fankrissAI : public ScriptedAI
             Spawn->AI()->AttackStart(victim);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

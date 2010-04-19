@@ -64,9 +64,9 @@ struct mob_doom_blossomAI : public ScriptedAI
         TeronGUID = 0;
     }
 
-    void EnterCombat(Unit *who) { }
-    void AttackStart(Unit* who) { }
-    void MoveInLineOfSight(Unit* who) { }
+    void EnterCombat(Unit * /*who*/) { }
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
 
     void Despawn()
     {
@@ -122,7 +122,7 @@ struct mob_shadowy_constructAI : public ScriptedAI
         CheckTeronTimer = 5000;
     }
 
-    void EnterCombat(Unit* who) { }
+    void EnterCombat(Unit* /*who*/) {}
 
     void MoveInLineOfSight(Unit *who)
     {
@@ -227,7 +227,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
         Done = false;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void MoveInLineOfSight(Unit* pWho)
     {
@@ -250,12 +250,12 @@ struct boss_teron_gorefiendAI : public ScriptedAI
             ScriptedAI::MoveInLineOfSight(pWho);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_TERONGOREFIENDEVENT, DONE);

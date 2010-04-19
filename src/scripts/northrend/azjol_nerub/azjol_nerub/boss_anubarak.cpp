@@ -109,7 +109,7 @@ struct boss_anub_arakAI : public ScriptedAI
     }
 
 
-    void EnterCombat(Unit *pWho)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -246,7 +246,7 @@ struct boss_anub_arakAI : public ScriptedAI
             DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit *pKiller)
+    void JustDied(Unit * /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
 

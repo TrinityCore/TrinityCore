@@ -56,7 +56,7 @@ struct instance_mechanar : public ScriptedInstance
         return false;
     }
 
-    uint64 GetData64 (uint32 identifier)
+    uint64 GetData64 (uint32 /*identifier*/)
     {
         return 0;
     }

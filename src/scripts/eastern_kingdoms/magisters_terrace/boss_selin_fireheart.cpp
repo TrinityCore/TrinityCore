@@ -127,7 +127,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
         if (Crystals.empty())
             return;
 
-        float ShortestDistance = 0;
+        //float ShortestDistance = 0;
         CrystalGUID = 0;
         Unit* pCrystal = NULL;
         Unit* CrystalChosen = NULL;
@@ -178,7 +178,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -187,7 +187,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
             //Close the encounter door, open it in JustDied/Reset
      }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
     }
@@ -214,7 +214,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -315,12 +315,12 @@ struct mob_fel_crystalAI : public ScriptedAI
     mob_fel_crystalAI(Creature *c) : ScriptedAI(c) {}
 
     void Reset() {}
-    void EnterCombat(Unit* who) {}
-    void AttackStart(Unit* who) {}
-    void MoveInLineOfSight(Unit* who) {}
-    void UpdateAI(const uint32 diff) {}
+    void EnterCombat(Unit* /*who*/) {}
+    void AttackStart(Unit* /*who*/) {}
+    void MoveInLineOfSight(Unit* /*who*/) {}
+    void UpdateAI(const uint32 /*diff*/) {}
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (ScriptedInstance* pInstance = me->GetInstanceData())
         {

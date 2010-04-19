@@ -102,7 +102,7 @@ struct npc_injured_rainspeaker_oracleAI : public npc_escortAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
             return;
@@ -128,7 +128,7 @@ bool GossipHello_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCrea
     return true;
 }
 
-bool GossipSelect_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -149,7 +149,7 @@ bool GossipSelect_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCre
     return true;
 }
 
-bool QuestAccept_npc_injured_rainspeaker_oracle(Player* pPlayer, Creature* pCreature, Quest const *_Quest)
+bool QuestAccept_npc_injured_rainspeaker_oracle(Player* /*pPlayer*/, Creature* pCreature, Quest const * /*_Quest*/)
 {
     DoScriptText(SAY_QUEST_ACCEPT_IRO, pCreature);
     return false;
@@ -195,7 +195,7 @@ bool GossipHello_npc_vekjik(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_vekjik(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {
@@ -245,7 +245,7 @@ bool GossipHello_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_avatar_of_freya(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -284,7 +284,7 @@ struct npc_bushwhackerAI : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(0,pSummoner->GetPositionX(),pSummoner->GetPositionY(),pSummoner->GetPositionZ());
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 /*uiDiff*/)
     {
         if (!UpdateVictim())
             return;

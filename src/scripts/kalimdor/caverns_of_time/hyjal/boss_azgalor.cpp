@@ -63,7 +63,7 @@ struct boss_azgalorAI : public hyjal_trashAI
             pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         if (pInstance && IsEvent)
             pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
@@ -71,7 +71,7 @@ struct boss_azgalorAI : public hyjal_trashAI
         me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, NULL);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
         switch (urand(0,2))
         {
@@ -206,18 +206,16 @@ struct mob_lesser_doomguardAI : public hyjal_trashAI
         CheckTimer = 5000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * /*victim*/)
     {
-
     }
 
-    void WaypointReached(uint32 i)
+    void WaypointReached(uint32 /*i*/)
     {
-
     }
 
     void MoveInLineOfSight(Unit *who)
@@ -226,9 +224,8 @@ struct mob_lesser_doomguardAI : public hyjal_trashAI
             AttackStart(who);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
-
     }
 
     void UpdateAI(const uint32 diff)

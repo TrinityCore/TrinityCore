@@ -79,7 +79,7 @@ struct boss_dredAI : public ScriptedAI
         uiRaptorCallTimer    = urand(20*IN_MILISECONDS,25*IN_MILISECONDS);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_DRED_EVENT,IN_PROGRESS);
@@ -136,7 +136,7 @@ struct boss_dredAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
         {
@@ -184,7 +184,7 @@ struct npc_drakkari_gutripperAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
         {
@@ -232,7 +232,7 @@ struct npc_drakkari_scytheclawAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         if (pInstance)
         {

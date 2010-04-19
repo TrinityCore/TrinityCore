@@ -110,7 +110,7 @@ struct boss_taldaramAI : public ScriptedAI
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
@@ -237,7 +237,7 @@ struct boss_taldaramAI : public ScriptedAI
         } else uiPhaseTimer -= diff;
     }
 
-    void DamageTaken(Unit* done_by, uint32 &damage)
+    void DamageTaken(Unit* /*done_by*/, uint32 &damage)
     {
         Unit* pEmbraceTarget = GetEmbraceTarget();
 
@@ -254,7 +254,7 @@ struct boss_taldaramAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -262,7 +262,7 @@ struct boss_taldaramAI : public ScriptedAI
             pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, DONE);
     }
 
-    void KilledUnit(Unit *victim)
+    void KilledUnit(Unit * victim)
     {
         if (victim == me)
             return;
@@ -342,10 +342,10 @@ struct mob_taldaram_flamesphereAI : public ScriptedAI
         uiDespawnTimer = 10*IN_MILISECONDS;
     }
 
-    void EnterCombat(Unit *who) {}
-    void MoveInLineOfSight(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
+    void MoveInLineOfSight(Unit * /*who*/) {}
 
-    void JustDied(Unit* slayer)
+    void JustDied(Unit* /*who*/)
     {
         DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
     }
@@ -369,7 +369,7 @@ CreatureAI* GetAI_mob_taldaram_flamesphere(Creature* pCreature)
     return new mob_taldaram_flamesphereAI (pCreature);
 }
 
-bool GOHello_prince_taldaram_sphere(Player *pPlayer, GameObject *pGO)
+bool GOHello_prince_taldaram_sphere(Player * /*pPlayer*/, GameObject *pGO)
 {
     ScriptedInstance *pInstance = pGO->GetInstanceData();
 

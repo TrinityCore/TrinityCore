@@ -57,7 +57,7 @@ bool GossipHello_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npcs_ashyen_and_keleth(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -146,7 +146,7 @@ struct npc_cooshcooshAI : public ScriptedAI
             me->setFaction(m_uiNormFaction);
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -177,7 +177,7 @@ bool GossipHello_npc_cooshcoosh(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_cooshcoosh(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_cooshcoosh(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
@@ -206,7 +206,7 @@ bool GossipHello_npc_elder_kuruti(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_elder_kuruti(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_elder_kuruti(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -252,7 +252,7 @@ bool GossipHello_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_mortog_steamhead(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_TRADE)
     {
@@ -361,7 +361,7 @@ bool GossipHello_npc_timothy_daniels(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_timothy_daniels(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_timothy_daniels(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch(uiAction)
     {

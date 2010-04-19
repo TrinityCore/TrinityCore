@@ -127,9 +127,9 @@ struct npc_captured_rageclawAI : public ScriptedAI
         DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
     }
 
-    void MoveInLineOfSight(Unit *who){}
+    void MoveInLineOfSight(Unit * /*who*/){}
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_FREE_RAGECLAW)
         {
@@ -200,7 +200,7 @@ bool GossipHello_npc_gymer(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_gymer(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_gymer(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -393,7 +393,7 @@ struct npc_gurgthockAI : public ScriptedAI
         SummonList.push_back(pSummon->GetGUID());
     }
 
-    void SummonedCreatureDespawn(Creature* pSummon)
+    void SummonedCreatureDespawn(Creature* /*pSummon*/)
     {
         if (bEventInProgress)
             bEventInProgress = false;
@@ -402,7 +402,7 @@ struct npc_gurgthockAI : public ScriptedAI
     }
 };
 
-bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
+bool QuestAccept_npc_gurgthock(Player* /*pPlayer*/, Creature* pCreature, Quest const* pQuest)
 {
     switch (pQuest->GetQuestId())
     {
@@ -486,7 +486,7 @@ struct npc_orinoko_tuskbreakerAI : public ScriptedAI
                     pAI->RemoveSummons();
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -628,7 +628,7 @@ struct npc_korrak_bloodragerAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoCast(me, SPELL_GROW);
     }
@@ -711,7 +711,7 @@ struct npc_yggdrasAI : public ScriptedAI
                     pAI->RemoveSummons();
     }
 
-    void EnterCombat(Unit* pWho)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoCast(me, SPELL_GROW);
     }
@@ -890,7 +890,7 @@ struct npc_released_offspring_harkoaAI : public ScriptedAI
         me->GetMotionMaster()->MovePoint(0, x, y, z);
     }
 
-    void MovementInform(uint32 uiType, uint32 uiId)
+    void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
         if (uiType != POINT_MOTION_TYPE)
             return;
@@ -994,7 +994,7 @@ bool GossipHello_npc_crusade_recruit(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_crusade_recruit(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_crusade_recruit(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF +1)
     {

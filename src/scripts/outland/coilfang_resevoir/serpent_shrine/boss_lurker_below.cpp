@@ -134,7 +134,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         if (pInstance)
             pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
@@ -142,7 +142,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
         Summons.DespawnAll();
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         if (pInstance)
             pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
@@ -163,7 +163,7 @@ struct boss_the_lurker_belowAI : public Scripted_NoMovementAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 type, uint32 /*id*/)
     {
         if (type == ROTATE_MOTION_TYPE)
             me->SetReactState(REACT_AGGRESSIVE);
@@ -387,7 +387,7 @@ struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
 
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
 
     }

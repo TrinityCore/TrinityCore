@@ -1339,7 +1339,7 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
     }
 }
 
-void CreatureEventAI::DamageTaken(Unit* done_by, uint32& damage)
+void CreatureEventAI::DamageTaken(Unit* /*done_by*/, uint32& damage)
 {
     if (InvinceabilityHpLevel > 0 && me->GetHealth() < InvinceabilityHpLevel+damage)
     {

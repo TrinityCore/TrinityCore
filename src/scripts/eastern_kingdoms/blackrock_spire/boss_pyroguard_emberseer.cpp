@@ -42,7 +42,7 @@ struct boss_pyroguard_emberseerAI : public ScriptedAI
         PyroBlast_Timer = 14000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
     }
 

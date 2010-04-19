@@ -86,7 +86,7 @@ struct boss_anomalusAI : public ScriptedAI
             pInstance->SetData(DATA_ANOMALUS_EVENT, NOT_STARTED);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
@@ -94,7 +94,7 @@ struct boss_anomalusAI : public ScriptedAI
             pInstance->SetData(DATA_ANOMALUS_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
@@ -195,7 +195,7 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
         DoCast(me, SPELL_ARCANEFORM, false);
     }
 
-    void JustDied(Unit *killer)
+    void JustDied(Unit * /*killer*/)
     {
         if (Creature* pAnomalus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0))
             CAST_AI(boss_anomalusAI,pAnomalus->AI())->bDeadChaoticRift = true;

@@ -102,7 +102,7 @@ struct boss_nexusprince_shaffarAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
 
@@ -128,12 +128,12 @@ struct boss_nexusprince_shaffarAI : public ScriptedAI
         summons.Despawn(summon);
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
     }
 
-    void JustDied(Unit* Killer)
+    void JustDied(Unit* /*Killer*/)
     {
         DoScriptText(SAY_DEAD, me);
         summons.DespawnAll();
@@ -234,7 +234,7 @@ struct mob_ethereal_beaconAI : public ScriptedAI
         Check_Timer = 1000;
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * who)
     {
         // Send Shaffar to fight
         Creature* Shaffar = me->FindNearestCreature(NPC_SHAFFAR, 100);

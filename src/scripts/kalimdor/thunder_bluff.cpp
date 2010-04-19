@@ -54,7 +54,7 @@ struct npc_cairne_bloodhoofAI : public ScriptedAI
         Uppercut_Timer = 10000;
     }
 
-    void EnterCombat(Unit *who) {}
+    void EnterCombat(Unit * /*who*/) {}
 
     void UpdateAI(const uint32 diff)
     {
@@ -114,7 +114,7 @@ bool GossipHello_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_cairne_bloodhoof(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     if (uiAction == GOSSIP_SENDER_INFO)
     {

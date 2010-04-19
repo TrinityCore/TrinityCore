@@ -68,18 +68,18 @@ struct boss_kologarnAI : public BossAI
         me->Attack(who, true);
     }
 
-    void JustDied(Unit *victim)
+    void JustDied(Unit * /*victim*/)
     {
         DoScriptText(SAY_DEATH, me);
         _JustDied();
     }
 
-    void KilledUnit(Unit* who)
+    void KilledUnit(Unit* /*who*/)
     {
         DoScriptText(RAND(SAY_SLAY_2,SAY_SLAY_2), me);
     }
 
-    void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+    void PassengerBoarded(Unit *who, int8 /*seatId*/, bool apply)
     {
         if (who->GetTypeId() == TYPEID_UNIT)
         {
@@ -92,7 +92,7 @@ struct boss_kologarnAI : public BossAI
         }
     }
 
-    void EnterCombat(Unit *who)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         _EnterCombat();

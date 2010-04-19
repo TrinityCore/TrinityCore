@@ -46,11 +46,11 @@ struct npc_astor_hadrenAI : public ScriptedAI
         me->setFaction(68);
     }
 
-    void EnterCombat(Unit* who)
+    void EnterCombat(Unit* /*who*/)
     {
     }
 
-    void JustDied(Unit *who)
+    void JustDied(Unit * /*who*/)
     {
         me->setFaction(68);
     }
@@ -71,7 +71,7 @@ bool GossipHello_npc_astor_hadren(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_astor_hadren(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     switch (uiAction)
     {
@@ -231,7 +231,7 @@ struct pyrewood_ambushAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit *who){}
+    void Aggro(Unit * /*who*/){}
 
     void JustSummoned(Creature *pSummoned)
     {
@@ -268,7 +268,7 @@ struct pyrewood_ambushAI : public ScriptedAI
         }
     }
 
-    void JustDied(Unit *pKiller)
+    void JustDied(Unit * /*pKiller*/)
     {
         if (PlayerGUID)
             if (Player *pPlayer = Unit::GetPlayer(PlayerGUID))
