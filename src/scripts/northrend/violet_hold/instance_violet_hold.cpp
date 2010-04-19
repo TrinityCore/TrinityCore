@@ -274,7 +274,8 @@ struct instance_violet_hold : public ScriptedInstance
         {
             case BOSS_MORAGG:
                 HandleGameObject(uiMoraggCell,bForceRespawn);
-                if (pBoss = instance->GetCreature(uiMoragg))
+                pBoss = instance->GetCreature(uiMoragg);
+                if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
             case BOSS_EREKEM:
@@ -282,7 +283,8 @@ struct instance_violet_hold : public ScriptedInstance
                 HandleGameObject(uiErekemRightGuardCell, bForceRespawn);
                 HandleGameObject(uiErekemLeftGuardCell, bForceRespawn);
 
-                if (pBoss = instance->GetCreature(uiErekem))
+                pBoss = instance->GetCreature(uiErekem);
+                if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
 
                 if (Creature* pGuard1 = instance->GetCreature(uiErekemGuard[0]))
@@ -303,22 +305,26 @@ struct instance_violet_hold : public ScriptedInstance
                 break;
             case BOSS_ICHORON:
                 HandleGameObject(uiIchoronCell,bForceRespawn);
-                if (pBoss = instance->GetCreature(uiIchoron))
+                instance->GetCreature(uiIchoron);
+                if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
             case BOSS_LAVANTHOR:
                 HandleGameObject(uiLavanthorCell,bForceRespawn);
-                if (pBoss = instance->GetCreature(uiLavanthor))
+                pBoss = instance->GetCreature(uiLavanthor);
+                if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
             case BOSS_XEVOZZ:
                 HandleGameObject(uiXevozzCell,bForceRespawn);
-                if (pBoss = instance->GetCreature(uiXevozz))
+                pBoss = instance->GetCreature(uiXevozz);
+                if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
             case BOSS_ZURAMAT:
                 HandleGameObject(uiZuramatCell,bForceRespawn);
-                if (pBoss = instance->GetCreature(uiZuramat))
+                pBoss = instance->GetCreature(uiZuramat);
+                if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
         }

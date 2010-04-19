@@ -116,12 +116,7 @@ static Locations Spawn[]=
     {1765.28,1347.46,17.55}     //spawn point for smoke
 };
 
-struct Summon
-{
-    const std::string text;
-};
-
-static Summon Text[]=
+static const char* Text[]=
 {
     {"Horseman rise..."},
     {"Your time is nigh..."},
@@ -615,14 +610,14 @@ struct boss_headless_horsemanAI : public ScriptedAI
                             if (count < 3)
                             {
                                 if (plr)
-                                    plr->Say(Text[count].text,0);
+                                    plr->Say(Text[count],0);
                             }
                             else
                             {
                                 DoCast(me, SPELL_RHYME_BIG);
                                 if (plr)
                                 {
-                                    plr->Say(Text[count].text,0);
+                                    plr->Say(Text[count],0);
                                     plr->HandleEmoteCommand(ANIM_EMOTE_SHOUT);
                                 }
                                 wp_reached = true;

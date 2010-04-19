@@ -972,7 +972,7 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
     uint8 BankTab, BankTabSlot, AutoStore;
     uint8 PlayerSlot = NULL_SLOT;
     uint8 PlayerBag = NULL_BAG;
-    uint8 BankTabDst, BankTabSlotDst, unk2;
+    uint8 BankTabDst = 0, BankTabSlotDst = 0, unk2;
     uint8 ToChar = 1;
     uint32 ItemEntry, unk1;
     uint32 AutoStoreCount = 0;

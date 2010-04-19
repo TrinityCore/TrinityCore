@@ -635,34 +635,36 @@ enum eJotunheimCage
 
 bool GOHello_go_jotunheim_cage(Player* pPlayer, GameObject* pGO)
 {
-    Creature* pPrisoner;
-    pPrisoner = NULL;
-
-    if ((pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true)) ||
-        (pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_TROLL, 5.0f, true)) ||
-        (pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_ORC, 5.0f, true))   ||
-        (pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_NE, 5.0f, true)))
+    Creature* pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_HUMAN, 5.0f, true);
+    if (!pPrisoner)
     {
-        if (pPrisoner && pPrisoner->isAlive())
+        pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_TROLL, 5.0f, true);
+        if (!pPrisoner)
         {
-            pPrisoner->DisappearAndDie();
-            pPlayer->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN, 0);
-            switch(pPrisoner->GetEntry())
-            {
-                case NPC_EBON_BLADE_PRISONER_HUMAN:
-                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_H,true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_NE:
-                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_NE,true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_TROLL:
-                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_TROLL,true);
-                    break;
-                case NPC_EBON_BLADE_PRISONER_ORC:
-                    pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_ORC,true);
-                    break;
-            }
+            pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_ORC, 5.0f, true);
+            if (!pPrisoner)
+                pPrisoner = pGO->FindNearestCreature(NPC_EBON_BLADE_PRISONER_NE, 5.0f, true);
         }
+    }
+    if (!pPrisoner || !pPrisoner->isAlive())
+        return false;
+
+    pPrisoner->DisappearAndDie();
+    pPlayer->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN, 0);
+    switch(pPrisoner->GetEntry())
+    {
+        case NPC_EBON_BLADE_PRISONER_HUMAN:
+            pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_H,true);
+            break;
+        case NPC_EBON_BLADE_PRISONER_NE:
+            pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_NE,true);
+            break;
+        case NPC_EBON_BLADE_PRISONER_TROLL:
+            pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_TROLL,true);
+            break;
+        case NPC_EBON_BLADE_PRISONER_ORC:
+            pPlayer->CastSpell(pPlayer,SPELL_SUMMON_BLADE_KNIGHT_ORC,true);
+            break;
     }
     return true;
 }
@@ -758,14 +760,26 @@ enum ePrisonersOfWyrmskull
 
 bool GOHello_go_dragonflayer_cage(Player *pPlayer, GameObject *pGO)
 {
-    Creature *pPrisoner = NULL;
-    Quest const* qInfo = objmgr.GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
+    if (pPlayer->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) != QUEST_STATUS_INCOMPLETE)
+        return true;
 
-    if (pPlayer->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) == QUEST_STATUS_INCOMPLETE &&
-        ((pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PRIEST,2.0f)) ||
-        (pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_MAGE,2.0f)) ||
-        (pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_WARRIOR,2.0f)) ||
-        (pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PALADIN,2.0f))) && pPrisoner->isAlive())
+    Creature* pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PRIEST, 2.0f);
+    if (!pPrisoner)
+    {
+        pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_MAGE, 2.0f);
+        if (!pPrisoner)
+        {
+            pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_WARRIOR, 2.0f);
+            if (!pPrisoner)
+                pPrisoner = pGO->FindNearestCreature(NPC_PRISONER_PALADIN, 2.0f);
+        }
+    }
+
+    if (!pPrisoner || !pPrisoner->isAlive())
+        return true;
+
+    Quest const* qInfo = objmgr.GetQuestTemplate(QUEST_PRISONERS_OF_WYRMSKULL);
+    if (qInfo)
     {
         //TODO: prisoner should help player for a short period of time
         pPlayer->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0],0);
@@ -787,15 +801,17 @@ enum eTadpoles
 
 bool GOHello_go_tadpole_cage(Player *pPlayer, GameObject *pGO)
 {
-    Creature *pTadpole;
-    if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE &&
-        (pTadpole = pGO->FindNearestCreature(NPC_WINTERFIN_TADPOLE,1.0f)))
+    if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pTadpole = pGO->FindNearestCreature(NPC_WINTERFIN_TADPOLE,1.0f);
+        if (pTadpole)
         {
             pGO->UseDoorOrButton();
             pTadpole->DisappearAndDie();
             pPlayer->KilledMonsterCredit(NPC_WINTERFIN_TADPOLE,0);
             //FIX: Summon minion tadpole
         }
+    }
     return true;
 }
 
@@ -814,14 +830,18 @@ enum eReallyDoneItThisTime
 
 bool GOHello_go_black_cage(Player *pPlayer, GameObject *pGO)
 {
-    Creature *pPrisoner;
-    if (((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
-        (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE)) &&
-        ((pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT,1.0f)) || (pPrisoner = pGO->FindNearestCreature(NPC_KUL,1.0f))))
+    if ((pPlayer->GetTeamId() == TEAM_ALLIANCE && pPlayer->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
+        (pPlayer->GetTeamId() == TEAM_HORDE && pPlayer->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
     {
-        pGO->UseDoorOrButton();
-        pPrisoner->DisappearAndDie();
-        pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
+        Creature *pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT,1.0f);
+        if (!pPrisoner)
+            pPrisoner = pGO->FindNearestCreature(NPC_KUL,1.0f);
+        if (pPrisoner)
+        {
+            pGO->UseDoorOrButton();
+            pPrisoner->DisappearAndDie();
+            pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
+        }
     }
     return true;
 }
@@ -893,14 +913,13 @@ enum eProphecy
 
 bool GOHello_go_stillpine_cage(Player *pPlayer, GameObject *pGO)
 {
-    Creature *pPrisoner;
-    if (pPlayer->GetQuestStatus(QUEST_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE &&
-        (pPrisoner = pGO->FindNearestCreature(NPC_STILLPINE_CAPTIVE,1.0f)))
-    {
-        pGO->UseDoorOrButton();
-        pPrisoner->DisappearAndDie();
-        pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
-    }
+    if (pPlayer->GetQuestStatus(QUEST_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
+        if (Creature *pPrisoner = pGO->FindNearestCreature(NPC_STILLPINE_CAPTIVE,1.0f))
+        {
+            pGO->UseDoorOrButton();
+            pPrisoner->DisappearAndDie();
+            pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
+        }
     return true;
 }
 

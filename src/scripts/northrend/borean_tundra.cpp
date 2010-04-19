@@ -647,6 +647,13 @@ enum eNesingwaryTrapper
     SPELL_TRAPPED       = 46104,
 };
 
+#define CaribouTrapsNum 15
+const uint32 CaribouTraps[CaribouTrapsNum] = 
+{
+    GO_CARIBOU_TRAP_1, GO_CARIBOU_TRAP_2, GO_CARIBOU_TRAP_3, GO_CARIBOU_TRAP_4, GO_CARIBOU_TRAP_5,
+    GO_CARIBOU_TRAP_6, GO_CARIBOU_TRAP_7, GO_CARIBOU_TRAP_8, GO_CARIBOU_TRAP_9, GO_CARIBOU_TRAP_10,
+    GO_CARIBOU_TRAP_11, GO_CARIBOU_TRAP_12, GO_CARIBOU_TRAP_13, GO_CARIBOU_TRAP_14, GO_CARIBOU_TRAP_15,
+};
 //#define SAY_NESINGWARY_1 -1571008
 
 struct npc_nesingwary_trapperAI : public ScriptedAI
@@ -725,24 +732,15 @@ struct npc_nesingwary_trapperAI : public ScriptedAI
                 case 7:
                 {
                     GameObject *go_caribou = NULL;
-                    if ((go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_1, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_2, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_3, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_4, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_5, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_6, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_7, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_8, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_9, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_10, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_11, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_12, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_13, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_14, 5.0f)) ||
-                        (go_caribou = me->FindNearestGameObject(GO_CARIBOU_TRAP_15, 5.0f)))
+                    for (uint8 i = 0; i < CaribouTrapsNum; ++i)
                     {
-                        go_caribou->SetGoState(GO_STATE_ACTIVE);
-                        go_caribouGUID = go_caribou->GetGUID();
+                        go_caribou = me->FindNearestGameObject(CaribouTraps[i], 5.0f);
+                        if (go_caribou)
+                        {
+                            go_caribou->SetGoState(GO_STATE_ACTIVE);
+                            go_caribouGUID = go_caribou->GetGUID();
+                            break;
+                        }
                     }
                     Phase = 8;
                     uiPhaseTimer = 1000;
@@ -2029,6 +2027,16 @@ enum eHelpThemselves
     GO_MAMMOTH_TRAP_22                            = 188044,
 };
 
+#define MammothTrapsNum 22
+const uint32 MammothTraps[MammothTrapsNum] =
+{
+    GO_MAMMOTH_TRAP_1, GO_MAMMOTH_TRAP_2, GO_MAMMOTH_TRAP_3, GO_MAMMOTH_TRAP_4, GO_MAMMOTH_TRAP_5,
+    GO_MAMMOTH_TRAP_6, GO_MAMMOTH_TRAP_7, GO_MAMMOTH_TRAP_8, GO_MAMMOTH_TRAP_9, GO_MAMMOTH_TRAP_10,
+    GO_MAMMOTH_TRAP_11, GO_MAMMOTH_TRAP_12, GO_MAMMOTH_TRAP_13, GO_MAMMOTH_TRAP_14, GO_MAMMOTH_TRAP_15,
+    GO_MAMMOTH_TRAP_16, GO_MAMMOTH_TRAP_17, GO_MAMMOTH_TRAP_18, GO_MAMMOTH_TRAP_19, GO_MAMMOTH_TRAP_20,
+    GO_MAMMOTH_TRAP_21, GO_MAMMOTH_TRAP_22
+};
+
 struct npc_trapped_mammoth_calfAI : public ScriptedAI
 {
     npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) {}
@@ -2038,34 +2046,19 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
 
     void Reset()
     {
-        GameObject *pTrap;
-
         uiTimer = 1500;
         bStarted = false;
 
-        if ((pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_1,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_2,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_3,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_4,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_5,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_6,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_7,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_8,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_9,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_10,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_11,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_12,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_13,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_14,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_15,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_16,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_17,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_18,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_19,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_20,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_21,1.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_22,1.0f)))
-            pTrap->SetGoState(GO_STATE_ACTIVE);
+        GameObject* pTrap;
+        for (uint8 i = 0; i < MammothTrapsNum; ++i)
+        {
+            pTrap = me->FindNearestGameObject(MammothTraps[i],11.0f);
+            if (pTrap)
+            {
+                pTrap->SetGoState(GO_STATE_ACTIVE);
+                return;
+            }
+        }
     }
 
     void UpdateAI(const uint32 diff)
@@ -2091,34 +2084,20 @@ struct npc_trapped_mammoth_calfAI : public ScriptedAI
 
     void MovementInform(uint32 uiType, uint32 /*uiId*/)
     {
-        GameObject* pTrap;
+        
         if (uiType != POINT_MOTION_TYPE)
             return;
         me->DisappearAndDie();
-
-        if ((pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_1,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_2,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_3,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_4,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_5,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_6,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_7,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_8,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_9,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_10,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_11,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_12,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_13,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_14,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_15,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_16,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_17,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_18,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_19,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_20,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_21,11.0f)) ||
-            (pTrap = me->FindNearestGameObject(GO_MAMMOTH_TRAP_22,11.0f)))
-            pTrap->SetLootState(GO_JUST_DEACTIVATED);
+        GameObject* pTrap;
+        for (uint8 i = 0; i < MammothTrapsNum; ++i)
+        {
+            pTrap = me->FindNearestGameObject(MammothTraps[i],11.0f);
+            if (pTrap)
+            {
+                pTrap->SetLootState(GO_JUST_DEACTIVATED);
+                return;
+            }
+        }
     }
 };
 
@@ -2233,8 +2212,10 @@ struct npc_valiance_keep_cannoneerAI : public ScriptedAI
         if (uiTimer <= diff)
         {
             me->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
-            GameObject* pCannon;
-            if ((pCannon = me->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_1,10)) || (pCannon = me->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_2,10)))
+            GameObject* pCannon = me->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_1,10);
+            if (!pCannon)
+                pCannon = me->FindNearestGameObject(GO_VALIANCE_KEEP_CANNON_2,10);
+            if (pCannon)
                 pCannon->Use(me);
             uiTimer = urand(13000,18000);
         }

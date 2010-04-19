@@ -106,7 +106,9 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
     if (instanceId)
         bg = sBattleGroundMgr.GetBattleGroundThroughClientInstance(instanceId, bgTypeId);
 
-    if (!bg && !(bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId)))
+    if (!bg)
+        bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
+    if (!bg)
         return;
 
     // expected bracket entry

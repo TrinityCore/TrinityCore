@@ -688,15 +688,19 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     Fandral->CastSpell(-8127,1525,17.5,33806,true);
                     break;
                 case 51:
-                    while (mob = plr->FindNearestCreature(15423,50,me))
-                        mob->RemoveFromWorld();
-                    while (mob = plr->FindNearestCreature(15424,50,me))
-                        mob->RemoveFromWorld();
-                    while (mob = plr->FindNearestCreature(15414,50,me))
-                        mob->RemoveFromWorld();
-                    while (mob = plr->FindNearestCreature(15422,50,me))
-                        mob->RemoveFromWorld();
+                {
+                    uint32 entries[4] = { 15423, 15424, 15414, 15422 };
+                    for (uint8 i = 0; i < 4; ++i)
+                    {
+                        mob = plr->FindNearestCreature(entries[i],50,me);
+                        while (mob)
+                        {
+                            mob->RemoveFromWorld();
+                            mob = plr->FindNearestCreature(15423,50,me);
+                        }
+                    }
                     break;
+                }
                 case 52:
                     Fandral->GetMotionMaster()->MoveCharge(-8028.75, 1538.795, 2.61,4);
                     DoScriptText(ANACHRONOS_SAY_9, me,Fandral);

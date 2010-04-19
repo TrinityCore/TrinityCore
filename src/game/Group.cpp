@@ -913,7 +913,7 @@ void Group::CountTheRoll(Rolls::iterator rollI, uint32 NumberOfPlayers)
             uint8 maxresul = 0;
             uint64 maxguid = (*roll->playerVote.begin()).first;
             Player *player;
-            RollVote rollvote;
+            RollVote rollvote = NOT_VALID;
 
             Roll::PlayerVote::iterator itr;
             for (itr = roll->playerVote.begin(); itr != roll->playerVote.end(); ++itr)

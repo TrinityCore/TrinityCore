@@ -301,29 +301,32 @@ struct npc_alorah_and_grimminAI : public ScriptedAI
 {
     npc_alorah_and_grimminAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    uint8  uiCast;
+    bool uiCast;
 
     void Reset()
     {
-        uiCast = 1;
+        uiCast = false;
     }
 
     void UpdateAI(const uint32 /*uiDiff*/)
     {
-        if (uiCast = 1)
+        if (uiCast)
+            return;
+        uiCast = true;
+        Creature* pTarget = NULL;
+
+        switch(me->GetEntry())
         {
-            Creature* pTarget1 = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
-            Creature* pTarget2 = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
-            switch(me->GetEntry())
-            {
-                case NPC_PRIESTESS_ALORAH:
-                    DoCast(pTarget1, SPELL_CHAIN);
-                    uiCast = 0;
-                case NPC_PRIEST_GRIMMIN:
-                    DoCast(pTarget2, SPELL_CHAIN);
-                    uiCast = 0;
-            }
+            case NPC_PRIESTESS_ALORAH:
+                pTarget = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
+                break;
+            case NPC_PRIEST_GRIMMIN:
+                pTarget = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
+                break;
         }
+        if (pTarget)
+            DoCast(pTarget, SPELL_CHAIN);
+
         if (!UpdateVictim())
             return;
     }

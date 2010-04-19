@@ -3631,8 +3631,8 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
     }
 
     bool auraStateFound = false;
-    AuraState auraState;
-    if (auraState = GetSpellAuraState(aura->GetSpellProto()))
+    AuraState auraState = GetSpellAuraState(aura->GetSpellProto());
+    if (auraState)
     {
         bool canBreak = false;
         // Get mask of all aurastates from remaining auras
@@ -5950,7 +5950,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             if ((*i)->GetEffIndex() != 0)
                                 continue;
                             basepoints0 = int32((*i)->GetAmount());
-                            if (target = GetGuardianPet())
+                            target = GetGuardianPet();
+                            if (target)
                             {
                                 // regen mana for pet
                                 CastCustomSpell(target,54607,&basepoints0,NULL,NULL,true,castItem,triggeredByAura);
@@ -12111,10 +12112,10 @@ Unit* Creature::SelectVictim()
     const AuraEffectList& tauntAuras = GetAuraEffectsByType(SPELL_AURA_MOD_TAUNT);
     if (!tauntAuras.empty())
     {
-        Unit* caster;
+        Unit* caster = tauntAuras.back()->GetCaster();
 
         // The last taunt aura caster is alive an we are happy to attack him
-        if ((caster = tauntAuras.back()->GetCaster()) && caster->isAlive())
+        if (caster && caster->isAlive())
             return getVictim();
         else if (tauntAuras.size() > 1)
         {
@@ -12126,8 +12127,8 @@ Unit* Creature::SelectVictim()
             do
             {
                 --aura;
-                if ((caster = (*aura)->GetCaster()) &&
-                     caster->IsInMap(this) && canAttack(caster) && caster->isInAccessiblePlaceFor(this->ToCreature()))
+                caster = (*aura)->GetCaster();
+                if (caster && caster->IsInMap(this) && canAttack(caster) && caster->isInAccessiblePlaceFor(this->ToCreature()))
                 {
                     target = caster;
                     break;
@@ -12194,9 +12195,11 @@ Unit* Creature::SelectVictim()
 
     // search nearby enemy before enter evade mode
     if (HasReactState(REACT_AGGRESSIVE))
-        if (target = SelectNearestTarget())
-            if (_IsTargetAcceptable(target))
+    {
+        target = SelectNearestTarget();
+        if (target && _IsTargetAcceptable(target))
                 return target;
+    }
 
     if (m_invisibilityMask)
     {
@@ -13221,7 +13224,7 @@ void CharmInfo::InitCharmCreateSpells()
         {
             m_charmspells[x].SetActionAndType(spellId,ACT_DISABLED);
 
-            ActiveStates newstate;
+            ActiveStates newstate = ACT_PASSIVE;
             if (spellInfo)
             {
                 if (!IsAutocastableSpell(spellId))
