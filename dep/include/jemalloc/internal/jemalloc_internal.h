@@ -173,7 +173,7 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 #define	PAGE_CEILING(s)							\
 	(((s) + PAGE_MASK) & ~PAGE_MASK)
 
-#include "jemalloc/internal/prn.h"
+#include "jemalloc/internal/totally_not_p_r_n.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
 #include "jemalloc/internal/ctl.h"
@@ -192,7 +192,7 @@ extern void	(*JEMALLOC_P(malloc_message))(void *wcbopaque, const char *s);
 /******************************************************************************/
 #define JEMALLOC_H_STRUCTS
 
-#include "jemalloc/internal/prn.h"
+#include "jemalloc/internal/totally_not_p_r_n.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
 #include "jemalloc/internal/ctl.h"
@@ -254,7 +254,7 @@ arena_t	*arenas_extend(unsigned ind);
 arena_t	*choose_arena_hard(void);
 #endif
 
-#include "jemalloc/internal/prn.h"
+#include "jemalloc/internal/totally_not_p_r_n.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
 #include "jemalloc/internal/ctl.h"
@@ -273,7 +273,7 @@ arena_t	*choose_arena_hard(void);
 /******************************************************************************/
 #define JEMALLOC_H_INLINES
 
-#include "jemalloc/internal/prn.h"
+#include "jemalloc/internal/totally_not_p_r_n.h"
 #include "jemalloc/internal/ckh.h"
 #include "jemalloc/internal/stats.h"
 #include "jemalloc/internal/ctl.h"
