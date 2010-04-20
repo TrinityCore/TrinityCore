@@ -333,9 +333,9 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             if (!source->IsInWorld())
                 return false;
             Map* map = source->GetMap();
-            if (!map->Instanceable())
+            if (!map->IsDungeon())
             {
-                sLog.outErrorDb("Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-instance map %u",
+                sLog.outErrorDb("Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for non-dungeon/non-raid map %u",
                     ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
                     return false;
             }
