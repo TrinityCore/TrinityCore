@@ -2260,6 +2260,11 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
             case 54362:
                 target->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, (int32)((((float)m_tickNumber / 60) * 0.9f + 0.1f) * 10000), NULL, true, NULL, this);
                 return;
+            // Beacon of Light
+            case 53563:
+                Unit * triggerCaster = (Unit *)(GetBase()->GetOwner());
+                triggerCaster->CastSpell(triggerTarget, triggeredSpellInfo, true, 0, this,triggerCaster->GetGUID());
+                return;
         }
     }
 
