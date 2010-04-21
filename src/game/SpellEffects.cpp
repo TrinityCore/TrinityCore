@@ -4493,15 +4493,16 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         }
         case SPELLFAMILY_ROGUE:
         {
-            // Hemorrhage
-            if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
+            // Fan of Knives, Hemorrhage, Ghostly Strike
+            if ((m_spellInfo->SpellFamilyFlags[1] & 0x40000) 
+                || (m_spellInfo->SpellFamilyFlags[0] & 0x6000000))
             {
-                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-            }
-            // Fan of Knives
-            else if (m_spellInfo->SpellFamilyFlags[1] & 0x40000)
-            {
+                // Hemorrhage
+                if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
+                {
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
+                }
                 // 50% more damage with daggers
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
