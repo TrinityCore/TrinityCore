@@ -696,10 +696,10 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
         // if avg personal rating is more than 150 points below the teams rating, the team will be queued against an opponent matching or similar to the average personal rating
         if (avg_pers_rating + 150 < arenaRating)
             arenaRating = avg_pers_rating;
-    }
 
-    if (arenaRating <= 0)
-        arenaRating = 1;
+        if (arenaRating <= 0)
+            arenaRating = 1;
+    }
 
     BattleGroundQueue &bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
     if (asGroup)
