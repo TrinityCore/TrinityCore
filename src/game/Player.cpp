@@ -20325,6 +20325,28 @@ void Player::UpdateVisibilityOf(WorldObject* target)
     }
 }
 
+void Player::UpdateTriggerVisibility()
+{
+    if (m_clientGUIDs.empty())
+        return;
+
+    UpdateData udata;
+    WorldPacket packet;
+    for (ClientGUIDs::iterator itr=m_clientGUIDs.begin(); itr != m_clientGUIDs.end(); ++itr)
+    {
+        if (IS_CREATURE_GUID(*itr))
+        {
+            Creature *obj = IsInWorld() ? GetMap()->GetCreature(*itr) : NULL;
+            if (!obj || !obj->isTrigger())
+                continue;
+
+            obj->BuildCreateUpdateBlockForPlayer(&udata,this);
+        }
+    }
+    udata.BuildPacket(&packet);
+    GetSession()->SendPacket(&packet);
+}
+
 void Player::SendInitialVisiblePackets(Unit* target)
 {
     SendAurasForTarget(target);
