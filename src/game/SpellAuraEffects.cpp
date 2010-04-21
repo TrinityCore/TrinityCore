@@ -2504,7 +2504,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                     // Survival of the Fittest
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961, 0))
                     {
-                        int32 bp = target->CalculateSpellDamage(target, GetSpellProto(),2);
+                        int32 bp = target->CalculateSpellDamage(target, aurEff->GetSpellProto(),2);
                         target->CastCustomSpell(target, 62069,&bp, NULL, NULL, true, 0, this);
                     }
                 break;
