@@ -37,6 +37,7 @@ npc_rogue_trainer        80%    Scripted trainers, so they are able to offer ite
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
 npc_snake_trap_serpents  80%    AI for snakes that summoned by Snake Trap
 npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die from damage
+npc_locksmith            75%    list of keys needs to be confirmed
 EndContentData */
 
 #include "ScriptedPch.h"
@@ -2112,6 +2113,110 @@ bool GossipSelect_npc_pet_trainer(Player* pPlayer, Creature* pCreature, uint32 /
     return true;
 }
 
+/*######
+## npc_locksmith
+######*/
+
+enum eLockSmith
+{
+    QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ = 10704,
+    QUEST_DARK_IRON_LEGACY                = 3802,
+    QUEST_THE_KEY_TO_SCHOLOMANCE_A        = 5505,
+    QUEST_THE_KEY_TO_SCHOLOMANCE_H        = 5511,
+    QUEST_HOTTER_THAN_HELL_A              = 10758,
+    QUEST_HOTTER_THAN_HELL_H              = 10764,
+    QUEST_RETURN_TO_KHAGDAR               = 9837,
+    QUEST_CONTAINMENT                     = 13159,
+
+    ITEM_ARCATRAZ_KEY                     = 31084,
+    ITEM_SHADOWFORGE_KEY                  = 11000,
+    ITEM_SKELETON_KEY                     = 13704,
+    ITEM_SHATTERED_HALLS_KEY              = 28395,
+    ITEM_THE_MASTERS_KEY                  = 24490,
+    ITEM_VIOLET_HOLD_KEY                  = 42482,
+
+    SPELL_ARCATRAZ_KEY                    = 54881,
+    SPELL_SHADOWFORGE_KEY                 = 54882,
+    SPELL_SKELETON_KEY                    = 54883,
+    SPELL_SHATTERED_HALLS_KEY             = 54884,
+    SPELL_THE_MASTERS_KEY                 = 54885,
+    SPELL_VIOLET_HOLD_KEY                 = 67253
+};
+
+#define GOSSIP_LOST_ARCATRAZ_KEY         "I've lost my key to the Arcatraz."
+#define GOSSIP_LOST_SHADOWFORGE_KEY      "I've lost my key to the Blackrock Depths."
+#define GOSSIP_LOST_SKELETON_KEY         "I've lost my key to the Scholomance."
+#define GOSSIP_LOST_SHATTERED_HALLS_KEY  "I've lost my key to the Shattered Halls."
+#define GOSSIP_LOST_THE_MASTERS_KEY      "I've lost my key to the Karazhan."
+#define GOSSIP_LOST_VIOLET_HOLD_KEY      "I've lost my key to the Violet Hold."
+
+
+bool GossipHello_npc_locksmith(Player* pPlayer, Creature* pCreature)
+{
+
+    // Arcatraz Key
+    if (pPlayer->GetQuestRewardStatus(QUEST_HOW_TO_BRAKE_IN_TO_THE_ARCATRAZ) && !pPlayer->HasItemCount(ITEM_ARCATRAZ_KEY, 1, true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_ARCATRAZ_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +1);
+
+    // Shadowforge Key
+    if (pPlayer->GetQuestRewardStatus(QUEST_DARK_IRON_LEGACY) && !pPlayer->HasItemCount(ITEM_SHADOWFORGE_KEY, 1, true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_SHADOWFORGE_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +2);
+
+    // Skeleton Key
+    if ((pPlayer->GetQuestRewardStatus(QUEST_THE_KEY_TO_SCHOLOMANCE_A) || pPlayer->GetQuestRewardStatus(QUEST_THE_KEY_TO_SCHOLOMANCE_H)) &&
+        !pPlayer->HasItemCount(ITEM_SKELETON_KEY, 1, true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_SKELETON_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +3);
+
+    // Shatered Halls Key
+    if ((pPlayer->GetQuestRewardStatus(QUEST_HOTTER_THAN_HELL_A) || pPlayer->GetQuestRewardStatus(QUEST_HOTTER_THAN_HELL_H)) &&
+        !pPlayer->HasItemCount(ITEM_SHATTERED_HALLS_KEY, 1, true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_SHATTERED_HALLS_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +4);
+
+    // Master's Key
+    if (pPlayer->GetQuestRewardStatus(QUEST_RETURN_TO_KHAGDAR) && !pPlayer->HasItemCount(ITEM_THE_MASTERS_KEY, 1, true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_THE_MASTERS_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +5);
+
+    // Violet Hold Key
+    if (pPlayer->GetQuestRewardStatus(QUEST_CONTAINMENT) && !pPlayer->HasItemCount(ITEM_VIOLET_HOLD_KEY, 1, true))
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_VIOLET_HOLD_KEY, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +6);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+
+    return true;
+}
+
+bool GossipSelect_npc_locksmith(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_ARCATRAZ_KEY, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_SHADOWFORGE_KEY, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_SKELETON_KEY, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_SHATTERED_HALLS_KEY, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_THE_MASTERS_KEY, false);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+6:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->CastSpell(pPlayer, SPELL_VIOLET_HOLD_KEY, false);
+            break;
+    }
+    return true;
+}
+
 void AddSC_npcs_special()
 {
     Script *newscript;
@@ -2249,6 +2354,12 @@ void AddSC_npcs_special()
     newscript->Name = "npc_pet_trainer";
     newscript->pGossipHello =  &GossipHello_npc_pet_trainer;
     newscript->pGossipSelect = &GossipSelect_npc_pet_trainer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_locksmith";
+    newscript->pGossipHello =  &GossipHello_npc_locksmith;
+    newscript->pGossipSelect = &GossipSelect_npc_locksmith;
     newscript->RegisterSelf();
 }
 

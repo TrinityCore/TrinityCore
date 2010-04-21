@@ -162,6 +162,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_the_lich_king_tirion_dawn' WHER
 UPDATE `creature_template` SET `ScriptName`='npc_shadowfiend' WHERE `entry` = 19668;
 UPDATE `creature_template` SET `ScriptName`='npc_wormhole' WHERE `entry`='35646';
 UPDATE `creature_template` SET `ScriptName`='npc_pet_trainer' WHERE `entry` IN (10090,3698,17484,4320,3545,16712,3622,16675,3620,10086,2879,3306,543,2878,3688,10089,16271,10088,3624);
+UPDATE `creature_template` SET `ScriptName`='npc_locksmith' WHERE `entry` IN (29665,29725,29728);
 
 /*  */
 /* ZONE */
