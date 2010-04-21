@@ -531,7 +531,7 @@ CREATE TABLE `character_aura` (
   `maxduration` int(11) NOT NULL default '0',
   `remaintime` int(11) NOT NULL default '0',
   `remaincharges` tinyint(3) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`guid`,`spell`,`effect_mask`)
+  PRIMARY KEY  (`guid`,`caster_guid`,`spell`,`effect_mask`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Player System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
