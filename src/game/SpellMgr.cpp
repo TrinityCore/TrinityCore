@@ -2945,6 +2945,10 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Hungering Cold (no flags)
             if (spellproto->SpellIconID == 2797)
                 return DIMINISHING_POLYMORPH;
+            // Mark of Blood
+            else if ((spellproto->SpellFamilyFlags[0] & 0x10000000)
+                && spellproto->SpellIconID == 2285)
+                return DIMINISHING_LIMITONLY;
             break;
         }
         case SPELLFAMILY_HUNTER:
