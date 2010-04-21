@@ -784,6 +784,8 @@ void Spell::EffectDummy(uint32 i)
                             if (Unit* casttarget = Unit::GetUnit((*unitTarget), ihit->targetGUID))
                                 m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
                         }
+
+                    return;
                 }
                 case 8063:                                  // Deviate Fish
                 {
