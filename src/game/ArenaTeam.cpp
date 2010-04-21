@@ -550,7 +550,7 @@ uint32 ArenaTeam::GetPoints(uint32 MemberRating)
 
     if (rating <= 1500)
     {
-        if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) < 5)
+        if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) < 6)
             points = (float)rating * 0.22f + 14.0f;
         else
             points = 344;
@@ -620,8 +620,13 @@ int32 ArenaTeam::LostAgainst(uint32 againstRating)
     // called when the team has lost
     //'chance' calculation - to loose to the opponent
     float chance = GetChanceAgainst(m_stats.rating, againstRating);
-    float K = (m_stats.rating < 1000) ? 48.0f : 32.0f;
-    // calculate the rating modification (ELO system with k=32 or k=48 if rating<1000)
+    if (m_stats.rating < 1000)
+    {
+        FinishGame(0);
+        return 0;
+    }
+
+    float K = 32.0f;
     int32 mod = (int32)ceil(K * (0.0f - chance));
     // modify the team stats accordingly
     FinishGame(mod);
