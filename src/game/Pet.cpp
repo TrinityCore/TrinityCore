@@ -378,6 +378,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
     uint32 curhealth = GetHealth();
     uint32 curmana = GetPower(POWER_MANA);
 
+    CharacterDatabase.BeginTransaction();
     // save auras before possibly removing them
     _SaveAuras();
 
@@ -389,6 +390,7 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
     _SaveSpells();
     _SaveSpellCooldowns();
+    CharacterDatabase.CommitTransaction();
 
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
@@ -453,11 +455,13 @@ void Pet::SavePetToDB(PetSaveMode mode)
 
 void Pet::DeleteFromDB(uint32 guidlow)
 {
+    CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("DELETE FROM character_pet WHERE id = '%u'", guidlow);
     CharacterDatabase.PExecute("DELETE FROM character_pet_declinedname WHERE id = '%u'", guidlow);
     CharacterDatabase.PExecute("DELETE FROM pet_aura WHERE guid = '%u'", guidlow);
     CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE guid = '%u'", guidlow);
     CharacterDatabase.PExecute("DELETE FROM pet_spell_cooldown WHERE guid = '%u'", guidlow);
+    CharacterDatabase.CommitTransaction();
 }
 
 void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
