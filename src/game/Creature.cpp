@@ -414,7 +414,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
             SetPvP(false);
     }
 
-    // HACK: trigger creature is always not selectable
+    // trigger creature is always not selectable and can not be attacked
     if (isTrigger())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -1751,8 +1751,9 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
         return true;
 
     // Trigger shouldn't be visible for players
-    if (isTrigger())
-        return false;
+    //if (isTrigger())
+    //    return false;
+    // Rat: this makes no sense, triggers are always sent to players, but with invisible model and can not be attacked or targeted!
 
     // Live player (or with not release body see live creatures or death creatures with corpse disappearing time > 0
     if (pl->isAlive() || pl->GetDeathTimer() > 0)
