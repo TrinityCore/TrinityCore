@@ -22124,19 +22124,21 @@ void Player::UpdateCharmedAI()
     }
 }
 
-void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell const *spell)
+void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell *spell)
 {
     if (!spellInfo || !spellInfo->StartRecoveryTime)
         return;
 
-    uint32 cdTime = spellInfo->StartRecoveryTime;
+    float cdTime = float(spellInfo->StartRecoveryTime);
 
     if (!(spellInfo->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_PASSIVE)))
         cdTime *= GetFloatValue(UNIT_MOD_CAST_SPEED);
     else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
         cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
 
-    m_globalCooldowns[spellInfo->StartRecoveryCategory] = ((cdTime < 1000 || cdTime > 2000) ? 1000 : cdTime);
+    ApplySpellMod(spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, cdTime, spell);
+    if (cdTime > 0)
+        m_globalCooldowns[spellInfo->StartRecoveryCategory] = uint32(cdTime);
 }
 
 bool Player::HasGlobalCooldown(SpellEntry const *spellInfo) const
