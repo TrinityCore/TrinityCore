@@ -6478,6 +6478,7 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 31836, 0x00,  10, 0x80000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Light's Grace (Rank 3)
 ( 31871, 0x00,  10, 0x00000010, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Divine Purpose (Rank 1)
 ( 31872, 0x00,  10, 0x00000010, 0x00000000, 0x00000000, 0x00004000, 0x00000000,   0,   0,   0), -- Divine Purpose (Rank 2)
+( 53530,    1,  10, 0x00000000, 0x00000000,     0x0004,     0x0400,     0x0001,   0, 100,   0), -- Divine Guardian
 ( 31876, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Wise (Rank 1)
 ( 31877, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Wise (Rank 2)
 ( 31878, 0x00,  10, 0x00800000, 0x00000000, 0x00000000, 0x00000000, 0x00040000,   0,   0,   0), -- Judgements of the Wise (Rank 3)
@@ -7135,7 +7136,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 58375, 0x00,   4, 0x00000000, 0x00000200, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Glyph of Blocking
 ( 58387, 0x00,   4, 0x00004000, 0x00000040, 0x00000000, 0x00000010, 0x00000000,   0,   0,   0), -- Glyph of Sunder Armor
 ( 54925, 0x02,  10, 0x00000000, 0x00000208, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Glyph of Seal of Command
-( 67356, 0x08,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0); -- Item - Druid T9 Restoration Relic (Rejuvenation)
+( 67356, 0x08,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T9 Restoration Relic (Rejuvenation)
+( 67771,    1,   0, 0x00000000, 0x00000000, 0x00000000,  0x0851154,       0x03,   0,  35,  45), -- Item - Coliseum Melee Trinket 10men
+( 67702,    1,   0, 0x00000000, 0x00000000, 0x00000000,  0x0851154,       0x03,   0,  35,  45); -- Item - Coliseum Melee Trinket 25men
 /*!40000 ALTER TABLE `spell_proc_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
