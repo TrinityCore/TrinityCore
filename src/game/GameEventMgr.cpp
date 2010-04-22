@@ -1068,6 +1068,24 @@ uint32 GameEventMgr::Initialize()                           // return the next e
     return delay;
 }
 
+void GameEventMgr::StartArenaSeason()
+{
+    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT event FROM season_linked_event WHERE season = '%i'",sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
+
+    if (!result)
+    {
+        sLog.outError("ArenaSeason (%i) must be an existant Arena Season",sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
+        return;
+    }
+
+    Field *fields = result->Fetch();
+
+    uint16 eventId = fields[0].GetUInt16();
+
+    StartEvent(eventId,true);
+    sLog.outString("Arena Season %i started...",sWorld.getConfig(CONFIG_ARENA_SEASON_ID));
+}
+
 uint32 GameEventMgr::Update()                               // return the next event delay in ms
 {
     time_t currenttime = time(NULL);
