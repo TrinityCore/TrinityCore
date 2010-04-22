@@ -1637,7 +1637,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdatePotionCooldown(Spell* spell = NULL);
 
         // global cooldown
-        void AddGlobalCooldown(SpellEntry const *spellInfo, Spell const *spell);
+        void AddGlobalCooldown(SpellEntry const *spellInfo, Spell *spell);
         bool HasGlobalCooldown(SpellEntry const *spellInfo) const;
         void RemoveGlobalCooldown(SpellEntry const *spellInfo);
 

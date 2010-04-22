@@ -109,7 +109,7 @@ enum SpellModOp
     SPELLMOD_CHANCE_OF_SUCCESS      = 18,
     SPELLMOD_ACTIVATION_TIME        = 19,
     SPELLMOD_EFFECT_PAST_FIRST      = 20,
-    SPELLMOD_GLOBAL_COOLDOWN        = 21, //TODO: GCD is not checked by server currently
+    SPELLMOD_GLOBAL_COOLDOWN        = 21,
     SPELLMOD_DOT                    = 22,
     SPELLMOD_EFFECT3                = 23,
     SPELLMOD_SPELL_BONUS_DAMAGE     = 24,
