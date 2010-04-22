@@ -105,6 +105,7 @@ class GameEventMgr
         uint32 Update();
         bool IsActiveEvent(uint16 event_id) { return (m_ActiveEvents.find(event_id) != m_ActiveEvents.end()); }
         uint32 Initialize();
+        void StartArenaSeason();
         void StartInternalEvent(uint16 event_id);
         bool StartEvent(uint16 event_id, bool overwrite = false);
         void StopEvent(uint16 event_id, bool overwrite = false);

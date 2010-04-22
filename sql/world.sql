@@ -4642,6 +4642,30 @@ LOCK TABLES `script_waypoint` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `season_linked_event`
+--
+
+DROP TABLE IF EXISTS `season_linked_event`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `season_linked_event` (
+ `season` int(3) UNSIGNED NOT NULL default '0',
+ `event` int(8) UNSIGNED NOT NULL default '0',
+ PRIMARY KEY (`season`),
+ UNIQUE (`season`,`event`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `season_linked_event`
+--
+
+LOCK TABLES `season_linked_event` WRITE;
+/*!40000 ALTER TABLE `season_linked_event` DISABLE KEYS */;
+/*!40000 ALTER TABLE `season_linked_event` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `skill_discovery_template`
 --
 

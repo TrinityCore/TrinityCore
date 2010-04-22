@@ -1656,6 +1656,9 @@ void World::SetInitialWorldSettings()
     uint32 nextGameEvent = gameeventmgr.Initialize();
     m_timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);    //depend on next event
 
+    sLog.outString("Starting Arena Season...");
+    gameeventmgr.StartArenaSeason();
+
     sLog.outString("Loading World States..."); // must be loaded before battleground and outdoor PvP
     LoadWorldStates();
 
