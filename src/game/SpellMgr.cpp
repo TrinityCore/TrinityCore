@@ -3810,12 +3810,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ALLY_SRC;
             count++;
             break;
-        case 74410:     // Arena - Dampening
-        case 74411:     // Battleground - Dampening
-            spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_HEALING_DONE_PERCENT;
-            spellInfo->EffectBasePoints[0] = -11; // 1 -11 = -10
-            count++;
-            break;
         case 31687: // Summon Water Elemental
             // 322-330 switch - effect changed to dummy, target entry not changed in client:(
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
