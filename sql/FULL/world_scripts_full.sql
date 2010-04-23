@@ -7,7 +7,7 @@ UPDATE `creature_template` SET `ScriptName`='';
 UPDATE `gameobject_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5284,5285,5286,5287,4871,4872,4873,5108);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340);
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (5284, 'at_aldurthar_gate'),
 (5285, 'at_aldurthar_gate'),
@@ -16,7 +16,11 @@ INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES
 (4871, 'at_warsong_farms'),
 (4872, 'at_warsong_farms'),
 (4873, 'at_warsong_farms'),
-(5108, 'at_stormwright_shelf');
+(5108, 'at_stormwright_shelf'),
+(5332,'at_last_rites'),
+(5338,'at_last_rites'),
+(5334,'at_last_rites'),
+(5340,'at_last_rites');
 
 /* WORLD BOSS */
 UPDATE `creature_template` SET `ScriptName`='boss_ysondre' WHERE `entry`=14887;
