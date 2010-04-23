@@ -181,6 +181,43 @@ bool AreaTrigger_at_stormwright_shelf(Player* pPlayer, const AreaTriggerEntry* /
     return true;
 }
 
+/*#####
+## at_last_rites
+#####*/
+
+enum eAtLastRites
+{
+    QUEST_LAST_RITES                          = 12019
+};
+
+bool AreaTrigger_at_last_rites(Player* pPlayer, const AreaTriggerEntry* pAt)
+{
+    if (pPlayer->GetQuestStatus(QUEST_LAST_RITES) != QUEST_STATUS_INCOMPLETE)
+        return false;
+
+    WorldLocation pPosition;
+
+    switch(pAt->id)
+    {   
+        case 5332:
+        case 5338:
+            pPosition = WorldLocation(571,3733.68,3563.25,290.812,3.665192);
+            break;
+        case 5334:
+            pPosition = WorldLocation(571,3802.38,3585.95,49.5765,0);
+            break;
+        case 5340:
+            pPosition = WorldLocation(571,3687.91,3577.28,473.342,0);
+            break;
+        default:
+            return false;
+    }
+
+    pPlayer->TeleportTo(pPosition);
+
+    return false;
+}
+
 void AddSC_areatrigger_scripts()
 {
     Script* newscript;
@@ -213,5 +250,10 @@ void AddSC_areatrigger_scripts()
     newscript = new Script;
     newscript->Name = "at_stormwright_shelf";
     newscript->pAreaTrigger = &AreaTrigger_at_stormwright_shelf;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "at_last_rites";
+    newscript->pAreaTrigger = &AreaTrigger_at_last_rites;
     newscript->RegisterSelf();
 }
