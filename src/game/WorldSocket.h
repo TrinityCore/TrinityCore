@@ -233,9 +233,6 @@ class WorldSocket : protected WorldHandler
 
         uint32 m_Seed;
 
-        /// The defined time where the socket will be forced to close. This is
-        /// to detect and close idle connections.
-        time_t m_TimeOutTime;
 };
 
 #endif  /* _WORLDSOCKET_H */

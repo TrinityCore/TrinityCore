@@ -29,6 +29,7 @@
 #include "SharedDefines.h"
 #include "AddonMgr.h"
 #include "QueryResult.h"
+#include "World.h"
 
 struct ItemPrototype;
 struct AuctionEntry;
@@ -283,6 +284,22 @@ class WorldSession
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
         uint32 getDialogStatus(Player *pPlayer, Object* questgiver, uint32 defstatus);
+        
+        time_t m_timeOutTime;
+        void UpdateTimeOutTime(bool b)
+        {
+            if (b)
+                m_timeOutTime = time(NULL) + sWorld.getConfig(CONFIG_SOCKET_TIMEOUTTIME) / IN_MILISECONDS;
+            else
+                m_timeOutTime = 0;
+        }
+        bool IsConnectionIdle() const
+        {
+            if (m_timeOutTime && m_timeOutTime <= time(NULL))
+                return true;
+            return false;
+        }
+        
 
     public:                                                 // opcodes handlers
 
