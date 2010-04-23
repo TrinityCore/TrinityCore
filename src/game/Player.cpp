@@ -16139,7 +16139,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
                 break;
         }
 
-        switch (sWorld.getConfig(CONFIG_GM_WISPERING_TO))
+        switch (sWorld.getConfig(CONFIG_GM_WHISPERING_TO))
         {
             default:
             case 0:                          break;         // disable
