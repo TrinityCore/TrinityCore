@@ -162,6 +162,7 @@ ENDIF(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  SET(MACOSX 1)
   SET(OSX_LIBS /opt/local/lib/libcrypto.dylib)
   add_definitions(-D__ASSERTMACROS__)
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
