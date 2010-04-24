@@ -171,7 +171,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     data << GetPlayer()->GetName();                         // max len 48
     data << uint32(0);                                      // unk
     data << uint8(0);                                       // count
-    //for(int i = 0; i < count; ++i)
+    //for (int i = 0; i < count; ++i)
     //    data << uint32(0);
     data << uint32(0);                                      // unk
     player->GetSession()->SendPacket(&data);
