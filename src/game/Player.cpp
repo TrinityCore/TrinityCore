@@ -9023,7 +9023,7 @@ uint8 Player::FindEquipSlot(ItemPrototype const* proto, uint32 slot, bool swap) 
                 if (ItemPrototype const *mhWeaponProto = mhWeapon->GetProto())
                     if (mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_POLEARM || mhWeaponProto->SubClass == ITEM_SUBCLASS_WEAPON_STAFF)
                     {
-                        AutoUnequipOffhandIfNeed(true);
+                        const_cast<Player *>(this)->AutoUnequipOffhandIfNeed(true);
                         break;
                     }
             if (CanDualWield() && CanTitanGrip() && proto->SubClass != ITEM_SUBCLASS_WEAPON_POLEARM && proto->SubClass != ITEM_SUBCLASS_WEAPON_STAFF)
@@ -16826,7 +16826,7 @@ void Player::_LoadWeeklyQuestStatus(QueryResult_AutoPtr result)
 
             sLog.outDebug("Weekly quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
         }
-        while(result->NextRow());
+        while (result->NextRow());
     }
 
     m_WeeklyQuestChanged = false;

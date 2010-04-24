@@ -3687,7 +3687,7 @@ void ObjectMgr::LoadQuests()
         if (qinfo->QuestFlags & QUEST_FLAGS_AUTO_REWARDED)
         {
             // at auto-reward can be rewarded only RewChoiceItemId[0]
-            for(int j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
+            for (int j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
             {
                 if (uint32 id = qinfo->RewChoiceItemId[j])
                 {

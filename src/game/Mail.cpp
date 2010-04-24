@@ -672,7 +672,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
     }
 
     // in mail template case we need create new item text
-    if(m->mailTemplateId)
+    if (m->mailTemplateId)
     {
         MailTemplateEntry const* mailTemplateEntry = sMailTemplateStore.LookupEntry(m->mailTemplateId);
         if (!mailTemplateEntry)

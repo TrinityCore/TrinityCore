@@ -241,7 +241,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

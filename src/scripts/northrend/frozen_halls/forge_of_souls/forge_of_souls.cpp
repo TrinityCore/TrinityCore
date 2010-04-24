@@ -231,7 +231,7 @@ struct npc_sylvanas_fosAI: public ScriptedAI
         //if (me->hasUnitState(UNIT_STAT_CASTING))
         //    return;
 
-        //while(uint32 eventId = events.ExecuteEvent())
+        //while (uint32 eventId = events.ExecuteEvent())
         //{
         //    switch(eventId)
         //    {
@@ -337,7 +337,7 @@ struct npc_jaina_fosAI: public ScriptedAI
         //if (me->hasUnitState(UNIT_STAT_CASTING))
         //    return;
 
-        //while(uint32 eventId = events.ExecuteEvent())
+        //while (uint32 eventId = events.ExecuteEvent())
         //{
         //    switch(eventId)
         //    {
@@ -406,7 +406,7 @@ struct mob_spiteful_apparitionAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -451,7 +451,7 @@ struct mob_spectral_wardenAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -500,7 +500,7 @@ struct mob_soulguard_watchmanAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -548,7 +548,7 @@ struct mob_soulguard_reaperAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -599,7 +599,7 @@ struct  mob_soulguard_bonecasterAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -654,7 +654,7 @@ struct mob_soulguard_animatorAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -716,7 +716,7 @@ struct mob_soulguard_adeptAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
@@ -774,7 +774,7 @@ struct mob_soul_horrorAI: public ScriptedAI
         if (me->hasUnitState(UNIT_STAT_CASTING))
             return;
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {

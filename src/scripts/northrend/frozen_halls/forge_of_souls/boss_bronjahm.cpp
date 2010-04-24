@@ -151,7 +151,7 @@ struct boss_bronjahmAI : public ScriptedAI
             return;
         }
 
-        while(uint32 eventId = events.ExecuteEvent())
+        while (uint32 eventId = events.ExecuteEvent())
         {
             switch(eventId)
             {
