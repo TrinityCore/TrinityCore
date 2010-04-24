@@ -2305,7 +2305,7 @@ void Guild::BroadcastEvent(GuildEvents event, uint64 guid, uint8 strCount, std::
             break;
     }
 
-    if(guid)
+    if (guid)
         data << uint64(guid);
 
     BroadcastPacket(&data);
