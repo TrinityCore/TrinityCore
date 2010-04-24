@@ -1211,7 +1211,6 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
         data << uint32(0);                                  // unspentTalentPoints
         data << uint8(0);                                   // talentGroupCount
         data << uint8(0);                                   // talentGroupIndex
-        data << uint32(0);                                  // slotUsedMask
     }
 
     plr->BuildEnchantmentsInfoData(&data);
