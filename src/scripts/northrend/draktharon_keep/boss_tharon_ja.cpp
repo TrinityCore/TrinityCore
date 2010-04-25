@@ -229,6 +229,12 @@ struct boss_tharon_jaAI : public ScriptedAI
 
         if (pInstance)
         {
+            // clean morph on players
+            Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
+            
+            for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+                if (Player *pPlayer = i->getSource())
+                    pPlayer->DeMorph();
             // cast is not rewarding the achievement.
             // DoCast(SPELL_ACHIEVEMENT_CHECK);
             pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2, SPELL_ACHIEVEMENT_CHECK);
