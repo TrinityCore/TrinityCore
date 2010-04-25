@@ -13574,10 +13574,23 @@ void Player::SendPreparedQuest(uint64 guid)
                 PlayerTalkClass->SendQuestGiverRequestItems(pQuest, guid, CanRewardQuest(pQuest, false), true);
             // Send completable on repeatable and autoCompletable quest if player don't have quest
             // TODO: verify if check for !pQuest->IsDaily() is really correct (possibly not)
-            else if (pQuest->IsAutoComplete() && pQuest->IsRepeatable() && !pQuest->IsDailyOrWeekly())
-                PlayerTalkClass->SendQuestGiverRequestItems(pQuest, guid, CanCompleteRepeatableQuest(pQuest), true);
             else
-                PlayerTalkClass->SendQuestGiverQuestDetails(pQuest, guid, true);
+            {
+                Object* pObject = ObjectAccessor::GetObjectByTypeMask(*this, guid,TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT|TYPEMASK_ITEM);
+                if (!pObject||!pObject->hasQuest(quest_id) && !pObject->hasInvolvedQuest(quest_id))
+                {
+                    PlayerTalkClass->CloseGossip();
+                    return;
+                }
+
+                if (pQuest->HasFlag(QUEST_FLAGS_AUTO_ACCEPT) && CanAddQuest(pQuest, true))
+                    AddQuest(pQuest, pObject);
+
+                if ((pQuest->IsAutoComplete() && pQuest->IsRepeatable() && !pQuest->IsDailyOrWeekly()) || pQuest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+                    PlayerTalkClass->SendQuestGiverRequestItems(pQuest, guid, CanCompleteRepeatableQuest(pQuest), true);
+                else
+                    PlayerTalkClass->SendQuestGiverQuestDetails(pQuest, guid, true);
+            }
         }
     }
     // multiply entries
