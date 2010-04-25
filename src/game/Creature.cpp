@@ -1783,6 +1783,8 @@ bool Creature::IsVisibleInGridForPlayer(Player const* pl) const
     return false;
 }
 
+
+// select nearest hostile unit within the given distance (regardless of threat list).
 Unit* Creature::SelectNearestTarget(float dist) const
 {
     CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
@@ -1791,6 +1793,36 @@ Unit* Creature::SelectNearestTarget(float dist) const
     cell.SetNoCreate();
 
     Unit *target = NULL;
+
+    {
+        if (dist == 0.0f || dist > MAX_VISIBILITY_DISTANCE)
+            dist = MAX_VISIBILITY_DISTANCE;
+
+        Trinity::NearestHostileUnitCheck u_check(this, dist);
+        Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck> searcher(this, target, u_check);
+
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
+        TypeContainerVisitor<Trinity::UnitLastSearcher<Trinity::NearestHostileUnitCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
+
+        cell.Visit(p, world_unit_searcher, *GetMap(), *this, dist);
+        cell.Visit(p, grid_unit_searcher, *GetMap(), *this, dist);
+    }
+
+    return target;
+}
+
+// select nearest hostile unit within the given attack distance (i.e. distance is ignored if > than ATTACK_DISTANCE), regardless of threat list.
+Unit* Creature::SelectNearestTargetInAttackDistance(float dist) const
+{
+    CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    Unit *target = NULL;
+
+    if (dist > ATTACK_DISTANCE)
+        sLog.outError("Creature (GUID: %u Entry: %u) SelectNearestTargetInAttackDistance called with dist > ATTACK_DISTANCE. Extra distance ignored.",GetGUIDLow(),GetEntry());
 
     {
         Trinity::NearestHostileUnitInAttackDistanceCheck u_check(this, dist);

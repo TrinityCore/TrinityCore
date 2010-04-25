@@ -408,7 +408,7 @@ struct boss_alarAI : public ScriptedAI
             else
             {
                 Unit *pTarget = NULL;
-                pTarget = me->SelectNearestTarget(5);
+                pTarget = me->SelectNearestTargetInAttackDistance(5);
                 if (pTarget)
                     me->AI()->AttackStart(pTarget);
                 else

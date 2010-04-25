@@ -131,15 +131,6 @@ void CreatureAI::MoveInLineOfSight(Unit *who)
     //    me->GetMotionMaster()->MoveChase(who->getVictim());
 }
 
-void CreatureAI::SelectNearestTarget(Unit *who)
-{
-    if (me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->canAttack(who))
-    {
-        me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
-        me->AddThreat(who, 1000000.0f);
-    }
-}
-
 void CreatureAI::EnterEvadeMode()
 {
     if (!_EnterEvadeMode())
