@@ -258,12 +258,11 @@ struct boss_twinemperorsAI : public ScriptedAI
             {
                 AfterTeleport = false;
                 me->clearUnitState(UNIT_STAT_STUNNED);
-                Unit *nearu = me->SelectNearestTarget(100);
-                //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
-                if (nearu)
+                if (Unit *nearu = me->SelectNearestTarget(100))
                 {
+                    //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
                     AttackStart(nearu);
-                    me->getThreatManager().addThreat(nearu, 10000);
+                    me->AddThreat(nearu, 10000);
                 }
                 return true;
             }

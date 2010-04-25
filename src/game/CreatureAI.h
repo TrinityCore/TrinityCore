@@ -73,8 +73,6 @@ class CreatureAI : public UnitAI
         bool UpdateVictimWithGaze();
         bool UpdateCombatState();
 
-        void SelectNearestTarget(Unit *who);
-
         void SetGazeOn(Unit *target);
 
         Creature *DoSummon(uint32 uiEntry, const Position &pos, uint32 uiDespawntime = 30000, TempSummonType uiType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
