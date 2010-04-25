@@ -199,7 +199,7 @@ bool GossipSelect_npc_taxi(Player* pPlayer, Creature* pCreature, uint32 /*uiSend
         break;
     case GOSSIP_ACTION_INFO_DEF + 3:
         pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->GetSession()->SendDoFlight(1149, 1041);
+        pPlayer->CastSpell(pPlayer,53335,true);               //TaxiPath 1041 (Stormwind Harbor)
         break;
     case GOSSIP_ACTION_INFO_DEF + 4:
         pPlayer->CLOSE_GOSSIP_MENU();
