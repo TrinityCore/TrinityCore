@@ -756,9 +756,13 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
         return;
 
     Player* modOwner = caster ? caster->GetSpellModOwner() : NULL;
+
     // Apply casting time mods
     if (modOwner && m_amplitude)
     {
+        // Apply periodic time mod
+        modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, m_amplitude);
+
         // For channeled spells
         if (IsChanneledSpell(m_spellProto)) {
             modOwner->ModSpellCastTime(m_spellProto, m_amplitude);
@@ -779,10 +783,6 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
             }
         }
     }
-
-    // Apply periodic time mod
-    if (modOwner && m_amplitude)
-        modOwner->ApplySpellMod(GetId(), SPELLMOD_ACTIVATION_TIME, m_amplitude);
 
     if (create)
     {
