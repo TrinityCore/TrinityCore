@@ -4384,7 +4384,7 @@ CREATE TABLE `quest_template` (
   `RequiredMaxRepValue` mediumint(9) NOT NULL DEFAULT '0',
   `SuggestedPlayers` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `LimitTime` int(10) unsigned NOT NULL DEFAULT '0',
-  `QuestFlags` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `QuestFlags` int(10) unsigned NOT NULL DEFAULT '0',
   `SpecialFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `CharTitleId` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `PlayersSlain` tinyint(3) unsigned NOT NULL DEFAULT '0',
