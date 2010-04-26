@@ -2512,7 +2512,7 @@ void World::InitWeeklyQuestResetTime()
         // move to just before if need
         time_t cur = time(NULL);
         if (m_NextWeeklyQuestReset < cur)
-            m_NextWeeklyQuestReset += WEEK * ((cur - m_NextWeeklyQuestReset) / WEEK);
+            m_NextWeeklyQuestReset += WEEK;
     }
 }
 
