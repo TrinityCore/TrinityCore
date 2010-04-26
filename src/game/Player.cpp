@@ -23363,7 +23363,6 @@ void Player::ActivateSpec(uint8 spec)
         return;
 
     _SaveActions();
-    _SaveSpells();
 
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
