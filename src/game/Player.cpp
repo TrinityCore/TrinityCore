@@ -3438,7 +3438,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
 
     bool learning = addSpell(spell_id,active,true,dependent,false);
 
-    // learn all disabled higher ranks (recursive)
+    // learn all disabled higher ranks and required spells (recursive)
     if (disabled)
     {
         SpellChainNode const* node = spellmgr.GetSpellChainNode(spell_id);
@@ -3447,6 +3447,14 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
             PlayerSpellMap::iterator iter = m_spells.find(node->next);
             if (iter != m_spells.end() && iter->second->disabled)
                 learnSpell(node->next, false);
+        }
+
+        SpellsRequiringSpellMapBounds spellsRequiringSpell = spellmgr.GetSpellsRequiringSpellBounds(spell_id);
+        for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequiringSpell.first; itr2 != spellsRequiringSpell.second; ++itr2)
+        {
+            PlayerSpellMap::iterator iter2 = m_spells.find(itr2->second);
+            if (iter2 != m_spells.end() && iter2->second->disabled)
+                learnSpell(itr2->second, false);
         }
     }
 
@@ -23355,6 +23363,7 @@ void Player::ActivateSpec(uint8 spec)
         return;
 
     _SaveActions();
+    _SaveSpells();
 
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
