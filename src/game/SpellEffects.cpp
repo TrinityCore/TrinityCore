@@ -2053,7 +2053,8 @@ void Spell::EffectDummy(uint32 i)
             // Scourge Strike
             if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_SCOURGE_STRIKE)
             {
-                m_damage = float (m_damage) * (float(damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) + 100.0f) / 100.0f);
+                int32 bp = (m_damage * damage * unitTarget->GetDiseasesByCaster(m_caster->GetGUID())) / 100;
+                m_caster->CastCustomSpell(unitTarget, 70890, &bp, NULL, NULL, true);
                 return;
             }
             // Death Coil
