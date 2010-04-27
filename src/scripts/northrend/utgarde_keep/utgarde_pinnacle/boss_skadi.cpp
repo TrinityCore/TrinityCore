@@ -67,6 +67,11 @@ enum CombatPhase
     SKADI
 };
 
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 17726,
+};
+
 struct boss_skadiAI : public ScriptedAI
 {
     boss_skadiAI(Creature *c) : ScriptedAI(c)
@@ -101,7 +106,10 @@ struct boss_skadiAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
+            pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+        }
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -116,7 +124,10 @@ struct boss_skadiAI : public ScriptedAI
         Phase = FLYING;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
+            pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+        }
     }
 
     void UpdateAI(const uint32 diff)

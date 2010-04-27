@@ -126,6 +126,11 @@ enum Yells
     SAY_SUMMON                                  = -1603308,
 };
 
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 21027,
+};
+
 //#define GRAVITY_BOMB_DMG_MIN_10                11700
 //#define GRAVITY_BOMB_DMG_MAX_10                12300
 //#define GRAVITY_BOMB_DMG_MIN_25                14625
@@ -213,12 +218,18 @@ struct boss_xt002_AI : public BossAI
 
         phase = 1;
         heart_exposed = 0;
+
+        if (instance)
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
         _EnterCombat();
+
+        if (instance)
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void DoAction(const int32 action)

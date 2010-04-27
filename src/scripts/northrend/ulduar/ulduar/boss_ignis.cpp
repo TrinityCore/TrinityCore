@@ -36,6 +36,11 @@ enum Yells
     SAY_BERSERK                                 = -1603228,
 };
 
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 20951,
+};
+
 struct boss_ignis_AI : public BossAI
 {
     boss_ignis_AI(Creature *pCreature) : BossAI(pCreature, TYPE_IGNIS) {}
@@ -50,12 +55,18 @@ struct boss_ignis_AI : public BossAI
         uiFlameJetsTimer = 32000;
         uiScorchTimer = 100;
         uiSlagPotTimer = 100;
+
+        if (instance)
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void EnterCombat(Unit* /*who*/)
     {
         DoScriptText(SAY_AGGRO,me);
         _EnterCombat();
+
+        if (instance)
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void KilledUnit(Unit* /*victim*/)

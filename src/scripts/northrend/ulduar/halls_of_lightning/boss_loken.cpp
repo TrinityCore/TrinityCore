@@ -24,34 +24,32 @@ EndScriptData */
 #include "ScriptedPch.h"
 #include "halls_of_lightning.h"
 
-#define MAX_ENCOUNTER_TIME  2 * 60 * 1000
-
 enum eEnums
 {
-    ACHIEVEMENT_TIMELY_DEATH            = 1867,
+    ACHIEV_TIMELY_DEATH_START_EVENT               = 20384,
 
-    SAY_AGGRO                           = -1602018,
-    SAY_INTRO_1                         = -1602019,
-    SAY_INTRO_2                         = -1602020,
-    SAY_SLAY_1                          = -1602021,
-    SAY_SLAY_2                          = -1602022,
-    SAY_SLAY_3                          = -1602023,
-    SAY_DEATH                           = -1602024,
-    SAY_NOVA_1                          = -1602025,
-    SAY_NOVA_2                          = -1602026,
-    SAY_NOVA_3                          = -1602027,
-    SAY_75HEALTH                        = -1602028,
-    SAY_50HEALTH                        = -1602029,
-    SAY_25HEALTH                        = -1602030,
-    EMOTE_NOVA                          = -1602031,
+    SAY_AGGRO                                     = -1602018,
+    SAY_INTRO_1                                   = -1602019,
+    SAY_INTRO_2                                   = -1602020,
+    SAY_SLAY_1                                    = -1602021,
+    SAY_SLAY_2                                    = -1602022,
+    SAY_SLAY_3                                    = -1602023,
+    SAY_DEATH                                     = -1602024,
+    SAY_NOVA_1                                    = -1602025,
+    SAY_NOVA_2                                    = -1602026,
+    SAY_NOVA_3                                    = -1602027,
+    SAY_75HEALTH                                  = -1602028,
+    SAY_50HEALTH                                  = -1602029,
+    SAY_25HEALTH                                  = -1602030,
+    EMOTE_NOVA                                    = -1602031,
 
-    SPELL_ARC_LIGHTNING                 = 52921,
-    SPELL_LIGHTNING_NOVA_N              = 52960,
-    SPELL_LIGHTNING_NOVA_H              = 59835,
+    SPELL_ARC_LIGHTNING                           = 52921,
+    SPELL_LIGHTNING_NOVA_N                        = 52960,
+    SPELL_LIGHTNING_NOVA_H                        = 59835,
 
-    SPELL_PULSING_SHOCKWAVE_N           = 52961,
-    SPELL_PULSING_SHOCKWAVE_H           = 59836,
-    SPELL_PULSING_SHOCKWAVE_AURA        = 59414
+    SPELL_PULSING_SHOCKWAVE_N                     = 52961,
+    SPELL_PULSING_SHOCKWAVE_H                     = 59836,
+    SPELL_PULSING_SHOCKWAVE_AURA                  = 59414
 };
 
 /*######
@@ -76,8 +74,6 @@ struct boss_lokenAI : public ScriptedAI
 
     uint32 m_uiHealthAmountModifier;
 
-    uint32 EncounterTime;
-
     void Reset()
     {
         m_bIsAura = false;
@@ -90,37 +86,26 @@ struct boss_lokenAI : public ScriptedAI
         m_uiHealthAmountModifier = 1;
 
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_LOKEN, NOT_STARTED);
+            m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+        }
     }
 
     void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
-        EncounterTime = 0;
-
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_LOKEN, IN_PROGRESS);
+            m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMELY_DEATH_START_EVENT);
+        }
     }
 
     void JustDied(Unit* /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
-
-        if (IsHeroic() && EncounterTime <= MAX_ENCOUNTER_TIME)
-        {
-            AchievementEntry const *AchievTimelyDeath = GetAchievementStore()->LookupEntry(ACHIEVEMENT_TIMELY_DEATH);
-            if (AchievTimelyDeath)
-            {
-                Map* pMap = me->GetMap();
-                if (pMap && pMap->IsDungeon())
-                {
-                    Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievTimelyDeath);
-                }
-            }
-        }
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_LOKEN, DONE);
@@ -136,8 +121,6 @@ struct boss_lokenAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
-        EncounterTime += uiDiff;
 
         if (m_bIsAura)
         {

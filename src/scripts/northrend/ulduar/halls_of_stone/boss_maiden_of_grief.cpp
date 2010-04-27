@@ -14,29 +14,29 @@ update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '
 
 enum Spells
 {
-    SPELL_PARTING_SORROW                                = 59723,
-    SPELL_STORM_OF_GRIEF_N                              = 50752,
-    SPELL_STORM_OF_GRIEF_H                              = 59772,
-    SPELL_SHOCK_OF_SORROW_N                             = 50760,
-    SPELL_SHOCK_OF_SORROW_H                             = 59726,
-    SPELL_PILLAR_OF_WOE_N                               = 50761,
-    SPELL_PILLAR_OF_WOE_H                               = 59727
+    SPELL_PARTING_SORROW                          = 59723,
+    SPELL_STORM_OF_GRIEF_N                        = 50752,
+    SPELL_STORM_OF_GRIEF_H                        = 59772,
+    SPELL_SHOCK_OF_SORROW_N                       = 50760,
+    SPELL_SHOCK_OF_SORROW_H                       = 59726,
+    SPELL_PILLAR_OF_WOE_N                         = 50761,
+    SPELL_PILLAR_OF_WOE_H                         = 59727
 };
 
 enum Yells
 {
-    SAY_AGGRO                                        = -1599000,
-    SAY_SLAY_1                                       = -1599001,
-    SAY_SLAY_2                                       = -1599002,
-    SAY_SLAY_3                                       = -1599003,
-    SAY_SLAY_4                                       = -1599004,
-    SAY_DEATH                                        = -1599005,
-    SAY_STUN                                         = -1599006
+    SAY_AGGRO                                     = -1599000,
+    SAY_SLAY_1                                    = -1599001,
+    SAY_SLAY_2                                    = -1599002,
+    SAY_SLAY_3                                    = -1599003,
+    SAY_SLAY_4                                    = -1599004,
+    SAY_DEATH                                     = -1599005,
+    SAY_STUN                                      = -1599006
 };
 
 enum Achievements
 {
-    ACHIEVEMENT_GOOD_GRIEF                           = 1866
+    ACHIEV_GOOD_GRIEF_START_EVENT                 = 20383,
 };
 
 struct boss_maiden_of_griefAI : public ScriptedAI
@@ -52,7 +52,6 @@ struct boss_maiden_of_griefAI : public ScriptedAI
     uint32 StormOfGriefTimer;
     uint32 ShockOfSorrowTimer;
     uint32 PillarOfWoeTimer;
-    uint32 AchievTimer;
 
     void Reset()
     {
@@ -60,10 +59,12 @@ struct boss_maiden_of_griefAI : public ScriptedAI
         StormOfGriefTimer = 10000;
         ShockOfSorrowTimer = 20000+rand()%5000;
         PillarOfWoeTimer = 5000 + rand()%10000;
-        AchievTimer = 0;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
+            pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+        }
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -80,6 +81,7 @@ struct boss_maiden_of_griefAI : public ScriptedAI
                 }
 
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, IN_PROGRESS);
+            pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
         }
     }
 
@@ -88,11 +90,6 @@ struct boss_maiden_of_griefAI : public ScriptedAI
         //Return since we have no target
         if (!UpdateVictim())
             return;
-
-        //Achievement counter
-        if (pInstance)
-            if (pInstance->GetData(DATA_MAIDEN_OF_GRIEF_EVENT) == IN_PROGRESS)
-                AchievTimer += diff;
 
         if (IsHeroic())
         {
@@ -135,23 +132,15 @@ struct boss_maiden_of_griefAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
 
         if (pInstance)
             pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
-
-        AchievementEntry const *AchievGoodGrief = GetAchievementStore()->LookupEntry(ACHIEVEMENT_GOOD_GRIEF);
-        Map* pMap = me->GetMap();
-
-        if (IsHeroic() && AchievTimer < 60000 && pMap && pMap->IsDungeon() && AchievGoodGrief)
-        {
-            Map::PlayerList const &players = pMap->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        itr->getSource()->CompletedAchievement(AchievGoodGrief);
-        }
     }
+
     void KilledUnit(Unit * victim)
     {
         if (victim == me)

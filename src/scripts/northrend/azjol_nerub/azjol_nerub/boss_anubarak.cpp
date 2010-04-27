@@ -54,6 +54,11 @@ enum Yells
     SAY_DEATH                                     = -1601004
 };
 
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 20381,
+};
+
 const Position SpawnPoint[2] =
 {
     { 550.7, 282.8, 224.3 },
@@ -105,16 +110,21 @@ struct boss_anub_arakAI : public ScriptedAI
         lSummons.DespawnAll();
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
+            pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+        }
     }
-
 
     void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
+            pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+        }
     }
 
 
