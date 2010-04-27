@@ -339,6 +339,28 @@ void InstanceData::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 pPlayer->UpdateAchievementCriteria(type, miscvalue1, miscvalue2, unit, time);
 }
 
+// Start timed achievement for all players in instance
+void InstanceData::DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *pPlayer = i->getSource())
+                pPlayer->GetAchievementMgr().StartTimedAchievement(type, entry);
+}
+
+// Stop timed achievement for all players in instance
+void InstanceData::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+{
+    Map::PlayerList const &PlayerList = instance->GetPlayers();
+
+    if (!PlayerList.isEmpty())
+        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
+            if (Player *pPlayer = i->getSource())
+                pPlayer->GetAchievementMgr().RemoveTimedAchievement(type, entry);
+}
+
 // Remove Auras due to Spell on all players in instance
 void InstanceData::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
 {

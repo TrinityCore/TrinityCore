@@ -45,6 +45,11 @@ enum Spells
     SPELL_BERSERK                   = 27680,
 };
 
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 9891,
+};
+
 struct boss_anubrekhanAI : public BossAI
 {
     boss_anubrekhanAI(Creature *c) : BossAI(c, BOSS_ANUBREKHAN) {}
@@ -83,6 +88,14 @@ struct boss_anubrekhanAI : public BossAI
         DoScriptText(SAY_SLAY, me);
     }
 
+    void JustDied(Unit *)
+    {
+        _JustDied();
+
+        // start achievement timer (kill Maexna within 20 min)
+        if (instance)
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+    }
     void EnterCombat(Unit * /*who*/)
     {
         _EnterCombat();

@@ -83,37 +83,54 @@ After all of the NPCs riding on the disks die, the players on the disks need to 
 #define SAY_PHASE3_SLAY_3                          -1616027
 #define SAY_PHASE3_BIG_ATTACK                      -1616028
 
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 20387,
+};
+
 struct boss_malygosAI : public ScriptedAI
 {
-    boss_malygosAI(Creature *c) : ScriptedAI(c) {}
+    boss_malygosAI(Creature *c) : ScriptedAI(c)
+    {
+        instance = me->GetInstanceData();
+    }
 
-    uint32 phase,
-           enrage;
+    InstanceData *instance;
+
+    uint32 phase;
+    uint32 enrage;
 
     void Reset()
     {
-        //Source Deadly Boss Mod
-        enrage = 615000; //10 min
+        phase = 1;
+        enrage = 615000;    //Source Deadly Boss Mod
+
+        if (instance)
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
+
     void EnterCombat(Unit* /*who*/)
     {
         if (phase == 1)
+        {
             DoScriptText(SAY_PHASE1_AGGRO, me);
+            if (instance)
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+        }
+
         if (phase == 2)
             DoScriptText(SAY_PHASE1_AGGRO, me);
         if (phase == 3)
             DoScriptText(SAY_PHASE1_AGGRO, me);
     }
-    void AttackStart(Unit* /*who*/) {}
-    void MoveInLineOfSight(Unit* /*who*/) {}
+
     void UpdateAI(const uint32 /*diff*/)
     {
-        phase =1;
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        if ((me->GetHealth()*100 / me->GetMaxHealth()) <= 50){
+        if (phase == 1 && HealthBelowPct(50)) {
             phase = 2;
             //spawn adds
             //set malygos unatackable untill all adds spawned dead
@@ -122,10 +139,12 @@ struct boss_malygosAI : public ScriptedAI
 
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH, me);
     }
+
     void KilledUnit(Unit * victim)
     {
         if (victim == me)
