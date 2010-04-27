@@ -48,3 +48,8 @@ enum YoggSaron_Yells
     WHISP_INSANITY_2                            = -1603340,
     SAY_DEATH                                   = -1603341,
 };
+
+enum
+{
+    ACHIEV_TIMED_START_EVENT                      = 21001,
+};

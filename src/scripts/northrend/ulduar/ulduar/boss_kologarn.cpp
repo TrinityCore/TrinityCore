@@ -50,6 +50,11 @@ enum Yells
     SAY_BERSERK                                 = -1603238,
 };
 
+enum
+{
+    ACHIEV_DISARMED_START_EVENT                   = 21687,
+};
+
 struct boss_kologarnAI : public BossAI
 {
     boss_kologarnAI(Creature *pCreature) : BossAI(pCreature, TYPE_KOLOGARN), vehicle(pCreature->GetVehicleKit()),
@@ -87,6 +92,10 @@ struct boss_kologarnAI : public BossAI
                 left = apply;
             else if (who->GetEntry() == 32934)
                 right = apply;
+
+            if (!apply && instance)
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_DISARMED_START_EVENT);
+
             who->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             CAST_CRE(who)->SetReactState(REACT_PASSIVE);
         }

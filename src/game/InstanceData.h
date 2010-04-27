@@ -162,6 +162,10 @@ class InstanceData : public ZoneScript
         // Update Achievement Criteria for all players in instance
         void DoUpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1=0, uint32 miscvalue2=0, Unit *unit=NULL, uint32 time=0);
 
+        // Start/Stop Timed Achievement Criteria for all players in instance
+        void DoStartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void DoStopTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+
         // Remove Auras due to Spell on all players in instance
         void DoRemoveAurasDueToSpellOnPlayers(uint32 spell);
 

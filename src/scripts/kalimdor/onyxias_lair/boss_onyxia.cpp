@@ -66,7 +66,9 @@ enum
 
     PHASE_START                 = 1,
     PHASE_BREATH                = 2,
-    PHASE_END                   = 3
+    PHASE_END                   = 3,
+
+    ACHIEV_TIMED_START_EVENT    = 6601,
 };
 
 struct sOnyxMove
@@ -97,7 +99,12 @@ static float afSpawnLocations[2][3]=
 
 struct boss_onyxiaAI : public ScriptedAI
 {
-    boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+    boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    {
+        instance = me->GetInstanceData();
+    }
+
+    InstanceData *instance;
 
     uint32 m_uiPhase;
 
@@ -122,6 +129,9 @@ struct boss_onyxiaAI : public ScriptedAI
 
     void Reset()
     {
+        if (instance)
+            instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+
         if (!IsCombatMovement())
             SetCombatMovement(true);
 
@@ -147,10 +157,13 @@ struct boss_onyxiaAI : public ScriptedAI
         m_bIsSummoningLairGuards = false;
     }
 
-    void Aggro(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
         me->SetInCombatWithZone();
+
+        if (instance)
+            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
     }
 
     void JustSummoned(Creature *pSummoned)

@@ -61,7 +61,7 @@ enum Yells
 
 enum Achievements
 {
-    ACHIEV_QUICK_DEMISE                           = 1862
+    ACHIEV_QUICK_DEMISE_START_EVENT               = 20382,
 };
 
 struct boss_volazjAI : public ScriptedAI
@@ -76,7 +76,6 @@ struct boss_volazjAI : public ScriptedAI
     uint32 uiMindFlayTimer;
     uint32 uiShadowBoltVolleyTimer;
     uint32 uiShiverTimer;
-    uint32 uiEncounterTimer;
     uint32 insanityHandled;
     SummonList Summons;
 
@@ -143,13 +142,15 @@ struct boss_volazjAI : public ScriptedAI
 
     void Reset()
     {
-        uiEncounterTimer = 0;
         uiMindFlayTimer = 8*IN_MILISECONDS;
         uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
         uiShiverTimer = 15*IN_MILISECONDS;
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_HERALD_VOLAZJ, NOT_STARTED);
+            pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+        }
 
         // Visible for all players in insanity
         me->SetPhaseMask((1|16|32|64|128|256),true);
@@ -166,7 +167,10 @@ struct boss_volazjAI : public ScriptedAI
         DoScriptText(SAY_AGGRO, me);
 
         if (pInstance)
+        {
             pInstance->SetData(DATA_HERALD_VOLAZJ, IN_PROGRESS);
+            pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_QUICK_DEMISE_START_EVENT);
+        }
     }
 
     void JustSummoned(Creature *summon)
@@ -278,20 +282,15 @@ struct boss_volazjAI : public ScriptedAI
             uiShiverTimer = 15*IN_MILISECONDS;
         } else uiShiverTimer -= diff;
 
-        uiEncounterTimer += diff;
-
         DoMeleeAttackIfReady();
     }
+
     void JustDied(Unit* /*killer*/)
     {
         DoScriptText(SAY_DEATH_1, me);
 
         if (pInstance)
-        {
             pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
-            if (IsHeroic() && uiEncounterTimer < 120*IN_MILISECONDS)
-                pInstance->DoCompleteAchievement(ACHIEV_QUICK_DEMISE);
-        }
 
         Summons.DespawnAll();
     }
