@@ -611,6 +611,10 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
     if (GetPlayer()->GetSession()->PlayerLoading())
         return;
 
+    // Don't send for achievements with ACHIEVEMENT_FLAG_TRACKING
+    if (achievement->flags & ACHIEVEMENT_FLAG_TRACKING)
+        return;
+
     #ifdef TRINITY_DEBUG
     if ((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES) == 0)
         sLog.outDebug("AchievementMgr::SendAchievementEarned(%u)", achievement->ID);
@@ -657,19 +661,22 @@ void AchievementMgr::SendAchievementEarned(AchievementEntry const* achievement)
     GetPlayer()->SendMessageToSetInRange(&data, sWorld.getConfig(CONFIG_LISTEN_RANGE_SAY), true);
 }
 
-void AchievementMgr::SendCriteriaUpdate(uint32 id, CriteriaProgress const* progress)
+void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted)
 {
     WorldPacket data(SMSG_CRITERIA_UPDATE, 8+4+8);
-    data << uint32(id);
+    data << uint32(entry->ID);
 
     // the counter is packed like a packed Guid
     data.appendPackGUID(progress->counter);
 
     data.append(GetPlayer()->GetPackGUID());
-    data << uint32(0);
+    if (!entry->timeLimit)
+        data << uint32(0);
+    else
+        data << uint32(timedCompleted ? 0 : 1); // this are some flags, 1 is for keeping the counter at 0 in client
     data << uint32(secsToTimeBitFields(progress->date));
-    data << uint32(0);  // timer 1
-    data << uint32(0);  // timer 2
+    data << uint32(timeElapsed);    // time elapsed in seconds
+    data << uint32(0);              // unk
     GetPlayer()->SendDirectMessage(&data);
 }
 
@@ -710,9 +717,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const *achievementCriteria = (*i);
-
-        if (achievementCriteria->groupFlag & ACHIEVEMENT_CRITERIA_GROUP_NOT_IN_GROUP && GetPlayer()->GetGroup())
-            continue;
 
         AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
         if (!achievement)
@@ -1695,6 +1699,11 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 
 void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype)
 {
+    // Don't allow to cheat - doing timed achievements without timer active
+    TimedAchievementMap::iterator timedIter = m_timedAchievements.find(entry->ID);
+    if (entry->timeLimit && timedIter == m_timedAchievements.end())
+        return;
+
     if ((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES) == 0)
         sLog.outDetail("AchievementMgr::SetCriteriaProgress(%u, %u) for (GUID:%u)", entry->ID, changeValue, m_player->GetGUIDLow());
 
@@ -1704,8 +1713,9 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
 
     if (iter == m_criteriaProgress.end())
     {
-        // not create record for 0 counter
-        if (changeValue == 0)
+        // not create record for 0 counter but allow it for timed achievements
+        // we will need to send 0 progress to client to start the timer
+        if (changeValue == 0 && !entry->timeLimit)
             return;
 
         progress = &m_criteriaProgress[entry->ID];
@@ -1735,7 +1745,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
         }
 
         // not update (not mark as changed) if counter will have same value
-        if (progress->counter == newValue)
+        if (progress->counter == newValue && !entry->timeLimit)
             return;
 
         progress->counter = newValue;
@@ -1743,16 +1753,85 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
 
     progress->changed = true;
 
+    uint32 timeElapsed = 0;
+    bool timedCompleted = false;
+
     if (entry->timeLimit)
     {
-        time_t now = time(NULL);
-        if (time_t(progress->date + entry->timeLimit) < now)
-            progress->counter = 1;
+        //has to exist else we wouldn't be here
+        timedCompleted = IsCompletedCriteria(entry, sAchievementStore.LookupEntry(entry->referredAchievement));
+        // Client expects this in packet
+        timeElapsed = entry->timeLimit - (timedIter->second/IN_MILISECONDS);
 
-        // also it seems illogical, the timeframe will be extended at every criteria update
-        progress->date = now;
+        // Remove the timer, we wont need it anymore
+        if (timedCompleted)
+            m_timedAchievements.erase(timedIter);
     }
-    SendCriteriaUpdate(entry->ID,progress);
+
+    SendCriteriaUpdate(entry, progress, timeElapsed, timedCompleted);
+}
+
+void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
+{
+    if (!m_timedAchievements.empty())
+    {
+        for (TimedAchievementMap::iterator itr = m_timedAchievements.begin(); itr != m_timedAchievements.end();)
+        {
+            // Time is up, remove timer and reset progress
+            if (itr->second <= timeDiff)
+            {
+                AchievementCriteriaEntry const *entry = sAchievementCriteriaStore.LookupEntry(itr->first);
+                SetCriteriaProgress(entry, 0, PROGRESS_SET);
+                m_timedAchievements.erase(itr++);
+            }
+            else
+            {
+                itr->second -= timeDiff;
+                ++itr;
+            }
+        }
+    }
+}
+
+void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+{
+    AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetTimedAchievementCriteriaByType(type);
+    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
+    {
+        if ((*i)->timerStartEvent != entry)
+            continue;
+
+        AchievementEntry const *achievement = sAchievementStore.LookupEntry((*i)->referredAchievement);
+        if (m_timedAchievements.find((*i)->ID) == m_timedAchievements.end() && !IsCompletedCriteria(*i, achievement))
+        {
+            // Start the timer
+            m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILISECONDS;
+
+            // and at client too
+            SetCriteriaProgress(*i, 0, PROGRESS_SET);
+        }
+    }
+}
+
+void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
+{
+    AchievementCriteriaEntryList const& achievementCriteriaList = achievementmgr.GetTimedAchievementCriteriaByType(type);
+    for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
+    {
+        if ((*i)->timerStartEvent != entry)
+            continue;
+
+        TimedAchievementMap::iterator timedIter = m_timedAchievements.find((*i)->ID);
+        // We don't have timer for this achievement
+        if (timedIter == m_timedAchievements.end())
+            continue;
+
+        // 0 the progress to avoid saving to db
+        SetCriteriaProgress(*i, 0, PROGRESS_SET);
+
+        // Remove the timer
+        m_timedAchievements.erase(timedIter);
+    }
 }
 
 void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
@@ -1847,8 +1926,14 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player)
  */
 void AchievementMgr::BuildAllDataPacket(WorldPacket *data)
 {
+    AchievementEntry const *achievement;
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
     {
+        // Skip tracking - they bug client UI
+        achievement = sAchievementStore.LookupEntry(iter->first);
+        if (achievement->flags & ACHIEVEMENT_FLAG_TRACKING)
+            continue;
+
         *data << uint32(iter->first);
         *data << uint32(secsToTimeBitFields(iter->second.date));
     }
@@ -1879,6 +1964,11 @@ AchievementCriteriaEntryList const& AchievementGlobalMgr::GetAchievementCriteria
     return m_AchievementCriteriasByType[type];
 }
 
+AchievementCriteriaEntryList const& AchievementGlobalMgr::GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type)
+{
+    return m_AchievementCriteriasByTimedType[type];
+}
+
 void AchievementGlobalMgr::LoadAchievementCriteriaList()
 {
     if (sAchievementCriteriaStore.GetNumRows() == 0)
@@ -1902,6 +1992,9 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
 
         m_AchievementCriteriasByType[criteria->requiredType].push_back(criteria);
         m_AchievementCriteriaListByAchievement[criteria->referredAchievement].push_back(criteria);
+
+        if(criteria->timeLimit)
+            m_AchievementCriteriasByTimedType[criteria->timedType].push_back(criteria);
     }
 
     sLog.outString();
@@ -2030,6 +2123,8 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             }
             case ACHIEVEMENT_CRITERIA_TYPE_FALL_WITHOUT_DYING:
                 break;                                      // any cases
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET: // any cases
+                break;
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL:      // any cases
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA: // need skip generic cases
@@ -2038,10 +2133,16 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM: // any cases
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED_ON_LOOT:
+                break;                                      // any cases
+            case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED_ON_LOOT:
+                break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_DO_EMOTE:        // need skip generic cases
                 if (criteria->do_emote.count == 0)
                     continue;
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET2:
+                break;                                      // any cases
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_DUEL:        // skip statistics
                 if (criteria->win_duel.duelCount == 0)
                     continue;
