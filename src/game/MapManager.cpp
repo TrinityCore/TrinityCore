@@ -35,6 +35,7 @@
 #include "Corpse.h"
 #include "ObjectMgr.h"
 #include "Language.h"
+#include "WorldPacket.h"
 
 #define CLASS_LOCK Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex>
 INSTANTIATE_SINGLETON_2(MapManager, CLASS_LOCK);
@@ -215,7 +216,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 
                 if (!instance_map)
                 {
-                    player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(811), mapName);
+                    WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
+                    player->GetSession()->SendPacket(&data);
                     sLog.outDebug("MAP: Player '%s' doesn't has a corpse in instance '%s' and can't enter", player->GetName(), mapName);
                     return false;
                 }
