@@ -249,12 +249,15 @@ class AchievementMgr
         void SendAllAchievementData();
         void SendRespondInspectAchievements(Player* player);
         bool HasAchieved(AchievementEntry const* achievement) const;
-        Player* GetPlayer() { return m_player;}
+        Player* GetPlayer() { return m_player; }
+        void UpdateTimedAchievements(uint32 timeDiff);
+        void StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);
+        void RemoveTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry);   // used for quest and scripted timed achievements
 
     private:
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement);
-        void SendCriteriaUpdate(uint32 id, CriteriaProgress const* progress);
+        void SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted);
         void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype = PROGRESS_SET);
         void CompletedCriteriaFor(AchievementEntry const* achievement);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement);
@@ -265,12 +268,15 @@ class AchievementMgr
         Player* m_player;
         CriteriaProgressMap m_criteriaProgress;
         CompletedAchievementMap m_completedAchievements;
+        typedef std::map<uint32, uint32> TimedAchievementMap;
+        TimedAchievementMap m_timedAchievements;      // Criteria id/time left in MS
 };
 
 class AchievementGlobalMgr
 {
     public:
         AchievementCriteriaEntryList const& GetAchievementCriteriaByType(AchievementCriteriaTypes type);
+        AchievementCriteriaEntryList const& GetTimedAchievementCriteriaByType(AchievementCriteriaTimedTypes type);
         AchievementCriteriaEntryList const* GetAchievementCriteriaByAchievement(uint32 id)
         {
             AchievementCriteriaListByAchievement::const_iterator itr = m_AchievementCriteriaListByAchievement.find(id);
@@ -322,6 +328,7 @@ class AchievementGlobalMgr
 
         // store achievement criterias by type to speed up lookup
         AchievementCriteriaEntryList m_AchievementCriteriasByType[ACHIEVEMENT_CRITERIA_TYPE_TOTAL];
+        AchievementCriteriaEntryList m_AchievementCriteriasByTimedType[ACHIEVEMENT_TIMED_TYPE_MAX];
         // store achievement criterias by achievement to speed up lookup
         AchievementCriteriaListByAchievement m_AchievementCriteriaListByAchievement;
         // store achievements by referenced achievement id to speed up lookup

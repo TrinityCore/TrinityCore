@@ -58,7 +58,7 @@ enum AchievementFaction
 enum AchievementFlags
 {
     ACHIEVEMENT_FLAG_COUNTER           = 0x00000001,        // Just count statistic (never stop and complete)
-    ACHIEVEMENT_FLAG_UNK2              = 0x00000002,        // not used
+    ACHIEVEMENT_FLAG_TRACKING          = 0x00000002,        // Not sent to client - internal use only
     ACHIEVEMENT_FLAG_STORE_MAX_VALUE   = 0x00000004,        // Store only max value? used only in "Reach level xx"
     ACHIEVEMENT_FLAG_SUMM              = 0x00000008,        // Use summ criteria value from all reqirements (and calculate max value)
     ACHIEVEMENT_FLAG_MAX_USED          = 0x00000010,        // Show max criteria (and calculate max value ??)
@@ -90,10 +90,16 @@ enum AchievementCriteriaCompletionFlags
     ACHIEVEMENT_CRITERIA_FLAG_MONEY_COUNTER     = 0x00000020,         // Displays counter as money
 };
 
-enum AchievementCriteriaGroupFlags
+enum AchievementCriteriaTimedTypes
 {
-    // you mustn't be in a group while fulfilling this achievement
-    ACHIEVEMENT_CRITERIA_GROUP_NOT_IN_GROUP = 2,
+    ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by acceting quest with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER     = 5,    // Timer is started by casting a spell with entry in timerStartEvent 
+    ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET     = 6,    // Timer is started by being target of spell with entry in timerStartEvent 
+    ACHIEVEMENT_TIMED_TYPE_CREATURE         = 7,    // Timer is started by killing creature with entry in timerStartEvent 
+    ACHIEVEMENT_TIMED_TYPE_ITEM             = 9,    // Timer is started by using item with entry in timerStartEvent 
+
+    ACHIEVEMENT_TIMED_TYPE_MAX,
 };
 
 enum AchievementCriteriaTypes

@@ -392,6 +392,7 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
             _player->TakeQuestSourceItem(quest, true); // remove quest src item from player
             _player->SetQuestStatus(quest, QUEST_STATUS_NONE);
+            _player->GetAchievementMgr().RemoveTimedAchievement(ACHIEVEMENT_TIMED_TYPE_QUEST, quest);
         }
 
         _player->SetQuestSlot(slot, 0);
