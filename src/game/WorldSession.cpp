@@ -550,9 +550,10 @@ void WorldSession::SendAuthWaitQue(uint32 position)
     }
     else
     {
-        WorldPacket packet(SMSG_AUTH_RESPONSE, 5);
+        WorldPacket packet(SMSG_AUTH_RESPONSE, 6);
         packet << uint8(AUTH_WAIT_QUEUE);
-        packet << uint32 (position);
+        packet << uint32(position);
+        packet << uint8(0);                                 // unk
         SendPacket(&packet);
     }
 }
