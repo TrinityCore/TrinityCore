@@ -243,7 +243,7 @@ class Item : public Object
         virtual bool LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result);
         virtual void DeleteFromDB();
         void DeleteFromInventoryDB();
-        void SaveRefundDataToDB();
+        void SaveRefundDataToDB(uint32 count);
         void DeleteRefundDataFromDB();
 
         bool IsBag() const { return GetProto()->InventoryType == INVTYPE_BAG; }

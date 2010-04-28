@@ -1055,11 +1055,12 @@ void Item::BuildUpdate(UpdateDataMapType& data_map)
     ClearUpdateMask(false);
 }
 
-void Item::SaveRefundDataToDB()
+void Item::SaveRefundDataToDB(uint32 count)
 {
     std::ostringstream ss;
-    ss << "INSERT INTO item_refund_instance VALUES(";
+    ss << "REPLACE INTO item_refund_instance VALUES(";
     ss << GetGUIDLow() << ",";
+    ss << count << ", ";
     ss << GetRefundRecipient() << ",";
     ss << GetPaidMoney() << ",";
     ss << GetPaidExtendedCost();
