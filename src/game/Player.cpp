@@ -12042,6 +12042,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
     if (IsInventoryPos(dst))
     {
         // change item amount before check (for unique max count check)
+        AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() - count);
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
 
         ItemPosCountVec dest;
@@ -12050,6 +12051,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         {
             delete pNewItem;
             pSrcItem->SetCount(pSrcItem->GetCount() + count);
+            AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() + count);
             SendEquipError(msg, pSrcItem, NULL);
             return;
         }
@@ -12058,10 +12060,18 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
             pSrcItem->SendUpdateToPlayer(this);
         pSrcItem->SetState(ITEM_CHANGED, this);
         StoreItem(dest, pNewItem, true);
+        AddRefundReference(pNewItem->GetGUID(), count);
+        pNewItem->SetPaidExtendedCost(pSrcItem->GetPaidExtendedCost());
+        pNewItem->SetPaidMoney(pSrcItem->GetPaidMoney());
+        pNewItem->SetRefundRecipient(GetGUIDLow());
+        pNewItem->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, pSrcItem->GetPlayedTime());
+        pNewItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
+        pNewItem->SaveRefundDataToDB(count);
     }
     else if (IsBankPos (dst))
     {
         // change item amount before check (for unique max count check)
+        AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() - count);
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
 
         ItemPosCountVec dest;
@@ -12069,6 +12079,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         if (msg != EQUIP_ERR_OK)
         {
             delete pNewItem;
+            AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() + count);
             pSrcItem->SetCount(pSrcItem->GetCount() + count);
             SendEquipError(msg, pSrcItem, NULL);
             return;
@@ -12078,6 +12089,13 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
             pSrcItem->SendUpdateToPlayer(this);
         pSrcItem->SetState(ITEM_CHANGED, this);
         BankItem(dest, pNewItem, true);
+        AddRefundReference(pNewItem->GetGUID(), count);
+        pNewItem->SetPaidExtendedCost(pSrcItem->GetPaidExtendedCost());
+        pNewItem->SetPaidMoney(pSrcItem->GetPaidMoney());
+        pNewItem->SetRefundRecipient(GetGUIDLow());
+        pNewItem->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, pSrcItem->GetPlayedTime());
+        pNewItem->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
+        pNewItem->SaveRefundDataToDB(count);
     }
     else if (IsEquipmentPos (dst))
     {
@@ -16500,7 +16518,7 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                 else
                 {
                     QueryResult_AutoPtr result2 = CharacterDatabase.PQuery(
-                    "SELECT player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' AND player_guid = '%u' LIMIT 1",
+                    "SELECT count,player_guid,paidMoney,paidExtendedCost FROM `item_refund_instance` WHERE item_guid = '%u' AND player_guid = '%u' LIMIT 1",
                     item->GetGUIDLow(), GetGUIDLow());
                     if (!result2)
                     {
@@ -16512,10 +16530,10 @@ void Player::_LoadInventory(QueryResult_AutoPtr result, uint32 timediff)
                     else
                     {
                         fields = result2->Fetch();
-                        item->SetRefundRecipient(fields[0].GetUInt32());
-                        item->SetPaidMoney(fields[1].GetUInt32());
-                        item->SetPaidExtendedCost(fields[2].GetUInt32());
-                        AddRefundReference(item->GetGUID());
+                        item->SetRefundRecipient(fields[1].GetUInt32());
+                        item->SetPaidMoney(fields[2].GetUInt32());
+                        item->SetPaidExtendedCost(fields[3].GetUInt32());
+                        AddRefundReference(item->GetGUID(), fields[0].GetUInt32());
                     }
                 }
             }
@@ -17653,14 +17671,14 @@ void Player::_SaveInventory()
     // the client auto counts down in real time after having received the initial played time on the first
     // SMSG_ITEM_REFUND_INFO_RESPONSE packet.
     // Item::UpdatePlayedTime is only called when needed, which is in DB saves, and item refund info requests.
-    std::set<uint64>::iterator i_next;
-    for (std::set<uint64>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
+    std::map<uint64, uint32>::iterator i_next;
+    for (std::map<uint64, uint32>::iterator itr = m_refundableItems.begin(); itr!= m_refundableItems.end(); itr = i_next)
     {
         // use copy iterator because itr may be invalid after operations in this loop
         i_next = itr;
         ++i_next;
 
-        Item* iPtr = GetItemByGuid(*itr);
+        Item* iPtr = GetItemByGuid(itr->first);
         if (iPtr)
         {
             iPtr->UpdatePlayedTime(this);
@@ -17668,7 +17686,7 @@ void Player::_SaveInventory()
         }
         else
         {
-            sLog.outError("Can't find item guid " UI64FMTD " but is in refundable storage for player %u ! Removing.", (*itr), GetGUIDLow());
+            sLog.outError("Can't find item guid " UI64FMTD " but is in refundable storage for player %u ! Removing.", itr->first, GetGUIDLow());
             m_refundableItems.erase(itr);
         }
     }
@@ -19525,8 +19543,8 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 it->SetRefundRecipient(GetGUIDLow());
                 it->SetPaidMoney(price);
                 it->SetPaidExtendedCost(crItem->ExtendedCost);
-                it->SaveRefundDataToDB();
-                AddRefundReference(it->GetGUID());
+                it->SaveRefundDataToDB(it->GetCount());
+                AddRefundReference(it->GetGUID(), it->GetCount());
             }
         }
     }
@@ -19583,8 +19601,8 @@ bool Player::BuyItemFromVendor(uint64 vendorguid, uint32 item, uint8 count, uint
                 it->SetRefundRecipient(GetGUIDLow());
                 it->SetPaidMoney(price);
                 it->SetPaidExtendedCost(crItem->ExtendedCost);
-                it->SaveRefundDataToDB();
-                AddRefundReference(it->GetGUID());
+                it->SaveRefundDataToDB(it->GetCount());
+                AddRefundReference(it->GetGUID(), it->GetCount());
             }
         }
     }
@@ -23603,12 +23621,25 @@ void Player::SendDuelCountdown(uint32 counter)
     GetSession()->SendPacket(&data);
 }
 
-void Player::AddRefundReference(uint64 it)
+void Player::AddRefundReference(uint64 it, uint32 stackCount)
 {
-    m_refundableItems.insert(it);
+    m_refundableItems[it] = stackCount;
 }
 
 void Player::DeleteRefundReference(uint64 it)
 {
-    m_refundableItems.erase(it);
+    std::map<uint64,uint32>::iterator itr = m_refundableItems.find(it);
+    if (itr != m_refundableItems.end())
+    {
+        m_refundableItems.erase(itr);
+    }    
+}
+
+void Player::AlterRefundReferenceCount(uint64 it, uint32 newCount)
+{
+    std::map<uint64,uint32>::iterator itr = m_refundableItems.find(it);
+    if (itr != m_refundableItems.end())
+    {
+        itr->second = newCount;
+    } 
 }
