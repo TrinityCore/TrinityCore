@@ -7602,24 +7602,26 @@ void Spell::EffectCastButtons(uint32 i)
 
     for (; n_buttons; n_buttons--, button_id++)
     {
-        if (uint32 spell_id = p_caster->GetActionButtonSpell(button_id))
-        {
-            if (!spell_id)
-                continue;
+        ActionButton const* ab = p_caster->GetActionButton(button_id);
+        if (!ab || ab->GetAction() != ACTION_BUTTON_SPELL)
+            continue;;
 
-            if (p_caster->HasSpellCooldown(spell_id))
-                continue;
+        uint32 spell_id = ab->GetAction();
+        if (!spell_id)
+            continue;
 
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
-            uint32 cost = CalculatePowerCost(spellInfo, m_caster, GetSpellSchoolMask(spellInfo));
+        if (p_caster->HasSpellCooldown(spell_id))
+            continue;
 
-            if (m_caster->GetPower(POWER_MANA) < cost)
-                break;
+        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
+        uint32 cost = CalculatePowerCost(spellInfo, m_caster, GetSpellSchoolMask(spellInfo));
+
+        if (m_caster->GetPower(POWER_MANA) < cost)
+            break;
 
         m_caster->CastSpell(unitTarget, spell_id, true);
         m_caster->ModifyPower(POWER_MANA, -(int32)cost);
         p_caster->AddSpellAndCategoryCooldowns(spellInfo, 0);
-        }
     }
 }
 
