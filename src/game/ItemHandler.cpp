@@ -1395,15 +1395,17 @@ void WorldSession::HandleItemRefundInfoRequest(WorldPacket& recv_data)
         return;
     }
 
+    uint32 itemCount = item->GetCount();
+
     WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
-    data << uint64(guid);                          // item guid
-    data << uint32(item->GetPaidMoney());          // money cost
-    data << uint32(iece->reqhonorpoints);    // honor point cost
-    data << uint32(iece->reqarenapoints);   // arena point cost
-    for (uint8 i = 0; i < 5; ++i)                  // item cost data
+    data << uint64(guid);                               // item guid
+    data << uint32(item->GetPaidMoney() * itemCount);   // money cost
+    data << uint32(iece->reqhonorpoints * itemCount);   // honor point cost
+    data << uint32(iece->reqarenapoints * itemCount);   // arena point cost
+    for (uint8 i = 0; i < 5; ++i)                       // item cost data
     {
         data << iece->reqitem[i];
-        data << iece->reqitemcount[i];
+        data << (iece->reqitemcount[i] * itemCount);
     }
     data << uint32(0);
     data << uint32(GetPlayer()->GetTotalPlayedTime() - item->GetPlayedTime());
@@ -1453,12 +1455,13 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         return;
     }
 
-    uint32 moneyRefund = item->GetPaidMoney();
+    uint32 itemCount = item->GetCount(); // stacked refundable items.
+    uint32 moneyRefund = item->GetPaidMoney()*itemCount;
 
     bool store_error = false;
     for (uint8 i = 0; i < 5; ++i)
     {
-        uint32 count = iece->reqitemcount[i];
+        uint32 count = iece->reqitemcount[i] * itemCount;
         uint32 itemid = iece->reqitem[i];
 
         if (count && itemid)
@@ -1486,12 +1489,12 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     data << uint64(guid);                          // item guid
     data << uint32(0);                             // 0, or error code
     data << uint32(moneyRefund);          // money cost
-    data << uint32(iece->reqhonorpoints);    // honor point cost
-    data << uint32(iece->reqarenapoints);   // arena point cost
+    data << uint32(iece->reqhonorpoints * itemCount);    // honor point cost
+    data << uint32(iece->reqarenapoints * itemCount);   // arena point cost
     for (uint8 i = 0; i < 5; ++i)                  // item cost data
     {
         data << iece->reqitem[i];
-        data << iece->reqitemcount[i];
+        data << (iece->reqitemcount[i] * itemCount);
     }
     SendPacket(&data);
 
@@ -1504,7 +1507,7 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
     // Grant back extendedcost items
     for (uint8 i = 0; i < 5; ++i)
     {
-        uint32 count = iece->reqitemcount[i];
+        uint32 count = iece->reqitemcount[i] * itemCount;
         uint32 itemid = iece->reqitem[i];
         if (count && itemid)
         {
@@ -1521,12 +1524,12 @@ void WorldSession::HandleItemRefund(WorldPacket &recv_data)
         _player->ModifyMoney(moneyRefund);
 
     // Grant back Honor points
-    uint32 honorRefund = iece->reqhonorpoints;
+    uint32 honorRefund = iece->reqhonorpoints * itemCount;
     if (honorRefund)
         _player->ModifyHonorPoints(honorRefund);
 
     // Grant back Arena points
-    uint32 arenaRefund = iece->reqarenapoints;
+    uint32 arenaRefund = iece->reqarenapoints * itemCount;
     if (arenaRefund)
         _player->ModifyArenaPoints(arenaRefund);
 }
