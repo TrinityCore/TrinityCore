@@ -1770,21 +1770,20 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
 
 void BattleGroundMgr::InitAutomaticArenaPointDistribution()
 {
-    if (sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
-    {
-        sLog.outDebug("Initializing Automatic Arena Point Distribution");
-        uint64 wstime = sWorld.getWorldState(WS_ARENA_DISTRIBUTION_TIME);
+    if (!sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS))
+        return;
 
-        if (!wstime)
-        {
-            sLog.outDebug("Battleground: Next arena point distribution time not found, reseting it now.");
-            m_NextAutoDistributionTime = time(NULL) + BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY * sWorld.getConfig(CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS);
-            sWorld.setWorldState(WS_ARENA_DISTRIBUTION_TIME, uint64(m_NextAutoDistributionTime));
-        }
-        else
-            m_NextAutoDistributionTime = time_t(wstime);
-        sLog.outDebug("Automatic Arena Point Distribution initialized.");
+    uint64 wstime = sWorld.getWorldState(WS_ARENA_DISTRIBUTION_TIME);
+    time_t curtime = time(NULL);
+    sLog.outDebug("Initializing Automatic Arena Point Distribution");
+    if (wstime < curtime)
+    {
+        m_NextAutoDistributionTime = curtime;           // reset will be called in the next update
+        sLog.outDebug("Battleground: Next arena point distribution time in the past, reseting it now.");
     }
+    else
+        m_NextAutoDistributionTime = time_t(wstime);
+    sLog.outDebug("Automatic Arena Point Distribution initialized.");
 }
 
 void BattleGroundMgr::DistributeArenaPoints()
