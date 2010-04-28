@@ -2501,19 +2501,9 @@ void World::_UpdateRealmCharCount(QueryResult_AutoPtr resultCharCount, uint32 ac
 
 void World::InitWeeklyQuestResetTime()
 {
-    time_t wtime = uint64(sWorld.getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
-    if (!wtime)
-    {
-        m_NextWeeklyQuestReset = time_t(m_gameTime + WEEK);
-        sWorld.setWorldState(WS_WEEKLY_QUEST_RESET_TIME, uint64(m_NextWeeklyQuestReset));
-    }
-    else
-    {
-        // move to just before if need
-        time_t cur = time(NULL);
-        if (m_NextWeeklyQuestReset < cur)
-            m_NextWeeklyQuestReset += WEEK;
-    }
+    time_t wstime = uint64(sWorld.getWorldState(WS_WEEKLY_QUEST_RESET_TIME));
+    time_t curtime = time(NULL);
+    m_NextWeeklyQuestReset = wstime < curtime ? curtime : time_t(wstime);
 }
 
 void World::InitDailyQuestResetTime()
