@@ -16295,7 +16295,6 @@ void Player::_LoadActions(QueryResult_AutoPtr result, bool /*startup*/)
             uint32 action = fields[2].GetUInt32();
             uint8 type = fields[3].GetUInt8();
 
-            sLog.outBasic("SPEC: %u, button: %u, action %u, type %u", spec, button, action, type);
             if (ActionButton* ab = addActionButton(spec, button, action, type))
                 ab->uState = ACTIONBUTTON_UNCHANGED;
             else
