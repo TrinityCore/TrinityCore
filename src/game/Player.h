@@ -1665,13 +1665,13 @@ class Player : public Unit, public GridObject<Player>
             m_cinematic = cine;
         }
 
-        ActionButton* addActionButton(uint8 spec, uint8 button, uint32 action, uint8 type);
-        void removeActionButton(uint8 spec, uint8 button);
+        ActionButton* addActionButton(uint8 button, uint32 action, uint8 type);
+        void removeActionButton(uint8 button);
         uint32 GetActionButtonSpell(uint8 button) const;
         ActionButton const* GetActionButton(uint8 button);
         void SendInitialActionButtons() const { SendActionButtons(1); }
         void SendActionButtons(uint32 state) const;
-        bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type, Player* player, bool msg = true);
+        bool IsActionButtonDataValid(uint8 button, uint32 action, uint8 type);
 
         PvPInfo pvpInfo;
         void UpdatePvPState(bool onlyFFA = false);
@@ -2382,7 +2382,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
-        void _LoadActions(QueryResult_AutoPtr result, bool startup);
+        void _LoadActions(QueryResult_AutoPtr result);
         void _LoadAuras(QueryResult_AutoPtr result, uint32 timediff);
         void _LoadGlyphAuras();
         void _LoadBoundInstances(QueryResult_AutoPtr result);
@@ -2483,7 +2483,7 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_Glyphs[MAX_TALENT_SPECS][MAX_GLYPH_SLOT_INDEX];
 
-        ActionButtonList m_actionButtons[MAX_TALENT_SPECS];
+        ActionButtonList m_actionButtons;
 
         float m_auraBaseMod[BASEMOD_END][MOD_END];
         int16 m_baseRatingValue[MAX_COMBAT_RATING];

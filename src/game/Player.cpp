@@ -734,7 +734,7 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
 
     // original action bar
     for (PlayerCreateInfoActions::const_iterator action_itr = info->action.begin(); action_itr != info->action.end(); ++action_itr)
-        addActionButton(0, action_itr->button,action_itr->action, action_itr->type);
+        addActionButton(action_itr->button,action_itr->action, action_itr->type);
 
     // original items
     CharStartOutfitEntry const* oEntry = NULL;
@@ -5949,11 +5949,10 @@ void Player::SendActionButtons(uint32 state) const
     */
     if (state != 2)
     {
-        ActionButtonList const& currentActionButtons = m_actionButtons[m_activeSpec];
         for (uint16 button = 0; button < MAX_ACTION_BUTTONS; ++button)
         {
-            ActionButtonList::const_iterator itr = currentActionButtons.find(button);
-            if (itr != currentActionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
+            ActionButtonList::const_iterator itr = m_actionButtons.find(button);
+            if (itr != m_actionButtons.end() && itr->second.uState != ACTIONBUTTON_DELETED)
                 data << uint32(itr->second.packedData);
             else
                 data << uint32(0);
@@ -5964,30 +5963,17 @@ void Player::SendActionButtons(uint32 state) const
     sLog.outDetail("Action Buttons for '%u' spec '%u' Sent", GetGUIDLow(), m_activeSpec);
 }
 
-bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type, Player* player, bool msg)
+bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type)
 {
     if (button >= MAX_ACTION_BUTTONS)
     {
-        if (msg)
-        {
-            if (player)
-                sLog.outError( "Action %u not added into button %u for player %s: button must be < %u", action, button, player->GetName(), MAX_ACTION_BUTTONS );
-            else
-                sLog.outError( "Table `playercreateinfo_action` have action %u into button %u : button must be < %u", action, button, MAX_ACTION_BUTTONS );
-
-        }
+        sLog.outError( "Action %u not added into button %u for player %s: button must be < %u", action, button, GetName(), MAX_ACTION_BUTTONS );
         return false;
     }
 
     if (action >= MAX_ACTION_BUTTON_ACTION_VALUE)
     {
-        if (msg)
-        {
-            if (player)
-                sLog.outError( "Action %u not added into button %u for player %s: action must be < %u", action, button, player->GetName(), MAX_ACTION_BUTTON_ACTION_VALUE );
-            else
-                sLog.outError( "Table `playercreateinfo_action` have action %u into button %u : action must be < %u", action, button, MAX_ACTION_BUTTON_ACTION_VALUE );
-        }
+        sLog.outError( "Action %u not added into button %u for player %s: action must be < %u", action, button, GetName(), MAX_ACTION_BUTTON_ACTION_VALUE );
         return false;
     }
 
@@ -5996,33 +5982,20 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type, Pl
         case ACTION_BUTTON_SPELL:
             if (!sSpellStore.LookupEntry(action))
             {
-                if (msg)
-                {
-                    if (player)
-                        sLog.outError( "Spell action %u not added into button %u for player %s: spell not exist", action, button, player->GetName() );
-                    else
-                        sLog.outError( "Table `playercreateinfo_action` have spell action %u into button %u: spell not exist", action, button );
-                }
+                sLog.outError( "Spell action %u not added into button %u for player %s: spell not exist", action, button, GetName() );
                 return false;
             }
 
-            if (player && !player->HasSpell(action))
+            if (!HasSpell(action))
             {
-                if (msg)
-                    sLog.outError( "Spell action %u not added into button %u for player %s: player don't known this spell", action, button, player->GetName() );
+                sLog.outError( "Spell action %u not added into button %u for player %s: player don't known this spell", action, button, GetName() );
                 return false;
             }
             break;
         case ACTION_BUTTON_ITEM:
-            if (!ObjectMgr::GetItemPrototype(action))
+            if (!objmgr.GetItemPrototype(action))
             {
-                if (msg)
-                {
-                    if (player)
-                        sLog.outError( "Item action %u not added into button %u for player %s: item not exist", action, button, player->GetName() );
-                    else
-                        sLog.outError( "Table `playercreateinfo_action` have item action %u into button %u: item not exist", action, button );
-                }
+                sLog.outError( "Item action %u not added into button %u for player %s: item not exist", action, button, GetName() );
                 return false;
             }
             break;
@@ -6033,13 +6006,13 @@ bool Player::IsActionButtonDataValid(uint8 button, uint32 action, uint8 type, Pl
     return true;
 }
 
-ActionButton* Player::addActionButton(uint8 spec, uint8 button, uint32 action, uint8 type)
+ActionButton* Player::addActionButton(uint8 button, uint32 action, uint8 type)
 {
-    if (spec == GetActiveSpec() && !IsActionButtonDataValid(button, action, type, this))
+    if (!IsActionButtonDataValid(button, action, type))
         return NULL;
 
     // it create new button (NEW state) if need or return existed
-    ActionButton& ab = m_actionButtons[spec][button];
+    ActionButton& ab = m_actionButtons[button];
 
     // set data and update to CHANGED if not NEW
     ab.SetActionAndType(action,ActionButtonType(type));
@@ -6048,15 +6021,14 @@ ActionButton* Player::addActionButton(uint8 spec, uint8 button, uint32 action, u
     return &ab;
 }
 
-void Player::removeActionButton(uint8 spec, uint8 button)
+void Player::removeActionButton(uint8 button)
 {
-    ActionButtonList& currentActionButtonList = m_actionButtons[spec];
-    ActionButtonList::iterator buttonItr = currentActionButtonList.find(button);
-    if (buttonItr == currentActionButtonList.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
+    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
+    if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
         return;
 
     if (buttonItr->second.uState == ACTIONBUTTON_NEW)
-        currentActionButtonList.erase(buttonItr);           // new and not saved
+        m_actionButtons.erase(buttonItr);                   // new and not saved
     else
         buttonItr->second.uState = ACTIONBUTTON_DELETED;    // saved, will deleted at next save
 
@@ -6065,9 +6037,8 @@ void Player::removeActionButton(uint8 spec, uint8 button)
 
 ActionButton const* Player::GetActionButton(uint8 button)
 {
-    ActionButtonList& currentActionButtonList = m_actionButtons[m_activeSpec];
-    ActionButtonList::iterator buttonItr = currentActionButtonList.find(button);
-    if (buttonItr == currentActionButtonList.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
+    ActionButtonList::iterator buttonItr = m_actionButtons.find(button);
+    if (buttonItr == m_actionButtons.end() || buttonItr->second.uState == ACTIONBUTTON_DELETED)
         return NULL;
 
     return &buttonItr->second;
@@ -16137,7 +16108,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     // update items with duration and realtime
     UpdateItemDuration(time_diff, true);
 
-    _LoadActions(holder->GetResult(PLAYER_LOGIN_QUERY_LOADACTIONS), true);
+    _LoadActions(holder->GetResult(PLAYER_LOGIN_QUERY_LOADACTIONS));
 
     // unread mails and next delivery time, actual mails not loaded
     _LoadMailInit(holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILCOUNT), holder->GetResult(PLAYER_LOGIN_QUERY_LOADMAILDATE));
@@ -16298,29 +16269,28 @@ bool Player::isAllowedToLoot(const Creature* creature)
     return false;
 }
 
-void Player::_LoadActions(QueryResult_AutoPtr result, bool /*startup*/)
+void Player::_LoadActions(QueryResult_AutoPtr result)
 {
-    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
-        m_actionButtons[i].clear();
+    m_actionButtons.clear();
 
     if (result)
     {
         do
         {
             Field *fields = result->Fetch();
-            uint8 spec = fields[0].GetUInt8();
-            uint8 button = fields[1].GetUInt8();
-            uint32 action = fields[2].GetUInt32();
-            uint8 type = fields[3].GetUInt8();
 
-            if (ActionButton* ab = addActionButton(spec, button, action, type))
+            uint8 button = fields[0].GetUInt8();
+            uint32 action = fields[1].GetUInt32();
+            uint8 type = fields[2].GetUInt8();
+
+            if (ActionButton* ab = addActionButton(button, action, type))
                 ab->uState = ACTIONBUTTON_UNCHANGED;
             else
             {
                 sLog.outError("  ...at loading, and will deleted in DB also");
 
                 // Will deleted in DB at next save (it can create data until save but marked as deleted)
-                m_actionButtons[spec][button].uState = ACTIONBUTTON_DELETED;
+                m_actionButtons[button].uState = ACTIONBUTTON_DELETED;
             }
         }
         while (result->NextRow());
@@ -17583,32 +17553,29 @@ void Player::SaveGoldToDB()
 
 void Player::_SaveActions()
 {
-    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+    for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end();)
     {
-        for (ActionButtonList::iterator itr = m_actionButtons[i].begin(); itr != m_actionButtons[i].end();)
+        switch (itr->second.uState)
         {
-            switch (itr->second.uState)
-            {
-                case ACTIONBUTTON_NEW:
-                    CharacterDatabase.PExecute("INSERT INTO character_action (guid,spec,button,action,type) VALUES ('%u', '%u', '%u', '%u', '%u')",
-                        GetGUIDLow(), i, (uint32)itr->first, (uint32)itr->second.GetAction(), (uint32)itr->second.GetType());
-                    itr->second.uState = ACTIONBUTTON_UNCHANGED;
-                    ++itr;
-                    break;
-                case ACTIONBUTTON_CHANGED:
-                    CharacterDatabase.PExecute("UPDATE character_action SET action = '%u', type = '%u' WHERE guid = '%u' AND button = '%u' AND spec = '%u'",
-                        (uint32)itr->second.GetAction(), (uint32)itr->second.GetType(), GetGUIDLow(), (uint32)itr->first, i);
-                    itr->second.uState = ACTIONBUTTON_UNCHANGED;
-                    ++itr;
-                    break;
-                case ACTIONBUTTON_DELETED:
-                    CharacterDatabase.PExecute("DELETE FROM character_action WHERE guid = '%u' and button = '%u' and spec = '%u'", GetGUIDLow(), (uint32)itr->first, i);
-                    m_actionButtons[i].erase(itr++);
-                    break;
-                default:
-                    ++itr;
-                    break;
-            }
+            case ACTIONBUTTON_NEW:
+                CharacterDatabase.PExecute("INSERT INTO character_action (guid,spec,button,action,type) VALUES ('%u', '%u', '%u', '%u', '%u')",
+                    GetGUIDLow(), m_activeSpec, (uint32)itr->first, (uint32)itr->second.GetAction(), (uint32)itr->second.GetType());
+                itr->second.uState = ACTIONBUTTON_UNCHANGED;
+                ++itr;
+                break;
+            case ACTIONBUTTON_CHANGED:
+                CharacterDatabase.PExecute("UPDATE character_action SET action = '%u', type = '%u' WHERE guid = '%u' AND button = '%u' AND spec = '%u'",
+                    (uint32)itr->second.GetAction(), (uint32)itr->second.GetType(), GetGUIDLow(), (uint32)itr->first, m_activeSpec);
+                itr->second.uState = ACTIONBUTTON_UNCHANGED;
+                ++itr;
+                break;
+            case ACTIONBUTTON_DELETED:
+                CharacterDatabase.PExecute("DELETE FROM character_action WHERE guid = '%u' and button = '%u' and spec = '%u'", GetGUIDLow(), (uint32)itr->first, m_activeSpec);
+                m_actionButtons.erase(itr++);
+                break;
+            default:
+                ++itr;
+                break;
         }
     }
 }
@@ -23413,26 +23380,18 @@ void Player::UpdateSpecCount(uint8 count)
     // Copy spec data 
     if (count > curCount)
     {
-        ActionButtonList const& currentActionButtonList = m_actionButtons[m_activeSpec];
-        for (ActionButtonList::const_iterator itr = currentActionButtonList.begin(); itr != currentActionButtonList.end(); ++itr)
-        {
-            if (itr->second.uState != ACTIONBUTTON_DELETED)
-            {
-                for (uint8 spec = curCount; spec < count; ++spec)
-                    addActionButton(spec, itr->first, itr->second.GetAction(), itr->second.GetType());
-            }
-        }
+        _SaveActions(); // make sure the button list is cleaned up
+        for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
+            CharacterDatabase.PExecute("INSERT INTO character_action (guid,button,action,type,spec) VALUES ('%u', '%u', '%u', '%u', '%u')",
+            GetGUIDLow(), uint32(itr->first), uint32(itr->second.GetAction()), uint32(itr->second.GetType()), 1);
+        
     }
     // Delete spec data for removed spec.
     else if (count < curCount)
     { 
-        // Delete action buttons for removed spec
-        for (uint8 spec = count; spec < curCount; ++spec)
-        {
-            // Delete action buttons for removed spec
-            for (uint8 button = 0; button < MAX_ACTION_BUTTONS; ++button)
-                removeActionButton(spec,button);
-        }
+        _SaveActions();
+        CharacterDatabase.PExecute("DELETE FROM character_action WHERE spec<>'%u' AND guid='%u'",m_activeSpec, GetGUIDLow());
+        m_activeSpec = 0;
     }
 
 
@@ -23457,7 +23416,7 @@ void Player::ActivateSpec(uint8 spec)
     if (IsNonMeleeSpellCasted(false))
         InterruptNonMeleeSpells(false);
 
-    SetActiveSpec(spec);
+    _SaveActions();
 
     UnsummonPetTemporaryIfAny();
     ClearComboPointHolders();
@@ -23473,7 +23432,7 @@ void Player::ActivateSpec(uint8 spec)
 
     // Let client clear his current Actions
     SendActionButtons(2);
-
+    // m_actionButtons.clear() is called in the next _LoadActionButtons
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
         TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
@@ -23516,6 +23475,7 @@ void Player::ActivateSpec(uint8 spec)
             if (GlyphPropertiesEntry const *old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 RemoveAurasDueToSpell(old_gp->SpellId);
 
+    SetActiveSpec(spec);
     uint32 spentTalents = 0;
 
     for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
@@ -23565,12 +23525,10 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
-    ActionButtonList const& currentActionButtonList = m_actionButtons[m_activeSpec];
-    for (ActionButtonList::const_iterator itr = currentActionButtonList.begin(); itr != currentActionButtonList.end(); ++itr)
-        if (itr->second.uState != ACTIONBUTTON_DELETED)
-            // remove broken without any output (it can be not correct because talents not copied at spec creating)
-            if (!IsActionButtonDataValid(itr->first, itr->second.GetAction(), itr->second.GetType(), this, false))
-                removeActionButton(m_activeSpec, itr->first);
+    if (QueryResult_AutoPtr result = 
+        CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
+        _LoadActions(result);
+    
 
     ResummonPetTemporaryUnSummonedIfAny();
     SendActionButtons(1);
