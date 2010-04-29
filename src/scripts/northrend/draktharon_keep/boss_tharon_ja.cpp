@@ -231,7 +231,7 @@ struct boss_tharon_jaAI : public ScriptedAI
         {
             // clean morph on players
             Map::PlayerList const &PlayerList = pInstance->instance->GetPlayers();
-            
+
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 if (Player *pPlayer = i->getSource())
                     pPlayer->DeMorph();
