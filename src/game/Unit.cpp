@@ -15167,17 +15167,21 @@ void Unit::RemoveCharmedBy(Unit *charmer)
     if (GetTypeId() == TYPEID_UNIT)
     {
         this->ToCreature()->AI()->OnCharmed(false);
-        this->ToCreature()->AIM_Initialize();
 
-        if (this->ToCreature()->AI() && charmer && charmer->isAlive())
-            this->ToCreature()->AI()->AttackStart(charmer);
-        /*if (isAlive() && this->ToCreature()->IsAIEnabled)
+        if (type != CHARM_TYPE_VEHICLE)//Vehicles' AI is never modified
         {
-            if (charmer && !IsFriendlyTo(charmer))
+            this->ToCreature()->AIM_Initialize();
+
+            if (this->ToCreature()->AI() && charmer && charmer->isAlive())
                 this->ToCreature()->AI()->AttackStart(charmer);
-            else
-                this->ToCreature()->AI()->EnterEvadeMode();
-        }*/
+            /*if (isAlive() && this->ToCreature()->IsAIEnabled)
+            {
+                if (charmer && !IsFriendlyTo(charmer))
+                    this->ToCreature()->AI()->AttackStart(charmer);
+                else
+                    this->ToCreature()->AI()->EnterEvadeMode();
+            }*/
+        }
     }
     else
         this->ToPlayer()->SetClientControl(this, 1);

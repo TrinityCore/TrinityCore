@@ -59,6 +59,11 @@ int AOEAI::Permissible(const Creature * /*creature*/)
     return PERMIT_BASE_NO;
 }
 
+int VehicleAI::Permissible(const Creature * /*creature*/)
+{
+    return PERMIT_BASE_NO;
+}
+
 void CombatAI::InitializeAI()
 {
     for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
@@ -280,4 +285,23 @@ void AOEAI::UpdateAI(const uint32 /*diff*/)
 {
     if (!me->HasAura(me->m_spells[0]))
         me->CastSpell(me, me->m_spells[0],false);
+}
+
+//////////////
+//VehicleAI
+//////////////
+
+//NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted
+void VehicleAI::UpdateAI(const uint32 diff)
+{
+}
+
+void VehicleAI::Reset()
+{
+    m_vehicle->Reset();    
+}
+
+void VehicleAI::OnCharmed(bool apply)
+{
+    m_IsVehicleInUse = apply;
 }
