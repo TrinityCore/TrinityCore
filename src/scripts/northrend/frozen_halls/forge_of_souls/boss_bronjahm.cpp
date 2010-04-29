@@ -35,15 +35,12 @@ enum Yells
 enum Spells
 {
     SPELL_MAGIC_S_BANE                            = 68793,
-    H_SPELL_MAGIC_S_BANE                          = 69050,
     SPELL_CORRUPT_SOUL                            = 68839,
     SPELL_CONSUME_SOUL                            = 68858,
-    H_SPELL_CONSUME_SOUL                          = 69047,
     SPELL_TELEPORT                                = 68988,
     SPELL_FEAR                                    = 68950,
     SPELL_SOULSTORM                               = 68872,
     SPELL_SOULSTORM_AURA                          = 68921,
-    H_SPELL_SOULSTORM_AURA                        = 69049,
     SPELL_SHADOW_BOLT                             = 70043,
 };
 
@@ -84,7 +81,7 @@ struct boss_bronjahmAI : public ScriptedAI
         events.Reset();
         events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
         events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000,15000));
-        events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(15000,25000));
+        events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000,35000));
 
         if (pInstance)
             pInstance->SetData(DATA_BRONJAHM_EVENT, NOT_STARTED);
@@ -124,7 +121,7 @@ struct boss_bronjahmAI : public ScriptedAI
         {
             Unit* pUnit = (*itr);
             if (pUnit && pUnit->isAlive())
-                me->CastSpell(pUnit, DUNGEON_MODE(SPELL_SOULSTORM_AURA,H_SPELL_SOULSTORM_AURA), true);
+                me->CastSpell(pUnit, SPELL_SOULSTORM_AURA, true);
         }
     }
 
@@ -161,7 +158,7 @@ struct boss_bronjahmAI : public ScriptedAI
                         DoScriptText(SAY_CORRUPT_SOUL, me);
                         DoCast(pTarget,SPELL_CORRUPT_SOUL);
                     }
-                    events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(15000,25000));
+                    events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000,35000));
                     break;
                 case EVENT_SOUL_STORM:
                     DoScriptText(SAY_SOUL_STORM, me);
@@ -206,23 +203,43 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
 
     ScriptedInstance* pInstance;
 
+    uint32 uiCheckTimer;
+
     void Reset()
     {
-        SetCombatMovement(false);
-        if (pInstance)
-            if (Creature* pBronjham = Unit::GetCreature(*me,pInstance->GetData64(DATA_BRONJAHM)))
-                me->GetMotionMaster()->MoveChase(pBronjham);
-
+        uiCheckTimer = 0; // first check is immediate
     }
 
-    void MovementInform(uint32 /*type*/, uint32 /*id*/)
+    void UpdateAI(const uint32 diff)
     {
-        if (pInstance)
-            if (Creature* pBronjham = Unit::GetCreature(*me,pInstance->GetData64(DATA_BRONJAHM)))
-                DoCast(pBronjham,SPELL_CONSUME_SOUL);
+        if (uiCheckTimer <= diff)
+        {
+            if (pInstance)
+            {
+                Creature* pBronjham = Unit::GetCreature(*me, pInstance->GetData64(DATA_BRONJAHM));
+                if (pBronjham && pBronjham->isAlive())
+                {
+                    if (me->GetDistance(pBronjham) < 2.0f) // TODO: how close should it be?
+                    {
+                        pBronjham->CastSpell(pBronjham, SPELL_CONSUME_SOUL, true);
+                        me->ForcedDespawn();
+                    }
+                    else
+                    {
+                        Position pos;
+                        pBronjham->GetPosition(&pos);
+                        me->GetMotionMaster()->Clear();
+                        me->GetMotionMaster()->MovePoint(0, pos);
+                    }
+                }
+                else
+                    me->ForcedDespawn();
+            }
+            uiCheckTimer = 500;
+        }
+        else
+            uiCheckTimer -= diff;
     }
-
-    void UpdateAI(const uint32 /*diff*/) {}
 };
 
 CreatureAI* GetAI_mob_corrupted_soul_fragment(Creature* pCreature)
