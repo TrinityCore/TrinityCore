@@ -3164,6 +3164,9 @@ void Spell::_handle_immediate_phase()
     // process ground
     for (uint32 j = 0; j < 3; ++j)
     {
+        if (m_spellInfo->Effect[j] == 0)
+            continue;
+
         if (EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
         {
             if (!m_targets.HasDst()) // FIXME: this will ignore dest set in effect
