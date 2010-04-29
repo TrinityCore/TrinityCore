@@ -5940,7 +5940,7 @@ void Player::SendActionButtons(uint32 state) const
     sLog.outDetail("Sending Action Buttons for '%u' spec '%u'", GetGUIDLow(), m_activeSpec);
 
     WorldPacket data(SMSG_ACTION_BUTTONS, 1+(MAX_ACTION_BUTTONS*4));
-    data << uint8(state); 
+    data << uint8(state);
     /*
         state can be 0, 1, 2
         0 - Looks to be sent when initial action buttons get sent, however on Trinity we use 1 since 0 had some difficulties
@@ -6043,7 +6043,7 @@ ActionButton const* Player::GetActionButton(uint8 button)
 
     return &buttonItr->second;
 }
-        
+
 bool Player::SetPosition(float x, float y, float z, float orientation, bool teleport)
 {
     if (!Unit::SetPosition(x, y, z, orientation, teleport))
@@ -12015,7 +12015,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         bool isRefundable = pSrcItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
         if (isRefundable)
             AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() - count);
-        
+
         // change item amount before check (for unique max count check)
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
 
@@ -12052,7 +12052,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         bool isRefundable = pSrcItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE);
         if (isRefundable)
             AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() - count);
-        
+
         // change item amount before check (for unique max count check)
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
 
@@ -12062,7 +12062,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         {
             if (isRefundable)
                 AlterRefundReferenceCount(pSrcItem->GetGUID(), pSrcItem->GetCount() + count);
-                
+
             delete pNewItem;
             pSrcItem->SetCount(pSrcItem->GetCount() + count);
             SendEquipError(msg, pSrcItem, NULL);
@@ -23389,22 +23389,22 @@ void Player::UpdateSpecCount(uint8 count)
     uint32 curCount = GetSpecsCount();
     if (curCount == count)
         return;
-        
+
     if (m_activeSpec >= count)
         ActivateSpec(0);
 
-    // Copy spec data 
+    // Copy spec data
     if (count > curCount)
     {
         _SaveActions(); // make sure the button list is cleaned up
         for (ActionButtonList::iterator itr = m_actionButtons.begin(); itr != m_actionButtons.end(); ++itr)
             CharacterDatabase.PExecute("INSERT INTO character_action (guid,button,action,type,spec) VALUES ('%u', '%u', '%u', '%u', '%u')",
             GetGUIDLow(), uint32(itr->first), uint32(itr->second.GetAction()), uint32(itr->second.GetType()), 1);
-        
+
     }
     // Delete spec data for removed spec.
     else if (count < curCount)
-    { 
+    {
         _SaveActions();
         CharacterDatabase.PExecute("DELETE FROM character_action WHERE spec<>'%u' AND guid='%u'",m_activeSpec, GetGUIDLow());
         m_activeSpec = 0;
@@ -23541,10 +23541,10 @@ void Player::ActivateSpec(uint8 spec)
     m_usedTalentCount = spentTalents;
     InitTalentForLevel();
 
-    if (QueryResult_AutoPtr result = 
+    if (QueryResult_AutoPtr result =
         CharacterDatabase.PQuery("SELECT button,action,type FROM character_action WHERE guid = '%u' AND spec = '%u' ORDER BY button", GetGUIDLow(), m_activeSpec))
         _LoadActions(result);
-    
+
 
     ResummonPetTemporaryUnSummonedIfAny();
     SendActionButtons(1);
@@ -23606,7 +23606,7 @@ void Player::DeleteRefundReference(uint64 it)
     if (itr != m_refundableItems.end())
     {
         m_refundableItems.erase(itr);
-    }    
+    }
 }
 
 void Player::AlterRefundReferenceCount(uint64 it, uint32 newCount)
@@ -23615,5 +23615,5 @@ void Player::AlterRefundReferenceCount(uint64 it, uint32 newCount)
     if (itr != m_refundableItems.end())
     {
         itr->second = newCount;
-    } 
+    }
 }

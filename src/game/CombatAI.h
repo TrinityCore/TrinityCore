@@ -105,7 +105,7 @@ struct VehicleAI : public CreatureAI
 {
     public:
         explicit VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false) {}
-      
+
         void UpdateAI(const uint32 diff);
         static int Permissible(const Creature *);
         void Reset();

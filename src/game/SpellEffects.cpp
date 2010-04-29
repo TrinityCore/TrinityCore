@@ -4500,7 +4500,7 @@ void Spell::SpellDamageWeaponDmg(uint32 i)
         case SPELLFAMILY_ROGUE:
         {
             // Fan of Knives, Hemorrhage, Ghostly Strike
-            if ((m_spellInfo->SpellFamilyFlags[1] & 0x40000) 
+            if ((m_spellInfo->SpellFamilyFlags[1] & 0x40000)
                 || (m_spellInfo->SpellFamilyFlags[0] & 0x6000000))
             {
                 // Hemorrhage

@@ -53,7 +53,7 @@ enum Yells
 
 enum
 {
-    // Con-speed-atory timed achievement. 
+    // Con-speed-atory timed achievement.
     // TODO Should be started when 1st trash is killed.
     ACHIEV_CON_SPEED_ATORY_START_EVENT            = 21597,
     SPELL_ACHIEVEMENT_CHECK                       = 65074,

@@ -99,7 +99,7 @@ static float afSpawnLocations[2][3]=
 
 struct boss_onyxiaAI : public ScriptedAI
 {
-    boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    boss_onyxiaAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         instance = me->GetInstanceData();
     }

@@ -198,7 +198,7 @@ bool AreaTrigger_at_last_rites(Player* pPlayer, const AreaTriggerEntry* pAt)
     WorldLocation pPosition;
 
     switch(pAt->id)
-    {   
+    {
         case 5332:
         case 5338:
             pPosition = WorldLocation(571,3733.68,3563.25,290.812,3.665192);
