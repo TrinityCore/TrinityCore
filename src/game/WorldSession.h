@@ -661,6 +661,7 @@ class WorldSession
         void HandleSetPlayerDeclinedNames(WorldPacket& recv_data);
 
         void HandleTotemDestroyed(WorldPacket& recv_data);
+        void HandleDismissCritter(WorldPacket& recv_data);
 
         //BattleGround
         void HandleBattlemasterHelloOpcode(WorldPacket &recv_data);
