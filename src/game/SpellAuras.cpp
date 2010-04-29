@@ -558,8 +558,13 @@ void Aura::UpdateOwner(uint32 diff, WorldObject * owner)
     Player * modOwner = NULL;
     if (caster)
     {
-        if ((modOwner = caster->GetSpellModOwner()) && (modSpell = modOwner->FindCurrentSpellBySpellId(GetId())))
-            modOwner->SetSpellModTakingSpell(modSpell, true);
+        modOwner = caster->GetSpellModOwner();
+        if (modOwner)
+        {
+            modSpell = modOwner->FindCurrentSpellBySpellId(GetId());
+            if (modSpell)
+                modOwner->SetSpellModTakingSpell(modSpell, true);
+        }
     }
 
     Update(diff, caster);

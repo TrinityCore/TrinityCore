@@ -675,7 +675,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                     */
                     else if (opcode == CMSG_PLAYER_LOGIN)
                         m_Session->UpdateTimeOutTime(false);
-                    
+
                     // OK ,give the packet to WorldSession
                     aptr.release ();
                     // WARNINIG here we call it with locks held.

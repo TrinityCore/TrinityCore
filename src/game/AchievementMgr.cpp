@@ -1993,7 +1993,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         m_AchievementCriteriasByType[criteria->requiredType].push_back(criteria);
         m_AchievementCriteriaListByAchievement[criteria->referredAchievement].push_back(criteria);
 
-        if(criteria->timeLimit)
+        if (criteria->timeLimit)
             m_AchievementCriteriasByTimedType[criteria->timedType].push_back(criteria);
     }
 
