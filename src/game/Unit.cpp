@@ -9243,6 +9243,11 @@ void Unit::SetMinion(Minion *minion, bool apply)
             minion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         }
 
+        if (minion->HasUnitTypeMask(UNIT_MASK_MINION) && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        {
+            SetCritterGUID(minion->GetGUID());
+        }
+
         // Can only have one pet. If a new one is summoned, dismiss the old one.
         if (minion->IsGuardianPet())
         {
@@ -9272,8 +9277,6 @@ void Unit::SetMinion(Minion *minion, bool apply)
             {
             }
         }
-        //else if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
-        //    AddUInt64Value(UNIT_FIELD_CRITTER, minion->GetGUID());
 
         // PvP, FFAPvP
         minion->SetByteValue(UNIT_FIELD_BYTES_2, 1, GetByteValue(UNIT_FIELD_BYTES_2, 1));
@@ -9305,6 +9308,11 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         m_Controlled.erase(minion);
 
+        if (minion->HasUnitTypeMask(UNIT_MASK_MINION) && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        {
+            SetCritterGUID(0);
+        }
+
         if (minion->IsGuardianPet())
         {
             if (GetPetGUID() == minion->GetGUID())
@@ -9313,14 +9321,14 @@ void Unit::SetMinion(Minion *minion, bool apply)
         else if (minion->isTotem())
         {
             // All summoned by totem minions must disappear when it is removed.
-      if (const SpellEntry* spInfo = sSpellStore.LookupEntry(minion->ToTotem()->GetSpell()))
-                for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                {
-                    if (spInfo->Effect[i] != SPELL_EFFECT_SUMMON)
-                        continue;
+        if (const SpellEntry* spInfo = sSpellStore.LookupEntry(minion->ToTotem()->GetSpell()))
+            for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (spInfo->Effect[i] != SPELL_EFFECT_SUMMON)
+                    continue;
 
-                    this->RemoveAllMinionsByEntry(spInfo->EffectMiscValue[i]);
-                }
+                this->RemoveAllMinionsByEntry(spInfo->EffectMiscValue[i]);
+            }
         }
 
         if (GetTypeId() == TYPEID_PLAYER)
@@ -9370,8 +9378,6 @@ void Unit::SetMinion(Minion *minion, bool apply)
                 }
             }
         }
-        //else if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
-        //    RemoveUInt64Value(UNIT_FIELD_CRITTER, minion->GetGUID());
     }
 }
 
