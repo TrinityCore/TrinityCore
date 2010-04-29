@@ -100,5 +100,22 @@ struct AOEAI : public CreatureAI
 
         static int Permissible(const Creature *);
 };
+#define VEHICLE_RESET_TIME 5000
+struct VehicleAI : public CreatureAI
+{
+    public:
+        explicit VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false) {}
+      
+        void UpdateAI(const uint32 diff);
+        static int Permissible(const Creature *);
+        void Reset();
+        void MoveInLineOfSight(Unit *) {}
+        void AttackStart(Unit *) {}
+        void OnCharmed(bool apply);
+
+    private:
+        Vehicle* m_vehicle;
+        bool m_IsVehicleInUse;
+};
 
 #endif

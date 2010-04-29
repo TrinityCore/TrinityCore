@@ -74,6 +74,7 @@ class Vehicle
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
+        bool IsVehicleInUse() { return m_Seats.begin() != m_Seats.end(); }
 
         SeatMap m_Seats;
 
