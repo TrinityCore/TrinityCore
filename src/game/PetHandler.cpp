@@ -32,6 +32,28 @@
 #include "Pet.h"
 #include "World.h"
 
+void WorldSession::HandleDismissCritter(WorldPacket &recv_data)
+{
+    uint64 guid;
+    recv_data >> guid;
+
+    sLog.outDebug("WORLD: Received CMSG_DISMISS_CRITTER for GUID %u", guid);
+
+    Unit* pet = ObjectAccessor::GetCreatureOrPetOrVehicle(*_player, guid);
+
+    if (!pet)
+    {
+        sLog.outError("Vanitypet %u does not exist", uint32(GUID_LOPART(guid)));
+        return;
+    }
+
+    if (_player->GetCritterGUID() == pet->GetGUID())
+    {
+         if (pet->GetTypeId() == TYPEID_UNIT && pet->ToCreature()->isSummon())
+             pet->ToTempSummon()->UnSummon();
+    }
+}
+
 void WorldSession::HandlePetAction(WorldPacket & recv_data)
 {
     uint64 guid1;
