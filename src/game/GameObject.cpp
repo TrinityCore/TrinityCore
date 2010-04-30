@@ -916,9 +916,8 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
     }
 
     // found correct GO
-    // FIXME: when GO casting will be implemented trap must cast spell to target
     if (trapGO)
-        target->CastSpell(target,trapSpell,true, 0, 0, GetGUID());
+        trapGO->CastSpell(target, trapInfo->trap.spellId);
 }
 
 GameObject* GameObject::LookupFishingHoleAround(float range)
