@@ -650,6 +650,12 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
 
     recv_data >> vendorguid >> item  >> slot >> bagguid >> bagslot >> count;
 
+    // client expects count starting at 1, and we send vendorslot+1 to client already
+    if (slot > 0)
+        --slot;
+    else
+        return;                                             // cheating
+
     uint8 bag = NULL_BAG;                                   // init for case invalid bagGUID
 
     // find bag slot by bag guid
@@ -674,7 +680,7 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
     if (bag == NULL_BAG)
         return;
 
-    GetPlayer()->BuyItemFromVendor(vendorguid,item,count,bag,bagslot);
+    GetPlayer()->BuyItemFromVendorSlot(vendorguid,slot,item,count,bag,bagslot);
 }
 
 void WorldSession::HandleBuyItemOpcode(WorldPacket & recv_data)
@@ -686,7 +692,13 @@ void WorldSession::HandleBuyItemOpcode(WorldPacket & recv_data)
 
     recv_data >> vendorguid >> item >> slot >> count >> unk1;
 
-    GetPlayer()->BuyItemFromVendor(vendorguid,item,count,NULL_BAG,NULL_SLOT);
+    // client expects count starting at 1, and we send vendorslot+1 to client already
+    if (slot > 0)
+        --slot;
+    else
+        return; // cheating
+
+    GetPlayer()->BuyItemFromVendorSlot(vendorguid,slot,item,count,NULL_BAG,NULL_SLOT);
 }
 
 void WorldSession::HandleListInventoryOpcode(WorldPacket & recv_data)
@@ -736,11 +748,14 @@ void WorldSession::SendListInventory(uint64 vendorguid)
     data << uint64(vendorguid);
     data << uint8(numitems);
 
+    size_t count_pos = data.wpos();
+    data << uint8(count);
+
     float discountMod = _player->GetReputationPriceDiscount(pCreature);
 
-    for (int i = 0; i < numitems; ++i)
+    for (uint8 vendorslot = 0; vendorslot < numitems; ++vendorslot )
     {
-        if (VendorItem const* crItem = vItems->GetItem(i))
+        if (VendorItem const* crItem = vItems->GetItem(vendorslot))
         {
             if (ItemPrototype const *pProto = objmgr.GetItemPrototype(crItem->item))
             {
@@ -758,7 +773,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 // reputation discount
                 int32 price = uint32(floor(pProto->BuyPrice * discountMod));
 
-                data << uint32(count);
+                data << uint32(vendorslot+1);	// client expects counting to start at 1
                 data << uint32(crItem->item);
                 data << uint32(pProto->DisplayInfoID);
                 data << int32(crItem->maxcount <= 0 ? 0xFFFFFFFF : pCreature->GetVendorItemCurrentCount(crItem));
@@ -773,7 +788,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
     if (count == 0 || data.size() != 8 + 1 + size_t(count) * 8 * 4)
         return;
 
-    data.put<uint8>(8, count);
+    data.put<uint8>(count_pos, count);
     SendPacket(&data);
 }
 
