@@ -17,7 +17,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 (27316,-1800016, 'Good,I have your attention,then,Godfrey? ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27316,-1800015, 'GODFREY! Hear me,fiend! Hear me,for I am the Light,here to deliver you from evil! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27316,-1800014, 'Stand back,$N,the beast might lash out and harm you. ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
-(27316,1800017, 'We can do this in one of two ways,Godfrey. First,I will simply ask you to tell me what the unholy markings etched upon the pages of this tome mean. What say you? ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL)
+(27316,-1800017, 'We can do this in one of two ways,Godfrey. First,I will simply ask you to tell me what the unholy markings etched upon the pages of this tome mean. What say you? ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27577,-1800038, 'You cannot stop Thel''zan! He bears the dark gift,bestowed upon him by the Lich King himself! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27577,-1800037, 'How? Humans truly are stupid,yes? Thel''zan the Duskbringer! Thel''zan the Lich! He who is born of human flesh and bone,sacrificed all power,protected by the Lich King! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27577,-1800035, 'Humans... Beneath the earth of Wintergarde Village you built a mausoleum! Why do you think Naxxramas attacked that spot? Thel''zan hides deep in your own crypt and sends a thousand-thousand corpses at you! Perish you will... ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
