@@ -567,6 +567,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_main_chambers_access_panel' WH
 
 /* DRAGONBLIGHT */
 UPDATE `creature_template` SET `ScriptName`='npc_alexstrasza_wr_gate' WHERE `entry`=31333;
+UPDATE `creature_template` SET `ScriptName`='npc_inquisitor_hallard' WHERE `entry`=27316;
 
 /* DEADWIND PASS */
 
