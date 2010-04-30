@@ -9243,11 +9243,6 @@ void Unit::SetMinion(Minion *minion, bool apply)
             minion->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
         }
 
-        if (minion->HasUnitTypeMask(UNIT_MASK_MINION) && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
-        {
-            SetCritterGUID(minion->GetGUID());
-        }
-
         // Can only have one pet. If a new one is summoned, dismiss the old one.
         if (minion->IsGuardianPet())
         {
@@ -9276,6 +9271,11 @@ void Unit::SetMinion(Minion *minion, bool apply)
             if (AddUInt64Value(UNIT_FIELD_SUMMON, minion->GetGUID()))
             {
             }
+        }
+
+        if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        {
+            SetCritterGUID(minion->GetGUID());
         }
 
         // PvP, FFAPvP
@@ -9308,9 +9308,10 @@ void Unit::SetMinion(Minion *minion, bool apply)
 
         m_Controlled.erase(minion);
 
-        if (minion->HasUnitTypeMask(UNIT_MASK_MINION) && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
+        if (minion->m_Properties && minion->m_Properties->Type == SUMMON_TYPE_MINIPET)
         {
-            SetCritterGUID(0);
+            if (GetCritterGUID() == minion->GetGUID())
+                SetCritterGUID(0);
         }
 
         if (minion->IsGuardianPet())
