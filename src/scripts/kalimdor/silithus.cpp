@@ -559,16 +559,17 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     Merithra->CastSpell(Merithra,24818,false);
                     break;
                 case 12:
-                    Merithra->GetMotionMaster()->MoveCharge(-8150,1530,50,7);
+                    Merithra->GetMotionMaster()->MoveCharge(-8100,1530,50,42);
                     break;
                 case 13:
                     break;
                 case 14:
                     DoScriptText(ARYGOS_SAY_1,Arygos);
+                    Merithra->SetVisibility(VISIBILITY_OFF);
                     break;
                 case 15:
                     Arygos->GetMotionMaster()->MoveCharge(-8065,1530,2.61,10);
-                    Merithra->SetVisibility(VISIBILITY_OFF);
+                    Merithra->GetMotionMaster()->MoveCharge(-8034.535,1535.14,2.61,42);
                     break;
                 case 16:
                     DoScriptText(ARYGOS_YELL_1, Arygos);
@@ -579,13 +580,13 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                 case 18:
                     Arygos->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                     Arygos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    Arygos->GetMotionMaster()->MoveCharge(-8065,1530,6.61,3);
+                    Arygos->GetMotionMaster()->MoveCharge(-8065,1530,6.61,42);
                     break;
                 case 19:
                     Arygos->CastSpell(Arygos,50505,false);
                     break;
                 case 20:
-                    Arygos->GetMotionMaster()->MoveCharge(-8150,1530,50,7);
+                    Arygos->GetMotionMaster()->MoveCharge(-8095,1530,50,42);
                     break;
                 case 21:
                     break;
@@ -595,6 +596,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                 case 23:
                     Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,2.61,10);
                     Arygos->SetVisibility(VISIBILITY_OFF);
+                    Arygos->GetMotionMaster()->MoveCharge(-8034.535,1535.14,2.61,10);
                     break;
                 case 24:
                     DoScriptText(CAELESTRASZ_YELL_1, Caelestrasz);
@@ -605,7 +607,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                 case 26:
                     Caelestrasz->HandleEmoteCommand(254);
                     Caelestrasz->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                    Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,7.61,3);
+                    Caelestrasz->GetMotionMaster()->MoveCharge(-8065,1530,7.61,4);
                     break;
                 case 27:
                     Caelestrasz->CastSpell(Caelestrasz,54293,false);
@@ -614,7 +616,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     DoScriptText(ANACHRONOS_SAY_2,me, Fandral);
                     break;
                 case 29:
-                    Caelestrasz->GetMotionMaster()->MoveCharge(-8150,1530,50,7);
+                    Caelestrasz->GetMotionMaster()->MoveCharge(-8095,1530,50,42);
                     DoScriptText(FANDRAL_SAY_2, Fandral, me);
                     break;
                 case 30:
@@ -624,12 +626,13 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
                     break;
                 case 32:
                     Caelestrasz->SetVisibility(VISIBILITY_OFF);
+                    Caelestrasz->GetMotionMaster()->MoveCharge(-8034.535,1535.14,2.61,42);
                     Fandral->GetMotionMaster()->MoveCharge(-8108,1529,2.77,8);
                     me->GetMotionMaster()->MoveCharge(-8113,1525,2.77,8);
                     break;//both run to the gate
                 case 33:
                     DoScriptText(ANACHRONOS_SAY_4, me);
-                    Caelestrasz->GetMotionMaster()->MoveCharge(-8165,1530,65,7);
+                    Caelestrasz->GetMotionMaster()->MoveCharge(-8050,1473,65,15);
                     break; //Text: sands will stop
                 case 34:
                     DoCast(plr, 23017, true);//Arcane Channeling
@@ -865,7 +868,7 @@ struct mob_qiraj_war_spawnAI : public ScriptedAI
             if (pTarget)
                 me->AI()->AttackStart(pTarget);
         }
-        if (!(me->FindNearestCreature(15379,100)))
+        if (!(me->FindNearestCreature(15379,60)))
             DoCast(me, 33652);
 
         if (!UpdateVictim())
@@ -1040,10 +1043,10 @@ bool GOQuestAccept_GO_crystalline_tear(Player* plr, GameObject* go, Quest const*
         if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, plr))
         {
 
-            Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-            Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-            Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,150000);
-            /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,215000);
+            Unit *Merithra = Anachronos_Quest_Trigger->SummonCreature(15378,-8034.535,1535.14,2.61,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+            Unit *Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379,-8032.767, 1533.148,2.61, 1.5,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+            Unit *Arygos = Anachronos_Quest_Trigger->SummonCreature(15380,-8034.52, 1537.843, 2.61, 5.7,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
+            /* Unit *Fandral = */ Anachronos_Quest_Trigger->SummonCreature(15382,-8028.462, 1535.843, 2.61, 3.141592,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
             Creature *Anachronos = Anachronos_Quest_Trigger->SummonCreature(15381,-8028.75, 1538.795, 2.61, 4,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,220000);
 
             if (Merithra)
