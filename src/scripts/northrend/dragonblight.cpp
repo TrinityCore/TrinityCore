@@ -113,26 +113,26 @@ struct npc_inquisitor_hallardAI : public npc_escortAI
         Player* pPlayer = GetPlayerForEscort();
         if (!pPlayer)
             return;
-        Creature* Godfrey = m_creature->FindNearestCreature(NPC_GODFREY, 50, true);
+        Creature* Godfrey = me->FindNearestCreature(NPC_GODFREY, 50, true);
         if (!Godfrey)
             return;  
         switch (i)
         {
             case 1:                
-                DoScriptText(SAY_WP_1, m_creature, Godfrey);
-                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
-                m_creature->HandleEmoteCommand(5);
-                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);                
+                DoScriptText(SAY_WP_1, me, Godfrey);
+                me->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
+                me->HandleEmoteCommand(5);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);                
                 break;
             case 2:
                 Godfrey->HandleEmoteCommand(434);
-                DoScriptText(SAY_WP_2, m_creature, Godfrey);
-                m_creature->HandleEmoteCommand(15);
+                DoScriptText(SAY_WP_2, me, Godfrey);
+                me->HandleEmoteCommand(15);
                 break;
             case 3:                
-                DoScriptText(SAY_WP_3, m_creature, Godfrey);
-                m_creature->HandleEmoteCommand(1);
+                DoScriptText(SAY_WP_3, me, Godfrey);
+                me->HandleEmoteCommand(1);
                 break;
             case 4:
                 DoScriptText(SAY_WP_4, Godfrey);
@@ -144,19 +144,19 @@ struct npc_inquisitor_hallardAI : public npc_escortAI
                 DoScriptText(SAY_WP_6, Godfrey);
                 break;
             case 7:
-                DoScriptText(SAY_WP_7, m_creature, Godfrey);
-                m_creature->HandleEmoteCommand(1);
+                DoScriptText(SAY_WP_7, me, Godfrey);
+                me->HandleEmoteCommand(1);
                 break;
             case 8:
-                DoScriptText(SAY_WP_8, m_creature, Godfrey);
-                m_creature->HandleEmoteCommand(16);
+                DoScriptText(SAY_WP_8, me, Godfrey);
+                me->HandleEmoteCommand(16);
                 break;
             case 9:
-                DoScriptText(SAY_WP_9, m_creature, Godfrey);                
-                m_creature->HandleEmoteCommand(5);
+                DoScriptText(SAY_WP_9, me, Godfrey);                
+                me->HandleEmoteCommand(5);
                 break;
             case 10:
-                DoScriptText(SAY_WP_10, m_creature, Godfrey);
+                DoScriptText(SAY_WP_10, me, Godfrey);
                 DoCast(Godfrey, SPELL_HOLY_FIRE);
                 break;
             case 11:
@@ -164,11 +164,11 @@ struct npc_inquisitor_hallardAI : public npc_escortAI
                 DoScriptText(SAY_WP_11, Godfrey);
                 break;
             case 12:
-                DoScriptText(SAY_WP_12, m_creature, Godfrey);
+                DoScriptText(SAY_WP_12, me, Godfrey);
                 DoCast(Godfrey, SPELL_HOLY_FIRE);
                 break;
             case 13:
-                DoScriptText(SAY_WP_13, m_creature, Godfrey);
+                DoScriptText(SAY_WP_13, me, Godfrey);
                 DoCast(Godfrey, SPELL_HOLY_FIRE);
                 break;
             case 14:
@@ -176,20 +176,20 @@ struct npc_inquisitor_hallardAI : public npc_escortAI
                 DoScriptText(SAY_WP_14, Godfrey);
                 break;
             case 15:
-                DoScriptText(SAY_WP_15, m_creature, Godfrey);
+                DoScriptText(SAY_WP_15, me, Godfrey);
                 DoCast(Godfrey, SPELL_HOLY_FIRE);
                 break;
             case 16:
-                DoScriptText(SAY_WP_16, m_creature, Godfrey);
+                DoScriptText(SAY_WP_16, me, Godfrey);
                 break;
             case 17:
-                DoScriptText(SAY_WP_17, m_creature, Godfrey);
+                DoScriptText(SAY_WP_17, me, Godfrey);
                 break;
             case 18:
                 DoScriptText(SAY_WP_18, Godfrey);
                 break;
             case 19:
-                DoScriptText(SAY_WP_19, m_creature, Godfrey);
+                DoScriptText(SAY_WP_19, me, Godfrey);
                 break;
             case 20:
                 DoScriptText(SAY_WP_20, Godfrey);
@@ -198,7 +198,7 @@ struct npc_inquisitor_hallardAI : public npc_escortAI
                 DoScriptText(SAY_WP_21, Godfrey);
                 break;
             case 22:
-                DoScriptText(SAY_WP_22, m_creature, Godfrey);
+                DoScriptText(SAY_WP_22, me, Godfrey);
                 break;
             case 23:
                 DoScriptText(SAY_WP_23, Godfrey);
@@ -207,18 +207,18 @@ struct npc_inquisitor_hallardAI : public npc_escortAI
                 DoScriptText(SAY_WP_24, Godfrey);
                 break;
             case 25:
-                DoScriptText(SAY_WP_25, m_creature, Godfrey);
+                DoScriptText(SAY_WP_25, me, Godfrey);
                 break;
             case 26:
-                DoScriptText(SAY_WP_26, m_creature);
-                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, pPlayer->GetGUID());
+                DoScriptText(SAY_WP_26, me);
+                me->SetUInt64Value(UNIT_FIELD_TARGET, pPlayer->GetGUID());
                 break;
             case 27:
-                DoScriptText(SAY_WP_27, m_creature, Godfrey);
-                m_creature->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
+                DoScriptText(SAY_WP_27, me, Godfrey);
+                me->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
                 Completed = true;                
                 if (pPlayer)
-                    pPlayer->GroupEventHappens(QUEST_A_RIGHTEOUS_SERMON, m_creature);
+                    pPlayer->GroupEventHappens(QUEST_A_RIGHTEOUS_SERMON, me);
                 break;                          
         }
     }
