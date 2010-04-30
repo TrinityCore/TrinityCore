@@ -7417,7 +7417,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
 bool ChatHandler::HandleListFreezeCommand(const char * /*args*/)
 {
     //Get names from DB
-    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT characters.name FROM characters LEFT JOIN character_aura ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT characters.name FROM characters LEFT JOIN character_aura ON (characters.guid = character_aura.guid) WHERE character_aura.spell = 9454");
     if (!result)
     {
         SendSysMessage(LANG_COMMAND_NO_FROZEN_PLAYERS);
