@@ -512,6 +512,71 @@ struct npc_amberpine_woodsmanAI : public ScriptedAI
     }
 };
 
+/*######
+## Quest 12288: Overwhelmed!
+######*/
+
+enum eSkirmisher
+{
+    SPELL_RENEW_SKIRMISHER  = 48812,
+    CREDIT_NPC              = 27466,
+
+    RANDOM_SAY_1             =  -1800044,        //Ahh..better..
+    RANDOM_SAY_2             =  -1800045,        //Whoa.. i nearly died there. Thank you, $Race!
+    RANDOM_SAY_3             =  -1800046         //Thank you. $Class!
+};
+
+struct npc_wounded_skirmisherAI : public ScriptedAI
+{
+    npc_wounded_skirmisherAI(Creature *c) : ScriptedAI(c) {}
+    
+    uint64 uiPlayerGUID;
+
+    uint32 DespawnTimer;
+
+    void Reset () 
+    {
+        DespawnTimer = 5000;
+        uiPlayerGUID = 0;
+    }
+
+    void MovementInform(uint32, uint32 id)
+    {
+        if (id == 1)
+            me->ForcedDespawn(DespawnTimer);
+    }
+
+    void SpellHit(Unit *caster, const SpellEntry *spell)
+    {        
+        if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
+            && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
+        {            
+            caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
+            DoScriptText(RAND(RANDOM_SAY_1,RANDOM_SAY_2,RANDOM_SAY_3),caster);
+            if(me->IsStandState())            
+                me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());                                                                                   
+            else
+            {
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->ForcedDespawn(DespawnTimer);   
+            }
+                
+        }
+    }
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_wounded_skirmisher(Creature* pCreature)
+{
+    return new npc_wounded_skirmisherAI(pCreature);
+}
+
 CreatureAI* GetAI_npc_amberpine_woodsman(Creature* pCreature)
 {
     return new npc_amberpine_woodsmanAI (pCreature);
@@ -551,5 +616,10 @@ void AddSC_grizzly_hills()
     newscript = new Script;
     newscript->Name = "npc_amberpine_woodsman";
     newscript->GetAI = &GetAI_npc_amberpine_woodsman;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_wounded_skirmisher";
+    newscript->GetAI = &GetAI_npc_wounded_skirmisher;
     newscript->RegisterSelf();
 }
