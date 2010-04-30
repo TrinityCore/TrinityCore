@@ -16,6 +16,7 @@
  */
 
 #include "ScriptedPch.h"
+#include "ScriptedEscortAI.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -346,6 +347,99 @@ bool GossipSelect_npc_loklira_crone(Player* pPlayer, Creature* pCreature, uint32
     return true;
 }
 
+/////////////////////
+///npc_injured_goblin
+/////////////////////
+
+enum eInjuredGoblin
+{
+    QUEST_BITTER_DEPARTURE     = 12832,
+    SAY_QUEST_ACCEPT           =  -1800042,
+    SAY_END_WP_REACHED         =  -1800043
+};
+
+#define GOSSIP_ITEM_1       "I am ready, lets get you out of here"
+
+struct npc_injured_goblinAI : public npc_escortAI
+{
+    npc_injured_goblinAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
+    void WaypointReached(uint32 i)
+    { 
+        Player* pPlayer = GetPlayerForEscort();    
+        switch (i)
+        {
+        case 26:
+            DoScriptText(SAY_END_WP_REACHED, m_creature, pPlayer);
+            break;
+        case 27:
+            if (pPlayer)
+                pPlayer->GroupEventHappens(QUEST_BITTER_DEPARTURE, m_creature);                
+            break;
+        }
+    }
+
+    void EnterCombat(Unit* pWho) {}
+
+    void Reset() {}
+
+    void JustDied(Unit* pKiller)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        if (HasEscortState(STATE_ESCORT_ESCORTING) && pPlayer)
+            pPlayer->FailQuest(QUEST_BITTER_DEPARTURE);  
+    }
+
+   void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+        if (!UpdateVictim())
+            return;
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_injured_goblin(Creature* pCreature)
+{
+    return new npc_injured_goblinAI(pCreature);
+}
+
+bool GossipHello_npc_injured_goblin(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_BITTER_DEPARTURE) == QUEST_STATUS_INCOMPLETE)
+    {
+        pPlayer->ADD_GOSSIP_ITEM(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->PlayerTalkClass->SendGossipMenu(9999999, pCreature->GetGUID());
+    }
+    else
+        pPlayer->SEND_GOSSIP_MENU(999999, pCreature->GetGUID());
+    return true;
+}
+
+bool QuestAccept_npc_injured_goblin(Player* pPlayer, Creature* pCreature, Quest const *quest)
+{
+    if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
+        DoScriptText(SAY_QUEST_ACCEPT, pCreature);
+
+    return false;
+}
+
+bool GossipSelect_npc_injured_goblin(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    npc_escortAI* pEscortAI = CAST_AI(npc_injured_goblinAI, pCreature->AI());
+
+    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    {
+        pEscortAI->Start(true, true, pPlayer->GetGUID());                   
+        pCreature->setFaction(113);
+    }
+    return true;
+}
+
+
 void AddSC_storm_peaks()
 {
     Script* newscript;
@@ -385,5 +479,13 @@ void AddSC_storm_peaks()
     newscript->Name = "npc_loklira_crone";
     newscript->pGossipHello = &GossipHello_npc_loklira_crone;
     newscript->pGossipSelect = &GossipSelect_npc_loklira_crone;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_injured_goblin";
+    newscript->GetAI = &GetAI_npc_injured_goblin;    
+    newscript->pGossipHello = &GossipHello_npc_injured_goblin;
+    newscript->pGossipSelect = &GossipSelect_npc_injured_goblin;
+    newscript->pQuestAccept =  &QuestAccept_npc_injured_goblin;
     newscript->RegisterSelf();
 }
