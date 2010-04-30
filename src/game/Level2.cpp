@@ -2326,7 +2326,7 @@ bool ChatHandler::HandleWpAddCommand(const char* args)
             pathid = target->GetWaypointPath();
         else
         {
-            QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT MAX(id) FROM waypoint_data");
+            QueryResult_AutoPtr result = WorldDatabase.Query("SELECT MAX(id) FROM waypoint_data");
             uint32 maxpathid = result->Fetch()->GetInt32();
             pathid = maxpathid+1;
             sLog.outDebug("DEBUG: HandleWpAddCommand - New path started.");
@@ -2500,7 +2500,7 @@ bool ChatHandler::HandleWpEventCommand(const char* args)
         }
         else
         {
-            QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT MAX(guid) FROM waypoint_scripts");
+            QueryResult_AutoPtr result = WorldDatabase.Query("SELECT MAX(guid) FROM waypoint_scripts");
             id = result->Fetch()->GetUInt32();
             WorldDatabase.PExecute("INSERT INTO waypoint_scripts(guid)VALUES(%u)", id+1);
             PSendSysMessage("%s%s%u|r", "|cff00ff00","Wp Event: New waypoint event added: |r|cff00ffff", id+1);
