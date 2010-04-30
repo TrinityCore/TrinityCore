@@ -3802,6 +3802,10 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
+        case 48743: // Death Pact
+            spellInfo->AttributesEx &= ~SPELL_ATTR_EX_CANT_TARGET_SELF;
+            count++;
+            break;
         // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
         // this is the only known exception, probably just wrong data
         case 29214: // Wrath of the Plaguebringer
