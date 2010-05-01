@@ -470,7 +470,7 @@ enum UnitState
     UNIT_STAT_SIGHTLESS       = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_EVADE),
     UNIT_STAT_CANNOT_AUTOATTACK     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_CASTING),
     UNIT_STAT_CANNOT_TURN     = (UNIT_STAT_LOST_CONTROL | UNIT_STAT_ROTATING),
-    UNIT_STAT_ALL_STATE       = 0xffffffff                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
+    UNIT_STAT_ALL_STATE       = uint32(0xffffffff)                      //(UNIT_STAT_STOPPED | UNIT_STAT_MOVING | UNIT_STAT_IN_COMBAT | UNIT_STAT_IN_FLIGHT)
 };
 
 enum UnitMoveType
@@ -1607,8 +1607,8 @@ class Unit : public WorldObject
         bool HasAuraEffect(uint32 spellId, uint8 effIndex, uint64 caster = 0) const;
         bool HasAura(uint32 spellId, uint64 caster = 0, uint8 reqEffMask = 0) const;
         bool HasAuraType(AuraType auraType) const;
-        bool HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const;
-        bool HasAuraTypeWithValue(AuraType auratype, uint32 value) const;
+        bool HasAuraTypeWithMiscvalue(AuraType auratype, int32 miscvalue) const;
+        bool HasAuraTypeWithValue(AuraType auratype, int32 value) const;
         bool HasNegativeAuraWithInterruptFlag(uint32 flag);
 
         AuraEffect * IsScriptOverriden(SpellEntry const * spell, int32 script) const;

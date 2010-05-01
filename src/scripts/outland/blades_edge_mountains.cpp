@@ -409,7 +409,7 @@ struct npc_bloodmaul_brutebaneAI : public ScriptedAI
         OgreGUID = 0;
     }
 
-    void UpdateAI(const uint32 uiDiff) {}
+    void UpdateAI(const uint32 /*uiDiff*/) {}
 };
 
 CreatureAI* GetAI_npc_bloodmaul_brutebane(Creature* pCreature)

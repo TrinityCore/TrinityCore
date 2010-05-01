@@ -19726,7 +19726,7 @@ void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 it
         {
             for (uint8 idx = 0; idx < 5; ++idx)
             {
-                if (proto->Spells[idx].SpellId == spellInfo->Id)
+                if (uint32(proto->Spells[idx].SpellId) == spellInfo->Id)
                 {
                     cat    = proto->Spells[idx].SpellCategory;
                     rec    = proto->Spells[idx].SpellCooldown;

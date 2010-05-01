@@ -529,7 +529,7 @@ void InstanceSaveManager::LoadResetTimes()
             if (t - tim[type-1] > now)
                 break;
 
-        ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, -1));
+        ScheduleReset(true, t - tim[type-1], InstResetEvent(type, mapid, difficulty, 0));
 
         for (ResetTimeMapDiffInstances::const_iterator in_itr = mapDiffResetInstances.lower_bound(map_diff_pair);
             in_itr != mapDiffResetInstances.upper_bound(map_diff_pair); ++in_itr)
@@ -672,7 +672,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
         uint64 next_reset = ((now + timeLeft + MINUTE) / DAY * DAY) + period + diff;
 
         SetResetTimeFor(mapid, difficulty, next_reset);
-        ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, -1));
+        ScheduleReset(true, time_t(next_reset-3600), InstResetEvent(1, mapid, difficulty, 0));
 
         // update it in the DB
         CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%d' AND difficulty = '%d'", next_reset, mapid, difficulty);
