@@ -93,7 +93,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
     {
         //Say some stuff
         DoSay(SAY_AGGRO,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature,8280);
+        DoPlaySoundToSet(me,8280);
     }
 
     //*** HANDLED FUNCTION ***
@@ -101,7 +101,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         //Out of combat timers
-        if (!m_creature->getVictim())
+        if (!me->getVictim())
         {
             //Random Say timer
             if (Say_Timer < diff)
@@ -111,27 +111,27 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
                 {
                     case 0:
                         DoYell(SAY_RANDOM_0,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8831);  //8831 is the index of the sound we are playing. You find these numbers in SoundEntries.dbc
+                        DoPlaySoundToSet(me,8831);  //8831 is the index of the sound we are playing. You find these numbers in SoundEntries.dbc
                         break;
 
                     case 1:
                         DoYell(SAY_RANDOM_1,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8818);
+                        DoPlaySoundToSet(me,8818);
                         break;
 
                     case 2:
                         DoYell(SAY_RANDOM_2,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8041);
+                        DoPlaySoundToSet(me,8041);
                         break;
 
                     case 3:
                         DoYell(SAY_RANDOM_3,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8581);
+                        DoPlaySoundToSet(me,8581);
                         break;
 
                     case 4:
                         DoYell(SAY_RANDOM_4,LANG_UNIVERSAL,NULL);
-                        DoPlaySoundToSet(m_creature,8791);
+                        DoPlaySoundToSet(me,8791);
                         break;
                 }
 
@@ -141,7 +141,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
             //Rebuff timer
             if (Rebuff_Timer < diff)
             {
-                DoCast(m_creature,SPELL_BUFF);
+                DoCast(me,SPELL_BUFF);
                 Rebuff_Timer = 900000;                      //Rebuff agian in 15 minutes
             }else Rebuff_Timer -= diff;
         }
@@ -155,9 +155,9 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
         {
             //Cast spell one on our current target.
             if (rand()%50 > 10)
-                DoCast(m_creature->getVictim(),SPELL_ONE_ALT);
-            else if (m_creature->IsWithinDist(m_creature->getVictim(), 25))
-                DoCast(m_creature->getVictim(),SPELL_ONE);
+                DoCast(me->getVictim(),SPELL_ONE_ALT);
+            else if (me->IsWithinDist(me->getVictim(), 25))
+                DoCast(me->getVictim(),SPELL_ONE);
 
             Spell_1_Timer = 5000;
         }else Spell_1_Timer -= diff;
@@ -166,7 +166,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
         if (Spell_2_Timer < diff)
         {
             //Cast spell one on our current target.
-            DoCast(m_creature->getVictim(),SPELL_TWO);
+            DoCast(me->getVictim(),SPELL_TWO);
 
             Spell_2_Timer = 37000;
         }else Spell_2_Timer -= diff;
@@ -176,7 +176,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
             if (Spell_3_Timer < diff)
         {
             //Cast spell one on our current target.
-            DoCast(m_creature->getVictim(),SPELL_THREE);
+            DoCast(me->getVictim(),SPELL_THREE);
 
             Spell_3_Timer = 19000;
         }else Spell_3_Timer -= diff;
@@ -186,9 +186,9 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
             if (Beserk_Timer < diff)
         {
             //Say our line then cast uber death spell
-            DoPlaySoundToSet(m_creature,8588);
-            DoYell(SAY_BESERK,LANG_UNIVERSAL,m_creature->getVictim());
-            DoCast(m_creature->getVictim(),SPELL_BESERK);
+            DoPlaySoundToSet(me,8588);
+            DoYell(SAY_BESERK,LANG_UNIVERSAL,me->getVictim());
+            DoCast(me->getVictim(),SPELL_BESERK);
 
             //Cast our beserk spell agian in 12 seconds if we didn't kill everyone
             Beserk_Timer = 12000;
@@ -201,7 +201,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
             //Go to next phase
             Phase++;
             DoYell(SAY_PHASE,LANG_UNIVERSAL,NULL);
-            DoCast(m_creature,SPELL_ENRAGE);
+            DoCast(me,SPELL_ENRAGE);
         }else Phase_Timer -= diff;
 
         DoMeleeAttackIfReady();
