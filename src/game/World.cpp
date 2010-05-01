@@ -1711,7 +1711,7 @@ void World::SetInitialWorldSettings()
 
 void World::DetectDBCLang()
 {
-    uint16 m_lang_confid = sConfig.GetIntDefault("DBC.Locale", 255);
+    uint8 m_lang_confid = sConfig.GetIntDefault("DBC.Locale", 255);
 
     if (m_lang_confid != 255 && m_lang_confid >= MAX_LOCALE)
     {
