@@ -193,7 +193,7 @@ enum LocaleConstant
     LOCALE_ruRU = 8
 };
 
-#define MAX_LOCALE 9
+const uint8 MAX_LOCALE = 9;
 
 extern char const* localeNames[MAX_LOCALE];
 
