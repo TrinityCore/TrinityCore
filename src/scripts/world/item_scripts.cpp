@@ -387,6 +387,27 @@ bool ItemUse_item_dehta_trap_smasher(Player* pPlayer, Item* /*pItem*/, const Spe
     return false;
 }
 
+enum TheEmissary
+{   
+    QUEST_THE_EMISSARY      =   11626,
+    NPC_LEVIROTH            =   26452
+};
+
+bool ItemUse_item_Trident_of_Nazjan(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    if (pPlayer->GetQuestStatus(QUEST_THE_EMISSARY) == QUEST_STATUS_INCOMPLETE)
+    {
+        if (Creature* pLeviroth = pPlayer->FindNearestCreature(NPC_LEVIROTH, 10.0f)) // spell range
+        {
+            pLeviroth->AI()->AttackStart(pPlayer);
+            return false;
+        } else
+            pPlayer->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
+    } else
+        pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW ,pItem, NULL);
+    return true;
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
@@ -449,5 +470,10 @@ void AddSC_item_scripts()
     newscript = new Script;
     newscript->Name = "item_dehta_trap_smasher";
     newscript->pItemUse = &ItemUse_item_dehta_trap_smasher;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "item_Trident_of_Nazjan";
+    newscript->pItemUse = &ItemUse_item_Trident_of_Nazjan;
     newscript->RegisterSelf();
 }
