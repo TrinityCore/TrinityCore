@@ -1324,8 +1324,8 @@ enum Opcodes
     UMSG_UNKNOWN_1285                               = 0x505,
     SMSG_CORPSE_NOT_IN_INSTANCE                     = 0x506,
     UMSG_UNKNOWN_1287                               = 0x507, // not found
-    CMSG_UNKNOWN_1288                               = 0x508, // lua: SetAllowLowLevelRaid
-    CMSG_UNKNOWN_1289                               = 0x509, // lua: SetAllowLowLevelRaid
+    CMSG_SET_ALLOW_LOW_LEVEL_RAID1                  = 0x508, // lua: SetAllowLowLevelRaid
+    CMSG_SET_ALLOW_LOW_LEVEL_RAID2                  = 0x509, // lua: SetAllowLowLevelRaid
     SMSG_CAMERA_SHAKE                               = 0x50A, // uint32 SpellEffectCameraShakes.dbc index, uint32
     SMSG_UNKNOWN_1291                               = 0x50B, // some item update packet?
     UMSG_UNKNOWN_1292                               = 0x50C, // not found
