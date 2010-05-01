@@ -57,24 +57,24 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             switch (i)
             {
                 case 1:
-                    m_creature->Say(SAY_WALK, LANG_UNIVERSAL, 0);
+                    me->Say(SAY_WALK, LANG_UNIVERSAL, 0);
                     break;
 
                 case 3:
                 {
-                    m_creature->Say(SAY_ATTACK, LANG_UNIVERSAL, 0);
-                    Creature* temp = m_creature->SummonCreature(21878, m_creature->GetPositionX()+5, m_creature->GetPositionY()+7, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
+                    me->Say(SAY_ATTACK, LANG_UNIVERSAL, 0);
+                    Creature* temp = me->SummonCreature(21878, me->GetPositionX()+5, me->GetPositionY()+7, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 3000);
                     if (temp)
-                        temp->AI()->AttackStart(m_creature);
+                        temp->AI()->AttackStart(me);
                 }
                 break;
 
                 case 4:
                 {
-                    m_creature->Say(SAY_TIME_TO_GO, LANG_UNIVERSAL, PlayerGUID);
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
+                    me->Say(SAY_TIME_TO_GO, LANG_UNIVERSAL, PlayerGUID);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
 
-                    Unit* temp = Unit::GetUnit(*m_creature, PlayerGUID);
+                    Unit* temp = Unit::GetUnit(*me, PlayerGUID);
                     if (temp)
                     {
                         temp->MonsterSay(SAY_BYE, LANG_UNIVERSAL, 0);
@@ -88,8 +88,8 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
         void Aggro(Unit*)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
-                m_creature->Say(SAY_AGGRO1, LANG_UNIVERSAL, PlayerGUID);
-            else m_creature->Say(SAY_AGGRO2, LANG_UNIVERSAL, 0);
+                me->Say(SAY_AGGRO1, LANG_UNIVERSAL, PlayerGUID);
+            else me->Say(SAY_AGGRO2, LANG_UNIVERSAL, 0);
         }
 
         void Reset()
@@ -102,16 +102,16 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                //killer = m_creature when player got to far from creature
-                if (killer == m_creature)
+                //killer = me when player got to far from creature
+                if (killer == me)
                 {
-                    Unit *pTemp = Unit::GetUnit(*m_creature,PlayerGUID);
+                    Unit *pTemp = Unit::GetUnit(*me,PlayerGUID);
                     if (pTemp)
                         DoWhisper(WHISPER_TOO_FAR, pTemp);
                 }
-                else m_creature->Say(SAY_DIE1, LANG_UNIVERSAL, PlayerGUID);
+                else me->Say(SAY_DIE1, LANG_UNIVERSAL, PlayerGUID);
             }
-            else m_creature->Say(SAY_DIE2, LANG_UNIVERSAL, 0);
+            else me->Say(SAY_DIE2, LANG_UNIVERSAL, 0);
         }
 
         void UpdateAI(const uint32 diff)
@@ -120,12 +120,12 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             npc_escortAI::UpdateAI(diff);
 
             //Combat check
-            if (m_creature->isInCombat() && m_creature->getVictim())
+            if (me->isInCombat() && me->getVictim())
             {
                 if (DeathCoilTimer < diff)
                 {
-                    m_creature->Say(SAY_DEATHCOIL, LANG_UNIVERSAL, 0);
-                    m_creature->CastSpell(m_creature->getVictim(), 33130, false);
+                    me->Say(SAY_DEATHCOIL, LANG_UNIVERSAL, 0);
+                    me->CastSpell(me->getVictim(), 33130, false);
 
                     DeathCoilTimer = 4000;
                 }else DeathCoilTimer -= diff;
@@ -135,14 +135,14 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
                 if (HasEscortState(STATE_ESCORT_ESCORTING))
                     if (ChatTimer < diff)
                 {
-                    if (m_creature->HasAura(3593, 0))
+                    if (me->HasAura(3593, 0))
                     {
-                        m_creature->Say(SAY_FIREWORKS, LANG_UNIVERSAL, 0);
-                        m_creature->CastSpell(m_creature, 11540, false);
+                        me->Say(SAY_FIREWORKS, LANG_UNIVERSAL, 0);
+                        me->CastSpell(me, 11540, false);
                     }else
                     {
-                        m_creature->Say(SAY_BUFF, LANG_UNIVERSAL, 0);
-                        m_creature->CastSpell(m_creature, 3593, false);
+                        me->Say(SAY_BUFF, LANG_UNIVERSAL, 0);
+                        me->CastSpell(me, 3593, false);
                     }
 
                     ChatTimer = 12000;

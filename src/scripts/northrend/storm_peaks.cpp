@@ -365,16 +365,16 @@ struct npc_injured_goblinAI : public npc_escortAI
     npc_injured_goblinAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
     void WaypointReached(uint32 i)
-    { 
-        Player* pPlayer = GetPlayerForEscort();    
+    {
+        Player* pPlayer = GetPlayerForEscort();
         switch (i)
         {
         case 26:
-            DoScriptText(SAY_END_WP_REACHED, m_creature, pPlayer);
+            DoScriptText(SAY_END_WP_REACHED, me, pPlayer);
             break;
         case 27:
             if (pPlayer)
-                pPlayer->GroupEventHappens(QUEST_BITTER_DEPARTURE, m_creature);                
+                pPlayer->GroupEventHappens(QUEST_BITTER_DEPARTURE, me);
             break;
         }
     }
@@ -387,7 +387,7 @@ struct npc_injured_goblinAI : public npc_escortAI
     {
         Player* pPlayer = GetPlayerForEscort();
         if (HasEscortState(STATE_ESCORT_ESCORTING) && pPlayer)
-            pPlayer->FailQuest(QUEST_BITTER_DEPARTURE);  
+            pPlayer->FailQuest(QUEST_BITTER_DEPARTURE);
     }
 
    void UpdateAI(const uint32 uiDiff)
@@ -433,7 +433,7 @@ bool GossipSelect_npc_injured_goblin(Player* pPlayer, Creature* pCreature, uint3
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
-        pEscortAI->Start(true, true, pPlayer->GetGUID());                   
+        pEscortAI->Start(true, true, pPlayer->GetGUID());
         pCreature->setFaction(113);
     }
     return true;
@@ -483,7 +483,7 @@ void AddSC_storm_peaks()
 
     newscript = new Script;
     newscript->Name = "npc_injured_goblin";
-    newscript->GetAI = &GetAI_npc_injured_goblin;    
+    newscript->GetAI = &GetAI_npc_injured_goblin;
     newscript->pGossipHello = &GossipHello_npc_injured_goblin;
     newscript->pGossipSelect = &GossipSelect_npc_injured_goblin;
     newscript->pQuestAccept =  &QuestAccept_npc_injured_goblin;
