@@ -34,8 +34,6 @@
 #include "Auth/Sha1.h"
 //#include "Util.h" -- for commented utf8ToUpperOnlyLatin
 
-extern RealmList m_realmList;
-
 extern DatabaseType loginDatabase;
 
 #define ChunkSize 2048
@@ -816,21 +814,20 @@ bool AuthSocket::_HandleRealmList()
     std::string rI = (*result)[1].GetCppString();
 
     ///- Update realm list if need
-    m_realmList.UpdateIfNeed();
+    sRealmList->UpdateIfNeed();
 
     RealmList::RealmMap::const_iterator rlm;
-    RealmList built_realmList;
-    for (rlm = m_realmList.begin(); rlm != m_realmList.end(); ++rlm)
+    for (rlm = sRealmList->begin(); rlm != sRealmList->end(); ++rlm)
     {
         if ( _expversion & POST_BC_EXP_FLAG )//2.4.3 and 3.1.3 cliens
         {
             if (rlm->second.gamebuild == _build)
-                built_realmList.AddRealm(rlm->second);
+                sRealmList->AddRealm(rlm->second);
         }
         else if ( _expversion & PRE_BC_EXP_FLAG )//1.12.1 and 1.12.2 clients are compatible with eachother
         {
             if ( AuthHelper::IsPreBCAcceptedClientBuild ( rlm->second.gamebuild ) )
-                built_realmList.AddRealm(rlm->second);
+                sRealmList->AddRealm(rlm->second);
         }
 
     }
@@ -839,12 +836,12 @@ bool AuthSocket::_HandleRealmList()
     ByteBuffer pkt;
     pkt << (uint32) 0;
     if (  _expversion & POST_BC_EXP_FLAG )//only 2.4.3 and 3.1.3 cliens
-        pkt << (uint16) built_realmList.size();
+        pkt << (uint16) sRealmList->size();
     else
-        pkt << (uint32) built_realmList.size();
+        pkt << (uint32) sRealmList->size();
 
     RealmList::RealmMap::const_iterator i;
-    for (i = built_realmList.begin(); i != built_realmList.end(); ++i)
+    for (i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
         uint8 AmountOfCharacters;
 

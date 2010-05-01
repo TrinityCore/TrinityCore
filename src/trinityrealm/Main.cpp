@@ -61,7 +61,6 @@ void UnhookSignals();
 void HookSignals();
 
 bool stopEvent = false;                                     ///< Setting it to true stops the server
-RealmList m_realmList;                                      ///< Holds the list of realms for this server
 
 DatabaseType loginDatabase;                                 ///< Accessor to the realm server database
 
@@ -194,8 +193,8 @@ extern int main(int argc, char **argv)
     }
 
     ///- Get the list of realms for the server
-    m_realmList.Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
-    if (m_realmList.size() == 0)
+    sRealmList->Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
+    if (sRealmList->size() == 0)
     {
         sLog.outError("No valid realms specified.");
         return 1;
