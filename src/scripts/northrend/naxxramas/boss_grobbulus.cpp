@@ -50,7 +50,7 @@ struct boss_grobbulusAI : public BossAI
 
     void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
     {
-        if (spell->Id == SPELL_SLIME_SPRAY)
+        if (spell->Id == uint32(SPELL_SLIME_SPRAY))
         {
             if (TempSummon *slime = me->SummonCreature(MOB_FALLOUT_SLIME, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                 DoZoneInCombat(slime);

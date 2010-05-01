@@ -1711,7 +1711,7 @@ void World::SetInitialWorldSettings()
 
 void World::DetectDBCLang()
 {
-    uint32 m_lang_confid = sConfig.GetIntDefault("DBC.Locale", 255);
+    uint8 m_lang_confid = sConfig.GetIntDefault("DBC.Locale", 255);
 
     if (m_lang_confid != 255 && m_lang_confid >= MAX_LOCALE)
     {
@@ -1723,8 +1723,8 @@ void World::DetectDBCLang()
 
     std::string availableLocalsStr;
 
-    int default_locale = MAX_LOCALE;
-    for (int i = MAX_LOCALE-1; i >= 0; --i)
+    uint8 default_locale = MAX_LOCALE;
+    for (uint8 i = default_locale-1; i >= 0; --i)
     {
         if (strlen(race->name[i]) > 0)                     // check by race names
         {

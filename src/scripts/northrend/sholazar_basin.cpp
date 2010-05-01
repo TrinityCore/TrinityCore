@@ -366,11 +366,9 @@ struct npc_engineer_heliceAI : public npc_escortAI
     {        
         m_uiChatTimer = 4000;        
     }
-
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         Player* pPlayer = GetPlayerForEscort();
-
         if (HasEscortState(STATE_ESCORT_ESCORTING))
         {
             if (pPlayer)         

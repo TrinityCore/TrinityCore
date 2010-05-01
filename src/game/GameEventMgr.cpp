@@ -1682,7 +1682,7 @@ void GameEventMgr::SendWorldStateUpdate(Player * plr, uint16 event_id)
     GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
 
     for (GameEventMgr::ActiveEvents::const_iterator itr = ae.begin(); itr != ae.end(); ++itr)
-        if (events[*itr].holiday_id == id)
+        if (events[*itr].holiday_id == uint32(id))
             return true;
 
     return false;

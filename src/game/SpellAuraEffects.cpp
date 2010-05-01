@@ -2341,7 +2341,7 @@ void AuraEffect::CleanupTriggeredSpells(Unit * target)
     // needed for spell 43680, maybe others
     // TODO: is there a spell flag, which can solve this in a more sophisticated way?
     if (m_spellProto->EffectApplyAuraName[GetEffIndex()] == SPELL_AURA_PERIODIC_TRIGGER_SPELL &&
-            GetSpellDuration(m_spellProto) == m_spellProto->EffectAmplitude[GetEffIndex()])
+            uint32(GetSpellDuration(m_spellProto)) == m_spellProto->EffectAmplitude[GetEffIndex()])
         return;
 
     target->RemoveAurasDueToSpell(tSpellId, GetCasterGUID());

@@ -326,9 +326,9 @@ struct npc_anchorite_truuenAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* pWho){}    
+    void EnterCombat(Unit* /*pWho*/){}    
 
-     void JustDied(Unit* pKiller)
+     void JustDied(Unit* /*pKiller*/)
     {
        Player* pPlayer = GetPlayerForEscort();
         if (pPlayer)

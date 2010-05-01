@@ -2337,7 +2337,7 @@ bool GossipHello_npc_tabard_vendor(Player* pPlayer, Creature* pCreature)
     return true; 
 } 
  
-bool GossipSelect_npc_tabard_vendor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction) 
+bool GossipSelect_npc_tabard_vendor(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction) 
 { 
     switch(uiAction) 
     { 

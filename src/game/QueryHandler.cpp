@@ -287,11 +287,11 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
         return;
     }
 
-    int32 mapid = corpse->GetMapId();
+    uint32 mapid = corpse->GetMapId();
     float x = corpse->GetPositionX();
     float y = corpse->GetPositionY();
     float z = corpse->GetPositionZ();
-    int32 corpsemapid = mapid;
+    uint32 corpsemapid = mapid;
 
     // if corpse at different map
     if (mapid != _player->GetMapId())

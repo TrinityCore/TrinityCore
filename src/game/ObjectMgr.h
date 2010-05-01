@@ -693,8 +693,8 @@ class ObjectMgr
 
         void LoadVendors();
         void LoadTrainerSpell();
-        bool AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
-        int  LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
+        bool AddSpellToTrainer(uint32 entry, uint32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
+        int  LoadReferenceTrainer(uint32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds);
         void LoadGMTickets();
 
         std::string GeneratePetName(uint32 entry);

@@ -564,7 +564,7 @@ struct npc_wounded_skirmisherAI : public ScriptedAI
         }
     }
     
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;

@@ -393,7 +393,7 @@ enum TheEmissary
     NPC_LEVIROTH            =   26452
 };
 
-bool ItemUse_item_Trident_of_Nazjan(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+bool ItemUse_item_Trident_of_Nazjan(Player* pPlayer, Item* pItem, const SpellCastTargets & /*pTargets*/)
 {
     if (pPlayer->GetQuestStatus(QUEST_THE_EMISSARY) == QUEST_STATUS_INCOMPLETE)
     {
