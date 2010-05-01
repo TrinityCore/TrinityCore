@@ -379,11 +379,11 @@ struct npc_injured_goblinAI : public npc_escortAI
         }
     }
 
-    void EnterCombat(Unit* pWho) {}
+    void EnterCombat(Unit* /*pWho*/) {}
 
     void Reset() {}
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         Player* pPlayer = GetPlayerForEscort();
         if (HasEscortState(STATE_ESCORT_ESCORTING) && pPlayer)
@@ -419,7 +419,7 @@ bool GossipHello_npc_injured_goblin(Player* pPlayer, Creature* pCreature)
     return true;
 }
 
-bool QuestAccept_npc_injured_goblin(Player* pPlayer, Creature* pCreature, Quest const *quest)
+bool QuestAccept_npc_injured_goblin(Player* /*pPlayer*/, Creature* pCreature, Quest const *quest)
 {
     if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
         DoScriptText(SAY_QUEST_ACCEPT, pCreature);
@@ -427,7 +427,7 @@ bool QuestAccept_npc_injured_goblin(Player* pPlayer, Creature* pCreature, Quest 
     return false;
 }
 
-bool GossipSelect_npc_injured_goblin(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+bool GossipSelect_npc_injured_goblin(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
 {
     npc_escortAI* pEscortAI = CAST_AI(npc_injured_goblinAI, pCreature->AI());
 

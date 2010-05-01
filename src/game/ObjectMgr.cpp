@@ -5575,7 +5575,7 @@ WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float
             // if find graveyard at different map from where entrance placed (or no entrance data), use any first
             if (!mapEntry ||
                  mapEntry->entrance_map < 0 ||
-                 mapEntry->entrance_map != entry->map_id ||
+                 uint32(mapEntry->entrance_map) != entry->map_id ||
                 (mapEntry->entrance_x == 0 && mapEntry->entrance_y == 0))
             {
                 // not have any corrdinates for check distance anyway
@@ -5904,16 +5904,15 @@ void ObjectMgr::LoadAccessRequirements()
 AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
     const MapEntry *mapEntry = sMapStore.LookupEntry(Map);
-    if (!mapEntry) return NULL;
+    if (!mapEntry || mapEntry->entrance_map < 0) return NULL;
+    uint32 entrance_map = uint32(mapEntry->entrance_map);
     for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); ++itr)
-    {
-        if (itr->second.target_mapId == mapEntry->entrance_map)
+        if (itr->second.target_mapId == entrance_map)
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
             if (atEntry && atEntry->mapid == Map)
                 return &itr->second;
         }
-    }
     return NULL;
 }
 
@@ -8093,7 +8092,7 @@ void ObjectMgr::LoadMailLevelRewards()
     sLog.outString(">> Loaded %u level dependent mail rewards,", count);
 }
 
-bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
+bool ObjectMgr::AddSpellToTrainer(uint32 entry, uint32 spell, Field *fields, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
 {
     if (entry >= TRINITY_TRAINER_START_REF)
         return false;
@@ -8181,7 +8180,7 @@ bool ObjectMgr::AddSpellToTrainer(int32 entry, int32 spell, Field *fields, std::
     }
     return true;
 }
-int ObjectMgr::LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
+int ObjectMgr::LoadReferenceTrainer(uint32 trainer, int32 spell, std::set<uint32> *skip_trainers, std::set<uint32> *talentIds)
 {
     QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT entry, spell,spellcost,reqskill,reqskillvalue,reqlevel FROM npc_trainer WHERE entry='%d'", spell);
     if (!result)
@@ -8196,7 +8195,7 @@ int ObjectMgr::LoadReferenceTrainer(int32 trainer, int32 spell, std::set<uint32>
         int32 spell  = fields[1].GetInt32();
         if (spell < 0)
             count += this->LoadReferenceTrainer(trainer, -spell, skip_trainers, talentIds);
-        else if (this->AddSpellToTrainer(trainer, spell, fields, skip_trainers, talentIds))
+        else if (this->AddSpellToTrainer(trainer, uint32(spell), fields, skip_trainers, talentIds))
             ++count;
     } while (result->NextRow());
 
@@ -8240,7 +8239,7 @@ void ObjectMgr::LoadTrainerSpell()
         int32 spell  = fields[1].GetInt32();
         if (spell < 0)
             count += this->LoadReferenceTrainer(entry, -spell, &skip_trainers, &talentIds);
-        else if (this->AddSpellToTrainer(entry, spell, fields, &skip_trainers, &talentIds))
+        else if (this->AddSpellToTrainer(entry, uint32(spell), fields, &skip_trainers, &talentIds))
             ++count;
 
     } while (result->NextRow());

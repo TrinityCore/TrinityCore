@@ -4250,7 +4250,7 @@ void Unit::RemoveAurasWithFamily(SpellFamilyNames family, uint32 familyFlag1, ui
         if (!casterGUID || aura->GetCasterGUID() == casterGUID)
         {
             SpellEntry const *spell = aura->GetSpellProto();
-            if (spell->SpellFamilyName == family && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+            if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
             {
                 RemoveAura(iter);
                 continue;
@@ -4441,7 +4441,7 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames name, uint32 ico
         if (effIndex != (*itr)->GetEffIndex())
             continue;
         SpellEntry const * spell = (*itr)->GetSpellProto();
-        if (spell->SpellIconID == iconId && spell->SpellFamilyName == name && !spell->SpellFamilyFlags)
+        if (spell->SpellIconID == iconId && spell->SpellFamilyName == uint32(name) && !spell->SpellFamilyFlags)
             return *itr;
     }
     return NULL;
@@ -4453,7 +4453,7 @@ AuraEffect* Unit::GetAuraEffect(AuraType type, SpellFamilyNames family, uint32 f
     for (AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
         SpellEntry const *spell = (*i)->GetSpellProto();
-        if (spell->SpellFamilyName == family && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
+        if (spell->SpellFamilyName == uint32(family) && spell->SpellFamilyFlags.HasFlag(familyFlag1, familyFlag2, familyFlag3))
         {
             if (casterGUID && (*i)->GetCasterGUID() != casterGUID)
                 continue;
@@ -4522,7 +4522,7 @@ bool Unit::HasAuraType(AuraType auraType) const
     return (!m_modAuras[auraType].empty());
 }
 
-bool Unit::HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const
+bool Unit::HasAuraTypeWithMiscvalue(AuraType auratype, int32 miscvalue) const
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
@@ -4531,7 +4531,7 @@ bool Unit::HasAuraTypeWithMiscvalue(AuraType auratype, uint32 miscvalue) const
     return false;
 }
 
-bool Unit::HasAuraTypeWithValue(AuraType auratype, uint32 value) const
+bool Unit::HasAuraTypeWithValue(AuraType auratype, int32 value) const
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
@@ -9076,7 +9076,7 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
                     if (itr->second->state == PLAYERSPELL_REMOVED || itr->second->disabled) continue;
                     SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
                     if (!spellInfo || !IsPassiveSpell(itr->first)) continue;
-                    if (spellInfo->CasterAuraState == flag)
+                    if (spellInfo->CasterAuraState == uint32(flag))
                         CastSpell(this, itr->first, true, NULL);
                 }
             }
@@ -9088,7 +9088,7 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
                     if (itr->second.state == PETSPELL_REMOVED) continue;
                     SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
                     if (!spellInfo || !IsPassiveSpell(itr->first)) continue;
-                    if (spellInfo->CasterAuraState == flag)
+                    if (spellInfo->CasterAuraState == uint32(flag))
                         CastSpell(this, itr->first, true, NULL);
                 }
             }
@@ -9106,7 +9106,7 @@ void Unit::ModifyAuraState(AuraState flag, bool apply)
                 for (Unit::AuraApplicationMap::iterator itr = tAuras.begin(); itr != tAuras.end();)
                 {
                     SpellEntry const* spellProto = (*itr).second->GetBase()->GetSpellProto();
-                    if (spellProto->CasterAuraState == flag)
+                    if (spellProto->CasterAuraState == uint32(flag))
                         RemoveAura(itr);
                     else
                         ++itr;
@@ -11660,7 +11660,7 @@ bool Unit::canDetectInvisibilityOf(Unit const* u) const
 
     if (uint32 mask = (m_detectInvisibilityMask & u->m_invisibilityMask))
     {
-        for (uint32 i = 0; i < 10; ++i)
+        for (uint8 i = 0; i < 10; ++i)
         {
             if (((1 << i) & mask) == 0)
                 continue;
@@ -11669,7 +11669,7 @@ bool Unit::canDetectInvisibilityOf(Unit const* u) const
             uint32 invLevel = 0;
             Unit::AuraEffectList const& iAuras = u->GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY);
             for (Unit::AuraEffectList::const_iterator itr = iAuras.begin(); itr != iAuras.end(); ++itr)
-                if (((*itr)->GetMiscValue()) == i && invLevel < (*itr)->GetAmount())
+                if (uint8((*itr)->GetMiscValue()) == i && invLevel < (*itr)->GetAmount())
                     invLevel = (*itr)->GetAmount();
 
             // find invisibility detect level
@@ -11682,7 +11682,7 @@ bool Unit::canDetectInvisibilityOf(Unit const* u) const
             {
                 Unit::AuraEffectList const& dAuras = GetAuraEffectsByType(SPELL_AURA_MOD_INVISIBILITY_DETECTION);
                 for (Unit::AuraEffectList::const_iterator itr = dAuras.begin(); itr != dAuras.end(); ++itr)
-                    if (((*itr)->GetMiscValue()) == i && detectLevel < (*itr)->GetAmount())
+                    if (uint8((*itr)->GetMiscValue()) == i && detectLevel < (*itr)->GetAmount())
                         detectLevel = (*itr)->GetAmount();
             }
 
@@ -13782,12 +13782,12 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                     break;
                 case SPELL_AURA_MECHANIC_IMMUNITY:
                     // Compare mechanic
-                    if (procSpell && procSpell->Mechanic == triggeredByAura->GetMiscValue())
+                    if (procSpell && procSpell->Mechanic == uint32(triggeredByAura->GetMiscValue()))
                         takeCharges = true;
                     break;
                 case SPELL_AURA_MOD_MECHANIC_RESISTANCE:
                     // Compare mechanic
-                    if (procSpell && procSpell->Mechanic == triggeredByAura->GetMiscValue())
+                    if (procSpell && procSpell->Mechanic == uint32(triggeredByAura->GetMiscValue()))
                         takeCharges = true;
                     break;
                 case SPELL_AURA_MOD_DAMAGE_FROM_CASTER:

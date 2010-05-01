@@ -161,8 +161,8 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
         isPremade = (grp->GetMembersCount() >= bg->GetMinPlayersPerTeam());
 
         BattleGroundQueue& bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
-        GroupQueueInfo * ginfo;
-        uint32 avgTime;
+        GroupQueueInfo * ginfo = NULL;
+        uint32 avgTime = 0;
 
         if (err > 0)
         {
@@ -590,7 +590,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     uint8 arenaslot;                                        // 2v2, 3v3 or 5v5
     uint8 asGroup;                                          // asGroup
     uint8 isRated;                                          // isRated
-    Group * grp;
+    Group * grp = NULL;
 
     recv_data >> guid >> arenaslot >> asGroup >> isRated;
 
@@ -642,7 +642,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     if (!bracketEntry)
         return;
 
-    GroupJoinBattlegroundResult err;
+    GroupJoinBattlegroundResult err = ERR_GROUP_JOIN_BATTLEGROUND_FAIL;
 
     if (!asGroup)
     {
@@ -704,7 +704,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     BattleGroundQueue &bgQueue = sBattleGroundMgr.m_BattleGroundQueues[bgQueueTypeId];
     if (asGroup)
     {
-        uint32 avgTime;
+        uint32 avgTime = 0;
 
         if (err > 0)
         {
