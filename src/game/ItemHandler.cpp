@@ -746,7 +746,6 @@ void WorldSession::SendListInventory(uint64 vendorguid)
 
     WorldPacket data(SMSG_LIST_INVENTORY, (8+1+numitems*8*4));
     data << uint64(vendorguid);
-    data << uint8(numitems);
 
     size_t count_pos = data.wpos();
     data << uint8(count);
