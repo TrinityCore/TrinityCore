@@ -26,6 +26,7 @@ npc_aged_dying_ancient_kodo
 EndContentData */
 
 #include "ScriptedPch.h"
+#include "ScriptedEscortAI.h" 
 
 enum eDyingKodo
 {
@@ -169,6 +170,70 @@ bool GOHello_go_iruxos(Player *pPlayer, GameObject* /*pGO*/)
         return true;
 }
 
+/*######
+## npc_dalinda_malem. Quest 1440
+######*/
+
+#define QUEST_RETURN_TO_VAHLARRIEL     1440
+
+struct npc_dalindaAI : public npc_escortAI
+{
+    npc_dalindaAI(Creature* pCreature) : npc_escortAI(pCreature) { }   
+        
+    void WaypointReached(uint32 i)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        switch (i)
+        {
+            case 1:
+                me->IsStandState();
+                break;            
+            case 15:                
+                if (pPlayer)
+                pPlayer->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
+                break;            
+        }
+    }
+
+    void EnterCombat(Unit* pWho) { }
+
+    void Reset() {}
+
+    void JustDied(Unit* pKiller)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        if (pPlayer)
+            pPlayer->FailQuest(QUEST_RETURN_TO_VAHLARRIEL);
+        return;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {        
+        npc_escortAI::UpdateAI(uiDiff);
+        if (!UpdateVictim())
+            return;
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_dalinda(Creature* pCreature)
+{
+    return new npc_dalindaAI(pCreature);
+}
+
+bool QuestAccept_npc_dalinda(Player* pPlayer, Creature* pCreature, Quest const* quest)
+{
+    if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
+   {        
+        if (npc_escortAI* pEscortAI = CAST_AI(npc_dalindaAI, pCreature->AI()))
+        {
+            pEscortAI->Start(true, false, pPlayer->GetGUID());
+            pCreature->setFaction(113);
+        }
+    }
+    return true;
+}
+
 void AddSC_desolace()
 {
     Script *newscript;
@@ -184,4 +249,11 @@ void AddSC_desolace()
     newscript->Name = "go_iruxos";
     newscript->pGOHello = &GOHello_go_iruxos;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_dalinda";
+    newscript->GetAI = &GetAI_npc_dalinda;
+    newscript->pQuestAccept = &QuestAccept_npc_dalinda;
+    newscript->RegisterSelf();
+
 }
