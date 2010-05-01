@@ -1260,6 +1260,14 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 45088, true);
                     return;
                 }
+                case 47170:                                 // Impale Leviroth
+                {
+                    if (!unitTarget && unitTarget->GetEntry() != 26452 && ((unitTarget->GetHealth() / unitTarget->GetMaxHealth()) * 100.0f) > 95.0f)
+                    return;
+
+                    m_caster->DealDamage(unitTarget, unitTarget->GetMaxHealth()*0.93f);
+                    return;
+                }
                 case 49625:                                 // Brave's Flare
                 {
                     //Trigger Brave's Flare Effect (with EffectTarget)
