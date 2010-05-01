@@ -29,7 +29,7 @@ EndScriptData */
 
 // highlord mograine
 #define SPELL_MARK_OF_MOGRAINE     28834
-#define SPELL_RIGHTEOUS_FIRE       28882                    // Applied as a 25% chance on melee hit to proc. m_creature->GetVictim()
+#define SPELL_RIGHTEOUS_FIRE       28882                    // Applied as a 25% chance on melee hit to proc. me->GetVictim()
 
 #define SAY_TAUNT1                 "Enough prattling. Let them come! We shall grind their bones to dust."
 #define SAY_TAUNT2                 "Conserve your anger! Harness your rage! You will all have outlets for your frustration soon enough."
@@ -74,21 +74,21 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
 
     void InitialYell()
     {
-        if (!m_creature->isInCombat())
+        if (!me->isInCombat())
         {
             switch(rand()%3)
             {
                 case 0:
                     DoYell(SAY_AGGRO1,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_AGGRO1);
+                    DoPlaySoundToSet(me,SOUND_AGGRO1);
                     break;
                 case 1:
                     DoYell(SAY_AGGRO2,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_AGGRO2);
+                    DoPlaySoundToSet(me,SOUND_AGGRO2);
                     break;
                 case 2:
                     DoYell(SAY_AGGRO3,LANG_UNIVERSAL,NULL);
-                    DoPlaySoundToSet(m_creature,SOUND_AGGRO3);
+                    DoPlaySoundToSet(me,SOUND_AGGRO3);
                     break;
             }
         }
@@ -100,11 +100,11 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
         {
             case 0:
                 DoYell(SAY_SLAY1,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY1);
+                DoPlaySoundToSet(me,SOUND_SLAY1);
                 break;
             case 1:
                 DoYell(SAY_SLAY2,LANG_UNIVERSAL,NULL);
-                DoPlaySoundToSet(m_creature,SOUND_SLAY2);
+                DoPlaySoundToSet(me,SOUND_SLAY2);
                 break;
         }
     }
@@ -112,7 +112,7 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
     void JustDied(Unit* Killer)
     {
         DoYell(SAY_DEATH,LANG_UNIVERSAL,NULL);
-        DoPlaySoundToSet(m_creature, SOUND_DEATH);
+        DoPlaySoundToSet(me, SOUND_DEATH);
     }
 
     void Aggro(Unit *who)
@@ -128,24 +128,24 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
         // Mark of Mograine
         if (Mark_Timer < diff)
         {
-            DoCast(m_creature->getVictim(),SPELL_MARK_OF_MOGRAINE);
+            DoCast(me->getVictim(),SPELL_MARK_OF_MOGRAINE);
             Mark_Timer = 12000;
         }else Mark_Timer -= diff;
 
         // Shield Wall - All 4 horsemen will shield wall at 50% hp and 20% hp for 20 seconds
-        if (ShieldWall1 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 50)
+        if (ShieldWall1 && (me->GetHealth()*100 / me->GetMaxHealth()) < 50)
         {
             if (ShieldWall1)
             {
-                DoCast(m_creature,SPELL_SHIELDWALL);
+                DoCast(me,SPELL_SHIELDWALL);
                 ShieldWall1 = false;
             }
         }
-        if (ShieldWall2 && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 20)
+        if (ShieldWall2 && (me->GetHealth()*100 / me->GetMaxHealth()) < 20)
         {
             if (ShieldWall2)
             {
-                DoCast(m_creature,SPELL_SHIELDWALL);
+                DoCast(me,SPELL_SHIELDWALL);
                 ShieldWall2 = false;
             }
         }
@@ -155,7 +155,7 @@ struct TRINITY_DLL_DECL boss_highlord_mograineAI : public ScriptedAI
         {
             if (rand()%4 == 1)                               // 1/4
             {
-                DoCast(m_creature->getVictim(),SPELL_RIGHTEOUS_FIRE);
+                DoCast(me->getVictim(),SPELL_RIGHTEOUS_FIRE);
             }
             RighteousFire_Timer = 2000;
         }else RighteousFire_Timer -= diff;
