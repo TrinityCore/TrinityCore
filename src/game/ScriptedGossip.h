@@ -172,10 +172,6 @@ extern uint32 GetSkillLevel(Player *player,uint32 skill);
 // Fuctions to send NPC lists, a - is always the npc guid(uint64)
 #define SEND_VENDORLIST(a)         GetSession()->SendListInventory(a)
 #define SEND_TRAINERLIST(a)        GetSession()->SendTrainerList(a)
-#define SEND_BANKERLIST(a)         GetSession()->SendShowBank(a)
-#define SEND_TABARDLIST(a)         GetSession()->SendTabardVendorActivate(a)
-#define SEND_AUCTIONLIST(a)        GetSession()->SendAuctionHello(a)
-#define SEND_TAXILIST(a)           GetSession()->SendTaxiStatus(a)
 
 // Ressurect's the player if is dead.
 #define SEND_SPRESURRECT()         GetSession()->SendSpiritResurrect()
