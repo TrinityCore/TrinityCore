@@ -298,6 +298,123 @@ CreatureAI* GetAI_npc_bushwhacker(Creature* pCreature)
     return new npc_bushwhackerAI(pCreature);
 }
 
+/*######
+## npc_engineer_helice
+######*/
+
+enum eEnums
+{
+    SPELL_EXPLODE_CRYSTAL       = 62487,
+    SPELL_FLAMES                = 64561,    
+    
+    SAY_WP_7                    = -1800047,
+    SAY_WP_6                    = -1800048,
+    SAY_WP_5                    = -1800049,
+    SAY_WP_4                    = -1800050,
+    SAY_WP_3                    = -1800051,
+    SAY_WP_2                    = -1800052,
+    SAY_WP_1                    = -1800053,
+
+    QUEST_DISASTER              = 12688
+};
+
+struct npc_engineer_heliceAI : public npc_escortAI
+{
+    npc_engineer_heliceAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+    
+    uint32 m_uiChatTimer;    
+
+    void WaypointReached(uint32 i)
+    {        
+        Player* pPlayer = GetPlayerForEscort();
+        switch (i)
+        {
+            case 0:
+                DoScriptText(SAY_WP_2, me);
+                break;
+            case 1:     
+                DoScriptText(SAY_WP_3, me);
+                me->CastSpell(5918.33, 5372.91, -98.770, SPELL_EXPLODE_CRYSTAL, true);
+                me->SummonGameObject(184743, 5918.33, 5372.91, -98.770, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds           
+                me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                break;
+            case 2:                
+                DoScriptText(SAY_WP_4, me);
+                break;
+            case 7:
+                DoScriptText(SAY_WP_5, me);
+                break;
+            case 8:              
+                me->CastSpell(5887.37, 5379.39, -91.289, SPELL_EXPLODE_CRYSTAL, true);
+                me->SummonGameObject(184743, 5887.37, 5379.39, -91.289, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds 
+                me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
+                break;
+            case 9:                
+                DoScriptText(SAY_WP_6, me);
+                break;
+            case 13: 
+                if (pPlayer)
+                {
+                    pPlayer->GroupEventHappens(QUEST_DISASTER, me);
+                    DoScriptText(SAY_WP_7, me);
+                }
+                break;
+        }
+    }   
+
+    void Reset()
+    {        
+        m_uiChatTimer = 4000;        
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            if (pPlayer)         
+                pPlayer->FailQuest(QUEST_DISASTER);            
+        }        
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        npc_escortAI::UpdateAI(uiDiff);
+
+        if (HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            if (m_uiChatTimer <= uiDiff)
+            {                 
+                m_uiChatTimer = 12000;
+            }
+            else
+                m_uiChatTimer -= uiDiff;
+        }        
+    }
+};
+
+CreatureAI* GetAI_npc_engineer_helice(Creature* pCreature)
+{
+    return new npc_engineer_heliceAI(pCreature);
+}
+
+bool QuestAccept_npc_engineer_helice(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_DISASTER)  
+    {
+        if (npc_engineer_heliceAI* pEscortAI = CAST_AI(npc_engineer_heliceAI, pCreature->AI()))
+        {            
+            pCreature->GetMotionMaster()->MoveJumpTo(0, 0.4, 0.4);
+            pCreature->setFaction(113);
+
+            pEscortAI->Start(false, false, pPlayer->GetGUID());
+            DoScriptText(SAY_WP_1, pCreature);
+        }
+    }
+    return true;
+}
+
 void AddSC_sholazar_basin()
 {
     Script *newscript;
@@ -324,5 +441,11 @@ void AddSC_sholazar_basin()
     newscript = new Script;
     newscript->Name = "npc_bushwhacker";
     newscript->GetAI = &GetAI_npc_bushwhacker;
+    newscript->RegisterSelf();
+     
+    newscript = new Script;
+    newscript->Name = "npc_engineer_helice";
+    newscript->GetAI = &GetAI_npc_engineer_helice; 
+    newscript->pQuestAccept = &QuestAccept_npc_engineer_helice;
     newscript->RegisterSelf();
 }
