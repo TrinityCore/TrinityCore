@@ -866,9 +866,9 @@ enum Opcodes
     SMSG_INSTANCE_DIFFICULTY                        = 0x33B,
     MSG_GM_RESETINSTANCELIMIT                       = 0x33C,
     SMSG_MOTD                                       = 0x33D,
-    SMSG_MOVE_SET_FLIGHT_OBSOLETE                   = 0x33E,
-    SMSG_MOVE_UNSET_FLIGHT_OBSOLETE                 = 0x33F,
-    CMSG_MOVE_FLIGHT_ACK_OBSOLETE                   = 0x340,
+    SMSG_MOVE_SET_FLIGHT                            = 0x33E,
+    SMSG_MOVE_UNSET_FLIGHT                          = 0x33F,
+    CMSG_MOVE_FLIGHT_ACK                            = 0x340,
     MSG_MOVE_START_SWIM_CHEAT                       = 0x341,
     MSG_MOVE_STOP_SWIM_CHEAT                        = 0x342,
     SMSG_MOVE_SET_CAN_FLY                           = 0x343,
@@ -1330,11 +1330,11 @@ enum Opcodes
     SMSG_UNKNOWN_1291                               = 0x50B, // some item update packet?
     UMSG_UNKNOWN_1292                               = 0x50C, // not found
     SMSG_REDIRECT_CLIENT                            = 0x50D, // uint32 ip, uint16 port, uint32 unk, uint8[20] hash (ip + port, seed=sessionkey)
-    CMSG_UNKNOWN_1294                               = 0x50E, // something with networking
-    UMSG_UNKNOWN_1295                               = 0x50F, // not found - disconnect
+    CMSG_REDIRECTION_FAILED                         = 0x50E, // something with networking
+    SMSG_UNKNOWN_1295                               = 0x50F, // not found - disconnect
     CMSG_UNKNOWN_1296                               = 0x510, // something with networking
-    UMSG_UNKNOWN_1297                               = 0x511, // not found - crash
-    CMSG_UNKNOWN_1298                               = 0x512, // something with networking
+    SMSG_FORCE_SEND_QUEUED_PACKETS                  = 0x511, // not found - crash
+    CMSG_REDIRECTION_AUTH_PROOF                     = 0x512, // something with networking
     UMSG_UNKNOWN_1299                               = 0x513, // not found
     SMSG_UNKNOWN_1300                               = 0x514, // SMSG
     SMSG_UNKNOWN_1301                               = 0x515, // event 0x204 (opens dungeon finder, probably for outdoor bosses)
