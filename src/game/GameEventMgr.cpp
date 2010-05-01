@@ -823,7 +823,7 @@ void GameEventMgr::LoadFromDB()
     sLog.outString("Loading Game Event Vendor Additions Data...");
 
     //                                   0      1      2     3         4         5
-    result = WorldDatabase.Query("SELECT event, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor");
+    result = WorldDatabase.Query("SELECT event, guid, item, maxcount, incrtime, ExtendedCost FROM game_event_npc_vendor ORDER BY guid, slot ASC");
 
     count = 0;
     if (!result)

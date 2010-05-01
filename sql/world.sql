@@ -2093,11 +2093,13 @@ DROP TABLE IF EXISTS `game_event_npc_vendor`;
 CREATE TABLE `game_event_npc_vendor` (
   `event` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `guid` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `slot` smallint(6) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) NOT NULL DEFAULT '0',
   `maxcount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `incrtime` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`guid`,`item`)
+  PRIMARY KEY (`guid`,`item`),
+  INDEX (`slot`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -3687,11 +3689,13 @@ DROP TABLE IF EXISTS `npc_vendor`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `npc_vendor` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `slot` smallint(6) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `maxcount` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `incrtime` int(10) unsigned NOT NULL DEFAULT '0',
   `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`entry`,`item`,`extendedCost`)
+  PRIMARY KEY (`entry`,`item`,`extendedCost`),
+  INDEX (`slot`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Npc System';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
