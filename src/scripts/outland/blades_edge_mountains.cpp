@@ -378,6 +378,100 @@ bool GOHello_go_legion_obelisk(Player* pPlayer, GameObject* pGo)
     return true;
 }
 
+
+/*######
+## npc_bloodmaul_brutebane
+######*/
+
+
+enum eBloodmaul
+{
+    NPC_OGRE_BRUTE        = 19995,
+    NPC_QUEST_CREDIT      = 21241,
+    GO_KEG                = 184315
+};
+
+struct npc_bloodmaul_brutebaneAI : public ScriptedAI
+{
+    npc_bloodmaul_brutebaneAI(Creature *c) : ScriptedAI(c)
+    {
+       if(Creature* Ogre = me->FindNearestCreature(NPC_OGRE_BRUTE, 50, true))
+       {
+           Ogre->SetReactState(REACT_DEFENSIVE);
+           Ogre->GetMotionMaster()->MovePoint(1, me->GetPositionX()-1, me->GetPositionY()+1, me->GetPositionZ());
+       }
+    }
+
+    uint64 OgreGUID;
+
+    void Reset()
+    {
+        OgreGUID = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff) {}
+};
+
+CreatureAI* GetAI_npc_bloodmaul_brutebane(Creature* pCreature)
+{
+    return new npc_bloodmaul_brutebaneAI (pCreature);
+}
+
+/*######
+## npc_ogre_brute
+######*/
+
+struct npc_ogre_bruteAI : public ScriptedAI
+{
+    npc_ogre_bruteAI(Creature *c) : ScriptedAI(c) {}
+
+    uint64 PlayerGUID;
+
+    void Reset()
+    {
+        PlayerGUID = 0;
+    }
+
+    void MoveInLineOfSight(Unit *who)
+    {
+        if (!who || (!who->isAlive())) return;
+
+        if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(10512) == QUEST_STATUS_INCOMPLETE)
+        {
+            PlayerGUID = who->GetGUID();
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        if(id == 1)
+        {
+            GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20);
+            if(Keg)
+                Keg->Delete();
+            me->HandleEmoteCommand(7);
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->GetMotionMaster()->MoveTargetedHome();
+            Creature* Credit = me->FindNearestCreature(NPC_QUEST_CREDIT, 50, true);
+            if(pPlayer)
+                pPlayer->KilledMonster(Credit->GetCreatureInfo(),Credit->GetGUID());
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_ogre_brute(Creature* pCreature)
+{
+    return new npc_ogre_bruteAI(pCreature);
+}
+
 /*######
 ## AddSC
 ######*/
@@ -415,7 +509,17 @@ void AddSC_blades_edge_mountains()
 
     newscript = new Script;
     newscript->Name = "go_legion_obelisk";
-    newscript->pGOHello =           &GOHello_go_legion_obelisk;
+    newscript->pGOHello = &GOHello_go_legion_obelisk;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_bloodmaul_brutebane";
+    newscript->GetAI = &GetAI_npc_bloodmaul_brutebane;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_ogre_brute";
+    newscript->GetAI = &GetAI_npc_ogre_brute;
     newscript->RegisterSelf();
 }
 
