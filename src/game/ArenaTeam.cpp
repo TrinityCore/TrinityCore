@@ -24,12 +24,12 @@
 
 void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
 {
-        if (int32(personal_rating) + mod < 0)
-            personal_rating = 0;
-        else
-            personal_rating += mod;
-        if (plr)
-            plr->SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personal_rating);
+    if (int32(personal_rating) + mod < 0)
+        personal_rating = 0;
+    else
+        personal_rating += mod;
+    if (plr)
+        plr->SetArenaTeamInfoField(slot, ARENA_TEAM_PERSONAL_RATING, personal_rating);
 }
 
 ArenaTeam::ArenaTeam()
@@ -155,9 +155,7 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
             newmember.personal_rating = 1000;
     }
     else
-    {
         newmember.personal_rating = 1500;
-    }
     m_members.push_back(newmember);
 
     CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", m_TeamId, GUID_LOPART(newmember.guid), newmember.personal_rating);
@@ -288,13 +286,11 @@ void ArenaTeam::SetCaptain(const uint64& guid)
 void ArenaTeam::DelMember(uint64 guid)
 {
     for (MemberList::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-    {
         if (itr->guid == guid)
         {
             m_members.erase(itr);
             break;
         }
-    }
 
     if (Player *player = objmgr.GetPlayer(guid))
     {
@@ -311,22 +307,16 @@ void ArenaTeam::Disband(WorldSession *session)
 {
     // event
     if (session)
-    {
         // probably only 1 string required...
         BroadcastEvent(ERR_ARENA_TEAM_DISBANDED_S, 0, 2, session->GetPlayerName(), GetName(), "");
-    }
 
     while (!m_members.empty())
-    {
         // Removing from members is done in DelMember.
         DelMember(m_members.front().guid);
-    }
 
     if (session)
-    {
         if (Player *player = session->GetPlayer())
             sLog.outArena("Player: %s [GUID: %u] disbanded arena team type: %u [Id: %u].", player->GetName(), player->GetGUIDLow(), GetType(), GetId());
-    }
 
     CharacterDatabase.BeginTransaction();
     CharacterDatabase.PExecute("DELETE FROM arena_team WHERE arenateamid = '%u'", m_TeamId);
@@ -765,12 +755,8 @@ void ArenaTeam::FinishWeek()
 bool ArenaTeam::IsFighting() const
 {
     for (MemberList::const_iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
-    {
         if (Player *p = objmgr.GetPlayer(itr->guid))
-        {
             if (p->GetMap()->IsBattleArena())
                 return true;
-        }
-    }
     return false;
 }
