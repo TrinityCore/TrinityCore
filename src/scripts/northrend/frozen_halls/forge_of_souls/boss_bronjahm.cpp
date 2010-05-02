@@ -219,7 +219,7 @@ struct mob_corrupted_soul_fragmentAI : public ScriptedAI
                 Creature* pBronjham = Unit::GetCreature(*me, pInstance->GetData64(DATA_BRONJAHM));
                 if (pBronjham && pBronjham->isAlive())
                 {
-                    if (me->GetDistance(pBronjham) < 2.0f) // TODO: how close should it be?
+                    if (me->IsWithinMeleeRange(pBronjham))
                     {
                         pBronjham->CastSpell(pBronjham, SPELL_CONSUME_SOUL, true);
                         me->ForcedDespawn();
