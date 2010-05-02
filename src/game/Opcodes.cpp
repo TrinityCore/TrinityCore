@@ -1319,7 +1319,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x508*/ { "CMSG_SET_ALLOW_LOW_LEVEL_RAID1",               STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x509*/ { "CMSG_SET_ALLOW_LOW_LEVEL_RAID2",               STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x50A*/ { "SMSG_CAMERA_SHAKE",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
-    /*0x50B*/ { "SMSG_UNKNOWN_1291",                            STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
+    /*0x50B*/ { "SMSG_UPDATE_ITEM_ENCHANTMENTS",                STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x50C*/ { "UMSG_UNKNOWN_1292",                            STATUS_NEVER,    &WorldSession::Handle_NULL                     },
     /*0x50D*/ { "SMSG_REDIRECT_CLIENT",                         STATUS_NEVER,    &WorldSession::Handle_ServerSide               },
     /*0x50E*/ { "CMSG_REDIRECTION_FAILED",                      STATUS_NEVER,    &WorldSession::Handle_NULL                     },
