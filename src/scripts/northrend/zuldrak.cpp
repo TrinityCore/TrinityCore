@@ -1008,6 +1008,31 @@ bool GossipSelect_npc_crusade_recruit(Player* pPlayer, Creature* pCreature, uint
     return true;
 }
 
+/*######
+## Quest 12916: Our Only Hope!
+## go_scourge_enclosure
+######*/
+
+enum eScourgeEnclosure
+{
+    QUEST_OUR_ONLY_HOPE                           = 12916,
+    NPC_GYMER_DUMMY                               = 29928   //from quest template
+};
+
+bool GOHello_go_scourge_enclosure(Player *pPlayer, GameObject *pGO)
+{
+    Creature *pGymerDummy;
+    if (pPlayer->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE &&
+        (pGymerDummy = pGO->FindNearestCreature(NPC_GYMER_DUMMY,20.0f)))
+        {
+                        pGO->UseDoorOrButton();
+                        pPlayer->KilledMonsterCredit(pGymerDummy->GetEntry(),pGymerDummy->GetGUID());
+                        pGymerDummy->CastSpell(pGymerDummy, 55529, true);
+                        pGymerDummy->DisappearAndDie();
+        }
+    return true;
+}
+
 void AddSC_zuldrak()
 {
     Script *newscript;
@@ -1063,5 +1088,10 @@ void AddSC_zuldrak()
     newscript->GetAI = &GetAI_npc_crusade_recruit;
     newscript->pGossipHello = &GossipHello_npc_crusade_recruit;
     newscript->pGossipSelect = &GossipSelect_npc_crusade_recruit;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_scourge_enclosure";
+    newscript->pGOHello = &GOHello_go_scourge_enclosure;
     newscript->RegisterSelf();
 }
