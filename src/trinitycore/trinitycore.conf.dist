@@ -99,9 +99,8 @@ EAIErrorLevel = 2
 #        Maximum number of players in the world. Excluding Mods, GMs and Admins
 #        Default: 100
 #                 0 (for infinite players)
-#                -1 (for Mods, GM's and Admins only)
-#                -2 (for GM's and Admins only)
-#                -3 (for Admins only)
+#                 If you want to block players and enable Mods, GMs or Admins use
+#                 DB field realmd.realmlist.allowedSecurityLevel
 #
 #    SaveRespawnTimeImmediately
 #        Save respawn time for creatures at death and gameobjects at use/open
