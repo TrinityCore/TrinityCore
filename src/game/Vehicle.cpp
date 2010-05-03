@@ -342,8 +342,9 @@ void Vehicle::RemovePassenger(Unit *unit)
     if (me->GetTypeId() == TYPEID_UNIT && me->ToCreature()->IsAIEnabled)
         me->ToCreature()->AI()->PassengerBoarded(unit, seat->first, false);
 
-    // only for flyable vehicles?
-    //CastSpell(this, 45472, true);                           // Parachute
+    // only for flyable vehicles
+    if (unit->HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
+        me->CastSpell(unit, 45472, true);                           // Parachute
 }
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
