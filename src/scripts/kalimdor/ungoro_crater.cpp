@@ -30,12 +30,12 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 
-#define SAY_READY -1000200
-#define SAY_AGGRO1 -1000201
-#define SAY_SEARCH -1000202
-#define SAY_AGGRO2 -1000203
-#define SAY_AGGRO3 -1000204
-#define SAY_FINISH -1000205
+#define SAY_READY -1100200
+#define SAY_AGGRO1 -1100201
+#define SAY_SEARCH -1100202
+#define SAY_AGGRO2 -1100203
+#define SAY_AGGRO3 -1100204
+#define SAY_FINISH -1100205
 
 #define SPELL_DEMORALIZINGSHOUT  13730
 

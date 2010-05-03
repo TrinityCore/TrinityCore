@@ -397,10 +397,10 @@ bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 /*uiSen
 ## npc_isla_starmane
 ######*/
 
-#define SAY_PROGRESS_1  -1000353
-#define SAY_PROGRESS_2  -1000354
-#define SAY_PROGRESS_3  -1000355
-#define SAY_PROGRESS_4  -1000356
+#define SAY_PROGRESS_1  -1100353
+#define SAY_PROGRESS_2  -1100354
+#define SAY_PROGRESS_3  -1100355
+#define SAY_PROGRESS_4  -1100356
 
 #define QUEST_EFTW_H    10052
 #define QUEST_EFTW_A    10051
