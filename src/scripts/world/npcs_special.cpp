@@ -2077,6 +2077,9 @@ enum ePetTrainer
 
 bool GossipHello_npc_pet_trainer(Player* pPlayer, Creature* pCreature)
 {
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
     if (pPlayer->getClass() == CLASS_HUNTER)
     {
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_PET1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
