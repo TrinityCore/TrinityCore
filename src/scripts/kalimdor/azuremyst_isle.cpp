@@ -383,15 +383,15 @@ enum eGeezle
 
     SPELL_TREE_DISGUISE = 30298,
 
-    GEEZLE_SAY_1    = -1000259,
-    SPARK_SAY_2     = -1000260,
-    SPARK_SAY_3     = -1000261,
-    GEEZLE_SAY_4    = -1000262,
-    SPARK_SAY_5     = -1000263,
-    SPARK_SAY_6     = -1000264,
-    GEEZLE_SAY_7    = -1000265,
+    GEEZLE_SAY_1    = -1100259,
+    SPARK_SAY_2     = -1100260,
+    SPARK_SAY_3     = -1100261,
+    GEEZLE_SAY_4    = -1100262,
+    SPARK_SAY_5     = -1100263,
+    SPARK_SAY_6     = -1100264,
+    GEEZLE_SAY_7    = -1100265,
 
-    EMOTE_SPARK     = -1000266,
+    EMOTE_SPARK     = -1100266,
 
     MOB_SPARK       = 17243,
     GO_NAGA_FLAG    = 181694

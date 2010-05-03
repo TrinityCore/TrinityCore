@@ -31,7 +31,7 @@ EndContentData */
 ## npc_henze_faulk
 ######*/
 
-#define SAY_HEAL -1000280
+#define SAY_HEAL -1100280
 
 struct npc_henze_faulkAI : public ScriptedAI
 {
