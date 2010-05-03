@@ -32,7 +32,7 @@ EndContentData */
 ######*/
 
 // signed for 6172
-#define SAY_HEAL -1000280
+#define SAY_HEAL -1100280
 
 struct npc_narm_faulkAI : public ScriptedAI
 {
