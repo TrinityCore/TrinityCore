@@ -86,11 +86,22 @@ void LoadRandomEnchantmentsTable()
     }
 }
 
-uint32 GetItemEnchantMod(uint32 entry)
+uint32 GetItemEnchantMod(int32 entry)
 {
-    if (!entry) return 0;
+    if (!entry)
+        return 0;
 
-    EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);
+    EnchantmentStore::const_iterator tab;
+
+    if (entry == -1)
+    {
+        tab = RandomItemEnch.begin();
+        entry = urand(1, RandomItemEnch.size()) - 1;
+        for (uint32 i = 0; i < entry; ++i)
+            ++tab;
+    }
+    else
+        tab = RandomItemEnch.find(entry);
 
     if (tab == RandomItemEnch.end())
     {
