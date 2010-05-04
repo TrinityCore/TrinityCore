@@ -121,8 +121,14 @@ namespace Trinity
             if (xp_gain == 0)
                 return 0;
 
+            //elites in instances have a 2.75x xp bonus instead of the regular 2x world bonus
             if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
-                xp_gain *= 2;
+            {
+                if(u->GetMap() && u->GetMap()->IsDungeon())
+                    xp_gain *= 2.75;
+                else
+                    xp_gain *= 2;
+            }
 
             return uint32(xp_gain*sWorld.getRate(RATE_XP_KILL));
         }
