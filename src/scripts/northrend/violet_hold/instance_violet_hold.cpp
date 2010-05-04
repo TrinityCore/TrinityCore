@@ -305,7 +305,7 @@ struct instance_violet_hold : public ScriptedInstance
                 break;
             case BOSS_ICHORON:
                 HandleGameObject(uiIchoronCell,bForceRespawn);
-                instance->GetCreature(uiIchoron);
+                pBoss = instance->GetCreature(uiIchoron);
                 if (pBoss)
                     pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
