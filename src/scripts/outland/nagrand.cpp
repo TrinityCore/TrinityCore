@@ -620,9 +620,10 @@ struct npc_maghar_captiveAI : public npc_escortAI
         }
     }
 
-    void UpdateEscortAI(const uint32 uiDiff)
+    void UpdateAI(const uint32 uiDiff)
     {
-        if (/*!me->SelectHostilTarget() ||*/ !me->getVictim())
+        npc_escortAI::UpdateAI(uiDiff);
+        if (!me->getVictim())
             return;
 
         if (m_uiChainLightningTimer <= uiDiff)
