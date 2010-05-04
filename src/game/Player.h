@@ -2266,6 +2266,7 @@ class Player : public Unit, public GridObject<Player>
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player *player, Group *group = NULL, uint64 player_guid = 0);
         bool Satisfy(AccessRequirement const*, uint32 target_map, bool report = false);
+        bool CheckInstanceLoginValid();
 
         // last used pet number (for BG's)
         uint32 GetLastPetNumber() const { return m_lastpetnumber; }
