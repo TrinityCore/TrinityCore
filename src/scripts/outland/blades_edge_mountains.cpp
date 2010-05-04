@@ -436,7 +436,7 @@ struct npc_ogre_bruteAI : public ScriptedAI
     {
         if (!who || (!who->isAlive())) return;
 
-        if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && CAST_PLR(who)->GetQuestStatus(10512) == QUEST_STATUS_INCOMPLETE)
+        if (me->IsWithinDistInMap(who, 50.0f) && (who->GetTypeId() == TYPEID_PLAYER) && who->ToPlayer()->GetQuestStatus(10512) == QUEST_STATUS_INCOMPLETE)
         {
             PlayerGUID = who->GetGUID();
         }
@@ -445,17 +445,17 @@ struct npc_ogre_bruteAI : public ScriptedAI
     void MovementInform(uint32 type, uint32 id)
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
-        if(id == 1)
+        if (id == 1)
         {
             GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20);
-            if(Keg)
+            if (Keg)
                 Keg->Delete();
             me->HandleEmoteCommand(7);
             me->SetReactState(REACT_AGGRESSIVE);
             me->GetMotionMaster()->MoveTargetedHome();
             Creature* Credit = me->FindNearestCreature(NPC_QUEST_CREDIT, 50, true);
-            if(pPlayer)
-                pPlayer->KilledMonster(Credit->GetCreatureInfo(),Credit->GetGUID());
+            if (pPlayer && Credit)
+                pPlayer->KilledMonster(Credit->GetCreatureInfo(), Credit->GetGUID());
         }
     }
 
