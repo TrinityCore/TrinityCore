@@ -794,14 +794,9 @@ void BattleGround::EndBattleGround(uint32 winner)
             }
         }
 
+        // Reward winner team
         if (team == winner)
-        {
-            RewardMark(plr,ITEM_WINNER_COUNT);
-            RewardQuestComplete(plr);
             plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_BG, 1);
-        }
-        else if (winner)
-            RewardMark(plr,ITEM_LOSER_COUNT);
 
         plr->SetHealth(plr->GetMaxHealth());
         plr->SetPower(POWER_MANA, plr->GetMaxPower(POWER_MANA));
@@ -855,6 +850,7 @@ uint32 BattleGround::GetBattlemasterEntry() const
     }
 }
 
+/*
 void BattleGround::RewardMark(Player *plr,uint32 count)
 {
     BattleGroundMarks mark;
@@ -988,7 +984,7 @@ void BattleGround::RewardQuestComplete(Player *plr)
 
     RewardSpellCast(plr, quest);
 }
-
+*/
 void BattleGround::BlockMovement(Player *plr)
 {
     plr->SetClientControl(plr, 0);                          // movement disabled NOTE: the effect will be automatically removed by client when the player is teleported from the battleground, so no need to send with uint8(1) in RemovePlayerAtLeave()
