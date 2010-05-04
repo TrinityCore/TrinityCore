@@ -5410,6 +5410,7 @@ bool Player::UpdateSkill(uint32 skill_id, uint32 step)
         SetUInt32Value(valueIndex,MAKE_SKILL_VALUE(new_value,max));
         if (itr->second.uState != SKILL_NEW)
             itr->second.uState = SKILL_CHANGED;
+        UpdateSkillEnchantments(skill_id, value, new_value);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL,skill_id);
         return true;
     }
@@ -5550,6 +5551,7 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
                 break;
             }
         }
+        UpdateSkillEnchantments(SkillId, SkillValue, new_value);
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL,SkillId);
         sLog.outDebug("Player::UpdateSkillPro Chance=%3.1f%% taken", Chance/10.0);
         return true;
@@ -5728,30 +5730,40 @@ void Player::UpdateSkillsToMaxSkillsForLevel()
 
 // This functions sets a skill line value (and adds if doesn't exist yet)
 // To "remove" a skill line, set it's values to zero
-void Player::SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal)
+void Player::SetSkill(uint16 id, uint16 step, uint16 newVal, uint16 maxVal)
 {
     if (!id)
         return;
 
+    uint16 currVal;
     SkillStatusMap::iterator itr = mSkillStatus.find(id);
 
     //has skill
     if (itr != mSkillStatus.end() && itr->second.uState != SKILL_DELETED)
     {
-        if (currVal)
+        currVal = SKILL_VALUE(GetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos)));
+        if (newVal)
         {
+            // if skill value is going down, update enchantments before setting the new value
+            if (newVal < currVal)
+                UpdateSkillEnchantments(id, currVal, newVal);
             // update step
-            SetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos), MAKE_PAIR32(id, step));
+            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos), MAKE_PAIR32(id, step));
             // update value
-            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos),MAKE_SKILL_VALUE(currVal,maxVal));
+            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos),MAKE_SKILL_VALUE(newVal,maxVal));
             if (itr->second.uState != SKILL_NEW)
                 itr->second.uState = SKILL_CHANGED;
-            learnSkillRewardedSpells(id, currVal);
+            learnSkillRewardedSpells(id, newVal);
+            // if skill value is going up, update enchantments after setting the new value
+            if (newVal > currVal)
+                UpdateSkillEnchantments(id, currVal, newVal);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL,id);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL,id);
         }
         else                                                //remove
         {
+            //remove enchantments needing this skill
+            UpdateSkillEnchantments(id, currVal, 0);
             // clear skill fields
             SetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos),0);
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos),0);
@@ -5770,8 +5782,9 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal)
                         removeSpell(spellmgr.GetFirstSpellInChain(pAbility->spellId));
         }
     }
-    else if (currVal)                                        //add
+    else if (newVal)                                        //add
     {
+        currVal = 0;
         for (int i=0; i < PLAYER_MAX_SKILLS; ++i)
             if (!GetUInt32Value(PLAYER_SKILL_INDEX(i)))
         {
@@ -5783,7 +5796,8 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal)
             }
 
             SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id, step));
-            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(currVal, maxVal));
+            SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(newVal, maxVal));
+            UpdateSkillEnchantments(id, currVal, newVal);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
 
@@ -5812,7 +5826,7 @@ void Player::SetSkill(uint16 id, uint16 step, uint16 currVal, uint16 maxVal)
                         (*j)->HandleEffect(this, 0, true);
 
             // Learn all spells for skill
-            learnSkillRewardedSpells(id, currVal);
+            learnSkillRewardedSpells(id, newVal);
             return;
         }
     }
@@ -13108,6 +13122,35 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
         {
             // duration == 0 will remove EnchantDuration
             AddEnchantmentDuration(item, slot, 0);
+        }
+    }
+}
+
+void Player::UpdateSkillEnchantments(uint16 skill_id, uint16 curr_value, uint16 new_value)
+{
+    for (uint8 i = 0; i < INVENTORY_SLOT_BAG_END; ++i)
+    {
+        if (m_items[i])
+        {
+            for (uint8 slot = 0; slot < MAX_ENCHANTMENT_SLOT; ++slot)
+            {
+                uint32 ench_id = m_items[i]->GetEnchantmentId(EnchantmentSlot(slot));
+                if (!ench_id)
+                    continue;
+
+                SpellItemEnchantmentEntry const *Enchant = sSpellItemEnchantmentStore.LookupEntry(ench_id);
+                if (!Enchant)
+                    return;
+
+                if (Enchant->requiredSkill == skill_id)
+                {
+                    // Checks if the enchantment needs to be applied or removed
+                    if (curr_value < Enchant->requiredSkillValue && new_value >= Enchant->requiredSkillValue)
+                        ApplyEnchantment(m_items[i], EnchantmentSlot(slot), true);
+                    else if (new_value < Enchant->requiredSkillValue && curr_value >= Enchant->requiredSkillValue)
+                        ApplyEnchantment(m_items[i], EnchantmentSlot(slot), false);
+                }
+            }
         }
     }
 }
