@@ -570,7 +570,7 @@ struct ItemPrototype
     int32  Material;                                        // id from Material.dbc
     uint32 Sheath;
     int32  RandomProperty;                                  // id from ItemRandomProperties.dbc
-    uint32 RandomSuffix;                                    // id from ItemRandomSuffix.dbc
+    int32  RandomSuffix;                                    // id from ItemRandomSuffix.dbc
     uint32 Block;
     uint32 ItemSet;                                         // id from ItemSet.dbc
     uint32 MaxDurability;
