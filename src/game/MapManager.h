@@ -118,7 +118,7 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
         typedef std::map<uint32, TransportSet> TransportMap;
         TransportMap m_TransportsByMap;
 
-        bool CanPlayerEnter(uint32 mapid, Player* player);
+        bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
         void RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y);
         uint32 GenerateInstanceId() { return ++i_MaxInstanceId; }
         void InitMaxInstanceId();
