@@ -157,7 +157,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
     return ((MapInstanced*)map)->FindMap(instanceId);
 }
 
-bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
+bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
 {
     const MapEntry *entry = sMapStore.LookupEntry(mapid);
     if (!entry)
@@ -263,7 +263,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                     int8 maxPlayers = mapDiff ? mapDiff->maxPlayers : 0;
                     if (maxPlayers != -1) //-1: unlimited access
                     {
-                        if (boundedMap->GetPlayersCountExceptGMs() >= maxPlayers)
+                        if (loginCheck ? boundedMap->GetPlayersCountExceptGMs() > maxPlayers : boundedMap->GetPlayersCountExceptGMs() >= maxPlayers)
                         {
                             sLog.outDebug("MAP: Player '%s' can't enter instance '%s' because it's full.", player->GetName(), mapName);
                             player->SendTransferAborted(mapid, TRANSFER_ABORT_MAX_PLAYERS);

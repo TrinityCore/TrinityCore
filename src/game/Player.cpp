@@ -1826,7 +1826,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
         // Check enter rights before map getting to avoid creating instance copy for player
         // this check not dependent from map instance copy and same for all instance copies of selected map
-        if (!MapManager::Instance().CanPlayerEnter(mapid, this))
+        if (!MapManager::Instance().CanPlayerEnter(mapid, this, false))
             return false;
 
         // If the map is not created, assume it is possible to enter it.
@@ -17345,6 +17345,31 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
         }
     }
     return true;
+}
+
+bool Player::CheckInstanceLoginValid()
+{
+    if (!GetMap())
+        return false;
+
+    if (!GetMap()->IsDungeon() || isGameMaster())
+        return true;
+
+    if (GetMap()->IsRaid())
+    {
+        // cannot be in raid instance without a group
+        if (!GetGroup())
+            return false;
+    }
+    else
+    {
+        // cannot be in normal instance without a group and more players than 1 in instance
+        if (!GetGroup() && GetMap()->GetPlayersCountExceptGMs() > 1)
+            return false;
+    }
+
+    // do checks for satisfy accessreqs, instance full, encounter in progress (raid), perm bind group != perm bind player
+    return MapManager::Instance().CanPlayerEnter(GetMap()->GetId(), this, true);
 }
 
 bool Player::_LoadHomeBind(QueryResult_AutoPtr result)

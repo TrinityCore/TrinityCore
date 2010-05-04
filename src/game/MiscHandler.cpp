@@ -48,6 +48,8 @@
 #include "CreatureAI.h"
 #include "DBCEnums.h"
 #include "ScriptMgr.h"
+#include "MapManager.h"
+#include "InstanceData.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 {
@@ -914,6 +916,25 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
 
     if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
         return;
+
+    // check if player can enter instance : instance not full, and raid instance not in encounter fight
+    if (Map * newMap = MapManager::Instance().CreateMap(at->target_mapId, GetPlayer(), 0))
+    {
+        if (newMap && newMap->IsDungeon() && ((InstanceMap*)newMap)->GetInstanceData() && ((InstanceMap*)newMap)->GetMapDifficulty())
+        {
+            if (newMap->GetPlayersCountExceptGMs() >= ((InstanceMap*)newMap)->GetMapDifficulty()->maxPlayers)
+            {
+                GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_MAX_PLAYERS);
+                return;
+            }
+
+            if (newMap->IsRaid() && ((InstanceMap*)newMap)->GetInstanceData()->IsEncounterInProgress())
+            {
+                GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_ZONE_IN_COMBAT);
+                return;
+            }
+        }
+    }
 
     GetPlayer()->TeleportTo(at->target_mapId,at->target_X,at->target_Y,at->target_Z,at->target_Orientation,TELE_TO_NOT_LEAVE_TRANSPORT);
 }

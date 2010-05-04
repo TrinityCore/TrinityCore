@@ -5899,15 +5899,30 @@ void ObjectMgr::LoadAccessRequirements()
 }
 
 /*
- * Searches for the areatrigger which teleports players out of the given map
+ * Searches for the areatrigger which teleports players out of the given map with instance_template.parent field support
  */
 AreaTrigger const* ObjectMgr::GetGoBackTrigger(uint32 Map) const
 {
+    bool useParentDbValue = false;
+    uint32 parentId = 0;
     const MapEntry *mapEntry = sMapStore.LookupEntry(Map);
-    if (!mapEntry || mapEntry->entrance_map < 0) return NULL;
+    if (!mapEntry || mapEntry->entrance_map < 0)
+        return NULL;
+
+    if (mapEntry->IsDungeon())
+    {
+        const InstanceTemplate *iTemplate = objmgr.GetInstanceTemplate(Map);
+
+        if (!iTemplate)
+            return NULL;
+
+        parentId = iTemplate->parent;
+        useParentDbValue = true;
+    }
+
     uint32 entrance_map = uint32(mapEntry->entrance_map);
     for (AreaTriggerMap::const_iterator itr = mAreaTriggers.begin(); itr != mAreaTriggers.end(); ++itr)
-        if (itr->second.target_mapId == entrance_map)
+        if ((!useParentDbValue && itr->second.target_mapId == entrance_map) || (useParentDbValue && itr->second.target_mapId == parentId))
         {
             AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(itr->first);
             if (atEntry && atEntry->mapid == Map)
