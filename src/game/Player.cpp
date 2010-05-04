@@ -782,12 +782,6 @@ bool Player::Create(uint32 guidlow, const std::string& name, uint8 race, uint8 c
                 if (iProto->Stackable < count)
                     count = iProto->Stackable;
             }
-            // special amount for daggers
-            else if (iProto->Class == ITEM_CLASS_WEAPON && iProto->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-            {
-                count = 2;                                  // will placed to 2 slots
-            }
-
             StoreNewItemInBestSlots(item_id, count);
         }
     }
