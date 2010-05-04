@@ -1616,7 +1616,15 @@ Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
 
     pCreature->SetHomePosition(x, y, z, o);
 
-    //pCreature->SetDungeonDifficulty(0);
+    CreatureInfo const *cinfo = objmgr.GetCreatureTemplate(entry);
+    if (!cinfo)
+    {
+        sLog.outErrorDb("BattleGround::AddCreature: entry %u does not exist.", entry);
+        return NULL;
+    }
+    //force using DB speeds
+    pCreature->SetSpeed(MOVE_WALK,  cinfo->speed_walk);
+    pCreature->SetSpeed(MOVE_RUN,   cinfo->speed_run);
 
     map->Add(pCreature);
     m_BgCreatures[type] = pCreature->GetGUID();
