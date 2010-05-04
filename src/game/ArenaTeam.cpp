@@ -147,18 +147,16 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     newmember.wins_week         = 0;
     newmember.personal_rating   = 0;
 
-    if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
-    {
-        if (GetRating() < 1000)
-            newmember.personal_rating = GetRating();
-        else
-            newmember.personal_rating = 1000;
-    }
-    else
-        newmember.personal_rating = 1500;
-
     if (sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
         newmember.personal_rating = sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+    else
+    {
+        if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) < 6)
+            newmember.personal_rating = 1500;
+        else
+            if (GetRating() >= 1000)
+                newmember.personal_rating = 1000;
+    }
 
     m_members.push_back(newmember);
 
