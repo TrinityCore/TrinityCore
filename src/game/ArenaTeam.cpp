@@ -145,9 +145,9 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     newmember.games_week        = 0;
     newmember.wins_season       = 0;
     newmember.wins_week         = 0;
-    if (sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING) >= 0)
-    newmember.personal_rating = sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING);
-    else if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
+    newmember.personal_rating   = 0;
+
+    if (sWorld.getConfig(CONFIG_ARENA_SEASON_ID) >= 6)
     {
         if (GetRating() < 1000)
             newmember.personal_rating = GetRating();
@@ -156,6 +156,10 @@ bool ArenaTeam::AddMember(const uint64& PlayerGuid)
     }
     else
         newmember.personal_rating = 1500;
+
+    if (sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING) > 0)
+        newmember.personal_rating = sWorld.getConfig(CONFIG_ARENA_START_PERSONAL_RATING);
+
     m_members.push_back(newmember);
 
     CharacterDatabase.PExecute("INSERT INTO arena_team_member (arenateamid, guid, personal_rating) VALUES ('%u', '%u', '%u')", m_TeamId, GUID_LOPART(newmember.guid), newmember.personal_rating);
