@@ -2491,7 +2491,7 @@ uint32 Unit::CalculateDamage(WeaponAttackType attType, bool normalized, bool add
 
 float Unit::CalculateLevelPenalty(SpellEntry const* spellProto) const
 {
-    if (spellProto->spellLevel <= 0)
+    if (spellProto->spellLevel <= 0 || spellProto->spellLevel >= spellProto->maxLevel)
         return 1.0f;
 
     float LvlPenalty = 0.0f;
@@ -4033,7 +4033,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                 {
                     int32 damage = aurEff->GetAmount()*9;
                     // backfire damage and silence
-                    dispeller->CastCustomSpell(dispeller, 31117, &damage, NULL, NULL, true, NULL, NULL, GetGUID());
+                    dispeller->CastCustomSpell(dispeller, 31117, &damage, NULL, NULL, true, NULL, NULL, aura->GetCasterGUID());
                 }
             }
             // Flame Shock
