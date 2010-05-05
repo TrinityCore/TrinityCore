@@ -63,13 +63,15 @@ TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 bool VendorItemData::RemoveItem(uint32 item_id)
 {
     bool found = false;
-    for (VendorItemList::iterator i = m_items.begin(); i != m_items.end(); ++i)
+    for (VendorItemList::iterator i = m_items.begin(); i != m_items.end();)
     {
         if ((*i)->item == item_id)
         {
-            i = m_items.erase(i);
+            i = m_items.erase(i++);
             found = true;
         }
+        else
+            ++i;
     }
     return found;
 }
