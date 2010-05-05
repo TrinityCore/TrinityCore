@@ -933,11 +933,9 @@ void MailDraft::SendMailTo(MailReceiver const& receiver, MailSender const& sende
 
     // Add to DB
     std::string safe_subject = GetSubject();
-    CharacterDatabase.BeginTransaction();
-    CharacterDatabase.escape_string(safe_subject);
-
     std::string safe_body = GetBody();
     CharacterDatabase.BeginTransaction();
+    CharacterDatabase.escape_string(safe_subject);
     CharacterDatabase.escape_string(safe_body);
 
     CharacterDatabase.PExecute("INSERT INTO mail (id,messageType,stationery,mailTemplateId,sender,receiver,subject,body,has_items,expire_time,deliver_time,money,cod,checked) "
