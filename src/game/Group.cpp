@@ -109,7 +109,7 @@ bool Group::Create(const uint64 &guid, const char * name)
         CharacterDatabase.BeginTransaction();
         CharacterDatabase.PExecute("DELETE FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(m_leaderGuid));
         CharacterDatabase.PExecute("DELETE FROM group_member WHERE leaderGuid ='%u'", GUID_LOPART(m_leaderGuid));
-        CharacterDatabase.PExecute("INSERT INTO groups (leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,isRaid,difficulty,raiddifficulty) "
+        CharacterDatabase.PExecute("INSERT INTO groups (leaderGuid,lootMethod,looterGuid,lootThreshold,icon1,icon2,icon3,icon4,icon5,icon6,icon7,icon8,groupType,difficulty,raiddifficulty) "
             "VALUES ('%u','%u','%u','%u','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','" UI64FMTD "','%u','%u','%u')",
             GUID_LOPART(m_leaderGuid), uint32(m_lootMethod),
             GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6], m_targetIcons[7], uint8(m_groupType), uint32(m_dungeonDifficulty), m_raidDifficulty);
@@ -135,8 +135,8 @@ bool Group::LoadGroupFromDB(const uint64 &leaderGuid, QueryResult_AutoPtr result
     if (!result)
     {
         external = false;
-        //                                        0           1           2              3      4      5      6      7      8      9      10     11      12          13
-        result = CharacterDatabase.PQuery("SELECT lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, isRaid, difficulty, raiddifficulty FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
+        //                                        0           1           2              3      4      5      6      7      8      9      10     11         12          13
+        result = CharacterDatabase.PQuery("SELECT lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raiddifficulty FROM groups WHERE leaderGuid ='%u'", GUID_LOPART(leaderGuid));
         if (!result)
             return false;
     }
@@ -213,7 +213,7 @@ void Group::ConvertToRaid()
     _initRaidSubGroupsCounter();
 
     if (!isBGGroup())
-        CharacterDatabase.PExecute("UPDATE groups SET isRaid = 1 WHERE leaderGuid='%u'", GUID_LOPART(m_leaderGuid));
+        CharacterDatabase.PExecute("UPDATE groups SET groupType='%u' WHERE leaderGuid='%u'", uint8(m_groupType), GUID_LOPART(m_leaderGuid));
     SendUpdate();
 
     // update quest related GO states (quest activity dependent from raid membership)
