@@ -68,7 +68,8 @@ namespace ACE_Based
             //! Gets the next result in the queue, if any.
             bool next(T& result)
             {
-                ACE_Guard<LockType> g(this->_lock);
+               // ACE_Guard<LockType> g(this->_lock);
+                ACE_GUARD_RETURN (LockType, g, this->_lock, false);
 
                 if (_queue.empty())
                     return false;
