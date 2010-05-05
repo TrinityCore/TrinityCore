@@ -275,10 +275,14 @@ bool WorldSession::Update(uint32 /*diff*/)
         delete packet;
     }
 
+    ///- If necessary, kick the player from the character select screen
+    if (IsConnectionIdle())
+        m_Socket->CloseSocket();
+
     ///- Cleanup socket pointer if need
-    if (m_Socket && m_Socket->IsClosed ())
+    if (m_Socket && m_Socket->IsClosed())
     {
-        m_Socket->RemoveReference ();
+        m_Socket->RemoveReference();
         m_Socket = NULL;
     }
 
@@ -286,10 +290,6 @@ bool WorldSession::Update(uint32 /*diff*/)
     time_t currTime = time(NULL);
     if (!m_Socket || (ShouldLogOut(currTime) && !m_playerLoading))
         LogoutPlayer(true);
-
-    ///- If necessary, kick the player from the character select screen
-    if (IsConnectionIdle())
-        return false;
 
     if (!m_Socket)
         return false;                                       //Will remove this session from the world session map
