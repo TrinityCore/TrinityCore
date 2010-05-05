@@ -25,7 +25,7 @@ DROP TABLE IF EXISTS `account_access`;
 CREATE TABLE `account_access` (
   `id` int(11) unsigned NOT NULL,
   `gmlevel` tinyint(3) unsigned NOT NULL,
-  `RealmID` int(11) NOT NULL,
+  `RealmID` int(11) NOT NULL default '-1',
   PRIMARY KEY  (`id`,`RealmID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
