@@ -1527,7 +1527,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
                     return;
 
                 map = pGroupGuy->GetMap();
-                if (map && map->IsRaidOrHeroicDungeon())
+                if (map && map->IsNonRaidDungeon())
                 {
                     sLog.outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
                     return;
@@ -1588,9 +1588,9 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
                     return;
 
                 map = pGroupGuy->GetMap();
-                if (map && map->IsRaidOrHeroicDungeon())
+                if (map && map->IsRaid())
                 {
-                    sLog.outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+                    sLog.outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
                     return;
                 }
             }
