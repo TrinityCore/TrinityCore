@@ -186,8 +186,8 @@ void CreatureGroup::MemberAttackStart(Creature *member, Unit *target)
 
     for (CreatureGroupMemberType::iterator itr = m_members.begin(); itr != m_members.end(); ++itr)
     {
-        sLog.outDebug("GROUP ATTACK: group instance id %u calls member instid %u", m_leader->GetInstanceId(), member->GetInstanceId());
-        //sLog.outDebug("AI:%u:Group member found: %u, attacked by %s.", groupAI, itr->second->GetGUIDLow(), member->getVictim()->GetName());
+        if (m_leader) // avoid crash if leader was killed and reset.
+            sLog.outDebug("GROUP ATTACK: group instance id %u calls member instid %u", m_leader->GetInstanceId(), member->GetInstanceId());
 
         //Skip one check
         if (itr->first == member)
@@ -199,7 +199,7 @@ void CreatureGroup::MemberAttackStart(Creature *member, Unit *target)
         if (itr->first->getVictim())
             continue;
 
-        if (itr->first->canAttack(target))
+        if (itr->first->canAttack(target) && itr->first->AI())
             itr->first->AI()->AttackStart(target);
     }
 }
