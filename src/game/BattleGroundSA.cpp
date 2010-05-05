@@ -248,7 +248,7 @@ void BattleGroundSA::Update(uint32 diff)
         {
             if (TotalTime >= BG_SA_ROUNDLENGTH)
             {
-                RoundScores[0].time = TotalTime;
+                RoundScores[0].time = BG_SA_ROUNDLENGTH;
                 TotalTime = 0;
                 status = BG_SA_SECOND_WARMUP;
                 attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
@@ -263,7 +263,7 @@ void BattleGroundSA::Update(uint32 diff)
         {
             if (TotalTime >= BG_SA_ROUNDLENGTH)
             {
-                RoundScores[1].time = TotalTime;
+                RoundScores[1].time = BG_SA_ROUNDLENGTH;
                 RoundScores[1].winner = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
 
                 if (RoundScores[0].time == RoundScores[1].time)
