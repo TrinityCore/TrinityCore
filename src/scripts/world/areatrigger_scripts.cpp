@@ -181,6 +181,27 @@ bool AreaTrigger_at_stormwright_shelf(Player* pPlayer, const AreaTriggerEntry* /
     return true;
 }
 
+/*######
+## at_scent_larkorwi
+######*/
+
+enum eScentLarkorwi
+{
+    QUEST_SCENT_OF_LARKORWI                     = 4291,
+    NPC_LARKORWI_MATE                           = 9683
+};
+
+bool AreaTrigger_at_scent_larkorwi(Player* pPlayer, const AreaTriggerEntry* pAt)
+{
+    if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
+    {
+        if (!pPlayer->FindNearestCreature(NPC_LARKORWI_MATE,15))
+            pPlayer->SummonCreature(NPC_LARKORWI_MATE, pPlayer->GetPositionX()+5, pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 3.3, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+    }
+
+    return false;
+}
+
 /*#####
 ## at_last_rites
 #####*/
@@ -250,6 +271,11 @@ void AddSC_areatrigger_scripts()
     newscript = new Script;
     newscript->Name = "at_stormwright_shelf";
     newscript->pAreaTrigger = &AreaTrigger_at_stormwright_shelf;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "at_scent_larkorwi";
+    newscript->pAreaTrigger = &AreaTrigger_at_scent_larkorwi;
     newscript->RegisterSelf();
 
     newscript = new Script;
