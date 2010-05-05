@@ -32,7 +32,10 @@ enum DumpTableType
     DTT_CHAR_TABLE,     //                                  // character_achievement, character_achievement_progress,
                                                             // character_action, character_aura, character_homebind,
                                                             // character_queststatus, character_reputation, character_spell,
-                                                            // character_spell_cooldown, character_ticket, character_tutorial
+                                                            // character_spell_cooldown, character_ticket, character_talent,
+                                                            // character_tutorial
+
+    DTT_EQSET_TABLE,    // <- guid                          // character_equipmentsets
 
     DTT_INVENTORY,      //    -> item guids collection      // character_inventory
 
@@ -49,7 +52,6 @@ enum DumpTableType
 
     DTT_PET,            //    -> pet guids collection       // character_pet
     DTT_PET_TABLE,      // <- pet guids                     // pet_aura, pet_spell, pet_spell_cooldown
-    DTT_ITEM_TEXT,      // <- item_text                     // item_text
 };
 
 enum DumpReturn
@@ -84,7 +86,6 @@ class PlayerDumpWriter : public PlayerDump
         GUIDs pets;
         GUIDs mails;
         GUIDs items;
-        GUIDs texts;
 };
 
 class PlayerDumpReader : public PlayerDump
