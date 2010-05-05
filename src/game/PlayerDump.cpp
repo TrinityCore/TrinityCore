@@ -25,9 +25,7 @@
 #include "UpdateFields.h"
 #include "ObjectMgr.h"
 
-// Character Dump tables
-#define DUMP_TABLE_COUNT 27
-
+#define DUMP_TABLE_COUNT 26
 struct DumpTable
 {
     char const* name;
@@ -37,29 +35,28 @@ struct DumpTable
 static DumpTable dumpTables[DUMP_TABLE_COUNT] =
 {
     { "characters",                       DTT_CHARACTER  },
-    { "character_declinedname",           DTT_CHAR_TABLE },
+    { "character_account_data",           DTT_CHAR_TABLE },
     { "character_achievement",            DTT_CHAR_TABLE },
     { "character_achievement_progress",   DTT_CHAR_TABLE },
-    { "character_queststatus",            DTT_CHAR_TABLE },
-    { "character_reputation",             DTT_CHAR_TABLE },
-    { "character_spell",                  DTT_CHAR_TABLE },
-    { "character_spell_cooldown",         DTT_CHAR_TABLE },
     { "character_action",                 DTT_CHAR_TABLE },
     { "character_aura",                   DTT_CHAR_TABLE },
-    { "character_homebind",               DTT_CHAR_TABLE },
-    { "character_skills",                 DTT_CHAR_TABLE },
-    { "character_account_data",           DTT_CHAR_TABLE },
-    { "character_glyphs",                 DTT_CHAR_TABLE },
-    { "character_talent",                 DTT_CHAR_TABLE },
-    { "character_inventory",              DTT_INVENTORY  },
-    { "character_equipmentsets",          DTT_INVENTORY  },
-    { "mail",                             DTT_MAIL       },
-    { "mail_items",                       DTT_MAIL_ITEM  },
-    { "item_instance",                    DTT_ITEM       },
+    { "character_declinedname",           DTT_CHAR_TABLE },
+    { "character_equipmentsets",          DTT_EQSET_TABLE},
     { "character_gifts",                  DTT_ITEM_GIFT  },
-    { "item_text",                        DTT_ITEM_TEXT  },
+    { "character_glyphs",                 DTT_CHAR_TABLE },
+    { "character_homebind",               DTT_CHAR_TABLE },
+    { "character_inventory",              DTT_INVENTORY  },
     { "character_pet",                    DTT_PET        },
     { "character_pet_declinedname",       DTT_PET        },
+    { "character_queststatus",            DTT_CHAR_TABLE },
+    { "character_reputation",             DTT_CHAR_TABLE },
+    { "character_skills",                 DTT_CHAR_TABLE },
+    { "character_spell",                  DTT_CHAR_TABLE },
+    { "character_spell_cooldown",         DTT_CHAR_TABLE },
+    { "character_talent",                 DTT_CHAR_TABLE },
+    { "item_instance",                    DTT_ITEM       },
+    { "mail",                             DTT_MAIL       },
+    { "mail_items",                       DTT_MAIL_ITEM  },
     { "pet_aura",                         DTT_PET_TABLE  },
     { "pet_spell",                        DTT_PET_TABLE  },
     { "pet_spell_cooldown",               DTT_PET_TABLE  },
@@ -279,7 +276,6 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
         case DTT_PET_TABLE: fieldname = "guid";      guids = &pets;  break;
         case DTT_MAIL:      fieldname = "receiver";                  break;
         case DTT_MAIL_ITEM: fieldname = "mail_id";   guids = &mails; break;
-        case DTT_ITEM_TEXT: fieldname = "id";        guids = &texts; break;
         default:            fieldname = "guid";                      break;
     }
 
@@ -311,17 +307,13 @@ void PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
             switch (type)
             {
                 case DTT_INVENTORY:
-                    StoreGUID(result,3,items); break;       // item guid collection
-                //case DTT_ITEM:
-                    //StoreGUID(result,0,ITEM_FIELD_ITEM_TEXT_ID,texts); break;
-                    // item text id collection
+                    StoreGUID(result,3,items); break;       // item guid collection (character_inventory.item)
                 case DTT_PET:
-                    StoreGUID(result,0,pets);  break;       // pet guid collection
+                    StoreGUID(result,0,pets);  break;       // pet petnumber collection (character_pet.id)
                 case DTT_MAIL:
-                    StoreGUID(result,0,mails);              // mail id collection
-                    StoreGUID(result,7,texts); break;       // item text id collection
+                    StoreGUID(result,0,mails);              // mail id collection (mail.id)
                 case DTT_MAIL_ITEM:
-                    StoreGUID(result,1,items); break;       // item guid collection
+                    StoreGUID(result,1,items); break;       // item guid collection (mail_items.item_guid)
                 default:                       break;
             }
 
@@ -337,38 +329,9 @@ std::string PlayerDumpWriter::GetDump(uint32 guid)
 {
     std::string dump;
 
-    dump += "IMPORTANT NOTE: This sql queries not created for apply directly, use '.pdump load' command in console or client chat instead.\n";
-    dump += "IMPORTANT NOTE: NOT APPLY ITS DIRECTLY to character DB or you will DAMAGE and CORRUPT character DB\n\n";
+    dump += "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
+    dump += "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
 
-    // revision check guard
-    /*
-    QueryNamedResult* result = CharacterDatabase.QueryNamed("SELECT * FROM character_db_version LIMIT 1");
-    if (result)
-    {
-        QueryFieldNames const& namesMap = result->GetFieldNames();
-        std::string reqName;
-        for (QueryFieldNames::const_iterator itr = namesMap.begin(); itr != namesMap.end(); ++itr)
-        {
-            if (itr->substr(0,9) == "required_")
-            {
-                reqName = *itr;
-                break;
-            }
-        }
-
-        if (!reqName.empty())
-        {
-            // this will fail at wrong character DB version
-            dump += "UPDATE character_db_version SET "+reqName+" = 1 WHERE FALSE;\n\n";
-        }
-        else
-            sLog.outError("Table 'character_db_version' not have revision guard field, revision guard query not added to pdump.");
-
-        delete result;
-    }
-    else
-        sLog.outError("Character DB not have 'character_db_version' table, revision guard query not added to pdump.");
-    */
     for (int i = 0; i < DUMP_TABLE_COUNT; ++i)
         DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type);
 
@@ -452,7 +415,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     std::map<uint32,uint32> items;
     std::map<uint32,uint32> mails;
-    std::map<uint32,uint32> itemTexts;
     char buf[32000] = "";
 
     typedef std::map<uint32, uint32> PetIds;                // old->new petid relation
@@ -519,84 +481,72 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         switch(type)
         {
             case DTT_CHAR_TABLE:
-                if (!changenth(line, 1, newguid))
+                if (!changenth(line, 1, newguid))           // character_*.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
 
-            case DTT_CHARACTER:                             // character t.
+            case DTT_CHARACTER:
             {
-                if (!changenth(line, 1, newguid))
+                if (!changenth(line, 1, newguid))           // characters.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                // guid, data field:guid, items
-                if (!changenth(line, 2, chraccount))
+                if (!changenth(line, 2, chraccount))        // characters.account update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                std::string vals = getnth(line, 3);
-                if (!changetoknth(vals, OBJECT_FIELD_GUID+1, newguid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                for (uint16 field = PLAYER_FIELD_INV_SLOT_HEAD; field < PLAYER_FARSIGHT; field++)
-                    if (!changetokGuid(vals, field+1, items, objmgr.m_hiItemGuid, true))
-                        ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 3, vals.c_str()))
-                    ROLLBACK(DUMP_FILE_BROKEN);
+
                 if (name == "")
                 {
                     // check if the original name already exists
-                    name = getnth(line, 4);
+                    name = getnth(line, 3);
                     CharacterDatabase.escape_string(name);
 
                     result = CharacterDatabase.PQuery("SELECT 1 FROM characters WHERE name = '%s'", name.c_str());
                     if (result)
                     {
-                        if (!changenth(line, 37, "1"))       // rename on login: `at_login` field 37 in raw field list
+                        if (!changenth(line, 36, "1"))       // characters.at_login set to "rename on login"
                             ROLLBACK(DUMP_FILE_BROKEN);
                     }
                 }
-                else if (!changenth(line, 4, name.c_str()))
+                else if (!changenth(line, 3, name.c_str())) // characters.name
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 break;
             }
-            case DTT_INVENTORY:                             // character_inventory t.
+            case DTT_INVENTORY:
             {
-                if (!changenth(line, 1, newguid))
+                if (!changenth(line, 1, newguid))           // character_inventory.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
-                // bag, item
                 if (!changeGuid(line, 2, items, objmgr.m_hiItemGuid, true))
-                    ROLLBACK(DUMP_FILE_BROKEN);
+                    ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.bag update
                 if (!changeGuid(line, 4, items, objmgr.m_hiItemGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
+                    ROLLBACK(DUMP_FILE_BROKEN);             // character_inventory.item update
                 break;
             }
-            case DTT_ITEM:                                  // item_instance t.
+            case DTT_ITEM:
             {
                 // item, owner, data field:item, owner guid
                 if (!changeGuid(line, 1, items, objmgr.m_hiItemGuid))
+                   ROLLBACK(DUMP_FILE_BROKEN);              // item_instance.guid update
+                if (!changenth(line, 2, newguid))           // item_instance.owner_guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 2, newguid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                std::string vals = getnth(line,3);
+                std::string vals = getnth(line,3);          // item_instance.data get
                 if (!changetokGuid(vals, OBJECT_FIELD_GUID+1, items, objmgr.m_hiItemGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
+                    ROLLBACK(DUMP_FILE_BROKEN);             // item_instance.data.OBJECT_FIELD_GUID update
                 if (!changetoknth(vals, ITEM_FIELD_OWNER+1, newguid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
-//                if (!changetokGuid(vals, ITEM_FIELD_ITEM_TEXT_ID+1, itemTexts, objmgr.m_ItemTextId,true))
-                 //   ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 3, vals.c_str()))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // item_instance.data.ITEM_FIELD_OWNER update
+                if (!changenth(line, 3, vals.c_str()))      // item_instance.data update
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
-            case DTT_ITEM_GIFT:                             // character_gift
+            case DTT_ITEM_GIFT:
             {
-                // guid,item_guid,
-                if (!changenth(line, 1, newguid))
+                if (!changenth(line, 1, newguid))           // character_gifts.guid update
                     ROLLBACK(DUMP_FILE_BROKEN);
                 if (!changeGuid(line, 2, items, objmgr.m_hiItemGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
+                    ROLLBACK(DUMP_FILE_BROKEN);             // character_gifts.item_guid update
                 break;
             }
-            case DTT_PET:                                   // character_pet t
+            case DTT_PET:
             {
                 //store a map of old pet id to new inserted pet id for use by type 5 tables
                 snprintf(currpetid, 20, "%s", getnth(line, 1).c_str());
@@ -614,15 +564,14 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
                     petids.insert(PetIdsPair(atoi(currpetid), atoi(newpetid)));
                 }
 
-                // item, entry, owner, ...
-                if (!changenth(line, 1, newpetid))
+                if (!changenth(line, 1, newpetid))          // character_pet.id update
                     ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 3, newguid))
+                if (!changenth(line, 3, newguid))           // character_pet.owner update
                     ROLLBACK(DUMP_FILE_BROKEN);
 
                 break;
             }
-            case DTT_PET_TABLE:                             // pet_aura, pet_spell, pet_spell_cooldown t
+            case DTT_PET_TABLE:                             // pet_aura, pet_spell, pet_spell_cooldown
             {
                 snprintf(currpetid, 20, "%s", getnth(line, 1).c_str());
 
@@ -640,23 +589,19 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
             }
             case DTT_MAIL:                                  // mail
             {
-                // id,messageType,stationery,mailtemplate,sender,receiver,subject,itemText
                 if (!changeGuid(line, 1, mails, objmgr.m_mailid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 6, newguid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changeGuid(line, 8, itemTexts, objmgr.m_ItemTextId))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // mail.id update
+                if (!changenth(line, 6, newguid))           // mail.receiver update
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
             case DTT_MAIL_ITEM:                             // mail_items
             {
-                // mail_id,item_guid,item_template,receiver
                 if (!changeGuid(line, 1, mails, objmgr.m_mailid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
+                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.id
                 if (!changeGuid(line, 2, items, objmgr.m_hiItemGuid))
-                    ROLLBACK(DUMP_FILE_BROKEN);
-                if (!changenth(line, 4, newguid))
+                    ROLLBACK(DUMP_FILE_BROKEN);             // mail_items.item_guid
+                if (!changenth(line, 4, newguid))           // mail_items.receiver
                     ROLLBACK(DUMP_FILE_BROKEN);
                 break;
             }
@@ -673,7 +618,6 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     objmgr.m_hiItemGuid += items.size();
     objmgr.m_mailid     += mails.size();
-    objmgr.m_ItemTextId += itemTexts.size();
 
     if (incHighest)
         ++objmgr.m_hiCharGuid;
