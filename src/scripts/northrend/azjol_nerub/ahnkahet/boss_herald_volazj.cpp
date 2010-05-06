@@ -29,15 +29,12 @@ enum Spells
     INSANITY_VISUAL                               = 57561,
     SPELL_INSANITY_TARGET                         = 57508,
     SPELL_MIND_FLAY                               = 57941,
-    H_SPELL_MIND_FLAY                             = 59974,
     SPELL_SHADOW_BOLT_VOLLEY                      = 57942,
-    H_SPELL_SHADOW_BOLT_VOLLEY                    = 59975,
     SPELL_SHIVER                                  = 57949,
-    H_SPELL_SHIVER                                = 59978,
     SPELL_CLONE_PLAYER                            = 57507, //casted on player during insanity
     SPELL_INSANITY_PHASING_1                      = 57508,
     SPELL_INSANITY_PHASING_2                      = 57509,
-    SPELL_INSANITY_PHASING_3                      = 57519,
+    SPELL_INSANITY_PHASING_3                      = 57510,
     SPELL_INSANITY_PHASING_4                      = 57511,
     SPELL_INSANITY_PHASING_5                      = 57512
 };
@@ -79,6 +76,7 @@ struct boss_volazjAI : public ScriptedAI
     uint32 insanityHandled;
     SummonList Summons;
 
+    // returns the percentage of health after taking the given damage.
     uint32 GetHealthPct(uint32 damage)
     {
         if (damage > me->GetHealth())
@@ -140,6 +138,16 @@ struct boss_volazjAI : public ScriptedAI
         }
     }
 
+    void ResetPlayersPhaseMask()
+    {
+        Map::PlayerList const &players = me->GetMap()->GetPlayers();
+        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+        {
+            Player* pPlayer = i->getSource();
+            pPlayer->RemoveAurasDueToSpell(GetSpellForPhaseMask(pPlayer->GetPhaseMask()));
+        }
+    }
+
     void Reset()
     {
         uiMindFlayTimer = 8*IN_MILISECONDS;
@@ -156,6 +164,8 @@ struct boss_volazjAI : public ScriptedAI
         me->SetPhaseMask((1|16|32|64|128|256),true);
         // Used for Insanity handling
         insanityHandled = 0;
+
+        ResetPlayersPhaseMask();
 
         // Cleanup
         Summons.DespawnAll();
@@ -293,6 +303,7 @@ struct boss_volazjAI : public ScriptedAI
             pInstance->SetData(DATA_HERALD_VOLAZJ, DONE);
 
         Summons.DespawnAll();
+        ResetPlayersPhaseMask();
     }
 
     void KilledUnit(Unit * /*victim*/)
