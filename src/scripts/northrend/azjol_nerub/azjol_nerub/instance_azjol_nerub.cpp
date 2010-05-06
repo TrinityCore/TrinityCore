@@ -37,6 +37,7 @@ struct instance_azjol_nerub : public ScriptedInstance
     uint64 uiWatcherGashra;
     uint64 uiWatcherSilthik;
     uint64 uiWatcherNarjil;
+    uint64 uiAnubarakDoor[3];
 
     uint64 uiKrikthirDoor;
 
@@ -45,6 +46,7 @@ struct instance_azjol_nerub : public ScriptedInstance
    void Initialize()
    {
         memset(&auiEncounter, 0, sizeof(auiEncounter));
+        memset(&uiAnubarakDoor, 0, sizeof(uiAnubarakDoor));
 
         uiKrikthir = 0;
         uiHadronox = 0;
@@ -85,8 +87,18 @@ struct instance_azjol_nerub : public ScriptedInstance
                 if (auiEncounter[0] == DONE)
                     HandleGameObject(NULL,true,pGo);
                 break;
+            case 192396:
+                uiAnubarakDoor[0] = pGo->GetGUID();
+                break;
+            case 192397:
+                uiAnubarakDoor[1] = pGo->GetGUID();
+                break;
+            case 192398:
+                uiAnubarakDoor[2] = pGo->GetGUID();
+                break;
         }
     }
+
 
     uint64 GetData64(uint32 identifier)
     {
@@ -113,9 +125,17 @@ struct instance_azjol_nerub : public ScriptedInstance
                 HandleGameObject(uiKrikthirDoor,true);
             break;
         case DATA_HADRONOX_EVENT:
-            auiEncounter[1] = data; break;
+            auiEncounter[1] = data;
+            break;
         case DATA_ANUBARAK_EVENT:
-            auiEncounter[2] = data; break;
+            auiEncounter[2] = data;
+            if (data == IN_PROGRESS)
+                for (uint8 i = 0; i < 3; ++i)
+                    HandleGameObject(uiAnubarakDoor[i], false);
+            else if (data == NOT_STARTED || data == DONE) 
+                for (uint8 i = 0; i < 3; ++i)
+                    HandleGameObject(uiAnubarakDoor[i], true);
+            break;
         }
 
         if (data == DONE)
