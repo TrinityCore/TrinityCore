@@ -6529,10 +6529,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     // check if it was heal by paladin which casted this beacon of light
                     if (Aura const * aura = beaconTarget->GetAura(53563, pVictim->GetGUID()))
                     {
-                        basepoints0 = damage;
-                        triggered_spell_id = 53654;
-                        target = beaconTarget;
-                        break;
+                        if (beaconTarget->IsWithinLOSInMap(pVictim))
+                        {
+                            basepoints0 = damage;
+                            triggered_spell_id = 53654;
+                            target = beaconTarget;
+                            break;
+                        }
                     }
                 }
                 return false;
