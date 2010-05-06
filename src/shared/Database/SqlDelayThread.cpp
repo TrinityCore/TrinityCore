@@ -28,9 +28,7 @@ SqlDelayThread::SqlDelayThread(Database* db) : m_dbEngine(db), m_running(true)
 
 void SqlDelayThread::run()
 {
-    #ifndef DO_POSTGRESQL
     mysql_thread_init();
-    #endif
 
     SqlAsyncTask * s = NULL;
 
@@ -47,9 +45,7 @@ void SqlDelayThread::run()
         }
     }
 
-    #ifndef DO_POSTGRESQL
     mysql_thread_end();
-    #endif
 }
 
 void SqlDelayThread::Stop()

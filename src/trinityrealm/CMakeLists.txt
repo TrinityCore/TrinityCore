@@ -31,9 +31,6 @@ add_definitions(
 IF (DO_MYSQL)
    SET(trinity-realm_LINK_FLAGS "-pthread ${trinity-realm_LINK_FLAGS}")
 ENDIF(DO_MYSQL)
-IF (DO_POSTGRESQL)
-   SET(trinity-realm_LINK_FLAGS "-pthread ${trinity-realm_LINK_FLAGS}")
-ENDIF(DO_POSTGRESQL)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
    SET(trinity-realm_LINK_FLAGS "-framework Carbon ${trinity-realm_LINK_FLAGS}")
@@ -52,7 +49,6 @@ trinityconfig
 zlib
 ${SSLLIB}
 ${MYSQL_LIBRARIES}
-${POSTGRESQL_LIBRARIES}
 ${OSX_LIBS}
 )
 
@@ -62,4 +58,3 @@ install(TARGETS trinity-realm DESTINATION bin)
 ########### install files ###############
 
 install(FILES  trinityrealm.conf.dist DESTINATION etc)
-

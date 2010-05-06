@@ -33,10 +33,6 @@ add_definitions(
 IF (DO_MYSQL)
     SET(trinity-core_LINK_FLAGS "-pthread ${trinity-core_LINK_FLAGS}")
 ENDIF(DO_MYSQL)
-IF (DO_POSTGRESQL)
-    SET(trinity-core_LINK_FLAGS "-pthread ${trinity-core_LINK_FLAGS}")
-ENDIF(DO_POSTGRESQL)
-
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(trinity-core_LINK_FLAGS "-framework Carbon ${trinity-core_LINK_FLAGS}")
@@ -68,7 +64,6 @@ ${SCRIPT_LIB}
 ${READLINE_LIBRARY}
 ${TERMCAP_LIBRARY}
 ${MYSQL_LIBRARIES}
-${POSTGRESQL_LIBRARIES}
 ${SSLLIB}
 ${ACE_LIBRARY}
 ${ZLIB} 
