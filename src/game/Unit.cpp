@@ -11510,6 +11510,9 @@ bool Unit::canAttack(Unit const* target, bool force) const
     {
         if (IsFriendlyTo(target))
             return false;
+        if (GetTypeId()!=TYPEID_PLAYER)
+            if (!IsHostileTo(target))
+                return false;
     }
     else if (!IsHostileTo(target))
         return false;
