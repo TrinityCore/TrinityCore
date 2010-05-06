@@ -1084,6 +1084,7 @@ void AddSC_zuldrak()
     newscript->GetAI = &GetAI_npc_released_offspring_harkoa;
     newscript->RegisterSelf();
 
+    newscript = new Script;
     newscript->Name = "npc_crusade_recruit";
     newscript->GetAI = &GetAI_npc_crusade_recruit;
     newscript->pGossipHello = &GossipHello_npc_crusade_recruit;
