@@ -432,7 +432,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
 {
     if (me->getVictim())
     {
-        error_log("TSCR ERROR: EscortAI attempt to Start while in combat.");
+        error_log("TSCR ERROR: EscortAI attempt to Start while in combat. Scriptname: %s, creature entry: %u", me->GetScriptName().c_str(), me->GetEntry());
         return;
     }
 
