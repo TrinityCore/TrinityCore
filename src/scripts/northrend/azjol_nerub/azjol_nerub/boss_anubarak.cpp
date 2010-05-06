@@ -19,23 +19,30 @@
 #include "ScriptedPch.h"
 #include "azjol_nerub.h"
 
+//SQL: UPDATE creature_template SET mechanic_immune_mask = 1073741823 WHERE  name like "anub'arak%";
+
 enum Spells
 {
     SPELL_CARRION_BEETLES                         = 53520,
     SPELL_SUMMON_CARRION_BEETLES                  = 53521,
     SPELL_LEECHING_SWARM                          = 53467,
-    SPELL_IMPALE                                  = 53454,
-    H_SPELL_IMPALE                                = 59446,
     SPELL_POUND                                   = 53472,
-    H_SPELL_POUND                                 = 59433,
+    SPELL_POUND_H                                 = 59433,
     SPELL_SUBMERGE                                = 53421,
+    SPELL_IMPALE_DMG                              = 53454,
+    SPELL_IMPALE_DMG_H                            = 59446,
+    SPELL_IMPALE_SHAKEGROUND                      = 53455,
+    SPELL_IMPALE_SPIKE                            = 53539,   //this is not the correct visual effect
+    //SPELL_IMPALE_TARGET                           = 53458,
 };
 
 enum Creatures
 {
     CREATURE_GUARDIAN                             = 29216,
     CREATURE_VENOMANCER                           = 29217,
-    CREATURE_DATTER                               = 29213
+    CREATURE_DATTER                               = 29213,
+    CREATURE_IMPALE_TARGET                        = 89,
+    DISPLAY_INVISIBLE                             = 11686
 };
 
 // not in db
@@ -59,10 +66,25 @@ enum
     ACHIEV_TIMED_START_EVENT                      = 20381,
 };
 
+enum Phases 
+{
+    PHASE_MELEE                                   = 0,
+    PHASE_UNDERGROUND                             = 1,
+    IMPALE_PHASE_TARGET                           = 0,
+    IMPALE_PHASE_ATTACK                           = 1,
+    IMPALE_PHASE_DMG                              = 2
+};
+
 const Position SpawnPoint[2] =
 {
     { 550.7, 282.8, 224.3 },
     { 551.1, 229.4, 224.3 },
+};
+
+const Position SpawnPointGuardian[2] =
+{ 
+    { 550.348633, 316.006805, 234.2947 },
+    { 550.188660, 324.264557, 237.7412 },
 };
 
 struct boss_anub_arakAI : public ScriptedAI
@@ -79,36 +101,38 @@ struct boss_anub_arakAI : public ScriptedAI
     bool bVenomancerSummoned;
     bool bDatterSummoned;
     uint8 uiPhase;
-    uint32 uiPhaseTimer;
-
+    uint32 uiUndergroundPhase;
     uint32 uiCarrionBeetlesTimer;
     uint32 uiLeechingSwarmTimer;
-    uint32 uiImpaleTimer;
     uint32 uiPoundTimer;
     uint32 uiSubmergeTimer;
     uint32 uiUndergroundTimer;
     uint32 uiVenomancerTimer;
     uint32 uiDatterTimer;
-
+    
+    uint32 uiImpaleTimer;
+    uint32 uiImpalePhase;
+    uint64 uiImpaleTarget;
+    
     SummonList lSummons;
 
     void Reset()
     {
-
         uiCarrionBeetlesTimer = 8*IN_MILISECONDS;
         uiLeechingSwarmTimer = 20*IN_MILISECONDS;
         uiImpaleTimer = 9*IN_MILISECONDS;
         uiPoundTimer = 15*IN_MILISECONDS;
 
-        uiPhase = 0;
-        uiPhaseTimer = 0;
+        uiPhase = PHASE_MELEE;
+        uiUndergroundPhase = 0;
         bChanneling = false;
+        uiImpalePhase = IMPALE_PHASE_TARGET;
 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
         me->RemoveAura(SPELL_SUBMERGE);
 
         lSummons.DespawnAll();
-
+       
         if (pInstance)
         {
             pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
@@ -116,10 +140,26 @@ struct boss_anub_arakAI : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit * /*who*/)
+    Creature* DoSummonImpaleTarget(Unit *pTarget)
+    {
+        Position targetPos;
+        pTarget->GetPosition(&targetPos);
+
+        if (TempSummon* pImpaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILISECONDS))
+        {
+            uiImpaleTarget = pImpaleTarget->GetGUID();
+            pImpaleTarget->SetReactState(REACT_PASSIVE);
+            pImpaleTarget->SetDisplayId(DISPLAY_INVISIBLE);
+            pImpaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+            return pImpaleTarget;
+        }
+
+        return NULL;
+    }
+
+    void EnterCombat(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, me);
-
         if (pInstance)
         {
             pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
@@ -127,34 +167,50 @@ struct boss_anub_arakAI : public ScriptedAI
         }
     }
 
-
     void UpdateAI(const uint32 diff)
     {
-        //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        if (bChanneling == true)
-        {
-            for (uint8 i = 0; i < 4; ++i)
-                DoCast(me->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
-            bChanneling = false;
-        }
-
-        if (uiPhase == 1)
-        {
+        switch (uiPhase)
+        {       
+        case PHASE_UNDERGROUND:
             if (uiImpaleTimer <= diff)
             {
-                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    me->CastSpell(pTarget, DUNGEON_MODE(SPELL_IMPALE,H_SPELL_IMPALE), true);
-                uiImpaleTimer = 9*IN_MILISECONDS;
+                switch(uiImpalePhase)
+                {                    
+                case IMPALE_PHASE_TARGET:
+                    if (Unit *target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)) 
+                    {
+                        if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
+                            pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
+                        uiImpaleTimer = 3*IN_MILISECONDS;
+                        uiImpalePhase = IMPALE_PHASE_ATTACK;
+                    }
+                    break;
+                case IMPALE_PHASE_ATTACK:
+                    if (Creature* pImpaleTarget = Unit::GetCreature(*me, uiImpaleTarget))
+                    {
+                        pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SPIKE, false);
+                        pImpaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
+                    }
+                    uiImpalePhase = IMPALE_PHASE_DMG;
+                    uiImpaleTimer = 1*IN_MILISECONDS;
+                    break;
+                case IMPALE_PHASE_DMG:
+                    if (Creature* pImpaleTarget = Unit::GetCreature(*me, uiImpaleTarget))
+                        me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_IMPALE_DMG, SPELL_IMPALE_DMG_H), true);
+                    uiImpalePhase = IMPALE_PHASE_TARGET;
+                    uiImpaleTimer = 9*IN_MILISECONDS;
+                    break;
+                }
             } else uiImpaleTimer -= diff;
 
             if (!bGuardianSummoned)
             {
                 for (uint8 i = 0; i < 2; ++i)
                 {
-                    if (Creature *Guardian = me->SummonCreature(CREATURE_GUARDIAN,SpawnPoint[i],TEMPSUMMON_CORPSE_DESPAWN,0))
+                    if (Creature *Guardian = me->SummonCreature(CREATURE_GUARDIAN,SpawnPointGuardian[i],TEMPSUMMON_CORPSE_DESPAWN,0))
                     {
                         Guardian->AddThreat(me->getVictim(), 0.0f);
                         DoZoneInCombat(Guardian);
@@ -167,7 +223,7 @@ struct boss_anub_arakAI : public ScriptedAI
             {
                 if (uiVenomancerTimer <= diff)
                 {
-                    if (uiPhaseTimer > 1)
+                    if (uiUndergroundPhase > 1)
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
@@ -186,7 +242,7 @@ struct boss_anub_arakAI : public ScriptedAI
             {
                 if (uiDatterTimer <= diff)
                 {
-                    if (uiPhaseTimer > 2)
+                    if (uiUndergroundPhase > 2)
                     {
                         for (uint8 i = 0; i < 2; ++i)
                         {
@@ -205,61 +261,72 @@ struct boss_anub_arakAI : public ScriptedAI
             {
                 me->RemoveAura(SPELL_SUBMERGE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                uiPhase = 0;
+                uiPhase = PHASE_MELEE;
             } else uiUndergroundTimer -= diff;
-        }
+            break;
 
-        if (uiPhase == 0)
-        {
+        case PHASE_MELEE:
+            if (((uiUndergroundPhase == 0 && HealthBelowPct(75))
+                || (uiUndergroundPhase == 1 && HealthBelowPct(50))
+                || (uiUndergroundPhase == 2 && HealthBelowPct(25)))
+                && !me->hasUnitState(UNIT_STAT_CASTING))
+            {
+                bGuardianSummoned = false;
+                bVenomancerSummoned = false;
+                bDatterSummoned = false;
+
+                uiUndergroundTimer = 40*IN_MILISECONDS;
+                uiVenomancerTimer = 25*IN_MILISECONDS;
+                uiDatterTimer = 32*IN_MILISECONDS;
+
+                uiImpalePhase = 0;
+                uiImpaleTimer = 9*IN_MILISECONDS;
+
+                DoCast(me, SPELL_SUBMERGE, false);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                
+                uiPhase = PHASE_UNDERGROUND;
+                ++uiUndergroundPhase;
+            }
+
+            if (bChanneling == true)
+            {
+                for (uint8 i = 0; i < 8; ++i)
+                DoCast(me->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
+                bChanneling = false;
+            }
+            else if (uiCarrionBeetlesTimer <= diff)
+            {
+                bChanneling = true;
+                DoCastVictim(SPELL_CARRION_BEETLES);
+                uiCarrionBeetlesTimer = 25*IN_MILISECONDS;
+            } else uiCarrionBeetlesTimer -= diff;
+            
             if (uiLeechingSwarmTimer <= diff)
             {
                 DoCast(me, SPELL_LEECHING_SWARM, true);
                 uiLeechingSwarmTimer = 19*IN_MILISECONDS;
             } else uiLeechingSwarmTimer -= diff;
 
-            if (uiCarrionBeetlesTimer <= diff)
-            {
-                bChanneling = true;
-                DoCastVictim(SPELL_CARRION_BEETLES);
-                uiCarrionBeetlesTimer = 25*IN_MILISECONDS;
-            } else uiCarrionBeetlesTimer -= diff;
-
             if (uiPoundTimer <= diff)
             {
-                 DoCastVictim(SPELL_POUND);
-                 uiPoundTimer = 16.5*IN_MILISECONDS;
+                if (Unit *target = me->getVictim())
+                {
+                    if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
+                        me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);
+                }
+                uiPoundTimer = 16.5*IN_MILISECONDS;
             } else uiPoundTimer -= diff;
-        }
 
-        if ((uiPhaseTimer == 0 && HealthBelowPct(75))
-            || (uiPhaseTimer == 1 && HealthBelowPct(50))
-            || (uiPhaseTimer == 2 && HealthBelowPct(25)))
-        {
-            ++uiPhaseTimer;
-
-            bGuardianSummoned = false;
-            bVenomancerSummoned = false;
-            bDatterSummoned = false;
-
-            uiUndergroundTimer = 40*IN_MILISECONDS;
-            uiVenomancerTimer = 25*IN_MILISECONDS;
-            uiDatterTimer = 32*IN_MILISECONDS;
-
-            DoCast(me, SPELL_SUBMERGE, false);
-
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-
-            uiPhase = 1;
-        }
-
-        if (uiPhase != 1)
             DoMeleeAttackIfReady();
+            break;
+        }
     }
-
-    void JustDied(Unit * /*pKiller*/)
+    
+    void JustDied(Unit *pKiller)
     {
         DoScriptText(SAY_DEATH, me);
-
+        lSummons.DespawnAll();
         if (pInstance)
             pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
     }
@@ -268,7 +335,6 @@ struct boss_anub_arakAI : public ScriptedAI
     {
         if (pVictim == me)
             return;
-
         DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
     }
 
@@ -276,7 +342,6 @@ struct boss_anub_arakAI : public ScriptedAI
     {
         lSummons.Summon(summon);
     }
-
 };
 
 CreatureAI* GetAI_boss_anub_arak(Creature *pCreature)
