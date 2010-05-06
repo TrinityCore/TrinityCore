@@ -39,7 +39,6 @@ the directory and cmake and make. E.G. you created a dir named build ad want to 
 Thats just about all thats needed. You can however tweak more settings than where to install using flags built into our cmake files. Just open up CMakeLists.txt in the main folder and take a look at some of the flags like 
 
     DO_MYSQL --mysql database support (enabled or disabled by a 1 or 0, enabled by default)
-    DO_POSTGRESQL --postgresql database support (enabled or disabled by a 1 or 0)
     DO_SCRIPTS --enable or disable trinity script (enabled or disabled by a 1 or 0, enabled by default)
     DO_RA --remote administration (enabled or disabled by a 1 or 0)
     DO_DEBUG --enable debugging (enabled or disabled by a 1 or 0)
