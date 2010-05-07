@@ -4215,15 +4215,12 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     LeaveAllArenaTeams(playerguid);
 
     // the player was uninvited already on logout so just remove from group
-    QueryResult_AutoPtr resultGroup = CharacterDatabase.PQuery("SELECT leaderGuid FROM group_member WHERE memberGuid='%u'", guid);
+    QueryResult_AutoPtr resultGroup = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", guid);
     if (resultGroup)
     {
-        uint64 leaderGuid = MAKE_NEW_GUID((*resultGroup)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-        Group* group = objmgr.GetGroupByLeader(leaderGuid);
-        if (group)
-        {
+        uint64 guid = MAKE_NEW_GUID((*resultGroup)[0].GetUInt32(), 0, HIGHGUID_GROUP);
+        if (Group* group = objmgr.GetGroupByGUID(guid))
             RemoveFromGroup(group, playerguid);
-        }
     }
 
     // remove signs from petitions (also remove petitions if owner);
@@ -4329,10 +4326,6 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     CharacterDatabase.PExecute("DELETE FROM character_gifts WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_homebind WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM group_instance WHERE leaderGuid = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM groups WHERE leaderGuid = '%u'",guid);
-    CharacterDatabase.PExecute("DELETE FROM group_member WHERE leaderGuid = '%u' OR memberGuid = '%u'",guid,guid);
-    CharacterDatabase.PExecute("DELETE FROM groups WHERE leaderGuid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_queststatus WHERE guid = '%u'",guid);
     CharacterDatabase.PExecute("DELETE FROM character_reputation WHERE guid = '%u'",guid);
@@ -16962,11 +16955,11 @@ void Player::_LoadSpells(QueryResult_AutoPtr result)
 
 void Player::_LoadGroup(QueryResult_AutoPtr result)
 {
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT leaderGuid FROM group_member WHERE memberGuid='%u'", GetGUIDLow());
+    //QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
     if (result)
     {
-        uint64 leaderGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-        if (Group* group = objmgr.GetGroupByLeader(leaderGuid))
+        uint64 guid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_GROUP);
+        if (Group* group = objmgr.GetGroupByGUID(guid))
         {
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
@@ -17029,7 +17022,7 @@ void Player::_LoadBoundInstances(QueryResult_AutoPtr result)
 
             if (!perm && group)
             {
-                sLog.outError("_LoadBoundInstances: player %s(%d) is in group %d but has a non-permanent character bind to map %d,%d,%d", GetName(), GetGUIDLow(), GUID_LOPART(group->GetLeaderGUID()), mapId, instanceId, difficulty);
+                sLog.outError("_LoadBoundInstances: player %s(%d) is in group %d but has a non-permanent character bind to map %d,%d,%d", GetName(), GetGUIDLow(), GUID_LOPART(group->GetGUID()), mapId, instanceId, difficulty);
                 CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND instance = '%d'", GetGUIDLow(), instanceId);
                 continue;
             }

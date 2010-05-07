@@ -266,14 +266,14 @@ void InstanceSaveManager::CleanupInstances()
 
     // clean character/group - instance binds with invalid group/characters
     _DelHelper(CharacterDatabase, "character_instance.guid, instance", "character_instance", "LEFT JOIN characters ON character_instance.guid = characters.guid WHERE characters.guid IS NULL");
-    _DelHelper(CharacterDatabase, "group_instance.leaderGuid, instance", "group_instance", "LEFT JOIN characters ON group_instance.leaderGuid = characters.guid LEFT JOIN groups ON group_instance.leaderGuid = groups.leaderGuid WHERE characters.guid IS NULL OR groups.leaderGuid IS NULL");
+    _DelHelper(CharacterDatabase, "group_instance.guid, instance", "group_instance", "LEFT JOIN groups ON group_instance.guid = groups.guid LEFT JOIN characters ON groups.leaderGuid = characters.guid WHERE characters.guid IS NULL OR groups.guid IS NULL");
 
     // clean instances that do not have any players or groups bound to them
     _DelHelper(CharacterDatabase, "id, map, difficulty", "instance", "LEFT JOIN character_instance ON character_instance.instance = id LEFT JOIN group_instance ON group_instance.instance = id WHERE character_instance.instance IS NULL AND group_instance.instance IS NULL");
 
     // clean invalid instance references in other tables
     _DelHelper(CharacterDatabase, "character_instance.guid, instance", "character_instance", "LEFT JOIN instance ON character_instance.instance = instance.id WHERE instance.id IS NULL");
-    _DelHelper(CharacterDatabase, "group_instance.leaderGuid, instance", "group_instance", "LEFT JOIN instance ON group_instance.instance = instance.id WHERE instance.id IS NULL");
+    _DelHelper(CharacterDatabase, "guid, instance", "group_instance", "LEFT JOIN instance ON group_instance.instance = instance.id WHERE instance.id IS NULL");
 
     // creature_respawn and gameobject_respawn are in another database
     // first, obtain total instance set
