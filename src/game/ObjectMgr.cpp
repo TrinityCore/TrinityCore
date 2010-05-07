@@ -175,6 +175,7 @@ ObjectMgr::ObjectMgr()
     m_hiDoGuid          = 1;
     m_hiCorpseGuid      = 1;
     m_hiPetNumber       = 1;
+    m_hiGroupGuid       = 1;
     m_ItemTextId        = 1;
     m_mailid            = 1;
     m_equipmentSetGuid  = 1;
@@ -219,10 +220,10 @@ ObjectMgr::~ObjectMgr()
         itr->second.Clear();
 }
 
-Group * ObjectMgr::GetGroupByLeader(const uint64 &guid) const
+Group * ObjectMgr::GetGroupByGUID(const uint64 &guid) const
 {
     for (GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
-        if ((*itr)->GetLeaderGUID() == guid)
+        if ((*itr)->GetGUID() == guid)
             return *itr;
 
     return NULL;
@@ -3414,159 +3415,132 @@ void ObjectMgr::LoadArenaTeams()
 
 void ObjectMgr::LoadGroups()
 {
-    // -- loading groups --
     Group *group = NULL;
-    uint64 leaderGuid = 0;
+    Field *fields = NULL;
+    uint64 groupGuid = 0;
     uint32 count = 0;
-    //                                                           0           1           2              3      4      5      6      7      8      9      10     11         12          13              14
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raiddifficulty, leaderGuid FROM groups");
 
+    // Consistency cleaning before load to avoid having to do some checks later
+    // Delete all members that does not exist
+    CharacterDatabase.PExecute("DELETE FROM group_member WHERE NOT EXISTS (SELECT guid FROM characters WHERE guid=memberGuid)");
+    // Delete all groups whose leader does not exist
+    CharacterDatabase.PExecute("DELETE FROM groups WHERE NOT EXISTS (SELECT guid FROM characters WHERE guid=leaderGuid)");
+    // Delete all groups with less than 2 members
+    CharacterDatabase.PExecute("DELETE FROM groups WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
+    // Delete all rows from group_member or group_instance with no group
+    CharacterDatabase.PExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM groups)");
+    CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid NOT IN (SELECT guid FROM groups)");
+
+    // ----------------------- Load Group definitions
+    //                                                            0           1           2           3              4      5      6      7      8      9      10     11     12         13          14              15
+    QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raiddifficulty, guid FROM groups");
     if (!result)
     {
         barGoLink bar(1);
-
         bar.step();
 
         sLog.outString();
-        sLog.outString(">> Loaded %u group definitions", count);
+        sLog.outString(">> Loaded 0 group definitions");
         return;
     }
 
     barGoLink bar(result->GetRowCount());
-
     do
     {
         bar.step();
-        Field *fields = result->Fetch();
+        fields = result->Fetch();
         ++count;
-        leaderGuid = MAKE_NEW_GUID(fields[14].GetUInt32(),0,HIGHGUID_PLAYER);
-
         group = new Group;
-        if (!group->LoadGroupFromDB(leaderGuid, result, false))
-        {
-            group->Disband();
-            delete group;
-            continue;
-        }
+        groupGuid = MAKE_NEW_GUID(fields[15].GetUInt32(),0,HIGHGUID_GROUP);
+        group->LoadGroupFromDB(groupGuid, result, false);
+        // group load will never be false (we have run consistency sql's before loading)
         AddGroup(group);
     }while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u group definitions", count);
 
-    // -- loading members --
-    count = 0;
-    group = NULL;
-    leaderGuid = 0;
-    //                                            2          3         4           1                                     1
-    result = CharacterDatabase.Query("SELECT memberGuid, memberFlags, subgroup, leaderGuid FROM group_member ORDER BY leaderGuid");
+    // ----------------------- Load member
+    //                                       0     1           2            3
+    result = CharacterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup FROM group_member ORDER BY guid");
     if (!result)
     {
         barGoLink bar2(1);
         bar2.step();
-    }
-    else
-    {
-        barGoLink bar2(result->GetRowCount());
-        do
-        {
-            bar2.step();
-            Field *fields = result->Fetch();
-            count++;
-            leaderGuid = MAKE_NEW_GUID(fields[3].GetUInt32(), 0, HIGHGUID_PLAYER);
-            if (!group || group->GetLeaderGUID() != leaderGuid)
-            {
-                group = GetGroupByLeader(leaderGuid);
-                if (!group)
-                {
-                    sLog.outErrorDb("Incorrect entry in group_member table : no group with leader %d for member %d!", fields[3].GetUInt32(), fields[0].GetUInt32());
-                    CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", fields[0].GetUInt32());
-                    continue;
-                }
-            }
-
-            if (!group->LoadMemberFromDB(fields[0].GetUInt32(), fields[1].GetUInt8(), fields[2].GetUInt8()))
-            {
-                sLog.outErrorDb("Incorrect entry in group_member table : member %d cannot be added to player %d's group!", fields[0].GetUInt32(), fields[3].GetUInt32());
-                CharacterDatabase.PExecute("DELETE FROM group_member WHERE memberGuid = '%d'", fields[0].GetUInt32());
-            }
-        }while (result->NextRow());
+        sLog.outString();
+        sLog.outString(">> Loaded 0 group members");
+        return;
     }
 
-    // clean groups
-    // TODO: maybe delete from the DB before loading in this case
-    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end();)
+    barGoLink bar2(result->GetRowCount());
+    uint32 groupLowGuid = 0;
+    count = 0;
+    do
     {
-        if ((*itr)->GetMembersCount() < 2)
+        bar2.step();
+        fields = result->Fetch();
+        
+        if (groupLowGuid != fields[0].GetUInt32())
         {
-            (*itr)->Disband();
-            delete *itr;
-            mGroupSet.erase(itr++);
+            groupLowGuid = fields[0].GetUInt32();
+            groupGuid = MAKE_NEW_GUID(groupLowGuid, 0, HIGHGUID_GROUP);
+            group = GetGroupByGUID(groupGuid);
+            // group will never be NULL (we have run consistency sql's before loading)
         }
-        else
-            ++itr;
-    }
+        group->LoadMemberFromDB(fields[1].GetUInt32(), fields[2].GetUInt8(), fields[3].GetUInt8());
+        ++count;
+    }while (result->NextRow());
 
-    // -- loading instances --
-    count = 0;
-    group = NULL;
-    leaderGuid = 0;
-    result = CharacterDatabase.Query(
-        //      0           1    2         3          4           5
-        "SELECT leaderGuid, map, instance, permanent, difficulty, resettime, "
-        // 6
-        "(SELECT COUNT(*) FROM character_instance WHERE guid = leaderGuid AND instance = group_instance.instance AND permanent = 1 LIMIT 1) "
-        "FROM group_instance LEFT JOIN instance ON instance = id ORDER BY leaderGuid"
-);
+    sLog.outString();
+    sLog.outString(">> Loaded %u group members", count);
+
+
+    // ----------------------- Load instance save
+    //                                       0     1    2         3          4           5
+    result = CharacterDatabase.Query("SELECT guid, map, instance, permanent, difficulty, resettime, "
+    //           6
+        "(SELECT COUNT(1) FROM groups JOIN character_instance ON leaderGuid = groups.guid WHERE instance = group_instance.instance AND permanent = 1 LIMIT 1) "
+        "FROM group_instance LEFT JOIN instance ON instance = id ORDER BY guid");
 
     if (!result)
     {
         barGoLink bar2(1);
         bar2.step();
+        sLog.outString();
+        sLog.outString(">> Loaded 0 group-instance saves");
+        return;
     }
-    else
+
+    barGoLink bar3(result->GetRowCount());
+    count = 0;
+    do
     {
-        barGoLink bar2(result->GetRowCount());
-        do
+        bar3.step();
+        fields = result->Fetch();
+        groupGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_GROUP);
+        group = GetGroupByGUID(groupGuid);
+        // group will never be NULL (we have run consistency sql's before loading)
+
+        MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
+        if (!mapEntry || !mapEntry->IsDungeon())
         {
-            bar2.step();
-            Field *fields = result->Fetch();
-            count++;
-            leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-            if (!group || group->GetLeaderGUID() != leaderGuid)
-            {
-                group = GetGroupByLeader(leaderGuid);
-                if (!group)
-                {
-                    sLog.outErrorDb("Incorrect entry in group_instance table : no group with leader %d", fields[0].GetUInt32());
-                    continue;
-                }
-            }
+            sLog.outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt32());
+            continue;
+        }
 
-            MapEntry const* mapEntry = sMapStore.LookupEntry(fields[1].GetUInt32());
-            if (!mapEntry || !mapEntry->IsDungeon())
-            {
-                sLog.outErrorDb("Incorrect entry in group_instance table : no dungeon map %d", fields[1].GetUInt32());
-                continue;
-            }
+        uint32 diff = fields[4].GetUInt8();
+        if (diff >= (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
+        {
+            sLog.outErrorDb("Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
+            diff = 0;                                   // default for both difficaly types
+        }
 
-            uint32 diff = fields[4].GetUInt8();
-            if (diff >= (mapEntry->IsRaid() ? MAX_RAID_DIFFICULTY : MAX_DUNGEON_DIFFICULTY))
-            {
-                sLog.outErrorDb("Wrong dungeon difficulty use in group_instance table: %d", diff + 1);
-                diff = 0;                                   // default for both difficaly types
-            }
-
-            InstanceSave *save = sInstanceSaveManager.AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), (time_t)fields[5].GetUInt64(), (fields[6].GetUInt32() == 0), true);
-            group->BindToInstance(save, fields[3].GetBool(), true);
-        }while (result->NextRow());
-    }
-
+        InstanceSave *save = sInstanceSaveManager.AddInstanceSave(mapEntry->MapID, fields[2].GetUInt32(), Difficulty(diff), time_t(fields[5].GetUInt64()), fields[6].GetBool(), true);
+        group->BindToInstance(save, fields[3].GetBool(), true);
+        ++count;
+    }while (result->NextRow());
     sLog.outString();
-    sLog.outString(">> Loaded %u group-instance binds total", count);
-
-    sLog.outString();
-    sLog.outString(">> Loaded %u group members total", count);
+    sLog.outString(">> Loaded %u group-instance saves", count);
 }
 
 void ObjectMgr::LoadQuests()
@@ -5995,6 +5969,10 @@ void ObjectMgr::SetHighestGuids()
     result = CharacterDatabase.Query("SELECT MAX(guildid) FROM guild");
     if (result)
         m_guildId = (*result)[0].GetUInt32()+1;
+
+    result = CharacterDatabase.Query("SELECT MAX(guid) FROM groups");
+    if (result)
+        m_hiGroupGuid = (*result)[0].GetUInt32()+1;
 }
 
 uint32 ObjectMgr::GenerateArenaTeamId()
@@ -6107,6 +6085,13 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
                 World::StopNow(ERROR_EXIT_CODE);
             }
             return m_hiDoGuid++;
+        case HIGHGUID_GROUP:
+            if (m_hiGroupGuid >= 0xFFFFFFFE)
+            {
+                sLog.outError("Group guid overflow!! Can't continue, shutting down server. ");
+                World::StopNow(ERROR_EXIT_CODE);
+            }
+            return m_hiGroupGuid++;
         default:
             ASSERT(0);
     }

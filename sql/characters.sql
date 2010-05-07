@@ -1297,10 +1297,10 @@ DROP TABLE IF EXISTS `group_instance`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `group_instance` (
-  `leaderGuid` int(11) unsigned NOT NULL default '0',
+  `guid` int(11) unsigned NOT NULL default '0',
   `instance` int(11) unsigned NOT NULL default '0',
   `permanent` tinyint(1) unsigned NOT NULL default '0',
-  PRIMARY KEY  (`leaderGuid`,`instance`),
+  PRIMARY KEY  (`guid`,`instance`),
   KEY `instance` (`instance`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1322,12 +1322,11 @@ DROP TABLE IF EXISTS `group_member`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `group_member` (
-  `leaderGuid` int(11) unsigned NOT NULL,
+  `guid` int(11) unsigned NOT NULL,
   `memberGuid` int(11) unsigned NOT NULL,
   `memberFlags` tinyint(2) unsigned NOT NULL,
   `subgroup` smallint(6) unsigned NOT NULL,
-  PRIMARY KEY  (`leaderGuid`,`memberGuid`),
-  INDEX `Idx_memberGuid`(`memberGuid`)
+  PRIMARY KEY  (`memberGuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1348,6 +1347,7 @@ DROP TABLE IF EXISTS `groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `groups` (
+  `guid` int(11) unsigned NOT NULL,
   `leaderGuid` int(11) unsigned NOT NULL,
   `lootMethod` tinyint(4) unsigned NOT NULL,
   `looterGuid` int(11) unsigned NOT NULL,
@@ -1363,7 +1363,7 @@ CREATE TABLE `groups` (
   `groupType` mediumint(8) unsigned NOT NULL,
   `difficulty` tinyint(3) unsigned NOT NULL default '0',
   `raiddifficulty` int(11) UNSIGNED NOT NULL default '0',
-  PRIMARY KEY  (`leaderGuid`)
+  PRIMARY KEY  (`guid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Groups';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
