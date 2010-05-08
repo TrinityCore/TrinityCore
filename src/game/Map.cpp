@@ -39,6 +39,7 @@
 #include "WaypointManager.h"
 #include "DBCEnums.h"
 #include "ScriptMgr.h"
+#include "GossipDef.h"
 
 #include "MapInstanced.h"
 #include "InstanceSaveMgr.h"
@@ -3726,6 +3727,21 @@ void Map::ScriptsProcess()
 
                 break;
             }
+            case SCRIPT_COMMAND_CLOSE_GOSSIP:
+            {
+/*
+ * need to find a good way to do idiot checking here
+ * No one should be using this script command in any scripts tables except 
+ * gossip, but I guess someone could fat finger it.
+                if (!source->ToPlayer()->GetPlayer()->GetNPCIfCanInteractWith(target,UNIT_NPC_FLAG_GOSSIP));
+                {
+                    sLog.outError("SCRIPT_COMMAND_CLOSE_GOSSIP attempted to be used in a non-gossip case -- IGNORED!");
+                    break;
+                }
+*/
+                source->ToPlayer()->PlayerTalkClass->CloseGossip();
+                break;
+            } 
             case SCRIPT_COMMAND_PLAYMOVIE:
             {
                 if (!source)
