@@ -24,6 +24,17 @@
 #include "Threading.h"
 #include "Utilities/UnorderedMap.h"
 #include "Database/SqlDelayThread.h"
+#include "Policies/Singleton.h"
+#include "ace/Thread_Mutex.h"
+#include "ace/Guard_T.h"
+
+#ifdef WIN32
+#define FD_SETSIZE 1024
+#include <winsock2.h>
+#include <mysql/mysql.h>
+#else
+#include <mysql.h>
+#endif
 
 class SqlTransaction;
 class SqlResultQueue;
@@ -37,8 +48,6 @@ typedef UNORDERED_MAP<ACE_Based::Thread* , SqlResultQueue*> QueryQueues;
 class Database
 {
     protected:
-        Database() : m_threadBody(NULL), m_delayThread(NULL) {};
-
         TransactionQueues m_tranQueues;                     ///< Transaction queues from diff. threads
         QueryQueues m_queryQueues;                          ///< Query queues from diff threads
         SqlDelayThread* m_threadBody;                       ///< Pointer to delay sql executer (owned by m_delayThread)
@@ -46,15 +55,18 @@ class Database
 
     public:
 
-        virtual ~Database();
+        Database();
+        ~Database();
 
-        virtual bool Initialize(const char *infoString);
-        virtual void InitDelayThread() = 0;
-        virtual void HaltDelayThread() = 0;
+        /*! infoString should be formated like hostname;username;password;database. */
+        bool Initialize(const char *infoString);
 
-        virtual QueryResult_AutoPtr Query(const char *sql) = 0;
+        void InitDelayThread();
+        void HaltDelayThread();
+
+        QueryResult_AutoPtr Query(const char *sql);
         QueryResult_AutoPtr PQuery(const char *format,...) ATTR_PRINTF(2,3);
-        virtual QueryNamedResult* QueryNamed(const char *sql) = 0;
+        QueryNamedResult* QueryNamed(const char *sql);
         QueryNamedResult* PQueryNamed(const char *format,...) ATTR_PRINTF(2,3);
 
         /// Async queries and query holders, implemented in DatabaseImpl.h
@@ -97,9 +109,9 @@ class Database
         template<class Class, typename ParamType1>
             bool DelayQueryHolder(Class *object, void (Class::*method)(QueryResult_AutoPtr, SqlQueryHolder*, ParamType1), SqlQueryHolder *holder, ParamType1 param1);
 
-        virtual bool Execute(const char *sql) = 0;
+        bool Execute(const char *sql);
         bool PExecute(const char *format,...) ATTR_PRINTF(2,3);
-        virtual bool DirectExecute(const char* sql) = 0;
+        bool DirectExecute(const char* sql);
         bool DirectPExecute(const char *format,...) ATTR_PRINTF(2,3);
 
         bool _UpdateDataBlobValue(const uint32 guid, const uint32 field, const int32 value);
@@ -108,36 +120,35 @@ class Database
         // Writes SQL commands to a LOG file (see Trinityd.conf "LogSQL")
         bool PExecuteLog(const char *format,...) ATTR_PRINTF(2,3);
 
-        virtual bool BeginTransaction()                     // nothing do if DB not support transactions
-        {
-            return true;
-        }
-        virtual bool CommitTransaction()                    // nothing do if DB not support transactions
-        {
-            return true;
-        }
-        virtual bool RollbackTransaction()                  // can't rollback without transaction support
-        {
-            return false;
-        }
+        bool BeginTransaction();
+        bool CommitTransaction();
+        bool RollbackTransaction();
 
-        virtual operator bool () const = 0;
-
-        virtual unsigned long escape_string(char *to, const char *from, unsigned long length) { strncpy(to,from,length); return length; }
+        operator bool () const { return mMysql != NULL; }
+        unsigned long escape_string(char *to, const char *from, unsigned long length);
         void escape_string(std::string& str);
 
-        // must be called before first query in thread (one time for thread using one from existed Database objects)
-        virtual void ThreadStart();
-        // must be called before finish thread run (one time for thread using one from existed Database objects)
-        virtual void ThreadEnd();
+        void ThreadStart();
+        void ThreadEnd();
 
         // sets the result queue of the current thread, be careful what thread you call this from
         void SetResultQueue(SqlResultQueue * queue);
 
         bool CheckRequiredField(char const* table_name, char const* required_name);
+
     private:
         bool m_logSQL;
         std::string m_logsDir;
+        ACE_Thread_Mutex mMutex;
+
+        ACE_Based::Thread * tranThread;
+
+        MYSQL *mMysql;
+
+        static size_t db_count;
+
+        bool _TransactionCmd(const char *sql);
+        bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
 };
 #endif
 

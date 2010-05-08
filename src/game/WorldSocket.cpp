@@ -753,11 +753,11 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Get the account information from the realmd database
     std::string safe_account = account; // Duplicate, else will screw the SHA hash verification below
-    loginDatabase.escape_string (safe_account);
+    LoginDatabase.escape_string (safe_account);
     // No SQL injection, username escaped.
 
     QueryResult_AutoPtr result =
-          loginDatabase.PQuery ("SELECT "
+          LoginDatabase.PQuery ("SELECT "
                                 "id, "                      //0
                                 "sessionkey, "              //1
                                 "last_ip, "                 //2
@@ -837,7 +837,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Checks gmlevel per Realm
     result =
-        loginDatabase.PQuery ("SELECT "
+        LoginDatabase.PQuery ("SELECT "
                               "RealmID, "            //0
                               "gmlevel "             //1
                               "FROM account_access "
@@ -855,7 +855,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Re-check account ban (same check as in realmd)
     QueryResult_AutoPtr banresult =
-          loginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1 "
+          LoginDatabase.PQuery ("SELECT 1 FROM account_banned WHERE id = %u AND active = 1 "
                                 "UNION "
                                 "SELECT 1 FROM ip_banned WHERE ip = '%s'",
                                 id, GetRemoteAddress().c_str());
@@ -917,9 +917,9 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
 
     // Update the last_ip in the database
     // No SQL injection, username escaped.
-    loginDatabase.escape_string (address);
+    LoginDatabase.escape_string (address);
 
-    loginDatabase.PExecute ("UPDATE account "
+    LoginDatabase.PExecute ("UPDATE account "
                             "SET last_ip = '%s' "
                             "WHERE username = '%s'",
                             address.c_str (),

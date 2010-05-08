@@ -6,14 +6,10 @@ SET(trinitydatabase_STAT_SRCS
     Database.h
     DatabaseEnv.h   
     DatabaseImpl.h
-    DatabaseMysql.cpp
-    DatabaseMysql.h
     Field.cpp
     Field.h
-    MySQLDelayThread.h
+    QueryResult.cpp
     QueryResult.h
-    QueryResultMysql.cpp
-    QueryResultMysql.h
     SQLStorage.cpp
     SQLStorage.h
     SqlDelayThread.cpp

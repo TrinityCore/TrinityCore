@@ -28,7 +28,7 @@
 #include "Auth/Sha1.h"
 #include "ProgressBar.h"
 
-extern DatabaseType loginDatabase;
+extern DatabaseType LoginDatabase;
 
 INSTANTIATE_SINGLETON_1(AddonMgr);
 

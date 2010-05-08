@@ -55,7 +55,7 @@ m_latency(0), m_TutorialsChanged(false), m_timeOutTime(0)
     {
         m_Address = sock->GetRemoteAddress ();
         sock->AddReference ();
-        loginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());
+        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());
     }
 }
 
@@ -79,7 +79,7 @@ WorldSession::~WorldSession()
     while (_recvQueue.next(packet))
         delete packet;
 
-    loginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
+    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
     CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = %u;", GetAccountId());
 }
 
