@@ -26,15 +26,21 @@
 
 #include "Field.h"
 
+#ifdef WIN32
+#define FD_SETSIZE 1024
+#include <winsock2.h>
+#include <mysql/mysql.h>
+#else
+#include <mysql.h>
+#endif
+
 class QueryResult
 {
     public:
-        QueryResult(uint64 rowCount, uint32 fieldCount)
-            : mFieldCount(fieldCount), mRowCount(rowCount) {}
+        QueryResult(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
+        ~QueryResult();
 
-        virtual ~QueryResult() {}
-
-        virtual bool NextRow() = 0;
+        bool NextRow();
 
         Field *Fetch() const { return mCurrentRow; }
 
@@ -47,6 +53,12 @@ class QueryResult
         Field *mCurrentRow;
         uint32 mFieldCount;
         uint64 mRowCount;
+
+    private:
+        enum Field::DataTypes ConvertNativeType(enum_field_types mysqlType) const;
+        void EndQuery();
+        MYSQL_RES *mResult;
+
 };
 
 typedef ACE_Refcounted_Auto_Ptr<QueryResult, ACE_Null_Mutex> QueryResult_AutoPtr;

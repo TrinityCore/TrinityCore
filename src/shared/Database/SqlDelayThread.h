@@ -44,7 +44,7 @@ class SqlDelayThread : public ACE_Based::Runnable
         ///< Put sql statement to delay queue
         bool Delay(SqlOperation* sql);
 
-        virtual void Stop();                                ///< Stop event
+        void Stop();                                ///< Stop event
         virtual void run();                                 ///< Main Thread loop
 };
 #endif                                                      //__SQLDELAYTHREAD_H

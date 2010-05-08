@@ -135,7 +135,7 @@ public:
             loopCounter = 0;
             sLog.outDetail ("Ping MySQL to keep connection alive");
             WorldDatabase.Query ("SELECT 1 FROM command LIMIT 1");
-            loginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
+            LoginDatabase.Query ("SELECT 1 FROM realmlist LIMIT 1");
             CharacterDatabase.Query ("SELECT 1 FROM bugreport LIMIT 1");
         }
     }
@@ -241,7 +241,7 @@ int Master::Run()
     world_thread.setPriority(ACE_Based::Highest);
 
     // set server online
-    loginDatabase.PExecute("UPDATE realmlist SET color = 0, population = 0 WHERE id = '%d'",realmID);
+    LoginDatabase.PExecute("UPDATE realmlist SET color = 0, population = 0 WHERE id = '%d'",realmID);
 
     ACE_Based::Thread* cliThread = NULL;
 
@@ -329,7 +329,7 @@ int Master::Run()
     sWorldSocketMgr->Wait ();
 
     // set server offline
-    loginDatabase.PExecute("UPDATE realmlist SET color = 2 WHERE id = '%d'",realmID);
+    LoginDatabase.PExecute("UPDATE realmlist SET color = 2 WHERE id = '%d'",realmID);
 
     ///- Remove signal handling before leaving
     _UnhookSignals();
@@ -345,7 +345,7 @@ int Master::Run()
     ///- Wait for delay threads to end
     CharacterDatabase.HaltDelayThread();
     WorldDatabase.HaltDelayThread();
-    loginDatabase.HaltDelayThread();
+    LoginDatabase.HaltDelayThread();
 
     sLog.outString( "Halting process..." );
 
@@ -444,7 +444,7 @@ bool Master::_StartDB()
     }
 
     ///- Get login database info from configuration file
-    dbstring = sConfig.GetStringDefault("loginDatabaseInfo", "");
+    dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
     if(dbstring.empty())
     {
         sLog.outError("Login database not specified in configuration file");
@@ -452,7 +452,7 @@ bool Master::_StartDB()
     }
 
     ///- Initialise the login database
-    if(!loginDatabase.Initialize(dbstring.c_str()))
+    if(!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());
         return false;
@@ -500,7 +500,7 @@ void Master::clearOnlineAccounts()
 {
     // Cleanup online status for characters hosted at current realm
     /// \todo Only accounts with characters logged on *this* realm should have online status reset. Move the online column from 'account' to 'realmcharacters'?
-    loginDatabase.PExecute(
+    LoginDatabase.PExecute(
         "UPDATE account SET online = 0 WHERE online > 0 "
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')",realmID);
 
