@@ -369,14 +369,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\DatabaseMysql.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Database\DatabaseMysql.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\shared\Database\Field.cpp"
 				>
 			</File>
@@ -385,19 +377,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\MySQLDelayThread.h"
+				RelativePath="..\..\src\shared\Database\QueryResult.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\shared\Database\QueryResult.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Database\QueryResultMysql.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\Database\QueryResultMysql.h"
 				>
 			</File>
 			<File

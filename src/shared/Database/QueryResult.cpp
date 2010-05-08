@@ -20,10 +20,11 @@
 
 #include "DatabaseEnv.h"
 
-QueryResultMysql::QueryResultMysql(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
-    QueryResult(rowCount, fieldCount), mResult(result)
+QueryResult::QueryResult(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount)
+: mResult(result)
+, mFieldCount(fieldCount)
+, mRowCount(rowCount)
 {
-
     mCurrentRow = new Field[mFieldCount];
     ASSERT(mCurrentRow);
 
@@ -31,12 +32,12 @@ QueryResultMysql::QueryResultMysql(MYSQL_RES *result, MYSQL_FIELD *fields, uint6
          mCurrentRow[i].SetType(ConvertNativeType(fields[i].type));
 }
 
-QueryResultMysql::~QueryResultMysql()
+QueryResult::~QueryResult()
 {
     EndQuery();
 }
 
-bool QueryResultMysql::NextRow()
+bool QueryResult::NextRow()
 {
     MYSQL_ROW row;
 
@@ -56,7 +57,7 @@ bool QueryResultMysql::NextRow()
     return true;
 }
 
-void QueryResultMysql::EndQuery()
+void QueryResult::EndQuery()
 {
     if (mCurrentRow)
     {
@@ -71,7 +72,7 @@ void QueryResultMysql::EndQuery()
     }
 }
 
-enum Field::DataTypes QueryResultMysql::ConvertNativeType(enum_field_types mysqlType) const
+enum Field::DataTypes QueryResult::ConvertNativeType(enum_field_types mysqlType) const
 {
     switch (mysqlType)
     {

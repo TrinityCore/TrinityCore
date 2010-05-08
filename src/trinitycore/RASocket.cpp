@@ -152,9 +152,9 @@ void RASocket::OnRead()
                     AccountMgr::normalizeString(login);
 
                     ///- Escape the Login to allow quotes in names
-                    loginDatabase.escape_string(login);
+                    LoginDatabase.escape_string(login);
 
-                    QueryResult_AutoPtr result = loginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
+                    QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT a.id, aa.gmlevel, aa.RealmID FROM account a LEFT JOIN account_access aa ON (a.id = aa.id) WHERE a.username = '%s'",login.c_str ());
 
                     ///- If the user is not found, deny access
                     if(!result)
@@ -200,10 +200,10 @@ void RASocket::OnRead()
 
                     AccountMgr::normalizeString(login);
                     AccountMgr::normalizeString(pw);
-                    loginDatabase.escape_string(login);
-                    loginDatabase.escape_string(pw);
+                    LoginDatabase.escape_string(login);
+                    LoginDatabase.escape_string(pw);
 
-                    QueryResult_AutoPtr check = loginDatabase.PQuery(
+                    QueryResult_AutoPtr check = LoginDatabase.PQuery(
                         "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash=SHA1(CONCAT('%s',':','%s'))",
                         login.c_str(), login.c_str(), pw.c_str());
 
