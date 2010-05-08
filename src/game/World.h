@@ -444,6 +444,7 @@ enum WorldStates
 #define SCRIPT_COMMAND_ORIENTATION          30              // o = orientation
 #define SCRIPT_COMMAND_EQUIP                31              // datalong = equipment id
 #define SCRIPT_COMMAND_MODEL                32              // datalong = model id
+#define SCRIPT_COMMAND_CLOSE_GOSSIP         33              // close gossip window -- no values
 #define SCRIPT_COMMAND_PLAYMOVIE            34              // datalong = movie id
 
 /// Storage class for commands issued for delayed execution
