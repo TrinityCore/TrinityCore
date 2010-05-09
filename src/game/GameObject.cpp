@@ -200,6 +200,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     {
         case GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING:
             m_goValue->building.health = goinfo->building.intactNumHits + goinfo->building.damagedNumHits;
+            SetGoAnimProgress(255);
             break;
         case GAMEOBJECT_TYPE_TRANSPORT:
             SetUInt32Value(GAMEOBJECT_LEVEL, goinfo->transport.pause);
@@ -1544,7 +1545,7 @@ void GameObject::SendCustomAnim()
 {
     WorldPacket data(SMSG_GAMEOBJECT_CUSTOM_ANIM,8+4);
     data << GetGUID();
-    data << (uint32)0;
+    data << uint32(GetGoAnimProgress());
     SendMessageToSet(&data, true);
 }
 
@@ -1576,10 +1577,10 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
 
     Player* pwho = NULL;
     if (who && who->GetTypeId() == TYPEID_PLAYER)
-      pwho = (Player*)who;
+        pwho = who->ToPlayer();
 
     if (who && who->IsVehicle())
-      pwho = (Player*)who->GetCharmerOrOwner();
+        pwho = who->GetCharmerOrOwner()->ToPlayer();
 
     if (m_goValue->building.health > damage)
         m_goValue->building.health -= damage;
@@ -1595,12 +1596,10 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DESTROYED);
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.destroyedDisplayId);
             EventInform(m_goInfo->building.destroyedEvent);
-        if (pwho)
-          {
-        if (BattleGround* bg = pwho->GetBattleGround())
-          bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.destroyedEvent);
-          }
-    }
+            if (pwho)
+                if (BattleGround* bg = pwho->GetBattleGround())
+                    bg->EventPlayerDamagedGO(pwho, this, m_goInfo->building.destroyedEvent);
+        }
     }
     else // from intact to damaged
     {
@@ -1616,6 +1615,7 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             EventInform(m_goInfo->building.damagedEvent);
         }
     }
+    SetGoAnimProgress(m_goValue->building.health*255/(m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits));
 }
 
 void GameObject::Rebuild()
