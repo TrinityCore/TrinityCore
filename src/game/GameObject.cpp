@@ -1576,11 +1576,13 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
         return;
 
     Player* pwho = NULL;
-    if (who && who->GetTypeId() == TYPEID_PLAYER)
-        pwho = who->ToPlayer();
-
-    if (who && who->IsVehicle())
-        pwho = who->GetCharmerOrOwner()->ToPlayer();
+    if (who)
+    {
+        if (who->GetTypeId() == TYPEID_PLAYER)
+            pwho = who->ToPlayer();
+        else if (who->IsVehicle() && who->GetCharmerOrOwner())
+            pwho = who->GetCharmerOrOwner()->ToPlayer();
+    }
 
     if (m_goValue->building.health > damage)
         m_goValue->building.health -= damage;
