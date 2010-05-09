@@ -5194,6 +5194,13 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
                 break;
             }
+            case SPELL_EFFECT_LEAP_BACK:
+            {
+                if(m_spellInfo->Id == 781)
+                    if(!m_caster->isInCombat())
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                break;
+            }
             default:break;
         }
     }
