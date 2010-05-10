@@ -66,7 +66,7 @@ RealmSocket::~RealmSocket(void)
     // delete RealmSocketObject must never be called from our code.
     closing_ = true;
 
-    if (session_);
+    if (session_)
         delete session_;
     
     peer().close();
