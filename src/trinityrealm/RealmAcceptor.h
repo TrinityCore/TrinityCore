@@ -43,7 +43,7 @@ class RealmAcceptor : public ACE_Acceptor<RealmSocket, ACE_SOCK_Acceptor>
             if (sh == 0)
                 ACE_NEW_RETURN(sh, RealmSocket, -1);
 
-            sh->reactor(this->reactor());
+            sh->reactor(reactor());
             sh->set_session(new AuthSocket(*sh));
             return 0;
         }
