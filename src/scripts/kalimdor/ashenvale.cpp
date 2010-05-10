@@ -229,9 +229,6 @@ CreatureAI* GetAI_npc_ruul_snowhoofAI(Creature* pCreature)
     return new npc_ruul_snowhoofAI(pCreature);
 }
 
-#include "ScriptedPch.h"
-#include "ScriptedEscortAI.h"
-
 enum eEnums
 {
     SAY_MUG_START1          = -1800054,
@@ -247,7 +244,7 @@ enum eEnums
 
     QUEST_VORSHA            = 6641,
 
-    GO_NAGA_BRAZIER         = 178247,    
+    GO_NAGA_BRAZIER         = 178247,
 
     NPC_WRATH_RIDER         = 3713,
     NPC_WRATH_SORCERESS     = 3717,
@@ -288,7 +285,7 @@ struct npc_muglashAI : public npc_escortAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->AI()->AttackStart(me);        
+        pSummoned->AI()->AttackStart(me);
     }
 
     void WaypointReached(uint32 i)
@@ -330,7 +327,7 @@ struct npc_muglashAI : public npc_escortAI
     {
         if (HasEscortState(STATE_ESCORT_PAUSED))
         {
-            if (urand(0, 1))                
+            if (urand(0, 1))
             DoScriptText(SAY_MUG_ON_GUARD, me);
             return;
         }
@@ -340,7 +337,7 @@ struct npc_muglashAI : public npc_escortAI
     {
         m_uiEventTimer = 10000;
         m_uiWaveId = 0;
-        m_bIsBrazierExtinguished = false;       
+        m_bIsBrazierExtinguished = false;
     }
 
     void JustDied(Unit* pKiller)
@@ -352,7 +349,7 @@ struct npc_muglashAI : public npc_escortAI
             {
                 pPlayer->FailQuest(QUEST_VORSHA);
             }
-        }        
+        }
     }
 
     void DoWaveSummon()
@@ -377,7 +374,7 @@ struct npc_muglashAI : public npc_escortAI
                 DoScriptText(SAY_MUG_DONE, me);
                 break;
         }
-    }    
+    }
 
     void UpdateAI(const uint32 uiDiff)
     {
@@ -395,10 +392,10 @@ struct npc_muglashAI : public npc_escortAI
                 }
                 else
                     m_uiEventTimer -= uiDiff;
-            }    
-            return;            
+            }
+            return;
         }
-        DoMeleeAttackIfReady(); 
+        DoMeleeAttackIfReady();
     }
 };
 
