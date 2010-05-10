@@ -3726,6 +3726,16 @@ void Map::ScriptsProcess()
 
                 break;
             }
+            case SCRIPT_COMMAND_PLAYMOVIE:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_PLAYMOVIE call for NULL creature.");
+                    break;
+                }
+                player->SendMovieStart(step.script->datalong);
+                break;
+            }
             default:
                 sLog.outError("Unknown script command %u called.",step.script->command);
                 break;
