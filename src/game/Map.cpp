@@ -3733,7 +3733,7 @@ void Map::ScriptsProcess()
                     sLog.outError("SCRIPT_COMMAND_PLAYMOVIE call for NULL creature.");
                     break;
                 }
-                source->ToPlayer->SendMovieStart(step.script->datalong);
+                source->ToPlayer()->SendMovieStart(step.script->datalong);
                 break;
             }
             default:
