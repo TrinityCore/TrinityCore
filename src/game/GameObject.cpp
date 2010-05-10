@@ -192,8 +192,6 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
     SetGoType(GameobjectTypes(goinfo->type));
 
     SetGoArtKit(0);                                         // unknown what this is
-    SetGoAnimProgress(animprogress);
-
     SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
 
     switch(goinfo->type)
@@ -206,6 +204,13 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
             SetUInt32Value(GAMEOBJECT_LEVEL, goinfo->transport.pause);
             if (goinfo->transport.startOpen)
                 SetGoState(GO_STATE_ACTIVE);
+            SetGoAnimProgress(animprogress);
+            break;
+        case GAMEOBJECT_TYPE_FISHINGNODE:
+            SetGoAnimProgress(0);
+            break;
+        default:
+            SetGoAnimProgress(animprogress);
             break;
     }
 
