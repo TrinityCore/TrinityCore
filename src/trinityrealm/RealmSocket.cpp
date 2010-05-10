@@ -67,7 +67,7 @@ RealmSocket::~RealmSocket(void)
     closing_ = true;
 
     if (session_);
-        delete esession_;
+        delete session_;
     
     peer().close();
 }
