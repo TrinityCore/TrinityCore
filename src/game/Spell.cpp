@@ -5196,9 +5196,11 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_LEAP_BACK:
             {
-                if(m_spellInfo->Id == 781)
-                    if(!m_caster->isInCombat())
+                if (m_spellInfo->Id == 781)
+                    if (!m_caster->isInCombat())
                         return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                    if (m_caster->hasUnitState(UNIT_STAT_ROOT))
+                        return SPELL_FAILED_ROOTED;
                 break;
             }
             default:break;
