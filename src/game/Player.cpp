@@ -13670,7 +13670,11 @@ void Player::SendPreparedQuest(uint64 guid)
                 }
 
                 if (pQuest->HasFlag(QUEST_FLAGS_AUTO_ACCEPT) && CanAddQuest(pQuest, true))
+                {
                     AddQuest(pQuest, pObject);
+                    if (CanCompleteQuest(quest_id))
+                        CompleteQuest(quest_id);
+                }
 
                 if ((pQuest->IsAutoComplete() && pQuest->IsRepeatable() && !pQuest->IsDailyOrWeekly()) || pQuest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
                     PlayerTalkClass->SendQuestGiverRequestItems(pQuest, guid, CanCompleteRepeatableQuest(pQuest), true);

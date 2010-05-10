@@ -247,7 +247,11 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recv_data)
     if (pQuest)
     {
         if (pQuest->HasFlag(QUEST_FLAGS_AUTO_ACCEPT) && _player->CanAddQuest(pQuest, true))
+        {
             _player->AddQuest(pQuest, pObject);
+            if (_player->CanCompleteQuest(quest))
+                _player->CompleteQuest(quest);
+        }
 
         if (pQuest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
             _player->PlayerTalkClass->SendQuestGiverRequestItems(pQuest, pObject->GetGUID(), _player->CanCompleteQuest(pQuest->GetQuestId()), true);
