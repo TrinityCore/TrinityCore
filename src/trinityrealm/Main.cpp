@@ -202,13 +202,13 @@ extern int main(int argc, char **argv)
 
     ///- Launch the listening network socket
     RealmAcceptor acceptor;
-
+    
     uint16 rmport = sConfig.GetIntDefault("RealmServerPort", DEFAULT_REALMSERVER_PORT);
     std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
 
     ACE_INET_Addr bind_addr(rmport, bind_ip.c_str());
 
-    if(acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
+    if (acceptor.open(bind_addr, ACE_Reactor::instance(), ACE_NONBLOCK) == -1)
     {
         sLog.outError("Trinity realm can not bind to %s:%d", bind_ip.c_str(), rmport);
         return 1;
