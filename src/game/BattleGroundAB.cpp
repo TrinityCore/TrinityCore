@@ -45,7 +45,7 @@ BattleGroundAB::BattleGroundAB()
 {
     m_BuffChange = true;
     m_BgObjects.resize(BG_AB_OBJECT_MAX);
-    m_BgCreatures.resize(BG_AB_ALL_NODES_COUNT);
+    m_BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
 
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
@@ -367,9 +367,8 @@ void BattleGroundAB::_SendNodeUpdate(uint8 node)
 
 void BattleGroundAB::_NodeOccupied(uint8 node,Team team)
 {
-   if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], team))
+    if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], team))
         sLog.outError("Failed to spawn spirit guide! point: %u, team: %u,", node, team);
-//   SpawnBGCreature(node,RESPAWN_IMMEDIATELY);
 
     uint8 capturedNodes = 0;
     for (uint8 i = 0; i < BG_AB_DYNAMIC_NODES_COUNT; ++i)
@@ -381,12 +380,31 @@ void BattleGroundAB::_NodeOccupied(uint8 node,Team team)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_5_BASES, team);
     if (capturedNodes >= 4)
         CastSpellOnTeam(SPELL_AB_QUEST_REWARD_4_BASES, team);
+
+    if(node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+        return;
+    Creature* trigger = GetBGCreature(node+7);//0-6 spirit guides
+    if (!trigger)
+       trigger = AddCreature(WORLD_TRIGGER,node+7,team,BG_AB_NodePositions[node][0],BG_AB_NodePositions[node][1],BG_AB_NodePositions[node][2],BG_AB_NodePositions[node][3]);
+
+    //add bonus honor aura trigger creature when node is accupied
+    //cast bonus aura (+50% honor in 25yards)
+    //aura should only apply to players who have accupied the node, set correct faction for trigger
+    if (trigger)
+    {
+        trigger->setFaction(team == ALLIANCE ? 84 : 83);
+        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
+    }
 }
 
 void BattleGroundAB::_NodeDeOccupied(uint8 node)
 {
     if (node >= BG_AB_DYNAMIC_NODES_COUNT)
         return;
+
+    //remove bonus honor aura trigger creature when node is lost    
+    if(node < BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
+        DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
     std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
@@ -607,7 +625,7 @@ void BattleGroundAB::Reset()
         m_BannerTimers[i].timer = 0;
     }
 
-    for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT; ++i)
+    for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers
         if (m_BgCreatures[i])
             DelCreature(i);
 }
