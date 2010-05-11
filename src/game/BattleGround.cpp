@@ -1809,7 +1809,6 @@ void BattleGround::HandleKillPlayer(Player *player, Player *killer)
 
     // add +1 deaths
     UpdatePlayerScore(player, SCORE_DEATHS, 1);
-    RewardXPAtKill(killer, player);
     // add +1 kills to group and +1 killing_blows to killer
     if (killer)
     {
@@ -1829,8 +1828,12 @@ void BattleGround::HandleKillPlayer(Player *player, Player *killer)
     }
 
     // to be able to remove insignia -- ONLY IN BattleGrounds
+    // give xp only in BattleGrounds 
     if (!isArena())
+    {
         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
+        RewardXPAtKill(killer, player);
+    }
 }
 
 // return the player's team based on battlegroundplayer info
