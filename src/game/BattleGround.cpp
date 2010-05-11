@@ -1809,7 +1809,7 @@ void BattleGround::HandleKillPlayer(Player *player, Player *killer)
 
     // add +1 deaths
     UpdatePlayerScore(player, SCORE_DEATHS, 1);
-
+    RewardXPAtKill(killer, player);
     // add +1 kills to group and +1 killing_blows to killer
     if (killer)
     {
@@ -1947,4 +1947,93 @@ void BattleGround::SetBracket(PvPDifficultyEntry const* bracketEntry)
 {
     m_BracketId  = bracketEntry->GetBracketId();
     SetLevelRange(bracketEntry->minLevel,bracketEntry->maxLevel);
+}
+
+void BattleGround::RewardXPAtKill(Player* plr, Unit* victim)
+{
+    if (!plr || !victim)
+        return;
+
+    uint32 xp = 0;
+    uint32 count = 0;
+    uint32 sum_level = 0;
+    Player* member_with_max_level = NULL;
+    Player* not_gray_member_with_max_level = NULL;
+
+    if (Group *pGroup = plr->GetGroup())//should be always in a raid group while in any bg
+    {
+        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        {
+            Player* member = itr->getSource();
+            if (!member || !member->isAlive())                   // only for alive
+                continue;
+
+            if (!member->IsAtGroupRewardDistance(victim))        // at req. distance
+                continue;
+
+            ++count;
+            sum_level += member->getLevel();
+            if (!member_with_max_level || member_with_max_level->getLevel() < member->getLevel())
+                member_with_max_level = member;
+
+            uint32 gray_level = Trinity::XP::GetGrayLevel(member->getLevel());
+            if (victim->getLevel() > gray_level && (!not_gray_member_with_max_level
+               || not_gray_member_with_max_level->getLevel() < member->getLevel()))
+                not_gray_member_with_max_level = member;
+        }        
+
+        if (member_with_max_level)
+        {
+            xp = !not_gray_member_with_max_level ? 0 : Trinity::XP::Gain(not_gray_member_with_max_level, victim);
+
+            if (!xp)
+                return;
+
+            float group_rate = 1.0f;
+
+            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            {
+                Player* pGroupGuy = itr->getSource();
+                if (!pGroupGuy)
+                    continue;
+
+                if (!pGroupGuy->IsAtGroupRewardDistance(victim))
+                    continue;                               // member (alive or dead) or his corpse at req. distance
+
+                float rate = group_rate * float(pGroupGuy->getLevel()) / sum_level;
+
+                // XP updated only for alive group member
+                if (pGroupGuy->isAlive() && not_gray_member_with_max_level && pGroupGuy->getLevel() <= not_gray_member_with_max_level->getLevel())
+                {
+                    uint32 itr_xp = (member_with_max_level == not_gray_member_with_max_level) ? uint32(xp*rate) : uint32((xp*rate/2)+1);
+
+                    // handle SPELL_AURA_MOD_XP_PCT auras
+                    Unit::AuraEffectList const& ModXPPctAuras = plr->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
+                    for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
+                        itr_xp = uint32(itr_xp*(1.0f + (*i)->GetAmount() / 100.0f));
+
+                    pGroupGuy->GiveXP(itr_xp, victim);
+                    if (Pet* pet = pGroupGuy->GetPet())
+                        pet->GivePetXP(itr_xp/2);
+                }
+            }
+        }
+    }
+    else//should be always in a raid group while in any BG, but you never know...
+    {
+        xp = Trinity::XP::Gain(plr, victim);
+
+        if (!xp)
+            return;
+
+        // handle SPELL_AURA_MOD_XP_PCT auras
+        Unit::AuraEffectList const& ModXPPctAuras = plr->GetAuraEffectsByType(SPELL_AURA_MOD_XP_PCT);
+        for (Unit::AuraEffectList::const_iterator i = ModXPPctAuras.begin(); i != ModXPPctAuras.end(); ++i)
+            xp = uint32(xp*(1.0f + (*i)->GetAmount() / 100.0f));
+
+        plr->GiveXP(xp, victim);
+
+        if (Pet* pet = plr->GetPet())
+            pet->GivePetXP(xp);
+    }    
 }
