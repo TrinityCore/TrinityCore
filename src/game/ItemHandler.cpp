@@ -772,7 +772,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 // reputation discount
                 int32 price = uint32(floor(pProto->BuyPrice * discountMod));
 
-                data << uint32(vendorslot+1);	// client expects counting to start at 1
+                data << uint32(vendorslot+1);    // client expects counting to start at 1
                 data << uint32(crItem->item);
                 data << uint32(pProto->DisplayInfoID);
                 data << int32(crItem->maxcount <= 0 ? 0xFFFFFFFF : pCreature->GetVendorItemCurrentCount(crItem));

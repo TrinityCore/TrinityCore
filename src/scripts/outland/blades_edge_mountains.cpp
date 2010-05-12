@@ -442,7 +442,7 @@ struct npc_ogre_bruteAI : public ScriptedAI
         }
     }
 
-    void MovementInform(uint32 type, uint32 id)
+    void MovementInform(uint32 /*type*/, uint32 id)
     {
         Player* pPlayer = Unit::GetPlayer(PlayerGUID);
         if (id == 1)
@@ -459,7 +459,7 @@ struct npc_ogre_bruteAI : public ScriptedAI
         }
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 /*diff*/)
     {
         if (!UpdateVictim())
             return;

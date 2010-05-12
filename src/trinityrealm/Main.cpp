@@ -202,7 +202,7 @@ extern int main(int argc, char **argv)
 
     ///- Launch the listening network socket
     RealmAcceptor acceptor;
-    
+
     uint16 rmport = sConfig.GetIntDefault("RealmServerPort", DEFAULT_REALMSERVER_PORT);
     std::string bind_ip = sConfig.GetStringDefault("BindIP", "0.0.0.0");
 
