@@ -816,33 +816,24 @@ bool AuthSocket::_HandleRealmList()
     ///- Update realm list if need
     sRealmList->UpdateIfNeed();
 
-    RealmList::RealmMap::const_iterator rlm;
-    for (rlm = sRealmList->begin(); rlm != sRealmList->end(); ++rlm)
-    {
-        if ( _expversion & POST_BC_EXP_FLAG )//2.4.3 and 3.1.3 cliens
-        {
-            if (rlm->second.gamebuild == _build)
-                sRealmList->AddRealm(rlm->second);
-        }
-        else if ( _expversion & PRE_BC_EXP_FLAG )//1.12.1 and 1.12.2 clients are compatible with eachother
-        {
-            if ( AuthHelper::IsPreBCAcceptedClientBuild ( rlm->second.gamebuild ) )
-                sRealmList->AddRealm(rlm->second);
-        }
-
-    }
-
     ///- Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
-    pkt << (uint32) 0;
-    if (  _expversion & POST_BC_EXP_FLAG )//only 2.4.3 and 3.1.3 cliens
-        pkt << (uint16) sRealmList->size();
-    else
-        pkt << (uint32) sRealmList->size();
 
-    RealmList::RealmMap::const_iterator i;
-    for (i = sRealmList->begin(); i != sRealmList->end(); ++i)
+    size_t RealmListSize = 0;
+    for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
+        // don't work with realms which not compatible with the client
+        if (_expversion & POST_BC_EXP_FLAG) // 2.4.3 and 3.1.3 cliens
+        {
+            if (i->second.gamebuild != _build)
+                continue;
+        }
+        else if (_expversion & PRE_BC_EXP_FLAG) // 1.12.1 and 1.12.2 clients are compatible with eachother
+        {
+            if (!AuthHelper::IsPreBCAcceptedClientBuild(i->second.gamebuild))
+                continue;
+        }
+
         uint8 AmountOfCharacters;
 
         // No SQL injection. id of realm is controlled by the database.
@@ -870,6 +861,8 @@ bool AuthSocket::_HandleRealmList()
             pkt << (uint8) 0x2C;                                // unk, may be realm number/id?
         else
             pkt << (uint8) 0x0; //1.12.1 and 1.12.2 clients
+
+        ++RealmListSize;
     }
 
     if ( _expversion & POST_BC_EXP_FLAG )//2.4.3 and 3.1.3 cliens
@@ -881,10 +874,19 @@ bool AuthSocket::_HandleRealmList()
         pkt << (uint8) 0x02;
     }
 
+    // make a ByteBuffer which stores the RealmList's size
+    ByteBuffer RealmListSizeBuffer;
+    RealmListSizeBuffer << (uint32)0;
+    if (_expversion & POST_BC_EXP_FLAG) // only 2.4.3 and 3.1.3 cliens
+        RealmListSizeBuffer << (uint16)RealmListSize;
+    else
+        RealmListSizeBuffer << (uint32)RealmListSize;
+
     ByteBuffer hdr;
     hdr << (uint8) REALM_LIST;
-    hdr << (uint16)pkt.size();
-    hdr.append(pkt);
+    hdr << (uint16)(pkt.size() + RealmListSizeBuffer.size());
+    hdr.append(RealmListSizeBuffer);    // append RealmList's size buffer
+    hdr.append(pkt);                    // append realms in the realmlist
 
     socket().send((char const*)hdr.contents(), hdr.size());
 
