@@ -5982,11 +5982,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         break;
 
                     if (apply)
-                    {
-                        // Greater Blessing of Sanctuary does not provide strength bonus
-                        int32 bp1 = 0;
-                        caster->CastCustomSpell(target, 67480, NULL, (GetSpellProto()->SpellIconID == 1804) ? &bp1 : NULL, NULL, true);
-                    }
+                        caster->CastSpell(target, 67480, true);
                     else
                         target->RemoveAura(67480, GetCasterGUID());
 
