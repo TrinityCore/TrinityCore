@@ -409,6 +409,7 @@ void BattleGroundEY::HandleAreaTrigger(Player *Source, uint32 Trigger)
         case 4569:
         case 4570:
         case 4571:
+        case 5866:
             break;
         default:
             sLog.outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
@@ -694,6 +695,10 @@ void BattleGroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
 
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
+
+    //remove bonus honor aura trigger creature when node is lost  
+     if (Point < EY_POINTS_MAX)
+         DelCreature(Point + 6);//NULL checks are in DelCreature! 0-5 spirit guides
 }
 
 void BattleGroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
@@ -745,6 +750,22 @@ void BattleGroundEY::EventTeamCapturedPoint(Player *Source, uint32 Point)
 
     UpdatePointsIcons(Team, Point);
     UpdatePointsCount(Team);
+
+    if (Point >= EY_POINTS_MAX)
+        return;
+
+    Creature* trigger = GetBGCreature(Point + 6);//0-5 spirit guides
+    if (!trigger)
+       trigger = AddCreature(WORLD_TRIGGER,Point+6,Team,BG_EY_TriggerPositions[Point][0],BG_EY_TriggerPositions[Point][1],BG_EY_TriggerPositions[Point][2],BG_EY_TriggerPositions[Point][3]);
+
+    //add bonus honor aura trigger creature when node is accupied
+    //cast bonus aura (+50% honor in 25yards)
+    //aura should only apply to players who have accupied the node, set correct faction for trigger
+    if (trigger)
+    {
+        trigger->setFaction(Team == ALLIANCE ? 84 : 83);
+        trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
+    }
 }
 
 void BattleGroundEY::EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType)
