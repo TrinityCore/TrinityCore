@@ -549,7 +549,7 @@ class BattleGround
         /* virtual score-array - get's used in bg-subclasses */
         int32 m_TeamScores[BG_TEAMS_COUNT];
 
-        void RewardXPAtKill(Player* plr, Unit* victim);
+        void RewardXPAtKill(Player* plr, Player* victim);
 
     protected:
         //this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends BattleGround
