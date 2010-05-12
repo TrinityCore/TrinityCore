@@ -157,7 +157,7 @@ struct boss_anub_arakAI : public ScriptedAI
         return NULL;
     }
 
-    void EnterCombat(Unit *pWho)
+    void EnterCombat(Unit * /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
         if (pInstance)
@@ -323,7 +323,7 @@ struct boss_anub_arakAI : public ScriptedAI
         }
     }
     
-    void JustDied(Unit *pKiller)
+    void JustDied(Unit * /*pKiller*/)
     {
         DoScriptText(SAY_DEATH, me);
         lSummons.DespawnAll();

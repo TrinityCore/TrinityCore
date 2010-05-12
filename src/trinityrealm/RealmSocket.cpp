@@ -52,7 +52,7 @@ RealmSocket::RealmSocket(void):
 
     msg_queue()->high_water_mark(8*1024*1024);
     msg_queue()->low_water_mark(8*1024*1024);
-    
+
 }
 
 RealmSocket::~RealmSocket(void)
@@ -62,13 +62,13 @@ RealmSocket::~RealmSocket(void)
 
     if (input_buffer_.length() != 0)
         input_buffer_.release();
-        
+
     // delete RealmSocketObject must never be called from our code.
     closing_ = true;
 
     if (session_)
         delete session_;
-    
+
     peer().close();
 }
 
@@ -83,7 +83,7 @@ int RealmSocket::open(void * arg)
     }
 
     remote_address_ = addr.get_host_addr();
-    
+
     // Register with ACE Reactor
     if (Base::open(arg) == -1)
         return -1;
@@ -102,7 +102,7 @@ int RealmSocket::open(void * arg)
 int RealmSocket::close(int)
 {
     shutdown();
-    
+
     closing_ = true;
 
     remove_reference();
@@ -267,7 +267,7 @@ int RealmSocket::handle_output(ACE_HANDLE /*= ACE_INVALID_HANDLE*/)
     ACE_NOTREACHED(return -1);
 }
 
-int RealmSocket::handle_close(ACE_HANDLE h, ACE_Reactor_Mask m)
+int RealmSocket::handle_close(ACE_HANDLE h, ACE_Reactor_Mask /*m*/)
 {
     // As opposed to WorldSocket::handle_close, we don't need locks here.
 
@@ -275,7 +275,7 @@ int RealmSocket::handle_close(ACE_HANDLE h, ACE_Reactor_Mask m)
 
     if (h == ACE_INVALID_HANDLE)
         peer ().close_writer ();
-            
+
     if (session_ != NULL)
     {
         session_->OnClose();

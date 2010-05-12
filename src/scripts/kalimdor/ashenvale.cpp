@@ -323,7 +323,7 @@ struct npc_muglashAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* pWho)
+    void Aggro(Unit* /*pWho*/)
     {
         if (HasEscortState(STATE_ESCORT_PAUSED))
         {
@@ -340,7 +340,7 @@ struct npc_muglashAI : public npc_escortAI
         m_bIsBrazierExtinguished = false;
     }
 
-    void JustDied(Unit* pKiller)
+    void JustDied(Unit* /*pKiller*/)
     {
         Player* pPlayer = GetPlayerForEscort();
         if (HasEscortState(STATE_ESCORT_ESCORTING))
@@ -420,7 +420,7 @@ bool QuestAccept_npc_muglash(Player* pPlayer, Creature* pCreature, const Quest* 
 }
 
 
-bool GOHello_go_naga_brazier(Player* pPlayer, GameObject* pGo)
+bool GOHello_go_naga_brazier(Player* /*pPlayer*/, GameObject* pGo)
 {
     if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_MUGLASH, INTERACTION_DISTANCE*2))
     {

@@ -375,7 +375,7 @@ void CliRunnable::run()
     WorldDatabase.ThreadStart();                                // let thread do safe mySQL requests
 
     char commandbuf[256];
-    bool canflush = true;
+
     ///- Display the list of available CLI functions then beep
     sLog.outString("");
     #if PLATFORM != WINDOWS
