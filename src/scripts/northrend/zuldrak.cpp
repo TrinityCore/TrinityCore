@@ -1021,15 +1021,18 @@ enum eScourgeEnclosure
 
 bool GOHello_go_scourge_enclosure(Player *pPlayer, GameObject *pGO)
 {
-    Creature *pGymerDummy;
-    if (pPlayer->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE &&
-        (pGymerDummy = pGO->FindNearestCreature(NPC_GYMER_DUMMY,20.0f)))
+    
+    if (pPlayer->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pGymerDummy = pGO->FindNearestCreature(NPC_GYMER_DUMMY,20.0f);
+        if (pGymerDummy)
         {
-                        pGO->UseDoorOrButton();
-                        pPlayer->KilledMonsterCredit(pGymerDummy->GetEntry(),pGymerDummy->GetGUID());
-                        pGymerDummy->CastSpell(pGymerDummy, 55529, true);
-                        pGymerDummy->DisappearAndDie();
+            pGO->UseDoorOrButton();
+            pPlayer->KilledMonsterCredit(pGymerDummy->GetEntry(),pGymerDummy->GetGUID());
+            pGymerDummy->CastSpell(pGymerDummy, 55529, true);
+            pGymerDummy->DisappearAndDie();
         }
+    }
     return true;
 }
 

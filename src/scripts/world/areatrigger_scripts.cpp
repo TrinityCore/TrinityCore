@@ -191,7 +191,7 @@ enum eScentLarkorwi
     NPC_LARKORWI_MATE                           = 9683
 };
 
-bool AreaTrigger_at_scent_larkorwi(Player* pPlayer, const AreaTriggerEntry* pAt)
+bool AreaTrigger_at_scent_larkorwi(Player* pPlayer, const AreaTriggerEntry* /*pAt*/)
 {
     if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
     {
