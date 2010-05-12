@@ -1656,6 +1656,11 @@ AutoBroadcast.Timer = 60000
 #        Default: 1800000 (30 minutes)
 #                 0 - disable (not recommended)
 #
+#    Battleground.GiveXPForKills
+#        Give experience for honorable kills in battlegrounds
+#        Default: 0 (disable)
+#                 1 (enable)
+#
 ###############################################################################
 
 Battleground.CastDeserter = 1
@@ -1664,6 +1669,7 @@ Battleground.QueueAnnouncer.PlayerOnly = 0
 Battleground.InvitationType = 0
 BattleGround.PrematureFinishTimer = 300000
 BattleGround.PremadeGroupWaitForMatch = 1800000
+Battleground.GiveXPForKills = 0
 
 ###############################################################################
 # ARENA CONFIG
