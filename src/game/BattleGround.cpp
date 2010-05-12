@@ -1952,7 +1952,7 @@ void BattleGround::SetBracket(PvPDifficultyEntry const* bracketEntry)
     SetLevelRange(bracketEntry->minLevel,bracketEntry->maxLevel);
 }
 
-void BattleGround::RewardXPAtKill(Player* plr, Unit* victim)
+void BattleGround::RewardXPAtKill(Player* plr, Player* victim)
 {
     if (!plr || !victim)
         return;
