@@ -46,22 +46,22 @@ public:
   int StartNetwork (ACE_UINT16 port, const char* address);
 
   /// Stops all network threads, It will wait for all running threads .
-  void StopNetwork ();
+  void StopNetwork();
 
   /// Wait untill all network threads have "joined" .
-  void Wait ();
+  void Wait();
 
   /// Make this class singleton .
-  static WorldSocketMgr* Instance ();
-
+  static WorldSocketMgr* Instance();
+  
 private:
   int OnSocketOpen(WorldSocket* sock);
 
   int StartReactiveIO(ACE_UINT16 port, const char* address);
 
 private:
-  WorldSocketMgr ();
-  virtual ~WorldSocketMgr ();
+  WorldSocketMgr();
+  virtual ~WorldSocketMgr();
 
   ReactorRunnable* m_NetThreads;
   size_t m_NetThreadsCount;
@@ -73,7 +73,7 @@ private:
   ACE_Event_Handler* m_Acceptor;
 };
 
-#define sWorldSocketMgr WorldSocketMgr::Instance ()
+#define sWorldSocketMgr WorldSocketMgr::Instance()
 
 #endif
 /// @}

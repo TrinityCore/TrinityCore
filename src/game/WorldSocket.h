@@ -73,7 +73,7 @@ typedef ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH> WorldHandler;
  * sending packets from "producer" threads is minimal,
  * and doing a lot of writes with small size is tolerated.
  *
- * The calls to Update () method are managed by WorldSocketMgr
+ * The calls to Update() method are managed by WorldSocketMgr
  * and ReactorRunnable.
  *
  * For input ,the class uses one 1024 bytes buffer on stack
@@ -102,9 +102,6 @@ class WorldSocket : protected WorldHandler
         /// Mutex type used for various synchronizations.
         typedef ACE_Thread_Mutex LockType;
         typedef ACE_Guard<LockType> GuardType;
-
-        /// Queue for storing packets for which there is no space.
-        typedef ACE_Unbounded_Queue< WorldPacket* > PacketQueueT;
 
         /// Check if socket is closed.
         bool IsClosed (void) const;
@@ -160,6 +157,9 @@ class WorldSocket : protected WorldHandler
         /// @param g the guard is for m_OutBufferLock, the function will release it
         int cancel_wakeup_output (GuardType& g);
         int schedule_wakeup_output (GuardType& g);
+        
+        /// Drain the queue if its not empty.
+        int handle_output_queue (GuardType& g);
 
         /// process one incoming packet.
         /// @param new_pct received packet ,note that you need to delete it.
@@ -170,20 +170,6 @@ class WorldSocket : protected WorldHandler
 
         /// Called by ProcessIncoming() on CMSG_PING.
         int HandlePing (WorldPacket& recvPacket);
-
-        /// Try to write WorldPacket to m_OutBuffer ,return -1 if no space
-        /// Need to be called with m_OutBufferLock lock held
-        int iSendPacket (const WorldPacket& pct);
-
-        /// Try to write WorldPacket to m_OutBuffer even partially,
-        /// Need to be called with m_OutBufferLock lock held
-        int iSendPartialPacket(WorldPacket& pct);
-
-        /// Flush m_PacketQueue if there are packets in it
-        /// Need to be called with m_OutBufferLock lock held
-        /// @return true if it wrote to the buffer (AKA you need
-        /// to mark the socket for output).
-        bool iFlushPacketQueue ();
 
     private:
         /// Time in which the last ping was received
@@ -223,10 +209,6 @@ class WorldSocket : protected WorldHandler
 
         /// Size of the m_OutBuffer.
         size_t m_OutBufferSize;
-
-        /// Here are stored packets for which there was no space on m_OutBuffer,
-        /// this allows not-to kick player if its buffer is overflowed.
-        PacketQueueT m_PacketQueue;
 
         /// True if the socket is registered with the reactor for output
         bool m_OutActive;
