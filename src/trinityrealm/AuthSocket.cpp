@@ -802,7 +802,7 @@ bool AuthSocket::_HandleRealmList()
     ///- Get the user id (else close the connection)
     // No SQL injection (escaped user name)
 
-    QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT id,sha_pass_hash FROM account WHERE username = '%s'",_safelogin.c_str());
+    QueryResult_AutoPtr result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'",_safelogin.c_str());
     if (!result)
     {
         sLog.outError("[ERROR] user %s tried to login and we cannot find him in the database.",_login.c_str());
@@ -811,7 +811,6 @@ bool AuthSocket::_HandleRealmList()
     }
 
     uint32 id = (*result)[0].GetUInt32();
-    std::string rI = (*result)[1].GetCppString();
 
     ///- Update realm list if need
     sRealmList->UpdateIfNeed();
