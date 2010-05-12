@@ -164,9 +164,10 @@ void Script::RegisterSelf()
         m_scripts[id] = this;
         ++num_sc_scripts;
     }
-    else if (Name.find("example") == std::string::npos)
+    else
     {
-        error_db_log("TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
+        if (Name.find("example") == std::string::npos)
+            error_db_log("TrinityScript: RegisterSelf, but script named %s does not have ScriptName assigned in database.",(this)->Name.c_str());
         delete this;
     }
 }
