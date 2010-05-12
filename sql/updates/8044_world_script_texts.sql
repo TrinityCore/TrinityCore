@@ -28,4 +28,3 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
 (27577,-1800020, 'The book is your salvation,yes... but nothing will you know. NOTHING I SAY! NOTHING! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27577,-1800019, 'What can you do to me that Kel''Thuzad has not? That the Lich King will not? ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL),
 (27577,-1800018, 'Tell you nothing,preacher. ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,NULL);
-
