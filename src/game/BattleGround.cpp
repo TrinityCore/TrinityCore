@@ -1954,7 +1954,7 @@ void BattleGround::SetBracket(PvPDifficultyEntry const* bracketEntry)
 
 void BattleGround::RewardXPAtKill(Player* plr, Player* victim)
 {
-    if (!plr || !victim)
+    if (!sWorld.getConfig(CONFIG_BG_XP_FOR_KILL) || !plr || !victim)
         return;
 
     uint32 xp = 0;
