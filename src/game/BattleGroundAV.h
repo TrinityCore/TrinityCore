@@ -596,7 +596,30 @@ enum BG_AV_CreaturePlace
     //herald
     AV_CPLACE_HERALD          = 301,
 
-    AV_CPLACE_MAX = 302
+    //node aura triggers
+    AV_CPLACE_TRIGGER01       = 302,
+    AV_CPLACE_TRIGGER02       = 303,
+    AV_CPLACE_TRIGGER03       = 304,
+    AV_CPLACE_TRIGGER04       = 305,
+    AV_CPLACE_TRIGGER05       = 306,
+    AV_CPLACE_TRIGGER06       = 307,
+    AV_CPLACE_TRIGGER07       = 308,
+    AV_CPLACE_TRIGGER08       = 309,
+    AV_CPLACE_TRIGGER09       = 310,
+    AV_CPLACE_TRIGGER10       = 311,
+    AV_CPLACE_TRIGGER11       = 312,
+    AV_CPLACE_TRIGGER12       = 313,
+    AV_CPLACE_TRIGGER13       = 314,
+    AV_CPLACE_TRIGGER14       = 315,
+    AV_CPLACE_TRIGGER15       = 316,
+    
+    //boss,captain triggers
+    AV_CPLACE_TRIGGER16       = 317,
+    AV_CPLACE_TRIGGER17       = 318,
+    AV_CPLACE_TRIGGER18       = 319,
+    AV_CPLACE_TRIGGER19       = 320,
+
+    AV_CPLACE_MAX = 321
 };
 
 //x, y, z, o
@@ -934,8 +957,27 @@ const float BG_AV_CreaturePos[AV_CPLACE_MAX][4] = {
     //boss
     {-848.902f,-92.931f,68.6325f,3.33350},
     //herald
-    {-48.459f,-288.802f,55.47f,1.0}
-
+    {-48.459f,-288.802f,55.47f,1.0},
+    //triggers
+    {637.083,-32.6603,45.9715,1.14353},         //firstaid_station
+    {669.007f,-294.078f,30.2909f,2.77507f},     //stormpike_grave
+    {77.8013f,-404.7f,46.7549f,-0.872665f},     //stoneheart_grave
+    {-202.581f,-112.73f,78.4876f,-0.715585f},   //snowfall_grave
+    {-611.962f,-396.17f,60.8351f,2.53682f},     //iceblood_grave
+    {-1082.45f,-346.823f,54.9219f,-1.53589f},   //frostwolf_grave
+    {-1402.21f,-307.431f,89.4424f,0.191986f},   //frostwolf_hut
+    {553.779f,-78.6566f,51.9378f,-1.22173f},    //dunbaldar_south
+    {674.001f,-143.125f,63.6615f,0.994838f},    //dunbaldar_north
+    {203.281f,-360.366f,56.3869f,-0.925024},    //icewing_bunker
+    {-152.437f,-441.758f,40.3982f,-1.95477f},   //stoneheart_bunker
+    {-571.88f,-262.777f,75.0087f,-0.802851f},   //iceblood_tower
+    {-768.907f,-363.71f,90.8949f,1.07991f},     //tower_point
+    {-1302.9f,-316.981f,113.867f,2.00713f},     //frostwolf_etower
+    {-1297.5f,-266.767f,114.15f,3.31044f},      //frostwolf_wtower
+    {-57.7891f,-286.597f,15.6479f,6.02139f},    //AV_NPC_A_CAPTAIN balinda
+    {722.43f,-10.9982f,50.7046f,3.42085f},      //AV_NPC_A_BOSS vanndar
+    {-545.23f,-165.35f,57.7886f,3.01145f},      //AV_NPC_H_CAPTAIN galvangar
+    {-1370.9f,-219.793f,98.4258f,5.04381f}      //AV_NPC_H_BOSS drek thar
 };
 
 enum BG_AV_CreatureIds
