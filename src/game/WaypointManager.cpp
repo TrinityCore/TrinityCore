@@ -30,6 +30,7 @@ void WaypointStore::Free()
     {
         for (WaypointPath::const_iterator it = itr->second->begin(); it != itr->second->end(); ++it)
             delete *it;
+        itr->second->clear();
         delete itr->second;
     }
     waypoint_map.clear();
