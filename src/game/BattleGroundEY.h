@@ -143,7 +143,12 @@ enum EYBattleGroundCreaturesTypes
     EY_SPIRIT_MAIN_ALLIANCE    = 4,
     EY_SPIRIT_MAIN_HORDE       = 5,
 
-    BG_EY_CREATURES_MAX        = 6
+    EY_TRIGGER_FEL_REALVER      = 6,
+    EY_TRIGGER_BLOOD_ELF        = 7,
+    EY_TRIGGER_DRAENEI_RUINS    = 8,
+    EY_TRIGGER_MAGE_TOWER       = 9,
+
+    BG_EY_CREATURES_MAX        = 10
 };
 
 enum EYBattleGroundObjectTypes
@@ -242,6 +247,14 @@ struct BattleGroundEYPointIconsStruct
     uint32 WorldStateControlIndex;
     uint32 WorldStateAllianceControlledIndex;
     uint32 WorldStateHordeControlledIndex;
+};
+
+// x, y, z, o
+const float BG_EY_TriggerPositions[EY_POINTS_MAX][4] = {
+    {2044.28f, 1729.68f, 1189.96f, -0.017453f}, // FEL_REALVER center
+    {2048.83f, 1393.65f, 1194.49f, 0.20944f},   // BLOOD_ELF center
+    {2286.56f, 1402.36f, 1197.11f, 3.72381f},   // DRAENEI_RUINS center
+    {2284.48f, 1731.23f, 1189.99f, 2.89725f}    // MAGE_TOWER center
 };
 
 struct BattleGroundEYLoosingPointStruct
