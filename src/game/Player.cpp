@@ -22271,6 +22271,9 @@ void Player::AddGlobalCooldown(SpellEntry const *spellInfo, Spell *spell)
     else if (IsRangedWeaponSpell(spellInfo) && !spell->IsAutoRepeat())
         cdTime *= m_modAttackSpeedPct[RANGED_ATTACK];
 
+    if (cdTime > 1500.0f)
+        cdTime = 1500.0f;
+
     ApplySpellMod(spellInfo->Id, SPELLMOD_GLOBAL_COOLDOWN, cdTime, spell);
     if (cdTime > 0)
         m_globalCooldowns[spellInfo->StartRecoveryCategory] = uint32(cdTime);
