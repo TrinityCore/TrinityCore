@@ -24,9 +24,6 @@
 #include "ProgressBar.h"
 #include "MapManager.h"
 
-UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
-WaypointStore WaypointMgr;
-
 void WaypointStore::Free()
 {
     waypoint_map.clear();

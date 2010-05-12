@@ -1562,7 +1562,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadTrainerSpell();                              // must be after load CreatureTemplate
 
     sLog.outString("Loading Waypoints...");
-    WaypointMgr.Load();
+    sWaypointMgr->Load();
 
     sLog.outString("Loading Creature Formations...");
     formation_mgr.LoadCreatureFormations();

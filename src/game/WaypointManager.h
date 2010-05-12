@@ -21,6 +21,8 @@
 #ifndef TRINITY_WAYPOINTMANAGER_H
 #define TRINITY_WAYPOINTMANAGER_H
 
+#include <ace/Singleton.h>
+#include <ace/Null_Mutex.h>
 #include <vector>
 
 struct WaypointData
@@ -34,14 +36,17 @@ struct WaypointData
 };
 
 typedef std::vector<WaypointData*> WaypointPath;
-extern UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
 
 class WaypointStore
 {
     private :
         uint32  records;
+        UNORDERED_MAP<uint32, WaypointPath*> waypoint_map;
 
     public:
+        // Null Mutex is OK because WaypointMgr is initialized in the World thread before World is initialized
+        static WaypointStore* instance() { return ACE_Singleton<WaypointStore, ACE_Null_Mutex>::instance(); }
+
         void UpdatePath(uint32 id);
         void Load();
         void Free();
@@ -56,7 +61,7 @@ class WaypointStore
         inline uint32 GetRecordsCount() { return records; }
 };
 
-extern WaypointStore WaypointMgr;
+#define sWaypointMgr WaypointStore::instance()
 
 #endif
 
