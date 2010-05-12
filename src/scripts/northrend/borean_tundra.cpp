@@ -2405,7 +2405,6 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_nesingwary_trapper";
     newscript->GetAI = &GetAI_npc_nesingwary_trapper;
     newscript->RegisterSelf();
-    newscript = new Script;
 
     newscript = new Script;
     newscript->Name = "npc_lurgglbr";
