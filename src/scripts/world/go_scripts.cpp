@@ -138,7 +138,7 @@ bool GOHello_go_field_repair_bot_74A(Player *pPlayer, GameObject * /*pGO*/)
 }
 
 /*######
-## go_gilded_brazier
+## go_gilded_brazier (Paladin First Trail quest (9678))
 ######*/
 
 enum eGildedBrazier
@@ -149,9 +149,13 @@ enum eGildedBrazier
 bool GOHello_go_gilded_brazier(Player *pPlayer, GameObject *pGO)
 {
     if (pGO->GetGoType() == GAMEOBJECT_TYPE_GOOBER)
-        if (Creature* pCreature = pPlayer->SummonCreature(NPC_STILLBLADE, 8087.632, -7542.740, 151.568, 0.122, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
-            pCreature->AI()->AttackStart(pPlayer);
-
+    {
+        if (pPlayer->GetQuestStatus(9678) == QUEST_STATUS_INCOMPLETE)
+        {
+            if (Creature* Stillblade = pPlayer->SummonCreature(NPC_STILLBLADE, 8106.11, -7542.06, 151.775, 3.02598, TEMPSUMMON_DEAD_DESPAWN, 60000))
+                Stillblade->AI()->AttackStart(pPlayer);
+        }
+    }
     return true;
 }
 
