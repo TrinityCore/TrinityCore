@@ -125,21 +125,28 @@ class SqlQueryHolderEx : public SqlOperation
 class SqlAsyncTask : public ACE_Method_Request
 {
 public:
-    SqlAsyncTask(Database * db, SqlOperation * op) : m_db(db), m_op(op) {}
-    ~SqlAsyncTask() { if(!m_op) return; delete m_op; }
+    SqlAsyncTask(Database * db, SqlOperation * op) : m_db(db), m_op(op){}
+    ~SqlAsyncTask()
+    { 
+        if (!m_op)
+            return; 
+        
+        delete m_op;
+        m_op = NULL;
+    }
 
     int call()
     {
-        if(m_db == NULL || m_op == NULL)
+        if (m_db == NULL || m_op == NULL)
         return -1;
 
         try
         {
-        m_op->Execute(m_db);
+            m_op->Execute(m_db);
         }
         catch(...)
         {
-        return -1;
+            return -1;
         }
 
         return 0;
