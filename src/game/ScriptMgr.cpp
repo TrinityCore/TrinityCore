@@ -161,8 +161,34 @@ void Script::RegisterSelf()
     int id = GetScriptId(Name.c_str());
     if (id)
     {
-        m_scripts[id] = this;
-        ++num_sc_scripts;
+        // try to find the script in assigned scripts
+        bool IsExist = false;
+        for (uint16 i = 0; i < MAX_SCRIPTS; ++i)
+        {
+            if (m_scripts[i])
+            {
+                // if the assigned script's name and the new script's name is the same
+                if (m_scripts[i]->Name == Name)
+                {
+                    IsExist = true;
+                    break;
+                }
+            }
+        }
+
+        // if the script doesn't assigned -> assign it!
+        if (!IsExist)
+        {
+            m_scripts[id] = this;
+            ++num_sc_scripts;
+        }
+        // if the script is already assigned -> delete it!
+        else
+        {
+            // TODO: write a better error message than this one :)
+            error_log("ScriptName: '%s' already assigned with the same ScriptName, so the script can't work.", Name.c_str());
+            delete this;
+        }
     }
     else
     {
