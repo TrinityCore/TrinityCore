@@ -13051,6 +13051,14 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
                             ApplyHealthRegenBonus(enchant_amount, apply);
                             sLog.outDebug("+ %u HEALTH_REGENERATION", enchant_amount);
                             break;
+                        case ITEM_MOD_SPELL_PENETRATION:
+                            ApplyModInt32Value(PLAYER_FIELD_MOD_TARGET_RESISTANCE, enchant_amount, apply);
+                            sLog.outDebug("+ %u SPELL_PENETRATION", enchant_amount);
+                            break;
+                        case ITEM_MOD_BLOCK_VALUE:
+                            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(enchant_amount), apply);
+                            sLog.outDebug("+ %u BLOCK_VALUE", enchant_amount);
+                            break;
                         case ITEM_MOD_SPELL_HEALING_DONE:   // deprecated
                         case ITEM_MOD_SPELL_DAMAGE_DONE:    // deprecated
                         default:
