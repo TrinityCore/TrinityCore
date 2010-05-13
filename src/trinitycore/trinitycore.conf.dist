@@ -122,6 +122,11 @@ EAIErrorLevel = 2
 #        selection screen is disconnected.
 #        Default: 900000 (15 minutes)
 #
+#    SessionAddDelay
+#        Time in microseconds that a network thread will sleep after authentication
+#        protocol and adding a connection to the world session map.
+#        Default: 10000 (10 milliseconds, 0,01 second)
+#
 #    GridCleanUpDelay
 #        Grid clean up delay (in milliseconds)
 #        Default: 300000 (5 min)
@@ -226,6 +231,7 @@ MaxOverspeedPings = 2
 GridUnload = 1
 SocketSelectTime = 10000
 SocketTimeOutTime = 900000
+SessionAddDelay = 10000
 GridCleanUpDelay = 300000
 MapUpdateInterval = 100
 ChangeWeatherInterval = 600000
