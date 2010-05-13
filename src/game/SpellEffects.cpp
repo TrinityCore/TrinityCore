@@ -3732,8 +3732,13 @@ void Spell::EffectSummonType(uint32 i)
             if (!summon || !summon->IsVehicle())
                 return;
 
-            if (damage)
-                m_caster->CastSpell(summon, damage, true);
+            if (m_spellInfo->EffectBasePoints[i])
+            {
+                SpellEntry const *spellProto = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(i));
+                if (spellProto)
+                    m_caster->CastSpell(summon, spellProto, true);
+            }
+
             m_caster->EnterVehicle(summon->GetVehicleKit());
             break;
         }
