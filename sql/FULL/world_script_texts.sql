@@ -1,4 +1,4 @@
--- Up to TC2 5408
+﻿-- Up to TC2 5408
 -- 
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
@@ -1766,6 +1766,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (28090,-1571036, 'We''ll cleanse this place! Arthas beware!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, 'crusade recruit RECRUIT_SAY1'),
    (28090,-1571037, 'Your''re right! We can do this!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, 'crusade recruit RECRUIT_SAY2'),
    (28090,-1571038, 'Your''re right! What was I thinking? Bring on the Scourge!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, 'crusade recruit RECRUIT_SAY3'),
+   (30014,-1571039,'Yggdras emerges!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,''),
+   (30017,-1571040,'Stinkbeard comin'' for you, little ones!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (30007,-1571041,'Do you fell that folks? The air is cracking with energy! Than can only mean one thing...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
 
 -- -1 574 000 UTGARDE KEEP
    (23953,-1574000,'Your blood is mine!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13221,1,0,0,'keleseth SAY_AGGRO'),

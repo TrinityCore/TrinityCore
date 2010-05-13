@@ -1562,6 +1562,8 @@ UPDATE `creature_template` SET `ScriptName`='npc_released_offspring_harkoa' WHER
 UPDATE `creature_template` SET `ScriptName`='npc_stinkbeard' WHERE `entry`=30017;
 UPDATE `creature_template` SET `ScriptName`='npc_crusade_recruit' WHERE `entry`=28090;
 UPDATE `gameobject_template` SET `ScriptName`='go_scourge_enclosure' WHERE `entry`=191548;
+UPDATE `creature_template` SET `ScriptName`='npc_elemental_lord' WHERE `entry` IN (30024,30025,30019,30026);
+UPDATE `creature_template` SET `ScriptName`='npc_fiend_elemental' WHERE `entry` IN (30044,30042,30043,30045);
 
 /* ZUL'FARRAK */
 UPDATE `creature_template` SET `ScriptName`='npc_sergeant_bly' WHERE `entry`=7604;
