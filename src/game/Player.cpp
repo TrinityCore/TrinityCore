@@ -13209,6 +13209,20 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
     if (pMenuItemBounds.first == pMenuItemBounds.second && menuId == GetDefaultGossipMenuForSource(pSource))
         pMenuItemBounds = objmgr.GetGossipMenuItemsMapBounds(0);
 
+    uint32 npcflags = 0;
+    Creature *pCreature = NULL;
+    GameObject *pGo = NULL;
+
+    if (pSource->GetTypeId() == TYPEID_UNIT)
+    {
+        pCreature = pSource->ToCreature();
+        npcflags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
+        if (npcflags & UNIT_NPC_FLAG_QUESTGIVER)
+            PrepareQuestMenu(pSource->GetGUID());
+    }
+    else if (pSource->GetTypeId() == TYPEID_GAMEOBJECT)
+        pGo = (GameObject*)pSource;
+
     for (GossipMenuItemsMap::const_iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
     {
         bool bCanTalk = true;
@@ -13224,19 +13238,11 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
 
         if (pSource->GetTypeId() == TYPEID_UNIT)
         {
-            Creature *pCreature = pSource->ToCreature();
-
-            uint32 npcflags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
-
             if (!(itr->second.npc_option_npcflag & npcflags))
                 continue;
 
             switch(itr->second.option_id)
             {
-                case GOSSIP_OPTION_QUESTGIVER:
-                    PrepareQuestMenu(pSource->GetGUID());
-                    bCanTalk = false;
-                    break;
                 case GOSSIP_OPTION_ARMORER:
                     bCanTalk = false;                       // added in special mode
                     break;
