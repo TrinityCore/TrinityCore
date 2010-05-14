@@ -1773,8 +1773,28 @@ void Spell::EffectDummy(uint32 i)
                     {
                         SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE && (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP || spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT))
-                            m_caster->ToPlayer()->RemoveSpellCooldown((itr++)->first,true);
+                        if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
+                        {
+                            if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||                      // Cold Blood, Shadowstep
+                                spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT                           // Vanish, Evasion, Sprint
+                               )
+                                m_caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
+                            else if (m_caster->HasAura(56819))                                                                    // Glyph of Preparation
+                            {
+                                if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE ||                         // Dismantle
+                                    spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||                               // Kick
+                                    (
+                                      spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY &&                     // Blade Flurry
+                                      spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY
+                                    )
+                                   )
+                                    m_caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
+                                else
+                                    ++itr;
+                            }
+                            else
+                                ++itr;
+                        }
                         else
                             ++itr;
                     }
