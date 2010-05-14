@@ -4937,25 +4937,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
-                // Glyph of Shred
-                case 63974:
-                {
-                    if (AuraEffect const * aurEff = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00800000,0,0,m_caster->GetGUID()))
-                    {
-                        uint32 countMin = aurEff->GetBase()->GetMaxDuration();
-                        uint32 countMax = 20000;
-                        countMax += m_caster->HasAura(54818) ? 4000 : 0;
-                        countMax += m_caster->HasAura(60141) ? 4000 : 0;
-
-                        if (countMin < countMax)
-                        {
-                            aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration()+3000));
-                            aurEff->GetBase()->SetMaxDuration(countMin+2000);
-                        }
-
-                    }
-                    return;
-                }
                 // Glyph of Backstab
                 case 63975:
                 {
