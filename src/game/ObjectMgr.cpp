@@ -241,11 +241,11 @@ Guild * ObjectMgr::GetGuildById(uint32 GuildId) const
 Guild * ObjectMgr::GetGuildByName(const std::string& guildname) const
 {
     std::string search = guildname;
-    std::transform(search.begin(), search.end(), search.begin(), toupper);
+    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
     for (GuildMap::const_iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
     {
         std::string gname = itr->second->GetName();
-        std::transform(gname.begin(), gname.end(), gname.begin(), toupper);
+        std::transform(gname.begin(), gname.end(), gname.begin(), ::toupper);
         if (search == gname)
             return itr->second;
     }
@@ -292,11 +292,11 @@ ArenaTeam* ObjectMgr::GetArenaTeamById(uint32 arenateamid) const
 ArenaTeam* ObjectMgr::GetArenaTeamByName(const std::string& arenateamname) const
 {
     std::string search = arenateamname;
-    std::transform(search.begin(), search.end(), search.begin(), toupper);
+    std::transform(search.begin(), search.end(), search.begin(), ::toupper);
     for (ArenaTeamMap::const_iterator itr = mArenaTeamMap.begin(); itr != mArenaTeamMap.end(); ++itr)
     {
         std::string teamname = itr->second->GetName();
-        std::transform(teamname.begin(), teamname.end(), teamname.begin(), toupper);
+        std::transform(teamname.begin(), teamname.end(), teamname.begin(), ::toupper);
         if (search == teamname)
             return itr->second;
     }
