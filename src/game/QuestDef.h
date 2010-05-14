@@ -185,7 +185,7 @@ class Quest
         uint32 GetQuestId() const { return QuestId; }
         uint32 GetQuestMethod() const { return QuestMethod; }
         int32  GetZoneOrSort() const { return ZoneOrSort; }
-        int32  GetSkillOrClass() const { return SkillOrClass; }
+        int32  GetSkillOrClassMask() const { return SkillOrClassMask; }
         uint32 GetMinLevel() const { return MinLevel; }
         uint32 GetMaxLevel() const { return MaxLevel; }
         uint32 GetQuestLevel() const { return QuestLevel; }
@@ -287,7 +287,7 @@ class Quest
         uint32 QuestId;
         uint32 QuestMethod;
         int32  ZoneOrSort;
-        int32  SkillOrClass;
+        int32  SkillOrClassMask;
         uint32 MinLevel;
         uint32 MaxLevel;
         int32  QuestLevel;
