@@ -5640,14 +5640,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                                 if (BattleGround *bg = target->ToPlayer()->GetBattleGround())
                                     bg->RemovePlayerFromResurrectQueue(target->GetGUID());
                             break;
-                        case 28169:                                     // Mutating Injection
-                        {
-                            // Mutagen Explosion
-                            target->CastSpell(target, 28206, true, NULL, this);
-                            // Poison Cloud
-                            target->CastSpell(target, 28240, true, NULL, this);
-                            return;
-                        }
                         case 36730:                                     // Flame Strike
                         {
                             target->CastSpell(target, 36731, true, NULL, this);
