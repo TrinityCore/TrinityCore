@@ -16,4 +16,4 @@ CREATE TABLE `item_refund_instance` (
 `paidItem_5` mediumint(6) unsigned NOT NULL DEFAULT '0',                                
 `paidItemCount_5` mediumint(6) unsigned NOT NULL DEFAULT '0',                           
 PRIMARY KEY (`item_guid`, `player_guid`)                                                                    
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
