@@ -4371,7 +4371,7 @@ CREATE TABLE `quest_template` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Method` tinyint(3) unsigned NOT NULL DEFAULT '2',
   `ZoneOrSort` smallint(6) NOT NULL DEFAULT '0',
-  `SkillOrClass` smallint(6) NOT NULL DEFAULT '0',
+  `SkillOrClassMask` mediumint(8) NOT NULL DEFAULT '0',
   `MinLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `MaxLevel` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `QuestLevel` smallint(3) NOT NULL DEFAULT '1',
