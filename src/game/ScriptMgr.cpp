@@ -158,6 +158,20 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
 
 void Script::RegisterSelf()
 {
+    // try to find scripts which try to use another script's allocated memory
+    // that means didn't allocate memory for script
+    for (uint16 i = 0; i < MAX_SCRIPTS; ++i)
+    {
+        // somebody forgot to allocate memory for a script by a method like this: newscript = new Script
+        if (m_scripts[i] == this)
+        {
+            error_log("ScriptName: '%s' - Forgot to allocate memory, so this script and/or the script before that can't work.", Name.c_str());
+            // don't register it
+            // and don't delete it because its memory is used for another script
+            return;
+        }
+    }
+
     int id = GetScriptId(Name.c_str());
     if (id)
     {
