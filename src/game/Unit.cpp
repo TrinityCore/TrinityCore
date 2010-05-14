@@ -6222,8 +6222,31 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // Glyph of Shred
                 case 54815:
                 {
-                    triggered_spell_id = 63974;
-                    break;
+                    // try to find spell Rip on the target
+                    if (AuraEffect const *AurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00800000, 0x0, 0x0, GetGUID()))
+                    {
+                        // Rip's max duration, note: spells which modifies Rip's duration also counted like Glyph of Rip
+                        uint32 CountMin = AurEff->GetBase()->GetMaxDuration();
+
+                        // just Rip's max duration without other spells
+                        uint32 CountMax = GetSpellMaxDuration(AurEff->GetSpellProto());
+
+                        // add possible auras' and Glyph of Shred's max duration
+                        CountMax += 3 * triggerAmount * 1000;       // Glyph of Shred               -> +6 seconds
+                        CountMax += HasAura(54818) ? 4 * 1000 : 0;  // Glyph of Rip                 -> +4 seconds
+                        CountMax += HasAura(60141) ? 4 * 1000 : 0;  // Rip Duration/Lacerate Damage -> +4 seconds
+
+                        // if min < max -> that means caster didn't cast 3 shred yet
+                        // so set Rip's duration and max duration
+                        if (CountMin < CountMax)
+                        {
+                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * 1000);
+                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * 1000);
+                            return true;
+                        }
+                    }
+                    // if not found Rip
+                    return false;
                 }
                 // Glyph of Rake
                 case 54821:
