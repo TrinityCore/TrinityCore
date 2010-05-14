@@ -5037,7 +5037,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (58798, 0.1, -1, -1, -1, 'Shaman - Frostbrand Attack Rank 8'),
 (58799, 0.1, -1, -1, -1, 'Shaman - Frostbrand Attack Rank 9'),
 (2645, 0, 0, 0, 0, 'Shaman - Glyph of Ghost Wolf'),
-(52042, -1, -1, -1, -1, 'Shaman - Healing Stream Totem Triggered Heal'),
+(52042, 0.0445, 0.0445, -1, -1, 'Shaman - Healing Stream Totem Triggered Heal'),
 (331, 1.6106, -1, -1, -1, 'Shaman - Healing Wave'),
 (51505, 0.5714, -1, -1, -1, 'Shaman - Lava Burst'),
 (8004, 0.8082, -1, -1, -1, 'Shaman - Lesser Healing Wave'),
