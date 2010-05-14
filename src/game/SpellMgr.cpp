@@ -3601,6 +3601,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 20335:
         case 20336:
         case 20337:
+        // Glyph of Life Tap
+        case 63320:
         // Entries were not updated after spell effect change, we have to do that manually :/
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_CAN_PROC_TRIGGERED;
             count++;
