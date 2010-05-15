@@ -1311,7 +1311,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadQuestLocales();
     objmgr.LoadNpcTextLocales();
     objmgr.LoadPageTextLocales();
-    objmgr.LoadNpcOptionLocales();
+    objmgr.LoadGossipMenuItemsLocales();
     objmgr.LoadPointOfInterestLocales();
     objmgr.SetDBCLocaleIndex(GetDefaultDbcLocale());        // Get once for all the locale index of DBC language (console/broadcasts)
     sLog.outString(">>> Localization strings loaded");
