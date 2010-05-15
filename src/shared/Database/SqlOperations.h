@@ -57,11 +57,12 @@ class SqlStatement : public SqlOperation
 
 class SqlTransaction : public SqlOperation
 {
+        typedef ACE_Based::LockedQueue<const char *, ACE_Thread_Mutex> LockedQueue;
     private:
-        std::queue<const char *> m_queue;
+        LockedQueue m_queue;
     public:
         SqlTransaction() {}
-        void DelayExecute(const char *sql) { m_queue.push(strdup(sql)); }
+        void DelayExecute(const char *sql) { m_queue.add(strdup(sql)); }
         void Execute(Database *db);
 };
 
