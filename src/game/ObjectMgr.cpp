@@ -380,7 +380,7 @@ void ObjectMgr::LoadCreatureLocales()
     sLog.outString(">> Loaded %lu creature locale strings", (unsigned long)mCreatureLocaleMap.size());
 }
 
-void ObjectMgr::LoadNpcOptionLocales()
+void ObjectMgr::LoadGossipMenuItemsLocales()
 {
     mGossipMenuItemsLocaleMap.clear();                              // need for reload case
 
@@ -408,7 +408,7 @@ void ObjectMgr::LoadNpcOptionLocales()
 
         for (uint8 i = 1; i < MAX_LOCALE; ++i)
         {
-            std::string str = fields[1+2*(i-1)].GetCppString();
+            std::string str = fields[2+2*(i-1)].GetCppString();
             if (!str.empty())
             {
                 int idx = GetOrNewIndexForLocale(LocaleConstant(i));
@@ -420,7 +420,7 @@ void ObjectMgr::LoadNpcOptionLocales()
                     data.OptionText[idx] = str;
                 }
             }
-            str = fields[1+2*(i-1)+1].GetCppString();
+            str = fields[2+2*(i-1)+1].GetCppString();
             if (!str.empty())
             {
                 int idx = GetOrNewIndexForLocale(LocaleConstant(i));
