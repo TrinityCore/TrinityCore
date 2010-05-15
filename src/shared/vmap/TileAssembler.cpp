@@ -541,7 +541,7 @@ namespace VMAP
 
             if(vectorarray != 0)
             {
-                delete vectorarray;
+                delete[] vectorarray;
             }
 
             if(gtree->size() >0)
