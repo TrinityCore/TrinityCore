@@ -300,7 +300,7 @@ class WorldSession
         }
         bool IsConnectionIdle() const
         {
-            if (m_timeOutTime <= 0)
+            if (m_timeOutTime <= 0 && !m_inQueue)
                 return true;
             return false;
         }
