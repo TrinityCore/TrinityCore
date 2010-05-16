@@ -2740,7 +2740,7 @@ void InstanceMap::SetResetSchedule(bool on)
     }
 }
 
-MapDifficulty const* InstanceMap::GetMapDifficulty() const
+MapDifficulty const* Map::GetMapDifficulty() const
 {
     return GetMapDifficultyData(GetId(),GetDifficulty());
 }
