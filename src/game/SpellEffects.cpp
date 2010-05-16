@@ -769,6 +769,10 @@ void Spell::EffectDummy(uint32 i)
         {
             switch (m_spellInfo->Id)
             {
+                // Magic Pull
+                case 51336:
+                    m_caster->CastSpell(unitTarget,50770,true);
+                    break;
                 // Wrath of the Astromancer
                 case 42784:
                 {
