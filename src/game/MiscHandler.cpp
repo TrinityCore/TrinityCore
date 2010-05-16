@@ -126,6 +126,16 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
     if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
+    if ((unit && unit->GetCreatureInfo()->ScriptID != unit->LastUsedScriptID) || (go && go->GetGOInfo()->ScriptId != go->LastUsedScriptID))
+    {
+        sLog.outDebug("WORLD: HandleGossipSelectOptionOpcode - Script reloaded while in use, ignoring and set new scipt id");
+        if (unit)
+            unit->LastUsedScriptID = unit->GetCreatureInfo()->ScriptID;
+        if (go)
+            go->LastUsedScriptID = go->GetGOInfo()->ScriptId;
+        _player->PlayerTalkClass->CloseGossip();
+        return;
+    }
     if (!code.empty())
     {
         if (unit)

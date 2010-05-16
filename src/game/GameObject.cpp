@@ -216,6 +216,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMa
 
     SetZoneScript();
 
+    LastUsedScriptID = GetGOInfo()->ScriptId;
+
     return true;
 }
 

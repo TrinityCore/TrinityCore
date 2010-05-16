@@ -635,6 +635,7 @@ class ObjectMgr
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
         void LoadCreatureTemplates();
+        void CheckCreatureTemplate(CreatureInfo const* cInfo);
         void LoadCreatures();
         void LoadCreatureLinkedRespawn();
         bool CheckCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid) const;
@@ -1115,6 +1116,10 @@ class ObjectMgr
         CacheNpcTextIdMap m_mCacheNpcTextIdMap;
         CacheVendorItemMap m_mCacheVendorItemMap;
         CacheTrainerSpellMap m_mCacheTrainerSpellMap;
+
+        std::set<uint32> difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
+        std::set<uint32> hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+
 };
 
 #define objmgr Trinity::Singleton<ObjectMgr>::Instance()
