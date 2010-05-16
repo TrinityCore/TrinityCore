@@ -1178,7 +1178,7 @@ bool ChatHandler::HandleReloadSpellGroupsCommand(const char*)
 {
     sLog.outString("Re-Loading Spell Groups...");
     spellmgr.LoadSpellGroups();
-    SendGlobalGMSysMessage("DB table `spell_group` (spell elixir types) reloaded.");
+    SendGlobalGMSysMessage("DB table `spell_group` (spell groups) reloaded.");
     return true;
 }
 
