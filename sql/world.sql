@@ -5780,7 +5780,11 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 -- Cast Speed Slow
 (1103,-1100),
 (1103,-1001),
-(1103,-1002);
+(1103,-1002),
+-- mage freezing spells
+(1107, 122), -- Frost Nova
+(1107, 33395), -- Freeze
+(1107, 55080); -- Shattered Barrier
 
 /*!40000 ALTER TABLE `spell_group` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -7286,7 +7290,8 @@ INSERT INTO spell_group_stack_rules (`group_id`, `stack_rule`) VALUES
 (1096,1),
 (1099,1),
 (1103,1),
-(1046,1);
+(1046,1),
+(1107,1);
 
 /*!40000 ALTER TABLE `spell_group_stack_rules` ENABLE KEYS */;
 UNLOCK TABLES;
