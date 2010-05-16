@@ -4984,6 +4984,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (585, 0.714, -1, -1, -1, 'Priest - Smite'),
 (34914, -1, 0.4, -1, -1, 'Priest - Vampiric Touch'),
 (7001, -1, 0.3333, -1, -1, 'Priest - Lightwell Renew Rank 1'),
+(63675, 0, 0, 0, 0, 'Priest - Improved Devouring Plague'),
 (2818, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 1($AP*0.12 / number of ticks)'),
 (2819, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 2($AP*0.12 / number of ticks)'),
 (11353, -1, -1, -1, 0.03, 'Rogue - Deadly Poison Rank 3($AP*0.12 / number of ticks)'),
