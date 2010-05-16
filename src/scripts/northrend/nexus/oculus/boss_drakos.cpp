@@ -53,28 +53,29 @@ enum
 
 struct boss_drakosAI : public ScriptedAI
 {
-    boss_drakosAI(Creature *c) : ScriptedAI(c), lSummons(me)
+    boss_drakosAI(Creature* pCreature) : ScriptedAI(pCreature), lSummons(me)
     {
-        pInstance = c->GetInstanceData();
+        pInstance = pCreature->GetInstanceData();
     }
 
-    uint32 uiMagicPullTimer ;
-    uint32 uiStompTimer ;
-    uint32 uiBombSummonTimer ;
-    uint32 uiPostPullTimer ;
-    bool bIsPulling ;
-    bool bPostPull ;
+    uint32 uiMagicPullTimer;
+    uint32 uiStompTimer;
+    uint32 uiBombSummonTimer;
+
+    bool bPostPull;
+
     ScriptedInstance* pInstance;
     SummonList lSummons;
 
     void Reset()
     {
         lSummons.DespawnAll();
-        uiMagicPullTimer = urand(12*IN_MILISECONDS, 15*IN_MILISECONDS);
-        uiStompTimer = urand(3*IN_MILISECONDS, 6*IN_MILISECONDS);
-        uiBombSummonTimer = 2*IN_MILISECONDS;
+        uiMagicPullTimer = 15000;
+        uiStompTimer = 17000;
+        uiBombSummonTimer = 2000;
+
         bPostPull = false;
-        bIsPulling = false;
+
         if (pInstance)
             pInstance->SetData(DATA_DRAKOS_EVENT, NOT_STARTED);
     }
@@ -87,66 +88,54 @@ struct boss_drakosAI : public ScriptedAI
             pInstance->SetData(DATA_DRAKOS_EVENT, IN_PROGRESS);
     }
 
-    void JustSummoned(Creature* summon)
+    void JustSummoned(Creature* pSummon)
     {
-        lSummons.Summon(summon);
+        lSummons.Summon(pSummon);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         //Return since we have no target
         if (!UpdateVictim())
             return;
 
-        if (uiBombSummonTimer < diff)
+        if (uiBombSummonTimer <= uiDiff)
         {
+            Position pPosition;
+            me->GetPosition(&pPosition);
+
             if (bPostPull)
             {
-                me->SummonCreature(NPC_UNSTABLE_SPHERE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-                me->SummonCreature(NPC_UNSTABLE_SPHERE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-            }
-            else
-                me->SummonCreature(NPC_UNSTABLE_SPHERE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
-            uiBombSummonTimer = 2*IN_MILISECONDS;
-        } else uiBombSummonTimer -= diff;
-
-        if (uiMagicPullTimer < diff)
-        {
-            if (bIsPulling)
-            {
-                if (pInstance)
+                for (uint8 uiI = 0; uiI >= 3; uiI++)
                 {
-                    Map::PlayerList const &players = pInstance->instance->GetPlayers();
-                    for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
-                        DoCast(itr->getSource(), SPELL_MAGIC_PULL_EFFECT, true);
+                    me->GetRandomNearPosition(pPosition, float(urand(0,10)));
+                    me->SummonCreature(NPC_UNSTABLE_SPHERE, pPosition);
                 }
-                bIsPulling = false;
-                bPostPull = true;
-                uiPostPullTimer = 4*IN_MILISECONDS;
-                uiMagicPullTimer = urand(15*IN_MILISECONDS, 25*IN_MILISECONDS);
             }
             else
             {
-                DoScriptText(RAND(SAY_PULL_1,SAY_PULL_2,SAY_PULL_3,SAY_PULL_4), me);
-                DoCast(SPELL_MAGIC_PULL);
-                uiMagicPullTimer = 2*IN_MILISECONDS;
-                bIsPulling = true;
+                me->GetRandomNearPosition(pPosition, float(urand(0,10)));
+                me->SummonCreature(NPC_UNSTABLE_SPHERE, pPosition);
             }
-        } else uiMagicPullTimer -= diff;
 
-        if (bPostPull)
+            uiBombSummonTimer = 2000;
+        } else uiBombSummonTimer -= uiDiff;
+
+        if (uiMagicPullTimer <= uiDiff)
         {
-            if (uiPostPullTimer < diff)
-                bPostPull = false;
-            else uiPostPullTimer -= diff;
-        }
+            DoCast(SPELL_MAGIC_PULL);
 
-        if (uiStompTimer < diff)
+            bPostPull = true;
+
+            uiMagicPullTimer = 15000;
+        } else uiMagicPullTimer -= uiDiff;
+
+        if (uiStompTimer <= uiDiff)
         {
             DoScriptText(RAND(SAY_STOMP_1,SAY_STOMP_2,SAY_STOMP_3), me);
             DoCast(SPELL_THUNDERING_STOMP);
-            uiStompTimer = urand(15*IN_MILISECONDS, 18*IN_MILISECONDS);
-        } else uiStompTimer -= diff ;
+            uiStompTimer = 17000;
+        } else uiStompTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -161,8 +150,10 @@ struct boss_drakosAI : public ScriptedAI
             // start achievement timer (kill Eregos within 20 min)
             pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
+
+        lSummons.DespawnAll();
     }
-    void KilledUnit(Unit * /*victim*/)
+    void KilledUnit(Unit* /*victim*/)
     {
         DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2,SAY_KILL_3), me);
     }
@@ -175,34 +166,34 @@ CreatureAI* GetAI_boss_drakos(Creature* pCreature)
 
 struct npc_unstable_sphereAI : public ScriptedAI
 {
-    npc_unstable_sphereAI(Creature *c) : ScriptedAI(c) {}
+    npc_unstable_sphereAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     uint32 uiPulseTimer;
     uint32 uiDeathTimer;
 
     void Reset()
     {
-        me->SetReactState(REACT_PASSIVE) ;
+        me->SetReactState(REACT_PASSIVE);
         me->GetMotionMaster()->MoveRandom(40.0f);
-        me->SetSpeed(MOVE_RUN, 2, true);
-        me->setFaction(14);
+
         me->AddAura(SPELL_UNSTABLE_SPHERE_PASSIVE, me);
         me->AddAura(SPELL_UNSTABLE_SPHERE_TIMER, me);
-        uiPulseTimer = 3*IN_MILISECONDS;
-        uiDeathTimer = 19*IN_MILISECONDS;
+
+        uiPulseTimer = 3000;
+        uiDeathTimer = 19000;
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
-        if (uiPulseTimer < diff)
+        if (uiPulseTimer <= uiDiff)
         {
             DoCast(SPELL_UNSTABLE_SPHERE_PULSE);
             uiPulseTimer = 3*IN_MILISECONDS;
-        } else uiPulseTimer -= diff;
+        } else uiPulseTimer -= uiDiff;
 
-        if (uiDeathTimer < diff)
+        if (uiDeathTimer <= uiDiff)
             me->DisappearAndDie();
-        else uiDeathTimer -= diff;
+        else uiDeathTimer -= uiDiff;
     }
 };
 
@@ -213,7 +204,7 @@ CreatureAI* GetAI_npc_unstable_sphere(Creature* pCreature)
 
 void AddSC_boss_drakos()
 {
-    Script *newscript;
+    Script* newscript;
 
     newscript = new Script;
     newscript->Name = "boss_drakos";
