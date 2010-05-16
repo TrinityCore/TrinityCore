@@ -345,6 +345,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         if (*iter == sess)
         {
             sess->SetInQueue(false);
+            sess->ResetTimeOutTime();
             iter = m_QueuedPlayer.erase(iter);
             found = true;                                   // removing queued session
             break;
@@ -363,6 +364,7 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
     {
         WorldSession* pop_sess = m_QueuedPlayer.front();
         pop_sess->SetInQueue(false);
+        pop_sess->ResetTimeOutTime();
         pop_sess->SendAuthWaitQue(0);
         pop_sess->SendAddonsInfo();
 
