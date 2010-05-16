@@ -729,20 +729,10 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
 
                 if (m_Session != NULL)
                 {
-                    /* The m_TimeOutTime measure is put in to be able to automatically disconnect connections
-                    that are sitting idle on the character select screen. After a period of being AFK in the realm,
-                    the client will be automatically sent back to the character selection screen. In order to pick up
-                    the idle connections and prevent they are sitting there, taking up slots for the realm, we'll check if the packet
-                    that was sent is CMSG_CHAR_ENUM and initiate the timeout timer that will be checked on WorldSession::Update.
-                    */
-                    if (opcode == CMSG_CHAR_ENUM)
-                        m_Session->UpdateTimeOutTime(true);
-                    /* If we're sending any other opcode, it means our connection is not idle, we're logging into the world.
-                       Until we receive our next CMSG_CHAR_ENUM packet, we can disregard the timeout timer.
-                    */
-                    else
-                        m_Session->UpdateTimeOutTime(false);
-
+                    // Our Idle timer will reset on any non PING opcodes.
+                    // Catches people idling on the login screen and any lingering ingame connections.
+                    m_Session->ResetTimeOutTime();
+                    
                     // OK ,give the packet to WorldSession
                     aptr.release();
                     // WARNINIG here we call it with locks held.

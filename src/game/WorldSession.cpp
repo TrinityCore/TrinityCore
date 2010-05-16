@@ -55,6 +55,7 @@ m_latency(0), m_TutorialsChanged(false), m_timeOutTime(0)
     {
         m_Address = sock->GetRemoteAddress ();
         sock->AddReference ();
+        ResetTimeOutTime();
         LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());
     }
 }
@@ -168,8 +169,16 @@ void WorldSession::LogUnprocessedTail(WorldPacket *packet)
 }
 
 /// Update the WorldSession (triggered by World update)
-bool WorldSession::Update(uint32 /*diff*/)
+bool WorldSession::Update(uint32 diff)
 {
+    /// Update Timeout timer.
+    UpdateTimeOutTime(diff);
+    
+    ///- Before we process anything:    
+    /// If necessary, kick the player from the character select screen
+    if (IsConnectionIdle())
+        m_Socket->CloseSocket();
+    
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not proccess packets if socket already closed
     WorldPacket* packet;
@@ -275,9 +284,10 @@ bool WorldSession::Update(uint32 /*diff*/)
         delete packet;
     }
 
-    ///- If necessary, kick the player from the character select screen
-    if (IsConnectionIdle())
-        m_Socket->CloseSocket();
+    time_t currTime = time(NULL);
+    ///- If necessary, log the player out
+    if (ShouldLogOut(currTime) && !m_playerLoading)
+        LogoutPlayer(true);
 
     ///- Cleanup socket pointer if need
     if (m_Socket && m_Socket->IsClosed())
@@ -285,11 +295,6 @@ bool WorldSession::Update(uint32 /*diff*/)
         m_Socket->RemoveReference();
         m_Socket = NULL;
     }
-
-    ///- If necessary, log the player out
-    time_t currTime = time(NULL);
-    if (!m_Socket || (ShouldLogOut(currTime) && !m_playerLoading))
-        LogoutPlayer(true);
 
     if (!m_Socket)
         return false;                                       //Will remove this session from the world session map
