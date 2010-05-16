@@ -37,6 +37,8 @@ struct instance_oculus : public ScriptedInstance
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
 
+    std::list<uint64> GameObjectList;
+
     void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
         switch(pCreature->GetEntry())
@@ -56,12 +58,27 @@ struct instance_oculus : public ScriptedInstance
         }
     }
 
+    void OnGameObjectCreate(GameObject* pGO, bool bAdd)
+    {
+        if (pGO->GetEntry() == GO_DRAGON_CAGE_DOOR)
+        {
+            if (DATA_DRAKOS_EVENT == DONE)
+                pGO->SetGoState(GO_STATE_ACTIVE);
+            else
+                pGO->SetGoState(GO_STATE_READY);
+        
+            GameObjectList.push_back(pGO->GetGUID());
+        }
+    }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)
         {
             case DATA_DRAKOS_EVENT:
                 m_auiEncounter[0] = data;
+                if (data == DONE)
+                    OpenCageDoors();
                 break;
             case DATA_VAROS_EVENT:
                 m_auiEncounter[1] = data;
@@ -103,7 +120,18 @@ struct instance_oculus : public ScriptedInstance
 
         return 0;
     }
+    
+    void OpenCageDoors()
+    {
+        if (GameObjectList.empty())
+            return;
 
+        for (std::list<uint64>::const_iterator itr = GameObjectList.begin(); itr != GameObjectList.end(); ++itr)
+        {
+            if (GameObject* pGO = instance->GetGameObject(*itr))
+                pGO->SetGoState(GO_STATE_ACTIVE);
+        }
+    }
 
     std::string GetSaveData()
     {

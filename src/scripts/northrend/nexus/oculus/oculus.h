@@ -25,4 +25,9 @@ enum Bosses
     CREATURE_EREGOS        = 27656
 };
 
+enum GameObjects
+{
+    GO_DRAGON_CAGE_DOOR                           = 193995
+};
+
 #endif
