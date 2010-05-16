@@ -357,6 +357,11 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         virtual bool CanEnter(Player* /*player*/) { return true; }
         const char* GetMapName() const;
 
+        // have meaning only for instanced map (that have set real difficulty)
+        Difficulty GetDifficulty() const { return Difficulty(GetSpawnMode()); }
+        bool IsRegularDifficulty() const { return GetDifficulty() == REGULAR_DIFFICULTY; }
+        MapDifficulty const* GetMapDifficulty() const;
+
         bool Instanceable() const { return i_mapEntry && i_mapEntry->Instanceable(); }
         // NOTE: this duplicate of Instanceable(), but Instanceable() can be changed when BG also will be instanceable
         bool IsDungeon() const { return i_mapEntry && i_mapEntry->IsDungeon(); }
@@ -581,12 +586,8 @@ class InstanceMap : public Map
         void SendResetWarnings(uint32 timeLeft) const;
         void SetResetSchedule(bool on);
 
-        // have meaning only for instanced map (that have set real difficulty)
-        Difficulty GetDifficulty() const { return Difficulty(GetSpawnMode()); }
-        bool IsRegularDifficulty() const { return GetDifficulty() == REGULAR_DIFFICULTY; }
         uint32 GetMaxPlayers() const;
         uint32 GetMaxResetDelay() const;
-        MapDifficulty const* GetMapDifficulty() const;
 
         virtual void InitVisibilityDistance();
     private:
