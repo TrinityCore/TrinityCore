@@ -470,14 +470,14 @@ void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
     LoginDatabase.PExecute("INSERT INTO realmcharacters (numchars, acctid, realmid) VALUES (%u, %u, %u)",  charcount, GetAccountId(), realmID);
 
     pNewChar->CleanupsBeforeDelete();
-    delete pNewChar;                                        // created only to call SaveToDB()
-
+    
     data << (uint8)CHAR_CREATE_SUCCESS;
     SendPacket(&data);
 
     std::string IP_str = GetRemoteAddress();
     sLog.outBasic("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
     sLog.outChar("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), pNewChar->GetGUIDLow());
+    delete pNewChar;                                        // created only to call SaveToDB()
 
 }
 
