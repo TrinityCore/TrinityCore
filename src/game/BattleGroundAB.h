@@ -255,7 +255,7 @@ class BattleGroundAB : public BattleGround
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        virtual void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
+        virtual void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         virtual void FillInitialWorldStates(WorldPacket& data);
 

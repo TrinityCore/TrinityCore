@@ -6573,6 +6573,14 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
     ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, uint32(honor), true);
 
+    if (InBattleGround() && honor > 0)
+    {
+        if (BattleGround *bg = GetBattleGround())
+        {
+            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, uint32(honor), false);//false: prevent looping
+        }
+    }
+
     if (sWorld.getConfig(CONFIG_PVP_TOKEN_ENABLE) && pvptoken)
     {
         if (!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))

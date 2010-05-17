@@ -57,7 +57,7 @@ class BattleGroundIC : public BattleGround
         void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
+        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
 
     private:
 };

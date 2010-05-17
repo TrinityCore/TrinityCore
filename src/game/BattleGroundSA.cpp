@@ -371,7 +371,7 @@ void BattleGroundSA::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
         return;
 }
 
-void BattleGroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
+void BattleGroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
     if (itr == m_PlayerScores.end())                         // player not found...
@@ -382,7 +382,7 @@ void BattleGroundSA::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     else if (type == SCORE_DESTROYED_WALL)
         ((BattleGroundSAScore*)itr->second)->gates_destroyed += value;
     else
-        BattleGround::UpdatePlayerScore(Source,type,value);
+        BattleGround::UpdatePlayerScore(Source,type,value, doAddHonor);
 }
 
 void BattleGroundSA::TeleportPlayers()
