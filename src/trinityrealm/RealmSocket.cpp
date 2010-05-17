@@ -60,9 +60,6 @@ RealmSocket::~RealmSocket(void)
     if (msg_queue())
         msg_queue()->close();
 
-    if (input_buffer_.length() != 0)
-        input_buffer_.release();
-
     // delete RealmSocketObject must never be called from our code.
     closing_ = true;
 
