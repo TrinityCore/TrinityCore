@@ -73,6 +73,6 @@ class BattleGroundBE : public BattleGround
         bool HandlePlayerUnderMap(Player * plr);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
+        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
 };
 #endif

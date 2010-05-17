@@ -683,7 +683,7 @@ WorldSafeLocsEntry const* BattleGroundAB::GetClosestGraveYard(Player* player)
     return good_entry;
 }
 
-void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value)
+void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor)
 {
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
     if (itr == m_PlayerScores.end())                         // player not found...
@@ -698,7 +698,7 @@ void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
             ((BattleGroundABScore*)itr->second)->BasesDefended += value;
             break;
         default:
-            BattleGround::UpdatePlayerScore(Source,type,value);
+            BattleGround::UpdatePlayerScore(Source,type,value, doAddHonor);
             break;
     }
 }
