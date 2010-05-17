@@ -71,7 +71,7 @@ void BattleGroundIC::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
         return;
 }
 
-void BattleGroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
+void BattleGroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
 
     std::map<uint64, BattleGroundScore*>::iterator itr = m_PlayerScores.find(Source->GetGUID());
@@ -79,7 +79,7 @@ void BattleGroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
-    BattleGround::UpdatePlayerScore(Source,type,value);
+    BattleGround::UpdatePlayerScore(Source,type,value, doAddHonor);
 }
 
 bool BattleGroundIC::SetupBattleGround()

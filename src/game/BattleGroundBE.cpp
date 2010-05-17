@@ -173,7 +173,7 @@ bool BattleGroundBE::SetupBattleGround()
     return true;
 }
 
-void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value)
+void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
 
     BattleGroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
@@ -181,7 +181,7 @@ void BattleGroundBE::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
         return;
 
     //there is nothing special in this score
-    BattleGround::UpdatePlayerScore(Source,type,value);
+    BattleGround::UpdatePlayerScore(Source,type,value, doAddHonor);
 
 }
 

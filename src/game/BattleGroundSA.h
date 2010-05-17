@@ -316,7 +316,7 @@ class BattleGroundSA : public BattleGround
 
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value);
+        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
 
     private:
     bool ResetObjs();
