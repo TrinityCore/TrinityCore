@@ -3509,7 +3509,21 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Object* cmdTarget = step.script->datalong2 & 0x01 ? source : target;
+                Object* cmdTarget = NULL;
+                Object* cmdSource = NULL;
+                Unit* spellTarget = NULL;
+
+                if (step.script->datalong2 == 4)
+                {
+                    Unit* pTarget = (Unit*)target;
+                    if (Creature* victim = GetClosestCreatureWithEntry(pTarget,step.script->dataint,step.script->x))
+                        Unit* spellTarget = (Unit*)victim->GetGUID();
+                }
+                else
+                {
+                    Object* cmdTarget = step.script->datalong2 & 0x01 ? source : target;
+                    Unit* spellTarget = (Unit*)cmdTarget;
+                }
 
                 if (cmdTarget && !cmdTarget->isType(TYPEMASK_UNIT))
                 {
@@ -3517,9 +3531,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Unit* spellTarget = (Unit*)cmdTarget;
-
-                Object* cmdSource = step.script->datalong2 & 0x02 ? target : source;
+                if (step.script->datalong2 == 4)
+                    Object* cmdSource = target;
+                else
+                    Object* cmdSource = step.script->datalong2 & 0x02 ? target : source;
 
                 if (!cmdSource)
                 {
