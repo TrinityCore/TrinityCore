@@ -1,11 +1,13 @@
-
-########### next target ###############
+# Enable precompiled headers when using the GCC compiler.
+IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
+ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 
 SET(scripts_STAT_SRCS
-   ../game/ScriptedEscortAI.cpp
-   ../game/ScriptedEscortAI.h
    ../game/ScriptedPch.cpp
    ../game/ScriptedPch.h
+   ../game/ScriptedEscortAI.cpp
+   ../game/ScriptedEscortAI.h
    ../game/ScriptedCreature.cpp
    ../game/ScriptedCreature.h
    ../game/ScriptedFollowerAI.cpp
@@ -586,3 +588,7 @@ include_directories(
 
 add_library(scripts STATIC ${scripts_STAT_SRCS})
 
+# Generate precompiled header
+IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+	ADD_PRECOMPILED_HEADER(scripts ${CMAKE_SOURCE_DIR}/src/game/ScriptedPch.h)
+ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
