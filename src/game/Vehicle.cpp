@@ -148,7 +148,7 @@ void Vehicle::RemoveAllPassengers()
             passenger->ExitVehicle();
             if (itr->second.passenger)
             {
-                sLog.outCrash("Vehicle %u cannot remove passenger %u. %u is still on it.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger->GetEntry());
+                sLog.outCrash("Vehicle %u cannot remove passenger %u. %u is still on vehicle.", me->GetEntry(), passenger->GetEntry(), itr->second.passenger->GetEntry());
                 //assert(!itr->second.passenger);
                 itr->second.passenger = NULL;
             }

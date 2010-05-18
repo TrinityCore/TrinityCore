@@ -178,7 +178,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
             // TODO: this is not a good place to send the message
             player->GetSession()->SendAreaTriggerMessage(player->GetSession()->GetTrinityString(LANG_INSTANCE_RAID_GROUP_ONLY), mapName);
-            sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance of '%s'", player->GetName(), mapName);
+            sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName(), mapName);
             return false;
         }
     }
@@ -217,13 +217,13 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             {
                 WorldPacket data(SMSG_CORPSE_NOT_IN_INSTANCE);
                 player->GetSession()->SendPacket(&data);
-                sLog.outDebug("MAP: Player '%s' doesn't has a corpse in instance '%s' and can't enter", player->GetName(), mapName);
+                sLog.outDebug("MAP: Player '%s' does not have a corpse in instance '%s' and cannot enter.", player->GetName(), mapName);
                 return false;
             }
-            sLog.outDebug("MAP: Player '%s' has corpse in instance '%s' and can enter", player->GetName(), mapName);
+            sLog.outDebug("MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName(), mapName);
         }
         else
-            sLog.outDebug("Map::CanPlayerEnter - player '%s' is dead but doesn't have a corpse!", player->GetName());
+            sLog.outDebug("Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName());
     }
 
     InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
@@ -250,7 +250,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 // Encounters in progress
                 if (!loginCheck && entry->IsRaid() && ((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
                 {
-                    sLog.outDebug("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
+                    sLog.outDebug("MAP: Player '%s' cannot enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
                     player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
                     return false;
                 }
@@ -262,7 +262,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 {
                     if (boundedMap->GetPlayersCountExceptGMs() >= (loginCheck ? maxPlayers+1 : maxPlayers))
                     {
-                        sLog.outDebug("MAP: Player '%s' can't enter instance '%s' because it's full.", player->GetName(), mapName);
+                        sLog.outDebug("MAP: Player '%s' cannot enter instance '%s' because it is full.", player->GetName(), mapName);
                         player->SendTransferAborted(mapid, TRANSFER_ABORT_MAX_PLAYERS);
                         return false;
                     }
