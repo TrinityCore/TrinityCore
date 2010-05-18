@@ -61,7 +61,7 @@ void GuardAI::EnterEvadeMode()
 {
     if (!me->isAlive())
     {
-        DEBUG_LOG("Creature stopped attacking because he's dead [guid=%u]", me->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because he is dead [guid=%u]", me->GetGUIDLow());
         me->GetMotionMaster()->MoveIdle();
 
         i_state = STATE_NORMAL;
@@ -76,7 +76,7 @@ void GuardAI::EnterEvadeMode()
 
     if (!victim)
     {
-        DEBUG_LOG("Creature stopped attacking because victim is non exist [guid=%u]", me->GetGUIDLow());
+        DEBUG_LOG("Creature stopped attacking because victim does not exist [guid=%u]", me->GetGUIDLow());
     }
     else if (!victim ->isAlive())
     {

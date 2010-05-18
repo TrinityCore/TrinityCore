@@ -70,7 +70,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     assert(oldMap);
     if (GetPlayer()->IsInWorld())
     {
-        sLog.outCrash("Player is still in world when teleported out of map %u! to new map %u", oldMap->GetId(), loc.GetMapId());
+        sLog.outCrash("Player is still in world when teleported from map %u! to new map %u", oldMap->GetId(), loc.GetMapId());
         oldMap->Remove(GetPlayer(), false);
     }
 
