@@ -3713,11 +3713,12 @@ void Map::ScriptsProcess()
                     sLog.outError("SCRIPT_COMMAND_ORIENTATION call for NULL creature.");
                     break;
                 }
-                Unit* pPlayer = (Unit*)source;
+
                 if (step.script->datalong)
-                    source->ToCreature()->SetInFront(pPlayer);
+                    source->ToCreature()->SetInFront((Unit*)source);
                 else
                     source->ToCreature()->SetOrientation(step.script->o);
+
                 source->ToCreature()->SendMovementFlagUpdate();
                 break;
             }
