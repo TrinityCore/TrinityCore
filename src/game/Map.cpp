@@ -39,6 +39,7 @@
 #include "WaypointManager.h"
 #include "DBCEnums.h"
 #include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 #include "GossipDef.h"
 
 #include "MapInstanced.h"
