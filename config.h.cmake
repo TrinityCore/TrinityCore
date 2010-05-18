@@ -5,4 +5,4 @@
 
 #cmakedefine USE_MULTI_THREAD_MAP
 
-#endif HAVE_CONFIG_H
+#endif /* HAVE_CONFIG_H */
