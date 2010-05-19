@@ -40,10 +40,6 @@ class Master
     private:
         bool _StartDB();
 
-        void _HookSignals();
-        void _UnhookSignals();
-        static void _OnSignal(int s);
-
         void clearOnlineAccounts();
 };
 

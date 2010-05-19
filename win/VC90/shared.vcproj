@@ -749,6 +749,10 @@
 			RelativePath="..\..\src\shared\ServiceWin32.h"
 			>
 		</File>
+        <File
+			RelativePath="..\..\src\shared\SignalHandler.h"
+			>
+		</File>
 		<File
 			RelativePath="..\..\src\shared\SystemConfig.h"
 			>
