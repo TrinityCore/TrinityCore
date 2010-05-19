@@ -22,10 +22,11 @@
     \ingroup Trinityd
 */
 
-#include <ace/OS_NS_signal.h>
+#include <ace/Sig_Handler.h>
 
 #include "Common.h"
 #include "SystemConfig.h"
+#include "SignalHandler.h"
 #include "World.h"
 #include "WorldRunnable.h"
 #include "WorldSocket.h"
@@ -59,6 +60,28 @@ extern int m_ServiceStatus;
 INSTANTIATE_SINGLETON_1( Master );
 
 volatile uint32 Master::m_masterLoopCounter = 0;
+
+/// Handle cored's termination signals
+class CoredSignalHandler : public Trinity::SignalHandler
+{
+    public:
+        virtual void HandleSignal(int SigNum)
+        {
+            switch (SigNum)
+            {
+                case SIGINT:
+                    World::StopNow(RESTART_EXIT_CODE);
+                    break;
+                case SIGTERM:
+                #ifdef _WIN32
+                case SIGBREAK:
+                    if (m_ServiceStatus != 1)
+                #endif /* _WIN32 */
+                    World::StopNow(SHUTDOWN_EXIT_CODE);
+                    break;
+            }
+        }
+};
 
 class FreezeDetectorRunnable : public ACE_Based::Runnable
 {
@@ -233,8 +256,21 @@ int Master::Run()
     ///- Initialize the World
     sWorld.SetInitialWorldSettings();
 
-    ///- Catch termination signals
-    _HookSignals();
+
+    // Initialise the signal handlers
+    CoredSignalHandler SignalINT, SignalTERM;
+    #ifdef _WIN32
+    CoredSignalHandler SignalBREAK;
+    #endif /* _WIN32 */
+
+    // Register realmd's signal handlers
+    ACE_Sig_Handler Handler;
+    Handler.register_handler(SIGINT, &SignalINT);
+    Handler.register_handler(SIGTERM, &SignalTERM);
+    #ifdef _WIN32
+    Handler.register_handler(SIGBREAK, &SignalBREAK);
+    #endif /* _WIN32 */
+
 
     ///- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable);
@@ -328,9 +364,6 @@ int Master::Run()
 
     // set server offline
     LoginDatabase.PExecute("UPDATE realmlist SET color = 2 WHERE id = '%d'",realmID);
-
-    ///- Remove signal handling before leaving
-    _UnhookSignals();
 
     // when the main thread closes the singletons get unloaded
     // since worldrunnable uses them, it will crash if unloaded after master
@@ -506,45 +539,4 @@ void Master::clearOnlineAccounts()
 
     // Battleground instance ids reset at server restart
     CharacterDatabase.Execute("UPDATE character_battleground_data SET instance_id = 0");
-}
-
-/// Handle termination signals
-void Master::_OnSignal(int s)
-{
-    switch (s)
-    {
-        case SIGINT:
-            World::StopNow(RESTART_EXIT_CODE);
-            break;
-        case SIGTERM:
-        #ifdef _WIN32
-        case SIGBREAK:
-            if (m_ServiceStatus != 1)
-        #endif
-                World::StopNow(SHUTDOWN_EXIT_CODE);
-            break;
-    }
-
-    signal(s, _OnSignal);
-}
-
-/// Define hook '_OnSignal' for all termination signals
-void Master::_HookSignals()
-{
-    signal(SIGINT, _OnSignal);
-    signal(SIGTERM, _OnSignal);
-    #ifdef _WIN32
-    if (m_ServiceStatus != 1)
-        signal(SIGBREAK, _OnSignal);
-    #endif
-}
-
-/// Unhook the signals before leaving
-void Master::_UnhookSignals()
-{
-    signal(SIGINT, 0);
-    signal(SIGTERM, 0);
-    #ifdef _WIN32
-    signal(SIGBREAK, 0);
-    #endif
 }
