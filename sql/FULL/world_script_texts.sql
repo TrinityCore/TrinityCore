@@ -1815,6 +1815,13 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (26723,-1576043,'Dragonqueen... Life-Binder... preserve... me.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13454,1,0,0,'keristrasza SAY_DEATH'),
    (26723,-1576044,'Stay. Enjoy your final moments.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13451,1,0,0,'keristrasza SAY_CRYSTAL_NOVA'),
 
+-- -1 578 000 THE NEXUS: OCULUS
+   (27655,-1578000,'What do we have here... those that would defy the Spell-Weaver? Those without foresight our understanding. How can i make you see? Malygos is saving the world from itself! Bah! You are hardly worth my time!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (27655,-1578001,'Clearly my pets failed. Perhaps another demonstration is in order.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (27655,-1578002,'Still you fight. Still you cling to misguided principles. If you survive, you''ll find me in the center ring.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (27655,-1578003,'Poor blind fools!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (27655,-1578004,'A taste... just a small taste... of the Spell-Weaver''s power!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+
 -- -1 580 000 SUNWELL PLATEAU
    (24850,-1580000,'Aggh! No longer will I be a slave to Malygos! Challenge me and you will be destroyed!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12422,1,0,0,'kalecgos SAY_EVIL_AGGRO'),
    (24850,-1580001,'I will purge you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,12423,1,0,0,'kalecgos SAY_EVIL_SPELL1'),
