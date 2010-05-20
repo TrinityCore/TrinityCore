@@ -161,8 +161,7 @@ void Channel::Join(uint64 p, const char *pass)
     if (plr)
     {
         if (HasFlag(CHANNEL_FLAG_LFG) &&
-            sWorld.getConfig(CONFIG_RESTRICTED_LFG_CHANNEL) && plr->GetSession()->GetSecurity() == SEC_PLAYER &&
-            (plr->GetGroup() || plr->m_lookingForGroup.Empty()))
+            sWorld.getConfig(CONFIG_RESTRICTED_LFG_CHANNEL) && plr->GetSession()->GetSecurity() == SEC_PLAYER && plr->GetGroup())
         {
             MakeNotInLfg(&data);
             SendToOne(&data, p);
