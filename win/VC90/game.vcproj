@@ -3240,6 +3240,18 @@
 						Name="Halls of Reflection"
 						>
 						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\boss_falric.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\boss_marwyn.cpp"
+							>
+						</File>
+						<File
+							RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.cpp"
+							>
+						</File>
+						<File
 							RelativePath="..\..\src\scripts\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.h"
 							>
 						</File>

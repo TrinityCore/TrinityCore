@@ -1089,9 +1089,26 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
         switch(GetSpellProto()->SpellFamilyName)
         {
             case SPELLFAMILY_GENERIC:
-                // Remove the immunity shield marker on Avenging Wrath removal if Forbearance is not present
-                if (GetId() == 61987 && target->HasAura(61988) && !target->HasAura(25771))
-                    target->RemoveAura(61988);
+                switch(GetId())
+                {
+                    case 61987: // Avenging Wrath
+                        // Remove the immunity shield marker on Avenging Wrath removal if Forbearance is not present
+                        if (target->HasAura(61988) && !target->HasAura(25771))
+                            target->RemoveAura(61988);
+                        break;
+                    case 72368: // Shared Suffering
+                    case 72369:
+                        if (caster)
+                        {
+                            if (AuraEffect* aurEff = GetEffect(0))
+                            {
+                                int32 remainingDamage = aurEff->GetAmount() * (aurEff->GetTotalTicks() - aurEff->GetTickNumber());
+                                if (remainingDamage > 0)
+                                    caster->CastCustomSpell(caster, 72373, NULL, &remainingDamage, NULL, true);
+                            }
+                        }
+                        break;
+                }
                 break;
             case SPELLFAMILY_MAGE:
                 switch(GetId())
