@@ -32,6 +32,7 @@
 #include "Util.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
+#include "LFG.h"
 
 class Aura;
 
@@ -176,6 +177,8 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     data << uint32(0);                                      // unk
     player->GetSession()->SendPacket(&data);
 
+    SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    SendLfgUpdateParty(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
     SendPartyResult(PARTY_OP_INVITE, membername, ERR_PARTY_RESULT_OK);
 }
 
@@ -217,6 +220,14 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket & /*recv_data*/)
     // everything's fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
     if (!group->AddMember(GetPlayer()->GetGUID(), GetPlayer()->GetName()))
         return;
+
+    SendLfgUpdatePlayer(LFG_UPDATETYPE_REMOVED_FROM_QUEUE);
+    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        if (Player *plrg = itr->getSource())
+        {
+            plrg->GetSession()->SendLfgUpdatePlayer(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+            plrg->GetSession()->SendLfgUpdateParty(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
+        }
 
     group->BroadcastGroupUpdate();
 }
