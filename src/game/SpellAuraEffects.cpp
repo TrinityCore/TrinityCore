@@ -2477,11 +2477,10 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                 Unit::AuraEffectList const& mModTotalStatPct = target->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
                 for (Unit::AuraEffectList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
                 {
+                    // Heart of the Wild
                     if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetMiscValue() == 3)
                     {
-                        int32 HotWMod = (*i)->GetAmount();
-                        if (GetMiscValue() == FORM_CAT)
-                            HotWMod /= 2;
+                        int32 HotWMod = (*i)->GetSpellProto()->EffectBasePoints[1] + 1;
 
                         target->CastCustomSpell(target, HotWSpellId, &HotWMod, NULL, NULL, true, NULL, this);
                         break;
