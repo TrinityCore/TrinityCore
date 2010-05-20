@@ -1002,8 +1002,9 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
                     SetBonusDamage(int32(m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier));
 
-                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE,float((petlevel * 4 - petlevel) + (m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier)));
-                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE,float((petlevel * 4 + petlevel) + (m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier)));
+                    // 14AP == 1dps, wolf's strike speed == 2s so dmg = basedmg + AP / 14 * 2
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE,float((petlevel * 4 - petlevel) + (m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier * 2 / 14)));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE,float((petlevel * 4 + petlevel) + (m_owner->GetTotalAttackPowerValue(BASE_ATTACK) * dmg_multiplier * 2 / 14)));
 
                     SetModifierValue(UNIT_MOD_ARMOR, BASE_VALUE, float(m_owner->GetArmor()) * 0.35f);  //  Bonus Armor (35% of player armor)
                     SetModifierValue(UNIT_MOD_STAT_STAMINA, BASE_VALUE,float(m_owner->GetStat(STAT_STAMINA)) * 0.3f);  //  Bonus Stamina (30% of player stamina)
