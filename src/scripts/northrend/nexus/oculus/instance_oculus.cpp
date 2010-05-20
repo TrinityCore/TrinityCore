@@ -34,10 +34,17 @@ struct instance_oculus : public ScriptedInstance
     uint64 uiUrom;
     uint64 uiEregos;
 
+    uint8 uiPlataformUrom;
+
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     std::string str_data;
 
     std::list<uint64> GameObjectList;
+
+    void Initialize()
+    {
+        uiPlataformUrom = 0;
+    }
 
     void OnCreatureCreate(Creature* pCreature, bool /*add*/)
     {
@@ -89,6 +96,9 @@ struct instance_oculus : public ScriptedInstance
             case DATA_EREGOS_EVENT:
                 m_auiEncounter[3] = data;
                 break;
+            case DATA_UROM_PLATAFORM:
+                uiPlataformUrom = data;
+                break;
         }
 
         if (data == DONE)
@@ -103,6 +113,7 @@ struct instance_oculus : public ScriptedInstance
             case DATA_VAROS_EVENT:                 return m_auiEncounter[1];
             case DATA_UROM_EVENT:                  return m_auiEncounter[2];
             case DATA_EREGOS_EVENT:                return m_auiEncounter[3];
+            case DATA_UROM_PLATAFORM:              return uiPlataformUrom;
         }
 
         return 0;
