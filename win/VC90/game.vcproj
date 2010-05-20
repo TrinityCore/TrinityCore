@@ -647,7 +647,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\LFG.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\LFGHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\LFGMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\LFGMgr.h"
 				>
 			</File>
 			<File
