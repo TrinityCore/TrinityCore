@@ -48,11 +48,6 @@ enum Yells
     SAY_TELEPORT                                  = -1578004,
 };
 
-enum eData
-{
-    DATA_SET_SUMMON_GROUP
-};
-
 enum eCreature
 {
     NPC_PHANTASMAL_CLOUDSCRAPER                   = 27645,
