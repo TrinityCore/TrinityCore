@@ -346,7 +346,10 @@ SET(scripts_STAT_SRCS
    northrend/frozen_halls/forge_of_souls/boss_devourer_of_souls.cpp
    northrend/frozen_halls/forge_of_souls/forge_of_souls.h
    northrend/frozen_halls/forge_of_souls/forge_of_souls.cpp
+   northrend/frozen_halls/halls_of_reflection/boss_falric.cpp
+   northrend/frozen_halls/halls_of_reflection/boss_marwyn.cpp
    northrend/frozen_halls/halls_of_reflection/instance_halls_of_reflection.cpp
+   northrend/frozen_halls/halls_of_reflection/halls_of_reflection.cpp
    northrend/frozen_halls/halls_of_reflection/halls_of_reflection.h
    northrend/frozen_halls/pit_of_saron/boss_forgemaster_garfrost.cpp
    northrend/frozen_halls/pit_of_saron/boss_krickandick.cpp
