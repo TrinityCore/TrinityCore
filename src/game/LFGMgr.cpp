@@ -292,7 +292,7 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
             locktype = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         /* TODO - Use these types when needed...
         else if ()
-            locktype = LFG_LOCKSTATUS_TOO_LOG_GEAR_SCORE;
+            locktype = LFG_LOCKSTATUS_TOO_LOW_GEAR_SCORE;
         else if ()
             locktype = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
         else if () // Locked due to WG, closed by GM, done daily, etc
