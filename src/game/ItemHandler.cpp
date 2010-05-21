@@ -319,7 +319,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
         data << pProto->DisplayInfoID;
         data << pProto->Quality;
         data << pProto->Flags;
-        data << pProto->Faction;                            // 3.2 faction?
+        data << pProto->Flags2;
         data << pProto->BuyPrice;
         data << pProto->SellPrice;
         data << pProto->InventoryType;
@@ -765,7 +765,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 // `item_template`.`Faction` is actually `Team`.
                 // 1 == Horde / 2 == Alliance. Field will be renamed in later
                 // patch.
-                if (pProto->Faction == 1 && _player->GetTeam() == ALLIANCE || pProto->Faction == 2 && _player->GetTeam() == HORDE && !_player->isGameMaster())
+                if (pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY && _player->GetTeam() == ALLIANCE || pProto->Flags2 == ITEM_FLAGS_EXTRA_ALLIANCE_ONLY && _player->GetTeam() == HORDE && !_player->isGameMaster())
                     continue;
                 ++count;
 
