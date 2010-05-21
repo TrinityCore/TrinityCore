@@ -5196,14 +5196,22 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_LEAP_BACK:
             {
-                if (m_spellInfo->Id == 781)
-                    if (!m_caster->isInCombat())
-                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-                if (m_caster->hasUnitState(UNIT_STAT_ROOT))
-                    return SPELL_FAILED_ROOTED;
+                // Spell 781 (Disengage) requires player to be in combat
+                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_spellInfo->Id == 781 && !m_caster->isInCombat())
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Unit* target = m_targets.getUnitTarget();
+                if (m_caster == target && m_caster->hasUnitState(UNIT_STAT_ROOT))
+                {
+                    if (m_caster->GetTypeID() == TYPEID_PLAYER)
+                        return SPELL_FAILED_ROOTED;
+                    else
+                        return SPELL_FAILED_DONT_REPORT;
+                }
                 break;
             }
-            default:break;
+            default:
+                break;
         }
     }
 
