@@ -5203,7 +5203,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 Unit* target = m_targets.getUnitTarget();
                 if (m_caster == target && m_caster->hasUnitState(UNIT_STAT_ROOT))
                 {
-                    if (m_caster->GetTypeID() == TYPEID_PLAYER)
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         return SPELL_FAILED_ROOTED;
                     else
                         return SPELL_FAILED_DONT_REPORT;
