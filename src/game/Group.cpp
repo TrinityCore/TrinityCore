@@ -44,6 +44,8 @@ Group::Group()
     m_looterGuid        = 0;
     m_lootThreshold     = ITEM_QUALITY_UNCOMMON;
     m_subGroupsCounts   = NULL;
+    m_guid              = 0;
+    m_counter           = 0;
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -367,7 +369,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
             {
                 data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
                 data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-                data << uint64(0) << uint32(0) << uint32(0) << uint64(0);
+                data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
                 player->GetSession()->SendPacket(&data);
             }
 
@@ -453,7 +455,7 @@ void Group::Disband(bool hideDestroy)
         {
             data.Initialize(SMSG_GROUP_LIST, 1+1+1+1+8+4+4+8);
             data << uint8(0x10) << uint8(0) << uint8(0) << uint8(0);
-            data << uint64(0) << uint32(0) << uint32(0) << uint64(0);
+            data << uint64(m_guid) << uint32(m_counter) << uint32(0) << uint64(0);
             player->GetSession()->SendPacket(&data);
         }
 
