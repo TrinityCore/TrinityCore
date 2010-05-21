@@ -115,7 +115,7 @@ class Roll : public LootValidatorRef
     public:
         Roll(uint64 _guid, LootItem const& li)
             : itemGUID(_guid), itemid(li.itemid), itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix), itemCount(li.count),
-            totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0) {}
+            totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0), rollVoteMask(ROLL_ALL_TYPE_NO_DISENCHANT) {}
         ~Roll() { }
         void setLoot(Loot *pLoot) { link(pLoot, this); }
         Loot *getLoot() { return getTarget(); }
@@ -133,6 +133,7 @@ class Roll : public LootValidatorRef
         uint8 totalGreed;
         uint8 totalPass;
         uint8 itemSlot;
+        uint8 rollVoteMask;
 };
 
 struct InstanceGroupBind
@@ -345,6 +346,9 @@ class Group
         void CountRollVote(const uint64& playerGUID, const uint64& Guid, uint32 NumberOfPlayers, uint8 Choise);
         void EndRoll(Loot *loot);
 
+        // related to disenchant rolls
+        void ResetMaxEnchantingLevel();
+
         void LinkMember(GroupReference *pRef) { m_memberMgr.insertFirst(pRef); }
         void DelinkMember(GroupReference* /*pRef*/) { }
 
@@ -451,5 +455,6 @@ class Group
         uint8*              m_subGroupsCounts;
         uint64              m_guid;
         uint32              m_counter;                      // used only in SMSG_GROUP_LIST
+        uint32              m_maxEnchantingLevel;
 };
 #endif

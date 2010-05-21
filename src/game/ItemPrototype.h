@@ -131,6 +131,14 @@ enum ITEM_FLAGS
     ITEM_FLAGS_BOP_TRADEABLE                  = 0x80000000
 };
 
+enum ItemFlagsExtra
+{
+    ITEM_FLAGS_EXTRA_HORDE_ONLY              = 0x00000001,
+    ITEM_FLAGS_EXTRA_ALLIANCE_ONLY           = 0x00000002,
+    ITEM_FLAGS_EXTRA_REFUNDABLE              = 0x00000004,
+    ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100
+};
+
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -524,8 +532,8 @@ struct ItemPrototype
     char*  Name1;
     uint32 DisplayInfoID;                                   // id from ItemDisplayInfo.dbc
     uint32 Quality;
-    int32  Flags;
-    uint32 Faction;
+    uint32 Flags;
+    uint32 Flags2;
     uint32 BuyCount;
     int32  BuyPrice;
     uint32 SellPrice;

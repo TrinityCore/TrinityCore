@@ -433,9 +433,12 @@ void WorldSession::LogoutPlayer(bool Save)
         if (_player->GetGroup() && !_player->GetGroup()->isRaidGroup() && m_Socket)
             _player->RemoveFromGroup();
 
-        ///- Send update to group
+        ///- Send update to group and reset stored max enchanting level
         if (_player->GetGroup())
+        {
             _player->GetGroup()->SendUpdate();
+            _player->GetGroup()->ResetMaxEnchantingLevel();
+        }
 
         ///- Broadcast a logout message to the player's friends
         sSocialMgr.SendFriendStatus(_player, FRIEND_OFFLINE, _player->GetGUIDLow(), true);
