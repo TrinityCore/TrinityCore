@@ -3489,6 +3489,8 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
     if (itr == m_spells.end())
         return;                                             // already unleared
 
+    bool giveTalentPoints = disabled || !itr->second->disabled;
+
     bool cur_active    = itr->second->active;
     bool cur_dependent = itr->second->dependent;
 
@@ -3518,7 +3520,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     // free talent points
     uint32 talentCosts = GetTalentSpellCost(spell_id);
-    if (talentCosts > 0)
+    if (talentCosts > 0 && giveTalentPoints)
     {
         if (talentCosts < m_usedTalentCount)
             m_usedTalentCount -= talentCosts;
@@ -3884,11 +3886,11 @@ bool Player::resetTalents(bool no_cost)
             // skip non-existant talent ranks
             if (talentInfo->RankID[rank] == 0)
                 continue;
-            removeSpell(talentInfo->RankID[rank]);
+            removeSpell(talentInfo->RankID[rank],true);
             if (const SpellEntry *_spellEntry = sSpellStore.LookupEntry(talentInfo->RankID[rank]))
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)                  // search through the SpellEntry for valid trigger spells
                     if (_spellEntry->EffectTriggerSpell[i] > 0 && _spellEntry->Effect[i] == SPELL_EFFECT_LEARN_SPELL)
-                        removeSpell(_spellEntry->EffectTriggerSpell[i]); // and remove any spells that the talent teaches
+                        removeSpell(_spellEntry->EffectTriggerSpell[i],true); // and remove any spells that the talent teaches
             // if this talent rank can be found in the PlayerTalentMap, mark the talent as removed so it gets deleted
             PlayerTalentMap::iterator plrTalent = m_talents[m_activeSpec]->find(talentInfo->RankID[rank]);
             if (plrTalent != m_talents[m_activeSpec]->end())
