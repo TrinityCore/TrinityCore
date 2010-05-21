@@ -46,6 +46,7 @@ Group::Group()
     m_subGroupsCounts   = NULL;
     m_guid              = 0;
     m_counter           = 0;
+    m_maxEnchantingLevel= 0;
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = 0;
@@ -332,6 +333,9 @@ bool Group::AddMember(const uint64 &guid, const char* name)
         // quest related GO state dependent from raid memebership
         if (isRaidGroup())
             player->UpdateForQuestWorldObjects();
+
+        if (m_maxEnchantingLevel < player->GetSkillValue(SKILL_ENCHANTING))
+            m_maxEnchantingLevel = player->GetSkillValue(SKILL_ENCHANTING);
     }
 
     return true;
@@ -384,6 +388,7 @@ uint32 Group::RemoveMember(const uint64 &guid, const uint8 &method)
         }
 
         SendUpdate();
+        ResetMaxEnchantingLevel();
     }
     // if group before remove <= 2 disband it
     else
@@ -504,7 +509,7 @@ void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
     data << uint32(r.itemRandomPropId);                     // item random property ID
     data << uint32(r.itemCount);                            // items in stack
     data << uint32(CountDown);                              // the countdown time to choose "need" or "greed"
-    data << uint8(ALL_ROLL_TYPE_MASK);                      // roll type mask
+    data << uint8(r.rollVoteMask);                          // roll type mask
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
@@ -655,6 +660,11 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
+                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
+                    r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
+
+                if (item->Flags2 & ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED)
+                    r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
 
                 loot->items[itemSlot].is_blocked = true;
 
@@ -744,6 +754,11 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
             {
                 r->setLoot(loot);
                 r->itemSlot = itemSlot;
+                if (item->DisenchantID && m_maxEnchantingLevel >= item->RequiredDisenchantSkill)
+                    r->rollVoteMask |= ROLL_FLAG_TYPE_DISENCHANT;
+
+                if (item->Flags2 & ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED)
+                    r->rollVoteMask &= ~ROLL_FLAG_TYPE_NEED;
 
                 loot->items[itemSlot].is_blocked = true;
 
@@ -1825,5 +1840,17 @@ void Group::BroadcastGroupUpdate(void)
             pp->ForceValuesUpdateAtIndex(UNIT_FIELD_FACTIONTEMPLATE);
             DEBUG_LOG("-- Forced group value update for '%s'", pp->GetName());
         }
+    }
+}
+
+void Group::ResetMaxEnchantingLevel()
+{
+    m_maxEnchantingLevel = 0;
+    Player *pMember = NULL;
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+    {
+        if (pMember = objmgr.GetPlayer(citr->guid))
+            if (m_maxEnchantingLevel < pMember->GetSkillValue(SKILL_ENCHANTING))
+                m_maxEnchantingLevel = pMember->GetSkillValue(SKILL_ENCHANTING);
     }
 }
