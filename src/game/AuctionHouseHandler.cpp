@@ -296,6 +296,8 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction();
 
     SendAuctionCommandResult(AH->Id, AUCTION_SELL_ITEM, AUCTION_OK);
+
+    GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION, 1);
 }
 
 //this function is called when client bids or buys out auction
