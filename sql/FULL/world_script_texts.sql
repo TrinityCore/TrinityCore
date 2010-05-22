@@ -1792,6 +1792,18 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (24201,-1574018,'There''s no... greater... glory.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13201,1,0,0,'dalronn YELL_DALRONN_DAL_DIEDFIRST'),
    (24201,-1574019,'You may serve me yet.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13202,1,0,0,'dalronn YELL_DALRONN_KILL'),
    (24201,-1574020,'Skarvald, you incompetent slug! Return and make yourself useful!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13203,1,0,0,'dalronn YELL_DALRONN_SKA_DIEDFIRST'),
+   
+-- -1 575 000 UTGARDE PINNACLE
+   (26861,-1575028,'You invade my home and then dare to challenge me? I will tear the hearts from your chests and offer them as gifts to the death god! Rualg nja gaborr!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13609,1,0,0, 'King Ymirom - SAY_AGGRO'),
+   (26861,-1575029,'Your death is only the beginning!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13614,1,0,0, 'King Ymirom - SAY_SLAY_1'),
+   (26861,-1575030,'You have failed your people!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13615,1,0,0, 'King Ymirom - SAY_SLAY_2'),
+   (26861,-1575031,'There is a reason I am king!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13616,1,0,0, 'King Ymirom - SAY_SLAY_3'),
+   (26861,-1575032,'Bleed no more!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13617,1,0,0, 'King Ymirom - SAY_SLAY_4'),
+   (26861,-1575033,'What... awaits me... now?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13618,1,0,0, 'King Ymirom - SAY_DEATH'),
+   (26861,-1575034,'Bjorn of the Black Storm! Honor me now with your presence!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13610,1,0,0, 'King Ymirom - SAY_SUMMON_BJORN'),
+   (26861,-1575035,'Haldor of the Rocky Cliffs, grant me your strength!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13611,1,0,0, 'King Ymirom - SAY_SUMMON_HALDOR'),
+   (26861,-1575036,'Ranulf of the Screaming Abyss, snuff these maggots with darkest night! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13612,1,0,0, 'King Ymirom - SAY_SUMMON_RANULF'),
+   (26861,-1575037,'Tor of the Brutal Siege! Bestow your might upon me!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13613,1,0,0, 'King Ymirom - SAY_SUMMON_TORGYN'),
 
 -- -1 576 000 THE NEXUS: THE NEXUS
    (26731,-1576000,'You know what they say about curiosity.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13319,1,0,0,'grand magus telestra SAY_AGGRO'),
