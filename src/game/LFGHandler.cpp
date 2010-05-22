@@ -20,6 +20,7 @@
 #include "LFGMgr.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
+#include "Player.h"
 
 void WorldSession::HandleSetLfgCommentOpcode(WorldPacket & recv_data)
 {

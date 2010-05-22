@@ -26,6 +26,7 @@
 #include "BattleGround.h"
 #include "LootMgr.h"
 #include "DBCEnums.h"
+#include "Unit.h"
 
 #include <map>
 #include <vector>
