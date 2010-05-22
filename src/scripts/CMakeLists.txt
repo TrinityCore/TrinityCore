@@ -262,6 +262,7 @@ SET(scripts_STAT_SRCS
    kalimdor/maraudon/boss_noxxion.cpp
    kalimdor/maraudon/boss_princess_theradras.cpp
    kalimdor/onyxias_lair/boss_onyxia.cpp
+   kalimdor/onyxias_lair/instance_onyxias_lair.cpp
    kalimdor/razorfen_downs/boss_amnennar_the_coldbringer.cpp
    kalimdor/razorfen_downs/razorfen_downs.cpp
    kalimdor/razorfen_downs/instance_razorfen_downs.cpp
