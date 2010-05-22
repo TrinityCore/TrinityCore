@@ -2756,7 +2756,7 @@ CREATE TABLE `item_template` (
   `displayid` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `Quality` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `Flags` bigint(20) signed NOT NULL DEFAULT '0',
-  `Faction` int(11) unsigned NOT NULL DEFAULT '0',
+  `FlagsExtra` int(10) unsigned NOT NULL DEFAULT '0',
   `BuyCount` tinyint(3) unsigned NOT NULL DEFAULT '1',
   `BuyPrice` bigint(20) signed NOT NULL DEFAULT '0',
   `SellPrice` int(10) unsigned NOT NULL DEFAULT '0',
@@ -7035,8 +7035,8 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 62147, 0x00,  15, 0x00000002, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Icy Touch Defense Increase
 ( 62459, 0x00,  15, 0x00000004, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Chains of Ice Frost Rune Refresh (Rank 3)
 ( 63108, 0x00,   5, 0x00000002, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Siphon Life
-( 63158, 0x00,   5, 0x00000001, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Decimation
-( 63156, 0x00,   5, 0x00000001, 0x00000040, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Decimation
+( 63158, 0x00,   5, 0x00000001, 0x000000C0, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Decimation
+( 63156, 0x00,   5, 0x00000001, 0x000000C0, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Decimation
 ( 64343, 0x00,   3, 0x00000002, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Impact
 ( 64976, 0x00,   4, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Juggernaut
 ( 64914, 0x00,   8, 0x00010000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Rogue T8 2P Bonus
