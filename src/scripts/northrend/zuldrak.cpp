@@ -900,20 +900,23 @@ struct npc_stinkbeardAI : public npc_escortAI
         if (!UpdateVictim())
             return;
 
-        if (me->getVictim()->GetPositionZ() >= 286.276)
+        if (Unit* victim = me->getVictim())
         {
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            if (victim->GetPositionZ() >= 286.276)
             {
-                if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
-                    if (pUnit->GetPositionZ() <= 286.276)
+                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
-                        me->getThreatManager().resetAllAggro();
-                        me->AddThreat(pUnit,5.0f);
-                        break;
+                        if (pUnit->GetPositionZ() <= 286.276)
+                        {
+                            me->getThreatManager().resetAllAggro();
+                            me->AddThreat(pUnit,5.0f);
+                            break;
+                        }
+                        EnterEvadeMode();
                     }
-                    EnterEvadeMode();
                 }
             }
         }
