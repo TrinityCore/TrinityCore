@@ -639,7 +639,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (10184,-1249001,'Learn your place mortal!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'onyxia SAY_KILL'),
    (10184,-1249002,'This meaningless exertion bores me. I''ll incinerate you all from above!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,254,'onyxia SAY_PHASE_2_TRANS'),
    (10184,-1249003,'It seems you''ll need another lesson, mortals!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,293,'onyxia SAY_PHASE_3_TRANS'),
-   (10184,-1249004,'takes in a deep breath...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,'onyxia EMOTE_BREATH'),
+   (10184,-1249004,'%s takes in a deep breath...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'onyxia EMOTE_BREATH'),
 
 -- -1 269 000 OPENING OF THE DARK PORTAL (BLACK MORASS)
    (17880,-1269000,'Why do you persist? Surely you can see the futility of it all. It is not too late! You may still leave with your lives ...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,10442,1,0,0,'temporus SAY_ENTER'),
