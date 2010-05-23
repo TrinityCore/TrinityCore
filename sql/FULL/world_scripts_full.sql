@@ -1026,6 +1026,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_acolyte_of_vesperon' WHERE `ent
 UPDATE `creature_template` SET `ScriptName`='npc_flame_tsunami' WHERE `entry`=30616;
 
 /* ONYXIA'S LAIR */
+UPDATE `instance_template` SET `script`='instance_onyxias_lair' WHERE `map`=249;
 UPDATE `creature_template` SET `ScriptName`='boss_onyxia' WHERE `entry`=10184;
 
 /* ORGRIMMAR */
