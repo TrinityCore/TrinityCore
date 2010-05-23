@@ -518,9 +518,9 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
         }
 
         data << uint32(pQuest->GetRewOrReqMoney());
+        data << uint32(pQuest->XPValue(pSession->GetPlayer())*sWorld.getRate(RATE_XP_QUEST));
     }
 
-    data << uint32(0);
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
     data << float(0);                                       // new 3.3.0, honor multiplier?
@@ -604,7 +604,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const *pQuest)
     data << uint32(pQuest->GetRepObjectiveValue2());         // shown in quest log as part of quest objective OPPOSITE faction
 
     data << uint32(pQuest->GetNextQuestInChain());          // client will request this quest from NPC, if not 0
-    data << uint32(0);                                      // unk 3.3.0
+    data << uint32(pQuest->GetXPId());                      // used for calculating rewarded experience
 
     if (pQuest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
         data << uint32(0);                                  // Hide money rewarded
@@ -772,7 +772,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     }
 
     data << uint32(pQuest->GetRewOrReqMoney());
-    data << uint32(pQuest->XPValue(pSession->GetPlayer()));
+    data << uint32(pQuest->XPValue(pSession->GetPlayer())*sWorld.getRate(RATE_XP_QUEST));
 
     // rewarded honor points. Multiply with 10 to satisfy client
     data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));

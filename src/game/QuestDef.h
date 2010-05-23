@@ -210,6 +210,7 @@ class Quest
         uint32 GetPlayersSlain() const { return PlayersSlain; }
         uint32 GetBonusTalents() const { return BonusTalents; }
         int32  GetRewArenaPoints() const {return RewArenaPoints; }
+        uint32 GetXPId() const { return XPId; }
         uint32 GetSrcItemId() const { return SrcItemId; }
         uint32 GetSrcItemCount() const { return SrcItemCount; }
         uint32 GetSrcSpell() const { return SrcSpell; }
