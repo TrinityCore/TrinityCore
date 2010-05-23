@@ -150,62 +150,50 @@ Quest::Quest(Field * questRecord)
     m_rewchoiceitemscount = 0;
 
     for (int i=0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
-    {
         if (ReqItemId[i])
             ++m_reqitemscount;
-    }
 
     for (int i=0; i < QUEST_OBJECTIVES_COUNT; ++i)
-    {
         if (ReqCreatureOrGOId[i])
             ++m_reqCreatureOrGOcount;
-    }
 
     for (int i=0; i < QUEST_REWARDS_COUNT; ++i)
-    {
         if (RewItemId[i])
             ++m_rewitemscount;
-    }
 
     for (int i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-    {
         if (RewChoiceItemId[i])
             ++m_rewchoiceitemscount;
-    }
 }
 
 uint32 Quest::XPValue(Player *pPlayer) const
 {
     if (pPlayer)
     {
+        int32 quest_level = (QuestLevel == -1 ? pPlayer->getLevel() : QuestLevel);
+        const QuestXPEntry *xpentry = sQuestXPStore.LookupEntry(quest_level);
+        if (!xpentry)
+            return 0;
 
-      const QuestXPEntry *xpentry;
-      int32 quest_level = (QuestLevel == -1 ? pPlayer->getLevel() : QuestLevel);
-      xpentry = sQuestXPStore.LookupEntry(quest_level);
-      if (!xpentry)
-    return 0;
+        int diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
+        if (diffFactor < 1)
+            diffFactor = 1;
+        else if (diffFactor > 10)
+            diffFactor = 10;
 
-      int diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
+        uint32 xp = diffFactor * xpentry->Exp[XPId] / 10;
+        if (xp <= 100)
+            xp = 5 * ((xp + 2) / 5);
+        else if (xp <= 500)
+            xp = 10 * ((xp + 5) / 10);
+        else if (xp <= 1000)
+            xp = 25 * ((xp + 12) / 25);
+        else
+            xp = 50 * ((xp + 25) / 50);
 
-      if (diffFactor < 1)
-    diffFactor = 1;
-      else if (diffFactor > 10)
-    diffFactor = 10;
-
-      uint32 xp = diffFactor * xpentry->Exp[XPId] / 10;
-
-      if (xp <= 100)
-    xp = 5 * ((xp + 2) / 5);
-      else if (xp <= 500)
-        xp = 10 * ((xp + 5) / 10);
-      else if (xp <= 1000)
-        xp = 25 * ((xp + 12) / 25);
-      else
-        xp = 50 * ((xp + 25) / 50);
-
-      return xp;
-
+        return xp;
     }
+
     return 0;
 }
 
