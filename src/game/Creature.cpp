@@ -795,7 +795,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
             if (GetDefaultMovementType() == IDLE_MOTION_TYPE)
                 AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
             else
-                AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE|MOVEMENTFLAG_FLYING);
+                SetFlying(true);
         }
 
         if (GetCreatureInfo()->InhabitType & INHABIT_WATER)
