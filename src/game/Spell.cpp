@@ -5071,10 +5071,10 @@ SpellCastResult Spell::CheckCast(bool strict)
                     (!m_targets.getItemTarget() || !m_targets.getItemTarget()->GetProto()->LockID || m_targets.getItemTarget()->GetOwner() != m_caster))
                     return SPELL_FAILED_BAD_TARGETS;
 
-				if (m_spellInfo->Id != 1842 && m_targets.getGOTarget() && m_targets.getGOTarget()->GetGOInfo()->type != GAMEOBJECT_TYPE_TRAP) // disarm trap should not be affected
-					if (m_caster->ToPlayer()->InBattleGround() && // In BattleGround players can use only flags and banners
-						!m_caster->ToPlayer()->CanUseBattleGroundObject())
-						return SPELL_FAILED_TRY_AGAIN;
+                if (m_spellInfo->Id != 1842 && m_targets.getGOTarget() && m_targets.getGOTarget()->GetGOInfo()->type != GAMEOBJECT_TYPE_TRAP) // disarm trap should not be affected
+                    if (m_caster->ToPlayer()->InBattleGround() && // In BattleGround players can use only flags and banners
+                        !m_caster->ToPlayer()->CanUseBattleGroundObject())
+                        return SPELL_FAILED_TRY_AGAIN;
 
                 // get the lock entry
                 uint32 lockId = 0;
