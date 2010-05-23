@@ -51,7 +51,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /wd 4748 /wd 4244"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="ACE_BUILD_DLL;_DEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=""
+				AdditionalDependencies="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.lib ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\libeay32.lib"
 				OutputFile="$(OutDir)\ACEd.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -140,7 +140,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /wd 4748 /wd 4244"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="ACE_BUILD_DLL;_DEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_AMD64_;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -166,7 +166,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/machine:AMD64"
-				AdditionalDependencies=""
+				AdditionalDependencies="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.lib ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\libeay32.lib"
 				OutputFile="$(OutDir)\ACEd.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -230,7 +230,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /wd 4748 /wd 4244"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="ACE_BUILD_DLL;NDEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SECURE_SCL=0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -252,7 +252,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=""
+				AdditionalDependencies="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.lib ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\libeay32.lib"
 				OutputFile="$(OutDir)\ACE.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -318,7 +318,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /wd 4748 /wd 4244"
 				Optimization="2"
-				AdditionalIncludeDirectories="..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\dep\include;..\..\dep\ACE_wrappers"
 				PreprocessorDefinitions="ACE_BUILD_DLL;NDEBUG;WIN32;_WINDOWS;_CRT_NONSTDC_NO_WARNINGS;_AMD64_;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_SECURE_SCL=0"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -342,7 +342,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/machine:AMD64"
-				AdditionalDependencies=""
+				AdditionalDependencies="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.lib ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\libeay32.lib"
 				OutputFile="$(OutDir)\ACE.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -1398,6 +1398,34 @@
 			</File>
 			<File
 				RelativePath="..\..\dep\ACE_wrappers\ace\SPIPE_Stream.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Asynch_BIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Asynch_Stream.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Context.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Acceptor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Connector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Stream.cpp"
 				>
 			</File>
 			<File
@@ -3690,6 +3718,42 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Asynch_BIO.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Asynch_Stream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Context.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Export.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Acceptor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Connector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Stream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\sslconf.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\dep\ACE_wrappers\ace\SString.h"
 				>
 			</File>
@@ -4988,6 +5052,30 @@
 			</File>
 			<File
 				RelativePath="..\..\dep\ACE_wrappers\ace\SPIPE_Stream.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Asynch_Stream.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_Context.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Acceptor.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Connector.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\dep\ACE_wrappers\ace\SSL\SSL_SOCK_Stream.inl"
 				>
 			</File>
 			<File
