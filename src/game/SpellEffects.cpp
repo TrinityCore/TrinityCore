@@ -3400,7 +3400,8 @@ void Spell::EffectOpenLock(uint32 effIndex)
             }
         }else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
         {
-            gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
+			gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
+			return;
         }
         // TODO: Add script for spell 41920 - Filling, becouse server it freze when use this spell
         // handle outdoor pvp object opening, return true if go was registered for handling
