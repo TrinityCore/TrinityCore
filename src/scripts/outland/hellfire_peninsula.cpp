@@ -405,6 +405,53 @@ bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, Que
     return true;
 }
 
+/*######
+## npc_fel_guard_hound
+######*/
+
+enum eFelGuard
+{
+SPELL_SUMMON_POO    = 37688,
+
+DERANGED_HELBOAR    = 16863
+};
+
+struct  npc_fel_guard_houndAI : public ScriptedAI
+{
+    npc_fel_guard_houndAI(Creature* c) : ScriptedAI(c) {}
+
+    uint32 checkTimer;
+    uint64 lastHelboar; //store last helboar GUID to prevent multiple spawns of poo with the same mob
+
+    void Reset()
+    {
+        me->GetMotionMaster()->MoveFollow(me->GetOwner(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        checkTimer = 5000; //check for creature every 5 sec
+    }
+
+    void Aggro(Unit* /*pWho*/) {}
+    
+    void UpdateAI(const uint32 diff)
+    {
+        if (checkTimer < diff)
+        {
+            Creature* pHelboar = me->FindNearestCreature(DERANGED_HELBOAR, 10, false);
+            if (pHelboar && pHelboar->GetGUID() != lastHelboar)
+            {
+                lastHelboar = pHelboar->GetGUID();
+                DoCast(me, SPELL_SUMMON_POO);
+                pHelboar->RemoveCorpse();
+                checkTimer = 5000;
+            }
+        }else checkTimer -= diff;
+    }
+};
+
+CreatureAI* GetAI_npc_fel_guard_hound(Creature* pCreature)
+{
+    return new npc_fel_guard_houndAI(pCreature);
+}
+
 void AddSC_hellfire_peninsula()
 {
     Script *newscript;
@@ -446,6 +493,11 @@ void AddSC_hellfire_peninsula()
     newscript->Name = "npc_wounded_blood_elf";
     newscript->GetAI = &GetAI_npc_wounded_blood_elf;
     newscript->pQuestAccept = &QuestAccept_npc_wounded_blood_elf;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name="npc_fel_guard_hound";
+    newscript->GetAI = &GetAI_npc_fel_guard_hound;
     newscript->RegisterSelf();
 }
 
