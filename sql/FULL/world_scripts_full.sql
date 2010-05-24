@@ -815,6 +815,7 @@ UPDATE `creature_template` SET `ScriptName`='npc_naladu' WHERE `entry`=19361;
 UPDATE `creature_template` SET `ScriptName`='npc_tracy_proudwell' WHERE `entry`=18266;
 UPDATE `creature_template` SET `ScriptName`='npc_trollbane' WHERE `entry`=16819;
 UPDATE `creature_template` SET `ScriptName`='npc_ancestral_wolf' WHERE `entry`=17077;
+UPDATE `creature_template` SET `ScriptName`='npc_fel_guard_hound' WHERE `entry`=21847;
 
 /* HILLSBRAD FOOTHILLS */
 
