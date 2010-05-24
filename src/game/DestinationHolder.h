@@ -49,6 +49,7 @@ class DestinationHolder
         void ResetUpdate(uint32 t = TRAVELLER_UPDATE_INTERVAL) { i_tracker.Reset(t); }
         uint32 GetTotalTravelTime(void) const { return i_totalTravelTime; }
         void IncreaseTravelTime(uint32 increment) { i_totalTravelTime += increment; }
+        void ResetTravelTime() { i_totalTravelTime = 0; }
         bool HasDestination(void) const { return i_destSet; }
         float GetDestinationDiff(float x, float y, float z) const;
         bool HasArrived(void) const { return (i_totalTravelTime == 0 || i_timeElapsed >= i_totalTravelTime); }
