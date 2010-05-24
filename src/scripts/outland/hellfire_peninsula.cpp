@@ -411,39 +411,58 @@ bool QuestAccept_npc_wounded_blood_elf(Player* pPlayer, Creature* pCreature, Que
 
 enum eFelGuard
 {
-SPELL_SUMMON_POO    = 37688,
+    SPELL_SUMMON_POO                              = 37688,
 
-DERANGED_HELBOAR    = 16863
+    NPC_DERANGED_HELBOAR                          = 16863
 };
 
-struct  npc_fel_guard_houndAI : public ScriptedAI
+struct npc_fel_guard_houndAI : public ScriptedAI
 {
-    npc_fel_guard_houndAI(Creature* c) : ScriptedAI(c) {}
+    npc_fel_guard_houndAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    uint32 checkTimer;
-    uint64 lastHelboar; //store last helboar GUID to prevent multiple spawns of poo with the same mob
+    uint32 uiCheckTimer;
+    uint64 uiHelboarGUID;
 
     void Reset()
     {
-        me->GetMotionMaster()->MoveFollow(me->GetOwner(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
-        checkTimer = 5000; //check for creature every 5 sec
+        uiCheckTimer = 5000; //check for creature every 5 sec
+        uiHelboarGUID = 0;
     }
 
-    void Aggro(Unit* /*pWho*/) {}
-    
-    void UpdateAI(const uint32 diff)
+    void MovementInform(uint32 uiType, uint32 uiId)
     {
-        if (checkTimer < diff)
+        if (uiType != POINT_MOTION_TYPE || uiId != 1)
+            return;
+
+        if (Creature* pHelboar = me->GetCreature(*me,uiHelboarGUID))
         {
-            Creature* pHelboar = me->FindNearestCreature(DERANGED_HELBOAR, 10, false);
-            if (pHelboar && pHelboar->GetGUID() != lastHelboar)
+            pHelboar->RemoveCorpse();
+            DoCast(SPELL_SUMMON_POO);
+
+            if (Player* pOwner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
+                me->GetMotionMaster()->MoveFollow(pOwner,0.0f,0.0f);
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (uiCheckTimer <= uiDiff)
+        {
+            if (Creature* pHelboar = me->FindNearestCreature(NPC_DERANGED_HELBOAR, 10.0f, false))
             {
-                lastHelboar = pHelboar->GetGUID();
-                DoCast(me, SPELL_SUMMON_POO);
-                pHelboar->RemoveCorpse();
-                checkTimer = 5000;
+                if (pHelboar->GetGUID() != uiHelboarGUID && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE && !me->FindCurrentSpellBySpellId(SPELL_SUMMON_POO))
+                {
+                    uiHelboarGUID = pHelboar->GetGUID();
+                    me->GetMotionMaster()->MovePoint(1,pHelboar->GetPositionX(),pHelboar->GetPositionY(),pHelboar->GetPositionZ());
+                }
             }
-        }else checkTimer -= diff;
+            uiCheckTimer = 5000;
+        }else uiCheckTimer -= uiDiff;
+
+        if (!UpdateVictim())
+            return;
+
+        DoMeleeAttackIfReady();
     }
 };
 
