@@ -13257,7 +13257,7 @@ void Player::SendNewItem(Item *item, uint32 count, bool received, bool created, 
 /***                    GOSSIP SYSTEM                  ***/
 /*********************************************************/
 
-void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
+void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQuests)
 {
     PlayerMenu* pMenu = PlayerTalkClass;
     pMenu->ClearMenus();
@@ -13278,7 +13278,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
     {
         pCreature = pSource->ToCreature();
         npcflags = pCreature->GetUInt32Value(UNIT_NPC_FLAGS);
-        if (npcflags & UNIT_NPC_FLAG_QUESTGIVER)
+        if (npcflags & UNIT_NPC_FLAG_QUESTGIVER && showQuests)
             PrepareQuestMenu(pSource->GetGUID());
     }
     else if (pSource->GetTypeId() == TYPEID_GAMEOBJECT)
