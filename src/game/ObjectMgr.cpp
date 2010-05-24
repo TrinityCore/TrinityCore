@@ -8263,19 +8263,11 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
     // find all items from the reference vendor
     QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT item, maxcount, incrtime, ExtendedCost FROM npc_vendor WHERE entry='%d' ORDER BY slot ASC", item);
     if (!result)
-    {
-        barGoLink bar(1);
-
-        bar.step();
         return 0;
-    }
-
-    barGoLink bar(result->GetRowCount());
 
     uint32 count = 0;
     do
     {
-        bar.step();
         Field* fields = result->Fetch();
 
         int32 item_id = fields[0].GetInt32();
