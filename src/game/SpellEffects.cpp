@@ -3398,7 +3398,7 @@ void Spell::EffectOpenLock(uint32 effIndex)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
                 return;
             }
-        }else if (gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
+        }else if (m_spellInfo->Id == 1842 && gameObjTarget->GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && gameObjTarget->GetOwner())
         {
             gameObjTarget->SetLootState(GO_JUST_DEACTIVATED);
             return;
