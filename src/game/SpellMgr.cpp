@@ -290,19 +290,27 @@ int32 GetSpellMaxDuration(SpellEntry const *spellInfo)
     return (du->Duration[2] == -1) ? -1 : abs(du->Duration[2]);
 }
 
-bool GetDispelChance(Unit* caster, uint32 spellId)
+int32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offensive, bool *result)
 {
     // we assume that aura dispel chance is 100% on start
     // need formula for level difference based chance
-    int32 miss_chance = 0;
+    int32 resist_chance = 0;
+
     // Apply dispel mod from aura caster
-    if (caster)
-    {
-        if (Player* modOwner = caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, miss_chance);
-    }
+    if (auraCaster)
+        if (Player* modOwner = auraCaster->GetSpellModOwner())
+            modOwner->ApplySpellMod(spellId, SPELLMOD_RESIST_DISPEL_CHANCE, resist_chance);
+
+    // Dispel resistance from target SPELL_AURA_MOD_DISPEL_RESIST
+    // Only affects offensive dispels
+    if (offensive && target)
+        resist_chance += target->GetTotalAuraModifier(SPELL_AURA_MOD_DISPEL_RESIST);
+
     // Try dispel
-    return !roll_chance_i(miss_chance);
+    if (result)
+        *result = !roll_chance_i(resist_chance);
+
+    return resist_chance;
 }
 
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell * spell)
@@ -2860,9 +2868,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellEntry const* spellproto
             // Frostbite
             if (spellproto->SpellFamilyFlags[1] & 0x80000000)
                 return DIMINISHING_TRIGGER_ROOT;
-         // Frost Nova, Shatterd Barrier
-         if (spellproto->SpellFamilyFlags[0] & 0x00080040)
-          return DIMINISHING_CONTROL_ROOT;
+            //Shattered Barrier: only flag SpellFamilyFlags[0] = 0x00080000 shared
+            //by most frost spells, using id instead
+            if (spellproto->Id == 55080)
+                return DIMINISHING_TRIGGER_ROOT;
+            // Frost Nova / Freeze (Water Elemental)
+            if (spellproto->SpellIconID == 193)
+                return DIMINISHING_CONTROL_ROOT;
             break;
         }
         case SPELLFAMILY_ROGUE:
