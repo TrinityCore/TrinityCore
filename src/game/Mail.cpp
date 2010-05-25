@@ -160,8 +160,24 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
         pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_RECIPIENT_CAP_REACHED);
         return;
     }
-    // test the receiver's Faction...
-    if (!sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL) && pl->GetTeam() != rc_team && GetSecurity() == SEC_PLAYER)
+    // test the receiver's Faction... or all items are account bound
+    bool accountBound = false;
+    for (uint8 i = 0; i < items_count; ++i)
+    {
+        Item* item = pl->GetItemByGuid(itemGUIDs[i]) ;
+        if (item )
+        {
+            ItemPrototype const* itemProto= item->GetProto();
+            if(itemProto && (itemProto->Flags & ITEM_FLAGS_BOA))
+                accountBound = true;
+            else
+            {
+                accountBound = false;
+                break;
+            }
+        }
+    }
+    if (!accountBound && !sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_MAIL) && pl->GetTeam() != rc_team && GetSecurity() == SEC_PLAYER)
     {
         pl->SendMailResult(0, MAIL_SEND, MAIL_ERR_NOT_YOUR_TEAM);
         return;
