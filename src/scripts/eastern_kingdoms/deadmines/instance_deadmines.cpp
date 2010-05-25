@@ -45,6 +45,7 @@ struct instance_deadmines : public ScriptedInstance
 {
     instance_deadmines(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
 
+    uint64 FactoryDoorGUID;
     uint64 IronCladDoorGUID;
     uint64 DefiasCannonGUID;
     uint64 DoorLeverGUID;
@@ -59,6 +60,7 @@ struct instance_deadmines : public ScriptedInstance
 
     void Initialize()
     {
+        FactoryDoorGUID = 0;
         IronCladDoorGUID = 0;
         DefiasCannonGUID = 0;
         DoorLeverGUID = 0;
@@ -176,6 +178,7 @@ struct instance_deadmines : public ScriptedInstance
     {
         switch(pGo->GetEntry())
         {
+            case GO_FACTORY_DOOR:   FactoryDoorGUID = pGo->GetGUID(); break;
             case GO_IRONCLAD_DOOR:  IronCladDoorGUID = pGo->GetGUID();  break;
             case GO_DEFIAS_CANNON:  DefiasCannonGUID = pGo->GetGUID();  break;
             case GO_DOOR_LEVER:     DoorLeverGUID = pGo->GetGUID();     break;
@@ -185,10 +188,17 @@ struct instance_deadmines : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        if (type == EVENT_STATE)
+        switch (type)
         {
+        case EVENT_STATE:
             if (DefiasCannonGUID && IronCladDoorGUID)
                 State=data;
+            break;
+        case EVENT_RHAHKZOR:
+            if (data == DONE)
+                if (GameObject* pGo = instance->GetGameObject(FactoryDoorGUID))
+                    pGo->SetGoState(GO_STATE_ACTIVE);
+            break;
         }
     }
 
