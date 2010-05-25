@@ -1630,10 +1630,8 @@ void Spell::EffectDummy(uint32 i)
             // Life Tap
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_WARLOCK_LIFETAP)
             {
-                // Health = [effectBasePoints1 + SPI * 1.5]
-                int32 damage = 1 + m_spellInfo->EffectBasePoints[0] + (m_caster->GetStat(STAT_SPIRIT) * 1.5);
-                // Mana = [effectBasePoints1 + SPS * 0.5]
-                int32 mana = 1 + m_spellInfo->EffectBasePoints[0] + (m_caster->ToPlayer()->GetBaseSpellPowerBonus() * 0.5);
+                int32 damage = m_spellInfo->EffectBasePoints[0] + (6 * m_spellInfo->baseLevel);
+                int32 mana = damage + (m_caster->ToPlayer()->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+SPELL_SCHOOL_SHADOW) / 2);
 
                 if (unitTarget && (int32(unitTarget->GetHealth()) > damage))
                 {
