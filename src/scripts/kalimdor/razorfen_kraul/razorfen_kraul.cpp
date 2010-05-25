@@ -91,6 +91,7 @@ struct npc_willixAI : public npc_escortAI
             break;
         case 45:
             DoScriptText(SAY_WIN, me, pPlayer);
+            me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
             if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
                 CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WILLIX_THE_IMPORTER,me);
             break;
