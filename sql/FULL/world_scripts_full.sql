@@ -86,25 +86,9 @@ UPDATE `gameobject_template` SET `ScriptName`='go_dragonflayer_cage' WHERE entry
 UPDATE `gameobject_template` SET `ScriptName`='go_black_cage' WHERE `entry`=195310;
 
 /* GUARD */
-UPDATE `creature_template` SET `ScriptName`='guard_azuremyst' WHERE `entry`=18038;
+UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `entry` IN (727,1423,1735,1738,1742,1743,1744,1745,1746,2209,2210,3084,3212,3215,3217,3218,3219,3220,3221,3222,3223,3224,3502,3571,4262,4264,5595,5624,5725,5953,9460,11190,13076,15184,16221,16222,16733,18038,19687);
 UPDATE `creature_template` SET `ScriptName`='guard_orgrimmar' WHERE `entry`=3296;
 UPDATE `creature_template` SET `ScriptName`='guard_stormwind' WHERE `entry` IN (68,1976);
-UPDATE `creature_template` SET `ScriptName`='guard_contested' WHERE `entry` IN (9460,4624,3502,11190,15184);
-UPDATE `creature_template` SET `ScriptName`='guard_elwynnforest' WHERE `entry`=1423;
-UPDATE `creature_template` SET `ScriptName`='guard_eversong' WHERE `entry`=16221;
-UPDATE `creature_template` SET `ScriptName`='guard_darnassus' WHERE `entry`=4262;
-UPDATE `creature_template` SET `ScriptName`='guard_teldrassil' WHERE `entry`=3571;
-UPDATE `creature_template` SET `ScriptName`='guard_ironforge' WHERE `entry`=5595;
-UPDATE `creature_template` SET `ScriptName`='guard_dunmorogh' WHERE `entry` IN (727,13076);
-UPDATE `creature_template` SET `ScriptName`='guard_undercity' WHERE `entry`=5624;
-UPDATE `creature_template` SET `ScriptName`='guard_bluffwatcher' WHERE `entry`=3084;
-UPDATE `creature_template` SET `ScriptName`='guard_durotar' WHERE `entry`=5953;
-UPDATE `creature_template` SET `ScriptName`='guard_mulgore' WHERE `entry` IN (3212,3215,3217,3218,3219,3220,3221,3222,3223,3224);
-UPDATE `creature_template` SET `ScriptName`='guard_dunmorogh' WHERE `entry` IN (727,13076);
-UPDATE `creature_template` SET `ScriptName`='guard_tirisfal' WHERE `entry` IN (1735,1738,2210,1744,1745,5725,1743,2209,1746,1742);
-UPDATE `creature_template` SET `ScriptName`='guard_silvermoon' WHERE `entry`=16222;
-UPDATE `creature_template` SET `ScriptName`='guard_exodar' WHERE `entry`=16733;
-UPDATE `creature_template` SET `ScriptName`='guard_shattrath' WHERE `entry`=19687;
 UPDATE `creature_template` SET `ScriptName`='guard_shattrath_aldor' WHERE `entry`=18549;
 UPDATE `creature_template` SET `ScriptName`='guard_shattrath_scryer' WHERE `entry`=18568;
 
