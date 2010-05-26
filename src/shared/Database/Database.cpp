@@ -388,6 +388,7 @@ bool Database::Execute(const char *sql)
     if (!m_threadBody)
         return DirectExecute(sql);
 
+    nMutex.acquire();
     tranThread = ACE_Based::Thread::current();              // owner of this transaction
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
@@ -395,6 +396,7 @@ bool Database::Execute(const char *sql)
     else
         m_threadBody->Delay(new SqlStatement(sql));         // Simple sql statement
 
+    nMutex.release();
     return true;
 }
 
@@ -557,6 +559,7 @@ bool Database::BeginTransaction()
         return true;                                        // transaction started
     }
 
+    nMutex.acquire();
     tranThread = ACE_Based::Thread::current();              // owner of this transaction
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
@@ -565,7 +568,7 @@ bool Database::BeginTransaction()
         delete i->second;
 
     m_tranQueues[tranThread] = new SqlTransaction();
-
+    nMutex.release();
     return true;
 }
 
@@ -574,28 +577,31 @@ bool Database::CommitTransaction()
     if (!mMysql)
         return false;
 
+    bool _res = false;
+
     // don't use queued execution if it has not been initialized
     if (!m_threadBody)
     {
         if (tranThread != ACE_Based::Thread::current())
             return false;
 
-        bool _res = _TransactionCmd("COMMIT");
+        _res = _TransactionCmd("COMMIT");
         tranThread = NULL;
         mMutex.release();
         return _res;
     }
 
+    nMutex.acquire();
     tranThread = ACE_Based::Thread::current();
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
     {
         m_threadBody->Delay(i->second);
         m_tranQueues.erase(i);
-        return true;
+        _res = true;
     }
-    else
-        return false;
+    nMutex.release();
+    return _res;
 }
 
 bool Database::RollbackTransaction()
@@ -615,6 +621,7 @@ bool Database::RollbackTransaction()
         return _res;
     }
 
+    nMutex.acquire();
     tranThread = ACE_Based::Thread::current();
     TransactionQueues::iterator i = m_tranQueues.find(tranThread);
     if (i != m_tranQueues.end() && i->second != NULL)
@@ -623,7 +630,7 @@ bool Database::RollbackTransaction()
         i->second = NULL;
         m_tranQueues.erase(i);
     }
-
+    nMutex.release();
     return true;
 }
 
