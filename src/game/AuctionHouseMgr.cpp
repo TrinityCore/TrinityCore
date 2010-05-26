@@ -611,66 +611,66 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
         if (usable != 0x00 && player->CanUseItem(item) != EQUIP_ERR_OK)
             continue;
 
-		// Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
-		// No need to do any of this if no search term was entered
-		if (!wsearchedname.empty())
-		{
-			std::string name = proto->Name1;
-			if (name.empty())
-				continue;
+        // Allow search by suffix (ie: of the Monkey) or partial name (ie: Monkey)
+        // No need to do any of this if no search term was entered
+        if (!wsearchedname.empty())
+        {
+            std::string name = proto->Name1;
+            if (name.empty())
+                continue;
 
-			// local name
-			if (loc_idx >= 0)
-			{
-				ItemLocale const *il = objmgr.GetItemLocale(proto->ItemId);
-				if (il)
-				{
-					if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
-						name = il->Name[loc_idx];
-				}
-			}
+            // local name
+            if (loc_idx >= 0)
+            {
+            ItemLocale const *il = objmgr.GetItemLocale(proto->ItemId);
+                if (il)
+                {
+                    if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
+                        name = il->Name[loc_idx];
+                }
+            }
 
-			// DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
-			//  that matches the search but it may not equal item->GetItemRandomPropertyId()
-			//  used in BuildAuctionInfo() which then causes wrong items to be listed
-			int32 propRefID = item->GetItemRandomPropertyId();
+            // DO NOT use GetItemEnchantMod(proto->RandomProperty) as it may return a result
+            //  that matches the search but it may not equal item->GetItemRandomPropertyId()
+            //  used in BuildAuctionInfo() which then causes wrong items to be listed
+            int32 propRefID = item->GetItemRandomPropertyId();
 
-			if (propRefID)
-			{
-				// Append the suffix to the name (ie: of the Monkey) if one exists
-				// These are found in ItemRandomProperties.dbc, not ItemRandomSuffix.dbc
-				//  even though the DBC names seem misleading
-				const ItemRandomPropertiesEntry *itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
+            if (propRefID)
+            {
+                // Append the suffix to the name (ie: of the Monkey) if one exists
+                // These are found in ItemRandomProperties.dbc, not ItemRandomSuffix.dbc
+                //  even though the DBC names seem misleading
+                const ItemRandomPropertiesEntry *itemRandProp = sItemRandomPropertiesStore.LookupEntry(propRefID);
 
-				if (itemRandProp)
-				{
-					char* const* temp = itemRandProp->nameSuffix;
-					//char* temp = itemRandProp->nameSuffix;
+                if (itemRandProp)
+                {
+                    char* const* temp = itemRandProp->nameSuffix;
+                    //char* temp = itemRandProp->nameSuffix;
 
-					if (temp)
-					{
-						if (loc_idx >= 0)
-						{
-							// Append the suffix (ie: of the Monkey) to the name using localization
-							name += " ";
-							name += temp[loc_idx];
-						}
-						else
-						{
-							// Invalid localization? Append the suffix using default enUS
-							name += " ";
-							name += temp[LOCALE_enUS];
-						}
-					}
-				}
-			}
+                    if (temp)
+                    {
+                        if (loc_idx >= 0)
+                        {
+                            // Append the suffix (ie: of the Monkey) to the name using localization
+                            name += " ";
+                            name += temp[loc_idx];
+                        }
+                        else
+                        {
+                            // Invalid localization? Append the suffix using default enUS
+                            name += " ";
+                            name += temp[LOCALE_enUS];
+                        }
+                    }
+                }
+            }
 
-			// Perform the search (with or without suffix)
-			if (!Utf8FitTo(name, wsearchedname))
-				continue;
-		}
+            // Perform the search (with or without suffix)
+            if (!Utf8FitTo(name, wsearchedname))
+                continue;
+        }
 
-		// Add the item if no search term or if entered search term was found
+        // Add the item if no search term or if entered search term was found
         if (count < 50 && totalcount >= listfrom)
         {
             ++count;
