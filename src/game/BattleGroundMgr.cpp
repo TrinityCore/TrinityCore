@@ -1367,6 +1367,40 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
         *data << (int32)itr->second->HealingDone;            // healing done
         switch(bg->GetTypeID(true))                              // battleground specific things
         {
+            case BATTLEGROUND_RB:
+                switch(bg->GetMapId())
+                {
+                    case 489:
+                        *data << (uint32)0x00000002;        // count of next fields
+                        *data << (uint32)((BattleGroundWGScore*)itr->second)->FlagCaptures;         // flag captures
+                        *data << (uint32)((BattleGroundWGScore*)itr->second)->FlagReturns;          // flag returns
+                        break;
+                    case 566:
+                        *data << (uint32)0x00000001;        // count of next fields
+                        *data << (uint32)((BattleGroundEYScore*)itr->second)->FlagCaptures;         // flag captures
+                        break;
+                    case 529:
+                        *data << (uint32)0x00000002;        // count of next fields
+                        *data << (uint32)((BattleGroundABScore*)itr->second)->BasesAssaulted;       // bases asssulted
+                        *data << (uint32)((BattleGroundABScore*)itr->second)->BasesDefended;        // bases defended
+                        break;
+                    case 30:
+                        *data << (uint32)0x00000005;        // count of next fields
+                        *data << (uint32)((BattleGroundAVScore*)itr->second)->GraveyardsAssaulted;  // GraveyardsAssaulted
+                        *data << (uint32)((BattleGroundAVScore*)itr->second)->GraveyardsDefended;   // GraveyardsDefended
+                        *data << (uint32)((BattleGroundAVScore*)itr->second)->TowersAssaulted;      // TowersAssaulted
+                        *data << (uint32)((BattleGroundAVScore*)itr->second)->TowersDefended;       // TowersDefended
+                        *data << (uint32)((BattleGroundAVScore*)itr->second)->MinesCaptured;        // MinesCaptured
+                        break;
+                    case 607:
+                        *data << uint32(2);
+                        *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);
+                        *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);
+                        break;
+                    default:
+                        *data << (int32)0;                  // 0
+                        break;
+                }
             case BATTLEGROUND_AV:
                 *data << (uint32)0x00000005;                // count of next fields
                 *data << (uint32)((BattleGroundAVScore*)itr->second)->GraveyardsAssaulted;  // GraveyardsAssaulted
@@ -1394,14 +1428,13 @@ void BattleGroundMgr::BuildPvpLogDataPacket(WorldPacket *data, BattleGround *bg)
             case BATTLEGROUND_AA:
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
-          *data << uint32(2);
-          *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);
-          *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);
-          break;
+                *data << uint32(2);
+                *data << uint32(((BattleGroundSAScore*)itr->second)->demolishers_destroyed);
+                *data << uint32(((BattleGroundSAScore*)itr->second)->gates_destroyed);
+                break;
             case BATTLEGROUND_DS:                           // wotlk
             case BATTLEGROUND_RV:                           // wotlk
             case BATTLEGROUND_IC:                           // wotlk
-            case BATTLEGROUND_RB:                          // wotlk
                 *data << (int32)0;                          // 0
                 break;
             default:
