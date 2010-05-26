@@ -3134,23 +3134,38 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
-                // accept player in any one from target/source arg
+                // accept object in any one from target/source arg
                 if (!target && !source)
                 {
                     sLog.outError("SCRIPT_COMMAND_TELEPORT_TO call for NULL object.");
                     break;
                 }
 
-                // must be only Player
-                if ((!target || target->GetTypeId() != TYPEID_PLAYER) && (!source || source->GetTypeId() != TYPEID_PLAYER))
+                if (step.script->datalong2 == 0)
                 {
-                    sLog.outError("SCRIPT_COMMAND_TELEPORT_TO call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
-                    break;
+                    // must be only Player
+                    if ((!target || target->GetTypeId() != TYPEID_PLAYER) && (!source || source->GetTypeId() != TYPEID_PLAYER))
+                    {
+                        sLog.outError("SCRIPT_COMMAND_TELEPORT_TO call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                        break;
+                    }
+
+                    Player* pSource = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
+
+                    pSource->TeleportTo(step.script->datalong, step.script->x, step.script->y, step.script->z, step.script->o);
+                }else if (step.script->datalong2 == 1)
+                {
+                    // must be only Creature
+                    if ((!target || target->GetTypeId() != TYPEID_UNIT) && (!source || source->GetTypeId() != TYPEID_UNIT))
+                    {
+                        sLog.outError("SCRIPT_COMMAND_TELEPORT_TO call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                        break;
+                    }
+
+                    Creature* pSource = target && target->GetTypeId() == TYPEID_UNIT ? target->ToCreature() : source->ToCreature();
+
+                    pSource->NearTeleportTo(step.script->x, step.script->y, step.script->z, step.script->o);
                 }
-
-                Player* pSource = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
-
-                pSource->TeleportTo(step.script->datalong, step.script->x, step.script->y, step.script->z, step.script->o);
                 break;
             }
 
