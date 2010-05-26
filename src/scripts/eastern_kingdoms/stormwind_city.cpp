@@ -551,11 +551,8 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 2;
                         break;
                     case 2:
-                        /*
-                        FIXME: Why have this if pTyrion not declared?
-                        if (pTyrion)
+                        if (Creature* pTyrion = me->FindNearestCreature(NPC_TYRION,10.0f))
                             DoScriptText(SAY_TYRION_1, pTyrion);
-                        */
                         uiTimer = 3000;
                         uiPhase = 3;
                         break;
@@ -586,11 +583,8 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 0;
                         break;
                     case 8:
-                        /*
-                        FIXME: Why have this if pLescovar not declared?
-                        if (pLescovar)
+                        if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR,10.0f))
                             DoScriptText(SAY_LESCOVAR_1, pLescovar);
-                        */
                         uiTimer = 3000;
                         uiPhase = 9;
                         break;
@@ -600,15 +594,14 @@ struct npc_tyrion_spybotAI : public npc_escortAI
                         uiPhase = 10;
                         break;
                     case 10:
-                        /*
-                        FIXME: Why have this if pLescovar not declared?
-                        if (pLescovar && pLescovar->isAlive())
+                        if (Creature* pLescovar = me->FindNearestCreature(NPC_LORD_GREGOR_LESCOVAR,10.0f))
                         {
                             if (Player* pPlayer = GetPlayerForEscort())
+                            {
                                 CAST_AI(npc_lord_gregor_lescovarAI,pLescovar->AI())->Start(false, false, pPlayer->GetGUID());
-                            CAST_AI(npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
+                                CAST_AI(npc_lord_gregor_lescovarAI, pLescovar->AI())->SetMaxPlayerDistance(200.0f);
+                            }
                         }
-                        */
                         me->DisappearAndDie();
                         uiTimer = 0;
                         uiPhase = 0;
