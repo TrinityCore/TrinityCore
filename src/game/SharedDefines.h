@@ -2018,6 +2018,8 @@ enum CreatureEliteType
 // values based at Holidays.dbc
 enum HolidayIds
 {
+    HOLIDAY_NONE                     = 0,
+
     HOLIDAY_FIREWORKS_SPECTACULAR    = 62,
     HOLIDAY_FEAST_OF_WINTER_VEIL     = 141,
     HOLIDAY_NOBLEGARDEN              = 181,
@@ -2712,7 +2714,7 @@ enum BattleGroundTypeId
     BATTLEGROUND_DS            = 10,
     BATTLEGROUND_RV            = 11,
     BATTLEGROUND_IC            = 30,
-    BATTLEGROUND_ABG           = 32
+    BATTLEGROUND_RB            = 32
 };
 
 #define MAX_BATTLEGROUND_TYPE_ID 33

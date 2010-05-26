@@ -55,13 +55,13 @@ struct GameEventQuestToEventConditionNum
 
 struct GameEventData
 {
-    GameEventData() : start(1),end(0),nextstart(0),occurence(0),length(0),state(GAMEEVENT_NORMAL) {}
+    GameEventData() : start(1),end(0),nextstart(0),occurence(0),length(0),state(GAMEEVENT_NORMAL), holiday_id(HOLIDAY_NONE) {}
     time_t start;           // occurs after this time
     time_t end;             // occurs before this time
     time_t nextstart;       // after this time the follow-up events count this phase completed
     uint32 occurence;       // time between end and start
     uint32 length;          // length of the event (minutes) after finishing all conditions
-    uint32 holiday_id;
+    HolidayIds holiday_id;
     GameEventState state;   // state of the game event, these are saved into the game_event table on change!
     std::map<uint32 /*condition id*/, GameEventFinishCondition> conditions;  // conditions to finish
     std::set<uint16 /*gameevent id*/> prerequisite_events;  // events that must be completed before starting this event
@@ -123,6 +123,7 @@ class GameEventMgr
         void GameEventUnspawn(int16 event_id);
         void ChangeEquipOrModel(int16 event_id, bool activate);
         void UpdateEventQuests(uint16 event_id, bool activate);
+        void UpdateWorldStates(uint16 event_id, bool Activate);
         void UpdateEventNPCFlags(uint16 event_id);
         void UpdateEventNPCVendor(uint16 event_id, bool activate);
         void UpdateBattleGroundSettings();

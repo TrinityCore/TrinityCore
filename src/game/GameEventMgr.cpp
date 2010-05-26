@@ -21,6 +21,7 @@
 #include "GameEventMgr.h"
 #include "World.h"
 #include "ObjectMgr.h"
+#include "WorldPacket.h"
 #include "PoolHandler.h"
 #include "ProgressBar.h"
 #include "Language.h"
@@ -243,7 +244,7 @@ void GameEventMgr::LoadFromDB()
             pGameEvent.end          = time_t(endtime);
             pGameEvent.occurence    = fields[3].GetUInt32();
             pGameEvent.length       = fields[4].GetUInt32();
-            pGameEvent.holiday_id   = fields[5].GetUInt32();
+            pGameEvent.holiday_id   = HolidayIds(fields[5].GetUInt32());
 
             pGameEvent.state        = (GameEventState)(fields[7].GetUInt8());
             pGameEvent.nextstart    = 0;
@@ -254,12 +255,12 @@ void GameEventMgr::LoadFromDB()
                 continue;
             }
 
-            if (pGameEvent.holiday_id)
+            if (pGameEvent.holiday_id != HOLIDAY_NONE)
             {
                 if (!sHolidaysStore.LookupEntry(pGameEvent.holiday_id))
                 {
                     sLog.outErrorDb("`game_event` game event id (%i) have not existed holiday id %u.",event_id,pGameEvent.holiday_id);
-                    pGameEvent.holiday_id = 0;
+                    pGameEvent.holiday_id = HOLIDAY_NONE;
                 }
             }
 
@@ -1168,6 +1169,7 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
     ChangeEquipOrModel(event_id, false);
     // Remove quests that are events only to non event npc
     UpdateEventQuests(event_id, false);
+    UpdateWorldStates(event_id, false);
     // update npcflags in this event
     UpdateEventNPCFlags(event_id);
     // remove vendor items
@@ -1198,6 +1200,7 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     ChangeEquipOrModel(event_id, true);
     // Add quests that are events only to non event npc
     UpdateEventQuests(event_id, true);
+    UpdateWorldStates(event_id, true);
     // update npcflags in this event
     UpdateEventNPCFlags(event_id);
     // add vendor items
@@ -1571,7 +1574,27 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
                 }
             }
         }
-    }}
+    }
+}
+
+void GameEventMgr::UpdateWorldStates(uint16 event_id, bool Activate)
+{
+    GameEventData const& event = mGameEvent[event_id];
+    if (event.holiday_id != HOLIDAY_NONE)
+    {
+        BattleGroundTypeId bgTypeId = BattleGroundMgr::WeekendHolidayIdToBGType(event.holiday_id);
+        if (bgTypeId != BATTLEGROUND_TYPE_NONE)
+        {
+            BattlemasterListEntry const * bl = sBattlemasterListStore.LookupEntry(bgTypeId);
+            if (bl && bl->HolidayWorldStateId)
+            {
+                WorldPacket data;
+                sBattleGroundMgr.BuildUpdateWorldStatePacket(&data, bl->HolidayWorldStateId, Activate ? 1 : 0);
+                sWorld.SendGlobalMessage(&data);
+            }
+        }
+    }
+}
 
 GameEventMgr::GameEventMgr()
 {
@@ -1676,8 +1699,11 @@ void GameEventMgr::SendWorldStateUpdate(Player * plr, uint16 event_id)
     }
 }
 
- bool IsHolidayActive(HolidayIds id)
+bool IsHolidayActive(HolidayIds id)
 {
+    if (id == HOLIDAY_NONE)
+        return false;
+
     GameEventMgr::GameEventDataMap const& events = gameeventmgr.GetEventMap();
     GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
 

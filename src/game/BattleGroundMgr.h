@@ -250,6 +250,8 @@ class BattleGroundMgr
         static BattleGroundTypeId BGTemplateId(BattleGroundQueueTypeId bgQueueTypeId);
         static uint8 BGArenaType(BattleGroundQueueTypeId bgQueueTypeId);
 
+        static HolidayIds BGTypeToWeekendHolidayId(BattleGroundTypeId bgTypeId);
+        static BattleGroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
         static bool IsBGWeekend(BattleGroundTypeId bgTypeId);
         void DoCompleteAchievement(uint32 achievement, Player * player = NULL);
         bool isAnyArenaEnabled() const { return m_EnabledArenas.size() != 0; }
