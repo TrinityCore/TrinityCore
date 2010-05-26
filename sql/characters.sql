@@ -577,6 +577,28 @@ LOCK TABLES `character_battleground_data` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `character_battleground_random`
+--
+
+DROP TABLE IF EXISTS `character_battleground_random`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `character_battleground_random` (
+  `guid` int(11) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`guid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `character_battleground_random`
+--
+
+LOCK TABLES `character_battleground_random` WRITE;
+/*!40000 ALTER TABLE `character_battleground_random` DISABLE KEYS */;
+/*!40000 ALTER TABLE `character_battleground_random` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `character_declinedname`
 --
 
@@ -1950,7 +1972,8 @@ LOCK TABLES `worldstates` WRITE;
 /*!40000 ALTER TABLE `worldstates` DISABLE KEYS */;
 INSERT INTO `worldstates` (`entry`,`value`, `comment`) VALUES 
 (20001, 0, 'NextArenaPointDistributionTime'),
-(20002, 0, 'NextWeeklyQuestResetTime');
+(20002, 0, 'NextWeeklyQuestResetTime'),
+(20003, 0, 'NextBGRandomDailyResetTime');
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
