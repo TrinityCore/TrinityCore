@@ -4914,6 +4914,8 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (34913, 0, 0, 0, 0, 'Mage - Molten Armor Triggered Rank 1'),
 (11366, 1.15, 0.05, -1, -1, 'Mage - Pyroblast'),
 (2948, 0.4286, -1, -1, -1, 'Mage - Scorch'),
+(59638, 0.3, -1, 0, -1, 'Mage - Mirror Image Frostbolt'),
+(59637, 0.3, -1, 0, -1, 'Mage - Mirror Image Fire Blast'),
 (31935, 0.07, -1, 0.07, -1, 'Paladin - Avenger Shield'),
 (53742, -1, 0.0176, -1, 0.03, 'Paladin - Blood Corruption'),
 (26573, -1, 0.04, -1, 0.04, 'Paladin - Consecration'),
@@ -4949,6 +4951,8 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (25742, 0.07, -1, 0.039, -1, 'Paladin - Seal of Righteousness Dummy Proc'),
 (53719, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Enemy'),
 (53718, 0, 0, 0, 0, 'Paladin - Seal of the Martyr Proc Self'),
+(20267, 0, 0, 0, 0, 'Paladin - Judgement of Light Proc'),
+(25997, 0, 0, 0, 0, 'Paladin - Eye for an Eye'),
 (50256, -1, -1, 0.08, -1, 'Pet Skills - Bear (Swipe)'),
 (32546, 0.8068, -1, -1, -1, 'Priest - Binding Heal'),
 (27813, 0, 0, 0, 0, 'Priest - Blessed Recovery Rank 1'),
@@ -7157,7 +7161,9 @@ INSERT INTO `spell_proc_event` (`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFam
 ( 63320, 0x00,   5, 0x80040000, 0x00000000, 0x00008000, 0x00000400, 0x00000000,   0,   0,   0), -- Glyph of Life Tap
 ( 67356, 0x08,   7, 0x00000010, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0,   0), -- Item - Druid T9 Restoration Relic (Rejuvenation)
 ( 67771,    1,   0, 0x00000000, 0x00000000, 0x00000000,  0x0851154,       0x03,   0,  35,  45), -- Item - Coliseum Melee Trinket 10men
-( 67702,    1,   0, 0x00000000, 0x00000000, 0x00000000,  0x0851154,       0x03,   0,  35,  45); -- Item - Coliseum Melee Trinket 25men
+( 67702,    1,   0, 0x00000000, 0x00000000, 0x00000000,  0x0851154,       0x03,   0,  35,  45), -- Item - Coliseum Melee Trinket 25men
+( 71519, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 105), -- Item - Deathbringer's Will Trinket Normal
+( 71562, 0x00,   0, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,   0,   0, 105); -- Item - Deathbringer's Will Trinket Heroic
 /*!40000 ALTER TABLE `spell_proc_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
