@@ -70,19 +70,6 @@ enum Spells
     SPELL_BLACKHOLE_GROW        = 46228
 };
 
-enum Creatures
-{
-    CREATURE_DARKNESS            = 25879,
-    CREATURE_DARK_FIENDS        = 25744,
-    CREATURE_BERSERKER            = 25798,
-    CREATURE_FURY_MAGE            = 25799,
-    CREATURE_VOID_SENTINEL        = 25772,
-    CREATURE_VOID_SPAWN            = 25824,
-    CREATURE_BLACK_HOLE            = 25855,
-    BOSS_MURU                    = 25741,
-    BOSS_ENTROPIUS                = 25840
-};
-
 enum BossTimers{
     TIMER_DARKNESS                = 0,
     TIMER_HUMANOIDES            = 1,
