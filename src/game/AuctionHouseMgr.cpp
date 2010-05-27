@@ -583,6 +583,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
     uint32& count, uint32& totalcount)
 {
     int loc_idx = player->GetSession()->GetSessionDbLocaleIndex();
+    int locdbc_idx = player->GetSession()->GetSessionDbcLocale();
 
     for (AuctionEntryMap::const_iterator itr = AuctionsMap.begin(); itr != AuctionsMap.end(); ++itr)
     {
@@ -647,13 +648,14 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
                     char* const* temp = itemRandProp->nameSuffix;
                     //char* temp = itemRandProp->nameSuffix;
 
+                    // dbc local name
                     if (temp)
                     {
-                        if (loc_idx >= 0)
+                        if (locdbc_idx >= 0)
                         {
                             // Append the suffix (ie: of the Monkey) to the name using localization
                             name += " ";
-                            name += temp[loc_idx];
+                            name += temp[locdbc_idx];
                         }
                         else
                         {
