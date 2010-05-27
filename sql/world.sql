@@ -6006,7 +6006,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 32390, 60467, 2, 'Shadow Embrace Rank4'),
 ( 32391, 60468, 2, 'Shadow Embrace Rank5'),
 ( 33206, 44416, 2, 'Pain Suppression (threat)'),
-( 50720, 59665, 0, 'Vigilance (redirect threat)'),
 ( 52610, 62071, 0, 'Savage Roar'),
 (-52610,-62071, 0, 'Savage Roar'),
 ( 51209, 55095, 1, 'Hungering cold - frost fever'),
