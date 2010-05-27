@@ -384,9 +384,16 @@ void ThreatManager::addThreat(Unit* pVictim, float fThreat, SpellSchoolMask scho
     // must check > 0.0f, otherwise dead loop
     if (threat > 0.0f && pVictim->GetReducedThreatPercent())
     {
-        float reducedThreat = threat * pVictim->GetReducedThreatPercent() / 100;
+        uint32 reducedThreadPercent = pVictim->GetReducedThreatPercent();
+
+        Unit *unit = pVictim->GetMisdirectionTarget();
+        if (unit)
+            if (Aura* pAura = unit->GetAura(63326)) // Glyph of Vigilance
+                reducedThreadPercent += pAura->GetSpellProto()->EffectBasePoints[0];
+
+        float reducedThreat = threat * reducedThreadPercent / 100;
         threat -= reducedThreat;
-        if (Unit *unit = pVictim->GetMisdirectionTarget())
+        if (unit)
             _addThreat(unit, reducedThreat);
     }
 
