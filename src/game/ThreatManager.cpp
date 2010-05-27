@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "ObjectAccessor.h"
 #include "UnitEvents.h"
+#include "SpellAuras.h"
 
 //==============================================================
 //================= ThreatCalcHelper ===========================
