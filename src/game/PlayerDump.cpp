@@ -437,8 +437,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
         if (nw_pos == std::string::npos)
             continue;
 
-        // skip NOTE
-        if (line.substr(nw_pos,15) == "IMPORTANT NOTE:")
+        // skip logfile-side dump start notice, the important notes and dump end notices
+        if ((line.substr(nw_pos,16) == "== START DUMP ==") ||
+            (line.substr(nw_pos,15) == "IMPORTANT NOTE:") ||
+            (line.substr(nw_pos,14) == "== END DUMP =="))
             continue;
 
         // add required_ check
