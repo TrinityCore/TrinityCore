@@ -1,18 +1,18 @@
 /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
 
 /* ScriptData
 SDName: Boss_Kalecgos
@@ -24,68 +24,62 @@ EndScriptData */
 #include "ScriptedPch.h"
 #include "sunwell_plateau.h"
 
-enum Quotes
+enum Yells
 {
     //Kalecgos dragon form
-    SAY_EVIL_AGGRO          = -1580000,
-    SAY_EVIL_SPELL1         = -1580001,
-    SAY_EVIL_SPELL2         = -1580002,
-    SAY_EVIL_SLAY1          = -1580003,
-    SAY_EVIL_SLAY2          = -1580004,
-    SAY_EVIL_ENRAGE         = -1580005,
+    SAY_EVIL_AGGRO                               = -1580000,
+    SAY_EVIL_SPELL1                              = -1580001,
+    SAY_EVIL_SPELL2                              = -1580002,
+    SAY_EVIL_SLAY1                               = -1580003,
+    SAY_EVIL_SLAY2                               = -1580004,
+    SAY_EVIL_ENRAGE                              = -1580005,
 
     //Kalecgos humanoid form
-    SAY_GOOD_AGGRO          = -1580006,
-    SAY_GOOD_NEAR_DEATH     = -1580007,
-    SAY_GOOD_NEAR_DEATH2    = -1580008,
-    SAY_GOOD_PLRWIN         = -1580009,
+    SAY_GOOD_AGGRO                               = -1580006,
+    SAY_GOOD_NEAR_DEATH                          = -1580007,
+    SAY_GOOD_NEAR_DEATH2                         = -1580008,
+    SAY_GOOD_PLRWIN                              = -1580009,
 
     //Sathrovarr
-    SAY_SATH_AGGRO          = -1580010,
-    SAY_SATH_DEATH          = -1580011,
-    SAY_SATH_SPELL1         = -1580012,
-    SAY_SATH_SPELL2         = -1580013,
-    SAY_SATH_SLAY1          = -1580014,
-    SAY_SATH_SLAY2          = -1580015,
-    SAY_SATH_ENRAGE         = -1580016
+    SAY_SATH_AGGRO                               = -1580010,
+    SAY_SATH_DEATH                               = -1580011,
+    SAY_SATH_SPELL1                              = -1580012,
+    SAY_SATH_SPELL2                              = -1580013,
+    SAY_SATH_SLAY1                               = -1580014,
+    SAY_SATH_SLAY2                               = -1580015,
+    SAY_SATH_ENRAGE                              = -1580016,
 };
 
-enum SpellIds
+enum Spells
 {
-    AURA_SUNWELL_RADIANCE       =   45769,
-    AURA_SPECTRAL_EXHAUSTION    =   44867,
-    AURA_SPECTRAL_REALM         =   46021,
-    AURA_SPECTRAL_INVISIBILITY  =   44801,
-    AURA_DEMONIC_VISUAL         =   44800,
+    AURA_SUNWELL_RADIANCE                        = 45769,
+    AURA_SPECTRAL_EXHAUSTION                     = 44867,
+    AURA_SPECTRAL_REALM                          = 46021,
+    AURA_SPECTRAL_INVISIBILITY                   = 44801,
+    AURA_DEMONIC_VISUAL                          = 44800,
 
-    SPELL_SPECTRAL_BLAST        =   44869,
-    SPELL_TELEPORT_SPECTRAL     =   46019,
-    SPELL_ARCANE_BUFFET         =   45018,
-    SPELL_FROST_BREATH          =   44799,
-    SPELL_TAIL_LASH             =   45122,
+    SPELL_SPECTRAL_BLAST                         = 44869,
+    SPELL_TELEPORT_SPECTRAL                      = 46019,
+    SPELL_ARCANE_BUFFET                          = 45018,
+    SPELL_FROST_BREATH                           = 44799,
+    SPELL_TAIL_LASH                              = 45122,
 
-    SPELL_BANISH                =   44836,
-    SPELL_TRANSFORM_KALEC       =   44670,
-    SPELL_ENRAGE                =   44807,
+    SPELL_BANISH                                 = 44836,
+    SPELL_TRANSFORM_KALEC                        = 44670,
+    SPELL_ENRAGE                                 = 44807,
 
-    SPELL_CORRUPTION_STRIKE     =   45029,
-    SPELL_AGONY_CURSE           =   45032,
-    SPELL_SHADOW_BOLT           =   45031,
+    SPELL_CORRUPTION_STRIKE                      = 45029,
+    SPELL_AGONY_CURSE                            = 45032,
+    SPELL_SHADOW_BOLT                            = 45031,
 
-    SPELL_HEROIC_STRIKE         =   45026,
-    SPELL_REVITALIZE            =   45027
+    SPELL_HEROIC_STRIKE                          = 45026,
+    SPELL_REVITALIZE                             = 45027
 };
 
-enum Creatures
-{
-    MOB_KALECGOS    =  24850,
-    MOB_KALEC       =  24891,
-    MOB_SATHROVARR  =  24892
-};
 enum SWPActions
 {
-    DO_ENRAGE    =  1,
-    DO_BANISH    =  2
+    DO_ENRAGE                                    =  1,
+    DO_BANISH                                    =  2,
 };
 
 #define GO_FAILED   "You are unable to use this currently."
@@ -114,7 +108,7 @@ struct boss_kalecgosAI : public ScriptedAI
         pInstance = c->GetInstanceData();
         SathGUID = 0;
         DoorGUID = 0;
-        JustReseted = false;
+        bJustReset = false;
         me->setActive(true);
         SpellEntry *TempSpell = GET_SPELL(SPELL_SPECTRAL_BLAST);
         if (TempSpell)
@@ -136,7 +130,7 @@ struct boss_kalecgosAI : public ScriptedAI
     bool isFriendly;
     bool isEnraged;
     bool isBanished;
-    bool JustReseted;
+    bool bJustReset;
 
     uint64 SathGUID;
     uint64 DoorGUID;
@@ -153,7 +147,7 @@ struct boss_kalecgosAI : public ScriptedAI
             Sath->AI()->EnterEvadeMode();
 
         me->setFaction(14);
-        if (!JustReseted)//first reset at create
+        if (!bJustReset) //first reset at create
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
@@ -178,7 +172,7 @@ struct boss_kalecgosAI : public ScriptedAI
 
     void EnterEvadeMode()
     {
-        JustReseted = true;
+        bJustReset = true;
         me->SetVisibility(VISIBILITY_OFF);
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
         ScriptedAI::EnterEvadeMode();
@@ -223,16 +217,16 @@ struct boss_kalecgosAI : public ScriptedAI
         }
         else
         {
-            if (JustReseted)
+            if (bJustReset)
             {
                 if (ResetTimer <= diff)
                 {
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE + UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     me->SetVisibility(VISIBILITY_ON);
                     me->SetStandState(UNIT_STAND_STATE_SLEEP);
                     ResetTimer = 10000;
-                    JustReseted = false;
+                    bJustReset = false;
                 } else ResetTimer -= diff;
                 return;
             }
@@ -325,15 +319,14 @@ struct boss_kalecgosAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit *who)
     {
-        if (JustReseted)//boss is invisible, don't attack
+        if (bJustReset)//boss is invisible, don't attack
             return;
+
         if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
         {
             float attackRadius = me->GetAttackDistance(who);
             if (me->IsWithinDistInMap(who, attackRadius))
-            {
                 AttackStart(who);
-            }
         }
     }
 

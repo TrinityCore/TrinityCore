@@ -84,13 +84,6 @@ enum Spells
     SPELL_BLAZE_BURN        =   45246
 };
 
-enum Creatures
-{
-    GRAND_WARLOCK_ALYTHESS  =   25166,
-    MOB_SHADOW_IMAGE        =   25214,
-    LADY_SACROLASH          =   25165
-};
-
 struct boss_sacrolashAI : public ScriptedAI
 {
     boss_sacrolashAI(Creature *c) : ScriptedAI(c)
