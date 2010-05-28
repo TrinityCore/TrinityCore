@@ -355,17 +355,20 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     if (uint64 lguid = GetPlayer()->GetLootGUID())
         DoLootRelease(lguid);
 
-    //Can not logout if...
-    if (GetPlayer()->isInCombat() ||                        //...is in combat
-        GetPlayer()->duel         ||                        //...is in Duel
-        GetPlayer()->HasAura(9454)         ||             //...is frozen by GM via freeze command
-                                                            //...is jumping ...is falling
-        GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
+    uint8 reason = 0;
+
+    if (GetPlayer()->isInCombat())
+        reason = 1;
+    else if (GetPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_JUMPING | MOVEMENTFLAG_FALLING))
+        reason = 3;                                         // is jumping or falling
+    else if (GetPlayer()->duel || GetPlayer()->HasAura(9454)) // is dueling or frozen by GM via freeze command
+        reason = 2;                                         // FIXME - Need the correct value
+
+    if (reason)
     {
-        WorldPacket data(SMSG_LOGOUT_RESPONSE, (2+4)) ;
-        data << (uint8)0xC;
+        WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
+        data << uint8(reason);
         data << uint32(0);
-        data << uint8(0);
         SendPacket(&data);
         LogoutRequest(0);
         return;
@@ -375,6 +378,10 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
         GetSecurity() >= sWorld.getConfig(CONFIG_INSTANT_LOGOUT))
     {
+        WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
+        data << uint8(0);
+        data << uint32(16777216);
+        SendPacket(&data);
         LogoutPlayer(true);
         return;
     }
@@ -391,9 +398,9 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
         GetPlayer()->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
     }
 
-    WorldPacket data(SMSG_LOGOUT_RESPONSE, 5);
-    data << uint32(0);
+    WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
     data << uint8(0);
+    data << uint32(0);
     SendPacket(&data);
     LogoutRequest(time(NULL));
 }
