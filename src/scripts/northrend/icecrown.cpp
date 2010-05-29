@@ -337,6 +337,47 @@ CreatureAI* GetAI_npc_alorah_and_grimmin(Creature* pCreature)
     return new npc_alorah_and_grimminAI (pCreature);
 }
 
+/*######
+## npc_guardian_pavilion
+######*/
+
+enum eGuardianPavilion
+{
+    SPELL_TRESPASSER_H                            = 63987,
+    AREA_SUNREAVER_PAVILION                       = 4676,
+
+    AREA_SILVER_COVENANT_PAVILION                 = 4677,
+    SPELL_TRESPASSER_A                            = 63986,
+};
+
+struct npc_guardian_pavilionAI : public Scripted_NoMovementAI
+{
+    npc_guardian_pavilionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) {}
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+        if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
+            return;
+
+        if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(pWho) || !me->isInBackInMap(pWho, 5.0f))
+            return;
+
+        if (pWho->HasAura(SPELL_TRESPASSER_H) || pWho->HasAura(SPELL_TRESPASSER_A))
+            return;
+
+        if (pWho->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+            pWho->CastSpell(pWho, SPELL_TRESPASSER_H, true);
+        else
+            pWho->CastSpell(pWho, SPELL_TRESPASSER_A, true);
+
+    }
+};
+
+CreatureAI* GetAI_npc_guardian_pavilion(Creature* pCreature)
+{
+    return new npc_guardian_pavilionAI (pCreature);
+}
+
 void AddSC_icecrown()
 {
     Script *newscript;
@@ -372,5 +413,10 @@ void AddSC_icecrown()
     newscript = new Script;
     newscript->Name = "npc_alorah_and_grimmin";
     newscript->GetAI = &GetAI_npc_alorah_and_grimmin;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_guardian_pavilion";
+    newscript->GetAI = &GetAI_npc_guardian_pavilion;
     newscript->RegisterSelf();
 }
