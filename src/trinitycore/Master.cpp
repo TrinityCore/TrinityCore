@@ -499,19 +499,9 @@ bool Master::_StartDB()
     sLog.outString("Realm running as realm ID %d", realmID);
 
     ///- Initialize the DB logging system
-    if(sConfig.GetBoolDefault("EnableLogDB", false))
-    {
-        // everything successful - set var to enable DB logging once startup finished.
-        sLog.SetLogDBLater(true);
-        sLog.SetLogDB(false);
-        sLog.SetRealmID(realmID);
-    }
-    else
-    {
-        sLog.SetLogDBLater(false);
-        sLog.SetLogDB(false);
-        sLog.SetRealmID(realmID);
-    }
+    sLog.SetLogDBLater(sConfig.GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
+    sLog.SetLogDB(false);
+    sLog.SetRealmID(realmID);
 
     ///- Clean the database before starting
     clearOnlineAccounts();
