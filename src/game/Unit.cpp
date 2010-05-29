@@ -5687,7 +5687,7 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     }
                     break;
                 }
-                case 71562: // Deahtbringer's Will Heroic
+                case 71562: // Deathbringer's Will Heroic
                 {
                     if (GetTypeId() != TYPEID_PLAYER)
                         return false;
@@ -5728,7 +5728,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     CastSpell(target,RandomSpells[rand_spell],true,castItem,triggeredByAura, originalCaster);
                     for (std::vector<uint32>::iterator itr = RandomSpells.begin(); itr != RandomSpells.end(); ++itr)
                     {
-                        ToPlayer()->AddSpellCooldown(*itr,0,time(NULL) + cooldown);
+                        if (!ToPlayer()->HasSpellCooldown(*itr))
+                            ToPlayer()->AddSpellCooldown(*itr,0,time(NULL) + cooldown);
                     }
                     break;
                 }
