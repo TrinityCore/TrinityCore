@@ -21,7 +21,7 @@
 
 enum eTypes
 {
-    MAX_ENCOUNTER               = 14,
+    MAX_ENCOUNTER               = 15,
 
     TYPE_LEVIATHAN              = 0,
     TYPE_IGNIS                  = 1,
@@ -37,6 +37,7 @@ enum eTypes
     TYPE_VEZAX                  = 11,
     TYPE_YOGGSARON              = 12,
     TYPE_ALGALON                = 13,
+    TYPE_COLOSSUS               = 14,
 
     DATA_STEELBREAKER           = 20,
     DATA_MOLGEIM                = 21,
