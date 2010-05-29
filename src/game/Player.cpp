@@ -19573,14 +19573,6 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         SendBuyError(BUY_ERR_REPUTATION_REQUIRE, pCreature, item, 0);
         return false;
     }
-    else if (!pProto->RequiredReputationFaction && pProto->RequiredReputationRank > 0)
-    {
-        if (uint32(GetReputationRank(pCreature->getFactionTemplateEntry()->faction)) < pProto->RequiredReputationRank)
-        {
-            SendBuyError(BUY_ERR_REPUTATION_REQUIRE, pCreature, item, 0);
-            return false;
-        }
-    }
 
     if (crItem->ExtendedCost)
     {
