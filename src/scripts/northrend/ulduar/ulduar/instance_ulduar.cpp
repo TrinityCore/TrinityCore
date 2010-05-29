@@ -183,7 +183,7 @@ struct instance_ulduar : public ScriptedInstance
         }
     }
 
-    void EventProcess(GameObject* pGo, uint32 uiEventId)
+    void ProcessEvent(GameObject* pGo, uint32 uiEventId)
     {
         // Flame Leviathan's Tower Event triggers
         Creature* pFlameLeviathan = instance->GetCreature(NPC_LEVIATHAN);
