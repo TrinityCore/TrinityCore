@@ -183,6 +183,28 @@ struct instance_ulduar : public ScriptedInstance
         }
     }
 
+    void EventProcess(GameObject* pGo, uint32 uiEventId)
+    {
+        // Flame Leviathan's Tower Event triggers
+        Creature* pFlameLeviathan = instance->GetCreature(NPC_LEVIATHAN);
+        if (pFlameLeviathan && pFlameLeviathan->isAlive()) //No leviathan, no event triggering ;)
+            switch(uiEventId)
+            {
+                case EVENT_TOWER_OF_STORM_DESTROYED:
+                    pFlameLeviathan->AI()->DoAction(1);
+                    break;
+                case EVENT_TOWER_OF_FROST_DESTROYED:
+                    pFlameLeviathan->AI()->DoAction(2);
+                    break;
+                case EVENT_TOWER_OF_FLAMES_DESTROYED:
+                    pFlameLeviathan->AI()->DoAction(3);
+                    break;
+                case EVENT_TOWER_OF_NATURE_DESTROYED:
+                    pFlameLeviathan->AI()->DoAction(4);
+                    break;
+            }
+    }
+
     void SetData(uint32 type, uint32 data)
     {
         switch(type)

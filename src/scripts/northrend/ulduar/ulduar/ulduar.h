@@ -60,7 +60,12 @@ enum eTypes
     NPC_FREYA                   = 32906,
     NPC_VEZAX                   = 33271,
     NPC_YOGGSARON               = 33288,
-    NPC_ALGALON                 = 32871
+    NPC_ALGALON                 = 32871,
+
+    EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
+    EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
+    EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,
+    EVENT_TOWER_OF_NATURE_DESTROYED    = 21030
 };
 
 #endif
