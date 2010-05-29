@@ -230,32 +230,41 @@ struct instance_ulduar : public ScriptedInstance
                   HandleGameObject(m_uiLeviathanDoor[5],true);
                   HandleGameObject(m_uiLeviathanDoor[6],true);
                 }
+                break;
             case TYPE_IGNIS:
             case TYPE_RAZORSCALE:
             case TYPE_XT002:
             case TYPE_ASSEMBLY:
+                break;
             case TYPE_KOLOGARN:
                 m_auiEncounter[TYPE_KOLOGARN] = data;
                 if (data == DONE && KologarnChest)
                 KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
+                break;
             case TYPE_AURIAYA:
             case TYPE_MIMIRON:
+                break;
             case TYPE_HODIR:
                 m_auiEncounter[TYPE_HODIR] = data;
                 if (data == DONE && HodirChest)
                 HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
+                break;
             case TYPE_THORIM:
                 m_auiEncounter[TYPE_THORIM] = data;
                 if (data == DONE && ThorimChest)
                 ThorimChest->SetRespawnTime(ThorimChest->GetRespawnDelay());
+                break;
             case TYPE_FREYA:
                 m_auiEncounter[TYPE_FREYA] = data;
                 if (data == DONE && FreyaChest)
                 FreyaChest->SetRespawnTime(FreyaChest->GetRespawnDelay());
+                break;
             case TYPE_VEZAX:
             case TYPE_YOGGSARON:
+                break;
             case TYPE_ALGALON:
                 m_auiEncounter[type] = data;
+                break;
             case TYPE_COLOSSUS:
                 m_auiEncounter[TYPE_COLOSSUS] = data;
                 if (data == 2)
