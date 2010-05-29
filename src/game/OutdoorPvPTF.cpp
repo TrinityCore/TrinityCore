@@ -269,6 +269,8 @@ void OPvPCapturePointTF::ChangeState()
         if (((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled<TF_TOWER_NUM)
             ((OutdoorPvPTF*)m_PvP)->m_AllianceTowersControlled++;
         sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_A));
+        for (PlayerSet::iterator itr = m_activePlayers[0].begin(); itr != m_activePlayers[0].end(); ++itr)
+            (*itr)->AreaExploredOrEventHappens(TF_ALLY_QUEST);
         break;
     case OBJECTIVESTATE_HORDE:
         m_TowerState = TF_TOWERSTATE_H;
@@ -276,6 +278,8 @@ void OPvPCapturePointTF::ChangeState()
         if (((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled<TF_TOWER_NUM)
             ((OutdoorPvPTF*)m_PvP)->m_HordeTowersControlled++;
         sWorld.SendZoneText(OutdoorPvPTFBuffZones[0],objmgr.GetTrinityStringForDBCLocale(LANG_OPVP_TF_CAPTURE_H));
+        for (PlayerSet::iterator itr = m_activePlayers[1].begin(); itr != m_activePlayers[1].end(); ++itr)
+            (*itr)->AreaExploredOrEventHappens(TF_HORDE_QUEST);
         break;
     case OBJECTIVESTATE_NEUTRAL:
     case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
@@ -288,9 +292,7 @@ void OPvPCapturePointTF::ChangeState()
 
     GameObject* flag = HashMapHolder<GameObject>::Find(m_capturePointGUID);
     if (flag)
-    {
         flag->SetGoArtKit(artkit);
-    }
 
     UpdateTowerState();
 }
