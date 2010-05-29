@@ -1779,6 +1779,12 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
     //       not provided correct areaflag with this hacks
     switch(areaflag)
     {
+        case 2817: // Argent Tournament Grounds (Icecrown)
+            if (x < 8445.0f &&  x > 8390.0f && y > 640.0f && y < 689.0f && 548.0f < z && z < 562.0f)
+                areaflag = 2875; // Sunreaver Pavilion (Icecrown)
+            else if (x > 8587.0f && x < 8629.0f && y > 646.0f && y < 686.0f && 548.0f < z && z < 562.0f)
+                areaflag = 2879; // Silver Covenant Pavilion (Icecrown)
+            break;
         case 2227:                                          // The Foot Steppes (Storm Peaks)
         case 2207:                                          // Sifreldar Village (Storm Peaks)
             if (6924.0f < x && x < 6980.0f && -1520.0f < y && y < -1432.0f && 838.0f < z && z < 843.0f)
