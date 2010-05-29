@@ -29,6 +29,8 @@ enum eGameObjects
     GO_Hodir_CHEST          = 194307,
     GO_Freya_CHEST_HERO     = 194325,
     GO_Freya_CHEST          = 194324,
+    GO_LEVIATHAN_DOOR       = 194905,
+    GO_LEVIATHAN_GATE       = 194630
 };
 
 struct instance_ulduar : public ScriptedInstance
@@ -37,6 +39,7 @@ struct instance_ulduar : public ScriptedInstance
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string m_strInstData;
+    uint8  flag;
 
     uint64 m_uiLeviathanGUID;
     uint64 m_uiIgnisGUID;
@@ -51,7 +54,9 @@ struct instance_ulduar : public ScriptedInstance
     uint64 m_uiFreyaGUID;
     uint64 m_uiVezaxGUID;
     uint64 m_uiYoggSaronGUID;
-    uint64 m_uiAlgalonGUID;
+    uint64 m_uiAlgalonGUID;    
+    uint64 m_uiLeviathanDoor[7];
+    uint64 m_uiLeviathanGateGUID;
 
     GameObject* KologarnChest, *ThorimChest, *HodirChest, *FreyaChest;
 
@@ -74,9 +79,12 @@ struct instance_ulduar : public ScriptedInstance
         ThorimChest             = 0;
         HodirChest              = 0;
         FreyaChest              = 0;
+        m_uiLeviathanGateGUID   = 0;
+        flag                    = 0;
 
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
         memset(&m_auiAssemblyGUIDs, 0, sizeof(m_auiAssemblyGUIDs));
+        memset(&m_uiLeviathanDoor, 0, sizeof(m_uiLeviathanDoor));
     }
 
     bool IsEncounterInProgress() const
@@ -161,6 +169,17 @@ struct instance_ulduar : public ScriptedInstance
             case GO_Hodir_CHEST: HodirChest = add ? pGo : NULL; break;
             case GO_Freya_CHEST_HERO: FreyaChest = add ? pGo : NULL; break;
             case GO_Freya_CHEST: FreyaChest = add ? pGo : NULL; break;
+            case GO_LEVIATHAN_DOOR:
+                m_uiLeviathanDoor[flag] = pGo->GetGUID();
+                HandleGameObject(NULL, true, pGo);
+                flag++;
+                if (flag == 7)
+                    flag =0;
+                break;
+            case GO_LEVIATHAN_GATE:
+                m_uiLeviathanGateGUID = pGo->GetGUID();
+                HandleGameObject(NULL, false, pGo);
+                break;
         }
     }
 
@@ -169,6 +188,26 @@ struct instance_ulduar : public ScriptedInstance
         switch(type)
         {
             case TYPE_LEVIATHAN:
+                if (data == IN_PROGRESS)
+                {
+                  HandleGameObject(m_uiLeviathanDoor[0],false);
+                  HandleGameObject(m_uiLeviathanDoor[1],false);
+                  HandleGameObject(m_uiLeviathanDoor[2],false);
+                  HandleGameObject(m_uiLeviathanDoor[3],false);
+                  HandleGameObject(m_uiLeviathanDoor[4],false);
+                  HandleGameObject(m_uiLeviathanDoor[5],false);
+                  HandleGameObject(m_uiLeviathanDoor[6],false);
+                }
+                else
+                {
+                  HandleGameObject(m_uiLeviathanDoor[0],true);
+                  HandleGameObject(m_uiLeviathanDoor[1],true);
+                  HandleGameObject(m_uiLeviathanDoor[2],true);
+                  HandleGameObject(m_uiLeviathanDoor[3],true);
+                  HandleGameObject(m_uiLeviathanDoor[4],true);
+                  HandleGameObject(m_uiLeviathanDoor[5],true);
+                  HandleGameObject(m_uiLeviathanDoor[6],true);
+                }
             case TYPE_IGNIS:
             case TYPE_RAZORSCALE:
             case TYPE_XT002:
@@ -195,6 +234,15 @@ struct instance_ulduar : public ScriptedInstance
             case TYPE_YOGGSARON:
             case TYPE_ALGALON:
                 m_auiEncounter[type] = data;
+            case TYPE_COLOSSUS:
+                m_auiEncounter[TYPE_COLOSSUS] = data;
+                if (data == 2)
+                {
+                    if (Creature* pBoss = instance->GetCreature(m_uiLeviathanGUID))
+                        pBoss->AI()->DoAction(1);
+                    if (GameObject* pGate = instance->GetGameObject(m_uiLeviathanGateGUID))
+                        pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                }
                 break;
         }
 
@@ -218,40 +266,24 @@ struct instance_ulduar : public ScriptedInstance
     {
         switch(data)
         {
-            case TYPE_LEVIATHAN:
-                return m_uiLeviathanGUID;
-            case TYPE_IGNIS:
-                return m_uiIgnisGUID;
-            case TYPE_RAZORSCALE:
-                return m_uiRazorscaleGUID;
-            case TYPE_XT002:
-                return m_uiXT002GUID;
-            case TYPE_KOLOGARN:
-                return m_uiKologarnGUID;
-            case TYPE_AURIAYA:
-                return m_uiAuriayaGUID;
-            case TYPE_MIMIRON:
-                return m_uiMimironGUID;
-            case TYPE_HODIR:
-                return m_uiMimironGUID;
-            case TYPE_THORIM:
-                return m_uiThorimGUID;
-            case TYPE_FREYA:
-                return m_uiFreyaGUID;
-            case TYPE_VEZAX:
-                return m_uiVezaxGUID;
-            case TYPE_YOGGSARON:
-                return m_uiYoggSaronGUID;
-            case TYPE_ALGALON:
-                return m_uiAlgalonGUID;
+            case TYPE_LEVIATHAN:            return m_uiLeviathanGUID;
+            case TYPE_IGNIS:                return m_uiIgnisGUID;
+            case TYPE_RAZORSCALE:           return m_uiRazorscaleGUID;
+            case TYPE_XT002:                return m_uiXT002GUID;
+            case TYPE_KOLOGARN:             return m_uiKologarnGUID;
+            case TYPE_AURIAYA:              return m_uiAuriayaGUID;
+            case TYPE_MIMIRON:              return m_uiMimironGUID;
+            case TYPE_HODIR:                return m_uiMimironGUID;
+            case TYPE_THORIM:               return m_uiThorimGUID;
+            case TYPE_FREYA:                return m_uiFreyaGUID;
+            case TYPE_VEZAX:                return m_uiVezaxGUID;
+            case TYPE_YOGGSARON:            return m_uiYoggSaronGUID;
+            case TYPE_ALGALON:              return m_uiAlgalonGUID;
 
             // Assembly of Iron
-            case DATA_STEELBREAKER:
-                return m_auiAssemblyGUIDs[0];
-            case DATA_MOLGEIM:
-                return m_auiAssemblyGUIDs[1];
-            case DATA_BRUNDIR:
-                return m_auiAssemblyGUIDs[2];
+            case DATA_STEELBREAKER:         return m_auiAssemblyGUIDs[0];
+            case DATA_MOLGEIM:              return m_auiAssemblyGUIDs[1];
+            case DATA_BRUNDIR:              return m_auiAssemblyGUIDs[2];
         }
 
         return 0;
@@ -275,6 +307,7 @@ struct instance_ulduar : public ScriptedInstance
             case TYPE_VEZAX:
             case TYPE_YOGGSARON:
             case TYPE_ALGALON:
+            case TYPE_COLOSSUS:
                 return m_auiEncounter[type];
         }
 
@@ -289,7 +322,7 @@ struct instance_ulduar : public ScriptedInstance
         saveStream << "U U " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3]
                    << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " " << m_auiEncounter[7]
                    << m_auiEncounter[8] << " " << m_auiEncounter[9] << " " << m_auiEncounter[10] << " " << m_auiEncounter[11]
-                   << m_auiEncounter[12] << " " << m_auiEncounter[13];
+                   << m_auiEncounter[12] << " " << m_auiEncounter[13] << " " << m_auiEncounter[14];
 
         m_strInstData = saveStream.str();
 
@@ -309,11 +342,11 @@ struct instance_ulduar : public ScriptedInstance
 
         char dataHead1, dataHead2;
         uint32 data0, data1, data2, data3, data4, data5, data6,
-            data7, data8, data9, data10, data11, data12, data13;
+            data7, data8, data9, data10, data11, data12, data13, data14;
 
         std::istringstream loadStream(strIn);
         loadStream >> dataHead1 >> dataHead2 >> data0 >> data1 >> data2 >> data3 >> data4 >> data5 >> data6
-            >> data7 >> data8 >> data9 >> data10 >> data11 >> data12 >> data13;
+            >> data7 >> data8 >> data9 >> data10 >> data11 >> data12 >> data13 >> data14;
 
         if (dataHead1 == 'U' && dataHead2 == 'U')
         {

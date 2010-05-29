@@ -87,22 +87,30 @@ enum Yells
     SAY_OVERLOAD_3                              = -1603075,
 };
 
+static Position Center[]=
+{
+    {354.8771, -12.90240, 409.803650},
+};
+
 struct boss_flame_leviathanAI : public BossAI
 {
-    boss_flame_leviathanAI(Creature *pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
+    boss_flame_leviathanAI(Creature* pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
     {
         assert(vehicle);
+        pInstance = pCreature->GetInstanceData();
     }
 
-    Vehicle *vehicle;
+    Vehicle* vehicle;
+    ScriptedInstance* pInstance;
 
     void Reset()
     {
         _Reset();
         me->SetReactState(REACT_AGGRESSIVE);
+        pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    void EnterCombat(Unit* /*who*/)
     {
         _EnterCombat();
         DoScriptText(SAY_AGGRO, me);
@@ -114,29 +122,41 @@ struct boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_SUMMON, 0);
         //events.ScheduleEvent(EVENT_MIMIRON_INFERNO, urand(60000, 120000)); // Not Blizzlike
         //events.ScheduleEvent(EVENT_HODIR_FURY, urand(60000, 120000));      // Not Blizzlike
+        pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             turret->AI()->DoZoneInCombat();
     }
 
     // TODO: effect 0 and effect 1 may be on different target
-    void SpellHitTarget(Unit *pTarget, const SpellEntry *spell)
+    void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
     {
-        if (spell->Id == SPELL_PURSUED)
+        if (pSpell->Id == SPELL_PURSUED)
             AttackStart(pTarget);
     }
 
-    void JustDied(Unit * /*victim*/)
+    void JustDied(Unit* /*victim*/)
     {
+        pInstance->SetData(TYPE_LEVIATHAN, DONE);
         DoScriptText(SAY_DEATH, me);
         _JustDied();
     }
 
-    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+    void SpellHit(Unit* /*caster*/, const SpellEntry* pSpell)
     {
-        if (spell->Id == 62472)
+        if (pSpell->Id == 62472)
             vehicle->InstallAllAccessories();
-        else if (spell->Id == SPELL_ELECTROSHOCK)
+        else if (pSpell->Id == SPELL_ELECTROSHOCK)
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
+    }
+
+    void DoAction(const int32 param)
+    {
+        if (param == 1)
+        {
+            me->GetMotionMaster()->MovePoint(0, Center[0]);
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        } 
     }
 
     void UpdateAI(const uint32 diff)
@@ -184,8 +204,8 @@ struct boss_flame_leviathanAI : public BossAI
                 return;
             case EVENT_SUMMON:
                 if (summons.size() < 15) // 4seat+1turret+10lift
-                    if (Creature *lift = DoSummonFlyer(MOB_MECHANOLIFT, me, urand(20,40), 50, 0))
-                        lift->GetMotionMaster()->MoveRandom(100);
+                    if (Creature* pLift = DoSummonFlyer(MOB_MECHANOLIFT, me, urand(20,40), 50, 0))
+                        pLift->GetMotionMaster()->MoveRandom(100);
                 events.RepeatEvent(2000);
                 return;
             case EVENT_MIMIRON_INFERNO: // Not Blizzlike
@@ -200,7 +220,6 @@ struct boss_flame_leviathanAI : public BossAI
                 events.PopEvent();
                 break;
         }
-
         DoSpellAttackIfReady(SPELL_BATTERING_RAM);
     }
 };
@@ -217,7 +236,7 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
 #endif
     }
 
-    Vehicle *vehicle;
+    Vehicle* vehicle;
 
 #ifdef BOSS_DEBUG
     void MoveInLineOfSight(Unit *who)
@@ -228,7 +247,7 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
     }
 #endif
 
-    void PassengerBoarded(Unit *who, int8 seatId, bool apply)
+    void PassengerBoarded(Unit* who, int8 seatId, bool apply)
     {
         if (!me->GetVehicle())
             return;
@@ -238,13 +257,13 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
             if (!apply)
                 return;
 
-            if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
+            if (Creature* turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             {
                 turret->setFaction(me->GetVehicleBase()->getFaction());
                 turret->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
                 turret->AI()->AttackStart(who);
             }
-            if (Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
+            if (Unit* device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 device->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -255,7 +274,7 @@ struct boss_flame_leviathan_seatAI : public PassiveAI
             if (apply)
                 return;
 
-            if (Unit *device = vehicle->GetPassenger(SEAT_DEVICE))
+            if (Unit* device = vehicle->GetPassenger(SEAT_DEVICE))
             {
                 device->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 device->SetUInt32Value(UNIT_FIELD_FLAGS, 0); // unselectable
@@ -268,7 +287,7 @@ struct boss_flame_leviathan_defense_turretAI : public TurretAI
 {
     boss_flame_leviathan_defense_turretAI(Creature *c) : TurretAI(c) {}
 
-    void DamageTaken(Unit *who, uint32 &damage)
+    void DamageTaken(Unit* who, uint32 &damage)
     {
         if (!CanAIAttack(who))
             damage = 0;
@@ -284,7 +303,7 @@ struct boss_flame_leviathan_defense_turretAI : public TurretAI
 
 struct boss_flame_leviathan_overload_deviceAI : public PassiveAI
 {
-    boss_flame_leviathan_overload_deviceAI(Creature *c) : PassiveAI(c) {}
+    boss_flame_leviathan_overload_deviceAI(Creature* pCreature) : PassiveAI(pCreature) {}
 
     void DoAction(const int32 param)
     {
@@ -294,12 +313,12 @@ struct boss_flame_leviathan_overload_deviceAI : public PassiveAI
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             if (me->GetVehicle())
             {
-                if (Unit *player = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
+                if (Unit* pPlayer = me->GetVehicle()->GetPassenger(SEAT_PLAYER))
                 {
-                    player->ExitVehicle();
-                    me->GetVehicleBase()->CastSpell(player, SPELL_SMOKE_TRAIL, true);
-                    if (Unit *leviathan = me->GetVehicleBase()->GetVehicleBase())
-                        player->GetMotionMaster()->MoveKnockbackFrom(leviathan->GetPositionX(), leviathan->GetPositionY(), 30, 30);
+                    pPlayer->ExitVehicle();
+                    me->GetVehicleBase()->CastSpell(pPlayer, SPELL_SMOKE_TRAIL, true);
+                    if (Unit* leviathan = me->GetVehicleBase()->GetVehicleBase())
+                        pPlayer->GetMotionMaster()->MoveKnockbackFrom(leviathan->GetPositionX(), leviathan->GetPositionY(), 30, 30);
                 }
             }
         }
@@ -314,8 +333,8 @@ struct boss_flame_leviathan_safety_containerAI : public PassiveAI
     {
         if (id == me->GetEntry())
         {
-            if (Creature *liquid = DoSummon(MOB_LIQUID, me, 0))
-                liquid->CastSpell(liquid, 62494, true);
+            if (Creature* pLiquid = DoSummon(MOB_LIQUID, me, 0))
+                pLiquid->CastSpell(pLiquid, 62494, true);
             me->DisappearAndDie(); // this will relocate creature to sky
         }
     }
@@ -343,6 +362,32 @@ struct spell_pool_of_tarAI : public TriggerAI
     {
         if (spell->SchoolMask & SPELL_SCHOOL_MASK_FIRE && !me->HasAura(SPELL_BLAZE))
             me->CastSpell(me, SPELL_BLAZE, true);
+    }
+};
+
+struct npc_colossusAI : public ScriptedAI
+{
+    npc_colossusAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    {
+        pInstance = pCreature->GetInstanceData();
+    }
+
+    ScriptedInstance *pInstance;
+    Position pPos;
+
+    void JustDied(Unit* /*Who*/)
+    {
+        if (me->GetHomePosition().IsInDist(Center,50.f))
+        {
+            if (pInstance)            
+                pInstance->SetData(TYPE_COLOSSUS,pInstance->GetData(TYPE_COLOSSUS)+1);                        
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (!UpdateVictim())
+            return;
     }
 };
 
@@ -376,6 +421,11 @@ CreatureAI* GetAI_spell_pool_of_tar(Creature* pCreature)
     return new spell_pool_of_tarAI (pCreature);
 }
 
+CreatureAI* GetAI_npc_colossus(Creature* pCreature)
+{
+    return new  npc_colossusAI(pCreature);
+}
+
 void AddSC_boss_flame_leviathan()
 {
     Script *newscript;
@@ -407,5 +457,10 @@ void AddSC_boss_flame_leviathan()
     newscript = new Script;
     newscript->Name = "spell_pool_of_tar";
     newscript->GetAI = &GetAI_spell_pool_of_tar;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_colossus";
+    newscript->GetAI = &GetAI_npc_colossus;
     newscript->RegisterSelf();
 }
