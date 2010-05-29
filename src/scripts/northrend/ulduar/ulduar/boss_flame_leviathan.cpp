@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+/*
+ * Comment: Tower Event support is not finished, there is missing code on triggers and
+ *          Lore Keeper and Brann Bronzebeard are not scripted yet. Lore Keeper's script
+ *          should activate the hard mode so is not possible to play hard-mode yet. Add a call to
+ *          Leviathan's DoAction(0) from Lore Keeper's script to activate hard-mode
  */
 
 #include "ScriptedPch.h"
@@ -36,9 +43,12 @@ enum Spells
     SPELL_SEARING_FLAME                         = 62402,
     SPELL_BLAZE                                 = 62292,
     SPELL_SMOKE_TRAIL                           = 63575,
-    SPELL_MIMIRON_INFERNO                       = 62910,
-    SPELL_HODIR_FURY                            = 62297,
     SPELL_ELECTROSHOCK                          = 62522,
+    //TOWER BUFF SPELLS
+    SPELL_THORIM_S_HAMMER                       = 62912, // Tower of Storms
+    SPELL_MIMIRON_S_INFERNO                       = 62910, // Tower of Flames
+    SPELL_HODIR_S_FURY                            = 62297, // Tower of Frost
+    SPELL_FREYA_S_WARD                          = 62906  // Tower of Nature
 };
 
 enum Creatures
@@ -56,8 +66,10 @@ enum Events
     EVENT_VENT,
     EVENT_SPEED,
     EVENT_SUMMON,
-    EVENT_MIMIRON_INFERNO, // Not Blizzlike
-    EVENT_HODIR_FURY,      // Not Blizzlike
+    EVENT_THORIM_S_HAMMER, // Tower of Storms
+    EVENT_MIMIRON_S_INFERNO, // Tower of Flames
+    EVENT_HODIR_S_FURY,      // Tower of Frost
+    EVENT_FREYA_S_WARD     // Tower of Nature
 };
 
 enum Seats
@@ -120,8 +132,6 @@ struct boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_VENT, 20000);
         events.ScheduleEvent(EVENT_SPEED, 15000);
         events.ScheduleEvent(EVENT_SUMMON, 0);
-        //events.ScheduleEvent(EVENT_MIMIRON_INFERNO, urand(60000, 120000)); // Not Blizzlike
-        //events.ScheduleEvent(EVENT_HODIR_FURY, urand(60000, 120000));      // Not Blizzlike
         pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             turret->AI()->DoZoneInCombat();
@@ -208,12 +218,20 @@ struct boss_flame_leviathanAI : public BossAI
                         pLift->GetMotionMaster()->MoveRandom(100);
                 events.RepeatEvent(2000);
                 return;
-            case EVENT_MIMIRON_INFERNO: // Not Blizzlike
-                DoCast(me->getVictim(), SPELL_MIMIRON_INFERNO);
+            case EVENT_THORIM_S_HAMMER: // Tower of Storms
+                DoCast(me, SPELL_THORIM_S_HAMMER);
                 events.RepeatEvent(urand(60000, 120000));
                 return;
-            case EVENT_HODIR_FURY:      // Not Blizzlike
-                DoCast(me->getVictim(), SPELL_HODIR_FURY);
+            case EVENT_MIMIRON_S_INFERNO: // Tower of Flames
+                DoCast(me->getVictim(), SPELL_MIMIRON_S_INFERNO);
+                events.RepeatEvent(urand(60000, 120000));
+                return;
+            case EVENT_HODIR_S_FURY:      // Tower of Frost
+                DoCast(me->getVictim(), SPELL_HODIR_S_FURY);
+                events.RepeatEvent(urand(60000, 120000));
+                return;
+            case EVENT_FREYA_S_WARD:    // Tower of Nature
+                DoCast(me, SPELL_FREYA_S_WARD);
                 events.RepeatEvent(urand(60000, 120000));
                 return;
             default:
@@ -221,6 +239,52 @@ struct boss_flame_leviathanAI : public BossAI
                 break;
         }
         DoSpellAttackIfReady(SPELL_BATTERING_RAM);
+    }
+
+    void DoAction(uint32 uiAction)
+    {
+        /*
+        Tower event triggers
+            General TODO:
+                Yells
+                Track tower activation state for Achievements
+                
+            Actions:
+                DoAction(0): Activate hard-mode. Buff up leviathan's AP & health, schedule all the tower spells.
+                             Should be triggered on Lore Keeper's script
+                DoAction(1-4): A tower have been destroyed, debuff leviathan's AP & health
+                DoAction(1); Tower of Storms has been destroyed, deschedule spell Thorim's Hammer
+                DoAction(2): Tower of Flames has been destroyed, deschedule spell Mimiron's Inferno
+                DoAction(3): Tower of Frost has been destroyed, deschedule spell Hodir's Fury
+                DoAction(4): Tower of Nature has been destroyed, deschedule spell Freya's Ward
+        */
+        
+        if (uiAction) // Tower destruction, debuff leviathan AP & health
+        {
+            // TODO: the debuffing
+        }
+        switch (uiAction)
+        {
+            case 0:  // Activate hard-mode
+                // TODO: AP & health buffing
+                events.ScheduleEvent(EVENT_THORIM_S_HAMMER, urand(30000,60000));
+                events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, urand(30000,60000));
+                events.ScheduleEvent(EVENT_HODIR_S_FURY, urand(30000,60000));
+                events.ScheduleEvent(EVENT_FREYA_S_WARD, urand(30000,60000));
+                break;
+            case 1:  // Tower of Storms destroyed
+                events.CancelEvent(EVENT_THORIM_S_HAMMER);
+                break;
+            case 2: // Tower of Flames destroyed
+                events.CancelEvent(EVENT_MIMIRON_S_INFERNO);
+                break;
+            case 3: // Tower of Frost destroyed
+                events.CancelEvent(EVENT_HODIR_S_FURY);
+                break;
+            case 4: // Tower of Nature destroyed
+                events.CancelEvent(EVENT_FREYA_S_WARD);
+                break;
+        }
     }
 };
 
