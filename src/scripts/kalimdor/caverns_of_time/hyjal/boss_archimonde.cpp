@@ -318,7 +318,7 @@ struct boss_archimondeAI : public hyjal_trashAI
         if (targets.empty())
             return false;
 
-        targets.sort(ObjectDistanceOrder(me));
+        targets.sort(Trinity::ObjectDistanceOrderPred(me));
         Unit *pTarget = targets.front();
         if (pTarget)
         {

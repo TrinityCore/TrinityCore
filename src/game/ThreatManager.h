@@ -259,5 +259,21 @@ class ThreatManager
 };
 
 //=================================================
+
+namespace Trinity
+{
+    // Binary predicate for sorting HostileReferences based on threat value
+    class ThreatOrderPred
+    {
+        public:
+            ThreatOrderPred(bool ascending = false) : m_ascending(ascending) {}
+            bool operator() (const HostileReference *a, const HostileReference *b) const
+            { 
+                return m_ascending ? a->getThreat() < b->getThreat() : a->getThreat() > b->getThreat();  
+            }
+        private:
+            const bool m_ascending;
+    };
+}
 #endif
 

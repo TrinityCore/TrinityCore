@@ -436,9 +436,6 @@ class Spell
         void SelectSpellTargets();
         void SelectEffectTargets(uint32 i, uint32 cur);
         void SelectTrajTargets();
-        void FillRaidOrPartyTargets(UnitList &TagUnitMap, Unit* target, float radius, bool raid, bool withPets, bool withcaster);
-        void FillRaidOrPartyManaPriorityTargets(UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster);
-        void FillRaidOrPartyHealthPriorityTargets(UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withcaster);
 
         template<typename T> WorldObject* FindCorpseUsing();
 
