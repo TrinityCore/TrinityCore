@@ -270,7 +270,7 @@ struct instance_ulduar : public ScriptedInstance
                 if (data == 2)
                 {
                     if (Creature* pBoss = instance->GetCreature(m_uiLeviathanGUID))
-                        pBoss->AI()->DoAction(1);
+                        pBoss->AI()->DoAction(10);
                     if (GameObject* pGate = instance->GetGameObject(m_uiLeviathanGateGUID))
                         pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                 }
