@@ -99,6 +99,28 @@ enum Yells
     SAY_OVERLOAD_3                              = -1603075,
 };
 
+enum eAchievementData
+{
+    //ACHIEV_CHAMPION_OF_ULDUAR                   = 10042,
+    //ACHIEV_CONQUEROR_OF_ULDUAR                  = 10352,
+    ACHIEV_10_NUKED_FROM_ORBIT                  = 10058,
+    ACHIEV_25_NUKED_FROM_ORBIT                  = 10060,
+    ACHIEV_10_ORBITAL_BOMBARDMENT               = 10056,
+    ACHIEV_25_ORBITAL_BOMBARDMENT               = 10061,
+    ACHIEV_10_ORBITAL_DEVASTATION               = 10057,
+    ACHIEV_25_ORBITAL_DEVASTATION               = 10059,
+    ACHIEV_10_ORBIT_UARY                        = 10218,
+    ACHIEV_25_ORBIT_UARY                        = 10219,
+    ACHIEV_10_SHUTOUT                           = 10054,
+    ACHIEV_25_SHUTOUT                           = 10055,
+    ACHIEV_10_SIEGE_OF_ULDUAR                   = 9999,
+    ACHIEV_25_SIEGE_OF_ULDUAR                   = 10003,
+    //ACHIEV_10_THREE_CAR_GARAGE                  = 10046, 10047, 10048, 
+    //ACHIEV_25_THREE_CAR_GARAGE                  = 10049, 10050, 10051,
+    ACHIEV_10_UNBROKEN                          = 10044,
+    ACHIEV_25_UNBROKEN                          = 10045,
+};
+
 static Position Center[]=
 {
     {354.8771, -12.90240, 409.803650},
@@ -109,17 +131,22 @@ struct boss_flame_leviathanAI : public BossAI
     boss_flame_leviathanAI(Creature* pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
     {
         assert(vehicle);
-        pInstance = pCreature->GetInstanceData();
+        if (pInstance)
+            pInstance = pCreature->GetInstanceData();
     }
 
-    Vehicle* vehicle;
+    Vehicle* vehicle;    
+    uint8 uiActiveTowers;
     ScriptedInstance* pInstance;
 
     void Reset()
     {
         _Reset();
+        assert(vehicle);
+        uiActiveTowers = 0;
         me->SetReactState(REACT_AGGRESSIVE);
-        pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
+        if (pInstance)
+            pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -132,7 +159,8 @@ struct boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_VENT, 20000);
         events.ScheduleEvent(EVENT_SPEED, 15000);
         events.ScheduleEvent(EVENT_SUMMON, 0);
-        pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
+        if (pInstance)
+            pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             turret->AI()->DoZoneInCombat();
     }
@@ -146,9 +174,30 @@ struct boss_flame_leviathanAI : public BossAI
 
     void JustDied(Unit* /*victim*/)
     {
-        pInstance->SetData(TYPE_LEVIATHAN, DONE);
         DoScriptText(SAY_DEATH, me);
-        _JustDied();
+        if (pInstance)
+        {
+            pInstance->SetData(TYPE_LEVIATHAN, DONE);
+            if (uiActiveTowers)
+            {
+                switch (uiActiveTowers)
+                {
+                case 4:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBIT_UARY, ACHIEV_25_ORBIT_UARY));
+                    break;
+                case 3:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_NUKED_FROM_ORBIT, ACHIEV_25_NUKED_FROM_ORBIT));
+                    break;
+                case 2:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_DEVASTATION, ACHIEV_25_ORBITAL_DEVASTATION));
+                    break;
+                case 1:
+                    pInstance->DoCompleteAchievement(RAID_MODE(ACHIEV_10_ORBITAL_BOMBARDMENT, ACHIEV_25_ORBITAL_BOMBARDMENT));
+                    break;
+                }
+            }
+            _JustDied();
+        }
     }
 
     void SpellHit(Unit* /*caster*/, const SpellEntry* pSpell)
@@ -157,16 +206,6 @@ struct boss_flame_leviathanAI : public BossAI
             vehicle->InstallAllAccessories();
         else if (pSpell->Id == SPELL_ELECTROSHOCK)
             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
-    }
-
-    void DoAction(const int32 param)
-    {
-        if (param == 1)
-        {
-            me->GetMotionMaster()->MovePoint(0, Center[0]);
-            me->SetReactState(REACT_AGGRESSIVE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        } 
     }
 
     void UpdateAI(const uint32 diff)
@@ -241,14 +280,21 @@ struct boss_flame_leviathanAI : public BossAI
         DoSpellAttackIfReady(SPELL_BATTERING_RAM);
     }
 
-    void DoAction(uint32 uiAction)
+    void DoAction(const int32 uiAction)
     {
+        // Start encounter
+        if (uiAction == 10)
+        {
+            me->GetMotionMaster()->MovePoint(0, Center[0]);
+            me->SetReactState(REACT_AGGRESSIVE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            return;
+        }
         /*
         Tower event triggers
             General TODO:
                 Yells
-                Track tower activation state for Achievements
-                
+
             Actions:
                 DoAction(0): Activate hard-mode. Buff up leviathan's AP & health, schedule all the tower spells.
                              Should be triggered on Lore Keeper's script
@@ -258,32 +304,33 @@ struct boss_flame_leviathanAI : public BossAI
                 DoAction(3): Tower of Frost has been destroyed, deschedule spell Hodir's Fury
                 DoAction(4): Tower of Nature has been destroyed, deschedule spell Freya's Ward
         */
-        
+
         if (uiAction) // Tower destruction, debuff leviathan AP & health
         {
-            // TODO: the debuffing
+            --uiActiveTowers;
         }
+        
         switch (uiAction)
         {
-            case 0:  // Activate hard-mode
-                // TODO: AP & health buffing
-                events.ScheduleEvent(EVENT_THORIM_S_HAMMER, urand(30000,60000));
-                events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, urand(30000,60000));
-                events.ScheduleEvent(EVENT_HODIR_S_FURY, urand(30000,60000));
-                events.ScheduleEvent(EVENT_FREYA_S_WARD, urand(30000,60000));
-                break;
-            case 1:  // Tower of Storms destroyed
-                events.CancelEvent(EVENT_THORIM_S_HAMMER);
-                break;
-            case 2: // Tower of Flames destroyed
-                events.CancelEvent(EVENT_MIMIRON_S_INFERNO);
-                break;
-            case 3: // Tower of Frost destroyed
-                events.CancelEvent(EVENT_HODIR_S_FURY);
-                break;
-            case 4: // Tower of Nature destroyed
-                events.CancelEvent(EVENT_FREYA_S_WARD);
-                break;
+        case 0:  // Activate hard-mode
+            events.ScheduleEvent(EVENT_THORIM_S_HAMMER, urand(30000,60000));
+            events.ScheduleEvent(EVENT_MIMIRON_S_INFERNO, urand(30000,60000));
+            events.ScheduleEvent(EVENT_HODIR_S_FURY, urand(30000,60000));
+            events.ScheduleEvent(EVENT_FREYA_S_WARD, urand(30000,60000));
+            uiActiveTowers=4;
+            break;
+        case 1:  // Tower of Storms destroyed
+            events.CancelEvent(EVENT_THORIM_S_HAMMER);
+            break;
+        case 2: // Tower of Flames destroyed
+            events.CancelEvent(EVENT_MIMIRON_S_INFERNO);
+            break;
+        case 3: // Tower of Frost destroyed
+            events.CancelEvent(EVENT_HODIR_S_FURY);
+            break;
+        case 4: // Tower of Nature destroyed
+            events.CancelEvent(EVENT_FREYA_S_WARD);
+            break;
         }
     }
 };
