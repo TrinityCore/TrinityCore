@@ -149,7 +149,7 @@ void UnitAI::SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAg
             targetList.push_back((*itr)->getTarget());
 
     if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-        targetList.sort(TargetDistanceOrder(me));
+        targetList.sort(Trinity::ObjectDistanceOrderPred(me));
 
     if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
         targetList.reverse();

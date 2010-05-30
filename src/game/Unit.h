@@ -2083,31 +2083,36 @@ class Unit : public WorldObject
 
 namespace Trinity
 {
-    template<class T>
-    void RandomResizeList(std::list<T> &_list, uint32 _size)
+    // Binary predicate for sorting Units based on percent value of a power
+    class PowerPctOrderPred
     {
-        while (_list.size() > _size)
-        {
-            typename std::list<T>::iterator itr = _list.begin();
-            advance(itr, urand(0, _list.size() - 1));
-            _list.erase(itr);
-        }
-    }
+        public:
+            PowerPctOrderPred(Powers power, bool ascending = true) : m_power(power), m_ascending(ascending) {}
+            bool operator() (const Unit *a, const Unit *b) const
+            { 
+                float rA = a->GetMaxPower(m_power) ? float(a->GetPower(m_power)) / float(a->GetMaxPower(m_power)) : 0.0f;
+                float rB = b->GetMaxPower(m_power) ? float(b->GetPower(m_power)) / float(b->GetMaxPower(m_power)) : 0.0f;
+                return m_ascending ? rA < rB : rA > rB;
+            }
+        private:
+            const Powers m_power;
+            const bool m_ascending;
+    };
+      
+    // Binary predicate for sorting Units based on percent value of health
+    class HealthPctOrderPred
+    {
+        public:
+            HealthPctOrderPred(bool ascending = true) : m_ascending(ascending) {}
+            bool operator() (const Unit *a, const Unit *b) const
+            { 
+                float rA = a->GetMaxHealth() ? float(a->GetHealth()) / float(a->GetMaxHealth()) : 0.0f;
+                float rB = b->GetMaxHealth() ? float(b->GetHealth()) / float(b->GetMaxHealth()) : 0.0f;
+                return m_ascending ? rA < rB : rA > rB;
+            }
+        private:
+            const bool m_ascending;
+    };
 }
-
-// binary function to sort unit based on the distance to a reference unit
-struct TargetDistanceOrder : public std::binary_function<const Unit *, const Unit *, bool>
-{
-    const Unit *me;
-
-    // pUnit: the reference unit from which the distance is computed.
-    TargetDistanceOrder(const Unit* pUnit) : me(pUnit) {};
-
-    // functor for operator "<"
-    bool operator()(const Unit* left, const Unit* right) const
-    {
-        return (me->GetExactDistSq(left) < me->GetExactDistSq(right));
-    }
-};
 
 #endif
