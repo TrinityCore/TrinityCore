@@ -65,55 +65,6 @@ bool IsQuestTameSpell(uint32 spellId)
         && spellproto->Effect[1] == SPELL_EFFECT_APPLY_AURA && spellproto->EffectApplyAuraName[1] == SPELL_AURA_DUMMY;
 }
 
-class PrioritizeManaUnitWraper
-{
-    public:
-        explicit PrioritizeManaUnitWraper(Unit* unit) : i_unit(unit)
-        {
-            uint32 maxmana = unit->GetMaxPower(POWER_MANA);
-            i_percent = maxmana ? unit->GetPower(POWER_MANA) * 100 / maxmana : 101;
-        }
-        Unit* getUnit() const { return i_unit; }
-        uint32 getPercent() const { return i_percent; }
-    private:
-        Unit* i_unit;
-        uint32 i_percent;
-};
-
-struct PrioritizeMana
-{
-    int operator()(PrioritizeManaUnitWraper const& x, PrioritizeManaUnitWraper const& y) const
-    {
-        return x.getPercent() > y.getPercent();
-    }
-};
-
-typedef std::priority_queue<PrioritizeManaUnitWraper, std::vector<PrioritizeManaUnitWraper>, PrioritizeMana> PrioritizeManaUnitQueue;
-
-class PrioritizeHealthUnitWraper
-{
-public:
-    explicit PrioritizeHealthUnitWraper(Unit* unit) : i_unit(unit)
-    {
-        i_percent = unit->GetHealth() * 100 / unit->GetMaxHealth();
-    }
-    Unit* getUnit() const { return i_unit; }
-    uint32 getPercent() const { return i_percent; }
-private:
-    Unit* i_unit;
-    uint32 i_percent;
-};
-
-struct PrioritizeHealth
-{
-    int operator()(PrioritizeHealthUnitWraper const& x, PrioritizeHealthUnitWraper const& y) const
-    {
-        return x.getPercent() > y.getPercent();
-    }
-};
-
-typedef std::priority_queue<PrioritizeHealthUnitWraper, std::vector<PrioritizeHealthUnitWraper>, PrioritizeHealth> PrioritizeHealthUnitQueue;
-
 SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
 {
     m_unitTarget = NULL;
@@ -1657,7 +1608,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
         }
         else
         {
-            tempUnitMap.sort(TargetDistanceOrder(cur));
+            tempUnitMap.sort(Trinity::ObjectDistanceOrderPred(cur));
             next = tempUnitMap.begin();
 
             if (cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS)
@@ -2476,40 +2427,26 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         break;
                     case 57669: //Replenishment (special target selection) 10 targets with lowest mana
                     {
-                        typedef std::priority_queue<PrioritizeManaUnitWraper, std::vector<PrioritizeManaUnitWraper>, PrioritizeMana> TopMana;
-                        TopMana manaUsers;
-                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
+                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
                         {
-                            if ((*itr)->getPowerType() == POWER_MANA)
-                            {
-                                PrioritizeManaUnitWraper  WTarget(*itr);
-                                manaUsers.push(WTarget);
-                            }
+                            if ((*itr)->getPowerType() != POWER_MANA)
+                                itr = unitList.erase(itr);
+                            else
+                                ++itr;
                         }
-
-                        unitList.clear();
-                        while (!manaUsers.empty() && unitList.size()<10)
+                        if (unitList.size() > 10)
                         {
-                            unitList.push_back(manaUsers.top().getUnit());
-                            manaUsers.pop();
+                            unitList.sort(Trinity::PowerPctOrderPred(POWER_MANA));
+                            unitList.resize(10);
                         }
                         break;
                     }
                     case 52759: // Ancestral Awakening
                     {
-                        typedef std::priority_queue<PrioritizeHealthUnitWraper, std::vector<PrioritizeHealthUnitWraper>, PrioritizeHealth> TopHealth;
-                        TopHealth healedMembers;
-                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
+                        if (unitList.size() > 1)
                         {
-                            PrioritizeHealthUnitWraper  WTarget(*itr);
-                            healedMembers.push(WTarget);
-                        }
-
-                        unitList.clear();
-                        while (!healedMembers.empty() && unitList.size()<1)
-                        {
-                            unitList.push_back(healedMembers.top().getUnit());
-                            healedMembers.pop();
+                            unitList.sort(Trinity::HealthPctOrderPred());
+                            unitList.resize(1);
                         }
                         break;
                     }
@@ -2517,18 +2454,14 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
                     && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing, Glyph of holy light target special selection
                 {
-                    typedef std::priority_queue<PrioritizeHealthUnitWraper, std::vector<PrioritizeHealthUnitWraper>, PrioritizeHealth> TopHealth;
-                    TopHealth healedMembers;
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end(); ++itr)
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
                     {
-                        if ((*itr)->IsInRaidWith(m_targets.getUnitTarget()))
-                        {
-                            PrioritizeHealthUnitWraper  WTarget(*itr);
-                            healedMembers.push(WTarget);
-                        }
+                        if (!(*itr)->IsInRaidWith(m_targets.getUnitTarget()))
+                            itr = unitList.erase(itr);
+                        else
+                            ++itr;
                     }
-
-                    unitList.clear();
+                    
                     uint32 maxsize = 5;
 
                     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x04000000) // Wild Growth
@@ -2536,11 +2469,11 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
                     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[0] & 0x10000000 && m_spellInfo->SpellIconID == 2214) // Circle of Healing
                         maxsize += m_caster->HasAura(55675) ? 1 : 0; // Glyph of Circle of Healing
-
-                    while (!healedMembers.empty() && unitList.size()<maxsize)
+                                    
+                    if (unitList.size() > maxsize)
                     {
-                        unitList.push_back(healedMembers.top().getUnit());
-                        healedMembers.pop();
+                        unitList.sort(Trinity::HealthPctOrderPred());
+                        unitList.resize(maxsize);
                     }
                 }
                 // Death Pact
@@ -6859,7 +6792,7 @@ void Spell::SelectTrajTargets()
     if (unitList.empty())
         return;
 
-    unitList.sort(TargetDistanceOrder(m_caster));
+    unitList.sort(Trinity::ObjectDistanceOrderPred(m_caster));
 
     float b = tangent(m_targets.m_elevation);
     float a = (dz - dist2d * b) / (dist2d * dist2d);
@@ -6962,83 +6895,5 @@ void Spell::SelectTrajTargets()
         }
 
         m_targets.setDst(x, y, z, m_caster->GetOrientation());
-    }
-}
-
-void Spell::FillRaidOrPartyTargets(UnitList &TagUnitMap, Unit* target, float radius, bool raid, bool withPets, bool withcaster)
-{
-    Player *pTarget = target->GetCharmerOrOwnerPlayerOrPlayerItself();
-    Group *pGroup = pTarget ? pTarget->GetGroup() : NULL;
-
-    if (pGroup)
-    {
-        uint8 subgroup = pTarget->GetSubGroup();
-
-        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-        {
-            Player* Target = itr->getSource();
-
-            // IsHostileTo check duel and controlled by enemy
-            if (Target && (raid || subgroup == Target->GetSubGroup())
-                && !m_caster->IsHostileTo(Target))
-            {
-                if (Target == m_caster && withcaster ||
-                    Target != m_caster && m_caster->IsWithinDistInMap(Target, radius))
-                    TagUnitMap.push_back(Target);
-
-                if (withPets)
-                    if (Pet* pet = Target->GetPet())
-                        if (pet == m_caster && withcaster ||
-                            pet != m_caster && m_caster->IsWithinDistInMap(pet, radius))
-                            TagUnitMap.push_back(pet);
-            }
-        }
-    }
-    else
-    {
-        Unit* ownerOrSelf = pTarget ? pTarget : target->GetCharmerOrOwnerOrSelf();
-        if (ownerOrSelf == m_caster && withcaster ||
-            ownerOrSelf != m_caster && m_caster->IsWithinDistInMap(ownerOrSelf, radius))
-            TagUnitMap.push_back(ownerOrSelf);
-
-        if (withPets)
-            if (Guardian* pet = ownerOrSelf->GetGuardianPet())
-                if (pet == m_caster && withcaster ||
-                    pet != m_caster && m_caster->IsWithinDistInMap(pet, radius))
-                    TagUnitMap.push_back(pet);
-    }
-}
-
-void Spell::FillRaidOrPartyManaPriorityTargets(UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withCaster)
-{
-    FillRaidOrPartyTargets(TagUnitMap,target,radius,raid,withPets,withCaster);
-
-    PrioritizeManaUnitQueue manaUsers;
-    for (UnitList::const_iterator itr = TagUnitMap.begin(); itr != TagUnitMap.end() && manaUsers.size() < count; ++itr)
-        if ((*itr)->getPowerType() == POWER_MANA && !(*itr)->isDead())
-            manaUsers.push(PrioritizeManaUnitWraper(*itr));
-
-    TagUnitMap.clear();
-    while (!manaUsers.empty())
-    {
-        TagUnitMap.push_back(manaUsers.top().getUnit());
-        manaUsers.pop();
-    }
-}
-
-void Spell::FillRaidOrPartyHealthPriorityTargets(UnitList &TagUnitMap, Unit* target, float radius, uint32 count, bool raid, bool withPets, bool withCaster)
-{
-    FillRaidOrPartyTargets(TagUnitMap,target,radius,raid,withPets,withCaster);
-
-    PrioritizeHealthUnitQueue healthQueue;
-    for (UnitList::const_iterator itr = TagUnitMap.begin(); itr != TagUnitMap.end() && healthQueue.size() < count; ++itr)
-        if (!(*itr)->isDead())
-            healthQueue.push(PrioritizeHealthUnitWraper(*itr));
-
-    TagUnitMap.clear();
-    while (!healthQueue.empty())
-    {
-        TagUnitMap.push_back(healthQueue.top().getUnit());
-        healthQueue.pop();
     }
 }

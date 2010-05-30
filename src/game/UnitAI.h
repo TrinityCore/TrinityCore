@@ -89,7 +89,7 @@ class UnitAI
                 return NULL;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-                targetList.sort(TargetDistanceOrder(me));
+                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
 
             switch(targetType)
             {
