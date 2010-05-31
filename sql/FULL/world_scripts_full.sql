@@ -84,6 +84,7 @@ UPDATE `gameobject_template` SET `ScriptName`='go_soulwell' WHERE `entry` IN (18
 UPDATE `gameobject_template` SET `scriptname`='go_tadpole_cage' WHERE `entry`=187373;
 UPDATE `gameobject_template` SET `ScriptName`='go_dragonflayer_cage' WHERE entry IN (186566,186567,186568,186569,186570,186571,186572,186573,186574,186575);
 UPDATE `gameobject_template` SET `ScriptName`='go_black_cage' WHERE `entry`=195310;
+UPDATE `gameobject_template` SET `ScriptName`='go_massive_seaforium_charge' WHERE `entry`=190752;
 
 /* GUARD */
 UPDATE `creature_template` SET `ScriptName`='guard_generic' WHERE `entry` IN (727,1423,1735,1738,1742,1743,1744,1745,1746,2209,2210,3084,3212,3215,3217,3218,3219,3220,3221,3222,3223,3224,3502,3571,4262,4264,5595,5624,5725,5953,9460,11190,13076,15184,16221,16222,16733,18038,19687);
