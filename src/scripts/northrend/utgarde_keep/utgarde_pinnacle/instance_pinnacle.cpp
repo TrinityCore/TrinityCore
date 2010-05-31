@@ -79,16 +79,16 @@ struct instance_pinnacle : public ScriptedInstance
     {
         switch(pCreature->GetEntry())
         {
-            case 26668:    uiSvalaSorrowgrave = pCreature->GetGUID();               break;
-            case 26687:    uiGortokPalehoof = pCreature->GetGUID();                 break;
-            case 26693:    uiSkadiTheRuthless = pCreature->GetGUID();               break;
-            case 26861:    uiKingYmiron = pCreature->GetGUID();                     break;
-            case 26683:    uiFrenziedWorgen = pCreature->GetGUID();                 break;
-            case 26684:    uiRavenousFurbolg = pCreature->GetGUID();                break;
-            case 26685:    uiMassiveJormungar = pCreature->GetGUID();               break;
-            case 26686:    uiFerociousRhino = pCreature->GetGUID();                 break;
-            case 29281:    uiSvala = pCreature->GetGUID();                          break;
-            case 26688:    uiPalehoofOrb = pCreature->GetGUID();                    break;
+            case BOSS_SVALA_SORROWGRAVE:  uiSvalaSorrowgrave = pCreature->GetGUID();  break;
+            case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = pCreature->GetGUID();    break;
+            case BOSS_SKADI_RUTHLESS:     uiSkadiTheRuthless = pCreature->GetGUID();  break;
+            case BOSS_KING_YMIRON:        uiKingYmiron = pCreature->GetGUID();        break;
+            case MOB_FRENZIED_WORGEN:     uiFrenziedWorgen = pCreature->GetGUID();    break;
+            case MOB_RAVENOUS_FURBOLG:    uiRavenousFurbolg = pCreature->GetGUID();   break;
+            case MOB_MASSIVE_JORMUNGAR:   uiMassiveJormungar = pCreature->GetGUID();  break;
+            case MOB_FEROCIOUS_RHINO:     uiFerociousRhino = pCreature->GetGUID();    break;
+            case MOB_SVALA:               uiSvala = pCreature->GetGUID();             break;
+            case MOB_PALEHOOF_ORB:        uiPalehoofOrb = pCreature->GetGUID();       break;
         }
     }
 
