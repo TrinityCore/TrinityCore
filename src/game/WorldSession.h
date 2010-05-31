@@ -695,8 +695,15 @@ class WorldSession
         void HandleSetLfgCommentOpcode(WorldPacket & recv_data);
         void HandleLfgPlayerLockInfoRequestOpcode(WorldPacket& recv_data);
         void HandleLfgPartyLockInfoRequestOpcode(WorldPacket& recv_data);
-        void SendLfgUpdatePlayer(uint8 updateType, uint32 dungeonEntry = 0);
-        void SendLfgUpdateParty(uint8 updateType, uint32 dungeonEntry = 0);
+        void HandleLfgJoinOpcode(WorldPacket &recv_data);
+        void HandleLfgLeaveOpcode(WorldPacket & /*recv_data*/);
+        void HandleLfgSetRolesOpcode(WorldPacket &recv_data);
+        void SendLfgUpdatePlayer(uint8 updateType);
+        void SendLfgUpdateParty(uint8 updateType);
+        void SendLfgRoleChosen(uint64 guid, uint8 roles);
+        void SendLfgUpdateSearch(bool update);
+        void SendLfgJoinResult(uint8 checkResult, uint8 checkValue);
+        void SendLfgQueueStatus(uint32 dungeon, int32 waitTime, int32 avgWaitTime, int32 waitTimeTanks, int32 waitTimeHealer, int32 waitTimeDps, uint32 queuedTime, uint8 tanks, uint8 healers, uint8 dps);
 
         // Arena Team
         void HandleInspectArenaTeamsOpcode(WorldPacket& recv_data);
