@@ -1794,6 +1794,17 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (24201,-1574020,'Skarvald, you incompetent slug! Return and make yourself useful!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13203,1,0,0,'dalronn YELL_DALRONN_SKA_DIEDFIRST'),
    
 -- -1 575 000 UTGARDE PINNACLE
+-- Skadi the Ruthless voice
+   (26693,-1575004,'What mongrels dare intrude here? Look alive, my brothers! A feast for the one that brings me their heads!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13497,1,0,0, 'Skadi - SAY_AGGRO'),
+   (26693,-1575005,'Not so brash now, are you?' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13504,1,0,0, 'Skadi - SAY_KILL_1'),
+   (26693,-1575006,'I'll mount your skull from the highest tower!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13505,1,0,0, 'Skadi - SAY_KILL_2'),
+   (26693,-1575007,'%s in within range of the harpoon launchers!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0, 'Skadi - EMOTE_RANGE'),
+   (26693,-1575008,'ARGH! You call that... an attack? I'll... show... aghhhh...' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13506,1,0,0, 'Skadi - SAY_DEATH'),
+   (26693,-1575009,'%s in within range of the harpoon launchers!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0, 'Skadi - EMOTE_RANGE'),
+   (26693,-1575010,'You motherless knaves! Your corpses will make fine morsels for my new drake!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13507,1,0,0, 'Skadi - SAY_DRAKE_DEATH'),
+   (26693,-1575011,'Sear them to the bone!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13498,1,0,0, 'Skadi - SAY_DRAKE_BREATH_1'),
+   (26693,-1575012,'Go now! Leave nothing but ash in your wake!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13499,1,0,0, 'Skadi - SAY_DRAKE_BREATH_2'),
+   (26693,-1575013,'Cleanse our sacred halls with flame!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13500,1,0,0, 'Skadi - SAY_DRAKE_BREATH_3'),
    (26861,-1575028,'You invade my home and then dare to challenge me? I will tear the hearts from your chests and offer them as gifts to the death god! Rualg nja gaborr!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13609,1,0,0, 'King Ymirom - SAY_AGGRO'),
    (26861,-1575029,'Your death is only the beginning!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13614,1,0,0, 'King Ymirom - SAY_SLAY_1'),
    (26861,-1575030,'You have failed your people!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,13615,1,0,0, 'King Ymirom - SAY_SLAY_2'),
