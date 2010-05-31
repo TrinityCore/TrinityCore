@@ -445,6 +445,14 @@ Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 origin
 
 Spell::~Spell()
 {
+    if (m_referencedFromCurrentSpell && m_selfContainer && *m_selfContainer == this)
+    {
+        // Clean the reference to avoid later crash.
+        // If this error is repeating, we may have to add an assert to better track down how we get into this case.
+        sLog.outError("SPELL: deleting spell for spell ID %u. However, spell still referenced.", m_spellInfo->Id);
+        *m_selfContainer = NULL;
+    }
+
     if (m_caster && m_caster->GetTypeId() == TYPEID_PLAYER)
         assert(m_caster->ToPlayer()->m_spellModTakingSpell != this);
     delete m_spellValue;
