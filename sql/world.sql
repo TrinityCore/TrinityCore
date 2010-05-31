@@ -6095,7 +6095,10 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 54850, 54851, 1, 'Emerge - Emerge Summon'),
 -- Trial of the Champion
 ( 66680, 66547, 0, 'Confess - Confess'),
-( 66889,-66865, 0, 'Remove Vengeance');
+( 66889,-66865, 0, 'Remove Vengeance'),
+-- Strand of the Ancients
+( 52415, 52418, 0, 'Carrying Seaforium - Add'),
+( 52410,-52418, 0, 'Carrying Seaforium - Remove');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
