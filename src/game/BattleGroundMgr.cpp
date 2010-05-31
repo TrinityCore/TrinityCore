@@ -1550,42 +1550,35 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 {
     // get the template BG
     BattleGround *bg_template = GetBattleGroundTemplate(bgTypeId);
+    BattleGroundTypeIdList *enabledBGsOrArenas = NULL;
+
     if (!bg_template)
     {
         sLog.outError("BattleGround: CreateNewBattleGround - bg template not found for %u", bgTypeId);
         return NULL;
     }
-
-    //for arenas there is random map used
-    if (bg_template->isArena())
-    {
-        if (!isAnyArenaEnabled()) // it's checked in handler but just to be sure
-           return NULL;
-        uint8 size = m_EnabledArenas.size() - 1;
-        bgTypeId = m_EnabledArenas[urand(0,size)];
-        bg_template = GetBattleGroundTemplate(bgTypeId);
-        if (!bg_template)
-        {
-            sLog.outError("BattleGround: CreateNewBattleGround - bg template not found for %u", bgTypeId);
-            return NULL;
-        }
-    }
-
     bool isRandom = false;
 
-    if (bgTypeId==BATTLEGROUND_RB)
+    if (bg_template->isArena())
+        enabledBGsOrArenas = &m_EnabledArenas;
+    else if (bgTypeId == BATTLEGROUND_RB)
     {
-        // BATTLEGROUND_IC not works
-        BattleGroundTypeId random_bgs[] = {BATTLEGROUND_AV, BATTLEGROUND_WS, BATTLEGROUND_AB, BATTLEGROUND_EY, BATTLEGROUND_SA};
-        uint32 bg_num = urand(0,4);
-        bgTypeId = random_bgs[bg_num];
+        enabledBGsOrArenas = &m_EnabledBGs;
+        isRandom = true;
+    }
+
+    if (enabledBGsOrArenas)
+    {
+        if (!enabledBGsOrArenas->size())
+           return NULL;
+        uint8 size = enabledBGsOrArenas->size() - 1;
+        bgTypeId = enabledBGsOrArenas->at(urand(0,size));
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
         {
             sLog.outError("BattleGround: CreateNewBattleGround - bg template not found for %u", bgTypeId);
             return NULL;
         }
-        isRandom = true;
     }
 
     BattleGround *bg = NULL;
@@ -1812,9 +1805,13 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         if (!CreateBattleGround(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3]))
             continue;
 
-        if (IsArena && bgTypeID != BATTLEGROUND_AA)
-            m_EnabledArenas.push_back(bgTypeID);
-
+        if (IsArena)
+        {
+            if (bgTypeID != BATTLEGROUND_AA)
+                m_EnabledArenas.push_back(bgTypeID);
+        }
+        else if (bgTypeID != BATTLEGROUND_RB)
+                m_EnabledBGs.push_back(bgTypeID);
         ++count;
     } while (result->NextRow());
 

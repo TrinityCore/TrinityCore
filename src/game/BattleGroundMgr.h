@@ -254,13 +254,14 @@ class BattleGroundMgr
         static BattleGroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday);
         static bool IsBGWeekend(BattleGroundTypeId bgTypeId);
         void DoCompleteAchievement(uint32 achievement, Player * player = NULL);
-        bool isAnyArenaEnabled() const { return m_EnabledArenas.size() != 0; }
     private:
         BattleMastersMap    mBattleMastersMap;
 
+        typedef std::vector<BattleGroundTypeId> BattleGroundTypeIdList;
         /* Battlegrounds */
         BattleGroundSet m_BattleGrounds[MAX_BATTLEGROUND_TYPE_ID];
-        std::vector<BattleGroundTypeId> m_EnabledArenas;
+        BattleGroundTypeIdList m_EnabledArenas;
+        BattleGroundTypeIdList m_EnabledBGs;
         std::vector<uint64> m_QueueUpdateScheduler;
         std::set<uint32> m_ClientBattleGroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
         uint32 m_NextRatingDiscardUpdate;
