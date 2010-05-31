@@ -705,6 +705,9 @@ bool Item::IsEquipped() const
 
 bool Item::CanBeTraded(bool mail) const
 {
+    if (m_lootGenerated)
+        return false;
+
     if ((!mail || !IsBoundAccountWide()) && IsSoulBound())
         return false;
 
@@ -764,6 +767,23 @@ bool Item::IsBoundByEnchant() const
                 if (enchantEntry->slot & ENCHANTMENT_CAN_SOULBOUND)
                     return true;
     return false;
+}
+
+uint8 Item::CanBeMergedPartlyWith(ItemPrototype const* proto) const
+{
+    // not allow merge looting currently items
+    if (m_lootGenerated)
+        return EQUIP_ERR_ALREADY_LOOTED;
+
+    // check item type
+    if (GetEntry() != proto->ItemId)
+        return EQUIP_ERR_ITEM_CANT_STACK;
+
+    // check free space (full stacks can't be target of merge
+    if (GetCount() >= proto->GetMaxStackSize())
+        return EQUIP_ERR_ITEM_CANT_STACK;
+
+    return EQUIP_ERR_OK;
 }
 
 bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
