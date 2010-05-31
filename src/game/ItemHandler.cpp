@@ -153,13 +153,6 @@ void WorldSession::HandleAutoEquipItemOpcode(WorldPacket & recv_data)
     if (!pSrcItem)
         return;                                             // only at cheat
 
-    if (pSrcItem->m_lootGenerated)                           // prevent swap looting item
-    {
-        //best error message found for attempting to swap while looting
-        _player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pSrcItem, NULL);
-        return;
-    }
-
     uint16 dest;
     uint8 msg = _player->CanEquipItem(NULL_SLOT, dest, pSrcItem, !pSrcItem->IsBag());
     if (msg != EQUIP_ERR_OK)
