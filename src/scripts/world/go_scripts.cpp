@@ -982,6 +982,12 @@ bool GOHello_go_hive_pod(Player *pPlayer, GameObject *pGO)
     return true;
 }
 
+bool GOHello_go_massive_seaforium_charge(Player* pPlayer, GameObject *pGo)
+{
+    pGo->SetLootState(GO_JUST_DEACTIVATED);
+    return true;
+}
+
 void AddSC_go_scripts()
 {
     Script *newscript;
@@ -1167,5 +1173,10 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_hive_pod";
     newscript->pGOHello = &GOHello_go_hive_pod;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_massive_seaforium_charge";
+    newscript->pGOHello = &GOHello_go_massive_seaforium_charge;
     newscript->RegisterSelf();
 }

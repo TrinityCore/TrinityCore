@@ -30,6 +30,9 @@ class BattleGroundSAScore : public BattleGroundScore
     uint8 gates_destroyed;
 };
 
+#define BG_SA_FLAG_AMOUNT 3
+#define BG_SA_DEMOLISHER_AMOUNT 4
+
 enum BG_SA_Status
   {
     BG_SA_NOTSTARTED = 0,
@@ -134,7 +137,7 @@ const uint32 BG_SA_NpcEntries[BG_SA_MAXNPC] =
     29262,
   };
 
-const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC][4] =
+const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC + BG_SA_DEMOLISHER_AMOUNT][4] =
   {
     //Cannons
     { 1436.429f, 110.05f, 41.407f, 5.4f },
@@ -155,6 +158,11 @@ const float BG_SA_NpcSpawnlocs[BG_SA_MAXNPC][4] =
     //Npcs
     { 1348.644165, -298.786469, 31.080130, 1.710423},
     { 1358.191040, 195.527786, 31.018187, 4.171337},
+    //Demolishers2
+    { 1371.055786, -317.071136, 35.007359, 1.947460},
+    { 1424.034912, -260.195190, 31.084425, 2.820013},
+    { 1353.139893, 223.745438, 35.265411, 4.343684},
+    { 1404.809570, 197.027237, 32.046032, 3.605401},
   };
 
 enum BG_SA_Objects
@@ -223,7 +231,7 @@ const float BG_SA_ObjSpawnlocs[BG_SA_MAXOBJ][4] =
  * to get horde ones.
  */
 
-const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ] =
+const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ + BG_SA_FLAG_AMOUNT] =
   {
     190722,
     190727,
@@ -245,6 +253,9 @@ const uint32 BG_SA_ObjEntries[BG_SA_MAXOBJ] =
     191310,
     191306,
     191308,
+    191309,
+    191305,
+    191307,
   };
 
 const uint32 BG_SA_Factions[2] =
@@ -323,10 +334,12 @@ class BattleGroundSA : public BattleGround
     void StartShips();
     void TeleportPlayers();
     void OverrideGunFaction();
+    void DemolisherStartState(bool start);
     void DestroyGate(uint32 i, Player* pl);
     void SendTime();
-    void CaptureGraveyard(BG_SA_Graveyards i);
+    void CaptureGraveyard(BG_SA_Graveyards i, Player *Source);
     void ToggleTimer();
+    void UpdateDemolisherSpawns();
     TeamId attackers;
     uint32 TotalTime;
     bool ShipsStarted;
