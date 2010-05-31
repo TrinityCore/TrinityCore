@@ -34,6 +34,7 @@
 #include "RealmAcceptor.h"
 
 #include <ace/Dev_Poll_Reactor.h>
+#include <ace/TP_Reactor.h>
 #include <ace/ACE.h>
 #include <ace/Sig_Handler.h>
 
@@ -176,6 +177,8 @@ extern int main(int argc, char **argv)
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
     ACE_Reactor::instance(new ACE_Reactor(new ACE_Dev_Poll_Reactor(ACE::max_handles(), 1), 1), true);
+#else
+    ACE_Reactor::instance(new ACE_Reactor(new ACE_TP_Reactor(), true), true);
 #endif
 
     sLog.outBasic("Max allowed open files is %d", ACE::max_handles());
