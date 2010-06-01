@@ -258,6 +258,15 @@ enum BattleGroundStartingEventsIds
 };
 #define BG_STARTING_EVENT_COUNT 4
 
+enum BG_OBJECT_DMG_HIT_TYPE
+{
+    BG_OBJECT_DMG_HIT_TYPE_JUST_DAMAGED         = 0,
+    BG_OBJECT_DMG_HIT_TYPE_DAMAGED              = 1,
+    BG_OBJECT_DMG_HIT_TYPE_JUST_HIGH_DAMAGED    = 2,
+    BG_OBJECT_DMG_HIT_TYPE_HIGH_DAMAGED         = 3,
+    BG_OBJECT_DMG_HIT_TYPE_JUST_DESTROYED       = 4 
+};
+
 enum GroupJoinBattlegroundResult
 {
     // positive values are indexes in BattlemasterList.dbc
@@ -329,6 +338,8 @@ class BattleGround
         virtual void ResetBGSubclass()                      // must be implemented in BG subclass
         {
         }
+
+        virtual void DestroyGate(Player* pl, GameObject* go, uint32 destroyedEvent) {}
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
@@ -468,6 +479,7 @@ class BattleGround
         void EndBattleGround(uint32 winner);
         void BlockMovement(Player *plr);
 
+        void SendWarningToAll(int32 entry, ...);
         void SendMessageToAll(int32 entry, ChatMsg type, Player const* source = NULL);
         void PSendMessageToAll(int32 entry, ChatMsg type, Player const* source, ...);
 
@@ -512,7 +524,7 @@ class BattleGround
         virtual void EventPlayerCapturedFlag(Player* /*player*/) {}
         void EventPlayerLoggedIn(Player* player, uint64 plr_guid);
         void EventPlayerLoggedOut(Player* player);
-        virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*target_obj*/, uint32 /*eventId*/) {}
+        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent) {}
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         /* Death related */
