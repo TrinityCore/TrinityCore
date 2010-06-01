@@ -5949,6 +5949,7 @@ LOCK TABLES `spell_linked_spell` WRITE;
 /*!40000 ALTER TABLE `spell_linked_spell` DISABLE KEYS */;
 INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment`) VALUES
 -- class
+( 16857, 60089, 0, 'Faerie Fire (Feral)'),
 ( 31224, -1543, 2, 'Cloak of Shadows - Flare'),
 ( 15237, 23455, 0, 'Holy Nova (rank1)'),
 ( 15430, 23458, 0, 'Holy Nova (rank2)'),
@@ -6086,8 +6087,6 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 -- Archavon
 ( 58666, 58672, 1, 'Impale (Archavon)'),
 ( 60882, 58672, 1, 'Impale (Archavon)'),
--- Missing in full
-( 16857, 60089, 0, 'Faerie Fire (Feral)'),
 -- Violet Hold
 (-54361, 54343, 0, 'Void Shift (Normal) - Void Shifted'),
 (-59743, 54343, 0, 'Void Shift (Heroic) - Void Shifted'),
@@ -6098,7 +6097,11 @@ INSERT INTO `spell_linked_spell` (`spell_trigger`,`spell_effect`,`type`,`comment
 ( 66889,-66865, 0, 'Remove Vengeance'),
 -- Strand of the Ancients
 ( 52415, 52418, 0, 'Carrying Seaforium - Add'),
-( 52410,-52418, 0, 'Carrying Seaforium - Remove');
+( 52410,-52418, 0, 'Carrying Seaforium - Remove'),
+-- Item
+( 69381, 72588, 1, 'Drums of the Wild'),
+( 69378, 72586, 1, 'Drums of the Forgotten Kings'),
+( 69377, 72590, 1, 'Runescroll of Fortitude');
 /*!40000 ALTER TABLE `spell_linked_spell` ENABLE KEYS */;
 UNLOCK TABLES;
 
