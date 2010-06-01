@@ -3604,6 +3604,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
             count++;
             break;
+        // Blazing Harpoon
+        case 61588:
+            spellInfo->MaxAffectedTargets = 1;
+            count++;
+            break;
         // Bloodlust
         case 2825:
             spellInfo->excludeCasterAuraSpell = 57724; // Sated
