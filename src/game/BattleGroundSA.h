@@ -314,12 +314,39 @@ class BattleGroundSA : public BattleGround
     virtual bool SetupBattleGround();
     virtual void Reset();
     virtual void FillInitialWorldStates(WorldPacket& data);
-    virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 event);
+    virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent);
     virtual void HandleKillUnit(Creature* unit, Player* killer);
     virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
     virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
     virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
-
+    uint32 GetGateIDFromDestroyEventID(uint32 id)
+        {
+            uint32 i = 0;
+            switch(id)
+            {
+                case 19046: i = BG_SA_GREEN_GATE;   break; //Green gate destroyed
+                case 19045: i = BG_SA_BLUE_GATE;    break; //blue gate
+                case 19047: i = BG_SA_RED_GATE;     break; //red gate
+                case 19048: i = BG_SA_PURPLE_GATE;  break; //purple gate
+                case 19049: i = BG_SA_YELLOW_GATE;  break; //yellow gate
+                case 19837: i = BG_SA_ANCIENT_GATE; break; //ancient gate
+            }
+            return i;
+        }
+        uint32 GetWorldStateFromGateID(uint32 id)
+        {
+            uint32 uws = 0;
+            switch(id)
+            {
+                case BG_SA_GREEN_GATE:   uws = BG_SA_GREEN_GATEWS;   break;
+                case BG_SA_YELLOW_GATE:  uws = BG_SA_YELLOW_GATEWS;  break;
+                case BG_SA_BLUE_GATE:    uws = BG_SA_BLUE_GATEWS;    break;
+                case BG_SA_RED_GATE:     uws = BG_SA_RED_GATEWS;     break;
+                case BG_SA_PURPLE_GATE:  uws = BG_SA_PURPLE_GATEWS;  break;
+                case BG_SA_ANCIENT_GATE: uws = BG_SA_ANCIENT_GATEWS; break;
+            }
+            return uws;
+        }
     void EndBattleGround(uint32 winner);
 
         void RemovePlayer(Player *plr,uint64 guid);
@@ -335,7 +362,7 @@ class BattleGroundSA : public BattleGround
     void TeleportPlayers();
     void OverrideGunFaction();
     void DemolisherStartState(bool start);
-    void DestroyGate(uint32 i, Player* pl);
+    void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
     void SendTime();
     void CaptureGraveyard(BG_SA_Graveyards i, Player *Source);
     void ToggleTimer();
@@ -348,5 +375,9 @@ class BattleGroundSA : public BattleGround
     TeamId GraveyardStatus[BG_SA_MAX_GY];
     BG_SA_RoundScore RoundScores[2];
     bool TimerEnabled;
+    uint32 UpdateWaitTimer;//5secs before starting the 1min countdown for second round
+    bool SignaledRoundTwo;
+    bool SignaledRoundTwoHalfMin;
+    bool InitSecondRound;
 };
 #endif

@@ -34,6 +34,10 @@ BattleGroundSA::BattleGroundSA()
     m_BgObjects.resize(BG_SA_MAXOBJ);
     m_BgCreatures.resize(BG_SA_MAXNPC + BG_SA_MAX_GY);
     TimerEnabled = false;
+    UpdateWaitTimer = 0;
+    SignaledRoundTwo = false;
+    SignaledRoundTwoHalfMin = false;
+    InitSecondRound = false;
 }
 
 BattleGroundSA::~BattleGroundSA()
@@ -228,20 +232,58 @@ void BattleGroundSA::StartShips()
 
 void BattleGroundSA::Update(uint32 diff)
 {
+    if (InitSecondRound)
+    {
+        if (UpdateWaitTimer < diff)
+        {
+            if (!SignaledRoundTwo)
+            {
+                SignaledRoundTwo = true;
+                InitSecondRound = false;
+                SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                ResetObjs();
+            }
+        }else 
+        {
+            UpdateWaitTimer -= diff;
+            return;
+        }
+    }
     BattleGround::Update(diff);
     TotalTime += diff;
 
-    if (status == BG_SA_WARMUP || status == BG_SA_SECOND_WARMUP)
+    if (status == BG_SA_WARMUP )
     {
         if (TotalTime >= BG_SA_WARMUPLENGTH)
         {
             TotalTime = 0;
             ToggleTimer();
             DemolisherStartState(false);
-            status = (status == BG_SA_WARMUP) ? BG_SA_ROUND_ONE : BG_SA_ROUND_TWO;
+            status = BG_SA_ROUND_ONE;            
         }
         if (TotalTime >= BG_SA_BOAT_START)
             StartShips();
+        return;
+    }
+    else if (status == BG_SA_SECOND_WARMUP)
+    {
+        if (TotalTime >= 60000)
+        {
+            SendWarningToAll(LANG_BG_SA_HAS_BEGUN);
+            TotalTime = 0;
+            ToggleTimer();
+            DemolisherStartState(false);
+            status = BG_SA_ROUND_TWO;
+        }
+        if (TotalTime >= 30000)
+        {
+            if (!SignaledRoundTwoHalfMin)
+            {
+                SignaledRoundTwoHalfMin = true;
+                SendMessageToAll(LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+            }
+        }
+        StartShips();
         return;
     }
     else if (GetStatus() == STATUS_IN_PROGRESS)
@@ -425,30 +467,35 @@ void BattleGroundSA::TeleportPlayers()
     }
 }
 
-void BattleGroundSA::EventPlayerDamagedGO(Player* plr, GameObject* /*go*/, uint32 event)
+void BattleGroundSA::EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent)
 {
-    switch(event)
+    if (!go || !go->GetGOInfo())
+        return;
+
+    switch(hitType)
     {
-        case 19046:  //Green gate destroyed
-            DestroyGate(BG_SA_GREEN_GATE,plr);
-            return;
-        case 19045: //blue gate
-            DestroyGate(BG_SA_BLUE_GATE,plr);
-            return;
-        case 19047: //red gate
-            DestroyGate(BG_SA_RED_GATE,plr);
-            return;
-        case 19048: //purple gate
-            DestroyGate(BG_SA_PURPLE_GATE,plr);
-            return;
-        case 19049: //yellow gate
-            DestroyGate(BG_SA_YELLOW_GATE,plr);
-            return;
-        case 19837: //ancient gate
-            DestroyGate(BG_SA_ANCIENT_GATE,plr);
-            return;
-        default:
-            return;
+        case BG_OBJECT_DMG_HIT_TYPE_JUST_DAMAGED://under attack
+            SendWarningToAll(LANG_BG_SA_IS_UNDER_ATTACK, go->GetGOInfo()->name);
+            break;
+        case BG_OBJECT_DMG_HIT_TYPE_DAMAGED:
+            break;
+        case BG_OBJECT_DMG_HIT_TYPE_JUST_HIGH_DAMAGED:
+            {
+                uint32 i = GetGateIDFromDestroyEventID(destroyedEvent);
+                GateStatus[i] = BG_SA_GATE_DAMAGED;
+                uint32 uws = GetWorldStateFromGateID(i);
+                if (uws)
+                    UpdateWorldState(uws, GateStatus[i]);            
+                break;
+            }
+        case BG_OBJECT_DMG_HIT_TYPE_HIGH_DAMAGED:
+            break;
+        case BG_OBJECT_DMG_HIT_TYPE_JUST_DESTROYED://handled at DestroyGate()
+            if (destroyedEvent == 19837)
+                SendWarningToAll(LANG_BG_SA_CHAMBER_BREACHED);
+            else
+                SendWarningToAll(LANG_BG_SA_WAS_DESTROYED, go->GetGOInfo()->name);
+            break;
     }
 }
 
@@ -500,8 +547,9 @@ void BattleGroundSA::DemolisherStartState(bool start)
     }
 }
 
-void BattleGroundSA::DestroyGate(uint32 i, Player* pl)
+void BattleGroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent)
 {
+    uint32 i = GetGateIDFromDestroyEventID(destroyedEvent);
     if (!GateStatus[i])
         return;
 
@@ -510,36 +558,35 @@ void BattleGroundSA::DestroyGate(uint32 i, Player* pl)
         if (g->GetGOValue()->building.health == 0)
         {
             GateStatus[i] = BG_SA_GATE_DESTROYED;
-            uint32 uws = 0;
+            uint32 uws = GetWorldStateFromGateID(i);
+            if (uws)
+                UpdateWorldState(uws, GateStatus[i]);    
+            bool rewardHonor = true;
             switch(i)
             {
-                case 0:
-                    uws = BG_SA_GREEN_GATEWS;
+                case BG_SA_GREEN_GATE:
+                    if (GateStatus[BG_SA_BLUE_GATE] == BG_SA_GATE_DESTROYED)
+                        rewardHonor = false;
                     break;
-                case 1:
-                    uws = BG_SA_YELLOW_GATEWS;
+                case BG_SA_BLUE_GATE:
+                    if (GateStatus[BG_SA_GREEN_GATE] == BG_SA_GATE_DESTROYED)
+                        rewardHonor = false;
                     break;
-                case 2:
-                    uws = BG_SA_BLUE_GATEWS;
+                case BG_SA_RED_GATE:
+                    if (GateStatus[BG_SA_PURPLE_GATE] == BG_SA_GATE_DESTROYED)
+                        rewardHonor = false;
                     break;
-                case 3:
-                    uws = BG_SA_RED_GATEWS;
-                    break;
-                case 4:
-                    uws = BG_SA_PURPLE_GATEWS;
-                    break;
-                case 5:
-                    uws = BG_SA_ANCIENT_GATEWS;
-                    break;
-                default:
-                    ASSERT(false);
+                case BG_SA_PURPLE_GATE:
+                    if (GateStatus[BG_SA_RED_GATE] == BG_SA_GATE_DESTROYED)
+                        rewardHonor = false;
                     break;
             }
 
             if (i < 5)
                 DelObject(i+9);
-            UpdateWorldState(uws, GateStatus[i]);
             UpdatePlayerScore(pl,SCORE_DESTROYED_WALL, 1);
+            if (rewardHonor)
+                UpdatePlayerScore(pl,SCORE_BONUS_HONOR,(GetBonusHonorFromKill(1)));
         }
     }
 }
@@ -634,6 +681,10 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
 
             UpdateWorldState(BG_SA_LEFT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE? 1:0));
             UpdateWorldState(BG_SA_LEFT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE? 0:1));
+            if (Source->GetTeamId() == TEAM_ALLIANCE)
+                SendWarningToAll(LANG_BG_SA_A_GY_WEST);
+            else
+                SendWarningToAll(LANG_BG_SA_H_GY_WEST);
             break;
         case BG_SA_RIGHT_CAPTURABLE_GY:
             flag = BG_SA_RIGHT_FLAG;
@@ -649,6 +700,10 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
 
             UpdateWorldState(BG_SA_RIGHT_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE? 1:0));
             UpdateWorldState(BG_SA_RIGHT_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE? 0:1));
+            if (Source->GetTeamId() == TEAM_ALLIANCE)
+                SendWarningToAll(LANG_BG_SA_A_GY_EAST);
+            else
+                SendWarningToAll(LANG_BG_SA_H_GY_EAST);
             break;
         case BG_SA_CENTRAL_CAPTURABLE_GY:
             flag = BG_SA_CENTRAL_FLAG;
@@ -659,6 +714,10 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
 
             UpdateWorldState(BG_SA_CENTER_GY_ALLIANCE, (GraveyardStatus[i] == TEAM_ALLIANCE? 1:0));
             UpdateWorldState(BG_SA_CENTER_GY_HORDE, (GraveyardStatus[i] == TEAM_ALLIANCE? 0:1));
+            if (Source->GetTeamId() == TEAM_ALLIANCE)
+                SendWarningToAll(LANG_BG_SA_A_GY_SOUTH);
+            else
+                SendWarningToAll(LANG_BG_SA_H_GY_SOUTH);
             break;
         default:
             ASSERT(0);
@@ -672,6 +731,10 @@ void BattleGroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
     {
         if (Source->GetTeamId() == attackers)
         {
+            if (Source->GetTeamId() == ALLIANCE)
+                SendMessageToAll(LANG_BG_SA_ALLIANCE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+            else SendMessageToAll(LANG_BG_SA_HORDE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+
             if (status == BG_SA_ROUND_ONE)
             {
                 RoundScores[0].winner = attackers;
@@ -680,7 +743,11 @@ void BattleGroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 status = BG_SA_SECOND_WARMUP;
                 TotalTime = 0;
                 ToggleTimer();
-                ResetObjs();
+                SendWarningToAll(LANG_BG_SA_ROUND_ONE_END);
+                UpdateWaitTimer = 5000;
+                SignaledRoundTwo = false;
+                SignaledRoundTwoHalfMin = false;
+                InitSecondRound = true;
             }
             else if (status == BG_SA_ROUND_TWO)
             {
