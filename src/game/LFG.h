@@ -24,11 +24,11 @@
 
 enum LfgRoles
 {
-    ROL_NONE   = 0x00,
-    ROL_LEADER = 0x01,
-    ROL_TANK   = 0x02,
-    ROL_HEALER = 0x04,
-    ROL_DAMAGE = 0x08,
+    ROLE_NONE   = 0x00,
+    ROLE_LEADER = 0x01,
+    ROLE_TANK   = 0x02,
+    ROLE_HEALER = 0x04,
+    ROLE_DAMAGE = 0x08,
 };
 
 enum LfgUpdateType
