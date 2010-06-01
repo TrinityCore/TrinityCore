@@ -93,16 +93,16 @@ void LFGQueue::Update()
             if (!plr)
                 continue;
             rol = itPlayer->second;
-            if (rol & ROL_TANK)
+            if (rol & ROLE_TANK)
             {
-                if (rol & ROL_HEALER || rol & ROL_DAMAGE)
+                if (rol & ROLE_HEALER || rol & ROLE_DAMAGE)
                     waitTime = avgWaitTime;
                 else
                     waitTime = waitTimeTanks;
             }
-            else if (rol & ROL_HEALER)
+            else if (rol & ROLE_HEALER)
             {
-                if (rol & ROL_DAMAGE)
+                if (rol & ROLE_DAMAGE)
                     waitTime = avgWaitTime;
                 else
                     waitTime = waitTimeDps;
@@ -322,9 +322,9 @@ void LFGMgr::Join(Player *plr)
         uint8 tanks = LFG_TANKS_NEEDED;
         uint8 healers = LFG_HEALERS_NEEDED;
         uint8 dps = LFG_DPS_NEEDED;
-        if (plr->m_lookingForGroup.roles & ROL_TANK)
+        if (plr->m_lookingForGroup.roles & ROLE_TANK)
             --tanks;
-        else if (plr->m_lookingForGroup.roles & ROL_HEALER)
+        else if (plr->m_lookingForGroup.roles & ROLE_HEALER)
             --healers;
         else
             --dps;
@@ -436,14 +436,14 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
     if (plr)
     {
         // Player selected no role.
-        if (plr->m_lookingForGroup.roles < ROL_TANK)
+        if (plr->m_lookingForGroup.roles < ROLE_TANK)
             pRoleCheck->result = LFG_ROLECHECK_NO_ROLE;
         else
         {
             // Check if all players have selected a role
             pRoleCheck->roles[plr->GetGUID()] = plr->m_lookingForGroup.roles;
             uint8 size = 0;
-            for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end() && itRoles->second != ROL_NONE; ++itRoles)
+            for (LfgRolesMap::const_iterator itRoles = pRoleCheck->roles.begin(); itRoles != pRoleCheck->roles.end() && itRoles->second != ROLE_NONE; ++itRoles)
                 ++size;
 
             if (pRoleCheck->roles.size() == size)
@@ -541,9 +541,9 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
         uint8 dps = LFG_DPS_NEEDED;
         for (LfgRolesMap::const_iterator it = check_roles.begin(); it != check_roles.end(); ++it)
         {
-            if (it->second & ROL_TANK)
+            if (it->second & ROLE_TANK)
                 --tanks;
-            else if (it->second & ROL_HEALER)
+            else if (it->second & ROLE_HEALER)
                 --healers;
             else
                 --dps;
@@ -608,10 +608,10 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
         guid = it->first;
         rol = it->second;
 
-        if (rol == ROL_NONE || rol == ROL_LEADER)
+        if (rol == ROLE_NONE || rol == ROLE_LEADER)
             return false;
 
-        if (rol & ROL_TANK)
+        if (rol & ROLE_TANK)
             if (!tank)
             {
                 tguid = guid;
@@ -619,13 +619,13 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
             }
             else
             {
-                if (groles[tguid] == ROL_TANK)
+                if (groles[tguid] == ROLE_TANK)
                     tguid = guid;
-                groles[tguid] -= ROL_TANK;
+                groles[tguid] -= ROLE_TANK;
                 return CheckGroupRoles(groles);
             }
 
-        if (rol & ROL_HEALER)
+        if (rol & ROLE_HEALER)
             if (!healer)
             {
                 hguid = guid;
@@ -633,13 +633,13 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
             }
             else
             {
-                if (groles[hguid] == ROL_HEALER)
+                if (groles[hguid] == ROLE_HEALER)
                     hguid = guid;
-                groles[hguid] -= ROL_HEALER;
+                groles[hguid] -= ROLE_HEALER;
                 return CheckGroupRoles(groles);
             }
 
-        if (rol & ROL_DAMAGE)
+        if (rol & ROLE_DAMAGE)
             if (damage < 3)
             {
                 if (!damage)
@@ -648,9 +648,9 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
             }
             else
             {
-                if (groles[dguid] == ROL_DAMAGE)
+                if (groles[dguid] == ROLE_DAMAGE)
                     dguid = guid;
-                groles[dguid] -= ROL_DAMAGE;
+                groles[dguid] -= ROLE_DAMAGE;
                 return CheckGroupRoles(groles);
             }
     }
