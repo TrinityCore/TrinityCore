@@ -268,7 +268,7 @@ INSERT INTO `battleground_template` (`id`,`MinPlayersPerTeam`,`MaxPlayersPerTeam
 (10,5,5,10,80,1362,0,1363,0,1),
 (11,5,5,10,80,1364,0,1365,0,1),
 (30,20,40,71,80,1485,0,1486,0,0),
-(32,0,40,0,80,0,0,0,0,0);
+(32,10,10,0,80,0,0,0,0,0);
 /*!40000 ALTER TABLE `battleground_template` ENABLE KEYS */;
 UNLOCK TABLES;
 
