@@ -80,7 +80,7 @@ void LFGQueue::Update()
     LfgQueueInfo *queue;
     time_t currTime = time(NULL);
     uint32 queuedTime;
-    uint8 rol = 0;
+    uint8 role = 0;
     int32 waitTime = -1;
     for (LfgQueueInfoMap::const_iterator itQueue = m_LfgQueue.begin(); itQueue != m_LfgQueue.end(); ++itQueue)
     {
@@ -92,17 +92,17 @@ void LFGQueue::Update()
             plr = objmgr.GetPlayer(itPlayer->first);
             if (!plr)
                 continue;
-            rol = itPlayer->second;
-            if (rol & ROLE_TANK)
+            role = itPlayer->second;
+            if (role & ROLE_TANK)
             {
-                if (rol & ROLE_HEALER || rol & ROLE_DAMAGE)
+                if (role & ROLE_HEALER || role & ROLE_DAMAGE)
                     waitTime = avgWaitTime;
                 else
                     waitTime = waitTimeTanks;
             }
-            else if (rol & ROLE_HEALER)
+            else if (role & ROLE_HEALER)
             {
-                if (rol & ROLE_DAMAGE)
+                if (role & ROLE_DAMAGE)
                     waitTime = avgWaitTime;
                 else
                     waitTime = waitTimeDps;
@@ -422,7 +422,7 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
         pRoleCheck->cancelTime = time_t(time(NULL)) + LFG_TIME_ROLECHECK;
         pRoleCheck->result = LFG_ROLECHECK_INITIALITING;
         pRoleCheck->leader = plr->GetGUID();
-        
+
         for (GroupReference *itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
             if (Player *plrg = itr->getSource())
                 pRoleCheck->roles[plrg->GetGUID()] = 0;
@@ -577,8 +577,9 @@ void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
 
     if (pRoleCheck->result != LFG_ROLECHECK_INITIALITING)
     {
-        delete itRoleCheck->second;
-        m_RoleChecks.erase(itRoleCheck);
+        delete pRoleCheck;
+        if (!newRoleCheck)
+            m_RoleChecks.erase(itRoleCheck);
     }
     else if (newRoleCheck)
         m_RoleChecks[rolecheckId] = pRoleCheck;
@@ -601,17 +602,17 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
     uint64 hguid = 0;
     uint64 dguid = 0;
     uint64 guid = 0;
-    uint8 rol = 0;
+    uint8 role = 0;
 
     for (LfgRolesMap::const_iterator it = groles.begin(); it != groles.end(); ++it)
     {
         guid = it->first;
-        rol = it->second;
+        role = it->second;
 
-        if (rol == ROLE_NONE || rol == ROLE_LEADER)
+        if (role == ROLE_NONE || role == ROLE_LEADER)
             return false;
 
-        if (rol & ROLE_TANK)
+        if (role & ROLE_TANK)
             if (!tank)
             {
                 tguid = guid;
@@ -625,7 +626,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
                 return CheckGroupRoles(groles);
             }
 
-        if (rol & ROLE_HEALER)
+        if (role & ROLE_HEALER)
             if (!healer)
             {
                 hguid = guid;
@@ -639,7 +640,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles)
                 return CheckGroupRoles(groles);
             }
 
-        if (rol & ROLE_DAMAGE)
+        if (role & ROLE_DAMAGE)
             if (damage < 3)
             {
                 if (!damage)
@@ -697,7 +698,7 @@ void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
         data << uint8(plr->getLevel());                     // Level
     else
         data << uint8(0);
-    
+
     for (LfgRolesMap::const_iterator itPlayers = pRoleCheck->roles.begin(); itPlayers != pRoleCheck->roles.end(); ++itPlayers)
     {
         if (itPlayers->first == pRoleCheck->leader)
