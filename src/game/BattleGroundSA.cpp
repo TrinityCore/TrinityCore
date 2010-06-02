@@ -241,7 +241,6 @@ void BattleGroundSA::Update(uint32 diff)
                 SignaledRoundTwo = true;
                 InitSecondRound = false;
                 SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-                ResetObjs();
             }
         }else 
         {
@@ -748,6 +747,7 @@ void BattleGroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 SignaledRoundTwo = false;
                 SignaledRoundTwoHalfMin = false;
                 InitSecondRound = true;
+                ResetObjs();
             }
             else if (status == BG_SA_ROUND_TWO)
             {
