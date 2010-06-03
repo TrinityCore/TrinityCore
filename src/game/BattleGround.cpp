@@ -856,7 +856,8 @@ void BattleGround::EndBattleGround(uint32 winner)
 uint32 BattleGround::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-    return Trinity::Honor::hk_honor_at_level(GetMaxLevel(), kills);
+    uint32 maxLevel = (GetMaxLevel()<80)?GetMaxLevel():80;
+    return Trinity::Honor::hk_honor_at_level(maxLevel, kills);
 }
 
 uint32 BattleGround::GetBattlemasterEntry() const
@@ -1079,6 +1080,8 @@ void BattleGround::AddPlayer(Player *plr)
     uint32 queueSlot = plr->GetBattleGroundQueueIndex(bgQueueTypeId);
     sBattleGroundMgr.BuildBattleGroundStatusPacket(&status, this, queueSlot, STATUS_IN_PROGRESS, 0, GetStartTime(), GetArenaType());
     plr->GetSession()->SendPacket(&status);
+
+    plr->RemoveAurasByType(SPELL_AURA_MOUNTED);
 
     // add arena specific auras
     if (isArena())
