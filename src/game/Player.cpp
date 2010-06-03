@@ -6579,7 +6579,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
             int32 v_rank =1;                                //need more info
 
             honor = ((f * diff_level * (190 + v_rank*10))/6);
-            honor *= ((float)k_level) / 70.0f;              //factor of dependence on levels of the killer
+            honor *= ((float)k_level) / 21.50537f;              //factor of dependence on levels of the killer
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
@@ -6608,7 +6608,6 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
         // apply honor multiplier from aura (not stacking-get highest)
         honor = int32(float(honor) * (float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT))+100.0f)/100.0f);
-        honor *= (((float)urand(8,12))/10);                 // approx honor: 80% - 120% of real honor
     }
 
     // honor - for show honor points in log
