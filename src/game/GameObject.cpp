@@ -1610,6 +1610,7 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
                 if (BattleGround* bg = pwho->GetBattleGround())
                     bg->DestroyGate(pwho, this, m_goInfo->building.destroyedEvent);
             hitType = BG_OBJECT_DMG_HIT_TYPE_JUST_DESTROYED;
+            sScriptMgr.GODestroyed(pwho, this, m_goInfo->building.destroyedEvent);
         }
         if (pwho)
             if (BattleGround* bg = pwho->GetBattleGround())
