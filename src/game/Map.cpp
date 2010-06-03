@@ -3445,7 +3445,8 @@ void Map::ScriptsProcess()
                 WorldObject* worldObject;
                 Player* pTarget;
 
-                if (pTarget = target->ToPlayer())
+                pTarget = target->ToPlayer();
+                if (pTarget)
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
@@ -3465,7 +3466,8 @@ void Map::ScriptsProcess()
                         break;
                     }
 
-                    if (!source->ToPlayer())
+                    pTarget = source->ToPlayer();
+                    if (!pTarget)
                     {
                         sLog.outError("SCRIPT_COMMAND_QUEST_EXPLORED (script id %u) call for non-player (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
                         break;
