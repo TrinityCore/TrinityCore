@@ -453,7 +453,7 @@ enum WorldStates
 #define SCRIPT_COMMAND_MODEL                32              // datalong = model id
 #define SCRIPT_COMMAND_CLOSE_GOSSIP         33              // close gossip window -- no values
 #define SCRIPT_COMMAND_PLAYMOVIE            34              // datalong = movie id
-#define SCRIPT_COMMAND_MOD_UPDATEFIELD      35              // datalong = index, datalong2 = newvalue
+#define SCRIPT_COMMAND_SET_FLAG             35              // dataint: 1=apply,0=remove, datalong = index, datalong2 = newvalue
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
