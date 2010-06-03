@@ -39,7 +39,7 @@ struct Script
         pGossipHello(NULL), pQuestAccept(NULL), pGossipSelect(NULL), pGossipSelectWithCode(NULL),
         pGOSelect(NULL), pGOSelectWithCode(NULL),
         pQuestSelect(NULL), pQuestComplete(NULL), pNPCDialogStatus(NULL), pGODialogStatus(NULL),
-        pChooseReward(NULL), pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL),
+        pChooseReward(NULL), pGODestroyed(NULL), pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL),
         pGOQuestAccept(NULL), pGOChooseReward(NULL),pItemUse(NULL), pItemExpire(NULL),
         pEffectDummyCreature(NULL), pEffectDummyGameObj(NULL), pEffectDummyItem(NULL),
         GetAI(NULL), GetInstanceData(NULL)
@@ -79,6 +79,7 @@ struct Script
     bool (*pItemQuestAccept)(Player*, Item *, Quest const*);
     bool (*pGOQuestAccept)(Player*, GameObject*, Quest const*);
     bool (*pGOChooseReward)(Player*, GameObject*, Quest const*, uint32);
+    void (*pGODestroyed)(Player*, GameObject*, uint32);
     bool (*pItemUse)(Player*, Item*, SpellCastTargets const&);
     bool (*pItemExpire)(Player*, ItemPrototype const *);
     bool (*pEffectDummyCreature)(Unit*, uint32, uint32, Creature*);
@@ -132,6 +133,7 @@ class ScriptMgr
         bool GOHello(Player* pPlayer, GameObject* pGO);
         bool GOQuestAccept(Player* pPlayer, GameObject* pGO, Quest const* pQuest);
         bool GOChooseReward(Player* pPlayer, GameObject* pGO, Quest const* pQuest, uint32 opt);
+        void GODestroyed(Player* pPlayer, GameObject* pGO, uint32 destroyedEvent);
         bool AreaTrigger(Player* pPlayer,AreaTriggerEntry const* atEntry);
         CreatureAI* GetAI(Creature* pCreature);
         bool ItemUse(Player* pPlayer, Item* pItem, SpellCastTargets const& targets);

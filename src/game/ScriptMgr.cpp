@@ -471,6 +471,13 @@ bool ScriptMgr::GOChooseReward(Player* pPlayer, GameObject* pGO, Quest const* pQ
     return tmpscript->pGOChooseReward(pPlayer, pGO, pQuest, opt);
 }
 
+void ScriptMgr::GODestroyed(Player* pPlayer, GameObject* pGO, uint32 destroyedEvent)
+{
+    Script *tmpscript = m_scripts[pGO->GetGOInfo()->ScriptId];
+    if (!tmpscript) return;
+    tmpscript->pGODestroyed(pPlayer, pGO, destroyedEvent);
+}
+
 bool ScriptMgr::AreaTrigger(Player* pPlayer, AreaTriggerEntry const* atEntry)
 {
     Script *tmpscript = m_scripts[GetAreaTriggerScriptId(atEntry->id)];
