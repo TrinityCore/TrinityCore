@@ -3939,7 +3939,10 @@ void Map::ScriptsProcess()
                     break;
                 }
                 
-                source->SetFlag(step.script->datalong, step.script->datalong2);
+                if (step.script->dataint)
+                    source->SetFlag(step.script->datalong, step.script->datalong2);
+                else
+                    source->RemoveFlag(step.script->datalong, step.script->datalong2);
                 break;
             }
             
