@@ -3907,7 +3907,7 @@ void Map::ScriptsProcess()
                 break;
             }
             
-            case SCRIPT_COMMAND_MOD_UPDATEFIELD:
+            case SCRIPT_COMMAND_SET_FLAG:
             {
                 if (!source)
                 {
