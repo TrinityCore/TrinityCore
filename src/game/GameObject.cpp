@@ -39,6 +39,7 @@
 #include "Util.h"
 #include "OutdoorPvPMgr.h"
 #include "BattleGroundAV.h"
+#include "ScriptMgr.h"
 
 GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
 {
