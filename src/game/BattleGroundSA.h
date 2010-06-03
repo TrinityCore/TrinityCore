@@ -369,6 +369,7 @@ class BattleGroundSA : public BattleGround
     void UpdateDemolisherSpawns();
     TeamId attackers;
     uint32 TotalTime;
+    uint32 BG_SA_ENDROUNDTIME;
     bool ShipsStarted;
     BG_SA_GateState GateStatus[6];
     BG_SA_Status status;
