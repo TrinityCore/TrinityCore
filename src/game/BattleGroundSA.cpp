@@ -253,6 +253,7 @@ void BattleGroundSA::Update(uint32 diff)
 
     if (status == BG_SA_WARMUP )
     {
+        BG_SA_ENDROUNDTIME = BG_SA_ROUNDLENGTH;
         if (TotalTime >= BG_SA_WARMUPLENGTH)
         {
             TotalTime = 0;
@@ -266,6 +267,11 @@ void BattleGroundSA::Update(uint32 diff)
     }
     else if (status == BG_SA_SECOND_WARMUP)
     {
+        if (RoundScores[0].time<BG_SA_ROUNDLENGTH)
+            BG_SA_ENDROUNDTIME = RoundScores[0].time;
+        else 
+            BG_SA_ENDROUNDTIME = BG_SA_ROUNDLENGTH;
+
         if (TotalTime >= 60000)
         {
             SendWarningToAll(LANG_BG_SA_HAS_BEGUN);
@@ -291,11 +297,11 @@ void BattleGroundSA::Update(uint32 diff)
         {
             if (TotalTime >= BG_SA_ROUNDLENGTH)
             {
+                RoundScores[0].winner = attackers;
                 RoundScores[0].time = BG_SA_ROUNDLENGTH;
                 TotalTime = 0;
                 status = BG_SA_SECOND_WARMUP;
-                attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
-                RoundScores[0].winner = attackers;
+                attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;                
                 status = BG_SA_SECOND_WARMUP;
                 ToggleTimer();
                 ResetObjs();
@@ -304,7 +310,7 @@ void BattleGroundSA::Update(uint32 diff)
         }
         else if (status == BG_SA_ROUND_TWO)
         {
-            if (TotalTime >= BG_SA_ROUNDLENGTH)
+            if (TotalTime >= BG_SA_ENDROUNDTIME)
             {
                 RoundScores[1].time = BG_SA_ROUNDLENGTH;
                 RoundScores[1].winner = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;
@@ -627,7 +633,7 @@ WorldSafeLocsEntry const* BattleGroundSA::GetClosestGraveYard(Player* player)
 
 void BattleGroundSA::SendTime()
 {
-    uint32 end_of_round = (BG_SA_ROUNDLENGTH - TotalTime);
+    uint32 end_of_round = (BG_SA_ENDROUNDTIME - TotalTime);
     UpdateWorldState(BG_SA_TIMER_MINS, end_of_round/60000);
     UpdateWorldState(BG_SA_TIMER_SEC_TENS, (end_of_round%60000)/10000);
     UpdateWorldState(BG_SA_TIMER_SEC_DECS, ((end_of_round%60000)%10000)/1000);
