@@ -3906,6 +3906,43 @@ void Map::ScriptsProcess()
                 pSource->SendMovieStart(step.script->datalong);
                 break;
             }
+            
+            case SCRIPT_COMMAND_MOD_UPDATEFIELD:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOD_UPDATEFIELD (script id: %u) call for NULL source.", step.script->id);
+                    break;
+                }
+                
+                uint16 maxOffset = 0;
+                switch (source->GetTypeId())
+                {
+                    case TYPEID_ITEM:
+                        maxOffset = ITEM_END;
+                        break;
+                    case TYPEID_UNIT:
+                        maxOffset = UNIT_END;
+                        break;
+                    case TYPEID_PLAYER:
+                        maxOffset = PLAYER_END;
+                        break;
+                    case TYPEID_GAMEOBJECT:
+                        maxOffset = GAMEOBJECT_END;
+                        break;
+                }
+                
+                if (step.script->datalong > maxOffset || !step.script->datalong)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOD_UPDATEFIELD (script id: %u). invalid index parameter (%u). maximum offset: (%u) for typeid %u",
+                    step.script->id, step.script->datalong, maxOffset, source->GetTypeId());
+                    break;
+                }
+                
+                source->SetFlag(step.script->datalong, step.script->datalong2);
+                break;
+            }
+            
             default:
                 sLog.outError("Unknown script command %u called.", step.script->command);
                 break;
