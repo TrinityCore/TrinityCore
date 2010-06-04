@@ -1,12 +1,12 @@
 /**
  @file Sphere.h
-
+ 
  Sphere class
-
- @maintainer Morgan McGuire, matrix@graphics3d.com
-
+ 
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ 
  @created 2001-06-02
- @edited  2004-07-05
+ @edited  2008-10-07
  */
 
 #ifndef G3D_SPHERE_H
@@ -36,6 +36,10 @@ public:
         radius = 0;
     }
 
+    Sphere(class BinaryInput& b);
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
+
     Sphere(
         const Vector3&  center,
         float           radius) {
@@ -60,51 +64,49 @@ public:
      */
     bool contains(const Vector3& point) const;
 
-/**
-     @deprecated Use culledBy(Array<Plane>&)
-     */
-    bool culledBy(
-        const class Plane*  plane,
-        int                 numPlanes,
-        int32&              cullingPlaneIndex,
-        const uint32        testMask,
-        uint32&             childMask) const;
+    bool contains(const Sphere& other) const;
 
     /**
-     @deprecated Use culledBy(Array<Plane>&)
+       @deprecated Use culledBy(Array<Plane>&)
      */
     bool culledBy(
-        const class Plane*  plane,
-        int                 numPlanes,
-        int32&              cullingPlaneIndex = dummy,
-        const uint32        testMask = -1) const;
+                  const class Plane*  plane,
+                  int                 numPlanes,
+                  int32&	          cullingPlaneIndex,
+                  const uint32        testMask,
+                  uint32&             childMask) const;
+    
+    /**
+       @deprecated Use culledBy(Array<Plane>&)
+     */
+    bool culledBy(
+                  const class Plane*  plane,
+                  int                 numPlanes,
+                  int32&              cullingPlaneIndex = dummy,
+                  const uint32        testMask = 0xFFFFFFFF) const;
 
     /**
-      See AABox::culledBy
-     */
+       See AABox::culledBy
+    */
     bool culledBy(
-        const Array<Plane>&     plane,
-        int32&                  cullingPlaneIndex,
-        const uint32            testMask,
-        uint32&                 childMask) const;
-
+                  const Array<Plane>&		plane,
+                  int32&					cullingPlaneIndex,
+                  const uint32  			testMask,
+                  uint32&                 childMask) const;
+    
     /**
      Conservative culling test that does not produce a mask for children.
      */
     bool culledBy(
-        const Array<Plane>&     plane,
-        int32&                  cullingPlaneIndex = dummy,
-        const uint32            testMask          = -1) const;
+                  const Array<Plane>&		plane,
+                  int32&					cullingPlaneIndex = dummy,
+                  const uint32  			testMask		  = 0xFFFFFFFF) const;
+
     virtual std::string toString() const;
 
     float volume() const;
 
-    /** @deprecated */
-    float surfaceArea() const;
-
-    inline float area() const {
-        return surfaceArea();
-    }
+    float area() const;
 
     /**
      Uniformly distributed on the surface.
@@ -117,13 +119,30 @@ public:
     Vector3 randomInteriorPoint() const;
 
     void getBounds(class AABox& out) const;
+
+    bool intersects(const Sphere& other) const;
+
+    /** Translates the sphere */
+    Sphere operator+(const Vector3& v) const {
+        return Sphere(center + v, radius);
+    }
+
+    /** Translates the sphere */
+    Sphere operator-(const Vector3& v) const {
+        return Sphere(center - v, radius);
+    }
+
+    /** Sets this to the smallest sphere that encapsulates both */
+    void merge(const Sphere& s);
 };
 
-} // namespace
-
-inline unsigned int hashCode(const G3D::Sphere& sphere) {
-    return (unsigned int)(hashCode(sphere.center) + (sphere.radius * 13));
 }
 
-#endif
+template <> struct HashTrait<G3D::Sphere> {
+    static size_t hashCode(const G3D::Sphere& key) { 
+        return static_cast<size_t>(key.center.hashCode() + (key.radius * 13));
+    }
+};
 
+
+#endif

@@ -1,31 +1,36 @@
 /**
   @file Vector4.h
-
+ 
   Homogeneous vector class.
-
-  @maintainer Morgan McGuire, matrix@graphics3d.com
-
+ 
+  @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ 
   @created 2002-07-09
-  @edited  2005-03-28
+  @edited  2008-11-01
 
-  Copyright 2000-2006, Morgan McGuire.
+  Copyright 2000-2009, Morgan McGuire.
   All rights reserved.
  */
 
-#ifndef G3D_VECTOR4_H
-#define G3D_VECTOR4_H
+#ifndef G3D_Vector4_h
+#define G3D_Vector4_h
 
 #include "G3D/platform.h"
 #include "G3D/g3dmath.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector2.h"
+#include "G3D/Table.h"
+#include "G3D/HashTrait.h"
+#include "G3D/PositionTrait.h"
 #include <string>
 
 namespace G3D {
 
-class Vector2;
+class Vector2;    
 class Vector3;
 class Vector4;
+class Vector4int8;
+class Any;
 
 /**
  Do not subclass-- this implementation makes assumptions about the
@@ -40,6 +45,13 @@ private:
     bool operator>=(const Vector4&) const;
 
 public:
+
+    /** \param any Must either Vector4(#, #, #, #) or Vector3 {x = #, y = #, z = #, w =#}*/
+    Vector4(const Any& any);
+    
+    /** Converts the Vector4 to an Any. */
+    operator Any() const;
+
     // construction
     Vector4();
     Vector4(float fX, float fY, float fZ, float fW);
@@ -49,6 +61,13 @@ public:
     Vector4(const Vector3& rkVector, float fW);
     Vector4(const Vector2& v1, const Vector2& v2);
     Vector4(const Vector2& v1, float fz, float fw);
+
+    /** Divides by 127 when converting */
+    Vector4(const Vector4int8&);
+
+    Vector4(class BinaryInput& b);
+    void serialize(class BinaryOutput& b) const;
+    void deserialize(class BinaryInput& b);
 
     // coordinates
     float x, y, z, w;
@@ -60,13 +79,13 @@ public:
     // (2) the data packed in a 4*sizeof(float) memory block
     float& operator[] (int i);
     const float& operator[] (int i) const;
-    operator float* ();
-    operator const float* () const;
 
     // assignment and comparison
     Vector4& operator= (const Vector4& rkVector);
     bool operator== (const Vector4& rkVector) const;
     bool operator!= (const Vector4& rkVector) const;
+
+    static const Vector4& zero();
 
     inline void set(float _x, float _y, float _z, float _w) {
         x = _x;
@@ -89,12 +108,12 @@ public:
         w = _w;
     }
 
-    unsigned int hashCode() const;
+    size_t hashCode() const;
     bool fuzzyEq(const Vector4& other) const;
     bool fuzzyNe(const Vector4& other) const;
 
-    inline static const Vector4& inf()      { static Vector4 v((float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf(), (float)G3D::inf()); return v; }
-    inline static const Vector4& nan()      { static Vector4 v((float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan(), (float)G3D::nan()); return v; }
+    static const Vector4& inf();
+    static const Vector4& nan();
 
     /** sqrt(this->dot(*this)) */
     float length() const;
@@ -116,7 +135,7 @@ public:
     // arithmetic operations
     Vector4 operator+ (const Vector4& rkVector) const;
     Vector4 operator- (const Vector4& rkVector) const;
-
+    
     inline Vector4 operator*(const Vector4& rkVector) const {
         return Vector4(x * rkVector.x, y * rkVector.y, z * rkVector.z, w * rkVector.w);
     }
@@ -124,6 +143,8 @@ public:
     inline Vector4 operator/(const Vector4& rkVector) const {
         return Vector4(x / rkVector.x, y / rkVector.y, z / rkVector.z, w / rkVector.w);
     }
+
+    Vector4 operator*(const class Matrix4& M) const;
 
     Vector4 operator* (float fScalar) const;
     Vector4 operator/ (float fScalar) const;
@@ -511,15 +532,185 @@ public:
 
 };
 
+
+//----------------------------------------------------------------------------
+inline Vector4::Vector4() {
+    x = y = z = w = 0;
 }
+
+//----------------------------------------------------------------------------
+
+inline Vector4::Vector4 (float fX, float fY, float fZ, float fW) {
+    x = fX;
+    y = fY;
+    z = fZ;
+    w = fW;
+}
+
+//----------------------------------------------------------------------------
+inline Vector4::Vector4 (float afCoordinate[4]) {
+    x = afCoordinate[0];
+    y = afCoordinate[1];
+    z = afCoordinate[2];
+    w = afCoordinate[3];
+}
+
+//----------------------------------------------------------------------------
+inline Vector4::Vector4(const Vector4& rkVector) {
+    x = rkVector.x;
+    y = rkVector.y;
+    z = rkVector.z;
+    w = rkVector.w;
+}
+//----------------------------------------------------------------------------
+inline Vector4::Vector4(const Vector3& rkVector, float fW) {
+    x = rkVector.x;
+    y = rkVector.y;
+    z = rkVector.z;
+    w = fW;
+}
+
+//----------------------------------------------------------------------------
+inline float& Vector4::operator[] (int i) {
+    return ((float*)this)[i];
+}
+
+//----------------------------------------------------------------------------
+inline const float& Vector4::operator[] (int i) const {
+    return ((float*)this)[i];
+}
+
+//----------------------------------------------------------------------------
+inline Vector4& Vector4::operator= (const Vector4& rkVector) {
+    x = rkVector.x;
+    y = rkVector.y;
+    z = rkVector.z;
+    w = rkVector.w;
+    return *this;
+}
+
+//----------------------------------------------------------------------------
+inline bool Vector4::operator== (const Vector4& rkVector) const {
+    return ( (x == rkVector.x) && (y == rkVector.y) && (z == rkVector.z) && (w == rkVector.w));
+}
+
+//----------------------------------------------------------------------------
+inline bool Vector4::operator!= (const Vector4& rkVector) const {
+    return ( x != rkVector.x || y != rkVector.y || z != rkVector.z || w != rkVector.w);
+}
+
+//----------------------------------------------------------------------------
+inline Vector4 Vector4::operator+ (const Vector4& rkVector) const {
+    return Vector4(x + rkVector.x, y + rkVector.y, z + rkVector.z, w + rkVector.w);
+}
+
+//----------------------------------------------------------------------------
+inline Vector4 Vector4::operator- (const Vector4& rkVector) const {
+    return Vector4(x - rkVector.x, y - rkVector.y, z - rkVector.z, w - rkVector.w);
+}
+
+//----------------------------------------------------------------------------
+inline Vector4 Vector4::operator* (float fScalar) const {
+    return Vector4(fScalar*x, fScalar*y, fScalar*z, fScalar*w);
+}
+
+//----------------------------------------------------------------------------
+inline Vector4 Vector4::operator- () const {
+    return Vector4( -x, -y, -z, -w);
+}
+
+//----------------------------------------------------------------------------
+inline Vector4& Vector4::operator+= (const Vector4& rkVector) {
+    x += rkVector.x;
+    y += rkVector.y;
+    z += rkVector.z;
+    w += rkVector.w;
+    return *this;
+}
+
+//----------------------------------------------------------------------------
+inline Vector4& Vector4::operator-= (const Vector4& rkVector) {
+    x -= rkVector.x;
+    y -= rkVector.y;
+    z -= rkVector.z;
+    w -= rkVector.w;
+    return *this;
+}
+
+//----------------------------------------------------------------------------
+
+inline Vector4 Vector4::lerp(const Vector4& v, float alpha) const {
+    return (*this) + (v - *this) * alpha; 
+}
+
+
+//----------------------------------------------------------------------------
+inline Vector4& Vector4::operator*= (float fScalar) {
+    x *= fScalar;
+    y *= fScalar;
+    z *= fScalar;
+    w *= fScalar;
+    return *this;
+}
+
+
+//----------------------------------------------------------------------------
+inline float Vector4::dot(const Vector4& rkVector) const {
+    return x*rkVector.x + y*rkVector.y + z*rkVector.z + w*rkVector.w;
+}
+
+//----------------------------------------------------------------------------
+inline Vector4 Vector4::min(const Vector4 &v) const {
+    return Vector4(G3D::min(v.x, x), G3D::min(v.y, y), G3D::min(v.z, z), G3D::min(v.w, w));
+}
+
+//----------------------------------------------------------------------------
+inline Vector4 Vector4::max(const Vector4 &v) const {
+    return Vector4(G3D::max(v.x, x), G3D::max(v.y, y), G3D::max(v.z, z), G3D::max(v.w, w));
+}
+
+//----------------------------------------------------------------------------
+inline bool Vector4::isZero() const {
+    return (x == 0.0f) && (y == 0.0f) && (z == 0.0f) && (w == 0.0f);
+}
+
+//----------------------------------------------------------------------------
+
+inline bool Vector4::isFinite() const {
+    return G3D::isFinite(x) && G3D::isFinite(y) && G3D::isFinite(z) && G3D::isFinite(w);
+}
+
+//----------------------------------------------------------------------------
+
+inline bool Vector4::isUnit() const {
+    return squaredLength() == 1.0;
+}
+
+//----------------------------------------------------------------------------
+
+inline float Vector4::length() const {
+    return sqrtf(squaredLength());
+}
+
+//----------------------------------------------------------------------------
+
+inline float Vector4::squaredLength() const {
+    return x * x + y * y + z * z + w * w;
+}
+
+}
+
+template <> struct HashTrait<G3D::Vector4> {
+    static size_t hashCode(const G3D::Vector4& key) { return key.hashCode(); }
+};
+
+
+template<> struct PositionTrait<class G3D::Vector4> {
+    static void getPosition(const G3D::Vector4& v, G3D::Vector3& p) { p = v.xyz(); }
+};
 
 inline G3D::Vector4 operator* (float s, const G3D::Vector4& v) {
     return v * s;
 }
 
-unsigned int hashCode(const G3D::Vector4& v);
-
-#include "Vector4.inl"
-
 #endif
-

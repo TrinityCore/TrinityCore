@@ -399,7 +399,7 @@ struct boss_teron_gorefiendAI : public ScriptedAI
                 float X = CalculateRandomLocation(pTarget->GetPositionX(), 20);
                 float Y = CalculateRandomLocation(pTarget->GetPositionY(), 20);
                 float Z = pTarget->GetPositionZ();
-                Z = me->GetMap()->GetVmapHeight(X, Y, Z);
+                Z = me->GetMap()->GetHeight(X, Y, Z);
                 Creature* DoomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                 if (DoomBlossom)
                 {

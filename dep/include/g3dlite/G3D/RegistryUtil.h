@@ -21,11 +21,14 @@
 
 namespace G3D {
 
-/**
+/** 
     Provides generalized Windows registry querying.
 
     All key names are one string in the format:
-        "[base key]\[sub-keys]\value"
+        "[base key]\[sub-keys]"
+
+    A value must now be provided for every query.
+    An empty value string will use the (Default) value.
 
     [base key] can be any of the following:
         HKEY_CLASSES_ROOT
@@ -37,45 +40,53 @@ namespace G3D {
         HKEY_PERFORMANCE_TEXT
         HKEY_USERS
 
-    keyExists() should be used to validate a key before reading or writing
-    to ensure that a debug assert or false return is for a different error.
+    valueExists() should be used to validate a key+value before reading or writing
+    to ensure that a debug assert or false return is for a different error during 
+    reads and writes.
+
+    All read and write calls will assert when a key will not open for reasons other
+    that it does not exist. All read and write calls will assert when the value cannot
+    be read or written for any reason.
 */
 class RegistryUtil {
 
 public:
-    /** returns true if the key exists */
+    /** returns true if the key exists and the current user has permission to read */
     static bool keyExists(const std::string& key);
 
-    /** returns false if the key could not be read for any reason. */
-    static bool readInt32(const std::string& key, int32& valueData);
+    /** returns true if the key exists and the current user has permission to read */
+    static bool valueExists(const std::string& key, const std::string& value);
 
-    /**
+    /** returns false if the key could not be read for any reason. */
+    static bool readInt32(const std::string& key, const std::string& value, int32& data);
+
+    /** 
       Reads an arbitrary amount of data from a binary registry key.
       returns false if the key could not be read for any reason.
-
+    
       @beta
-      @param valueData pointer to the output buffer of sufficient size. Pass NULL as valueData in order to have available data size returned in dataSize.
-      @param dataSize size of the output buffer.  When NULL is passed for valueData, contains the size of available data on successful return.
+      @param data pointer to the output buffer of sufficient size. Pass NULL as data in order to have available data size returned in dataSize.
+      @param dataSize size of the output buffer.  When NULL is passed for data, contains the size of available data on successful return.
     */
-    static bool readBytes(const std::string& key, uint8* valueData, uint32& dataSize);
+    static bool readBytes(const std::string& key, const std::string& value, uint8* data, uint32& dataSize);
 
     /** returns false if the key could not be read for any reason. */
-    static bool readString(const std::string& key, std::string& valueData);
+    static bool readString(const std::string& key, const std::string& value, std::string& data);
 
     /** returns false if the key could not be written for any reason. */
-    static bool writeInt32(const std::string& key, int32 valueData);
+    static bool writeInt32(const std::string& key, const std::string& value, int32 data);
 
-    /**
+    /** 
       Writes an arbitrary amount of data to a binary registry key.
       returns false if the key could not be written for any reason.
-
-      @param valueData pointer to the input buffer
+    
+      @param data pointer to the input buffer
       @param dataSize size of the input buffer that should be written
     */
-    static bool writeBytes(const std::string& key, const uint8* valueData, uint32 dataSize);
+    static bool writeBytes(const std::string& key, const std::string& value, const uint8* data, uint32 dataSize);
 
     /** returns false if the key could not be written for any reason. */
-    static bool writeString(const std::string& key, const std::string& valueData);
+    static bool writeString(const std::string& key, const std::string& value, const std::string& data);
 
 };
 
@@ -84,4 +95,3 @@ public:
 #endif // G3D_WIN32
 
 #endif // G3D_REGISTRYTUIL_H
-

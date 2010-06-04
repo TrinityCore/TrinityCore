@@ -314,14 +314,17 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
         // some calls like isInWater should not use vmaps due to processor power
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetHeight(float x, float y, float z, bool pCheckVMap=true) const;
-        float GetVmapHeight(float x, float y, float z) const;
-        bool IsInWater(float x, float y, float z, float min_depth = 2.0f) const;
 
         ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData *data = 0) const;
 
-        uint16 GetAreaFlag(float x, float y, float z) const;
+        uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=0) const;
+        bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
+
+        bool IsOutdoors(float x, float y, float z) const;
+
         uint8 GetTerrainType(float x, float y) const;
         float GetWaterLevel(float x, float y) const;
+        bool IsInWater(float x, float y, float z, LiquidData *data = 0) const;
         bool IsUnderWater(float x, float y, float z) const;
 
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag,uint32 map_id);

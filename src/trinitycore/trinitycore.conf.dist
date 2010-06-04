@@ -174,7 +174,11 @@ EAIErrorLevel = 2
 #        Check LOS for pets, to avoid them going through walls etc.
 #        Default: 0 (disable, less CPU usage)
 #                 1 (enable, each pet attack command will check for LOS)
-#       
+#    
+#    vmap.enableIndoorCheck
+#        Enable/Disable VMap based indoor check to remove outdoor-only auras (mounts etc.)
+#        Default: 0 (disabled)
+#
 #    DetectPosCollision
 #        Check final move position, summon position, etc for visible collision
 #         with other objects or wall (wall only if vmaps are enabled)
@@ -243,6 +247,7 @@ vmap.enableHeight = 0
 vmap.ignoreMapIds = "369"
 vmap.ignoreSpellIds = "7720"
 vmap.petLOS = 0
+vmap.enableIndoorCheck = 0
 DetectPosCollision = 1
 TargetPosRecalculateRange = 1.5
 UpdateUptimeInterval = 10
