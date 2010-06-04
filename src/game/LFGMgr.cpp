@@ -275,6 +275,8 @@ void LFGMgr::Join(Player *plr)
     {
         if (grp->GetMembersCount() > MAXGROUPSIZE)
             result = LFG_JOIN_TOO_MUCH_MEMBERS;
+        else if(grp->isRaidGroup())
+            result = LFG_JOIN_MIXED_RAID_DUNGEON;
         else
         {
             for (GroupReference *itr = grp->GetFirstMember(); itr != NULL && result == LFG_JOIN_OK; itr = itr->next())
