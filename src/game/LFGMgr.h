@@ -255,7 +255,7 @@ private:
     void BuildRewardBlock(WorldPacket &data, uint32 dungeon, Player *plr);
     void BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet);
     void BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap);
-    bool CheckGroupRoles(LfgRolesMap &groles);
+    bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
 
     LfgLockStatusMap* GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
     LfgLockStatusSet* GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons);
