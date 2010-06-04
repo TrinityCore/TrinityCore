@@ -567,6 +567,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\ConditionMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\ConditionMgr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\DuelHandler.cpp"
 				>
 			</File>

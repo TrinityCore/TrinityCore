@@ -41,10 +41,11 @@
 #include "Policies/Singleton.h"
 #include "Database/SQLStorage.h"
 #include "Vehicle.h"
-
+#include "ObjectMgr.h"
 #include <string>
 #include <map>
 #include <limits>
+#include "ConditionMgr.h"
 
 extern SQLStorage sCreatureStorage;
 extern SQLStorage sCreatureDataAddonStorage;
@@ -235,23 +236,22 @@ struct GossipMenuItems
     bool            box_coded;
     uint32          box_money;
     std::string     box_text;
-    uint16          cond_1;
-    uint16          cond_2;
-    uint16          cond_3;
+    ConditionList   conditions;
 };
 
 struct GossipMenus
 {
     uint32          entry;
     uint32          text_id;
-    uint16          cond_1;
-    uint16          cond_2;
+    ConditionList   conditions;
 };
 
 typedef std::multimap<uint32,GossipMenus> GossipMenusMap;
 typedef std::pair<GossipMenusMap::const_iterator, GossipMenusMap::const_iterator> GossipMenusMapBounds;
+typedef std::pair<GossipMenusMap::iterator, GossipMenusMap::iterator> GossipMenusMapBoundsNonConst;
 typedef std::multimap<uint32,GossipMenuItems> GossipMenuItemsMap;
 typedef std::pair<GossipMenuItemsMap::const_iterator, GossipMenuItemsMap::const_iterator> GossipMenuItemsMapBounds;
+typedef std::pair<GossipMenuItemsMap::iterator, GossipMenuItemsMap::iterator> GossipMenuItemsMapBoundsNonConst;
 
 struct QuestPOIPoint
 {
@@ -299,48 +299,6 @@ struct GraveYardData
     uint32 team;
 };
 typedef std::multimap<uint32,GraveYardData> GraveYardMap;
-
-enum ConditionType
-{                                                           // value1       value2  for the Condition enumed
-    CONDITION_NONE                  = 0,                    // 0            0
-    CONDITION_AURA                  = 1,                    // spell_id     effindex
-    CONDITION_ITEM                  = 2,                    // item_id      count
-    CONDITION_ITEM_EQUIPPED         = 3,                    // item_id      0
-    CONDITION_ZONEID                = 4,                    // zone_id      0
-    CONDITION_REPUTATION_RANK       = 5,                    // faction_id   min_rank
-    CONDITION_TEAM                  = 6,                    // player_team  0,      (469 - Alliance 67 - Horde)
-    CONDITION_SKILL                 = 7,                    // skill_id     skill_value
-    CONDITION_QUESTREWARDED         = 8,                    // quest_id     0
-    CONDITION_QUESTTAKEN            = 9,                    // quest_id     0,      for condition true while quest active.
-    CONDITION_AD_COMMISSION_AURA    = 10,                   // 0            0,      for condition true while one from AD commission aura active
-    CONDITION_NO_AURA               = 11,                   // spell_id     effindex
-    CONDITION_ACTIVE_EVENT          = 12,                   // event_id
-    CONDITION_INSTANCE_DATA         = 13,                   // entry        data
-    CONDITION_QUEST_NONE            = 14,                   // quest_id     0
-    CONDITION_CLASS                 = 15,                   // class        0
-    CONDITION_RACE                  = 16,                   // race         0
-    CONDITION_ACHIEVEMENT           = 17                    // achievement_id 0
-};
-
-#define MAX_CONDITION                 18                    // maximum value in ConditionType enum
-
-struct PlayerCondition
-{
-    ConditionType condition;                                // additional condition type
-    uint32  value1;                                         // data for the condition - see ConditionType definition
-    uint32  value2;
-
-    PlayerCondition(uint8 _condition = 0, uint32 _value1 = 0, uint32 _value2 = 0)
-        : condition(ConditionType(_condition)), value1(_value1), value2(_value2) {}
-
-    static bool IsValid(ConditionType condition, uint32 value1, uint32 value2);
-    // Checks correctness of values
-    bool Meets(Player const * APlayer) const;               // Checks if the player meets the condition
-    bool operator == (PlayerCondition const& lc) const
-    {
-        return (lc.condition == condition && lc.value1 == value1 && lc.value2 == value2);
-    }
-};
 
 // NPC gossip text id
 typedef UNORDERED_MAP<uint32, uint32> CacheNpcTextIdMap;
@@ -648,7 +606,6 @@ class ObjectMgr
         void LoadGameobjects();
         void LoadGameobjectRespawnTimes();
         void LoadItemPrototypes();
-        void LoadItemRequiredTarget();
         void LoadItemLocales();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
@@ -880,15 +837,6 @@ class ObjectMgr
         int GetIndexForLocale(LocaleConstant loc);
         LocaleConstant GetLocaleForIndex(int i);
 
-        uint16 GetConditionId(ConditionType condition, uint32 value1, uint32 value2);
-        bool IsPlayerMeetToCondition(Player const* player, uint16 condition_id) const
-        {
-            if (condition_id >= mConditions.size())
-                return false;
-
-            return mConditions[condition_id].Meets(player);
-        }
-
         GameTele const* GetGameTele(uint32 id) const
         {
             GameTeleMap::const_iterator itr = m_GameTeleMap.find(id);
@@ -942,11 +890,6 @@ class ObjectMgr
             return SpellClickInfoMapBounds(mSpellClickInfoMap.lower_bound(creature_id),mSpellClickInfoMap.upper_bound(creature_id));
         }
 
-        ItemRequiredTargetMapBounds GetItemRequiredTargetMapBounds(uint32 uiItemEntry) const
-        {
-            return ItemRequiredTargetMapBounds(m_ItemRequiredTarget.lower_bound(uiItemEntry),m_ItemRequiredTarget.upper_bound(uiItemEntry));
-        }
-
         GM_Ticket *GetGMTicket(uint64 ticketGuid)
         {
             for (GmTicketList::const_iterator i = m_GMTicketList.begin(); i != m_GMTicketList.end(); ++i)
@@ -969,9 +912,18 @@ class ObjectMgr
             return GossipMenusMapBounds(m_mGossipMenusMap.lower_bound(uiMenuId),m_mGossipMenusMap.upper_bound(uiMenuId));
         }
 
+        GossipMenusMapBoundsNonConst GetGossipMenusMapBoundsNonConst(uint32 uiMenuId)
+        {
+            return GossipMenusMapBoundsNonConst(m_mGossipMenusMap.lower_bound(uiMenuId),m_mGossipMenusMap.upper_bound(uiMenuId));
+        }
+
         GossipMenuItemsMapBounds GetGossipMenuItemsMapBounds(uint32 uiMenuId) const
         {
             return GossipMenuItemsMapBounds(m_mGossipMenuItemsMap.lower_bound(uiMenuId),m_mGossipMenuItemsMap.upper_bound(uiMenuId));
+        }
+        GossipMenuItemsMapBoundsNonConst GetGossipMenuItemsMapBoundsNonConst(uint32 uiMenuId)
+        {
+            return GossipMenuItemsMapBoundsNonConst(m_mGossipMenuItemsMap.lower_bound(uiMenuId),m_mGossipMenuItemsMap.upper_bound(uiMenuId));
         }
 
         void AddOrUpdateGMTicket(GM_Ticket &ticket, bool create = false);
@@ -1108,10 +1060,6 @@ class ObjectMgr
         PointOfInterestLocaleMap mPointOfInterestLocaleMap;
         RespawnTimes mCreatureRespawnTimes;
         RespawnTimes mGORespawnTimes;
-
-        // Storage for Conditions. First element (index 0) is reserved for zero-condition (nothing required)
-        typedef std::vector<PlayerCondition> ConditionStore;
-        ConditionStore mConditions;
 
         CacheNpcTextIdMap m_mCacheNpcTextIdMap;
         CacheVendorItemMap m_mCacheVendorItemMap;

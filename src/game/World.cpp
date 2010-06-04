@@ -70,6 +70,7 @@
 #include "ScriptMgr.h"
 #include "AddonMgr.h"
 #include "LFGMgr.h"
+#include "ConditionMgr.h"
 
 INSTANTIATE_SINGLETON_1(World);
 
@@ -1380,12 +1381,6 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Creature templates...");
     objmgr.LoadCreatureTemplates();
 
-    sLog.outString("Loading SpellsScriptTarget...");
-    spellmgr.LoadSpellScriptTarget();                       // must be after LoadCreatureTemplates and LoadGameobjectInfo
-
-    sLog.outString("Loading ItemRequiredTarget...");
-    objmgr.LoadItemRequiredTarget();
-
     sLog.outString("Loading Creature Reputation OnKill Data...");
     objmgr.LoadReputationOnKill();
 
@@ -1577,6 +1572,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Creature Formations...");
     formation_mgr.LoadCreatureFormations();
+
+    sLog.outString("Loading Conditions...");
+    sConditionMgr.LoadConditions();
 
     sLog.outString("Loading GM tickets...");
     objmgr.LoadGMTickets();

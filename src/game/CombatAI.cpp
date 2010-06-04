@@ -292,17 +292,79 @@ void AOEAI::UpdateAI(const uint32 /*diff*/)
 //VehicleAI
 //////////////
 
-//NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted
-void VehicleAI::UpdateAI(const uint32 /*diff*/)
+VehicleAI::VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
 {
+    LoadConditions();
+    m_DoDismiss = false;
+    m_DismissTimer = VEHICLE_DISMISS_TIME;
+}
+
+
+//NOTE: VehicleAI::UpdateAI runs even while the vehicle is mounted
+void VehicleAI::UpdateAI(const uint32 diff)
+{
+    CheckConditions(diff);
+    
+    if (m_DoDismiss)
+    {
+        if (m_DismissTimer < diff)
+        {
+            m_DoDismiss = false;
+            me->SetVisibility(VISIBILITY_OFF);
+            me->ForcedDespawn();
+        }else m_DismissTimer -= diff;
+    }
 }
 
 void VehicleAI::Reset()
 {
+    me->SetVisibility(VISIBILITY_ON);
+
     m_vehicle->Reset();
 }
 
 void VehicleAI::OnCharmed(bool apply)
 {
+    if (m_IsVehicleInUse && !apply && !conditions.empty())//was used and has conditions
+    {
+        m_DoDismiss = true;//needs reset
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_PLAYER_VEHICLE);
+        me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
+    }
+    else if (apply)
+        m_DoDismiss = false;//in use again
+    m_DismissTimer = VEHICLE_DISMISS_TIME;//reset timer
     m_IsVehicleInUse = apply;
+}
+
+void VehicleAI::LoadConditions()
+{
+    conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE, me->GetEntry());
+    if (!conditions.empty())
+    {
+        sLog.outDebug("VehicleAI::LoadConditions: loaded %u conditions", uint32(conditions.size()));
+    }
+}
+
+void VehicleAI::CheckConditions(const uint32 diff)
+{
+    if(m_ConditionsTimer < diff)
+    {
+        if (!conditions.empty())
+        {
+            for (SeatMap::iterator itr = m_vehicle->m_Seats.begin(); itr != m_vehicle->m_Seats.end(); ++itr)
+                if (Unit *passenger = itr->second.passenger)
+                {
+                    if (Player* plr = passenger->ToPlayer())
+                    {
+                        if (!sConditionMgr.IsPlayerMeetToConditions(plr, conditions))
+                        {
+                            plr->ExitVehicle();
+                            return;//check other pessanger in next tick
+                        }
+                    }
+                }
+        }
+        m_ConditionsTimer = VEHICLE_CONDITION_CHECK_TIME;
+    } else m_ConditionsTimer -= diff;
 }
