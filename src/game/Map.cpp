@@ -3013,19 +3013,21 @@ void Map::ScriptsProcess()
             {
                 if (!source)
                 {
-                    sLog.outError("SCRIPT_COMMAND_TALK (script id: %u) call for NULL creature.", step.script->id);
+                    sLog.outError("SCRIPT_COMMAND_TALK (script id: %u) call for NULL source.", step.script->id);
                     break;
                 }
 
-                Creature* cSource = source->ToCreature();
+                Creature* cSource = NULL;
+                cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+
                 if (!cSource)
                 {
-                    sLog.outError("SCRIPT_COMMAND_TALK (script id: %u) call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                    step.script->id, source->GetTypeId(),source->GetEntry(),source->GetGUIDLow());
+                    sLog.outError("SCRIPT_COMMAND_TALK (script id: %u) call for non supported source (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                    step.script->id, source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
                     break;
                 }
 
-                if (step.script->datalong > 4)
+                if (step.script->datalong > CHAT_TYPE_WHISPER)
                 {
                     sLog.outError("SCRIPT_COMMAND_TALK (script id: %u) invalid chat type (%u), skipping.", step.script->id, step.script->datalong);
                     break;
@@ -3866,7 +3868,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                source->ToCreature()->SetDisplayId(step.script->datalong);
+                cSource->SetDisplayId(step.script->datalong);
                 break;
             }
 
@@ -3932,7 +3934,7 @@ void Map::ScriptsProcess()
                         break;
                 }
                 
-                if (step.script->datalong > maxOffset || !step.script->datalong)
+                if (step.script->datalong >= maxOffset || !step.script->datalong)
                 {
                     sLog.outError("SCRIPT_COMMAND_MOD_UPDATEFIELD (script id: %u). invalid index parameter (%u). maximum offset: (%u) for typeid %u",
                     step.script->id, step.script->datalong, maxOffset, source->GetTypeId());
