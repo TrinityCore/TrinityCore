@@ -6,20 +6,50 @@
  @author Morgan McGuire, graphics3d.com
 
  @created 2001-06-02
- @edited  2006-04-06
+ @edited  2009-11-15
+
+  Copyright 2000-2009, Morgan McGuire.
+  All rights reserved.
 */
 
 #include "G3D/platform.h"
-#include "G3D/format.h"
 #include <memory.h>
 #include <assert.h>
 #include "G3D/Matrix3.h"
 #include "G3D/g3dmath.h"
+#include "G3D/BinaryInput.h"
+#include "G3D/BinaryOutput.h"
 #include "G3D/Quat.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
 const float Matrix3::EPSILON = 1e-06f;
+
+Matrix3::Matrix3(const Any& any) {
+    any.verifyName("Matrix3");
+    any.verifyType(Any::ARRAY);
+    any.verifySize(9);
+
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            elt[r][c] = any[r * 3 + c];
+        }
+    }
+}
+
+
+Matrix3::operator Any() const {
+    Any any(Any::ARRAY, "Matrix3");
+    any.resize(9);
+    for (int r = 0; r < 3; ++r) {
+        for (int c = 0; c < 3; ++c) {
+            any[r * 3 + c] = elt[r][c];
+        }
+    }
+
+    return any;
+}
 
 const Matrix3& Matrix3::zero() {
     static Matrix3 m(0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -31,12 +61,13 @@ const Matrix3& Matrix3::identity() {
     return m;
 }
 
-// Deprecated.
-const Matrix3 Matrix3::ZERO(0, 0, 0, 0, 0, 0, 0, 0, 0);
-const Matrix3 Matrix3::IDENTITY(1, 0, 0, 0, 1, 0, 0, 0, 1);
 
 const float Matrix3::ms_fSvdEpsilon = 1e-04f;
 const int Matrix3::ms_iSvdMaxIterations = 32;
+
+Matrix3::Matrix3(BinaryInput& b) {
+    deserialize(b);
+}
 
 bool Matrix3::fuzzyEq(const Matrix3& b) const {
     for (int r = 0; r < 3; ++r) {
@@ -49,12 +80,25 @@ bool Matrix3::fuzzyEq(const Matrix3& b) const {
     return true;
 }
 
-bool Matrix3::isOrthonormal() const {
-    Vector3 X = getColumn(0);
-    Vector3 Y = getColumn(1);
-    Vector3 Z = getColumn(2);
 
-    return
+bool Matrix3::isRightHanded() const{
+
+    const Vector3& X = column(0);
+    const Vector3& Y = column(1);
+    const Vector3& Z = column(2);
+
+    const Vector3& W = X.cross(Y);
+
+    return W.dot(Z) > 0.0f;
+}
+
+
+bool Matrix3::isOrthonormal() const {
+    const Vector3& X = column(0);
+    const Vector3& Y = column(1);
+    const Vector3& Z = column(2);
+
+    return 
         (G3D::fuzzyEq(X.dot(Y), 0.0f) &&
          G3D::fuzzyEq(Y.dot(Z), 0.0f) &&
          G3D::fuzzyEq(X.dot(Z), 0.0f) &&
@@ -66,8 +110,9 @@ bool Matrix3::isOrthonormal() const {
 //----------------------------------------------------------------------------
 Matrix3::Matrix3(const Quat& _q) {
     // Implementation from Watt and Watt, pg 362
-    // See also http://www.flipcode.com/documents/matrfaq.html#Q54
-    Quat q = _q.unitize();
+	// See also http://www.flipcode.com/documents/matrfaq.html#Q54
+    Quat q = _q;
+    q.unitize();
     float xx = 2.0f * q.x * q.x;
     float xy = 2.0f * q.x * q.y;
     float xz = 2.0f * q.x * q.z;
@@ -108,7 +153,7 @@ Matrix3::Matrix3(
 
 void Matrix3::set(
           float fEntry00, float fEntry01, float fEntry02,
-          float fEntry10, float fEntry11, float fEntry12,
+          float fEntry10, float fEntry11, float fEntry12, 
           float fEntry20, float fEntry21, float fEntry22) {
 
     elt[0][0] = fEntry00;
@@ -122,16 +167,40 @@ void Matrix3::set(
     elt[2][2] = fEntry22;
 }
 
+
+void Matrix3::deserialize(BinaryInput& b) {
+    int r,c;
+    for (c = 0; c < 3; ++c) {
+        for (r = 0; r < 3; ++r) {
+            elt[r][c] = b.readFloat32();
+        }
+    }
+}
+
+
+void Matrix3::serialize(BinaryOutput& b) const {
+    int r,c;
+    for (c = 0; c < 3; ++c) {
+        for (r = 0; r < 3; ++r) {
+            b.writeFloat32(elt[r][c]);
+        }
+    }
+}
+
+
 //----------------------------------------------------------------------------
-Vector3 Matrix3::getColumn (int iCol) const {
+Vector3 Matrix3::column (int iCol) const {
     assert((0 <= iCol) && (iCol < 3));
     return Vector3(elt[0][iCol], elt[1][iCol],
                    elt[2][iCol]);
 }
 
-Vector3 Matrix3::getRow (int iRow) const {
-    return Vector3(elt[iRow][0], elt[iRow][1], elt[iRow][2]);
+
+const Vector3& Matrix3::row (int iRow) const {
+    assert((0 <= iRow) && (iRow < 3));
+    return *reinterpret_cast<const Vector3*>(elt[iRow]);
 }
+
 
 void Matrix3::setColumn(int iCol, const Vector3 &vector) {
     debugAssert((iCol >= 0) && (iCol < 3));
@@ -140,12 +209,14 @@ void Matrix3::setColumn(int iCol, const Vector3 &vector) {
     elt[2][iCol] = vector.z;
 }
 
+
 void Matrix3::setRow(int iRow, const Vector3 &vector) {
     debugAssert((iRow >= 0) && (iRow < 3));
     elt[iRow][0] = vector.x;
     elt[iRow][1] = vector.y;
     elt[iRow][2] = vector.z;
 }
+
 
 //----------------------------------------------------------------------------
 bool Matrix3::operator== (const Matrix3& rkMatrix) const {
@@ -269,6 +340,21 @@ Matrix3 Matrix3::operator* (float fScalar) const {
     return kProd;
 }
 
+Matrix3& Matrix3::operator/= (float fScalar) {
+    return *this *= (1.0f / fScalar);
+}
+
+Matrix3& Matrix3::operator*= (float fScalar) {
+
+    for (int iRow = 0; iRow < 3; iRow++) {
+        for (int iCol = 0; iCol < 3; iCol++) {
+            elt[iRow][iCol] *= fScalar;
+        }
+    }
+
+    return *this;
+}
+
 //----------------------------------------------------------------------------
 Matrix3 operator* (double fScalar, const Matrix3& rkMatrix) {
     Matrix3 kProd;
@@ -285,6 +371,7 @@ Matrix3 operator* (double fScalar, const Matrix3& rkMatrix) {
 Matrix3 operator* (float fScalar, const Matrix3& rkMatrix) {
     return (double)fScalar * rkMatrix;
 }
+
 
 Matrix3 operator* (int fScalar, const Matrix3& rkMatrix) {
     return (double)fScalar * rkMatrix;
@@ -914,6 +1001,97 @@ void Matrix3::qDUDecomposition (Matrix3& kQ,
 }
 
 //----------------------------------------------------------------------------
+void Matrix3::polarDecomposition(Matrix3 &R, Matrix3 &S) const{
+    /*
+      Polar decomposition of a matrix. Based on pseudocode from
+      Nicholas J Higham, "Computing the Polar Decomposition -- with
+      Applications Siam Journal of Science and Statistical Computing, Vol 7, No. 4,
+      October 1986.
+
+      Decomposes A into R*S, where R is orthogonal and S is symmetric.
+
+      Ken Shoemake's "Matrix animation and polar decomposition"
+      in Proceedings of the conference on Graphics interface '92
+      seems to be better known in the world of graphics, but Higham's version
+      uses a scaling constant that can lead to faster convergence than
+      Shoemake's when the initial matrix is far from orthogonal.
+    */
+
+    Matrix3 X = *this;
+    Matrix3 tmp = X.inverse();
+    Matrix3 Xit = tmp.transpose();
+    int iter = 0;
+    
+    const int MAX_ITERS = 100;
+
+    const double eps = 50 * std::numeric_limits<float>::epsilon();
+    const float BigEps = 50 * eps;
+
+    /* Higham suggests using OneNorm(Xit-X) < eps * OneNorm(X)
+     * as the convergence criterion, but OneNorm(X) should quickly
+     * settle down to something between 1 and 1.7, so just comparing
+     * with eps seems sufficient.
+     *--------------------------------------------------------------- */
+
+    double resid = X.diffOneNorm(Xit);
+    while (resid > eps && iter < MAX_ITERS) {
+
+      tmp = X.inverse();
+      Xit = tmp.transpose();
+      
+      if (resid < BigEps) {
+	// close enough use simple iteration
+	X += Xit;
+	X *= 0.5f;
+      }
+      else {
+	// not close to convergence, compute acceleration factor
+        float gamma = sqrt( sqrt(
+                  (Xit.l1Norm()* Xit.lInfNorm())/(X.l1Norm()*X.lInfNorm()) ) );
+
+	X *= 0.5f * gamma;
+	tmp = Xit;
+	tmp *= 0.5f / gamma;
+	X += tmp;
+      }
+      
+      resid = X.diffOneNorm(Xit);
+      iter++;
+    }
+
+    R = X;
+    tmp = R.transpose();
+
+    S = tmp * (*this);
+
+    // S := (S + S^t)/2 one more time to make sure it is symmetric
+    tmp = S.transpose();
+
+    S += tmp;
+    S *= 0.5f;
+
+#ifdef G3D_DEBUG
+    // Check iter limit
+    assert(iter < MAX_ITERS);
+
+    // Check A = R*S
+    tmp = R*S;
+    resid = tmp.diffOneNorm(*this);
+    assert(resid < eps);
+
+    // Check R is orthogonal
+    tmp = R*R.transpose();
+    resid = tmp.diffOneNorm(Matrix3::identity());
+    assert(resid < eps);
+
+    // Check that S is symmetric
+    tmp = S.transpose();
+    resid = tmp.diffOneNorm(S);
+    assert(resid < eps);
+#endif
+}
+
+//----------------------------------------------------------------------------
 float Matrix3::maxCubicRoot (float afCoeff[3]) {
     // Spectral norm is for A^T*A, so characteristic polynomial
     // P(x) = c[0]+c[1]*x+c[2]*x^2+x^3 has three positive float roots.
@@ -1006,9 +1184,74 @@ float Matrix3::spectralNorm () const {
 }
 
 //----------------------------------------------------------------------------
+float Matrix3::squaredFrobeniusNorm() const {
+    float norm2 = 0;
+    const float* e = &elt[0][0];
+    
+    for (int i = 0; i < 9; ++i){
+      norm2 += (*e) * (*e);
+    }
+
+    return norm2;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::frobeniusNorm() const {
+    return sqrtf(squaredFrobeniusNorm());
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::l1Norm() const {
+    // The one norm of a matrix is the max column sum in absolute value.
+    float oneNorm = 0;
+    for (int c = 0; c < 3; ++c) {
+      
+      float f = fabs(elt[0][c])+ fabs(elt[1][c]) + fabs(elt[2][c]);
+      
+      if (f > oneNorm) {
+	oneNorm = f;
+      }
+    }
+    return oneNorm;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::lInfNorm() const {
+    // The infinity norm of a matrix is the max row sum in absolute value.
+    float infNorm = 0;
+
+    for (int r = 0; r < 3; ++r) {
+      
+      float f = fabs(elt[r][0]) + fabs(elt[r][1])+ fabs(elt[r][2]);
+      
+      if (f > infNorm) {
+	infNorm = f;
+      }
+    }
+    return infNorm;
+}
+
+//----------------------------------------------------------------------------
+float Matrix3::diffOneNorm(const Matrix3 &y) const{
+    float oneNorm = 0;
+    
+    for (int c = 0; c < 3; ++c){
+    
+      float f = fabs(elt[0][c] - y[0][c]) + fabs(elt[1][c] - y[1][c])
+	+ fabs(elt[2][c] - y[2][c]);
+      
+      if (f > oneNorm) {
+	oneNorm = f;
+      }
+    }
+    return oneNorm;
+}
+
+//----------------------------------------------------------------------------
 void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
+    // 
     // Let (x,y,z) be the unit-length axis and let A be an angle of rotation.
-    // The rotation matrix is R = I + sin(A)*P + (1-cos(A))*P^2 where
+    // The rotation matrix is R = I + sin(A)*P + (1-cos(A))*P^2 (Rodrigues' formula) where
     // I is the identity and
     //
     //       +-        -+
@@ -1030,11 +1273,11 @@ void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
     // it does not matter which sign you choose on the square roots.
 
     float fTrace = elt[0][0] + elt[1][1] + elt[2][2];
-    float fCos = 0.5 * (fTrace - 1.0);
+    float fCos = 0.5f * (fTrace - 1.0f);
     rfRadians = G3D::aCos(fCos);  // in [0,PI]
 
     if ( rfRadians > 0.0 ) {
-        if ( rfRadians < G3D_PI ) {
+        if ( rfRadians < pi() ) {
             rkAxis.x = elt[2][1] - elt[1][2];
             rkAxis.y = elt[0][2] - elt[2][0];
             rkAxis.z = elt[1][0] - elt[0][1];
@@ -1089,28 +1332,31 @@ void Matrix3::toAxisAngle (Vector3& rkAxis, float& rfRadians) const {
 }
 
 //----------------------------------------------------------------------------
-Matrix3 Matrix3::fromAxisAngle (const Vector3& rkAxis, float fRadians) {
-    Matrix3 m;
+Matrix3 Matrix3::fromAxisAngle (const Vector3& _axis, float fRadians) {
+    Vector3 axis = _axis.direction();
 
-    float fCos = cos(fRadians);
-    float fSin = sin(fRadians);
+    Matrix3 m;
+    float fCos  = cos(fRadians);
+    float fSin  = sin(fRadians);
     float fOneMinusCos = 1.0 - fCos;
-    float fX2 = rkAxis.x * rkAxis.x;
-    float fY2 = rkAxis.y * rkAxis.y;
-    float fZ2 = rkAxis.z * rkAxis.z;
-    float fXYM = rkAxis.x * rkAxis.y * fOneMinusCos;
-    float fXZM = rkAxis.x * rkAxis.z * fOneMinusCos;
-    float fYZM = rkAxis.y * rkAxis.z * fOneMinusCos;
-    float fXSin = rkAxis.x * fSin;
-    float fYSin = rkAxis.y * fSin;
-    float fZSin = rkAxis.z * fSin;
+    float fX2   = square(axis.x);
+    float fY2   = square(axis.y);
+    float fZ2   = square(axis.z);
+    float fXYM  = axis.x * axis.y * fOneMinusCos;
+    float fXZM  = axis.x * axis.z * fOneMinusCos;
+    float fYZM  = axis.y * axis.z * fOneMinusCos;
+    float fXSin = axis.x * fSin;
+    float fYSin = axis.y * fSin;
+    float fZSin = axis.z * fSin;
 
     m.elt[0][0] = fX2 * fOneMinusCos + fCos;
     m.elt[0][1] = fXYM - fZSin;
     m.elt[0][2] = fXZM + fYSin;
+
     m.elt[1][0] = fXYM + fZSin;
     m.elt[1][1] = fY2 * fOneMinusCos + fCos;
     m.elt[1][2] = fYZM - fXSin;
+
     m.elt[2][0] = fXZM - fYSin;
     m.elt[2][1] = fYZM + fXSin;
     m.elt[2][2] = fZ2 * fOneMinusCos + fCos;
@@ -1134,14 +1380,14 @@ bool Matrix3::toEulerAnglesXYZ (float& rfXAngle, float& rfYAngle,
         } else {
             // WARNING.  Not unique.  XA - ZA = -atan2(r10,r11)
             rfXAngle = -G3D::aTan2(elt[1][0], elt[1][1]);
-            rfYAngle = -(float)G3D_HALF_PI;
+            rfYAngle = -(float)halfPi();
             rfZAngle = 0.0f;
             return false;
         }
     } else {
         // WARNING.  Not unique.  XAngle + ZAngle = atan2(r10,r11)
         rfXAngle = G3D::aTan2(elt[1][0], elt[1][1]);
-        rfYAngle = (float)G3D_HALF_PI;
+        rfYAngle = (float)halfPi();
         rfZAngle = 0.0f;
         return false;
     }
@@ -1163,14 +1409,14 @@ bool Matrix3::toEulerAnglesXZY (float& rfXAngle, float& rfZAngle,
         } else {
             // WARNING.  Not unique.  XA - YA = atan2(r20,r22)
             rfXAngle = G3D::aTan2(elt[2][0], elt[2][2]);
-            rfZAngle = (float)G3D_HALF_PI;
+            rfZAngle = (float)halfPi();
             rfYAngle = 0.0;
             return false;
         }
     } else {
         // WARNING.  Not unique.  XA + YA = atan2(-r20,r22)
         rfXAngle = G3D::aTan2( -elt[2][0], elt[2][2]);
-        rfZAngle = -(float)G3D_HALF_PI;
+        rfZAngle = -(float)halfPi();
         rfYAngle = 0.0f;
         return false;
     }
@@ -1192,14 +1438,14 @@ bool Matrix3::toEulerAnglesYXZ (float& rfYAngle, float& rfXAngle,
         } else {
             // WARNING.  Not unique.  YA - ZA = atan2(r01,r00)
             rfYAngle = G3D::aTan2(elt[0][1], elt[0][0]);
-            rfXAngle = (float)G3D_HALF_PI;
+            rfXAngle = (float)halfPi();
             rfZAngle = 0.0;
             return false;
         }
     } else {
         // WARNING.  Not unique.  YA + ZA = atan2(-r01,r00)
         rfYAngle = G3D::aTan2( -elt[0][1], elt[0][0]);
-        rfXAngle = -(float)G3D_HALF_PI;
+        rfXAngle = -(float)halfPi();
         rfZAngle = 0.0f;
         return false;
     }
@@ -1221,14 +1467,14 @@ bool Matrix3::toEulerAnglesYZX (float& rfYAngle, float& rfZAngle,
         } else {
             // WARNING.  Not unique.  YA - XA = -atan2(r21,r22);
             rfYAngle = -G3D::aTan2(elt[2][1], elt[2][2]);
-            rfZAngle = -(float)G3D_HALF_PI;
+            rfZAngle = -(float)halfPi();
             rfXAngle = 0.0;
             return false;
         }
     } else {
         // WARNING.  Not unique.  YA + XA = atan2(r21,r22)
         rfYAngle = G3D::aTan2(elt[2][1], elt[2][2]);
-        rfZAngle = (float)G3D_HALF_PI;
+        rfZAngle = (float)halfPi();
         rfXAngle = 0.0f;
         return false;
     }
@@ -1250,14 +1496,14 @@ bool Matrix3::toEulerAnglesZXY (float& rfZAngle, float& rfXAngle,
         } else {
             // WARNING.  Not unique.  ZA - YA = -atan(r02,r00)
             rfZAngle = -G3D::aTan2(elt[0][2], elt[0][0]);
-            rfXAngle = -(float)G3D_HALF_PI;
+            rfXAngle = -(float)halfPi();
             rfYAngle = 0.0f;
             return false;
         }
     } else {
         // WARNING.  Not unique.  ZA + YA = atan2(r02,r00)
         rfZAngle = G3D::aTan2(elt[0][2], elt[0][0]);
-        rfXAngle = (float)G3D_HALF_PI;
+        rfXAngle = (float)halfPi();
         rfYAngle = 0.0f;
         return false;
     }
@@ -1279,14 +1525,14 @@ bool Matrix3::toEulerAnglesZYX (float& rfZAngle, float& rfYAngle,
         } else {
             // WARNING.  Not unique.  ZA - XA = -atan2(r01,r02)
             rfZAngle = -G3D::aTan2(elt[0][1], elt[0][2]);
-            rfYAngle = (float)G3D_HALF_PI;
+            rfYAngle = (float)halfPi();
             rfXAngle = 0.0f;
             return false;
         }
     } else {
         // WARNING.  Not unique.  ZA + XA = atan2(-r01,-r02)
         rfZAngle = G3D::aTan2( -elt[0][1], -elt[0][2]);
-        rfYAngle = -(float)G3D_HALF_PI;
+        rfYAngle = -(float)halfPi();
         rfXAngle = 0.0f;
         return false;
     }
@@ -1335,10 +1581,10 @@ Matrix3 Matrix3::fromEulerAnglesXZY (float fYAngle, float fPAngle,
 
 //----------------------------------------------------------------------------
 Matrix3 Matrix3::fromEulerAnglesYXZ(
-    float fYAngle,
+    float fYAngle, 
     float fPAngle,
     float fRAngle) {
-
+    
     float fCos, fSin;
 
     fCos = cos(fYAngle);
@@ -1358,7 +1604,7 @@ Matrix3 Matrix3::fromEulerAnglesYXZ(
 
 //----------------------------------------------------------------------------
 Matrix3 Matrix3::fromEulerAnglesYZX(
-    float fYAngle,
+    float fYAngle, 
     float fPAngle,
     float fRAngle) {
 
@@ -1600,9 +1846,9 @@ void Matrix3::tensorProduct (const Vector3& rkU, const Vector3& rkV,
 
 // Runs in 52 cycles on AMD, 76 cycles on Intel Centrino
 //
-// The loop unrolling is necessary for performance.
+// The loop unrolling is necessary for performance. 
 // I was unable to improve performance further by flattening the matrices
-// into float*'s instead of 2D arrays.
+// into float*'s instead of 2D arrays.  
 //
 // -morgan
 void Matrix3::_mul(const Matrix3& A, const Matrix3& B, Matrix3& out) {
@@ -1669,12 +1915,13 @@ void Matrix3::_transpose(const Matrix3& A, Matrix3& out) {
 
 //-----------------------------------------------------------------------------
 std::string Matrix3::toString() const {
-    return G3D::format("[%g, %g, %g; %g, %g, %g; %g, %g, %g]",
-            elt[0][0], elt[0][1], elt[0][2],
-            elt[1][0], elt[1][1], elt[1][2],
-            elt[2][0], elt[2][1], elt[2][2]);
+    return G3D::format("[%g, %g, %g; %g, %g, %g; %g, %g, %g]", 
+			elt[0][0], elt[0][1], elt[0][2],
+			elt[1][0], elt[1][1], elt[1][2],
+			elt[2][0], elt[2][1], elt[2][2]);
 }
 
-} // namespace
 
+
+} // namespace
 

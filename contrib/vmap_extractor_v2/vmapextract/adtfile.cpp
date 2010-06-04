@@ -1,6 +1,11 @@
 #include "adtfile.h"
 
 #include <algorithm>
+#include <cstdio>
+
+#ifdef WIN32
+#define snprintf _snprintf
+#endif
 
 char * GetPlainName(char * FileName)
 {
@@ -23,6 +28,9 @@ void fixnamen(char *name, size_t len)
             name[i] &= ~0x20;
         }
     }
+    //extension in lowercase
+    for(size_t i=len-3; i<len; i++)
+        name[i] |= 0x20;
 }
 
 void fixname2(char *name, size_t len)
@@ -39,12 +47,12 @@ ADTFile::ADTFile(char* filename): ADT(filename)
     Adtfilename.append(filename);
 }
 
-bool ADTFile::init(char *map_id)
+bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
 {
     if(ADT.isEof ())
         return false;
 
-    size_t size;
+    uint32 size;
 
     string xMap;
     string yMap;
@@ -56,17 +64,17 @@ bool ADTFile::init(char *map_id)
     yMap = TempMapNumber.substr(TempMapNumber.find_last_of("_")+1,(TempMapNumber.length()) - (TempMapNumber.find_last_of("_")));
     Adtfilename.erase((Adtfilename.length()-xMap.length()-yMap.length()-2), (xMap.length()+yMap.length()+2));
     string AdtMapNumber = xMap + ' ' + yMap + ' ' + GetPlainName((char*)Adtfilename.c_str());
-    printf("Processing map %s...\n", AdtMapNumber.c_str());
+    //printf("Processing map %s...\n", AdtMapNumber.c_str());
     //printf("MapNumber = %s\n", TempMapNumber.c_str());
     //printf("xMap = %s\n", xMap.c_str());
     //printf("yMap = %s\n", yMap.c_str());
 
-    const char dirname[] = "buildings\\dir";
+    const char dirname[] = "Buildings/dir_bin";
     FILE *dirfile;
     dirfile = fopen(dirname, "ab");
     if(!dirfile)
     {
-        printf("Can't open dirfile!'%s'\n");
+        printf("Can't open dirfile!'%s'\n", dirname);
         return false;
     }
 
@@ -116,15 +124,14 @@ bool ADTFile::init(char *map_id)
                     // >= 3.1.0 ADT MMDX section store filename.m2 filenames for corresponded .m2 file
                     // nothing do
 
-                    char szLocalFile[MAX_PATH];
-                    sprintf(szLocalFile, ".\\buildings\\%s", s);
+                    char szLocalFile[1024];
+                    snprintf(szLocalFile, 1024, "./Buildings/%s", s);
                     FILE * output = fopen(szLocalFile,"rb");
                     if(!output)
                     {
-                        Model * m2 = new Model(path);
-                        if(m2->open())
-                            m2->ConvertToVMAPModel(szLocalFile);
-                        delete m2;
+                        Model m2(path);
+                        if(m2.open())
+                            m2.ConvertToVMAPModel(szLocalFile);
                     }
                     else
                         fclose(output);
@@ -161,9 +168,9 @@ bool ADTFile::init(char *map_id)
                 nMDX = (int)size / 36;
                 for (int i=0; i<nMDX; ++i)
                 {
-                    int id;
+                    uint32 id;
                     ADT.read(&id, 4);
-                    ModelInstance inst(ADT,ModelInstansName[id].c_str(),map_id, dirfile);//!!!!!!!!!!!
+                    ModelInstance inst(ADT,ModelInstansName[id].c_str(), map_num, tileX, tileY, dirfile);
                 }
                 delete[] ModelInstansName;
             }
@@ -175,44 +182,14 @@ bool ADTFile::init(char *map_id)
                 nWMO = (int)size / 64;
                 for (int i=0; i<nWMO; ++i)
                 {
-                    int id;
+                    uint32 id;
                     ADT.read(&id, 4);
-                    WMOInstance inst(ADT,WmoInstansName[id].c_str(),map_id, dirfile);//!!!!!!!!!!!!!
+                    WMOInstance inst(ADT,WmoInstansName[id].c_str(), map_num, tileX, tileY, dirfile);
                 }
                 delete[] WmoInstansName;
             }
         }
         //======================
-#if 0
-        else if (!strcmp(fourcc,"MDDF"))
-        {
-            if (size)
-            {
-                nMDX = (int)size / 36;
-                for (int i=0; i<nMDX; ++i)
-                {
-                    int id;
-                    ADT.read(&id, 4);
-                    ModelInstance inst(ADT,ModelInstansName[id].c_str(),AdtMapNumber.c_str(), dirfile);
-                }
-                delete[] ModelInstansName;
-            }
-        }
-        else if (!strcmp(fourcc,"MODF"))
-        {
-            if (size)
-            {
-                nWMO = (int)size / 64;
-                for (int i=0; i<nWMO; ++i)
-                {
-                    int id;
-                    ADT.read(&id, 4);
-                    WMOInstance inst(ADT,WmoInstansName[id].c_str(),AdtMapNumber.c_str(), dirfile);
-                }
-                delete[] WmoInstansName;
-            }
-        }
-#endif
         ADT.seek(nextpos);
     }
     ADT.close();

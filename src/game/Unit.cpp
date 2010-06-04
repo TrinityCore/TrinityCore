@@ -4169,6 +4169,18 @@ void Unit::RemoveAurasByType(AuraType auraType, uint64 casterGUID, Aura * except
     }
 }
 
+void Unit::RemoveAurasWithAttribute(uint32 flags)
+{
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        SpellEntry const *spell = iter->second->GetBase()->GetSpellProto();
+        if (spell->Attributes & flags)
+            RemoveAura(iter);
+        else
+            ++iter;
+    }
+}
+
 void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
 {
     // single target auras from other casters

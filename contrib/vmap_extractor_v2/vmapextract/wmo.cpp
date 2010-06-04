@@ -1,10 +1,18 @@
-#define __STORMLIB_SELF__
 
+#include "vmapexport.h"
 #include "wmo.h"
-#include "Stormlib.h"
-#include "mpq.h"
+#include "vec3d.h"
+#include <cstdio>
+#include <cstdlib>
+#include <cassert>
+#include <map>
+#include <fstream>
+#undef min
+#undef max
+#include "mpq_libmpq04.h"
 
 using namespace std;
+extern uint16 *LiqType;
 
 WMORoot::WMORoot(std::string &filename) : filename(filename)
 {
@@ -19,10 +27,8 @@ bool WMORoot::open()
         return false;
     }
 
-    size_t size;
+    uint32 size;
     char fourcc[5];
-    bbcorn1[3] = 0;
-    bbcorn2[3]= 0;
 
     while (!f.isEof())
     {
@@ -44,9 +50,10 @@ bool WMORoot::open()
             f.read(&nDoodads, 4);
             f.read(&nDoodadSets, 4);
             f.read(&col, 4);
-            f.read(&RootID, 4);
+            f.read(&RootWMOID, 4);
             f.read(bbcorn1,12);
             f.read(bbcorn2,12);
+            f.read(&liquidType, 4);
             break;
         }
         /*
@@ -100,10 +107,11 @@ bool WMORoot::ConvertToVMAPRootWmo(FILE *pOutfile)
 {
     //printf("Convert RootWmo...\n");
 
-    fwrite("VMAP002",1,8,pOutfile);
+    fwrite("VMAP003",1,8,pOutfile);
     unsigned int nVectors = 0;
     fwrite(&nVectors,sizeof(nVectors),1,pOutfile); // will be filled later
     fwrite(&nGroups,4,1,pOutfile);
+    fwrite(&RootWMOID,4,1,pOutfile);
     return true;
 }
 
@@ -111,7 +119,8 @@ WMORoot::~WMORoot()
 {
 }
 
-WMOGroup::WMOGroup(std::string &filename) : filename(filename)
+WMOGroup::WMOGroup(std::string &filename) : filename(filename),
+        MOPY(0), MOVI(0), MoviEx(0), MOVT(0), MOBA(0), MobaEx(0), hlq(0), LiquEx(0), LiquBytes(0)
 {
 }
 
@@ -123,10 +132,8 @@ bool WMOGroup::open()
         printf("No such file.\n");
         return false;
     }
-    size_t size;
+    uint32 size;
     char fourcc[5];
-    bbcorn1[3] = 0;
-    bbcorn2[3] = 0;
     while (!f.isEof())
     {
         f.read(fourcc,4);
@@ -143,19 +150,20 @@ bool WMOGroup::open()
 
         if (!strcmp(fourcc,"MOGP"))//header
         {
-            f.seekRelative(-4);
-            f.read(&offsize, 4);
-            f.read(&flag, 4);
-            f.read(&flag1, 4);
-            f.read(&Xid, 4);
+            f.read(&groupName, 4);
+            f.read(&descGroupName, 4);
+            f.read(&mogpFlags, 4);
             f.read(bbcorn1, 12);
             f.read(bbcorn2, 12);
-            f.read(&Xid2, 4);
-            f.read(&Xid3, 4);
-            f.read(&zero1, 4);
-            f.read(&Xflag, 4);
-            f.read(&nTexture,4);
-            f.read(&GroupID,4);
+            f.read(&moprIdx, 2);
+            f.read(&moprNItems, 2);
+            f.read(&nBatchA, 2);
+            f.read(&nBatchB, 2);
+            f.read(&nBatchC, 4);
+            f.read(&fogIdx, 4);
+            f.read(&liquidType, 4);
+            f.read(&groupWMOID,4);
+
         }
         else if (!strcmp(fourcc,"MOPY"))
         {
@@ -190,26 +198,21 @@ bool WMOGroup::open()
         else if (!strcmp(fourcc,"MLIQ"))
         {
             liquflags |= 1;
-            WMOLiquidHeader hlq;
-            f.read(&hlq, 0x1E);
-            float ydir = -1.0f;
-            hlq_xverts = hlq.xverts;
-            hlq_yverts = hlq.yverts;
-            int noVer = hlq.xverts * hlq.yverts;
-            float tilesize  = CHUNKSIZE / 8.0f;
-            LiquEx_size = sizeof(float) * 3 * noVer;
-            LiquEx = new float[sizeof(float) * 3 * noVer];
-            int p = 0;
+            hlq = new WMOLiquidHeader;
+            f.read(hlq, 0x1E);
+            LiquEx_size = sizeof(WMOLiquidVert) * hlq->xverts * hlq->yverts;
+            LiquEx = new WMOLiquidVert[hlq->xverts * hlq->yverts];
+            f.read(LiquEx, LiquEx_size);
+            int nLiquBytes = hlq->xtiles * hlq->ytiles;
+            LiquBytes = new char[nLiquBytes];
+            f.read(LiquBytes, nLiquBytes);
 
-            for (int j=0; j<hlq.yverts; ++j)
-            {
-                for (int i=0; i<hlq.xverts; ++i)
-                {
-                    LiquEx[p++] = hlq.pos_x + tilesize * i;
-                    LiquEx[p++] = hlq.pos_z;
-                    LiquEx[p++] = ydir * (hlq.pos_y + tilesize * j);
-                }
-            }
+            /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
+            llog << filename;
+            llog << "\nbbox: " << bbcorn1[0] << ", " << bbcorn1[1] << ", " << bbcorn1[2] << " | " << bbcorn2[0] << ", " << bbcorn2[1] << ", " << bbcorn2[2];
+            llog << "\nlpos: " << hlq->pos_x << ", " << hlq->pos_y << ", " << hlq->pos_z;
+            llog << "\nx-/yvert: " << hlq->xverts << "/" << hlq->yverts << " size: " << size << " expected size: " << 30 + hlq->xverts*hlq->yverts*8 + hlq->xtiles*hlq->ytiles << std::endl;
+            llog.close(); */
         }
         f.seek((int)nextpos);
     }
@@ -217,11 +220,17 @@ bool WMOGroup::open()
     return true;
 }
 
-int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, bool pPreciseVectorData)
+int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool pPreciseVectorData)
 {
+    fwrite(&mogpFlags,sizeof(uint32),1,output);
+    fwrite(&groupWMOID,sizeof(uint32),1,output);
+    // group bound
+    fwrite(bbcorn1, sizeof(float), 3, output);
+    fwrite(bbcorn2, sizeof(float), 3, output);
+    fwrite(&liquflags,sizeof(uint32),1,output);
+    int nColTriangles = 0;
     if(pPreciseVectorData)
     {
-        fwrite(&liquflags,sizeof(uint32),1,output);
         char GRP[] = "GRP ";
         fwrite(GRP,1,4,output);
 
@@ -232,7 +241,6 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, bool pPreciseVectorData)
         {
             MobaEx[k++] = MOBA[i];
         }
-        delete [] MOBA;
         int moba_size_grp = moba_batch*4+4;
         fwrite(&moba_size_grp,4,1,output);
         fwrite(&moba_batch,4,1,output);
@@ -291,21 +299,10 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, bool pPreciseVectorData)
             }
         }
 
-        if(LiquEx_size != 0)
-        {
-            int LIQU_h[] = {0x5551494C,LiquEx_size+8,hlq_xverts,hlq_yverts};// "LIQU"
-            fwrite(LIQU_h,4,4,output);
-            fwrite(LiquEx,4,LiquEx_size/4,output);
-            delete [] LiquEx;
-        }
-
-        return nTriangles;
+        nColTriangles = nTriangles;
     }
     else
     {
-        //printf("Convert GroupWmo...\n");
-        //-------GRP -------------------------------------
-        fwrite(&liquflags,sizeof(uint32),1,output);
         char GRP[] = "GRP ";
         fwrite(GRP,1,4,output);
         int k = 0;
@@ -315,7 +312,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, bool pPreciseVectorData)
         {
             MobaEx[k++] = MOBA[i];
         }
-        delete [] MOBA;
+
         int moba_size_grp = moba_batch*4+4;
         fwrite(&moba_size_grp,4,1,output);
         fwrite(&moba_batch,4,1,output);
@@ -324,146 +321,106 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, bool pPreciseVectorData)
 
         //-------INDX------------------------------------
         //-------MOPY--------
-        int n = 0;
-        int j = 0;
-        MopyEx = new char[mopy_size];
-        IndexExTr = new int[mopy_size];
-        for (int i=0; i<mopy_size; i+=2)
+        MoviEx = new uint16[nTriangles*3]; // "worst case" size...
+        int *IndexRenum = new int[nVertices];
+        memset(IndexRenum, 0xFF, nVertices*sizeof(int));
+        for (int i=0; i<nTriangles; ++i)
         {
             // Skip no collision triangles
-            if ((int)MOPY[i]&WMO_MATERIAL_NO_COLLISION)
+            if (MOPY[2*i]&WMO_MATERIAL_NO_COLLISION ||
+              !(MOPY[2*i]&(WMO_MATERIAL_HINT|WMO_MATERIAL_COLLIDE_HIT)) )
                 continue;
-            // Use only this triangles
-            if ((int)MOPY[i]&(WMO_MATERIAL_HINT|WMO_MATERIAL_COLLIDE_HIT))
+            // Use this triangle
+            for (int j=0; j<3; ++j)
             {
-                MopyEx[n] = MOPY[i];
-                MopyEx[(n+1)] = MOPY[(i+1)];
-                IndexExTr[j] = i/2;
-                j+=1;
-                n+=2;
+                IndexRenum[MOVI[3*i + j]] = 1;
+                MoviEx[3*nColTriangles + j] = MOVI[3*i + j];
             }
-        }
-        MopyEx_size = n;
-        IndexExTr_size = j;
-        delete [] MOPY;
-        delete [] MopyEx;
-
-        //---------MOVI-----------
-        MoviEx = new uint16[IndexExTr_size*3];
-        int m = 0;
-        for (int i=0; i<IndexExTr_size; ++i)
-        {
-            int n = 0;
-            n = IndexExTr[i]*3;
-            for (int x=0; x<3; ++x)
-            {
-                MoviEx[m] = MOVI[n];
-                n++;
-                m++;
-            }
-        }
-        delete [] MOVI;
-
-        MoviExSort = new uint16[IndexExTr_size*3];
-        for(int y=0; y<IndexExTr_size*3; ++y)
-        {
-            MoviExSort[y]=MoviEx[y];
+            ++nColTriangles;
         }
 
-        uint16 hold;
-        for (int pass = 1; pass < IndexExTr_size*3; ++pass)
+        // assign new vertex index numbers
+        int nColVertices = 0;
+        for (uint32 i=0; i<nVertices; ++i)
         {
-            for (int i=0; i < IndexExTr_size*3-1; ++i)
+            if (IndexRenum[i] == 1)
             {
-                if (MoviExSort[i] > MoviExSort[i+1])
-                {
-                    hold = MoviExSort[i];
-                    MoviExSort[i] = MoviExSort[i+1];
-                    MoviExSort[i+1] = hold;
-                }
-                //double = 65535
-                else
-                    if (MoviExSort[i] == MoviExSort[i+1])
-                        MoviExSort[i+1] = 65535;
+                IndexRenum[i] = nColVertices;
+                ++nColVertices;
             }
-        }
-        // double delet
-        uint16 s = 0;
-        for (int i=0; i < IndexExTr_size*3; ++i)
-        {
-            if (MoviExSort[i]!=65535)
-            {
-                MoviExSort[s] = MoviExSort[i];
-                s++;
-            }
-        }
-        MovtExSort = new uint16[s];
-        for (int i=0; i < s; ++i)
-        {
-            MovtExSort[i] = MoviExSort[i];
         }
 
-        for (int i=0; i < IndexExTr_size*3; ++i)
+        // translate triangle indices to new numbers
+        for (int i=0; i<3*nColTriangles; ++i)
         {
-            uint16 b = MoviEx[i];
-            for (uint16 x = 0; x < s; ++x)
-            {
-                if(MoviExSort[x] == b)
-                {
-                    MoviEx[i] = x;
-                    break;
-                }
-            }
+            assert(MoviEx[i] < nVertices);
+            MoviEx[i] = IndexRenum[MoviEx[i]];
         }
-        int INDX[] = {0x58444E49,IndexExTr_size*6+4,IndexExTr_size*3};
+
+        // write triangle indices
+        int INDX[] = {0x58444E49, nColTriangles*6+4, nColTriangles*3};
         fwrite(INDX,4,3,output);
-        fwrite(MoviEx,2,IndexExTr_size*3,output);
+        fwrite(MoviEx,2,nColTriangles*3,output);
+
+        // write vertices
+        int VERT[] = {0x54524556, nColVertices*3*sizeof(float)+4, nColVertices};// "VERT"
+        int check = 3*nColVertices;
+        fwrite(VERT,4,3,output);
+        for (uint32 i=0; i<nVertices; ++i)
+            if(IndexRenum[i] >= 0)
+                check -= fwrite(MOVT+3*i, sizeof(float), 3, output);
+
+        assert(check==0);
 
         delete [] MoviEx;
-        delete [] MoviExSort;
-        delete [] IndexExTr;
-
-        //----------VERT---------
-        //-----MOVT----------
-        int d = 0;
-        MovtEx = new float[s*3];
-        for (uint16 i=0; i<s; ++i)
-        {
-            int c=0;//!!!!data in MovtExSort[i] more uint16 in great group wmo files!!!!
-            c = MovtExSort[i]*3;
-            for (int y=0; y<3; ++y)
-            {
-                MovtEx[d] = MOVT[c];
-                c++;
-                d++;
-            }
-        }
-        int VERT[] = {0x54524556,d*4+4,d*4/12};// "VERT"
-        fwrite(VERT,4,3,output);
-        fwrite(MovtEx,4,d,output);
-        //------LIQU------------------------
-        if(LiquEx_size != 0)
-        {
-            int LIQU_h[] = {0x5551494C,LiquEx_size+8,hlq_xverts,hlq_yverts};// "LIQU"
-            fwrite(LIQU_h,4,4,output);
-            fwrite(LiquEx,4,LiquEx_size/4,output);
-            delete [] LiquEx;
-        }
-
-        delete [] MOVT;
-        delete [] MovtEx;
-        delete [] MovtExSort;
-
-        //---------------------------------------------
-        return IndexExTr_size;
+        delete [] IndexRenum;
     }
+
+    //------LIQU------------------------
+    if(LiquEx_size != 0)
+    {
+        int LIQU_h[] = {0x5551494C, sizeof(WMOLiquidHeader) + LiquEx_size + hlq->xtiles*hlq->ytiles};// "LIQU"
+        fwrite(LIQU_h, 4, 2, output);
+
+        // according to WoW.Dev Wiki:
+        uint32 liquidEntry;
+        if (rootWMO->liquidType & 4)
+            liquidEntry = liquidType;
+        else if (liquidType == 15)
+            liquidEntry = 0;
+        else
+            liquidEntry = liquidType + 1;
+        // overwrite material type in header...
+        hlq->type = LiqType[liquidEntry];
+
+        /* std::ofstream llog("Buildings/liquid.log", ios_base::out | ios_base::app);
+        llog << filename;
+        llog << ":\nliquidEntry: " << liquidEntry << " type: " << hlq->type << " (root:" << rootWMO->liquidType << " group:" << liquidType << ")\n";
+        llog.close(); */
+
+        fwrite(hlq, sizeof(WMOLiquidHeader), 1, output);
+        // only need height values, the other values are unknown anyway
+        for (uint32 i = 0; i<LiquEx_size/sizeof(WMOLiquidVert); ++i)
+            fwrite(&LiquEx[i].height, sizeof(float), 1, output);
+        // todo: compress to bit field
+        fwrite(LiquBytes, 1, hlq->xtiles*hlq->ytiles, output);
+    }
+
+    return nColTriangles;
 }
 
 WMOGroup::~WMOGroup()
 {
+    delete [] MOPY;
+    delete [] MOVI;
+    delete [] MOVT;
+    delete [] MOBA;
+    delete hlq;
+    delete [] LiquEx;
+    delete [] LiquBytes;
 }
 
-WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName,const char*MapName, FILE *pDirfile)
+WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
 {
     pos = Vec3D(0,0,0);
 
@@ -478,35 +435,23 @@ WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName,const char*MapName, 
     f.read(ff,12);
     pos3 = Vec3D(ff[0],ff[1],ff[2]);
     f.read(&d2,4);
-    f.read(&d3,4);
 
-    doodadset = (d2 & 0xFFFF0000) >> 16;
-
-    int realx1 = (int) ((float) pos2.x / 533.333333f);
-    int realy1 = (int) ((float) pos2.z / 533.333333f);
-    int realx2 = (int) ((float) pos3.x / 533.333333f);
-    int realy2 = (int) ((float) pos3.z / 533.333333f);
-
-    if(realx1 < 0)
-    {
-        realx1 +=20; realx2+=20;
-    }
-    if(realy1 < 0)
-    {
-        realy1 +=20; realy2+=20;
-    } // hack to prevent neg. values
+    uint16 trash,adtId;
+    f.read(&adtId,2);
+    f.read(&trash,2);
 
     //-----------add_in _dir_file----------------
 
     char tempname[512];
-    //    const char dirname[] = "buildings\\dir";
-
-    sprintf(tempname, "buildings\\%s", WmoInstName);
+    sprintf(tempname, "Buildings/%s", WmoInstName);
     FILE *input;
     input = fopen(tempname, "r+b");
 
     if(!input)
+    {
+        printf("WMOInstance::WMOInstance: couldn't open %s\n", tempname);
         return;
+    }
 
     fseek(input, 8, SEEK_SET); // get the correct no of vertices
     int nVertices;
@@ -516,24 +461,38 @@ WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName,const char*MapName, 
     if(nVertices == 0)
         return;
 
-    /*    FILE *dirfile;
-    dirfile = fopen(dirname, "ab");
-    if(!dirfile)
-    {
-    printf("Can't open dirfile!'%s'\n");
-    return;
-    }
-    */
     float x,z;
     x = pos.x;
     z = pos.z;
     if(x==0 && z == 0)
     {
-        x = 533.33333f*32;
-        z = 533.33333f*32;
+        pos.x = 533.33333f*32;
+        pos.z = 533.33333f*32;
     }
+    pos = fixCoords(pos);
+    pos2 = fixCoords(pos2);
+    pos3 = fixCoords(pos3);
 
-    fprintf(pDirfile,"%s/%s %f,%f,%f_%f,%f,%f 1.0 %d %d %d,%d %d\n",
+    float scale = 1.0f;
+    uint32 flags = MOD_HAS_BOUND;
+    if(tileX == 65 && tileY == 65) flags |= MOD_WORLDSPAWN;
+    //write mapID, tileX, tileY, Flags, ID, Pos, Rot, Scale, Bound_lo, Bound_hi, name
+    fwrite(&mapID, sizeof(uint32), 1, pDirfile);
+    fwrite(&tileX, sizeof(uint32), 1, pDirfile);
+    fwrite(&tileY, sizeof(uint32), 1, pDirfile);
+    fwrite(&flags, sizeof(uint32), 1, pDirfile);
+    fwrite(&adtId, sizeof(uint16), 1, pDirfile);
+    fwrite(&id, sizeof(uint32), 1, pDirfile);
+    fwrite(&pos, sizeof(float), 3, pDirfile);
+    fwrite(&rot, sizeof(float), 3, pDirfile);
+    fwrite(&scale, sizeof(float), 1, pDirfile);
+    fwrite(&pos2, sizeof(float), 3, pDirfile);
+    fwrite(&pos3, sizeof(float), 3, pDirfile);
+    uint32 nlen=strlen(WmoInstName);
+    fwrite(&nlen, sizeof(uint32), 1, pDirfile);
+    fwrite(WmoInstName, sizeof(char), nlen, pDirfile);
+
+    /* fprintf(pDirfile,"%s/%s %f,%f,%f_%f,%f,%f 1.0 %d %d %d,%d %d\n",
         MapName,
         WmoInstName,
         (float) x, (float) pos.y, (float) z,
@@ -541,7 +500,7 @@ WMOInstance::WMOInstance(MPQFile &f,const char* WmoInstName,const char*MapName, 
         nVertices,
         realx1, realy1,
         realx2, realy2
-        );
+        ); */
 
     // fclose(dirfile);
 }

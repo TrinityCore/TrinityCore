@@ -4,21 +4,12 @@
  @author Morgan McGuire, graphics3d.com
 
  @created 2000-09-09
- @edited  2006-04-30
+ @edited  2006-08-14
 */
 
 #include "G3D/format.h"
 #include "G3D/platform.h"
 #include "G3D/System.h"
-
-#ifdef G3D_WIN32
-    #include <math.h>
-    #define vsnprintf _vsnprintf
-    #define NEWLINE "\r\n"
-#else
-    #include <stdarg.h>
-    #define NEWLINE "\n"
-#endif
 
 #ifdef _MSC_VER
     // disable: "C++ exception handler used"
@@ -31,7 +22,7 @@
 
 namespace G3D {
 
-std::string format(const char* fmt,...) {
+std::string __cdecl format(const char* fmt,...) {
     va_list argList;
     va_start(argList,fmt);
     std::string result = vformat(fmt, argList);
@@ -40,10 +31,10 @@ std::string format(const char* fmt,...) {
     return result;
 }
 
-#if defined(G3D_WIN32) && (_MSC_VER >= 1300)
-// Both MSVC6 and 7 seem to use the non-standard vsnprintf
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+// Both MSVC seems to use the non-standard vsnprintf
 // so we are using vscprintf to determine buffer size, however
-// only MSVC7 headers include vscprintf for some reason.
+// only MSVC7 and up headers include vscprintf for some reason.
 std::string vformat(const char *fmt, va_list argPtr) {
     // We draw the line at a 1MB string.
     const int maxSize = 1000000;
@@ -52,8 +43,9 @@ std::string vformat(const char *fmt, va_list argPtr) {
     // allocate it on the stack because this saves
     // the malloc/free time.
     const int bufSize = 161;
-    char stackBuffer[bufSize];
+	char stackBuffer[bufSize];
 
+    // MSVC does not support va_copy
     int actualSize = _vscprintf(fmt, argPtr) + 1;
 
     if (actualSize > bufSize) {
@@ -64,11 +56,11 @@ std::string vformat(const char *fmt, va_list argPtr) {
         if (actualSize < maxSize) {
 
             heapBuffer = (char*)System::malloc(maxSize + 1);
-            vsnprintf(heapBuffer, maxSize, fmt, argPtr);
+            _vsnprintf(heapBuffer, maxSize, fmt, argPtr);
             heapBuffer[maxSize] = '\0';
         } else {
             heapBuffer = (char*)System::malloc(actualSize);
-            vsprintf(heapBuffer, fmt, argPtr);
+            vsprintf(heapBuffer, fmt, argPtr);            
         }
 
         std::string formattedString(heapBuffer);
@@ -81,7 +73,7 @@ std::string vformat(const char *fmt, va_list argPtr) {
     }
 }
 
-#elif defined(G3D_WIN32) && (_MSC_VER < 1300)
+#elif defined(_MSC_VER) && (_MSC_VER < 1300)
 
 std::string vformat(const char *fmt, va_list argPtr) {
     // We draw the line at a 1MB string.
@@ -91,9 +83,12 @@ std::string vformat(const char *fmt, va_list argPtr) {
     // allocate it on the stack because this saves
     // the malloc/free time.
     const int bufSize = 161;
-    char stackBuffer[bufSize];
+	char stackBuffer[bufSize];
 
-    int actualWritten = vsnprintf(stackBuffer, bufSize, fmt, argPtr);
+	// MSVC6 doesn't support va_copy, however it also seems to compile
+	// correctly if we just pass our argument list along.  Note that 
+	// this whole code block is only compiled if we're on MSVC6 anyway
+	int actualWritten = _vsnprintf(stackBuffer, bufSize, fmt, argPtr);
 
     // Not a big enough buffer, bufSize characters written
     if (actualWritten == -1) {
@@ -101,8 +96,8 @@ std::string vformat(const char *fmt, va_list argPtr) {
         int heapSize = 512;
         double powSize = 1.0;
         char* heapBuffer = (char*)System::malloc(heapSize);
-
-        while ((vsnprintf(heapBuffer, heapSize, fmt, argPtr) == -1) &&
+        
+        while ((_vsnprintf(heapBuffer, heapSize, fmt, argPtr) == -1) &&
             (heapSize  < maxSize)) {
 
             heapSize = iCeil(heapSize * ::pow((double)2.0, powSize++));
@@ -133,18 +128,22 @@ std::string vformat(const char* fmt, va_list argPtr) {
     const int bufSize = 161;
     char stackBuffer[bufSize];
 
-    int numChars = vsnprintf(stackBuffer, bufSize, fmt, argPtr);
+    va_list argPtrCopy;
+    va_copy(argPtrCopy, argPtr);
+    int numChars = vsnprintf(stackBuffer, bufSize, fmt, argPtrCopy);
+    va_end(argPtrCopy);
 
     if (numChars >= bufSize) {
       // We didn't allocate a big enough string.
       char* heapBuffer = (char*)System::malloc((numChars + 1) * sizeof(char));
 
-      assert(heapBuffer);
+      debugAssert(heapBuffer);
       int numChars2 = vsnprintf(heapBuffer, numChars + 1, fmt, argPtr);
-      assert(numChars2 == numChars);
+      debugAssert(numChars2 == numChars);
+      (void)numChars2;
 
       std::string result(heapBuffer);
-
+      
       System::free(heapBuffer);
 
       return result;
@@ -160,13 +159,6 @@ std::string vformat(const char* fmt, va_list argPtr) {
 
 } // namespace
 
-#ifdef G3D_WIN32
-#   undef vsnprintf
-#endif
-
 #ifdef _MSC_VER
 #   pragma warning (pop)
 #endif
-
-#undef NEWLINE
-

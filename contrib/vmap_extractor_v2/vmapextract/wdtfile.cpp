@@ -2,6 +2,7 @@
 
 #include "wdtfile.h"
 #include "adtfile.h"
+#include <cstdio>
 
 char * wdtGetPlainName(char * FileName)
 {
@@ -17,7 +18,7 @@ WDTFile::WDTFile(char* file_name, char* file_name1):WDT(file_name)
     filename.append(file_name1,strlen(file_name1));
 }
 
-bool WDTFile::init(char *map_id)
+bool WDTFile::init(char *map_id, unsigned int mapID)
 {
     if (WDT.isEof())
     {
@@ -26,14 +27,14 @@ bool WDTFile::init(char *map_id)
     }
 
     char fourcc[5];
-    size_t size;
+    uint32 size;
 
-    const char dirname[] = "buildings\\dir";
+    const char dirname[] = "Buildings/dir_bin";
     FILE *dirfile;
     dirfile = fopen(dirname, "ab");
     if(!dirfile)
     {
-        printf("Can't open dirfile!'%s'\n");
+        printf("Can't open dirfile!'%s'\n", dirname);
         return false;
     }
 
@@ -86,7 +87,7 @@ bool WDTFile::init(char *map_id)
                 {
                     int id;
                     WDT.read(&id, 4);
-                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(),gWMO_mapname.c_str(), dirfile);
+                    WMOInstance inst(WDT,gWmoInstansName[id].c_str(),mapID, 65, 65, dirfile);
                 }
                 delete[] gWmoInstansName;
             }

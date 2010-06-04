@@ -1,23 +1,74 @@
 /**
  @file Vector4.cpp
-
- @maintainer Morgan McGuire, matrix@graphics3d.com
-
+ 
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+  
  @created 2001-07-09
- @edited  2003-09-29
+ @edited  2009-11-29
  */
 
 #include <stdlib.h>
 #include <limits>
 #include "G3D/Vector4.h"
-//#include "G3D/Color4.h"
+#include "G3D/Color4.h"
 #include "G3D/g3dmath.h"
-#include "G3D/format.h"
 #include "G3D/stringutils.h"
+#include "G3D/BinaryInput.h"
+#include "G3D/BinaryOutput.h"
+#include "G3D/Vector4int8.h"
+#include "G3D/Matrix4.h"
+#include "G3D/Any.h"
 
 namespace G3D {
 
-unsigned int Vector4::hashCode() const {
+Vector4::Vector4(const Any& any) {
+    any.verifyName("Vector4");
+    any.verifyType(Any::TABLE, Any::ARRAY);
+    any.verifySize(4);
+
+    if (any.type() == Any::ARRAY) {
+        x = any[0];
+        y = any[1];
+        z = any[2];
+        w = any[3];
+    } else {
+        // Table
+        x = any["x"];
+        y = any["y"];
+        z = any["z"];
+        w = any["w"];
+    }
+}
+
+Vector4::operator Any() const {
+    Any any(Any::ARRAY, "Vector4");
+    any.append(x, y, z, w);
+    return any;
+}
+
+
+Vector4::Vector4(const Vector4int8& v) : x(v.x / 127.0f), y(v.y / 127.0f), z(v.z / 127.0f), w(v.w / 127.0f) {
+}
+
+
+const Vector4& Vector4::inf() { 
+    static const Vector4 v((float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf(), (float)G3D::finf()); 
+    return v; 
+}
+
+
+const Vector4& Vector4::zero() { 
+    static const Vector4 v(0,0,0,0); 
+    return v;
+}
+
+const Vector4& Vector4::nan() { 
+    static Vector4 v((float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan(), (float)G3D::fnan()); 
+    return v; 
+}
+
+
+size_t Vector4::hashCode() const {
     unsigned int xhash = (*(int*)(void*)(&x));
     unsigned int yhash = (*(int*)(void*)(&y));
     unsigned int zhash = (*(int*)(void*)(&z));
@@ -26,14 +77,14 @@ unsigned int Vector4::hashCode() const {
     return xhash + (yhash * 37) + (zhash * 101) + (whash * 241);
 }
 
-#if 0
+
 Vector4::Vector4(const class Color4& c) {
     x = c.r;
     y = c.g;
     z = c.b;
     w = c.a;
 }
-#endif
+
 
 Vector4::Vector4(const Vector2& v1, const Vector2& v2) {
     x = v1.x;
@@ -42,6 +93,7 @@ Vector4::Vector4(const Vector2& v1, const Vector2& v2) {
     w = v2.y;
 }
 
+
 Vector4::Vector4(const Vector2& v1, float fz, float fw) {
     x = v1.x;
     y = v1.y;
@@ -49,13 +101,45 @@ Vector4::Vector4(const Vector2& v1, float fz, float fw) {
     w = fw;
 }
 
+Vector4::Vector4(BinaryInput& b) {
+    deserialize(b);
+}
+
+
+void Vector4::deserialize(BinaryInput& b) {
+    x = b.readFloat32();
+    y = b.readFloat32();
+    z = b.readFloat32();
+    w = b.readFloat32();
+}
+
+
+void Vector4::serialize(BinaryOutput& b) const {
+    b.writeFloat32(x);
+    b.writeFloat32(y);
+    b.writeFloat32(z);
+    b.writeFloat32(w);
+}
+
 //----------------------------------------------------------------------------
+
+Vector4 Vector4::operator*(const Matrix4& M) const {
+    Vector4 result;
+    for (int i = 0; i < 4; ++i) {
+        result[i] = 0.0f;
+        for (int j = 0; j < 4; ++j) {
+            result[i] += (*this)[j] * M[j][i];
+        }
+    }
+    return result;
+}
+
 
 Vector4 Vector4::operator/ (float fScalar) const {
     Vector4 kQuot;
 
     if ( fScalar != 0.0 ) {
-        float fInvScalar = 1.0f / fScalar;
+		float fInvScalar = 1.0f / fScalar;
         kQuot.x = fInvScalar * x;
         kQuot.y = fInvScalar * y;
         kQuot.z = fInvScalar * z;
@@ -69,17 +153,18 @@ Vector4 Vector4::operator/ (float fScalar) const {
 //----------------------------------------------------------------------------
 Vector4& Vector4::operator/= (float fScalar) {
     if (fScalar != 0.0f) {
-        float fInvScalar = 1.0f / fScalar;
+		float fInvScalar = 1.0f / fScalar;
         x *= fInvScalar;
         y *= fInvScalar;
         z *= fInvScalar;
         w *= fInvScalar;
     } else {
-        *this = Vector4::inf();
+		*this = Vector4::inf();
     }
 
     return *this;
 }
+
 
 //----------------------------------------------------------------------------
 
@@ -431,5 +516,5 @@ Vector4 Vector4::ywww() const  { return Vector4       (y, w, w, w); }
 Vector4 Vector4::zwww() const  { return Vector4       (z, w, w, w); }
 Vector4 Vector4::wwww() const  { return Vector4       (w, w, w, w); }
 
-}; // namespace
 
+}; // namespace

@@ -3,7 +3,7 @@
 
  Plane class
 
- @maintainer Morgan McGuire, matrix@graphics3d.com
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
 
  @created 2001-06-02
  @edited  2004-07-18
@@ -15,6 +15,7 @@
 #include "G3D/platform.h"
 #include "G3D/Vector3.h"
 #include "G3D/Vector4.h"
+#include "G3D/debugAssert.h"
 
 namespace G3D {
 
@@ -25,8 +26,8 @@ class Plane {
 private:
 
     /** normal.Dot(x,y,z) = distance */
-    Vector3                     _normal;
-    float                       _distance;
+    Vector3						_normal;
+    float						_distance;
 
     /**
      Assumes the normal has unit length.
@@ -65,10 +66,14 @@ public:
 
     static Plane fromEquation(float a, float b, float c, float d);
 
+	Plane(class BinaryInput& b);
+	void serialize(class BinaryOutput& b) const;
+	void deserialize(class BinaryInput& b);
+
     virtual ~Plane() {}
 
     /**
-     Returns true if point is on the side the normal points to or
+     Returns true if point is on the side the normal points to or 
      is in the plane.
      */
     inline bool halfSpaceContains(Vector3 point) const {
@@ -81,7 +86,7 @@ public:
     }
 
     /**
-     Returns true if point is on the side the normal points to or
+     Returns true if point is on the side the normal points to or 
      is in the plane.
      */
     inline bool halfSpaceContains(const Vector4& point) const {
@@ -93,7 +98,7 @@ public:
     }
 
     /**
-     Returns true if point is on the side the normal points to or
+     Returns true if point is on the side the normal points to or 
      is in the plane.  Only call on finite points.  Faster than halfSpaceContains.
      */
     inline bool halfSpaceContainsFinite(const Vector3& point) const {
@@ -108,9 +113,9 @@ public:
         return fuzzyEq(point.dot(_normal), _distance);
     }
 
-    inline const Vector3& normal() const {
-        return _normal;
-    }
+	inline const Vector3& normal() const {
+		return _normal;
+	}
 
     /**
       Returns distance from point to plane. Distance is negative if point is behind (not in plane in direction opposite normal) the plane.
@@ -154,4 +159,3 @@ public:
 } // namespace
 
 #endif
-

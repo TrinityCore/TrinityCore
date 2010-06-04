@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmapExtractor3", "VC100\vmapExtractor3.vcxproj", "{D4624B20-AC1E-4EE9-8C9C-0FB65EEE3393}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D4624B20-AC1E-4EE9-8C9C-0FB65EEE3393}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D4624B20-AC1E-4EE9-8C9C-0FB65EEE3393}.Debug|Win32.Build.0 = Debug|Win32
+		{D4624B20-AC1E-4EE9-8C9C-0FB65EEE3393}.Release|Win32.ActiveCfg = Release|Win32
+		{D4624B20-AC1E-4EE9-8C9C-0FB65EEE3393}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
