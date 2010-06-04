@@ -1845,7 +1845,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSemaphoreTeleportFar(bool semphsetting) { mSemaphoreTeleport_Far = semphsetting; }
         void ProcessDelayedOperations();
 
-        void CheckExploreSystem(void);
+        void CheckAreaExploreAndOutdoor(void);
 
         static uint32 TeamForRace(uint8 race);
         uint32 GetTeam() const { return m_team; }

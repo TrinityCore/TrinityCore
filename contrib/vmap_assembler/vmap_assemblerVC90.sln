@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual C++ Express 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap_assembler", "VC90\vmap_assembler.vcproj", "{572FFF74-480C-4472-8ABF-81733BB4049D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2} = {8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E} = {8072769E-CF10-48BF-B9E1-12752A5DAC6E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "..\..\win\VC90\zlib.vcproj", "{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3dlite", "..\..\win\VC90\g3dlite.vcproj", "{8072769E-CF10-48BF-B9E1-12752A5DAC6E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_NoPCH|Win32 = Debug_NoPCH|Win32
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug_NoPCH|Win32.ActiveCfg = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug_NoPCH|Win32.Build.0 = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.Build.0 = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.ActiveCfg = Release|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.Build.0 = Release|Win32
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}.Debug_NoPCH|Win32.ActiveCfg = Debug_NoPCH|Win32
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}.Debug_NoPCH|Win32.Build.0 = Debug_NoPCH|Win32
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}.Debug|Win32.Build.0 = Debug|Win32
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}.Release|Win32.ActiveCfg = Release|Win32
+		{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}.Release|Win32.Build.0 = Release|Win32
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug_NoPCH|Win32.ActiveCfg = Debug_NoPCH|Win32
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug_NoPCH|Win32.Build.0 = Debug_NoPCH|Win32
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug|Win32.Build.0 = Debug|Win32
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Release|Win32.ActiveCfg = Release|Win32
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

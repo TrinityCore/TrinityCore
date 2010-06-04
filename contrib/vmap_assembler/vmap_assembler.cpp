@@ -54,7 +54,7 @@ File contains map names that should be split into tiles
 A '#' at the beginning of a line defines a comment
 */
 
-bool readConfigFile(char *pConffile, VMAP::TileAssembler* pTa)
+/* bool readConfigFile(char *pConffile, VMAP::TileAssembler* pTa)
 {
     bool result = false;
     char buffer[501];
@@ -74,7 +74,7 @@ bool readConfigFile(char *pConffile, VMAP::TileAssembler* pTa)
         result = true;
     }
     return(result);
-}
+} */
 //=======================================================
 int main(int argc, char* argv[])
 {
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     All the names in the list are considered to be world maps or huge instances.
     These maps will be spilt into tiles in the vmap assemble process
     */
-    if(conffile != NULL)
+    /* if(conffile != NULL)
     {
         if(!readConfigFile(conffile, ta))
         {
@@ -105,9 +105,9 @@ int main(int argc, char* argv[])
             delete ta;
             return 1;
         }
-    }
+    } */
 
-    if(!ta->convertWorld())
+    if(!ta->convertWorld2())
     {
         printf("exit with errors\n");
         delete ta;
@@ -118,4 +118,3 @@ int main(int argc, char* argv[])
     printf("Ok, all done\n");
     return 0;
 }
-

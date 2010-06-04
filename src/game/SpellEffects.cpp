@@ -50,10 +50,10 @@
 #include "BattleGroundEY.h"
 #include "BattleGroundWS.h"
 #include "OutdoorPvPMgr.h"
-#include "VMapFactory.h"
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
+#include "VMapFactory.h"
 #include "TemporarySummon.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -7309,13 +7309,8 @@ void Spell::EffectTransmitted(uint32 effIndex)
     Map *cMap = m_caster->GetMap();
     if (goinfo->type == GAMEOBJECT_TYPE_FISHINGNODE)
     {
-        //dirty way to hack serpent shrine pool
-        if (cMap->GetId() == 548 && m_caster->GetDistance(36.69, -416.38, -19.9645) <= 16)//center of strange pool
-        {
-            fx = 36.69+irand(-8,8);//random place for the bobber
-            fy = -416.38+irand(-8,8);
-            fz = -19.9645;//serpentshrine water level
-        }else if (!cMap->IsInWater(fx, fy, fz-0.5f, 0.5f))             // Hack to prevent fishing bobber from failing to land on fishing hole
+        LiquidData liqData;
+        if ( !cMap->IsInWater(fx, fy, fz + 1.f/* -0.5f */, &liqData))             // Hack to prevent fishing bobber from failing to land on fishing hole
         { // but this is not proper, we really need to ignore not materialized objects
             SendCastResult(SPELL_FAILED_NOT_HERE);
             SendChannelUpdate(0);
@@ -7323,8 +7318,8 @@ void Spell::EffectTransmitted(uint32 effIndex)
         }
 
         // replace by water level in this case
-        if (cMap->GetId() != 548)//if map is not serpentshrine caverns
-            fz = cMap->GetWaterLevel(fx, fy);
+        //fz = cMap->GetWaterLevel(fx, fy);
+        fz = liqData.level;
     }
     // if gameobject is summoning object, it should be spawned right on caster's position
     else if (goinfo->type == GAMEOBJECT_TYPE_SUMMONING_RITUAL)

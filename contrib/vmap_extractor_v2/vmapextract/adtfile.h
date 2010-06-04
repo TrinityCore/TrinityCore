@@ -1,19 +1,13 @@
 #ifndef ADT_H
 #define ADT_H
 
-#include "mpq.h"
+#include "mpq_libmpq04.h"
 #include "wmo.h"
 #include "model.h"
-
-#define __STORMLIB_SELF__
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
 #define UNITSIZE (CHUNKSIZE / 8.0f)
-
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
 
 class Liquid;
 
@@ -104,7 +98,7 @@ public:
     int nMDX;
     string* WmoInstansName;
     string* ModelInstansName;
-    bool init(char *map_id);
+    bool init(uint32 map_num, uint32 tileX, uint32 tileY);
     //void LoadMapChunks();
 
     //uint32 wmo_count;

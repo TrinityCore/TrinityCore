@@ -4404,6 +4404,17 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (bg->GetStatus() == STATUS_WAIT_LEAVE)
                 return SPELL_FAILED_DONT_REPORT;
 
+    if(m_caster->GetTypeId() == TYPEID_PLAYER && VMAP::VMapFactory::createOrGetVMapManager()->isLineOfSightCalcEnabled())
+    {
+        if(m_spellInfo->Attributes & SPELL_ATTR_OUTDOORS_ONLY &&
+                !m_caster->GetMap()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
+            return SPELL_FAILED_ONLY_OUTDOORS;
+
+        if(m_spellInfo->Attributes & SPELL_ATTR_INDOORS_ONLY &&
+                m_caster->GetMap()->IsOutdoors(m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ()))
+            return SPELL_FAILED_ONLY_INDOORS;
+    }
+
     // only check at first call, Stealth auras are already removed at second call
     // for now, ignore triggered spells
     if (strict && !m_IsTriggeredSpell)
@@ -5248,7 +5259,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     {
                         float x, y, z;
                         m_caster->GetPosition(x, y, z);
-                        float ground_Z = m_caster->GetMap()->GetVmapHeight(x, y, z);
+                        float ground_Z = m_caster->GetMap()->GetHeight(x, y, z);
                         if (fabs(ground_Z - z) < 0.1f)
                             return SPELL_FAILED_DONT_REPORT;
                         break;

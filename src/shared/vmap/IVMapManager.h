@@ -1,7 +1,5 @@
 /*
- * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,19 +8,19 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 #ifndef _IVMAPMANAGER_H
 #define _IVMAPMANAGER_H
 
 #include<string>
-#include "VMapDefinitions.h"
+#include <Platform/Define.h>
 
 //===========================================================
 
@@ -63,7 +61,7 @@ namespace VMAP
             virtual void unloadMap(unsigned int pMapId) = 0;
 
             virtual bool isInLineOfSight(unsigned int pMapId, float x1, float y1, float z1, float x2, float y2, float z2) = 0;
-            virtual float getHeight(unsigned int pMapId, float x, float y, float z, float ray_lenght = MAX_CAN_FALL_DISTANCE) = 0;
+            virtual float getHeight(unsigned int pMapId, float x, float y, float z) = 0;
             /**
             test if we hit an object. return true if we hit one. rx,ry,rz will hold the hit position or the dest position, if no intersection was found
             return a position, that is pReduceDist closer to the origin
@@ -96,8 +94,13 @@ namespace VMAP
             e.g.: "0,1,530"
             */
             virtual void preventMapsFromBeingUsed(const char* pMapIdString) =0;
+            /**
+            Query world model area info.
+            \param z gets adjusted to the ground height for which this are info is valid
+            */
+            virtual bool getAreaInfo(unsigned int pMapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const=0;
+            virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const=0;
     };
 
 }
 #endif
-

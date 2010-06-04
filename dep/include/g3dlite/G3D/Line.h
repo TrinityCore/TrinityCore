@@ -1,10 +1,10 @@
 /**
  @file Line.h
-
+ 
  Line class
-
- @maintainer Morgan McGuire, matrix@graphics3d.com
-
+ 
+ @maintainer Morgan McGuire, http://graphics.cs.williams.edu
+ 
  @created 2001-06-02
  @edited  2006-02-28
  */
@@ -37,6 +37,12 @@ public:
 
     /** Undefined (provided for creating Array<Line> only) */
     inline Line() {}
+
+	Line(class BinaryInput& b);
+
+	void serialize(class BinaryOutput& b) const;
+
+	void deserialize(class BinaryInput& b);
 
     virtual ~Line() {}
 
@@ -77,9 +83,23 @@ public:
      is no intersection, returns a point at infinity.
      */
     Vector3 intersection(const Plane &plane) const;
+
+
+    /** Finds the closest point to the two lines.
+        
+        @param minDist Returns the minimum distance between the lines.
+
+        @cite http://objectmix.com/graphics/133793-coordinates-closest-points-pair-skew-lines.html
+    */
+    Vector3 closestPoint(const Line& B, float& minDist) const;
+
+    inline Vector3 closestPoint(const Line& B) const {
+        float m;
+        return closestPoint(B, m);
+    }
 };
 
 };// namespace
 
-#endif
 
+#endif
