@@ -26,6 +26,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
+#include "ConditionMgr.h"
 
 void AddItemsSetItem(Player*player,Item *item)
 {
@@ -824,18 +825,19 @@ bool Item::IsFitToSpellRequirements(SpellEntry const* spellInfo) const
 
 bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
 {
-    ItemRequiredTargetMapBounds bounds = objmgr.GetItemRequiredTargetMapBounds(GetProto()->ItemId);
-
-    if (bounds.first == bounds.second)
+    ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET, GetProto()->ItemId);
+    if (conditions.empty())
         return true;
 
     if (!pUnitTarget)
         return false;
 
-    for (ItemRequiredTargetMap::const_iterator itr = bounds.first; itr != bounds.second; ++itr)
-        if (itr->second.IsFitToRequirements(pUnitTarget))
+    for (ConditionList::const_iterator itr = conditions.begin(); itr != conditions.end(); ++itr)
+    {
+        ItemRequiredTarget *irt = new ItemRequiredTarget((ItemRequiredTargetType)(*itr)->mConditionValue1, (*itr)->mConditionValue2);
+        if (irt->IsFitToRequirements(pUnitTarget))
             return true;
-
+    }
     return false;
 }
 

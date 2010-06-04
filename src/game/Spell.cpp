@@ -51,6 +51,7 @@
 #include "Vehicle.h"
 #include "SpellAuraEffects.h"
 #include "ScriptMgr.h"
+#include "ConditionMgr.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILISECONDS)
 
@@ -1683,10 +1684,10 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
     {
         case SPELL_TARGETS_ENTRY:
         {
-            SpellScriptTargetBounds bounds = spellmgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
-            if (bounds.first == bounds.second)
+            ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, m_spellInfo->Id);
+            if (conditions.empty())
             {
-                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
+                sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `conditions` for spell script target (ConditionSourceType 14)", m_spellInfo->Id, m_caster->GetEntry());
                 if (IsPositiveSpell(m_spellInfo->Id))
                     return SearchNearbyTarget(range, SPELL_TARGETS_ALLY);
                 else
@@ -1696,13 +1697,15 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
             Creature* creatureScriptTarget = NULL;
             GameObject* goScriptTarget = NULL;
 
-            for (SpellScriptTarget::const_iterator i_spellST = bounds.first; i_spellST != bounds.second; ++i_spellST)
+            for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
             {
-                switch(i_spellST->second.type)
+                if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                    continue;
+                switch((*i_spellST)->mConditionValue1)
                 {
                     case SPELL_TARGET_TYPE_CONTROLLED:
                         for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == i_spellST->second.targetEntry && (*itr)->IsWithinDistInMap(m_caster, range))
+                            if ((*itr)->GetEntry() == (*i_spellST)->mConditionValue2 && (*itr)->IsWithinDistInMap(m_caster, range))
                             {
                                 goScriptTarget = NULL;
                                 creatureScriptTarget = (*itr)->ToCreature();
@@ -1710,9 +1713,9 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                             }
                         break;
                     case SPELL_TARGET_TYPE_GAMEOBJECT:
-                        if (i_spellST->second.targetEntry)
+                        if ((*i_spellST)->mConditionValue2)
                         {
-                            if (GameObject *go = m_caster->FindNearestGameObject(i_spellST->second.targetEntry, range))
+                            if (GameObject *go = m_caster->FindNearestGameObject((*i_spellST)->mConditionValue2, range))
                             {
                                 // remember found target and range, next attempt will find more near target with another entry
                                 goScriptTarget = go;
@@ -1732,11 +1735,11 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
                         }
                         break;
                     case SPELL_TARGET_TYPE_CREATURE:
-                        if (m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetEntry() == i_spellST->second.targetEntry)
+                        if (m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetEntry() == (*i_spellST)->mConditionValue2)
                             return m_targets.getUnitTarget();
                     case SPELL_TARGET_TYPE_DEAD:
                     default:
-                        if (Creature *cre = m_caster->FindNearestCreature(i_spellST->second.targetEntry, range, i_spellST->second.type != SPELL_TARGET_TYPE_DEAD))
+                        if (Creature *cre = m_caster->FindNearestCreature((*i_spellST)->mConditionValue2, range, (*i_spellST)->mConditionValue1 != SPELL_TARGET_TYPE_DEAD))
                         {
                             creatureScriptTarget = cre;
                             goScriptTarget = NULL;
@@ -2249,8 +2252,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
         std::list<Unit*> unitList;
         if (targetType == SPELL_TARGETS_ENTRY)
         {
-            SpellScriptTargetBounds bounds = spellmgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
-            if (bounds.first == bounds.second)
+            ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, m_spellInfo->Id);
+            if (conditions.empty())
             {
                 // Custom entries
                 // TODO: move these to sql
@@ -2321,14 +2324,16 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             // let it be done in one check?
             else
             {
-                for (SpellScriptTarget::const_iterator i_spellST = bounds.first; i_spellST != bounds.second; ++i_spellST)
+                for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
                 {
-                    if (i_spellST->second.type == SPELL_TARGET_TYPE_CREATURE)
-                        SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, i_spellST->second.targetEntry);
-                    else if (i_spellST->second.type == SPELL_TARGET_TYPE_CONTROLLED)
+                    if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                        continue;
+                    if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CREATURE)
+                        SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, (*i_spellST)->mConditionValue2);
+                    else if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CONTROLLED)
                     {
                         for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == i_spellST->second.targetEntry &&
+                            if ((*itr)->GetEntry() == (*i_spellST)->mConditionValue2 &&
                                 /*(*itr)->IsWithinDistInMap(m_caster, radius)*/ (*itr)->IsInMap(m_caster)) // For 60243 and 52173 need skip radius check or use range (no radius entry for effect)
                                 unitList.push_back(*itr);
                     }
@@ -2545,7 +2550,20 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
             return;
         }
     }
-
+    if (m_caster->ToPlayer())
+    {
+        //check for special spell conditions
+        ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL, m_spellInfo->Id);
+        if (!conditions.empty())
+        {
+            if (!sConditionMgr.IsPlayerMeetToConditions(m_caster->ToPlayer(), conditions))
+            {
+                SendCastResult(SPELL_FAILED_DONT_REPORT);
+                finish(false);
+                return;
+            }
+        }
+    }
     if (!m_targets.HasSrc() && m_spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
         m_targets.setSrc(m_caster);
 
@@ -2607,7 +2625,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
         finish(false);
         return;
     }
-
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         if (objmgr.IsPlayerSpellDisabled(m_spellInfo->Id))
