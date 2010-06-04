@@ -3067,24 +3067,30 @@ void Map::ScriptsProcess()
             }
 
             case SCRIPT_COMMAND_EMOTE:
+            {
                 if (!source)
                 {
-                    sLog.outError("SCRIPT_COMMAND_EMOTE (script id: %u) call for NULL creature.", step.script->id);
+                    sLog.outError("SCRIPT_COMMAND_EMOTE (script id: %u) call for NULL source.", step.script->id);
                     break;
                 }
 
-                if (source->GetTypeId() != TYPEID_UNIT)
+                Creature* cSource = NULL;
+                cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+
+                if (!cSource)
                 {
-                    sLog.outError("SCRIPT_COMMAND_EMOTE (script id: %u) call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                    step.script->id, source->GetTypeId(),source->GetEntry(),source->GetGUIDLow());
+                    sLog.outError("SCRIPT_COMMAND_TALK (script id: %u) call for non supported source (TypeId: %u, Entry: %u, GUID: %u), skipping.",
+                    step.script->id, source->GetTypeId(), source->GetEntry(), source->GetGUIDLow());
                     break;
                 }
 
                 if (step.script->datalong2)
-                    source->SetUInt32Value(UNIT_NPC_EMOTESTATE, step.script->datalong);
+                    cSource->SetUInt32Value(UNIT_NPC_EMOTESTATE, step.script->datalong);
                 else
-                    ((Unit*)source)->HandleEmoteCommand(step.script->datalong);
+                    cSource->HandleEmoteCommand(step.script->datalong);
                 break;
+            }
+            
             case SCRIPT_COMMAND_FIELD_SET:
                 if (!source)
                 {
