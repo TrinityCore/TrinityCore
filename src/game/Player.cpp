@@ -66,7 +66,7 @@
 #include "AchievementMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-
+#include "ConditionMgr.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILISECONDS)
@@ -503,6 +503,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
         m_powerFraction[i] = 0;
 
     m_globalCooldowns.clear();
+
+    m_ConditionErrorMsgId = 0;
 }
 
 Player::~Player ()
@@ -13302,14 +13304,7 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId, bool showQue
     for (GossipMenuItemsMap::const_iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
     {
         bool bCanTalk = true;
-
-        if (itr->second.cond_1 && !objmgr.IsPlayerMeetToCondition(this, itr->second.cond_1))
-            continue;
-
-        if (itr->second.cond_2 && !objmgr.IsPlayerMeetToCondition(this, itr->second.cond_2))
-            continue;
-
-        if (itr->second.cond_3 && !objmgr.IsPlayerMeetToCondition(this, itr->second.cond_3))
+        if (!sConditionMgr.IsPlayerMeetToConditions(this, itr->second.conditions))
             continue;
 
         if (pSource->GetTypeId() == TYPEID_UNIT)
@@ -13643,7 +13638,7 @@ uint32 Player::GetGossipTextId(uint32 menuId)
 
     for (GossipMenusMap::const_iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
     {
-        if (objmgr.IsPlayerMeetToCondition(this, itr->second.cond_1) && objmgr.IsPlayerMeetToCondition(this, itr->second.cond_2))
+        if (sConditionMgr.IsPlayerMeetToConditions(this, itr->second.conditions))
             textId = itr->second.text_id;
     }
 
@@ -17439,8 +17434,8 @@ bool Player::CheckInstanceLoginValid()
 
     if (GetMap()->IsRaid())
     {
-        // cannot be in raid instance without a raid group
-        if (!GetGroup() || !GetGroup()->isRaidGroup())
+        // cannot be in raid instance without a group
+        if (!GetGroup())
             return false;
     }
     else

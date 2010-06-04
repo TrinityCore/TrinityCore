@@ -25,6 +25,7 @@
 #include "ByteBuffer.h"
 #include "Utilities/LinkedReference/RefManager.h"
 #include "SharedDefines.h"
+#include "ConditionMgr.h"
 
 #include <map>
 #include <vector>
@@ -98,6 +99,7 @@ enum LootSlotType
 
 class Player;
 class LootStore;
+class ConditionMgr;
 
 struct LootStoreItem
 {
@@ -108,13 +110,13 @@ struct LootStoreItem
     uint8   group       :7;
     bool    needs_quest :1;                                 // quest drop (negative ChanceOrQuestChance in DB)
     uint8   maxcount    :8;                                 // max drop count for the item (mincountOrRef positive) or Ref multiplicator (mincountOrRef negative)
-    uint16  conditionId :16;                                // additional loot condition Id
+    ConditionList conditions;                               // additional loot condition
 
     // Constructor, converting ChanceOrQuestChance -> (chance, needs_quest)
     // displayid is filled in IsValid() which must be called after
-    LootStoreItem(uint32 _itemid, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, uint8 _conditionId, int32 _mincountOrRef, uint8 _maxcount)
+    LootStoreItem(uint32 _itemid, float _chanceOrQuestChance, uint16 _lootmode, uint8 _group, int32 _mincountOrRef, uint8 _maxcount)
         : itemid(_itemid), chance(fabs(_chanceOrQuestChance)), mincountOrRef(_mincountOrRef), lootmode(_lootmode),
-        group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount), conditionId(_conditionId)
+        group(_group), needs_quest(_chanceOrQuestChance < 0), maxcount(_maxcount)
          {}
 
     bool Roll(bool rate) const;                             // Checks if the entry takes it's chance (at loot generation)
@@ -127,7 +129,7 @@ struct LootItem
     uint32  itemid;
     uint32  randomSuffix;
     int32   randomPropertyId;
-    uint16  conditionId       :16;                          // allow compiler pack structure
+    ConditionList conditions;                               // additional loot condition
     uint8   count             : 8;
     bool    is_looted         : 1;
     bool    is_blocked        : 1;
@@ -186,6 +188,8 @@ class LootStore
         bool HaveQuestLootForPlayer(uint32 loot_id,Player* player) const;
 
         LootTemplate const* GetLootFor(uint32 loot_id) const;
+        void ResetConditions();
+        LootTemplate* GetLootForConditionFill(uint32 loot_id);
 
         char const* GetName() const { return m_name; }
         char const* GetEntryName() const { return m_entryName; }
@@ -210,6 +214,7 @@ class LootTemplate
         void AddEntry(LootStoreItem& item);
         // Rolls for every item in the template and adds the rolled items the the loot
         void Process(Loot& loot, LootStore const& store, bool rate, uint16 lootMode, uint8 groupId = 0) const;
+        void CopyConditions(ConditionList conditions);
 
         // True if template includes at least 1 quest drop entry
         bool HasQuestDrop(LootTemplateMap const& store, uint8 groupId = 0) const;
@@ -219,6 +224,9 @@ class LootTemplate
         // Checks integrity of the template
         void Verify(LootStore const& store, uint32 Id) const;
         void CheckLootRefs(LootTemplateMap const& store, LootIdSet* ref_set) const;
+        bool addConditionItem(Condition* cond);
+        bool isReference(uint32 id);
+
     private:
         LootStoreItemList Entries;                          // not grouped only
         LootGroups        Groups;                           // groups have own (optimised) processing, grouped entries go there
@@ -355,6 +363,7 @@ extern LootStore LootTemplates_Item;
 extern LootStore LootTemplates_Mail;
 extern LootStore LootTemplates_Milling;
 extern LootStore LootTemplates_Pickpocketing;
+extern LootStore LootTemplates_Reference;
 extern LootStore LootTemplates_Skinning;
 extern LootStore LootTemplates_Disenchant;
 extern LootStore LootTemplates_Prospecting;

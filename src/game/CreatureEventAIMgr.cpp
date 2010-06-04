@@ -26,6 +26,7 @@
 #include "Policies/SingletonImp.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
+#include "ConditionMgr.h"
 
 INSTANTIATE_SINGLETON_1(CreatureEventAIMgr);
 
@@ -359,11 +360,17 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                         sLog.outErrorDb("CreatureEventAI: Creature %u using event %u: param1 (EmoteTextId: %u) are not valid.",temp.creature_id, i, temp.receive_emote.emoteId);
                         continue;
                     }
-
-                    if (!PlayerCondition::IsValid(ConditionType(temp.receive_emote.condition), temp.receive_emote.conditionValue1, temp.receive_emote.conditionValue2))
+                    if (temp.receive_emote.condition)
                     {
-                        sLog.outErrorDb("CreatureEventAI: Creature %u using event %u: param2 (Condition: %u) are not valid.",temp.creature_id, i, temp.receive_emote.condition);
-                        continue;
+                        Condition* cond = new Condition();
+                        cond->mConditionType = ConditionType(temp.receive_emote.condition);            
+                        cond->mConditionValue1 = temp.receive_emote.conditionValue1;
+                        cond->mConditionValue2 = temp.receive_emote.conditionValue2;
+                        if (!sConditionMgr.isConditionTypeValid(cond))
+                        {
+                            sLog.outErrorDb("CreatureEventAI: Creature %u using event %u: param2 (Condition: %u) are not valid.",temp.creature_id, i, temp.receive_emote.condition);
+                            continue;
+                        }
                     }
 
                     if (!(temp.event_flags & EFLAG_REPEATABLE))

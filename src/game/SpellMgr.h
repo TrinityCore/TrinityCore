@@ -685,9 +685,6 @@ struct SpellTargetEntry
     uint32 targetEntry;
 };
 
-typedef std::multimap<uint32,SpellTargetEntry> SpellScriptTarget;
-typedef std::pair<SpellScriptTarget::const_iterator,SpellScriptTarget::const_iterator> SpellScriptTargetBounds;
-
 // coordinates for spells (accessed using SpellMgr functions)
 struct SpellTargetPosition
 {
@@ -1216,12 +1213,6 @@ class SpellMgr
         bool IsSkillBonusSpell(uint32 spellId) const;
         bool IsSkillTypeSpell(uint32 spellId, SkillType type) const;
 
-        // Spell script targets
-        SpellScriptTargetBounds GetSpellScriptTargetBounds(uint32 spell_id) const
-        {
-            return SpellScriptTargetBounds(mSpellScriptTarget.lower_bound(spell_id),mSpellScriptTarget.upper_bound(spell_id));
-        }
-
         // Spell correctess for client using
         static bool IsSpellValid(SpellEntry const * spellInfo, Player* pl = NULL, bool msg = true);
 
@@ -1356,7 +1347,6 @@ class SpellMgr
         void LoadSpellRequired();
         void LoadSpellLearnSkills();
         void LoadSpellLearnSpells();
-        void LoadSpellScriptTarget();
         void LoadSpellGroups();
         void LoadSpellProcEvents();
         void LoadSpellBonusess();
@@ -1377,7 +1367,6 @@ class SpellMgr
         bool _isPositiveSpell(uint32 spellId, bool deep) const;
         bool _isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) const;
 
-        SpellScriptTarget  mSpellScriptTarget;
         SpellChainMap      mSpellChains;
         SpellsRequiringSpellMap   mSpellsReqSpell;
         SpellRequiredMap   mSpellReq;

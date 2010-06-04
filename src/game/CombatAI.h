@@ -23,6 +23,7 @@
 
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
+#include "ConditionMgr.h"
 
 class Creature;
 
@@ -100,11 +101,12 @@ struct AOEAI : public CreatureAI
 
         static int Permissible(const Creature *);
 };
-#define VEHICLE_RESET_TIME 5000
+#define VEHICLE_CONDITION_CHECK_TIME 1000
+#define VEHICLE_DISMISS_TIME 5000
 struct VehicleAI : public CreatureAI
 {
     public:
-        explicit VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false) {}
+        explicit VehicleAI(Creature *c);
 
         void UpdateAI(const uint32 diff);
         static int Permissible(const Creature *);
@@ -116,6 +118,12 @@ struct VehicleAI : public CreatureAI
     private:
         Vehicle* m_vehicle;
         bool m_IsVehicleInUse;
+        void LoadConditions();
+        void CheckConditions(const uint32 diff);
+        ConditionList conditions;
+        uint32 m_ConditionsTimer;
+        bool m_DoDismiss;
+        uint32 m_DismissTimer;
 };
 
 #endif

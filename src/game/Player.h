@@ -2135,6 +2135,8 @@ class Player : public Unit, public GridObject<Player>
 
         void SetHomebind(WorldLocation const& loc, uint32 area_id);
 
+        uint32 m_ConditionErrorMsgId;
+
         // Homebind coordinates
         uint32 m_homebindMapId;
         uint16 m_homebindAreaId;
