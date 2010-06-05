@@ -353,78 +353,78 @@
 			Name="Database"
 			>
 			<File
-				RelativePath="..\..\src\shared\Database\Database.cpp"
+				RelativePath="..\..\src\server\shared\Database\Database.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\Database.h"
+				RelativePath="..\..\src\server\shared\Database\Database.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\DatabaseEnv.h"
+				RelativePath="..\..\src\server\shared\Database\DatabaseEnv.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\DatabaseImpl.h"
+				RelativePath="..\..\src\server\shared\Database\DatabaseImpl.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\Field.cpp"
+				RelativePath="..\..\src\server\shared\Database\Field.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\Field.h"
+				RelativePath="..\..\src\server\shared\Database\Field.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\QueryResult.cpp"
+				RelativePath="..\..\src\server\shared\Database\QueryResult.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\QueryResult.h"
+				RelativePath="..\..\src\server\shared\Database\QueryResult.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SqlDelayThread.cpp"
+				RelativePath="..\..\src\server\shared\Database\SqlDelayThread.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SqlDelayThread.h"
+				RelativePath="..\..\src\server\shared\Database\SqlDelayThread.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SqlOperations.cpp"
+				RelativePath="..\..\src\server\shared\Database\SqlOperations.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SqlOperations.h"
+				RelativePath="..\..\src\server\shared\Database\SqlOperations.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SQLStorage.cpp"
+				RelativePath="..\..\src\server\shared\Database\SQLStorage.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SQLStorage.h"
+				RelativePath="..\..\src\server\shared\Database\SQLStorage.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Database\SQLStorageImpl.h"
+				RelativePath="..\..\src\server\shared\Database\SQLStorageImpl.h"
 				>
 			</File>
 			<Filter
 				Name="DataStores"
 				>
 				<File
-					RelativePath="..\..\src\shared\Database\DBCFileLoader.cpp"
+					RelativePath="..\..\src\server\shared\Database\DBCFileLoader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Database\DBCFileLoader.h"
+					RelativePath="..\..\src\server\shared\Database\DBCFileLoader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Database\DBCStore.h"
+					RelativePath="..\..\src\server\shared\Database\DBCStore.h"
 					>
 				</File>
 			</Filter>
@@ -433,11 +433,11 @@
 			Name="Log"
 			>
 			<File
-				RelativePath="..\..\src\shared\Log.cpp"
+				RelativePath="..\..\src\server\shared\Log.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Log.h"
+				RelativePath="..\..\src\server\shared\Log.h"
 				>
 			</File>
 		</Filter>
@@ -445,11 +445,11 @@
 			Name="Util"
 			>
 			<File
-				RelativePath="..\..\src\shared\ByteBuffer.h"
+				RelativePath="..\..\src\server\shared\ByteBuffer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Errors.h"
+				RelativePath="..\..\src\server\shared\Errors.h"
 				>
 			</File>
 			<File
@@ -457,27 +457,27 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\ProgressBar.cpp"
+				RelativePath="..\..\src\server\shared\ProgressBar.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\ProgressBar.h"
+				RelativePath="..\..\src\server\shared\ProgressBar.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Timer.h"
+				RelativePath="..\..\src\server\shared\Timer.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Util.cpp"
+				RelativePath="..\..\src\server\shared\Util.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Util.h"
+				RelativePath="..\..\src\server\shared\Util.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\WorldPacket.h"
+				RelativePath="..\..\src\server\shared\WorldPacket.h"
 				>
 			</File>
 		</Filter>
@@ -485,34 +485,34 @@
 			Name="Config"
 			>
 			<File
-				RelativePath="..\..\src\shared\Config\Config.cpp"
+				RelativePath="..\..\src\server\shared\Config\Config.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Config\Config.h"
+				RelativePath="..\..\src\server\shared\Config\Config.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Config\ConfigEnv.h"
+				RelativePath="..\..\src\server\shared\Config\ConfigEnv.h"
 				>
 			</File>
 			<Filter
 				Name="dotconfpp"
 				>
 				<File
-					RelativePath="..\..\src\shared\Config\dotconfpp\dotconfpp.cpp"
+					RelativePath="..\..\src\server\shared\Config\dotconfpp\dotconfpp.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Config\dotconfpp\dotconfpp.h"
+					RelativePath="..\..\src\server\shared\Config\dotconfpp\dotconfpp.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Config\dotconfpp\mempool.cpp"
+					RelativePath="..\..\src\server\shared\Config\dotconfpp\mempool.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\shared\Config\dotconfpp\mempool.h"
+					RelativePath="..\..\src\server\shared\Config\dotconfpp\mempool.h"
 					>
 				</File>
 			</Filter>
@@ -521,43 +521,43 @@
 			Name="Auth"
 			>
 			<File
-				RelativePath="..\..\src\shared\Auth\AuthCrypt.cpp"
+				RelativePath="..\..\src\server\shared\Auth\AuthCrypt.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\AuthCrypt.h"
+				RelativePath="..\..\src\server\shared\Auth\AuthCrypt.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\BigNumber.cpp"
+				RelativePath="..\..\src\server\shared\Auth\BigNumber.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\BigNumber.h"
+				RelativePath="..\..\src\server\shared\Auth\BigNumber.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\Hmac.cpp"
+				RelativePath="..\..\src\server\shared\Auth\Hmac.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\Hmac.h"
+				RelativePath="..\..\src\server\shared\Auth\Hmac.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\SARC4.cpp"
+				RelativePath="..\..\src\server\shared\Auth\SARC4.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\SARC4.h"
+				RelativePath="..\..\src\server\shared\Auth\SARC4.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\Sha1.cpp"
+				RelativePath="..\..\src\server\shared\Auth\Sha1.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\Auth\Sha1.h"
+				RelativePath="..\..\src\server\shared\Auth\Sha1.h"
 				>
 			</File>
 		</Filter>
@@ -565,168 +565,116 @@
 			Name="vmaps"
 			>
 			<File
-				RelativePath="..\..\src\shared\vmap\BIH.cpp"
+				RelativePath="..\..\src\server\shared\vmap\BIH.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\BIH.h"
+				RelativePath="..\..\src\server\shared\vmap\BIH.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\CMakeLists.txt"
+				RelativePath="..\..\src\server\shared\vmap\IVMapManager.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\IVMapManager.h"
+				RelativePath="..\..\src\server\shared\vmap\MapTree.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\MapTree.cpp"
+				RelativePath="..\..\src\server\shared\vmap\MapTree.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\MapTree.h"
+				RelativePath="..\..\src\server\shared\vmap\ModelInstance.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\ModelInstance.cpp"
+				RelativePath="..\..\src\server\shared\vmap\ModelInstance.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\ModelInstance.h"
+				RelativePath="..\..\src\server\shared\vmap\TileAssembler.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\TileAssembler.cpp"
+				RelativePath="..\..\src\server\shared\vmap\TileAssembler.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\TileAssembler.h"
+				RelativePath="..\..\src\server\shared\vmap\VMapDefinitions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\VMapDefinitions.h"
+				RelativePath="..\..\src\server\shared\vmap\VMapFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\VMapFactory.cpp"
+				RelativePath="..\..\src\server\shared\vmap\VMapFactory.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\VMapFactory.h"
+				RelativePath="..\..\src\server\shared\vmap\VMapManager2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\VMapManager2.cpp"
+				RelativePath="..\..\src\server\shared\vmap\VMapManager2.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\VMapManager2.h"
+				RelativePath="..\..\src\server\shared\vmap\VMapTools.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\VMapTools.h"
+				RelativePath="..\..\src\server\shared\vmap\WorldModel.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\shared\vmap\WorldModel.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\shared\vmap\WorldModel.h"
+				RelativePath="..\..\src\server\shared\vmap\WorldModel.h"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\src\shared\Common.cpp"
+			RelativePath="..\..\src\server\shared\Common.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\Common.h"
+			RelativePath="..\..\src\server\shared\Common.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\DelayExecutor.cpp"
+			RelativePath="..\..\src\server\shared\DelayExecutor.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\DelayExecutor.h"
+			RelativePath="..\..\src\server\shared\DelayExecutor.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\LockedQueue.h"
+			RelativePath="..\..\src\server\shared\LockedQueue.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\revision.h"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-					Outputs="revision.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Release|x64"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-					Outputs="revision.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;-d&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-					Outputs="revision.h"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|x64"
-				>
-				<Tool
-					Name="VCCustomBuildTool"
-					Description="Getting Version..."
-					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;-d&quot; &quot;..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
-					Outputs="revision.h"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="..\..\src\shared\ServiceWin32.cpp"
+			RelativePath="..\..\src\server\shared\ServiceWin32.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\ServiceWin32.h"
+			RelativePath="..\..\src\server\shared\ServiceWin32.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\SignalHandler.h"
+			RelativePath="..\..\src\server\shared\SignalHandler.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\SystemConfig.h"
+			RelativePath="..\..\src\server\shared\SystemConfig.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\Threading.cpp"
+			RelativePath="..\..\src\server\shared\Threading.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\Threading.h"
+			RelativePath="..\..\src\server\shared\Threading.h"
 			>
 		</File>
 	</Files>
