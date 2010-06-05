@@ -115,7 +115,7 @@ enum eAchievementData
     ACHIEV_25_SHUTOUT                           = 10055,
     ACHIEV_10_SIEGE_OF_ULDUAR                   = 9999,
     ACHIEV_25_SIEGE_OF_ULDUAR                   = 10003,
-    //ACHIEV_10_THREE_CAR_GARAGE                  = 10046, 10047, 10048, 
+    //ACHIEV_10_THREE_CAR_GARAGE                  = 10046, 10047, 10048,
     //ACHIEV_25_THREE_CAR_GARAGE                  = 10049, 10050, 10051,
     ACHIEV_10_UNBROKEN                          = 10044,
     ACHIEV_25_UNBROKEN                          = 10045,
@@ -131,13 +131,14 @@ struct boss_flame_leviathanAI : public BossAI
     boss_flame_leviathanAI(Creature* pCreature) : BossAI(pCreature, TYPE_LEVIATHAN), vehicle(pCreature->GetVehicleKit())
     {
         assert(vehicle);
-        if (pInstance)
-            pInstance = pCreature->GetInstanceData();
+
+        pInstance = pCreature->GetInstanceData();
     }
 
-    Vehicle* vehicle;    
-    uint8 uiActiveTowers;
     ScriptedInstance* pInstance;
+
+    Vehicle* vehicle;
+    uint8 uiActiveTowers;
 
     void Reset()
     {
@@ -145,8 +146,6 @@ struct boss_flame_leviathanAI : public BossAI
         assert(vehicle);
         uiActiveTowers = 0;
         me->SetReactState(REACT_AGGRESSIVE);
-        if (pInstance)
-            pInstance->SetData(TYPE_LEVIATHAN, NOT_STARTED);
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -159,8 +158,7 @@ struct boss_flame_leviathanAI : public BossAI
         events.ScheduleEvent(EVENT_VENT, 20000);
         events.ScheduleEvent(EVENT_SPEED, 15000);
         events.ScheduleEvent(EVENT_SUMMON, 0);
-        if (pInstance)
-            pInstance->SetData(TYPE_LEVIATHAN, IN_PROGRESS);
+
         if (Creature *turret = CAST_CRE(vehicle->GetPassenger(SEAT_TURRET)))
             turret->AI()->DoZoneInCombat();
     }
@@ -174,10 +172,10 @@ struct boss_flame_leviathanAI : public BossAI
 
     void JustDied(Unit* /*victim*/)
     {
+        _JustDied();
         DoScriptText(SAY_DEATH, me);
         if (pInstance)
         {
-            pInstance->SetData(TYPE_LEVIATHAN, DONE);
             if (uiActiveTowers)
             {
                 switch (uiActiveTowers)
@@ -196,7 +194,6 @@ struct boss_flame_leviathanAI : public BossAI
                     break;
                 }
             }
-            _JustDied();
         }
     }
 
@@ -309,7 +306,7 @@ struct boss_flame_leviathanAI : public BossAI
         {
             --uiActiveTowers;
         }
-        
+
         switch (uiAction)
         {
         case 0:  // Activate hard-mode
@@ -478,7 +475,7 @@ struct spell_pool_of_tarAI : public TriggerAI
 
 struct npc_colossusAI : public ScriptedAI
 {
-    npc_colossusAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    npc_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         pInstance = pCreature->GetInstanceData();
     }
@@ -490,8 +487,8 @@ struct npc_colossusAI : public ScriptedAI
     {
         if (me->GetHomePosition().IsInDist(Center,50.f))
         {
-            if (pInstance)            
-                pInstance->SetData(TYPE_COLOSSUS,pInstance->GetData(TYPE_COLOSSUS)+1);                        
+            if (pInstance)
+                pInstance->SetData(TYPE_COLOSSUS,pInstance->GetData(TYPE_COLOSSUS)+1);
         }
     }
 
