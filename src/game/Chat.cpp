@@ -276,6 +276,8 @@ ChatCommand * ChatHandler::getCommandTable()
         { "unbind",         SEC_ADMINISTRATOR,  false, &ChatHandler::HandleInstanceUnbindCommand,      "", NULL },
         { "stats",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleInstanceStatsCommand,       "", NULL },
         { "savedata",       SEC_ADMINISTRATOR,  false, &ChatHandler::HandleInstanceSaveDataCommand,    "", NULL },
+        { "open",           SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleInstanceOpenCommand,        "", NULL },
+        { "close",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleInstanceCloseCommand,       "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 

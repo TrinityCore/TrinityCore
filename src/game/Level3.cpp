@@ -7031,6 +7031,61 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
     return true;
 }
 
+bool ChatHandler::HandleInstanceOpenCommand(const char *args)
+{
+    return HandleInstanceOpenCloseCommand(args,true);
+}
+
+bool ChatHandler::HandleInstanceCloseCommand(const char *args)
+{
+    return HandleInstanceOpenCloseCommand(args,false);
+}
+
+bool ChatHandler::HandleInstanceOpenCloseCommand(const char *args,bool open)
+{
+    char *mapIdStr;
+    char *instanceModeStr;
+    extractOptFirstArg((char*)args,&mapIdStr,&instanceModeStr);
+    if (!mapIdStr || !instanceModeStr)
+        return false;
+
+    uint32 mapid = atoi(mapIdStr);
+
+    InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
+    if (!instance)
+    {
+        PSendSysMessage("Invalid map id");
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    uint8 status = objmgr.GetAccessRequirement(instance->access_id)->status;
+    uint8 flag = 0;
+
+    if (strcmp(instanceModeStr,"normal") || strcmp(instanceModeStr,"10normal"))
+        flag = DUNGEON_STATUSFLAG_NORMAL;
+    else if (strcmp(instanceModeStr,"heroic") || strcmp(instanceModeStr,"25normal"))
+        flag = DUNGEON_STATUSFLAG_HEROIC;
+    else if (strcmp(instanceModeStr,"10heroic"))
+        flag = RAID_STATUSFLAG_10MAN_HEROIC;
+    else if (strcmp(instanceModeStr,"25heroic"))
+        flag = RAID_STATUSFLAG_25MAN_HEROIC;
+    else
+    {
+        PSendSysMessage("Unrecognized difficulty string");
+        SetSentErrorMessage(true);
+        return false;
+    }
+    if (open)
+        status |= flag;
+    else
+        status &= ~flag;
+
+    WorldDatabase.PExecute("UPDATE access_requirement SET status = '%u' WHERE id = '%u'", status, instance->access_id);
+    PSendSysMessage("Instance status changed. Don't forget to reload access_requirement table");
+    return true;
+}
+
 /// Display the list of GMs
 bool ChatHandler::HandleGMListFullCommand(const char* /*args*/)
 {
