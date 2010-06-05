@@ -21,77 +21,80 @@
 
 enum eGameObjects
 {
-    GO_Kologarn_CHEST_HERO  = 195047,
-    GO_Kologarn_CHEST       = 195046,
-    GO_Thorim_CHEST_HERO    = 194315,
-    GO_Thorim_CHEST         = 194314,
-    GO_Hodir_CHEST_HERO     = 194308,
-    GO_Hodir_CHEST          = 194307,
-    GO_Freya_CHEST_HERO     = 194325,
-    GO_Freya_CHEST          = 194324,
+    GO_KOLOGARN_CHEST_HERO  = 195047,
+    GO_KOLOGARN_CHEST       = 195046,
+    GO_THORIM_CHEST_HERO    = 194315,
+    GO_THORIM_CHEST         = 194314,
+    GO_HODIR_CHEST_HERO     = 194308,
+    GO_HODIR_CHEST          = 194307,
+    GO_FREYA_CHEST_HERO     = 194325,
+    GO_FREYA_CHEST          = 194324,
     GO_LEVIATHAN_DOOR       = 194905,
     GO_LEVIATHAN_GATE       = 194630
 };
 
 struct instance_ulduar : public ScriptedInstance
 {
-    instance_ulduar(Map* pMap) : ScriptedInstance(pMap), KologarnChest(NULL), ThorimChest(NULL), HodirChest(NULL), FreyaChest(NULL) { Initialize(); };
+    instance_ulduar(Map* pMap) : ScriptedInstance(pMap) { Initialize(); };
 
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 uiEncounter[MAX_ENCOUNTER];
     std::string m_strInstData;
     uint8  flag;
 
-    uint64 m_uiLeviathanGUID;
-    uint64 m_uiIgnisGUID;
-    uint64 m_uiRazorscaleGUID;
-    uint64 m_uiXT002GUID;
-    uint64 m_auiAssemblyGUIDs[3];
-    uint64 m_uiKologarnGUID;
-    uint64 m_uiAuriayaGUID;
-    uint64 m_uiMimironGUID;
-    uint64 m_uiHodirGUID;
-    uint64 m_uiThorimGUID;
-    uint64 m_uiFreyaGUID;
-    uint64 m_uiVezaxGUID;
-    uint64 m_uiYoggSaronGUID;
-    uint64 m_uiAlgalonGUID;    
-    uint64 m_uiLeviathanDoor[7];
-    uint64 m_uiLeviathanGateGUID;
+    uint64 uiLeviathanGUID;
+    uint64 uiIgnisGUID;
+    uint64 uiRazorscaleGUID;
+    uint64 uiXT002GUID;
+    uint64 uiAssemblyGUIDs[3];
+    uint64 uiKologarnGUID;
+    uint64 uiAuriayaGUID;
+    uint64 uiMimironGUID;
+    uint64 uiHodirGUID;
+    uint64 uiThorimGUID;
+    uint64 uiFreyaGUID;
+    uint64 uiVezaxGUID;
+    uint64 uiYoggSaronGUID;
+    uint64 uiAlgalonGUID;
+    uint64 uiLeviathanDoor[7];
+    uint64 uiLeviathanGateGUID;
 
-    GameObject* KologarnChest, *ThorimChest, *HodirChest, *FreyaChest;
+    uint64 uiKologarnChestGUID;
+    uint64 uiThorimChestGUID;
+    uint64 uiHodirChestGUID;
+    uint64 uiFreyaChestGUID;
 
     void Initialize()
     {
-        m_uiLeviathanGUID       = 0;
-        m_uiIgnisGUID           = 0;
-        m_uiRazorscaleGUID      = 0;
-        m_uiXT002GUID           = 0;
-        m_uiKologarnGUID        = 0;
-        m_uiAuriayaGUID         = 0;
-        m_uiMimironGUID         = 0;
-        m_uiHodirGUID           = 0;
-        m_uiThorimGUID          = 0;
-        m_uiFreyaGUID           = 0;
-        m_uiVezaxGUID           = 0;
-        m_uiYoggSaronGUID       = 0;
-        m_uiAlgalonGUID         = 0;
-        KologarnChest           = 0;
-        ThorimChest             = 0;
-        HodirChest              = 0;
-        FreyaChest              = 0;
-        m_uiLeviathanGateGUID   = 0;
-        flag                    = 0;
+        uiLeviathanGUID       = 0;
+        uiIgnisGUID           = 0;
+        uiRazorscaleGUID      = 0;
+        uiXT002GUID           = 0;
+        uiKologarnGUID        = 0;
+        uiAuriayaGUID         = 0;
+        uiMimironGUID         = 0;
+        uiHodirGUID           = 0;
+        uiThorimGUID          = 0;
+        uiFreyaGUID           = 0;
+        uiVezaxGUID           = 0;
+        uiYoggSaronGUID       = 0;
+        uiAlgalonGUID         = 0;
+        uiKologarnChestGUID   = 0;
+        uiKologarnChestGUID   = 0;
+        uiHodirChestGUID      = 0;
+        uiFreyaChestGUID      = 0;
+        uiLeviathanGateGUID   = 0;
+        flag                  = 0;
 
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-        memset(&m_auiAssemblyGUIDs, 0, sizeof(m_auiAssemblyGUIDs));
-        memset(&m_uiLeviathanDoor, 0, sizeof(m_uiLeviathanDoor));
+        memset(&uiEncounter, 0, sizeof(uiEncounter));
+        memset(&uiAssemblyGUIDs, 0, sizeof(uiAssemblyGUIDs));
+        memset(&uiLeviathanDoor, 0, sizeof(uiLeviathanDoor));
     }
 
     bool IsEncounterInProgress() const
     {
         for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
         {
-            if (m_auiEncounter[i] == IN_PROGRESS)
+            if (uiEncounter[i] == IN_PROGRESS)
                 return true;
         }
 
@@ -103,87 +106,95 @@ struct instance_ulduar : public ScriptedInstance
         switch(pCreature->GetEntry())
         {
             case NPC_LEVIATHAN:
-                m_uiLeviathanGUID = pCreature->GetGUID();
+                uiLeviathanGUID = pCreature->GetGUID();
                 break;
             case NPC_IGNIS:
-                m_uiIgnisGUID = pCreature->GetGUID();
+                uiIgnisGUID = pCreature->GetGUID();
                 break;
             case NPC_RAZORSCALE:
-                m_uiRazorscaleGUID = pCreature->GetGUID();
+                uiRazorscaleGUID = pCreature->GetGUID();
                 break;
             case NPC_XT002:
-                m_uiXT002GUID = pCreature->GetGUID();
+                uiXT002GUID = pCreature->GetGUID();
                 break;
 
             // Assembly of Iron
             case NPC_STEELBREAKER:
-                m_auiAssemblyGUIDs[0] = pCreature->GetGUID();
+                uiAssemblyGUIDs[0] = pCreature->GetGUID();
                 break;
             case NPC_MOLGEIM:
-                m_auiAssemblyGUIDs[1] = pCreature->GetGUID();
+                uiAssemblyGUIDs[1] = pCreature->GetGUID();
                 break;
             case NPC_BRUNDIR:
-                m_auiAssemblyGUIDs[2] = pCreature->GetGUID();
+                uiAssemblyGUIDs[2] = pCreature->GetGUID();
                 break;
 
             case NPC_KOLOGARN:
-                m_uiKologarnGUID = pCreature->GetGUID();
+                uiKologarnGUID = pCreature->GetGUID();
                 break;
             case NPC_AURIAYA:
-                m_uiAuriayaGUID = pCreature->GetGUID();
+                uiAuriayaGUID = pCreature->GetGUID();
                 break;
             case NPC_MIMIRON:
-                m_uiMimironGUID = pCreature->GetGUID();
+                uiMimironGUID = pCreature->GetGUID();
                 break;
             case NPC_HODIR:
-                m_uiHodirGUID = pCreature->GetGUID();
+                uiHodirGUID = pCreature->GetGUID();
                 break;
             case NPC_THORIM:
-                m_uiThorimGUID = pCreature->GetGUID();
+                uiThorimGUID = pCreature->GetGUID();
                 break;
             case NPC_FREYA:
-                m_uiFreyaGUID = pCreature->GetGUID();
+                uiFreyaGUID = pCreature->GetGUID();
                 break;
             case NPC_VEZAX:
-                m_uiVezaxGUID = pCreature->GetGUID();
+                uiVezaxGUID = pCreature->GetGUID();
                 break;
             case NPC_YOGGSARON:
-                m_uiYoggSaronGUID = pCreature->GetGUID();
+                uiYoggSaronGUID = pCreature->GetGUID();
                 break;
             case NPC_ALGALON:
-                m_uiAlgalonGUID = pCreature->GetGUID();
+                uiAlgalonGUID = pCreature->GetGUID();
                 break;
         }
 
      }
 
-    void OnGameObjectCreate(GameObject* pGo, bool add)
+    void OnGameObjectCreate(GameObject* pGO, bool add)
     {
-        switch(pGo->GetEntry())
+        switch(pGO->GetEntry())
         {
-            case GO_Kologarn_CHEST_HERO: KologarnChest = add ? pGo : NULL; break;
-            case GO_Kologarn_CHEST: KologarnChest = add ? pGo : NULL; break;
-            case GO_Thorim_CHEST_HERO: ThorimChest = add ? pGo : NULL; break;
-            case GO_Thorim_CHEST: ThorimChest = add ? pGo : NULL; break;
-            case GO_Hodir_CHEST_HERO: HodirChest = add ? pGo : NULL; break;
-            case GO_Hodir_CHEST: HodirChest = add ? pGo : NULL; break;
-            case GO_Freya_CHEST_HERO: FreyaChest = add ? pGo : NULL; break;
-            case GO_Freya_CHEST: FreyaChest = add ? pGo : NULL; break;
+            case GO_KOLOGARN_CHEST_HERO:
+            case GO_KOLOGARN_CHEST:
+                uiKologarnChestGUID  = add ? pGO->GetGUID() : NULL;
+                break;
+            case GO_THORIM_CHEST_HERO:
+            case GO_THORIM_CHEST:
+                uiThorimChestGUID = add ? pGO->GetGUID() : NULL;
+                break;
+            case GO_HODIR_CHEST_HERO:
+            case GO_HODIR_CHEST:
+                uiHodirChestGUID = add ? pGO->GetGUID() : NULL;
+                break;
+            case GO_FREYA_CHEST_HERO:
+            case GO_FREYA_CHEST:
+                uiFreyaChestGUID = add ? pGO->GetGUID() : NULL;
+                break;
             case GO_LEVIATHAN_DOOR:
-                m_uiLeviathanDoor[flag] = pGo->GetGUID();
-                HandleGameObject(NULL, true, pGo);
+                uiLeviathanDoor[flag] = pGO->GetGUID();
+                HandleGameObject(NULL, true, pGO);
                 flag++;
                 if (flag == 7)
                     flag =0;
                 break;
             case GO_LEVIATHAN_GATE:
-                m_uiLeviathanGateGUID = pGo->GetGUID();
-                HandleGameObject(NULL, false, pGo);
+                uiLeviathanGateGUID = pGO->GetGUID();
+                HandleGameObject(NULL, false, pGO);
                 break;
         }
     }
 
-    void ProcessEvent(GameObject* pGo, uint32 uiEventId)
+    void ProcessEvent(GameObject* pGO, uint32 uiEventId)
     {
         // Flame Leviathan's Tower Event triggers
         Creature* pFlameLeviathan = instance->GetCreature(NPC_LEVIATHAN);
@@ -207,73 +218,62 @@ struct instance_ulduar : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
+        if (type != TYPE_COLOSSUS)
+            uiEncounter[type] = data;
+
         switch(type)
         {
-            case TYPE_LEVIATHAN:
-                if (data == IN_PROGRESS)
-                {
-                  HandleGameObject(m_uiLeviathanDoor[0],false);
-                  HandleGameObject(m_uiLeviathanDoor[1],false);
-                  HandleGameObject(m_uiLeviathanDoor[2],false);
-                  HandleGameObject(m_uiLeviathanDoor[3],false);
-                  HandleGameObject(m_uiLeviathanDoor[4],false);
-                  HandleGameObject(m_uiLeviathanDoor[5],false);
-                  HandleGameObject(m_uiLeviathanDoor[6],false);
-                }
-                else
-                {
-                  HandleGameObject(m_uiLeviathanDoor[0],true);
-                  HandleGameObject(m_uiLeviathanDoor[1],true);
-                  HandleGameObject(m_uiLeviathanDoor[2],true);
-                  HandleGameObject(m_uiLeviathanDoor[3],true);
-                  HandleGameObject(m_uiLeviathanDoor[4],true);
-                  HandleGameObject(m_uiLeviathanDoor[5],true);
-                  HandleGameObject(m_uiLeviathanDoor[6],true);
-                }
-                break;
-            case TYPE_IGNIS:
+            /*case TYPE_IGNIS:
             case TYPE_RAZORSCALE:
             case TYPE_XT002:
             case TYPE_ASSEMBLY:
-                break;
-            case TYPE_KOLOGARN:
-                m_auiEncounter[TYPE_KOLOGARN] = data;
-                if (data == DONE && KologarnChest)
-                KologarnChest->SetRespawnTime(KologarnChest->GetRespawnDelay());
-                break;
             case TYPE_AURIAYA:
             case TYPE_MIMIRON:
-                break;
-            case TYPE_HODIR:
-                m_auiEncounter[TYPE_HODIR] = data;
-                if (data == DONE && HodirChest)
-                HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
-                break;
-            case TYPE_THORIM:
-                m_auiEncounter[TYPE_THORIM] = data;
-                if (data == DONE && ThorimChest)
-                ThorimChest->SetRespawnTime(ThorimChest->GetRespawnDelay());
-                break;
-            case TYPE_FREYA:
-                m_auiEncounter[TYPE_FREYA] = data;
-                if (data == DONE && FreyaChest)
-                FreyaChest->SetRespawnTime(FreyaChest->GetRespawnDelay());
-                break;
             case TYPE_VEZAX:
             case TYPE_YOGGSARON:
+                break;*/
+            case TYPE_LEVIATHAN:
+                if (data == IN_PROGRESS)
+                {
+                    for (uint8 uiI; uiI < 7; uiI++)
+                        HandleGameObject(uiLeviathanDoor[uiI],false);
+                }
+                else
+                {
+                    for (uint8 uiI; uiI < 7; uiI++)
+                        HandleGameObject(uiLeviathanDoor[uiI],true);
+                }
                 break;
-            case TYPE_ALGALON:
-                m_auiEncounter[type] = data;
+            case TYPE_KOLOGARN:
+                if (data == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiKologarnChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+            case TYPE_HODIR:
+                if (data == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiHodirChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+            case TYPE_THORIM:
+                if (data == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiThorimChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
+                break;
+            case TYPE_FREYA:
+                if (data == DONE)
+                    if (GameObject* pGO = instance->GetGameObject(uiFreyaChestGUID))
+                        pGO->SetRespawnTime(pGO->GetRespawnDelay());
                 break;
             case TYPE_COLOSSUS:
-                m_auiEncounter[TYPE_COLOSSUS] = data;
                 if (data == 2)
                 {
-                    if (Creature* pBoss = instance->GetCreature(m_uiLeviathanGUID))
+                    if (Creature* pBoss = instance->GetCreature(uiLeviathanGUID))
                         pBoss->AI()->DoAction(10);
-                    if (GameObject* pGate = instance->GetGameObject(m_uiLeviathanGateGUID))
+                    if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
                         pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
                 }
+                break;
+            default:
                 break;
         }
 
@@ -284,7 +284,7 @@ struct instance_ulduar : public ScriptedInstance
             std::ostringstream saveStream;
 
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                saveStream << m_auiEncounter[i] << " ";
+                saveStream << uiEncounter[i] << " ";
 
             m_strInstData = saveStream.str();
 
@@ -297,24 +297,24 @@ struct instance_ulduar : public ScriptedInstance
     {
         switch(data)
         {
-            case TYPE_LEVIATHAN:            return m_uiLeviathanGUID;
-            case TYPE_IGNIS:                return m_uiIgnisGUID;
-            case TYPE_RAZORSCALE:           return m_uiRazorscaleGUID;
-            case TYPE_XT002:                return m_uiXT002GUID;
-            case TYPE_KOLOGARN:             return m_uiKologarnGUID;
-            case TYPE_AURIAYA:              return m_uiAuriayaGUID;
-            case TYPE_MIMIRON:              return m_uiMimironGUID;
-            case TYPE_HODIR:                return m_uiMimironGUID;
-            case TYPE_THORIM:               return m_uiThorimGUID;
-            case TYPE_FREYA:                return m_uiFreyaGUID;
-            case TYPE_VEZAX:                return m_uiVezaxGUID;
-            case TYPE_YOGGSARON:            return m_uiYoggSaronGUID;
-            case TYPE_ALGALON:              return m_uiAlgalonGUID;
+            case TYPE_LEVIATHAN:            return uiLeviathanGUID;
+            case TYPE_IGNIS:                return uiIgnisGUID;
+            case TYPE_RAZORSCALE:           return uiRazorscaleGUID;
+            case TYPE_XT002:                return uiXT002GUID;
+            case TYPE_KOLOGARN:             return uiKologarnGUID;
+            case TYPE_AURIAYA:              return uiAuriayaGUID;
+            case TYPE_MIMIRON:              return uiMimironGUID;
+            case TYPE_HODIR:                return uiMimironGUID;
+            case TYPE_THORIM:               return uiThorimGUID;
+            case TYPE_FREYA:                return uiFreyaGUID;
+            case TYPE_VEZAX:                return uiVezaxGUID;
+            case TYPE_YOGGSARON:            return uiYoggSaronGUID;
+            case TYPE_ALGALON:              return uiAlgalonGUID;
 
             // Assembly of Iron
-            case DATA_STEELBREAKER:         return m_auiAssemblyGUIDs[0];
-            case DATA_MOLGEIM:              return m_auiAssemblyGUIDs[1];
-            case DATA_BRUNDIR:              return m_auiAssemblyGUIDs[2];
+            case DATA_STEELBREAKER:         return uiAssemblyGUIDs[0];
+            case DATA_MOLGEIM:              return uiAssemblyGUIDs[1];
+            case DATA_BRUNDIR:              return uiAssemblyGUIDs[2];
         }
 
         return 0;
@@ -339,7 +339,7 @@ struct instance_ulduar : public ScriptedInstance
             case TYPE_YOGGSARON:
             case TYPE_ALGALON:
             case TYPE_COLOSSUS:
-                return m_auiEncounter[type];
+                return uiEncounter[type];
         }
 
         return 0;
@@ -350,10 +350,10 @@ struct instance_ulduar : public ScriptedInstance
         OUT_SAVE_INST_DATA;
 
         std::ostringstream saveStream;
-        saveStream << "U U " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3]
-                   << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << m_auiEncounter[6] << " " << m_auiEncounter[7]
-                   << m_auiEncounter[8] << " " << m_auiEncounter[9] << " " << m_auiEncounter[10] << " " << m_auiEncounter[11]
-                   << m_auiEncounter[12] << " " << m_auiEncounter[13] << " " << m_auiEncounter[14];
+        saveStream << "U U " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2] << " " << uiEncounter[3]
+                   << uiEncounter[4] << " " << uiEncounter[5] << " " << uiEncounter[6] << " " << uiEncounter[7]
+                   << uiEncounter[8] << " " << uiEncounter[9] << " " << uiEncounter[10] << " " << uiEncounter[11]
+                   << uiEncounter[12] << " " << uiEncounter[13] << " " << uiEncounter[14];
 
         m_strInstData = saveStream.str();
 
@@ -383,10 +383,10 @@ struct instance_ulduar : public ScriptedInstance
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             {
-                loadStream >> m_auiEncounter[i];
+                loadStream >> uiEncounter[i];
 
-                if (m_auiEncounter[i] == IN_PROGRESS)
-                    m_auiEncounter[i] = NOT_STARTED;
+                if (uiEncounter[i] == IN_PROGRESS)
+                    uiEncounter[i] = NOT_STARTED;
             }
         }
         OUT_LOAD_INST_DATA_COMPLETE;
