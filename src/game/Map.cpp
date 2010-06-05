@@ -3023,11 +3023,10 @@ void Map::ScriptsProcess()
                     break;
                 }
                 
-                // Source should only be Creature or GO, but in case of gossip, the target is our source.
                 Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
                 if (!cSource)
                 {
-                    sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for non-creature or non-GO source.", step.script->id);
+                    sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for non-creature source.", step.script->id);
                     break;
                 }
 
@@ -3062,12 +3061,15 @@ void Map::ScriptsProcess()
                 cSource->GetMap()->CreatureRelocation(cSource, step.script->x, step.script->y, step.script->z, 0);
                 break;
             }
+
             case SCRIPT_COMMAND_FLAG_SET:
+            {
                 if (!source)
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_SET (script id: %u) call for NULL object.", step.script->id);
                     break;
                 }
+
                 if (step.script->datalong <= OBJECT_FIELD_ENTRY || step.script->datalong >= source->GetValuesCount())
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_SET (script id: %u) call for wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u).",
@@ -3077,7 +3079,10 @@ void Map::ScriptsProcess()
 
                 source->SetFlag(step.script->datalong, step.script->datalong2);
                 break;
+            }
+            
             case SCRIPT_COMMAND_FLAG_REMOVE:
+            {
                 if (!source)
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_REMOVE (script id: %u) call for NULL object.", step.script->id);
@@ -3092,7 +3097,8 @@ void Map::ScriptsProcess()
 
                 source->RemoveFlag(step.script->datalong, step.script->datalong2);
                 break;
-
+            }
+            
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
                 // accept object in any one from target/source arg
@@ -3848,45 +3854,6 @@ void Map::ScriptsProcess()
                     break;
                 }
                 pSource->SendMovieStart(step.script->datalong);
-                break;
-            }
-            
-            case SCRIPT_COMMAND_SET_FLAG:
-            {
-                if (!source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_MOD_UPDATEFIELD (script id: %u) call for NULL source.", step.script->id);
-                    break;
-                }
-                
-                uint16 maxOffset = 0;
-                switch (source->GetTypeId())
-                {
-                    case TYPEID_ITEM:
-                        maxOffset = ITEM_END;
-                        break;
-                    case TYPEID_UNIT:
-                        maxOffset = UNIT_END;
-                        break;
-                    case TYPEID_PLAYER:
-                        maxOffset = PLAYER_END;
-                        break;
-                    case TYPEID_GAMEOBJECT:
-                        maxOffset = GAMEOBJECT_END;
-                        break;
-                }
-                
-                if (step.script->datalong >= maxOffset || !step.script->datalong)
-                {
-                    sLog.outError("SCRIPT_COMMAND_MOD_UPDATEFIELD (script id: %u). invalid index parameter (%u). maximum offset: (%u) for typeid %u",
-                    step.script->id, step.script->datalong, maxOffset, source->GetTypeId());
-                    break;
-                }
-                
-                if (step.script->dataint)
-                    source->SetFlag(step.script->datalong, step.script->datalong2);
-                else
-                    source->RemoveFlag(step.script->datalong, step.script->datalong2);
                 break;
             }
             
