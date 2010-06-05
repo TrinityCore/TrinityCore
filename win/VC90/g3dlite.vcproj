@@ -464,6 +464,10 @@
 				RelativePath="..\..\dep\src\g3dlite\Vector4.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\dep\src\g3dlite\RegistryUtil.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
