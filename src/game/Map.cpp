@@ -3049,7 +3049,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = source->ToCreature();
+                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_MOVE_TO (script id: %u) call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",
