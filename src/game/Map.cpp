@@ -3016,20 +3016,32 @@ void Map::ScriptsProcess()
             }
             
             case SCRIPT_COMMAND_FIELD_SET:
+            {
                 if (!source)
                 {
-                    sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for NULL object.", step.script->id);
+                    sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for NULL source.", step.script->id);
                     break;
                 }
-                if (step.script->datalong <= OBJECT_FIELD_ENTRY || step.script->datalong >= source->GetValuesCount())
+                
+                // Source should only be Creature or GO, but in case of gossip, the target is our source.
+                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                if (!cSource)
+                {
+                    sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for non-creature or non-GO source.", step.script->id);
+                    break;
+                }
+
+                if (step.script->datalong <= OBJECT_FIELD_ENTRY || step.script->datalong >= cSource->GetValuesCount())
                 {
                     sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for wrong field %u (max count: %u) in object (TypeId: %u, Entry: %u, GUID: %u).",
                     step.script->id, step.script->datalong,source->GetValuesCount(),source->GetTypeId(),source->GetEntry(),source->GetGUIDLow());
                     break;
                 }
 
-                source->SetUInt32Value(step.script->datalong, step.script->datalong2);
+                cSource->SetUInt32Value(step.script->datalong, step.script->datalong2);
                 break;
+            }
+
             case SCRIPT_COMMAND_MOVE_TO:
             {
                 if (!source)
