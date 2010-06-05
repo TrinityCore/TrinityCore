@@ -234,6 +234,9 @@ class ChatHandler
         bool HandleInstanceUnbindCommand(const char* args);
         bool HandleInstanceStatsCommand(const char* args);
         bool HandleInstanceSaveDataCommand(const char * args);
+        bool HandleInstanceOpenCommand(const char * args);
+        bool HandleInstanceCloseCommand(const char * args);
+        bool HandleInstanceOpenCloseCommand(const char * args, bool open);
 
         bool HandleLearnCommand(const char* args);
         bool HandleLearnAllCommand(const char* args);
