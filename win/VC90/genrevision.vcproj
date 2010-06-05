@@ -320,7 +320,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\src\tools\genrevision\genrevision.cpp"
+			RelativePath="..\..\src\genrevision\genrevision.cpp"
 			>
 		</File>
 	</Files>

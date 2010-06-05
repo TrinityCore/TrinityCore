@@ -429,84 +429,76 @@
 			Name="doc"
 			>
 			<File
-				RelativePath="..\..\Authors"
+				RelativePath="..\..\COPYING"
 				>
 			</File>
 			<File
-				RelativePath="..\..\ChangeLog"
+				RelativePath="..\..\INSTALL.linux"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Copying"
+				RelativePath="..\..\README"
 				>
 			</File>
 			<File
-				RelativePath="..\..\Install"
+				RelativePath="..\..\README.AHBOT"
 				>
 			</File>
 			<File
-				RelativePath="..\..\News"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Readme"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Thanks"
+				RelativePath="..\..\THANKS"
 				>
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\src\trinitycore\CliRunnable.cpp"
+			RelativePath="..\..\src\server\worldserver\CliRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\CliRunnable.h"
+			RelativePath="..\..\src\server\worldserver\CliRunnable.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Main.cpp"
+			RelativePath="..\..\src\server\worldserver\Main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Master.cpp"
+			RelativePath="..\..\src\server\worldserver\Master.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\Master.h"
+			RelativePath="..\..\src\server\worldserver\Master.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\RASocket.cpp"
+			RelativePath="..\..\src\server\worldserver\RASocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\RASocket.h"
+			RelativePath="..\..\src\server\worldserver\RASocket.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\resource.h"
+			RelativePath="..\..\src\server\worldserver\resource.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\TrinityCore.rc"
+			RelativePath="..\..\src\server\worldserver\TrinityCore.rc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
+			RelativePath="..\..\src\server\shared\WheatyExceptionReport.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
+			RelativePath="..\..\src\server\shared\WheatyExceptionReport.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\WorldRunnable.cpp"
+			RelativePath="..\..\src\server\worldserver\WorldRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinitycore\WorldRunnable.h"
+			RelativePath="..\..\src\server\worldserver\WorldRunnable.h"
 			>
 		</File>
 	</Files>
