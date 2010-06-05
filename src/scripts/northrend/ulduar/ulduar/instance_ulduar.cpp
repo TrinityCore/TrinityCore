@@ -235,12 +235,12 @@ struct instance_ulduar : public ScriptedInstance
             case TYPE_LEVIATHAN:
                 if (data == IN_PROGRESS)
                 {
-                    for (uint8 uiI; uiI < 7; uiI++)
+                    for (uint8 uiI = 0; uiI < 7; uiI++)
                         HandleGameObject(uiLeviathanDoor[uiI],false);
                 }
                 else
                 {
-                    for (uint8 uiI; uiI < 7; uiI++)
+                    for (uint8 uiI = 0; uiI < 7; uiI++)
                         HandleGameObject(uiLeviathanDoor[uiI],true);
                 }
                 break;
