@@ -418,55 +418,55 @@
 	</References>
 	<Files>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthCodes.cpp"
+			RelativePath="..\..\src\server\authserver\AuthCodes.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthCodes.h"
+			RelativePath="..\..\src\server\authserver\AuthCodes.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthSocket.cpp"
+			RelativePath="..\..\src\server\authserver\AuthSocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\AuthSocket.h"
+			RelativePath="..\..\src\server\authserver\AuthSocket.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\Main.cpp"
+			RelativePath="..\..\src\server\authserver\Main.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmList.cpp"
+			RelativePath="..\..\src\server\authserver\RealmAcceptor.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmList.h"
+			RelativePath="..\..\src\server\authserver\RealmList.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\TrinityRealm.rc"
+			RelativePath="..\..\src\server\authserver\RealmList.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmAcceptor.h"
+			RelativePath="..\..\src\server\authserver\RealmSocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmSocket.cpp"
+			RelativePath="..\..\src\server\authserver\RealmSocket.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\trinityrealm\RealmSocket.h"
+			RelativePath="..\..\src\server\authserver\TrinityRealm.rc"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\WheatyExceptionReport.cpp"
+			RelativePath="..\..\src\server\shared\WheatyExceptionReport.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\shared\WheatyExceptionReport.h"
+			RelativePath="..\..\src\server\shared\WheatyExceptionReport.h"
 			>
 		</File>
 	</Files>
