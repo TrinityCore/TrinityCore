@@ -23,7 +23,7 @@ SET(vmaps_STAT_SRCS
 
 include_directories(
   ${ACE_INCLUDE_DIR}
-  ${CMAKE_SOURCE_DIR}/src/framework
+  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/dep/include/g3dlite
 )
 
