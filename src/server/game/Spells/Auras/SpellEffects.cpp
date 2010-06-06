@@ -3706,7 +3706,7 @@ void Spell::EffectSummonType(uint32 i)
 
                         TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
-                        TempSummon * summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
+                        summon = m_originalCaster->SummonCreature(entry, pos, summonType, duration);
                         if (!summon)
                             continue;
                         if (properties->Category == SUMMON_CATEGORY_ALLY)
@@ -3747,7 +3747,10 @@ void Spell::EffectSummonType(uint32 i)
     }
 
     if (summon)
+    {
         summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
+        summon->SetCreatorGUID(m_originalCaster->GetGUID());
+    }
 }
 
 void Spell::EffectLearnSpell(uint32 i)
