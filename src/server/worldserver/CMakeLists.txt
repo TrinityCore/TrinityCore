@@ -19,8 +19,59 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/include
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/server/shared/vmap
   ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/src/server/game
+  ${CMAKE_SOURCE_DIR}/src/server/game/Account
+  ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
+  ${CMAKE_SOURCE_DIR}/src/server/game/Addons
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/AuctionHouseBot
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/EventAI
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
+  ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
+  ${CMAKE_SOURCE_DIR}/src/server/game/BattleGrounds
+  ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
+  ${CMAKE_SOURCE_DIR}/src/server/game/Chat
+  ${CMAKE_SOURCE_DIR}/src/server/game/Combat
+  ${CMAKE_SOURCE_DIR}/src/server/game/ConditionMgr
+  ${CMAKE_SOURCE_DIR}/src/server/game/DataStores
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Creature
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/GameObject
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Pet
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Player
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Totem
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Unit
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Vehicle
+  ${CMAKE_SOURCE_DIR}/src/server/game/Events
+  ${CMAKE_SOURCE_DIR}/src/server/game/Globals
+  ${CMAKE_SOURCE_DIR}/src/server/game/Groups
+  ${CMAKE_SOURCE_DIR}/src/server/game/Guilds
+  ${CMAKE_SOURCE_DIR}/src/server/game/Instances
+  ${CMAKE_SOURCE_DIR}/src/server/game/LookingForGroup
+  ${CMAKE_SOURCE_DIR}/src/server/game/Loot
+  ${CMAKE_SOURCE_DIR}/src/server/game/Mails
+  ${CMAKE_SOURCE_DIR}/src/server/game/Map
+  ${CMAKE_SOURCE_DIR}/src/server/game/Map/Cell
+  ${CMAKE_SOURCE_DIR}/src/server/game/Map/Grid
+  ${CMAKE_SOURCE_DIR}/src/server/game/Movement
+  ${CMAKE_SOURCE_DIR}/src/server/game/Movement/MovementGenerators
+  ${CMAKE_SOURCE_DIR}/src/server/game/Opcodes
+  ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
+  ${CMAKE_SOURCE_DIR}/src/server/game/Pools
+  ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders
+  ${CMAKE_SOURCE_DIR}/src/server/game/Quests
+  ${CMAKE_SOURCE_DIR}/src/server/game/Reputation
+  ${CMAKE_SOURCE_DIR}/src/server/game/ScriptMgr
+  ${CMAKE_SOURCE_DIR}/src/server/game/Skills
+  ${CMAKE_SOURCE_DIR}/src/server/game/Spells
+  ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
+  ${CMAKE_SOURCE_DIR}/src/server/game/Tools
+  ${CMAKE_SOURCE_DIR}/src/server/game/Weather
+  ${CMAKE_SOURCE_DIR}/src/server/game/World
   ${MYSQL_INCLUDE_DIR}
 )
 

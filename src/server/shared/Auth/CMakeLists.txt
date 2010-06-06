@@ -19,8 +19,8 @@ SET(trinityauth_STAT_SRCS
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/src/shared
-  ${CMAKE_SOURCE_DIR}/src/framework
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${MYSQL_INCLUDE_DIR}
 )
 
