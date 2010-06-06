@@ -1,5 +1,5 @@
 add_subdirectory(updates)
-add_subdirectory(FULL)
+add_subdirectory(full)
 
 ########### install files ###############
 
