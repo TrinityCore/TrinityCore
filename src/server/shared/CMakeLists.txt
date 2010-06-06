@@ -30,7 +30,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/include
   ${CMAKE_SOURCE_DIR}/dep/include/sockets
-  ${CMAKE_SOURCE_DIR}/src/framework
+  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/src/shared
   ${MYSQL_INCLUDE_DIR}
 )
