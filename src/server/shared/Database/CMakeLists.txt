@@ -24,6 +24,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
   ${CMAKE_SOURCE_DIR}/src/server/framework
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
   ${MYSQL_INCLUDE_DIR}
 )
 
