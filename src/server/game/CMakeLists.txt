@@ -329,6 +329,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
   ${CMAKE_SOURCE_DIR}/src/server/game/AI
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/AuctionHouseBot
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/EventAI
+  ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
   ${CMAKE_SOURCE_DIR}/src/server/game/BattleGrounds
   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
@@ -358,6 +361,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Map/Cell
   ${CMAKE_SOURCE_DIR}/src/server/game/Map/Grid
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement
+  ${CMAKE_SOURCE_DIR}/src/server/game/MovementGenerators
   ${CMAKE_SOURCE_DIR}/src/server/game/Opcodes
   ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
   ${CMAKE_SOURCE_DIR}/src/server/game/Pools
