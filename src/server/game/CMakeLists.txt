@@ -83,7 +83,6 @@ SET(game_STAT_SRCS
    Chat/Channel.cpp
    Chat/Channel.h
    Chat/ChannelHandler.cpp
-   CharacterHandler.cpp
    Chat/ChannelMgr.h
    Chat/ChannelMgr.cpp
    Chat/Chat.cpp
@@ -154,6 +153,7 @@ SET(game_STAT_SRCS
    Entities/Player/TicketHandler.cpp
    Entities/Player/TradeHandler.cpp
    Entities/Player/VoiceChatHandler.cpp
+   Entities/Player/CharacterHandler.cpp
    Entities/Unit/StatSystem.cpp
    Entities/Unit/Unit.cpp
    Entities/Unit/Unit.h
@@ -330,20 +330,20 @@ include_directories(
 
 if(NOT DO_SCRIPTS)
    SET(game_STAT_SRCS ${game_STAT_SRCS}
-      ScriptedEscortAI.cpp
-      ScriptedEscortAI.h
-      ScriptedPch.cpp
-      ScriptedPch.h
-      ScriptedCreature.cpp
-      ScriptedCreature.h
-      ScriptedFollowerAI.cpp
-      ScriptedFollowerAI.h
-      ScriptedGossip.h
-      ScriptedGuardAI.cpp
-      ScriptedGuardAI.h
-      ScriptedInstance.h
-      ScriptedSimpleAI.cpp
-      ScriptedSimpleAI.h
+      AI/ScriptedAI/ScriptedEscortAI.cpp
+      AI/ScriptedAI/ScriptedEscortAI.h
+      ScriptMgr/ScriptedPch.cpp
+      ScriptMgr/ScriptedPch.h
+      AI/ScriptedAI/ScriptedCreature.cpp
+      AI/ScriptedAI/ScriptedCreature.h
+      AI/ScriptedAI/ScriptedFollowerAI.cpp
+      AI/ScriptedAI/ScriptedFollowerAI.h
+      AI/ScriptedAI/ScriptedGossip.h
+      AI/ScriptedAI/ScriptedGuardAI.cpp
+      AI/ScriptedAI/ScriptedGuardAI.h
+      AI/ScriptedAI/ScriptedInstance.h
+      AI/ScriptedAI/ScriptedSimpleAI.cpp
+      AI/ScriptedAI/ScriptedSimpleAI.h
    )
    message("-- Added Script Engine to GAME lib")
 endif(NOT DO_SCRIPTS)

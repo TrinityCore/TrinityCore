@@ -4,20 +4,20 @@ IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 
 SET(scripts_STAT_SRCS
-   ../game/ScriptedPch.cpp
-   ../game/ScriptedPch.h
-   ../game/ScriptedEscortAI.cpp
-   ../game/ScriptedEscortAI.h
-   ../game/ScriptedCreature.cpp
-   ../game/ScriptedCreature.h
-   ../game/ScriptedFollowerAI.cpp
-   ../game/ScriptedFollowerAI.h
-   ../game/ScriptedGossip.h
-   ../game/ScriptedGuardAI.cpp
-   ../game/ScriptedGuardAI.h
-   ../game/ScriptedInstance.h
-   ../game/ScriptedSimpleAI.cpp
-   ../game/ScriptedSimpleAI.h
+   ../game/ScriptMgr/ScriptedPch.cpp
+   ../game/ScriptMgr/ScriptedPch.h
+   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
+   ../game/AI/ScriptedAI/ScriptedEscortAI.h
+   ../game/AI/ScriptedAI/ScriptedCreature.cpp
+   ../game/AI/ScriptedAI/ScriptedCreature.h
+   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
+   ../game/AI/ScriptedAI/ScriptedFollowerAI.h
+   ../game/AI/ScriptedAI/ScriptedGossip.h
+   ../game/AI/ScriptedAI/ScriptedGuardAI.cpp
+   ../game/AI/ScriptedAI/ScriptedGuardAI.h
+   ../game/AI/ScriptedAI/ScriptedInstance.h
+   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
+   ../game/AI/ScriptedAI/ScriptedSimpleAI.h
    custom/on_events.cpp
    eastern_kingdoms/alterac_valley/alterac_valley.cpp
    eastern_kingdoms/alterac_valley/boss_balinda.cpp
