@@ -1,8 +1,2 @@
-add_subdirectory(framework)
-add_subdirectory(game)
-if (DO_SCRIPTS)
-   add_subdirectory(scripts)
-endif (DO_SCRIPTS)
-add_subdirectory(shared)
-add_subdirectory(trinitycore)
-add_subdirectory(trinityrealm)
+add_subdirectory(server)
+
