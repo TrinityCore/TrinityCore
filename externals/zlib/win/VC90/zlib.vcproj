@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\zlib__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -90,7 +90,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\zlib__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -159,7 +159,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\zlib__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -225,7 +225,7 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\zlib__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
