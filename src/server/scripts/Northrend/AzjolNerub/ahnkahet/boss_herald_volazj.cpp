@@ -125,9 +125,6 @@ struct boss_volazjAI : public ScriptedAI
                 // Summon clone
                 if (Unit *summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,0))
                 {
-                    // required for correct visual
-                    // Fixme: allow mirror image query to send other guid to get rid of minion status
-                    summon->SetUInt64Value(UNIT_FIELD_CREATEDBY, plr->GetGUID());
                     // clone
                     plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                     // set phase
