@@ -1,0 +1,9 @@
+utf8 cpp library
+Release 2.1
+
+This is a minor feature release - added the function peek_next. 
+
+Changes from version 2.o
+- Implemented feature request [ 1770746 ] "Provide a const version of next() (some sort of a peek() )
+
+Files included in the release: utf8.h, core.h, checked.h, unchecked.h, utf8cpp.html, ReleaseNotes
