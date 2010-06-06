@@ -36,6 +36,7 @@ option(DO_WARN "Enable all compile warnings" 0)
 option(CENTOS "CENTOS" 0)
 option(DO_SQL "Copy SQL files" 0)
 option(DO_PCH "Use precompiled headers" 1)
+option(DO_TOOLS "Compile tools" 0)
 
 set(GENREV_SRC
 src/genrevision/genrevision.cpp
@@ -182,11 +183,9 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-#add_subdirectory(doc)
 add_subdirectory(dep)
 add_subdirectory(src)
 if(DO_SQL)
     message("* Copy SQL files ON")
     add_subdirectory(sql)
 endif(DO_SQL)
-
