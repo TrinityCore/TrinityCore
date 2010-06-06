@@ -2,4 +2,4 @@
 
 FILE(GLOB _SQL *.sql)
 
-install(FILES ${README} DESTINATION share/trinity/sql/full)
+install(FILES ${_SQL} DESTINATION share/trinity/sql/tools)
