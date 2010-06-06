@@ -38,7 +38,7 @@ option(DO_SQL "Copy SQL files" 0)
 option(DO_PCH "Use precompiled headers" 1)
 
 set(GENREV_SRC
-src/tools/genrevision/genrevision.cpp
+src/genrevision/genrevision.cpp
 )
 
 if(DO_DEBUG)
