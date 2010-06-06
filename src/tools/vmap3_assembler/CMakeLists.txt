@@ -67,7 +67,7 @@ add_library(g3dlite ../../dep/src/g3dlite/AABox.cpp
 	)
 
 add_library(vmap
-	../../src/shared/vmap/BIH.cpp
+	../../src/shared/vmap/BoundingIntervalHierarchy.cpp
 	../../src/shared/vmap/VMapManager2.cpp
 	../../src/shared/vmap/MapTree.cpp
 	../../src/shared/vmap/TileAssembler.cpp
@@ -77,7 +77,7 @@ add_library(vmap
 
 target_link_libraries(vmap g3dlite z)
 
-add_executable(vmap_assembler vmap_assembler.cpp)
+add_executable(vmap_assembler VMapAssembler.cpp)
 target_link_libraries(vmap_assembler vmap)
 
 # add_executable(vmap_test coordinate_test.cpp)
