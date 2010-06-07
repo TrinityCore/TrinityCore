@@ -76,7 +76,7 @@
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
 
-#include "UnorderedMap.h"
+#include "Dynamic/UnorderedMap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -100,8 +100,8 @@
 #include <sstream>
 #include <algorithm>
 
-#include "LockedQueue.h"
-#include "Threading.h"
+#include "Threading/LockedQueue.h"
+#include "Threading/Threading.h"
 
 #include <ace/Basic_Types.h>
 #include <ace/Guard_T.h>
