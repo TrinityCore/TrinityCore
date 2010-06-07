@@ -2,15 +2,15 @@
 ########### next target ###############
 
 SET(trinity-core_SRCS
-CliRunnable.cpp
-CliRunnable.h
+CommandLine/CliRunnable.cpp
+CommandLine/CliRunnable.h
+RemoteAccess/RASocket.cpp
+RemoteAccess/RASocket.h
+WorldThread/WorldRunnable.cpp
+WorldThread/WorldRunnable.h
 Main.cpp
 Master.cpp
 Master.h
-RASocket.cpp
-RASocket.h
-WorldRunnable.cpp
-WorldRunnable.h
 )
 
 include_directories(
@@ -19,8 +19,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/dep/include
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/shared/vmap
-  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/src/server/game
   ${CMAKE_SOURCE_DIR}/src/server/game/Account
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements

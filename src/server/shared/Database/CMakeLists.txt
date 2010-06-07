@@ -1,7 +1,7 @@
 SET(trinitydatabase_STAT_SRCS
-    DBCFileLoader.cpp
-    DBCFileLoader.h
-    DBCStore.h
+    ../DataStores/DBCFileLoader.cpp
+    ../DataStores/DBCFileLoader.h
+    ../DataStores/DBCStore.h
     Database.cpp
     Database.h
     DatabaseEnv.h   
@@ -23,7 +23,6 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
   ${MYSQL_INCLUDE_DIR}
 )

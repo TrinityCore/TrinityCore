@@ -13,22 +13,22 @@ add_subdirectory(Utilities)
 ########### next target ###############
 
 SET(shared_STAT_SRCS
-   ByteBuffer.h
+   Debugging/Errors.h
+   Logging/Log.cpp
+   Logging/Log.h
+   Packets/ByteBuffer.h
+   Packets/WorldPacket.h
+   Threading/DelayExecutor.cpp
+   Threading/DelayExecutor.h
+   Threading/Threading.cpp
+   Utilities/ProgressBar.cpp
+   Utilities/ProgressBar.h
+   Utilities/SignalHandler.h
+   Utilities/Timer.h
+   Utilities/Util.cpp
+   Utilities/Util.h
    Common.cpp
    Common.h
-   DelayExecutor.cpp
-   DelayExecutor.h
-   Errors.h
-   Log.cpp
-   Log.h
-   ProgressBar.cpp
-   ProgressBar.h
-   SignalHandler.h
-   Threading.cpp
-   Timer.h
-   Util.cpp
-   Util.h
-   WorldPacket.h
    SystemConfig.h
 )
 
