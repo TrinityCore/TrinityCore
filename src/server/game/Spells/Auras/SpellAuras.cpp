@@ -391,9 +391,16 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     assert(auraApp);
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
+    // TODO: Figure out why this happens.
+    if (itr == m_applications.end())
+    {
+        sLog.outError("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
+        target->GetGUIDLow(), caster->GetGUIDLow(), auraApp->GetBase()->GetSpellProto()->Id);
+        m_applications.erase(itr);
+    
+    }
     // aura has to be already applied
-    assert(itr->second == auraApp);
-    m_applications.erase(itr);
+    //assert(itr->second == auraApp);
     m_removedApplications.push_back(auraApp);
 
     // reset cooldown state for spells
@@ -412,7 +419,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
     assert (!m_isRemoved);
     m_isRemoved = true;
     ApplicationMap::iterator appItr = m_applications.begin();
-    while (!m_applications.empty())
+    for (appItr = m_applications.begin(); appItr != m_applications.end();)
     {
         AuraApplication * aurApp =  appItr->second;
         Unit * target = aurApp->GetTarget();
