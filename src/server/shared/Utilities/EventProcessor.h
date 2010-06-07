@@ -21,7 +21,7 @@
 #ifndef __EVENTPROCESSOR_H
 #define __EVENTPROCESSOR_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 
 #include<map>
 
