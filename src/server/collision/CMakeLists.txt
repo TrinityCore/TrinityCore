@@ -2,8 +2,8 @@
 ########### next target ###############
 
 SET(collision_STAT_SRCS
-   BIH.h
-   BIH.cpp
+   BoundingIntervalHierarchy.h
+   BoundingIntervalHierarchy.cpp
    Management/IVMapManager.h
    Maps/MapTree.cpp
    Maps/MapTree.h

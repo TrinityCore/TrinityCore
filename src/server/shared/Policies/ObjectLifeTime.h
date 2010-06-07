@@ -22,7 +22,7 @@
 #define TRINITY_OBJECTLIFETIME_H
 
 #include <stdexcept>
-#include "Platform/Define.h"
+#include "Define.h"
 
 typedef void (* Destroyer)(void);
 

@@ -19,7 +19,7 @@
 #ifndef TRINITYSERVER_MEMORY_H
 #define TRINITYSERVER_MEMORY_H
 
-#include "Platform/CompilerDefs.h"
+#include "shared/CompilerDefs.h"
 
 #if COMPILER == COMPILER_MICROSOFT
 

@@ -22,7 +22,7 @@
 #define CONFIG_H
 
 #include <Policies/Singleton.h>
-#include "Platform/Define.h"
+#include "Define.h"
 
 class DOTCONFDocument;
 
