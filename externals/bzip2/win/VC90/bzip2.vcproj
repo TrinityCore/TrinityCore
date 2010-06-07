@@ -277,31 +277,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\blocksort.c"
+				RelativePath="..\..\blocksort.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\bzlib.c"
+				RelativePath="..\..\bzlib.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\compress.c"
+				RelativePath="..\..\compress.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\crctable.c"
+				RelativePath="..\..\crctable.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\decompress.c"
+				RelativePath="..\..\decompress.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\huffman.c"
+				RelativePath="..\..\huffman.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\randtable.c"
+				RelativePath="..\..\randtable.c"
 				>
 			</File>
 		</Filter>
@@ -311,11 +311,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\bzlib.h"
+				RelativePath="..\..\bzlib.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\dep\src\bzip2\bzlib_private.h"
+				RelativePath="..\..\bzlib_private.h"
 				>
 			</File>
 		</Filter>
