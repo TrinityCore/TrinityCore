@@ -26,7 +26,7 @@
 #define _AUTHSOCKET_H
 
 #include "Common.h"
-#include "Auth/BigNumber.h"
+#include "BigNumber.h"
 
 #include "RealmSocket.h"
 

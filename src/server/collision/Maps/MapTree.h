@@ -19,9 +19,9 @@
 #ifndef _MAPTREE_H
 #define _MAPTREE_H
 
-#include "Platform/Define.h"
-#include "Utilities/UnorderedMap.h"
-#include "BIH.h"
+#include "Define.h"
+#include "UnorderedMap.h"
+#include "BoundingIntervalHierarchy.cpp"
 
 namespace VMAP
 {
