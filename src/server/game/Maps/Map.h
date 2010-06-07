@@ -33,7 +33,7 @@
 #include "Miscellaneous/SharedDefines.h"
 #include "Grids/GridRefManager.h"
 #include "Maps/MapRefManager.h"
-#include "mersennetwister/MersenneTwister.h"
+#include "MersenneTwister.h"
 
 #include <bitset>
 #include <list>
