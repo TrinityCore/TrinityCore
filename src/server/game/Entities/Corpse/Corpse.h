@@ -23,7 +23,7 @@
 
 #include "Object.h"
 #include "Database/DatabaseEnv.h"
-#include "GridDefines.h"
+#include "Grids/GridDefines.h"
 #include "LootMgr.h"
 
 enum CorpseType

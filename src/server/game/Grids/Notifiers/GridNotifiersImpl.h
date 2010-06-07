@@ -22,10 +22,10 @@
 #define TRINITY_GRIDNOTIFIERSIMPL_H
 
 #include "GridNotifiers.h"
-#include "WorldPacket.h"
-#include "Corpse.h"
+#include "Packets/WorldPacket.h"
+#include "Corpse/Corpse.h"
 #include "Player.h"
-#include "UpdateData.h"
+#include "Updates/UpdateData.h"
 #include "CreatureAI.h"
 #include "SpellAuras.h"
 

@@ -20,10 +20,10 @@
 #define __TRINITY_REPUTATION_MGR_H
 
 #include "Common.h"
-#include "SharedDefines.h"
-#include "Language.h"
-#include "DBCStructure.h"
-#include "QueryResult.h"
+#include "Miscellaneous/SharedDefines.h"
+#include "Miscellaneous/Language.h"
+#include "DataStores/DBCStructure.h"
+#include "Database/QueryResult.h"
 #include <map>
 
 static uint32 ReputationRankStrIndex[MAX_REPUTATION_RANK] =

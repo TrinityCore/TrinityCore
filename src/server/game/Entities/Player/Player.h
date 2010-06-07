@@ -34,12 +34,12 @@
 #include "Server/WorldSession.h"
 #include "Pet.h"
 #include "MapReference.h"
-#include "Util.h"                                           // for Tokens typedef
-#include "AchievementMgr.h"
-#include "ReputationMgr.h"
-#include "BattleGround.h"
-#include "DBCEnums.h"
-#include "LFG.h"
+#include "Utilities/Util.h"                                           // for Tokens typedef
+#include "Achievements/AchievementMgr.h"
+#include "Reputation/ReputationMgr.h"
+#include "BattleGrounds/BattleGround.h"
+#include "DataStores/DBCEnums.h"
+#include "DungeonFinding/LFG.h"
 
 #include<string>
 #include<vector>

@@ -18,10 +18,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ByteBuffer.h"
+#include "Packets/ByteBuffer.h"
 #include "ReactorAI.h"
-#include "Errors.h"
-#include "Log.h"
+#include "Debugging/Errors.h"
+#include "Logging/Log.h"
 #include "ObjectAccessor.h"
 #include "CreatureAIImpl.h"
 

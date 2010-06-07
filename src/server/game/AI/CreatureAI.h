@@ -21,7 +21,7 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
-#include "UnitAI.h"
+#include "AI/CoreAI/UnitAI.h"
 #include "Common.h"
 
 class WorldObject;

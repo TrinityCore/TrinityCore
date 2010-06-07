@@ -20,11 +20,11 @@
 
 #include "BattleGround.h"
 #include "BattleGroundRL.h"
-#include "Language.h"
+#include "Miscellaneous/Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "Player.h"
-#include "WorldPacket.h"
+#include "Packets/WorldPacket.h"
 
 BattleGroundRL::BattleGroundRL()
 {

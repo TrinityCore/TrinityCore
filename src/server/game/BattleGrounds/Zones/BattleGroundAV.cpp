@@ -19,13 +19,13 @@
  */
 
 #include "ObjectMgr.h"
-#include "WorldPacket.h"
+#include "Packets/WorldPacket.h"
 
 #include "BattleGround.h"
 #include "BattleGroundAV.h"
-#include "Formulas.h"
+#include "Miscellaneous/Formulas.h"
 #include "GameObject.h"
-#include "Language.h"
+#include "Miscellaneous/Language.h"
 #include "Player.h"
 #include "SpellAuras.h"
 

@@ -7,6 +7,6 @@
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "Database/SQLStorage.h"
-#include "Opcodes.h"
-#include "SharedDefines.h"
+#include "Server/Protocol/Opcodes.h"
+#include "Miscellaneous/SharedDefines.h"
 #include "ObjectMgr.h"

@@ -19,16 +19,16 @@
  */
 
 #include "World.h"
-#include "WorldPacket.h"
+#include "Packets/WorldPacket.h"
 #include "ObjectMgr.h"
 #include "BattleGroundMgr.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
 #include "Creature.h"
-#include "Language.h"
+#include "Miscellaneous/Language.h"
 #include "Object.h"
 #include "Player.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 
 // these variables aren't used outside of this file, so declare them only here
 uint32 BG_AB_HonorScoreTicks[BG_HONOR_MODE_NUM] = {

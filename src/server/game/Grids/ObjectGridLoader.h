@@ -21,11 +21,11 @@
 #ifndef TRINITY_OBJECTGRIDLOADER_H
 #define TRINITY_OBJECTGRIDLOADER_H
 
-#include "Utilities/TypeList.h"
-#include "Platform/Define.h"
-#include "GameSystem/GridLoader.h"
-#include "GridDefines.h"
-#include "Cell.h"
+#include "Dynamic/TypeList.h"
+#include "Define.h"
+#include "Grids/GridLoader.h"
+#include "Grids/GridDefines.h"
+#include "Grids/Cells/Cell.h"
 
 class ObjectWorldLoader;
 

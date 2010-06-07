@@ -23,9 +23,9 @@
 
 #include "Policies/Singleton.h"
 
-#include "SharedDefines.h"
+#include "Miscellaneous/SharedDefines.h"
 
-#include "AuctionHouseBot.h"
+#include "AuctionHouse/AuctionHouseBot/AuctionHouseBot.h"
 
 class Item;
 class Player;

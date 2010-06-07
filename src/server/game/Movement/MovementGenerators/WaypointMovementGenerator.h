@@ -29,8 +29,8 @@
 
 #include "MovementGenerator.h"
 #include "DestinationHolder.h"
-#include "WaypointManager.h"
-#include "Path.h"
+#include "Movement/Waypoints/WaypointManager.h"
+#include "Movement/Waypoints/Path.h"
 #include "Traveller.h"
 
 #include "Player.h"
