@@ -17,12 +17,12 @@
  */
 #include "Policies/SingletonImp.h"
 #include "Common.h"
-#include "SharedDefines.h"
+#include "Miscellaneous/SharedDefines.h"
 #include "Group.h"
 #include "Player.h"
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
-#include "WorldPacket.h"
+#include "Packets/WorldPacket.h"
 
 INSTANTIATE_SINGLETON_1(LFGMgr);
 

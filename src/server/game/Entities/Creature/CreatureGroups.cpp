@@ -21,7 +21,7 @@
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
+#include "Utilities/ProgressBar.h"
 #include "Policies/SingletonImp.h"
 #include "CreatureAI.h"
 
