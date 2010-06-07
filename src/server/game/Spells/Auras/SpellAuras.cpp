@@ -396,9 +396,10 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     {
         sLog.outError("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
         target->GetGUIDLow(), caster->GetGUIDLow(), auraApp->GetBase()->GetSpellProto()->Id);
-        m_applications.erase(itr);
-    
     }
+    else
+        m_applications.erase(itr);
+
     // aura has to be already applied
     //assert(itr->second == auraApp);
     m_removedApplications.push_back(auraApp);
