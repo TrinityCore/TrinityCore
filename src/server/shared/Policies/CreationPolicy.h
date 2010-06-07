@@ -22,7 +22,7 @@
 #define TRINITY_CREATIONPOLICY_H
 
 #include <stdlib.h>
-#include "Platform/Define.h"
+#include "Define.h"
 
 namespace Trinity
 {
