@@ -22,7 +22,7 @@
 #define TRINITYCORE_GAMEOBJECT_H
 
 #include "Common.h"
-#include "SharedDefines.h"
+#include "Miscellaneous/SharedDefines.h"
 #include "Object.h"
 #include "LootMgr.h"
 #include "Database/DatabaseEnv.h"

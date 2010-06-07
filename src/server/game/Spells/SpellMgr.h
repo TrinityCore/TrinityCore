@@ -24,13 +24,13 @@
 // For static or at-server-startup loaded spell data
 // For more high level function for sSpellStore data
 
-#include "SharedDefines.h"
+#include "Miscellaneous/SharedDefines.h"
 #include "SpellAuraDefines.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
 #include "Database/SQLStorage.h"
 
-#include "Utilities/UnorderedMap.h"
+#include "Dynamic/UnorderedMap.h"
 
 #include "Player.h"
 

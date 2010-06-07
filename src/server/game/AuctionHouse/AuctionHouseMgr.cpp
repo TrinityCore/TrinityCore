@@ -20,8 +20,8 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
-#include "WorldSession.h"
+#include "Packets/WorldPacket.h"
+#include "Server/WorldSession.h"
 #include "Database/DatabaseEnv.h"
 #include "Database/SQLStorage.h"
 #include "Policies/SingletonImp.h"
@@ -30,9 +30,9 @@
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Item.h"
-#include "Language.h"
-#include "Log.h"
-#include "ProgressBar.h"
+#include "Miscellaneous/Language.h"
+#include "Logging/Log.h"
+#include "Utilities/ProgressBar.h"
 #include <vector>
 
 INSTANTIATE_SINGLETON_1(AuctionHouseMgr);

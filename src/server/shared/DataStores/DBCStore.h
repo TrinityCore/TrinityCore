@@ -20,7 +20,7 @@
 #define DBCSTORE_H
 
 #include "DBCFileLoader.h"
-#include "Log.h"
+#include "Logging/Log.h"
 
 struct SqlDbc
 {

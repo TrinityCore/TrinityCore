@@ -21,8 +21,8 @@
 #ifndef TRINITY_FACTORY_HOLDER
 #define TRINITY_FACTORY_HOLDER
 
-#include "Platform/Define.h"
-#include "Utilities/TypeList.h"
+#include "Define.h"
+#include "Dynamic/TypeList.h"
 #include "ObjectRegistry.h"
 #include "Policies/SingletonImp.h"
 

@@ -22,13 +22,13 @@
 #include "BattleGroundWS.h"
 #include "Creature.h"
 #include "GameObject.h"
-#include "Language.h"
+#include "Miscellaneous/Language.h"
 #include "Object.h"
 #include "ObjectMgr.h"
 #include "BattleGroundMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "WorldPacket.h"
+#include "Packets/WorldPacket.h"
 
 // these variables aren't used outside of this file, so declare them only here
 enum BG_WSG_Rewards
