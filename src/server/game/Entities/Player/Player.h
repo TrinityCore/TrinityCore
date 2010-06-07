@@ -27,11 +27,11 @@
 #include "Item.h"
 
 #include "Database/DatabaseEnv.h"
-#include "NPCHandler.h"
-#include "QuestDef.h"
-#include "Group.h"
-#include "Bag.h"
-#include "WorldSession.h"
+#include "Server/Protocol/Handlers/NPCHandler.h"
+#include "Quests/QuestDef.h"
+#include "Groups/Group.h"
+#include "Item/Container/Bag.h"
+#include "Server/WorldSession.h"
 #include "Pet.h"
 #include "MapReference.h"
 #include "Util.h"                                           // for Tokens typedef
