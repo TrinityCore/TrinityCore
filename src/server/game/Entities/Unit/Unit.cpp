@@ -4336,11 +4336,11 @@ void Unit::RemoveAreaAurasDueToLeaveWorld()
 void Unit::RemoveAllAuras()
 {
     AuraApplicationMap::iterator aurAppIter;
-    for (aurAppIter = m_appliedAuras.begin(); aurAppIter != m_appliedAuras.end())
+    for (aurAppIter = m_appliedAuras.begin(); aurAppIter != m_appliedAuras.end();)
         _UnapplyAura(aurAppIter, AURA_REMOVE_BY_DEFAULT);
     
     AuraMap::iterator aurIter;
-    for (aurIter = m_ownedAuras.begin(); aurIter != m_ownedAuras.end())
+    for (aurIter = m_ownedAuras.begin(); aurIter != m_ownedAuras.end();)
         RemoveOwnedAura(aurIter);
 
 }
