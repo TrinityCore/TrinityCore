@@ -25,7 +25,7 @@
 #ifndef _RASOCKET_H
 #define _RASOCKET_H
 
-#include "sockets/TcpSocket.h"
+#include "TcpSocket.h"
 
 #include "Common.h"
 

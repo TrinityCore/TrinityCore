@@ -31,9 +31,9 @@
 #include "WorldRunnable.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 
 #include "CliRunnable.h"
 #include "Log.h"
@@ -42,13 +42,13 @@
 #include "Timer.h"
 #include "Util.h"
 
-#include "sockets/TcpSocket.h"
-#include "sockets/Utility.h"
-#include "sockets/Parse.h"
-#include "sockets/Socket.h"
-#include "sockets/SocketHandler.h"
-#include "sockets/ListenSocket.h"
-#include "Auth/BigNumber.h"
+#include "TcpSocket.h"
+#include "Utility.h"
+#include "Parse.h"
+#include "Socket.h"
+#include "SocketHandler.h"
+#include "ListenSocket.h"
+#include "BigNumber.h"
 
 #ifdef WIN32
 #include "ServiceWin32.h"
