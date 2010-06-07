@@ -18,7 +18,15 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/framework
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography/Authentication
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/authserver
+  ${CMAKE_SOURCE_DIR}/src/server/authserver/Authentication
+  ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
+  ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
   ${MYSQL_INCLUDE_DIR}
 )
 
@@ -41,12 +49,9 @@ SET_TARGET_PROPERTIES(trinity-realm PROPERTIES LINK_FLAGS "${trinity-realm_LINK_
 target_link_libraries(
 trinity-realm
 shared
-trinityframework
-trinitysockets
 trinitydatabase
 trinityauth
 trinityconfig
-zlib
 ${SSLLIB}
 ${MYSQL_LIBRARIES}
 ${OSX_LIBS}
