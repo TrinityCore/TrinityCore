@@ -22,11 +22,11 @@
 #define _OBJECT_H
 
 #include "Common.h"
-#include "UpdateFields.h"
-#include "UpdateData.h"
-#include "GameSystem/GridReference.h"
+#include "Updates/UpdateFields.h"
+#include "Updates/UpdateData.h"
+#include "Grids/GridReference.h"
 #include "ObjectDefines.h"
-#include "GridDefines.h"
+#include "Grids/GridDefines.h"
 #include "Map.h"
 
 #include <set>

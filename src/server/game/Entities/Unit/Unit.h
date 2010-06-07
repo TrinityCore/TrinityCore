@@ -23,7 +23,7 @@
 
 #include "Common.h"
 #include "Object.h"
-#include "Opcodes.h"
+#include "Server/Protocol/Opcodes.h"
 #include "SpellAuraDefines.h"
 #include "UpdateFields.h"
 #include "SharedDefines.h"

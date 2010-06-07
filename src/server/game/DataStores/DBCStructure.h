@@ -22,8 +22,8 @@
 #define TRINITY_DBCSTRUCTURE_H
 
 #include "DBCEnums.h"
-#include "Platform/Define.h"
-#include "Util.h"
+#include "Define.h"
+#include "Utilities/Util.h"
 
 #include <map>
 #include <set>

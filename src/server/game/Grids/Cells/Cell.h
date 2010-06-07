@@ -23,10 +23,10 @@
 
 #include <cmath>
 
-#include "GameSystem/TypeContainer.h"
-#include "GameSystem/TypeContainerVisitor.h"
+#include "Dynamic/TypeContainer.h"
+#include "Dynamic/TypeContainerVisitor.h"
 
-#include "GridDefines.h"
+#include "Grids/GridDefines.h"
 
 class Map;
 class WorldObject;
