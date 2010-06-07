@@ -26,17 +26,16 @@ CONFIGURE_FILE(
     IMMEDIATE @ONLY)
 add_custom_target(uninstall "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
 
-option(DO_MYSQL "With MySQL support" 1)
-option(DO_SCRIPTS "With trinityscripts" 1)
-option(DO_CLI "With CLI" 1)
-option(DO_RA "With RA" 0)
-option(DO_DEBUG "Debug mode" 0)
-option(DO_WARN "Enable all compile warnings" 0)
-option(DO_WARN "Enable all compile warnings" 0)
 option(CENTOS "CENTOS" 0)
-option(DO_SQL "Copy SQL files" 0)
+option(DO_CLI "With CLI" 1)
+option(DO_DEBUG "Debug mode" 0)
+option(DO_MYSQL "With MySQL support" 1)
 option(DO_PCH "Use precompiled headers" 1)
+option(DO_RA "With RA" 0)
+option(DO_SCRIPTS "With trinityscripts" 1)
+option(DO_SQL "Copy SQL files" 0)
 option(DO_TOOLS "Compile tools" 0)
+option(DO_WARN "Enable all compile warnings" 0)
 
 set(GENREV_SRC
 src/genrevision/genrevision.cpp
@@ -130,6 +129,25 @@ if(DO_WARN)
     message("* All warnings mode")
     add_definitions(-Wall -Wfatal-errors -Wextra)
 endif(DO_WARN)
+
+if(DO_SQL)
+    message("* Installing SQL files")
+else (DO_SQL)
+    message("* NOT installing SQL files")
+endif(DO_SQL)
+
+if(DO_PCH)
+    message("* Using precompiled headers")
+else (DO_PCH)
+    message("* NOT using precompiled headers")
+endif(DO_PCH)
+
+if(DO_TOOLS)
+    message("* With Tools")
+else (DO_TOOLS)
+    message("* Without Tools")
+endif(DO_TOOLS)
+
 
 if(UNIX)
     if(CENTOS)
