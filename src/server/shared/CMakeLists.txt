@@ -1,7 +1,14 @@
-add_subdirectory(vmap)
-add_subdirectory(Auth)
-add_subdirectory(Config)
+add_subdirectory(Configuration)
+add_subdirectory(Cryptography)
 add_subdirectory(Database)
+add_subdirectory(DataStores)
+add_subdirectory(Debugging)
+add_subdirectory(Dynamic)
+add_subdirectory(Logging)
+add_subdirectory(Packets)
+add_subdirectory(Policies)
+add_subdirectory(Threading)
+add_subdirectory(Utilities)
 
 ########### next target ###############
 
@@ -30,7 +37,6 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/include
   ${CMAKE_SOURCE_DIR}/dep/include/sockets
-  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${MYSQL_INCLUDE_DIR}
 )
