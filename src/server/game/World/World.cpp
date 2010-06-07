@@ -24,7 +24,7 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 #include "SystemConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -65,7 +65,7 @@
 #include "Util.h"
 #include "Language.h"
 #include "CreatureGroups.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "ProgressBar.h"
 #include "ScriptMgr.h"
 #include "AddonMgr.h"
