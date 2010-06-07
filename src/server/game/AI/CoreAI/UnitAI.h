@@ -21,7 +21,7 @@
 #ifndef TRINITY_UNITAI_H
 #define TRINITY_UNITAI_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include <list>
 #include "Unit.h"
 

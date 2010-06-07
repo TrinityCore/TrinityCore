@@ -9,9 +9,9 @@
 #define SC_SCRIPTMGR_H
 
 #include "Common.h"
-#include "Platform/CompilerDefs.h"
+#include "CompilerDefs.h"
 #include "DBCStructure.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 
 class Player;
 class Creature;

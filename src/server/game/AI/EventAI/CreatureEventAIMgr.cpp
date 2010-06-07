@@ -22,10 +22,10 @@
 #include "CreatureEventAI.h"
 #include "CreatureEventAIMgr.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
+#include "Utilities/ProgressBar.h"
 #include "Policies/SingletonImp.h"
 #include "ObjectDefines.h"
-#include "GridDefines.h"
+#include "Grids/GridDefines.h"
 #include "ConditionMgr.h"
 
 INSTANTIATE_SINGLETON_1(CreatureEventAIMgr);

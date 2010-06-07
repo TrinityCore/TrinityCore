@@ -24,9 +24,9 @@
 #include "AddonMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "Util.h"
-#include "Auth/Sha1.h"
-#include "ProgressBar.h"
+#include "Utilities/Util.h"
+#include "Cryptography/SHA1.h"
+#include "Utilities/ProgressBar.h"
 
 extern DatabaseType LoginDatabase;
 

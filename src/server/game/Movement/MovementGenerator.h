@@ -21,7 +21,7 @@
 #ifndef TRINITY_MOVEMENTGENERATOR_H
 #define TRINITY_MOVEMENTGENERATOR_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include "Policies/Singleton.h"
 #include "Dynamic/ObjectRegistry.h"
 #include "Dynamic/FactoryHolder.h"

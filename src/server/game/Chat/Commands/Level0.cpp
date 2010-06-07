@@ -22,14 +22,14 @@
 #include "Database/DatabaseEnv.h"
 #include "World.h"
 #include "Player.h"
-#include "Opcodes.h"
+#include "Server/Protocol/Opcodes.h"
 #include "Chat.h"
 #include "ObjectAccessor.h"
-#include "Language.h"
+#include "Miscellaneous/Language.h"
 #include "AccountMgr.h"
 #include "SystemConfig.h"
 #include "revision.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 
 bool ChatHandler::HandleHelpCommand(const char* args)
 {

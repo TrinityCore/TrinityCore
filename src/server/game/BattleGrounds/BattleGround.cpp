@@ -21,21 +21,21 @@
 #include "Player.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "WorldPacket.h"
+#include "Packets/WorldPacket.h"
 
 #include "ArenaTeam.h"
 #include "BattleGround.h"
 #include "BattleGroundMgr.h"
 #include "Creature.h"
-#include "Formulas.h"
-#include "GridNotifiersImpl.h"
+#include "Miscellaneous/Formulas.h"
+#include "Grids/Notifiers/GridNotifiersImpl.h"
 #include "Group.h"
-#include "Language.h"
+#include "Miscellaneous/Language.h"
 #include "MapManager.h"
 #include "Object.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
-#include "Util.h"
+#include "Utilities/Util.h"
 
 namespace Trinity
 {
