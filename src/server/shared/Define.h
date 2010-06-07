@@ -26,7 +26,7 @@
 #include <ace/Basic_Types.h>
 #include <ace/ACE_export.h>
 
-#include "Platform/CompilerDefs.h"
+#include "CompilerDefs.h"
 
 #define TRINITY_LITTLEENDIAN 0
 #define TRINITY_BIGENDIAN    1
