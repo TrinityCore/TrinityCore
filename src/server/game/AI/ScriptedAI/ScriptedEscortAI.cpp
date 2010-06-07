@@ -9,7 +9,7 @@ SDComment:
 SDCategory: Npc
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 enum ePoints
