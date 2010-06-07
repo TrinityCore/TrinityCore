@@ -4,216 +4,192 @@ IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 
 SET(game_STAT_SRCS
-   Account/AccountMgr.cpp
-   Account/AccountMgr.h
+   Accounts/AccountMgr.cpp
+   Accounts/AccountMgr.h
    Achievements/AchievementMgr.h
    Achievements/AchievementMgr.cpp
    Addons/AddonMgr.cpp
    Addons/AddonMgr.h
-   Addons/AddonHandler.cpp
-   Addons/AddonHandler.h
-   AI/AuctionHouseBot/AuctionHouseBot.cpp
-   AI/AuctionHouseBot/AuctionHouseBot.h
+   AI/CoreAI/CombatAI.cpp
+   AI/CoreAI/CombatAI.h
+   AI/CoreAI/GuardAI.cpp
+   AI/CoreAI/GuardAI.h
+   AI/CoreAI/PassiveAI.cpp
+   AI/CoreAI/PassiveAI.h
+   AI/CoreAI/PetAI.cpp
+   AI/CoreAI/PetAI.h
+   AI/CoreAI/ReactorAI.cpp
+   AI/CoreAI/ReactorAI.h
+   AI/CoreAI/TotemAI.cpp
+   AI/CoreAI/TotemAI.h
+   AI/CoreAI/UnitAI.cpp
+   AI/CoreAI/UnitAI.h
    AI/EventAI/CreatureEventAI.cpp
    AI/EventAI/CreatureEventAIMgr.cpp
    AI/ScriptedAI/ScriptedSmartAI.cpp
    AI/ScriptedAI/ScriptedSmartAI.h
-   AI/CombatAI.cpp
-   AI/CombatAI.h
-   AI/CreatureAI.cpp
-   AI/CreatureAI.h
    AI/CreatureAIFactory.h
    AI/CreatureAIImpl.h
    AI/CreatureAIRegistry.cpp
    AI/CreatureAIRegistry.h
    AI/CreatureAISelector.cpp
    AI/CreatureAISelector.h
-   AI/GuardAI.cpp
-   AI/GuardAI.h
-   AI/PassiveAI.cpp
-   AI/PassiveAI.h
-   AI/PetAI.cpp
-   AI/PetAI.h
-   AI/ReactorAI.cpp
-   AI/ReactorAI.h
-   AI/TotemAI.cpp
-   AI/TotemAI.h
-   AI/UnitAI.cpp
-   AI/UnitAI.h
-   AuctionHouse/AuctionHouseHandler.cpp
    AuctionHouse/AuctionHouseMgr.cpp
    AuctionHouse/AuctionHouseMgr.h
+   AuctionHouse/AuctionHouseBot/AuctionHouseBot.cpp
+   AuctionHouse/AuctionHouseBot/AuctionHouseBot.h
    BattleGrounds/ArenaTeam.cpp
    BattleGrounds/ArenaTeam.h
-   BattleGrounds/ArenaTeamHandler.cpp
+   BattleGrounds/Zones/BattleGroundAA.cpp
+   BattleGrounds/Zones/BattleGroundAA.h
+   BattleGrounds/Zones/BattleGroundAB.cpp
+   BattleGrounds/Zones/BattleGroundAB.h
+   BattleGrounds/Zones/BattleGroundRB.cpp
+   BattleGrounds/Zones/BattleGroundRB.h
+   BattleGrounds/Zones/BattleGroundAV.cpp
+   BattleGrounds/Zones/BattleGroundAV.h
+   BattleGrounds/Zones/BattleGroundBE.cpp
+   BattleGrounds/Zones/BattleGroundBE.h
+   BattleGrounds/Zones/BattleGroundDS.cpp
+   BattleGrounds/Zones/BattleGroundDS.h
+   BattleGrounds/Zones/BattleGroundEY.cpp
+   BattleGrounds/Zones/BattleGroundEY.h
+   BattleGrounds/Zones/BattleGroundIC.cpp
+   BattleGrounds/Zones/BattleGroundIC.h
+   BattleGrounds/Zones/BattleGroundNA.cpp
+   BattleGrounds/Zones/BattleGroundNA.h
+   BattleGrounds/Zones/BattleGroundRL.cpp
+   BattleGrounds/Zones/BattleGroundRL.h
+   BattleGrounds/Zones/BattleGroundRV.cpp
+   BattleGrounds/Zones/BattleGroundRV.h
+   BattleGrounds/Zones/BattleGroundSA.cpp
+   BattleGrounds/Zones/BattleGroundSA.h
+   BattleGrounds/Zones/BattleGroundWS.cpp
+   BattleGrounds/Zones/BattleGroundWS.h
    BattleGrounds/BattleGround.cpp
-   BattleGrounds/BattleGroundAA.cpp
-   BattleGrounds/BattleGroundAB.cpp
-   BattleGrounds/BattleGroundRB.cpp
-   BattleGrounds/BattleGroundAV.cpp
-   BattleGrounds/BattleGroundBE.cpp
-   BattleGrounds/BattleGroundDS.cpp
-   BattleGrounds/BattleGroundEY.cpp
-   BattleGrounds/BattleGroundIC.cpp
-   BattleGrounds/BattleGroundNA.cpp
-   BattleGrounds/BattleGroundRL.cpp
-   BattleGrounds/BattleGroundRV.cpp
-   BattleGrounds/BattleGroundSA.cpp
-   BattleGrounds/BattleGroundWS.cpp
    BattleGrounds/BattleGround.h
-   BattleGrounds/BattleGroundAA.h
-   BattleGrounds/BattleGroundAB.h
-   BattleGrounds/BattleGroundRB.h
-   BattleGrounds/BattleGroundAV.h
-   BattleGrounds/BattleGroundBE.h
-   BattleGrounds/BattleGroundDS.h
-   BattleGrounds/BattleGroundEY.h
-   BattleGrounds/BattleGroundIC.h
-   BattleGrounds/BattleGroundNA.h
-   BattleGrounds/BattleGroundRL.h
-   BattleGrounds/BattleGroundRV.h
-   BattleGrounds/BattleGroundSA.h
-   BattleGrounds/BattleGroundWS.h
-   BattleGrounds/BattleGroundHandler.cpp
    BattleGrounds/BattleGroundMgr.cpp
    BattleGrounds/BattleGroundMgr.h
    Calendar/Calendar.cpp
    Calendar/Calendar.h
-   Calendar/CalendarHandler.cpp
-   Chat/Channel.cpp
-   Chat/Channel.h
-   Chat/ChannelHandler.cpp
-   Chat/ChannelMgr.h
-   Chat/ChannelMgr.cpp
+   Chat/Channels/Channel.cpp
+   Chat/Channels/Channel.h
+   Chat/Channels/ChannelMgr.h
+   Chat/Channels/ChannelMgr.cpp
+   Chat/Commands/Debugcmds.cpp
+   Chat/Commands/Level0.cpp
+   Chat/Commands/Level1.cpp
+   Chat/Commands/Level2.cpp
+   Chat/Commands/Level3.cpp
    Chat/Chat.cpp
    Chat/Chat.h
-   Chat/ChatHandler.cpp
-   Chat/Debugcmds.cpp
-   Chat/Level0.cpp
-   Chat/Level1.cpp
-   Chat/Level2.cpp
-   Chat/Level3.cpp
-   Combat/CombatHandler.cpp
    Combat/HostileRefManager.cpp
    Combat/HostileRefManager.h
    Combat/ThreatManager.cpp
    Combat/ThreatManager.h
-   ConditionMgr/ConditionMgr.cpp
-   ConditionMgr/ConditionMgr.h
+   Combat/UnitEvents.h
+   Conditions/ConditionMgr.cpp
+   Conditions/ConditionMgr.h
    DataStores/DBCEnums.h
    DataStores/DBCStores.cpp
    DataStores/DBCStores.h
    DataStores/DBCStructure.h
    DataStores/DBCfmt.h
+   DungeonFinding/LFG.h
+   DungeonFinding/LFGMgr.cpp
+   DungeonFinding/LFGMgr.h
+   Entities/Corpse/Corpse.cpp
+   Entities/Corpse/Corpse.h
    Entities/Creature/Creature.cpp
    Entities/Creature/Creature.h
    Entities/Creature/CreatureGroups.cpp
    Entities/Creature/CreatureGroups.h
    Entities/Creature/GossipDef.cpp
    Entities/Creature/GossipDef.h
-   Entities/Creature/NPCHandler.cpp
-   Entities/Creature/NPCHandler.h
    Entities/Creature/TemporarySummon.cpp
    Entities/Creature/TemporarySummon.h
+   Entities/DynamicObject/DynamicObject.cpp
+   Entities/DynamicObject/DynamicObject.h
    Entities/GameObject/GameObject.cpp
    Entities/GameObject/GameObject.h
-   Entities/Item/Bag.cpp
-   Entities/Item/Bag.h
+   Entities/Item/Container/Bag.cpp
+   Entities/Item/Container/Bag.h
    Entities/Item/Item.cpp
    Entities/Item/Item.h
    Entities/Item/ItemEnchantmentMgr.cpp
    Entities/Item/ItemEnchantmentMgr.h
-   Entities/Item/ItemHandler.cpp
    Entities/Item/ItemPrototype.h
-   Entities/Object/Corpse.cpp
-   Entities/Object/Corpse.h
-   Entities/Object/DynamicObject.cpp
-   Entities/Object/DynamicObject.h
-   Entities/Object/ObjectAccessor.cpp
-   Entities/Object/ObjectAccessor.h
-   Entities/Object/Object.cpp
+   Entities/Object/Updates/UpdateData.cpp
+   Entities/Object/Updates/UpdateData.h
+   Entities/Object/Updates/UpdateFields.h
+   Entities/Object/Updates/UpdateMask.h
    Entities/Object/ObjectDefines.h
+   Entities/Object/Object.cpp
    Entities/Object/Object.h
-   Entities/Object/ObjectMgr.cpp
-   Entities/Object/ObjectMgr.h
-   Entities/Object/UpdateData.cpp
-   Entities/Object/UpdateData.h
-   Entities/Object/UpdateFields.h
-   Entities/Object/UpdateMask.h
+   Entities/Object/ObjectPosSelector.cpp
+   Entities/Object/ObjectPosSelector.h
    Entities/Pet/Pet.cpp
    Entities/Pet/Pet.h
-   Entities/Pet/PetHandler.cpp
-   Entities/Player/DuelHandler.cpp
-   Entities/Player/MiscHandler.cpp
-   Entities/Player/PetitionsHandler.cpp
    Entities/Player/Player.cpp
    Entities/Player/Player.h
    Entities/Player/SocialMgr.cpp
    Entities/Player/SocialMgr.h
-   Entities/Player/TicketHandler.cpp
-   Entities/Player/TradeHandler.cpp
-   Entities/Player/VoiceChatHandler.cpp
-   Entities/Player/CharacterHandler.cpp
    Entities/Unit/StatSystem.cpp
    Entities/Unit/Unit.cpp
    Entities/Unit/Unit.h
    Entities/Totem/Totem.cpp
    Entities/Totem/Totem.h
+   Entities/Transport/Transport.cpp
+   Entities/Transport/Transport.h
    Entities/Vehicle/Vehicle.cpp
    Entities/Vehicle/Vehicle.h
    Events/GameEventMgr.cpp
    Events/GameEventMgr.h
-   Events/GlobalEvents.cpp
-   Events/GlobalEvents.h
-   Events/UnitEvents.h
-   Globals/Formulas.h
-   Globals/Language.h
-   Globals/SharedDefines.h
+   Globals/GlobalEvents.cpp
+   Globals/GlobalEvents.h
+   Globals/ObjectAccessor.cpp
+   Globals/ObjectAccessor.h
+   Globals/ObjectMgr.cpp
+   Globals/ObjectMgr.h
+   Grids/Cells/Cell.h
+   Grids/Cells/CellImpl.h
+   Grids/Notifiers/GridNotifiers.cpp
+   Grids/Notifiers/GridNotifiers.h
+   Grids/Notifiers/GridNotifiersImpl.h
+   Grids/GridDefines.h
+   Grids/GridStates.cpp
+   Grids/GridStates.h
+   Grids/ObjectGridLoader.cpp
+   Grids/ObjectGridLoader.h
    Groups/Group.cpp
    Groups/Group.h
-   Groups/GroupHandler.cpp
    Groups/GroupReference.cpp
    Groups/GroupReference.h
    Groups/GroupRefManager.h
    Guilds/Guild.cpp
    Guilds/Guild.h
-   Guilds/GuildHandler.cpp
    Instances/InstanceData.cpp
    Instances/InstanceData.h
    Instances/InstanceSaveMgr.cpp
    Instances/InstanceSaveMgr.h
-   LookingForGroup/LFG.h
-   LookingForGroup/LFGHandler.cpp
-   LookingForGroup/LFGMgr.cpp
-   LookingForGroup/LFGMgr.h
-   Loot/LootHandler.cpp
    Loot/LootMgr.cpp
    Loot/LootMgr.h
    Mails/Mail.cpp
    Mails/Mail.h
-   Map/Cell/Cell.h
-   Map/Cell/CellImpl.h
-   Map/Grid/GridDefines.h
-   Map/Grid/GridNotifiers.cpp
-   Map/Grid/GridNotifiers.h
-   Map/Grid/GridNotifiersImpl.h
-   Map/Grid/GridStates.cpp
-   Map/Grid/GridStates.h
-   Map/Grid/ObjectGridLoader.cpp
-   Map/Grid/ObjectGridLoader.h
-   Map/Map.cpp
-   Map/Map.h
-   Map/MapInstanced.cpp
-   Map/MapInstanced.h
-   Map/MapManager.cpp
-   Map/MapManager.h
-   Map/MapUpdater.cpp
-   Map/MapUpdater.h
-   Map/MapReference.h
-   Map/MapRefManager.h
-   Map/ObjectPosSelector.cpp
-   Map/ObjectPosSelector.h
-   Map/ZoneScript.h
+   Maps/Map.cpp
+   Maps/Map.h
+   Maps/MapInstanced.cpp
+   Maps/MapInstanced.h
+   Maps/MapManager.cpp
+   Maps/MapManager.h
+   Maps/MapUpdater.cpp
+   Maps/MapUpdater.h
+   Maps/MapReference.h
+   Maps/MapRefManager.h
+   Maps/ZoneScript.h
+   Miscellaneous/Formulas.h
+   Miscellaneous/Language.h
+   Miscellaneous/SharedDefines.h
    Movement/MovementGenerators/ConfusedMovementGenerator.cpp
    Movement/MovementGenerators/ConfusedMovementGenerator.h
    Movement/MovementGenerators/FleeingMovementGenerator.cpp
@@ -222,9 +198,6 @@ SET(game_STAT_SRCS
    Movement/MovementGenerators/HomeMovementGenerator.h
    Movement/MovementGenerators/IdleMovementGenerator.cpp
    Movement/MovementGenerators/IdleMovementGenerator.h
-   Movement/MovementGenerators/MovementGenerator.cpp
-   Movement/MovementGenerators/MovementGenerator.h
-   Movement/MovementGenerators/MovementGeneratorImpl.h
    Movement/MovementGenerators/PointMovementGenerator.cpp
    Movement/MovementGenerators/PointMovementGenerator.h
    Movement/MovementGenerators/RandomMovementGenerator.cpp
@@ -233,6 +206,9 @@ SET(game_STAT_SRCS
    Movement/MovementGenerators/TargetedMovementGenerator.h
    Movement/MovementGenerators/WaypointMovementGenerator.cpp
    Movement/MovementGenerators/WaypointMovementGenerator.h
+   Movement/Waypoints/Path.h
+   Movement/Waypoints/WaypointManager.cpp
+   Movement/Waypoints/WaypointManager.h
    Movement/DestinationHolder.cpp
    Movement/DestinationHolder.h
    Movement/DestinationHolderImp.h
@@ -241,48 +217,79 @@ SET(game_STAT_SRCS
    Movement/FollowerRefManager.h
    Movement/MotionMaster.cpp
    Movement/MotionMaster.h
-   Movement/MovementHandler.cpp
-   Movement/Path.h
-   Movement/TaxiHandler.cpp
-   Movement/Transports.cpp
-   Movement/Transports.h
+   Movement/MovementGenerator.cpp
+   Movement/MovementGenerator.h
+   Movement/MovementGeneratorImpl.h
    Movement/Traveller.h
-   Movement/WaypointManager.cpp
-   Movement/WaypointManager.h
-   Opcodes/Opcodes.cpp
-   Opcodes/Opcodes.h
+   OutdoorPvP/Zones/OutdoorPvPEP.cpp
+   OutdoorPvP/Zones/OutdoorPvPEP.h
+   OutdoorPvP/Zones/OutdoorPvPHP.cpp
+   OutdoorPvP/Zones/OutdoorPvPHP.h
+   OutdoorPvP/Zones/OutdoorPvPNA.cpp
+   OutdoorPvP/Zones/OutdoorPvPNA.h
+   OutdoorPvP/Zones/OutdoorPvPSI.cpp
+   OutdoorPvP/Zones/OutdoorPvPSI.h
+   OutdoorPvP/Zones/OutdoorPvPTF.cpp
+   OutdoorPvP/Zones/OutdoorPvPTF.h
+   OutdoorPvP/Zones/OutdoorPvPZM.cpp
+   OutdoorPvP/Zones/OutdoorPvPZM.h
    OutdoorPvP/OutdoorPvP.cpp
    OutdoorPvP/OutdoorPvP.h
-   OutdoorPvP/OutdoorPvPEP.cpp
-   OutdoorPvP/OutdoorPvPEP.h
-   OutdoorPvP/OutdoorPvPHP.cpp
-   OutdoorPvP/OutdoorPvPHP.h
    OutdoorPvP/OutdoorPvPImpl.h
    OutdoorPvP/OutdoorPvPMgr.cpp
    OutdoorPvP/OutdoorPvPMgr.h
-   OutdoorPvP/OutdoorPvPNA.cpp
-   OutdoorPvP/OutdoorPvPNA.h
-   OutdoorPvP/OutdoorPvPSI.cpp
-   OutdoorPvP/OutdoorPvPSI.h
-   OutdoorPvP/OutdoorPvPTF.cpp
-   OutdoorPvP/OutdoorPvPTF.h
-   OutdoorPvP/OutdoorPvPZM.cpp
-   OutdoorPvP/OutdoorPvPZM.h
    Pools/PoolHandler.cpp
    Pools/PoolHandler.h
-   Quests/QueryHandler.cpp
    Quests/QuestDef.cpp
    Quests/QuestDef.h
-   Quests/QuestHandler.cpp
    Reputation/ReputationMgr.cpp
    Reputation/ReputationMgr.h
-   ScriptMgr/ScriptLoader.cpp
-   ScriptMgr/ScriptLoader.h
-   ScriptMgr/ScriptMgr.cpp
-   ScriptMgr/ScriptMgr.h
-   ScriptMgr/ScriptSystem.cpp
-   ScriptMgr/ScriptSystem.h
-   Skills/SkillHandler.cpp
+   Scripting/ScriptLoader.cpp
+   Scripting/ScriptLoader.h
+   Scripting/ScriptMgr.cpp
+   Scripting/ScriptMgr.h
+   Scripting/ScriptSystem.cpp
+   Scripting/ScriptSystem.h
+   Server/Protocol/Handlers/AddonHandler.cpp
+   Server/Protocol/Handlers/AddonHandler.h
+   Server/Protocol/Handlers/ArenaTeamHandler.cpp
+   Server/Protocol/Handlers/AuctionHouseHandler.cpp
+   Server/Protocol/Handlers/BattleGroundHandler.cpp
+   Server/Protocol/Handlers/CalendarHandler.cpp
+   Server/Protocol/Handlers/ChannelHandler.cpp
+   Server/Protocol/Handlers/CharacterHandler.cpp
+   Server/Protocol/Handlers/ChatHandler.cpp
+   Server/Protocol/Handlers/CombatHandler.cpp
+   Server/Protocol/Handlers/DuelHandler.cpp
+   Server/Protocol/Handlers/GroupHandler.cpp
+   Server/Protocol/Handlers/GuildHandler.cpp
+   Server/Protocol/Handlers/ItemHandler.cpp
+   Server/Protocol/Handlers/LFGHandler.cpp
+   Server/Protocol/Handlers/LootHandler.cpp
+   Server/Protocol/Handlers/MiscHandler.cpp
+   Server/Protocol/Handlers/MovementHandler.cpp
+   Server/Protocol/Handlers/NPCHandler.cpp
+   Server/Protocol/Handlers/NPCHandler.h
+   Server/Protocol/Handlers/PetHandler.cpp
+   Server/Protocol/Handlers/PetitionsHandler.cpp
+   Server/Protocol/Handlers/QueryHandler.cpp
+   Server/Protocol/Handlers/QuestHandler.cpp
+   Server/Protocol/Handlers/SkillHandler.cpp
+   Server/Protocol/Handlers/SpellHandler.cpp
+   Server/Protocol/Handlers/TaxiHandler.cpp
+   Server/Protocol/Handlers/TicketHandler.cpp
+   Server/Protocol/Handlers/TradeHandler.cpp
+   Server/Protocol/Handlers/VoiceChatHandler.cpp
+   Server/Protocol/Opcodes.cpp
+   Server/Protocol/Opcodes.h
+   Server/Protocol/WorldLog.cpp
+   Server/Protocol/WorldLog.h
+   Server/WorldSession.cpp
+   Server/WorldSession.h
+   Server/WorldSocket.cpp
+   Server/WorldSocket.h
+   Server/WorldSocketMgr.cpp
+   Server/WorldSocketMgr.h
    Skills/SkillDiscovery.cpp
    Skills/SkillDiscovery.h
    Skills/SkillExtraItems.cpp
@@ -295,7 +302,6 @@ SET(game_STAT_SRCS
    Spells/Auras/SpellEffects.cpp
    Spells/Spell.cpp
    Spells/Spell.h
-   Spells/SpellHandler.cpp
    Spells/SpellMgr.cpp
    Spells/SpellMgr.h
    Tools/PlayerDump.cpp
@@ -306,30 +312,19 @@ SET(game_STAT_SRCS
    Weather/Weather.h
    World/World.cpp
    World/World.h
-   World/WorldLog.cpp
-   World/WorldLog.h
-   World/WorldSession.cpp
-   World/WorldSession.h
-   World/WorldSocket.cpp
-   World/WorldSocket.h
-   World/WorldSocketMgr.cpp
-   World/WorldSocketMgr.h
 )
 
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/dep/include
-  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/vmap
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
   ${CMAKE_SOURCE_DIR}/src/server/game
-  ${CMAKE_SOURCE_DIR}/src/server/game/Account
+  ${CMAKE_SOURCE_DIR}/src/server/game/Accounts
   ${CMAKE_SOURCE_DIR}/src/server/game/Achievements
   ${CMAKE_SOURCE_DIR}/src/server/game/Addons
   ${CMAKE_SOURCE_DIR}/src/server/game/AI
-  ${CMAKE_SOURCE_DIR}/src/server/game/AI/AuctionHouseBot
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/EventAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AI/ScriptedAI
   ${CMAKE_SOURCE_DIR}/src/server/game/AuctionHouse
@@ -337,7 +332,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat
   ${CMAKE_SOURCE_DIR}/src/server/game/Combat
-  ${CMAKE_SOURCE_DIR}/src/server/game/ConditionMgr
+  ${CMAKE_SOURCE_DIR}/src/server/game/Conditions
   ${CMAKE_SOURCE_DIR}/src/server/game/DataStores
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Creature
@@ -354,20 +349,16 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Groups
   ${CMAKE_SOURCE_DIR}/src/server/game/Guilds
   ${CMAKE_SOURCE_DIR}/src/server/game/Instances
-  ${CMAKE_SOURCE_DIR}/src/server/game/LookingForGroup
   ${CMAKE_SOURCE_DIR}/src/server/game/Loot
   ${CMAKE_SOURCE_DIR}/src/server/game/Mails
-  ${CMAKE_SOURCE_DIR}/src/server/game/Map
-  ${CMAKE_SOURCE_DIR}/src/server/game/Map/Cell
-  ${CMAKE_SOURCE_DIR}/src/server/game/Map/Grid
+  ${CMAKE_SOURCE_DIR}/src/server/game/Maps
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement
   ${CMAKE_SOURCE_DIR}/src/server/game/Movement/MovementGenerators
-  ${CMAKE_SOURCE_DIR}/src/server/game/Opcodes
   ${CMAKE_SOURCE_DIR}/src/server/game/OutdoorPvP
   ${CMAKE_SOURCE_DIR}/src/server/game/Pools
   ${CMAKE_SOURCE_DIR}/src/server/game/Quests
   ${CMAKE_SOURCE_DIR}/src/server/game/Reputation
-  ${CMAKE_SOURCE_DIR}/src/server/game/ScriptMgr
+  ${CMAKE_SOURCE_DIR}/src/server/game/Scripting
   ${CMAKE_SOURCE_DIR}/src/server/game/Skills
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells/Auras
