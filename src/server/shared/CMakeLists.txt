@@ -1,16 +1,4 @@
-add_subdirectory(Configuration)
-add_subdirectory(Cryptography)
-add_subdirectory(Database)
-add_subdirectory(DataStores)
-add_subdirectory(Debugging)
-add_subdirectory(Dynamic)
-add_subdirectory(Logging)
-add_subdirectory(Packets)
-add_subdirectory(Policies)
-add_subdirectory(Threading)
-add_subdirectory(Utilities)
-
-########### next target ###############
+########### shared ###############
 
 SET(shared_STAT_SRCS
    Debugging/Errors.h
@@ -59,3 +47,83 @@ target_link_libraries(
 shared
 ${ACE_LIBRARY}
 )
+
+
+########### trinityconfig ###############
+
+SET(trinityconfig_STAT_SRCS
+   Configuration/dotconfpp/dotconfpp.cpp
+   Configuration/dotconfpp/dotconfpp.h
+   Configuration/dotconfpp/mempool.cpp
+   Configuration/dotconfpp/mempool.h
+   Configuration/Config.cpp
+   Configuration/Config.h
+   Configuration/ConfigEnv.h
+)
+
+include_directories(
+  ${ACE_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+)
+
+add_library(trinityconfig STATIC ${trinityconfig_STAT_SRCS})
+
+########### trinityauth ###############
+
+SET(trinityauth_STAT_SRCS
+   Cryptography/Authentication/AuthCrypt.cpp
+   Cryptography/Authentication/AuthCrypt.h
+   Cryptography/BigNumber.cpp
+   Cryptography/BigNumber.h
+   Cryptography/HMACSHA1.cpp
+   Cryptography/HMACSHA1.h
+   Cryptography/SHA1.cpp
+   Cryptography/SHA1.h
+   Cryptography/MD5.c
+   Cryptography/MD5.h
+   Cryptography/ARC4.cpp
+   Cryptography/ARC4.h
+)
+
+include_directories(
+  ${ACE_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${MYSQL_INCLUDE_DIR}
+)
+
+add_library(trinityauth STATIC ${trinityauth_STAT_SRCS})
+
+########### trinitydatabase ###############
+
+SET(trinitydatabase_STAT_SRCS
+    DataStores/DBCFileLoader.cpp
+    DataStores/DBCFileLoader.h
+    DataStores/DBCStore.h
+    Database/Database.cpp
+    Database/Database.h
+    Database/DatabaseEnv.h
+    Database/DatabaseImpl.h
+    Database/Field.cpp
+    Database/Field.h
+    Database/QueryResult.cpp
+    Database/QueryResult.h
+    Database/SQLStorage.cpp
+    Database/SQLStorage.h
+    Database/SqlDelayThread.cpp
+    Database/SqlDelayThread.h
+    Database/SqlOperations.cpp
+    Database/SqlOperations.h
+)
+
+include_directories(
+  ${ACE_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
+  ${MYSQL_INCLUDE_DIR}
+)
+
+add_library(trinitydatabase STATIC ${trinitydatabase_STAT_SRCS})
