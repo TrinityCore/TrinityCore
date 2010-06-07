@@ -22,7 +22,7 @@
 #define _AUTHCRYPT_H
 
 #include <Common.h>
-#include "SARC4.h"
+#include "Cryptography/ARC4.h"
 
 class BigNumber;
 
