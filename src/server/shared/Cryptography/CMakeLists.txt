@@ -2,25 +2,24 @@
 ########### next target ###############
 
 SET(trinityauth_STAT_SRCS
-   AuthCrypt.cpp
-   AuthCrypt.h
+   Authentication/AuthCrypt.cpp
+   Authentication/AuthCrypt.h
    BigNumber.cpp
    BigNumber.h
-   Hmac.cpp
-   Hmac.h
-   Sha1.cpp
-   Sha1.h
-   md5.c
-   md5.h
-   SARC4.cpp
-   SARC4.h
+   HMACSHA1.cpp
+   HMACSHA1.h
+   SHA1.cpp
+   SHA1.h
+   MD5.c
+   MD5.h
+   ARC4.cpp
+   ARC4.h
 )
 
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/framework
   ${MYSQL_INCLUDE_DIR}
 )
 
