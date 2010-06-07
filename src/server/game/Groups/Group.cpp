@@ -486,13 +486,6 @@ void Group::Disband(bool hideDestroy)
         CharacterDatabase.CommitTransaction();
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
-        // FIXME - Safe check! Debug purposes - Will remove after a time if got no reports
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT COUNT(1) FROM group_instance WHERE guid=%u", lowguid);
-        if (result)
-        {
-            sLog.outError("Group::Disband: %u instances are not being properly deleted from group %u", (*result)[0].GetUInt8(), lowguid);
-            CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid=%u", lowguid);
-        }
     }
 
     m_guid = 0;
