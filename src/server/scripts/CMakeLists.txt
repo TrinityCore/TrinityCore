@@ -35,7 +35,7 @@ SET(scripts_STAT_SRCS
    EasternKingdoms/BlackrockDepths/boss_magmus.cpp
    EasternKingdoms/BlackrockDepths/boss_moira_bronzebeard.cpp
    EasternKingdoms/BlackrockDepths/boss_tomb_of_seven.cpp
-   EasternKingdoms/BlackrockDepths//blackrock_depths.h
+   EasternKingdoms/BlackrockDepths/blackrock_depths.h
    EasternKingdoms/BlackrockDepths/instance_blackrock_depths.cpp
    EasternKingdoms/BlackrockSpire/blackrock_spire.cpp
    EasternKingdoms/BlackrockSpire/boss_drakkisath.cpp
@@ -225,59 +225,59 @@ SET(scripts_STAT_SRCS
    Kalimdor/BlackfathomDeeps/instance_blackfathom_deeps.cpp
    Kalimdor/BlackfathomDeeps/blackfathom_deeps.cpp
    Kalimdor/BlackfathomDeeps/blackfathom_deeps.h
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_anetheron.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_archimonde.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_azgalor.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_kazrogal.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_rage_winterchill.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/BattleForMountHyjal.h
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/BattleForMountHyjal.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/BattleForMountHyjal_trash.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/BattleForMountHyjal_trash.h
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/BattleForMountHyjalAI.cpp
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/BattleForMountHyjalAI.h
-   Kalimdor/CavernsOfTime/BattleForMountHyjal/instance_BattleForMountHyjal.cpp
-   Kalimdor/CavernsOfTime/CullingOfStratholme/instance_CullingOfStratholme.cpp
+   Kalimdor/CavernsOfTime/CullingOfStratholme/instance_culling_of_stratholme.cpp
    Kalimdor/CavernsOfTime/CullingOfStratholme/boss_meathook.cpp
    Kalimdor/CavernsOfTime/CullingOfStratholme/boss_epoch.cpp
    Kalimdor/CavernsOfTime/CullingOfStratholme/boss_mal_ganis.cpp
    Kalimdor/CavernsOfTime/CullingOfStratholme/boss_salramm.cpp
    Kalimdor/CavernsOfTime/CullingOfStratholme/boss_infinite.cpp
-   Kalimdor/CavernsOfTime/CullingOfStratholme/CullingOfStratholme.cpp
-   Kalimdor/CavernsOfTime/CullingOfStratholme/CullingOfStratholme.h
-   Kalimdor/CavernsOfTime/DarkPortal/DarkPortal.h
-   Kalimdor/CavernsOfTime/DarkPortal/instance_DarkPortal.cpp
-   Kalimdor/CavernsOfTime/DarkPortal/DarkPortal.cpp
+   Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp
+   Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h
+   Kalimdor/CavernsOfTime/DarkPortal/dark_portal.h
+   Kalimdor/CavernsOfTime/DarkPortal/instance_dark_portal.cpp
+   Kalimdor/CavernsOfTime/DarkPortal/dark_portal.cpp
    Kalimdor/CavernsOfTime/DarkPortal/boss_aeonus.cpp
    Kalimdor/CavernsOfTime/DarkPortal/boss_chrono_lord_deja.cpp
    Kalimdor/CavernsOfTime/DarkPortal/boss_temporus.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_anetheron.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_archimonde.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_azgalor.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_kazrogal.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/boss_rage_winterchill.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjal.h
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjal.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjal_trash.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjal_trash.h
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjalAI.cpp
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/hyjalAI.h
+   Kalimdor/CavernsOfTime/BattleForMountHyjal/instance_hyjal.cpp
    Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/boss_captain_skarloc.cpp
    Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/boss_epoch_hunter.cpp
    Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/boss_leutenant_drake.cpp
-   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/EscapeFromDurnholdeKeep.h
-   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/instance_EscapeFromDurnholdeKeep.cpp
-   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/EscapeFromDurnholdeKeep.cpp
+   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/old_hillsbrad.h
+   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/instance_old_hillsbrad.cpp
+   Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/old_hillsbrad.cpp
    Kalimdor/Maraudon/boss_celebras_the_cursed.cpp
    Kalimdor/Maraudon/boss_landslide.cpp
    Kalimdor/Maraudon/boss_noxxion.cpp
    Kalimdor/Maraudon/boss_princess_theradras.cpp
    Kalimdor/OnyxiasLair/boss_onyxia.cpp
-   Kalimdor/OnyxiasLair/instance_OnyxiasLair.cpp
+   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
    Kalimdor/RazorfenDowns/boss_amnennar_the_coldbringer.cpp
-   Kalimdor/RazorfenDowns/RazorfenDowns.cpp
-   Kalimdor/RazorfenDowns/instance_RazorfenDowns.cpp
-   Kalimdor/RazorfenDowns/RazorfenDowns.h
-   Kalimdor/RazorfenKraul/RazorfenKraul.h
-   Kalimdor/RazorfenKraul/instance_RazorfenKraul.cpp
-   Kalimdor/RazorfenKraul/RazorfenKraul.cpp
+   Kalimdor/RazorfenDowns/razorfen_downs.cpp
+   Kalimdor/RazorfenDowns/instance_razorfen_downs.cpp
+   Kalimdor/RazorfenDowns/razorfen_downs.h
+   Kalimdor/RazorfenKraul/razorfen_kraul.h
+   Kalimdor/RazorfenKraul/instance_razorfen_kraul.cpp
+   Kalimdor/RazorfenKraul/razorfen_kraul.cpp
    Kalimdor/RuinsOfAhnQiraj/boss_ayamiss.cpp
    Kalimdor/RuinsOfAhnQiraj/boss_buru.cpp
    Kalimdor/RuinsOfAhnQiraj/boss_kurinnaxx.cpp
    Kalimdor/RuinsOfAhnQiraj/boss_moam.cpp
    Kalimdor/RuinsOfAhnQiraj/boss_ossirian.cpp
    Kalimdor/RuinsOfAhnQiraj/boss_rajaxx.cpp
-   Kalimdor/RuinsOfAhnQiraj/RuinsOfAhnQiraj.h
-   Kalimdor/RuinsOfAhnQiraj/instance_RuinsOfAhnQiraj.cpp
+   Kalimdor/RuinsOfAhnQiraj/ruins_of_ahnqiraj.h
+   Kalimdor/RuinsOfAhnQiraj/instance_ruins_of_ahnqiraj.cpp
    Kalimdor/TempleOfAhnQiraj/boss_bug_trio.cpp
    Kalimdor/TempleOfAhnQiraj/boss_cthun.cpp
    Kalimdor/TempleOfAhnQiraj/boss_fankriss.cpp
@@ -287,14 +287,14 @@ SET(scripts_STAT_SRCS
    Kalimdor/TempleOfAhnQiraj/boss_skeram.cpp
    Kalimdor/TempleOfAhnQiraj/boss_twinemperors.cpp
    Kalimdor/TempleOfAhnQiraj/boss_viscidus.cpp
-   Kalimdor/TempleOfAhnQiraj/TempleOfAhnQiraj.h
-   Kalimdor/TempleOfAhnQiraj/instance_TempleOfAhnQiraj.cpp
+   Kalimdor/TempleOfAhnQiraj/temple_of_ahnqiraj.h
+   Kalimdor/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp
    Kalimdor/TempleOfAhnQiraj/mob_anubisath_sentinel.cpp
-   Kalimdor/WailingCaverns/WailingCaverns.h
-   Kalimdor/WailingCaverns/instance_WailingCaverns.cpp
-   Kalimdor/WailingCaverns/WailingCaverns.cpp
-   Kalimdor/ZulFarrak/ZulFarrak.cpp
-   Kalimdor/ZulFarrak/instance_ZulFarrak.cpp
+   Kalimdor/WailingCaverns/wailing_caverns.h
+   Kalimdor/WailingCaverns/instance_wailing_caverns.cpp
+   Kalimdor/WailingCaverns/wailing_caverns.cpp
+   Kalimdor/ZulFarrak/zulfarrak.cpp
+   Kalimdor/ZulFarrak/instance_zulfarrak.cpp
    Kalimdor/ashenvale.cpp
    Kalimdor/azshara.cpp
    Kalimdor/azuremyst_isle.cpp
@@ -318,11 +318,11 @@ SET(scripts_STAT_SRCS
    Kalimdor/thunder_bluff.cpp
    Kalimdor/ungoro_crater.cpp
    Kalimdor/winterspring.cpp
-   Northrend/AzjolNerub/AzjolNerub/instance_AzjolNerub.cpp
+   Northrend/AzjolNerub/AzjolNerub/instance_azjol_nerub.cpp
    Northrend/AzjolNerub/AzjolNerub/boss_krikthir_the_gatewatcher.cpp
    Northrend/AzjolNerub/AzjolNerub/boss_hadronox.cpp
    Northrend/AzjolNerub/AzjolNerub/boss_anubarak.cpp
-   Northrend/AzjolNerub/AzjolNerub/AzjolNerub.h
+   Northrend/AzjolNerub/AzjolNerub/azjol_nerub.h
    Northrend/AzjolNerub/ahnkahet/instance_ahnkahet.cpp
    Northrend/AzjolNerub/ahnkahet/boss_prince_taldaram.cpp
    Northrend/AzjolNerub/ahnkahet/boss_elder_nadox.cpp
@@ -333,38 +333,38 @@ SET(scripts_STAT_SRCS
    Northrend/CrusadersColiseum/TrialOfTheChampion/boss_argent_challenge.cpp
    Northrend/CrusadersColiseum/TrialOfTheChampion/boss_black_knight.cpp
    Northrend/CrusadersColiseum/TrialOfTheChampion/boss_grand_champions.cpp
-   Northrend/CrusadersColiseum/TrialOfTheChampion/instance_TrialOfTheChampion.cpp
-   Northrend/CrusadersColiseum/TrialOfTheChampion/TrialOfTheChampion.cpp
-   Northrend/CrusadersColiseum/TrialOfTheChampion/TrialOfTheChampion.h
+   Northrend/CrusadersColiseum/TrialOfTheChampion/instance_trial_of_the_champion.cpp
+   Northrend/CrusadersColiseum/TrialOfTheChampion/trial_of_the_champion.cpp
+   Northrend/CrusadersColiseum/TrialOfTheChampion/trial_of_the_champion.h
    Northrend/DraktharonKeep/instance_drak_tharon_keep.cpp
    Northrend/DraktharonKeep/boss_trollgore.cpp
    Northrend/DraktharonKeep/boss_novos.cpp
    Northrend/DraktharonKeep/boss_dred.cpp
    Northrend/DraktharonKeep/boss_tharon_ja.cpp
    Northrend/DraktharonKeep/drak_tharon_keep.h
-   Northrend/FrozenHalls/ForgeOfSouls/instance_ForgeOfSouls.cpp
+   Northrend/FrozenHalls/ForgeOfSouls/instance_forge_of_souls.cpp
    Northrend/FrozenHalls/ForgeOfSouls/boss_bronjahm.cpp
    Northrend/FrozenHalls/ForgeOfSouls/boss_devourer_of_souls.cpp
-   Northrend/FrozenHalls/ForgeOfSouls/ForgeOfSouls.h
-   Northrend/FrozenHalls/ForgeOfSouls/ForgeOfSouls.cpp
+   Northrend/FrozenHalls/ForgeOfSouls/forge_of_souls.h
+   Northrend/FrozenHalls/ForgeOfSouls/forge_of_souls.cpp
    Northrend/FrozenHalls/HallsOfReflection/boss_falric.cpp
    Northrend/FrozenHalls/HallsOfReflection/boss_marwyn.cpp
-   Northrend/FrozenHalls/HallsOfReflection/instance_HallsOfReflection.cpp
-   Northrend/FrozenHalls/HallsOfReflection/HallsOfReflection.cpp
-   Northrend/FrozenHalls/HallsOfReflection/HallsOfReflection.h
+   Northrend/FrozenHalls/HallsOfReflection/instance_halls_of_reflection.cpp
+   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.cpp
+   Northrend/FrozenHalls/HallsOfReflection/halls_of_reflection.h
    Northrend/FrozenHalls/PitOfSaron/boss_forgemaster_garfrost.cpp
    Northrend/FrozenHalls/PitOfSaron/boss_krickandick.cpp
    Northrend/FrozenHalls/PitOfSaron/boss_scourgelord_tyrannus.cpp
-   Northrend/FrozenHalls/PitOfSaron/instance_PitOfSaron.cpp
-   Northrend/FrozenHalls/PitOfSaron/PitOfSaron.cpp
-   Northrend/FrozenHalls/PitOfSaron/PitOfSaron.h
-   Northrend/Gundrak/instance_Gundrak.cpp
+   Northrend/FrozenHalls/PitOfSaron/instance_pit_of_saron.cpp
+   Northrend/FrozenHalls/PitOfSaron/pit_of_saron.cpp
+   Northrend/FrozenHalls/PitOfSaron/pit_of_saron.h
+   Northrend/Gundrak/instance_gundrak.cpp
    Northrend/Gundrak/boss_slad_ran.cpp
    Northrend/Gundrak/boss_moorabi.cpp
    Northrend/Gundrak/boss_drakkari_colossus.cpp
    Northrend/Gundrak/boss_gal_darah.cpp
    Northrend/Gundrak/boss_eck.cpp
-   Northrend/Gundrak/Gundrak.h
+   Northrend/Gundrak/gundrak.h
    Northrend/Naxxramas/boss_anubrekhan.cpp
    Northrend/Naxxramas/boss_faerlina.cpp
    Northrend/Naxxramas/boss_gluth.cpp
@@ -380,86 +380,86 @@ SET(scripts_STAT_SRCS
    Northrend/Naxxramas/boss_razuvious.cpp
    Northrend/Naxxramas/boss_sapphiron.cpp
    Northrend/Naxxramas/boss_thaddius.cpp
-   Northrend/Naxxramas/Naxxramas.h
-   Northrend/Naxxramas/instance_Naxxramas.cpp
-   Northrend/Nexus/EyeOfEternity/instance_EyeOfEternity.cpp
+   Northrend/Naxxramas/naxxramas.h
+   Northrend/Naxxramas/instance_naxxramas.cpp
+   Northrend/Nexus/EyeOfEternity/instance_eye_of_eternity.cpp
    Northrend/Nexus/EyeOfEternity/boss_malygos.cpp
-   Northrend/Nexus/EyeOfEternity/EyeOfEternity.h
-   Northrend/Nexus/Nexus/instance_Nexus.cpp
+   Northrend/Nexus/EyeOfEternity/eye_of_eternity.h
+   Northrend/Nexus/Nexus/instance_nexus.cpp
    Northrend/Nexus/Nexus/boss_magus_telestra.cpp
    Northrend/Nexus/Nexus/boss_anomalus.cpp
    Northrend/Nexus/Nexus/boss_ormorok.cpp
    Northrend/Nexus/Nexus/boss_keristrasza.cpp
    Northrend/Nexus/Nexus/commander_stoutbeard.cpp
    Northrend/Nexus/Nexus/commander_kolurg.cpp
-   Northrend/Nexus/Nexus/Nexus.h
-   Northrend/Nexus/Oculus/instance_Oculus.cpp
+   Northrend/Nexus/Nexus/nexus.h
+   Northrend/Nexus/Oculus/instance_oculus.cpp
    Northrend/Nexus/Oculus/boss_drakos.cpp
    Northrend/Nexus/Oculus/boss_urom.cpp
    Northrend/Nexus/Oculus/boss_varos.cpp
    Northrend/Nexus/Oculus/boss_eregos.cpp
-   Northrend/Nexus/Oculus/Oculus.h
-   Northrend/Nexus/Oculus/Oculus.cpp
-   Northrend/obsidian_sanctum/instance_obsidian_sanctum.cpp
-   Northrend/obsidian_sanctum/boss_sartharion.cpp
-   Northrend/obsidian_sanctum/obsidian_sanctum.h
-   Northrend/ulduar/halls_of_stone/instance_halls_of_stone.cpp
-   Northrend/ulduar/halls_of_stone/boss_maiden_of_grief.cpp
-   Northrend/ulduar/halls_of_stone/boss_krystallus.cpp
-   Northrend/ulduar/halls_of_stone/boss_sjonnir.cpp
-   Northrend/ulduar/halls_of_stone/halls_of_stone.h
-   Northrend/ulduar/halls_of_stone/halls_of_stone.cpp
-   Northrend/ulduar/halls_of_lightning/instance_halls_of_lightning.cpp
-   Northrend/ulduar/halls_of_lightning/boss_bjarngrim.cpp
-   Northrend/ulduar/halls_of_lightning/boss_ionar.cpp
-   Northrend/ulduar/halls_of_lightning/boss_volkhan.cpp
-   Northrend/ulduar/halls_of_lightning/boss_loken.cpp
-   Northrend/ulduar/halls_of_lightning/halls_of_lightning.h
-   Northrend/ulduar/ulduar/boss_algalon.cpp
-   Northrend/ulduar/ulduar/boss_assembly_of_iron.cpp
-   Northrend/ulduar/ulduar/boss_auriaya.cpp
-   Northrend/ulduar/ulduar/boss_flame_leviathan.cpp
-   Northrend/ulduar/ulduar/boss_freya.cpp
-   Northrend/ulduar/ulduar/boss_general_vezax.cpp
-   Northrend/ulduar/ulduar/boss_hodir.cpp
-   Northrend/ulduar/ulduar/boss_ignis.cpp
-   Northrend/ulduar/ulduar/boss_kologarn.cpp
-   Northrend/ulduar/ulduar/boss_mimiron.cpp
-   Northrend/ulduar/ulduar/boss_razorscale.cpp
-   Northrend/ulduar/ulduar/boss_thorim.cpp
-   Northrend/ulduar/ulduar/boss_xt002.cpp
-   Northrend/ulduar/ulduar/boss_yoggsaron.cpp
-   Northrend/ulduar/ulduar/ulduar_teleporter.cpp
-   Northrend/ulduar/ulduar/ulduar.h
-   Northrend/ulduar/ulduar/instance_ulduar.cpp
-   Northrend/utgarde_keep/utgarde_keep/instance_utgarde_keep.cpp
-   Northrend/utgarde_keep/utgarde_keep/boss_keleseth.cpp
-   Northrend/utgarde_keep/utgarde_keep/boss_skarvald_dalronn.cpp
-   Northrend/utgarde_keep/utgarde_keep/boss_ingvar_the_plunderer.cpp
-   Northrend/utgarde_keep/utgarde_keep/utgarde_keep.h
-   Northrend/utgarde_keep/utgarde_keep/utgarde_keep.cpp
-   Northrend/utgarde_keep/utgarde_pinnacle/instance_pinnacle.cpp
-   Northrend/utgarde_keep/utgarde_pinnacle/boss_skadi.cpp
-   Northrend/utgarde_keep/utgarde_pinnacle/boss_ymiron.cpp
-   Northrend/utgarde_keep/utgarde_pinnacle/boss_palehoof.cpp
-   Northrend/utgarde_keep/utgarde_pinnacle/boss_svala.cpp
-   Northrend/utgarde_keep/utgarde_pinnacle/utgarde_pinnacle.h
-   Northrend/vault_of_archavon/instance_vault_of_archavon.cpp
-   Northrend/vault_of_archavon/boss_archavon.cpp
-   Northrend/vault_of_archavon/boss_emalon.cpp
-   Northrend/vault_of_archavon/boss_koralon.cpp
-   Northrend/vault_of_archavon/boss_toravon.cpp
-   Northrend/vault_of_archavon/vault_of_archavon.h
-   Northrend/violet_hold/instance_violet_hold.cpp
-   Northrend/violet_hold/boss_cyanigosa.cpp
-   Northrend/violet_hold/boss_erekem.cpp
-   Northrend/violet_hold/boss_ichoron.cpp
-   Northrend/violet_hold/boss_lavanthor.cpp
-   Northrend/violet_hold/boss_moragg.cpp
-   Northrend/violet_hold/boss_xevozz.cpp
-   Northrend/violet_hold/boss_zuramat.cpp
-   Northrend/violet_hold/violet_hold.h
-   Northrend/violet_hold/violet_hold.cpp
+   Northrend/Nexus/Oculus/oculus.h
+   Northrend/Nexus/Oculus/oculus.cpp
+   Northrend/ObsidianSanctum/instance_obsidian_sanctum.cpp
+   Northrend/ObsidianSanctum/boss_sartharion.cpp
+   Northrend/ObsidianSanctum/obsidian_sanctum.h
+   Northrend/Ulduar/HallsOfStone/instance_halls_of_stone.cpp
+   Northrend/Ulduar/HallsOfStone/boss_maiden_of_grief.cpp
+   Northrend/Ulduar/HallsOfStone/boss_krystallus.cpp
+   Northrend/Ulduar/HallsOfStone/boss_sjonnir.cpp
+   Northrend/Ulduar/HallsOfStone/halls_of_stone.h
+   Northrend/Ulduar/HallsOfStone/halls_of_stone.cpp
+   Northrend/Ulduar/HallsOfLightning/instance_halls_of_lightning.cpp
+   Northrend/Ulduar/HallsOfLightning/boss_bjarngrim.cpp
+   Northrend/Ulduar/HallsOfLightning/boss_ionar.cpp
+   Northrend/Ulduar/HallsOfLightning/boss_volkhan.cpp
+   Northrend/Ulduar/HallsOfLightning/boss_loken.cpp
+   Northrend/Ulduar/HallsOfLightning/halls_of_lightning.h
+   Northrend/Ulduar/ulduar/boss_algalon.cpp
+   Northrend/Ulduar/ulduar/boss_assembly_of_iron.cpp
+   Northrend/Ulduar/ulduar/boss_auriaya.cpp
+   Northrend/Ulduar/ulduar/boss_flame_leviathan.cpp
+   Northrend/Ulduar/ulduar/boss_freya.cpp
+   Northrend/Ulduar/ulduar/boss_general_vezax.cpp
+   Northrend/Ulduar/ulduar/boss_hodir.cpp
+   Northrend/Ulduar/ulduar/boss_ignis.cpp
+   Northrend/Ulduar/ulduar/boss_kologarn.cpp
+   Northrend/Ulduar/ulduar/boss_mimiron.cpp
+   Northrend/Ulduar/ulduar/boss_razorscale.cpp
+   Northrend/Ulduar/ulduar/boss_thorim.cpp
+   Northrend/Ulduar/ulduar/boss_xt002.cpp
+   Northrend/Ulduar/ulduar/boss_yoggsaron.cpp
+   Northrend/Ulduar/ulduar/ulduar_teleporter.cpp
+   Northrend/Ulduar/ulduar/ulduar.h
+   Northrend/Ulduar/ulduar/instance_ulduar.cpp
+   Northrend/UtgardeKeep/UtgardeKeep/instance_utgarde_keep.cpp
+   Northrend/UtgardeKeep/UtgardeKeep/boss_keleseth.cpp
+   Northrend/UtgardeKeep/UtgardeKeep/boss_skarvald_dalronn.cpp
+   Northrend/UtgardeKeep/UtgardeKeep/boss_ingvar_the_plunderer.cpp
+   Northrend/UtgardeKeep/UtgardeKeep/utgarde_keep.h
+   Northrend/UtgardeKeep/UtgardeKeep/utgarde_keep.cpp
+   Northrend/UtgardeKeep/UtgardePinnacle/instance_pinnacle.cpp
+   Northrend/UtgardeKeep/UtgardePinnacle/boss_skadi.cpp
+   Northrend/UtgardeKeep/UtgardePinnacle/boss_ymiron.cpp
+   Northrend/UtgardeKeep/UtgardePinnacle/boss_palehoof.cpp
+   Northrend/UtgardeKeep/UtgardePinnacle/boss_svala.cpp
+   Northrend/UtgardeKeep/UtgardePinnacle/utgarde_pinnacle.h
+   Northrend/VaultOfArchavon/instance_vault_of_archavon.cpp
+   Northrend/VaultOfArchavon/boss_archavon.cpp
+   Northrend/VaultOfArchavon/boss_emalon.cpp
+   Northrend/VaultOfArchavon/boss_koralon.cpp
+   Northrend/VaultOfArchavon/boss_toravon.cpp
+   Northrend/VaultOfArchavon/vault_of_archavon.h
+   Northrend/VioletHold/instance_violet_hold.cpp
+   Northrend/VioletHold/boss_cyanigosa.cpp
+   Northrend/VioletHold/boss_erekem.cpp
+   Northrend/VioletHold/boss_ichoron.cpp
+   Northrend/VioletHold/boss_lavanthor.cpp
+   Northrend/VioletHold/boss_moragg.cpp
+   Northrend/VioletHold/boss_xevozz.cpp
+   Northrend/VioletHold/boss_zuramat.cpp
+   Northrend/VioletHold/violet_hold.h
+   Northrend/VioletHold/violet_hold.cpp
    Northrend/dalaran.cpp
    Northrend/borean_tundra.cpp
    Northrend/dragonblight.cpp
@@ -470,89 +470,89 @@ SET(scripts_STAT_SRCS
    Northrend/storm_peaks.cpp
    Northrend/zuldrak.cpp
    Northrend/crystalsong_forest.cpp
-   Outland/auchindoun/auchenai_crypts/boss_exarch_maladaar.cpp
-   Outland/auchindoun/auchenai_crypts/boss_shirrak_the_dead_watcher.cpp
-   Outland/auchindoun/mana_tombs/boss_Nexusprince_shaffar.cpp
-   Outland/auchindoun/mana_tombs/boss_pandemonius.cpp
-   Outland/auchindoun/sethekk_halls/boss_darkweaver_syth.cpp
-   Outland/auchindoun/sethekk_halls/boss_tailonking_ikiss.cpp
-   Outland/auchindoun/sethekk_halls/sethekk_halls.h
-   Outland/auchindoun/sethekk_halls/instance_sethekk_halls.cpp
-   Outland/auchindoun/shadow_labyrinth/boss_ambassador_hellmaw.cpp
-   Outland/auchindoun/shadow_labyrinth/boss_blackheart_the_inciter.cpp
-   Outland/auchindoun/shadow_labyrinth/boss_grandmaster_vorpil.cpp
-   Outland/auchindoun/shadow_labyrinth/boss_murmur.cpp
-   Outland/auchindoun/shadow_labyrinth/shadow_labyrinth.h
-   Outland/auchindoun/shadow_labyrinth/instance_shadow_labyrinth.cpp
-   Outland/black_temple/black_temple.cpp
-   Outland/black_temple/boss_bloodboil.cpp
-   Outland/black_temple/boss_illidan.cpp
-   Outland/black_temple/boss_mother_shahraz.cpp
-   Outland/black_temple/boss_reliquary_of_souls.cpp
-   Outland/black_temple/boss_shade_of_akama.cpp
-   Outland/black_temple/boss_supremus.cpp
-   Outland/black_temple/boss_teron_gorefiend.cpp
-   Outland/black_temple/boss_warlord_najentus.cpp
-   Outland/black_temple/black_temple.h
-   Outland/black_temple/illidari_council.cpp
-   Outland/black_temple/instance_black_temple.cpp
-   Outland/coilfang_resevoir/serpent_shrine/boss_fathomlord_karathress.cpp
-   Outland/coilfang_resevoir/serpent_shrine/boss_hydross_the_unstable.cpp
-   Outland/coilfang_resevoir/serpent_shrine/boss_lurker_below.cpp
-   Outland/coilfang_resevoir/serpent_shrine/boss_lady_vashj.cpp
-   Outland/coilfang_resevoir/serpent_shrine/boss_leotheras_the_blind.cpp
-   Outland/coilfang_resevoir/serpent_shrine/boss_morogrim_tidewalker.cpp
-   Outland/coilfang_resevoir/serpent_shrine/serpent_shrine.h
-   Outland/coilfang_resevoir/serpent_shrine/instance_serpent_shrine.cpp
-   Outland/coilfang_resevoir/steam_vault/boss_hydromancer_thespia.cpp
-   Outland/coilfang_resevoir/steam_vault/boss_mekgineer_steamrigger.cpp
-   Outland/coilfang_resevoir/steam_vault/boss_warlord_kalithresh.cpp
-   Outland/coilfang_resevoir/steam_vault/steam_vault.h
-   Outland/coilfang_resevoir/steam_vault/instance_steam_vault.cpp
-   Outland/coilfang_resevoir/underbog/boss_hungarfen.cpp
-   Outland/coilfang_resevoir/underbog/boss_the_black_stalker.cpp
-   Outland/gruuls_lair/boss_gruul.cpp
-   Outland/gruuls_lair/boss_high_king_maulgar.cpp
-   Outland/gruuls_lair/gruuls_lair.h
-   Outland/gruuls_lair/instance_gruuls_lair.cpp
-   Outland/hellfire_citadel/blood_furnace/boss_broggok.cpp
-   Outland/hellfire_citadel/blood_furnace/boss_kelidan_the_breaker.cpp
-   Outland/hellfire_citadel/blood_furnace/boss_the_maker.cpp
-   Outland/hellfire_citadel/blood_furnace/instance_blood_furnace.cpp
-   Outland/hellfire_citadel/blood_furnace/blood_furnace.h
-   Outland/hellfire_citadel/hellfire_ramparts/boss_omor_the_unscarred.cpp
-   Outland/hellfire_citadel/hellfire_ramparts/boss_watchkeeper_gargolmar.cpp
-   Outland/hellfire_citadel/hellfire_ramparts/boss_vazruden_the_herald.cpp
-   Outland/hellfire_citadel/hellfire_ramparts/hellfire_ramparts.h
-   Outland/hellfire_citadel/hellfire_ramparts/instance_hellfire_ramparts.cpp
-   Outland/hellfire_citadel/magtheridons_lair/boss_magtheridon.cpp
-   Outland/hellfire_citadel/magtheridons_lair/magtheridons_lair.h
-   Outland/hellfire_citadel/magtheridons_lair/instance_magtheridons_lair.cpp
-   Outland/hellfire_citadel/shattered_halls/boss_nethekurse.cpp
-   Outland/hellfire_citadel/shattered_halls/boss_warbringer_omrogg.cpp
-   Outland/hellfire_citadel/shattered_halls/shattered_halls.h
-   Outland/hellfire_citadel/shattered_halls/instance_shattered_halls.cpp
-   Outland/hellfire_citadel/shattered_halls/boss_warchief_kargath_bladefist.cpp
-   Outland/tempest_keep/arcatraz/arcatraz.cpp
-   Outland/tempest_keep/arcatraz/boss_harbinger_skyriss.cpp
-   Outland/tempest_keep/arcatraz/arcatraz.h
-   Outland/tempest_keep/arcatraz/instance_arcatraz.cpp
-   Outland/tempest_keep/botanica/boss_high_botanist_freywinn.cpp
-   Outland/tempest_keep/botanica/boss_laj.cpp
-   Outland/tempest_keep/botanica/boss_warp_splinter.cpp
-   Outland/tempest_keep/the_eye/boss_alar.cpp
-   Outland/tempest_keep/the_eye/boss_astromancer.cpp
-   Outland/tempest_keep/the_eye/boss_kaelthas.cpp
-   Outland/tempest_keep/the_eye/boss_void_reaver.cpp
-   Outland/tempest_keep/the_eye/the_eye.h
-   Outland/tempest_keep/the_eye/instance_the_eye.cpp
-   Outland/tempest_keep/the_eye/the_eye.cpp
-   Outland/tempest_keep/the_mechanar/boss_gatewatcher_gyrokill.cpp
-   Outland/tempest_keep/the_mechanar/boss_gatewatcher_ironhand.cpp
-   Outland/tempest_keep/the_mechanar/boss_nethermancer_sepethrea.cpp
-   Outland/tempest_keep/the_mechanar/boss_pathaleon_the_calculator.cpp
-   Outland/tempest_keep/the_mechanar/mechanar.h
-   Outland/tempest_keep/the_mechanar/instance_mechanar.cpp
+   Outland/Auchindoun/AuchenaiCrypts/boss_exarch_maladaar.cpp
+   Outland/Auchindoun/AuchenaiCrypts/boss_shirrak_the_dead_watcher.cpp
+   Outland/Auchindoun/ManaTombs/boss_nexusprince_shaffar.cpp
+   Outland/Auchindoun/ManaTombs/boss_pandemonius.cpp
+   Outland/Auchindoun/SethekkHalls/boss_darkweaver_syth.cpp
+   Outland/Auchindoun/SethekkHalls/boss_tailonking_ikiss.cpp
+   Outland/Auchindoun/SethekkHalls/sethekk_halls.h
+   Outland/Auchindoun/SethekkHalls/instance_sethekk_halls.cpp
+   Outland/Auchindoun/ShadowLabyrinth/boss_ambassador_hellmaw.cpp
+   Outland/Auchindoun/ShadowLabyrinth/boss_blackheart_the_inciter.cpp
+   Outland/Auchindoun/ShadowLabyrinth/boss_grandmaster_vorpil.cpp
+   Outland/Auchindoun/ShadowLabyrinth/boss_murmur.cpp
+   Outland/Auchindoun/ShadowLabyrinth/shadow_labyrinth.h
+   Outland/Auchindoun/ShadowLabyrinth/instance_shadow_labyrinth.cpp
+   Outland/BlackTemple/black_temple.cpp
+   Outland/BlackTemple/boss_bloodboil.cpp
+   Outland/BlackTemple/boss_illidan.cpp
+   Outland/BlackTemple/boss_mother_shahraz.cpp
+   Outland/BlackTemple/boss_reliquary_of_souls.cpp
+   Outland/BlackTemple/boss_shade_of_akama.cpp
+   Outland/BlackTemple/boss_supremus.cpp
+   Outland/BlackTemple/boss_teron_gorefiend.cpp
+   Outland/BlackTemple/boss_warlord_najentus.cpp
+   Outland/BlackTemple/black_temple.h
+   Outland/BlackTemple/illidari_council.cpp
+   Outland/BlackTemple/instance_black_temple.cpp
+   Outland/CoilfangReservoir/SerpentShrine/boss_fathomlord_karathress.cpp
+   Outland/CoilfangReservoir/SerpentShrine/boss_hydross_the_unstable.cpp
+   Outland/CoilfangReservoir/SerpentShrine/boss_lurker_below.cpp
+   Outland/CoilfangReservoir/SerpentShrine/boss_lady_vashj.cpp
+   Outland/CoilfangReservoir/SerpentShrine/boss_leotheras_the_blind.cpp
+   Outland/CoilfangReservoir/SerpentShrine/boss_morogrim_tidewalker.cpp
+   Outland/CoilfangReservoir/SerpentShrine/serpent_shrine.h
+   Outland/CoilfangReservoir/SerpentShrine/instance_serpent_shrine.cpp
+   Outland/CoilfangReservoir/SteamVault/boss_hydromancer_thespia.cpp
+   Outland/CoilfangReservoir/SteamVault/boss_mekgineer_steamrigger.cpp
+   Outland/CoilfangReservoir/SteamVault/boss_warlord_kalithresh.cpp
+   Outland/CoilfangReservoir/SteamVault/steam_vault.h
+   Outland/CoilfangReservoir/SteamVault/instance_steam_vault.cpp
+   Outland/CoilfangReservoir/underbog/boss_hungarfen.cpp
+   Outland/CoilfangReservoir/underbog/boss_the_black_stalker.cpp
+   Outland/GruulsLair/boss_gruul.cpp
+   Outland/GruulsLair/boss_high_king_maulgar.cpp
+   Outland/GruulsLair/gruuls_lair.h
+   Outland/GruulsLair/instance_gruuls_lair.cpp
+   Outland/HellfireCitadel/BloodFurnace/boss_broggok.cpp
+   Outland/HellfireCitadel/BloodFurnace/boss_kelidan_the_breaker.cpp
+   Outland/HellfireCitadel/BloodFurnace/boss_the_maker.cpp
+   Outland/HellfireCitadel/BloodFurnace/instance_blood_furnace.cpp
+   Outland/HellfireCitadel/BloodFurnace/blood_furnace.h
+   Outland/HellfireCitadel/HellfireRamparts/boss_omor_the_unscarred.cpp
+   Outland/HellfireCitadel/HellfireRamparts/boss_watchkeeper_gargolmar.cpp
+   Outland/HellfireCitadel/HellfireRamparts/boss_vazruden_the_herald.cpp
+   Outland/HellfireCitadel/HellfireRamparts/hellfire_ramparts.h
+   Outland/HellfireCitadel/HellfireRamparts/instance_hellfire_ramparts.cpp
+   Outland/HellfireCitadel/MagtheridonsLair/boss_magtheridon.cpp
+   Outland/HellfireCitadel/MagtheridonsLair/magtheridons_lair.h
+   Outland/HellfireCitadel/MagtheridonsLair/instance_magtheridons_lair.cpp
+   Outland/HellfireCitadel/ShatteredHalls/boss_nethekurse.cpp
+   Outland/HellfireCitadel/ShatteredHalls/boss_warbringer_omrogg.cpp
+   Outland/HellfireCitadel/ShatteredHalls/shattered_halls.h
+   Outland/HellfireCitadel/ShatteredHalls/instance_shattered_halls.cpp
+   Outland/HellfireCitadel/ShatteredHalls/boss_warchief_kargath_bladefist.cpp
+   Outland/TempestKeep/arcatraz/arcatraz.cpp
+   Outland/TempestKeep/arcatraz/boss_harbinger_skyriss.cpp
+   Outland/TempestKeep/arcatraz/arcatraz.h
+   Outland/TempestKeep/arcatraz/instance_arcatraz.cpp
+   Outland/TempestKeep/botanica/boss_high_botanist_freywinn.cpp
+   Outland/TempestKeep/botanica/boss_laj.cpp
+   Outland/TempestKeep/botanica/boss_warp_splinter.cpp
+   Outland/TempestKeep/Eye/boss_alar.cpp
+   Outland/TempestKeep/Eye/boss_astromancer.cpp
+   Outland/TempestKeep/Eye/boss_kaelthas.cpp
+   Outland/TempestKeep/Eye/boss_void_reaver.cpp
+   Outland/TempestKeep/Eye/the_eye.h
+   Outland/TempestKeep/Eye/instance_the_eye.cpp
+   Outland/TempestKeep/Eye/the_eye.cpp
+   Outland/TempestKeep/Mechanar/boss_gatewatcher_gyrokill.cpp
+   Outland/TempestKeep/Mechanar/boss_gatewatcher_ironhand.cpp
+   Outland/TempestKeep/Mechanar/boss_nethermancer_sepethrea.cpp
+   Outland/TempestKeep/Mechanar/boss_pathaleon_the_calculator.cpp
+   Outland/TempestKeep/Mechanar/mechanar.h
+   Outland/TempestKeep/Mechanar/instance_mechanar.cpp
    Outland/blades_edge_mountains.cpp
    Outland/boss_doomlord_kazzak.cpp
    Outland/boss_doomwalker.cpp
@@ -639,3 +639,4 @@ add_library(scripts STATIC ${scripts_STAT_SRCS})
 IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 	ADD_PRECOMPILED_HEADER(scripts ${CMAKE_SOURCE_DIR}/src/server/game/ScriptMgr/ScriptedPch.h)
 ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+
