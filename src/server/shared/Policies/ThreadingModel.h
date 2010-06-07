@@ -26,7 +26,7 @@
  *
  */
 
-#include "Platform/Define.h"
+#include "Define.h"
 
 namespace Trinity
 {

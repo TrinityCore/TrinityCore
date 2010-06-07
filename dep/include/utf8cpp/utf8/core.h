@@ -31,7 +31,7 @@ DEALINGS IN THE SOFTWARE.
 #include <iterator>
 
 // use Trinity core types
-#include "Platform/Define.h"
+#include "Define.h"
 
 namespace utf8
 {

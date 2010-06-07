@@ -20,7 +20,7 @@
 #ifndef TRINITYCORE_PROGRESSBAR_H
 #define TRINITYCORE_PROGRESSBAR_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 
 class barGoLink
 {
