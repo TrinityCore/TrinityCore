@@ -19,18 +19,18 @@
  */
 
 #include "DatabaseEnv.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 
 #include "Common.h"
-#include "UpdateFields.h"
+#include "Updates/UpdateFields.h"
 
-#include "Util.h"
+#include "Utilities/Util.h"
 #include "Policies/SingletonImp.h"
-#include "Platform/Define.h"
-#include "Threading.h"
+#include "Define.h"
+#include "Threading/Threading.h"
 #include "Database/SqlDelayThread.h"
 #include "Database/SqlOperations.h"
-#include "Timer.h"
+#include "Utilities/Timer.h"
 
 
 #include <ctime>
