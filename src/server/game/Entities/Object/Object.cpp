@@ -35,7 +35,7 @@
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "Log.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
