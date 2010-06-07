@@ -23,7 +23,7 @@
 
 #include "ace/Thread_Mutex.h"
 #include "ace/Activation_Queue.h"
-#include "Threading.h"
+#include "Threading/Threading.h"
 
 class Database;
 class SqlOperation;
