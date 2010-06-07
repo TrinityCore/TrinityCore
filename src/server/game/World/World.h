@@ -26,11 +26,11 @@
 #define __WORLD_H
 
 #include "Common.h"
-#include "Timer.h"
+#include "Utilities/Timer.h"
 #include "Policies/Singleton.h"
-#include "SharedDefines.h"
+#include "Miscellaneous/SharedDefines.h"
 #include "ace/Atomic_Op.h"
-#include "QueryResult.h"
+#include "Database/QueryResult.h"
 
 #include <map>
 #include <set>

@@ -22,8 +22,8 @@
 #define _BYTEBUFFER_H
 
 #include "Common.h"
-#include "Errors.h"
-#include "Log.h"
+#include "Debugging/Errors.h"
+#include "Logging/Log.h"
 #include "Utilities/ByteConverter.h"
 
 class ByteBufferException
