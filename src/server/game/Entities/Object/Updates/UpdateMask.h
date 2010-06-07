@@ -22,7 +22,7 @@
 #define __UPDATEMASK_H
 
 #include "UpdateFields.h"
-#include "Errors.h"
+#include "Debugging/Errors.h"
 
 class UpdateMask
 {

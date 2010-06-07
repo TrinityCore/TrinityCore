@@ -23,11 +23,11 @@
 
 #include "Common.h"
 #include "Unit.h"
-#include "UpdateMask.h"
+#include "Updates/UpdateMask.h"
 #include "ItemPrototype.h"
 #include "LootMgr.h"
 #include "Database/DatabaseEnv.h"
-#include "Cell.h"
+#include "Grids/Cells/Cell.h"
 
 #include <list>
 
