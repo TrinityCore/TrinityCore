@@ -1,0 +1,40 @@
+TrinityCore uses (parts of or in whole) the following opensource software :
+
+ACE (ADAPTIVE Communication Environment)
+  http://www.cs.wustl.edu/~schmidt/ACE.html
+
+bzip2 (a freely available, patent free, high-quality data compressor)
+  http://www.bzip.org/
+
+G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
+  http://g3d.sourceforge.net/
+
+jemalloc (a general-purpose scalable concurrent malloc-implementation)
+  http://www.canonware.com/jemalloc/
+
+libMPQ (a library for reading MPQ files)
+  https://libmpq.org/
+
+MersenneTwister (a very fast random number generator)
+  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
+
+SFMT (SIMD-oriented Fast Mersenne Twister)
+  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/index.html
+
+MySQL (the world's most popular open source database software)
+  http://www.mysql.com/about/
+
+OpenSSL (an opensource toolkit implementing SSL v2/v3 and TLS v1 protocols)
+  http://www.openssl.org/
+
+sockets (a GPL licensed C++ class library wrapping the berkeley sockets C API)
+  http://www.alhem.net/Sockets/
+
+utf8-cpp (UTF-8 with C++ in a Portable Way)
+  http://utfcpp.sourceforge.net/
+
+vld (a free open-source memory leak detection system for Visual C++)
+  http://sites.google.com/site/dmoulding/vld
+
+zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
+  http://www.zlib.net/
