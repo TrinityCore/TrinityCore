@@ -20,9 +20,9 @@
 
 #include "Util.h"
 
-#include "sockets/socket_include.h"
-#include "utf8cpp/utf8.h"
-#include "mersennetwister/MersenneTwister.h"
+#include "socket_include.h"
+#include "utf8.h"
+#include "SFMT.h"
 #include <ace/TSS_T.h>
 
 typedef ACE_TSS<MTRand> MTRandTSS;
