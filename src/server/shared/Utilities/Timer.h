@@ -21,7 +21,7 @@
 #ifndef TRINITY_TIMER_H
 #define TRINITY_TIMER_H
 
-#include "shared/CompilerDefs.h"
+#include "CompilerDefs.h"
 
 #if PLATFORM == PLATFORM_WINDOWS
 #   include <ace/config-all.h>
