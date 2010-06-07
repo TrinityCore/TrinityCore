@@ -372,8 +372,6 @@ if(NOT DO_SCRIPTS)
    SET(game_STAT_SRCS ${game_STAT_SRCS}
       AI/ScriptedAI/ScriptedEscortAI.cpp
       AI/ScriptedAI/ScriptedEscortAI.h
-      ScriptMgr/ScriptedPch.cpp
-      ScriptMgr/ScriptedPch.h
       AI/ScriptedAI/ScriptedCreature.cpp
       AI/ScriptedAI/ScriptedCreature.h
       AI/ScriptedAI/ScriptedFollowerAI.cpp
@@ -384,6 +382,8 @@ if(NOT DO_SCRIPTS)
       AI/ScriptedAI/ScriptedInstance.h
       AI/ScriptedAI/ScriptedSimpleAI.cpp
       AI/ScriptedAI/ScriptedSimpleAI.h
+      PrecompiledHeaders/ScriptPCH.cpp
+      PrecompiledHeaders/ScriptPCH.h
    )
    message("-- Added Script Engine to GAME lib")
 endif(NOT DO_SCRIPTS)
@@ -393,6 +393,6 @@ ADD_DEPENDENCIES(game revision.h)
 
 # Generate precompiled header
 IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-        ADD_PRECOMPILED_HEADER(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/pchlinux.h)
+        ADD_PRECOMPILED_HEADER(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/NixCorePCH.h)
 ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 

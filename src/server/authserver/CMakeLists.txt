@@ -1,16 +1,16 @@
 ########### next target ###############
 
 SET(trinity-realm_SRCS
-AuthCodes.cpp
-AuthCodes.h
-AuthSocket.cpp
-AuthSocket.h
+Authentication/AuthCodes.cpp
+Authentication/AuthCodes.h
+Realms/RealmList.cpp
+Realms/RealmList.h
+Server/AuthSocket.cpp
+Server/AuthSocket.h
+Server/RealmSocket.h
+Server/RealmSocket.cpp
+Server/RealmAcceptor.h
 Main.cpp
-RealmList.cpp
-RealmList.h
-RealmSocket.h
-RealmSocket.cpp
-RealmAcceptor.h
 )
 
 include_directories(
