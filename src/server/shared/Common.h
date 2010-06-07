@@ -59,7 +59,7 @@
 #undef VERSION
 #endif //HAVE_CONFIG_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 
 #if COMPILER == COMPILER_MICROSOFT
 #   pragma warning(disable:4996)                            // 'function': was declared deprecated
@@ -76,7 +76,7 @@
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
 
-#include "Utilities/UnorderedMap.h"
+#include "UnorderedMap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
