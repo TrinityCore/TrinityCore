@@ -21,10 +21,10 @@
 #include "Common.h"
 #include "Corpse.h"
 #include "Player.h"
-#include "UpdateMask.h"
+#include "Entities/Object/Updates/UpdateMask.h"
 #include "ObjectAccessor.h"
 #include "Database/DatabaseEnv.h"
-#include "Opcodes.h"
+#include "Server/Protocol/Opcodes.h"
 #include "GossipDef.h"
 #include "World.h"
 

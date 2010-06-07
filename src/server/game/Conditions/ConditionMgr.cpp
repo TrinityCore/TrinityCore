@@ -25,7 +25,7 @@
 #include "SpellMgr.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
-#include "ProgressBar.h"
+#include "Utilities/ProgressBar.h"
 #include "InstanceData.h"
 #include "ConditionMgr.h"
 
