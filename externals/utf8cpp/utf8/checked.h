@@ -33,8 +33,12 @@ DEALINGS IN THE SOFTWARE.
 
 namespace utf8
 {
+    // Base for the exceptions that may be thrown from the library
+    class exception : public std::exception {
+    };
+
     // Exceptions that may be thrown from the library functions.
-    class invalid_code_point : public std::exception {
+    class invalid_code_point : public exception {
         uint32_t cp;
     public:
         invalid_code_point(uint32_t cp) : cp(cp) {}
@@ -42,7 +46,7 @@ namespace utf8
         uint32_t code_point() const {return cp;}
     };
 
-    class invalid_utf8 : public std::exception {
+    class invalid_utf8 : public exception {
         uint8_t u8;
     public:
         invalid_utf8 (uint8_t u) : u8(u) {}
@@ -50,7 +54,7 @@ namespace utf8
         uint8_t utf8_octet() const {return u8;}
     };
 
-    class invalid_utf16 : public std::exception {
+    class invalid_utf16 : public exception {
         uint16_t u16;
     public:
         invalid_utf16 (uint16_t u) : u16(u) {}
@@ -58,7 +62,7 @@ namespace utf8
         uint16_t utf16_word() const {return u16;}
     };
 
-    class not_enough_room : public std::exception {
+    class not_enough_room : public exception {
     public:
         virtual const char* what() const throw() { return "Not enough space"; }
     };
@@ -72,7 +76,7 @@ namespace utf8
             octet_iterator sequence_start = start;
             internal::utf_error err_code = internal::validate_next(start, end);
             switch (err_code) {
-                case internal::OK :
+                case internal::UTF8_OK :
                     for (octet_iterator it = sequence_start; it != start; ++it)
                         *out++ = *it;
                     break;
@@ -120,15 +124,12 @@ namespace utf8
             *(result++) = static_cast<uint8_t>(((cp >> 6) & 0x3f)   | 0x80);
             *(result++) = static_cast<uint8_t>((cp & 0x3f)          | 0x80);
         }
-        else if (cp <= internal::CODE_POINT_MAX) {      // four octets
+        else {      // four octets
             *(result++) = static_cast<uint8_t>((cp >> 18)           | 0xf0);
-            *(result++) = static_cast<uint8_t>(((cp >> 12)& 0x3f)   | 0x80);
+            *(result++) = static_cast<uint8_t>(((cp >> 12) & 0x3f)  | 0x80);
             *(result++) = static_cast<uint8_t>(((cp >> 6) & 0x3f)   | 0x80);
             *(result++) = static_cast<uint8_t>((cp & 0x3f)          | 0x80);
         }
-        else
-            throw invalid_code_point(cp);
-
         return result;
     }
 
@@ -138,7 +139,7 @@ namespace utf8
         uint32_t cp = 0;
         internal::utf_error err_code = internal::validate_next(it, end, &cp);
         switch (err_code) {
-            case internal::OK :
+            case internal::UTF8_OK :
                 break;
             case internal::NOT_ENOUGH_ROOM :
                 throw not_enough_room();
@@ -204,18 +205,22 @@ namespace utf8
         while (start != end) {
             uint32_t cp = internal::mask16(*start++);
             // Take care of surrogate pairs first
-            if (internal::is_surrogate(cp)) {
+            if (internal::is_lead_surrogate(cp)) {
                 if (start != end) {
                     uint32_t trail_surrogate = internal::mask16(*start++);
-                    if (trail_surrogate >= internal::TRAIL_SURROGATE_MIN && trail_surrogate <= internal::TRAIL_SURROGATE_MAX)
+                    if (internal::is_trail_surrogate(trail_surrogate))
                         cp = (cp << 10) + trail_surrogate + internal::SURROGATE_OFFSET;
                     else
                         throw invalid_utf16(static_cast<uint16_t>(trail_surrogate));
                 }
                 else
-                    throw invalid_utf16(static_cast<uint16_t>(*start));
+                    throw invalid_utf16(static_cast<uint16_t>(cp));
 
             }
+            // Lone trail surrogate
+            else if (internal::is_trail_surrogate(cp))
+                throw invalid_utf16(static_cast<uint16_t>(cp));
+
             result = append(cp, result);
         }
         return result;
@@ -248,7 +253,7 @@ namespace utf8
     template <typename octet_iterator, typename u32bit_iterator>
     u32bit_iterator utf8to32 (octet_iterator start, octet_iterator end, u32bit_iterator result)
     {
-        while (start < end)
+        while (start != end)
             (*result++) = next(start, end);
 
         return result;
@@ -314,6 +319,5 @@ namespace utf8
 } // namespace utf8
 
 #endif //header guard
-
 
 
