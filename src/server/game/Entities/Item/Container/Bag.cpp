@@ -23,8 +23,8 @@
 #include "Database/DatabaseEnv.h"
 
 #include "Bag.h"
-#include "Log.h"
-#include "UpdateData.h"
+#include "Logging/Log.h"
+#include "Entities/Object/Updates/UpdateData.h"
 
 Bag::Bag(): Item()
 {

@@ -20,9 +20,9 @@
 
 #include "DBCStores.h"
 #include "Policies/SingletonImp.h"
-#include "Log.h"
-#include "ProgressBar.h"
-#include "SharedDefines.h"
+#include "Logging/Log.h"
+#include "Utilities/ProgressBar.h"
+#include "Miscellaneous/SharedDefines.h"
 #include "SpellMgr.h"
 
 #include "DBCfmt.h"

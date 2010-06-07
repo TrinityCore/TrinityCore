@@ -19,7 +19,7 @@
 #ifndef TRINITY_POOLHANDLER_H
 #define TRINITY_POOLHANDLER_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include "Policies/Singleton.h"
 #include "Creature.h"
 #include "GameObject.h"
