@@ -28,7 +28,7 @@
 #include "Vehicle.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "BattleGround.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"

@@ -24,7 +24,7 @@
 
 #include "WorldLog.h"
 #include "Policies/SingletonImp.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 #include "Log.h"
 
 #define CLASS_LOCK Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>

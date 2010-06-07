@@ -40,7 +40,7 @@
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
-#include "zlib/zlib.h"
+#include "zlib.h"
 #include "ScriptMgr.h"
 #include "LFGMgr.h"
 

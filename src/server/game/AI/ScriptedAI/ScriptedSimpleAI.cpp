@@ -21,7 +21,7 @@ SDComment: Base Class for SimpleAI creatures
 SDCategory: Creatures
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
 
 SimpleAI::SimpleAI(Creature *c) : ScriptedAI(c)

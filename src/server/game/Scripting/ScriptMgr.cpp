@@ -2,8 +2,8 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
-#include "ScriptedPch.h"
-#include "Config/Config.h"
+#include "ScriptPCH.h"
+#include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
