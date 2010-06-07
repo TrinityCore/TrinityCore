@@ -43,7 +43,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "Common.h"
-#include "Auth/AuthCrypt.h"
+#include "Cryptography/Authentication/AuthCrypt.h"
 
 class ACE_Message_Block;
 class WorldPacket;

@@ -21,7 +21,7 @@
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include <cassert>
 
 // loot modes for creatures and gameobjects, bitmask!
