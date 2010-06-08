@@ -133,10 +133,14 @@ target_link_libraries(
 trinity-core
 game
 shared
+zlib
+trinitysockets
 trinitydatabase
 trinityauth
 trinityconfig
 collision
+g3dlib
+jemalloc
 ${SCRIPT_LIB}
 ${READLINE_LIBRARY}
 ${TERMCAP_LIBRARY}

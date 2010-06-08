@@ -2,39 +2,52 @@ TrinityCore uses (parts of or in whole) the following opensource software :
 
 ACE (ADAPTIVE Communication Environment)
   http://www.cs.wustl.edu/~schmidt/ACE.html
+  Version: UNKNOWN
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
+  Version: 1.0.5
 
-G3D 6.09 (a commercial-grade C++ 3D engine available as Open Source (BSD License)
+G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
+  Version: 6.09
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-
+  Version: UNKNOWN
+  
 libMPQ (a library for reading MPQ files)
   https://libmpq.org/
+  Version: 1.0.4
 
 MersenneTwister (a very fast random number generator)
   http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
+  Version: 0.4.2
 
 SFMT (SIMD-oriented Fast Mersenne Twister)
   http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/index.html
+  Version: 1.3.3
 
 MySQL (the world's most popular open source database software)
   http://www.mysql.com/about/
+  Version: UNKNOWN
 
 OpenSSL (an opensource toolkit implementing SSL v2/v3 and TLS v1 protocols)
   http://www.openssl.org/
+  Version: UNKNOWN
 
 sockets (a GPL licensed C++ class library wrapping the berkeley sockets C API)
   http://www.alhem.net/Sockets/
+  Version: UNKNOWN
 
 utf8-cpp (UTF-8 with C++ in a Portable Way)
   http://utfcpp.sourceforge.net/
+  Version: 2.3
 
 vld (a free open-source memory leak detection system for Visual C++)
   http://sites.google.com/site/dmoulding/vld
+  Version: 1.0
 
 zlib (A Massively Spiffy Yet Delicately Unobtrusive Compression Library)
   http://www.zlib.net/
+  Version: 1.2.5
