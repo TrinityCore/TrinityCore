@@ -20,7 +20,7 @@
 #define _LFGMGR_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 #include "Group.h"
 #include "LFG.h"
 

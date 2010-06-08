@@ -19,14 +19,14 @@
  */
 
 #include "Common.h"
-#include "Entities/Object/Updates/UpdateMask.h"
-#include "Server/Protocol/Opcodes.h"
+#include "UpdateMask.h"
+#include "Opcodes.h"
 #include "World.h"
 #include "ObjectAccessor.h"
-#include "Database/DatabaseEnv.h"
-#include "Grids/Notifiers/GridNotifiers.h"
-#include "Grids/Cells/CellImpl.h"
-#include "Grids/Notifiers/GridNotifiersImpl.h"
+#include "DatabaseEnv.h"
+#include "GridNotifiers.h"
+#include "CellImpl.h"
+#include "GridNotifiersImpl.h"
 
 DynamicObject::DynamicObject() : WorldObject()
 {

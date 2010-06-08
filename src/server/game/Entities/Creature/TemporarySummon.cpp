@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Logging/Log.h"
+#include "Log.h"
 #include "ObjectAccessor.h"
 #include "CreatureAI.h"
 #include "ObjectMgr.h"

@@ -19,23 +19,23 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "Item.h"
 #include "GameObject.h"
-#include "Server/Protocol/Opcodes.h"
+#include "Opcodes.h"
 #include "Chat.h"
 #include "MapManager.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "World.h"
 #include "GameEventMgr.h"
 #include "SpellMgr.h"
 #include "PoolHandler.h"
 #include "AccountMgr.h"
-#include "Movement/Waypoints/WaypointManager.h"
-#include "Utilities/Util.h"
+#include "WaypointManager.h"
+#include "Util.h"
 #include <cctype>
 #include <iostream>
 #include <fstream>
