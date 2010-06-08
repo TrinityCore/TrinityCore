@@ -571,6 +571,7 @@ INSERT INTO `command` VALUES
 ('reload creature_involvedrelation',3,'Syntax: .reload creature_involvedrelation\nReload creature_involvedrelation table.'),
 ('reload creature_linked_respawn',2,'Syntax: .reload creature_linked_respawn\r\nReload creature_linked_respawn table.'),
 ('reload creature_loot_template',3,'Syntax: .reload creature_loot_template\nReload creature_loot_template table.'),
+('reload creature_onkill_reputation','3','Syntax: .reload creature_onkill_reputation\r\nReload creature_onkill_reputation table.'),
 ('reload creature_questrelation',3,'Syntax: .reload creature_questrelation\nReload creature_questrelation table.'),
 ('reload disenchant_loot_template',3,'Syntax: .reload disenchant_loot_template\nReload disenchant_loot_template table.'),
 ('reload event_scripts',3,'Syntax: .reload event_scripts\nReload event_scripts table.'),

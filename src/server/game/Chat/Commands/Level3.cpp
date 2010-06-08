@@ -749,6 +749,14 @@ bool ChatHandler::HandleReloadCommandCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadOnKillReputationCommand(const char*)
+{
+    sLog.outString("Re-Loading creature award reputation definitions...");
+    objmgr.LoadReputationOnKill();
+    SendGlobalGMSysMessage("DB table `creature_onkill_reputation` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadCreatureTemplateCommand(const char* args)
 {
     if (!*args)
