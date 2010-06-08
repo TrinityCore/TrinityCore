@@ -21,11 +21,11 @@
 #ifndef _AUCTION_HOUSE_MGR_H
 #define _AUCTION_HOUSE_MGR_H
 
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 
-#include "Miscellaneous/SharedDefines.h"
+#include "SharedDefines.h"
 
-#include "AuctionHouse/AuctionHouseBot/AuctionHouseBot.h"
+#include "AuctionHouseBot.h"
 
 class Item;
 class Player;

@@ -22,7 +22,7 @@
 #define __BATTLEGROUNDMGR_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 
 #include "DBCEnums.h"
 #include "BattleGround.h"

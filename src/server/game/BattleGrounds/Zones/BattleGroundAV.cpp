@@ -19,7 +19,7 @@
  */
 
 #include "ObjectMgr.h"
-#include "Packets/WorldPacket.h"
+#include "WorldPacket.h"
 
 #include "BattleGround.h"
 #include "BattleGroundAV.h"

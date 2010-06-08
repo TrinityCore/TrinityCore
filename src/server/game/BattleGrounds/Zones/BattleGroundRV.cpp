@@ -21,9 +21,9 @@
 #include "BattleGround.h"
 #include "BattleGroundRV.h"
 #include "ObjectAccessor.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
-#include "Packets/WorldPacket.h"
+#include "WorldPacket.h"
 #include "GameObject.h"
 
 BattleGroundRV::BattleGroundRV()

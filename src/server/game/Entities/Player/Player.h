@@ -26,20 +26,20 @@
 #include "Unit.h"
 #include "Item.h"
 
-#include "Database/DatabaseEnv.h"
-#include "Server/Protocol/Handlers/NPCHandler.h"
-#include "Quests/QuestDef.h"
-#include "Groups/Group.h"
-#include "Item/Container/Bag.h"
-#include "Server/WorldSession.h"
+#include "DatabaseEnv.h"
+#include "NPCHandler.h"
+#include "QuestDef.h"
+#include "Group.h"
+#include "Bag.h"
+#include "WorldSession.h"
 #include "Pet.h"
 #include "MapReference.h"
-#include "Utilities/Util.h"                                           // for Tokens typedef
-#include "Achievements/AchievementMgr.h"
-#include "Reputation/ReputationMgr.h"
-#include "BattleGrounds/BattleGround.h"
-#include "DataStores/DBCEnums.h"
-#include "DungeonFinding/LFG.h"
+#include "Util.h"                                           // for Tokens typedef
+#include "AchievementMgr.h"
+#include "ReputationMgr.h"
+#include "BattleGround.h"
+#include "DBCEnums.h"
+#include "LFG.h"
 
 #include<string>
 #include<vector>

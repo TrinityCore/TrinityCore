@@ -17,7 +17,7 @@
  */
 
 #include "ChannelMgr.h"
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 #include "World.h"
 
 INSTANTIATE_SINGLETON_1(AllianceChannelMgr);

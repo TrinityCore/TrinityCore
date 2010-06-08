@@ -21,8 +21,8 @@
 #ifndef __SPELL_H
 #define __SPELL_H
 
-#include "Grids/GridDefines.h"
-#include "Miscellaneous/SharedDefines.h"
+#include "GridDefines.h"
+#include "SharedDefines.h"
 
 class Unit;
 class Player;

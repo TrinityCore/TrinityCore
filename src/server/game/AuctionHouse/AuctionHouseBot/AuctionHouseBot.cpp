@@ -3,7 +3,7 @@
 #include "AuctionHouseBot.h"
 #include <vector>
 
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 INSTANTIATE_SINGLETON_1(AuctionHouseBot);
 
 using namespace std;

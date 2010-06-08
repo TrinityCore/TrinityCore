@@ -22,7 +22,7 @@
 #define _ADDONMGR_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 
 #include <string>
 

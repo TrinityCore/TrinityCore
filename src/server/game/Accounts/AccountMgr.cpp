@@ -18,14 +18,14 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Database/DatabaseEnv.h"
-#include "Policies/SingletonImp.h"
+#include "DatabaseEnv.h"
+#include "SingletonImp.h"
 
 #include "AccountMgr.h"
 #include "ObjectAccessor.h"
 #include "Player.h"
-#include "Utilities/Util.h"
-#include "Cryptography/SHA1.h"
+#include "Util.h"
+#include "SHA1.h"
 
 extern DatabaseType LoginDatabase;
 
