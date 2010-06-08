@@ -22,8 +22,8 @@
 #define __ADDONHANDLER_H
 
 #include "Common.h"
-#include "Configuration/ConfigEnv.h"
-#include "Policies/Singleton.h"
+#include "ConfigEnv.h"
+#include "Singleton.h"
 
 #include "WorldPacket.h"
 

@@ -21,8 +21,8 @@
 #include "zlib.h"
 
 #include "AddonHandler.h"
-#include "Database/DatabaseEnv.h"
-#include "Policies/SingletonImp.h"
+#include "DatabaseEnv.h"
+#include "SingletonImp.h"
 #include "Opcodes.h"
 
 #include "Log.h"

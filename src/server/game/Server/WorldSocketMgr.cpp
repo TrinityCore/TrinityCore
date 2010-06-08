@@ -42,8 +42,8 @@
 
 #include "Log.h"
 #include "Common.h"
-#include "Configuration/ConfigEnv.h"
-#include "Database/DatabaseEnv.h"
+#include "ConfigEnv.h"
+#include "DatabaseEnv.h"
 #include "WorldSocket.h"
 
 /**

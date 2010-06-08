@@ -26,7 +26,7 @@
 #define TRINITY_WORLDLOG_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 #include "Errors.h"
 
 #include <stdarg.h>

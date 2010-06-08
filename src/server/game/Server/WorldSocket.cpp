@@ -38,7 +38,7 @@
 #include "SharedDefines.h"
 #include "ByteBuffer.h"
 #include "Opcodes.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "BigNumber.h"
 #include "SHA1.h"
 #include "WorldSession.h"

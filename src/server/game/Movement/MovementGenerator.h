@@ -22,9 +22,9 @@
 #define TRINITY_MOVEMENTGENERATOR_H
 
 #include "Define.h"
-#include "Policies/Singleton.h"
-#include "Dynamic/ObjectRegistry.h"
-#include "Dynamic/FactoryHolder.h"
+#include "Singleton.h"
+#include "ObjectRegistry.h"
+#include "FactoryHolder.h"
 #include "Common.h"
 #include "MotionMaster.h"
 

@@ -11,7 +11,7 @@
 #include "Common.h"
 #include "CompilerDefs.h"
 #include "DBCStructure.h"
-#include "Configuration/ConfigEnv.h"
+#include "ConfigEnv.h"
 
 class Player;
 class Creature;

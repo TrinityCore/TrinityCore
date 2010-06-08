@@ -23,8 +23,8 @@
 */
 
 #include "WorldLog.h"
-#include "Policies/SingletonImp.h"
-#include "Configuration/ConfigEnv.h"
+#include "SingletonImp.h"
+#include "ConfigEnv.h"
 #include "Log.h"
 
 #define CLASS_LOCK Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>
