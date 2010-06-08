@@ -12,19 +12,22 @@ include(cmake/PCH.cmake)
 # Force out-of-source build
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" BUILDING_IN_SOURCE)
 if(BUILDING_IN_SOURCE)
-    message(FATAL_ERROR "This project requires an out of source build. Remove the file 'CMakeCache.txt' found in this directory before continuing, and create a separate build directory and run 'cmake path_to_project [options]' from there.")    
+  message(FATAL_ERROR "This project requires an out of source build. Remove the file 'CMakeCache.txt' found in this directory before continuing, and create a separate build directory and run 'cmake path_to_project [options]' from there.")    
 endif(BUILDING_IN_SOURCE)
 
 # Select the Release build configuration by default.
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release")
+  set(CMAKE_BUILD_TYPE "Release")
 endif(NOT CMAKE_BUILD_TYPE)
 
 CONFIGURE_FILE(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake")
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+  IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+  "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+)
 
 option(CENTOS "CENTOS" 0)
 option(DO_CLI "With CLI" 1)
@@ -38,49 +41,49 @@ option(DO_TOOLS "Compile tools" 0)
 option(DO_WARN "Enable all compile warnings" 0)
 
 set(GENREV_SRC
-src/genrevision/genrevision.cpp
+  src/genrevision/genrevision.cpp
 )
 
 if(DO_DEBUG)
-    add_executable(genrev
+  add_executable(genrev
     ${GENREV_SRC}
-    )
-    add_custom_target("revision.h" ALL
-        COMMAND "${CMAKE_BINARY_DIR}/genrev"
-        ${CMAKE_SOURCE_DIR}
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src/shared"
-        DEPENDS genrev
-    )
+  )
+  add_custom_target("revision.h" ALL
+    COMMAND "${CMAKE_BINARY_DIR}/genrev"
+    ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src/server/shared"
+    DEPENDS genrev
+  )
 else (DO_DEBUG)
-    add_executable(genrev
+  add_executable(genrev
     ${GENREV_SRC}
-    )
-    add_custom_target("revision.h" ALL
-        COMMAND "${CMAKE_BINARY_DIR}/genrev"
-        ${CMAKE_SOURCE_DIR}
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src/server/shared"
-        DEPENDS genrev
-    )
+  )
+  add_custom_target("revision.h" ALL
+    COMMAND "${CMAKE_BINARY_DIR}/genrev"
+    ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/src/server/shared"
+    DEPENDS genrev
+  )
 endif(DO_DEBUG)
 
-
 execute_process(
-        COMMAND hg tip --template {rev}
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        OUTPUT_VARIABLE HG_REVISION
+  COMMAND hg tip --template {rev}
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  OUTPUT_VARIABLE HG_REVISION
 )
 
 message("* TrinityCore revision: ${HG_REVISION}")
 
 if(PREFIX)
-    set(CMAKE_INSTALL_PREFIX ${PREFIX})
+  set(CMAKE_INSTALL_PREFIX ${PREFIX})
 endif(PREFIX)
 
 if(CONF_DIR)
 
 else(CONF_DIR)
-    set(CONF_DIR ${PREFIX}/etc)
+  set(CONF_DIR ${PREFIX}/etc)
 endif(CONF_DIR)
+
 set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
 
 message("* Will install to: ${CMAKE_INSTALL_PREFIX}")
@@ -91,98 +94,97 @@ find_library(SSLLIB NAMES ssl DOC "SSL library")
 find_library(ZLIB z "Zlib library")
 
 if(DO_MYSQL)
-    message("* With MySQL")
-    FIND_MYSQL()
-    ADD_DEFINITIONS(-DDO_MYSQL)
+  message("* With MySQL")
+  FIND_MYSQL()
+  ADD_DEFINITIONS(-DDO_MYSQL)
 endif(DO_MYSQL)
 
 if(DO_SCRIPTS)
-    message("* With Trinity Scripts")
-    ADD_DEFINITIONS(-DDO_SCRIPTS)
-    add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
+  message("* With Trinity Scripts")
+  ADD_DEFINITIONS(-DDO_SCRIPTS)
+  add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
 else (DO_SCRIPTS)
-    message("* Without Trinity Scripts")
+  message("* Without Trinity Scripts")
 endif(DO_SCRIPTS)
 
 message("-- Miscellaneus options:")
 
 if(DO_CLI)
-    message("* With CLI")
-    add_definitions(-DENABLE_CLI)
+  message("* With CLI")
+  add_definitions(-DENABLE_CLI)
 else (DO_CLI)
-    message(* Without CLI)
+  message(* Without CLI)
 endif(DO_CLI)
 
 if(DO_RA)
-    message("* With RA")
-    add_definitions(-DENABLE_RA)
+  message("* With RA")
+  add_definitions(-DENABLE_RA)
 else(DO_RA)
-    message("* Without RA")
+  message("* Without RA")
 endif(DO_RA)
 
 if(DO_DEBUG)
-    message("* Debug mode ON")
-    add_definitions(-g -DTRINITY_DEBUG)
+  message("* Debug mode ON")
+  add_definitions(-g -DTRINITY_DEBUG)
 endif(DO_DEBUG)
 
 if(DO_WARN)
-    message("* All warnings mode")
-    add_definitions(-Wall -Wfatal-errors -Wextra)
+  message("* All warnings mode")
+  add_definitions(-Wall -Wfatal-errors -Wextra)
 endif(DO_WARN)
 
 if(DO_SQL)
-    message("* Installing SQL files")
+  message("* Installing SQL files")
 else (DO_SQL)
-    message("* NOT installing SQL files")
+  message("* NOT installing SQL files")
 endif(DO_SQL)
 
 if(DO_PCH)
-    message("* Using precompiled headers")
+  message("* Using precompiled headers")
 else (DO_PCH)
-    message("* NOT using precompiled headers")
+  message("* NOT using precompiled headers")
 endif(DO_PCH)
 
 if(DO_TOOLS)
-    message("* With Tools")
+  message("* With Tools")
 else (DO_TOOLS)
-    message("* Without Tools")
+  message("* Without Tools")
 endif(DO_TOOLS)
 
-
 if(UNIX)
-    if(CENTOS)
-        add_definitions(-DCENTOS)
-        message("* Building with termcap")
-        FIND_TERMCAP()
-    else(CENTOS)
-        message("* Building with readline")
-        FIND_READLINE()
-    endif(CENTOS)
+  if(CENTOS)
+    add_definitions(-DCENTOS)
+    message("* Building with termcap")
+    FIND_TERMCAP()
+  else(CENTOS)
+    message("* Building with readline")
+    FIND_READLINE()
+  endif(CENTOS)
 endif(UNIX)
 
 FIND_ACE(ACE)
 if(ACE_FOUND)
-    message(STATUS "Found ACE library: ${ACE_LIBRARY}")
-    message(STATUS "Include dir is: ${ACE_INCLUDE_DIR}")
+  message(STATUS "Found ACE library: ${ACE_LIBRARY}")
+  message(STATUS "Include dir is: ${ACE_INCLUDE_DIR}")
 else(ACE_FOUND)
-    message(SEND_ERROR "** ACE library not found! Trinity Core cannot be compiled!")
-    message(SEND_ERROR "** Please build ACE from http://www.cs.wustl.edu/~schmidt/ACE.html")
-    #For now remove msg about install from repo, as ubuntu/debian don't have needed ver in repos.
-    #message(SEND_ERROR "** your distro may provide a binary for ACE e.g. for ubuntu try apt-get install libace-dev")
-    return()
-    #set(BUILD_ACE 1)
-    #set(ACE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/ACE_wrappers ${CMAKE_BINARY_DIR}/dep/ACE_wrappers")
-    #set(ACE_LIBRARY ACE)
-    #message(STATUS "I will try to build ACE from: ${ACE_INCLUDE_DIR}")
-    #message(STATUS "And link using: ${ACE_LIBRARY}")
+  message(SEND_ERROR "** ACE library not found! Trinity Core cannot be compiled!")
+  message(SEND_ERROR "** Please build ACE from http://www.cs.wustl.edu/~schmidt/ACE.html")
+  #For now remove msg about install from repo, as ubuntu/debian don't have needed ver in repos.
+  #message(SEND_ERROR "** your distro may provide a binary for ACE e.g. for ubuntu try apt-get install libace-dev")
+  return()
+  #set(BUILD_ACE 1)
+  #set(ACE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/ACE_wrappers ${CMAKE_BINARY_DIR}/dep/ACE_wrappers")
+  #set(ACE_LIBRARY ACE)
+  #message(STATUS "I will try to build ACE from: ${ACE_INCLUDE_DIR}")
+  #message(STATUS "And link using: ${ACE_LIBRARY}")
 endif(ACE_FOUND)
 
 #somehow line below don't work. so for now change it to if exist
 #check_include_files(${ACE_INCLUDE_DIR}/ace/Stack_Trace.h HAVE_ACE_STACK_TRACE_H)
 if(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
-    set(HAVE_ACE_STACK_TRACE_H 1)
+  set(HAVE_ACE_STACK_TRACE_H 1)
 else(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
-    message(STATUS "** Your libace is out of date. Please update your libace!")
+  message(STATUS "** Your libace is out of date. Please update your libace!")
 endif(EXISTS ${ACE_INCLUDE_DIR}/ace/Stack_Trace.h)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
@@ -201,8 +203,10 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+add_subdirectory(externals)
 add_subdirectory(src)
+
 if(DO_SQL)
-    message("* Copy SQL files ON")
-    add_subdirectory(sql)
+  message("* Copy SQL files ON")
+  add_subdirectory(sql)
 endif(DO_SQL)

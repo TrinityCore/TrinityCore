@@ -1,27 +1,15 @@
-SET(jmalloc_STAT_SRC
-  arena.c  
-  chunk.c      
-  chunk_mmap.c  
-  ckh.c  
-  extent.c  
-  huge.c      
-  mb.c     
-  prof.c   
-  tcache.c
-  base.c   
-  chunk_dss.c  
-  chunk_swap.c 
-  ctl.c  
-  hash.c    
-  jemalloc.c  
-  mutex.c  
-  stats.c
-  )
+
+file(GLOB sources *.c)
+set(jemalloc_STAT_SRC
+  ${sources}
+)
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/include
-  )
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/internal
+)
 
 add_definitions(-D_GNU_SOURCE -D_REENTRANT)
 
-add_library(jmalloc STATIC ${jmalloc_STAT_SRC})
+add_library(jemalloc STATIC ${sources})
