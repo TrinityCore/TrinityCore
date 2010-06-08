@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "karazhan.h"
 
 #define SAY_AGGRO           -1532091

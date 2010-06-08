@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Mechanar
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "mechanar.h"
 
 #define MAX_ENCOUNTER      1

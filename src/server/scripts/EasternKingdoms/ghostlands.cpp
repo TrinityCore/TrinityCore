@@ -28,7 +28,7 @@ npc_rathis_tomber
 npc_ranger_lilatha
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

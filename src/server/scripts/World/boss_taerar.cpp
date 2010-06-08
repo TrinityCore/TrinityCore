@@ -21,7 +21,7 @@ SDComment: Mark of Nature & Teleport NYI. Fix the way to be banished.
 SDCategory: Bosses
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum eEnums
 {

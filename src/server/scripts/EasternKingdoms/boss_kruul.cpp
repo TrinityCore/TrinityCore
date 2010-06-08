@@ -21,7 +21,7 @@ SDComment: Highlord Kruul are presumably no longer in-game on regular bases, how
 SDCategory: Bosses
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_SHADOWVOLLEY          21341
 #define SPELL_CLEAVE                20677

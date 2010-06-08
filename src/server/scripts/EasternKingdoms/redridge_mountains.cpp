@@ -21,7 +21,7 @@ SD%Complete: 100%
 SDComment: Support for quest 219.
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 enum eCorporalKeeshan

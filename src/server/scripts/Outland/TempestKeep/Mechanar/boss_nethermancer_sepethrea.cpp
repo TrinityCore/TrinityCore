@@ -21,7 +21,7 @@ SDComment: Need adjustments to initial summons
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "mechanar.h"
 
 #define SAY_AGGRO                       -1554013

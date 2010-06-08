@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Razorfen Kraul
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2

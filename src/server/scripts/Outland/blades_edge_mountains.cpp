@@ -30,7 +30,7 @@ npc_saikkal_the_elder
 go_legion_obelisk
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 //Support for quest: You're Fired! (10821)
 bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;

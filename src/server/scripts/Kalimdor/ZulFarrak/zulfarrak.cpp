@@ -26,7 +26,7 @@ npc_sergeant_bly
 npc_weegli_blastfuse
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## npc_sergeant_bly

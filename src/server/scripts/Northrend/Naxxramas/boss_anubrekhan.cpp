@@ -14,7 +14,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "naxxramas.h"
 
 #define SAY_GREET           RAND(-1533000,-1533004,-1533005,-1533006,-1533007)

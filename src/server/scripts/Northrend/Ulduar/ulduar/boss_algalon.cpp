@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 
 #define GAMEOBJECT_GIVE_OF_THE_OBSERVER 194821

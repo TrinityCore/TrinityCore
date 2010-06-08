@@ -21,7 +21,7 @@ SDComment: Blood siphon spell buggy cause of Core Issue.
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulgurub.h"
 
 #define SAY_AGGRO                   -1309020

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Razorfen Downs
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO               -1129000
 #define SAY_SUMMON60            -1129001

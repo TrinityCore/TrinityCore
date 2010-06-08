@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
 #define MAX_ENCOUNTER     4

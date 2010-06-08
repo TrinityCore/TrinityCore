@@ -40,7 +40,7 @@ npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die f
 npc_locksmith            75%    list of keys needs to be confirmed
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"

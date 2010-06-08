@@ -9,7 +9,7 @@ Script Data End */
 /*** SQL START ***
 update creature_template set scriptname = 'boss_commander_stoutbeard' where entry = '';
 *** SQL END ***/
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_BATTLE_SHOUT                                       31403
 #define SPELL_CHARGE                                             60067

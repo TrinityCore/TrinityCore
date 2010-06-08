@@ -21,7 +21,7 @@ SDComment: Timers need to be confirmed, Golemagg's Trust need to be checked
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "molten_core.h"
 
 enum eEnums

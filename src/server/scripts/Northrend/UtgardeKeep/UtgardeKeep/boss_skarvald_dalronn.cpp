@@ -23,7 +23,7 @@ SDComment: Needs adjustments to blizzlike timers, Yell Text + Sound to DB
 SDCategory: Utgarde Keep
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_keep.h"
 
 enum eEnums

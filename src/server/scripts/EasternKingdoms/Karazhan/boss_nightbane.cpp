@@ -21,7 +21,7 @@ SDComment: SDComment: Timers may incorrect
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "karazhan.h"
 
 //phase 1

@@ -20,7 +20,7 @@
  * Comment: Missing AI for Twisted Visages
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ahnkahet.h"
 
 enum Spells

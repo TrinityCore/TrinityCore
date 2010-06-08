@@ -21,7 +21,7 @@ SDComment: Adds MC NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_SHADOWBOLT            19728
 #define SPELL_RAINOFFIRE            19717

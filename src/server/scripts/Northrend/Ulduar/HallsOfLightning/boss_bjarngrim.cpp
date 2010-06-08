@@ -21,7 +21,7 @@ SDComment: Waypoint needed, we expect boss to always have 2x Stormforged Lieuten
 SDCategory: Halls of Lightning
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_lightning.h"
 
 enum eEnums

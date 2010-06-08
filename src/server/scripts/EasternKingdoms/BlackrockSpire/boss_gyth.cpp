@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blackrock Spire
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_CORROSIVEACID      20667
 #define SPELL_FREEZE             18763

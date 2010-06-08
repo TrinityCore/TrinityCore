@@ -21,7 +21,7 @@ SDComment: aura applied/defined in database
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "stratholme.h"
 
 #define SAY_0    "Intruders! More pawns of the Argent Dawn, no doubt. I already count one of their number among my prisoners. Withdraw from my domain before she is executed!"

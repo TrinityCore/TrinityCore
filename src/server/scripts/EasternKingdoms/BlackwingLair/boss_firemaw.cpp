@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_SHADOWFLAME       22539
 #define SPELL_WINGBUFFET        23339

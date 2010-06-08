@@ -9,7 +9,7 @@ Script Data End */
 /*** SQL START ***
 update creature_template set scriptname = '' where entry = '';
 *** SQL END ***/
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 //Spells
 #define SPELL_ARCANE_BREATH_N                        56272

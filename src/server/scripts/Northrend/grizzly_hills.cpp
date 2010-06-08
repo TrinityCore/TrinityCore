@@ -25,7 +25,7 @@ EndScriptData */
 npc_orsonn_and_kodian
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 #define GOSSIP_ITEM1 "You're free to go Orsonn, but first tell me what's wrong with the furbolg."

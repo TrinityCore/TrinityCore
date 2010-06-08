@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "shadow_labyrinth.h"
 
 #define SAY_INTRO                       -1555028

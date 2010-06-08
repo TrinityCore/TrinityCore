@@ -21,7 +21,7 @@ SDComment:  Instance script and access panel GO
 SDCategory: Coilfang Resevoir, The Steamvault
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "steam_vault.h"
 
 #define MAX_ENCOUNTER 4

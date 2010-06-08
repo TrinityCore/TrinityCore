@@ -29,7 +29,7 @@ npc_kelerun_bloodmourn
 go_harbinger_second_trial
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

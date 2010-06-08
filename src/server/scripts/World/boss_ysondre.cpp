@@ -21,7 +21,7 @@ SDComment: Mark of Nature & Teleport missing
 SDCategory: Bosses
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum eEnums
 {

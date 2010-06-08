@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Shadowmoon Valley
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO                   -1000159
 #define SAY_EARTHQUAKE_1            -1000160

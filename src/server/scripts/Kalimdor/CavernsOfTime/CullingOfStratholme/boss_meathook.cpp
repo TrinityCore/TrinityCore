@@ -24,7 +24,7 @@ SDComment: It may need timer adjustment
 SDCategory:
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells

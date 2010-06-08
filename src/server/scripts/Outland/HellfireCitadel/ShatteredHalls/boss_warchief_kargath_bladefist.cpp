@@ -25,7 +25,7 @@ EndScriptData */
 boss_warchief_kargath_bladefist
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO1                      -1540042
 #define SAY_AGGRO2                      -1540043

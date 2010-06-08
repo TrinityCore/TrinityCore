@@ -27,7 +27,7 @@ npc_deathstalker_erland
 pyrewood_ambush
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

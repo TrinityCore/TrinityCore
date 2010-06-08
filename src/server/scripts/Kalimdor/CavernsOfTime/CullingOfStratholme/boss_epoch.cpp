@@ -25,7 +25,7 @@ SDComment: TODO: Intro, consecutive attacks to a random target durin time wrap, 
 SDCategory:
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "culling_of_stratholme.h"
 
 enum Spells

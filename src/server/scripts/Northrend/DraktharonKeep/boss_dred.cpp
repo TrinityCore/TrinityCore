@@ -20,7 +20,7 @@
  * Comment: MAYBE need more improve the "Raptor Call".
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "drak_tharon_keep.h"
 
 enum eSpells

@@ -21,7 +21,7 @@ SDComment: Some issues with class calls effecting more than one class
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO               -1469007
 #define SAY_XHEALTH             -1469008

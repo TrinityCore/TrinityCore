@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO               -1469000
 #define SAY_LEASH               -1469001

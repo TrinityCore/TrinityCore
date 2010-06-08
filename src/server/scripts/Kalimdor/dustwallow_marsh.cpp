@@ -31,7 +31,7 @@ npc_private_hendel
 npc_cassa_crimsonwing - handled by npc_taxi
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## mobs_risen_husk_spirit

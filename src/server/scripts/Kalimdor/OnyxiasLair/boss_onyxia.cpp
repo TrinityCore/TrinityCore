@@ -25,7 +25,7 @@ SDComment: <Known bugs>
 SDCategory: Onyxia's Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "onyxias_lair.h"
 
 enum eYells

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Scarlet Monastery
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_LICHSLAP                  28873
 #define SPELL_FROSTBOLTVOLLEY           8398

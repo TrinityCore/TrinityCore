@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_IMPENDINGDOOM 19702
 #define SPELL_LUCIFRONCURSE 19703

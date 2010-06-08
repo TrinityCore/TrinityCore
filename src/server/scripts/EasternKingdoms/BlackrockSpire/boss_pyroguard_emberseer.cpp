@@ -21,7 +21,7 @@ SDComment: Event to activate Emberseer NYI
 SDCategory: Blackrock Spire
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_FIRENOVA          23462
 #define SPELL_FLAMEBUFFET       23341

@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "WorldPacket.h"
 
 #define GOSSIP_UP      "My Lord, I must go to the upper floor of the temple."

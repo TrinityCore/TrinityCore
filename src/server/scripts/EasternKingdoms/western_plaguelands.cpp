@@ -28,7 +28,7 @@ npc_the_scourge_cauldron
 npc_andorhal_tower
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

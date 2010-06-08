@@ -23,7 +23,7 @@ SQLUpdate:
 
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulaman.h"
 #include "Weather.h"
 

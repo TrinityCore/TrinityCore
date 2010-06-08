@@ -21,7 +21,7 @@ SDComment: Missing spawns pre-event, missing speech to be coordinated with rest 
 SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "old_hillsbrad.h"
 
 #define SAY_ENTER1                  -1560013

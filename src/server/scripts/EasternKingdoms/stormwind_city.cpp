@@ -32,7 +32,7 @@ npc_marzon_silent_blade
 npc_lord_gregor_lescovar
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

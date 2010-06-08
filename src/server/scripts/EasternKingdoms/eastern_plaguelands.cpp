@@ -28,7 +28,7 @@ npc_darrowshire_spirit
 npc_tirion_fordring
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 //id8530 - cannibal ghoul
 //id8531 - gibbering ghoul

@@ -24,7 +24,7 @@ SDComment: Complete
 SDCategory: NPCs
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define HALLOWEEN_EVENTID       12
 #define SPELL_TRICK_OR_TREATED  24755

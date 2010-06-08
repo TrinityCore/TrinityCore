@@ -21,7 +21,7 @@ SDComment:Place Holder
 SDCategory: Sunken Temple
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "sunken_temple.h"
 
 #define GO_ATALAI_STATUE1 148830

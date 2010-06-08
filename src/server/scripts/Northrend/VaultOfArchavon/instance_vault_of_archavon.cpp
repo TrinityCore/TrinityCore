@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 
 #define ENCOUNTERS  4

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_MIDNIGHT_KILL           -1532000
 #define SAY_APPEAR1                 -1532001

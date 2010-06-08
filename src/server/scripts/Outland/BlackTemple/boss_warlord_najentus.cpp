@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "black_temple.h"
 
 enum eEnums

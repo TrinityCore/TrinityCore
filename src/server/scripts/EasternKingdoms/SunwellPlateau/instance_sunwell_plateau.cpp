@@ -9,7 +9,7 @@ SDComment: VERIFY SCRIPT
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "sunwell_plateau.h"
 
 #define MAX_ENCOUNTER 6

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blackrock Spire
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_BLASTWAVE         11130
 #define SPELL_SHOUT             23511

@@ -23,7 +23,7 @@ SD%Complete: 90%
 SDComment: Some visual effects are not implemented.
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "gnomeregan.h"
 #include "ScriptedEscortAI.h"
 

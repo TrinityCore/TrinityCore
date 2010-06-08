@@ -21,7 +21,7 @@ SDComment: More abilities need to be implemented
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "dark_portal.h"
 
 enum eEnums

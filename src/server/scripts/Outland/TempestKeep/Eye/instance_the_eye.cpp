@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "the_eye.h"
 
 #define MAX_ENCOUNTER 5

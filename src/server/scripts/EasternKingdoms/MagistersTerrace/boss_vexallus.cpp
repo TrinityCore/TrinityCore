@@ -21,7 +21,7 @@ SDComment: Heroic and Normal support. Needs further testing.
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "magisters_terrace.h"
 
 enum eEnums

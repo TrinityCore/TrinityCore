@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "the_eye.h"
 
 #define SPELL_FLAME_BUFFET            34121 // Flame Buffet - every 1,5 secs in phase 1 if there is no victim in melee range and after Dive Bomb in phase 2 with same conditions

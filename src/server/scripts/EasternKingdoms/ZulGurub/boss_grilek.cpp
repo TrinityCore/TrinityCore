@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulgurub.h"
 
 #define SPELL_AVARTAR                24646                  //The Enrage Spell

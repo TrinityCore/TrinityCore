@@ -21,7 +21,7 @@ SDComment: currently missing info about door. instance not complete
 SDCategory: Hellfire Citadel, Shattered Halls
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "shattered_halls.h"
 
 #define MAX_ENCOUNTER  2

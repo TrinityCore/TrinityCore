@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blackrock Spire
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_FLAMEBREAK            16785
 #define SPELL_IMMOLATE              20294

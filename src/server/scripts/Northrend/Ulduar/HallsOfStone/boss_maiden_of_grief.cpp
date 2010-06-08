@@ -9,7 +9,7 @@ Script Data End */
 /*** SQL START ***
 update creature_template set scriptname = 'boss_maiden_of_grief' where entry = '';
 *** SQL END ***/
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_stone.h"
 
 enum Spells

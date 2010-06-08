@@ -20,7 +20,7 @@
  * Comment: Complete - BUT THE TRIGGER NEEDS DATA WHETHER THE PRISON OF TALDARAM IS OFFLINE !
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ahnkahet.h"
 
 enum Yells

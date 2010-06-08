@@ -21,7 +21,7 @@ SDComment: Water globules don't explode properly, remove hacks
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "serpent_shrine.h"
 
 #define SAY_AGGRO                   -1548030

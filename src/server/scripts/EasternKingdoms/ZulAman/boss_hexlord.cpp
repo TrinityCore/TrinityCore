@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulaman.h"
 
 #define YELL_AGGRO              "Da shadow gonna fall on you... "

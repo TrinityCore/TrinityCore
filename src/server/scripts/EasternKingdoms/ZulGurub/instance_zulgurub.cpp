@@ -21,7 +21,7 @@ SDComment: Missing reset function after killing a boss for Ohgan, Thekal.
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulgurub.h"
 
 struct instance_zulgurub : public ScriptedInstance

@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 #define GOSSIP_START_EVENT  "Get your people to safety, we'll keep the Blue Dragonflight's forces at bay."

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Blackrock Depths
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum Spells
 {

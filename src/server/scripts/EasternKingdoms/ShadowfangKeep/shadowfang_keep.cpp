@@ -25,7 +25,7 @@ EndScriptData */
 npc_shadowfang_prisoner
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "shadowfang_keep.h"
 

@@ -26,7 +26,7 @@
 #include "ace/Thread_Mutex.h"
 #include "Common.h"
 #include "Map.h"
-#include "Grids/GridStates.h"
+#include "GridStates.h"
 #include "MapUpdater.h"
 
 class Transport;
