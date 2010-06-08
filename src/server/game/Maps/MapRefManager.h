@@ -19,7 +19,7 @@
 #ifndef _MAPREFMANAGER
 #define _MAPREFMANAGER
 
-#include "Dynamic/LinkedReference/RefManager.h"
+#include "RefManager.h"
 
 class MapReference;
 

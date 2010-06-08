@@ -20,7 +20,7 @@
 
 #include "Common.h"
 #include "Language.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "SpellMgr.h"
@@ -59,7 +59,7 @@
 #include "OutdoorPvPMgr.h"
 #include "ArenaTeam.h"
 #include "Chat.h"
-#include "Database/DatabaseImpl.h"
+#include "DatabaseImpl.h"
 #include "Spell.h"
 #include "SocialMgr.h"
 #include "GameEventMgr.h"

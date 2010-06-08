@@ -19,7 +19,7 @@
  */
 
 #include "InstanceData.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Map.h"
 #include "Player.h"
 #include "GameObject.h"

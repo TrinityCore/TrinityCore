@@ -20,11 +20,11 @@
 
 #include "Common.h"
 #include "ObjectMgr.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 
 #include "Bag.h"
-#include "Logging/Log.h"
-#include "Entities/Object/Updates/UpdateData.h"
+#include "Log.h"
+#include "UpdateData.h"
 
 Bag::Bag(): Item()
 {
