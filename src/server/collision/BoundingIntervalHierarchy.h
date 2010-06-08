@@ -19,11 +19,11 @@
 #ifndef _BIH_H
 #define _BIH_H
 
-#include "Vector3.h"
-#include "Ray.h"
-#include "AABox.h"
+#include "G3D/Vector3.h"
+#include "G3D/Ray.h"
+#include "G3D/AABox.h"
 
-#include <Define.h>
+#include "Define.h"
 
 #include <stdexcept>
 #include <vector>

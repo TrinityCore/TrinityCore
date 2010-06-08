@@ -6,7 +6,7 @@ ACE (ADAPTIVE Communication Environment)
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
 
-G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
+G3D 6.09 (a commercial-grade C++ 3D engine available as Open Source (BSD License)
   http://g3d.sourceforge.net/
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
