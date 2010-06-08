@@ -13,14 +13,16 @@ cmake_minimum_required (VERSION 2.6)
 project (TRINITY_MAP_EXTRACTOR)
 
 file(GLOB sources *.cpp)
-
-add_subdirectory (loadlib)
+file(GLOB loadlib_sources loadlib/*.cpp)
 
 include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
 include_directories (${CMAKE_SOURCE_DIR}/src/tools/map-extractor/loadlib)
 
 link_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
 link_directories (${CMAKE_SOURCE_DIR}}/src/tools/map-extractor/loadlib)
+
+add_library (loadlib ${loadlib_sources})
+target_link_libraries (loadlib zlib)
 
 add_executable (trinity-map_extractor ${sources})
 
