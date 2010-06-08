@@ -21,7 +21,7 @@ SDComment: Teleport NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_ARCANEEXPLOSION           19712
 #define SPELL_SHAZZRAHCURSE             19713

@@ -21,7 +21,7 @@ UPDATE `creature_template` SET `ScriptName`='boss_archavon' WHERE `entry`='31125
 UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`='32353';
 *** SQL END ***/
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 
 #define EMOTE_BERSERK           -1590002

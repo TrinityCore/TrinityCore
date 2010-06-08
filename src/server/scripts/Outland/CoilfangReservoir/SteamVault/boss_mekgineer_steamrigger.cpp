@@ -26,7 +26,7 @@ boss_mekgineer_steamrigger
 mob_steamrigger_mechanic
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "steam_vault.h"
 
 #define SAY_MECHANICS               -1545007

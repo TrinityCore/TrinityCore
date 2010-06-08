@@ -21,7 +21,7 @@ SDComment: Event missing. Script for himself 99% blizzlike.
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO                       -1554020
 #define SAY_DOMINATION_1                -1554021

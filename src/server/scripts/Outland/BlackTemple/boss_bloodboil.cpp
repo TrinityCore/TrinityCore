@@ -21,7 +21,7 @@ SDComment: Bloodboil not working correctly, missing enrage
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "black_temple.h"
 
 //Speech'n'Sound

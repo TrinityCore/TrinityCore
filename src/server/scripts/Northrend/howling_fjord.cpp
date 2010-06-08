@@ -27,7 +27,7 @@ npc_plaguehound_tracker
 npc_apothecary_hanes
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

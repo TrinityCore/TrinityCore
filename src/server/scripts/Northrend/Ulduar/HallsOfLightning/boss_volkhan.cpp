@@ -21,7 +21,7 @@ SDComment: Not considered complete. Some events may fail and need further develo
 SDCategory: Halls of Lightning
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_lightning.h"
 
 enum eEnums

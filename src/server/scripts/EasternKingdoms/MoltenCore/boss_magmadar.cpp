@@ -21,7 +21,7 @@ SDComment: Conflag on ground nyi, fear causes issues without VMAPs
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define EMOTE_FRENZY                -1409001
 

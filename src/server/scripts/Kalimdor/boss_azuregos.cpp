@@ -21,7 +21,7 @@ SDComment: Teleport not included, spell reflect not effecting dots (Core problem
 SDCategory: Azshara
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_TELEPORT            -1000100
 

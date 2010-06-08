@@ -22,7 +22,7 @@ SDAuthor: MaXiMiUS
 SD%Complete: 65
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 
 //not in db

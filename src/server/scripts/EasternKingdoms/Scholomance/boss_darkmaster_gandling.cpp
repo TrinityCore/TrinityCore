@@ -21,7 +21,7 @@ SDComment: Doors missing in instance script.
 SDCategory: Scholomance
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "scholomance.h"
 
 #define SPELL_ARCANEMISSILES           22272

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Sunwell_Plateau
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "sunwell_plateau.h"
 
 enum Yells

@@ -21,7 +21,7 @@ Comment: InhibitMagic should stack slower far from the boss, proper Visual for F
 Category: Auchindoun, Auchenai Crypts
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_INHIBITMAGIC          32264
 #define SPELL_ATTRACTMAGIC          32265

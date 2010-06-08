@@ -20,7 +20,7 @@ SD%Complete: 100
 SDComment:
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "sunwell_plateau.h"
 
 enum Quotes

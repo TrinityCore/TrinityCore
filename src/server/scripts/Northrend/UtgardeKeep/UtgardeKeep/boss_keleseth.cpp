@@ -23,7 +23,7 @@ SDComment:  Needs Prince Movements, Needs adjustments to blizzlike timers, Needs
 SDCategory: Utgarde Keep
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_keep.h"
 
 enum eEnums

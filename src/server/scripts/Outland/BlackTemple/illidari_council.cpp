@@ -21,7 +21,7 @@ SDComment: Circle of Healing not working properly.
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "black_temple.h"
 
 //Speech'n'Sounds

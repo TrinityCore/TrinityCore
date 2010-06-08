@@ -33,7 +33,7 @@ npc_creditmarker_visit_with_ancestors
 mob_sparrowhawk
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

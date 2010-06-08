@@ -27,7 +27,7 @@ npcs_rutgar_and_frankal
 quest_a_pawn_on_the_eternal_pawn
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*###
 ## npc_highlord_demitrian

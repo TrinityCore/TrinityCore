@@ -9,7 +9,7 @@ Script Data End */
 /*** SQL START ***
 update creature_template set scriptname = 'boss_palehoof' where entry = '';
 *** SQL END ***/
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells

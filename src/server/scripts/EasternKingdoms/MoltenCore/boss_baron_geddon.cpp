@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define EMOTE_SERVICE               -1409000
 

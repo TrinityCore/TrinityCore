@@ -21,7 +21,7 @@ SDComment: Incite Chaos not functional since core lacks Mind Control support
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "shadow_labyrinth.h"
 
 #define SPELL_INCITE_CHAOS    33676

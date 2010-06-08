@@ -21,7 +21,7 @@ SDComment: In progress. Undead side 75% implemented. Save/load not implemented.
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "stratholme.h"
 
 #define GO_SERVICE_ENTRANCE     175368

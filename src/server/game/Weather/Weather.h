@@ -26,8 +26,8 @@
 #define __WEATHER_H
 
 #include "Common.h"
-#include "Miscellaneous/SharedDefines.h"
-#include "Utilities/Timer.h"
+#include "SharedDefines.h"
+#include "Timer.h"
 
 class Player;
 

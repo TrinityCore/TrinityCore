@@ -23,7 +23,7 @@ UPDATE `creature_template` SET `ScriptName`='mob_frozen_orb_stalker' WHERE `entr
 UPDATE `creature_template` SET `ScriptName`='mob_frozen_orb' WHERE `entry`='38456';
 *** SQL END ***/
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 
 // Spells Toravon

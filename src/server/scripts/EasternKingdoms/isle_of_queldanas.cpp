@@ -26,7 +26,7 @@ npc_converted_sentry
 npc_greengill_slave
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## npc_converted_sentry

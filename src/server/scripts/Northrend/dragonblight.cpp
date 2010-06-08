@@ -25,7 +25,7 @@ EndScriptData */
 npc_alexstrasza_wr_gate
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 enum eEnums

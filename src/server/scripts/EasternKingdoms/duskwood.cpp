@@ -21,7 +21,7 @@ SDComment: Quest Support:8735
 SDCategory: Duskwood
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 # at_twilight_grove

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulgurub.h"
 
 #define SPELL_AMBUSH            24337

@@ -21,7 +21,7 @@ SDComment: In Development
 SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "magtheridons_lair.h"
 
 struct Yell

@@ -26,7 +26,7 @@ boss_hydromancer_thespia
 mob_coilfang_waterelemental
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "steam_vault.h"
 
 #define SAY_SUMMON                  -1545000

@@ -21,7 +21,7 @@ SDComment: Place Holder
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "molten_core.h"
 
 #define MAX_ENCOUNTER      9

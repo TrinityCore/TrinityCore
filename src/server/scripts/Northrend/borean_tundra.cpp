@@ -35,7 +35,7 @@ npc_lurgglbr
 npc_nexus_drake_hatchling
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 

@@ -23,7 +23,7 @@ SDComment: missing yells. not sure about timers.
 SDCategory: Trial of the Champion
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
 

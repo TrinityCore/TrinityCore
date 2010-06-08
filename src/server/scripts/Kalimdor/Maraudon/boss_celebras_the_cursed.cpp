@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Maraudon
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_WRATH                 21807
 #define SPELL_ENTANGLINGROOTS       12747

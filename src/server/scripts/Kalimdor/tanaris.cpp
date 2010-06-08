@@ -31,7 +31,7 @@ npc_OOX17
 npc_tooga
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedFollowerAI.h"
 

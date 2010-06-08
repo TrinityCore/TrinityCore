@@ -21,7 +21,7 @@ SDComment: Script used for testing escortAI
 SDCategory: Script Examples
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 enum eEnums

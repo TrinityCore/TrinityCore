@@ -27,7 +27,7 @@ npc_shenthul
 npc_thrall_warchief
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## npc_neeru_fireblade

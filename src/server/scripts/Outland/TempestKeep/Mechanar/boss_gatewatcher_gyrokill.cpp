@@ -21,7 +21,7 @@ SDComment: Place Holder
 SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 //not used
 #define SAY_AGGRO                       -1554000

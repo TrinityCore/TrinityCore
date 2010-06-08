@@ -21,7 +21,7 @@ SDComment: Missing adds to heal him. Surge should be used on pTarget furthest aw
 SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_TAUNT               -1543000
 #define SAY_HEAL                -1543001

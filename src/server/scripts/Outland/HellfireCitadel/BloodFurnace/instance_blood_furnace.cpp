@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Hellfire Citadel, Blood Furnace
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "blood_furnace.h"
 
 #define ENTRY_SEWER1                 181823

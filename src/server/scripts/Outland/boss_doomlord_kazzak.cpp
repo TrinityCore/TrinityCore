@@ -21,7 +21,7 @@ SDComment: Using incorrect spell for Mark of Kazzak
 SDCategory: Hellfire Peninsula
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_INTRO                       -1000147
 #define SAY_AGGRO1                      -1000148

@@ -21,7 +21,7 @@ SDComment: Not known how void blast is done (amount of rapid cast seems to be re
 SDCategory: Auchindoun, Mana Tombs
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO_1                     -1557008
 #define SAY_AGGRO_2                     -1557009

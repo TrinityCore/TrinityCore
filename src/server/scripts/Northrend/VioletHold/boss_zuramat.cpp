@@ -5,7 +5,7 @@ SDComment: The phasemask for the voids dosen't work.
 SDCategory:
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 enum Spells

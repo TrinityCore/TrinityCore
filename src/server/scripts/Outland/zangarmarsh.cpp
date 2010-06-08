@@ -30,7 +30,7 @@ npc_kayra_longmane
 npc_timothy_daniels
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

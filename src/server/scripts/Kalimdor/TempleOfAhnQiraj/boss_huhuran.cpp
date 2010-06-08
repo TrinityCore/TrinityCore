@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define EMOTE_GENERIC_FRENZY_KILL   -1000001
 #define EMOTE_GENERIC_BERSERK       -1000004

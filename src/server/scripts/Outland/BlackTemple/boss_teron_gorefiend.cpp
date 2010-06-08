@@ -21,7 +21,7 @@ SDComment: Requires Mind Control support for Ghosts.
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "black_temple.h"
 
  //Speech'n'sound

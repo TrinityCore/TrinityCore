@@ -21,7 +21,7 @@ Comment:
 Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_FIREBALL              DUNGEON_MODE(34653, 36920)
 #define SPELL_CONE_OF_FIRE          DUNGEON_MODE(30926, 36921)

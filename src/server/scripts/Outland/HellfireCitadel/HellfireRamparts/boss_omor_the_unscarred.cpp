@@ -21,7 +21,7 @@ SDComment: Temporary solution for orbital/shadow whip-ability. Needs more core s
 SDCategory: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO_1                 -1543009
 #define SAY_AGGRO_2                 -1543010

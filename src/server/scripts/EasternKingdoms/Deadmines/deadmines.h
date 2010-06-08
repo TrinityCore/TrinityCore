@@ -1,7 +1,7 @@
 #ifndef DEF_DEADMINES_H
 #define DEF_DEADMINES_H
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum CannonState
 {

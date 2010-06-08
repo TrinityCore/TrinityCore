@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "hyjalAI.h"
 #include "hyjal_trash.h"
 #include "MapManager.h"

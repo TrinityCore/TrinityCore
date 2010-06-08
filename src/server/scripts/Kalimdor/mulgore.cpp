@@ -27,7 +27,7 @@ npc_kyle_frenzied
 npc_plains_vision
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

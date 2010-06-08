@@ -26,7 +26,7 @@ boss_nexusprince_shaffar
 mob_ethereal_beacon
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum ePrince
 {

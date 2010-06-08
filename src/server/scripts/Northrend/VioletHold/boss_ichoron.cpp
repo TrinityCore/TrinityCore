@@ -22,7 +22,7 @@ SDComment: TODO: better spawn location for adds
 SDCategory:
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 enum Spells

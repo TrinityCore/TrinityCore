@@ -26,7 +26,7 @@ mob_jadespine_basilisk
 npc_lore_keeper_of_norgannon
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## mob_jadespine_basilisk

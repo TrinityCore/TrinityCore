@@ -21,7 +21,7 @@ SDComment: Ground Slam need further development (knock back effect and shatter e
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "gruuls_lair.h"
 
 enum eEnums

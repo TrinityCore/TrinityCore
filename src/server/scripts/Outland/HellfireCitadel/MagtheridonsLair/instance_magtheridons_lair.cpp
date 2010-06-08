@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Hellfire Citadel, Magtheridon's lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "magtheridons_lair.h"
 
 #define SPELL_SOUL_TRANSFER         30531 // core bug, does not support target 7

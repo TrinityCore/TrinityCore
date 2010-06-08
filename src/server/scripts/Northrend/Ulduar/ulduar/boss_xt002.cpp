@@ -28,7 +28,7 @@
         make the life sparks visible...
 */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 
 enum Spells

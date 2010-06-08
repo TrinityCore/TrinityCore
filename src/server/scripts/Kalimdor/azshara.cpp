@@ -28,7 +28,7 @@ mob_rizzle_sprysprocket
 mob_depth_charge
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "World.h"
 #include "WorldPacket.h"
 

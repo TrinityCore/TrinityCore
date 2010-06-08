@@ -25,7 +25,7 @@ EndScriptData */
 npc_aged_dying_ancient_kodo
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h" 
 
 enum eDyingKodo

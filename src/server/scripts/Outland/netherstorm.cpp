@@ -28,7 +28,7 @@ npc_commander_dawnforge
 npc_bessy
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

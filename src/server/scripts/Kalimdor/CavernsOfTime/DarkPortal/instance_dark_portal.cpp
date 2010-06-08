@@ -21,7 +21,7 @@ SDComment: Quest support: 9836, 10297. Currently in progress.
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "dark_portal.h"
 
 #define MAX_ENCOUNTER              2

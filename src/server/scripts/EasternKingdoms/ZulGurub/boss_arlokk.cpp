@@ -21,7 +21,7 @@ SDComment: Wrong cleave and red aura is missing.
 SDCategory: Zul'Gurub
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulgurub.h"
 
 bool GOHello_go_gong_of_bethekk(Player* /*pPlayer*/, GameObject* pGo)
