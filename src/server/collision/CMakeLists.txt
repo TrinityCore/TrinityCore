@@ -24,13 +24,12 @@ SET(collision_STAT_SRCS
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/externals/g3dlite
-  ${CMAKE_SOURCE_DIR}/externals/g3dlite/G3D.lib
-  ${CMAKE_SOURCE_DIR}/externals/g3dlite/G3D.lib/include
-  ${CMAKE_SOURCE_DIR}/externals/g3dlite/G3D.lib/include/G3D
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/collision
+  ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
+  ${CMAKE_SOURCE_DIR}/src/server/collision/Models
 )
 
 add_library(collision STATIC ${collision_STAT_SRCS})
