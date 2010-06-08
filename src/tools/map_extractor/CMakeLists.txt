@@ -16,10 +16,11 @@ file(GLOB sources *.cpp)
 file(GLOB loadlib_sources loadlib/*.cpp)
 
 include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
-include_directories (${CMAKE_SOURCE_DIR}/src/tools/map-extractor/loadlib)
+include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor)
+include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor/loadlib)
 
 link_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
-link_directories (${CMAKE_SOURCE_DIR}}/src/tools/map-extractor/loadlib)
+link_directories (${CMAKE_SOURCE_DIR}}/src/tools/map_extractor/loadlib)
 
 add_library (loadlib ${loadlib_sources})
 target_link_libraries (loadlib zlib)
