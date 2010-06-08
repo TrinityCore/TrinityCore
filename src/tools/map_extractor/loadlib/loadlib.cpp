@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "loadlib.h"
-#include "../mpq_libmpq.h"
+#include "mpq_libmpq.h"
 
 class MPQFile;
 
