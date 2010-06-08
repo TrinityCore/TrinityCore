@@ -21,7 +21,7 @@
 #ifndef _FOLLOWERREFERENCE_H
 #define _FOLLOWERREFERENCE_H
 
-#include "Dynamic/LinkedReference/Reference.h"
+#include "Reference.h"
 
 class TargetedMovementGeneratorBase;
 class Unit;

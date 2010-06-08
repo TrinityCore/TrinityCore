@@ -3,14 +3,14 @@
  * Please see the included DOCS/LICENSE.TXT for more information */
 
 #include "ScriptPCH.h"
-#include "Configuration/Config.h"
-#include "Database/DatabaseEnv.h"
+#include "Config.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "ProgressBar.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 
 INSTANTIATE_SINGLETON_1(ScriptMgr);
 

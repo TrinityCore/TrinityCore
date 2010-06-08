@@ -17,7 +17,7 @@
  */
 
 #include "TimeMgr.h"
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 
 INSTANTIATE_SINGLETON_1(GameTime);
 

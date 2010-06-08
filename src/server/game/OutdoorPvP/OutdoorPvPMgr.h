@@ -22,7 +22,7 @@
 #define OUTDOORPVP_OBJECTIVE_UPDATE_INTERVAL 1000
 
 #include "OutdoorPvP.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 
 class Player;
 class GameObject;

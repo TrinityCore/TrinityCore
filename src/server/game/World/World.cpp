@@ -23,8 +23,8 @@
 */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Configuration/ConfigEnv.h"
+#include "DatabaseEnv.h"
+#include "ConfigEnv.h"
 #include "SystemConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -48,7 +48,7 @@
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 #include "BattleGroundMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
@@ -58,7 +58,7 @@
 #include "GlobalEvents.h"
 #include "GameEventMgr.h"
 #include "PoolHandler.h"
-#include "Database/DatabaseImpl.h"
+#include "DatabaseImpl.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
