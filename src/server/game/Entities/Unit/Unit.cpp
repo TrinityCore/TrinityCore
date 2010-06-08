@@ -7753,7 +7753,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
             // Infusion of Light
             if (dummySpell->SpellIconID == 3021)
             {
-                // Flash of Light Heal over Time
+                // Flash of Light HoT on Flash of Light when Sacred Shield active
                 if (procSpell->SpellFamilyFlags[0] & 0x40000000 && procSpell->SpellIconID == 242)
                 {
                     *handled = true;
@@ -7763,9 +7763,14 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                         CastCustomSpell(pVictim, 66922, &bp0, NULL, NULL, true);
                         return true;
                     }   
-                 }
-              }
-        }break;
+                }
+                // but should not proc on non-critical Holy Shocks
+                else if ((procSpell->SpellFamilyFlags[0] & 0x200000 || procSpell->SpellFamilyFlags[1] & 0x10000) && !(procEx & PROC_EX_CRITICAL_HIT))
+                    *handled = true;
+                break;
+            }
+            break;
+        }
         case SPELLFAMILY_MAGE:
         {
             // Combustion
