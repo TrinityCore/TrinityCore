@@ -21,7 +21,7 @@
 #ifndef TRINITYCORE_CHAT_H
 #define TRINITYCORE_CHAT_H
 
-#include "Miscellaneous/SharedDefines.h"
+#include "SharedDefines.h"
 
 class ChatHandler;
 class WorldSession;

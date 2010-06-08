@@ -25,9 +25,9 @@
 #include "ObjectAccessor.h"
 #include "SpellMgr.h"
 
-#include "Grids/Notifiers/GridNotifiers.h"
-#include "Grids/Notifiers/GridNotifiersImpl.h"
-#include "Grids/Cells/CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 int
 TotemAI::Permissible(const Creature *creature)

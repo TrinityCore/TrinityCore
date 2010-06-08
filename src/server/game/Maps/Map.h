@@ -27,12 +27,12 @@
 #include "ace/Thread_Mutex.h"
 
 #include "DBCStructure.h"
-#include "Grids/GridDefines.h"
-#include "Grids/Cells/Cell.h"
-#include "Utilities/Timer.h"
-#include "Miscellaneous/SharedDefines.h"
-#include "Grids/GridRefManager.h"
-#include "Maps/MapRefManager.h"
+#include "GridDefines.h"
+#include "Cell.h"
+#include "Timer.h"
+#include "SharedDefines.h"
+#include "GridRefManager.h"
+#include "MapRefManager.h"
 #include "MersenneTwister.h"
 
 #include <bitset>

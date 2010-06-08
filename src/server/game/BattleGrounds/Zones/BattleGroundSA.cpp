@@ -18,11 +18,11 @@
 
 #include "BattleGround.h"
 #include "BattleGroundSA.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
 #include "GameObject.h"
 #include "ObjectMgr.h"
-#include "Packets/WorldPacket.h"
+#include "WorldPacket.h"
 
 
 BattleGroundSA::BattleGroundSA()

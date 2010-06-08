@@ -21,8 +21,8 @@
 #define TRINITY_CREATUREAIFACTORY_H
 
 //#include "Policies/Singleton.h"
-#include "Dynamic/ObjectRegistry.h"
-#include "Dynamic/FactoryHolder.h"
+#include "ObjectRegistry.h"
+#include "FactoryHolder.h"
 
 struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>
 {

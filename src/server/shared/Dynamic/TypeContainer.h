@@ -30,7 +30,7 @@
 #include <vector>
 #include "Define.h"
 #include "Dynamic/TypeList.h"
-#include "Grids/GridRefManager.h"
+#include "GridRefManager.h"
 
 /*
  * @class ContainerMapList is a mulit-type container for map elements

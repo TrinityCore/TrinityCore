@@ -22,8 +22,8 @@
 #define __BATTLEGROUND_H
 
 #include "Common.h"
-#include "Miscellaneous/SharedDefines.h"
-#include "DataStores/DBCEnums.h"
+#include "SharedDefines.h"
+#include "DBCEnums.h"
 
 class Creature;
 class GameObject;

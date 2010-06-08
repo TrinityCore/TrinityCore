@@ -26,10 +26,10 @@
 #define __WORLDSESSION_H
 
 #include "Common.h"
-#include "Miscellaneous/SharedDefines.h"
-#include "Addons/AddonMgr.h"
-#include "Database/QueryResult.h"
-#include "World/World.h"
+#include "SharedDefines.h"
+#include "AddonMgr.h"
+#include "QueryResult.h"
+#include "World.h"
 
 struct ItemPrototype;
 struct AuctionEntry;

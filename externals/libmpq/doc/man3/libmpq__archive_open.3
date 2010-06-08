@@ -1,0 +1,71 @@
+.\" Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.TH libmpq 3 2008-04-29 "The MoPaQ archive library"
+.SH NAME
+libmpq \- cross-platform C library for manipulating mpq archives.
+.SH SYNOPSIS
+.nf
+.B
+#include <mpq.h>
+.sp
+.BI "int32_t libmpq__archive_open("
+.BI "        mpq_archive_s **" "mpq_archive",
+.BI "        const char     *" "mpq_filename",
+.BI "        off_t           " "archive_offset"
+.BI ");"
+.fi
+.SH DESCRIPTION
+.PP
+Call \fBlibmpq__archive_open\fP() to open a given mpq archive for later use to extract or manipulate files inside the archive. It will create all required file structures and you have to call \fBlibmpq__archive_close\fP() on success to clean the opened structures. On failure there is no need to call \fBlibmpq__archive_close\fP() because everything will be cleaned up.
+.LP
+The \fBlibmpq__archive_open\fP() function takes as first argument a reference to the archive structure \fImpq_archive\fP and will open the file \fImpq_filename\fP to the structure pointed to by \fImpq_archive\fP. The last argument, \fIarchive_offset\fP is normally -1, but can be specified when the archive offset is known, or not 512-byte aligned.
+.SH RETURN VALUE
+On success, *\fImpq_archive\fP is set to a new \fBmpq_archive_s\fP* and zero is returned, and on error one of the following constants is returned.
+.TP
+.B LIBMPQ_ERROR_OPEN
+The given file could not be opened.
+.TP
+.B LIBMPQ_ERROR_MALLOC
+Not enough memory for creating required structures.
+.TP
+.B LIBMPQ_ERROR_SEEK
+Seeking in file failed.
+.TP
+.B LIBMPQ_ERROR_FORMAT
+The given file is no valid mpq archive.
+.TP
+.B LIBMPQ_ERROR_READ
+Reading in archive failed.
+.SH SEE ALSO
+.BR libmpq__archive_close (3),
+.BR libmpq__archive_packed_size (3),
+.BR libmpq__archive_unpacked_size (3),
+.BR libmpq__archive_offset (3),
+.BR libmpq__archive_version (3),
+.BR libmpq__archive_files (3)
+.SH AUTHOR
+Check documentation.
+.TP
+libmpq is (c) 2003-2008
+.B Maik Broemme <mbroemme@plusserver.de>
+.PP
+The above e-mail address can be used to send bug reports, feedbacks or library enhancements.

@@ -20,19 +20,19 @@
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "World.h"
-#include "Packets/WorldPacket.h"
-#include "Server/WorldSession.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/SQLStorage.h"
-#include "Policies/SingletonImp.h"
+#include "WorldPacket.h"
+#include "WorldSession.h"
+#include "DatabaseEnv.h"
+#include "SQLStorage.h"
+#include "SingletonImp.h"
 #include "DBCStores.h"
 
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Item.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Logging/Log.h"
-#include "Utilities/ProgressBar.h"
+#include "ProgressBar.h"
 #include <vector>
 
 INSTANTIATE_SINGLETON_1(AuctionHouseMgr);
