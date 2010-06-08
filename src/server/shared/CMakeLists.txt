@@ -15,7 +15,9 @@ SET(shared_STAT_SRCS
    Utilities/SignalHandler.h
    Utilities/Timer.h
    Utilities/Util.cpp
-   Utilities/Util.h
+   Utilities/Util.h  
+   Utilities/EventProcessor.cpp
+   Utilities/EventProcessor.h
    Common.cpp
    Common.h
    SystemConfig.h

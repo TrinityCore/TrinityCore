@@ -34,6 +34,8 @@ SET(game_STAT_SRCS
    AI/CreatureAIRegistry.h
    AI/CreatureAISelector.cpp
    AI/CreatureAISelector.h
+   AI/CreatureAI.cpp
+   AI/CreatureAI.h
    AuctionHouse/AuctionHouseMgr.cpp
    AuctionHouse/AuctionHouseMgr.h
    AuctionHouse/AuctionHouseBot/AuctionHouseBot.cpp
