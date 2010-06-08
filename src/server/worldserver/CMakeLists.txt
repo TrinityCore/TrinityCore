@@ -137,8 +137,6 @@ trinitydatabase
 trinityauth
 trinityconfig
 collision
-g3dlite
-jmalloc
 ${SCRIPT_LIB}
 ${READLINE_LIBRARY}
 ${TERMCAP_LIBRARY}

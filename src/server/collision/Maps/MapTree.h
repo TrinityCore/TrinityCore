@@ -20,8 +20,8 @@
 #define _MAPTREE_H
 
 #include "Define.h"
-#include "UnorderedMap.h"
-#include "BoundingIntervalHierarchy.cpp"
+#include "Dynamic/UnorderedMap.h"
+#include "BoundingIntervalHierarchy.h"
 
 namespace VMAP
 {
