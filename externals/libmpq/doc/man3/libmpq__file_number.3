@@ -1,0 +1,52 @@
+.\" Copyright (c) 2003-2008 Maik Broemme <mbroemme@plusserver.de>
+.\"
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, write to the Free
+.\" Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111,
+.\" USA.
+.TH libmpq 3 2008-05-16 "The MoPaQ archive library"
+.SH NAME
+libmpq \- cross-platform C library for manipulating mpq archives.
+.SH SYNOPSIS
+.nf
+.B
+#include <mpq.h>
+.sp
+.BI "int32_t libmpq__file_number("
+.BI "        mpq_archive_s  *" "mpq_archive",
+.BI "        const char     *" "filename",
+.BI "        uint32_t       *" "number"
+.BI ");"
+.fi
+.SH DESCRIPTION
+.PP
+Call \fBlibmpq__file_number\fP() to get the number of a given file in the archive. This function will return a file number regardless of a known or opened listfile.
+.LP
+The \fBlibmpq__file_number\fP() function takes as first argument the archive structure \fImpq_archive\fP which have to be allocated first and opened by \fBlibmpq__archive_open\fP(). The second argument \fIfilename\fP is the name of the file and the third argument is a reference to the \fInumber\fP of the file.
+.SH RETURN VALUE
+On success, the number of the file is returned and on error one of the following constants.
+.TP
+.B LIBMPQ_ERROR_EXIST
+File does not exist in archive.
+.SH AUTHOR
+Check documentation.
+.TP
+libmpq is (c) 2003-2008
+.B Maik Broemme <mbroemme@plusserver.de>
+.PP
+The above e-mail address can be used to send bug reports, feedbacks or library enhancements.

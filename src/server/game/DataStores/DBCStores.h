@@ -20,8 +20,8 @@
 #define TRINITY_DBCSTORES_H
 
 #include "Common.h"
-#include "DataStores/DBCStore.h"
-#include "DataStores/DBCStructure.h"
+#include "DBCStore.h"
+#include "DBCStructure.h"
 
 #include <list>
 

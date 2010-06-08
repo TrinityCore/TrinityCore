@@ -22,7 +22,7 @@
 #define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
-#include "Grids/NGrid.h"
+#include "NGrid.h"
 #include <cmath>
 
 // Forward class definitions

@@ -17,7 +17,7 @@
  */
 
 #include "ObjectMgr.h"
-#include "Packets/WorldPacket.h"
+#include "WorldPacket.h"
 
 #include "ArenaTeam.h"
 #include "World.h"

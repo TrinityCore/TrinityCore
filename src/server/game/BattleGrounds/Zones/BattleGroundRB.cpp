@@ -21,7 +21,7 @@
 #include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundRB.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 
 BattleGroundRB::BattleGroundRB()
 {

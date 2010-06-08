@@ -17,15 +17,15 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/SQLStorage.h"
+#include "DatabaseEnv.h"
+#include "SQLStorage.h"
 #include "CreatureEventAI.h"
 #include "CreatureEventAIMgr.h"
 #include "ObjectMgr.h"
-#include "Utilities/ProgressBar.h"
-#include "Policies/SingletonImp.h"
+#include "ProgressBar.h"
+#include "SingletonImp.h"
 #include "ObjectDefines.h"
-#include "Grids/GridDefines.h"
+#include "GridDefines.h"
 #include "ConditionMgr.h"
 
 INSTANTIATE_SINGLETON_1(CreatureEventAIMgr);
