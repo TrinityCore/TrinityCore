@@ -19,17 +19,17 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "World.h"
 #include "Player.h"
-#include "Server/Protocol/Opcodes.h"
+#include "Opcodes.h"
 #include "Chat.h"
 #include "ObjectAccessor.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "AccountMgr.h"
 #include "SystemConfig.h"
 #include "revision.h"
-#include "Utilities/Util.h"
+#include "Util.h"
 
 bool ChatHandler::HandleHelpCommand(const char* args)
 {

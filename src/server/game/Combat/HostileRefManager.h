@@ -22,7 +22,7 @@
 #define _HOSTILEREFMANAGER
 
 #include "Common.h"
-#include "Dynamic/LinkedReference/RefManager.h"
+#include "RefManager.h"
 
 class Unit;
 class ThreatManager;

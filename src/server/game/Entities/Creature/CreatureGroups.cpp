@@ -21,8 +21,8 @@
 #include "Creature.h"
 #include "CreatureGroups.h"
 #include "ObjectMgr.h"
-#include "Utilities/ProgressBar.h"
-#include "Policies/SingletonImp.h"
+#include "ProgressBar.h"
+#include "SingletonImp.h"
 #include "CreatureAI.h"
 
 #define MAX_DESYNC 5.0f
