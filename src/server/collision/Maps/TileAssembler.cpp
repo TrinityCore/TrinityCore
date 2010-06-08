@@ -19,7 +19,7 @@
 #include "WorldModel.h"
 #include "TileAssembler.h"
 #include "MapTree.h"
-#include "BIH.h"
+#include "BoundingIntervalHierarchy.h"
 #include "VMapDefinitions.h"
 
 #include <set>
