@@ -4,21 +4,21 @@
 SET(collision_STAT_SRCS
    BoundingIntervalHierarchy.h
    BoundingIntervalHierarchy.cpp
-   Management/IVMapManager.h
    Maps/MapTree.cpp
    Maps/MapTree.h
-   Models/ModelInstance.cpp
-   Models/ModelInstance.h
    Maps/TileAssembler.cpp
    Maps/TileAssembler.h
-   VMapDefinitions.h
+   Models/ModelInstance.cpp
+   Models/ModelInstance.h
+   Models/WorldModel.cpp
+   Models/WorldModel.h
+   Management/IVMapManager.h
    Management/VMapFactory.cpp
    Management/VMapFactory.h
    Management/VMapManager2.cpp
    Management/VMapManager2.h
+   VMapDefinitions.h
    VMapTools.h
-   Models/WorldModel.cpp
-   Models/WorldModel.h
 )
 
 include_directories(
