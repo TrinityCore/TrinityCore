@@ -19,7 +19,7 @@
  */
 
 #include "PetAI.h"
-#include "Debugging/Errors.h"
+#include "Errors.h"
 #include "Pet.h"
 #include "Player.h"
 #include "DBCStores.h"
@@ -28,7 +28,7 @@
 #include "SpellMgr.h"
 #include "Creature.h"
 #include "World.h"
-#include "Utilities/Util.h"
+#include "Util.h"
 
 int PetAI::Permissible(const Creature *creature)
 {

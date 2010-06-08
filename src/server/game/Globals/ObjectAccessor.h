@@ -22,14 +22,14 @@
 #define TRINITY_OBJECTACCESSOR_H
 
 #include "Define.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 #include <ace/Thread_Mutex.h>
-#include "Dynamic/UnorderedMap.h"
-#include "Policies/ThreadingModel.h"
+#include "UnorderedMap.h"
+#include "ThreadingModel.h"
 
-#include "Updates/UpdateData.h"
+#include "UpdateData.h"
 
-#include "Grids/GridDefines.h"
+#include "GridDefines.h"
 #include "Object.h"
 #include "Player.h"
 

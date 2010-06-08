@@ -24,10 +24,10 @@
 /** NGrid is nothing more than a wrapper of the Grid with an NxN cells
  */
 
-#include "Grids/Grid.h"
-#include "Grids/GridReference.h"
-#include "Utilities/Timer.h"
-#include "Utilities/Util.h"
+#include "Grid.h"
+#include "GridReference.h"
+#include "Timer.h"
+#include "Util.h"
 
 #define DEFAULT_VISIBILITY_NOTIFY_PERIOD      1000
 

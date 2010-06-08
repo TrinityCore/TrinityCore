@@ -21,13 +21,13 @@
 #ifndef TRINITY_GRIDNOTIFIERS_H
 #define TRINITY_GRIDNOTIFIERS_H
 
-#include "Grids/ObjectGridLoader.h"
-#include "Updates/UpdateData.h"
+#include "ObjectGridLoader.h"
+#include "UpdateData.h"
 #include <iostream>
 
-#include "Entities/Corpse/Corpse.h"
+#include "Corpse.h"
 #include "Object.h"
-#include "Entities/DynamicObject/DynamicObject.h"
+#include "DynamicObject.h"
 #include "GameObject.h"
 #include "Player.h"
 #include "Unit.h"

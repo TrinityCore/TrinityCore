@@ -23,7 +23,7 @@
 
 #include "Common.h"
 #include "QuestDef.h"
-#include "Server/Protocol/Handlers/NPCHandler.h"
+#include "NPCHandler.h"
 
 class WorldSession;
 
