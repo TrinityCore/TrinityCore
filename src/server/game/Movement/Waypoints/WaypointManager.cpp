@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "GridDefines.h"
 #include "WaypointManager.h"
 #include "ProgressBar.h"

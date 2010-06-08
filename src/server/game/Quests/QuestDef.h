@@ -22,7 +22,7 @@
 #define TRINITYCORE_QUEST_H
 
 #include "Define.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 
 #include <string>
 #include <vector>

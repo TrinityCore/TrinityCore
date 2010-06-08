@@ -20,7 +20,7 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 #include "Creature.h"
 #include "GameObject.h"
 

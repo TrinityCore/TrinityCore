@@ -26,8 +26,8 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "MD5.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/DatabaseImpl.h"
+#include "DatabaseEnv.h"
+#include "DatabaseImpl.h"
 
 #include "ArenaTeam.h"
 #include "Chat.h"

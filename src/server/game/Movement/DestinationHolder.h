@@ -22,7 +22,7 @@
 #define TRINITY_DESTINATION_HOLDER_H
 
 #include "Define.h"
-#include "Utilities/Timer.h"
+#include "Timer.h"
 
 class WorldObject;
 class Map;

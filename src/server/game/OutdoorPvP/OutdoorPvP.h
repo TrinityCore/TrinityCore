@@ -20,7 +20,7 @@
 #define OUTDOOR_PVP_H_
 
 #include "Utilities/Util.h"
-#include "Miscellaneous/SharedDefines.h"
+#include "SharedDefines.h"
 #include "ZoneScript.h"
 
 class GameObject;
