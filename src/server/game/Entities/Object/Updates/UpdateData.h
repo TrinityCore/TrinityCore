@@ -21,7 +21,7 @@
 #ifndef __UPDATEDATA_H
 #define __UPDATEDATA_H
 
-#include "Packets/ByteBuffer.h"
+#include "ByteBuffer.h"
 class WorldPacket;
 
 enum OBJECT_UPDATE_TYPE

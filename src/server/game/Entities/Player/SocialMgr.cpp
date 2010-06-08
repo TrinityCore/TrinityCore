@@ -19,8 +19,8 @@
  */
 
 #include "SocialMgr.h"
-#include "Policies/SingletonImp.h"
-#include "Database/DatabaseEnv.h"
+#include "SingletonImp.h"
+#include "DatabaseEnv.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "Player.h"

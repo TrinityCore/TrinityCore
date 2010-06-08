@@ -23,12 +23,12 @@
 #define __InstanceSaveMgr_H
 
 #include "Define.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 #include "ace/Thread_Mutex.h"
 #include <list>
 #include <map>
-#include "Dynamic/UnorderedMap.h"
-#include "Database/DatabaseEnv.h"
+#include "UnorderedMap.h"
+#include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "ObjectDefines.h"
 

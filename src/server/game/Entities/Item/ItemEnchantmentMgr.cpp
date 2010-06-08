@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <functional>
 #include "ItemEnchantmentMgr.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "ProgressBar.h"

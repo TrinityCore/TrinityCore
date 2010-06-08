@@ -34,7 +34,7 @@
 
 #include "Define.h"
 #include "Grid.h"
-#include "Dynamic/TypeContainerVisitor.h"
+#include "TypeContainerVisitor.h"
 
 template
 <

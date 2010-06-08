@@ -19,10 +19,10 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/SQLStorage.h"
-#include "Database/SQLStorageImpl.h"
-#include "Policies/SingletonImp.h"
+#include "DatabaseEnv.h"
+#include "SQLStorage.h"
+#include "SQLStorageImpl.h"
+#include "SingletonImp.h"
 
 #include "Log.h"
 #include "MapManager.h"
