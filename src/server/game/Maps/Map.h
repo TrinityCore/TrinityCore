@@ -22,7 +22,7 @@
 #define TRINITY_MAP_H
 
 #include "Define.h"
-#include "Policies/ThreadingModel.h"
+#include "ThreadingModel.h"
 #include "ace/RW_Thread_Mutex.h"
 #include "ace/Thread_Mutex.h"
 

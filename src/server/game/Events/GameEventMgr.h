@@ -24,7 +24,7 @@
 #include "Common.h"
 #include "SharedDefines.h"
 #include "Define.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 
 #define max_ge_check_delay DAY  // 1 day in seconds
 

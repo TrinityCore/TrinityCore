@@ -23,8 +23,8 @@
 
 #include <cmath>
 
-#include "Dynamic/TypeContainer.h"
-#include "Dynamic/TypeContainerVisitor.h"
+#include "TypeContainer.h"
+#include "TypeContainerVisitor.h"
 
 #include "GridDefines.h"
 

@@ -20,7 +20,7 @@
  */
 
 #include "Common.h"
-#include "Database/SQLStorage.h"
+#include "SQLStorage.h"
 
 #include "Player.h"
 #include "GridNotifiers.h"

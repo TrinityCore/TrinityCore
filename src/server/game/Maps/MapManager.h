@@ -22,7 +22,7 @@
 #define TRINITY_MAPMANAGER_H
 
 #include "Define.h"
-#include "Policies/Singleton.h"
+#include "Singleton.h"
 #include "ace/Thread_Mutex.h"
 #include "Common.h"
 #include "Map.h"

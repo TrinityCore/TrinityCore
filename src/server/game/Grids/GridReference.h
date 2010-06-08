@@ -21,7 +21,7 @@
 #ifndef _GRIDREFERENCE_H
 #define _GRIDREFERENCE_H
 
-#include "Dynamic/LinkedReference/Reference.h"
+#include "Reference.h"
 
 template<class OBJECT>
 class GridRefManager;

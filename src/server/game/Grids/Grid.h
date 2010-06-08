@@ -33,9 +33,9 @@
 */
 
 #include "Define.h"
-#include "Policies/ThreadingModel.h"
-#include "Dynamic/TypeContainer.h"
-#include "Dynamic/TypeContainerVisitor.h"
+#include "ThreadingModel.h"
+#include "TypeContainer.h"
+#include "TypeContainerVisitor.h"
 
 // forward declaration
 template<class A, class T, class O> class GridLoader;

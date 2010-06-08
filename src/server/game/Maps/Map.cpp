@@ -28,7 +28,7 @@
 #include "InstanceData.h"
 #include "Map.h"
 #include "GridNotifiersImpl.h"
-#include "Configuration/ConfigEnv.h"
+#include "ConfigEnv.h"
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
