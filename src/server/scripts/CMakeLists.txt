@@ -637,6 +637,6 @@ add_library(scripts STATIC ${scripts_STAT_SRCS})
 
 # Generate precompiled header
 IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-	ADD_PRECOMPILED_HEADER(scripts ${CMAKE_SOURCE_DIR}/src/server/game/ScriptMgr/ScriptedPch.h)
+	ADD_PRECOMPILED_HEADER(scripts ${CMAKE_SOURCE_DIR}/src/server/game/Scripts/ScriptPCH.h)
 ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
 
