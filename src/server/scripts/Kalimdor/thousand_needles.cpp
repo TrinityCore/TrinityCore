@@ -30,7 +30,7 @@ go_panther_cage
 npc_enraged_panther
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*#####

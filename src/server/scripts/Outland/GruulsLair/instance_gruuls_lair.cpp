@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Gruul's Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "gruuls_lair.h"
 
 #define MAX_ENCOUNTER 2

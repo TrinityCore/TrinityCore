@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "hellfire_ramparts.h"
 
 struct instance_ramparts : public ScriptedInstance

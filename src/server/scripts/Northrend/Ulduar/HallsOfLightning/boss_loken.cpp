@@ -21,7 +21,7 @@ SDComment: Missing intro. Remove hack of Pulsing Shockwave when core supports. A
 SDCategory: Halls of Lightning
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_lightning.h"
 
 enum eEnums

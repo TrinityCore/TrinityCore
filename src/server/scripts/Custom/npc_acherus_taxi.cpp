@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "WorldPacket.h"
 
 #define GOSSIP_FLIGHT "I need a ride"

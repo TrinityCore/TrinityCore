@@ -29,7 +29,7 @@ guard_shattrath_scryer
 guard_stormwind
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedGuardAI.h"
 
 /*******************************************************

@@ -21,7 +21,7 @@ SDComment: Includes Sapling (need some better control with these).
 SDCategory: Tempest Keep, The Botanica
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*#####
 # mob_treant (Sapling)

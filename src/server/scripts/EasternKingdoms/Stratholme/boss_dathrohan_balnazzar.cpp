@@ -21,7 +21,7 @@ SDComment: Possibly need to fix/improve summons after death
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum eEnums
 {

@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "stratholme.h"
 
 #define SPELL_TRAMPLE       5568

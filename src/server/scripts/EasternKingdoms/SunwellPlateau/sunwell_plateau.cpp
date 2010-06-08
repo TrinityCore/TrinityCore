@@ -25,7 +25,7 @@ npc_prophet_velen
 npc_captain_selana
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "sunwell_plateau.h"
 
 /*######

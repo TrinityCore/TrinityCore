@@ -14,7 +14,7 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "oculus.h"
 
 #define GOSSIP_ITEM_DRAKES         "So where do we go from here?"

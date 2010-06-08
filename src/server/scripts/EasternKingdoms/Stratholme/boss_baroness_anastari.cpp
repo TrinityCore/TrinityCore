@@ -21,7 +21,7 @@ SDComment: MC disabled
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "stratholme.h"
 
 #define SPELL_BANSHEEWAIL   16565

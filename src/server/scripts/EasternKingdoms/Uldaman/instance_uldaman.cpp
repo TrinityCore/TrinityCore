@@ -14,7 +14,7 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_ARCHAEDAS_AWAKEN        10347
 #define SPELL_AWAKEN_VAULT_WALKER     10258

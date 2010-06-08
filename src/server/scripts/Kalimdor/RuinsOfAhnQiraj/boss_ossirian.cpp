@@ -21,7 +21,7 @@ SDComment: Place holder
 SDCategory: Ruins of Ahn'Qiraj
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ruins_of_ahnqiraj.h"
 
 enum Yells

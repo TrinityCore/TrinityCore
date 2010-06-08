@@ -20,7 +20,7 @@
  * Comment: TODO: spawn troll waves
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "drak_tharon_keep.h"
 
 enum Spells

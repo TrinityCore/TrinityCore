@@ -21,7 +21,7 @@ SDComment: Needs additional review. Phase 1 NYI (Grethok the Controller)
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 //Razorgore Phase 2 Script
 

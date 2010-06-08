@@ -21,7 +21,7 @@ SDComment: Provides learn/unlearn/relearn-options for professions. Not supported
 SDCategory: NPCs
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*
 A few notes for future developement:

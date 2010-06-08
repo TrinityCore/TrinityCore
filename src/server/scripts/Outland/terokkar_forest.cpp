@@ -31,7 +31,7 @@ npc_isla_starmane
 npc_slim
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

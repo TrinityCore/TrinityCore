@@ -21,7 +21,7 @@ SDComment: Correct spawning and Event NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO           -1409003
 #define SAY_SPAWN           -1409004

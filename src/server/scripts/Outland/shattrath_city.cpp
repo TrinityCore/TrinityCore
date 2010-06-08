@@ -32,7 +32,7 @@ npc_ishanah
 npc_khadgar
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
 /*######

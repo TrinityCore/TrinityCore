@@ -21,7 +21,7 @@ SDComment: Placeholder
 SDCategory: Deadmines
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "deadmines.h"
 #include "Spell.h"
 

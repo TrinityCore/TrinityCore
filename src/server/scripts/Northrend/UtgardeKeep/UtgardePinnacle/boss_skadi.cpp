@@ -24,7 +24,7 @@ SDComment: <Known Bugs>
 SDCategory: Utgarde Pinnacle
 Script Data End */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
 //Yell

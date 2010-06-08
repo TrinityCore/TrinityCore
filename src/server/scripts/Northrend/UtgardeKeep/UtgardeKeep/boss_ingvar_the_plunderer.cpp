@@ -23,7 +23,7 @@ SDComment: Some Problems with Annhylde Movement, Blizzlike Timers
 SDCategory: Udgarde Keep
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_keep.h"
 
 enum Yells

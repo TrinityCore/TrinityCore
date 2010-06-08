@@ -21,7 +21,7 @@ SDComment: Shock spells/times need more work. Heroic partly implemented.
 SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_SUMMON                  -1556000
 

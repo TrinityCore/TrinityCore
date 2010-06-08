@@ -21,7 +21,7 @@ SDComment:  Designed only for Selin Fireheart
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "magisters_terrace.h"
 
 #define MAX_ENCOUNTER      4

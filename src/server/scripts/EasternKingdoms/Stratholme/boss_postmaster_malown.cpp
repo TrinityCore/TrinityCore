@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 //Spell ID to summon this guy is 24627 "Summon Postmaster Malown"
 //He should be spawned along with three other elites once the third postbox has been opened

@@ -21,7 +21,7 @@ SDComment: Adds NYI
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "molten_core.h"
 
 #define SPELL_DARKSTRIKE            19777

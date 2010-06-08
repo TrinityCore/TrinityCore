@@ -21,7 +21,7 @@ SDComment: Missing some text, Vael beginning event, and spawns Nef in wrong plac
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_GAMESBEGIN_1        -1469004
 #define SAY_GAMESBEGIN_2        -1469005

@@ -23,7 +23,7 @@ SDComment: Runes need DB support, chain lightning won't cast, supercharge won't 
 SDCategory: Ulduar - Ulduar
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 
 // Any boss

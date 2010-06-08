@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Scholomance
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "scholomance.h"
 
 #define SPELL_CURSEOFAGONY      18671

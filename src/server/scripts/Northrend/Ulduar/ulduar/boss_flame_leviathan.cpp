@@ -23,7 +23,7 @@
  *          Leviathan's DoAction(0) from Lore Keeper's script to activate hard-mode
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 #include "Vehicle.h"
 

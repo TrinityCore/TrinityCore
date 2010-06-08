@@ -21,7 +21,7 @@ SDComment: Heroic and Normal Support. Needs further testing.
 SDCategory: Magister's Terrace
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "magisters_terrace.h"
 
 #define SAY_AGGRO                       -1585000

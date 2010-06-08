@@ -21,7 +21,7 @@ SDComment: Mainly Harbringer Skyriss event
 SDCategory: Tempest Keep, The Arcatraz
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "arcatraz.h"
 
 #define MAX_ENCOUNTER 9

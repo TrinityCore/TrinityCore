@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Scarlet Monastery
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "scarlet_monastery.h"
 
 #define ENTRY_PUMPKIN_SHRINE    186267

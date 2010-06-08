@@ -21,7 +21,7 @@ SDComment: Timers may be incorrect
 SDCategory: Coilfang Resevoir, Underbog
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_LEVITATE             31704
 #define SPELL_SUSPENSION           31719

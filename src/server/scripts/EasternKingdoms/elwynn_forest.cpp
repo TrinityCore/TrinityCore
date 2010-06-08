@@ -25,7 +25,7 @@ EndScriptData */
 npc_henze_faulk
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## npc_henze_faulk

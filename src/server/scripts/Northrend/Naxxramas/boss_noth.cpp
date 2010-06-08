@@ -14,7 +14,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "naxxramas.h"
 
 #define SAY_AGGRO               RAND(-1533075,-1533076,-1533077)

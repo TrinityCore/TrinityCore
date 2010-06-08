@@ -21,7 +21,7 @@ SDComment: Learning Smelt Dark Iron if tribute quest rewarded. Missing event.
 SDCategory: Blackrock Depths
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "blackrock_depths.h"
 
 enum Spells

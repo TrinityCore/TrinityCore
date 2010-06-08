@@ -19,7 +19,7 @@
  * Comment: Timer check pending
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_lightning.h"
 
 enum Spells

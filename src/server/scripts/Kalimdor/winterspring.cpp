@@ -27,7 +27,7 @@ npc_rivern_frostwind
 npc_witch_doctor_mauari
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## npc_lorax

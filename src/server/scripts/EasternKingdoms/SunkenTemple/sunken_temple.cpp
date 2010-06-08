@@ -25,7 +25,7 @@ EndScriptData */
 at_malfurion_Stormrage_trigger
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "sunken_temple.h"
 
 /*#####

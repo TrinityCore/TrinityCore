@@ -33,7 +33,7 @@ at_warsong_farms                q11686
 at_stormwright_shelf            q12741
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## AreaTrigger_at_aldurthar_gate

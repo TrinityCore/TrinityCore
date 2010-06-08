@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "obsidian_sanctum.h"
 
 #define MAX_ENCOUNTER     1

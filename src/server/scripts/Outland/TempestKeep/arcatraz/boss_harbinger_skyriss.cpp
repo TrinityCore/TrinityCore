@@ -26,7 +26,7 @@ boss_harbinger_skyriss
 boss_harbinger_skyriss_illusion
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "arcatraz.h"
 
 #define SAY_INTRO               -1552000

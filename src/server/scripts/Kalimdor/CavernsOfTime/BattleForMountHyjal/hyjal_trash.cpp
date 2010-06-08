@@ -1,5 +1,5 @@
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "hyjal.h"
 #include "hyjal_trash.h"
 #include "hyjalAI.h"

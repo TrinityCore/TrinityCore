@@ -25,7 +25,7 @@ EndScriptData */
 npc_arete
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 /*######
 ## npc_arete

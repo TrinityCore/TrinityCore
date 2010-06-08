@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 #define MAX_ENCOUNTER          3

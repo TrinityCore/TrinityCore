@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_stone.h"
 
 #define MAX_ENCOUNTER 4

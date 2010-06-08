@@ -21,7 +21,7 @@ SDComment:
 SDCategory: Uldaman
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO                   -1070000
 
