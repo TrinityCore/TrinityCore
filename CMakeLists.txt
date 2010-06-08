@@ -35,7 +35,7 @@ option(DO_DEBUG "Debug mode" 0)
 option(DO_MYSQL "With MySQL support" 1)
 option(DO_PCH "Use precompiled headers" 0)
 option(DO_RA "With RA" 0)
-option(DO_SCRIPTS "With trinityscripts" 1)
+option(DO_SCRIPTS "With trinityscripts" 0)
 option(DO_SQL "Copy SQL files" 0)
 option(DO_TOOLS "Compile tools" 0)
 option(DO_WARN "Enable all compile warnings" 0)
@@ -194,7 +194,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(OSX_LIBS /opt/local/lib/libcrypto.dylib)
   add_definitions(-D__ASSERTMACROS__)
 endif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-
 
 add_definitions(--no-warnings) #to make build look nice, no gcc nazi warnings.
 

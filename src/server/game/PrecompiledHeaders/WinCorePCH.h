@@ -11,4 +11,4 @@
 #include "SharedDefines.h"
 #include "ObjectMgr.h"
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"

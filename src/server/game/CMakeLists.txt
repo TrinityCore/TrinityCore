@@ -362,6 +362,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/DynamicObject
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/GameObject
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Item/Container
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object/Updates
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Pet
@@ -393,6 +394,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Reputation
   ${CMAKE_SOURCE_DIR}/src/server/game/Scripting
   ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol
+  ${CMAKE_SOURCE_DIR}/src/server/game/Server/Protocol/Handlers
   ${CMAKE_SOURCE_DIR}/src/server/game/Server
   ${CMAKE_SOURCE_DIR}/src/server/game/Skills
   ${CMAKE_SOURCE_DIR}/src/server/game/Spells
@@ -406,8 +408,6 @@ include_directories(
 
 if(NOT DO_SCRIPTS)
    SET(game_STAT_SRCS ${game_STAT_SRCS}
-      PrecompiledHeaders/ScriptPCH.cpp
-      PrecompiledHeaders/ScriptPCH.h
       AI/ScriptedAI/ScriptedEscortAI.cpp
       AI/ScriptedAI/ScriptedEscortAI.h
       AI/ScriptedAI/ScriptedCreature.cpp

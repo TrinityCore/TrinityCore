@@ -22,7 +22,7 @@
 #define TRINITY_GAMEEVENT_MGR_H
 
 #include "Common.h"
-#include "Miscellaneous/SharedDefines.h"
+#include "SharedDefines.h"
 #include "Define.h"
 #include "Policies/Singleton.h"
 
