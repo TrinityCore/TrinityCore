@@ -1,4 +1,5 @@
 # Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
+# Copyright (C) 2005-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,9 +9,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required (VERSION 2.6)
-project (MANGOS_IOMAP_EXTRACTOR)
+include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
 
-LINK_DIRECTORIES( ${LINK_DIRECTORIES} ../../libmpq/libmpq/.libs/ )
-add_executable(vmapextractor adtfile.cpp  dbcfile.cpp  model.cpp  mpq_libmpq.cpp  vmapexport.cpp  wdtfile.cpp  wmo.cpp)
-target_link_libraries(vmapextractor mpq)
+add_executable(trinity-vmap_extractor adtfile.cpp  dbcfile.cpp  model.cpp  mpq_libmpq.cpp  vmapexport.cpp  wdtfile.cpp  wmo.cpp)
+target_link_libraries(trinity-vmap_extractor libmpq)
