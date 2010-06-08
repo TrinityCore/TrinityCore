@@ -15,14 +15,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 #include "Common.h"
-#include "Miscellaneous/SharedDefines.h"
+#include "SharedDefines.h"
 #include "Group.h"
 #include "Player.h"
 #include "LFGMgr.h"
 #include "ObjectMgr.h"
-#include "Packets/WorldPacket.h"
+#include "WorldPacket.h"
 
 INSTANTIATE_SINGLETON_1(LFGMgr);
 

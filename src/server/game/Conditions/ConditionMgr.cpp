@@ -19,13 +19,13 @@
  */
 
 
-#include "Policies/SingletonImp.h"
+#include "SingletonImp.h"
 #include "Player.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
 #include "GameEventMgr.h"
 #include "ObjectMgr.h"
-#include "Utilities/ProgressBar.h"
+#include "ProgressBar.h"
 #include "InstanceData.h"
 #include "ConditionMgr.h"
 
