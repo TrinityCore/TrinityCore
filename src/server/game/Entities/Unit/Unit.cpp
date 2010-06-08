@@ -7742,12 +7742,30 @@ bool Unit::HandleModDamagePctTakenAuraProc(Unit *pVictim, uint32 /*damage*/, Aur
 
 // Used in case when access to whole aura is needed
 // All procs should be handled like this...
-bool Unit::HandleAuraProc(Unit * /*pVictim*/, uint32 damage, Aura * triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 procEx, uint32 /*cooldown*/, bool * handled)
+bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura, SpellEntry const * procSpell, uint32 /*procFlag*/, uint32 procEx, uint32 /*cooldown*/, bool * handled)
 {
     SpellEntry const *dummySpell = triggeredByAura->GetSpellProto();
 
     switch(dummySpell->SpellFamilyName)
     {
+        case SPELLFAMILY_PALADIN:
+        {
+            // Infusion of Light
+            if (dummySpell->SpellIconID == 3021)
+            {
+                // Flash of Light Heal over Time
+                if (procSpell->SpellFamilyFlags[0] & 0x40000000 && procSpell->SpellIconID == 242)
+                {
+                    *handled = true;
+                    if (pVictim->HasAura(53601))
+                    {
+                        int32 bp0 = (damage/12) * dummySpell->CalculateSimpleValue(2)/100;
+                        CastCustomSpell(pVictim, 66922, &bp0, NULL, NULL, true);
+                        return true;
+                    }   
+                 }
+              }
+        }break;
         case SPELLFAMILY_MAGE:
         {
             // Combustion
