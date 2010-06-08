@@ -21,7 +21,7 @@
 #ifndef __BATTLEGROUNDEY_H
 #define __BATTLEGROUNDEY_H
 
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 
 class BattleGround;
 

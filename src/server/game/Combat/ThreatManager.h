@@ -22,9 +22,9 @@
 #define _THREATMANAGER
 
 #include "Common.h"
-#include "Miscellaneous/SharedDefines.h"
-#include "Dynamic/LinkedReference/Reference.h"
-#include "Combat/UnitEvents.h"
+#include "SharedDefines.h"
+#include "Reference.h"
+#include "UnitEvents.h"
 
 #include <list>
 

@@ -20,7 +20,7 @@
 
 #include "BattleGround.h"
 #include "BattleGroundAA.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
 
 BattleGroundAA::BattleGroundAA()

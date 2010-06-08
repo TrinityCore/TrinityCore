@@ -26,7 +26,7 @@
 #include "Dynamic/TypeContainer.h"
 #include "Dynamic/TypeContainerVisitor.h"
 
-#include "Grids/GridDefines.h"
+#include "GridDefines.h"
 
 class Map;
 class WorldObject;

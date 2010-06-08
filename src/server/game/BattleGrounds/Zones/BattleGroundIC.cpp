@@ -19,7 +19,7 @@
 #include "Player.h"
 #include "BattleGround.h"
 #include "BattleGroundIC.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 
 BattleGroundIC::BattleGroundIC()
 {

@@ -1,4 +1,4 @@
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include <cstring>
 
 //This function is called when the player logs in (every login)

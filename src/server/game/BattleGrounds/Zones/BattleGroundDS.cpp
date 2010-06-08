@@ -18,11 +18,11 @@
 
 #include "BattleGround.h"
 #include "BattleGroundDS.h"
-#include "Miscellaneous/Language.h"
+#include "Language.h"
 #include "Player.h"
 #include "Object.h"
 #include "ObjectMgr.h"
-#include "Packets/WorldPacket.h"
+#include "WorldPacket.h"
 
 BattleGroundDS::BattleGroundDS()
 {

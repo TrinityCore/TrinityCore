@@ -22,10 +22,10 @@
 #define TRINITY_LOOTMGR_H
 
 #include "ItemEnchantmentMgr.h"
-#include "Packets/ByteBuffer.h"
-#include "Dynamic/LinkedReference/RefManager.h"
-#include "Miscellaneous/SharedDefines.h"
-#include "Conditions/ConditionMgr.h"
+#include "ByteBuffer.h"
+#include "RefManager.h"
+#include "SharedDefines.h"
+#include "ConditionMgr.h"
 
 #include <map>
 #include <vector>

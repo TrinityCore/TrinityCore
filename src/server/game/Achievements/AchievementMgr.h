@@ -22,8 +22,8 @@
 #include <string>
 
 #include "Common.h"
-#include "Policies/Singleton.h"
-#include "Database/DatabaseEnv.h"
+#include "Singleton.h"
+#include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
 

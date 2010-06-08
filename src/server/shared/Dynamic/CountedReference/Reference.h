@@ -33,8 +33,8 @@
  */
 
 #include <stdexcept>
-#include "Platform/Define.h"
-#include "Policies/ThreadingModel.h"
+#include "Define.h"
+#include "ThreadingModel.h"
 #include "ReferenceHolder.h"
 
 template
