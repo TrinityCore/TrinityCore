@@ -35,7 +35,6 @@ extern "C" {
 /* generic includes. */
 #include <stdint.h>
 #include <sys/types.h>
-#include <unistd.h>
 
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 # define LIBMPQ_API __attribute__((visibility("default")))
