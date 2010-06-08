@@ -33,7 +33,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+	#include <unistd.h>
+#endif
+
+#ifdef _MSC_VER
+	#define fseeko _fseeki64
+#endif
 
 /* this function returns the library version information. */
 const char *libmpq__version(void) {
@@ -880,7 +886,7 @@ int32_t libmpq__block_read(mpq_archive_s *mpq_archive, uint32_t file_number, uin
 	uint32_t compressed = 0;
 	uint32_t imploded   = 0;
 	int32_t tb          = 0;
-	off_t block_offset  = 0;
+	libmpq__off_t block_offset  = 0;
 	off_t in_size       = 0;
 	libmpq__off_t unpacked_size = 0;
 
