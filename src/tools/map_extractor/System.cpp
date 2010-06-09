@@ -17,6 +17,8 @@
 #include "loadlib/adt.h"
 #include "loadlib/wdt.h"
 #include <fcntl.h>
+#include "revision.h"
+#define _MAP_EXTRACTOR_VERSION 2
 
 #if defined( __GNUC__ )
     #define _open   open
@@ -33,6 +35,7 @@
 #else
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
+
 extern ArchiveSet gOpenArchives;
 
 typedef struct
@@ -120,6 +123,13 @@ void Usage(char* prg)
     exit(1);
 }
 
+void Version(char* prg)
+{
+    printf("TrinityCore Rev: " _REVISION " " _BUILD_DIRECTIVE " Hash: " _HASH "\n"\
+    "%s Ver: " _MAP_EXTRACTOR_VERSION, prg);
+    exit(0);
+}
+
 void HandleArgs(int argc, char * arg[])
 {
     for(int c = 1; c < argc; ++c)
@@ -135,13 +145,13 @@ void HandleArgs(int argc, char * arg[])
         switch(arg[c][1])
         {
             case 'i':
-                if(c + 1 < argc)                            // all ok
+                if (c + 1 < argc)                            // all ok
                     strcpy(input_path, arg[(c++) + 1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if(c + 1 < argc)                            // all ok
+                if (c + 1 < argc)                            // all ok
                     strcpy(output_path, arg[(c++) + 1]);
                 else
                     Usage(arg[0]);
@@ -153,12 +163,18 @@ void HandleArgs(int argc, char * arg[])
                     Usage(arg[0]);
                 break;
             case 'e':
-                if(c + 1 < argc)                            // all ok
+                if (c + 1 < argc)                            // all ok
                 {
                     CONF_extract=atoi(arg[(c++) + 1]);
                     if(!(CONF_extract > 0 && CONF_extract < 4))
                         Usage(arg[0]);
                 }
+                else
+                    Usage(arg[0]);
+                break;
+            case 'v':
+                if (c + 1 < argc)                           // all ok
+                    Version(arg[0]);
                 else
                     Usage(arg[0]);
                 break;
