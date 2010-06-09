@@ -1,6 +1,6 @@
 ########### next target ###############
 
-SET(trinity-realm_SRCS
+SET(authserver_SRCS
 Authentication/AuthCodes.cpp
 Authentication/AuthCodes.h
 Realms/RealmList.cpp
@@ -30,21 +30,21 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
-SET(trinity-realm_LINK_FLAGS "")
+SET(authserver_LINK_FLAGS "")
 
-add_executable(trinity-realm ${trinity-realm_SRCS})
+add_executable(authserver ${trinity-realm_SRCS})
 add_definitions(
 -D_TRINITY_REALM_CONFIG='"${CONF_DIR}/trinityrealm.conf"'
 )
 IF (DO_MYSQL)
-   SET(trinity-realm_LINK_FLAGS "-pthread ${trinity-realm_LINK_FLAGS}")
+   SET(trinity-realm_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
 ENDIF(DO_MYSQL)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-   SET(trinity-realm_LINK_FLAGS "-framework Carbon ${trinity-realm_LINK_FLAGS}")
+   SET(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-SET_TARGET_PROPERTIES(trinity-realm PROPERTIES LINK_FLAGS "${trinity-realm_LINK_FLAGS}")
+SET_TARGET_PROPERTIES(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 target_link_libraries(
 trinity-realm
@@ -57,7 +57,7 @@ ${MYSQL_LIBRARIES}
 ${OSX_LIBS}
 )
 
-install(TARGETS trinity-realm DESTINATION bin)
+install(TARGETS authserver DESTINATION bin)
 
 
 ########### install files ###############
