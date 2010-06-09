@@ -9,12 +9,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required (VERSION 2.6)
-project (TRINITY_MAP_EXTRACTOR)
-
 file(GLOB sources *.cpp)
 file(GLOB loadlib_sources loadlib/*.cpp)
 
+include_directories (${CMAKE_SOURCE_DIR}/src/server/shared)
 include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
 include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor)
 include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor/loadlib)
