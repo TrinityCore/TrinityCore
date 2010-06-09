@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /Zm200"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;..\..\src\game\"
+				AdditionalIncludeDirectories="..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Server\Protocol\Handlers;..\..\externals\mersennetwister;..\..\externals\zlib;..\..\src\server\collision;..\..\src\server\collision\Management;..\..\src\server\shared;..\..\src\server\shared\Configuration;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Debugging;..\..\src\server\shared\Dynamic\CountedReference;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\game;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\AI;..\..\src\server\game\AI\CoreAI;..\..\src\server\game\AI\EventAI;..\..\src\server\game\AI\ScriptedAI;..\..\src\server\game\AuctionHouse;..\..\src\server\game\AuctionHouse\AuctionHouseBot;..\..\src\server\game\BattleGrounds;..\..\src\server\game\BattleGrounds\Zones;..\..\src\server\game\Calendar;..\..\src\server\game\Chat;..\..\src\server\game\Chat\Channels;..\..\src\server\game\Chat\Commands;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Totem;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Entities\Transport;..\..\src\server\game\Events;..\..\src\server\game\Globals;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Grids\Notifiers;..\..\src\server\game\Grids;..\..\src\server\game\Groups;..\..\src\server\game\Guilds;..\..\src\server\game\Instances;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\MovementGenerators;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\OutdoorPvP;..\..\src\server\game\OutdoorPvP\Zones;..\..\src\server\game\Pools;..\..\src\server\game\PrecompiledHeaders;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Scripting;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server;..\..\src\server\game\Skills;..\..\src\server\game\Spells;..\..\src\server\game\Spells\Auras;..\..\src\server\game\Tools;..\..\src\server\game\Weather;..\..\src\server\game\World;..\..\externals;"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_SECURE_SCL=0"
 				StringPooling="false"
 				MinimalRebuild="false"
@@ -56,8 +56,8 @@
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pchdef.h"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough="WinCorePCH.h"
 				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
 				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
@@ -68,7 +68,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="pchdef.h"
+				ForcedIncludeFiles=""
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -85,6 +85,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				OutputFile=".\game__$(PlatformName)_$(ConfigurationName)\game.lib"
+				AdditionalLibraryDirectories=".\shared__$(PlatformName)_$(ConfigurationName)\shared.lib ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\ACEd.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -132,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /bigobj /Zm200"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;..\..\src\game\"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\ace;"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB"
 				StringPooling="false"
 				MinimalRebuild="false"
@@ -141,7 +142,7 @@
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pchdef.h"
+				PrecompiledHeaderThrough="PrecompiledHeaders\WinCorePCH.h"
 				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
 				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
@@ -152,7 +153,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="pchdef.h"
+				ForcedIncludeFiles="PrecompiledHeaders\WinCorePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -215,7 +216,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /Zm200"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;..\..\src\game\"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\ace;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -223,7 +224,7 @@
 				EnableEnhancedInstructionSet="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pchdef.h"
+				PrecompiledHeaderThrough="PrecompiledHeaders\WinCorePCH.h"
 				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
 				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
@@ -234,7 +235,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="pchdef.h"
+				ForcedIncludeFiles="PrecompiledHeaders\WinCorePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -297,7 +298,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /bigobj /Zm200"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\shared\vmap;..\..\dep\ACE_wrappers;..\..\src\game\"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\ace;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -305,7 +306,7 @@
 				EnableEnhancedInstructionSet="0"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="pchdef.h"
+				PrecompiledHeaderThrough="PrecompiledHeaders\WinCorePCH.h"
 				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
 				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\game__$(PlatformName)_$(ConfigurationName)\"
@@ -316,7 +317,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="pchdef.h"
+				ForcedIncludeFiles="PrecompiledHeaders\WinCorePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -359,14 +360,6 @@
 			Name="AI"
 			>
 			<File
-				RelativePath="..\..\src\server\game\AI\CombatAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\CombatAI.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\AI\CreatureAI.cpp"
 				>
 			</File>
@@ -398,66 +391,6 @@
 				RelativePath="..\..\src\server\game\AI\CreatureAISelector.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\GuardAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\GuardAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\PassiveAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\PassiveAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\PetAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\PetAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\ReactorAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\ReactorAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\TotemAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\TotemAI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\UnitAI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\AI\UnitAI.h"
-				>
-			</File>
-			<Filter
-				Name="AuctionHouseBot"
-				>
-				<File
-					RelativePath="..\..\src\server\game\AI\AuctionHouseBot\AuctionHouseBot.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\AI\AuctionHouseBot\AuctionHouseBot.h"
-					>
-				</File>
-			</Filter>
 			<Filter
 				Name="EventAI"
 				>
@@ -538,6 +471,66 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="CoreAI"
+				>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\CombatAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\CombatAI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\GuardAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\GuardAI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\PassiveAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\PassiveAI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\PetAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\PetAI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\ReactorAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\ReactorAI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\TotemAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\TotemAI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\UnitAI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AI\CoreAI\UnitAI.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Events"
@@ -550,18 +543,6 @@
 				RelativePath="..\..\src\server\game\Events\GameEventMgr.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\Events\GlobalEvents.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Events\GlobalEvents.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Events\UnitEvents.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Groups"
@@ -572,10 +553,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\server\game\Groups\Group.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Groups\GroupHandler.cpp"
 				>
 			</File>
 			<File
@@ -602,10 +579,6 @@
 				RelativePath="..\..\src\server\game\Guilds\Guild.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\Guilds\GuildHandler.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="OutdoorPvP"
@@ -616,22 +589,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvP.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPEP.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPEP.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPHP.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPHP.h"
 				>
 			</File>
 			<File
@@ -646,75 +603,87 @@
 				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPMgr.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPNA.cpp"
+			<Filter
+				Name="Zones"
 				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPNA.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPSI.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPSI.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPTF.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPTF.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPZM.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPZM.h"
-				>
-			</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPEP.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPEP.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPHP.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPHP.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPNA.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPNA.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPSI.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPSI.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPTF.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPTF.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPZM.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPZM.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
-			Name="Scripts"
+			Name="Scripting"
 			>
 			<Filter
 				Name="System"
 				>
 				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptedPch.cpp"
+					RelativePath="..\..\src\server\game\Scripting\ScriptLoader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptedPch.h"
+					RelativePath="..\..\src\server\game\Scripting\ScriptLoader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptLoader.cpp"
+					RelativePath="..\..\src\server\game\Scripting\ScriptMgr.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptLoader.h"
+					RelativePath="..\..\src\server\game\Scripting\ScriptMgr.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptMgr.cpp"
+					RelativePath="..\..\src\server\game\Scripting\ScriptSystem.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptMgr.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptSystem.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\ScriptMgr\ScriptSystem.h"
+					RelativePath="..\..\src\server\game\Scripting\ScriptSystem.h"
 					>
 				</File>
 			</Filter>
@@ -722,15 +691,15 @@
 				Name="Custom"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\custom\npc_acherus_taxi.cpp"
+					RelativePath="..\..\src\server\scripts\Custom\npc_acherus_taxi.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\custom\npc_wyrmresttempel_taxi.cpp"
+					RelativePath="..\..\src\server\scripts\Custom\npc_wyrmresttempel_taxi.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\custom\on_events.cpp"
+					RelativePath="..\..\src\server\scripts\Custom\on_events.cpp"
 					>
 				</File>
 			</Filter>
@@ -738,55 +707,55 @@
 				Name="World"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\areatrigger_scripts.cpp"
+					RelativePath="..\..\src\server\scripts\World\areatrigger_scripts.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\boss_emeriss.cpp"
+					RelativePath="..\..\src\server\scripts\World\boss_emeriss.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\boss_lethon.cpp"
+					RelativePath="..\..\src\server\scripts\World\boss_lethon.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\boss_taerar.cpp"
+					RelativePath="..\..\src\server\scripts\World\boss_taerar.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\boss_ysondre.cpp"
+					RelativePath="..\..\src\server\scripts\World\boss_ysondre.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\go_scripts.cpp"
+					RelativePath="..\..\src\server\scripts\World\go_scripts.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\guards.cpp"
+					RelativePath="..\..\src\server\scripts\World\guards.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\item_scripts.cpp"
+					RelativePath="..\..\src\server\scripts\World\item_scripts.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\mob_generic_creature.cpp"
+					RelativePath="..\..\src\server\scripts\World\mob_generic_creature.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\npc_innkeeper.cpp"
+					RelativePath="..\..\src\server\scripts\World\npc_innkeeper.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\npc_professions.cpp"
+					RelativePath="..\..\src\server\scripts\World\npc_professions.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\npc_taxi.cpp"
+					RelativePath="..\..\src\server\scripts\World\npc_taxi.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\world\npcs_special.cpp"
+					RelativePath="..\..\src\server\scripts\World\npcs_special.cpp"
 					>
 				</File>
 			</Filter>
@@ -794,130 +763,130 @@
 				Name="Eastern Kingdoms"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\alterac_mountains.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\alterac_mountains.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\arathi_highlands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\arathi_highlands.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blasted_lands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\blasted_lands.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\boss_kruul.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\boss_kruul.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\burning_steppes.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\burning_steppes.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\dun_morogh.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\dun_morogh.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\duskwood.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\duskwood.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\eastern_plaguelands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\eastern_plaguelands.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\elwynn_forest.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\elwynn_forest.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\eversong_woods.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\eversong_woods.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\ghostlands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\ghostlands.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\hinterlands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\hinterlands.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\ironforge.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\ironforge.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\isle_of_queldanas.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\isle_of_queldanas.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\loch_modan.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\loch_modan.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\redridge_mountains.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\redridge_mountains.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\searing_gorge.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\searing_gorge.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\silvermoon_city.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\silvermoon_city.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\silverpine_forest.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\silverpine_forest.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stormwind_city.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\stormwind_city.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stranglethorn_vale.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\stranglethorn_vale.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\tirisfal_glades.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\tirisfal_glades.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\undercity.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\undercity.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\western_plaguelands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\western_plaguelands.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\westfall.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\westfall.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\eastern_kingdoms\wetlands.cpp"
+					RelativePath="..\..\src\server\scripts\EasternKingdoms\wetlands.cpp"
 					>
 				</File>
 				<Filter
 					Name="Alterac Valley"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\alterac_valley\alterac_valley.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\AlteracValley\alterac_valley.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\alterac_valley\boss_balinda.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\AlteracValley\boss_balinda.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\alterac_valley\boss_drekthar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\AlteracValley\boss_drekthar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\alterac_valley\boss_galvangar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\AlteracValley\boss_galvangar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\alterac_valley\boss_vanndar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\AlteracValley\boss_vanndar.cpp"
 						>
 					</File>
 				</Filter>
@@ -925,55 +894,55 @@
 					Name="Blackrock Depths"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\blackrock_depths.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\blackrock_depths.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\blackrock_depths.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\blackrock_depths.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_ambassador_flamelash.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_ambassador_flamelash.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_anubshiah.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_anubshiah.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_emperor_dagran_thaurissan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_emperor_dagran_thaurissan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_general_angerforge.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_general_angerforge.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_gorosh_the_dervish.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_gorosh_the_dervish.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_grizzle.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_grizzle.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_high_interrogator_gerstahn.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_high_interrogator_gerstahn.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_magmus.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_magmus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_moira_bronzebeard.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_moira_bronzebeard.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\boss_tomb_of_seven.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\boss_tomb_of_seven.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_depths\instance_blackrock_depths.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockDepths\instance_blackrock_depths.cpp"
 						>
 					</File>
 				</Filter>
@@ -981,63 +950,63 @@
 					Name="Blackrock Spire"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\blackrock_spire.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\blackrock_spire.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\blackrock_spire.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\blackrock_spire.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_drakkisath.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_drakkisath.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_gyth.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_gyth.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_halycon.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_halycon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_highlord_omokk.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_highlord_omokk.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_mother_smolderweb.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_mother_smolderweb.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_overlord_wyrmthalak.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_overlord_wyrmthalak.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_pyroguard_emberseer.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_pyroguard_emberseer.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_quartermaster_zigris.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_quartermaster_zigris.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_rend_blackhand.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_rend_blackhand.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_shadow_hunter_voshgajin.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_shadow_hunter_voshgajin.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_the_beast.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_the_beast.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\boss_warmaster_voone.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\boss_warmaster_voone.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackrock_spire\instance_blackrock_spire.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackrockSpire\instance_blackrock_spire.cpp"
 						>
 					</File>
 				</Filter>
@@ -1045,43 +1014,43 @@
 					Name="Blackwing Lair"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_broodlord_lashlayer.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_broodlord_lashlayer.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_chromaggus.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_chromaggus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_ebonroc.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_ebonroc.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_firemaw.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_firemaw.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_flamegor.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_flamegor.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_nefarian.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_nefarian.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_razorgore.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_razorgore.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_vaelastrasz.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_vaelastrasz.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\boss_victor_nefarius.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\boss_victor_nefarius.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\blackwing_lair\instance_blackwing_lair.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\BlackwingLair\instance_blackwing_lair.cpp"
 						>
 					</File>
 				</Filter>
@@ -1089,19 +1058,19 @@
 					Name="Deadmines"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\deadmines\boss_mr_smite.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Deadmines\boss_mr_smite.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\deadmines\deadmines.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Deadmines\deadmines.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\deadmines\deadmines.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Deadmines\deadmines.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\deadmines\instance_deadmines.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Deadmines\instance_deadmines.cpp"
 						>
 					</File>
 				</Filter>
@@ -1109,15 +1078,15 @@
 					Name="Gnomeregan"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\gnomeregan\gnomeregan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Gnomeregan\gnomeregan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\gnomeregan\gnomeregan.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Gnomeregan\gnomeregan.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\gnomeregan\instance_gnomeregan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Gnomeregan\instance_gnomeregan.cpp"
 						>
 					</File>
 				</Filter>
@@ -1125,55 +1094,55 @@
 					Name="Karazhan"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_curator.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_curator.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_maiden_of_virtue.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_maiden_of_virtue.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_midnight.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_midnight.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_moroes.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_moroes.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_netherspite.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_netherspite.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_nightbane.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_nightbane.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_prince_malchezaar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_prince_malchezaar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_shade_of_aran.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_shade_of_aran.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\boss_terestian_illhoof.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\boss_terestian_illhoof.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\bosses_opera.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\bosses_opera.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\instance_karazhan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\instance_karazhan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\karazhan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\karazhan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\karazhan\karazhan.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Karazhan\karazhan.h"
 						>
 					</File>
 				</Filter>
@@ -1181,31 +1150,31 @@
 					Name="Magister&apos;s Terrace"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\boss_felblood_kaelthas.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\boss_felblood_kaelthas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\boss_priestess_delrissa.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\boss_priestess_delrissa.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\boss_selin_fireheart.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\boss_selin_fireheart.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\boss_vexallus.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\boss_vexallus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\instance_magisters_terrace.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\instance_magisters_terrace.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\magisters_terrace.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\magisters_terrace.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\magisters_terrace\magisters_terrace.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MagistersTerrace\magisters_terrace.h"
 						>
 					</File>
 				</Filter>
@@ -1213,55 +1182,55 @@
 					Name="Molten Core"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_baron_geddon.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_baron_geddon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_garr.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_garr.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_gehennas.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_gehennas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_golemagg.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_golemagg.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_lucifron.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_lucifron.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_magmadar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_magmadar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_majordomo_executus.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_majordomo_executus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_ragnaros.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_ragnaros.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_shazzrah.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_shazzrah.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\boss_sulfuron_harbinger.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\boss_sulfuron_harbinger.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\instance_molten_core.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\instance_molten_core.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\molten_core.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\molten_core.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\molten_core\molten_core.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\MoltenCore\molten_core.h"
 						>
 					</File>
 				</Filter>
@@ -1269,19 +1238,19 @@
 					Name="Scarlet Enclave"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_enclave\chapter1.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletEnclave\chapter1.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_enclave\chapter2.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletEnclave\chapter2.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_enclave\chapter5.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletEnclave\chapter5.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_enclave\the_scarlet_enclave.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletEnclave\the_scarlet_enclave.cpp"
 						>
 					</File>
 				</Filter>
@@ -1289,51 +1258,51 @@
 					Name="Scarlet Monastery"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_arcanist_doan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_arcanist_doan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_azshir_the_sleepless.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_azshir_the_sleepless.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_bloodmage_thalnos.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_bloodmage_thalnos.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_headless_horseman.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_headless_horseman.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_herod.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_herod.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_high_inquisitor_fairbanks.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_high_inquisitor_fairbanks.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_houndmaster_loksey.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_houndmaster_loksey.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_interrogator_vishas.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_interrogator_vishas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_mograine_and_whitemane.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_mograine_and_whitemane.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\boss_scorn.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\boss_scorn.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\instance_scarlet_monastery.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\instance_scarlet_monastery.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scarlet_monastery\scarlet_monastery.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ScarletMonastery\scarlet_monastery.h"
 						>
 					</File>
 				</Filter>
@@ -1341,59 +1310,59 @@
 					Name="Scholomance"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_darkmaster_gandling.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_darkmaster_gandling.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_death_knight_darkreaver.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_death_knight_darkreaver.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_doctor_theolen_krastinov.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_doctor_theolen_krastinov.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_illucia_barov.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_illucia_barov.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_instructor_malicia.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_instructor_malicia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_jandice_barov.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_jandice_barov.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_kormok.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_kormok.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_lord_alexei_barov.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_lord_alexei_barov.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_lorekeeper_polkelt.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_lorekeeper_polkelt.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_ras_frostwhisper.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_ras_frostwhisper.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_the_ravenian.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_the_ravenian.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\boss_vectus.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\boss_vectus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\instance_scholomance.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\instance_scholomance.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\scholomance\scholomance.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Scholomance\scholomance.h"
 						>
 					</File>
 				</Filter>
@@ -1401,15 +1370,15 @@
 					Name="Shadowfang Keep"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\shadowfang_keep\instance_shadowfang_keep.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ShadowfangKeep\instance_shadowfang_keep.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\shadowfang_keep\shadowfang_keep.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ShadowfangKeep\shadowfang_keep.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\shadowfang_keep\shadowfang_keep.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ShadowfangKeep\shadowfang_keep.h"
 						>
 					</File>
 				</Filter>
@@ -1417,59 +1386,59 @@
 					Name="Stratholme"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_baron_rivendare.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_baron_rivendare.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_baroness_anastari.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_baroness_anastari.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_cannon_master_willey.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_cannon_master_willey.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_dathrohan_balnazzar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_dathrohan_balnazzar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_magistrate_barthilas.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_magistrate_barthilas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_maleki_the_pallid.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_maleki_the_pallid.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_nerubenkan.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_nerubenkan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_order_of_silver_hand.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_order_of_silver_hand.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_postmaster_malown.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_postmaster_malown.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_ramstein_the_gorger.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_ramstein_the_gorger.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\boss_timmy_the_cruel.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\boss_timmy_the_cruel.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\instance_stratholme.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\instance_stratholme.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\stratholme.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\stratholme.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\stratholme\stratholme.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Stratholme\stratholme.h"
 						>
 					</File>
 				</Filter>
@@ -1477,15 +1446,15 @@
 					Name="Sunken Temple"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunken_temple\instance_sunken_temple.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunkenTemple\instance_sunken_temple.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunken_temple\sunken_temple.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunkenTemple\sunken_temple.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunken_temple\sunken_temple.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunkenTemple\sunken_temple.h"
 						>
 					</File>
 				</Filter>
@@ -1493,39 +1462,39 @@
 					Name="Sunwell Plateau"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\boss_brutallus.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\boss_brutallus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\boss_eredar_twins.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\boss_eredar_twins.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\boss_felmyst.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\boss_felmyst.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\boss_kalecgos.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\boss_kalecgos.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\boss_kiljaeden.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\boss_kiljaeden.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\boss_muru.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\boss_muru.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\instance_sunwell_plateau.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\instance_sunwell_plateau.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\sunwell_plateau.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\sunwell_plateau.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\sunwell_plateau\sunwell_plateau.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\SunwellPlateau\sunwell_plateau.h"
 						>
 					</File>
 				</Filter>
@@ -1533,19 +1502,19 @@
 					Name="Uldaman"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\uldaman\boss_archaedas.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Uldaman\boss_archaedas.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\uldaman\boss_ironaya.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Uldaman\boss_ironaya.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\uldaman\instance_uldaman.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Uldaman\instance_uldaman.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\uldaman\uldaman.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\Uldaman\uldaman.cpp"
 						>
 					</File>
 				</Filter>
@@ -1553,39 +1522,39 @@
 					Name="Zul&apos;Aman"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\boss_akilzon.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\boss_akilzon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\boss_halazzi.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\boss_halazzi.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\boss_hexlord.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\boss_hexlord.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\boss_janalai.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\boss_janalai.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\boss_nalorakk.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\boss_nalorakk.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\boss_zuljin.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\boss_zuljin.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\instance_zulaman.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\instance_zulaman.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\zulaman.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\zulaman.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulaman\zulaman.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulAman\zulaman.h"
 						>
 					</File>
 				</Filter>
@@ -1593,63 +1562,63 @@
 					Name="Zul&apos;Gurub"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_arlokk.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_arlokk.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_gahzranka.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_gahzranka.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_grilek.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_grilek.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_hakkar.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_hakkar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_hazzarah.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_hazzarah.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_jeklik.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_jeklik.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_jindo.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_jindo.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_mandokir.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_mandokir.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_marli.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_marli.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_renataki.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_renataki.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_thekal.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_thekal.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_venoxis.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_venoxis.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\boss_wushoolay.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\boss_wushoolay.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\instance_zulgurub.cpp"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\instance_zulgurub.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\eastern_kingdoms\zulgurub\zulgurub.h"
+						RelativePath="..\..\src\server\scripts\EasternKingdoms\ZulGurub\zulgurub.h"
 						>
 					</File>
 				</Filter>
@@ -1658,19 +1627,19 @@
 				Name="Examples"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\\examples\example_creature.cpp"
+					RelativePath="..\..\src\server\scripts\Examples\example_creature.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\examples\example_escort.cpp"
+					RelativePath="..\..\src\server\scripts\Examples\example_escort.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\examples\example_gossip_codebox.cpp"
+					RelativePath="..\..\src\server\scripts\Examples\example_gossip_codebox.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\examples\example_misc.cpp"
+					RelativePath="..\..\src\server\scripts\Examples\example_misc.cpp"
 					>
 				</File>
 			</Filter>
@@ -1678,122 +1647,122 @@
 				Name="Kalimdor"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\ashenvale.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\ashenvale.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\azshara.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\azshara.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\azuremyst_isle.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\azuremyst_isle.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\bloodmyst_isle.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\bloodmyst_isle.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\boss_azuregos.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\boss_azuregos.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\darkshore.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\darkshore.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\desolace.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\desolace.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\durotar.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\durotar.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\dustwallow_marsh.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\dustwallow_marsh.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\felwood.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\felwood.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\feralas.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\feralas.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\moonglade.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\moonglade.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\mulgore.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\mulgore.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\orgrimmar.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\orgrimmar.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\silithus.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\silithus.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\stonetalon_mountains.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\stonetalon_mountains.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\tanaris.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\tanaris.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\teldrassil.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\teldrassil.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\the_barrens.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\the_barrens.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\thousand_needles.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\thousand_needles.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\thunder_bluff.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\thunder_bluff.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\ungoro_crater.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\ungoro_crater.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\kalimdor\winterspring.cpp"
+					RelativePath="..\..\src\server\scripts\Kalimdor\winterspring.cpp"
 					>
 				</File>
 				<Filter
 					Name="Blackfathom Depths"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\blackfathom_depths\blackfathom_deeps.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\BlackfathomDeeps\blackfathom_deeps.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\blackfathom_depths\blackfathom_deeps.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\BlackfathomDeeps\blackfathom_deeps.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\blackfathom_depths\boss_aku_mai.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\BlackfathomDeeps\boss_aku_mai.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\blackfathom_depths\boss_gelihast.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\BlackfathomDeeps\boss_gelihast.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\blackfathom_depths\boss_kelris.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\BlackfathomDeeps\boss_kelris.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\blackfathom_depths\instance_blackfathom_deeps.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\BlackfathomDeeps\instance_blackfathom_deeps.cpp"
 						>
 					</File>
 				</Filter>
@@ -1804,51 +1773,51 @@
 						Name="Battle for Mt. Hyjal"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\boss_anetheron.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\boss_anetheron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\boss_archimonde.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\boss_archimonde.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\boss_azgalor.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\boss_azgalor.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\boss_kazrogal.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\boss_kazrogal.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\boss_rage_winterchill.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\boss_rage_winterchill.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\hyjal.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\hyjal.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\hyjal.h"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\hyjal.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\hyjal_trash.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\hyjal_trash.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\hyjal_trash.h"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\hyjal_trash.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\hyjalAI.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\hyjalAI.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\hyjalAI.h"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\hyjalAI.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\hyjal\instance_hyjal.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\BattleForMountHyjal\instance_hyjal.cpp"
 							>
 						</File>
 					</Filter>
@@ -1856,35 +1825,35 @@
 						Name="Culling of Stratholme"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\boss_epoch.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\boss_epoch.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\boss_infinite.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\boss_infinite.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\boss_mal_ganis.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\boss_mal_ganis.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\boss_meathook.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\boss_meathook.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\boss_salramm.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\boss_salramm.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\culling_of_stratholme.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\culling_of_stratholme.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\culling_of_stratholme.h"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\culling_of_stratholme.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\culling_of_stratholme\instance_culling_of_stratholme.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\CullingOfStratholme\instance_culling_of_stratholme.cpp"
 							>
 						</File>
 					</Filter>
@@ -1892,27 +1861,27 @@
 						Name="Old Hillsbrad"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\old_hillsbrad\boss_captain_skarloc.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\EscapeFromDurnholdeKeep\boss_captain_skarloc.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\old_hillsbrad\boss_epoch_hunter.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\EscapeFromDurnholdeKeep\boss_epoch_hunter.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\old_hillsbrad\boss_leutenant_drake.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\EscapeFromDurnholdeKeep\boss_leutenant_drake.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\old_hillsbrad\instance_old_hillsbrad.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\EscapeFromDurnholdeKeep\instance_old_hillsbrad.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\old_hillsbrad\old_hillsbrad.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\EscapeFromDurnholdeKeep\old_hillsbrad.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\old_hillsbrad\old_hillsbrad.h"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\EscapeFromDurnholdeKeep\old_hillsbrad.h"
 							>
 						</File>
 					</Filter>
@@ -1920,27 +1889,27 @@
 						Name="The Dark Portal"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\dark_portal\boss_aeonus.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\DarkPortal\boss_aeonus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\dark_portal\boss_chrono_lord_deja.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\DarkPortal\boss_chrono_lord_deja.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\dark_portal\boss_temporus.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\DarkPortal\boss_temporus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\dark_portal\dark_portal.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\DarkPortal\dark_portal.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\dark_portal\dark_portal.h"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\DarkPortal\dark_portal.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\kalimdor\caverns_of_time\dark_portal\instance_dark_portal.cpp"
+							RelativePath="..\..\src\server\scripts\Kalimdor\CavernsOfTime\DarkPortal\instance_dark_portal.cpp"
 							>
 						</File>
 					</Filter>
@@ -1949,19 +1918,19 @@
 					Name="Maraudon"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\maraudon\boss_celebras_the_cursed.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\Maraudon\boss_celebras_the_cursed.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\maraudon\boss_landslide.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\Maraudon\boss_landslide.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\maraudon\boss_noxxion.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\Maraudon\boss_noxxion.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\maraudon\boss_princess_theradras.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\Maraudon\boss_princess_theradras.cpp"
 						>
 					</File>
 				</Filter>
@@ -1969,15 +1938,15 @@
 					Name="Onyxia&apos;s Lair"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\onyxias_lair\boss_onyxia.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\OnyxiasLair\boss_onyxia.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\onyxias_lair\instance_onyxias_lair.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\OnyxiasLair\instance_onyxias_lair.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\onyxias_lair\onyxias_lair.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\OnyxiasLair\onyxias_lair.h"
 						>
 					</File>
 				</Filter>
@@ -1985,19 +1954,19 @@
 					Name="Razorfen Downs"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_downs\boss_amnennar_the_coldbringer.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenDowns\boss_amnennar_the_coldbringer.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_downs\instance_razorfen_downs.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenDowns\instance_razorfen_downs.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_downs\razorfen_downs.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenDowns\razorfen_downs.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_downs\razorfen_downs.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenDowns\razorfen_downs.h"
 						>
 					</File>
 				</Filter>
@@ -2005,15 +1974,15 @@
 					Name="Razorfen Kraul"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_kraul\instance_razorfen_kraul.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenKraul\instance_razorfen_kraul.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_kraul\razorfen_kraul.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenKraul\razorfen_kraul.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\razorfen_kraul\razorfen_kraul.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RazorfenKraul\razorfen_kraul.h"
 						>
 					</File>
 				</Filter>
@@ -2021,35 +1990,35 @@
 					Name="Ruins of Ahn&apos;Qiraj"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\boss_ayamiss.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\boss_ayamiss.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\boss_buru.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\boss_buru.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\boss_kurinnaxx.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\boss_kurinnaxx.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\boss_moam.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\boss_moam.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\boss_ossirian.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\boss_ossirian.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\boss_rajaxx.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\boss_rajaxx.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\instance_ruins_of_ahnqiraj.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\instance_ruins_of_ahnqiraj.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\ruins_of_ahnqiraj\ruins_of_ahnqiraj.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\RuinsOfAhnQiraj\ruins_of_ahnqiraj.h"
 						>
 					</File>
 				</Filter>
@@ -2057,51 +2026,51 @@
 					Name="Temple of Ahn&apos;Qiraj"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_bug_trio.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_bug_trio.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_cthun.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_cthun.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_fankriss.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_fankriss.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_huhuran.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_huhuran.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_ouro.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_ouro.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_sartura.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_sartura.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_skeram.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_skeram.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_twinemperors.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_twinemperors.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\boss_viscidus.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\boss_viscidus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\instance_temple_of_ahnqiraj.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\instance_temple_of_ahnqiraj.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\mob_anubisath_sentinel.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\mob_anubisath_sentinel.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\temple_of_ahnqiraj\temple_of_ahnqiraj.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\TempleOfAhnQiraj\temple_of_ahnqiraj.h"
 						>
 					</File>
 				</Filter>
@@ -2109,15 +2078,15 @@
 					Name="Wailing Caverns"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\wailing_caverns\instance_wailing_caverns.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\WailingCaverns\instance_wailing_caverns.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\wailing_caverns\wailing_caverns.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\WailingCaverns\wailing_caverns.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\wailing_caverns\wailing_caverns.h"
+						RelativePath="..\..\src\server\scripts\Kalimdor\WailingCaverns\wailing_caverns.h"
 						>
 					</File>
 				</Filter>
@@ -2125,11 +2094,11 @@
 					Name="Zul&apos;Farrak"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\zulfarrak\instance_zulfarrak.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\ZulFarrak\instance_zulfarrak.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\kalimdor\zulfarrak\zulfarrak.cpp"
+						RelativePath="..\..\src\server\scripts\Kalimdor\ZulFarrak\zulfarrak.cpp"
 						>
 					</File>
 				</Filter>
@@ -2138,43 +2107,43 @@
 				Name="Northrend"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\borean_tundra.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\borean_tundra.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\crystalsong_forest.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\crystalsong_forest.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\dalaran.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\dalaran.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\dragonblight.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\dragonblight.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\grizzly_hills.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\grizzly_hills.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\howling_fjord.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\howling_fjord.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\icecrown.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\icecrown.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\sholazar_basin.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\sholazar_basin.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\storm_peaks.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\storm_peaks.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\northrend\zuldrak.cpp"
+					RelativePath="..\..\src\server\scripts\Northrend\zuldrak.cpp"
 					>
 				</File>
 				<Filter
@@ -2184,31 +2153,31 @@
 						Name="Ahn&apos;kahet"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\ahnkahet.h"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\ahnkahet.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\boss_amanitar.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\boss_amanitar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\boss_elder_nadox.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\boss_elder_nadox.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\boss_herald_volazj.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\boss_herald_volazj.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\boss_jedoga_shadowseeker.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\boss_jedoga_shadowseeker.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\boss_prince_taldaram.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\boss_prince_taldaram.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\ahnkahet\instance_ahnkahet.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\ahnkahet\instance_ahnkahet.cpp"
 							>
 						</File>
 					</Filter>
@@ -2216,23 +2185,23 @@
 						Name="Azjol-Nerub"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\azjol_nerub\azjol_nerub.h"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\AzjolNerub\azjol_nerub.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\azjol_nerub\boss_anubarak.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\AzjolNerub\boss_anubarak.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\azjol_nerub\boss_hadronox.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\AzjolNerub\boss_hadronox.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\azjol_nerub\boss_krikthir_the_gatewatcher.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\AzjolNerub\boss_krikthir_the_gatewatcher.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\azjol_nerub\azjol_nerub\instance_azjol_nerub.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\AzjolNerub\AzjolNerub\instance_azjol_nerub.cpp"
 							>
 						</File>
 					</Filter>
@@ -2241,27 +2210,27 @@
 					Name="Drak&apos;Tharon Keep"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\draktharon_keep\boss_dred.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\DraktharonKeep\boss_dred.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\draktharon_keep\boss_novos.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\DraktharonKeep\boss_novos.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\draktharon_keep\boss_tharon_ja.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\DraktharonKeep\boss_tharon_ja.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\draktharon_keep\boss_trollgore.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\DraktharonKeep\boss_trollgore.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\draktharon_keep\drak_tharon_keep.h"
+						RelativePath="..\..\src\server\scripts\Northrend\DraktharonKeep\drak_tharon_keep.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\draktharon_keep\instance_drak_tharon_keep.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\DraktharonKeep\instance_drak_tharon_keep.cpp"
 						>
 					</File>
 				</Filter>
@@ -2272,23 +2241,23 @@
 						Name="Forge of Souls"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\forge_of_souls\boss_bronjahm.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\ForgeOfSouls\boss_bronjahm.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\forge_of_souls\boss_devourer_of_souls.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\ForgeOfSouls\boss_devourer_of_souls.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\forge_of_souls\forge_of_souls.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\ForgeOfSouls\forge_of_souls.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\forge_of_souls\forge_of_souls.h"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\ForgeOfSouls\forge_of_souls.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\forge_of_souls\instance_forge_of_souls.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\ForgeOfSouls\instance_forge_of_souls.cpp"
 							>
 						</File>
 					</Filter>
@@ -2296,23 +2265,23 @@
 						Name="Halls of Reflection"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\halls_of_reflection\boss_falric.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\HallsOfReflection\boss_falric.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\halls_of_reflection\boss_marwyn.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\HallsOfReflection\boss_marwyn.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\HallsOfReflection\halls_of_reflection.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\halls_of_reflection\halls_of_reflection.h"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\HallsOfReflection\halls_of_reflection.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\halls_of_reflection\instance_halls_of_reflection.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\HallsOfReflection\instance_halls_of_reflection.cpp"
 							>
 						</File>
 					</Filter>
@@ -2320,27 +2289,27 @@
 						Name="Pit of Saron"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\pit_of_saron\boss_forgemaster_garfrost.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\PitOfSaron\boss_forgemaster_garfrost.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\pit_of_saron\boss_krickandick.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\PitOfSaron\boss_krickandick.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\pit_of_saron\boss_scourgelord_tyrannus.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\PitOfSaron\boss_scourgelord_tyrannus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\pit_of_saron\instance_pit_of_saron.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\PitOfSaron\instance_pit_of_saron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\pit_of_saron\pit_of_saron.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\PitOfSaron\pit_of_saron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\frozen_halls\pit_of_saron\pit_of_saron.h"
+							RelativePath="..\..\src\server\scripts\Northrend\FrozenHalls\PitOfSaron\pit_of_saron.h"
 							>
 						</File>
 					</Filter>
@@ -2349,31 +2318,31 @@
 					Name="Gundrak"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\boss_drakkari_colossus.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\boss_drakkari_colossus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\boss_eck.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\boss_eck.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\boss_gal_darah.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\boss_gal_darah.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\boss_moorabi.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\boss_moorabi.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\boss_slad_ran.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\boss_slad_ran.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\gundrak.h"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\gundrak.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\gundrak\instance_gundrak.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Gundrak\instance_gundrak.cpp"
 						>
 					</File>
 				</Filter>
@@ -2381,71 +2350,75 @@
 					Name="Naxxramas"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_anubrekhan.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_anubrekhan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_faerlina.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_faerlina.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_four_horsemen.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_four_horsemen.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_gluth.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_gluth.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_gothik.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_gothik.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_grobbulus.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_grobbulus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_heigan.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_heigan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_kelthuzad.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_highlord_mograine.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_loatheb.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_kelthuzad.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_maexxna.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_loatheb.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_noth.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_maexxna.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_patchwerk.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_noth.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_razuvious.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_patchwerk.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_sapphiron.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_razuvious.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\boss_thaddius.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_sapphiron.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\instance_naxxramas.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_thaddius.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\naxxramas\naxxramas.h"
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\instance_naxxramas.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\naxxramas.h"
 						>
 					</File>
 				</Filter>
@@ -2453,15 +2426,15 @@
 					Name="Obsidian Sanctum"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\obsidian_sanctum\boss_sartharion.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\ObsidianSanctum\boss_sartharion.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\obsidian_sanctum\instance_obsidian_sanctum.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\ObsidianSanctum\instance_obsidian_sanctum.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\obsidian_sanctum\obsidian_sanctum.h"
+						RelativePath="..\..\src\server\scripts\Northrend\ObsidianSanctum\obsidian_sanctum.h"
 						>
 					</File>
 				</Filter>
@@ -2469,27 +2442,27 @@
 					Name="Trial of the Champion"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\crusaders_coliseum\trial_of_the_champion\boss_argent_challenge.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\CrusadersColiseum\TrialOfTheChampion\boss_argent_challenge.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\crusaders_coliseum\trial_of_the_champion\boss_black_knight.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\CrusadersColiseum\TrialOfTheChampion\boss_black_knight.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\crusaders_coliseum\trial_of_the_champion\boss_grand_champions.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\CrusadersColiseum\TrialOfTheChampion\boss_grand_champions.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\crusaders_coliseum\trial_of_the_champion\instance_trial_of_the_champion.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\CrusadersColiseum\TrialOfTheChampion\instance_trial_of_the_champion.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\crusaders_coliseum\trial_of_the_champion\trial_of_the_champion.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\CrusadersColiseum\TrialOfTheChampion\trial_of_the_champion.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\crusaders_coliseum\trial_of_the_champion\trial_of_the_champion.h"
+						RelativePath="..\..\src\server\scripts\Northrend\CrusadersColiseum\TrialOfTheChampion\trial_of_the_champion.h"
 						>
 					</File>
 				</Filter>
@@ -2500,27 +2473,27 @@
 						Name="Halls of Stone"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_stone\boss_krystallus.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfStone\boss_krystallus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_stone\boss_maiden_of_grief.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfStone\boss_maiden_of_grief.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_stone\boss_sjonnir.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfStone\boss_sjonnir.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_stone\halls_of_stone.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfStone\halls_of_stone.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_stone\halls_of_stone.h"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfStone\halls_of_stone.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_stone\instance_halls_of_stone.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfStone\instance_halls_of_stone.cpp"
 							>
 						</File>
 					</Filter>
@@ -2528,27 +2501,27 @@
 						Name="Halls of Lightning"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_lightning\boss_bjarngrim.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfLightning\boss_bjarngrim.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_lightning\boss_ionar.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfLightning\boss_ionar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_lightning\boss_loken.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfLightning\boss_loken.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_lightning\boss_volkhan.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfLightning\boss_volkhan.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_lightning\halls_of_lightning.h"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfLightning\halls_of_lightning.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\halls_of_lightning\instance_halls_of_lightning.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\HallsOfLightning\instance_halls_of_lightning.cpp"
 							>
 						</File>
 					</Filter>
@@ -2556,71 +2529,71 @@
 						Name="Ulduar"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_algalon.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_algalon.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_assembly_of_iron.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_assembly_of_iron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_auriaya.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_auriaya.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_flame_leviathan.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_flame_leviathan.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_freya.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_freya.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_general_vezax.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_general_vezax.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_hodir.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_hodir.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_ignis.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_ignis.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_kologarn.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_kologarn.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_mimiron.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_mimiron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_razorscale.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_razorscale.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_thorim.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_thorim.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_xt002.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_xt002.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\boss_yoggsaron.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\boss_yoggsaron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\instance_ulduar.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\instance_ulduar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\ulduar.h"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\ulduar.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\ulduar\ulduar\ulduar_teleporter.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Ulduar\ulduar\ulduar_teleporter.cpp"
 							>
 						</File>
 					</Filter>
@@ -2632,27 +2605,27 @@
 						Name="Utgarde Keep"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_keep\boss_ingvar_the_plunderer.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardeKeep\boss_ingvar_the_plunderer.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_keep\boss_keleseth.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardeKeep\boss_keleseth.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_keep\boss_skarvald_dalronn.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardeKeep\boss_skarvald_dalronn.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_keep\instance_utgarde_keep.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardeKeep\instance_utgarde_keep.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_keep\utgarde_keep.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardeKeep\utgarde_keep.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_keep\utgarde_keep.h"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardeKeep\utgarde_keep.h"
 							>
 						</File>
 					</Filter>
@@ -2660,27 +2633,27 @@
 						Name="Utgarde Pinnacle"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_pinnacle\boss_palehoof.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardePinnacle\boss_palehoof.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_pinnacle\boss_skadi.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardePinnacle\boss_skadi.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_pinnacle\boss_svala.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardePinnacle\boss_svala.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_pinnacle\boss_ymiron.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardePinnacle\boss_ymiron.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_pinnacle\instance_pinnacle.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardePinnacle\instance_pinnacle.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\utgarde_keep\utgarde_pinnacle\utgarde_pinnacle.h"
+							RelativePath="..\..\src\server\scripts\Northrend\UtgardeKeep\UtgardePinnacle\utgarde_pinnacle.h"
 							>
 						</File>
 					</Filter>
@@ -2689,27 +2662,27 @@
 					Name="Vault of Archavon"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\vault_of_archavon\boss_archavon.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VaultOfArchavon\boss_archavon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\vault_of_archavon\boss_emalon.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VaultOfArchavon\boss_emalon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\vault_of_archavon\boss_koralon.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VaultOfArchavon\boss_koralon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\vault_of_archavon\boss_toravon.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VaultOfArchavon\boss_toravon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\vault_of_archavon\instance_vault_of_archavon.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VaultOfArchavon\instance_vault_of_archavon.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\vault_of_archavon\vault_of_archavon.h"
+						RelativePath="..\..\src\server\scripts\Northrend\VaultOfArchavon\vault_of_archavon.h"
 						>
 					</File>
 				</Filter>
@@ -2717,43 +2690,43 @@
 					Name="Violet Hold"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_cyanigosa.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_cyanigosa.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_erekem.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_erekem.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_ichoron.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_ichoron.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_lavanthor.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_lavanthor.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_moragg.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_moragg.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_xevozz.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_xevozz.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\boss_zuramat.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\boss_zuramat.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\instance_violet_hold.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\instance_violet_hold.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\violet_hold.cpp"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\violet_hold.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\northrend\violet_hold\violet_hold.h"
+						RelativePath="..\..\src\server\scripts\Northrend\VioletHold\violet_hold.h"
 						>
 					</File>
 				</Filter>
@@ -2764,15 +2737,15 @@
 						Name="Eye of Eternity"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\eye_of_eternity\boss_malygos.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\EyeOfEternity\boss_malygos.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\eye_of_eternity\eye_of_eternity.h"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\EyeOfEternity\eye_of_eternity.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\eye_of_eternity\instance_eye_of_eternity.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\EyeOfEternity\instance_eye_of_eternity.cpp"
 							>
 						</File>
 					</Filter>
@@ -2780,35 +2753,35 @@
 						Name="Nexus"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\boss_anomalus.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\boss_anomalus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\boss_keristrasza.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\boss_keristrasza.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\boss_magus_telestra.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\boss_magus_telestra.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\boss_ormorok.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\boss_ormorok.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\commander_kolurg.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\commander_kolurg.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\commander_stoutbeard.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\commander_stoutbeard.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\instance_nexus.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\instance_nexus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\nexus\nexus.h"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Nexus\nexus.h"
 							>
 						</File>
 					</Filter>
@@ -2816,31 +2789,31 @@
 						Name="Oculus"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\boss_drakos.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\boss_drakos.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\boss_eregos.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\boss_eregos.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\boss_urom.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\boss_urom.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\boss_varos.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\boss_varos.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\instance_oculus.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\instance_oculus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\oculus.cpp"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\oculus.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\northrend\nexus\oculus\oculus.h"
+							RelativePath="..\..\src\server\scripts\Northrend\Nexus\Oculus\oculus.h"
 							>
 						</File>
 					</Filter>
@@ -2850,43 +2823,43 @@
 				Name="Outland"
 				>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\blades_edge_mountains.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\blades_edge_mountains.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\boss_doomlord_kazzak.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\boss_doomlord_kazzak.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\boss_doomwalker.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\boss_doomwalker.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\hellfire_peninsula.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\hellfire_peninsula.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\nagrand.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\nagrand.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\netherstorm.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\netherstorm.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\shadowmoon_valley.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\shadowmoon_valley.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\shattrath_city.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\shattrath_city.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\terokkar_forest.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\terokkar_forest.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\\outland\zangarmarsh.cpp"
+					RelativePath="..\..\src\server\scripts\Outland\zangarmarsh.cpp"
 					>
 				</File>
 				<Filter
@@ -2896,11 +2869,11 @@
 						Name="Auchenai Crypts"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\auchenai_crypts\boss_exarch_maladaar.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\AuchenaiCrypts\boss_exarch_maladaar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\auchenai_crypts\boss_shirrak_the_dead_watcher.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\AuchenaiCrypts\boss_shirrak_the_dead_watcher.cpp"
 							>
 						</File>
 					</Filter>
@@ -2908,11 +2881,11 @@
 						Name="Mana Tombs"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\mana_tombs\boss_nexusprince_shaffar.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ManaTombs\boss_nexusprince_shaffar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\mana_tombs\boss_pandemonius.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ManaTombs\boss_pandemonius.cpp"
 							>
 						</File>
 					</Filter>
@@ -2920,19 +2893,19 @@
 						Name="Sethekk Halls"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\sethekk_halls\boss_darkweaver_syth.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\SethekkHalls\boss_darkweaver_syth.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\sethekk_halls\boss_tailonking_ikiss.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\SethekkHalls\boss_tailonking_ikiss.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\sethekk_halls\instance_sethekk_halls.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\SethekkHalls\instance_sethekk_halls.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\sethekk_halls\sethekk_halls.h"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\SethekkHalls\sethekk_halls.h"
 							>
 						</File>
 					</Filter>
@@ -2940,27 +2913,27 @@
 						Name="Shadow Labyrinth"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\shadow_labyrinth\boss_ambassador_hellmaw.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ShadowLabyrinth\boss_ambassador_hellmaw.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\shadow_labyrinth\boss_blackheart_the_inciter.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ShadowLabyrinth\boss_blackheart_the_inciter.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\shadow_labyrinth\boss_grandmaster_vorpil.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ShadowLabyrinth\boss_grandmaster_vorpil.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\shadow_labyrinth\boss_murmur.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ShadowLabyrinth\boss_murmur.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\shadow_labyrinth\instance_shadow_labyrinth.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ShadowLabyrinth\instance_shadow_labyrinth.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\auchindoun\shadow_labyrinth\shadow_labyrinth.h"
+							RelativePath="..\..\src\server\scripts\Outland\Auchindoun\ShadowLabyrinth\shadow_labyrinth.h"
 							>
 						</File>
 					</Filter>
@@ -2969,51 +2942,51 @@
 					Name="Black Temple"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\black_temple.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\black_temple.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\black_temple.h"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\black_temple.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_bloodboil.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_bloodboil.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_illidan.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_illidan.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_mother_shahraz.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_mother_shahraz.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_reliquary_of_souls.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_reliquary_of_souls.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_shade_of_akama.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_shade_of_akama.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_supremus.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_supremus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_teron_gorefiend.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_teron_gorefiend.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\boss_warlord_najentus.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\boss_warlord_najentus.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\illidari_council.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\illidari_council.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\black_temple\instance_black_temple.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\BlackTemple\instance_black_temple.cpp"
 						>
 					</File>
 				</Filter>
@@ -3024,35 +2997,35 @@
 						Name="Serpent Shrine Cavern"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\boss_fathomlord_karathress.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\boss_fathomlord_karathress.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\boss_hydross_the_unstable.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\boss_hydross_the_unstable.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\boss_lady_vashj.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\boss_lady_vashj.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\boss_leotheras_the_blind.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\boss_leotheras_the_blind.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\boss_lurker_below.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\boss_lurker_below.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\boss_morogrim_tidewalker.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\boss_morogrim_tidewalker.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\instance_serpent_shrine.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\instance_serpent_shrine.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\serpent_shrine\serpent_shrine.h"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SerpentShrine\serpent_shrine.h"
 							>
 						</File>
 					</Filter>
@@ -3060,23 +3033,23 @@
 						Name="Steam Vault"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\steam_vault\boss_hydromancer_thespia.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SteamVault\boss_hydromancer_thespia.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\steam_vault\boss_mekgineer_steamrigger.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SteamVault\boss_mekgineer_steamrigger.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\steam_vault\boss_warlord_kalithresh.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SteamVault\boss_warlord_kalithresh.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\steam_vault\instance_steam_vault.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SteamVault\instance_steam_vault.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\steam_vault\steam_vault.h"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\SteamVault\steam_vault.h"
 							>
 						</File>
 					</Filter>
@@ -3084,11 +3057,11 @@
 						Name="Underbog"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\underbog\boss_hungarfen.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\underbog\boss_hungarfen.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\coilfang_resevoir\underbog\boss_the_black_stalker.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\CoilfangReservoir\underbog\boss_the_black_stalker.cpp"
 							>
 						</File>
 					</Filter>
@@ -3097,19 +3070,19 @@
 					Name="Gruul&apos;s Lair"
 					>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\gruuls_lair\boss_gruul.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\GruulsLair\boss_gruul.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\gruuls_lair\boss_high_king_maulgar.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\GruulsLair\boss_high_king_maulgar.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\gruuls_lair\gruuls_lair.h"
+						RelativePath="..\..\src\server\scripts\Outland\GruulsLair\gruuls_lair.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\\outland\gruuls_lair\instance_gruuls_lair.cpp"
+						RelativePath="..\..\src\server\scripts\Outland\GruulsLair\instance_gruuls_lair.cpp"
 						>
 					</File>
 				</Filter>
@@ -3120,23 +3093,23 @@
 						Name="Blood Furnace"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\blood_furnace\blood_furnace.h"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\BloodFurnace\blood_furnace.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\blood_furnace\boss_broggok.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\BloodFurnace\boss_broggok.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\blood_furnace\boss_kelidan_the_breaker.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\BloodFurnace\boss_kelidan_the_breaker.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\blood_furnace\boss_the_maker.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\BloodFurnace\boss_the_maker.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\blood_furnace\instance_blood_furnace.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\BloodFurnace\instance_blood_furnace.cpp"
 							>
 						</File>
 					</Filter>
@@ -3144,23 +3117,23 @@
 						Name="Hellfire Ramparts"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\hellfire_ramparts\boss_omor_the_unscarred.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\HellfireRamparts\boss_omor_the_unscarred.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\hellfire_ramparts\boss_vazruden_the_herald.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\HellfireRamparts\boss_vazruden_the_herald.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\hellfire_ramparts\boss_watchkeeper_gargolmar.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\HellfireRamparts\boss_watchkeeper_gargolmar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\hellfire_ramparts\hellfire_ramparts.h"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\HellfireRamparts\hellfire_ramparts.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\hellfire_ramparts\instance_hellfire_ramparts.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\HellfireRamparts\instance_hellfire_ramparts.cpp"
 							>
 						</File>
 					</Filter>
@@ -3168,15 +3141,15 @@
 						Name="Magtheridon&apos;s lair"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\magtheridons_lair\boss_magtheridon.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\MagtheridonsLair\boss_magtheridon.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\magtheridons_lair\instance_magtheridons_lair.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\MagtheridonsLair\instance_magtheridons_lair.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\magtheridons_lair\magtheridons_lair.h"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\MagtheridonsLair\magtheridons_lair.h"
 							>
 						</File>
 					</Filter>
@@ -3184,23 +3157,23 @@
 						Name="Shattered Halls"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\shattered_halls\boss_nethekurse.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\ShatteredHalls\boss_nethekurse.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\shattered_halls\boss_warbringer_omrogg.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\ShatteredHalls\boss_warbringer_omrogg.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\shattered_halls\boss_warchief_kargath_bladefist.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\ShatteredHalls\boss_warchief_kargath_bladefist.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\shattered_halls\instance_shattered_halls.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\ShatteredHalls\instance_shattered_halls.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\hellfire_citadel\shattered_halls\shattered_halls.h"
+							RelativePath="..\..\src\server\scripts\Outland\HellfireCitadel\ShatteredHalls\shattered_halls.h"
 							>
 						</File>
 					</Filter>
@@ -3212,19 +3185,19 @@
 						Name="Arcatraz"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\arcatraz\arcatraz.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\arcatraz\arcatraz.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\arcatraz\arcatraz.h"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\arcatraz\arcatraz.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\arcatraz\boss_harbinger_skyriss.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\arcatraz\boss_harbinger_skyriss.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\arcatraz\instance_arcatraz.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\arcatraz\instance_arcatraz.cpp"
 							>
 						</File>
 					</Filter>
@@ -3232,15 +3205,15 @@
 						Name="Botanica"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\botanica\boss_high_botanist_freywinn.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\botanica\boss_high_botanist_freywinn.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\botanica\boss_laj.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\botanica\boss_laj.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\botanica\boss_warp_splinter.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\botanica\boss_warp_splinter.cpp"
 							>
 						</File>
 					</Filter>
@@ -3248,31 +3221,31 @@
 						Name="The Eye"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\boss_alar.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\boss_alar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\boss_astromancer.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\boss_astromancer.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\boss_kaelthas.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\boss_kaelthas.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\boss_void_reaver.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\boss_void_reaver.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\instance_the_eye.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\instance_the_eye.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\the_eye.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\the_eye.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_eye\the_eye.h"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Eye\the_eye.h"
 							>
 						</File>
 					</Filter>
@@ -3280,27 +3253,27 @@
 						Name="The Mechanar"
 						>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_mechanar\boss_gatewatcher_gyrokill.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Mechanar\boss_gatewatcher_gyrokill.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_mechanar\boss_gatewatcher_ironhand.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Mechanar\boss_gatewatcher_ironhand.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_mechanar\boss_nethermancer_sepethrea.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Mechanar\boss_nethermancer_sepethrea.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_mechanar\boss_pathaleon_the_calculator.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Mechanar\boss_pathaleon_the_calculator.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_mechanar\instance_mechanar.cpp"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Mechanar\instance_mechanar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\src\server\scripts\\outland\tempest_keep\the_mechanar\mechanar.h"
+							RelativePath="..\..\src\server\scripts\Outland\TempestKeep\Mechanar\mechanar.h"
 							>
 						</File>
 					</Filter>
@@ -3308,14 +3281,14 @@
 			</Filter>
 		</Filter>
 		<Filter
-			Name="Account"
+			Name="Accounts"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Account\AccountMgr.cpp"
+				RelativePath="..\..\src\server\game\Accounts\AccountMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Account\AccountMgr.h"
+				RelativePath="..\..\src\server\game\Accounts\AccountMgr.h"
 				>
 			</File>
 		</Filter>
@@ -3335,14 +3308,6 @@
 			Name="Addons"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Addons\AddonHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Addons\AddonHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\Addons\AddonMgr.cpp"
 				>
 			</File>
@@ -3355,10 +3320,6 @@
 			Name="AuctionHouse"
 			>
 			<File
-				RelativePath="..\..\src\server\game\AuctionHouse\AuctionHouseHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\AuctionHouse\AuctionHouseMgr.cpp"
 				>
 			</File>
@@ -3366,6 +3327,18 @@
 				RelativePath="..\..\src\server\game\AuctionHouse\AuctionHouseMgr.h"
 				>
 			</File>
+			<Filter
+				Name="AuctionHouseBot"
+				>
+				<File
+					RelativePath="..\..\src\server\game\AuctionHouse\AuctionHouseBot\AuctionHouseBot.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\AuctionHouse\AuctionHouseBot\AuctionHouseBot.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="BattleGrounds"
@@ -3379,75 +3352,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\ArenaTeamHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\BattleGrounds\BattleGround.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\server\game\BattleGrounds\BattleGround.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundAA.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundAA.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundAB.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundAB.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundAV.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundAV.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundBE.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundBE.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundDS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundDS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundEY.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundEY.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundIC.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundIC.h"
 				>
 			</File>
 			<File
@@ -3458,94 +3367,130 @@
 				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundMgr.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundNA.cpp"
+			<Filter
+				Name="Zones"
 				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundNA.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundRB.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundRB.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundRL.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundRL.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundRV.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundRV.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundSA.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundSA.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundWS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\BattleGrounds\BattleGroundWS.h"
-				>
-			</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundAA.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundAA.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundAB.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundAB.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundAV.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundAV.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundBE.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundBE.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundDS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundDS.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundEY.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundEY.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundIC.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundIC.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundNA.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundNA.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundRB.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundRB.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundRL.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundRL.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundRV.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundRV.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundSA.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundSA.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundWS.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\BattleGrounds\Zones\BattleGroundWS.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
-			Name="Calender"
+			Name="Calendar"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Calender\Calendar.cpp"
+				RelativePath="..\..\src\server\game\Calendar\Calendar.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Calender\Calendar.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Calender\CalendarHandler.cpp"
+				RelativePath="..\..\src\server\game\Calendar\Calendar.h"
 				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Chat"
 			>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Channel.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Channel.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\ChannelHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\ChannelMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\ChannelMgr.h"
-				>
-			</File>
 			<File
 				RelativePath="..\..\src\server\game\Chat\Chat.cpp"
 				>
@@ -3554,38 +3499,54 @@
 				RelativePath="..\..\src\server\game\Chat\Chat.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\ChatHandler.cpp"
+			<Filter
+				Name="Channels"
 				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Debugcmds.cpp"
+				<File
+					RelativePath="..\..\src\server\game\Chat\Channels\Channel.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Channels\Channel.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Channels\ChannelMgr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Channels\ChannelMgr.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Commands"
 				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Level0.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Level1.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Level2.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Chat\Level3.cpp"
-				>
-			</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Commands\Debugcmds.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Commands\Level0.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Commands\Level1.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Commands\Level2.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Chat\Commands\Level3.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Combat"
 			>
-			<File
-				RelativePath="..\..\src\server\game\Combat\CombatHandler.cpp"
-				>
-			</File>
 			<File
 				RelativePath="..\..\src\server\game\Combat\HostileRefManager.cpp"
 				>
@@ -3602,16 +3563,20 @@
 				RelativePath="..\..\src\server\game\Combat\ThreatManager.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\server\game\Combat\UnitEvents.h"
+				>
+			</File>
 		</Filter>
 		<Filter
-			Name="ConditionMgr"
+			Name="Conditions"
 			>
 			<File
-				RelativePath="..\..\src\server\game\ConditionMgr\ConditionMgr.cpp"
+				RelativePath="..\..\src\server\game\Conditions\ConditionMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\ConditionMgr\ConditionMgr.h"
+				RelativePath="..\..\src\server\game\Conditions\ConditionMgr.h"
 				>
 			</File>
 		</Filter>
@@ -3670,19 +3635,23 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\Entities\Creature\NPCHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Creature\NPCHandler.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\game\Entities\Creature\TemporarySummon.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\server\game\Entities\Creature\TemporarySummon.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="DynamicObject"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Entities\DynamicObject\DynamicObject.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Entities\DynamicObject\DynamicObject.h"
 					>
 				</File>
 			</Filter>
@@ -3702,14 +3671,6 @@
 				Name="Item"
 				>
 				<File
-					RelativePath="..\..\src\server\game\Entities\Item\Bag.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Item\Bag.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\game\Entities\Item\Item.cpp"
 					>
 				</File>
@@ -3726,33 +3687,25 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\Entities\Item\ItemHandler.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\game\Entities\Item\ItemPrototype.h"
 					>
 				</File>
+				<Filter
+					Name="Container"
+					>
+					<File
+						RelativePath="..\..\src\server\game\Entities\Item\Container\Bag.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Entities\Item\Container\Bag.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Object"
 				>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\Corpse.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\Corpse.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\DynamicObject.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\DynamicObject.h"
-					>
-				</File>
 				<File
 					RelativePath="..\..\src\server\game\Entities\Object\Object.cpp"
 					>
@@ -3762,41 +3715,37 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\Entities\Object\ObjectAccessor.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\ObjectAccessor.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\game\Entities\Object\ObjectDefines.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\Entities\Object\ObjectMgr.cpp"
+					RelativePath="..\..\src\server\game\Entities\Object\ObjectPosSelector.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\Entities\Object\ObjectMgr.h"
+					RelativePath="..\..\src\server\game\Entities\Object\ObjectPosSelector.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\UpdateData.cpp"
+				<Filter
+					Name="Updates"
 					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\UpdateData.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\UpdateFields.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Object\UpdateMask.h"
-					>
-				</File>
+					<File
+						RelativePath="..\..\src\server\game\Entities\Object\Updates\UpdateData.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Entities\Object\Updates\UpdateData.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Entities\Object\Updates\UpdateFields.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Entities\Object\Updates\UpdateMask.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Pet"
@@ -3809,30 +3758,10 @@
 					RelativePath="..\..\src\server\game\Entities\Pet\Pet.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Pet\PetHandler.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Player"
 				>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\CharacterHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\DuelHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\MiscHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\PetitionsHandler.cpp"
-					>
-				</File>
 				<File
 					RelativePath="..\..\src\server\game\Entities\Player\Player.cpp"
 					>
@@ -3849,18 +3778,6 @@
 					RelativePath="..\..\src\server\game\Entities\Player\SocialMgr.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\TicketHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\TradeHandler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Entities\Player\VoiceChatHandler.cpp"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Totem"
@@ -3871,6 +3788,30 @@
 				</File>
 				<File
 					RelativePath="..\..\src\server\game\Entities\Totem\Totem.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Transport"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Entities\Transport\Transport.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Entities\Transport\Transport.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Corpse"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Entities\Corpse\Corpse.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Entities\Corpse\Corpse.h"
 					>
 				</File>
 			</Filter>
@@ -3907,15 +3848,27 @@
 			Name="Globals"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Globals\Formulas.h"
+				RelativePath="..\..\src\server\game\Globals\GlobalEvents.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Globals\Language.h"
+				RelativePath="..\..\src\server\game\Globals\GlobalEvents.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Globals\SharedDefines.h"
+				RelativePath="..\..\src\server\game\Globals\ObjectAccessor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Globals\ObjectAccessor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Globals\ObjectMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Globals\ObjectMgr.h"
 				>
 			</File>
 		</Filter>
@@ -3940,32 +3893,24 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="LookingForGroup"
+			Name="DungeonFinding"
 			>
 			<File
-				RelativePath="..\..\src\server\game\LookingForGroup\LFG.h"
+				RelativePath="..\..\src\server\game\DungeonFinding\LFG.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\LookingForGroup\LFGHandler.cpp"
+				RelativePath="..\..\src\server\game\DungeonFinding\LFGMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\LookingForGroup\LFGMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\LookingForGroup\LFGMgr.h"
+				RelativePath="..\..\src\server\game\DungeonFinding\LFGMgr.h"
 				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Loot"
 			>
-			<File
-				RelativePath="..\..\src\server\game\Loot\LootHandler.cpp"
-				>
-			</File>
 			<File
 				RelativePath="..\..\src\server\game\Loot\LootMgr.cpp"
 				>
@@ -3988,108 +3933,52 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Map"
+			Name="Maps"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Map\Map.cpp"
+				RelativePath="..\..\src\server\game\Maps\Map.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\Map.h"
+				RelativePath="..\..\src\server\game\Maps\Map.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapInstanced.cpp"
+				RelativePath="..\..\src\server\game\Maps\MapInstanced.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapInstanced.h"
+				RelativePath="..\..\src\server\game\Maps\MapInstanced.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapManager.cpp"
+				RelativePath="..\..\src\server\game\Maps\MapManager.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapManager.h"
+				RelativePath="..\..\src\server\game\Maps\MapManager.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapReference.h"
+				RelativePath="..\..\src\server\game\Maps\MapReference.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapRefManager.h"
+				RelativePath="..\..\src\server\game\Maps\MapRefManager.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapUpdater.cpp"
+				RelativePath="..\..\src\server\game\Maps\MapUpdater.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\MapUpdater.h"
+				RelativePath="..\..\src\server\game\Maps\MapUpdater.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Map\ObjectPosSelector.cpp"
+				RelativePath="..\..\src\server\game\Maps\ZoneScript.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\Map\ObjectPosSelector.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Map\ZoneScript.h"
-				>
-			</File>
-			<Filter
-				Name="Cell"
-				>
-				<File
-					RelativePath="..\..\src\server\game\Map\Cell\Cell.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Cell\CellImpl.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Grid"
-				>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\GridDefines.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\GridNotifiers.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\GridNotifiers.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\GridNotifiersImpl.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\GridStates.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\GridStates.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\ObjectGridLoader.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Map\Grid\ObjectGridLoader.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Movement"
@@ -4127,35 +4016,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Movement\MovementHandler.cpp"
+				RelativePath="..\..\src\server\game\Movement\MovementGenerator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Movement\Path.h"
+				RelativePath="..\..\src\server\game\Movement\MovementGenerator.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Movement\TaxiHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Movement\Transports.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Movement\Transports.h"
+				RelativePath="..\..\src\server\game\Movement\MovementGeneratorImpl.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\server\game\Movement\Traveller.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Movement\WaypointManager.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Movement\WaypointManager.h"
 				>
 			</File>
 			<Filter
@@ -4194,18 +4067,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\game\Movement\MovementGenerators\MovementGenerator.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Movement\MovementGenerators\MovementGenerator.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\Movement\MovementGenerators\MovementGeneratorImpl.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\src\server\game\Movement\MovementGenerators\PointMovementGenerator.cpp"
 					>
 				</File>
@@ -4238,18 +4099,194 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="Waypoints"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Movement\Waypoints\Path.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Movement\Waypoints\WaypointManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Movement\Waypoints\WaypointManager.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
-			Name="Opcodes"
+			Name="Server"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Opcodes\Opcodes.cpp"
+				RelativePath="..\..\src\server\game\Server\WorldSession.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Opcodes\Opcodes.h"
+				RelativePath="..\..\src\server\game\Server\WorldSession.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\server\game\Server\WorldSocket.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Server\WorldSocket.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Server\WorldSocketMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Server\WorldSocketMgr.h"
+				>
+			</File>
+			<Filter
+				Name="Protocol"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Server\Protocol\Opcodes.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Server\Protocol\Opcodes.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Server\Protocol\WorldLog.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Server\Protocol\WorldLog.h"
+					>
+				</File>
+				<Filter
+					Name="Handlers"
+					>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\AddonHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\AddonHandler.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\ArenaTeamHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\AuctionHouseHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\BattleGroundHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\CalendarHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\ChannelHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\CharacterHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\ChatHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\CombatHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\DuelHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\GroupHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\GuildHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\ItemHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\LFGHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\LootHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\MiscHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\MovementHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\NPCHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\NPCHandler.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\PetHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\PetitionsHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\QueryHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\QuestHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\SkillHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\SpellHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\TaxiHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\TicketHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\TradeHandler.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\VoiceChatHandler.cpp"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Pools"
@@ -4267,19 +4304,19 @@
 			Name="PrecompiledHeaders"
 			>
 			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\pchdef.cpp"
+				RelativePath="..\..\src\server\game\PrecompiledHeaders\ScriptPCH.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\pchdef.h"
+				RelativePath="..\..\src\server\game\PrecompiledHeaders\ScriptPCH.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\pchlinux.cpp"
+				RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\pchlinux.h"
+				RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.h"
 				>
 			</File>
 		</Filter>
@@ -4287,19 +4324,11 @@
 			Name="Quests"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Quests\QueryHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\Quests\QuestDef.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\server\game\Quests\QuestDef.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Quests\QuestHandler.cpp"
 				>
 			</File>
 		</Filter>
@@ -4334,10 +4363,6 @@
 				RelativePath="..\..\src\server\game\Skills\SkillExtraItems.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\Skills\SkillHandler.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Spells"
@@ -4351,34 +4376,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Spells\Auras\SpellAuraDefines.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Spells\Auras\SpellAuraEffects.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Spells\Auras\SpellAuraEffects.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Spells\Auras\SpellAuras.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Spells\Auras\SpellAuras.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Spells\Auras\SpellEffects.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Spells\SpellHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\Spells\SpellMgr.cpp"
 				>
 			</File>
@@ -4386,6 +4383,34 @@
 				RelativePath="..\..\src\server\game\Spells\SpellMgr.h"
 				>
 			</File>
+			<Filter
+				Name="Auras"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Spells\Auras\SpellAuraDefines.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Spells\Auras\SpellAuraEffects.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Spells\Auras\SpellAuraEffects.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Spells\Auras\SpellAuras.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Spells\Auras\SpellAuras.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Spells\Auras\SpellEffects.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Tools"
@@ -4438,36 +4463,92 @@
 				RelativePath="..\..\src\server\game\World\World.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Grids"
+			>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldLog.cpp"
+				RelativePath="..\..\src\server\game\Grids\Grid.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldLog.h"
+				RelativePath="..\..\src\server\game\Grids\GridDefines.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldSession.cpp"
+				RelativePath="..\..\src\server\game\Grids\GridLoader.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldSession.h"
+				RelativePath="..\..\src\server\game\Grids\GridReference.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldSocket.cpp"
+				RelativePath="..\..\src\server\game\Grids\GridRefManager.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldSocket.h"
+				RelativePath="..\..\src\server\game\Grids\GridStates.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldSocketMgr.cpp"
+				RelativePath="..\..\src\server\game\Grids\GridStates.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\World\WorldSocketMgr.h"
+				RelativePath="..\..\src\server\game\Grids\NGrid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Grids\ObjectGridLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Grids\ObjectGridLoader.h"
+				>
+			</File>
+			<Filter
+				Name="Notifiers"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Grids\Notifiers\GridNotifiers.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Grids\Notifiers\GridNotifiers.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Grids\Notifiers\GridNotifiersImpl.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Cells"
+				>
+				<File
+					RelativePath="..\..\src\server\game\Grids\Cells\Cell.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\game\Grids\Cells\CellImpl.h"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Miscellaneous"
+			>
+			<File
+				RelativePath="..\..\src\server\game\Miscellaneous\Formulas.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Miscellaneous\Language.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Miscellaneous\SharedDefines.h"
 				>
 			</File>
 		</Filter>
