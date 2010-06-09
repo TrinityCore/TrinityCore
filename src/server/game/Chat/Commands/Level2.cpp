@@ -1051,7 +1051,7 @@ bool ChatHandler::HandleNpcAddVendorItemCommand(const char* args)
         incrtime = atol(fincrtime);
 
     char* fextendedcost = strtok(NULL, " ");                //add ExtendedCost, default: 0
-    uint32 extendedcost = fextendedcost ? atol(fextendedcost) : 0;
+    int32 extendedcost = fextendedcost ? atol(fextendedcost) : 0;
 
     Creature* vendor = getSelectedCreature();
 
