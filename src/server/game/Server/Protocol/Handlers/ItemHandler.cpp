@@ -766,7 +766,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 ++count;
 
                 // reputation discount
-                int32 price = uint32(floor(pProto->BuyPrice * discountMod));
+                int32 price = crItem->IsExcludeMoneyPrice() ? 0 : uint32(floor(pProto->BuyPrice * discountMod));
 
                 data << uint32(vendorslot+1);    // client expects counting to start at 1
                 data << uint32(crItem->item);
@@ -775,7 +775,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 data << uint32(price);
                 data << uint32(pProto->MaxDurability);
                 data << uint32(pProto->BuyCount);
-                data << uint32(crItem->ExtendedCost);
+                data << uint32(crItem->GetExtendedCostId());
             }
         }
     }
