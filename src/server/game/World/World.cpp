@@ -316,17 +316,18 @@ int32 World::GetQueuePos(WorldSession* sess)
 void World::AddQueuedPlayer(WorldSession* sess)
 {
     sess->SetInQueue(true);
-    m_QueuedPlayer.push_back (sess);
+    m_QueuedPlayer.push_back(sess);
 
     // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
-    WorldPacket packet (SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
-    packet << uint8 (AUTH_WAIT_QUEUE);
-    packet << uint32 (0);                                   // BillingTimeRemaining
-    packet << uint8 (0);                                    // BillingPlanFlags
-    packet << uint32 (0);                                   // BillingTimeRested
-    packet << uint8 (sess->Expansion());                    // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
-    packet << uint32(GetQueuePos (sess));
-    sess->SendPacket (&packet);
+    WorldPacket packet(SMSG_AUTH_RESPONSE, 1+4+1+4+1);
+    packet << uint8(AUTH_WAIT_QUEUE);
+    packet << uint32(0);                                    // BillingTimeRemaining
+    packet << uint8(0);                                     // BillingPlanFlags
+    packet << uint32 0);                                    // BillingTimeRested
+    packet << uint8(sess->Expansion());                     // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
+    packet << uint32(GetQueuePos(sess));                    // Queue position
+    packet << uint8(0);                                     // Unk 3.3.0
+    sess->SendPacket(&packet);
 
     //sess->SendAuthWaitQue (GetQueuePos (sess));
 }
