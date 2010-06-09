@@ -48,7 +48,7 @@ const LIBMPQ_ERROR_DECRYPT		= -11;	/* we don't know the decryption seed. */
 const LIBMPQ_ERROR_UNPACK		= -12;	/* error on unpacking file. */
 
 /** libmpq internal meta-data for an archive */
-struct mpq_archive_s;
+extern struct mpq_archive_s;
 
 extern(C) {
 
