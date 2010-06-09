@@ -20,12 +20,10 @@
 
 /* generic includes. */
 #include <ctype.h>
+#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#if HAVE_UNISTD_H
-	#include <unistd.h>
-#endif
 
 /* libmpq main includes. */
 #include "mpq.h"
