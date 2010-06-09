@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="sockets"
-	ProjectGUID="{8F1DEA42-6A5B-4B62-839D-C141A7BFACF2}"
+	ProjectGUID="{9DF7A84E-C644-4720-A79D-C98CB950E34C}"
 	RootNamespace="sockets"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="0"
@@ -88,7 +88,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|x64"
+			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\sockets__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
@@ -108,17 +108,14 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				AdditionalOptions="/MP"
 				AdditionalIncludeDirectories="..\..\include;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\sockets__$(PlatformName)_$(ConfigurationName)\zlib.pch"
@@ -157,7 +154,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Debug|x64"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\sockets__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
@@ -177,14 +174,17 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
+				Optimization="0"
 				AdditionalIncludeDirectories="..\..\include;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\sockets__$(PlatformName)_$(ConfigurationName)\zlib.pch"
