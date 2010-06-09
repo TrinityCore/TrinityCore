@@ -36,7 +36,7 @@
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_APPICON             ICON                    "TrinityCore.ico"
+IDI_APPICON             ICON                    "worldserver.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 // Neutre (Par défaut système) resources
@@ -69,12 +69,12 @@ BEGIN
     BEGIN
         BLOCK "080004b0"
         BEGIN
-            VALUE "FileDescription", "TrinityCore"
+            VALUE "FileDescription", "worldserver"
             VALUE "FileVersion", STRFILEVER
-            VALUE "InternalName", "TrinityCore"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2009"
-            VALUE "OriginalFilename", "TrinityCore.exe"
-            VALUE "ProductName", "TrinityCore"
+            VALUE "InternalName", "worldserver"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2010"
+            VALUE "OriginalFilename", "worldserver.exe"
+            VALUE "ProductName", "worldserver"
             VALUE "ProductVersion", STRPRODUCTVER
         END
     END

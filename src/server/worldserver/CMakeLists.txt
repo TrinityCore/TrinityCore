@@ -122,7 +122,7 @@ SET(worldserver_LINK_FLAGS "")
 
 add_executable(worldserver ${worldserver_SRCS})
 add_definitions(
--D_TRINITY_CORE_CONFIG='"${CONF_DIR}/trinitycore.conf"'
+-D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"'
 )
 IF (DO_MYSQL)
     SET(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
@@ -168,5 +168,5 @@ install(TARGETS worldserver DESTINATION bin)
 
 ########### install files ###############
 
-install(FILES  trinitycore.conf.dist DESTINATION etc)
+install(FILES  worldserver.conf.dist DESTINATION etc)
 
