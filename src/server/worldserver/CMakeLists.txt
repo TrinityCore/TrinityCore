@@ -1,7 +1,7 @@
 
 ########### next target ###############
 
-SET(trinity-core_SRCS
+SET(worldserver_SRCS
 CommandLine/CliRunnable.cpp
 CommandLine/CliRunnable.h
 RemoteAccess/RASocket.cpp
@@ -109,22 +109,22 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
-SET(trinity-core_LINK_FLAGS "")
+SET(worldserver_LINK_FLAGS "")
 
-add_executable(trinity-core ${trinity-core_SRCS})
+add_executable(worldserver ${trinity-core_SRCS})
 add_definitions(
 -D_TRINITY_CORE_CONFIG='"${CONF_DIR}/trinitycore.conf"'
 )
 IF (DO_MYSQL)
-    SET(trinity-core_LINK_FLAGS "-pthread ${trinity-core_LINK_FLAGS}")
+    SET(worldserver_LINK_FLAGS "-pthread ${trinity-core_LINK_FLAGS}")
 ENDIF(DO_MYSQL)
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    SET(trinity-core_LINK_FLAGS "-framework Carbon ${trinity-core_LINK_FLAGS}")
+    SET(worldserver_LINK_FLAGS "-framework Carbon ${trinity-core_LINK_FLAGS}")
     SET(SCRIPT_LIB "")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-SET_TARGET_PROPERTIES(trinity-core PROPERTIES LINK_FLAGS "${trinity-core_LINK_FLAGS}")
+SET_TARGET_PROPERTIES(worldserver PROPERTIES LINK_FLAGS "${trinity-core_LINK_FLAGS}")
 
 if(DO_SCRIPTS)
     SET(SCRIPT_LIB "scripts")
@@ -154,7 +154,7 @@ ${ZLIB}
 ${OSX_LIBS}
 )
 
-install(TARGETS trinity-core DESTINATION bin)
+install(TARGETS worldserver DESTINATION bin)
 
 
 ########### install files ###############
