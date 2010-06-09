@@ -36,7 +36,7 @@
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_APPICON             ICON                    "TrinityRealm.ico"
+IDI_APPICON             ICON                    "authserver.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 // Neutre (Par défaut système) resources
@@ -69,12 +69,12 @@ BEGIN
     BEGIN
         BLOCK "080004b0"
         BEGIN
-            VALUE "FileDescription", "TrinityRealm"
+            VALUE "FileDescription", "authserver"
             VALUE "FileVersion", STRFILEVER
-            VALUE "InternalName", "TrinityRealm"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2009"
-            VALUE "OriginalFilename", "TrinityRealm.exe"
-            VALUE "ProductName", "TrinityRealm"
+            VALUE "InternalName", "authserver"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2010"
+            VALUE "OriginalFilename", "authserver.exe"
+            VALUE "ProductName", "authserver"
             VALUE "ProductVersion", STRPRODUCTVER
         END
     END
