@@ -19,12 +19,12 @@ include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
 include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor)
 include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor/loadlib)
 
-link_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
+link_directories (${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq)
 link_directories (${CMAKE_SOURCE_DIR}}/src/tools/map_extractor/loadlib)
 
 add_library (loadlib ${loadlib_sources})
 target_link_libraries (loadlib zlib)
 
-add_executable (trinity-map_extractor ${sources})
+add_executable (map_extractor ${sources})
 
-target_link_libraries (trinity-map_extractor libmpq loadlib)
+target_link_libraries (map_extractor libmpq loadlib)
