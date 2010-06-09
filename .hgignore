@@ -1,7 +1,7 @@
 # use glob syntax.
 syntax: glob
 
-src/shared/revision.h
+src/server/shared/revision.h
 build/
 bin/
 .directory
@@ -12,13 +12,9 @@ bin/
 win/VC90/*/
 *.ncb
 *.suo
-dep/lib/win32*
-src/bindings/scripts/VC90/*/
-src/mangosd/
-src/realmd/
 *.*-*
 
 # use regexp syntax.
 syntax: regexp
 
-^src/shared/revision\.h
+^src/shared/server/shared/revision\.h
