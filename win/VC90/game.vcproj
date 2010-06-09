@@ -6,7 +6,7 @@
 	ProjectGUID="{1DC6C4DA-A028-41F3-877D-D5400C594F88}"
 	RootNamespace="game"
 	Keyword="Win32Proj"
-	AssemblyReferenceSearchPaths="&quot;..\..\src\game&quot;"
+	AssemblyReferenceSearchPaths="&quot;..\..\src\server\game&quot;"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP /Zm200"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Server\Protocol\Handlers;..\..\externals\mersennetwister;..\..\externals\zlib;..\..\src\server\collision;..\..\src\server\collision\Management;..\..\src\server\shared;..\..\src\server\shared\Configuration;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Debugging;..\..\src\server\shared\Dynamic\CountedReference;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\game;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\AI;..\..\src\server\game\AI\CoreAI;..\..\src\server\game\AI\EventAI;..\..\src\server\game\AI\ScriptedAI;..\..\src\server\game\AuctionHouse;..\..\src\server\game\AuctionHouse\AuctionHouseBot;..\..\src\server\game\BattleGrounds;..\..\src\server\game\BattleGrounds\Zones;..\..\src\server\game\Calendar;..\..\src\server\game\Chat;..\..\src\server\game\Chat\Channels;..\..\src\server\game\Chat\Commands;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Totem;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Entities\Transport;..\..\src\server\game\Events;..\..\src\server\game\Globals;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Grids\Notifiers;..\..\src\server\game\Grids;..\..\src\server\game\Groups;..\..\src\server\game\Guilds;..\..\src\server\game\Instances;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\MovementGenerators;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\OutdoorPvP;..\..\src\server\game\OutdoorPvP\Zones;..\..\src\server\game\Pools;..\..\src\server\game\PrecompiledHeaders;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Scripting;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server;..\..\src\server\game\Skills;..\..\src\server\game\Spells;..\..\src\server\game\Spells\Auras;..\..\src\server\game\Tools;..\..\src\server\game\Weather;..\..\src\server\game\World;..\..\externals;"
+				AdditionalIncludeDirectories="..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Server\Protocol\Handlers;..\..\externals\mersennetwister;..\..\externals\zlib;..\..\src\server\collision;..\..\src\server\collision\Management;..\..\src\server\shared;..\..\src\server\shared\Configuration;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Debugging;..\..\src\server\shared\Dynamic\CountedReference;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\game;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\AI;..\..\src\server\game\AI\CoreAI;..\..\src\server\game\AI\EventAI;..\..\src\server\game\AI\ScriptedAI;..\..\src\server\game\AuctionHouse;..\..\src\server\game\AuctionHouse\AuctionHouseBot;..\..\src\server\game\BattleGrounds;..\..\src\server\game\BattleGrounds\Zones;..\..\src\server\game\Calendar;..\..\src\server\game\Chat;..\..\src\server\game\Chat\Channels;..\..\src\server\game\Chat\Commands;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Totem;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Entities\Transport;..\..\src\server\game\Events;..\..\src\server\game\Globals;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Grids\Notifiers;..\..\src\server\game\Grids;..\..\src\server\game\Groups;..\..\src\server\game\Guilds;..\..\src\server\game\Instances;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\MovementGenerators;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\OutdoorPvP;..\..\src\server\game\OutdoorPvP\Zones;..\..\src\server\game\Pools;..\..\src\server\game\PrecompiledHeaders;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Scripting;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server;..\..\src\server\game\Skills;..\..\src\server\game\Spells;..\..\src\server\game\Spells\Auras;..\..\src\server\game\Tools;..\..\src\server\game\Weather;..\..\src\server\game\World;..\..\externals;..\..\src\server\shared\Cryptography\Authentication;"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_SECURE_SCL=0"
 				StringPooling="false"
 				MinimalRebuild="false"
@@ -56,7 +56,7 @@
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
 				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="WinCorePCH.h"
 				PrecompiledHeaderFile=".\game__$(PlatformName)_$(ConfigurationName)\game.pch"
 				AssemblerListingLocation=".\game__$(PlatformName)_$(ConfigurationName)\"
@@ -68,7 +68,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles=""
+				ForcedIncludeFiles="WinCorePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -2378,10 +2378,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_highlord_mograine.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\..\src\server\scripts\Northrend\Naxxramas\boss_kelthuzad.cpp"
 						>
 					</File>
@@ -4311,14 +4307,6 @@
 				RelativePath="..\..\src\server\game\PrecompiledHeaders\ScriptPCH.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Quests"
@@ -4448,14 +4436,6 @@
 			Name="World"
 			>
 			<File
-				RelativePath="..\..\src\server\game\World\TimeMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\World\TimeMgr.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\World\World.cpp"
 				>
 			</File>
@@ -4552,6 +4532,22 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.cpp"
+			>
+			<FileConfiguration
+				Name="Debug|Win32"
+				>
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
