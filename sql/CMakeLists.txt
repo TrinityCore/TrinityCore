@@ -1,5 +1,6 @@
 add_subdirectory(updates)
-add_subdirectory(full)
+add_subdirectory(scripts)
+add_subdirectory(base)
 
 ########### install files ###############
 
