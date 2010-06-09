@@ -44,7 +44,7 @@ SET(authserver_LINK_FLAGS "")
 
 add_executable(authserver ${authserver_SRCS})
 add_definitions(
--D_TRINITY_REALM_CONFIG='"${CONF_DIR}/trinityrealm.conf"'
+-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"'
 )
 IF (DO_MYSQL)
    SET(trinity-realm_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
@@ -72,4 +72,4 @@ install(TARGETS authserver DESTINATION bin)
 
 ########### install files ###############
 
-install(FILES  trinityrealm.conf.dist DESTINATION etc)
+install(FILES  authserver.conf.dist DESTINATION etc)
