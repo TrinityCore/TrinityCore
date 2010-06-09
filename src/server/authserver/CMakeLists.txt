@@ -42,7 +42,7 @@ include_directories(
 
 SET(authserver_LINK_FLAGS "")
 
-add_executable(authserver ${trinity-realm_SRCS})
+add_executable(authserver ${authserver_SRCS})
 add_definitions(
 -D_TRINITY_REALM_CONFIG='"${CONF_DIR}/trinityrealm.conf"'
 )
@@ -57,7 +57,7 @@ ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 SET_TARGET_PROPERTIES(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 target_link_libraries(
-trinity-realm
+authserver
 shared
 trinitydatabase
 trinityauth
