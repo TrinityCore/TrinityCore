@@ -34,7 +34,7 @@ INSTANTIATE_SINGLETON_1(ConditionMgr);
 // Checks if player meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
 bool Condition::Meets(Player * player, Unit* targetOverride)
-{    
+{
     if (!player)
     {
         sLog.outDebug("Condition player not found");
@@ -126,7 +126,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
             break;
         }
         case CONDITION_SPELL_SCRIPT_TARGET:
-            condMeets = true;//spell target condition is handled in spellsystem, here it is always true    
+            condMeets = true;//spell target condition is handled in spellsystem, here it is always true
             refId = 0;//cant have references! use CONDITION_SOURCE_TYPE_SPELL for it
             break;
         case CONDITION_CREATURE_TARGET:
@@ -165,7 +165,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
             break;
         case CONDITION_ITEM_TARGET:
         {
-            condMeets = true;//handled in Item::IsTargetValidForItemUse    
+            condMeets = true;//handled in Item::IsTargetValidForItemUse
             refId = 0;//cant have references for now
             break;
         }
@@ -241,7 +241,7 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
             {
                 if (!(*i)->Meets(player, targetOverride))
                     ElseGroupMap[(*i)->mElseGroup] = false;
-            }            
+            }
         }
     }
     for (std::map<uint32, bool>::const_iterator i = ElseGroupMap.begin(); i != ElseGroupMap.end(); ++i)
@@ -351,7 +351,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         if (iConditionTypeOrReference < 0)//it has a reference
         {
-            if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skipp
+            if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skip
             {
                 sLog.outErrorDb("Condition reference %i is referencing self, skipped", iSourceTypeOrReferenceId);
                 continue;
@@ -529,7 +529,7 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
             }
         }
     }
-    sLog.outErrorDb("addToGossipMenuItems: GossipMenuIt %u Item %u not found", cond->mSourceGroup, cond->mSourceEntry);
+    sLog.outErrorDb("addToGossipMenuItems: GossipMenuId %u Item %u not found", cond->mSourceGroup, cond->mSourceEntry);
     return false;
 }
 
@@ -776,7 +776,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
             break;
-        }          
+        }
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
         {
             if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mSourceEntry))
