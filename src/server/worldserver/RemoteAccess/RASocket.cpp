@@ -254,7 +254,7 @@ void RASocket::zprint( const char * szText )
     unsigned int sz=strlen(megabuffer);
     Encrypt(megabuffer,sz);
     send(r,megabuffer,sz,0);
-    delete [] megabuffer;
+    free(megabuffer);
 
     #else
 
