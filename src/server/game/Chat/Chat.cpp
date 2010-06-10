@@ -133,11 +133,13 @@ ChatCommand * ChatHandler::getCommandTable()
     static ChatCommand channelSetCommandTable[] =
     {
         { "public",      SEC_ADMINISTRATOR,     true,  &ChatHandler::HandleChannelSetPublic,  "", NULL },
+        { NULL,          0,                     false, NULL,                                  "", NULL }
     };
 
     static ChatCommand channelCommandTable[] =
     {
         { "set",      SEC_ADMINISTRATOR,     true,  NULL,  "", channelSetCommandTable },
+        { NULL,       0,                     false, NULL,  "", NULL                   }
     };
 
     static ChatCommand debugPlayCommandTable[] =
