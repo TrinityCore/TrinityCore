@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\shared\Database,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ENABLE_CLI;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -116,107 +116,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|x64"
-			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\Release\trinitycore.tlb"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\shared\Database,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ENABLE_CLI;_SECURE_SCL=0"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="0"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
-				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG;_SECURE_SCL=0"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="libmySQL.lib ssleay32.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRT.LIB msvcrt.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.pdb"
-				GenerateMapFile="true"
-				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
-				SubSystem="1"
-				LinkTimeCodeGeneration="0"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary="$(OutDir)\TrinityCore.lib"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\worldserver.conf&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -248,7 +148,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\shared\Database,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE;ENABLE_CLI"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
@@ -317,7 +217,107 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\worldserver.conf&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\trinitycore__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TargetEnvironment="3"
+				TypeLibraryName=".\..\..\bin\Release\trinitycore.tlb"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;ENABLE_CLI;_SECURE_SCL=0"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\trinitycore.pch"
+				AssemblerListingLocation=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\trinitycore__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG;_SECURE_SCL=0"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="libmySQL.lib ssleay32.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRT.LIB msvcrt.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.pdb"
+				GenerateMapFile="true"
+				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.map"
+				SubSystem="1"
+				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary="$(OutDir)\TrinityCore.lib"
+				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\worldserver.conf&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -350,7 +350,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include,..\..\src\framework,..\..\src\shared,..\..\src\shared\Database,..\..\src\game,..\..\src\trinitycore;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE;ENABLE_CLI"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
@@ -418,7 +418,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\dep\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\trinitycore\trinitycore.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityCore.conf.dist&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\worldserver.conf&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -450,11 +450,11 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\src\server\worldserver\CliRunnable.cpp"
+			RelativePath="..\..\src\server\worldserver\CommandLine\CliRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\worldserver\CliRunnable.h"
+			RelativePath="..\..\src\server\worldserver\CommandLine\CliRunnable.h"
 			>
 		</File>
 		<File
@@ -470,11 +470,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\worldserver\RASocket.cpp"
+			RelativePath="..\..\src\server\worldserver\RemoteAccess\RASocket.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\worldserver\RASocket.h"
+			RelativePath="..\..\src\server\worldserver\RemoteAccess\RASocket.h"
 			>
 		</File>
 		<File
@@ -482,23 +482,23 @@
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\worldserver\TrinityCore.rc"
+			RelativePath="..\..\src\server\shared\Debugging\WheatyExceptionReport.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\shared\WheatyExceptionReport.cpp"
+			RelativePath="..\..\src\server\shared\Debugging\WheatyExceptionReport.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\shared\WheatyExceptionReport.h"
+			RelativePath="..\..\src\server\worldserver\WorldThread\WorldRunnable.cpp"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\worldserver\WorldRunnable.cpp"
+			RelativePath="..\..\src\server\worldserver\WorldThread\WorldRunnable.h"
 			>
 		</File>
 		<File
-			RelativePath="..\..\src\server\worldserver\WorldRunnable.h"
+			RelativePath="..\..\src\server\worldserver\worldserver.rc"
 			>
 		</File>
 	</Files>

@@ -34,7 +34,7 @@
 #include "Master.h"
 
 #ifndef _TRINITY_CORE_CONFIG
-# define _TRINITY_CORE_CONFIG  "TrinityCore.conf"
+# define _TRINITY_CORE_CONFIG  "worldserver.conf"
 #endif //_TRINITY_CORE_CONFIG
 
 #ifdef WIN32
