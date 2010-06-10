@@ -42,7 +42,7 @@
 #include <openssl/crypto.h>
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "TrinityRealm.conf"
+# define _TRINITY_REALM_CONFIG  "authserver.conf"
 #endif //_TRINITY_REALM_CONFIG
 
 #ifdef WIN32

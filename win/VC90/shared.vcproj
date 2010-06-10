@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object;"
+				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -129,7 +129,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object;"
+				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -210,7 +210,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object;"
+				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -293,7 +293,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object;"
+				AdditionalIncludeDirectories="..\..\src\server\shared\Debugging\;..\..\src\server\;..\..\src\server\shared\Utilities;..\..\src\server\shared\Logging;..\..\src\server\shared;..\..\externals;..\..\externals\sockets;..\..\externals\sockets\include;..\..\externals\openssl;..\..\externals\utf8cpp;..\..\externals\mersennetwister;..\..\externals\mysql;..\..\src\server\game\Entities\Object"
 				PreprocessorDefinitions="WIN32;_DEBUG;TRINITY_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -727,7 +727,7 @@
 					Name="VCCustomBuildTool"
 					Description="Getting Version..."
 					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
+					AdditionalDependencies="$(SolutionDir)../.hg/branchheads.cache"
 					Outputs="revision.h"
 				/>
 			</FileConfiguration>
@@ -738,10 +738,40 @@
 					Name="VCCustomBuildTool"
 					Description="Getting Version..."
 					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;-d&quot; &quot;..\..\..&quot;&#x0D;&#x0A;"
-					AdditionalDependencies="$(SolutionDir)../.hg/branch.cache"
+					AdditionalDependencies="$(SolutionDir)../.hg/branchheads.cache"
 					Outputs="revision.h"
 				/>
 			</FileConfiguration>
+			<FileConfiguration
+				Name="Release|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Getting Version..."
+					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;..\..\..&quot;&#x0D;&#x0A;"
+					AdditionalDependencies="$(SolutionDir)../.hg/branchheads.cache"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Debug|x64"
+				>
+				<Tool
+					Name="VCCustomBuildTool"
+					Description="Getting Version..."
+					CommandLine="cd $(InputDir)&#x0D;&#x0A;&quot;$(TargetDir)\..\genrevision__$(PlatformName)_$(ConfigurationName)\genrevision.exe&quot; &quot;-d&quot; &quot;..\..\..&quot;&#x0D;&#x0A;"
+					AdditionalDependencies="$(SolutionDir)../.hg/branchheads.cache"
+					Outputs="revision.h"
+				/>
+			</FileConfiguration>
+		</File>
+		<File
+			RelativePath="..\..\src\server\shared\Utilities\ServiceWin32.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\server\shared\Utilities\ServiceWin32.h"
+			>
 		</File>
 		<File
 			RelativePath="..\..\src\server\shared\SystemConfig.h"
