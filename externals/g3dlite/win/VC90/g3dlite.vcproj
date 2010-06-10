@@ -93,7 +93,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Debug|x64"
+			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
@@ -113,20 +113,15 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\zlib\;"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				BufferSecurityCheck="true"
-				EnableFunctionLevelLinking="true"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SECURE_SCL=0"
+				RuntimeLibrary="2"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
@@ -167,7 +162,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|Win32"
+			Name="Debug|x64"
 			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
@@ -187,15 +182,20 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				TargetEnvironment="3"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
+				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\zlib\;"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SECURE_SCL=0"
-				RuntimeLibrary="2"
-				EnableEnhancedInstructionSet="1"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="true"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
 				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
@@ -902,6 +902,10 @@
 			</File>
 			<File
 				RelativePath="..\..\ReferenceCount.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\RegistryUtil.cpp"
 				>
 			</File>
 			<File
