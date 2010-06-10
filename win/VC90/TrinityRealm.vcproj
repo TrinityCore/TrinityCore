@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\externals;..\..\externals\ace;..\..\src\server\shared"
+				AdditionalIncludeDirectories="..\..\externals;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\authserver;..\..\src\server\authserver\Authentication;..\..\src\server\authserver\Realms;..\..\src\server\authserver\Server"
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -114,7 +114,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
 			/>
 		</Configuration>
 		<Configuration
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\externals;..\..\externals\ace;..\..\src\server\shared"
+				AdditionalIncludeDirectories="..\..\externals;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\authserver;..\..\src\server\authserver\Authentication;..\..\src\server\authserver\Realms;..\..\src\server\authserver\Server"
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
@@ -213,7 +213,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
 			/>
 		</Configuration>
 		<Configuration
@@ -246,7 +246,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\TrinityRealm;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\externals;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\authserver;..\..\src\server\authserver\Authentication;..\..\src\server\authserver\Realms;..\..\src\server\authserver\Server"
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;,WIN32,NDEBUG,_CONSOLE;_SECURE_SCL=0"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -311,7 +311,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
 			/>
 		</Configuration>
 		<Configuration
@@ -344,7 +344,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\dep\include;..\..\src\framework;..\..\src\shared;..\..\src\shared\Database;..\..\src\TrinityRealm;..\..\dep\ACE_wrappers"
+				AdditionalIncludeDirectories="..\..\externals;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\authserver;..\..\src\server\authserver\Authentication;..\..\src\server\authserver\Realms;..\..\src\server\authserver\Server"
 				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
@@ -410,7 +410,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\trinityrealm\trinityrealm.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.conf.dist"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
 			/>
 		</Configuration>
 	</Configurations>
@@ -423,6 +423,10 @@
 		</File>
 		<File
 			RelativePath="..\..\src\server\authserver\Authentication\AuthCodes.h"
+			>
+		</File>
+		<File
+			RelativePath="..\..\src\server\authserver\authserver.rc"
 			>
 		</File>
 		<File
@@ -455,10 +459,6 @@
 		</File>
 		<File
 			RelativePath="..\..\src\server\authserver\Server\RealmSocket.h"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\server\authserver\TrinityRealm.rc"
 			>
 		</File>
 		<File
