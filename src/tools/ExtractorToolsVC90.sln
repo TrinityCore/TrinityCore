@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ad", "map_extractor\VC90\VC90_ad.vcproj", "{D7552D4F-408F-4F8E-859B-366659150CF4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap_assembler", "vmap3_assembler\VC90\vmap_assembler.vcproj", "{572FFF74-480C-4472-8ABF-81733BB4049D}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap3_extractor", "vmap3_extractor\VC90\vmap3_extractor.vcproj", "{502602CC-98EA-4335-B922-C5C1DBF37604}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Debug|Win32.Build.0 = Debug|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Release|Win32.ActiveCfg = Release|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Release|Win32.Build.0 = Release|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.Build.0 = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.ActiveCfg = Release|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.Build.0 = Release|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Debug|Win32.ActiveCfg = Debug|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Debug|Win32.Build.0 = Debug|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Release|Win32.ActiveCfg = Release|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

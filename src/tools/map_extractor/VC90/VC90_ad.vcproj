@@ -17,10 +17,9 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="."
-			IntermediateDirectory=".\debug\"
+			OutputDirectory=".\ad__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory=".\ad__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -49,18 +48,18 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="libmpq"
+				AdditionalIncludeDirectories="..\;..\..\..\..\externals;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win;..\server\shared"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)ad.pch"
+				PrecompiledHeaderFile="$(IntDir)\ad.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
 				XMLDocumentationFileName="$(IntDir)\"
-				BrowseInformation="1"
-				BrowseInformationFile="$(IntDir)"
+				BrowseInformation="0"
+				BrowseInformationFile=""
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="4"
@@ -78,14 +77,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib"
-				OutputFile="ad debug.exe"
-				LinkIncremental="0"
+				AdditionalDependencies="bzip2.lib libmpq.lib zlib.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\ad_debug.exe"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="./debug/"
-				IgnoreDefaultLibraryNames="LIBCD.lib"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\externals\bzip2\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\libmpq\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\zlib\bin\$(PlatformName)_$(ConfigurationName)&quot;"
+				IgnoreDefaultLibraryNames="LIBCD.lib;LIBCMTD.lib;MSVCRT.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="./ad debug.pdb"
+				ProgramDatabaseFile="$(IntDir)\ad.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -102,6 +101,7 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
+				OutputFile="$(OutDir)\$(ProjectName).bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -115,10 +115,9 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin\$(PlatformName)_$(ConfigurationName)\"
-			IntermediateDirectory=".\release"
+			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)\"
+			IntermediateDirectory="$(PlatformName)_$(ConfigurationName)\"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
@@ -148,15 +147,16 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="libmpq"
+				AdditionalIncludeDirectories="..\;..\..\..\..\externals;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win;..\server\shared"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)ad.pch"
+				PrecompiledHeaderFile="$(IntDir)\ad.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ObjectFile="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\"
 				XMLDocumentationFileName="$(IntDir)\"
+				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 			/>
@@ -173,13 +173,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="zlib.lib"
-				OutputFile="./ad.exe"
-				LinkIncremental="0"
+				AdditionalDependencies="bzip2.lib libmpq.lib zlib.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\ad.exe"
+				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="./release/"
-				IgnoreDefaultLibraryNames="LIBC.lib"
-				ProgramDatabaseFile="./ad.pdb"
+				AdditionalLibraryDirectories="&quot;..\..\..\..\externals\bzip2\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\libmpq\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\zlib\bin\$(PlatformName)_$(ConfigurationName)&quot;"
+				IgnoreDefaultLibraryNames="LIBCD.lib;LIBCMTD.lib;MSVCRT.lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(IntDir)\ad.pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -216,75 +217,27 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\loadlib\adt.cpp"
+				RelativePath="..\loadlib\adt.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\libmpq\common.cpp"
+				RelativePath="..\dbcfile.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\dbcfile.cpp"
+				RelativePath="..\loadlib\loadlib.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\libmpq\explode.cpp"
+				RelativePath="..\mpq_libmpq.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\libmpq\extract.cpp"
+				RelativePath="..\System.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\libmpq\huffman.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\loadlib\loadlib.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\libmpq\mpq.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\mpq_libmpq.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\libmpq\parser.cpp"
-				>
-			</File>
-			<File
-				RelativePath="system.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="0"
-						PreprocessorDefinitions=""
-						BasicRuntimeChecks="3"
-						BrowseInformation="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="3"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\libmpq\wave.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\loadlib\wdt.cpp"
+				RelativePath="..\loadlib\wdt.cpp"
 				>
 			</File>
 		</Filter>
@@ -293,31 +246,11 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\libmpq\common.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dbcfile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\libmpq\explode.h"
-				>
-			</File>
-			<File
-				RelativePath=".\libmpq\huffman.h"
-				>
-			</File>
-			<File
-				RelativePath=".\libmpq\mpq.h"
-				>
-			</File>
-			<File
 				RelativePath=".\mpq_libmpq.h"
-				>
-			</File>
-			<File
-				RelativePath=".\libmpq\wave.h"
 				>
 			</File>
 		</Filter>
