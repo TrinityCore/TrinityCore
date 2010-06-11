@@ -260,9 +260,9 @@ void getGamePath()
     LONG l;
     s = sizeof(input_path);
     memset(input_path,0,s);
-    l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\World of Warcraft",0,KEY_QUERY_VALUE,&key);
+    l = RegOpenKeyExA(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\World of Warcraft",0,KEY_QUERY_VALUE,&key);
     //l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\Burning Crusade Closed Beta",0,KEY_QUERY_VALUE,&key);
-    l = RegQueryValueEx(key,"InstallPath",0,&t,(LPBYTE)input_path,&s);
+    l = RegQueryValueExA(key,"InstallPath",0,&t,(LPBYTE)input_path,&s);
     RegCloseKey(key);
     if (strlen(input_path) > 0)
     {
