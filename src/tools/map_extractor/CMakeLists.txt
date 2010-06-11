@@ -12,17 +12,41 @@
 file(GLOB sources *.cpp)
 file(GLOB loadlib_sources loadlib/*.cpp)
 
-include_directories (${CMAKE_SOURCE_DIR}/src/server/shared)
-include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
-include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor)
-include_directories (${CMAKE_SOURCE_DIR}/src/tools/map_extractor/loadlib)
+include_directories (
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/externals/libmpq
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/loadlib
+)
 
-link_directories (${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq)
-link_directories (${CMAKE_SOURCE_DIR}}/src/tools/map_extractor/loadlib)
+link_directories(
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq
+  ${CMAKE_CURRENT_SOURCE_DIR}}/loadlib
+)
 
-add_library (loadlib ${loadlib_sources})
-target_link_libraries (loadlib zlib)
+add_library(loadlib
+  ${loadlib_sources}
+)
 
-add_executable (map_extractor ${sources})
+target_link_libraries(loadlib zlib)
 
-target_link_libraries (map_extractor libmpq loadlib)
+add_library(libmpq
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq/common.c
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq/explode.c
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq/extract.c
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq/huffman.c
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq/mpq.c
+  ${CMAKE_SOURCE_DIR}/externals/libmpq/libmpq/wave.c
+)
+
+add_executable(mapextractor
+  ${sources}
+)
+
+target_link_libraries(mapextractor
+  libmpq
+  loadlib
+  bzip2
+)
+
+install(TARGETS mapextractor DESTINATION bin)

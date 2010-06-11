@@ -17,7 +17,7 @@ include_directories(
   ${ACE_INCLUDE_DIR}
 )
 
-add_executable(collision_assembler VMapAssembler.cpp)
-target_link_libraries(collision_assembler collision g3dlib)
+add_executable(vmap3assembler VMapAssembler.cpp)
+target_link_libraries(vmap3assembler collision g3dlib)
 
-
+install(TARGETS vmap3assembler DESTINATION bin)

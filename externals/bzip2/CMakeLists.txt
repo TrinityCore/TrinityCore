@@ -1,4 +1,4 @@
-file(GLOB sources *.cpp)
+file(GLOB sources *.c)
 set(bzip2_STAT_SRCS
   ${sources}
 )

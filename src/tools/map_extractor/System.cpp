@@ -12,13 +12,11 @@
 #endif
 
 #include "dbcfile.h"
-#include "mpq_libmpq.h"
+#include "mpq_libmpq04.h"
 
 #include "loadlib/adt.h"
 #include "loadlib/wdt.h"
 #include <fcntl.h>
-#include "revision.h"
-#define _MAP_EXTRACTOR_VERSION 2
 
 #if defined( __GNUC__ )
     #define _open   open
@@ -35,7 +33,6 @@
 #else
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
-
 extern ArchiveSet gOpenArchives;
 
 typedef struct
@@ -123,13 +120,6 @@ void Usage(char* prg)
     exit(1);
 }
 
-void Version(char* prg)
-{
-    printf("TrinityCore Rev: " _REVISION " " _BUILD_DIRECTIVE " Hash: " _HASH "\n"\
-    "%s Ver: " _MAP_EXTRACTOR_VERSION, prg);
-    exit(0);
-}
-
 void HandleArgs(int argc, char * arg[])
 {
     for(int c = 1; c < argc; ++c)
@@ -145,13 +135,13 @@ void HandleArgs(int argc, char * arg[])
         switch(arg[c][1])
         {
             case 'i':
-                if (c + 1 < argc)                            // all ok
+                if(c + 1 < argc)                            // all ok
                     strcpy(input_path, arg[(c++) + 1]);
                 else
                     Usage(arg[0]);
                 break;
             case 'o':
-                if (c + 1 < argc)                            // all ok
+                if(c + 1 < argc)                            // all ok
                     strcpy(output_path, arg[(c++) + 1]);
                 else
                     Usage(arg[0]);
@@ -163,7 +153,7 @@ void HandleArgs(int argc, char * arg[])
                     Usage(arg[0]);
                 break;
             case 'e':
-                if (c + 1 < argc)                            // all ok
+                if(c + 1 < argc)                            // all ok
                 {
                     CONF_extract=atoi(arg[(c++) + 1]);
                     if(!(CONF_extract > 0 && CONF_extract < 4))
@@ -172,14 +162,45 @@ void HandleArgs(int argc, char * arg[])
                 else
                     Usage(arg[0]);
                 break;
-            case 'v':
-                if (c + 1 < argc)                           // all ok
-                    Version(arg[0]);
-                else
-                    Usage(arg[0]);
-                break;
         }
     }
+}
+
+uint32 ReadBuild(int locale)
+{
+    // include build info file also
+    std::string filename  = std::string("component.wow-")+langs[locale]+".txt";
+    //printf("Read %s file... ", filename.c_str());
+
+    MPQFile m(filename.c_str());
+    if(m.isEof())
+    {
+        printf("Fatal error: Not found %s file!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string text = m.getPointer();
+    m.close();
+
+    size_t pos = text.find("version=\"");
+    size_t pos1 = pos + strlen("version=\"");
+    size_t pos2 = text.find("\"",pos1);
+    if (pos == text.npos || pos2 == text.npos || pos1 >= pos2)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    std::string build_str = text.substr(pos1,pos2-pos1);
+
+    int build = atoi(build_str.c_str());
+    if (build <= 0)
+    {
+        printf("Fatal error: Invalid  %s file format!\n", filename.c_str());
+        exit(1);
+    }
+
+    return build;
 }
 
 uint32 ReadMapDBC()
@@ -254,16 +275,17 @@ void ReadLiquidTypeTableDBC()
 //
 
 // Map file format data
-#define MAP_MAGIC             'SPAM'
-#define MAP_VERSION_MAGIC     '0.1w'
-#define MAP_AREA_MAGIC        'AERA'
-#define MAP_HEIGHT_MAGIC      'TGHM'
-#define MAP_LIQUID_MAGIC      'QILM'
+static char const* MAP_MAGIC         = "MAPS";
+static char const* MAP_VERSION_MAGIC = "v1.1";
+static char const* MAP_AREA_MAGIC    = "AREA";
+static char const* MAP_HEIGHT_MAGIC  = "MHGT";
+static char const* MAP_LIQUID_MAGIC  = "MLIQ";
 
 struct map_fileheader
 {
     uint32 mapMagic;
     uint32 versionMagic;
+    uint32 buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
     uint32 heightMapOffset;
@@ -341,7 +363,7 @@ uint8 liquid_type[ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
 bool  liquid_show[ADT_GRID_SIZE][ADT_GRID_SIZE];
 float liquid_height[ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
 
-bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
+bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 build)
 {
     ADT_file adt;
 
@@ -360,8 +382,9 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
 
     // Prepare map header
     map_fileheader map;
-    map.mapMagic = MAP_MAGIC;
-    map.versionMagic = MAP_VERSION_MAGIC;
+    map.mapMagic = *(uint32 const*)MAP_MAGIC;
+    map.versionMagic = *(uint32 const*)MAP_VERSION_MAGIC;
+    map.buildMagic = build;
 
     // Get area flags data
     for (int i=0;i<ADT_CELLS_PER_GRID;i++)
@@ -403,7 +426,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
     map.areaMapSize   = sizeof(map_areaHeader);
 
     map_areaHeader areaHeader;
-    areaHeader.fourcc = MAP_AREA_MAGIC;
+    areaHeader.fourcc = *(uint32 const*)MAP_AREA_MAGIC;
     areaHeader.flags = 0;
     if (fullAreaData)
     {
@@ -532,7 +555,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
     map.heightMapSize = sizeof(map_heightHeader);
 
     map_heightHeader heightHeader;
-    heightHeader.fourcc = MAP_HEIGHT_MAGIC;
+    heightHeader.fourcc = *(uint32 const*)MAP_HEIGHT_MAGIC;
     heightHeader.flags = 0;
     heightHeader.gridHeight    = minHeight;
     heightHeader.gridMaxHeight = maxHeight;
@@ -767,7 +790,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
         }
         map.liquidMapOffset = map.heightMapOffset + map.heightMapSize;
         map.liquidMapSize = sizeof(map_liquidHeader);
-        liquidHeader.fourcc = MAP_LIQUID_MAGIC;
+        liquidHeader.fourcc = *(uint32 const*)MAP_LIQUID_MAGIC;
         liquidHeader.flags = 0;
         liquidHeader.liquidType = 0;
         liquidHeader.offsetX = minX;
@@ -846,7 +869,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x)
     return true;
 }
 
-void ExtractMapsFromMpq()
+void ExtractMapsFromMpq(uint32 build)
 {
     char mpq_filename[1024];
     char output_filename[1024];
@@ -884,7 +907,7 @@ void ExtractMapsFromMpq()
                     continue;
                 sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
                 sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
-                ConvertADT(mpq_filename, output_filename, y, x);
+                ConvertADT(mpq_filename, output_filename, y, x, build);
             }
             // draw progress bar
             printf("Processing........................%d%%\r", (100 * (y+1)) / WDT_MAP_SIZE);
@@ -894,11 +917,27 @@ void ExtractMapsFromMpq()
     delete [] map_ids;
 }
 
+bool ExtractFile( char const* mpq_name, std::string const& filename ) 
+{
+    FILE *output = fopen(filename.c_str(), "wb");
+    if(!output)
+    {
+        printf("Can't create the output file '%s'\n", filename.c_str());
+        return false;
+    }
+    MPQFile m(mpq_name);
+    if(!m.isEof())
+        fwrite(m.getPointer(), 1, m.getSize(), output);
+
+    fclose(output);
+    return true;
+}
+
 void ExtractDBCFiles(int locale, bool basicLocale)
 {
     printf("Extracting dbc files...\n");
 
-    set<string> dbcfiles;
+    std::set<std::string> dbcfiles;
 
     // get DBC file list
     for(ArchiveSet::iterator i = gOpenArchives.begin(); i != gOpenArchives.end();++i)
@@ -910,7 +949,7 @@ void ExtractDBCFiles(int locale, bool basicLocale)
                     dbcfiles.insert(*iter);
     }
 
-    string path = output_path;
+    std::string path = output_path;
     path += "/dbc/";
     CreateDir(path);
     if(!basicLocale)
@@ -920,6 +959,14 @@ void ExtractDBCFiles(int locale, bool basicLocale)
         CreateDir(path);
     }
 
+    // extract Build info file
+    {
+        string mpq_name = std::string("component.wow-") + langs[locale] + ".txt";
+        string filename = path + mpq_name;
+
+        ExtractFile(mpq_name.c_str(), filename);
+    }
+
     // extract DBCs
     int count = 0;
     for (set<string>::iterator iter = dbcfiles.begin(); iter != dbcfiles.end(); ++iter)
@@ -927,18 +974,8 @@ void ExtractDBCFiles(int locale, bool basicLocale)
         string filename = path;
         filename += (iter->c_str() + strlen("DBFilesClient\\"));
 
-        FILE *output = fopen(filename.c_str(), "wb");
-        if(!output)
-        {
-            printf("Can't create the output file '%s'\n", filename.c_str());
-            continue;
-        }
-        MPQFile m(iter->c_str());
-        if(!m.isEof())
-            fwrite(m.getPointer(), 1, m.getSize(), output);
-
-        fclose(output);
-        ++count;
+        if(ExtractFile(iter->c_str(), filename))
+            ++count;
     }
     printf("Extracted %u DBC files\n\n", count);
 }
@@ -988,6 +1025,7 @@ int main(int argc, char * arg[])
     HandleArgs(argc, arg);
 
     int FirstLocale = -1;
+    uint32 build = 0;
 
     for (int i = 0; i < LANG_COUNT; i++)
     {
@@ -1003,14 +1041,18 @@ int main(int argc, char * arg[])
             if((CONF_extract & EXTRACT_DBC) == 0)
             {
                 FirstLocale = i;
+                build = ReadBuild(FirstLocale);
+                printf("Detected client build: %u\n", build);
                 break;
             }
 
             //Extract DBC files
             if(FirstLocale < 0)
             {
-                ExtractDBCFiles(i, true);
                 FirstLocale = i;
+                build = ReadBuild(FirstLocale);
+                printf("Detected client build: %u\n", build);
+                ExtractDBCFiles(i, true);
             }
             else
                 ExtractDBCFiles(i, false);
@@ -1035,7 +1077,7 @@ int main(int argc, char * arg[])
         LoadCommonMPQFiles();
 
         // Extract maps
-        ExtractMapsFromMpq();
+        ExtractMapsFromMpq(build);
 
         // Close MPQs
         CloseMPQFiles();
@@ -1043,4 +1085,3 @@ int main(int argc, char * arg[])
 
     return 0;
 }
-
