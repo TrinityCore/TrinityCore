@@ -1,7 +1,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "dbcfile.h"
-#include "mpq_libmpq.h"
+#include "mpq_libmpq04.h"
 
 DBCFile::DBCFile(const std::string &filename):
     filename(filename),

@@ -11,5 +11,7 @@
 
 include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
 
-add_executable(collision_extractor adtfile.cpp  dbcfile.cpp  model.cpp  mpq_libmpq.cpp  vmapexport.cpp  wdtfile.cpp  wmo.cpp)
-target_link_libraries(collision_extractor libmpq)
+add_executable(vmap3extractor adtfile.cpp  dbcfile.cpp  model.cpp  mpq_libmpq.cpp  vmapexport.cpp  wdtfile.cpp  wmo.cpp)
+target_link_libraries(vmap3extractor libmpq bzip2 zlib)
+
+install(TARGETS vmap3extractor DESTINATION bin)
