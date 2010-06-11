@@ -1284,6 +1284,14 @@ bool ChatHandler::HandleReloadItemEnchantementsCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadItemSetNamesCommand(const char*)
+{
+    sLog.outString("Re-Loading Item set names...");
+    LoadRandomEnchantmentsTable();
+    SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadGameObjectScriptsCommand(const char* arg)
 {
     if (sWorld.IsScriptScheduled())
@@ -1499,6 +1507,14 @@ bool ChatHandler::HandleReloadLocalesItemCommand(const char* /*arg*/)
     sLog.outString("Re-Loading Locales Item ... ");
     objmgr.LoadItemLocales();
     SendGlobalGMSysMessage("DB table `locales_item` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesItemSetNameCommand(const char* /*arg*/)
+{
+    sLog.outString("Re-Loading Locales Item set name... ");
+    objmgr.LoadItemSetNameLocales();
+    SendGlobalGMSysMessage("DB table `locales_item_set_name` reloaded.");
     return true;
 }
 
