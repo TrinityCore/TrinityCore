@@ -2,6 +2,7 @@
 
 #include "loadlib.h"
 #include "mpq_libmpq04.h"
+#include <cstdio>
 
 class MPQFile;
 
