@@ -2368,7 +2368,132 @@ void ObjectMgr::LoadItemPrototypes()
     }
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dnc`", *itr);
+        sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dbc`", *itr);
+}
+
+void ObjectMgr::LoadItemSetNameLocales()
+{
+    mItemSetNameLocaleMap.clear();                                 // need for reload case
+
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT `entry`,`name_loc1`,`name_loc2`,`name_loc3`,`name_loc4`,`name_loc5`,`name_loc6`,`name_loc7`,`name_loc8` FROM `locales_item_set_name`");
+
+    if (!result)
+        return;
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        ItemSetNameLocale& data = mItemSetNameLocaleMap[entry];
+
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
+        {
+            std::string str = fields[i].GetCppString();
+            if (!str.empty())
+            {
+                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
+                if (idx >= 0)
+                {
+                    if (data.Name.size() <= idx)
+                        data.Name.resize(idx+1);
+
+                    data.Name[idx] = str;
+                }
+            }
+        }
+    } while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %lu Item set name locale strings", (uint32)mItemSetNameLocaleMap.size());
+}
+
+void ObjectMgr::LoadItemSetNames()
+{
+    mItemSetNameMap.clear();                               // needed for reload case
+
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT `entry`,`name`,`InventoryType` FROM `item_set_names`");
+
+    uint32 count = 0;
+    std::set<uint32> itemSetItems;
+
+    // fill item set member ids
+    for (uint32 entryId = 0; entryId < sItemSetStore.GetNumRows(); ++entryId)
+    {
+        ItemSetEntry const* setEntry = sItemSetStore.LookupEntry(entryId);
+        if (!setEntry)
+            continue;
+
+        for (uint32 i = 0; i < MAX_ITEM_SET_ITEMS; ++i)
+            if (setEntry->itemId[i])
+                itemSetItems.insert(setEntry->itemId[i]);
+    }
+
+    if (result)
+    {
+        barGoLink bar(result->GetRowCount());
+        do
+        {
+            Field *fields = result->Fetch();
+            bar.step();
+
+            uint32 entry = fields[0].GetUInt32();
+            if (itemSetItems.find(entry) == itemSetItems.end())
+            {
+                sLog.outErrorDb("Item set name (Entry: %u) not found in ItemSet.dbc, data useless.", entry);
+                continue;
+            }
+
+            ItemSetNameEntry &data = mItemSetNameMap[entry];
+            data.name = fields[1].GetCppString();
+
+            uint32 invType = fields[2].GetUInt32();
+            if (invType >= MAX_INVTYPE)
+            {
+                sLog.outErrorDb("Item set name (Entry: %u) has wrong InventoryType value (%u)", entry, invType);
+                invType = INVTYPE_NON_EQUIP;
+            }
+
+            data.InventoryType = invType;
+            itemSetItems.erase(entry);
+            ++count;
+        } while (result->NextRow());
+    }
+    else
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 item set names. DB table `item_set_names` is empty.");
+    }
+
+    if (!itemSetItems.empty())
+    {
+        ItemPrototype const* pProto;
+        for (std::set<uint32>::iterator itr = itemSetItems.begin(); itr != itemSetItems.end(); ++itr)
+        {
+            uint32 entry = *itr;
+            // add data from item_template if available
+            if (pProto = GetItemPrototype(entry))
+            {
+                sLog.outErrorDb("Item set part (Entry: %u) does not have entry in `item_set_names`, adding data from `item_template`.", entry);
+                ItemSetNameEntry &data = mItemSetNameMap[entry];
+                data.name = pProto->Name1;
+                data.InventoryType = pProto->InventoryType;
+                ++count;
+            }
+            else
+                sLog.outErrorDb("Item set part (Entry: %u) does not have entry in `item_set_names`, set will not display properly.", entry);
+        }
+    }
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u item set names", count);
 }
 
 void ObjectMgr::LoadVehicleAccessories()
