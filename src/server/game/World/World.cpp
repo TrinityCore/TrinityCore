@@ -1320,6 +1320,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadCreatureLocales();
     objmgr.LoadGameObjectLocales();
     objmgr.LoadItemLocales();
+    objmgr.LoadItemSetNameLocales();
     objmgr.LoadQuestLocales();
     objmgr.LoadNpcTextLocales();
     objmgr.LoadPageTextLocales();
@@ -1332,7 +1333,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Page Texts...");
     objmgr.LoadPageTexts();
 
-    sLog.outString("Loading Game Object Templates...");   // must be after LoadPageTexts
+    sLog.outString("Loading Game Object Templates...");     // must be after LoadPageTexts
     objmgr.LoadGameobjectInfo();
 
     sLog.outString("Loading Spell Rank Data...");
@@ -1371,8 +1372,11 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Item Random Enchantments Table...");
     LoadRandomEnchantmentsTable();
 
-    sLog.outString("Loading Items...");                   // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    sLog.outString("Loading Items...");                     // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     objmgr.LoadItemPrototypes();
+
+    sLog.outString("Loading Item set names...");            // must be after LoadItemPrototypes
+    objmgr.LoadItemSetNames();
 
     sLog.outString("Loading Creature Model Based Info Data...");
     objmgr.LoadCreatureModelInfo();
@@ -1408,15 +1412,15 @@ void World::SetInitialWorldSettings()
     objmgr.LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
     sLog.outString("Loading Vehicle Accessories...");
-    objmgr.LoadVehicleAccessories();                          // must be after LoadCreatureTemplates()
+    objmgr.LoadVehicleAccessories();                        // must be after LoadCreatureTemplates()
 
-    sLog.outString("Loading Creature Respawn Data...");   // must be after PackInstances()
+    sLog.outString("Loading Creature Respawn Data...");     // must be after PackInstances()
     objmgr.LoadCreatureRespawnTimes();
 
     sLog.outString("Loading Gameobject Data...");
     objmgr.LoadGameobjects();
 
-    sLog.outString("Loading Gameobject Respawn Data..."); // must be after PackInstances()
+    sLog.outString("Loading Gameobject Respawn Data...");   // must be after PackInstances()
     objmgr.LoadGameobjectRespawnTimes();
 
     sLog.outString("Loading Objects Pooling Data...");
@@ -1440,7 +1444,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
     objmgr.LoadNPCSpellClickSpells();
 
-    sLog.outString("Loading SpellArea Data...");          // must be after quest load
+    sLog.outString("Loading SpellArea Data...");            // must be after quest load
     spellmgr.LoadSpellAreas();
 
     sLog.outString("Loading AreaTrigger definitions...");
@@ -1603,7 +1607,7 @@ void World::SetInitialWorldSettings()
     sLog.outString(">>> Scripts loaded");
     sLog.outString();
 
-    sLog.outString("Loading Scripts text locales...");    // must be after Load*Scripts calls
+    sLog.outString("Loading Scripts text locales...");      // must be after Load*Scripts calls
     objmgr.LoadDbScriptStrings();
 
     sLog.outString("Loading CreatureEventAI Texts...");
@@ -1671,7 +1675,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Starting Arena Season...");
     gameeventmgr.StartArenaSeason();
 
-    sLog.outString("Loading World States..."); // must be loaded before battleground and outdoor PvP
+    sLog.outString("Loading World States...");              // must be loaded before battleground and outdoor PvP
     LoadWorldStates();
 
     ///- Initialize Looking For Group

@@ -585,9 +585,11 @@ INSERT INTO `command` VALUES
 ('reload gm_tickets',3,'Syntax: .reload gm_tickets\nReload gm_tickets table.'),
 ('reload item_enchantment_template',3,'Syntax: .reload item_enchantment_template\nReload item_enchantment_template table.'),
 ('reload item_loot_template',3,'Syntax: .reload item_loot_template\nReload item_loot_template table.'),
+('reload item_set_names',3,'Syntax: .reload item_set_names\nReload item_set_names table.'),
 ('reload locales_creature',3,'Syntax: .reload locales_creature\nReload locales_creature table.'),
 ('reload locales_gameobject',3,'Syntax: .reload locales_gameobject\nReload locales_gameobject table.'),
 ('reload locales_item',3,'Syntax: .reload locales_item\nReload locales_item table.'),
+('reload locales_item_set_name',3,'Syntax: .reload locales_item_set_name\nReload locales_item_set_name table.'),
 ('reload locales_npc_text',3,'Syntax: .reload locales_npc_text\nReload locales_npc_text table.'),
 ('reload locales_page_text',3,'Syntax: .reload locales_page_text\nReload locales_page_text table.'),
 ('reload locales_points_of_interest',3,'Syntax: .reload locales_points_of_interest\nReload locales_point_of_interest table.'),
@@ -2747,6 +2749,30 @@ LOCK TABLES `item_loot_template` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_set_names`
+--
+
+DROP TABLE IF EXISTS `item_set_names`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_set_names` (
+  `entry` mediumint(8) unsigned NOT NULL,
+  `name` varchar(255) character set utf8 NOT NULL default '',
+  `InventoryType` tinyint(3) unsigned NOT NULL default '0',
+  PRIMARY KEY  (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `item_set_names`
+--
+
+LOCK TABLES `item_set_names` WRITE;
+/*!40000 ALTER TABLE `item_set_names` DISABLE KEYS */;
+/*!40000 ALTER TABLE `item_set_names` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `item_required_target`
 --
 
@@ -3081,6 +3107,36 @@ CREATE TABLE `locales_item` (
 LOCK TABLES `locales_item` WRITE;
 /*!40000 ALTER TABLE `locales_item` DISABLE KEYS */;
 /*!40000 ALTER TABLE `locales_item` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `locales_item_set_name`
+--
+
+DROP TABLE IF EXISTS `locales_item_set_name`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `locales_item_set_name` (
+  `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `name_loc1` varchar(100) NOT NULL DEFAULT '',
+  `name_loc2` varchar(100) NOT NULL DEFAULT '',
+  `name_loc3` varchar(100) NOT NULL DEFAULT '',
+  `name_loc4` varchar(100) NOT NULL DEFAULT '',
+  `name_loc5` varchar(100) NOT NULL DEFAULT '',
+  `name_loc6` varchar(100) NOT NULL DEFAULT '',
+  `name_loc7` varchar(100) NOT NULL DEFAULT '',
+  `name_loc8` varchar(100) NOT NULL DEFAULT '',
+  PRIMARY KEY (`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `locales_item_set_name`
+--
+
+LOCK TABLES `locales_item_set_name` WRITE;
+/*!40000 ALTER TABLE `locales_item_set_name` DISABLE KEYS */;
+/*!40000 ALTER TABLE `locales_item_set_name` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
