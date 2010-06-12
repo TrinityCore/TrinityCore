@@ -52,11 +52,16 @@ option(DO_SQL "Copy SQL files" 0)
 option(DO_TOOLS "Build tools" 0)
 option(DO_WARN "Enable all compile warnings" 0)
 
+if(PREFIX)
+  set(CMAKE_INSTALL_PREFIX ${PREFIX})
+endif(PREFIX)
+
 set(GENREV_SRC
   src/genrevision/genrevision.cpp
 )
 
 if(DO_DEBUG)
+  set(CMAKE_BUILD_TYPE Debug)
   add_executable(genrev
     ${GENREV_SRC}
   )
@@ -84,109 +89,112 @@ execute_process(
   OUTPUT_VARIABLE HG_REVISION
 )
 
-message("* TrinityCore revision: ${HG_REVISION}")
-
-if(PREFIX)
-  set(CMAKE_INSTALL_PREFIX ${PREFIX})
-endif(PREFIX)
+message("")
+message("* TrinityCore revision  : ${HG_REVISION}")
+message("* Build binaries in     : ${CMAKE_BUILD_TYPE} mode")
+message("")
 
 if(CONF_DIR)
-
 else(CONF_DIR)
   set(CONF_DIR ${PREFIX}/etc)
 endif(CONF_DIR)
 
 set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
 
-message("* Will install to: ${CMAKE_INSTALL_PREFIX}")
-message("* With config dir at: ${CONF_DIR}")
-message("* Libs install dir at: ${LIBSDIR}")
+message("* Install core to       : ${CMAKE_INSTALL_PREFIX}")
+message("* Install libraries to  : ${LIBSDIR}")
+message("* Install configs to    : ${CONF_DIR}")
+message("")
+
+if(DO_AUTHSERVER)
+  message("* Build authserver      : Yes (default)")
+else(DO_ATUHSERVER)
+  message("* Build authserver      : No")
+endif(DO_AUTHSERVER)
+
+if(DO_WORLDSERVER)
+  message("* Build worldserver     : Yes (default)")
+else(DO_WORLDSERVER)
+  message("* Build worldserver     : No")
+endif(DO_WORLDSERVER)
+
+if(DO_SCRIPTS)
+  message("* Build Trinityscripts  : Yes (default)")
+  ADD_DEFINITIONS(-DDO_SCRIPTS)
+  add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/worldserver.conf"')
+else (DO_SCRIPTS)
+  message("* Build Trinityscripts  : No")
+endif(DO_SCRIPTS)
+
+if(DO_TOOLS)
+  message("* Build map/vmap tools  : Yes")
+else(DO_TOOLS)
+  message("* Build map/vmap tools  : No  (default)")
+endif(DO_TOOLS)
+
+if(DO_CLI)
+  message("* Build with CLI        : Yes (default)")
+  add_definitions(-DENABLE_CLI)
+else(DO_CLI)
+  message("* Build with CLI        : No")
+endif(DO_CLI)
+
+if(DO_RA)
+  message("* Build with RA         : Yes")
+  add_definitions(-DENABLE_RA)
+else(DO_RA)
+  message("* Build with RA         : No  (default)")
+endif(DO_RA)
+
+if(DO_DEBUG)
+  message("* Build in debug-mode   : Yes")
+  add_definitions(-g -DTRINITY_DEBUG)
+else(DO_DEBUG)
+  message("* Build in debug-mode   : No  (default)")
+  add_definitions(--no-warnings) # makes build look nice, no warnings shown at all, only errors
+endif(DO_DEBUG)
+
+if(DO_PCH)
+  message("* Use PCH               : Yes (default)")
+else (DO_PCH)
+  message("* Use PCH               : No")
+endif(DO_PCH)
+
+if(DO_WARN)
+  message("* Show all warnings     : Yes")
+  add_definitions(-Wall -Wfatal-errors -Wextra)
+else(DO_WARN)
+  message("* Show compile-warnings : No  (default)")
+endif(DO_WARN)
+
+if(DO_SQL)
+  message("* Install SQL-files     : Yes")
+else (DO_SQL)
+  message("* Install SQL-files     : No  (default)")
+endif(DO_SQL)
+
+message("")
 
 find_library(SSLLIB NAMES ssl DOC "SSL library")
 find_library(ZLIB z "Zlib library")
 
-if(DO_AUTHSERVER)
-  message("Build authserver")
-else(DO_ATUHSERVER)
-  message("DON'T build authserver")
-endif(DO_AUTHSERVER)
-if(DO_WORLDSERVER)
-  message("Build worldserver")
-else(DO_WORLDSERVER)
-  message("DON'T build worldserver")
-endif(DO_WORLDSERVER)
-if(DO_TOOLS)
-  message("Build tools")
-else(DO_TOOLS)
-  message("DON'T build tools")
-endif(DO_TOOLS)
-
 if(DO_MYSQL)
-  message("* With MySQL")
   FIND_MYSQL()
   ADD_DEFINITIONS(-DDO_MYSQL)
 endif(DO_MYSQL)
 
-if(DO_SCRIPTS)
-  message("* With Trinity Scripts")
-  ADD_DEFINITIONS(-DDO_SCRIPTS)
-  add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/trinitycore.conf"')
-else (DO_SCRIPTS)
-  message("* Without Trinity Scripts")
-endif(DO_SCRIPTS)
-
-message("-- Miscellaneus options:")
-
-if(DO_CLI)
-  message("* With CLI")
-  add_definitions(-DENABLE_CLI)
-else (DO_CLI)
-  message(* Without CLI)
-endif(DO_CLI)
-
-if(DO_RA)
-  message("* With RA")
-  add_definitions(-DENABLE_RA)
-else(DO_RA)
-  message("* Without RA")
-endif(DO_RA)
-
-if(DO_DEBUG)
-  message("* Debug mode ON")
-  add_definitions(-g -DTRINITY_DEBUG)
-endif(DO_DEBUG)
-
-if(DO_WARN)
-  message("* All warnings mode")
-  add_definitions(-Wall -Wfatal-errors -Wextra)
-endif(DO_WARN)
-
-if(DO_SQL)
-  message("* Installing SQL files")
-else (DO_SQL)
-  message("* NOT installing SQL files")
-endif(DO_SQL)
-
-if(DO_PCH)
-  message("* Using precompiled headers")
-else (DO_PCH)
-  message("* NOT using precompiled headers")
-endif(DO_PCH)
-
 if(UNIX)
   if(CENTOS)
     add_definitions(-DCENTOS)
-    message("* Building with termcap")
     FIND_TERMCAP()
   else(CENTOS)
-    message("* Building with readline")
     FIND_READLINE()
   endif(CENTOS)
 endif(UNIX)
 
 FIND_ACE(ACE)
 if(ACE_FOUND)
-  message(STATUS "Found ACE library: ${ACE_LIBRARY}")
+  message(STATUS "Found ACE: ${ACE_LIBRARY}")
   message(STATUS "Include dir is: ${ACE_INCLUDE_DIR}")
 else(ACE_FOUND)
   message(SEND_ERROR "** ACE library not found! Trinity Core cannot be compiled!")
@@ -217,7 +225,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   add_definitions(-D__ASSERTMACROS__)
 endif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
-add_definitions(--no-warnings) #to make build look nice, no gcc nazi warnings.
+if(DO_WARN)
+else(DO_WARN)
+  add_definitions(--no-warnings) # makes build look nice, no warnings shown at all, only errors
+endif(DO_WARN)
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
@@ -228,6 +239,5 @@ add_subdirectory(externals)
 add_subdirectory(src)
 
 if(DO_SQL)
-  message("* Copy SQL files ON")
   add_subdirectory(sql)
 endif(DO_SQL)
