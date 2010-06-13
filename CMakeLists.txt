@@ -108,7 +108,7 @@ message("")
 
 if(DO_AUTHSERVER)
   message("* Build authserver      : Yes (default)")
-else(DO_ATUHSERVER)
+else(DO_AUTHSERVER)
   message("* Build authserver      : No")
 endif(DO_AUTHSERVER)
 
