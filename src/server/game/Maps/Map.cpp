@@ -2939,8 +2939,9 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = NULL;
-                cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
 
                 if (!cSource)
                 {
@@ -2996,8 +2997,9 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = NULL;
-                cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    target->ToCreature();
 
                 if (!cSource)
                 {
@@ -3021,7 +3023,10 @@ void Map::ScriptsProcess()
                     break;
                 }
                 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for non-creature source.", step.script->id);
@@ -3047,7 +3052,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_MOVE_TO (script id: %u) call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",
@@ -3068,7 +3076,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_SET (script id: %u) call for non-creature source.", step.script->id);
@@ -3094,7 +3105,10 @@ void Map::ScriptsProcess()
                     break;
                 }
                 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_REMOVE (script id: %u) call for non-creature source.", step.script->id);
@@ -3123,7 +3137,12 @@ void Map::ScriptsProcess()
 
                 if (step.script->datalong2 == 0)
                 {
-                    Player* pSource = target->ToPlayer() != NULL ? target->ToPlayer() : source->ToPlayer();
+                    Player* pSource = NULL;
+                    if (target)
+                        pSource = target->ToPlayer();
+                    if (!pSource && source)
+                        pSource = source->ToPlayer();
+
                     // must be only Player
                     if (!pSource)
                     {
@@ -3136,7 +3155,12 @@ void Map::ScriptsProcess()
                 }
                 else if (step.script->datalong2 == 1)
                 {
-                    Creature *cSource = target->ToCreature() != NULL ? target->ToCreature() : source->ToCreature();
+                    Creature *cSource = NULL;
+                    if (target)
+                        cSource = target->ToCreature();
+                    if (!cSource && source)
+                        cSource = source->ToCreature();
+                    
                     // must be only Creature
                     if (!cSource)
                     {
@@ -3152,16 +3176,14 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_KILL_CREDIT:
             {
+                Player* pSource = NULL;
                 // accept player in any one from target/source arg
-                if (!target && !source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id: %u) call for NULL object.", step.script->id);
-                    break;
-                }
-
-                Player* pSource = target->ToPlayer() != NULL ? target->ToPlayer() : source->ToPlayer();
-                // must be only Player
-                if (!pSource)
+                if (target)
+                    pSource = target->ToPlayer();
+                if (!pSourcen && source)
+                    pSource = source->ToPlayer();
+                               
+                if (!pSource)       // must be only Player
                 {
                     sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id: %u) call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.",
                     step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
@@ -3275,6 +3297,7 @@ void Map::ScriptsProcess()
                 go->GetMap()->Add(go);
                 break;
             }
+
             case SCRIPT_COMMAND_OPEN_DOOR:
             {
                 if (!step.script->datalong)                  // door not specified
@@ -3332,6 +3355,7 @@ void Map::ScriptsProcess()
                     ((GameObject*)target)->UseDoorOrButton(time_to_close);
                 break;
             }
+
             case SCRIPT_COMMAND_CLOSE_DOOR:
             {
                 if (!step.script->datalong)                  // guid for door not specified
@@ -3390,6 +3414,7 @@ void Map::ScriptsProcess()
 
                 break;
             }
+
             case SCRIPT_COMMAND_QUEST_EXPLORED:
             {
                 if (!source)
@@ -3584,7 +3609,7 @@ void Map::ScriptsProcess()
                         break;
                     }
 
-                    pTarget = target->ToPlayer();
+                    pTarget = target ? target->ToPlayer() : NULL;
                     if (!pTarget)
                     {
                         sLog.outError("SCRIPT_COMMAND_PLAY_SOUND (script id: %u) in targeted mode call for non-player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
@@ -3603,13 +3628,19 @@ void Map::ScriptsProcess()
             
             case SCRIPT_COMMAND_CREATE_ITEM:
             {
-                if (!target && !source)
+                if (!source)
                 {
-                    sLog.outError("SCRIPT_COMMAND_CREATE_ITEM (script id: %u) call for NULL object.", step.script->id);
+                    sLog.outError("SCRIPT_COMMAND_CREATE_ITEM (script id: %u) call for NULL source.",
+                    step.script->id);
                     break;
                 }
 
-                Player *pReceiver = target->ToPlayer() != NULL ? target->ToPlayer() : source->ToPlayer();
+                Player *pReceiver = NULL;
+                if (target)
+                    pReceiver = target->ToPlayer();
+                if (!pReceiver)
+                    pReceiver = source->ToPlayer();
+                    
                 // only Player
                 if (!pReceiver)
                 {
@@ -3796,6 +3827,7 @@ void Map::ScriptsProcess()
                 uSource->SendMovementFlagUpdate();
                 break;
             }
+
             case SCRIPT_COMMAND_EQUIP:
             {
                 if (!source)
@@ -3814,6 +3846,7 @@ void Map::ScriptsProcess()
                 cSource->LoadEquipment(step.script->datalong);
                 break;
             }
+
             case SCRIPT_COMMAND_MODEL:
             {
                 if (!source)
