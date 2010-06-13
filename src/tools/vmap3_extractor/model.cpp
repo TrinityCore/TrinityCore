@@ -134,7 +134,7 @@ ModelInstance::ModelInstance(MPQFile &f,const char* ModelInstName, uint32 mapID,
     sc = scale / 1024.0f;
 
     char tempname[512];
-    sprintf(tempname, "./Buildings/%s", ModelInstName);
+    sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
     FILE *input;
     input = fopen(tempname, "r+b");
 
