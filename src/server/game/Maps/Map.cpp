@@ -3180,7 +3180,7 @@ void Map::ScriptsProcess()
                 // accept player in any one from target/source arg
                 if (target)
                     pSource = target->ToPlayer();
-                if (!pSourcen && source)
+                if (!pSource && source)
                     pSource = source->ToPlayer();
                                
                 if (!pSource)       // must be only Player
