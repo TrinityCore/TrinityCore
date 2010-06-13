@@ -18811,6 +18811,10 @@ bool Player::IsAffectedBySpellmod(SpellEntry const *spellInfo, SpellModifier *mo
     if (spell && mod->charges == -1 && spell->m_appliedMods.find(mod->ownerAura) == spell->m_appliedMods.end())
         return false;
 
+    // +duration to infinite duration spells making them limited
+    if (mod->op == SPELLMOD_DURATION && GetSpellDuration(spellInfo) == -1)
+        return false;
+
     return spellmgr.IsAffectedByMod(spellInfo, mod);
 }
 
