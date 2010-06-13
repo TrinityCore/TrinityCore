@@ -165,6 +165,7 @@ if(DO_WARN)
   add_definitions(-Wall -Wfatal-errors -Wextra)
 else(DO_WARN)
   message("* Show compile-warnings : No  (default)")
+  add_definitions(--no-warnings) # makes build look nice, no warnings shown at all, only errors
 endif(DO_WARN)
 
 if(DO_SQL)
@@ -224,11 +225,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(OSX_LIBS /opt/local/lib/libcrypto.dylib)
   add_definitions(-D__ASSERTMACROS__)
 endif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-
-if(DO_WARN)
-else(DO_WARN)
-  add_definitions(--no-warnings) # makes build look nice, no warnings shown at all, only errors
-endif(DO_WARN)
 
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
