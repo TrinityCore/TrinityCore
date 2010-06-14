@@ -10,11 +10,12 @@
 
 project(Trinity)
 cmake_minimum_required(VERSION 2.6)
+cmake_policy(SET CMP0005 OLD)
 
 # Force out-of-source build
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" BUILDING_IN_SOURCE)
 if(BUILDING_IN_SOURCE)
-  message(FATAL_ERROR "This project requires an out of source build. Remove the file 'CMakeCache.txt' found in this directory before continuing, and create a separate build directory and run 'cmake path_to_project [options]' from there.")    
+  message(FATAL_ERROR "This project requires an out of source build. Remove the file 'CMakeCache.txt' found in this directory before continuing, and create a separate build directory and run 'cmake path_to_project [options]' from there.")
 endif(BUILDING_IN_SOURCE)
 
 include(CheckIncludeFiles)
@@ -94,7 +95,7 @@ message("")
 
 if(CONF_DIR)
 else(CONF_DIR)
-  set(CONF_DIR ${PREFIX}/etc)
+  set(CONF_DIR ${CMAKE_INSTALL_PREFIX}/etc)
 endif(CONF_DIR)
 
 set(LIBSDIR ${CMAKE_INSTALL_PREFIX}/lib)
@@ -119,7 +120,6 @@ endif(DO_WORLDSERVER)
 if(DO_SCRIPTS)
   message("* Build Trinityscripts  : Yes (default)")
   ADD_DEFINITIONS(-DDO_SCRIPTS)
-  add_definitions(-D_TRINITY_SCRIPT_CONFIG='"${CONF_DIR}/worldserver.conf"')
 else (DO_SCRIPTS)
   message("* Build Trinityscripts  : No")
 endif(DO_SCRIPTS)
