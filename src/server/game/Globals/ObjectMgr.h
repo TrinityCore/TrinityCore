@@ -1035,6 +1035,7 @@ class ObjectMgr
         void LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelations& map,char const* table);
+        void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
         MailLevelRewardMap m_mailLevelRewardMap;
 

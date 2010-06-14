@@ -2660,6 +2660,47 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
     return &itr->second[level-1];                           // data for level 1 stored in [0] array element, ...
 }
 
+void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
+{
+    if (count > 0)
+        playerInfo[race_][class_].item.push_back(PlayerCreateInfoItem(itemId, count));
+    else
+    {
+        if (count < -1)
+            sLog.outErrorDb("Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
+
+        uint32 RaceClass = (race_) | (class_ << 8);
+        bool doneOne = false;
+        for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+        {
+            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+            {
+                if (entry->RaceClassGender == RaceClass || entry->RaceClassGender == (RaceClass | (1 << 16)))
+                {
+                    bool found = false;
+                    for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
+                    {
+                        if (entry->ItemId[x] == itemId)
+                        {
+                            found = true;
+                            const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                        sLog.outErrorDb("Item %u specified to be removed from original create info not found in dbc!", itemId);
+                    
+                    if (!doneOne)
+                        doneOne = true;
+                    else
+                        break;
+                }
+            }
+        }
+    }
+}
+
 void ObjectMgr::LoadPlayerInfo()
 {
     // Load playercreate
@@ -2790,8 +2831,6 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &playerInfo[current_race][current_class];
-
                 uint32 item_id = fields[2].GetUInt32();
 
                 if (!GetItemPrototype(item_id))
@@ -2800,7 +2839,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                uint32 amount  = fields[3].GetUInt32();
+                int32 amount   = fields[3].GetInt32();
 
                 if (!amount)
                 {
@@ -2808,7 +2847,18 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                pInfo->item.push_back(PlayerCreateInfoItem(item_id, amount));
+                if (!current_race || !current_class)
+                {
+                    uint32 min_race = current_race ? current_race : 1;
+                    uint32 max_race = current_race ? current_race + 1 : MAX_RACES;
+                    uint32 min_class = current_class ? current_class : 1;
+                    uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
+                    for (uint32 r = min_race; r < max_race; ++r)
+                        for (uint32 c = min_class; c < max_class; ++c)
+                            PlayerCreateInfoAddItemHelper(r, c, item_id, amount);
+                }
+                else
+                    PlayerCreateInfoAddItemHelper(current_race, current_class, item_id, amount);
 
                 bar.step();
                 ++count;
