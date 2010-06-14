@@ -124,9 +124,8 @@ add_executable(worldserver ${worldserver_SRCS})
 add_definitions(
 -D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"'
 )
-IF (DO_MYSQL)
-    SET(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
-ENDIF(DO_MYSQL)
+
+SET(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     SET(worldserver_LINK_FLAGS "-framework Carbon ${worldserver_LINK_FLAGS}")

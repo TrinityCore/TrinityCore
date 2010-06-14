@@ -10,7 +10,12 @@
 
 project(Trinity)
 cmake_minimum_required(VERSION 2.6)
-cmake_policy(SET CMP0005 OLD)
+
+# Force out-of-source build
+string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" BUILDING_IN_SOURCE)
+if(BUILDING_IN_SOURCE)
+  message(FATAL_ERROR "This project requires an out of source build. Remove the file 'CMakeCache.txt' found in this directory before continuing, and create a separate build directory and run 'cmake path_to_project [options]' from there.")    
+endif(BUILDING_IN_SOURCE)
 
 include(CheckIncludeFiles)
 include(cmake/FindAce.cmake)
@@ -18,12 +23,6 @@ include(cmake/FindMySql.cmake)
 include(cmake/FindReadline.cmake)
 include(cmake/FindTermcap.cmake)
 include(cmake/PCH.cmake)
-
-# Force out-of-source build
-string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_BINARY_DIR}" BUILDING_IN_SOURCE)
-if(BUILDING_IN_SOURCE)
-  message(FATAL_ERROR "This project requires an out of source build. Remove the file 'CMakeCache.txt' found in this directory before continuing, and create a separate build directory and run 'cmake path_to_project [options]' from there.")    
-endif(BUILDING_IN_SOURCE)
 
 # Select the Release build configuration by default.
 if(NOT CMAKE_BUILD_TYPE)
@@ -44,7 +43,6 @@ option(DO_AUTHSERVER "Build authserver" 1)
 option(DO_WORLDSERVER "Build worldserver" 1)
 option(DO_CLI "With CLI" 1)
 option(DO_DEBUG "Debug mode" 0)
-option(DO_MYSQL "With MySQL support" 1)
 option(DO_PCH "Use precompiled headers" 1)
 option(DO_RA "With RA" 0)
 option(DO_SCRIPTS "With trinityscripts" 1)
@@ -179,10 +177,7 @@ message("")
 find_library(SSLLIB NAMES ssl DOC "SSL library")
 find_library(ZLIB z "Zlib library")
 
-if(DO_MYSQL)
-  FIND_MYSQL()
-  ADD_DEFINITIONS(-DDO_MYSQL)
-endif(DO_MYSQL)
+FIND_MYSQL()
 
 if(UNIX)
   if(CENTOS)

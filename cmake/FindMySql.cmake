@@ -65,13 +65,19 @@ else(UNIX)
 ENDIF(UNIX)
 
 find_path(MYSQL_INCLUDE_DIR mysql.h
+    ${MYSQL_ADD_INCLUDE_DIR}
+    /usr/include
+    /usr/include/mysql
     /usr/local/include
-    /usr/local/include/mysql 
+    /usr/local/include/mysql
     /usr/local/mysql/include
     /usr/local/mysql/include/mysql
-    /usr/include 
-    /usr/include/mysql
-    ${MYSQL_ADD_INCLUDE_DIR}
+    "C:/Program Files/MySQL/include"
+    "C:/Program Files/MySQL/MySQL Server 5.0/include"
+    "C:/MySQL/include"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/include"
+    "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/include"
+    DOC "Specify the directory containing mysql.h."
 )
 
 set(TMP_MYSQL_LIBRARIES "")
@@ -80,10 +86,17 @@ foreach(LIB ${MYSQL_ADD_LIBRARIES})
     find_library("MYSQL_LIBRARIES_${LIB}" NAMES ${LIB}
         PATHS
         ${MYSQL_ADD_LIBRARY_PATH}
+        /usr/lib
         /usr/lib/mysql
         /usr/local/lib
         /usr/local/lib/mysql
         /usr/local/mysql/lib
+        "C:/Program Files/MySQL/lib"
+        "C:/Program Files/MySQL/MySQL Server 5.0/lib/opt"
+        "C:/MySQL/lib/debug"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
+        "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\MySQL AB\\MySQL Server 5.0;Location]/lib/opt"
+        DOC "Specify the mysql library here."
     )
     list(APPEND TMP_MYSQL_LIBRARIES "${MYSQL_LIBRARIES_${LIB}}")
 endforeach(LIB ${MYSQL_ADD_LIBRARIES})
@@ -99,4 +112,4 @@ else(MYSQL_INCLUDE_DIR AND MYSQL_LIBRARIES)
 endif(MYSQL_INCLUDE_DIR AND MYSQL_LIBRARIES)
 
 mark_as_advanced(MYSQL_INCLUDE_DIR MYSQL_LIBRARIES)
-ENDMACRO(FIND_MYSQL)
+ENDMACRO(FIND_MYSQL)
