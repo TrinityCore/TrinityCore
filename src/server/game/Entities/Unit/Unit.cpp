@@ -12628,11 +12628,10 @@ void Unit::ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spel
 
     if (!(spellProto->Attributes & (SPELL_ATTR_UNK4|SPELL_ATTR_TRADESPELL)) && spellProto->SpellFamilyName)
         castTime = int32(float(castTime) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-    else
-    {
-        if (spellProto->Attributes & SPELL_ATTR_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG))
-            castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
-    }
+    else if (spellProto->Attributes & SPELL_ATTR_REQ_AMMO && !(spellProto->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG))
+        castTime = int32(float(castTime) * m_modAttackSpeedPct[RANGED_ATTACK]);
+    else if (spellProto->SpellVisual[0] == 3881 && HasAura(67556)) // cooking with Chef Hat.
+        castTime = 500;
 }
 
 DiminishingLevels Unit::GetDiminishing(DiminishingGroup group)
