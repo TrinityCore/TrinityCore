@@ -14,6 +14,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
   ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${ACE_INCLUDE_DIR}
 )
 

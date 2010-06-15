@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "Errors.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 #include "VMapManager2.h"
@@ -24,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <limits>
 
 using G3D::Vector3;
 
@@ -146,6 +148,8 @@ namespace VMAP
     {
         bool result = true;
         float maxDist = (pos2 - pos1).magnitude();
+        // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
+        ASSERT(maxDist < std::numeric_limits<float>::max());
         // prevent NaN values which can cause BIH intersection to enter infinite loop
         if (maxDist < 1e-10f)
             return true;
@@ -168,6 +172,8 @@ namespace VMAP
     {
         bool result=false;
         float maxDist = (pPos2 - pPos1).magnitude();
+        // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
+        ASSERT(maxDist < std::numeric_limits<float>::max());
         // prevent NaN values which can cause BIH intersection to enter infinite loop
         if (maxDist < 1e-10f)
         {
