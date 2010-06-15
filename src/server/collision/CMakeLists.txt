@@ -39,6 +39,8 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
+  ${CMAKE_BINARY_DIR}
 )
 
 add_library(collision STATIC ${collision_STAT_SRCS})
