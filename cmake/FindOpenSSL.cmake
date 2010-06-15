@@ -26,6 +26,7 @@ else( OPENSSL_INCLUDE_DIRECTORIES AND OPENSSL_LIBRARIES )
       /usr/local/openssl/include
       "C:/OpenSSL/include/openssl"
       "C:/OpenSSL-Win32/include/openssl"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]/include/openssl"
     DOC
       "Specify the directory containing openssl.h."
   )
@@ -46,6 +47,7 @@ else( OPENSSL_INCLUDE_DIRECTORIES AND OPENSSL_LIBRARIES )
       /usr/local/ssl/lib
       "C:/OpenSSL/lib"
       "C:/OpenSSL-Win32/lib"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]/lib"
     DOC "Specify the OpenSSL library here."
   )
 
