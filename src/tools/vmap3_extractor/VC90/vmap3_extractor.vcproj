@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\vmap3_extractor__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\vmap3_extractor__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -43,12 +43,13 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,12 +62,14 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bzip2.lib libmpq.lib zlib.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName)_d.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\externals\bzip2\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\libmpq\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\zlib\bin\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -93,11 +96,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\vmap3_extractor__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\vmap3_extractor__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -117,14 +120,17 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				EnableIntrinsicFunctions="true"
+				EnableIntrinsicFunctions="false"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -137,14 +143,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="bzip2.lib libmpq.lib zlib.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\externals\bzip2\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\libmpq\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\zlib\bin\$(PlatformName)_$(ConfigurationName)&quot;"
-				GenerateDebugInformation="true"
+				AdditionalLibraryDirectories=""
+				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
