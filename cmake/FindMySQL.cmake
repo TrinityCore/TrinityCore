@@ -84,7 +84,7 @@ find_path(MYSQL_INCLUDE_DIR
 
 find_library( MYSQL_LIBRARY 
   NAMES
-    mysql libmysql mysqlclient
+    mysql libmysql mysqlclient_r
   PATHS
     ${MYSQL_ADD_INCLUDE_PATH}
     /usr/lib
