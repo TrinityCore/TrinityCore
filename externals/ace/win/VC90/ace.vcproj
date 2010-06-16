@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ACE__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="0"
 			>
@@ -79,7 +79,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\ACEd.dll"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\ACEd.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -112,8 +112,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ACE__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="0"
 			>
@@ -149,7 +149,7 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinAcePCH.h"   
+				PrecompiledHeaderThrough="WinAcePCH.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -171,7 +171,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/machine:AMD64"
-				OutputFile="$(OutDir)\ACEd.dll"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\ACEd.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -204,8 +204,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ACE__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="0"
 			>
@@ -239,7 +239,7 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinAcePCH.h"   
+				PrecompiledHeaderThrough="WinAcePCH.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DisableSpecificWarnings="4355"
@@ -259,7 +259,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\ACE.dll"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\ACE.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -294,8 +294,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\ACE__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="0"
 			>
@@ -329,7 +329,7 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinAcePCH.h"  
+				PrecompiledHeaderThrough="WinAcePCH.h"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -350,8 +350,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="true"
 				AdditionalOptions="/machine:AMD64"
-				OutputFile="$(OutDir)\ACE.dll"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\ACE.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -472,7 +473,7 @@
 				RelativePath="..\..\Atomic_Op_Sparc.c"
 				>
 				<FileConfiguration
-					Name="Debug"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -480,7 +481,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1260,7 +1261,7 @@
 				RelativePath="..\..\Rtems_init.c"
 				>
 				<FileConfiguration
-					Name="Debug"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1268,7 +1269,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2894,11 +2895,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\os_include\os_errno.h"
+				RelativePath="..\..\OS_Errno.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\OS_Errno.h"
+				RelativePath="..\..\os_include\os_errno.h"
 				>
 			</File>
 			<File
@@ -3278,11 +3279,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\OS_String.h"
+				RelativePath="..\..\os_include\os_string.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\os_include\os_string.h"
+				RelativePath="..\..\OS_String.h"
 				>
 			</File>
 			<File
@@ -3326,11 +3327,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\os_include\sys\os_time.h"
+				RelativePath="..\..\os_include\os_time.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\os_include\os_time.h"
+				RelativePath="..\..\os_include\sys\os_time.h"
 				>
 			</File>
 			<File
@@ -5231,7 +5232,7 @@
 				RelativePath="..\..\PrecompiledHeaders\WinAcePCH.cpp"
 				>
 				<FileConfiguration
-					Name="Debug"
+					Name="Debug|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5239,7 +5240,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release"
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
