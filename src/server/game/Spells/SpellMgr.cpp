@@ -2977,7 +2977,7 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
             if (!player)
                 return false;
 
-            AreaTableEntry *const pArea = GetAreaEntryByAreaID(player->GetAreaId());
+            AreaTableEntry const* pArea = GetAreaEntryByAreaID(player->GetAreaId());
             if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
                 return false;
             if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY) || player->HasAura(44795))
