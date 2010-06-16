@@ -44,13 +44,14 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\..\externals;..\..\..\..\externals\g3dlite;..\..\..\server\collision;..\..\..\server\collision\Management;..\..\..\server\collision\Maps;..\..\..\server\collision\Models;..\..\..\server\shared;..\..\..\server\shared\Debugging"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				EnableEnhancedInstructionSet="1"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -64,14 +65,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="g3dlite.lib zlib.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\vmap_assembler.exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\externals\g3dlite\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\zlib\bin\$(PlatformName)_$(ConfigurationName)&quot;"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName)_d.exe"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=""
 				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames="MSVCPRTD.LIB"
+				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(OutDir)/vmap_assembler.pdb"
+				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
 				SubSystem="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -124,14 +124,16 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\externals;..\..\..\..\externals\g3dlite;..\..\..\server\collision;..\..\..\server\collision\Management;..\..\..\server\collision\Maps;..\..\..\server\collision\Models;..\..\..\server\shared;..\..\..\server\shared\Debugging"
+				AdditionalIncludeDirectories="..\..\..\..\externals;..\..\..\..\externals\g3dlite;..\..\..\server\collision;..\..\..\server\collision\Maps;..\..\..\server\collision\Models;..\..\..\server\shared;..\..\..\server\shared\Debugging"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				StringPooling="true"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="3"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -144,12 +146,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="g3dlite.lib zlib.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\vmap_assembler.exe"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;..\..\..\..\externals\g3dlite\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\..\..\externals\zlib\bin\$(PlatformName)_$(ConfigurationName)&quot;"
-				IgnoreDefaultLibraryNames="MSVCPRTD.LIB"
-				GenerateDebugInformation="true"
+				AdditionalLibraryDirectories=""
+				IgnoreDefaultLibraryNames=""
+				GenerateDebugInformation="false"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -204,21 +205,9 @@
 				RelativePath="..\..\..\server\collision\BoundingIntervalHierarchy.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\src\shared\vmap\VMapTools.h"
-				>
-			</File>
 			<Filter
 				Name="Maps"
 				>
-				<File
-					RelativePath="..\..\..\server\collision\Maps\MapTree.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\server\collision\Maps\MapTree.h"
-					>
-				</File>
 				<File
 					RelativePath="..\..\..\server\collision\Maps\TileAssembler.cpp"
 					>
@@ -245,18 +234,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\server\collision\Models\WorldModel.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Management"
-				>
-				<File
-					RelativePath="..\..\..\server\collision\Management\VMapManager2.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\server\collision\Management\VMapManager2.h"
 					>
 				</File>
 			</Filter>

@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -80,11 +80,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRT.LIB msvcrt.lib"
+				AdditionalDependencies="libmysql.lib libeay32.lib ws2_32.lib dbghelp.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\externals\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
 				GenerateMapFile="true"
@@ -114,112 +114,13 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				TypeLibraryName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.tlb"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\externals;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\authserver;..\..\src\server\authserver\Authentication;..\..\src\server\authserver\Realms;..\..\src\server\authserver\Server"
-				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
-				IgnoreStandardIncludePath="false"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.pch"
-				AssemblerListingLocation=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-				CallingConvention="0"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
-				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
-				GenerateMapFile="true"
-				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
-				SubSystem="1"
-				LargeAddressAware="2"
-				RandomizedBaseAddress="1"
-				FixedBaseAddress="1"
-				DataExecutionPrevention="0"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -277,11 +178,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRT.LIB msvcrt.lib"
+				AdditionalDependencies="libmysql.lib libeay32.lib ws2_32.lib dbghelp.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\externals\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
 				GenerateMapFile="true"
@@ -311,13 +212,112 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\TrinityRealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.tlb"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\externals;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Database;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\authserver;..\..\src\server\authserver\Authentication;..\..\src\server\authserver\Realms;..\..\src\server\authserver\Server"
+				PreprocessorDefinitions="VERSION=&quot;0.12.0-SVN&quot;;WIN32;_DEBUG;TRINITY_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
+				IgnoreStandardIncludePath="false"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
+				PrecompiledHeaderFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\TrinityRealm.pch"
+				AssemblerListingLocation=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\trinityrealm__$(PlatformName)_$(ConfigurationName)\"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				Detect64BitPortabilityProblems="false"
+				DebugInformationFormat="3"
+				CallingConvention="0"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/MACHINE:I386"
+				AdditionalDependencies="libmysql.lib libeay32.lib ws2_32.lib dbghelp.lib"
+				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\externals\lib\$(PlatformName)_$(ConfigurationName)"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
+				GenerateMapFile="true"
+				MapFileName="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.map"
+				SubSystem="1"
+				LargeAddressAware="2"
+				RandomizedBaseAddress="1"
+				FixedBaseAddress="1"
+				DataExecutionPrevention="0"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\trinityrealm__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -375,11 +375,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmySQL.lib libeay32.lib ws2_32.lib winmm.lib odbc32.lib odbccp32.lib advapi32.lib dbghelp.lib MSVCPRTD.LIB msvcrtd.lib"
+				AdditionalDependencies="libmysql.lib libeay32.lib ws2_32.lib dbghelp.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\dep\lib\$(PlatformName)_$(ConfigurationName)"
+				AdditionalLibraryDirectories="..\..\externals\lib\$(PlatformName)_$(ConfigurationName)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\TrinityRealm.pdb"
 				GenerateMapFile="true"
@@ -410,7 +410,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)\authserver.conf"
+				CommandLine="copy ..\..\src\server\authserver\authserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
