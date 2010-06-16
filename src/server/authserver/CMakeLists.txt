@@ -11,20 +11,22 @@
 ########### authserver ###############
 
 SET(authserver_SRCS
-Authentication/AuthCodes.cpp
-Authentication/AuthCodes.h
-Realms/RealmList.cpp
-Realms/RealmList.h
-Server/AuthSocket.cpp
-Server/AuthSocket.h
-Server/RealmSocket.h
-Server/RealmSocket.cpp
-Server/RealmAcceptor.h
-Main.cpp
+  Authentication/AuthCodes.cpp
+  Authentication/AuthCodes.h
+  Realms/RealmList.cpp
+  Realms/RealmList.h
+  Server/AuthSocket.cpp
+  Server/AuthSocket.h
+  Server/RealmSocket.h
+  Server/RealmSocket.cpp
+  Server/RealmAcceptor.h
+  Main.cpp
 )
 
 include_directories(
   ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Database
@@ -37,37 +39,35 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Authentication
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Realms
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
-  ${MYSQL_INCLUDE_DIR}
 )
 
 SET(authserver_LINK_FLAGS "")
 
 add_executable(authserver ${authserver_SRCS})
 add_definitions(
--D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"'
+  -D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"'
 )
 
 SET(trinity-realm_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
 
 IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-   SET(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
+  SET(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
 ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 SET_TARGET_PROPERTIES(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 target_link_libraries(
-authserver
-shared
-trinitydatabase
-trinityauth
-trinityconfig
-${SSLLIB}
-${MYSQL_LIBRARIES}
-${OSX_LIBS}
+  authserver
+  shared
+  trinitydatabase
+  trinityauth
+  trinityconfig
+  ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  ${OSX_LIBS}
 )
 
 install(TARGETS authserver DESTINATION bin)
-
 
 ########### install files ###############
 

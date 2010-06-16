@@ -3,7 +3,7 @@
 # 
 
 # This module defines
-# MYSQL_INCLUDE_DIRECTORY, where to find mysql.h
+# MYSQL_INCLUDE_DIR, where to find mysql.h
 # MYSQL_LIBRARIES, the libraries to link against to connect to MySQL
 # MYSQL_FOUND, if false, you cannot build anything that requires MySQL.
 
@@ -59,7 +59,7 @@ if( UNIX )
   endif( MYSQL_CONFIG )
 endif( UNIX )
 
-find_path(MYSQL_INCLUDE_DIRECTORIES
+find_path(MYSQL_INCLUDE_DIR
   NAMES
     mysql.h
   PATHS
@@ -122,13 +122,13 @@ else( NOT WIN32 )
 endif( NOT WIN32 )
 
 if( MYSQL_LIBRARY )
-  if( MYSQL_INCLUDE_DIRECTORIES )
+  if( MYSQL_INCLUDE_DIR )
     set( MYSQL_FOUND 1 )
     message(STATUS "Found MySQL library: ${MYSQL_LIBRARY}")
-    message(STATUS "Found MySQL headers: ${MYSQL_INCLUDE_DIRECTORIES}")
-  else( MYSQL_INCLUDE_DIRECTORIES )
+    message(STATUS "Found MySQL headers: ${MYSQL_INCLUDE_DIR}")
+  else( MYSQL_INCLUDE_DIR )
       message(FATAL_ERROR "Could not find MySQL headers! Please install the development-libraries and headers.")
-  endif( MYSQL_INCLUDE_DIRECTORIES )
-  mark_as_advanced( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIRECTORY )
+  endif( MYSQL_INCLUDE_DIR )
+  mark_as_advanced( MYSQL_FOUND MYSQL_LIBRARY MYSQL_EXTRA_LIBRARIES MYSQL_INCLUDE_DIR )
 endif( MYSQL_LIBRARY )
 
