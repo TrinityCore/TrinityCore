@@ -27,6 +27,7 @@ else( OPENSSL_INCLUDE_DIR AND OPENSSL_LIBRARIES )
       "C:/OpenSSL/include/openssl"
       "C:/OpenSSL-Win32/include/openssl"
       "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]/include/openssl"
+      "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]/include/openssl"
     DOC
       "Specify the directory containing openssl.h."
   )
