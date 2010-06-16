@@ -5985,6 +5985,17 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, spellTarget[urand(0,4)], true);
                     break;
                 }
+                case 64142:                                 // Upper Deck - Create Foam Sword
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+                    Player *plr = unitTarget->ToPlayer();
+                    static uint32 const itemId[] = {45061, 45176, 45177, 45178, 45179, 0};
+                    // player can only have one of these items
+                    for (uint32 *itr = &itemId[0]; *itr; ++itr)
+                        if (plr->HasItemCount(*itr, 1, true))
+                            return;
+                    DoCreateItem(effIndex, itemId[urand(0,4)]);
+                    return;
             }
             break;
         }
