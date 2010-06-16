@@ -3,7 +3,7 @@
 # 
 
 # This module defines
-# ACE_INCLUDE_DIRECTORIES, where to find ace.h
+# ACE_INCLUDE_DIR, where to find ace.h
 # ACE_LIBRARIES, the libraries to link against
 # ACE_FOUND, if false, you cannot build anything that requires ACE
 
@@ -13,7 +13,7 @@
 set( ACE_FOUND 0 )
 
 if ( UNIX )
-  FIND_PATH( ACE_INCLUDE_DIRECTORIES
+  FIND_PATH( ACE_INCLUDE_DIR
     NAMES
       ace/ACE.h
     PATHS
@@ -52,14 +52,14 @@ if ( UNIX )
 #  )
 
   if ( ACE_LIBRARY )
-    if ( ACE_INCLUDE_DIRECTORIES )
+    if ( ACE_INCLUDE_DIR )
       set( ACE_FOUND 1 )
       message( STATUS "Found ACE library: ${ACE_LIBRARY}")
-      message( STATUS "Found ACE headers: ${ACE_INCLUDE_DIRECTORIES}")
-    else ( ACE_INCLUDE_DIRECTORIES )
+      message( STATUS "Found ACE headers: ${ACE_INCLUDE_DIR}")
+    else ( ACE_INCLUDE_DIR )
       message(FATAL_ERROR "Could not find ACE headers! Please install ACE libraries and headers")
-    endif ( ACE_INCLUDE_DIRECTORIES )
+    endif ( ACE_INCLUDE_DIR )
   endif ( ACE_LIBRARY )
 
-  mark_as_advanced( ACE_FOUND ACE_LIBRARY ACE_EXTRA_LIBRARIES ACE_INCLUDE_DIRECTORIES )
+  mark_as_advanced( ACE_FOUND ACE_LIBRARY ACE_EXTRA_LIBRARIES ACE_INCLUDE_DIR )
 endif (UNIX)

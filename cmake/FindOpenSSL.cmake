@@ -3,19 +3,19 @@
 # 
 
 # This module defines
-# OPENSSL_INCLUDE_DIRECTORIES, where to find openssl.h
+# OPENSSL_INCLUDE_DIR, where to find openssl.h
 # OPENSSL_LIBRARIES, the libraries to link against to connect to MySQL
 # OPENSSL_FOUND, if false, you cannot build anything that requires MySQL.
 
 # also defined, but not for general use are
 # OPENSSL_LIBRARY, where to find the MySQL library.
 
-if( OPENSSL_INCLUDE_DIRECTORIES AND OPENSSL_LIBRARIES )
+if( OPENSSL_INCLUDE_DIR AND OPENSSL_LIBRARIES )
   # in cache already
   set(OPENSSL_FOUND 1)
-else( OPENSSL_INCLUDE_DIRECTORIES AND OPENSSL_LIBRARIES )
+else( OPENSSL_INCLUDE_DIR AND OPENSSL_LIBRARIES )
   set(OPENSSL_FOUND 0)
-  find_path(OPENSSL_INCLUDE_DIRECTORIES
+  find_path(OPENSSL_INCLUDE_DIR
     NAMES
       ssl.h
     PATHS
@@ -64,15 +64,15 @@ else( OPENSSL_INCLUDE_DIRECTORIES AND OPENSSL_LIBRARIES )
   endif( WIN32 )
 
   if( OPENSSL_LIBRARIES )
-    if( OPENSSL_INCLUDE_DIRECTORIES )
+    if( OPENSSL_INCLUDE_DIR )
       set( OPENSSL_FOUND 1 )
       message(STATUS "Found OpenSSL library: ${OPENSSL_LIBRARIES}")
-      message(STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIRECTORIES}")
-    else ( OPENSSL_INCLUDE_DIRECTORIES )
+      message(STATUS "Found OpenSSL headers: ${OPENSSL_INCLUDE_DIR}")
+    else ( OPENSSL_INCLUDE_DIR )
       message(FATAL_ERROR "Could not find OpenSSL headers! Please install the development-headers")
-    endif( OPENSSL_INCLUDE_DIRECTORIES )
+    endif( OPENSSL_INCLUDE_DIR )
   else( OPENSSL_LIBRARIES )
     message(FATAL_ERROR "Could not find OpenSSL libraries! Please install the library before continuing")
   endif( OPENSSL_LIBRARIES )
-  mark_as_advanced( OPENSSL_FOUND OPENSSL_LIBRARIES OPENSSL_EXTRA_LIBRARIES OPENSSL_INCLUDE_DIRECTORIES )
-endif( OPENSSL_INCLUDE_DIRECTORIES AND OPENSSL_LIBRARIES )
+  mark_as_advanced( OPENSSL_FOUND OPENSSL_LIBRARIES OPENSSL_EXTRA_LIBRARIES OPENSSL_INCLUDE_DIR )
+endif( OPENSSL_INCLUDE_DIR AND OPENSSL_LIBRARIES )
