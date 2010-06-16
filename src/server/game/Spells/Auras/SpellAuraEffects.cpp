@@ -1811,13 +1811,6 @@ void AuraEffect::PeriodicDummyTick(Unit * target, Unit * caster) const
                 else
                     target->RemoveAurasDueToSpell(58670);
                 break;
-            case 58600: // No fly Zone - Dalaran
-                if (GetTickNumber() == 10)
-                {
-                    target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
-                    target->RemoveAurasByType(SPELL_AURA_FLY);
-                }
-                break;
             case 62292: // Blaze (Pool of Tar)
                 // should we use custom damage?
                 target->CastSpell((Unit*)NULL, m_spellProto->EffectTriggerSpell[m_effIndex], true);

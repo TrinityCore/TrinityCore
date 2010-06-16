@@ -5357,9 +5357,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // allow always ghost flight spells
                 if (m_originalCaster && m_originalCaster->GetTypeId() == TYPEID_PLAYER && m_originalCaster->isAlive())
                 {
-                    // 4197 = Wintergrasp || 4395 = Dalaran && 4564 = Krasus Landing
-                    if (m_originalCaster->GetZoneId() == 4197 || m_originalCaster->GetZoneId() == 4395 && m_originalCaster->GetAreaId() != 4564)
-                        return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                    if (AreaTableEntry *const pArea = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
+                        if (pArea->flags & AREA_FLAG_NO_FLY_ZONE)
+                            return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                 }
                 break;
             }
