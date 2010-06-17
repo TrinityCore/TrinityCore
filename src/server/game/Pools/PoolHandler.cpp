@@ -121,10 +121,7 @@ void PoolGroup<T>::AddEntry(PoolObject& poolitem, uint32 maxentries)
 template <class T>
 bool PoolGroup<T>::CheckPool() const
 {
-    if (EqualChanced.size() && ExplicitlyChanced.size())
-        return false;
-
-    if (ExplicitlyChanced.size())
+    if (!EqualChanced.size())
     {
         float chance = 0;
         for (uint32 i = 0; i < ExplicitlyChanced.size(); ++i)
@@ -662,7 +659,7 @@ void PoolHandler::LoadFromDB()
 // The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
 void PoolHandler::Initialize()
 {
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry FROM pool_template LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL AND pool_pool.pool_id IS NULL");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_pool.pool_id, pool_pool.mother_pool FROM pool_template LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry LEFT JOIN pool_pool ON pool_template.entry=pool_pool.pool_id WHERE game_event_pool.pool_entry IS NULL");
     uint32 count=0;
     if (result)
     {
@@ -670,13 +667,25 @@ void PoolHandler::Initialize()
         {
             Field *fields = result->Fetch();
             uint16 pool_entry = fields[0].GetUInt16();
+            uint16 pool_pool_id = fields[1].GetUInt16();
+
             if (!CheckPool(pool_entry))
             {
-                sLog.outErrorDb("Pool Id (%u) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", pool_entry);
+                if (pool_pool_id)
+                    // The pool is a child pool in pool_pool table. Ideally we should remove it from the pool handler to ensure it never gets spawned,
+                    // however that could recursively invalidate entire chain of mother pools. It can be done in the future but for now we'll do nothing.
+                    sLog.outErrorDb("Pool Id %u has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id %u and cannot be safely removed.", pool_entry, fields[2].GetUInt16());
+                else
+                    sLog.outErrorDb("Pool Id %u has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
                 continue;
             }
-            SpawnPool(pool_entry);;
-            count++;
+
+            // Don't spawn child pools, they are spawned recursively by their parent pools
+            if (!pool_pool_id)
+            {
+                SpawnPool(pool_entry);;
+                count++;
+            }
         } while (result->NextRow());
     }
 
