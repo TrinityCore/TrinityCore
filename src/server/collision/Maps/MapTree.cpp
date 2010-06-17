@@ -146,19 +146,32 @@ namespace VMAP
 
     bool StaticMapTree::isInLineOfSight(const Vector3& pos1, const Vector3& pos2) const
     {
-        bool result = true;
+        bool result = false;
         float maxDist = (pos2 - pos1).magnitude();
         // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-        ASSERT(maxDist < std::numeric_limits<float>::max());
+
+        //ASSERT(maxDist < std::numeric_limits<float>::max());
+
         // prevent NaN values which can cause BIH intersection to enter infinite loop
         if (maxDist < 1e-10f)
             return true;
         // direction with length of 1
+        G3D::Plane checkPlane = G3D::Plane(pos1, pos2, (pos2 - pos1));
         G3D::Ray ray = G3D::Ray::fromOriginAndDirection(pos1, (pos2 - pos1)/maxDist);
-        float resultDist = getIntersectionTime(ray, maxDist, true);
-        if (resultDist < maxDist)
+
+        Vector3 checkFinite = ray.intersection(checkPlane);
+        if (!checkFinite.isFinite())
         {
-            result = false;
+            ray = G3D::Ray::fromOriginAndDirection(pos1, -((pos2 - pos1)/maxDist));
+            checkFinite = ray.intersection(checkPlane);
+        }
+        if (checkFinite.isFinite())
+        {
+            float resultDist = getIntersectionTime(ray, maxDist, true);
+            if (resultDist >= maxDist)
+            {
+               result = true;
+            }
         }
         return result;
     }
