@@ -156,7 +156,7 @@ namespace VMAP
         if (maxDist < 1e-10f)
             return true;
         // direction with length of 1
-        G3D::Plane checkPlane = G3D::Plane(pos1, pos2, (pos2 - pos1));
+	G3D::Plane checkPlane = G3D::Plane((pos2 - pos1)/maxDist,pos1, pos2);
         G3D::Ray ray = G3D::Ray::fromOriginAndDirection(pos1, (pos2 - pos1)/maxDist);
 
         Vector3 checkFinite = ray.intersection(checkPlane);
