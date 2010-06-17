@@ -87,7 +87,6 @@ find_path(MYSQL_INCLUDE_DIR
 
 if( UNIX )
 foreach(LIB ${MYSQL_ADD_LIBRARIES})
-endif( UNIX )
   find_library( MYSQL_LIBRARY 
     NAMES
       mysql libmysql ${LIB}
@@ -98,6 +97,17 @@ endif( UNIX )
       /usr/local/lib
       /usr/local/lib/mysql
       /usr/local/mysql/lib
+    DOC "Specify the location of the mysql library here."
+  )
+endforeach(LIB ${MYSQL_ADD_LIBRARY})
+endif( UNIX )
+
+if( WIN32 )
+  find_library( MYSQL_LIBRARY 
+    NAMES
+      mysql libmysql ${LIB}
+    PATHS
+      ${MYSQL_ADD_LIBRARIES_PATH}
       "C:/Program Files/MySQL/lib"
       "C:/Program Files/MySQL/MySQL Server 5.0/lib/opt"
       "C:/Program Files/MySQL/MySQL Server 5.1/lib/opt"
@@ -109,9 +119,7 @@ endif( UNIX )
       "c:/msys/local/include"
     DOC "Specify the location of the mysql library here."
   )
-if( UNIX)
-endforeach(LIB ${MYSQL_ADD_LIBRARY})
-endif( UNIX )
+endif( WIN32 )
 
 # On Windows you typically don't need to include any extra libraries
 # to build MYSQL stuff.
