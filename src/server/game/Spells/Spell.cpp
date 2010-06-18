@@ -1989,7 +1989,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             if (cur == TARGET_DST_TARGET_ENEMY || cur == TARGET_DEST_TARGET_ANY)
             {
                 m_targets.setDst(target);
-                AddUnitTarget(target, i);
                 break;
             }
 
@@ -2018,9 +2017,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             Position pos;
             target->GetNearPosition(pos, dist, angle);
             m_targets.setDst(&pos);
-            // Teleports use this as destination
-            if (m_spellInfo->Effect[i] != SPELL_EFFECT_TELEPORT_UNITS)
-                AddUnitTarget(target, i);
             break;
         }
 
@@ -2416,6 +2412,106 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
         if (!unitList.empty())
         {
+            // Special target selection for smart heals and energizes
+            uint32 maxSize = 0;
+            int32 power = -1;
+            switch (m_spellInfo->SpellFamilyName)
+            {
+                case SPELLFAMILY_GENERIC:
+                    switch (m_spellInfo->Id)
+                    {
+                        case 52759: // Ancestral Awakening
+                        case 71610: // Echoes of Light (Althor's Abacus normal version)
+                        case 71641: // Echoes of Light (Althor's Abacus heroic version)
+                            maxSize = 1;
+                            power = POWER_HEALTH;
+                            break;
+                        case 54968: // Glyph of Holy Light
+                            maxSize = m_spellInfo->MaxAffectedTargets;
+                            power = POWER_HEALTH;
+                            break;
+                        case 57669: // Replenishment
+                            maxSize = 10;
+                            power = POWER_MANA;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case SPELLFAMILY_PRIEST:
+                    if (m_spellInfo->SpellFamilyFlags[0] == 0x10000000) // Circle of Healing
+                    {
+                        maxSize = m_caster->HasAura(55675) ? 6 : 5; // Glyph of Circle of Healing
+                        power = POWER_HEALTH;
+                    }
+                    else if (m_spellInfo->Id == 64844) // Divine Hymn
+                    {
+                        maxSize = 3;
+                        power = POWER_HEALTH;
+                    }
+                    else if (m_spellInfo->Id == 64904) // Hymn of Hope
+                    {
+                        maxSize = 3;
+                        power = POWER_MANA;
+                    }
+
+                    // Remove targets outside caster's raid
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                    {
+                        if (!(*itr)->IsInRaidWith(m_caster))
+                            itr = unitList.erase(itr);
+                        else
+                            ++itr;
+                    }
+                    break;
+                case SPELLFAMILY_DRUID:
+                    if (m_spellInfo->SpellFamilyFlags[1] == 0x04000000) // Wild Growth
+                    {
+                        maxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
+                        power = POWER_HEALTH;
+                    }
+
+                    // Remove targets outside caster's raid
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                    {
+                        if (!(*itr)->IsInRaidWith(m_caster))
+                            itr = unitList.erase(itr);
+                        else
+                            ++itr;
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if (maxSize && power != -1)
+            {
+                if (power == POWER_HEALTH)
+                {
+                    if (unitList.size() > maxSize)
+                    {
+                        unitList.sort(Trinity::HealthPctOrderPred());
+                        unitList.resize(maxSize);
+                    }
+                }
+                else
+                {
+                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
+                    {
+                        if ((*itr)->getPowerType() != (Powers)power)
+                            itr = unitList.erase(itr);
+                        else
+                            ++itr;
+                    }
+                    if (unitList.size() > maxSize)
+                    {
+                        unitList.sort(Trinity::PowerPctOrderPred((Powers)power));
+                        unitList.resize(maxSize);
+                    }
+                }
+            }
+            
+            // Other special target selection goes here
             if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
             {
                 Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
@@ -2438,56 +2534,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     case 59725: // Improved Spell Reflection - aoe aura
                         unitList.remove(m_caster);
                         break;
-                    case 57669: //Replenishment (special target selection) 10 targets with lowest mana
-                    {
-                        for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
-                        {
-                            if ((*itr)->getPowerType() != POWER_MANA)
-                                itr = unitList.erase(itr);
-                            else
-                                ++itr;
-                        }
-                        if (unitList.size() > 10)
-                        {
-                            unitList.sort(Trinity::PowerPctOrderPred(POWER_MANA));
-                            unitList.resize(10);
-                        }
-                        break;
-                    }
-                    case 52759: // Ancestral Awakening
-                    {
-                        if (unitList.size() > 1)
-                        {
-                            unitList.sort(Trinity::HealthPctOrderPred());
-                            unitList.resize(1);
-                        }
-                        break;
-                    }
-                }
-                if (m_spellInfo->EffectImplicitTargetA[i] == TARGET_DEST_TARGET_ANY
-                    && m_spellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_AREA_ALLY_DST)// Wild Growth, Circle of Healing, Glyph of holy light target special selection
-                {
-                    for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
-                    {
-                        if (!(*itr)->IsInRaidWith(m_targets.getUnitTarget()))
-                            itr = unitList.erase(itr);
-                        else
-                            ++itr;
-                    }
-                    
-                    uint32 maxsize = 5;
-
-                    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DRUID && m_spellInfo->SpellFamilyFlags[1] & 0x04000000) // Wild Growth
-                        maxsize += m_caster->HasAura(62970) ? 1 : 0; // Glyph of Wild Growth
-
-                    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PRIEST && m_spellInfo->SpellFamilyFlags[0] & 0x10000000 && m_spellInfo->SpellIconID == 2214) // Circle of Healing
-                        maxsize += m_caster->HasAura(55675) ? 1 : 0; // Glyph of Circle of Healing
-                                    
-                    if (unitList.size() > maxsize)
-                    {
-                        unitList.sort(Trinity::HealthPctOrderPred());
-                        unitList.resize(maxsize);
-                    }
                 }
                 // Death Pact
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] & 0x00080000)
@@ -5212,24 +5258,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                         if (m_caster->GetTypeId() != TYPEID_PLAYER || !m_caster->ToPlayer()->IsInFeralForm())
                             return SPELL_FAILED_ONLY_SHAPESHIFT;
                         break;
-                    // Wild Growth
-                    case 48438:
-                    case 53248:
-                    case 53249:
-                    case 53251:
-                    {
-                        if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                            return SPELL_FAILED_DONT_REPORT;
-
-                        Unit* target = m_targets.getUnitTarget();
-                        if (!target || target->GetTypeId() != TYPEID_PLAYER)
-                            return SPELL_FAILED_BAD_TARGETS;
-
-                        if (!m_caster->ToPlayer()->IsInSameRaidWith(target->ToPlayer()))
-                            return SPELL_FAILED_TARGET_NOT_IN_RAID;
-
-                        break;
-                    }
                     case 1515:
                     {
                         if (m_caster->GetTypeId() != TYPEID_PLAYER)
