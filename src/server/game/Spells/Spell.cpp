@@ -2461,6 +2461,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         maxSize = 3;
                         power = POWER_MANA;
                     }
+                    else
+                        break;
 
                     // Remove targets outside caster's raid
                     for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
@@ -2477,6 +2479,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         maxSize = m_caster->HasAura(62970) ? 6 : 5; // Glyph of Wild Growth
                         power = POWER_HEALTH;
                     }
+                    else
+                        break;
 
                     // Remove targets outside caster's raid
                     for (std::list<Unit*>::iterator itr = unitList.begin() ; itr != unitList.end();)
