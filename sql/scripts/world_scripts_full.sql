@@ -1491,6 +1491,18 @@ UPDATE `creature_template` SET `ScriptName`='boss_moragg' WHERE `entry`=29316;
 UPDATE `creature_template` SET `ScriptName`='boss_xevozz' WHERE `entry`=29266;
 UPDATE `creature_template` SET `ScriptName`='mob_ethereal_sphere' WHERE `entry`=29271;
 UPDATE `creature_template` SET `ScriptName`='boss_cyanigosa' WHERE `entry`=31134;
+update `creature_template` SET `scriptname`='mob_azure_invader' WHERE `entry`=30661; 
+update `creature_template` SET `scriptname`='mob_azure_spellbreaker' WHERE `entry`=30662;
+update `creature_template` SET `scriptname`='mob_azure_binder' WHERE `entry`=30663;
+update `creature_template` SET `scriptname`='mob_azure_mage_slayer' WHERE `entry`=30664;
+update `creature_template` SET `scriptname`='mob_azure_captain' WHERE `entry`=30666;
+update `creature_template` SET `scriptname`='mob_azure_sorceror' WHERE `entry`=30667;
+update `creature_template` SET `scriptname`='mob_azure_raider' WHERE `entry`=30668;
+update `creature_template` SET `scriptname`='mob_azure_stalker' WHERE `entry`=32191;
+update `creature_template` SET `scriptname`='mob_azure_invader' WHERE `entry`=30961;
+update `creature_template` SET `scriptname`='mob_azure_spellbreaker' WHERE `entry`=30962;
+update `creature_template` SET `scriptname`='mob_azure_binder' WHERE `entry`=30918;
+update `creature_template` SET `scriptname`='mob_azure_mage_slayer' WHERE `entry`=30963;
 UPDATE `instance_template` SET `script`='instance_violet_hold' WHERE `map`=608;
 
 /* WAILING CAVERNS */
