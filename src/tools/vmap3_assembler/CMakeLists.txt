@@ -19,6 +19,7 @@ include_directories(
   ${ACE_INCLUDE_DIR}
 )
 
+add_definitions(-DNO_CORE_FUNCS)
 add_executable(vmap3assembler VMapAssembler.cpp)
 target_link_libraries(vmap3assembler collision g3dlib)
 
