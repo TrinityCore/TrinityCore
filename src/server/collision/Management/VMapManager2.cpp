@@ -280,6 +280,7 @@ namespace VMAP
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
                 floor = info.ground_Z;
+                ASSERT(floor < std::numeric_limits<float>::max());
                 type = info.hitModel->GetLiquidType();
                 if (ReqLiquidType && !(type & ReqLiquidType))
                     return false;
