@@ -16,7 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Errors.h"
 #include "MapTree.h"
 #include "ModelInstance.h"
 #include "VMapManager2.h"
@@ -26,6 +25,12 @@
 #include <sstream>
 #include <iomanip>
 #include <limits>
+
+#ifndef NO_CORE_FUNCS
+    #include "Errors.h"
+#else
+    #define ASSERT(x)
+#endif
 
 using G3D::Vector3;
 

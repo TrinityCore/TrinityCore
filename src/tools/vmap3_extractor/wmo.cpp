@@ -386,7 +386,7 @@ int WMOGroup::ConvertToVMAPGroupWmo(FILE *output, WMORoot *rootWMO, bool pPrecis
         if (rootWMO->liquidType & 4)
             liquidEntry = liquidType;
         else if (liquidType == 15)
-            liquidEntry = 0;
+            liquidEntry = 1; // first entry, generic "Water"
         else
             liquidEntry = liquidType + 1;
         // overwrite material type in header...
