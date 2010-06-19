@@ -117,7 +117,7 @@ class Database
         bool _UpdateDataBlobValue(const uint32 guid, const uint32 field, const int32 value);
         bool _SetDataBlobValue(const uint32 guid, const uint32 field, const uint32 value);
 
-        // Writes SQL commands to a LOG file (see Trinityd.conf "LogSQL")
+        // Writes SQL commands to a LOG file (see worldserver.conf "LogSQL")
         bool PExecuteLog(const char *format,...) ATTR_PRINTF(2,3);
 
         bool BeginTransaction();
