@@ -33,13 +33,15 @@ SET(collision_STAT_SRCS
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/externals/g3dlite
+  ${CMAKE_SOURCE_DIR}/externals/mysql
   ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
+  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
   ${CMAKE_BINARY_DIR}
 )
 
