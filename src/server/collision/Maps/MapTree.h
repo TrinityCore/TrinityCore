@@ -22,7 +22,6 @@
 #include "Define.h"
 #include "Dynamic/UnorderedMap.h"
 #include "BoundingIntervalHierarchy.h"
-#include "Log.h"
 
 namespace VMAP
 {
