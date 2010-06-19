@@ -13,7 +13,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/externals/g3dlite
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Debugging
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/collision/Maps
   ${CMAKE_SOURCE_DIR}/src/server/collision/Models
   ${ACE_INCLUDE_DIR}
