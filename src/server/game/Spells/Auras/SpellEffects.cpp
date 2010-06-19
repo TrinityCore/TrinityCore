@@ -391,8 +391,9 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             return;
                         break;
                     }
-                    // gruul's shatter
-                    case 33671:
+                    case 33671: // gruul's shatter
+                    case 50811: //krystallus shatter ( Normal )
+                    case 61547: //krystallus shatter ( Heroic )
                     {
                         // don't damage self and only players
                         if (unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
