@@ -383,7 +383,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                     {
                         bPortalGuardianOrKeeperOrEliteSpawn = true;
                         uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 2 : 3;
-                        for (uint8 i = 0; i < k; i)
+                        for (uint8 i = 0; i < k; ++i)
                         {
                             uint32 entry = RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR);
                             DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
@@ -394,7 +394,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                 else
                 {
                     // if all spawned elites have died kill portal
-                    if(!listOfMobs.size())
+                    if(listOfMobs.empty())
                     {
                         me->Kill(me, false);
                         me->RemoveCorpse();
@@ -408,7 +408,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                     if(bPortalGuardianOrKeeperOrEliteSpawn)
                     {
                         uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
-                        for (uint8 i = 0; i < k; i)
+                        for (uint8 i = 0; i < k; ++i)
                         {
                             uint32 entry = RAND(CREATURE_AZURE_INVADER_1,CREATURE_AZURE_INVADER_2,CREATURE_AZURE_SPELLBREAKER_1,CREATURE_AZURE_SPELLBREAKER_2,CREATURE_AZURE_MAGE_SLAYER_1,CREATURE_AZURE_MAGE_SLAYER_2,CREATURE_AZURE_BINDER_1,CREATURE_AZURE_BINDER_2);
                             DoSummon(entry, me, 2.0f, 20000, TEMPSUMMON_DEAD_DESPAWN);
@@ -439,14 +439,14 @@ struct npc_teleportation_portalAI : public ScriptedAI
             pInstance->SetData(DATA_WAVE_COUNT,pInstance->GetData(DATA_WAVE_COUNT)+1);
     }
 
-    void JustSummoned(Creature *summoned)
+    void JustSummoned(Creature *pSummoned)
     {
-        listOfMobs.Summon(summoned);
+        listOfMobs.Summon(pSummoned);
     }
 
-    void SummonedMobDied(Creature *summoned)
+    void SummonedCreatureDespawn(Creature *pSummoned)
     {
-        listOfMobs.Despawn(summoned);
+        listOfMobs.Despawn(pSummoned);
     }
 };
 
@@ -562,8 +562,6 @@ struct violet_hold_trashAI : public npc_escortAI
     void JustDied(Unit *unit)
     {
         Creature* portal = Unit::GetCreature((*me),pInstance->GetData64(DATA_TELEPORTATION_PORTAL));
-        if (portal)
-            CAST_AI(npc_teleportation_portalAI,portal->AI())->SummonedMobDied(me);
         pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE,1);
     }
 
