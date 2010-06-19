@@ -51,15 +51,13 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     for (uint8 idx = 0; idx <= MAX_CONF_WAYPOINTS; ++idx)
     {
+        const float wanderX = wander_distance*rand_norm() - wander_distance/2;
+        const float wanderY = wander_distance*rand_norm() - wander_distance/2;
+        i_waypoints[idx][0] = x + wanderX;
+        i_waypoints[idx][1] = y + wanderY;
+        
         const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f);
-        if (isInLoS)
-        {
-            const float wanderX = wander_distance*rand_norm() - wander_distance/2;
-            const float wanderY = wander_distance*rand_norm() - wander_distance/2;
-            i_waypoints[idx][0] = x + wanderX;
-            i_waypoints[idx][1] = y + wanderY;
-        }
-        else
+        if (!isInLoS)
         {
             i_waypoints[idx][0] = x;
             i_waypoints[idx][1] = y;
