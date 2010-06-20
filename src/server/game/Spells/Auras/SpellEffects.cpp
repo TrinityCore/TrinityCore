@@ -2553,6 +2553,27 @@ void Spell::EffectTeleportUnits(uint32 /*i*/)
     if (!unitTarget || unitTarget->isInFlight())
         return;
 
+    // Pre effects
+    uint8 uiMaxSafeLevel = 0;
+    switch (m_spellInfo->Id)
+    {
+        case 48129:  // Scroll of Recall
+            uiMaxSafeLevel = 40;
+        case 60320:  // Scroll of Recall II
+            if (!uiMaxSafeLevel)
+                uiMaxSafeLevel = 70;
+        case 60321:  // Scroll of Recal III
+            if (!uiMaxSafeLevel)
+                uiMaxSafeLevel = 80;
+            
+            if (unitTarget->getLevel() > uiMaxSafeLevel)
+            {
+                unitTarget->AddAura(60444,unitTarget); //Apply Lost! Aura
+                return;
+            }
+            break;
+    }
+
     // If not exist data for dest location - return
     if (!m_targets.HasDst())
     {
