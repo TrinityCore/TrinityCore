@@ -1408,11 +1408,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                     else
                         target->RemoveAurasDueToSpell(64364, GetCasterGUID());
                     break;
-                // Repeteance. remove Righteous Vengeance
-                case 20066:
-                    if (apply && target->HasAura(61840))
-                        target->RemoveAura(61840);
-                    break;
             }
             break;
         case SPELLFAMILY_DEATHKNIGHT:
