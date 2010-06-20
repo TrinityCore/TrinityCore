@@ -10,6 +10,10 @@ bin/
 *~
 .git/
 win/VC90/*/
+src/tools/bin/*/
+src/tools/map_extractor/VC90/*/
+src/tools/vmap3_assembler/VC90/*/
+src/tools/vmap3_extractor/VC90/*/
 *.ncb
 *.suo
 *.*-*
