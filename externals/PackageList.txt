@@ -2,7 +2,7 @@ TrinityCore uses (parts of or in whole) the following opensource software :
 
 ACE (ADAPTIVE Communication Environment)
   http://www.cs.wustl.edu/~schmidt/ACE.html
-  Version: UNKNOWN
+  Version: 5.7.9
 
 bzip2 (a freely available, patent free, high-quality data compressor)
   http://www.bzip.org/
@@ -14,7 +14,7 @@ G3D (a commercial-grade C++ 3D engine available as Open Source (BSD License)
 
 jemalloc (a general-purpose scalable concurrent malloc-implementation)
   http://www.canonware.com/jemalloc/
-  Version: UNKNOWN
+  Version: 1.0.0
   
 libMPQ (a library for reading MPQ files)
   https://libmpq.org/
@@ -30,7 +30,7 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
 
 MySQL (the world's most popular open source database software)
   http://www.mysql.com/about/
-  Version: UNKNOWN
+  Version: 6.0.2
 
 OpenSSL (an opensource toolkit implementing SSL v2/v3 and TLS v1 protocols)
   http://www.openssl.org/
