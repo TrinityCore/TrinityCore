@@ -317,7 +317,7 @@ bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
         pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
-    }else
+    } else
         pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
     return true;
 }
@@ -377,7 +377,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
         {
             // spawn elite mobs and then set portals visibility to make it look like it dissapeard
             case 0:
-                if(!bPortalGuardianOrKeeperOrEliteSpawn)
+                if (!bPortalGuardianOrKeeperOrEliteSpawn)
                 {
                     if (uiSpawnTimer <= diff)
                     {
@@ -394,7 +394,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                 else
                 {
                     // if all spawned elites have died kill portal
-                    if(listOfMobs.empty())
+                    if (listOfMobs.empty())
                     {
                         me->Kill(me, false);
                         me->RemoveCorpse();
@@ -405,7 +405,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
             case 1:
                 if (uiSpawnTimer <= diff)
                 {
-                    if(bPortalGuardianOrKeeperOrEliteSpawn)
+                    if (bPortalGuardianOrKeeperOrEliteSpawn)
                     {
                         uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
                         for (uint8 i = 0; i < k; ++i)
@@ -444,7 +444,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
         listOfMobs.Summon(pSummoned);
     }
 
-    void SummonedCreatureDespawn(Creature *pSummoned)
+    void SummonedMobDied(Creature *pSummoned)
     {
         listOfMobs.Despawn(pSummoned);
     }
@@ -461,7 +461,8 @@ struct violet_hold_trashAI : public npc_escortAI
     {
         pInstance = c->GetInstanceData();
         bHasGotMovingPoints = false;
-        portalLocationID = pInstance->GetData(DATA_PORTAL_LOCATION);
+        if (pInstance)
+            portalLocationID = pInstance->GetData(DATA_PORTAL_LOCATION);
         Reset();
     }
 
@@ -480,23 +481,23 @@ struct violet_hold_trashAI : public npc_escortAI
                    CreatureStartAttackDoor(me->GetGUID());
                 break;
             case 1:
-                if((uiPointId == 8 && secondPortalRouteID == 0) || (uiPointId == 7 && secondPortalRouteID == 1))
+                if ((uiPointId == 8 && secondPortalRouteID == 0) || (uiPointId == 7 && secondPortalRouteID == 1))
                     CreatureStartAttackDoor(me->GetGUID());
                 break;
             case 2:
-                if(uiPointId == 7)
+                if (uiPointId == 7)
                    CreatureStartAttackDoor(me->GetGUID());
                 break;
             case 3:
-                if(uiPointId == 8)
+                if (uiPointId == 8)
                     CreatureStartAttackDoor(me->GetGUID());
                 break;
             case 4:
-                if(uiPointId == 5)
+                if (uiPointId == 5)
                     CreatureStartAttackDoor(me->GetGUID());
                 break;
             case 5:
-                if(uiPointId == 3)
+                if (uiPointId == 3)
                     CreatureStartAttackDoor(me->GetGUID());
                 break;
         }
@@ -504,10 +505,10 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void UpdateAI(const uint32)
     {
-        if(pInstance->GetData(DATA_MAIN_DOOR) != GO_STATE_READY)
+        if (pInstance->GetData(DATA_MAIN_DOOR) != GO_STATE_READY)
                 me->CastStop();
 
-        if(!bHasGotMovingPoints)
+        if (!bHasGotMovingPoints)
         {
             bHasGotMovingPoints = true;
                 switch(portalLocationID)
@@ -561,15 +562,18 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void JustDied(Unit *unit)
     {
-        Creature* portal = Unit::GetCreature((*me),pInstance->GetData64(DATA_TELEPORTATION_PORTAL));
-        pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE,1);
+        if (Creature* portal = Unit::GetCreature((*me),pInstance->GetData64(DATA_TELEPORTATION_PORTAL)))
+            CAST_AI(npc_teleportation_portalAI,portal->AI())->SummonedMobDied(me);
+        if (pInstance)
+            pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE,1);
     }
 
     void CreatureStartAttackDoor(uint32 creature_guid)
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_DESTROY_DOOR_SEAL);
-        pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD,1);
+        if (pInstance)
+            pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD,1);
     }
 
 };
@@ -599,39 +603,39 @@ struct mob_azure_invaderAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(me->GetEntry() == CREATURE_AZURE_INVADER_1)
+        if (me->GetEntry() == CREATURE_AZURE_INVADER_1)
         {
-            if(uiCleaveTimer <= diff)
+            if (uiCleaveTimer <= diff)
             {
                 DoCast(me->getVictim(),SPELL_CLEAVE);
                 uiCleaveTimer = 5000;
-            }else uiCleaveTimer -= diff;
+            } else uiCleaveTimer -= diff;
 
-            if(uiImpaleTimer <= diff)
+            if (uiImpaleTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget,SPELL_IMPALE);
                 uiImpaleTimer = 4000;
-            }else uiImpaleTimer -= diff;
+            } else uiImpaleTimer -= diff;
         }
 
-        if(me->GetEntry() == CREATURE_AZURE_INVADER_2)
+        if (me->GetEntry() == CREATURE_AZURE_INVADER_2)
         {
-            if(uiBrutalStrikeTimer <= diff)
+            if (uiBrutalStrikeTimer <= diff)
             {
                 DoCast(me->getVictim(),SPELL_BRUTAL_STRIKE);
                 uiBrutalStrikeTimer = 5000;
-            }else uiBrutalStrikeTimer -= diff;
+            } else uiBrutalStrikeTimer -= diff;
 
-            if(uiSunderArmorTimer <= diff)
+            if (uiSunderArmorTimer <= diff)
             {
                 DoCast(me->getVictim(),SPELL_SUNDER_ARMOR);
                 uiSunderArmorTimer = urand(8000,10000);
-            }else uiSunderArmorTimer -= diff;
+            } else uiSunderArmorTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
@@ -666,43 +670,43 @@ struct mob_azure_spellbreakerAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(me->GetEntry() == CREATURE_AZURE_SPELLBREAKER_1)
+        if (me->GetEntry() == CREATURE_AZURE_SPELLBREAKER_1)
         {
-            if(uiArcaneBlastTimer <= diff)
+            if (uiArcaneBlastTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget,DUNGEON_MODE(SPELL_ARCANE_BLAST,H_SPELL_ARCANE_BLAST));
                 uiArcaneBlastTimer = 6000;
-            }else uiArcaneBlastTimer -= diff;
+            } else uiArcaneBlastTimer -= diff;
 
-            if(uiSlowTimer <= diff)
+            if (uiSlowTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if(pTarget)
+                    if (pTarget)
                     DoCast(pTarget,SPELL_SLOW);
                 uiSlowTimer = 5000;
-            }else uiSlowTimer -= diff;
+            } else uiSlowTimer -= diff;
         }
 
-        if(me->GetEntry() == CREATURE_AZURE_SPELLBREAKER_2)
+        if (me->GetEntry() == CREATURE_AZURE_SPELLBREAKER_2)
         {
-            if(uiChainsOfIceTimer <= diff)
+            if (uiChainsOfIceTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget,SPELL_CHAINS_OF_ICE);
                 uiChainsOfIceTimer = 7000;
-            }else uiChainsOfIceTimer -= diff;
+            } else uiChainsOfIceTimer -= diff;
 
-            if(uiConeOfColdTimer <= diff)
+            if (uiConeOfColdTimer <= diff)
             {
                DoCast(DUNGEON_MODE(SPELL_CONE_OF_COLD,H_SPELL_CONE_OF_COLD));
                 uiConeOfColdTimer = 5000;
-            }else uiConeOfColdTimer -= diff;
+            } else uiConeOfColdTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -734,41 +738,41 @@ struct mob_azure_binderAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(me->GetEntry() == CREATURE_AZURE_BINDER_1)
+        if (me->GetEntry() == CREATURE_AZURE_BINDER_1)
         {
-            if(uiArcaneExplosionTimer <= diff)
+            if (uiArcaneExplosionTimer <= diff)
             {
                 DoCast(DUNGEON_MODE(SPELL_ARCANE_EXPLOSION,H_SPELL_ARCANE_EXPLOSION));
                 uiArcaneExplosionTimer = 5000;
-            }else uiArcaneExplosionTimer -= diff;
+            } else uiArcaneExplosionTimer -= diff;
 
-                if(uiArcainBarrageTimer <= diff)
+                if (uiArcainBarrageTimer <= diff)
             {
                     Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if(pTarget)
+                if (pTarget)
                         DoCast(pTarget,DUNGEON_MODE(SPELL_ARCANE_BARRAGE,H_SPELL_ARCANE_BARRAGE));
                 uiArcainBarrageTimer = 6000;
-            }else uiArcainBarrageTimer -= diff;
+            } else uiArcainBarrageTimer -= diff;
         }
 
-        if(me->GetEntry() == CREATURE_AZURE_BINDER_2)
+        if (me->GetEntry() == CREATURE_AZURE_BINDER_2)
         {
-            if(uiFrostNovaTimer <= diff)
+            if (uiFrostNovaTimer <= diff)
             {
                 DoCast(DUNGEON_MODE(SPELL_FROST_NOVA,H_SPELL_FROST_NOVA));
                 uiFrostNovaTimer = 5000;
-            }else uiFrostNovaTimer -= diff;
+            } else uiFrostNovaTimer -= diff;
 
-            if(uiFrostboltTimer <= diff)
+            if (uiFrostboltTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget,DUNGEON_MODE(SPELL_FROSTBOLT,H_SPELL_FROSTBOLT));
                 uiFrostboltTimer = 6000;
-            }else uiFrostboltTimer -= diff;
+            } else uiFrostboltTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -796,27 +800,27 @@ struct mob_azure_mage_slayerAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(me->GetEntry() == CREATURE_AZURE_MAGE_SLAYER_1)
+        if (me->GetEntry() == CREATURE_AZURE_MAGE_SLAYER_1)
         {
-            if(uiArcaneEmpowermentTimer <= diff)
+            if (uiArcaneEmpowermentTimer <= diff)
             {
                 DoCast(me,SPELL_ARCANE_EMPOWERMENT);
                     uiArcaneEmpowermentTimer = 14000;
-            }else uiArcaneEmpowermentTimer -= diff;
+            } else uiArcaneEmpowermentTimer -= diff;
         }
 
-        if(me->GetEntry() == CREATURE_AZURE_MAGE_SLAYER_2)
+        if (me->GetEntry() == CREATURE_AZURE_MAGE_SLAYER_2)
         {
-            if(uiSpellLockTimer <= diff)
+            if (uiSpellLockTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget,SPELL_SPELL_LOCK);
                 uiSpellLockTimer = 9000;
-            }else uiSpellLockTimer -= diff;
+            } else uiSpellLockTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
@@ -844,20 +848,20 @@ struct  mob_azure_captainAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(uiMortalStrikeTimer <= diff)
+        if (uiMortalStrikeTimer <= diff)
         {
             DoCast(me->getVictim(),SPELL_MORTAL_STRIKE);
             uiMortalStrikeTimer = 5000;
-        }else uiMortalStrikeTimer -= diff;
+        } else uiMortalStrikeTimer -= diff;
 
-        if(uiWhirlwindTimer <= diff)
+        if (uiWhirlwindTimer <= diff)
         {
             DoCast(me,SPELL_WHIRLWIND_OF_STEEL);
             uiWhirlwindTimer = 8000;
-        }else uiWhirlwindTimer -= diff;
+        } else uiWhirlwindTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -886,23 +890,23 @@ struct  mob_azure_sorcerorAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(uiArcaneStreamTimer <= diff)
+        if (uiArcaneStreamTimer <= diff)
         {
             Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-            if(pTarget)
+            if (pTarget)
                 DoCast(pTarget,DUNGEON_MODE(SPELL_ARCANE_STREAM,H_SPELL_ARCANE_STREAM));
             uiArcaneStreamTimer = urand(0,5000)+5000;
             uiArcaneStreamTimerStartingValueHolder = uiArcaneStreamTimer;
-        }else uiArcaneStreamTimer -= diff;
+        } else uiArcaneStreamTimer -= diff;
 
-        if(uiManaDetonationTimer <= diff && uiArcaneStreamTimer >=1500 && uiArcaneStreamTimer <= uiArcaneStreamTimerStartingValueHolder/2)
+        if (uiManaDetonationTimer <= diff && uiArcaneStreamTimer >=1500 && uiArcaneStreamTimer <= uiArcaneStreamTimerStartingValueHolder/2)
         {
             DoCast(DUNGEON_MODE(SPELL_MANA_DETONATION,H_SPELL_MANA_DETONATION));
             uiManaDetonationTimer = urand(2000,6000);
-        }else uiManaDetonationTimer -= diff;
+        } else uiManaDetonationTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -929,20 +933,20 @@ struct mob_azure_raiderAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(uiConcussionBlowTimer <= diff)
+        if (uiConcussionBlowTimer <= diff)
         {
             DoCast(me->getVictim(),SPELL_CONCUSSION_BLOW);
             uiConcussionBlowTimer = 5000;
-        }else uiConcussionBlowTimer -= diff;
+        } else uiConcussionBlowTimer -= diff;
 
-        if(uiMagicReflectionTimer <= diff)
+        if (uiMagicReflectionTimer <= diff)
         {
             DoCast(SPELL_MAGIC_REFLECTION);
             uiMagicReflectionTimer = urand(10000,15000);
-        }else uiMagicReflectionTimer -= diff;
+        } else uiMagicReflectionTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -970,30 +974,30 @@ struct mob_azure_stalkerAI : public violet_hold_trashAI
         violet_hold_trashAI::UpdateAI(diff);
         npc_escortAI::UpdateAI(diff);
 
-        if(!UpdateVictim())
+        if (!UpdateVictim())
             return;
 
-        if(!TacticalBlinkCasted)
+        if (!TacticalBlinkCasted)
         {
-            if(uiTacticalBlinkTimer <= diff)
+            if (uiTacticalBlinkTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true);
-                if(pTarget)
+                if (pTarget)
                     DoCast(pTarget,SPELL_TACTICAL_BLINK);
                     uiTacticalBlinkTimer = 6000;
                 TacticalBlinkCasted = true;
-            }else uiTacticalBlinkTimer -= diff;
+            } else uiTacticalBlinkTimer -= diff;
         }
 
         else
         {
-            if(uiBackstabTimer <= diff)
+            if (uiBackstabTimer <= diff)
             {
                 Unit* pTarget = SelectTarget(SELECT_TARGET_NEAREST, 0, 10, true);
                 DoCast(pTarget,SPELL_BACKSTAB);
                 TacticalBlinkCasted = false;
                 uiBackstabTimer =1300;
-            }else uiBackstabTimer -= diff;
+            } else uiBackstabTimer -= diff;
         }
 
         DoMeleeAttackIfReady();
