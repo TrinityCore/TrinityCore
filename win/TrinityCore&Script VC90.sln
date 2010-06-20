@@ -12,6 +12,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shared", "VC90\shared.vcpro
 		{803F488E-4C5A-4866-8D5C-1E6C03C007C2} = {803F488E-4C5A-4866-8D5C-1E6C03C007C2}
 		{BD537C9A-FECA-1BAD-6757-8A6348EA12C8} = {BD537C9A-FECA-1BAD-6757-8A6348EA12C8}
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E} = {8072769E-CF10-48BF-B9E1-12752A5DAC6E}
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5} = {4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrinityCore", "VC90\TrinityCore.vcproj", "{A3A04E47-43A2-4C08-90B3-029CEF558594}"
@@ -33,6 +34,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3dlite", "..\externals\g3dlite\win\VC90\g3dlite.vcproj", "{8072769E-CF10-48BF-B9E1-12752A5DAC6E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sockets", "..\externals\sockets\win\VC90\sockets.vcproj", "{9DF7A84E-C644-4720-A79D-C98CB950E34C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmysql", "..\externals\mysql\win\VC90\libmysql.vcproj", "{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +117,12 @@ Global
 		{9DF7A84E-C644-4720-A79D-C98CB950E34C}.Release|Win32.Build.0 = Release|Win32
 		{9DF7A84E-C644-4720-A79D-C98CB950E34C}.Release|x64.ActiveCfg = Release|x64
 		{9DF7A84E-C644-4720-A79D-C98CB950E34C}.Release|x64.Build.0 = Release|x64
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}.Debug|Win32.Build.0 = Debug|Win32
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}.Debug|x64.ActiveCfg = Debug|Win32
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}.Release|Win32.ActiveCfg = Release|Win32
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}.Release|Win32.Build.0 = Release|Win32
+		{4FBE4FC1-22DE-41A0-9AEB-CFD00EBAC7E5}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
