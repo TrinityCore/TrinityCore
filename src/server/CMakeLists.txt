@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -14,16 +14,17 @@ if(DO_WORLDSERVER)
   add_subdirectory(collision)
   if(DO_SCRIPTS)
     add_subdirectory(scripts)
-  endif(DO_SCRIPTS)
+  endif()
   add_subdirectory(worldserver)
-else(DO_WORLDSERVER)
+else()
   if(DO_TOOLS)
     add_subdirectory(collision)
-  endif(DO_TOOLS)
-endif(DO_WORLDSERVER)
+  endif()
+endif()
+
 if (DO_AUTHSERVER)
   if(NOT DO_WORLDSERVER)
     add_subdirectory(shared)
-  endif(NOT DO_WORLDSERVER)
+  endif()
   add_subdirectory(authserver)
-endif(DO_AUTHSERVER)
+endif()

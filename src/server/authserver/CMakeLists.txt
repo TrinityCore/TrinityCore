@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,7 @@
 
 ########### authserver ###############
 
-SET(authserver_SRCS
+set(authserver_SRCS
   Authentication/AuthCodes.cpp
   Authentication/AuthCodes.h
   Realms/RealmList.cpp
@@ -41,20 +41,21 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/authserver/Server
 )
 
-SET(authserver_LINK_FLAGS "")
+set(authserver_LINK_FLAGS "")
 
-add_executable(authserver ${authserver_SRCS})
-add_definitions(
-  -D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"'
+add_executable(authserver
+  ${authserver_SRCS}
 )
 
-SET(trinity-realm_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
+add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
 
-IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  SET(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+set(authserver_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
 
-SET_TARGET_PROPERTIES(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(authserver_LINK_FLAGS "-framework Carbon ${authserver_LINK_FLAGS}")
+endif()
+
+set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 target_link_libraries(
   authserver
@@ -67,8 +68,7 @@ target_link_libraries(
   ${OSX_LIBS}
 )
 
-install(TARGETS authserver DESTINATION bin)
-
 ########### install files ###############
 
+install(TARGETS authserver DESTINATION bin)
 install(FILES  authserver.conf.dist DESTINATION etc)

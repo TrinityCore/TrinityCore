@@ -8,15 +8,17 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources *.c)
+file(GLOB sources *.cpp)
 
-set(bzip2_STAT_SRCS
+set(ace_STAT_SRCS
   ${sources}
 )
 
 include_directories(
+  ${CMAKE_SOURCE_DIR}/externals
   ${CMAKE_SOURCE_DIR}/externals/zlib
-  ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_library(bzip2 STATIC ${bzip2_STAT_SRCS})
+add_definitions(-DACE_BUILD_DLL)
+
+add_library(ace STATIC ${ace_STAT_SRCS})
