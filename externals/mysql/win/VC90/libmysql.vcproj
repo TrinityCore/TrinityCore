@@ -54,7 +54,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /MP"
+				AdditionalOptions=" /Zm1000 /MP /wd4005"
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\..\;..\..\include;..\..\libmysql;..\..\regex;..\..\sql;..\..\strings;..\..\..\zlib;..\..\dbug;..\..\extlib\yassl\taocrypt\mySTL;..\..\extlib\yassl\taocrypt\include;..\..\extlib\yassl\include"
@@ -154,7 +154,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /MP"
+				AdditionalOptions=" /Zm1000 /MP /wd4005"
 				Optimization="2"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\..\;..\..\include;..\..\libmysql;..\..\regex;..\..\sql;..\..\strings;..\..\..\zlib;..\..\dbug;..\..\extlib\yassl\taocrypt\mySTL;..\..\extlib\yassl\taocrypt\include;..\..\extlib\yassl\include"
@@ -253,7 +253,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /MP"
+				AdditionalOptions=" /Zm1000 /MP /wd4005"
 				Optimization="0"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\..\;..\..\include;..\..\libmysql;..\..\regex;..\..\sql;..\..\strings;..\..\..\zlib;..\..\dbug;..\..\extlib\yassl\taocrypt\mySTL;..\..\extlib\yassl\taocrypt\include;..\..\extlib\yassl\include"
@@ -354,7 +354,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions=" /Zm1000 /MP"
+				AdditionalOptions=" /Zm1000 /MP /wd4005"
 				Optimization="2"
 				InlineFunctionExpansion="0"
 				AdditionalIncludeDirectories="..\..\;..\..\include;..\..\libmysql;..\..\regex;..\..\sql;..\..\strings;..\..\..\zlib;..\..\dbug;..\..\extlib\yassl\taocrypt\mySTL;..\..\extlib\yassl\taocrypt\include;..\..\extlib\yassl\include"
