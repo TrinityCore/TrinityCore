@@ -8,11 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(NOT MACOSX)
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
   add_subdirectory(jemalloc)
 endif()
 
-if(NOT UNIX)
+if(CMAKE_SYSTEM_NAME MATCHES "Windows")
   add_subdirectory(ace)
   add_subdirectory(zlib)
   add_subdirectory(bzip2)
