@@ -46,8 +46,7 @@ LFGQueue::~LFGQueue()
 
 void LFGQueue::AddToQueue(uint64 guid, LfgQueueInfo* pqInfo)
 {
-    if (LfgQueueInfo* qInfo = m_LfgQueue[guid])
-        delete qInfo;
+    delete m_LfgQueue[guid];
     m_LfgQueue[guid] = pqInfo;
     // ATM will only add it to the queue... No find group implementation... yet (on purpose)
 }

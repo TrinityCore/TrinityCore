@@ -117,11 +117,8 @@ bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result)
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
         SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (i*2), 0);
-        if (m_bagslot[i])
-        {
-            delete m_bagslot[i];
-            m_bagslot[i] = NULL;
-        }
+        delete m_bagslot[i];
+        m_bagslot[i] = NULL;
     }
 
     return true;

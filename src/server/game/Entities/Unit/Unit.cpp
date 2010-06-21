@@ -201,10 +201,8 @@ Unit::~Unit()
     RemoveAllDynObjects();
     _DeleteRemovedAuras();
 
-    if (m_charmInfo)
-        delete m_charmInfo;
-    if (m_vehicleKit)
-        delete m_vehicleKit;
+    delete m_charmInfo;
+    delete m_vehicleKit;
 
     assert(!m_attacking);
     assert(m_attackers.empty());
@@ -13297,8 +13295,7 @@ void Unit::UpdateCharmAI()
     {
         if (!isCharmed())
         {
-            if (i_AI)
-                delete i_AI;
+            delete i_AI;
             i_AI = i_disabledAI;
             i_disabledAI = NULL;
         }
