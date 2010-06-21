@@ -450,14 +450,14 @@ bool Master::_StartDB()
 
     ///- Get world database info from configuration file
     dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
-        sLog.outError("Database not specified in configuration file");
+        sLog.outError("World database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the world database
-    if(!WorldDatabase.Initialize(dbstring.c_str()))
+    if( !WorldDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to world database %s",dbstring.c_str());
         return false;
@@ -465,14 +465,14 @@ bool Master::_StartDB()
 
     ///- Get character database info from configuration file
     dbstring = sConfig.GetStringDefault("CharacterDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
-        sLog.outError("Character Database not specified in configuration file");
+        sLog.outError("Character database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the Character database
-    if(!CharacterDatabase.Initialize(dbstring.c_str()))
+    if (!CharacterDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to Character database %s",dbstring.c_str());
         return false;
@@ -480,14 +480,14 @@ bool Master::_StartDB()
 
     ///- Get login database info from configuration file
     dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
         sLog.outError("Login database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the login database
-    if(!LoginDatabase.Initialize(dbstring.c_str()))
+    if (!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());
         return false;
@@ -495,7 +495,7 @@ bool Master::_StartDB()
 
     ///- Get the realm Id from the configuration file
     realmID = sConfig.GetIntDefault("RealmID", 0);
-    if(!realmID)
+    if (!realmID)
     {
         sLog.outError("Realm ID not defined in configuration file");
         return false;
