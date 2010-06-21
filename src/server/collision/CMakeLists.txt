@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,24 +10,24 @@
 
 ########### collision ###############
 
-SET(collision_STAT_SRCS
-   BoundingIntervalHierarchy.h
-   BoundingIntervalHierarchy.cpp
-   Maps/MapTree.cpp
-   Maps/MapTree.h
-   Maps/TileAssembler.cpp
-   Maps/TileAssembler.h
-   Models/ModelInstance.cpp
-   Models/ModelInstance.h
-   Models/WorldModel.cpp
-   Models/WorldModel.h
-   Management/IVMapManager.h
-   Management/VMapFactory.cpp
-   Management/VMapFactory.h
-   Management/VMapManager2.cpp
-   Management/VMapManager2.h
-   VMapDefinitions.h
-   VMapTools.h
+set(collision_STAT_SRCS
+  BoundingIntervalHierarchy.h
+  BoundingIntervalHierarchy.cpp
+  Maps/MapTree.cpp
+  Maps/MapTree.h
+  Maps/TileAssembler.cpp
+  Maps/TileAssembler.h
+  Models/ModelInstance.cpp
+  Models/ModelInstance.h
+  Models/WorldModel.cpp
+  Models/WorldModel.h
+  Management/IVMapManager.h
+  Management/VMapFactory.cpp
+  Management/VMapFactory.h
+  Management/VMapManager2.cpp
+  Management/VMapManager2.h
+  VMapDefinitions.h
+  VMapTools.h
 )
 
 include_directories(

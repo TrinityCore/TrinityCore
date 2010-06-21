@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -10,7 +10,7 @@
 
 ########### worldserver ###############
 
-SET(worldserver_SRCS
+set(worldserver_SRCS
   CommandLine/CliRunnable.cpp
   CommandLine/CliRunnable.h
   RemoteAccess/RASocket.cpp
@@ -119,53 +119,71 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/WorldThread
 )
 
-SET(worldserver_LINK_FLAGS "")
+set(worldserver_LINK_FLAGS "")
 
 add_executable(worldserver ${worldserver_SRCS})
 add_definitions(
   -D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"'
 )
 
-SET(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
-
-IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  SET(worldserver_LINK_FLAGS "-framework Carbon ${worldserver_LINK_FLAGS}")
-  SET(SCRIPT_LIB "")
-ENDIF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-
-SET_TARGET_PROPERTIES(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
-
-if(DO_SCRIPTS)
-  SET(SCRIPT_LIB "scripts")
-else(DO_SCRIPTS)
-  SET(SCRIPT_LIB "")
-endif(DO_SCRIPTS)
-
-target_link_libraries(
-  worldserver
-  game
-  shared
-  zlib
-  trinitysockets
-  trinitydatabase
-  trinityauth
-  trinityconfig
-  collision
-  g3dlib
-  jemalloc
-  ${SCRIPT_LIB}
-  ${READLINE_LIBRARY}
-  ${TERMCAP_LIBRARY}
-  ${ACE_LIBRARY}
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${ZLIB} 
-  ${OSX_LIBS}
+set(worldserver_LINK_FLAGS
+  "-pthread ${worldserver_LINK_FLAGS}"
 )
 
-install(TARGETS worldserver DESTINATION bin)
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(worldserver_LINK_FLAGS "-framework Carbon ${worldserver_LINK_FLAGS}")
+  set(SCRIPT_LIB "")
+endif()
+
+set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
+
+if(DO_SCRIPTS)
+  set(SCRIPT_LIB "scripts")
+else(DO_SCRIPTS)
+  set(SCRIPT_LIB "")
+endif(DO_SCRIPTS)
+if(WIN32)
+ target_link_libraries(
+    worldserver
+    game
+    shared
+    zlib
+    trinitysockets
+    trinitydatabase
+    trinityauth
+    trinityconfig
+    collision
+    g3dlib
+    jemalloc
+    ${SCRIPT_LIB}
+    ${ACE_LIBRARY}
+    ${MYSQL_LIBRARY}
+    ${OPENSSL_LIBRARIES}
+  )
+else()
+  target_link_libraries(
+    worldserver
+    game
+    shared
+    trinitysockets
+    trinitydatabase
+    trinityauth
+    trinityconfig
+    collision
+    g3dlib
+    jemalloc
+    ${SCRIPT_LIB}
+    ${READLINE_LIBRARY}
+    ${TERMCAP_LIBRARY}
+    ${ACE_LIBRARY}
+    ${MYSQL_LIBRARY}
+    ${OPENSSL_LIBRARIES}
+    ${ZLIB_LIBRARIES} 
+    ${OSX_LIBS}
+  )
+endif()
 
 ########### install files ###############
 
-install(FILES  worldserver.conf.dist DESTINATION etc)
-
+install(TARGETS worldserver DESTINATION bin)
+install(FILES   worldserver.conf.dist DESTINATION etc)

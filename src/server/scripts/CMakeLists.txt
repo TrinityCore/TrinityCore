@@ -1,4 +1,4 @@
-# Copyright (C) 2005-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,7 +8,6 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-####### scripts ########
 file(GLOB_RECURSE scripts_easternkingdoms EasternKingdoms/*.cpp)
 file(GLOB_RECURSE scripts_kalimdor Kalimdor/*.cpp)
 file(GLOB_RECURSE scripts_northrend Northrend/*.cpp)
@@ -17,34 +16,36 @@ file(GLOB_RECURSE scripts_world World/*.cpp)
 file(GLOB_RECURSE scripts_examples Examples/*.cpp)
 
 # Enable precompiled headers when using the GCC compiler.
-IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-	INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
-ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+if(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+  include_directories(
+    ${CMAKE_CURRENT_BINARY_DIR}
+  )
+endif()
 
-SET(scripts_STAT_SRCS
-   ../game/PrecompiledHeaders/ScriptPCH.cpp
-   ../game/PrecompiledHeaders/ScriptPCH.h
-   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
-   ../game/AI/ScriptedAI/ScriptedEscortAI.h
-   ../game/AI/ScriptedAI/ScriptedCreature.cpp
-   ../game/AI/ScriptedAI/ScriptedCreature.h
-   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
-   ../game/AI/ScriptedAI/ScriptedFollowerAI.h
-   ../game/AI/ScriptedAI/ScriptedGossip.h
-   ../game/AI/ScriptedAI/ScriptedGuardAI.cpp
-   ../game/AI/ScriptedAI/ScriptedGuardAI.h
-   ../game/AI/ScriptedAI/ScriptedInstance.h
-   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
-   ../game/AI/ScriptedAI/ScriptedSimpleAI.h
-   Custom/on_events.cpp
-   ${scripts_easternkingdoms}
-   ${scripts_kalimdor}
-   ${scripts_northrend}
-   ${scripts_outland}
-   ${scripts_world}
-   ${scripts_examples}
+set(scripts_STAT_SRCS
+  ../game/PrecompiledHeaders/ScriptPCH.cpp
+  ../game/PrecompiledHeaders/ScriptPCH.h
+  ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
+  ../game/AI/ScriptedAI/ScriptedEscortAI.h
+  ../game/AI/ScriptedAI/ScriptedCreature.cpp
+  ../game/AI/ScriptedAI/ScriptedCreature.h
+  ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
+  ../game/AI/ScriptedAI/ScriptedFollowerAI.h
+  ../game/AI/ScriptedAI/ScriptedGossip.h
+  ../game/AI/ScriptedAI/ScriptedGuardAI.cpp
+  ../game/AI/ScriptedAI/ScriptedGuardAI.h
+  ../game/AI/ScriptedAI/ScriptedInstance.h
+  ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
+  ../game/AI/ScriptedAI/ScriptedSimpleAI.h
+  Custom/on_events.cpp
+  ${scripts_easternkingdoms}
+  ${scripts_kalimdor}
+  ${scripts_northrend}
+  ${scripts_outland}
+  ${scripts_world}
+  ${scripts_examples}
 )
-message("-- Added Script Engine to SCRIPTS lib")
+message("-- Added Scriptengine to SCRIPTS lib")
 
 include_directories(
   ${ACE_INCLUDE_DIR}
@@ -134,7 +135,8 @@ include_directories(
 add_library(scripts STATIC ${scripts_STAT_SRCS})
 
 # Generate precompiled header
-IF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-	ADD_PRECOMPILED_HEADER(scripts ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/ScriptPCH.h)
-ENDIF(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-
+if(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+  add_precompiled_header(scripts
+    ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/ScriptPCH.h
+  )
+endif()
