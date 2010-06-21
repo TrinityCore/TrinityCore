@@ -15935,6 +15935,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
         // There are no transports on instances
         instanceId = 0;
 
+        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_TRANSPORT);
         m_movementInfo.t_x = fields[26].GetFloat();
         m_movementInfo.t_y = fields[27].GetFloat();
         m_movementInfo.t_z = fields[28].GetFloat();
