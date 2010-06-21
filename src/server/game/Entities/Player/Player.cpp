@@ -514,10 +514,7 @@ Player::~Player ()
 
     // Note: buy back item already deleted from DB when player was saved
     for (uint8 i = 0; i < PLAYER_SLOTS_COUNT; ++i)
-    {
-        if (m_items[i])
-            delete m_items[i];
-    }
+        delete m_items[i];
 
     for (PlayerSpellMap::const_iterator itr = m_spells.begin(); itr != m_spells.end(); ++itr)
         delete itr->second;
@@ -539,8 +536,7 @@ Player::~Player ()
     delete PlayerTalkClass;
 
     for (size_t x = 0; x < ItemSetEff.size(); x++)
-        if (ItemSetEff[x])
-            delete ItemSetEff[x];
+        delete ItemSetEff[x];
 
     delete m_declinedname;
     delete m_runes;
@@ -15565,9 +15561,7 @@ void Player::_LoadDeclinedNames(QueryResult_AutoPtr result)
     if (!result)
         return;
 
-    if (m_declinedname)
-        delete m_declinedname;
-
+    delete m_declinedname;
     m_declinedname = new DeclinedName;
     Field *fields = result->Fetch();
     for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
@@ -15817,11 +15811,8 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
         SetUInt64Value(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), 0);
         SetVisibleItemSlot(slot, NULL);
 
-        if (m_items[slot])
-        {
-            delete m_items[slot];
-            m_items[slot] = NULL;
-        }
+        delete m_items[slot];
+        m_items[slot] = NULL;
     }
 
     sLog.outDebug("Load Basic value of player %s is: ", m_name.c_str());
