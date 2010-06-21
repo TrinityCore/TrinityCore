@@ -113,13 +113,9 @@ Object::~Object()
         ObjectAccessor::Instance().RemoveUpdateObject(this);
     }
 
-    if (m_uint32Values)
-    {
-        //DEBUG_LOG("Object desctr 1 check (%p)",(void*)this);
-        delete [] m_uint32Values;
-        delete [] m_uint32Values_mirror;
-        //DEBUG_LOG("Object desctr 2 check (%p)",(void*)this);
-    }
+    delete [] m_uint32Values;
+    delete [] m_uint32Values_mirror;
+
 }
 
 void Object::_InitValues()

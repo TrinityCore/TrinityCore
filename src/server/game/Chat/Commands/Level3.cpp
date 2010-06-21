@@ -795,24 +795,21 @@ bool ChatHandler::HandleReloadCreatureTemplateCommand(const char* args)
     size_t len = 0;
     if (const char* temp = fields[9].GetString())
     {
-        if (cInfo->Name)
-            delete cInfo->Name;
+        delete[] cInfo->Name;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->Name = new char[len];
         strncpy(cInfo->Name, temp, len);
     }
     if (const char* temp = fields[10].GetString())
     {
-        if (cInfo->SubName)
-            delete cInfo->SubName;
+        delete[] cInfo->SubName;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->SubName = new char[len];
         strncpy(cInfo->SubName, temp, len);
     }
     if (const char* temp = fields[11].GetString())
     {
-        if (cInfo->IconName)
-            delete cInfo->IconName;
+        delete[] cInfo->IconName;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->IconName = new char[len];
         strncpy(cInfo->IconName, temp, len);
@@ -871,8 +868,7 @@ bool ChatHandler::HandleReloadCreatureTemplateCommand(const char* args)
     const_cast<CreatureInfo*>(cInfo)->maxgold = fields[63].GetUInt32();
     if (const char* temp = fields[64].GetString())
     {
-        if (cInfo->AIName)
-            delete cInfo->AIName;
+        delete[] cInfo->AIName;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->AIName = new char[len];
         strncpy(const_cast<char*>(cInfo->AIName), temp, len);

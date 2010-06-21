@@ -171,11 +171,8 @@ Creature::~Creature()
 {
     m_vendorItemCounts.clear();
 
-    if (i_AI)
-    {
-        delete i_AI;
-        i_AI = NULL;
-    }
+    delete i_AI;
+    i_AI = NULL;
 
     //if (m_uint32Values)
     //    sLog.outError("Deconstruct Creature Entry = %u", GetEntry());
@@ -721,7 +718,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     Motion_Initialize();
 
     i_AI = ai ? ai : FactorySelector::selectAI(this);
-    if (oldAI) delete oldAI;
+    delete oldAI;
     IsAIEnabled = true;
     i_AI->InitializeAI();
     return true;

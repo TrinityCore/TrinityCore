@@ -342,8 +342,7 @@ Aura::~Aura()
 {
     // free effects memory
     for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i])
-            delete m_effects[i];
+         delete m_effects[i];
 
     assert(m_applications.empty());
     _DeleteRemovedApplications();

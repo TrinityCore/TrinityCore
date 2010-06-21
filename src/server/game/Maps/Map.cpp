@@ -1241,11 +1241,11 @@ bool GridMap::loadData(char *filename)
 
 void GridMap::unloadData()
 {
-    if (m_area_map) delete[] m_area_map;
-    if (m_V9) delete[] m_V9;
-    if (m_V8) delete[] m_V8;
-    if (m_liquid_type) delete[] m_liquid_type;
-    if (m_liquid_map) delete[] m_liquid_map;
+    delete[] m_area_map;
+    delete[] m_V9;
+    delete[] m_V8;
+    delete[] m_liquid_type;
+    delete[] m_liquid_map;
     m_area_map = NULL;
     m_V9 = NULL;
     m_V8 = NULL;
@@ -2350,11 +2350,8 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 Spaw
 
 InstanceMap::~InstanceMap()
 {
-    if (i_data)
-    {
-        delete i_data;
-        i_data = NULL;
-    }
+    delete i_data;
+    i_data = NULL;
 }
 
 void InstanceMap::InitVisibilityDistance()
