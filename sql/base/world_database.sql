@@ -2583,6 +2583,15 @@ CREATE TABLE `gossip_scripts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `gossip_scripts`
+--
+
+LOCK TABLES `gossip_scripts` WRITE;
+/*!40000 ALTER TABLE `gossip_scripts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gossip_scripts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `gossip_menu`
 --
 
@@ -2592,15 +2601,18 @@ DROP TABLE IF EXISTS `gossip_menu`;
 CREATE TABLE `gossip_menu` (
   entry smallint(6) unsigned NOT NULL default '0',
   text_id mediumint(8) unsigned NOT NULL default '0',
-  cond_1 tinyint(3) unsigned NOT NULL default '0',
-  cond_1_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_1_val_2 mediumint(8) unsigned NOT NULL default '0',
-  cond_2 tinyint(3) unsigned NOT NULL default '0',
-  cond_2_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_2_val_2 mediumint(8) unsigned NOT NULL default '0',
   PRIMARY KEY (entry, text_id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `gossip_menu`
+--
+
+LOCK TABLES `gossip_menu` WRITE;
+/*!40000 ALTER TABLE `gossip_menu` DISABLE KEYS */;
+/*!40000 ALTER TABLE `gossip_menu` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `gossip_menu_option`
@@ -2622,15 +2634,6 @@ CREATE TABLE gossip_menu_option (
   box_coded tinyint(3) unsigned NOT NULL default '0',
   box_money int(11) unsigned NOT NULL default '0',
   box_text text,
-  cond_1 tinyint(3) unsigned NOT NULL default '0',
-  cond_1_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_1_val_2 mediumint(8) unsigned NOT NULL default '0',
-  cond_2 tinyint(3) unsigned NOT NULL default '0',
-  cond_2_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_2_val_2 mediumint(8) unsigned NOT NULL default '0',
-  cond_3 tinyint(3) unsigned NOT NULL default '0',
-  cond_3_val_1 mediumint(8) unsigned NOT NULL default '0',
-  cond_3_val_2 mediumint(8) unsigned NOT NULL default '0',
   PRIMARY KEY (menu_id, id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2641,25 +2644,6 @@ CREATE TABLE gossip_menu_option (
 
 LOCK TABLES `gossip_menu_option` WRITE;
 /*!40000 ALTER TABLE `gossip_menu_option` DISABLE KEYS */;
-INSERT INTO `gossip_menu_option` VALUES
-(0,0,0,'GOSSIP_OPTION_QUESTGIVER',2,2,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,1,1,'I want to browse your goods',3,128,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,2,2,'I want to travel fast',4,8192,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,3,3,'Train me!',5,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,4,4,'Bring me back to life',6,16384,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,5,4,'Bring me back to life',7,32768,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,6,5,'Make this inn my home',8,65536,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,7,6,'Show me my bank',9,131072,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,8,7,'How do I form a guild?',10,262144,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,9,8,'I want to create a guild crest',11,524288,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,10,9,'I want to join the Battle Ground',12,1048576,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,11,6,'Auction!',13,2097152,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,12,0,'I''d like to stable my pet here',14,4194304,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,13,1,'I want to browse your goods',15,4096,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,14,2,'I wish to unlearn my talents',16,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,15,2,'I wish to unlearn my pet''s skills',17,16,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0),
-(0,16,2,'Purchase a Dual Talent Specialization',18,16,0,0,0,0,10000000,NULL,0,0,0,0,0,0,0,0,0),
-(0,17,0,'GOSSIP_OPTION_OUTDOORPVP',19,536870912,0,0,0,0,0,NULL,0,0,0,0,0,0,0,0,0);
 /*!40000 ALTER TABLE `gossip_menu_option` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -15515,32 +15499,6 @@ AVG_ROW_LENGTH=0;
 
 LOCK TABLES `vehicle_accessory` WRITE;
 /*!40000 ALTER TABLE `vehicle_accessory` DISABLE KEYS */;
-INSERT INTO `vehicle_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`) VALUES
-(28782,28768,0,0, 'Acherus Deathcharger'),
-(28312,28319,7,1, 'Wintergrasp Siege Engine'),
-(32627,32629,7,1, 'Wintergrasp Siege Engine'),
-(32930,32933,0,1, 'Kologarn'),
-(32930,32934,1,1, 'Kologarn'),
-(33109,33167,1,1, 'Salvaged Demolisher'),
-(33060,33067,7,1, 'Salvaged Siege Engine'),
-(33113,33114,0,1, 'Flame Leviathan'),
-(33113,33114,1,1, 'Flame Leviathan'),
-(33113,33114,2,1, 'Flame Leviathan'),
-(33113,33114,3,1, 'Flame Leviathan'),
-(33113,33139,7,1, 'Flame Leviathan'),
-(33114,33142,1,1, 'Overload Control Device'),       
-(33114,33143,2,1, 'Leviathan Defense Turret'),       
-(33214,33218,1,1, 'Mechanolift 304-A'),      
-(35637,34705,0,0, 'Marshal Jacob Alerius'' Mount'),
-(35633,34702,0,0, 'Ambrose Boltspark''s Mount'),
-(35768,34701,0,0, 'Colosos'' Mount'),
-(34658,34657,0,0, 'Jaelyne Evensong''s Mount'),
-(35636,34703,0,0, 'Lana Stouthammer''s Mount'),
-(35638,35572,0,0, 'Mokra the Skullcrusher''s Mount'),
-(35635,35569,0,0, 'Eressea Dawnsinger''s Mount'),
-(35640,35571,0,0, 'Runok Wildmane''s Mount'),
-(35641,35570,0,0, 'Zul''tore''s Mount'),
-(35634,35617,0,0, 'Deathstalker Visceri''s Mount');
 /*!40000 ALTER TABLE `vehicle_accessory` ENABLE KEYS */;
 UNLOCK TABLES;
 --
