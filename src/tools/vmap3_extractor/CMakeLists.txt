@@ -11,19 +11,26 @@
 
 file(GLOB sources *.cpp)
 
-include_directories (${CMAKE_SOURCE_DIR}/externals/libmpq)
+# uncomment next line to disable debug mode
+add_definitions("-DIOMAP_DEBUG")
+
+# build setup currently only supports libmpq 0.4.x
+add_definitions("-DUSE_LIBMPQ04")
+add_definitions("-Wall")
+add_definitions("-ggdb")
+add_definitions("-O3")
 
 add_executable(vmap3extractor ${sources})
 
 if(WIN32)
   target_link_libraries(vmap3extractor
-    libmpq
+    mpq
     bzip2
     zlib
   )
 else()
   target_link_libraries(vmap3extractor
-    libmpq
+    mpq
     ${BZIP2_LIBRARIES}
     ${ZLIB_LIBRARIES}
   )
