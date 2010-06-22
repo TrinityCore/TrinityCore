@@ -356,7 +356,7 @@ struct boss_kaelthasAI : public ScriptedAI
 
         if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
         {
-            error_log("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
+            sLog.outError("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
 
             DoScriptText(SAY_PHASE4_INTRO2, me);
 
@@ -678,7 +678,7 @@ struct boss_kaelthasAI : public ScriptedAI
                         Advisor = Unit::GetCreature((*me), m_auiAdvisorGuid[i]);
 
                         if (!Advisor)
-                            error_log("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                            sLog.outError("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                         else
                             CAST_AI(advisorbase_ai, Advisor->AI())->Revive(pTarget);
                     }
@@ -763,7 +763,7 @@ struct boss_kaelthasAI : public ScriptedAI
                         if (me->getThreatManager().getThreatList().size() >= 2)
                             for (uint32 i = 0; i < 3; ++i)
                         {
-                            debug_log("SD2: Kael'Thas mind control not supported.");
+                            sLog.outDebug("SD2: Kael'Thas mind control not supported.");
                             //DoCast(pUnit, SPELL_MIND_CONTROL);
                         }
 

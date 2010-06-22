@@ -534,7 +534,7 @@ CreatureAI* GetAI_water_elemental(Creature* pCreature)
 // CONVERT TO ACID
 CreatureAI* GetAI_shadow_of_aran(Creature* pCreature)
 {
-    outstring_log("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
+    sLog.outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
     SimpleAI* ai = new SimpleAI (pCreature);
 
     ai->Spell[0].Enabled = true;

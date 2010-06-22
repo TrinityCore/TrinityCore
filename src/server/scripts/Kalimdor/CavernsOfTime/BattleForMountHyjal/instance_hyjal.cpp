@@ -248,7 +248,7 @@ struct instance_mount_hyjal : public ScriptedInstance
                 break;
         }
 
-         debug_log("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
+         sLog.outDebug("TSCR: Instance Hyjal: Instance data updated for event %u (Data=%u)",type,data);
 
         if (data == DONE)
         {

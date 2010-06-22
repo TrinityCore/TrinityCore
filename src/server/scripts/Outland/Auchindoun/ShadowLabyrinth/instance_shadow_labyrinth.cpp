@@ -96,7 +96,7 @@ struct instance_shadow_labyrinth : public ScriptedInstance
                 if (pCreature->isAlive())
                 {
                     ++m_uiFelOverseerCount;
-                    debug_log("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
+                    sLog.outDebug("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
                 }
                 break;
         }
@@ -113,7 +113,7 @@ struct instance_shadow_labyrinth : public ScriptedInstance
             case TYPE_OVERSEER:
                 if (uiData != DONE)
                 {
-                    error_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
+                    sLog.outError("TSCR: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
                     return;
                 }
                 if (m_uiFelOverseerCount)
@@ -121,11 +121,11 @@ struct instance_shadow_labyrinth : public ScriptedInstance
                     --m_uiFelOverseerCount;
 
                     if (m_uiFelOverseerCount)
-                        debug_log("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
+                        sLog.outDebug("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
                     else
                     {
                         m_auiEncounter[1] = DONE;
-                        debug_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
+                        sLog.outDebug("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
                     }
                 }
                 break;

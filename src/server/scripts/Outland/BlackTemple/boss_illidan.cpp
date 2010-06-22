@@ -2065,7 +2065,7 @@ void boss_illidan_stormrageAI::SummonMaiev()
     {
         EnterEvadeMode();
         me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
-        error_log("SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
+        sLog.outError("SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
     }
 }
 

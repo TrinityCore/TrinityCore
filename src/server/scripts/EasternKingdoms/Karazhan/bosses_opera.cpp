@@ -1154,7 +1154,7 @@ void boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
 
     if (Phase == PHASE_ROMULO)
     {
-        error_log("TSCR: boss_julianneAI: cannot take damage in PHASE_ROMULO, why was i here?");
+        sLog.outError("TSCR: boss_julianneAI: cannot take damage in PHASE_ROMULO, why was i here?");
         damage = 0;
         return;
     }
@@ -1188,7 +1188,7 @@ void boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
             return;
         }
     }
-    error_log("TSCR: boss_julianneAI: DamageTaken reach end of code, that should not happen.");
+    sLog.outError("TSCR: boss_julianneAI: DamageTaken reach end of code, that should not happen.");
 }
 
 void boss_romuloAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
@@ -1242,7 +1242,7 @@ void boss_romuloAI::DamageTaken(Unit* /*done_by*/, uint32 &damage)
         }
     }
 
-    error_log("TSCR: boss_romuloAI: DamageTaken reach end of code, that should not happen.");
+    sLog.outError("TSCR: boss_romuloAI: DamageTaken reach end of code, that should not happen.");
 }
 
 void boss_julianneAI::UpdateAI(const uint32 diff)

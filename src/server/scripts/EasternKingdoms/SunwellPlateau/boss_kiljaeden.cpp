@@ -727,7 +727,7 @@ struct boss_kiljaedenAI : public Scripted_NoMovementAI
                             if (pRandomPlayer)
                                 DoCast(pRandomPlayer, SPELL_LEGION_LIGHTNING, false);
                             else
-                                error_log("try to cast SPELL_LEGION_LIGHTNING on invalid target");
+                                sLog.outError("try to cast SPELL_LEGION_LIGHTNING on invalid target");
                             
                             Timer[TIMER_LEGION_LIGHTNING] = (Phase == PHASE_SACRIFICE) ? 18000 : 30000; // 18 seconds in PHASE_SACRIFICE
                             Timer[TIMER_SOUL_FLAY] = 2500;
@@ -1341,7 +1341,7 @@ struct mob_sinster_reflectionAI : public ScriptedAI
                 DoMeleeAttackIfReady();
                 break;
             }
-            debug_log("Sinister-Timer");
+            sLog.outDebug("Sinister-Timer");
             for (uint8 i = 0; i < 3; ++i)
                 uiTimer[i] -= diff;            
         }
