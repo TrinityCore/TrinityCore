@@ -1,21 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ad", "map_extractor\VC90\VC90_ad.vcproj", "{D7552D4F-408F-4F8E-859B-366659150CF4}"
-	ProjectSection(ProjectDependencies) = postProject
-		{03AB0F44-628E-4855-99A0-C98A1EB52C50} = {03AB0F44-628E-4855-99A0-C98A1EB52C50}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap_assembler", "vmap3_assembler\VC90\vmap_assembler.vcproj", "{572FFF74-480C-4472-8ABF-81733BB4049D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8072769E-CF10-48BF-B9E1-12752A5DAC6E} = {8072769E-CF10-48BF-B9E1-12752A5DAC6E}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap3_extractor", "vmap3_extractor\VC90\vmap3_extractor.vcproj", "{502602CC-98EA-4335-B922-C5C1DBF37604}"
-	ProjectSection(ProjectDependencies) = postProject
-		{03AB0F44-628E-4855-99A0-C98A1EB52C50} = {03AB0F44-628E-4855-99A0-C98A1EB52C50}
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmpq", "..\..\externals\libmpq\win\VC90\libmpq.vcproj", "{03AB0F44-628E-4855-99A0-C98A1EB52C50}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CE773400-763E-4B71-B5E2-C9B60A752EB1} = {CE773400-763E-4B71-B5E2-C9B60A752EB1}
@@ -33,24 +18,27 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3dlite", "..\..\externals\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{69F789A6-BD04-454A-AC8E-A57AAE7FCF77}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mapextractor", "map_extractor\VC90\VC90_mapextractor.vcproj", "{D7552D4F-408F-4F8E-859B-366659150CF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{03AB0F44-628E-4855-99A0-C98A1EB52C50} = {03AB0F44-628E-4855-99A0-C98A1EB52C50}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap3assembler", "vmap3_assembler\VC90\VC90_vmap3assembler.vcproj", "{572FFF74-480C-4472-8ABF-81733BB4049D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8072769E-CF10-48BF-B9E1-12752A5DAC6E} = {8072769E-CF10-48BF-B9E1-12752A5DAC6E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vmap3extractor", "vmap3_extractor\VC90\VC90_vmap3extractor.vcproj", "{502602CC-98EA-4335-B922-C5C1DBF37604}"
+	ProjectSection(ProjectDependencies) = postProject
+		{03AB0F44-628E-4855-99A0-C98A1EB52C50} = {03AB0F44-628E-4855-99A0-C98A1EB52C50}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D7552D4F-408F-4F8E-859B-366659150CF4}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D7552D4F-408F-4F8E-859B-366659150CF4}.Debug|Win32.Build.0 = Debug|Win32
-		{D7552D4F-408F-4F8E-859B-366659150CF4}.Release|Win32.ActiveCfg = Release|Win32
-		{D7552D4F-408F-4F8E-859B-366659150CF4}.Release|Win32.Build.0 = Release|Win32
-		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.ActiveCfg = Debug|Win32
-		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.Build.0 = Debug|Win32
-		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.ActiveCfg = Release|Win32
-		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.Build.0 = Release|Win32
-		{502602CC-98EA-4335-B922-C5C1DBF37604}.Debug|Win32.ActiveCfg = Debug|Win32
-		{502602CC-98EA-4335-B922-C5C1DBF37604}.Debug|Win32.Build.0 = Debug|Win32
-		{502602CC-98EA-4335-B922-C5C1DBF37604}.Release|Win32.ActiveCfg = Release|Win32
-		{502602CC-98EA-4335-B922-C5C1DBF37604}.Release|Win32.Build.0 = Release|Win32
 		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Debug|Win32.ActiveCfg = Debug|Win32
 		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Debug|Win32.Build.0 = Debug|Win32
 		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Release|Win32.ActiveCfg = Release|Win32
@@ -67,6 +55,18 @@ Global
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Debug|Win32.Build.0 = Debug|Win32
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Release|Win32.ActiveCfg = Release|Win32
 		{8072769E-CF10-48BF-B9E1-12752A5DAC6E}.Release|Win32.Build.0 = Release|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Debug|Win32.Build.0 = Debug|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Release|Win32.ActiveCfg = Release|Win32
+		{D7552D4F-408F-4F8E-859B-366659150CF4}.Release|Win32.Build.0 = Release|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Debug|Win32.Build.0 = Debug|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.ActiveCfg = Release|Win32
+		{572FFF74-480C-4472-8ABF-81733BB4049D}.Release|Win32.Build.0 = Release|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Debug|Win32.ActiveCfg = Debug|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Debug|Win32.Build.0 = Debug|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Release|Win32.ActiveCfg = Release|Win32
+		{502602CC-98EA-4335-B922-C5C1DBF37604}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

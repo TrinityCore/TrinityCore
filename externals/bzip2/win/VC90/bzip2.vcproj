@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -84,8 +84,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			>
@@ -148,8 +148,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -175,14 +175,14 @@
 				EnableIntrinsicFunctions="false"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -214,8 +214,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\bzip2__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
