@@ -295,7 +295,11 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         {
       //WPAssert(this->ToPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
 
-      FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(const_cast<Player*>(this->ToPlayer())->GetMotionMaster()->top());
+            Player *player = const_cast<Object*>(this)->ToPlayer();
+            if (!player)
+                return;
+
+            FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(player->GetMotionMaster()->top());
 
             uint32 flags3 = MOVEFLAG_GLIDE;
 
@@ -320,10 +324,10 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
                 }
             }
 
-            Path &path = fmg->GetPath();
+            TaxiPathNodeList& path = const_cast<TaxiPathNodeList&>(fmg->GetPath());
 
             float x, y, z;
-            this->ToPlayer()->GetPosition(x, y, z);
+            player->GetPosition(x, y, z);
 
             uint32 inflighttime = uint32(path.GetPassedLength(fmg->GetCurrentNode(), x, y, z) * 32);
             uint32 traveltime = uint32(path.GetTotalLength() * 32);
@@ -338,21 +342,21 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
 
             *data << uint32(0);                             // added in 3.1
 
-            uint32 poscount = uint32(path.Size());
+            uint32 poscount = uint32(path.size());
             *data << uint32(poscount);                      // points count
 
             for (uint32 i = 0; i < poscount; ++i)
             {
-                *data << path.GetNodes()[i].x;
-                *data << path.GetNodes()[i].y;
-                *data << path.GetNodes()[i].z;
+                *data << float(path[i].x);
+                *data << float(path[i].y);
+                *data << float(path[i].z);
             }
 
             *data << uint8(0);                              // added in 3.0.8
 
-            *data << path.GetNodes()[poscount-1].x;
-            *data << path.GetNodes()[poscount-1].y;
-            *data << path.GetNodes()[poscount-1].z;
+            *data << float(path[poscount-1].x);
+            *data << float(path[poscount-1].y);
+            *data << float(path[poscount-1].z);
         }
     }
     else
