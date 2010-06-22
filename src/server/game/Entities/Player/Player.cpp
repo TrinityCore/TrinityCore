@@ -15935,6 +15935,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
         // There are no transports on instances
         instanceId = 0;
 
+        m_movementInfo.t_guid = MAKE_NEW_GUID(transGUID, 0, HIGHGUID_TRANSPORT);
         m_movementInfo.t_x = fields[26].GetFloat();
         m_movementInfo.t_y = fields[27].GetFloat();
         m_movementInfo.t_z = fields[28].GetFloat();
@@ -19362,30 +19363,30 @@ void Player::ContinueTaxiFlight()
 
     float distPrev = MAP_SIZE*MAP_SIZE;
     float distNext =
-        (nodeList[0].x-GetPositionX())*(nodeList[0].x-GetPositionX())+
-        (nodeList[0].y-GetPositionY())*(nodeList[0].y-GetPositionY())+
-        (nodeList[0].z-GetPositionZ())*(nodeList[0].z-GetPositionZ());
+        (nodeList[0]->x-GetPositionX())*(nodeList[0]->x-GetPositionX())+
+        (nodeList[0]->y-GetPositionY())*(nodeList[0]->y-GetPositionY())+
+        (nodeList[0]->z-GetPositionZ())*(nodeList[0]->z-GetPositionZ());
 
     for (uint32 i = 1; i < nodeList.size(); ++i)
     {
-        TaxiPathNode const& node = nodeList[i];
-        TaxiPathNode const& prevNode = nodeList[i-1];
+        TaxiPathNodeEntry const* node = nodeList[i];
+        TaxiPathNodeEntry const* prevNode = nodeList[i-1];
 
         // skip nodes at another map
-        if (node.mapid != GetMapId())
+        if (node->mapid != GetMapId())
             continue;
 
         distPrev = distNext;
 
         distNext =
-            (node.x-GetPositionX())*(node.x-GetPositionX())+
-            (node.y-GetPositionY())*(node.y-GetPositionY())+
-            (node.z-GetPositionZ())*(node.z-GetPositionZ());
+            (node->x-GetPositionX())*(node->x-GetPositionX())+
+            (node->y-GetPositionY())*(node->y-GetPositionY())+
+            (node->z-GetPositionZ())*(node->z-GetPositionZ());
 
         float distNodes =
-            (node.x-prevNode.x)*(node.x-prevNode.x)+
-            (node.y-prevNode.y)*(node.y-prevNode.y)+
-            (node.z-prevNode.z)*(node.z-prevNode.z);
+            (node->x-prevNode->x)*(node->x-prevNode->x)+
+            (node->y-prevNode->y)*(node->y-prevNode->y)+
+            (node->z-prevNode->z)*(node->z-prevNode->z);
 
         if (distNext + distPrev < distNodes)
         {

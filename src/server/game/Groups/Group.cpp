@@ -1192,7 +1192,7 @@ bool Group::_addMember(const uint64 &guid, const char* name)
     if (m_subGroupsCounts)
     {
         bool groupFound = false;
-        for (; groupid < MAXRAIDSIZE/MAXGROUPSIZE; ++groupid)
+        for (; groupid < MAX_RAID_SUBGROUPS; ++groupid)
         {
             if (m_subGroupsCounts[groupid] < MAXGROUPSIZE)
             {
@@ -1445,17 +1445,20 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
 {
     if (!isRaidGroup())
         return;
+
     Player *player = objmgr.GetPlayer(guid);
 
     if (!player)
     {
-        uint8 prevSubGroup;
-        prevSubGroup = GetMemberGroup(guid);
-
-        SubGroupCounterDecrease(prevSubGroup);
+        uint8 prevSubGroup = GetMemberGroup(guid);
+        if (prevSubGroup == group)
+            return;
 
         if (_setMembersGroup(guid, group))
+        {
+            SubGroupCounterDecrease(prevSubGroup);
             SendUpdate();
+        }
     }
     else
         // This methods handles itself groupcounter decrease
@@ -1467,9 +1470,13 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
 {
     if (!player || !isRaidGroup())
         return;
+        
+    uint8 prevSubGroup = player->GetSubGroup();
+    if (prevSubGroup == group)
+        return;
+
     if (_setMembersGroup(player->GetGUID(), group))
     {
-        uint8 prevSubGroup = player->GetSubGroup();
         if (player->GetGroup() == this)
             player->GetGroupRef().setSubGroup(group);
         //if player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference

@@ -707,6 +707,14 @@ void Channel::Invite(uint64 p, const char *newname)
         return;
     }
 
+    if (IsBanned(newp->GetGUID()))
+    {
+        WorldPacket data;
+        MakePlayerInviteBanned(&data, newname);
+        SendToOne(&data, p);
+        return;
+    }
+    
     Player *plr = objmgr.GetPlayer(p);
     if (!plr)
         return;
@@ -983,10 +991,10 @@ void Channel::MakePlayerUnbanned(WorldPacket *data, uint64 bad, uint64 good)
 }
 
 // done 0x16
-void Channel::MakePlayerNotBanned(WorldPacket *data, uint64 guid)
+void Channel::MakePlayerNotBanned(WorldPacket *data, const std::string &name)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_NOT_BANNED_NOTICE);
-    *data << uint64(guid);
+    *data << name;
 }
 
 // done 0x17
@@ -1035,10 +1043,10 @@ void Channel::MakePlayerInvited(WorldPacket *data, const std::string& name)
 }
 
 // done 0x1E
-void Channel::MakePlayerInviteBanned(WorldPacket *data, uint64 guid)
+void Channel::MakePlayerInviteBanned(WorldPacket *data, const std::string& name)
 {
     MakeNotifyPacket(data, CHAT_PLAYER_INVITE_BANNED_NOTICE);
-    *data << uint64(guid);
+    *data << name;
 }
 
 // done 0x1F
