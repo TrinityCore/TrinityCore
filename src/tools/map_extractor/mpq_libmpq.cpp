@@ -57,7 +57,7 @@ MPQFile::MPQFile(const char* filename):
 
         // HACK: in patch.mpq some files don't want to open and give 1 for filesize
         if (size<=1) {
-            printf("warning: file %s has size %d; cannot read.\n", filename, size);
+//            printf("warning: file %s has size %d; cannot read.\n", filename, size);
             eof = true;
             buffer = 0;
             return;
