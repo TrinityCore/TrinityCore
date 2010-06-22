@@ -769,14 +769,14 @@ namespace Trinity
             }
         }
 
-        #ifdef WIN32
+        #ifdef _WIN32
         template<> inline void Visit(CorpseMapType &) {}
         template<> inline void Visit(GameObjectMapType &) {}
         template<> inline void Visit(DynamicObjectMapType &) {}
         #endif
     };
 
-    #ifndef WIN32
+    #ifndef _WIN32
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType&) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType&) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType&) {}

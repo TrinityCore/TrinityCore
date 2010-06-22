@@ -195,7 +195,7 @@ uint32 CreatePIDFile(const std::string& filename)
     if (pid_file == NULL)
         return 0;
 
-#ifdef WIN32
+#ifdef _WIN32
     DWORD pid = GetCurrentProcessId();
 #else
     pid_t pid = getpid();
