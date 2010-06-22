@@ -5494,31 +5494,10 @@ void ObjectMgr::GetTaxiPathNodes(uint32 path, Path &pathnodes, std::vector<uint3
 
     for (size_t i = 0; i < nodeList.size(); ++i)
     {
-        pathnodes[ i ].x = nodeList[i].x;
-        pathnodes[ i ].y = nodeList[i].y;
-        pathnodes[ i ].z = nodeList[i].z;
-
-        mapIds[i] = nodeList[i].mapid;
-    }
-}
-
-void ObjectMgr::GetTransportPathNodes(uint32 path, TransportPath &pathnodes)
-{
-    if (path >= sTaxiPathNodesByPath.size())
-        return;
-
-    TaxiPathNodeList& nodeList = sTaxiPathNodesByPath[path];
-
-    pathnodes.Resize(nodeList.size());
-
-    for (size_t i = 0; i < nodeList.size(); ++i)
-    {
-        pathnodes[ i ].mapid = nodeList[i].mapid;
-        pathnodes[ i ].x = nodeList[i].x;
-        pathnodes[ i ].y = nodeList[i].y;
-        pathnodes[ i ].z = nodeList[i].z;
-        pathnodes[ i ].actionFlag = nodeList[i].actionFlag;
-        pathnodes[ i ].delay = nodeList[i].delay;
+        pathnodes[i].x = nodeList[i]->x;
+        pathnodes[i].y = nodeList[i]->y;
+        pathnodes[i].z = nodeList[i]->z;
+        mapIds[i] = nodeList[i]->mapid;
     }
 }
 
