@@ -512,7 +512,7 @@ struct npc_geezleAI : public ScriptedAI
                 else
                     (*itr)->Respawn();
             }
-        } else error_log("SD2 ERROR: FlagList is empty!");
+        } else sLog.outError("SD2 ERROR: FlagList is empty!");
     }
 
     void UpdateAI(const uint32 diff)

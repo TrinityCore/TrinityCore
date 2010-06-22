@@ -463,7 +463,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
             return true;
         }
 
-        debug_log("TSCR: npc_commander_dawnforge event already in progress, need to wait.");
+        sLog.outDebug("TSCR: npc_commander_dawnforge event already in progress, need to wait.");
         return false;
     }
 

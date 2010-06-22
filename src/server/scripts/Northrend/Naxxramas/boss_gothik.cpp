@@ -182,7 +182,7 @@ struct boss_gothikAI : public BossAI
 
         if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
         {
-            error_log("Script Gothik: cannot summon triggers!");
+            sLog.outError("Script Gothik: cannot summon triggers!");
             EnterEvadeMode();
             return;
         }

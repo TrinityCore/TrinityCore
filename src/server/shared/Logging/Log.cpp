@@ -450,7 +450,7 @@ void Log::outCrash(const char * err, ...)
     va_list ap;
 
     va_start(ap, err);
-    vutf8printf(stdout, err, &ap);
+    vutf8printf(stderr, err, &ap);
     va_end(ap);
 
     if (m_colored)
@@ -530,7 +530,6 @@ void Log::outArena(const char * str, ...)
         va_end(ap);
         fflush(arenaLogFile);
     }
-    fflush(stdout);
 }
 
 void Log::outErrorDb(const char * err, ...)
@@ -902,7 +901,6 @@ void Log::outRemote(const char * str, ...)
         va_end(ap);
         fflush(raLogfile);
     }
-    fflush(stdout);
 }
 
 void Log::outChat(const char * str, ...)
@@ -930,76 +928,4 @@ void Log::outChat(const char * str, ...)
         fflush(chatLogfile);
         va_end(ap);
     }
-    fflush(stdout);
 }
-
-void outstring_log(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    char buf[256];
-    va_list ap;
-    va_start(ap, str);
-    vsnprintf(buf,256, str, ap);
-    va_end(ap);
-
-    Trinity::Singleton<Log>::Instance().outString(buf);
-}
-
-void detail_log(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    char buf[256];
-    va_list ap;
-    va_start(ap, str);
-    vsnprintf(buf,256, str, ap);
-    va_end(ap);
-
-    Trinity::Singleton<Log>::Instance().outDetail(buf);
-}
-
-void debug_log(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    char buf[256];
-    va_list ap;
-    va_start(ap, str);
-    vsnprintf(buf,256, str, ap);
-    va_end(ap);
-
-    Trinity::Singleton<Log>::Instance().outDebug(buf);
-}
-
-void error_log(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    char buf[256];
-    va_list ap;
-    va_start(ap, str);
-    vsnprintf(buf,256, str, ap);
-    va_end(ap);
-
-    Trinity::Singleton<Log>::Instance().outError(buf);
-}
-
-void error_db_log(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    char buf[256];
-    va_list ap;
-    va_start(ap, str);
-    vsnprintf(buf,256, str, ap);
-    va_end(ap);
-
-    Trinity::Singleton<Log>::Instance().outErrorDb(buf);
-}
-

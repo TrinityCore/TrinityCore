@@ -109,7 +109,7 @@ struct instance_utgarde_keep : public ScriptedInstance
             }
         }
 
-        debug_log("TSCR: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
+        sLog.outDebug("TSCR: Instance Utgarde Keep: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
 

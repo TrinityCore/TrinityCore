@@ -180,11 +180,5 @@ class Log : public Trinity::Singleton<Log, Trinity::ClassLevelLockable<Log, ACE_
 #define DEBUG_LOG
 #endif
 
-// primary for script library
-void  outstring_log(const char * str, ...) ATTR_PRINTF(1,2);
-void  detail_log(const char * str, ...) ATTR_PRINTF(1,2);
-void  debug_log(const char * str, ...) ATTR_PRINTF(1,2);
-void  error_log(const char * str, ...) ATTR_PRINTF(1,2);
-void  error_db_log(const char * str, ...) ATTR_PRINTF(1,2);
 #endif
 

@@ -119,7 +119,7 @@ struct instance_steam_vault : public ScriptedInstance
                     if (GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL)
                         HandleGameObject(MainChambersDoor, true);
 
-                    debug_log("TSCR: Instance Steamvault: Access panel used.");
+                    sLog.outDebug("TSCR: Instance Steamvault: Access panel used.");
                 }
                 m_auiEncounter[0] = data;
                 break;
@@ -131,7 +131,7 @@ struct instance_steam_vault : public ScriptedInstance
                     if (GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL)
                         HandleGameObject(MainChambersDoor, true);
 
-                    debug_log("TSCR: Instance Steamvault: Access panel used.");
+                    sLog.outDebug("TSCR: Instance Steamvault: Access panel used.");
                 }
                 m_auiEncounter[1] = data;
                 break;

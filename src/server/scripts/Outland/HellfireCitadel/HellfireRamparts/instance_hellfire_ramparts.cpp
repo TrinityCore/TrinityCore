@@ -51,7 +51,7 @@ struct instance_ramparts : public ScriptedInstance
 
     void SetData(uint32 uiType, uint32 uiData)
     {
-        debug_log("TSCR: Instance Ramparts: SetData received for type %u with data %u",uiType,uiData);
+        sLog.outDebug("TSCR: Instance Ramparts: SetData received for type %u with data %u",uiType,uiData);
 
         switch(uiType)
         {
