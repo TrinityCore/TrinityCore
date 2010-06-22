@@ -143,7 +143,7 @@ struct boss_brutallusAI : public ScriptedAI
     {
         if (!Intro || IsIntro)
             return;
-        error_log("Start Intro");
+        sLog.outError("Start Intro");
         Creature *Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
         if (Madrigosa)
         {
@@ -158,7 +158,7 @@ struct boss_brutallusAI : public ScriptedAI
         }else
         {
             //Madrigosa not found, end intro
-            error_log("Madrigosa was not found");
+            sLog.outError("Madrigosa was not found");
             EndIntro();
         }
     }
@@ -168,7 +168,7 @@ struct boss_brutallusAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         Intro = false;
         IsIntro = false;
-        error_log("End Intro");
+        sLog.outError("End Intro");
     }
 
     void AttackStart(Unit* pWho)

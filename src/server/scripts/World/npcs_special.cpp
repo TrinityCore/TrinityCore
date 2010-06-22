@@ -123,7 +123,7 @@ struct npc_air_force_botsAI : public ScriptedAI
         }
 
         if (!m_pSpawnAssoc)
-            error_db_log("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
+            sLog.outErrorDb("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
         else
         {
             CreatureInfo const* spawnedTemplate = GetCreatureTemplateStore(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
@@ -131,7 +131,7 @@ struct npc_air_force_botsAI : public ScriptedAI
             if (!spawnedTemplate)
             {
                 m_pSpawnAssoc = NULL;
-                error_db_log("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+                sLog.outErrorDb("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
                 return;
             }
         }
@@ -150,7 +150,7 @@ struct npc_air_force_botsAI : public ScriptedAI
             m_uiSpawnedGUID = pSummoned->GetGUID();
         else
         {
-            error_db_log("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+            sLog.outErrorDb("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
             m_pSpawnAssoc = NULL;
         }
 
@@ -787,7 +787,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
                 case DOCTOR_ALLIANCE: patientEntry = AllianceSoldierId[rand()%3]; break;
                 case DOCTOR_HORDE:    patientEntry = HordeSoldierId[rand()%3]; break;
                 default:
-                    error_log("TSCR: Invalid entry for Triage doctor. Please check your database");
+                    sLog.outError("TSCR: Invalid entry for Triage doctor. Please check your database");
                     return;
             }
 

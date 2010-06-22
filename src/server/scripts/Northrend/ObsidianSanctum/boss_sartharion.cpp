@@ -633,7 +633,7 @@ struct dummy_dragonAI : public ScriptedAI
         if (!pInstance || uiType != POINT_MOTION_TYPE)
             return;
 
-        debug_log("dummy_dragonAI: %s reached point %u", me->GetName(), uiPointId);
+        sLog.outDebug("dummy_dragonAI: %s reached point %u", me->GetName(), uiPointId);
 
         //if healers messed up the raid and we was already initialized
         if (pInstance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
@@ -790,7 +790,7 @@ struct dummy_dragonAI : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(m_uiWaypointId,
                         m_aDragonCommon[m_uiWaypointId].m_fX, m_aDragonCommon[m_uiWaypointId].m_fY, m_aDragonCommon[m_uiWaypointId].m_fZ);
 
-                debug_log("dummy_dragonAI: %s moving to point %u", me->GetName(), m_uiWaypointId);
+                sLog.outDebug("dummy_dragonAI: %s moving to point %u", me->GetName(), m_uiWaypointId);
                 m_uiMoveNextTimer = 0;
             }
             else

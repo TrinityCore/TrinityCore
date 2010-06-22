@@ -259,7 +259,7 @@ bool GOHello_go_ethereum_prison(Player *pPlayer, GameObject *pGO)
                 if (Spell)
                     pCreature->CastSpell(pPlayer, Spell, false);
                 else
-                    error_log("TSCR: go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
+                    sLog.outError("TSCR: go_ethereum_prison summoned Creature (entry %u) but faction (%u) are not expected by script.", pCreature->GetEntry(), pCreature->getFaction());
             }
         }
     }

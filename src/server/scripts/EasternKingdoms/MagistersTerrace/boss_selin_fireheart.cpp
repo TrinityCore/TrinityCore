@@ -63,7 +63,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
             for (uint8 i = 0; i < size; ++i)
             {
                 uint64 guid = pInstance->GetData64(DATA_FEL_CRYSTAL);
-                debug_log("TSCR: Selin: Adding Fel Crystal %u to list", guid);
+                sLog.outDebug("TSCR: Selin: Adding Fel Crystal %u to list", guid);
                 Crystals.push_back(guid);
             }
         }
@@ -108,7 +108,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
                                                             // Small door opened after event are expected to be closed by default
             // Set Inst data for encounter
             pInstance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
-        } else error_log(ERROR_INST_DATA);
+        } else sLog.outError(ERROR_INST_DATA);
 
         DrainLifeTimer = 3000 + rand()%4000;
         DrainManaTimer = DrainLifeTimer + 5000;
@@ -208,7 +208,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
             else
             {
                 // Make an error message in case something weird happened here
-                error_log("TSCR: Selin Fireheart unable to drain crystal as the crystal is either dead or despawned");
+                sLog.outError("TSCR: Selin Fireheart unable to drain crystal as the crystal is either dead or despawned");
                 DrainingCrystal = false;
             }
         }
@@ -340,7 +340,7 @@ struct mob_fel_crystalAI : public ScriptedAI
                     }
                 }
             }
-        } else error_log(ERROR_INST_DATA);
+        } else sLog.outError(ERROR_INST_DATA);
     }
 };
 

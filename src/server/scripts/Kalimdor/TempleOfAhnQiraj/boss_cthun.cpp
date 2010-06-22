@@ -168,7 +168,7 @@ struct eye_of_cthunAI : public Scripted_NoMovementAI
     {
         pInst = c->GetInstanceData();
         if (!pInst)
-            error_log("TSCR: No Instance eye_of_cthunAI");
+            sLog.outError("TSCR: No Instance eye_of_cthunAI");
     }
 
     ScriptedInstance* pInst;
@@ -460,7 +460,7 @@ struct cthunAI : public Scripted_NoMovementAI
 
         pInst = c->GetInstanceData();
         if (!pInst)
-            error_log("TSCR: No Instance eye_of_cthunAI");
+            sLog.outError("TSCR: No Instance eye_of_cthunAI");
     }
 
     ScriptedInstance* pInst;

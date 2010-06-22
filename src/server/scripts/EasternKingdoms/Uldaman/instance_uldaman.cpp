@@ -215,7 +215,7 @@ struct instance_uldaman : public ScriptedInstance
 
     void SetData (uint32 /*type*/, uint32 data)
     {
-        //error_log ("SetData: data = %d", data);
+        //sLog.outError ("SetData: data = %d", data);
         if (data == 0) OpenDoor (altarOfTheKeeperTempleDoor);
         if (data == 0) OpenDoor (archaedasTempleDoor);
         if (data == 3) OpenDoor (ancientVaultDoor);
