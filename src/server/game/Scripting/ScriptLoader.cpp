@@ -16,7 +16,7 @@
 
 #include "ScriptPCH.h"
 
-#ifdef WIN32
+#ifdef _WIN32
   #define DO_SCRIPTS
 #endif
 

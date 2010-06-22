@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="vmap_assembler"
-	ProjectGUID="{572FFF74-480C-4472-8ABF-81733BB4049D}"
-	RootNamespace="vmap_assembler"
+	Name="vmap3extractor"
+	ProjectGUID="{502602CC-98EA-4335-B922-C5C1DBF37604}"
+	RootNamespace="vmap3_extractor"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -21,8 +21,7 @@
 			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -42,16 +41,16 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\externals;..\..\..\..\externals\g3dlite;..\..\..\server\collision;..\..\..\server\collision\Management;..\..\..\server\collision\Maps;..\..\..\server\collision\Models;..\..\..\server\shared;..\..\..\server\shared\Debugging"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..\;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="true"
-				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
+				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -68,8 +67,6 @@
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName)_d.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
 				SubSystem="1"
@@ -104,8 +101,8 @@
 			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -124,16 +121,20 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\..\externals;..\..\..\..\externals\g3dlite;..\..\..\server\collision;..\..\..\server\collision\Maps;..\..\..\server\collision\Models;..\..\..\server\shared;..\..\..\server\shared\Debugging"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				Optimization="2"
+				EnableIntrinsicFunctions="false"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories="..\;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win"
+				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
+				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -149,11 +150,12 @@
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(IntDir)\$(TargetName).pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -186,54 +188,84 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\VMapAssembler.cpp"
+				RelativePath="..\adtfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\dbcfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\model.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\mpq_libmpq.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\vmapexport.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wdtfile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\wmo.cpp"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="vmaplib"
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\..\server\collision\BoundingIntervalHierarchy.cpp"
+				RelativePath="..\adtfile.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\server\collision\BoundingIntervalHierarchy.h"
+				RelativePath="..\dbcfile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\model.h"
+				>
+			</File>
+			<File
+				RelativePath="..\modelheaders.h"
+				>
+			</File>
+			<File
+				RelativePath="..\mpq_libmpq04.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vec3d.h"
+				>
+			</File>
+			<File
+				RelativePath="..\vmapexport.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wdtfile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wmo.h"
 				>
 			</File>
 			<Filter
-				Name="Maps"
+				Name="loadlib"
 				>
 				<File
-					RelativePath="..\..\..\server\collision\Maps\TileAssembler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\server\collision\Maps\TileAssembler.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Models"
-				>
-				<File
-					RelativePath="..\..\..\server\collision\Models\ModelInstance.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\server\collision\Models\ModelInstance.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\server\collision\Models\WorldModel.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\server\collision\Models\WorldModel.h"
+					RelativePath="..\loadlib\loadlib.h"
 					>
 				</File>
 			</Filter>

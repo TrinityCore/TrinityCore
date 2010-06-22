@@ -5,7 +5,7 @@
 #include <list>
 #include <errno.h>
 
-#ifdef WIN32
+#ifdef _WIN32
     #include <Windows.h>
     #include <sys/stat.h>
     #include <direct.h>

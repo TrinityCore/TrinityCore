@@ -37,7 +37,7 @@
 # define _TRINITY_CORE_CONFIG  "worldserver.conf"
 #endif //_TRINITY_CORE_CONFIG
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "TrinityCore";
 char serviceLongName[] = "Trinity core service";
@@ -62,7 +62,7 @@ void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r"
-        #ifdef WIN32
+        #ifdef _WIN32
         "    Running as service functions:\n\r"
         "    --service                run as service\n\r"
         "    -s install               install service\n\r"
@@ -91,7 +91,7 @@ extern int main(int argc, char **argv)
                 cfg_file = argv[c];
         }
 
-        #ifdef WIN32
+        #ifdef _WIN32
         ////////////
         //Services//
         ////////////
