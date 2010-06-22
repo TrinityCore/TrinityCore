@@ -461,7 +461,7 @@ int main(int argc, char ** argv)
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if(mkdir(szWorkDirWmo
-#ifdef __linux__
+#ifdef _XOPEN_UNIX
                     , 0711
 #endif
                     ))
