@@ -509,7 +509,7 @@ struct GameObjectInfo
             case GAMEOBJECT_TYPE_CAMERA:        return camera.eventID;
             default: return 0;
         }
- 	}
+    }
 };
 
 class OPvPCapturePoint;
