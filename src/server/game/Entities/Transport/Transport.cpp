@@ -480,13 +480,6 @@ bool Transport::RemovePassenger(Player* passenger)
     return true;
 }
 
-void Transport::CheckForEvent(uint32 entry, uint32 wp_id)
-{
-    uint32 key = entry*100+wp_id;
-    if (objmgr.TransportEventMap.find(key) != objmgr.TransportEventMap.end())
-        GetMap()->ScriptsStart(sEventScripts, objmgr.TransportEventMap[key], this, NULL);
-}
-
 void Transport::Update(uint32 /*p_time*/)
 {
     if (m_WayPoints.size() <= 1)
@@ -548,9 +541,6 @@ void Transport::Update(uint32 /*p_time*/)
 
         if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES) == 0)
             sLog.outDetail("%s moved to %d %f %f %f %d", this->m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
-
-        //Transport Event System
-        CheckForEvent(this->GetEntry(), m_curr->second.id);
     }
 }
 
