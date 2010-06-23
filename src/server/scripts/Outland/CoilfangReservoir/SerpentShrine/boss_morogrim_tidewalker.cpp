@@ -221,9 +221,8 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             {
                 //Teleport 4 players under the waterfalls
                 Unit *pTarget;
-                using std::set;
-                set<int>list;
-                set<int>::const_iterator itr;
+                std::set<uint64> list;
+                std::set<uint64>::const_iterator itr;
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
@@ -251,7 +250,7 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             } else WateryGrave_Timer -= diff;
 
             //Start Phase2
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 25)
+            if (HealthBelowPct(25))
                 Phase2 = true;
         }
         else
@@ -260,13 +259,13 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             if (WateryGlobules_Timer <= diff)
             {
                 Unit* pGlobuleTarget;
-                using std::set;
-                set<int>globulelist;
-                set<int>::const_iterator itr;
+                std::set<uint64> globulelist;
+                std::set<uint64>::const_iterator itr;
                 for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                 {
                     counter = 0;
-                    do {
+                    do
+                    {
                         pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
                         if (pGlobuleTarget)
                             itr = globulelist.find(pGlobuleTarget->GetGUID());
