@@ -14547,29 +14547,6 @@ INSERT INTO `spelldifficulty_dbc` VALUES
 UNLOCK TABLES;
 
 --
--- Table structure for table `transport_events`
---
-
-DROP TABLE IF EXISTS `transport_events`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `transport_events` (
-  `entry` int(11) unsigned NOT NULL DEFAULT '0',
-  `waypoint_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `event_id` int(11) unsigned NOT NULL DEFAULT '0'
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `transport_events`
---
-
-LOCK TABLES `transport_events` WRITE;
-/*!40000 ALTER TABLE `transport_events` DISABLE KEYS */;
-/*!40000 ALTER TABLE `transport_events` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `transports`
 --
 
