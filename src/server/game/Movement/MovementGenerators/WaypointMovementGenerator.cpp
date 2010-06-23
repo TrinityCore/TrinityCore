@@ -335,7 +335,7 @@ void FlightPathMovementGenerator::InitEndGridInfo()
 
     uint32 nodeCount = (*i_path).size();        // Get the number of nodes in the path.
     m_endMapId = (*i_path)[nodeCount -1].mapid; // Get the map ID from the last node
-    m_preloadTargetNode = nodeCount / 2;        // Split the number of nodes in half to preload the flightmaster half-way through the flight
+    m_preloadTargetNode = nodeCount - 3;        // 2 nodes before the final node, we pre-load the grid
     m_endGridX = (*i_path)[nodeCount -1].x;     // Get the X position from the last node
     m_endGridY = (*i_path)[nodeCount -1].y;     // Get the Y position from the last node
 }
