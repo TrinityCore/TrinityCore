@@ -126,7 +126,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     if (group)
     {
         // not have permissions for invite
-        if (!group->IsLeader(GetPlayer()->GetGUID() && group->IsAssistant(GetPlayer()->GetGUID())))
+        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
         {
             SendPartyResult(PARTY_OP_INVITE, "", ERR_NOT_LEADER);
             return;
