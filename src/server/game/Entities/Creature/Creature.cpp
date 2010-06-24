@@ -49,7 +49,7 @@
 #include "Vehicle.h"
 #include "SpellAuraEffects.h"
 // apply implementation of the singletons
-#include "SingletonImp.h"
+
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -185,7 +185,7 @@ void Creature::AddToWorld()
     {
         if (m_zoneScript)
             m_zoneScript->OnCreatureCreate(this, true);
-        ObjectAccessor::Instance().AddObject(this);
+        sObjectAccessor.AddObject(this);
         Unit::AddToWorld();
         SearchFormation();
         AIM_Initialize();
@@ -203,7 +203,7 @@ void Creature::RemoveFromWorld()
         if (m_formation)
             formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
-        ObjectAccessor::Instance().RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
     }
 }
 
@@ -2410,7 +2410,7 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
             if (data->mapid == GetMapId())   // look up on the same map
                 targetMap = GetMap();
             else                            // it shouldn't be instanceable map here
-                targetMap = MapManager::Instance().FindMap(data->mapid);
+                targetMap = sMapMgr.FindMap(data->mapid);
         }
         if (targetMap)
             return objmgr.GetCreatureRespawnTime(targetGuid,targetMap->GetInstanceId());

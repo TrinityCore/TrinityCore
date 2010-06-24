@@ -232,8 +232,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     data << uint32(clientcount);                            // clientcount place holder, listed count
     data << uint32(clientcount);                            // clientcount place holder, online count
 
-    ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
-    HashMapHolder<Player>::MapType& m = ObjectAccessor::Instance().GetPlayers();
+    ACE_GUARD(ACE_Thread_Mutex, g, *HashMapHolder<Player>::GetLock());
+    HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (security == SEC_PLAYER)
@@ -935,7 +935,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         return;
 
     // check if player can enter instance : instance not full, and raid instance not in encounter fight
-    if (!MapManager::Instance().CanPlayerEnter(at->target_mapId, GetPlayer(), false))
+    if (!sMapMgr.CanPlayerEnter(at->target_mapId, GetPlayer(), false))
         return;
 
     GetPlayer()->TeleportTo(at->target_mapId,at->target_X,at->target_Y,at->target_Z,at->target_Orientation,TELE_TO_NOT_LEAVE_TRANSPORT);

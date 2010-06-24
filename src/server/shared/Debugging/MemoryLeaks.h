@@ -39,10 +39,11 @@
 #endif
 
 
-#include "Policies/Singleton.h"
+#include "ace/Singleton.h"
 
-struct MemoryManager : public Trinity::Singleton < MemoryManager >
+struct MemoryManager
 {
     MemoryManager();
 };
+#define sMemoryManager ACE_Singleton<MemoryManager, ACE_Null_Mutex>::instance()
 #endif

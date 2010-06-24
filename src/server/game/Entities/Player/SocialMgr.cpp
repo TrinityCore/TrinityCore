@@ -19,7 +19,7 @@
  */
 
 #include "SocialMgr.h"
-#include "SingletonImp.h"
+
 #include "DatabaseEnv.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
@@ -27,8 +27,6 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Util.h"
-
-INSTANTIATE_SINGLETON_1(SocialMgr);
 
 PlayerSocial::PlayerSocial()
 {

@@ -17,21 +17,18 @@
  */
 
 #include "ChannelMgr.h"
-#include "SingletonImp.h"
-#include "World.h"
 
-INSTANTIATE_SINGLETON_1(AllianceChannelMgr);
-INSTANTIATE_SINGLETON_1(HordeChannelMgr);
+#include "World.h"
 
 ChannelMgr* channelMgr(uint32 team)
 {
     if (sWorld.getConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        return &Trinity::Singleton<AllianceChannelMgr>::Instance();        // cross-faction
+        return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();        // cross-faction
 
     if (team == ALLIANCE)
-        return &Trinity::Singleton<AllianceChannelMgr>::Instance();
+        return ACE_Singleton<AllianceChannelMgr, ACE_Null_Mutex>::instance();
     if (team == HORDE)
-        return &Trinity::Singleton<HordeChannelMgr>::Instance();
+        return ACE_Singleton<HordeChannelMgr, ACE_Null_Mutex>::instance();
 
     return NULL;
 }

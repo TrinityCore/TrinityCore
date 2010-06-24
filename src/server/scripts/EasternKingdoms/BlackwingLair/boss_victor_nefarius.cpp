@@ -189,9 +189,9 @@ struct boss_victor_nefariusAI : public ScriptedAI
 
         //Trinity::Singleton<MapManager>::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
         /*
-        list <Player*>::const_iterator i = MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
+        list <Player*>::const_iterator i = sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().begin();
 
-        for (i = MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
+        for (i = sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
         {
         AttackStart((*i));
         }
@@ -288,7 +288,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
                 if (SpawnedAdds >= 42)
                 {
                     //Teleport Victor Nefarius way out of the map
-                    //MapManager::Instance().GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
+                    //sMapMgr.GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
 
                     //Inturrupt any spell casting
                     me->InterruptNonMeleeSpells(false);

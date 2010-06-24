@@ -35,11 +35,14 @@ struct FormationInfo
 
 class CreatureGroupManager
 {
+    friend class ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>;
     public:
         void AddCreatureToGroup(uint32 group_id, Creature *creature);
         void RemoveCreatureFromGroup(CreatureGroup *group, Creature *creature);
         void LoadCreatureFormations();
 };
+
+#define formation_mgr (*ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>::instance())
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
@@ -72,7 +75,5 @@ class CreatureGroup
         void LeaderMoveTo(float x, float y, float z);
         void MemberAttackStart(Creature* member, Unit *target);
 };
-
-#define formation_mgr Trinity::Singleton<CreatureGroupManager>::Instance()
 
 #endif

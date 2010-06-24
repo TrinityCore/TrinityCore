@@ -22,7 +22,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "DatabaseEnv.h"
-#include "SingletonImp.h"
+
 
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -40,8 +40,6 @@
 #include "BattleGroundAB.h"
 #include "Map.h"
 #include "InstanceData.h"
-
-INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
 namespace Trinity
 {
@@ -965,7 +963,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscvalue1)
                     continue;
 
-                Map const* map = GetPlayer()->IsInWorld() ? GetPlayer()->GetMap() : MapManager::Instance().FindMap(GetPlayer()->GetMapId(), GetPlayer()->GetInstanceId());
+                Map const* map = GetPlayer()->IsInWorld() ? GetPlayer()->GetMap() : sMapMgr.FindMap(GetPlayer()->GetMapId(), GetPlayer()->GetInstanceId());
                 if (!map || !map->IsDungeon())
                     continue;
 

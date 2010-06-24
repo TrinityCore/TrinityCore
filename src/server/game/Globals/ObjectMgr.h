@@ -37,7 +37,7 @@
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
-#include "Singleton.h"
+#include "ace/Singleton.h"
 #include "SQLStorage.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
@@ -354,11 +354,11 @@ class PlayerDumpReader;
 class ObjectMgr
 {
     friend class PlayerDumpReader;
-
+    friend class ACE_Singleton<ObjectMgr, ACE_Null_Mutex>;
+    ObjectMgr();
+    ~ObjectMgr();
+    
     public:
-        ObjectMgr();
-        ~ObjectMgr();
-
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
         typedef std::set< Group * > GroupSet;
@@ -382,7 +382,7 @@ class ObjectMgr
 
         typedef std::vector<std::string> ScriptNameMap;
 
-        Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
+        Player* GetPlayer(const char* name) const { return sObjectAccessor.FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
         static GameObjectInfo const *GetGameObjectInfo(uint32 id) { return sGOStorage.LookupEntry<GameObjectInfo>(id); }
@@ -1083,7 +1083,7 @@ class ObjectMgr
 
 };
 
-#define objmgr Trinity::Singleton<ObjectMgr>::Instance()
+#define objmgr (*ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance())
 
 // scripting access functions
  bool LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());

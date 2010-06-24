@@ -20,7 +20,7 @@
 
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
-#include "SingletonImp.h"
+
 #include "Player.h"
 #include "Creature.h"
 #include "GameObject.h"
@@ -40,10 +40,6 @@
 #include "World.h"
 
 #include <cmath>
-
-#define CLASS_LOCK Trinity::ClassLevelLockable<ObjectAccessor, ACE_Thread_Mutex>
-INSTANTIATE_SINGLETON_2(ObjectAccessor, CLASS_LOCK);
-INSTANTIATE_CLASS_MUTEX(ObjectAccessor, ACE_Thread_Mutex);
 
 ObjectAccessor::ObjectAccessor()
 {
@@ -151,7 +147,7 @@ Player* ObjectAccessor::FindPlayer(uint64 guid)
 
 Player* ObjectAccessor::FindPlayerByName(const char* name)
 {
-    Guard guard(*HashMapHolder<Player>::GetLock());
+    ACE_GUARD_RETURN(LockType, g, *HashMapHolder<Player>::GetLock(), NULL);
     HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
     for (HashMapHolder<Player>::MapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if (iter->second->IsInWorld() && strcmp(name, iter->second->GetName()) == 0)
@@ -162,7 +158,7 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
 
 void ObjectAccessor::SaveAllPlayers()
 {
-    Guard guard(*HashMapHolder<Player>::GetLock());
+    ACE_GUARD(LockType, g, *HashMapHolder<Player>::GetLock());
     HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
     for (HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
@@ -175,7 +171,7 @@ Pet* ObjectAccessor::GetPet(uint64 guid)
 
 Corpse* ObjectAccessor::GetCorpseForPlayerGUID(uint64 guid)
 {
-    Guard guard(i_corpseGuard);
+    ACE_GUARD_RETURN(LockType, guard, i_corpseGuard, NULL);
 
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(guid);
     if (iter == i_player2corpse.end())
@@ -197,7 +193,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 
     // Critical section
     {
-        Guard guard(i_corpseGuard);
+        ACE_GUARD(LockType, g, i_corpseGuard);
 
         Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGUID());
         if (iter == i_player2corpse.end()) // TODO: Fix this
@@ -219,7 +215,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
     // Critical section
     {
-        Guard guard(i_corpseGuard);
+        ACE_GUARD(LockType, g, i_corpseGuard);
 
         assert(i_player2corpse.find(corpse->GetOwnerGUID()) == i_player2corpse.end());
         i_player2corpse[corpse->GetOwnerGUID()] = corpse;
@@ -234,7 +230,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
 void ObjectAccessor::AddCorpsesToGrid(GridPair const& gridpair, GridType& grid, Map* map)
 {
-    Guard guard(i_corpseGuard);
+    ACE_GUARD(LockType, g, i_corpseGuard);
 
     for (Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
     {
@@ -274,7 +270,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool /*insign
     // done in removecorpse
     // remove resurrectable corpse from grid object registry (loaded state checked into call)
     // do not load the map if it's not loaded
-    //Map *map = MapManager::Instance().FindMap(corpse->GetMapId(), corpse->GetInstanceId());
+    //Map *map = sMapMgr.FindMap(corpse->GetMapId(), corpse->GetInstanceId());
     //if (map)
     //    map->Remove(corpse, false);
 
@@ -333,7 +329,7 @@ void ObjectAccessor::Update(uint32 /*diff*/)
 
     // Critical section
     {
-        Guard guard(i_updateGuard);
+        ACE_GUARD(LockType, g, i_updateGuard);
 
         while (!i_objects.empty())
         {

@@ -106,7 +106,7 @@ void MapManager::LoadTransports()
             m_TransportsByMap[*i].insert(t);
 
         //If we someday decide to use the grid to track transports, here:
-        t->SetMap(MapManager::Instance().CreateMap(mapid, t, 0));
+        t->SetMap(sMapMgr.CreateMap(mapid, t, 0));
 
         //t->GetMap()->Add<GameObject>((GameObject *)t);
         ++count;
@@ -455,7 +455,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     //yes, you're right
 
     ResetMap();
-    Map * newMap = MapManager::Instance().CreateMap(newMapid, this, 0);
+    Map * newMap = sMapMgr.CreateMap(newMapid, this, 0);
     SetMap(newMap);
     assert (GetMap());
 

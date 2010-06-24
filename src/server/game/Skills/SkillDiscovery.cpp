@@ -21,7 +21,6 @@
 #include "DatabaseEnv.h"
 #include "Log.h"
 #include "ProgressBar.h"
-#include "SingletonImp.h"
 #include "World.h"
 #include "Util.h"
 #include "SkillDiscovery.h"

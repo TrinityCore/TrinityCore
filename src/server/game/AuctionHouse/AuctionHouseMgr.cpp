@@ -24,7 +24,7 @@
 #include "WorldSession.h"
 #include "DatabaseEnv.h"
 #include "SQLStorage.h"
-#include "SingletonImp.h"
+
 #include "DBCStores.h"
 
 #include "AccountMgr.h"
@@ -34,8 +34,6 @@
 #include "Logging/Log.h"
 #include "ProgressBar.h"
 #include <vector>
-
-INSTANTIATE_SINGLETON_1(AuctionHouseMgr);
 
 using namespace std;
 

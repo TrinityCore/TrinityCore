@@ -23,19 +23,20 @@
 
 #include "Common.h"
 #include "ConfigEnv.h"
-#include "Singleton.h"
-
+#include "ace/Singleton.h"
 #include "WorldPacket.h"
 
 class AddonHandler
 {
+    /* Construction */
+    friend class ACE_Singleton<AddonHandler, ACE_Null_Mutex>;
+    AddonHandler();
+    
     public:
-        /* Construction */
-        AddonHandler();
         ~AddonHandler();
-                                                            //built addon packet
+                                                            //build addon packet
         bool BuildAddonPacket(WorldPacket* Source, WorldPacket* Target);
 };
-#define sAddOnHandler Trinity::Singleton<AddonHandler>::Instance()
+#define sAddOnHandler ACE_Singleton<AddonHandler, ACE_Null_Mutex>::instance()
 #endif
 

@@ -323,7 +323,7 @@ void BattleGround::Update(uint32 diff)
             plr->ResurrectPlayer(1.0f);
             plr->CastSpell(plr, 6962, true);
             plr->CastSpell(plr, SPELL_SPIRIT_HEAL_MANA, true);
-            ObjectAccessor::Instance().ConvertCorpseForPlayer(*itr);
+            sObjectAccessor.ConvertCorpseForPlayer(*itr);
         }
         m_ResurrectQueue.clear();
     }
@@ -1525,7 +1525,7 @@ Creature* BattleGround::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
 /*
 void BattleGround::SpawnBGCreature(uint32 type, uint32 respawntime)
 {
-    Map * map = MapManager::Instance().FindMap(GetMapId(),GetInstanceId());
+    Map * map = sMapMgr.FindMap(GetMapId(),GetInstanceId());
     if (!map)
         return false;
 

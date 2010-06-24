@@ -589,22 +589,6 @@
 				>
 			</File>
 			<Filter
-				Name="CountedReference"
-				>
-				<File
-					RelativePath="..\..\src\server\shared\Dynamic\CountedReference\Reference.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\shared\Dynamic\CountedReference\ReferenceHolder.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\shared\Dynamic\CountedReference\ReferenceImpl.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="LinkedReference"
 				>
 				<File
@@ -638,14 +622,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\server\shared\Packets\WorldPacket.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Policies"
-			>
-			<File
-				RelativePath="..\..\src\server\shared\Policies\ObjectLifeTime.cpp"
 				>
 			</File>
 		</Filter>
