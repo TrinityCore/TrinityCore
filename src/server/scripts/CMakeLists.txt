@@ -26,17 +26,10 @@ set(scripts_STAT_SRCS
   ../game/PrecompiledHeaders/ScriptPCH.cpp
   ../game/PrecompiledHeaders/ScriptPCH.h
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
-  ../game/AI/ScriptedAI/ScriptedEscortAI.h
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
-  ../game/AI/ScriptedAI/ScriptedCreature.h
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
-  ../game/AI/ScriptedAI/ScriptedFollowerAI.h
-  ../game/AI/ScriptedAI/ScriptedGossip.h
   ../game/AI/ScriptedAI/ScriptedGuardAI.cpp
-  ../game/AI/ScriptedAI/ScriptedGuardAI.h
-  ../game/AI/ScriptedAI/ScriptedInstance.h
   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
-  ../game/AI/ScriptedAI/ScriptedSimpleAI.h
   Custom/on_events.cpp
   ${scripts_easternkingdoms}
   ${scripts_kalimdor}
