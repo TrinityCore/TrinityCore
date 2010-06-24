@@ -34,7 +34,6 @@ class Master
         Master();
         ~Master();
         int Run();
-        static volatile uint32 m_masterLoopCounter;
 
     private:
         bool _StartDB();
