@@ -1379,28 +1379,15 @@ bool Position::HasInArc(float arc, const Position *obj) const
         return true;
 
     // move arc to range 0.. 2*pi
-    while (arc >= 2.0f * M_PI)
-        arc -=  2.0f * M_PI;
-    while (arc < 0)
-        arc +=  2.0f * M_PI;
+    arc = MapManager::NormalizeOrientation(arc);
 
     float angle = GetAngle(obj);
     angle -= m_orientation;
 
-    //if (angle > 100 || angle < -100)
-    //{
-    //    sLog.outCrash("Invalid Angle %f: this %u %u %f %f %f %f, that %u %u %f %f %f %f", angle,
-    //        GetEntry(), GetGUIDLow(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(),
-    //        obj->GetEntry(), obj->GetGUIDLow(), obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
-    //    assert(false);
-    //    return false;
-    //}
-
     // move angle to range -pi ... +pi
-    while (angle > M_PI)
-        angle -= 2.0f * M_PI;
-    while (angle < -M_PI)
-        angle += 2.0f * M_PI;
+    angle = MapManager::NormalizeOrientation(angle);
+    if(angle > M_PI)
+        angle -= 2.0f*M_PI;
 
     float lborder =  -1 * (arc/2.0f);                       // in range -pi..0
     float rborder = (arc/2.0f);                             // in range 0..pi
