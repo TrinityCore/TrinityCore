@@ -203,6 +203,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
         strcpy(data.rev_str,hash_str);
         strcpy(data.hash_str,"*");
 
+
     time_t rev_time = 0;
     // extracting date/time
     FILE* LogFile = fopen((path+".git/logs/HEAD").c_str(), "r");
@@ -404,13 +405,13 @@ int main(int argc, char **argv)
                 res = extractDataFromSvn(path+"_svn/entries",use_url,data);
             // HG data
             if (!res)
-                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
-            if (!res)
-                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
-            if (!res)
                 res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
             if (!res)
                 res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
             // GIT data
             if (!res)
                 res = extractDataFromGit(path+".git/FETCH_HEAD",path,use_url,data);
@@ -430,13 +431,13 @@ int main(int argc, char **argv)
                 res = extractDataFromGit(path+"_git/FETCH_HEAD",path,use_url,data);
             // HG data
             if (!res)
-                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
-            if (!res)
-                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
-            if (!res)
                 res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
             if (!res)
                 res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
            /// SVN data
             if (!res)
                 res = extractDataFromSvn(path+".svn/entries",use_url,data);
@@ -449,14 +450,17 @@ int main(int argc, char **argv)
                 res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
 
+
         else if(hg_prefered)
         {
             // HG data
-            res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
-            if (!res)
-                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
+            res = extractDataFromHG(path+".hg/branchheads.cache",path,use_url,data);
             if (!res)
                 res = extractDataFromHG(path+"_hg/branchheads.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+".hg/branch.cache",path,use_url,data);
+            if (!res)
+                res = extractDataFromHG(path+"_hg/branch.cache",path,use_url,data);
             /// SVN data
             if (!res)
                 res = extractDataFromSvn(path+".svn/entries",use_url,data);
