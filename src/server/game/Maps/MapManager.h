@@ -113,14 +113,14 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
         {
             // fmod only supports positive numbers. Thus we have
             // to emulate negative numbers
-            if(o < 0)
+            if (o < 0)
             {
                 float mod = o *-1;
-                mod = fmod(mod, 2.0f*M_PI);
-                mod = -mod+2.0f*M_PI;
+                mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
+                mod = -mod + 2.0f * M_PI;
                 return mod;
             }
-            return fmod(o, 2.0f*M_PI);
+            return fmod(o, 2.0f * static_cast<float>(M_PI));
         }
 
         void DoDelayedMovesAndRemoves();
