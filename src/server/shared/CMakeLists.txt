@@ -11,26 +11,14 @@
 ########### shared ###############
 
 set(shared_STAT_SRCS
-  Debugging/Errors.h
   Logging/Log.cpp
-  Logging/Log.h
-  Packets/ByteBuffer.h
-  Packets/WorldPacket.h
   Policies/ObjectLifeTime.cpp
   Threading/DelayExecutor.cpp
-  Threading/DelayExecutor.h
   Threading/Threading.cpp
   Utilities/ProgressBar.cpp
-  Utilities/ProgressBar.h
-  Utilities/SignalHandler.h
-  Utilities/Timer.h
   Utilities/Util.cpp
-  Utilities/Util.h  
   Utilities/EventProcessor.cpp
-  Utilities/EventProcessor.h
   Common.cpp
-  Common.h
-  SystemConfig.h
 )
 
 include_directories(
@@ -66,12 +54,8 @@ target_link_libraries(
 
 set(trinityconfig_STAT_SRCS
   Configuration/dotconfpp/dotconfpp.cpp
-  Configuration/dotconfpp/dotconfpp.h
   Configuration/dotconfpp/mempool.cpp
-  Configuration/dotconfpp/mempool.h
   Configuration/Config.cpp
-  Configuration/Config.h
-  Configuration/ConfigEnv.h
 )
 
 include_directories(
@@ -86,17 +70,11 @@ add_library(trinityconfig STATIC ${trinityconfig_STAT_SRCS})
 
 set(trinityauth_STAT_SRCS
   Cryptography/Authentication/AuthCrypt.cpp
-  Cryptography/Authentication/AuthCrypt.h
   Cryptography/BigNumber.cpp
-  Cryptography/BigNumber.h
   Cryptography/HMACSHA1.cpp
-  Cryptography/HMACSHA1.h
   Cryptography/SHA1.cpp
-  Cryptography/SHA1.h
   Cryptography/MD5.c
-  Cryptography/MD5.h
   Cryptography/ARC4.cpp
-  Cryptography/ARC4.h
 )
 
 include_directories(
@@ -112,22 +90,12 @@ add_library(trinityauth STATIC ${trinityauth_STAT_SRCS})
 
 set(trinitydatabase_STAT_SRCS
   DataStores/DBCFileLoader.cpp
-  DataStores/DBCFileLoader.h
-  DataStores/DBCStore.h
   Database/Database.cpp
-  Database/Database.h
-  Database/DatabaseEnv.h
-  Database/DatabaseImpl.h
   Database/Field.cpp
-  Database/Field.h
   Database/QueryResult.cpp
-  Database/QueryResult.h
   Database/SQLStorage.cpp
-  Database/SQLStorage.h
   Database/SqlDelayThread.cpp
-  Database/SqlDelayThread.h
   Database/SqlOperations.cpp
-  Database/SqlOperations.h
 )
 
 include_directories(

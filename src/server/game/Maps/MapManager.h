@@ -108,6 +108,21 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
             return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
         }
 
+        // modulos a radian orientation to the range of 0..2PI
+        static float NormalizeOrientation(float o)
+        {
+            // fmod only supports positive numbers. Thus we have
+            // to emulate negative numbers
+            if(o < 0)
+            {
+                float mod = o *-1;
+                mod = fmod(mod, 2.0f*M_PI);
+                mod = -mod+2.0f*M_PI;
+                return mod;
+            }
+            return fmod(o, 2.0f*M_PI);
+        }
+
         void DoDelayedMovesAndRemoves();
 
         void LoadTransports();

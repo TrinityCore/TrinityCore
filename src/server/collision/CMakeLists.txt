@@ -11,23 +11,13 @@
 ########### collision ###############
 
 set(collision_STAT_SRCS
-  BoundingIntervalHierarchy.h
   BoundingIntervalHierarchy.cpp
   Maps/MapTree.cpp
-  Maps/MapTree.h
   Maps/TileAssembler.cpp
-  Maps/TileAssembler.h
   Models/ModelInstance.cpp
-  Models/ModelInstance.h
   Models/WorldModel.cpp
-  Models/WorldModel.h
-  Management/IVMapManager.h
   Management/VMapFactory.cpp
-  Management/VMapFactory.h
   Management/VMapManager2.cpp
-  Management/VMapManager2.h
-  VMapDefinitions.h
-  VMapTools.h
 )
 
 include_directories(

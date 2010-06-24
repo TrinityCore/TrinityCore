@@ -12,14 +12,10 @@
 
 set(worldserver_SRCS
   CommandLine/CliRunnable.cpp
-  CommandLine/CliRunnable.h
   RemoteAccess/RASocket.cpp
-  RemoteAccess/RASocket.h
   WorldThread/WorldRunnable.cpp
-  WorldThread/WorldRunnable.h
   Main.cpp
   Master.cpp
-  Master.h
 )
 
 include_directories(

@@ -12,14 +12,9 @@
 
 set(authserver_SRCS
   Authentication/AuthCodes.cpp
-  Authentication/AuthCodes.h
   Realms/RealmList.cpp
-  Realms/RealmList.h
   Server/AuthSocket.cpp
-  Server/AuthSocket.h
-  Server/RealmSocket.h
   Server/RealmSocket.cpp
-  Server/RealmAcceptor.h
   Main.cpp
 )
 
