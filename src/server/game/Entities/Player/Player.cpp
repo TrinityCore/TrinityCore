@@ -23119,6 +23119,9 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket *data)
 
     if (m_specsCount)
     {
+        if (m_specsCount > MAX_TALENT_SPECS)
+            m_specsCount = MAX_TALENT_SPECS;
+
         // loop through all specs (only 1 for now)
         for (uint32 specIdx = 0; specIdx < m_specsCount; ++specIdx)
         {
