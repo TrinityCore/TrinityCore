@@ -22,7 +22,7 @@
 #define __BATTLEGROUNDMGR_H
 
 #include "Common.h"
-#include "Singleton.h"
+#include "ace/Singleton.h"
 
 #include "DBCEnums.h"
 #include "BattleGround.h"
@@ -180,9 +180,12 @@ class BGQueueRemoveEvent : public BasicEvent
 
 class BattleGroundMgr
 {
+    /// Todo: Thread safety?
+    /* Construction */
+    friend class ACE_Singleton<BattleGroundMgr, ACE_Null_Mutex>;
+    BattleGroundMgr();
+    
     public:
-        /* Construction */
-        BattleGroundMgr();
         ~BattleGroundMgr();
         void Update(uint32 diff);
 
@@ -271,6 +274,6 @@ class BattleGroundMgr
         bool   m_Testing;
 };
 
-#define sBattleGroundMgr Trinity::Singleton<BattleGroundMgr>::Instance()
+#define sBattleGroundMgr (*ACE_Singleton<BattleGroundMgr, ACE_Null_Mutex>::instance())
 #endif
 

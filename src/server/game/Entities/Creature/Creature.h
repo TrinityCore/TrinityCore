@@ -700,7 +700,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         bool DisableReputationGain;
 
-        CreatureInfo const* m_creatureInfo;                 // in difficulty mode > 0 can different from ObjMgr::GetCreatureTemplate(GetEntry())
+        CreatureInfo const* m_creatureInfo;                 // in difficulty mode > 0 can different from objmgr.::GetCreatureTemplate(GetEntry())
         CreatureData const* m_creatureData;
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable

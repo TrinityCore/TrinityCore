@@ -22,12 +22,10 @@
 #include "CreatureGroups.h"
 #include "ObjectMgr.h"
 #include "ProgressBar.h"
-#include "SingletonImp.h"
+
 #include "CreatureAI.h"
 
 #define MAX_DESYNC 5.0f
-
-INSTANTIATE_SINGLETON_1(CreatureGroupManager);
 
 CreatureGroupInfoType   CreatureGroupMap;
 

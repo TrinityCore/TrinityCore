@@ -12,7 +12,6 @@
 
 set(shared_STAT_SRCS
   Logging/Log.cpp
-  Policies/ObjectLifeTime.cpp
   Threading/DelayExecutor.cpp
   Threading/Threading.cpp
   Utilities/ProgressBar.cpp
@@ -37,7 +36,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Dynamic
   ${CMAKE_SOURCE_DIR}/src/server/shared/Logging
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Policies
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${MYSQL_INCLUDE_DIR}

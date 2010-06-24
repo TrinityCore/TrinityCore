@@ -21,9 +21,6 @@
 #include "ProgressBar.h"
 #include "Log.h"
 #include "MapManager.h"
-#include "SingletonImp.h"
-
-INSTANTIATE_SINGLETON_1(PoolHandler);
 
 ////////////////////////////////////////////////////////////
 // template class SpawnedPoolData
@@ -201,7 +198,7 @@ void PoolGroup<Creature>::Despawn1Object(uint32 guid)
     {
         objmgr.RemoveCreatureFromGrid(guid, data);
 
-        if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+        if (Creature* pCreature = sObjectAccessor.GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
             pCreature->AddObjectToRemoveList();
     }
 }
@@ -214,7 +211,7 @@ void PoolGroup<GameObject>::Despawn1Object(uint32 guid)
     {
         objmgr.RemoveGameobjectFromGrid(guid, data);
 
-        if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+        if (GameObject* pGameobject = sObjectAccessor.GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
             pGameobject->AddObjectToRemoveList();
     }
 }
@@ -297,7 +294,7 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         objmgr.AddCreatureToGrid(obj->guid, data);
 
         // Spawn if necessary (loaded grids only)
-        Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(data->mapid));
+        Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(data->mapid));
         // We use spawn coords to spawn
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
@@ -323,7 +320,7 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
         objmgr.AddGameobjectToGrid(obj->guid, data);
         // Spawn if necessary (loaded grids only)
         // this base map checked as non-instanced and then only existed
-        Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(data->mapid));
+        Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(data->mapid));
         // We use current coords to unspawn, not spawn coords since creature can have changed grid
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
@@ -355,7 +352,7 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = objmgr.GetCreatureData(obj->guid))
-        if (Creature* pCreature = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+        if (Creature* pCreature = sObjectAccessor.GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
             pCreature->GetMap()->Add(pCreature);
 }
 
@@ -364,7 +361,7 @@ template <>
 void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
     if (GameObjectData const* data = objmgr.GetGOData(obj->guid))
-        if (GameObject* pGameobject = ObjectAccessor::Instance().GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
+        if (GameObject* pGameobject = sObjectAccessor.GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
             pGameobject->GetMap()->Add(pGameobject);
 }
 

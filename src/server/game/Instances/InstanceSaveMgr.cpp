@@ -21,7 +21,6 @@
 
 #include "Common.h"
 #include "SQLStorage.h"
-
 #include "Player.h"
 #include "GridNotifiers.h"
 #include "Log.h"
@@ -40,14 +39,7 @@
 #include "Group.h"
 #include "InstanceData.h"
 #include "ProgressBar.h"
-#include "Singleton.h"
-#include "SingletonImp.h"
 
-INSTANTIATE_SINGLETON_1(InstanceSaveManager);
-
-InstanceSaveManager::InstanceSaveManager() : lock_instLists(false)
-{
-}
 
 InstanceSaveManager::~InstanceSaveManager()
 {
@@ -173,7 +165,7 @@ void InstanceSave::SaveToDB()
     // save instance data too
     std::string data;
 
-    Map *map = MapManager::Instance().FindMap(GetMapId(),m_instanceid);
+    Map *map = sMapMgr.FindMap(GetMapId(),m_instanceid);
     if (map)
     {
         assert(map->IsDungeon());
@@ -615,7 +607,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     sLog.outDebug("InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
-    Map *map = (MapInstanced*)MapManager::Instance().CreateBaseMap(mapid);
+    Map *map = (MapInstanced*)sMapMgr.CreateBaseMap(mapid);
     if (!map->Instanceable())
         return;
 
@@ -679,7 +671,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
-    Map const *map = MapManager::Instance().CreateBaseMap(mapid);          // _not_ include difficulty
+    Map const *map = sMapMgr.CreateBaseMap(mapid);          // _not_ include difficulty
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
     MapInstanced::InstancedMaps::iterator mitr;
     for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)

@@ -23,7 +23,7 @@
 #define __InstanceSaveMgr_H
 
 #include "Define.h"
-#include "Singleton.h"
+#include "ace/Singleton.h"
 #include "ace/Thread_Mutex.h"
 #include <list>
 #include <map>
@@ -117,13 +117,14 @@ class InstanceSave
 
 typedef UNORDERED_MAP<uint32 /*PAIR32(map,difficulty)*/,time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
 
-class InstanceSaveManager : public Trinity::Singleton<InstanceSaveManager, Trinity::ClassLevelLockable<InstanceSaveManager, ACE_Thread_Mutex> >
+class InstanceSaveManager
 {
+    friend class ACE_Singleton<InstanceSaveManager, ACE_Null_Mutex>;
     friend class InstanceSave;
     public:
-        InstanceSaveManager();
+        InstanceSaveManager() : lock_instLists(false) {};        
         ~InstanceSaveManager();
-
+        
         typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
         typedef UNORDERED_MAP<uint32 /*mapId*/, InstanceSaveHashMap> InstanceSaveMapMap;
 
@@ -176,6 +177,7 @@ class InstanceSaveManager : public Trinity::Singleton<InstanceSaveManager, Trini
         uint32 GetNumBoundGroupsTotal();
 
     private:
+        
         void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);
         void _ResetInstance(uint32 mapid, uint32 instanceId);
         void _ResetSave(InstanceSaveHashMap::iterator &itr);
@@ -189,5 +191,5 @@ class InstanceSaveManager : public Trinity::Singleton<InstanceSaveManager, Trini
         ResetTimeQueue m_resetTimeQueue;
 };
 
-#define sInstanceSaveManager Trinity::Singleton<InstanceSaveManager>::Instance()
+#define sInstanceSaveManager (*ACE_Singleton<InstanceSaveManager, ACE_Thread_Mutex>::instance())
 #endif

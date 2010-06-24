@@ -19,7 +19,7 @@
  */
 
 #include "DatabaseEnv.h"
-#include "SingletonImp.h"
+
 
 #include "AccountMgr.h"
 #include "ObjectAccessor.h"
@@ -28,8 +28,6 @@
 #include "SHA1.h"
 
 extern DatabaseType LoginDatabase;
-
-INSTANTIATE_SINGLETON_1(AccountMgr);
 
 AccountMgr::AccountMgr()
 {}

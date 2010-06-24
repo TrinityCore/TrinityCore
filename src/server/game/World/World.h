@@ -27,7 +27,7 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include "Singleton.h"
+#include <ace/Singleton.h>
 #include "SharedDefines.h"
 #include "ace/Atomic_Op.h"
 #include "QueryResult.h"
@@ -779,6 +779,6 @@ class World
 
 extern uint32 realmID;
 
-#define sWorld Trinity::Singleton<World>::Instance()
+#define sWorld (*ACE_Singleton<World, ACE_Null_Mutex>::instance())
 #endif
 /// @}

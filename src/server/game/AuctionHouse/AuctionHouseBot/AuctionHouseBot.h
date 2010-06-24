@@ -1207,9 +1207,11 @@ private:
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     void addNewAuctions(Player *AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session);
+    
+    friend class ACE_Singleton<AuctionHouseBot, ACE_Null_Mutex>;
+    AuctionHouseBot();
 
 public:
-    AuctionHouseBot();
     ~AuctionHouseBot();
     void Update();
     void Initialize();
@@ -1220,6 +1222,6 @@ public:
     uint32 GetAHBplayerGUID() { return AHBplayerGUID; };
 };
 
-#define auctionbot Trinity::Singleton<AuctionHouseBot>::Instance()
+#define auctionbot (*ACE_Singleton<AuctionHouseBot, ACE_Null_Mutex>::instance())
 
 #endif
