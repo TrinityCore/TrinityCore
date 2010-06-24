@@ -21,7 +21,7 @@
 #ifndef __TRINITY_SOCIALMGR_H
 #define __TRINITY_SOCIALMGR_H
 
-#include "Singleton.h"
+#include "ace/Singleton.h"
 #include "DatabaseEnv.h"
 #include "Common.h"
 
@@ -139,8 +139,9 @@ class PlayerSocial
 
 class SocialMgr
 {
+    friend class ACE_Singleton<SocialMgr, ACE_Null_Mutex>;
+    SocialMgr();
     public:
-        SocialMgr();
         ~SocialMgr();
         // Misc
         void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
@@ -156,6 +157,6 @@ class SocialMgr
         SocialMap m_socialMap;
 };
 
-#define sSocialMgr Trinity::Singleton<SocialMgr>::Instance()
+#define sSocialMgr (*ACE_Singleton<SocialMgr, ACE_Null_Mutex>::instance())
 #endif
 

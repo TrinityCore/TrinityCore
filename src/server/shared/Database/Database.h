@@ -24,7 +24,6 @@
 #include "Threading/Threading.h"
 #include "Dynamic/UnorderedMap.h"
 #include "Database/SqlDelayThread.h"
-#include "Policies/Singleton.h"
 #include "ace/Thread_Mutex.h"
 #include "ace/Guard_T.h"
 

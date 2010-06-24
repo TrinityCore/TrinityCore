@@ -10,9 +10,6 @@
 #include "ProgressBar.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
-#include "SingletonImp.h"
-
-INSTANTIATE_SINGLETON_1(ScriptMgr);
 
 int num_sc_scripts;
 Script *m_scripts[MAX_SCRIPTS];

@@ -343,7 +343,7 @@ void FlightPathMovementGenerator::InitEndGridInfo()
 void FlightPathMovementGenerator::PreloadEndGrid()
 {
     // used to preload the final grid where the flightmaster is
-    Map *endMap = MapManager::Instance().FindMap(m_endMapId);
+    Map *endMap = sMapMgr.FindMap(m_endMapId);
 
     // Load the grid
     if (endMap)

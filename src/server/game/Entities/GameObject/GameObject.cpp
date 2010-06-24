@@ -117,7 +117,7 @@ void GameObject::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectCreate(this, true);
 
-        ObjectAccessor::Instance().AddObject(this);
+        sObjectAccessor.AddObject(this);
         WorldObject::AddToWorld();
     }
 }
@@ -139,7 +139,7 @@ void GameObject::RemoveFromWorld()
                 sLog.outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
-        ObjectAccessor::Instance().RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
     }
 }
 

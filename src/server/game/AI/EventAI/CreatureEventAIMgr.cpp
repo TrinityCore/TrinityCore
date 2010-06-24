@@ -23,12 +23,9 @@
 #include "CreatureEventAIMgr.h"
 #include "ObjectMgr.h"
 #include "ProgressBar.h"
-#include "SingletonImp.h"
 #include "ObjectDefines.h"
 #include "GridDefines.h"
 #include "ConditionMgr.h"
-
-INSTANTIATE_SINGLETON_1(CreatureEventAIMgr);
 
 // -------------------
 void CreatureEventAIMgr::LoadCreatureEventAI_Texts()

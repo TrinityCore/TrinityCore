@@ -20,7 +20,7 @@
 #define TRINITY_POOLHANDLER_H
 
 #include "Define.h"
-#include "Singleton.h"
+#include "ace/Singleton.h"
 #include "Creature.h"
 #include "GameObject.h"
 
@@ -89,10 +89,11 @@ class PoolGroup
 
 class PoolHandler
 {
-    public:
-        PoolHandler();
-        ~PoolHandler() {};
+    friend class ACE_Singleton<PoolHandler, ACE_Null_Mutex>;
+    PoolHandler();
+    ~PoolHandler() {};
 
+    public:
         void LoadFromDB();
         void Initialize();
 
@@ -134,7 +135,7 @@ class PoolHandler
         SpawnedPoolData mSpawnedData;
 };
 
-#define poolhandler Trinity::Singleton<PoolHandler>::Instance()
+#define poolhandler (*ACE_Singleton<PoolHandler, ACE_Null_Mutex>::instance())
 
 // Method that tell if the creature is part of a pool and return the pool id if yes
 template<>

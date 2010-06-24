@@ -19,15 +19,10 @@
  */
 
 #include "zlib.h"
-
 #include "AddonHandler.h"
 #include "DatabaseEnv.h"
-#include "SingletonImp.h"
 #include "Opcodes.h"
-
 #include "Log.h"
-
-INSTANTIATE_SINGLETON_1( AddonHandler );
 
 AddonHandler::AddonHandler()
 {

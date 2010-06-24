@@ -19,7 +19,7 @@
  */
 
 #include "DBCStores.h"
-#include "SingletonImp.h"
+
 #include "Logging/Log.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
