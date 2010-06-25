@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -185,7 +185,7 @@
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).pdb"
 				GenerateMapFile="true"
@@ -217,7 +217,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -319,7 +319,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 		<Configuration
@@ -389,7 +389,7 @@
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).pdb"
 				GenerateMapFile="true"
@@ -421,7 +421,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
 			/>
 		</Configuration>
 	</Configurations>
