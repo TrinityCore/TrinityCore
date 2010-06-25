@@ -4292,11 +4292,11 @@
 			Name="Pools"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Pools\PoolHandler.cpp"
+				RelativePath="..\..\src\server\game\Pools\PoolMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\Pools\PoolHandler.h"
+				RelativePath="..\..\src\server\game\Pools\PoolMgr.h"
 				>
 			</File>
 		</Filter>
