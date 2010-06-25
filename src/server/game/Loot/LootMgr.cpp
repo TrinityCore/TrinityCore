@@ -188,7 +188,6 @@ bool LootStore::HaveQuestLootForPlayer(uint32 loot_id,Player* player) const
 
 void LootStore::ResetConditions()
 {
-    LootTemplateMap m_LootTemplates;
     for (LootTemplateMap::iterator itr = m_LootTemplates.begin(); itr != m_LootTemplates.end(); ++itr)
     {
         ConditionList empty;
@@ -969,11 +968,11 @@ void LootTemplate::LootGroup::CopyConditions(ConditionList conditions)
 {
     for (LootStoreItemList::iterator i = ExplicitlyChanced.begin(); i != ExplicitlyChanced.end(); ++i)
     {
-        i->conditions = conditions;
+        i->conditions.clear();
     }
     for (LootStoreItemList::iterator i = EqualChanced.begin(); i != EqualChanced.end(); ++i)
     {
-        i->conditions = conditions;
+        i->conditions.clear();
     }
 }
 
@@ -1146,7 +1145,7 @@ void LootTemplate::AddEntry(LootStoreItem& item)
 void LootTemplate::CopyConditions(ConditionList conditions)
 {
     for (LootStoreItemList::iterator i = Entries.begin(); i != Entries.end(); ++i)
-        i->conditions = conditions;
+        i->conditions.clear();
 
     for (LootGroups::iterator i = Groups.begin(); i != Groups.end(); ++i)
         i->CopyConditions(conditions);
@@ -1196,8 +1195,6 @@ void LootTemplate::Process(Loot& loot, LootStore const& store, bool rate, uint16
 
             if (!Referenced)
                 continue;                                     // Error message already printed at loading stage
-
-            const_cast<LootTemplate*>(Referenced)->CopyConditions(i->conditions);//copy conditions from referer template
 
             for (uint32 loop = 0; loop < i->maxcount; ++loop) // Ref multiplicator
                 Referenced->Process(loot, store, rate, lootMode, i->group);
