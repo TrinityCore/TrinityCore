@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\;..\..\..\..\externals;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win;..\server\shared"
+				AdditionalIncludeDirectories="..\loadlib;..\..\..\..\externals;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win;..\server\shared"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -147,7 +147,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="..\;..\..\..\..\externals;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win;..\server\shared"
+				AdditionalIncludeDirectories="..\loadlib;..\..\..\..\externals;..\..\..\..\externals\libmpq;..\..\..\..\externals\libmpq\win;..\server\shared"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -221,7 +221,7 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath="..\loadlib\adt.cpp"
+				RelativePath="..\adt.cpp"
 				>
 			</File>
 			<File
@@ -229,7 +229,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\loadlib\loadlib.cpp"
+				RelativePath="..\loadlib.cpp"
 				>
 			</File>
 			<File
@@ -241,7 +241,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\loadlib\wdt.cpp"
+				RelativePath="..\wdt.cpp"
 				>
 			</File>
 		</Filter>
@@ -250,11 +250,19 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
+				RelativePath="..\adt.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dbcfile.h"
 				>
 			</File>
 			<File
 				RelativePath=".\mpq_libmpq.h"
+				>
+			</File>
+			<File
+				RelativePath="..\wdt.h"
 				>
 			</File>
 		</Filter>
