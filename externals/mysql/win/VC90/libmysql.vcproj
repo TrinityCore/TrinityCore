@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
+				AdditionalOptions=" /STACK:10000000"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib $(NOINHERIT)"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				Version="16.0"
@@ -96,6 +96,7 @@
 				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
 				ImportLibrary=""
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -186,7 +187,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalOptions=" /STACK:10000000 /machine:X86 /debug"
+				AdditionalOptions=" /STACK:10000000"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  "
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				Version="16.0"
@@ -288,7 +289,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalOptions=" /STACK:10000000 /machine:X86"
+				AdditionalOptions=" /STACK:10000000"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib $(NOINHERIT)"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				Version="16.0"
@@ -300,6 +301,7 @@
 				RandomizedBaseAddress="0"
 				DataExecutionPrevention="0"
 				ImportLibrary=""
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -391,7 +393,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="false"
-				AdditionalOptions=" /STACK:10000000 /machine:X86"
+				AdditionalOptions=" /STACK:10000000"
 				AdditionalDependencies="$(NOINHERIT) kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib  "
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).dll"
 				Version="16.0"
