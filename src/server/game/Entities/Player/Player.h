@@ -920,6 +920,55 @@ struct BGData
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
+class TradeData
+{
+    public:                                                 // constructors
+        TradeData(Player* player, Player* trader) :
+            m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
+            m_money(0), m_spell(0) {}
+
+        Player* GetTrader() const { return m_trader; }
+        TradeData* GetTraderData() const;
+
+        Item* GetItem(TradeSlots slot) const;
+        bool HasItem(uint64 item_guid) const;
+        void SetItem(TradeSlots slot, Item* item);
+
+        uint32 GetSpell() const { return m_spell; }
+        void SetSpell(uint32 spell_id, Item* castItem = NULL);
+
+        Item*  GetSpellCastItem() const;
+        bool HasSpellCastItem() const { return m_spellCastItem != 0; }
+
+        uint32 GetMoney() const { return m_money; }
+        void SetMoney(uint32 money);
+
+        bool IsAccepted() const { return m_accepted; }
+        void SetAccepted(bool state, bool crosssend = false);
+
+        bool IsInAcceptProcess() const { return m_acceptProccess; }
+        void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
+
+    private:                                                // internal functions
+
+        void Update(bool for_trader = true);
+
+    private:                                                // fields
+
+        Player*    m_player;                                // Player who own of this TradeData
+        Player*    m_trader;                                // Player who trade with m_player
+
+        bool       m_accepted;                              // m_player press accept for trade list
+        bool       m_acceptProccess;                        // one from player/trader press accept and this processed
+
+        uint32     m_money;                                 // m_player place money to trade
+
+        uint32     m_spell;                                 // m_player apply spell to non-traded slot item
+        uint64     m_spellCastItem;                         // applied spell casted by item use
+
+        uint64     m_items[TRADE_SLOT_COUNT];               // traded itmes from m_player side including non-traded slot
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1191,15 +1240,10 @@ class Player : public Unit, public GridObject<Player>
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
 
         float GetReputationPriceDiscount(Creature const* pCreature) const;
-        Player* GetTrader() const { return pTrader; }
-        void ClearTrade();
+
+        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
+        TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
-        Item *GetItemByTradeSlot(uint8 slot) const
-        {
-            if (slot < TRADE_SLOT_COUNT && tradeItems[slot])
-                return GetItemByGuid(tradeItems[slot]);
-            return NULL;
-        }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateItemDuration(uint32 time, bool realtimeonly=false);
@@ -2460,10 +2504,7 @@ class Player : public Unit, public GridObject<Player>
 
         int m_cinematic;
 
-        Player *pTrader;
-        bool acceptTrade;
-        uint64 tradeItems[TRADE_SLOT_COUNT];
-        uint32 tradeGold;
+        TradeData* m_trade;
 
         bool   m_DailyQuestChanged;
         bool   m_WeeklyQuestChanged;
