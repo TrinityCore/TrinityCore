@@ -56,7 +56,7 @@
 #include "VMapFactory.h"
 #include "GlobalEvents.h"
 #include "GameEventMgr.h"
-#include "PoolHandler.h"
+#include "PoolMgr.h"
 #include "DatabaseImpl.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
