@@ -42,6 +42,8 @@ add_executable(authserver
   ${authserver_SRCS}
 )
 
+add_dependencies(authserver revision.h)
+
 add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
 
 set(authserver_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
