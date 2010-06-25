@@ -856,7 +856,7 @@ void BattleGround::EndBattleGround(uint32 winner)
 uint32 BattleGround::GetBonusHonorFromKill(uint32 kills) const
 {
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
-    uint32 maxLevel = (GetMaxLevel()<80)?GetMaxLevel():80;
+    uint32 maxLevel = (GetMaxLevel() < 80) ? GetMaxLevel() : 80;
     return Trinity::Honor::hk_honor_at_level(maxLevel, kills);
 }
 
