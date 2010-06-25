@@ -148,6 +148,15 @@ void SpellCastTargets::setItemTarget(Item* item)
     m_targetMask |= TARGET_FLAG_ITEM;
 }
 
+void SpellCastTargets::setTradeItemTarget(Player* caster)
+{
+    m_itemTargetGUID = uint64(TRADE_SLOT_NONTRADED);
+    m_itemTargetEntry = 0;
+    m_targetMask |= TARGET_FLAG_TRADE_ITEM;
+
+    Update(caster);
+}
+
 void SpellCastTargets::setCorpseTarget(Corpse* corpse)
 {
     m_CorpseTargetGUID = corpse->GetGUID();
@@ -163,12 +172,13 @@ void SpellCastTargets::Update(Unit* caster)
     m_itemTarget = NULL;
     if (caster->GetTypeId() == TYPEID_PLAYER)
     {
+        Player *player = caster->ToPlayer();
         if (m_targetMask & TARGET_FLAG_ITEM)
-            m_itemTarget = caster->ToPlayer()->GetItemByGuid(m_itemTargetGUID);
+            m_itemTarget = player->GetItemByGuid(m_itemTargetGUID);
         else if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
-            if (m_itemTargetGUID == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevent hacking slots
-                if (Player* pTrader = caster->ToPlayer()->GetTrader())
-                    m_itemTarget = pTrader->GetItemByTradeSlot(m_itemTargetGUID);
+            if (m_itemTargetGUID == TRADE_SLOT_NONTRADED) // here it is not guid but slot. Also prevents hacking slots
+                if (TradeData* pTrade = player->GetTradeData())
+                    m_itemTarget = pTrade->GetTraderData()->GetItem(TRADE_SLOT_NONTRADED);
 
         if (m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
@@ -2900,6 +2910,32 @@ void Spell::cast(bool skipCheck)
             SetExecutedCurrently(false);
             return;
         }
+
+        // additional check after cast bar completes (must not be in CheckCast)
+        // if trade not complete then remember it in trade data
+        if (m_targets.getTargetMask() & TARGET_FLAG_TRADE_ITEM)
+        {
+            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (TradeData* my_trade = m_caster->ToPlayer()->GetTradeData())
+                {
+                    if (!my_trade->IsInAcceptProcess())
+                    {
+                        // Spell will be casted at completing the trade. Silently ignore at this place
+                        my_trade->SetSpell(m_spellInfo->Id, m_CastItem);
+                        SendCastResult(SPELL_FAILED_DONT_REPORT);
+                        SendInterrupted(0);
+                        m_caster->ToPlayer()->RestoreSpellMods(this);
+                        // cleanup after mod system
+                        // triggered spell pointer can be not removed in some cases
+                        m_caster->ToPlayer()->SetSpellModTakingSpell(this, false);
+                        finish(false);
+                        SetExecutedCurrently(false);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     SelectSpellTargets();
@@ -2964,6 +3000,12 @@ void Spell::cast(bool skipCheck)
         // Powers have to be taken before SendSpellGo
         TakePower();
         TakeReagents();                                         // we must remove reagents before HandleEffects to allow place crafted item in same slot
+    }
+    else if (Item* targetItem = m_targets.getItemTarget())
+    {
+        /// Not own traded item (in trader trade slot) req. reagents including triggered spell case
+        if (targetItem->GetOwnerGUID() != m_caster->GetGUID())
+            TakeReagents();
     }
 
     // are there any spells need to be triggered after hit?
@@ -4330,7 +4372,12 @@ void Spell::TakeRunePower()
 void Spell::TakeReagents()
 {
     if (m_IsTriggeredSpell)                                  // reagents used in triggered spell removed by original spell or don't must be removed.
-        return;
+    {
+        Item* targetItem = m_targets.getItemTarget();
+        /// Not own traded item (in trader trade slot) req. reagents including triggered spell case
+        if (!(targetItem && targetItem->GetOwnerGUID() != m_caster->GetGUID()))
+            return;
+    }
 
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
@@ -5428,6 +5475,26 @@ SpellCastResult Spell::CheckCast(bool strict)
             default:
                 break;
         }
+    }
+
+    // check trade slot case (last, for allow catch any another cast problems)
+    if (m_targets.getTargetMask() & TARGET_FLAG_TRADE_ITEM)
+    {
+        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+            return SPELL_FAILED_NOT_TRADING;
+
+        TradeData* my_trade = m_caster->ToPlayer()->GetTradeData();
+
+        if (!my_trade)
+            return SPELL_FAILED_NOT_TRADING;
+
+        TradeSlots slot = TradeSlots(m_targets.getItemTargetGUID());
+        if (slot != TRADE_SLOT_NONTRADED)
+            return SPELL_FAILED_ITEM_NOT_READY;
+
+        if (!m_IsTriggeredSpell)
+            if (my_trade->GetSpell())
+                return SPELL_FAILED_ITEM_ALREADY_ENCHANTED;
     }
 
     // all ok
