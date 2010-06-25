@@ -1627,6 +1627,9 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
             return 0;
     }
 
+    // set battelground difficulty before initialization
+    bg->SetBracket(bracketEntry);
+
     // generate a new instance id
     bg->SetInstanceID(sMapMgr.GenerateInstanceId()); // set instance id
     bg->SetClientInstanceID(CreateClientVisibleInstanceId(isRandom ? BATTLEGROUND_RB : bgTypeId, bracketEntry->GetBracketId()));
@@ -1636,7 +1639,6 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     // start the joining of the bg
     bg->SetStatus(STATUS_WAIT_JOIN);
-    bg->SetBracket(bracketEntry);
     bg->SetArenaType(arenaType);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);
