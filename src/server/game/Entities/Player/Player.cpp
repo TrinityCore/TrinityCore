@@ -6600,7 +6600,7 @@ void Player::UpdateHonorFields()
 ///Calculate the amount of honor gained based on the victim
 ///and the size of the group for which the honor is divided
 ///An exact honor value can also be given (overriding the calcs)
-bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvptoken)
+bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvptoken)
 {
     // do not reward honor in arenas, but enable onkill spellproc
     if (InArena())
@@ -6620,8 +6620,6 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
 
     uint64 victim_guid = 0;
     uint32 victim_rank = 0;
-    //uint32 rank_diff = 0;
-    //time_t now = time(NULL);
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
@@ -6630,7 +6628,10 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
     if (InBattleGround() && GetBattleGround() && GetBattleGround()->isArena())
         return true;
 
-    if (honor <= 0)
+    // Promote to float for calculations
+    float honor_f = honor;
+
+    if (honor_f <= 0)
     {
         if (!uVictim || uVictim == this || uVictim->HasAuraType(SPELL_AURA_NO_PVP_CREDIT))
             return false;
@@ -6644,45 +6645,35 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
             if (GetTeam() == pVictim->GetTeam() && !sWorld.IsFFAPvPRealm())
                 return false;
 
-            float f = 1;                                    //need for total kills (?? need more info)
-            uint32 k_grey = 0;
-            uint32 k_level = getLevel();
-            uint32 v_level = pVictim->getLevel();
-
-            {
-                // PLAYER_CHOSEN_TITLE VALUES DESCRIPTION
-                //  [0]      Just name
-                //  [1..14]  Alliance honor titles and player name
-                //  [15..28] Horde honor titles and player name
-                //  [29..38] Other title and player name
-                //  [39+]    Nothing
-                uint32 victim_title = pVictim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
-                                                            // Get Killer titles, CharTitlesEntry::bit_index
-                // Ranks:
-                //  title[1..14]  -> rank[5..18]
-                //  title[15..28] -> rank[5..18]
-                //  title[other]  -> 0
-                if (victim_title == 0)
-                    victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-                else if (victim_title < 15)
-                    victim_rank = victim_title + 4;
-                else if (victim_title < 29)
-                    victim_rank = victim_title - 14 + 4;
-                else
-                    victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-            }
-
-            k_grey = Trinity::XP::GetGrayLevel(k_level);
+            uint8 k_level = getLevel();
+            uint8 k_grey = Trinity::XP::GetGrayLevel(k_level);
+            uint8 v_level = pVictim->getLevel();
 
             if (v_level <= k_grey)
                 return false;
 
-            float diff_level = (k_level == k_grey) ? 1 : ((float(v_level) - float(k_grey)) / (float(k_level) - float(k_grey)));
+            // PLAYER_CHOSEN_TITLE VALUES DESCRIPTION
+            //  [0]      Just name
+            //  [1..14]  Alliance honor titles and player name
+            //  [15..28] Horde honor titles and player name
+            //  [29..38] Other title and player name
+            //  [39+]    Nothing
+            uint32 victim_title = pVictim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
+                                                        // Get Killer titles, CharTitlesEntry::bit_index
+            // Ranks:
+            //  title[1..14]  -> rank[5..18]
+            //  title[15..28] -> rank[5..18]
+            //  title[other]  -> 0
+            if (victim_title == 0)
+                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
+            else if (victim_title < 15)
+                victim_rank = victim_title + 4;
+            else if (victim_title < 29)
+                victim_rank = victim_title - 14 + 4;
+            else
+                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
 
-            int32 v_rank =1;                                //need more info
-
-            honor = ((f * diff_level * (190 + v_rank*10))/6);
-            honor *= ((float)k_level) / 21.50537f;              //factor of dependence on levels of the killer
+            honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
@@ -6697,7 +6688,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
             if (!uVictim->ToCreature()->isRacialLeader())
                 return false;
 
-            honor = 100;                                    // ??? need more info
+            honor_f = 100.0f;                               // ??? need more info
             victim_rank = 19;                               // HK: Leader
         }
     }
@@ -6705,35 +6696,37 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor, bool pvpt
     if (uVictim != NULL)
     {
         if (groupsize > 1)
-            honor /= groupsize;
+            honor_f /= groupsize;
 
         // apply honor multiplier from aura (not stacking-get highest)
-        honor = int32(float(honor) * (float(GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT))+100.0f)/100.0f);
+        honor_f *= (GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HONOR_GAIN_PCT) + 100) / 100.0f;
     }
 
-    honor *= sWorld.getRate(RATE_HONOR);
+    honor_f *= sWorld.getRate(RATE_HONOR);
+    // Back to int now
+    honor = honor_f;
     // honor - for show honor points in log
     // victim_guid - for show victim name in log
     // victim_rank [1..4]  HK: <dishonored rank>
     // victim_rank [5..19] HK: <alliance\horde rank>
     // victim_rank [0,20+] HK: <>
     WorldPacket data(SMSG_PVP_CREDIT,4+8+4);
-    data << (uint32) honor;
-    data << (uint64) victim_guid;
-    data << (uint32) victim_rank;
+    data << honor;
+    data << victim_guid;
+    data << victim_rank;
 
     GetSession()->SendPacket(&data);
 
     // add honor points
-    ModifyHonorPoints(int32(honor));
+    ModifyHonorPoints(honor);
 
-    ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, uint32(honor), true);
+    ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, honor, true);
 
     if (InBattleGround() && honor > 0)
     {
         if (BattleGround *bg = GetBattleGround())
         {
-            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, uint32(honor), false);//false: prevent looping
+            bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
         }
     }
 
@@ -15524,7 +15517,7 @@ void Player::SendQuestReward(Quest const *pQuest, uint32 XP, Object * questGiver
         data << uint32(pQuest->GetRewOrReqMoney() + int32(pQuest->GetRewMoneyMaxLevel() * sWorld.getRate(RATE_DROP_MONEY)));
     }
 
-    data << uint32(10*Trinity::Honor::hk_honor_at_level(getLevel(), pQuest->GetRewHonorableKills()));
+    data << 10 * Trinity::Honor::hk_honor_at_level(getLevel(), pQuest->GetRewHonorableKills());
     data << uint32(pQuest->GetBonusTalents());              // bonus talents
     data << uint32(pQuest->GetRewArenaPoints());
     GetSession()->SendPacket(&data);
@@ -21732,7 +21725,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                     continue;                               // member (alive or dead) or his corpse at req. distance
 
                 // honor can be in PvP and !PvP (racial leader) cases (for alive)
-                if (pGroupGuy->isAlive() && pGroupGuy->RewardHonor(pVictim,count, -1, true) && pGroupGuy == this)
+                if (pGroupGuy->isAlive() && pGroupGuy->RewardHonor(pVictim, count, -1, true) && pGroupGuy == this)
                     honored_kill = true;
 
                 // xp and reputation only in !PvP case
@@ -21776,7 +21769,7 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
         xp = (PvP || GetVehicle()) ? 0 : Trinity::XP::Gain(this, pVictim);
 
         // honor can be in PvP and !PvP (racial leader) cases
-        if (RewardHonor(pVictim,1, -1, true))
+        if (RewardHonor(pVictim, 1, -1, true))
             honored_kill = true;
 
         // xp and reputation only in !PvP case
