@@ -101,7 +101,7 @@ if( DO_DEBUG )
   add_custom_target("revision.h" ALL
     COMMAND "${CMAKE_BINARY_DIR}/genrev"
     ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY "${CMAKE_BUILD_DIR}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     DEPENDS genrev
   )
 else()
@@ -112,7 +112,7 @@ else()
   add_custom_target("revision.h" ALL
     COMMAND "${CMAKE_BINARY_DIR}/genrev"
     ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY "${CMAKE_BUILD_DIR}"
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     DEPENDS genrev
   )
 endif()
