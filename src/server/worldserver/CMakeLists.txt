@@ -122,6 +122,8 @@ add_definitions(
   -D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"'
 )
 
+add_dependencies(worldserver revision.h)
+
 set(worldserver_LINK_FLAGS
   "-pthread ${worldserver_LINK_FLAGS}"
 )
