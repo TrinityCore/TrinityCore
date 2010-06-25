@@ -32,7 +32,7 @@
 #include "World.h"
 #include "GameEventMgr.h"
 #include "SpellMgr.h"
-#include "PoolHandler.h"
+#include "PoolMgr.h"
 #include "AccountMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
