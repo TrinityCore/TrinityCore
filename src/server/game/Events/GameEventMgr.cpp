@@ -22,7 +22,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
-#include "PoolHandler.h"
+#include "PoolMgr.h"
 #include "ProgressBar.h"
 #include "Language.h"
 #include "Log.h"
