@@ -175,6 +175,7 @@ struct instance_naxxramas : public InstanceData
             }
             case GO_GOTHIK_GATE:
                 GothikGateGUID = add ? pGo->GetGUID() : 0;
+                pGo->SetGoState(gothikDoorState);
                 break;
             case GO_HORSEMEN_CHEST: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
             case GO_HORSEMEN_CHEST_HERO: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
