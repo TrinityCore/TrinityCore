@@ -16270,7 +16270,7 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
 bool Unit::SetPosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
-    if (!Trinity::IsValidMapCoord(x,y,z,o))
+    if (!Trinity::IsValidMapCoord(x,y,z,orientation))
     {
         sLog.outDebug("Unit::SetPosition(%f, %f, %f) .. bad coordinates!",x,y,z);
         return false;
