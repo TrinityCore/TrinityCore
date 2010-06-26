@@ -51,6 +51,20 @@ const Position BossStartMove4  = {1853.618286, 758.557617, 38.657505};
 const Position BossStartMove5  = {1906.683960, 842.348022, 38.637459};
 const Position BossStartMove6  = {1928.207031, 852.864441, 47.200813};
 
+const Position CyanigosasSpawnLocation = {1930.281250, 804.407715, 52.410946, 3.139621};
+const Position MiddleRoomLocation = {1892.291260, 805.696838, 38.438862, 3.139621};
+
+//Cyanigosa's prefight event data
+enum Yells
+{
+    CYANIGOSA_SAY_SPAWN                           = -1608005
+};
+enum Spells
+{
+    CYANIGOSA_SPELL_TRANSFORM                     = 58668,
+    CYANIGOSA_BLUE_AURA                           = 47759,
+};
+
 struct instance_violet_hold : public ScriptedInstance
 {
     instance_violet_hold(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
@@ -79,6 +93,7 @@ struct instance_violet_hold : public ScriptedInstance
     uint64 uiActivationCrystal[3];
 
     uint32 uiActivationTimer;
+    uint32 uiCyanigosaEventTimer;
 
     uint8 uiWaveCount;
     uint8 uiLocation;
@@ -93,6 +108,7 @@ struct instance_violet_hold : public ScriptedInstance
     uint8 m_auiEncounter[MAX_ENCOUNTER];
     uint8 uiCountErekemGuards;
     uint8 uiCountActivationCrystals;
+    uint8 uiCyanigosaEventPhase;
 
     bool bActive;
     bool bWiped;
@@ -135,9 +151,11 @@ struct instance_violet_hold : public ScriptedInstance
         uiSecondBoss = 0;
         uiCountErekemGuards = 0;
         uiCountActivationCrystals = 0;
+        uiCyanigosaEventPhase = 1;
 
         uiActivationTimer = 5000;
         uiDoorSpellTimer = 2000;
+        uiCyanigosaEventTimer = 3*IN_MILISECONDS;
 
         bActive = false;
         bIsDoorSpellCasted = false;
@@ -184,6 +202,7 @@ struct instance_violet_hold : public ScriptedInstance
                 break;
             case CREATURE_CYANIGOSA:
                 uiCyanigosa = pCreature->GetGUID();
+                pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                 break;
             case CREATURE_SINCLARI:
                 uiSinclari = pCreature->GetGUID();
@@ -465,7 +484,7 @@ struct instance_violet_hold : public ScriptedInstance
             {
                 Creature *pSinclari = instance->GetCreature(uiSinclari);
                 if (pSinclari)
-                    pSinclari->SummonCreature(CREATURE_CYANIGOSA,PortalLocation[0],TEMPSUMMON_DEAD_DESPAWN);
+                    pSinclari->SummonCreature(CREATURE_CYANIGOSA,CyanigosasSpawnLocation,TEMPSUMMON_DEAD_DESPAWN);
                 break;
             }
             case 1:
@@ -593,6 +612,41 @@ struct instance_violet_hold : public ScriptedInstance
                 pSinclari->GetMotionMaster()->MovePoint(1,pSinclari->GetHomePosition());
                 pSinclari->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
             }
+        }
+
+        // Cyanigosa is spawned but not tranformed, prefight event
+        Creature *pCyanigosa = instance->GetCreature(uiCyanigosa);
+        if (pCyanigosa && !pCyanigosa->HasAura(CYANIGOSA_SPELL_TRANSFORM))
+        {
+            if (uiCyanigosaEventTimer <= diff)
+            {
+                switch(uiCyanigosaEventPhase)
+                {
+                    case 1:
+                        pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_BLUE_AURA, false);
+                        DoScriptText(CYANIGOSA_SAY_SPAWN, pCyanigosa);
+                        uiCyanigosaEventTimer = 7*IN_MILISECONDS;
+                        ++uiCyanigosaEventPhase;
+                        break;
+                    case 2:
+                        pCyanigosa->GetMotionMaster()->MoveJump(MiddleRoomLocation.GetPositionX(), MiddleRoomLocation.GetPositionY(), MiddleRoomLocation.GetPositionZ(), 10.0f, 20.0f);
+                        pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_BLUE_AURA, false);
+                        uiCyanigosaEventTimer = 7*IN_MILISECONDS;
+                        ++uiCyanigosaEventPhase;
+                        break;
+                    case 3:
+                        pCyanigosa->RemoveAurasDueToSpell(CYANIGOSA_BLUE_AURA);
+                        pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_SPELL_TRANSFORM, 0);
+                        pCyanigosa->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                        pCyanigosa->SetReactState(REACT_AGGRESSIVE);
+                        uiCyanigosaEventTimer = 2*IN_MILISECONDS;
+                        ++uiCyanigosaEventPhase;
+                        break;
+                    case 4:
+                        uiCyanigosaEventPhase = 0;
+                        break;
+                }
+            } else uiCyanigosaEventTimer -= diff;
         }
 
         // if there are NPCs in front of the prison door, which are casting the door seal spell and doors are active
