@@ -42,6 +42,15 @@ const Position PortalLocation[] =
     {1908.31, 809.657, 38.7037, 3.08701}      // WP 6
 };
 
+const Position BossStartMove1  = {1894.684448, 739.390503, 47.668003};
+const Position BossStartMove2  = {1875.173950, 860.832703, 43.333565};
+const Position BossStartMove21 = {1858.854614, 855.071411, 43.333565};
+const Position BossStartMove22 = {1891.926636, 863.388977, 43.333565};
+const Position BossStartMove3  = {1916.138062, 778.152222, 35.772308};
+const Position BossStartMove4  = {1853.618286, 758.557617, 38.657505};
+const Position BossStartMove5  = {1906.683960, 842.348022, 38.637459};
+const Position BossStartMove6  = {1928.207031, 852.864441, 47.200813};
+
 struct instance_violet_hold : public ScriptedInstance
 {
     instance_violet_hold(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
@@ -355,6 +364,8 @@ struct instance_violet_hold : public ScriptedInstance
             case BOSS_MORAGG:
                 HandleGameObject(uiMoraggCell,bForceRespawn);
                 pBoss = instance->GetCreature(uiMoragg);
+                if (pBoss)
+                    pBoss->GetMotionMaster()->MovePoint(0, BossStartMove1);
                 break;
             case BOSS_EREKEM:
                 HandleGameObject(uiErekemCell, bForceRespawn);
@@ -363,12 +374,16 @@ struct instance_violet_hold : public ScriptedInstance
 
                 pBoss = instance->GetCreature(uiErekem);
 
+                if (pBoss)
+                    pBoss->GetMotionMaster()->MovePoint(0, BossStartMove2);
+
                 if (Creature* pGuard1 = instance->GetCreature(uiErekemGuard[0]))
                 {
                     if (bForceRespawn)
                         pGuard1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                     else
                         pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    pGuard1->GetMotionMaster()->MovePoint(0, BossStartMove21);
                 }
 
                 if (Creature* pGuard2 = instance->GetCreature(uiErekemGuard[1]))
@@ -377,23 +392,32 @@ struct instance_violet_hold : public ScriptedInstance
                         pGuard2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                     else
                         pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    pGuard2->GetMotionMaster()->MovePoint(0, BossStartMove22);
                 }
                 break;
             case BOSS_ICHORON:
                 HandleGameObject(uiIchoronCell,bForceRespawn);
                 pBoss = instance->GetCreature(uiIchoron);
+                if (pBoss)
+                    pBoss->GetMotionMaster()->MovePoint(0, BossStartMove3);
                 break;
             case BOSS_LAVANTHOR:
                 HandleGameObject(uiLavanthorCell,bForceRespawn);
                 pBoss = instance->GetCreature(uiLavanthor);
+                if (pBoss)
+                    pBoss->GetMotionMaster()->MovePoint(0, BossStartMove4);
                 break;
             case BOSS_XEVOZZ:
                 HandleGameObject(uiXevozzCell,bForceRespawn);
                 pBoss = instance->GetCreature(uiXevozz);
+                if (pBoss)
+                    pBoss->GetMotionMaster()->MovePoint(0, BossStartMove5);
                 break;
             case BOSS_ZURAMAT:
                 HandleGameObject(uiZuramatCell,bForceRespawn);
                 pBoss = instance->GetCreature(uiZuramat);
+                if (pBoss)
+                    pBoss->GetMotionMaster()->MovePoint(0, BossStartMove6);
                 break;
         }
 
