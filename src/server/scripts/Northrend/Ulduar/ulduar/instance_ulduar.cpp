@@ -278,19 +278,7 @@ struct instance_ulduar : public ScriptedInstance
         }
 
         if (data == DONE)
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                saveStream << uiEncounter[i] << " ";
-
-            m_strInstData = saveStream.str();
-
             SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-        }
     }
 
     uint64 GetData64(uint32 data)
@@ -351,9 +339,9 @@ struct instance_ulduar : public ScriptedInstance
 
         std::ostringstream saveStream;
         saveStream << "U U " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2] << " " << uiEncounter[3]
-                   << uiEncounter[4] << " " << uiEncounter[5] << " " << uiEncounter[6] << " " << uiEncounter[7]
-                   << uiEncounter[8] << " " << uiEncounter[9] << " " << uiEncounter[10] << " " << uiEncounter[11]
-                   << uiEncounter[12] << " " << uiEncounter[13] << " " << uiEncounter[14];
+                   << " " << uiEncounter[4] << " " << uiEncounter[5] << " " << uiEncounter[6] << " " << uiEncounter[7]
+                   << " " << uiEncounter[8] << " " << uiEncounter[9] << " " << uiEncounter[10] << " " << uiEncounter[11]
+                   << " " << uiEncounter[12] << " " << uiEncounter[13] << " " << uiEncounter[14];
 
         m_strInstData = saveStream.str();
 
