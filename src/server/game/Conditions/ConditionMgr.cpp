@@ -517,7 +517,6 @@ bool ConditionMgr::addToGossipMenus(Condition* cond)
             if ((*itr).second.entry == cond->mSourceGroup && (*itr).second.text_id == cond->mSourceEntry)
             {
                 (*itr).second.conditions.push_back(cond);
-                sLog.outDebug("addToGossipMenus: entry %u textId %u", cond->mSourceGroup, cond->mSourceEntry);
                 return true;
             }
         }
@@ -536,7 +535,6 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
             if ((*itr).second.menu_id == cond->mSourceGroup && (*itr).second.id == cond->mSourceEntry)
             {
                 (*itr).second.conditions.push_back(cond);
-                //sLog.outDebug("addToGossipMenuItems: menuId %u id %u", cond->mSourceGroup, cond->mSourceEntry);
                 return true;
             }
         }
