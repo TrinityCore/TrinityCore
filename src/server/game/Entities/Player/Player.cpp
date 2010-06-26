@@ -16100,17 +16100,20 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     // Map could be changed before
     mapEntry = sMapStore.LookupEntry(mapId);
     // client without expansion support
-    if (mapEntry && GetSession()->Expansion() < mapEntry->Expansion())
+    if (mapEntry)
     {
-        sLog.outDebug("Player %s using client without required expansion tried login at non accessible map %u", GetName(), mapId);
-        RelocateToHomebind();
-    }
+        if (GetSession()->Expansion() < mapEntry->Expansion())
+        {
+            sLog.outDebug("Player %s using client without required expansion tried login at non accessible map %u", GetName(), mapId);
+            RelocateToHomebind();
+        }
 
-    // fix crash (because of if (Map *map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
-    if (instanceId)
-        if (InstanceSave * save = GetInstanceSave(mapId, mapEntry->IsRaid()))
-            if (save->GetInstanceId() != instanceId)
-                instanceId = 0;
+        // fix crash (because of if (Map *map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
+        if (instanceId)
+            if (InstanceSave * save = GetInstanceSave(mapId, mapEntry->IsRaid()))
+                if (save->GetInstanceId() != instanceId)
+                    instanceId = 0;
+    }
 
     // NOW player must have valid map
     // load the player's map here if it's not already loaded
