@@ -1760,21 +1760,7 @@ InstanceGroupBind* Group::GetBoundInstance(Player* player)
 {
     uint32 mapid = player->GetMapId();
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    if (!mapEntry)
-        return NULL;
-
-    Difficulty difficulty = player->GetDifficulty(mapEntry->IsRaid());
-
-    // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
-    if (!mapDiff)
-        difficulty = DUNGEON_DIFFICULTY_NORMAL;
-
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
-        return &itr->second;
-    else
-        return NULL;
+    GetBoundInstance(mapEntry);
 }
 
 InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
@@ -1788,6 +1774,25 @@ InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
         return NULL;
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(aMap->GetId());
+    if (itr != m_boundInstances[difficulty].end())
+        return &itr->second;
+    else
+        return NULL;
+}
+
+InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
+{
+    if (!mapEntry)
+        return NULL;
+    
+    Difficulty difficulty = GetDifficulty(mapEntry->IsRaid());
+    
+    // some instances only have one difficulty
+    MapDifficulty const* mapDiff = GetMapDifficultyData(mapEntry->MapID,difficulty);
+    if (!mapDiff)
+        difficulty = DUNGEON_DIFFICULTY_NORMAL;
+    
+    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapEntry->MapID);
     if (itr != m_boundInstances[difficulty].end())
         return &itr->second;
     else
