@@ -1760,7 +1760,7 @@ InstanceGroupBind* Group::GetBoundInstance(Player* player)
 {
     uint32 mapid = player->GetMapId();
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    GetBoundInstance(mapEntry);
+    return GetBoundInstance(mapEntry);
 }
 
 InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
