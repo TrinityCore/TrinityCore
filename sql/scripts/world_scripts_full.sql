@@ -1503,6 +1503,7 @@ update `creature_template` SET `scriptname`='mob_azure_invader' WHERE `entry`=30
 update `creature_template` SET `scriptname`='mob_azure_spellbreaker' WHERE `entry`=30962;
 update `creature_template` SET `scriptname`='mob_azure_binder' WHERE `entry`=30918;
 update `creature_template` SET `scriptname`='mob_azure_mage_slayer' WHERE `entry`=30963;
+UPDATE `creature_template` SET `scriptname`='mob_azure_saboteur' WHERE `entry`=31079;
 UPDATE `instance_template` SET `script`='instance_violet_hold' WHERE `map`=608;
 
 /* WAILING CAVERNS */

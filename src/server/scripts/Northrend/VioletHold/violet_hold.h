@@ -15,6 +15,7 @@ enum Creatures
     CREATURE_MORAGG                                 = 29316,
     CREATURE_CYANIGOSA                              = 31134,
     CREATURE_SINCLARI                               = 30658,
+    CREATURE_SABOTEOUR                              = 31079,
     NPC_VIOLET_HOLD_GUARD                           = 30659
 };
 
@@ -29,7 +30,10 @@ enum Data
     DATA_DOOR_INTEGRITY,
     DATA_NPC_PRESENCE_AT_DOOR,
     DATA_NPC_PRESENCE_AT_DOOR_ADD,
-    DATA_NPC_PRESENCE_AT_DOOR_REMOVE
+    DATA_NPC_PRESENCE_AT_DOOR_REMOVE,
+    DATA_START_BOSS_ENCOUNTER,
+    DATA_FIRST_BOSS,
+    DATA_SECOND_BOSS
 };
 
 enum Data64
@@ -53,7 +57,8 @@ enum Data64
     DATA_ZURAMAT_CELL,
     DATA_MAIN_DOOR,
     DATA_SINCLARI,
-    DATA_TELEPORTATION_PORTAL
+    DATA_TELEPORTATION_PORTAL,
+    DATA_SABOTEUR_PORTAL
 };
 
 enum Bosses
