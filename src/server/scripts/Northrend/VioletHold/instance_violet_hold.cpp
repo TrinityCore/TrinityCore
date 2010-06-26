@@ -32,6 +32,12 @@ enum GameObjects
     GO_ACTIVATION_CRYSTAL                           = 193611
 };
 
+enum AzureSaboteurSpells
+{
+    SABOTEUR_SHIELD_DISRUPTION                      = 58291,
+    SABOTEUR_SHIELD_EFFECT                          = 45775
+};
+
 const Position PortalLocation[] =
 {
     {1877.51, 850.104, 44.6599, 4.7822 },     // WP 1
@@ -53,6 +59,7 @@ const Position BossStartMove6  = {1928.207031, 852.864441, 47.200813};
 
 const Position CyanigosasSpawnLocation = {1930.281250, 804.407715, 52.410946, 3.139621};
 const Position MiddleRoomLocation = {1892.291260, 805.696838, 38.438862, 3.139621};
+const Position MiddleRoomPortalSaboLocation = {1896.622925, 804.854126, 38.504772, 3.139621};
 
 //Cyanigosa's prefight event data
 enum Yells
@@ -89,6 +96,7 @@ struct instance_violet_hold : public ScriptedInstance
     uint64 uiZuramatCell;
     uint64 uiMainDoor;
     uint64 uiTeleportationPortal;
+    uint64 uiSaboteurPortal;
 
     uint64 uiActivationCrystal[3];
 
@@ -139,6 +147,7 @@ struct instance_violet_hold : public ScriptedInstance
         uiZuramatCell = 0;
         uiMainDoor = 0;
         uiTeleportationPortal = 0;
+        uiSaboteurPortal = 0;
         
         uiRemoveNpc = 0;
 
@@ -316,6 +325,17 @@ struct instance_violet_hold : public ScriptedInstance
                 }
                 uiMainDoorState = data;
                 break;
+            case DATA_START_BOSS_ENCOUNTER:
+                switch(uiWaveCount)
+                {
+                    case 6:
+                        StartBossEncounter(uiFirstBoss);
+                        break;
+                    case 12:
+                        StartBossEncounter(uiSecondBoss);
+                        break;
+                }
+                break;
         }
     }
 
@@ -332,6 +352,8 @@ struct instance_violet_hold : public ScriptedInstance
             case DATA_DOOR_INTEGRITY:           return uiDoorIntegrity;
             case DATA_NPC_PRESENCE_AT_DOOR:     return NpcAtDoorCastingList.size();
             case DATA_MAIN_DOOR:                return uiMainDoorState;
+            case DATA_FIRST_BOSS:               return uiFirstBoss;
+            case DATA_SECOND_BOSS:              return uiSecondBoss;
         }
 
         return 0;
@@ -361,6 +383,7 @@ struct instance_violet_hold : public ScriptedInstance
             case DATA_MAIN_DOOR:                return uiMainDoor;
             case DATA_SINCLARI:                 return uiSinclari;
             case DATA_TELEPORTATION_PORTAL:     return uiTeleportationPortal;
+            case DATA_SABOTEUR_PORTAL:          return uiSaboteurPortal;
         }
 
         return 0;
@@ -470,7 +493,13 @@ struct instance_violet_hold : public ScriptedInstance
             case 6:
                 if (uiFirstBoss == 0)
                     uiFirstBoss = urand(1,6);
-                StartBossEncounter(uiFirstBoss);
+                if (Creature *pSinclari = instance->GetCreature(uiSinclari))
+                {
+                    if(Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
+                        uiSaboteurPortal = pPortal->GetGUID();
+                    if (Creature *pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
+                        pAzureSaboteur->CastSpell(pAzureSaboteur, SABOTEUR_SHIELD_EFFECT, false);
+                }
                 break;
             case 12:
                 if (uiSecondBoss == 0)
@@ -478,7 +507,13 @@ struct instance_violet_hold : public ScriptedInstance
                     {
                         uiSecondBoss = urand(1,6);
                     } while (uiSecondBoss == uiFirstBoss);
-                StartBossEncounter(uiSecondBoss);
+                if (Creature *pSinclari = instance->GetCreature(uiSinclari))
+                {
+                    if(Creature *pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
+                        uiSaboteurPortal = pPortal->GetGUID();
+                    if (Creature *pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
+                        pAzureSaboteur->CastSpell(pAzureSaboteur, SABOTEUR_SHIELD_EFFECT, false);
+                }
                 break;
             case 18:
             {

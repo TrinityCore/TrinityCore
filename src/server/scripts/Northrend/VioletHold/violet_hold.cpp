@@ -85,6 +85,12 @@ enum AzureStalkerSpells
     SPELL_TACTICAL_BLINK        = 58470
 };
 
+enum AzureSaboteurSpells
+{
+    SABOTEUR_SHIELD_DISRUPTION        = 58291,
+    SABOTEUR_SHIELD_EFFECT            = 45775
+};
+
 enum TrashDoorSpell
 {
     SPELL_DESTROY_DOOR_SEAL     = 58040
@@ -185,6 +191,40 @@ float SixthPoralWPs [4][3] =
     {1843.567017, 804.288208, 44.139091}
     //{1826.889648, 803.929993, 44.363239}
 };
+
+const float SaboteurFinalPos1[3][3] =
+{
+    {1892.502319, 777.410767, 38.630402},
+    {1891.165161, 762.969421, 47.666920},
+    {1893.168091, 740.919189, 47.666920}
+};
+const float SaboteurFinalPos2[3][3] =
+{
+    {1882.242676, 834.818726, 38.646786},
+    {1879.220825, 842.224854, 43.333641},
+    {1873.842896, 863.892456, 43.333641}
+};
+const float SaboteurFinalPos3[2][3] =
+{
+    {1904.298340, 792.400391, 38.646782},
+    {1935.716919, 758.437073, 30.627895}
+};
+const float SaboteurFinalPos4[3] =
+{
+    1855.006104, 760.641724, 38.655266
+};
+const float SaboteurFinalPos5[3] =
+{
+    1906.667358, 841.705566, 38.637894
+};
+const float SaboteurFinalPos6[5][3] =
+{
+    {1911.437012, 821.289246, 38.684128},
+    {1920.734009, 822.978027, 41.525414},
+    {1928.262939, 830.836609, 44.668266},
+    {1929.338989, 837.593933, 47.137596},
+    {1931.063354, 848.468445, 47.190434}
+ };
 
 const Position MovePosition = { 1806.955566, 803.851807, 44.363323};
 
@@ -309,6 +349,120 @@ CreatureAI* GetAI_npc_sinclari(Creature* pCreature)
     return new npc_sinclariAI(pCreature);
 }
 
+struct mob_azure_saboteurAI : public npc_escortAI
+{
+    mob_azure_saboteurAI(Creature *c):npc_escortAI(c)
+    {
+        pInstance           = c->GetInstanceData();
+        bHasGotMovingPoints = false;
+        uiBoss = 0;
+        Reset();
+    }
+
+    ScriptedInstance* pInstance;
+    bool bHasGotMovingPoints;
+    uint32 uiBoss;
+
+    void Reset()
+    {
+        if (pInstance && !uiBoss)
+            uiBoss = pInstance->GetData(DATA_WAVE_COUNT) == 6 ? pInstance->GetData(DATA_FIRST_BOSS) : pInstance->GetData(DATA_SECOND_BOSS);
+    }
+
+    void WaypointReached(uint32 uiWPointId)
+    {
+        switch(uiBoss)
+        {
+            case 1:
+                if(uiWPointId == 2)
+                    FinishPointReached();
+                break;
+            case 2:
+                if(uiWPointId == 2)
+                    FinishPointReached();
+                break;
+            case 3:
+                if(uiWPointId == 1)
+                    FinishPointReached();
+                break;
+            case 4:
+                if(uiWPointId == 0)
+                    FinishPointReached();
+                break;
+            case 5:
+                if(uiWPointId == 0)
+                    FinishPointReached();
+                break;
+            case 6:
+                if(uiWPointId == 4)
+                    FinishPointReached();
+                break;
+        }
+    }
+    
+    void UpdateAI(uint32 diff)
+    {
+        if(pInstance->GetData(DATA_MAIN_DOOR) != GO_STATE_READY)
+            me->CastStop();
+        
+        npc_escortAI::UpdateAI(diff);
+
+        if(!bHasGotMovingPoints)
+        {
+            bHasGotMovingPoints = true;
+            switch(uiBoss)
+            {
+                case 1:
+                    for(int i=0;i<3;i++)
+                        AddWaypoint(i,SaboteurFinalPos1[i][0],SaboteurFinalPos1[i][1],SaboteurFinalPos1[i][2],0);
+                    me->SetHomePosition(SaboteurFinalPos1[2][0],SaboteurFinalPos1[2][1],SaboteurFinalPos1[2][2],4.762346);
+                    break;
+                case 2:
+                    for(int i=0;i<3;i++)
+                        AddWaypoint(i,SaboteurFinalPos2[i][0],SaboteurFinalPos2[i][1],SaboteurFinalPos2[i][2],0);
+                    me->SetHomePosition(SaboteurFinalPos2[2][0],SaboteurFinalPos2[2][1],SaboteurFinalPos2[2][2],1.862674);
+                    break;
+                case 3:
+                    for(int i=0;i<2;i++)
+                        AddWaypoint(i,SaboteurFinalPos3[i][0],SaboteurFinalPos3[i][1],SaboteurFinalPos3[i][2],0);
+                    me->SetHomePosition(SaboteurFinalPos3[1][0],SaboteurFinalPos3[1][1],SaboteurFinalPos3[1][2],5.500638);
+                    break;
+                case 4:
+                    AddWaypoint(0,SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],0);
+                    me->SetHomePosition(SaboteurFinalPos4[0],SaboteurFinalPos4[1],SaboteurFinalPos4[2],3.991108);
+                    break;
+                case 5:
+                    AddWaypoint(0,SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],0);
+                    me->SetHomePosition(SaboteurFinalPos5[0],SaboteurFinalPos5[1],SaboteurFinalPos5[2],1.100841);
+                    break;
+                case 6:
+                    for(int i=0;i<5;i++)
+                        AddWaypoint(i,SaboteurFinalPos6[i][0],SaboteurFinalPos6[i][1],SaboteurFinalPos6[i][2],0);
+                    me->SetHomePosition(SaboteurFinalPos6[4][0],SaboteurFinalPos6[4][1],SaboteurFinalPos6[4][2],0.983031);
+                    break;
+            }
+
+            SetDespawnAtEnd(false);
+            Start(true,true);
+        }
+    }
+
+    void FinishPointReached()
+    {
+        me->CastSpell(me, SABOTEUR_SHIELD_DISRUPTION, false);
+        me->DisappearAndDie();
+        Creature* pSaboPort = Unit::GetCreature((*me),pInstance->GetData64(DATA_SABOTEUR_PORTAL));
+        if (pSaboPort)
+            pSaboPort->DisappearAndDie();
+        pInstance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
+    }
+};
+
+CreatureAI* GetAI_mob_azure_saboteur(Creature* pCreature)
+{
+    return new mob_azure_saboteurAI (pCreature);
+}
+
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
     ScriptedInstance* pInstance = pCreature->GetInstanceData();
@@ -373,6 +527,10 @@ struct npc_teleportation_portalAI : public ScriptedAI
             pInstance->SetData(DATA_REMOVE_NPC, 0);
         }
 
+        uint8 uiWaveCount = pInstance->GetData(DATA_WAVE_COUNT);
+        if ((uiWaveCount == 6) || (uiWaveCount == 12)) //Don't spawn mobs on boss encounters
+            return;
+
         switch(uiTypeOfMobsPortal)
         {
             // spawn elite mobs and then set portals visibility to make it look like it dissapeard
@@ -382,7 +540,7 @@ struct npc_teleportation_portalAI : public ScriptedAI
                     if (uiSpawnTimer <= diff)
                     {
                         bPortalGuardianOrKeeperOrEliteSpawn = true;
-                        uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 2 : 3;
+                        uint8 k = uiWaveCount < 12 ? 2 : 3;
                         for (uint8 i = 0; i < k; ++i)
                         {
                             uint32 entry = RAND(CREATURE_AZURE_CAPTAIN,CREATURE_AZURE_RAIDER,CREATURE_AZURE_STALKER,CREATURE_AZURE_SORCEROR);
@@ -1099,5 +1257,10 @@ void AddSC_violet_hold()
     newscript = new Script;
     newscript->Name = "mob_azure_stalker";
     newscript->GetAI = &GetAI_mob_azure_stalker;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_azure_saboteur";
+    newscript->GetAI = &GetAI_mob_azure_saboteur;
     newscript->RegisterSelf();
 }
