@@ -2627,13 +2627,6 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     // XP resting bonus for kill
     uint32 rested_bonus_xp = victim ? GetXPRestBonus(xp) : 0;
 
-    // Heirloom Experience Bonus
-    float heirloomModifier = 1.0f;
-    for (int i = 0; i < EQUIPMENT_SLOT_END; ++i)
-        if (m_items[i] && m_items[i]->GetProto()->Spells->SpellId == 57353)
-            heirloomModifier += 0.1f;
-    xp = uint32(xp * heirloomModifier);
-
     SendLogXPGain(xp,victim,rested_bonus_xp);
 
     uint32 curXP = GetUInt32Value(PLAYER_XP);
