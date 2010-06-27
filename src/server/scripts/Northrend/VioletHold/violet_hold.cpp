@@ -539,7 +539,10 @@ struct npc_teleportation_portalAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
-        if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
+        if (!pInstance) //Massive usage of pInstance, global check
+            return;
+        
+        if (pInstance->GetData(DATA_REMOVE_NPC) == 1)
         {
             me->ForcedDespawn();
             pInstance->SetData(DATA_REMOVE_NPC, 0);
@@ -618,11 +621,15 @@ struct npc_teleportation_portalAI : public ScriptedAI
     void JustSummoned(Creature *pSummoned)
     {
         listOfMobs.Summon(pSummoned);
+        if (pSummoned)
+            pInstance->SetData64(DATA_ADD_TRASH_MOB,pSummoned->GetGUID());
     }
 
     void SummonedMobDied(Creature *pSummoned)
     {
         listOfMobs.Despawn(pSummoned);
+        if (pSummoned)
+            pInstance->SetData64(DATA_DEL_TRASH_MOB,pSummoned->GetGUID());
     }
 };
 
