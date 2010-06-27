@@ -1,6 +1,7 @@
 -- ----------------------------
 -- Table structure for conditions
 -- ----------------------------
+DROP TABLE IF EXISTS `conditions`;
 CREATE TABLE `conditions` (
   `SourceTypeOrReferenceId` mediumint(8) NOT NULL DEFAULT '0',
   `SourceGroup` mediumint(8) unsigned NOT NULL DEFAULT '0',
