@@ -1,4 +1,6 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/*
+ * Copyright (C) 2009 - 2010 Trinity <http://www.trinitycore.org/>
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -13,14 +15,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-
-/* Script Data Start
-SDName: Boss ichoron
-SDAuthor: ckegg
-SD%Complete: 80%
-SDComment: TODO: better spawn location for adds
-SDCategory:
-Script Data End */
 
 #include "ScriptPCH.h"
 #include "violet_hold.h"
