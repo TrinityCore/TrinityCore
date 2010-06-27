@@ -125,6 +125,8 @@ struct instance_violet_hold : public ScriptedInstance
     uint32 uiActivationTimer;
     uint32 uiCyanigosaEventTimer;
 
+    std::set<uint64> trashMobs; // to kill with crystal
+
     uint8 uiWaveCount;
     uint8 uiLocation;
     uint8 uiFirstBoss;
@@ -171,6 +173,8 @@ struct instance_violet_hold : public ScriptedInstance
         uiMainDoor = 0;
         uiTeleportationPortal = 0;
         uiSaboteurPortal = 0;
+
+        trashMobs.clear();
         
         uiRemoveNpc = 0;
 
@@ -361,6 +365,28 @@ struct instance_violet_hold : public ScriptedInstance
                         StartBossEncounter(uiSecondBoss);
                         break;
                 }
+                break;
+            case DATA_ACTIVATE_CRYSTAL:
+                // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
+                // TODO: All visual, spells etc
+                for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
+                {
+                    Creature* pCreature = instance->GetCreature(*itr);
+                    if (pCreature && pCreature->isAlive())
+                        pCreature->Kill(pCreature);
+                }
+        }
+    }
+
+    void SetData64(uint32 type, uint64 data)
+    {
+        switch(type)
+        {
+            case DATA_ADD_TRASH_MOB:
+                trashMobs.insert(data);
+                break;
+            case DATA_DEL_TRASH_MOB:
+                trashMobs.erase(data);
                 break;
         }
     }
