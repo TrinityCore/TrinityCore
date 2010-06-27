@@ -3876,7 +3876,7 @@ void Spell::EffectDispel(uint32 i)
 
         bool success = false;
         // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
-        if (GetDispelChance(itr->first->GetCaster(), unitTarget, itr->first->GetId(), !unitTarget->IsFriendlyTo(m_caster), &success) > 99)
+        if (!GetDispelChance(itr->first->GetCaster(), unitTarget, itr->first->GetId(), !unitTarget->IsFriendlyTo(m_caster), &success))
         {
             dispel_list.erase(itr);
             continue;
@@ -7217,7 +7217,7 @@ void Spell::EffectDispelMechanic(uint32 i)
             continue;
         bool success = false;
         GetDispelChance(aura->GetCaster(), unitTarget, aura->GetId(), !unitTarget->IsFriendlyTo(m_caster), &success);
-        if((GetAllSpellMechanicMask(aura->GetSpellProto()) & (1<<(mechanic))) && success)
+        if ((GetAllSpellMechanicMask(aura->GetSpellProto()) & (1 << mechanic)) && success)
             dispel_list.push(std::make_pair(aura->GetId(), aura->GetCasterGUID()));
     }
 
@@ -7608,7 +7608,7 @@ void Spell::EffectStealBeneficialBuff(uint32 i)
 
         bool success = false;
         // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
-        if (GetDispelChance(itr->first->GetCaster(), unitTarget, itr->first->GetId(), !unitTarget->IsFriendlyTo(m_caster), &success) > 99)
+        if (!GetDispelChance(itr->first->GetCaster(), unitTarget, itr->first->GetId(), !unitTarget->IsFriendlyTo(m_caster), &success))
         {
             steal_list.erase(itr);
             continue;
