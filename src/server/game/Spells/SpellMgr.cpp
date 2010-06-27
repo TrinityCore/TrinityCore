@@ -290,7 +290,7 @@ int32 GetSpellMaxDuration(SpellEntry const *spellInfo)
     return (du->Duration[2] == -1) ? -1 : abs(du->Duration[2]);
 }
 
-int32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offensive, bool *result)
+uint32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offensive, bool *result)
 {
     // we assume that aura dispel chance is 100% on start
     // need formula for level difference based chance
@@ -310,7 +310,9 @@ int32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offen
     if (result)
         *result = !roll_chance_i(resist_chance);
 
-    return resist_chance;
+    resist_chance = resist_chance < 0 ? 0 : resist_chance;
+    resist_chance = resist_chance > 100 ? 100 : resist_chance;
+    return 100 - resist_chance;
 }
 
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell * spell)
