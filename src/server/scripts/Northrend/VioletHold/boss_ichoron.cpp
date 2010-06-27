@@ -292,15 +292,23 @@ struct boss_ichoronAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->SetSpeed(MOVE_RUN, 0.3f);
-        pSummoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-        m_waterElements.push_back(pSummoned->GetGUID());
+        if (pSummoned)
+        {
+            pSummoned->SetSpeed(MOVE_RUN, 0.3f);
+            pSummoned->GetMotionMaster()->MoveFollow(me, 0, 0);
+            m_waterElements.push_back(pSummoned->GetGUID());
+            pInstance->SetData64(DATA_ADD_TRASH_MOB,pSummoned->GetGUID());
+        }
     }
 
 
     void SummonedCreatureDespawn(Creature *pSummoned)
     {
-        m_waterElements.remove(pSummoned->GetGUID());
+        if (pSummoned)
+        {
+            m_waterElements.remove(pSummoned->GetGUID());
+            pInstance->SetData64(DATA_DEL_TRASH_MOB,pSummoned->GetGUID());
+        }
     }
 
     void KilledUnit(Unit * victim)
