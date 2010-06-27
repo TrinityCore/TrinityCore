@@ -91,15 +91,10 @@ uint32 GetItemEnchantMod(int32 entry)
     if (!entry)
         return 0;
 
-    EnchantmentStore::const_iterator tab;
-
     if (entry == -1)
-    {
-        /* To do: Find randomproperty/suffix based on item level. */
-    }
-    else
-        tab = RandomItemEnch.find(entry);
-
+        return 0;
+    
+    EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);    
     if (tab == RandomItemEnch.end())
     {
         sLog.outErrorDb("Item RandomProperty / RandomSuffix id #%u used in `item_template` but it does not have records in `item_enchantment_template` table.",entry);
