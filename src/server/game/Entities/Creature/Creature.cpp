@@ -410,13 +410,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
     if (isTrigger())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    if (isTotem() || isTrigger()
-        || GetCreatureType() == CREATURE_TYPE_CRITTER)
-        SetReactState(REACT_PASSIVE);
-    /*else if (isCivilian())
-        SetReactState(REACT_DEFENSIVE);*/
-    else
-        SetReactState(REACT_AGGRESSIVE);
+    InitializeReactState();
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
     {
@@ -1602,6 +1596,9 @@ void Creature::Respawn(bool force)
         uint16 poolid = GetDBTableGUIDLow() ? poolhandler.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
             poolhandler.UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
+            
+        //Re-initialize reactstate that could be altered by movementgenerators
+        InitializeReactState();
     }
 
     UpdateObjectVisibility();

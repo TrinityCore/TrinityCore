@@ -428,9 +428,20 @@ class Creature : public Unit, public GridObject<Creature>
         bool canWalk() const { return GetCreatureInfo()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureInfo()->InhabitType & INHABIT_WATER; }
         //bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
+        
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
+        void InitializeReactState()
+        {
+            if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER)
+                SetReactState(REACT_PASSIVE);
+            else
+                SetReactState(REACT_AGGRESSIVE);
+            /*else if (isCivilian())
+            SetReactState(REACT_DEFENSIVE);*/;
+        }
+
         ///// TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
