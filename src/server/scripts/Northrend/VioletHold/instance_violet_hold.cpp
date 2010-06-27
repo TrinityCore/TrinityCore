@@ -89,6 +89,10 @@ enum Spells
     CYANIGOSA_SPELL_TRANSFORM                     = 58668,
     CYANIGOSA_BLUE_AURA                           = 47759,
 };
+enum Achievements
+{
+    ACHIEV_DEFENSELESS                            = 1816
+};
 
 struct instance_violet_hold : public ScriptedInstance
 {
@@ -139,6 +143,7 @@ struct instance_violet_hold : public ScriptedInstance
     bool bActive;
     bool bWiped;
     bool bIsDoorSpellCasted;
+    bool bCrystalActivated;
 
     std::list<uint8> NpcAtDoorCastingList;
 
@@ -186,6 +191,7 @@ struct instance_violet_hold : public ScriptedInstance
 
         bActive = false;
         bIsDoorSpellCasted = false;
+        bCrystalActivated = false;
 
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
     }
@@ -302,6 +308,8 @@ struct instance_violet_hold : public ScriptedInstance
                     SaveToDB();
                     if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
                         pMainDoor->SetGoState(GO_STATE_ACTIVE);
+                    if (!bCrystalActivated && uiDoorIntegrity == 100)
+                        DoCompleteAchievement(ACHIEV_DEFENSELESS);
                 }
                 break;
             case DATA_WAVE_COUNT:
