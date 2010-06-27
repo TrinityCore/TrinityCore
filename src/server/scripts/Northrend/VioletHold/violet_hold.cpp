@@ -400,7 +400,7 @@ struct mob_azure_saboteurAI : public npc_escortAI
         }
     }
     
-    void UpdateAI(uint32 diff)
+    void UpdateAI(const uint32 diff)
     {
         if(pInstance->GetData(DATA_MAIN_DOOR) != GO_STATE_READY)
             me->CastStop();
