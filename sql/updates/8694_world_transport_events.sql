@@ -1,1 +1,1 @@
-DROP TABLE `transport_events`;
+DROP TABLE IF EXISTS `transport_events`;
