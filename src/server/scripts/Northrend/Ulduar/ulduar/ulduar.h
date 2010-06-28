@@ -43,7 +43,7 @@ enum eTypes
     DATA_MOLGEIM                = 21,
     DATA_BRUNDIR                = 22,
     DATA_RUNEMASTER_MOLGEIM     = 23,
-    DATA_STORMCALLER_BRUNDIR    = 24,
+    DATA_STORMCALLER_BRUNDIR    = 24,    
 
     NPC_LEVIATHAN               = 33113,
     NPC_IGNIS                   = 33118,
@@ -65,7 +65,7 @@ enum eTypes
     EVENT_TOWER_OF_STORM_DESTROYED     = 21031,
     EVENT_TOWER_OF_FROST_DESTROYED     = 21032,
     EVENT_TOWER_OF_FLAMES_DESTROYED    = 21033,
-    EVENT_TOWER_OF_NATURE_DESTROYED    = 21030
+    EVENT_TOWER_OF_LIFE_DESTROYED      = 21030
 };
 
 #endif
