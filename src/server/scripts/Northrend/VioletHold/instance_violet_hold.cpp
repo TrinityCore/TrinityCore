@@ -56,6 +56,11 @@ enum AzureSaboteurSpells
     SABOTEUR_SHIELD_EFFECT                          = 45775
 };
 
+enum CrystalSpells
+{
+    SPELL_ARCANE_LIGHTNING                          = 57912
+};
+
 const Position PortalLocation[] =
 {
     {1877.51, 850.104, 44.6599, 4.7822 },     // WP 1
@@ -367,15 +372,8 @@ struct instance_violet_hold : public ScriptedInstance
                 }
                 break;
             case DATA_ACTIVATE_CRYSTAL:
-                // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
-                // TODO: All visual, spells etc
-                bCrystalActivated = true;
-                for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
-                {
-                    Creature* pCreature = instance->GetCreature(*itr);
-                    if (pCreature && pCreature->isAlive())
-                        pCreature->Kill(pCreature);
-                }
+                ActivateCrystal();
+                break;
         }
     }
 
@@ -752,6 +750,19 @@ struct instance_violet_hold : public ScriptedInstance
             // else set door state to active (means door will open and group have failed to sustain mob invasion on the door)
             else
                 SetData(DATA_MAIN_DOOR,GO_STATE_ACTIVE);
+        }
+    }
+
+    void ActivateCrystal()
+    {
+        // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
+        // TODO: All visual, spells etc
+        bCrystalActivated = true;
+        for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
+        {
+            Creature* pCreature = instance->GetCreature(*itr);
+            if (pCreature && pCreature->isAlive())
+                pCreature->CastSpell(pCreature,SPELL_ARCANE_LIGHTNING,true);  // Who should cast the spell?
         }
     }
 };
