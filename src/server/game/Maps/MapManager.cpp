@@ -233,9 +233,11 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     {
         InstanceGroupBind* boundedInstance = pGroup->GetBoundInstance(entry);
         if (boundedInstance && boundedInstance->save)
-        {
             if (Map *boundedMap = sMapMgr.FindMap(mapid,boundedInstance->save->GetInstanceId()))
-            {
+                if (!boundedMap->CanEnter(player))
+                    return false;
+            /*
+                This check has to be moved to InstanceMap::CanEnter()
                 // Player permanently bounded to different instance than groups one
                 InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid()));
                 if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
@@ -243,30 +245,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 {
                     //TODO: send some kind of error message to the player
                     return false;
-                }
-
-                // Encounters in progress
-                if (!loginCheck && entry->IsRaid() && ((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
-                {
-                    sLog.outDebug("MAP: Player '%s' cannot enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
-                    player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
-                    return false;
-                }
-
-                // Instance is full
-                MapDifficulty const* mapDiff = ((InstanceMap*)boundedMap)->GetMapDifficulty();
-                int8 maxPlayers = mapDiff ? mapDiff->maxPlayers : 0;
-                if (maxPlayers != -1) //-1: unlimited access
-                {
-                    if (boundedMap->GetPlayersCountExceptGMs() >= (loginCheck ? maxPlayers+1 : maxPlayers))
-                    {
-                        sLog.outDebug("MAP: Player '%s' cannot enter instance '%s' because it is full.", player->GetName(), mapName);
-                        player->SendTransferAborted(mapid, TRANSFER_ABORT_MAX_PLAYERS);
-                        return false;
-                    }
-                }
-            }
-        }
+                }*/
     }
 
     //Other requirements
