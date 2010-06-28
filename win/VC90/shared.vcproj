@@ -473,6 +473,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\server\shared\Database\PreparedStatements.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\shared\Database\PreparedStatements.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\server\shared\Database\QueryResult.cpp"
 				>
 			</File>
