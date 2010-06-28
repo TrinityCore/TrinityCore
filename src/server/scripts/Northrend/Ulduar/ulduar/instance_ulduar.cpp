@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+#include "ScriptedEscortAI.h"
 #include "ScriptPCH.h"
 #include "ulduar.h"
 
@@ -64,8 +65,7 @@ struct instance_ulduar : public ScriptedInstance
     uint64 uiFreyaChestGUID;
 
     void Initialize()
-    {
-        uiLeviathanGUID       = 0;
+    {   
         uiIgnisGUID           = 0;
         uiRazorscaleGUID      = 0;
         uiXT002GUID           = 0;
@@ -106,7 +106,7 @@ struct instance_ulduar : public ScriptedInstance
         switch(pCreature->GetEntry())
         {
             case NPC_LEVIATHAN:
-                uiLeviathanGUID = pCreature->GetGUID();
+                uiLeviathanGUID = pCreature->GetGUID();             
                 break;
             case NPC_IGNIS:
                 uiIgnisGUID = pCreature->GetGUID();
@@ -187,22 +187,24 @@ struct instance_ulduar : public ScriptedInstance
                 if (flag == 7)
                     flag =0;
                 break;
-            case GO_LEVIATHAN_GATE:
-                uiLeviathanGateGUID = pGO->GetGUID();
-                HandleGameObject(NULL, false, pGO);
-                break;
+            case GO_LEVIATHAN_GATE:                
+                uiLeviathanGateGUID = add ? pGO->GetGUID() : NULL;
+                HandleGameObject(NULL, false, pGO); 
+                break;             
         }
     }
 
     void ProcessEvent(GameObject* pGO, uint32 uiEventId)
     {
         // Flame Leviathan's Tower Event triggers
-        Creature* pFlameLeviathan = instance->GetCreature(NPC_LEVIATHAN);
+       Creature* pFlameLeviathan = instance->GetCreature(uiLeviathanGUID);
+
         if (pFlameLeviathan && pFlameLeviathan->isAlive()) //No leviathan, no event triggering ;)
             switch(uiEventId)
             {
                 case EVENT_TOWER_OF_STORM_DESTROYED:
-                    pFlameLeviathan->AI()->DoAction(1);
+                    //pGO->GetInstanceData()->SetData(DATA_TOWER_STORMS,DESTROYED);
+                    pFlameLeviathan->AI()->DoAction(1);                    
                     break;
                 case EVENT_TOWER_OF_FROST_DESTROYED:
                     pFlameLeviathan->AI()->DoAction(2);
@@ -210,7 +212,7 @@ struct instance_ulduar : public ScriptedInstance
                 case EVENT_TOWER_OF_FLAMES_DESTROYED:
                     pFlameLeviathan->AI()->DoAction(3);
                     break;
-                case EVENT_TOWER_OF_NATURE_DESTROYED:
+                case EVENT_TOWER_OF_LIFE_DESTROYED:
                     pFlameLeviathan->AI()->DoAction(4);
                     break;
             }
@@ -218,9 +220,6 @@ struct instance_ulduar : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        if (type != TYPE_COLOSSUS)
-            uiEncounter[type] = data;
-
         switch(type)
         {
             /*case TYPE_IGNIS:
@@ -235,12 +234,12 @@ struct instance_ulduar : public ScriptedInstance
             case TYPE_LEVIATHAN:
                 if (data == IN_PROGRESS)
                 {
-                    for (uint8 uiI = 0; uiI < 7; uiI++)
+                    for (uint8 uiI = 0; uiI < 7; ++uiI)
                         HandleGameObject(uiLeviathanDoor[uiI],false);
                 }
                 else
                 {
-                    for (uint8 uiI = 0; uiI < 7; uiI++)
+                    for (uint8 uiI = 0; uiI < 7; ++uiI)
                         HandleGameObject(uiLeviathanDoor[uiI],true);
                 }
                 break;
@@ -265,14 +264,15 @@ struct instance_ulduar : public ScriptedInstance
                         pGO->SetRespawnTime(pGO->GetRespawnDelay());
                 break;
             case TYPE_COLOSSUS:
+                uiEncounter[TYPE_COLOSSUS] = data;
                 if (data == 2)
                 {
                     if (Creature* pBoss = instance->GetCreature(uiLeviathanGUID))
                         pBoss->AI()->DoAction(10);
                     if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
-                        pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);                                                               
                 }
-                break;
+                break;            
             default:
                 break;
         }
