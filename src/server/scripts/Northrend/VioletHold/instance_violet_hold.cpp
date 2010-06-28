@@ -61,6 +61,11 @@ enum CrystalSpells
     SPELL_ARCANE_LIGHTNING                          = 57912
 };
 
+enum Events
+{
+    EVENT_ACTIVATE_CRYSTAL                          = 20001
+};
+
 const Position PortalLocation[] =
 {
     {1877.51, 850.104, 44.6599, 4.7822 },     // WP 1
@@ -757,7 +762,6 @@ struct instance_violet_hold : public ScriptedInstance
     {
         // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
         // TODO: All visual, spells etc
-        bCrystalActivated = true;
         for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
         {
             Creature* pCreature = instance->GetCreature(*itr);
@@ -765,6 +769,17 @@ struct instance_violet_hold : public ScriptedInstance
                 pCreature->CastSpell(pCreature,SPELL_ARCANE_LIGHTNING,true);  // Who should cast the spell?
         }
     }
+
+    void ProcessEvent(GameObject* pGO, uint32 uiEventId)
+    {
+        switch(uiEventId)
+        {
+            case EVENT_ACTIVATE_CRYSTAL:
+                bCrystalActivated = true; // Activation by player's will throw event signal
+                ActivateCrystal();
+                break;
+        }
+}
 };
 
 InstanceData* GetInstanceData_instance_violet_hold(Map* pMap)
