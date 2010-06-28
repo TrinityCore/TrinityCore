@@ -24,6 +24,7 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
+#include "Database/PreparedStatements.h"
 
 #include "Configuration/ConfigEnv.h"
 #include "Log.h"
@@ -313,7 +314,7 @@ extern int main(int argc, char **argv)
         {
             loopCounter = 0;
             sLog.outDetail("Ping MySQL to keep connection alive");
-            LoginDatabase.Query("SELECT 1 FROM realmlist LIMIT 1");
+            sPreparedStatement.Query(&LoginDatabase, "auth_ping");
         }
 #ifdef _WIN32
         if (m_ServiceStatus == 0) stopEvent = true;
@@ -345,6 +346,10 @@ bool StartDB()
         return false;
     }
     LoginDatabase.ThreadStart();
+    
+    uint32 count = 0;
+    sPreparedStatement.LoadAuthserver(&LoginDatabase, count);
+    sLog.outString("Loaded %u prepared MySQL statements for auth DB.", count);
 
     return true;
 }
