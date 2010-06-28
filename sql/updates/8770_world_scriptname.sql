@@ -1,0 +1,12 @@
+UPDATE `creature_template` SET `ScriptName` = 'npc_thorims_hammer' WHERE `entry` =33365;
+UPDATE `creature_template` SET `MovementType` =2, `ScriptName` = 'npc_mimirons_inferno' WHERE `entry` =33370;
+UPDATE `creature_template` SET `ScriptName` = 'npc_hodirs_fury' WHERE `entry` =33312;
+UPDATE `creature_template` SET `ScriptName` = 'npc_freyas_ward' WHERE `entry` =33367;
+UPDATE `creature_template` SET `ScriptName` = 'npc_lorekeeper' WHERE `entry` =33686;
+UPDATE `creature_template` SET `ScriptName` = 'npc_brann_bronzebeard' WHERE `entry` =33579;
+UPDATE `creature_template` SET `ScriptName` = 'npc_freya_ward_summon' WHERE `entry` =34275;
+UPDATE `creature_template` SET `ScriptName` = 'npc_mechanolift' WHERE `entry` =33214;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_ulduar_tower' WHERE `entry` =194375;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_ulduar_tower' WHERE `entry` =194371;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_ulduar_tower' WHERE `entry` =194370;
+UPDATE `gameobject_template` SET `ScriptName` = 'go_ulduar_tower' WHERE `entry` =194377;
