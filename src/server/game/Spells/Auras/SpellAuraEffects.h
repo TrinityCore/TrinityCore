@@ -45,6 +45,9 @@ class AuraEffect
         int32 GetAmount() const { return m_amount; }
         void SetAmount(int32 amount) { m_amount = amount; m_canBeRecalculated = false;}
 
+        int32 GetPeriodicTimer() const { return m_periodicTimer; }
+        void SetPeriodicTimer(int32 periodicTimer) { m_periodicTimer = periodicTimer; }
+
         int32 CalculateAmount(Unit * caster);
         void CalculatePeriodic(Unit * caster, bool create = false);
         void CalculateSpellMod();
