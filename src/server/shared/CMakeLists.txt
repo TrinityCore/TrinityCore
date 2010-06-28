@@ -94,6 +94,7 @@ set(trinitydatabase_STAT_SRCS
   Database/SQLStorage.cpp
   Database/SqlDelayThread.cpp
   Database/SqlOperations.cpp
+  Database/PreparedStatements.cpp
 )
 
 include_directories(
