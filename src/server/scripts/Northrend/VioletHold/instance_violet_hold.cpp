@@ -369,6 +369,7 @@ struct instance_violet_hold : public ScriptedInstance
             case DATA_ACTIVATE_CRYSTAL:
                 // Kill all mobs registered with SetData64(ADD_TRASH_MOB)
                 // TODO: All visual, spells etc
+                bCrystalActivated = true;
                 for (std::set<uint64>::const_iterator itr = trashMobs.begin(); itr != trashMobs.end(); ++itr)
                 {
                     Creature* pCreature = instance->GetCreature(*itr);
