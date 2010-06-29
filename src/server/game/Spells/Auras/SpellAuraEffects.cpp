@@ -354,7 +354,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //298 unused
     &AuraEffect::HandleNULL,                                      //299 unused
     &AuraEffect::HandleNULL,                                      //300 3 spells (share damage?)
-    &AuraEffect::HandleNULL,                                      //301 5 spells
+    &AuraEffect::HandleNoImmediateEffect,                         //301 SPELL_AURA_SCHOOL_HEAL_ABSORB implemented in Unit::CalcHealAbsorb
     &AuraEffect::HandleNULL,                                      //302 unused
     &AuraEffect::HandleNULL,                                      //303 17 spells
     &AuraEffect::HandleNULL,                                      //304 2 spells (alcohol effect?)
