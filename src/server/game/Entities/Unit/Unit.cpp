@@ -2197,9 +2197,6 @@ void Unit::CalcHealAbsorb(Unit *pVictim, const SpellEntry *healSpell, uint32 &he
     // Need remove expired auras after
     bool existExpired = false;
 
-    // Incanter's Absorption, for converting to spell power
-    int32 incanterAbsorption = 0;
-
     // absorb without mana cost
     AuraEffectList const& vHealAbsorb = pVictim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
     for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && RemainingHeal > 0; ++i)
