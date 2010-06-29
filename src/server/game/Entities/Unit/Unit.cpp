@@ -2186,6 +2186,74 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
     }
 }
 
+void Unit::CalcHealAbsorb(Unit *pVictim, const SpellEntry *healSpell, uint32 &healAmount, uint32 &absorb)
+{
+    if (!healAmount)
+        return;
+
+    int32 RemainingHeal = healAmount;
+    // Get unit state (need for some absorb check)
+    uint32 unitflag = pVictim->GetUInt32Value(UNIT_FIELD_FLAGS);
+    // Need remove expired auras after
+    bool existExpired = false;
+
+    // Incanter's Absorption, for converting to spell power
+    int32 incanterAbsorption = 0;
+
+    // absorb without mana cost
+    AuraEffectList const& vHealAbsorb = pVictim->GetAuraEffectsByType(SPELL_AURA_SCHOOL_HEAL_ABSORB);
+    for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && RemainingHeal > 0; ++i)
+    {
+        if (!((*i)->GetMiscValue() & healSpell->SchoolMask))
+            continue;
+
+        SpellEntry const* spellProto = (*i)->GetSpellProto();
+
+        // Max Amount can be absorbed by this aura
+        int32 currentAbsorb = (*i)->GetAmount();
+
+        // Found empty aura (impossible but..)
+        if (currentAbsorb <= 0)
+        {
+            existExpired = true;
+            continue;
+        }
+
+        // currentAbsorb - damage can be absorbed by shield
+        // If need absorb less damage
+        if (RemainingHeal < currentAbsorb)
+            currentAbsorb = RemainingHeal;
+
+        RemainingHeal -= currentAbsorb;
+
+        // Reduce shield amount
+        (*i)->SetAmount((*i)->GetAmount() - currentAbsorb);
+        // Need remove it later
+        if ((*i)->GetAmount() <= 0)
+            existExpired = true;
+    }
+
+    // Remove all expired absorb auras
+    if (existExpired)
+    {
+        for (AuraEffectList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end();)
+        {
+            AuraEffect *auraEff = *i;
+            ++i;
+            if (auraEff->GetAmount() <= 0)
+            {
+                uint32 removedAuras = pVictim->m_removedAurasCount;
+                auraEff->GetBase()->Remove(AURA_REMOVE_BY_ENEMY_SPELL);
+                if (removedAuras+1 < pVictim->m_removedAurasCount)
+                    i = vHealAbsorb.begin();
+            }
+        }
+    }
+
+    absorb = RemainingHeal > 0 ? (healAmount - RemainingHeal) : healAmount;
+    healAmount = RemainingHeal;
+}
+
 void Unit::AttackerStateUpdate (Unit *pVictim, WeaponAttackType attType, bool /*extra*/)
 {
     if (hasUnitState(UNIT_STAT_CANNOT_AUTOATTACK) || HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PACIFIED))
@@ -9616,7 +9684,13 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
 int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellProto, bool critical)
 {
-    int32 gain = pVictim->ModifyHealth(int32(addhealth));
+    uint32 absorb = 0;
+    // calculate heal absorb and reduce healing
+    CalcHealAbsorb(pVictim, spellProto, addhealth, absorb);
+    int32 gain = 0;
+    
+    if (addhealth)
+        gain = pVictim->ModifyHealth(int32(addhealth));
 
     Unit* unit = this;
 
@@ -9626,7 +9700,7 @@ int32 Unit::DealHeal(Unit *pVictim, uint32 addhealth, SpellEntry const *spellPro
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
         // overheal = addhealth - gain
-        unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, critical);
+        unit->SendHealSpellLog(pVictim, spellProto->Id, addhealth, addhealth - gain, absorb, critical);
 
         if (BattleGround *bg = unit->ToPlayer()->GetBattleGround())
             bg->UpdatePlayerScore((Player*)unit, SCORE_HEALING_DONE, gain);
@@ -9831,7 +9905,7 @@ void Unit::UnsummonAllTotems()
     }
 }
 
-void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32 OverHeal, bool critical)
+void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical)
 {
     // we guess size
     WorldPacket data(SMSG_SPELLHEALLOG, (8+8+4+4+4+4+1));
@@ -9840,7 +9914,7 @@ void Unit::SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32
     data << uint32(SpellID);
     data << uint32(Damage);
     data << uint32(OverHeal);
-    data << uint32(0);  // Absorb amount
+    data << uint32(Absorb); // Absorb amount
     data << uint8(critical ? 1 : 0);
     SendMessageToSet(&data, true);
 }
