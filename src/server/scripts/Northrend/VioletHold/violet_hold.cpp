@@ -340,11 +340,7 @@ struct npc_sinclariAI : public ScriptedAI
                         break;
                     case 5:
                         if (pInstance)
-                        {
-                            pInstance->SetData(DATA_MAIN_DOOR,GO_STATE_READY);
-                            pInstance->SetData(DATA_WAVE_COUNT,1);
-                            pInstance->SetData(DATA_REMOVE_NPC,0); // might not have been reset after a wipe on a boss.
-                        }
+                            pInstance->SetData(DATA_MAIN_EVENT_PHASE,IN_PROGRESS);
                         me->SetVisibility(VISIBILITY_OFF);
                         me->SetReactState(REACT_PASSIVE);
                         uiTimer = 0;
@@ -420,7 +416,7 @@ struct mob_azure_saboteurAI : public npc_escortAI
     
     void UpdateAI(const uint32 diff)
     {
-        if(pInstance->GetData(DATA_MAIN_DOOR) != GO_STATE_READY)
+        if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE != IN_PROGRESS))
             me->CastStop();
         
         npc_escortAI::UpdateAI(diff);
@@ -483,14 +479,17 @@ CreatureAI* GetAI_mob_azure_saboteur(Creature* pCreature)
 
 bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance* pInstance = pCreature->GetInstanceData();
-    if (pInstance && pInstance->GetData(DATA_CYANIGOSA_EVENT) != DONE && pInstance->GetData(DATA_WAVE_COUNT) == 0 && pPlayer)
+    if (ScriptedInstance* pInstance = pCreature->GetInstanceData())
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
-    } else
-        pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
+        uint8 uiInstancePhase = pInstance->GetData(DATA_MAIN_EVENT_PHASE);
+        if (uiInstancePhase == NOT_STARTED || uiInstancePhase == FAIL) // Allow to start event if not started or wiped
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+        } else
+            pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
+    }
     return true;
 }
 
@@ -502,6 +501,8 @@ bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 /*ui
             if (pPlayer)
                 pPlayer->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
+            if (ScriptedInstance *pInstance = pCreature->GetInstanceData())
+                pInstance->SetData(DATA_MAIN_EVENT_PHASE,SPECIAL);
             break;
         case GOSSIP_ACTION_INFO_DEF+2:
             pPlayer->SEND_GOSSIP_MENU(13854, pCreature->GetGUID());
@@ -688,7 +689,7 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void UpdateAI(const uint32)
     {
-        if (pInstance->GetData(DATA_MAIN_DOOR) != GO_STATE_READY)
+        if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE != IN_PROGRESS))
                 me->CastStop();
 
         if (!bHasGotMovingPoints)
