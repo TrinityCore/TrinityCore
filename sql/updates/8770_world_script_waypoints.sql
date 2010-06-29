@@ -1,4 +1,5 @@
--- waypoint for mimron inferno
+-- Waypoints for Mimron Inferno
+DELETE FROM `script_waypoint` WHERE `entry`=33370;
 INSERT INTO `script_waypoint` (`entry`, `pointid`, `location_x`, `location_y`, `location_z`, `waittime`, `point_comment`) VALUES
 (33370, 1, 331.674, -68.6878, 409.804, 0, '0'),
 (33370, 2, 274.578, -92.1829, 409.804, 0, '0'),
