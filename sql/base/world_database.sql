@@ -3095,13 +3095,13 @@ LOCK TABLES `locales_item` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `locales_item_set_name`
+-- Table structure for table `locales_item_set_names`
 --
 
-DROP TABLE IF EXISTS `locales_item_set_name`;
+DROP TABLE IF EXISTS `locales_item_set_names`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `locales_item_set_name` (
+CREATE TABLE `locales_item_set_names` (
   `entry` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `name_loc1` varchar(100) NOT NULL DEFAULT '',
   `name_loc2` varchar(100) NOT NULL DEFAULT '',
@@ -3116,12 +3116,12 @@ CREATE TABLE `locales_item_set_name` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `locales_item_set_name`
+-- Dumping data for table `locales_item_set_names`
 --
 
-LOCK TABLES `locales_item_set_name` WRITE;
-/*!40000 ALTER TABLE `locales_item_set_name` DISABLE KEYS */;
-/*!40000 ALTER TABLE `locales_item_set_name` ENABLE KEYS */;
+LOCK TABLES `locales_item_set_names` WRITE;
+/*!40000 ALTER TABLE `locales_item_set_names` DISABLE KEYS */;
+/*!40000 ALTER TABLE `locales_item_set_names` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
