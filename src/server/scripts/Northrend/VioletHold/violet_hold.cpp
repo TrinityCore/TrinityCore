@@ -22,6 +22,7 @@
 
 #define GOSSIP_START_EVENT  "Get your people to safety, we'll keep the Blue Dragonflight's forces at bay."
 #define GOSSIP_ITEM_1       "Activate the crystals when we get in trouble, right"
+#define GOSSIP_I_WANT_IN    "Sorry, I'm late! Can I get in to help my friends?"
 #define SPAWN_TIME          20000
 
 enum PortalCreatures
@@ -244,7 +245,9 @@ const float SaboteurFinalPos6[5][3] =
     {1931.063354, 848.468445, 47.190434}
  };
 
-const Position MovePosition = { 1806.955566, 803.851807, 44.363323};
+const Position MovePosition = {1806.955566, 803.851807, 44.363323};
+const Position playerTeleportPosition = {1830.531006, 803.939758, 44.340508, 6.281611};
+const Position sinclariOutsidePosition = {1817.315674, 804.060608, 44.363998};
 
 struct npc_sinclariAI : public ScriptedAI
 {
@@ -263,7 +266,6 @@ struct npc_sinclariAI : public ScriptedAI
         uiPhase = 0;
         uiTimer = 0;
 
-        me->SetVisibility(VISIBILITY_ON);
         me->SetReactState(REACT_AGGRESSIVE);
 
         std::list<Creature*> GuardList;
@@ -334,14 +336,13 @@ struct npc_sinclariAI : public ScriptedAI
                         break;
                     }
                     case 4:
-                        me->GetMotionMaster()->MovePoint(0, MovePosition);
+                        me->GetMotionMaster()->MovePoint(0, sinclariOutsidePosition);
                         uiTimer = 4000;
                         uiPhase = 5;
                         break;
                     case 5:
                         if (pInstance)
                             pInstance->SetData(DATA_MAIN_EVENT_PHASE,IN_PROGRESS);
-                        me->SetVisibility(VISIBILITY_OFF);
                         me->SetReactState(REACT_PASSIVE);
                         uiTimer = 0;
                         uiPhase = 0;
@@ -361,6 +362,50 @@ struct npc_sinclariAI : public ScriptedAI
 CreatureAI* GetAI_npc_sinclari(Creature* pCreature)
 {
     return new npc_sinclariAI(pCreature);
+}
+
+bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
+{
+    if (ScriptedInstance* pInstance = pCreature->GetInstanceData())
+    {
+        switch (pInstance->GetData(DATA_MAIN_EVENT_PHASE))
+        {
+            case NOT_STARTED:
+            case FAIL: // Allow to start event if not started or wiped
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
+                pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+                break;
+            case IN_PROGRESS: // Allow to teleport inside if event is in progress
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_I_WANT_IN,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
+                pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
+                break;
+            default:
+                pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
+        }
+    }
+    return true;
+}
+
+bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            CAST_AI(npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
+            if (ScriptedInstance *pInstance = pCreature->GetInstanceData())
+                pInstance->SetData(DATA_MAIN_EVENT_PHASE,SPECIAL);
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->SEND_GOSSIP_MENU(13854, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->NearTeleportTo(playerTeleportPosition.GetPositionX(),playerTeleportPosition.GetPositionY(),playerTeleportPosition.GetPositionZ(),playerTeleportPosition.GetOrientation(),true);
+            pPlayer->CLOSE_GOSSIP_MENU();
+            break;
+    }
+    return true;
 }
 
 struct mob_azure_saboteurAI : public npc_escortAI
@@ -475,40 +520,6 @@ struct mob_azure_saboteurAI : public npc_escortAI
 CreatureAI* GetAI_mob_azure_saboteur(Creature* pCreature)
 {
     return new mob_azure_saboteurAI (pCreature);
-}
-
-bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
-{
-    if (ScriptedInstance* pInstance = pCreature->GetInstanceData())
-    {
-        uint8 uiInstancePhase = pInstance->GetData(DATA_MAIN_EVENT_PHASE);
-        if (uiInstancePhase == NOT_STARTED || uiInstancePhase == FAIL) // Allow to start event if not started or wiped
-        {
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_ITEM_1,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_START_EVENT,GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+1);
-            pPlayer->SEND_GOSSIP_MENU(13853, pCreature->GetGUID());
-        } else
-            pPlayer->SEND_GOSSIP_MENU(13910, pCreature->GetGUID());
-    }
-    return true;
-}
-
-bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch(uiAction)
-    {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            if (pPlayer)
-                pPlayer->CLOSE_GOSSIP_MENU();
-            CAST_AI(npc_sinclariAI, (pCreature->AI()))->uiPhase = 1;
-            if (ScriptedInstance *pInstance = pCreature->GetInstanceData())
-                pInstance->SetData(DATA_MAIN_EVENT_PHASE,SPECIAL);
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->SEND_GOSSIP_MENU(13854, pCreature->GetGUID());
-            break;
-    }
-    return true;
 }
 
 struct npc_teleportation_portalAI : public ScriptedAI
