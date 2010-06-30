@@ -16,10 +16,6 @@
 
 #include "ScriptPCH.h"
 
-#ifdef _WIN32
-  #define DO_SCRIPTS
-#endif
-
 #ifdef DO_SCRIPTS
 //custom
 
