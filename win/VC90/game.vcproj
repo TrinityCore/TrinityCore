@@ -58,7 +58,7 @@
 				EnableEnhancedInstructionSet="0"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinCorePCH.h"
+				PrecompiledHeaderThrough="gamePCH.h"
 				PrecompiledHeaderFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
@@ -69,7 +69,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="WinCorePCH.h"
+				ForcedIncludeFiles="gamePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -145,7 +145,7 @@
 				EnableEnhancedInstructionSet="0"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinCorePCH.h"
+				PrecompiledHeaderThrough="gamePCH.h"
 				PrecompiledHeaderFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
@@ -156,7 +156,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="WinCorePCH.h"
+				ForcedIncludeFiles="gamePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -227,7 +227,7 @@
 				EnableEnhancedInstructionSet="1"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinCorePCH.h"
+				PrecompiledHeaderThrough="gamePCH.h"
 				PrecompiledHeaderFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
@@ -238,7 +238,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="WinCorePCH.h"
+				ForcedIncludeFiles="gamePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -310,7 +310,7 @@
 				EnableEnhancedInstructionSet="0"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="WinCorePCH.h"
+				PrecompiledHeaderThrough="gamePCH.h"
 				PrecompiledHeaderFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\$(ProjectName).pch"
 				AssemblerListingLocation=""
 				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
@@ -321,7 +321,7 @@
 				DebugInformationFormat="3"
 				CallingConvention="0"
 				CompileAs="0"
-				ForcedIncludeFiles="WinCorePCH.h"
+				ForcedIncludeFiles="gamePCH.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -4344,7 +4344,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.cpp"
+				RelativePath="..\..\src\server\game\PrecompiledHeaders\gamePCH.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -4352,7 +4352,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="WinCorePCH.h"
+						PrecompiledHeaderThrough="gamePCH.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4361,7 +4361,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="WinCorePCH.h"
+						PrecompiledHeaderThrough="gamePCH.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4370,7 +4370,7 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="WinCorePCH.h"
+						PrecompiledHeaderThrough="gamePCH.h"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -4379,12 +4379,12 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
-						PrecompiledHeaderThrough="WinCorePCH.h"
+						PrecompiledHeaderThrough="gamePCH.h"
 					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\server\game\PrecompiledHeaders\WinCorePCH.h"
+				RelativePath="..\..\src\server\game\PrecompiledHeaders\gamePCH.h"
 				>
 			</File>
 		</Filter>
