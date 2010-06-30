@@ -281,11 +281,11 @@ MACRO(ADD_NATIVE_PRECOMPILED_HEADER _targetName _input)
         SET(oldProps "")
     endif(${oldProps} MATCHES NOTFOUND)
 
-    SET(newProperties "${oldProps} /Yu\"${_input}\" /FI\"${_input}\"")
+    SET(newProperties "${oldProps} /Yu\"${_input}.h\" /FI\"${_input}.h\"")
     SET_TARGET_PROPERTIES(${_targetName} PROPERTIES COMPILE_FLAGS "${newProperties}")
 
     #also inlude ${oldProps} to have the same compile options
-    SET_SOURCE_FILES_PROPERTIES(${${_targetName}_pch} PROPERTIES COMPILE_FLAGS "${oldProps} /Yc\"${_input}\"")
+    SET_SOURCE_FILES_PROPERTIES(${_input}.cpp PROPERTIES COMPILE_FLAGS "${oldProps} /Yc\"${_input}.h\"")
 
     else(CMAKE_GENERATOR MATCHES Visual*)
 

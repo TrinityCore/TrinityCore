@@ -31,6 +31,11 @@ endif()
 
 include(CheckIncludeFiles)
 include(cmake/FindPCHSupport.cmake)
+
+if(WIN32)
+  set(ACE_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/externals)
+endif()
+
 include(cmake/FindACE.cmake)
 include(cmake/FindMySQL.cmake)
 include(cmake/FindOpenSSL.cmake)
