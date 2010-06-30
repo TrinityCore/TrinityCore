@@ -33,4 +33,6 @@ else()
   )
 endif()
 
-install(TARGETS mapextractor DESTINATION bin)
+if( UNIX )
+  install(TARGETS mapextractor DESTINATION bin)
+endif()
