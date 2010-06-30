@@ -30,6 +30,7 @@ endif()
 #
 
 include(CheckIncludeFiles)
+include(cmake/FindPlatform.cmake)
 include(cmake/FindPCHSupport.cmake)
 
 if(WIN32)
