@@ -296,7 +296,6 @@ struct npc_sinclariAI : public ScriptedAI
                 switch(uiPhase)
                 {
                     case 1:
-                        me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NOT_SELECTABLE);
                         DoScriptText(SAY_SINCLARI_1, me);
                         uiTimer = 4000;
                         uiPhase = 2;
