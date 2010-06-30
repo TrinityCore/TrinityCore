@@ -36,4 +36,6 @@ else()
   )
 endif()
 
-install(TARGETS vmap3extractor DESTINATION bin)
+if( UNIX )
+  install(TARGETS vmap3extractor DESTINATION bin)
+endif()

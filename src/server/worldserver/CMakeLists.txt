@@ -140,8 +140,9 @@ if(DO_SCRIPTS)
 else(DO_SCRIPTS)
   set(SCRIPT_LIB "")
 endif(DO_SCRIPTS)
+
 if(WIN32)
- target_link_libraries(
+  target_link_libraries(
     worldserver
     game
     shared
@@ -181,7 +182,7 @@ else()
   )
 endif()
 
-########### install files ###############
-
-install(TARGETS worldserver DESTINATION bin)
-install(FILES   worldserver.conf.dist DESTINATION etc)
+if( UNIX )
+  install(TARGETS worldserver DESTINATION bin)
+  install(FILES   worldserver.conf.dist DESTINATION etc)
+endif()

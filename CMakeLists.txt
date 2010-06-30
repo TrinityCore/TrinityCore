@@ -57,6 +57,7 @@ if( NOT CMAKE_BUILD_TYPE )
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
+if( UNIX )
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
   "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
@@ -66,6 +67,7 @@ configure_file(
 add_custom_target(uninstall
   "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
 )
+endif()
 
 option(DO_AUTHSERVER "Build authserver" 1)
 option(DO_WORLDSERVER "Build worldserver" 1)
@@ -100,27 +102,49 @@ set(GENREV_SRC
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
 if( DO_DEBUG )
   set(CMAKE_BUILD_TYPE Debug)
+
   add_executable(genrev
     ${GENREV_SRC}
   )
 
-  add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/genrev"
-    ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    DEPENDS genrev
-  )
+  if( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    add_custom_target("revision.h" ALL
+      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/$(ConfigurationName)/genrev"
+      ${CMAKE_SOURCE_DIR}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+      DEPENDS genrev
+    )
+  else()
+    add_custom_target("revision.h" ALL
+      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/genrev"
+      ${CMAKE_SOURCE_DIR}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+      DEPENDS genrev
+    )
+  endif()
+
 else()
+
   add_executable(genrev
     ${GENREV_SRC}
   )
 
-  add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/genrev"
-    ${CMAKE_SOURCE_DIR}
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    DEPENDS genrev
-  )
+  if( CMAKE_GENERATOR MATCHES "Visual Studio" )
+    add_custom_target("revision.h" ALL
+      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/$(ConfigurationName)/genrev"
+      ${CMAKE_SOURCE_DIR}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+      DEPENDS genrev
+    )
+  else()
+    add_custom_target("revision.h" ALL
+      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/genrev"
+      ${CMAKE_SOURCE_DIR}
+      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+      DEPENDS genrev
+    )
+  endif()
+
 endif()
 
 execute_process(
@@ -209,12 +233,13 @@ else()
   elseif( WIN32 )
     # Disable warnings in Visual Studio 8 and above
     if(MSVC AND NOT CMAKE_GENERATOR MATCHES "Visual Studio 7")
-      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4996")
-      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /wd4996")
-      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /wd4996")
-      set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /wd4996")
-      set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} /wd4996")
-      set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /wd4996")
+      set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /wd4996 /wd4355 /wd4244 /wd4267")
+      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
+      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
+
+      set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
+      set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
+      set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /wd4996 /wd4355 /wd4244 /wd4985 /wd4267")
     endif()
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
   endif()
