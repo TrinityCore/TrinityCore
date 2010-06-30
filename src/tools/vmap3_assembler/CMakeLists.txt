@@ -39,4 +39,4 @@ endif()
 
 if( UNIX )
   install(TARGETS vmap3assembler DESTINATION bin)
-if()
+endif()
