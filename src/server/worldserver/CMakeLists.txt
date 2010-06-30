@@ -118,30 +118,31 @@ include_directories(
 set(worldserver_LINK_FLAGS "")
 
 add_executable(worldserver ${worldserver_SRCS})
-if(NOT WIN32)
+
+if( NOT WIN32 )
   add_definitions(-D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"')
 endif()
 
 add_dependencies(worldserver revision.h)
 
-set(worldserver_LINK_FLAGS
-  "-pthread ${worldserver_LINK_FLAGS}"
-)
+if( UNIX )
+  set(worldserver_LINK_FLAGS "-pthread ${worldserver_LINK_FLAGS}")
+endif()
 
-if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
   set(worldserver_LINK_FLAGS "-framework Carbon ${worldserver_LINK_FLAGS}")
   set(SCRIPT_LIB "")
 endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
-if(DO_SCRIPTS)
+if( DO_SCRIPTS )
   set(SCRIPT_LIB "scripts")
-else(DO_SCRIPTS)
+else()
   set(SCRIPT_LIB "")
-endif(DO_SCRIPTS)
+endif()
 
-if(WIN32)
+if( WIN32 )
   target_link_libraries(
     worldserver
     game

@@ -269,7 +269,8 @@ include_directories(
 )
 
 if(NOT DO_SCRIPTS)
-  set(game_STAT_SRCS ${game_STAT_SRCS}
+  set(game_STAT_SRCS
+    ${game_STAT_SRCS}
     AI/ScriptedAI/ScriptedEscortAI.cpp
     AI/ScriptedAI/ScriptedCreature.cpp
     AI/ScriptedAI/ScriptedFollowerAI.cpp
