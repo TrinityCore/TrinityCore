@@ -3597,7 +3597,7 @@ void Map::ScriptsProcess()
                 }
 
                 // bitmask: 0/1=anyone/target, 0/2=with distance dependent
-                Player* pTarget;
+                Player* pTarget = NULL;
                 if (step.script->datalong2 & 1)
                 {
                     if (!target)
