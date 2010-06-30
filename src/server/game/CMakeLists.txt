@@ -11,7 +11,7 @@
 ######## game ########
 
 # Enable precompiled headers when using the GCC compiler.
-if(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+if(DO_PCH)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
@@ -279,11 +279,22 @@ if(NOT DO_SCRIPTS)
   message("-- Added basic scriptAI-engines to GAME library")
 endif()
 
+# Add gamePCH.cpp to project on Windows
+if(MSVC)
+  set(game_STAT_SRCS
+    PrecompiledHeaders/gamePCH.cpp
+    ${game_STAT_SRCS})
+endif()
+
 add_library(game STATIC ${game_STAT_SRCS})
 
 add_dependencies(game revision.h)
 
 # Generate precompiled header
-if(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-  add_precompiled_header(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/NixCorePCH.h)
+if(DO_PCH)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_precompiled_header(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/gamePCH.h)
+  elseif(MSVC)
+    add_native_precompiled_header(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/gamePCH)
+  endif()
 endif()

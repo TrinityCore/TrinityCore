@@ -20,6 +20,15 @@ set(shared_STAT_SRCS
   Common.cpp
 )
 
+# Windows specific files
+if(WIN32)
+  set(shared_STAT_SRCS
+    ${shared_STAT_SRCS}
+    Debugging/WheatyExceptionReport.cpp
+    Utilities/ServiceWin32.cpp
+  )
+endif()
+
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
@@ -43,10 +52,17 @@ include_directories(
 
 add_library(shared STATIC ${shared_STAT_SRCS})
 
+if(WIN32)
+target_link_libraries(
+  shared
+  ace
+)
+else()
 target_link_libraries(
   shared
   ${ACE_LIBRARY}
 )
+endif()
 
 ########### trinityconfig ###############
 

@@ -44,7 +44,9 @@ add_executable(authserver
 
 add_dependencies(authserver revision.h)
 
-add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
+if(NOT WIN32)
+  add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
+endif()
 
 set(authserver_LINK_FLAGS "-pthread ${authserver_LINK_FLAGS}")
 
@@ -54,6 +56,18 @@ endif()
 
 set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
+if(WIN32)
+target_link_libraries(
+  authserver
+  shared
+  trinitydatabase
+  trinityauth
+  trinityconfig
+  ${MYSQL_LIBRARY}
+  ${OPENSSL_LIBRARIES}
+  ${OPENSSL_EXTRA_LIBRARIES}
+)
+else()
 target_link_libraries(
   authserver
   shared
@@ -64,7 +78,7 @@ target_link_libraries(
   ${OPENSSL_LIBRARIES}
   ${OSX_LIBS}
 )
-
+endif()
 ########### install files ###############
 
 install(TARGETS authserver DESTINATION bin)
