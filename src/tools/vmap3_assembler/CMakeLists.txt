@@ -37,4 +37,6 @@ else()
   )
 endif()
 
-install(TARGETS vmap3assembler DESTINATION bin)
+if( UNIX )
+  install(TARGETS vmap3assembler DESTINATION bin)
+if()

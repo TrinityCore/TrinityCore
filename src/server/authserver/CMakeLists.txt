@@ -57,29 +57,30 @@ endif()
 set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}")
 
 if(WIN32)
-target_link_libraries(
-  authserver
-  shared
-  trinitydatabase
-  trinityauth
-  trinityconfig
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${OPENSSL_EXTRA_LIBRARIES}
-)
+  target_link_libraries(
+    authserver
+    shared
+    trinitydatabase
+    trinityauth
+    trinityconfig
+    ${MYSQL_LIBRARY}
+    ${OPENSSL_LIBRARIES}
+    ${OPENSSL_EXTRA_LIBRARIES}
+  )
 else()
-target_link_libraries(
-  authserver
-  shared
-  trinitydatabase
-  trinityauth
-  trinityconfig
-  ${MYSQL_LIBRARY}
-  ${OPENSSL_LIBRARIES}
-  ${OSX_LIBS}
-)
+  target_link_libraries(
+    authserver
+    shared
+    trinitydatabase
+    trinityauth
+    trinityconfig
+    ${MYSQL_LIBRARY}
+    ${OPENSSL_LIBRARIES}
+    ${OSX_LIBS}
+  )
 endif()
-########### install files ###############
 
-install(TARGETS authserver DESTINATION bin)
-install(FILES  authserver.conf.dist DESTINATION etc)
+if( UNIX )
+  install(TARGETS authserver DESTINATION bin)
+  install(FILES  authserver.conf.dist DESTINATION etc)
+endif()
