@@ -102,49 +102,29 @@ set(GENREV_SRC
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
 if( DO_DEBUG )
   set(CMAKE_BUILD_TYPE Debug)
+endif()
 
-  add_executable(genrev
-    ${GENREV_SRC}
+#
+# Generate revision-extractor
+#
+add_executable(genrev
+  ${GENREV_SRC}
+)
+
+if( CMAKE_GENERATOR MATCHES "Visual Studio" )
+  add_custom_target("revision.h" ALL
+    COMMAND "${CMAKE_BINARY_DIR}/$(ConfigurationName)/genrev"
+    ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    DEPENDS genrev
   )
-
-  if( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    add_custom_target("revision.h" ALL
-      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/$(ConfigurationName)/genrev"
-      ${CMAKE_SOURCE_DIR}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-      DEPENDS genrev
-    )
-  else()
-    add_custom_target("revision.h" ALL
-      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/genrev"
-      ${CMAKE_SOURCE_DIR}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-      DEPENDS genrev
-    )
-  endif()
-
 else()
-
-  add_executable(genrev
-    ${GENREV_SRC}
+  add_custom_target("revision.h" ALL
+    COMMAND "${CMAKE_BINARY_DIR}/genrev"
+    ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    DEPENDS genrev
   )
-
-  if( CMAKE_GENERATOR MATCHES "Visual Studio" )
-    add_custom_target("revision.h" ALL
-      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/$(ConfigurationName)/genrev"
-      ${CMAKE_SOURCE_DIR}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-      DEPENDS genrev
-    )
-  else()
-    add_custom_target("revision.h" ALL
-      COMMAND "${CMAKE_CURRENT_BINARY_DIR}/genrev"
-      ${CMAKE_SOURCE_DIR}
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-      DEPENDS genrev
-    )
-  endif()
-
 endif()
 
 execute_process(
