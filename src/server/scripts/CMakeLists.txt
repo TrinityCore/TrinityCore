@@ -16,15 +16,13 @@ file(GLOB_RECURSE scripts_world World/*.cpp)
 file(GLOB_RECURSE scripts_examples Examples/*.cpp)
 
 # Enable precompiled headers when using the GCC compiler.
-if(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
+if(DO_PCH)
   include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
   )
 endif()
 
 set(scripts_STAT_SRCS
-  ../game/PrecompiledHeaders/ScriptPCH.cpp
-  ../game/PrecompiledHeaders/ScriptPCH.h
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
@@ -125,11 +123,20 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
 )
 
+# Add ScriptPCH.cpp to project on Windows
+if(MSVC)
+set(scripts_STAT_SRCS
+    ../game/PrecompiledHeaders/ScriptPCH.cpp
+    ${scripts_STAT_SRCS})
+endif()
+
 add_library(scripts STATIC ${scripts_STAT_SRCS})
 
 # Generate precompiled header
-if(DO_PCH AND CMAKE_COMPILER_IS_GNUCXX)
-  add_precompiled_header(scripts
-    ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/ScriptPCH.h
-  )
+if(DO_PCH)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_precompiled_header(scripts ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/ScriptPCH.h)
+  elseif(MSVC)
+    add_native_precompiled_header(scripts ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/ScriptPCH)
+  endif()
 endif()

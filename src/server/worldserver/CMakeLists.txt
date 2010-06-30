@@ -118,9 +118,9 @@ include_directories(
 set(worldserver_LINK_FLAGS "")
 
 add_executable(worldserver ${worldserver_SRCS})
-add_definitions(
-  -D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"'
-)
+if(NOT WIN32)
+  add_definitions(-D_TRINITY_CORE_CONFIG='"${CONF_DIR}/worldserver.conf"')
+endif()
 
 add_dependencies(worldserver revision.h)
 
@@ -152,11 +152,11 @@ if(WIN32)
     trinityconfig
     collision
     g3dlib
-    jemalloc
     ${SCRIPT_LIB}
-    ${ACE_LIBRARY}
+    ace
     ${MYSQL_LIBRARY}
     ${OPENSSL_LIBRARIES}
+    ${OPENSSL_EXTRA_LIBRARIES}
   )
 else()
   target_link_libraries(
