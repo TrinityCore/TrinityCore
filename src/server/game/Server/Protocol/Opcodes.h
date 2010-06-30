@@ -1343,7 +1343,11 @@ enum Opcodes
     SMSG_UNKNOWN_1304                               = 0x518, // something with player movement (move event 58?), speed packet
     UMSG_UNKNOWN_1305                               = 0x519, // not found
     UMSG_UNKNOWN_1306                               = 0x51A, // not found
-    NUM_MSG_TYPES                                   = 0x51B
+    CMSG_COMMENTATOR_SKIRMISH_QUEUE_COMMAND         = 0x51B, // lua: CommentatorSetSkirmishMatchmakingMode/CommentatorRequestSkirmishQueueData/CommentatorRequestSkirmishMode/CommentatorStartSkirmishMatch
+    SMSG_UNKNOWN_1308                               = 0x51C, // event EVENT_COMMENTATOR_SKIRMISH_QUEUE_REQUEST, CGCommentator::QueueNode
+    SMSG_UNKNOWN_1309                               = 0x51D, // event EVENT_COMMENTATOR_SKIRMISH_QUEUE_REQUEST
+    SMSG_UNKNOWN_1310                               = 0x51E, // some compressed packet?
+    NUM_MSG_TYPES                                   = 0x51F
 };
 
 /// Player state
