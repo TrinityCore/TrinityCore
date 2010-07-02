@@ -7335,27 +7335,25 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                         sLog.outError("Unit::HandleDummyAuraProc: non handled spell id: %u (LO)", procSpell->Id);
                         return false;
                 }
-                // No thread generated mod
-                // TODO: exist special flag in spell attributes for this, need found and use!
-                SpellModifier *mod = new SpellModifier;
-                mod->op = SPELLMOD_THREAT;
-                mod->value = -100;
-                mod->type = SPELLMOD_PCT;
-                mod->spellId = dummySpell->Id;
-                mod->mask[0] = 0x02;
-                mod->mask[2] = 0x00;
-                this->ToPlayer()->AddSpellMod(mod, true);
 
-                // Remove cooldown (Chain Lightning - have Category Recovery time)
+                // Chain Lightning
                 if (procSpell->SpellFamilyFlags[0] & 0x2)
+                {
+                    // Chain lightning has [LightOverload_Proc_Chance] / [Max_Number_of_Targets] chance to proc of each individual target hit.
+                    // A maxed LO would have a 33% / 3 = 11% chance to proc of each target.
+                    // LO chance was already "accounted" at the proc chance roll, now need to divide the chance by [Max_Number_of_Targets]
+                    float chance = 100.0f / procSpell->EffectChainTarget[effIndex];
+                    if (!roll_chance_f(chance))
+                        return false;
+
+                    // Remove cooldown (Chain Lightning - have Category Recovery time)
                     ToPlayer()->RemoveSpellCooldown(spellId);
+                }
 
                 CastSpell(pVictim, spellId, true, castItem, triggeredByAura);
 
-                this->ToPlayer()->AddSpellMod(mod, false);
-
                 if (cooldown && GetTypeId() == TYPEID_PLAYER)
-                    ToPlayer()->AddSpellCooldown(dummySpell->Id,0,time(NULL) + cooldown);
+                    ToPlayer()->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
 
                 return true;
             }
