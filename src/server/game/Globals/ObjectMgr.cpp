@@ -8266,7 +8266,7 @@ void ObjectMgr::LoadGossipMenuItems()
     QueryResult_AutoPtr result = WorldDatabase.Query(
         "SELECT menu_id, id, option_icon, option_text, option_id, npc_option_npcflag, "
         "action_menu_id, action_poi_id, action_script_id, box_coded, box_money, box_text "
-        "FROM gossip_menu_option");
+        "FROM gossip_menu_option ORDER BY menu_id, id");
 
     if (!result)
     {

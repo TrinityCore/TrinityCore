@@ -36,8 +36,13 @@
 float ThreatCalcHelper::calcThreat(Unit* pHatedUnit, Unit* /*pHatingUnit*/, float fThreat, SpellSchoolMask schoolMask, SpellEntry const *pThreatSpell)
 {
     if (pThreatSpell)
+    {
+        if (pThreatSpell->AttributesEx & SPELL_ATTR_EX_NO_THREAT)
+            return 0.0f;
+
         if (Player* modOwner = pHatedUnit->GetSpellModOwner())
             modOwner->ApplySpellMod(pThreatSpell->Id, SPELLMOD_THREAT, fThreat);
+    }
 
     return pHatedUnit->ApplyTotalThreatModifier(fThreat, schoolMask);
 }
