@@ -10963,7 +10963,7 @@ int32 Unit::SpellBaseHealingBonus(SpellSchoolMask schoolMask)
 
     AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
     for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
-        if (((*i)->GetMiscValue() & schoolMask) != 0)
+        if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
             AdvertisedBenefit += (*i)->GetAmount();
 
     // Healing bonus of spirit, intellect and strength
