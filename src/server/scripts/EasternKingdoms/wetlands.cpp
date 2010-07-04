@@ -62,7 +62,7 @@ struct npc_tapoke_slim_jahnAI : public npc_escortAI
         {
             case 2:
                 if (me->HasStealthAura())
-                    me->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
+                    me->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
 
                 SetRun();
                 me->setFaction(FACTION_ENEMY);
