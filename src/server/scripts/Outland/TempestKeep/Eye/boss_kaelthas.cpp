@@ -400,7 +400,7 @@ struct boss_kaelthasAI : public ScriptedAI
             {
                 if (!me->getVictim() && Phase >= 4)
                 {
-                    who->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
+                    who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     AttackStart(who);
                 }
                 else if (me->GetMap()->IsDungeon())
