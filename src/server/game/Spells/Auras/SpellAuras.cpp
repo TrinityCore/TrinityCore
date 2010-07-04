@@ -77,14 +77,15 @@ AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint
         else
             sLog.outDebug("Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
     }
-    m_flags |= (_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE) |
-        (GetBase()->GetCasterGUID() == GetTarget()->GetGUID() ? AFLAG_CASTER : AFLAG_NONE);
 
     m_isNeedManyNegativeEffects = false;
     if (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) // caster == target - 1 negative effect is enough for aura to be negative
         m_isNeedManyNegativeEffects = false;
     else if (caster)
         m_isNeedManyNegativeEffects = caster->IsFriendlyTo(m_target);
+
+    m_flags |= (_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE) |
+        (GetBase()->GetCasterGUID() == GetTarget()->GetGUID() ? AFLAG_CASTER : AFLAG_NONE);
 }
 
 void AuraApplication::_Remove()
