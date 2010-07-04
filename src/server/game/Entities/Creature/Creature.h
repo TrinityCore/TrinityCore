@@ -622,10 +622,10 @@ class Creature : public Unit, public GridObject<Creature>
         bool hasInvolvedQuest(uint32 quest_id)  const;
 
         bool isRegeneratingHealth() { return m_regenHealth; }
-        virtual uint8 GetPetAutoSpellSize() const { return CREATURE_MAX_SPELLS; }
+        virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
         {
-            if (pos >= CREATURE_MAX_SPELLS || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
+            if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
                 return 0;
             else
                 return m_charmInfo->GetCharmSpell(pos)->GetAction();
