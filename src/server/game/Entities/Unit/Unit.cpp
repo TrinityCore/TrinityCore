@@ -13398,7 +13398,8 @@ void Unit::DeleteCharmInfo()
 }
 
 CharmInfo::CharmInfo(Unit* unit)
-: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false)
+: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false),
+  m_isCommandAttack(false), m_isAtStay(false), m_isFollowing(false), m_isReturning(false)
 {
     for (uint8 i = 0; i < MAX_SPELL_CHARM; ++i)
         m_charmspells[i].SetActionAndType(0,ACT_DISABLED);
