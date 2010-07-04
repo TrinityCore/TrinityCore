@@ -204,7 +204,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectHealPct,                                  //136 SPELL_EFFECT_HEAL_PCT
     &Spell::EffectEnergizePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
     &Spell::EffectJump2,                                    //138 SPELL_EFFECT_LEAP_BACK                Leap back
-    &Spell::EffectUnused,                                   //139 SPELL_EFFECT_CLEAR_QUEST              (misc - is quest ID)
+    &Spell::EffectQuestClear,                               //139 SPELL_EFFECT_CLEAR_QUEST              Reset quest status (miscValue - quest ID)
     &Spell::EffectForceCast,                                //140 SPELL_EFFECT_FORCE_CAST
     &Spell::EffectNULL,                                     //141 SPELL_EFFECT_141                      damage and reduce speed?
     &Spell::EffectTriggerSpellWithValue,                    //142 SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE
@@ -6993,7 +6993,14 @@ void Spell::EffectQuestComplete(uint32 i)
         return;
 
     uint32 quest_id = m_spellInfo->EffectMiscValue[i];
-    pPlayer->AreaExploredOrEventHappens(quest_id);
+    if (quest_id)
+    {
+        uint16 log_slot = pPlayer->FindQuestSlot(quest_id);
+        if (log_slot < MAX_QUEST_LOG_SIZE)
+            pPlayer->AreaExploredOrEventHappens(quest_id);
+        else
+            pPlayer->CompleteQuest(quest_id);   // quest not in log - for internal use
+    }
 }
 
 void Spell::EffectForceDeselect(uint32 /*i*/)
@@ -7153,6 +7160,50 @@ void Spell::EffectJump2(uint32 i)
         //1891: Disengage
         m_caster->JumpTo(speedxy, speedz, m_spellInfo->SpellIconID != 1891);
     }
+}
+
+void Spell::EffectQuestClear(uint32 i)
+{
+    Player *pPlayer = NULL;
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        pPlayer = m_caster->ToPlayer();
+    else if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
+        pPlayer = unitTarget->ToPlayer();
+    
+    if (!pPlayer)
+        return;
+
+    uint32 quest_id = m_spellInfo->EffectMiscValue[i];
+
+    Quest const* pQuest = objmgr.GetQuestTemplate(quest_id);
+
+    if (!pQuest)
+        return;
+
+    QuestStatusMap::iterator qs_itr = pPlayer->getQuestStatusMap().find(quest_id);
+    // Player has never done this quest
+    if (qs_itr == pPlayer->getQuestStatusMap().end())
+        return;
+
+    // remove all quest entries for 'entry' from quest log
+    for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
+    {
+        uint32 quest = pPlayer->GetQuestSlotQuestId(slot);
+        if (quest == quest_id)
+        {
+            pPlayer->SetQuestSlot(slot, 0);
+
+            // we ignore unequippable quest items in this case, its' still be equipped
+            pPlayer->TakeQuestSourceItem(quest, false);
+        }
+    }
+
+    // set quest status to not started (will be updated in DB at next save)
+    pPlayer->SetQuestStatus(quest_id, QUEST_STATUS_NONE);
+
+    // reset rewarded for restart repeatable quest
+    QuestStatusData &data = qs_itr->second;
+    data.m_rewarded = false;
 }
 
 void Spell::EffectSendTaxi(uint32 i)
