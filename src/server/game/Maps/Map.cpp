@@ -2395,6 +2395,32 @@ bool InstanceMap::CanEnter(Player *player)
         return false;
     }
 
+    // cannot enter if instance is in use by another party/soloer that have a
+    // permanent save in the same instance id
+
+    PlayerList const &playerList = GetPlayers();
+    Player *firstInsidePlayer = NULL;
+
+    if (!playerList.isEmpty())
+        for (PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player *iPlayer = i->getSource())
+            {
+                if (iPlayer->isGameMaster()) // bypass GMs
+                    continue;
+                if (!player->GetGroup()) // player has not group and there is someone inside, deny entry
+                {
+                    player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
+                    return false;
+                }
+                // player inside instance has no group or his groups is different to entering player's one, deny entry
+                if (!iPlayer->GetGroup() || iPlayer->GetGroup() != player->GetGroup() )
+                {
+                    player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
+                    return false;
+                }
+                break;
+            }
+
     return Map::CanEnter(player);
 }
 
