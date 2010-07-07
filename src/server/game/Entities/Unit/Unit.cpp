@@ -10692,6 +10692,10 @@ uint32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, uint
         if (Unit* owner = GetOwner())
             return owner->SpellHealingBonus(pVictim, spellProto, healamount, damagetype, stack);
 
+    // no bonus for heal potions/bandages
+    if (spellProto->SpellFamilyName == SPELLFAMILY_POTION /*|| spellProto->Mechanic == MECHANIC_BANDAGE*/ )
+        return healamount;
+
     // Healing Done
     // Taken/Done total percent damage auras
     float  DoneTotalMod = 1.0f;
@@ -10963,7 +10967,7 @@ int32 Unit::SpellBaseHealingBonus(SpellSchoolMask schoolMask)
 
     AuraEffectList const& mHealingDone = GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_DONE);
     for (AuraEffectList::const_iterator i = mHealingDone.begin(); i != mHealingDone.end(); ++i)
-        if (((*i)->GetMiscValue() & schoolMask) != 0)
+        if (!(*i)->GetMiscValue() || ((*i)->GetMiscValue() & schoolMask) != 0)
             AdvertisedBenefit += (*i)->GetAmount();
 
     // Healing bonus of spirit, intellect and strength
@@ -13398,7 +13402,8 @@ void Unit::DeleteCharmInfo()
 }
 
 CharmInfo::CharmInfo(Unit* unit)
-: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false)
+: m_unit(unit), m_CommandState(COMMAND_FOLLOW), m_petnumber(0), m_barInit(false),
+  m_isCommandAttack(false), m_isAtStay(false), m_isFollowing(false), m_isReturning(false)
 {
     for (uint8 i = 0; i < MAX_SPELL_CHARM; ++i)
         m_charmspells[i].SetActionAndType(0,ACT_DISABLED);

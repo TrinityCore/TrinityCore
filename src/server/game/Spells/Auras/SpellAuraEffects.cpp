@@ -1311,10 +1311,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             bool crit = IsPeriodicTickCrit(target, caster);
             if (crit)
-            {
                 damage = caster->SpellCriticalDamageBonus(m_spellProto, damage, target);
-                damage -= target->GetSpellCritDamageReduction(damage);
-            }
 
             // Reduce damage from resilience for players and pets only.
             // As of patch 3.3 pets inherit 100% of master resilience.
@@ -1323,7 +1320,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 {
                     if (crit)
                         damage -= modOwner->GetSpellCritDamageReduction(damage);
-                    damage -= modOwner->GetSpellDamageReduction(damage);
+                        damage -= modOwner->GetSpellDamageReduction(damage);
                 }
 
             caster->CalcAbsorbResist(target, GetSpellSchoolMask(GetSpellProto()), DOT, damage, &absorb, &resist, m_spellProto);
@@ -1382,10 +1379,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
 
             bool crit = IsPeriodicTickCrit(target, caster);
             if (crit)
-            {
                 damage = caster->SpellCriticalDamageBonus(m_spellProto, damage, target);
-                damage -= target->GetSpellCritDamageReduction(damage);
-            }
 
             //Calculate armor mitigation if it is a physical spell
             if (GetSpellSchoolMask(GetSpellProto()) & SPELL_SCHOOL_MASK_NORMAL)
@@ -1485,7 +1479,37 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
             int32 damage = m_amount > 0 ? m_amount : 0;
 
             if (GetAuraType() == SPELL_AURA_OBS_MOD_HEALTH)
+            {
+                // Taken mods
+                float TakenTotalMod = 1.0f;
+
+                // Tenacity increase healing % taken
+                if (AuraEffect const* Tenacity = target->GetAuraEffect(58549, 0))
+                    TakenTotalMod *= (Tenacity->GetAmount() + 100.0f) / 100.0f;
+
+                // Healing taken percent
+                float minval = target->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
+                if (minval)
+                    TakenTotalMod *= (100.0f + minval) / 100.0f;
+
+                float maxval = target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
+                if (maxval)
+                    TakenTotalMod *= (100.0f + maxval) / 100.0f;
+                
+                // Healing over time taken percent
+                float minval_hot = target->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+                if (minval_hot)
+                    TakenTotalMod *= (100.0f + minval_hot) / 100.0f;
+
+                float maxval_hot = target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HOT_PCT);
+                if (maxval_hot)
+                    TakenTotalMod *= (100.0f + maxval_hot) / 100.0f;
+
+                TakenTotalMod = TakenTotalMod > 0.0f ? TakenTotalMod : 0.0f;
+
                 damage = uint32(target->GetMaxHealth() * damage / 100);
+                damage = uint32(damage * TakenTotalMod);
+            }
             else
             {
                 // Wild Growth = amount + (6 - 2*doneTicks) * ticks* amount / 100

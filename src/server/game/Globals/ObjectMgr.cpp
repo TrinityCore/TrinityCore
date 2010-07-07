@@ -4868,7 +4868,7 @@ void ObjectMgr::LoadWaypointScripts()
 
     for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
     {
-        QueryResult_AutoPtr query = WorldDatabase.PQuery("SELECT * FROM waypoint_scripts WHERE id = %u", itr->first);
+        QueryResult_AutoPtr query = WorldDatabase.PQuery("SELECT * FROM waypoint_data WHERE action = %u", itr->first);
         if (!query || !query->GetRowCount())
             sLog.outErrorDb("There is no waypoint which links to the waypoint script %u", itr->first);
     }
