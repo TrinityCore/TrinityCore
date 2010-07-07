@@ -104,7 +104,7 @@ void npc_escortAI::MoveInLineOfSight(Unit* pWho)
             {
                 if (!me->getVictim())
                 {
-                    pWho->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
+                    pWho->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     AttackStart(pWho);
                 }
                 else if (me->GetMap()->IsDungeon())

@@ -305,6 +305,7 @@ class Spell
         void EffectHealMechanical(uint32 i);
         void EffectJump(uint32 i);
         void EffectJump2(uint32 i);
+        void EffectQuestClear(uint32 i);
         void EffectTeleUnitsFaceCaster(uint32 i);
         void EffectLearnSkill(uint32 i);
         void EffectAddHonor(uint32 i);
