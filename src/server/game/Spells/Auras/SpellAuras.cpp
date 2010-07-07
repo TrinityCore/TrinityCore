@@ -171,9 +171,6 @@ void AuraApplication::ClientUpdate(bool remove)
 {
     m_needClientUpdate = false;
 
-    if (remove && GetRemoveMode() == AURA_REMOVE_BY_STACK)
-        return;
-
     WorldPacket data(SMSG_AURA_UPDATE);
     data.append(GetTarget()->GetPackGUID());
     data << uint8(m_slot);
