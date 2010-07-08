@@ -944,28 +944,6 @@ bool GOSelect_go_amberpine_outhouse(Player *pPlayer, GameObject *pGO, uint32 /*u
 }
 
 /*######
-## Quest 9544: The Prophecy of Akida
-######*/
-
-enum eProphecy
-{
-    QUEST_PROPHECY_OF_AKIDA                       = 9544,
-    NPC_STILLPINE_CAPTIVE                         = 17375
-};
-
-bool GOHello_go_stillpine_cage(Player *pPlayer, GameObject *pGO)
-{
-    if (pPlayer->GetQuestStatus(QUEST_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
-        if (Creature *pPrisoner = pGO->FindNearestCreature(NPC_STILLPINE_CAPTIVE,1.0f))
-        {
-            pGO->UseDoorOrButton();
-            pPrisoner->DisappearAndDie();
-            pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(),0);
-        }
-    return true;
-}
-
-/*######
 ## Quest 1126: Hive in the Tower
 ######*/
 
@@ -1158,11 +1136,6 @@ void AddSC_go_scripts()
     newscript = new Script;
     newscript->Name = "go_black_cage";
     newscript->pGOHello =           &GOHello_go_black_cage;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "go_stillpine_cage";
-    newscript->pGOHello =           &GOHello_go_stillpine_cage;
     newscript->RegisterSelf();
 
     newscript = new Script;
