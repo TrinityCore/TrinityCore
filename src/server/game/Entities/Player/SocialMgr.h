@@ -44,7 +44,7 @@ enum SocialFlag
     SOCIAL_FLAG_FRIEND      = 0x01,
     SOCIAL_FLAG_IGNORED     = 0x02,
     SOCIAL_FLAG_MUTED       = 0x04,                          // guessed
-    SOCAIL_FLAG_RAF         = 0x08                           // Recruit A Friend
+    SOCIAL_FLAG_RAF         = 0x08                           // Recruit A Friend
 };
 
 struct FriendInfo
