@@ -21,7 +21,7 @@
 #ifndef _UPDATEFIELDS_AUTO_H
 #define _UPDATEFIELDS_AUTO_H
 
-// Auto generated for version 3, 3, 3, 12340
+// Auto generated for version 3, 3, 5, 12340
 
 enum EObjectFields
 {
