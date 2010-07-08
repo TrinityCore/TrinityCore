@@ -1795,10 +1795,17 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                         RemainingDamage -= RemainingDamage * currentAbsorb / 100;
                     continue;
                 }
-                // Savage Defense (amount store original percent of attack power applied)
-                if (spellProto->SpellIconID == 50)    // only spell with this aura fit
+                // Savage Defense
+                if (spellProto->SpellIconID == 146)
                 {
-                    RemainingDamage -= int32(currentAbsorb * pVictim->GetTotalAttackPowerValue(BASE_ATTACK) / 100);
+                    if (RemainingDamage < currentAbsorb)
+                        currentAbsorb = RemainingDamage;
+
+                    // don't use up the aura if we don't absorb anything
+                    if (currentAbsorb > 0)
+                        (*i)->GetBase()->DropCharge();
+
+                    RemainingDamage -= currentAbsorb;
                     continue;
                 }
                 // Moonkin Form passive
