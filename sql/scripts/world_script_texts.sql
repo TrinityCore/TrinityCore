@@ -423,6 +423,9 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (23861,-1000471,'It was... terrible... the demon...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,''),
    (23864,-1000472,'This land was mine long before your wretched kind set foot here.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
    (23864,-1000473,'All who venture here belong to me, including you!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,''),
+   (17375, -1000474, '[Fulborg] The Stillpine furbolgs will not soon forget your bravery!', 0, 0, 'Stillpine Capitive free say text 1'),
+   (17375, -1000475, '[Fulborg] Thank you, $N', 0, 0, 'Stillpine Capitive free say text 2'),
+   (17375, -1000476, '[Fulborg] Those remaining at Stillpine Hold will welcome you as a hero!', 0, 0, 'Stillpine Capitive free say text 3');
    (26588,-1800001, 'Um... I think one of those wolves is back...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, '12027'),
    (26588,-1800002, 'He''s going for Mr. Floppy! ',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, '12027'),
    (26588,-1800003, 'Oh, no! Look, it''s another wolf, and it''s a biiiiiig one!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, '12027'),
