@@ -177,7 +177,7 @@ EAIErrorLevel = 2
 #    
 #    vmap.enableIndoorCheck
 #        Enable/Disable VMap based indoor check to remove outdoor-only auras (mounts etc.)
-#        Default: 0 (disabled)
+#        Default: 1 (enabled)
 #
 #    DetectPosCollision
 #        Check final move position, summon position, etc for visible collision
@@ -244,10 +244,10 @@ PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
 vmap.enableLOS = 0
 vmap.enableHeight = 0
-vmap.ignoreMapIds = "369"
+vmap.ignoreMapIds = ""
 vmap.ignoreSpellIds = "7720"
 vmap.petLOS = 0
-vmap.enableIndoorCheck = 0
+vmap.enableIndoorCheck = 1
 DetectPosCollision = 1
 TargetPosRecalculateRange = 1.5
 UpdateUptimeInterval = 10
