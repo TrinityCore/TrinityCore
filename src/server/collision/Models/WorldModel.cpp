@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "WorldModel.h"
@@ -148,15 +148,48 @@ namespace VMAP
 
     bool WmoLiquid::GetLiquidHeight(const Vector3 &pos, float &liqHeight) const
     {
-        uint32 tx = (pos.x - iCorner.x)/LIQUID_TILE_SIZE;
+        float tx_f = (pos.x - iCorner.x)/LIQUID_TILE_SIZE;
+        uint32 tx = uint32(tx_f);
         if (tx<0 || tx >= iTilesX) return false;
-        uint32 ty = (pos.y - iCorner.y)/LIQUID_TILE_SIZE;
+        float ty_f = (pos.y - iCorner.y)/LIQUID_TILE_SIZE;
+        uint32 ty = uint32(ty_f);
         if (ty<0 || ty >= iTilesY) return false;
+
+        // check if tile shall be used for liquid level
         // checking for 0x08 *might* be enough, but disabled tiles always are 0x?F:
         if ((iFlags[tx + ty*iTilesX] & 0x0F) == 0x0F)
             return false;
-        //placeholder...use only lower left corner vertex
-        liqHeight = /* iCorner.z + */ iHeight[tx + ty*(iTilesX+1)];
+
+        // (dx, dy) coordinates inside tile, in [0,1]^2
+        float dx = tx_f - (float)tx;
+        float dy = ty_f - (float)ty;
+
+        /* Tesselate tile to two triangles (not sure if client does it exactly like this)
+
+            ^ dy
+            |
+          1 x---------x (1,1)
+            | (b)   / |
+            |     /   |
+            |   /     |
+            | /   (a) |
+            x---------x---> dx
+          0           1
+        */
+
+        const uint32 rowOffset = iTilesX + 1;
+        if (dx > dy) // case (a)
+        {
+            float sx = iHeight[tx+1 +  ty    * rowOffset] - iHeight[tx   + ty * rowOffset];
+            float sy = iHeight[tx+1 + (ty+1) * rowOffset] - iHeight[tx+1 + ty * rowOffset];
+            liqHeight = iHeight[tx + ty * rowOffset] + dx * sx + dy * sy;
+        }
+        else // case (b)
+        {
+            float sx = iHeight[tx+1 + (ty+1) * rowOffset] - iHeight[tx + (ty+1) * rowOffset];
+            float sy = iHeight[tx   + (ty+1) * rowOffset] - iHeight[tx +  ty    * rowOffset];
+            liqHeight = iHeight[tx + ty * rowOffset] + dx * sx + dy * sy;
+        }
         return true;
     }
 
