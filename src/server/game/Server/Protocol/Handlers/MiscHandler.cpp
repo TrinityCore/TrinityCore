@@ -931,8 +931,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     if (!at)
         return;
 
-    if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
-        return;
+    // MapManager::CanPlayerEnter() calls players->Satisfy() so this is not needed here
+    // if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
+    //    return;
 
     // check if player can enter instance : instance not full, and raid instance not in encounter fight
     if (!sMapMgr.CanPlayerEnter(at->target_mapId, GetPlayer(), false))
