@@ -935,8 +935,9 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     // if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
     //    return;
 
+    // Check only if target map != current player's map
     // check if player can enter instance : instance not full, and raid instance not in encounter fight
-    if (!sMapMgr.CanPlayerEnter(at->target_mapId, GetPlayer(), false))
+    if (GetPlayer()->GetMapId() != at->target_mapId && !sMapMgr.CanPlayerEnter(at->target_mapId, GetPlayer(), false))
         return;
 
     GetPlayer()->TeleportTo(at->target_mapId,at->target_X,at->target_Y,at->target_Z,at->target_Orientation,TELE_TO_NOT_LEAVE_TRANSPORT);
