@@ -768,7 +768,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     // NOTE: ATM the socket is singlethread, have this in mind ...
     uint8 digest[20];
     uint32 clientSeed;
-    uint32 unk2, unk3;
+    uint32 unk2, unk3, unk5, unk6, unk7;
     uint64 unk4;
     uint32 BuiltNumberClient;
     uint32 id, security;
@@ -797,6 +797,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> account;
     recvPacket >> unk3;
     recvPacket >> clientSeed;
+    recvPacket >> unk5 >> unk6 >> unk7;
     recvPacket >> unk4;
     recvPacket.read (digest, 20);
 
