@@ -76,11 +76,13 @@ A '#' at the beginning of a line defines a comment
     return(result);
 } */
 //=======================================================
+
 int main(int argc, char* argv[])
 {
     if(argc != 3 && argc != 4)
     {
-        printf("\nusage: %s <raw data dir> <vmap dest dir> [config file name]\n", argv[0]);
+        //printf("\nusage: %s <raw data dir> <vmap dest dir> [config file name]\n", argv[0]);
+        printf("\nusage: %s <raw data dir> <vmap dest dir>\n", argv[0]);
         return 1;
     }
 
