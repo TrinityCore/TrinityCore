@@ -51,7 +51,7 @@ namespace VMAP
             }
         bool didHit() { return hit; }
     protected:
-        ModelInstances *prims;
+        ModelInstance *prims;
         bool hit;
     };
 
