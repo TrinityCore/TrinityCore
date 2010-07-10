@@ -41,13 +41,18 @@ namespace VMAP
     class MapRayCallback
     {
         public:
-            MapRayCallback(ModelInstance *val): prims(val) {}
-            ModelInstance *prims;
+            MapRayCallback(ModelInstance *val): prims(val), hit(false) {}
             bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit=true)
             {
-                return prims[entry].intersectRay(ray, distance, pStopAtFirstHit);
-                //std::cout << "trying to intersect '" << entity->name << "'\n";
+                bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit);
+                if (result)
+                    hit = true;
+                return result;
             }
+        bool didHit() { return hit; }
+    protected:
+        ModelInstances *prims;
+        bool hit;
     };
 
     class AreaInfoCallback
@@ -138,21 +143,23 @@ namespace VMAP
 
     //=========================================================
     /**
-    return dist to hit or inf() if no hit
+    If intersection is found within pMaxDist, sets pMaxDist to intersection distance and returns true.
+    Else, pMaxDist is not modified and returns false;
     */
 
-    float StaticMapTree::getIntersectionTime(const G3D::Ray& pRay, float pMaxDist, bool pStopAtFirstHit) const
+    bool StaticMapTree::getIntersectionTime(const G3D::Ray& pRay, float &pMaxDist, bool pStopAtFirstHit) const
     {
         float distance = pMaxDist;
         MapRayCallback intersectionCallBack(iTreeValues);
         iTree.intersectRay(pRay, intersectionCallBack, distance, pStopAtFirstHit);
-        return distance;
+        if (intersectionCallBack.didHit())
+            pMaxDist = distance;
+        return intersectionCallBack.didHit();    
     }
     //=========================================================
 
     bool StaticMapTree::isInLineOfSight(const Vector3& pos1, const Vector3& pos2) const
     {
-        bool result = true;
         float maxDist = (pos2 - pos1).magnitude();
         // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
         ASSERT(maxDist < std::numeric_limits<float>::max());
@@ -161,12 +168,10 @@ namespace VMAP
             return true;
         // direction with length of 1
         G3D::Ray ray = G3D::Ray::fromOriginAndDirection(pos1, (pos2 - pos1)/maxDist);
-        float resultDist = getIntersectionTime(ray, maxDist, true);
-        if (resultDist < maxDist)
-        {
-            result = false;
-        }
-        return result;
+        if (getIntersectionTime(ray, maxDist, true))
+            return false;
+
+        return true;
     }
     //=========================================================
     /**
@@ -188,8 +193,8 @@ namespace VMAP
         }
         Vector3 dir = (pPos2 - pPos1)/maxDist;              // direction with length of 1
         G3D::Ray ray(pPos1, dir);
-        float dist = getIntersectionTime(ray, maxDist, false);
-        if (dist < maxDist)
+        float dist = maxDist;
+        if (getIntersectionTime(ray, dist, false))
         {
             pResultHitPos = pPos1 + dir * dist;
             if (pModifyDist < 0)
@@ -225,10 +230,9 @@ namespace VMAP
         Vector3 dir = Vector3(0,0,-1);
         G3D::Ray ray(pPos, dir);   // direction with length of 1
         float maxDist = VMapDefinitions::getMaxCanFallDistance();
-        float dist = getIntersectionTime(ray, maxDist, false);
-        if (dist < maxDist)
+        if (getIntersectionTime(ray, maxDist, false))
         {
-            height = pPos.z - dist;
+            height = pPos.z - maxDist;
         }
         return(height);
     }
