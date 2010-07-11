@@ -71,12 +71,12 @@ struct boss_keristraszaAI : public ScriptedAI
 
     void Reset()
     {
-        uiCrystalfireBreathTimer = 14*IN_MILISECONDS;
-        uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILISECONDS,11*IN_MILISECONDS);
-        uiTailSweepTimer = 5*IN_MILISECONDS;
+        uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
+        uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS,11*IN_MILLISECONDS);
+        uiTailSweepTimer = 5*IN_MILLISECONDS;
         bEnrage = false;
 
-        uiCheckIntenseColdTimer = 2*IN_MILISECONDS;
+        uiCheckIntenseColdTimer = 2*IN_MILLISECONDS;
         bMoreThanTwoIntenseCold = false;
 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -175,7 +175,7 @@ struct boss_keristraszaAI : public ScriptedAI
                     break;
                 }
             }
-            uiCheckIntenseColdTimer = 2*IN_MILISECONDS;
+            uiCheckIntenseColdTimer = 2*IN_MILLISECONDS;
         } else uiCheckIntenseColdTimer -= diff;
 
         if (!bEnrage && HealthBelowPct(25))
@@ -188,13 +188,13 @@ struct boss_keristraszaAI : public ScriptedAI
         if (uiCrystalfireBreathTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
-            uiCrystalfireBreathTimer = 14*IN_MILISECONDS;
+            uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
         } else uiCrystalfireBreathTimer -= diff;
 
         if (uiTailSweepTimer <= diff)
         {
             DoCast(me, SPELL_TAIL_SWEEP);
-            uiTailSweepTimer = 5*IN_MILISECONDS;
+            uiTailSweepTimer = 5*IN_MILLISECONDS;
         } else uiTailSweepTimer -= diff;
 
         if (uiCrystalChainsCrystalizeTimer <= diff)
@@ -204,7 +204,7 @@ struct boss_keristraszaAI : public ScriptedAI
                 DoCast(me, SPELL_CRYSTALIZE);
             else if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_CRYSTAL_CHAINS);
-            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILISECONDS,11*IN_MILISECONDS);
+            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS,11*IN_MILLISECONDS);
         } else uiCrystalChainsCrystalizeTimer -= diff;
 
         DoMeleeAttackIfReady();

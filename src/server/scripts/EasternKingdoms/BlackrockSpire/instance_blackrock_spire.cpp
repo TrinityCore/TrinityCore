@@ -35,7 +35,7 @@ struct instance_blackrock_spire : public ScriptedInstance
 
     void Initialize()
     {
-      uiLeeroyTimer = 15*IN_MILISECONDS;
+      uiLeeroyTimer = 15*IN_MILLISECONDS;
       uiWhelpCount = 0;
       bLeeeeeeeeroy = true;
       uiLeroyData = 0;

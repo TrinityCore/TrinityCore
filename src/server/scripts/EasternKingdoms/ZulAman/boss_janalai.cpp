@@ -143,7 +143,7 @@ struct boss_janalaiAI : public ScriptedAI
         BombSequenceTimer = 1000;
         BombCount = 0;
         HatcherTimer = 10000;
-        EnrageTimer = MINUTE*5*IN_MILISECONDS;
+        EnrageTimer = MINUTE*5*IN_MILLISECONDS;
 
         noeggs = false;
         isBombing =false;

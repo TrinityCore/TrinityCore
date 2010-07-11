@@ -168,7 +168,7 @@ enum TimeConstants
     WEEK   = DAY*7,
     MONTH  = DAY*30,
     YEAR   = MONTH*12,
-    IN_MILISECONDS = 1000
+    IN_MILLISECONDS = 1000
 };
 
 enum AccountTypes

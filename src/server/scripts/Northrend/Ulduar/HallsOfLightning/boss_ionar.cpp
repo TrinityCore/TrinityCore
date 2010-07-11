@@ -94,10 +94,10 @@ struct boss_ionarAI : public ScriptedAI
         bIsSplitPhase = true;
         bHasDispersed = false;
 
-        uiSplitTimer = 25*IN_MILISECONDS;
+        uiSplitTimer = 25*IN_MILLISECONDS;
 
-        uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);
-        uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
+        uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
+        uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
 
         uiDisperseHealth = 45 + urand(0,10);
 
@@ -200,7 +200,7 @@ struct boss_ionarAI : public ScriptedAI
         {
             if (uiSplitTimer <= uiDiff)
             {
-                uiSplitTimer = 2.5*IN_MILISECONDS;
+                uiSplitTimer = 2.5*IN_MILLISECONDS;
 
                 // Return sparks to where Ionar splitted
                 if (bIsSplitPhase)
@@ -216,7 +216,7 @@ struct boss_ionarAI : public ScriptedAI
 
                     DoCast(me, SPELL_SPARK_DESPAWN, false);
 
-                    uiSplitTimer = 25*IN_MILISECONDS;
+                    uiSplitTimer = 25*IN_MILLISECONDS;
                     bIsSplitPhase = true;
 
                     if (me->getVictim())
@@ -234,7 +234,7 @@ struct boss_ionarAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_STATIC_OVERLOAD);
 
-            uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);
+            uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
         }
         else
             uiStaticOverloadTimer -= uiDiff;
@@ -242,7 +242,7 @@ struct boss_ionarAI : public ScriptedAI
         if (uiBallLightningTimer <= uiDiff)
         {
             DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
-            uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
+            uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
         }
         else
             uiBallLightningTimer -= uiDiff;
@@ -310,7 +310,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
 
     void Reset()
     {
-        uiCheckTimer = 2*IN_MILISECONDS;
+        uiCheckTimer = 2*IN_MILLISECONDS;
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -358,7 +358,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
                 else
                     me->ForcedDespawn();
             }
-            uiCheckTimer = 2*IN_MILISECONDS;
+            uiCheckTimer = 2*IN_MILLISECONDS;
         }
         else
             uiCheckTimer -= uiDiff;

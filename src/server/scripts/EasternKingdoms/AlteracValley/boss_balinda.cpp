@@ -51,8 +51,8 @@ struct mob_water_elementalAI : public ScriptedAI
 
     void Reset()
     {
-        uiWaterBoltTimer            = 3*IN_MILISECONDS;
-        uiResetTimer                = 5*IN_MILISECONDS;
+        uiWaterBoltTimer            = 3*IN_MILLISECONDS;
+        uiResetTimer                = 5*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -63,7 +63,7 @@ struct mob_water_elementalAI : public ScriptedAI
         if (uiWaterBoltTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_WATERBOLT);
-            uiWaterBoltTimer = 5*IN_MILISECONDS;
+            uiWaterBoltTimer = 5*IN_MILLISECONDS;
         } else uiWaterBoltTimer -= diff;
 
         // check if creature is not outside of building
@@ -72,7 +72,7 @@ struct mob_water_elementalAI : public ScriptedAI
             if (Creature *pBalinda = Unit::GetCreature(*me, uiBalindaGUID))
                 if (me->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
                     EnterEvadeMode();
-                uiResetTimer = 5*IN_MILISECONDS;
+                uiResetTimer = 5*IN_MILLISECONDS;
         } else uiResetTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -94,11 +94,11 @@ struct boss_balindaAI : public ScriptedAI
 
     void Reset()
     {
-        uiArcaneExplosionTimer      = urand(5*IN_MILISECONDS,15*IN_MILISECONDS);
-        uiConeOfColdTimer           = 8*IN_MILISECONDS;
-        uiFireBoltTimer             = 1*IN_MILISECONDS;
-        uiFrostboltTimer            = 4*IN_MILISECONDS;
-        uiResetTimer                = 5*IN_MILISECONDS;
+        uiArcaneExplosionTimer      = urand(5*IN_MILLISECONDS,15*IN_MILLISECONDS);
+        uiConeOfColdTimer           = 8*IN_MILLISECONDS;
+        uiFireBoltTimer             = 1*IN_MILLISECONDS;
+        uiFrostboltTimer            = 4*IN_MILLISECONDS;
+        uiResetTimer                = 5*IN_MILLISECONDS;
         uiWaterElementalTimer       = 0;
 
         Summons.DespawnAll();
@@ -135,32 +135,32 @@ struct boss_balindaAI : public ScriptedAI
         if (uiWaterElementalTimer < diff)
         {
             if (Summons.empty())
-                me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILISECONDS);
-            uiWaterElementalTimer = 50*IN_MILISECONDS;
+                me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILLISECONDS);
+            uiWaterElementalTimer = 50*IN_MILLISECONDS;
         } else uiWaterElementalTimer -= diff;
 
         if (uiArcaneExplosionTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
-            uiArcaneExplosionTimer =  urand(5*IN_MILISECONDS,15*IN_MILISECONDS);
+            uiArcaneExplosionTimer =  urand(5*IN_MILLISECONDS,15*IN_MILLISECONDS);
         } else uiArcaneExplosionTimer -= diff;
 
         if (uiConeOfColdTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
-            uiConeOfColdTimer = urand(10*IN_MILISECONDS,20*IN_MILISECONDS);
+            uiConeOfColdTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
         } else uiConeOfColdTimer -= diff;
 
         if (uiFireBoltTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_FIREBALL);
-            uiFireBoltTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
+            uiFireBoltTimer = urand(5*IN_MILLISECONDS,9*IN_MILLISECONDS);
         } else uiFireBoltTimer -= diff;
 
         if (uiFrostboltTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_FROSTBOLT);
-            uiFrostboltTimer = urand(4*IN_MILISECONDS,12*IN_MILISECONDS);
+            uiFrostboltTimer = urand(4*IN_MILLISECONDS,12*IN_MILLISECONDS);
         } else uiFrostboltTimer -= diff;
 
 
@@ -172,7 +172,7 @@ struct boss_balindaAI : public ScriptedAI
                 EnterEvadeMode();
                 DoScriptText(YELL_EVADE, me);
             }
-            uiResetTimer = 5*IN_MILISECONDS;
+            uiResetTimer = 5*IN_MILLISECONDS;
         } else uiResetTimer -= diff;
 
         DoMeleeAttackIfReady();

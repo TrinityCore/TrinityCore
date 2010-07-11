@@ -85,10 +85,10 @@ struct boss_slad_ranAI : public ScriptedAI
 
     void Reset()
     {
-        uiPoisonNovaTimer = 10*IN_MILISECONDS;
-        uiPowerfullBiteTimer = 3*IN_MILISECONDS;
-        uiVenomBoltTimer = 15*IN_MILISECONDS;
-        uiSpawnTimer = 5*IN_MILISECONDS;
+        uiPoisonNovaTimer = 10*IN_MILLISECONDS;
+        uiPowerfullBiteTimer = 3*IN_MILLISECONDS;
+        uiVenomBoltTimer = 15*IN_MILLISECONDS;
+        uiSpawnTimer = 5*IN_MILLISECONDS;
         uiPhase = 0;
 
         lSummons.DespawnAll();
@@ -114,19 +114,19 @@ struct boss_slad_ranAI : public ScriptedAI
         if (uiPoisonNovaTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_POISON_NOVA);
-            uiPoisonNovaTimer = 15*IN_MILISECONDS;
+            uiPoisonNovaTimer = 15*IN_MILLISECONDS;
         } else uiPoisonNovaTimer -= diff;
 
         if (uiPowerfullBiteTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_POWERFULL_BITE);
-            uiPowerfullBiteTimer = 10*IN_MILISECONDS;
+            uiPowerfullBiteTimer = 10*IN_MILLISECONDS;
         } else uiPowerfullBiteTimer -= diff;
 
         if (uiVenomBoltTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_VENOM_BOLT);
-            uiVenomBoltTimer = 10*IN_MILISECONDS;
+            uiVenomBoltTimer = 10*IN_MILLISECONDS;
         } else uiVenomBoltTimer -= diff;
 
         if (uiPhase)
@@ -135,11 +135,11 @@ struct boss_slad_ranAI : public ScriptedAI
             {
                 if (uiPhase == 1)
                     for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                        me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                        me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
                 if (uiPhase == 2)
                     for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                        me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
-                uiSpawnTimer = 5*IN_MILISECONDS;
+                        me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                uiSpawnTimer = 5*IN_MILLISECONDS;
             } else uiSpawnTimer -= diff;
         }
 
@@ -186,7 +186,7 @@ struct mob_slad_ran_constrictorAI : public ScriptedAI
 
     void Reset()
     {
-        uiGripOfSladRanTimer = 1*IN_MILISECONDS;
+        uiGripOfSladRanTimer = 1*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -196,7 +196,7 @@ struct mob_slad_ran_constrictorAI : public ScriptedAI
         if (uiGripOfSladRanTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
-            uiGripOfSladRanTimer = 5*IN_MILISECONDS;
+            uiGripOfSladRanTimer = 5*IN_MILLISECONDS;
         } else uiGripOfSladRanTimer -= diff;
     }
 
@@ -213,7 +213,7 @@ struct mob_slad_ran_viperAI : public ScriptedAI
 
     void Reset()
     {
-        uiVenomousBiteTimer = 2*IN_MILISECONDS;
+        uiVenomousBiteTimer = 2*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -224,7 +224,7 @@ struct mob_slad_ran_viperAI : public ScriptedAI
         if (uiVenomousBiteTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_VENOMOUS_BITE);
-            uiVenomousBiteTimer = 10*IN_MILISECONDS;
+            uiVenomousBiteTimer = 10*IN_MILLISECONDS;
         } else uiVenomousBiteTimer -= diff;
     }
 };

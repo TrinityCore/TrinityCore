@@ -117,10 +117,10 @@ struct boss_anub_arakAI : public ScriptedAI
 
     void Reset()
     {
-        uiCarrionBeetlesTimer = 8*IN_MILISECONDS;
-        uiLeechingSwarmTimer = 20*IN_MILISECONDS;
-        uiImpaleTimer = 9*IN_MILISECONDS;
-        uiPoundTimer = 15*IN_MILISECONDS;
+        uiCarrionBeetlesTimer = 8*IN_MILLISECONDS;
+        uiLeechingSwarmTimer = 20*IN_MILLISECONDS;
+        uiImpaleTimer = 9*IN_MILLISECONDS;
+        uiPoundTimer = 15*IN_MILLISECONDS;
 
         uiPhase = PHASE_MELEE;
         uiUndergroundPhase = 0;
@@ -144,7 +144,7 @@ struct boss_anub_arakAI : public ScriptedAI
         Position targetPos;
         pTarget->GetPosition(&targetPos);
 
-        if (TempSummon* pImpaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILISECONDS))
+        if (TempSummon* pImpaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
         {
             uiImpaleTarget = pImpaleTarget->GetGUID();
             pImpaleTarget->SetReactState(REACT_PASSIVE);
@@ -183,7 +183,7 @@ struct boss_anub_arakAI : public ScriptedAI
                     {
                         if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                             pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
-                        uiImpaleTimer = 3*IN_MILISECONDS;
+                        uiImpaleTimer = 3*IN_MILLISECONDS;
                         uiImpalePhase = IMPALE_PHASE_ATTACK;
                     }
                     break;
@@ -194,13 +194,13 @@ struct boss_anub_arakAI : public ScriptedAI
                         pImpaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
                     }
                     uiImpalePhase = IMPALE_PHASE_DMG;
-                    uiImpaleTimer = 1*IN_MILISECONDS;
+                    uiImpaleTimer = 1*IN_MILLISECONDS;
                     break;
                 case IMPALE_PHASE_DMG:
                     if (Creature* pImpaleTarget = Unit::GetCreature(*me, uiImpaleTarget))
                         me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_IMPALE_DMG, SPELL_IMPALE_DMG_H), true);
                     uiImpalePhase = IMPALE_PHASE_TARGET;
-                    uiImpaleTimer = 9*IN_MILISECONDS;
+                    uiImpaleTimer = 9*IN_MILLISECONDS;
                     break;
                 }
             } else uiImpaleTimer -= diff;
@@ -274,12 +274,12 @@ struct boss_anub_arakAI : public ScriptedAI
                 bVenomancerSummoned = false;
                 bDatterSummoned = false;
 
-                uiUndergroundTimer = 40*IN_MILISECONDS;
-                uiVenomancerTimer = 25*IN_MILISECONDS;
-                uiDatterTimer = 32*IN_MILISECONDS;
+                uiUndergroundTimer = 40*IN_MILLISECONDS;
+                uiVenomancerTimer = 25*IN_MILLISECONDS;
+                uiDatterTimer = 32*IN_MILLISECONDS;
 
                 uiImpalePhase = 0;
-                uiImpaleTimer = 9*IN_MILISECONDS;
+                uiImpaleTimer = 9*IN_MILLISECONDS;
 
                 DoCast(me, SPELL_SUBMERGE, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
@@ -298,13 +298,13 @@ struct boss_anub_arakAI : public ScriptedAI
             {
                 bChanneling = true;
                 DoCastVictim(SPELL_CARRION_BEETLES);
-                uiCarrionBeetlesTimer = 25*IN_MILISECONDS;
+                uiCarrionBeetlesTimer = 25*IN_MILLISECONDS;
             } else uiCarrionBeetlesTimer -= diff;
             
             if (uiLeechingSwarmTimer <= diff)
             {
                 DoCast(me, SPELL_LEECHING_SWARM, true);
-                uiLeechingSwarmTimer = 19*IN_MILISECONDS;
+                uiLeechingSwarmTimer = 19*IN_MILLISECONDS;
             } else uiLeechingSwarmTimer -= diff;
 
             if (uiPoundTimer <= diff)
@@ -314,7 +314,7 @@ struct boss_anub_arakAI : public ScriptedAI
                     if (Creature *pImpaleTarget = DoSummonImpaleTarget(target))
                         me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_POUND, SPELL_POUND_H), false);
                 }
-                uiPoundTimer = 16.5*IN_MILISECONDS;
+                uiPoundTimer = 16.5*IN_MILLISECONDS;
             } else uiPoundTimer -= diff;
 
             DoMeleeAttackIfReady();

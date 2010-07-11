@@ -76,10 +76,10 @@ struct boss_ormorokAI : public ScriptedAI
 
     void Reset()
     {
-        uiCrystalSpikesTimer = 12*IN_MILISECONDS;
-        uiTrampleTimer = 10*IN_MILISECONDS;
-        uiSpellReflectionTimer = 30*IN_MILISECONDS;
-        uiSummonCrystallineTanglerTimer = 17*IN_MILISECONDS;
+        uiCrystalSpikesTimer = 12*IN_MILLISECONDS;
+        uiTrampleTimer = 10*IN_MILLISECONDS;
+        uiSpellReflectionTimer = 30*IN_MILLISECONDS;
+        uiSummonCrystallineTanglerTimer = 17*IN_MILLISECONDS;
         bFrenzy = false;
         bCrystalSpikes = false;
 
@@ -126,7 +126,7 @@ struct boss_ormorokAI : public ScriptedAI
                 fSpikeXY[3][0] = fBaseX-(SPIKE_DISTANCE*uiCrystalSpikesCount*cos(fBaseO-(M_PI/2)));
                 fSpikeXY[3][1] = fBaseY-(SPIKE_DISTANCE*uiCrystalSpikesCount*sin(fBaseO-(M_PI/2)));
                 for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILISECONDS);
+                    me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILLISECONDS);
                 if (++uiCrystalSpikesCount >= 13)
                     bCrystalSpikes = false;
                 uiCrystalSpikesTimer2 = 200;
@@ -141,14 +141,14 @@ struct boss_ormorokAI : public ScriptedAI
         if (uiTrampleTimer <= diff)
         {
             DoCast(me, SPELL_TRAMPLE);
-            uiTrampleTimer = 10*IN_MILISECONDS;
+            uiTrampleTimer = 10*IN_MILLISECONDS;
         } else uiTrampleTimer -= diff;
 
         if (uiSpellReflectionTimer <= diff)
         {
             DoScriptText(SAY_REFLECT, me);
             DoCast(me, SPELL_SPELL_REFLECTION);
-            uiSpellReflectionTimer = 30*IN_MILISECONDS;
+            uiSpellReflectionTimer = 30*IN_MILLISECONDS;
         } else uiSpellReflectionTimer -= diff;
 
         if (uiCrystalSpikesTimer <= diff)
@@ -161,7 +161,7 @@ struct boss_ormorokAI : public ScriptedAI
             fBaseY = me->GetPositionY();
             fBaseZ = me->GetPositionZ();
             fBaseO = me->GetOrientation();
-            uiCrystalSpikesTimer = 20*IN_MILISECONDS;
+            uiCrystalSpikesTimer = 20*IN_MILLISECONDS;
         } else uiCrystalSpikesTimer -= diff;
 
         if (IsHeroic() && (uiSummonCrystallineTanglerTimer <= diff))
@@ -201,7 +201,7 @@ struct boss_ormorokAI : public ScriptedAI
                     Crystalline_Tangler->getThreatManager().addThreat(pTarget, 1000000000.0f);
                 }
             }
-            uiSummonCrystallineTanglerTimer = 17*IN_MILISECONDS;
+            uiSummonCrystallineTanglerTimer = 17*IN_MILLISECONDS;
         } else uiSummonCrystallineTanglerTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -219,8 +219,8 @@ struct mob_crystal_spikeAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        SpellCrystalSpikeDamageTimer = 3.7*IN_MILISECONDS;
-        SpellCrystalSpikePrevisualTimer = 1*IN_MILISECONDS;
+        SpellCrystalSpikeDamageTimer = 3.7*IN_MILLISECONDS;
+        SpellCrystalSpikePrevisualTimer = 1*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -228,13 +228,13 @@ struct mob_crystal_spikeAI : public Scripted_NoMovementAI
         if (SpellCrystalSpikePrevisualTimer <= diff)
         {
             DoCast(me, SPELL_CRYSTAL_SPIKE_PREVISUAL);
-            SpellCrystalSpikePrevisualTimer = 10*IN_MILISECONDS;
+            SpellCrystalSpikePrevisualTimer = 10*IN_MILLISECONDS;
         } else SpellCrystalSpikePrevisualTimer -= diff;
 
         if (SpellCrystalSpikeDamageTimer <= diff)
         {
             DoCast(me, SPELL_CRYSTALL_SPIKE_DAMAGE);
-            SpellCrystalSpikeDamageTimer = 10*IN_MILISECONDS;
+            SpellCrystalSpikeDamageTimer = 10*IN_MILLISECONDS;
         } else SpellCrystalSpikeDamageTimer -= diff;
     }
 };
@@ -247,7 +247,7 @@ struct mob_crystalline_tanglerAI : public ScriptedAI
 
     void Reset()
     {
-        uiRootsTimer = 1*IN_MILISECONDS;
+        uiRootsTimer = 1*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -257,7 +257,7 @@ struct mob_crystalline_tanglerAI : public ScriptedAI
             if (me->IsWithinDist(me->getVictim(), 5.0f, false))
             {
                 DoCast(me->getVictim(), SPELL_ROOTS);
-                uiRootsTimer = 15*IN_MILISECONDS;
+                uiRootsTimer = 15*IN_MILLISECONDS;
             }
         } else uiRootsTimer -= diff;
     }

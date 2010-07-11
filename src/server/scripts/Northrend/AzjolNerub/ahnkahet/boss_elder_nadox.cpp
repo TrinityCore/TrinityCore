@@ -75,13 +75,13 @@ struct boss_elder_nadoxAI : public ScriptedAI
 
     void Reset()
     {
-        uiPlagueTimer = 13*IN_MILISECONDS;
-        uiRagueTimer = 20*IN_MILISECONDS;
+        uiPlagueTimer = 13*IN_MILLISECONDS;
+        uiRagueTimer = 20*IN_MILLISECONDS;
 
-        uiSwarmerSpawnTimer = 10*IN_MILISECONDS;
-        uiGuardSpawnTimer = 25*IN_MILISECONDS;
+        uiSwarmerSpawnTimer = 10*IN_MILLISECONDS;
+        uiGuardSpawnTimer = 25*IN_MILLISECONDS;
 
-        uiEnragueTimer = 5*IN_MILISECONDS;
+        uiEnragueTimer = 5*IN_MILLISECONDS;
 
         DeadAhnkaharGuardian = false;
         bGuardSpawned = false;
@@ -123,7 +123,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
         if (uiPlagueTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_BROOD_PLAGUE);
-            uiPlagueTimer = 15*IN_MILISECONDS;
+            uiPlagueTimer = 15*IN_MILLISECONDS;
         } else uiPlagueTimer -= diff;
 
         if (IsHeroic())
@@ -132,7 +132,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
                 if (Creature *pSwarmer = me->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35))
                 {
                     DoCast(pSwarmer, H_SPELL_BROOD_RAGE, true);
-                    uiRagueTimer = 15*IN_MILISECONDS;
+                    uiRagueTimer = 15*IN_MILLISECONDS;
                 }
             } else uiRagueTimer -= diff;
 
@@ -143,7 +143,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
             if (urand(1,3) == 3) // 33% chance of dialog
                 DoScriptText(RAND(SAY_EGG_SAC_1,SAY_EGG_SAC_2), me);
 
-            uiSwarmerSpawnTimer = 10*IN_MILISECONDS;
+            uiSwarmerSpawnTimer = 10*IN_MILLISECONDS;
         } else uiSwarmerSpawnTimer -= diff;
 
         if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
@@ -164,7 +164,7 @@ struct boss_elder_nadoxAI : public ScriptedAI
                 if (!me->IsNonMeleeSpellCasted(false))
                     DoCast(me, SPELL_ENRAGE, true);
 
-            uiEnragueTimer = 5*IN_MILISECONDS;
+            uiEnragueTimer = 5*IN_MILLISECONDS;
         } else uiEnragueTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -196,7 +196,7 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
     {
         if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY) //magic numbers are bad!
             DoCast(me, SPELL_GUARDIAN_AURA, true);
-        uiSprintTimer = 10*IN_MILISECONDS;
+        uiSprintTimer = 10*IN_MILLISECONDS;
     }
 
     void JustDied(Unit * /*killer*/)
@@ -229,7 +229,7 @@ struct mob_ahnkahar_nerubianAI : public ScriptedAI
         if (uiSprintTimer <= diff)
         {
             DoCast(me, SPELL_SPRINT);
-            uiSprintTimer = 25*IN_MILISECONDS;
+            uiSprintTimer = 25*IN_MILLISECONDS;
         } else uiSprintTimer -= diff;
 
         DoMeleeAttackIfReady();

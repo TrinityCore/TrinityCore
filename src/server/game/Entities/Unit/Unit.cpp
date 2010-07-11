@@ -4176,7 +4176,7 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
             }
             else
             {
-                int32 dur = 2*MINUTE*IN_MILISECONDS < aura->GetDuration() ? 2*MINUTE*IN_MILISECONDS : aura->GetDuration();
+                int32 dur = 2*MINUTE*IN_MILLISECONDS < aura->GetDuration() ? 2*MINUTE*IN_MILLISECONDS : aura->GetDuration();
 
                 newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
                 if (!newAura)
@@ -12671,7 +12671,7 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, Unit const* target, i
                 {
                     // Glyph of Thorns
                     if (AuraEffect * aurEff = GetAuraEffect(57862, 0))
-                        duration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
+                        duration += aurEff->GetAmount() * MINUTE * IN_MILLISECONDS;
                 }
                 break;
             case SPELLFAMILY_PALADIN:
@@ -12679,13 +12679,13 @@ int32 Unit::ModSpellDuration(SpellEntry const* spellProto, Unit const* target, i
                 {
                     // Glyph of Blessing of Might
                     if (AuraEffect * aurEff = GetAuraEffect(57958, 0))
-                        duration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
+                        duration += aurEff->GetAmount() * MINUTE * IN_MILLISECONDS;
                 }
                 else if (spellProto->SpellFamilyFlags[0] & 0x00010000)
                 {
                     // Glyph of Blessing of Wisdom
                     if (AuraEffect * aurEff = GetAuraEffect(57979, 0))
-                        duration += aurEff->GetAmount() * MINUTE * IN_MILISECONDS;
+                        duration += aurEff->GetAmount() * MINUTE * IN_MILLISECONDS;
                 }
                 break;
         }
