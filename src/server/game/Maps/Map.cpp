@@ -113,6 +113,7 @@ bool Map::ExistVMap(uint32 mapid,int gx,int gy)
     {
         if (vmgr->isMapLoadingEnabled())
         {
+                                                            // x and y are swapped !! => fixed now
             bool exists = vmgr->existsMap((sWorld.GetDataPath()+ "vmaps").c_str(),  mapid, gx,gy);
             if (!exists)
             {
