@@ -253,7 +253,7 @@ struct boss_skadiAI : public ScriptedAI
                 break;
             case CREATURE_TRIGGER:
                 pSummoned->CastSpell((Unit*)NULL, SPELL_FREEZING_CLOUD, true);
-                pSummoned->ForcedDespawn(10*IN_MILISECONDS);
+                pSummoned->ForcedDespawn(10*IN_MILLISECONDS);
                 break;
         }
         Summons.Summon(pSummoned);
@@ -276,7 +276,7 @@ struct boss_skadiAI : public ScriptedAI
                 Phase = SKADI;
                 me->SetFlying(false);
                 me->Unmount();
-                if(Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILISECONDS))
+                if(Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
                 {
                     pGrauf->GetMotionMaster()->MoveFall(0);
                     pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);

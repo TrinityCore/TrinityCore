@@ -733,7 +733,7 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
         case SPELL_AURA_OBS_MOD_POWER:
             // 3 spells have no amplitude set
             if (!m_amplitude)
-                m_amplitude = 1 * IN_MILISECONDS;
+                m_amplitude = 1 * IN_MILLISECONDS;
         case SPELL_AURA_PERIODIC_DAMAGE:
         case SPELL_AURA_PERIODIC_HEAL:
         case SPELL_AURA_PERIODIC_ENERGIZE:
@@ -762,7 +762,7 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
             {
                 m_isPeriodic = true;
                 m_amplitude = irand (0, 60) + 30;
-                m_amplitude *= IN_MILISECONDS;
+                m_amplitude *= IN_MILLISECONDS;
             }
             break;
     }
@@ -1047,7 +1047,7 @@ void AuraEffect::UpdatePeriodic(Unit * caster)
             if (GetId() == 7057)
             {
                 m_amplitude = irand (0 , 60) + 30;
-                m_amplitude *= IN_MILISECONDS;
+                m_amplitude *= IN_MILLISECONDS;
             }
             break;
         case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
@@ -3125,7 +3125,7 @@ void AuraEffect::HandleAuraTransform(AuraApplication const * aurApp, uint8 mode,
             // for players, start regeneration after 1s (in polymorph fast regeneration case)
             // only if caster is Player (after patch 2.4.2)
             if (IS_PLAYER_GUID(GetCasterGUID()))
-                target->ToPlayer()->setRegenTimerCount(1*IN_MILISECONDS);
+                target->ToPlayer()->setRegenTimerCount(1*IN_MILLISECONDS);
 
             //dismount polymorphed target (after patch 2.4.2)
             if (target->IsMounted())

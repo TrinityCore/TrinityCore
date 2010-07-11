@@ -117,8 +117,8 @@ struct boss_novosAI : public Scripted_NoMovementAI
     {
         DoScriptText(SAY_AGGRO, me);
         Phase = PHASE_1;
-        uiCrystalHandlerTimer = 30*IN_MILISECONDS;
-        uiTimer = 1*IN_MILISECONDS;
+        uiCrystalHandlerTimer = 30*IN_MILLISECONDS;
+        uiTimer = 1*IN_MILLISECONDS;
         DoCast(SPELL_ARCANE_FIELD);
         if (pInstance)
         {
@@ -141,18 +141,18 @@ struct boss_novosAI : public Scripted_NoMovementAI
             case PHASE_1:
                 if (uiTimer <= diff)
                 {
-                    Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                    Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
                     pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                     //If spell is casted stops casting arcane field so no spell casting
                     //DoCast(me, SPELL_SUMMON_MINIONS);
-                    uiTimer = 3*IN_MILISECONDS;
+                    uiTimer = 3*IN_MILLISECONDS;
                 } else uiTimer -= diff;
                 if (uiCrystalHandlerTimer <= diff)
                 {
                     DoScriptText(SAY_NECRO_ADD, me);
-                    Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILISECONDS);
+                    Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
                     pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
-                    uiCrystalHandlerTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
+                    uiCrystalHandlerTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
                 } else uiCrystalHandlerTimer -= diff;
                 break;
             case PHASE_2:
@@ -161,7 +161,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
                     if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
                                                      RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
-                    uiTimer = urand(1*IN_MILISECONDS,3*IN_MILISECONDS);
+                    uiTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
                 } else uiTimer -= diff;
                 break;
         }
@@ -207,7 +207,7 @@ struct boss_novosAI : public Scripted_NoMovementAI
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             Phase = PHASE_2;
-            uiTimer = 1*IN_MILISECONDS;
+            uiTimer = 1*IN_MILLISECONDS;
         }
     }
 
@@ -236,7 +236,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
 
     void Reset()
     {
-        uiFlashOfDarknessTimer = 5*IN_MILISECONDS;
+        uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
     }
 
     void JustDied(Unit* /*killer*/)
@@ -253,7 +253,7 @@ struct mob_crystal_handlerAI : public ScriptedAI
         if (uiFlashOfDarknessTimer <= diff)
         {
             DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
-            uiFlashOfDarknessTimer = 5*IN_MILISECONDS;
+            uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
         } else uiFlashOfDarknessTimer -= diff;
 
         DoMeleeAttackIfReady();

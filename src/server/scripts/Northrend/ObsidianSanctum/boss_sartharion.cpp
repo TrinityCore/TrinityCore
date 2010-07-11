@@ -252,7 +252,7 @@ struct boss_sartharionAI : public ScriptedAI
         m_bIsBerserk = false;
         m_bIsSoftEnraged = false;
 
-        m_uiEnrageTimer = 15*MINUTE*IN_MILISECONDS;
+        m_uiEnrageTimer = 15*MINUTE*IN_MILLISECONDS;
         m_bIsHardEnraged = false;
 
         m_uiTenebronTimer = 30000;

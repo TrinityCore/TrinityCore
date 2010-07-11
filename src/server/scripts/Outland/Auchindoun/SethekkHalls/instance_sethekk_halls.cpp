@@ -68,7 +68,7 @@ struct instance_sethekk_halls : public ScriptedInstance
         {
             case DATA_IKISSDOOREVENT:
                 if (data == DONE)
-                    DoUseDoorOrButton(m_uiIkissDoorGUID,DAY*IN_MILISECONDS);
+                    DoUseDoorOrButton(m_uiIkissDoorGUID,DAY*IN_MILLISECONDS);
                 break;
             case TYPE_ANZU_ENCOUNTER:
                 AnzuEncounter = data;

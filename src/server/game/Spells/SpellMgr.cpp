@@ -2876,38 +2876,38 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry cons
         {
             // Wyvern Sting
             if (spellproto->SpellFamilyFlags[1] & 0x1000)
-                return 6 * IN_MILISECONDS;
+                return 6 * IN_MILLISECONDS;
             // Hunter's Mark
             if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 120 * IN_MILISECONDS;
+                return 120 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_PALADIN:
         {
             // Repentance - limit to 6 seconds in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x4)
-                return 6 * IN_MILISECONDS;
+                return 6 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - limit to 40 seconds in PvP (3.1)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
-                return 40 * IN_MILISECONDS;
+                return 40 * IN_MILLISECONDS;
             break;
         }
         case SPELLFAMILY_PRIEST:
         {
             // Vampiric Embrace - limit to 60 seconds in PvP (3.1)
             if ((spellproto->SpellFamilyFlags[0] & 0x4) && spellproto->SpellIconID == 150)
-                return 60 * IN_MILISECONDS;
+                return 60 * IN_MILLISECONDS;
             break;
         }
         default:
             break;
     }
 
-    return 10 * IN_MILISECONDS;
+    return 10 * IN_MILLISECONDS;
 }
 
 bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)

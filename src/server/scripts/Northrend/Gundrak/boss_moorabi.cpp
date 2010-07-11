@@ -66,10 +66,10 @@ struct boss_moorabiAI : public ScriptedAI
 
     void Reset()
     {
-        uiGroundTremorTimer = 18*IN_MILISECONDS;
-        uiNumblingShoutTimer =  10*IN_MILISECONDS;
-        uiDeterminedStabTimer = 20*IN_MILISECONDS;
-        uiTransformationTImer = 12*IN_MILISECONDS;
+        uiGroundTremorTimer = 18*IN_MILLISECONDS;
+        uiNumblingShoutTimer =  10*IN_MILLISECONDS;
+        uiDeterminedStabTimer = 20*IN_MILLISECONDS;
+        uiTransformationTImer = 12*IN_MILLISECONDS;
         bPhase = false;
 
         if (pInstance)
@@ -104,7 +104,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(me->getVictim(), SPELL_QUAKE, true);
             else
                 DoCast(me->getVictim(), SPELL_GROUND_TREMOR, true);
-            uiGroundTremorTimer = 10*IN_MILISECONDS;
+            uiGroundTremorTimer = 10*IN_MILLISECONDS;
         } else uiGroundTremorTimer -= uiDiff;
 
         if (uiNumblingShoutTimer <= uiDiff)
@@ -113,7 +113,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(me->getVictim(), SPELL_NUMBING_ROAR, true);
             else
                 DoCast(me->getVictim(), SPELL_NUMBING_SHOUT, true);
-            uiNumblingShoutTimer = 10*IN_MILISECONDS;
+            uiNumblingShoutTimer = 10*IN_MILLISECONDS;
         } else uiNumblingShoutTimer -=uiDiff;
 
         if (uiDeterminedStabTimer <= uiDiff)
@@ -122,7 +122,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(me->getVictim(), SPELL_DETERMINED_GORE);
             else
                 DoCast(me->getVictim(), SPELL_DETERMINED_STAB, true);
-            uiDeterminedStabTimer = 8*IN_MILISECONDS;
+            uiDeterminedStabTimer = 8*IN_MILLISECONDS;
         } else uiDeterminedStabTimer -=uiDiff;
 
         if (!bPhase && uiTransformationTImer <= uiDiff)
@@ -130,7 +130,7 @@ struct boss_moorabiAI : public ScriptedAI
             DoScriptText(EMOTE_TRANSFORM, me);
             DoScriptText(SAY_TRANSFORM, me);
             DoCast(me, SPELL_TRANSFORMATION, false);
-            uiTransformationTImer = 10*IN_MILISECONDS;
+            uiTransformationTImer = 10*IN_MILLISECONDS;
         } else uiTransformationTImer -= uiDiff;
 
         DoMeleeAttackIfReady();

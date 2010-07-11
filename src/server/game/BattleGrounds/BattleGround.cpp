@@ -356,16 +356,16 @@ void BattleGround::Update(uint32 diff)
         {
             uint32 newtime = m_PrematureCountDownTimer - diff;
             // announce every minute
-            if (newtime > (MINUTE * IN_MILISECONDS))
+            if (newtime > (MINUTE * IN_MILLISECONDS))
             {
-                if (newtime / (MINUTE * IN_MILISECONDS) != m_PrematureCountDownTimer / (MINUTE * IN_MILISECONDS))
-                    PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILISECONDS)));
+                if (newtime / (MINUTE * IN_MILLISECONDS) != m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS))
+                    PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / (MINUTE * IN_MILLISECONDS)));
             }
             else
             {
                 //announce every 15 seconds
-                if (newtime / (15 * IN_MILISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILISECONDS))
-                    PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / IN_MILISECONDS));
+                if (newtime / (15 * IN_MILLISECONDS) != m_PrematureCountDownTimer / (15 * IN_MILLISECONDS))
+                    PSendMessageToAll(LANG_BATTLEGROUND_PREMATURE_FINISH_WARNING_SECS, CHAT_MSG_SYSTEM, NULL, (uint32)(m_PrematureCountDownTimer / IN_MILLISECONDS));
             }
             m_PrematureCountDownTimer = newtime;
         }
@@ -436,7 +436,7 @@ void BattleGround::Update(uint32 diff)
                             AuraApplication * aurApp = iter->second;
                             Aura * aura = aurApp->GetBase();
                             if (!aura->IsPermanent()
-                                && aura->GetDuration() <= 30*IN_MILISECONDS
+                                && aura->GetDuration() <= 30*IN_MILLISECONDS
                                 && aurApp->IsPositive()
                                 && (!(aura->GetSpellProto()->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
                                 && (!aura->HasEffectType(SPELL_AURA_MOD_INVISIBILITY)))

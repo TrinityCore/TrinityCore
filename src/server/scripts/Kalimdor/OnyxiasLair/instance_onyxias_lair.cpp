@@ -137,7 +137,7 @@ struct instance_onyxias_lair : public ScriptedInstance
                 {
                     m_bAchievManyWhelpsHandleIt = false;
                     m_uiManyWhelpsCounter = 0;
-                    m_uiOnyxiaLiftoffTimer = 10*IN_MILISECONDS;
+                    m_uiOnyxiaLiftoffTimer = 10*IN_MILLISECONDS;
                 }
                 break;
             case DATA_SHE_DEEP_BREATH_MORE:

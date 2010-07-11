@@ -247,7 +247,7 @@ struct npc_barnesAI : public npc_escortAI
             uint32 entry = ((uint32)Spawns[index][0]);
             float PosX = Spawns[index][1];
 
-            if (Creature* pCreature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+            if (Creature* pCreature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
             {
                 // In case database has bad flags
                 pCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);

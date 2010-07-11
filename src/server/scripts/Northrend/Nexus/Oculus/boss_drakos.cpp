@@ -189,7 +189,7 @@ struct npc_unstable_sphereAI : public ScriptedAI
         if (uiPulseTimer <= uiDiff)
         {
             DoCast(SPELL_UNSTABLE_SPHERE_PULSE);
-            uiPulseTimer = 3*IN_MILISECONDS;
+            uiPulseTimer = 3*IN_MILLISECONDS;
         } else uiPulseTimer -= uiDiff;
 
         if (uiDeathTimer <= uiDiff)

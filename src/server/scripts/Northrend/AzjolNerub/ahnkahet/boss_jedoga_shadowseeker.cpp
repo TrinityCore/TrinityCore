@@ -89,11 +89,11 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
 
     void Reset()
     {
-        uiOpFerTimer = urand(15*IN_MILISECONDS,20*IN_MILISECONDS);
+        uiOpFerTimer = urand(15*IN_MILLISECONDS,20*IN_MILLISECONDS);
 
-        uiCycloneTimer = 3*IN_MILISECONDS;
-        uiBoltTimer = 7*IN_MILISECONDS;
-        uiThunderTimer = 12*IN_MILISECONDS;
+        uiCycloneTimer = 3*IN_MILLISECONDS;
+        uiBoltTimer = 7*IN_MILLISECONDS;
+        uiThunderTimer = 12*IN_MILLISECONDS;
 
         bOpFerok = false;
         bOpFerokFail = false;
@@ -247,7 +247,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
         if (pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS) OpferRufen();
 
         bOnGround = false;
-        uiOpFerTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+        uiOpFerTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
     }
 
     void OpferRufen()
@@ -303,7 +303,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
             if (uiCycloneTimer <= diff)
             {
                 DoCast(me, SPELL_CYCLONE_STRIKE, false);
-                uiCycloneTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+                uiCycloneTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             } else uiCycloneTimer -= diff;
 
             if (uiBoltTimer <= diff)
@@ -311,7 +311,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     me->CastSpell(pTarget, DUNGEON_MODE(SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT_H), false);
 
-                uiBoltTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+                uiBoltTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             } else uiBoltTimer -= diff;
 
             if (uiThunderTimer <= diff)
@@ -319,7 +319,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     me->CastSpell(pTarget, DUNGEON_MODE(SPELL_THUNDERSHOCK, SPELL_THUNDERSHOCK_H), false);
 
-                uiThunderTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+                uiThunderTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
             } else uiThunderTimer -= diff;
 
             if (uiOpFerTimer <= diff)
@@ -351,7 +351,7 @@ struct mob_jedoga_initiandAI : public ScriptedAI
             return;
 
         bWalking = false;
-        bCheckTimer = 2*IN_MILISECONDS;
+        bCheckTimer = 2*IN_MILLISECONDS;
 
         if (pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS)
         {
@@ -466,7 +466,7 @@ struct mob_jedoga_initiandAI : public ScriptedAI
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
                 }
             }
-            bCheckTimer = 2*IN_MILISECONDS;
+            bCheckTimer = 2*IN_MILLISECONDS;
         } else bCheckTimer -= diff;
 
         //Return since we have no target

@@ -106,8 +106,8 @@ struct boss_krik_thirAI : public ScriptedAI
 
     void Reset()
     {
-        uiMindFlayTimer = 15*IN_MILISECONDS;
-        uiCurseFatigueTimer = 12*IN_MILISECONDS;
+        uiMindFlayTimer = 15*IN_MILLISECONDS;
+        uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
         if (pInstance)
             pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
@@ -117,7 +117,7 @@ struct boss_krik_thirAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, me);
         Summon();
-        uiSummonTimer = 15*IN_MILISECONDS;
+        uiSummonTimer = 15*IN_MILLISECONDS;
 
         if (pInstance)
             pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
@@ -125,22 +125,22 @@ struct boss_krik_thirAI : public ScriptedAI
 
     void Summon()
     {
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[0],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[0],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[1],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[1],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[2],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[2],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[3],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[3],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_INFECTIOR,SpawnPoint[4],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[4],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_INFECTIOR,SpawnPoint[5],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[5],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_INFECTIOR,SpawnPoint[6],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[6],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[7],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
-            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[7],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[0],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[0],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[1],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[1],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[2],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[2],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[3],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[3],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_INFECTIOR,SpawnPoint[4],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[4],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_INFECTIOR,SpawnPoint[5],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[5],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_INFECTIOR,SpawnPoint[6],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[6],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[7],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
+            me->SummonCreature(MOB_SKITTERING_SWARMER,SpawnPoint[7],TEMPSUMMON_TIMED_DESPAWN,25*IN_MILLISECONDS);
     }
 
     void UpdateAI(const uint32 diff)
@@ -151,13 +151,13 @@ struct boss_krik_thirAI : public ScriptedAI
         if (uiSummonTimer <= diff)
         {
             Summon();
-            uiSummonTimer = 15*IN_MILISECONDS;
+            uiSummonTimer = 15*IN_MILLISECONDS;
         } else uiSummonTimer -= diff;
 
         if (uiMindFlayTimer <= diff)
         {
                 DoCast(me->getVictim(), SPELL_MIND_FLAY);
-                uiMindFlayTimer = 15*IN_MILISECONDS;
+                uiMindFlayTimer = 15*IN_MILLISECONDS;
             } else uiMindFlayTimer -= diff;
 
         if (uiCurseFatigueTimer <= diff)
@@ -169,7 +169,7 @@ struct boss_krik_thirAI : public ScriptedAI
             DoCast(pTarget, SPELL_CURSE_OF_FATIGUE);
             DoCast(pTarget_1, SPELL_CURSE_OF_FATIGUE);
 
-            uiCurseFatigueTimer = 10*IN_MILISECONDS;
+            uiCurseFatigueTimer = 10*IN_MILLISECONDS;
         } else uiCurseFatigueTimer -= diff;
 
         if (!me->HasAura(SPELL_FRENZY) && HealthBelowPct(10))
@@ -236,8 +236,8 @@ struct npc_anub_ar_skirmisherAI : public ScriptedAI
 
     void Reset()
     {
-        uiChargeTimer   = 11*IN_MILISECONDS;
-        uiBackstabTimer = 7*IN_MILISECONDS;
+        uiChargeTimer   = 11*IN_MILLISECONDS;
+        uiBackstabTimer = 7*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -253,13 +253,13 @@ struct npc_anub_ar_skirmisherAI : public ScriptedAI
                 me->AddThreat(pTarget,1.0f);
                 DoCast(pTarget, SPELL_CHARGE, true);
             }
-            uiChargeTimer = 15*IN_MILISECONDS;
+            uiChargeTimer = 15*IN_MILLISECONDS;
         } else uiChargeTimer -= diff;
 
         if (uiBackstabTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_BACKSTAB);
-            uiBackstabTimer = 12*IN_MILISECONDS;
+            uiBackstabTimer = 12*IN_MILLISECONDS;
         } else uiBackstabTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -276,8 +276,8 @@ struct npc_anub_ar_shadowcasterAI : public ScriptedAI
 
     void Reset()
     {
-        uiShadowBoltTimer = 6*IN_MILISECONDS;
-        uiShadowNovaTimer = 15*IN_MILISECONDS;
+        uiShadowBoltTimer = 6*IN_MILLISECONDS;
+        uiShadowNovaTimer = 15*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -289,13 +289,13 @@ struct npc_anub_ar_shadowcasterAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                  DoCast(pTarget, SPELL_SHADOW_BOLT, true);
-            uiShadowBoltTimer = 15*IN_MILISECONDS;
+            uiShadowBoltTimer = 15*IN_MILLISECONDS;
         } else uiShadowBoltTimer -= diff;
 
         if (uiShadowNovaTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_SHADOW_NOVA, true);
-            uiShadowNovaTimer = 17*IN_MILISECONDS;
+            uiShadowNovaTimer = 17*IN_MILLISECONDS;
         } else uiShadowNovaTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -311,8 +311,8 @@ struct npc_anub_ar_warriorAI : public ScriptedAI
 
     void Reset()
     {
-        uiCleaveTimer = 11*IN_MILISECONDS;
-        uiStrikeTimer = 6*IN_MILISECONDS;
+        uiCleaveTimer = 11*IN_MILLISECONDS;
+        uiStrikeTimer = 6*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -323,13 +323,13 @@ struct npc_anub_ar_warriorAI : public ScriptedAI
         if (uiStrikeTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_STRIKE, true);
-            uiStrikeTimer = 15*IN_MILISECONDS;
+            uiStrikeTimer = 15*IN_MILLISECONDS;
         } else uiStrikeTimer -= diff;
 
         if (uiCleaveTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_CLEAVE, true);
-            uiCleaveTimer = 17*IN_MILISECONDS;
+            uiCleaveTimer = 17*IN_MILLISECONDS;
         } else uiCleaveTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -347,8 +347,8 @@ struct npc_watcher_gashraAI : public ScriptedAI
 
     void Reset()
     {
-        uiWebWrapTimer      = 11*IN_MILISECONDS;
-        uiInfectedBiteTimer = 4*IN_MILISECONDS;
+        uiWebWrapTimer      = 11*IN_MILLISECONDS;
+        uiInfectedBiteTimer = 4*IN_MILLISECONDS;
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -365,13 +365,13 @@ struct npc_watcher_gashraAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_WEB_WRAP, true);
-            uiWebWrapTimer = 17*IN_MILISECONDS;
+            uiWebWrapTimer = 17*IN_MILLISECONDS;
         } else uiWebWrapTimer -= diff;
 
         if (uiInfectedBiteTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
-            uiInfectedBiteTimer = 15*IN_MILISECONDS;
+            uiInfectedBiteTimer = 15*IN_MILLISECONDS;
         } else uiInfectedBiteTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -388,9 +388,9 @@ struct npc_watcher_narjilAI : public ScriptedAI
 
     void Reset()
     {
-        uiWebWrapTimer      = 11*IN_MILISECONDS;
-        uiInfectedBiteTimer = 4*IN_MILISECONDS;
-        uiBindingWebsTimer = 17*IN_MILISECONDS;
+        uiWebWrapTimer      = 11*IN_MILLISECONDS;
+        uiInfectedBiteTimer = 4*IN_MILLISECONDS;
+        uiBindingWebsTimer = 17*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -402,19 +402,19 @@ struct npc_watcher_narjilAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_WEB_WRAP, true);
-            uiWebWrapTimer = 15*IN_MILISECONDS;
+            uiWebWrapTimer = 15*IN_MILLISECONDS;
         } else uiWebWrapTimer -= diff;
 
         if (uiInfectedBiteTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
-            uiInfectedBiteTimer = 11*IN_MILISECONDS;
+            uiInfectedBiteTimer = 11*IN_MILLISECONDS;
         } else uiInfectedBiteTimer -= diff;
 
         if (uiBindingWebsTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_BLINDING_WEBS, true);
-            uiBindingWebsTimer = 17*IN_MILISECONDS;
+            uiBindingWebsTimer = 17*IN_MILLISECONDS;
         } else uiBindingWebsTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -431,9 +431,9 @@ struct npc_watcher_silthikAI : public ScriptedAI
 
     void Reset()
     {
-        uiWebWrapTimer      = 11*IN_MILISECONDS;
-        uiInfectedBiteTimer = 4*IN_MILISECONDS;
-        uiPoisonSprayTimer  = 15*IN_MILISECONDS;
+        uiWebWrapTimer      = 11*IN_MILLISECONDS;
+        uiInfectedBiteTimer = 4*IN_MILLISECONDS;
+        uiPoisonSprayTimer  = 15*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -446,19 +446,19 @@ struct npc_watcher_silthikAI : public ScriptedAI
             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_WEB_WRAP, true);
 
-            uiWebWrapTimer = 15*IN_MILISECONDS;
+            uiWebWrapTimer = 15*IN_MILLISECONDS;
         } else uiWebWrapTimer -= diff;
 
         if (uiInfectedBiteTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
-            uiInfectedBiteTimer = 15*IN_MILISECONDS;
+            uiInfectedBiteTimer = 15*IN_MILLISECONDS;
         } else uiInfectedBiteTimer -= diff;
 
         if (uiPoisonSprayTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_POSION_SPRAY, true);
-            uiPoisonSprayTimer = 17*IN_MILISECONDS;
+            uiPoisonSprayTimer = 17*IN_MILLISECONDS;
         } else uiPoisonSprayTimer -= diff;
 
         DoMeleeAttackIfReady();

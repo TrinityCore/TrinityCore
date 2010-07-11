@@ -727,7 +727,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     // Add main hand dps * effect[2] amount
                     float average = (m_caster->GetFloatValue(UNIT_FIELD_MINDAMAGE) + m_caster->GetFloatValue(UNIT_FIELD_MAXDAMAGE)) / 2;
                     int32 count = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, 2);
-                    damage += count * int32(average * IN_MILISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
+                    damage += count * int32(average * IN_MILLISECONDS) / m_caster->GetAttackTime(BASE_ATTACK);
                 }
                 // Shield of Righteousness
                 else if (m_spellInfo->SpellFamilyFlags[1]&0x00100000)
@@ -3946,7 +3946,7 @@ void Spell::EffectDistract(uint32 /*i*/)
         // Set creature Distracted, Stop it, And turn it
         unitTarget->SetOrientation(angle);
         unitTarget->StopMoving();
-        unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILISECONDS);
+        unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILLISECONDS);
     }
 }
 
@@ -4873,7 +4873,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
 
     int32 duration = GetSpellDuration(m_spellInfo);
 
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
 
     // Wild object not have owner and check clickable by players
@@ -4916,7 +4916,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
         if (linkedGO->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, map,
             m_caster->GetPhaseMask(), x, y, z, target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
-            linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+            linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             linkedGO->SetSpellId(m_spellInfo->Id);
 
             // Wild object not have owner and check clickable by players
@@ -6507,7 +6507,7 @@ void Spell::EffectDuel(uint32 i)
     pGameObj->SetUInt32Value(GAMEOBJECT_FACTION, m_caster->getFaction());
     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel()+1);
     int32 duration = GetSpellDuration(m_spellInfo);
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
 
     m_caster->AddGameObject(pGameObj);
@@ -6585,7 +6585,7 @@ void Spell::EffectSummonPlayer(uint32 /*i*/)
     WorldPacket data(SMSG_SUMMON_REQUEST, 8+4+4);
     data << uint64(m_caster->GetGUID());                    // summoner guid
     data << uint32(m_caster->GetZoneId());                  // summoner zone
-    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILISECONDS); // auto decline after msecs
+    data << uint32(MAX_PLAYER_SUMMON_DELAY*IN_MILLISECONDS); // auto decline after msecs
     unitTarget->ToPlayer()->GetSession()->SendPacket(&data);
 }
 
@@ -6683,7 +6683,7 @@ void Spell::EffectEnchantHeldItem(uint32 i)
             return;
 
         // Apply the temporary enchantment
-        item->SetEnchantment(slot, enchant_id, duration*IN_MILISECONDS, 0);
+        item->SetEnchantment(slot, enchant_id, duration*IN_MILLISECONDS, 0);
         item_owner->ApplyEnchantment(item, slot, true);
     }
 }
@@ -6813,7 +6813,7 @@ void Spell::EffectSummonObject(uint32 i)
 
     //pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL,m_caster->getLevel());
     int32 duration = GetSpellDuration(m_spellInfo);
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
     pGameObj->SetSpellId(m_spellInfo->Id);
     m_caster->AddGameObject(pGameObj);
 
@@ -7445,7 +7445,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
                 case 3: lastSec = 17; break;
             }
 
-            duration = duration - lastSec*IN_MILISECONDS + FISHING_BOBBER_READY_TIME*IN_MILISECONDS;
+            duration = duration - lastSec*IN_MILLISECONDS + FISHING_BOBBER_READY_TIME*IN_MILLISECONDS;
             break;
         }
         case GAMEOBJECT_TYPE_SUMMONING_RITUAL:
@@ -7466,7 +7466,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
             break;
     }
 
-    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+    pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
 
     pGameObj->SetOwnerGUID(m_caster->GetGUID());
 
@@ -7485,7 +7485,7 @@ void Spell::EffectTransmitted(uint32 effIndex)
         if (linkedGO->Create(objmgr.GenerateLowGuid(HIGHGUID_GAMEOBJECT), linkedEntry, cMap,
             m_caster->GetPhaseMask(), fx, fy, fz, m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 100, GO_STATE_READY))
         {
-            linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILISECONDS : 0);
+            linkedGO->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
             //linkedGO->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
             linkedGO->SetSpellId(m_spellInfo->Id);
             linkedGO->SetOwnerGUID(m_caster->GetGUID());

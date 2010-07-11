@@ -306,7 +306,7 @@ m_spellProto(spellproto), m_owner(owner), m_casterGuid(casterGUID ? casterGUID :
     m_procCharges(0), m_stackAmount(1), m_isRemoved(false), m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel)
 {
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
-        m_timeCla = 1 * IN_MILISECONDS;
+        m_timeCla = 1 * IN_MILLISECONDS;
 
     Player* modOwner = NULL;
 
@@ -699,7 +699,7 @@ void Aura::RefreshDuration()
             m_effects[i]->ResetPeriodic();
 
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
-        m_timeCla = 1 * IN_MILISECONDS;
+        m_timeCla = 1 * IN_MILLISECONDS;
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -1290,7 +1290,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             data << uint64(player->GetGUID());
                             data << uint8(0x0);                                     // flags (0x1, 0x2)
                             data << uint32(GetSpellProto()->Id);
-                            data << uint32(aurEff->GetAmount()*IN_MILISECONDS);
+                            data << uint32(aurEff->GetAmount()*IN_MILLISECONDS);
                             player->SendDirectMessage(&data);
                         }
                         break;

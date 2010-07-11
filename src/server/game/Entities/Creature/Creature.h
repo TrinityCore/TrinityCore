@@ -66,7 +66,7 @@ enum CreatureFlagsExtra
 #endif
 
 #define MAX_KILL_CREDIT 2
-#define CREATURE_REGEN_INTERVAL 2 * IN_MILISECONDS
+#define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
 // from `creature_template` table
 struct CreatureInfo
