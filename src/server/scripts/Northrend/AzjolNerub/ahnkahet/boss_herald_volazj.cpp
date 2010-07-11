@@ -146,9 +146,9 @@ struct boss_volazjAI : public ScriptedAI
 
     void Reset()
     {
-        uiMindFlayTimer = 8*IN_MILISECONDS;
-        uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
-        uiShiverTimer = 15*IN_MILISECONDS;
+        uiMindFlayTimer = 8*IN_MILLISECONDS;
+        uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
+        uiShiverTimer = 15*IN_MILLISECONDS;
 
         if (pInstance)
         {
@@ -272,20 +272,20 @@ struct boss_volazjAI : public ScriptedAI
         if (uiMindFlayTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_MIND_FLAY);
-            uiMindFlayTimer = 20*IN_MILISECONDS;
+            uiMindFlayTimer = 20*IN_MILLISECONDS;
         } else uiMindFlayTimer -= diff;
 
         if (uiShadowBoltVolleyTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
-            uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
+            uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
         } else uiShadowBoltVolleyTimer -= diff;
 
         if (uiShiverTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_SHIVER);
-            uiShiverTimer = 15*IN_MILISECONDS;
+            uiShiverTimer = 15*IN_MILLISECONDS;
         } else uiShiverTimer -= diff;
 
         DoMeleeAttackIfReady();

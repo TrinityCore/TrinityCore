@@ -1797,7 +1797,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
         //has to exist else we wouldn't be here
         timedCompleted = IsCompletedCriteria(entry, sAchievementStore.LookupEntry(entry->referredAchievement));
         // Client expects this in packet
-        timeElapsed = entry->timeLimit - (timedIter->second/IN_MILISECONDS);
+        timeElapsed = entry->timeLimit - (timedIter->second/IN_MILLISECONDS);
 
         // Remove the timer, we wont need it anymore
         if (timedCompleted)
@@ -1841,7 +1841,7 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
         if (m_timedAchievements.find((*i)->ID) == m_timedAchievements.end() && !IsCompletedCriteria(*i, achievement))
         {
             // Start the timer
-            m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILISECONDS;
+            m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILLISECONDS;
 
             // and at client too
             SetCriteriaProgress(*i, 0, PROGRESS_SET);

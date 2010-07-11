@@ -50,7 +50,7 @@ enum Yells
 enum Achievements
 {
     ACHIEV_SPLIT_PERSONALITY                      = 2150,
-    ACHIEV_TIMER                                  = 5*IN_MILISECONDS
+    ACHIEV_TIMER                                  = 5*IN_MILLISECONDS
 };
 
 const Position  CenterOfRoom = {504.80, 89.07, -16.12, 6.27};
@@ -88,9 +88,9 @@ struct boss_magus_telestraAI : public ScriptedAI
     {
         Phase = 0;
         //These times are probably wrong
-        uiIceNovaTimer =  7*IN_MILISECONDS;
+        uiIceNovaTimer =  7*IN_MILLISECONDS;
         uiFireBombTimer =  0;
-        uiGravityWellTimer = 15*IN_MILISECONDS;
+        uiGravityWellTimer = 15*IN_MILLISECONDS;
         uiCooldown = 0;
 
         uiFireMagusGUID = 0;
@@ -137,7 +137,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     uint64 SplitPersonality(uint32 entry)
     {
-        if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS))
+        if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS))
         {
             switch (entry)
             {
@@ -224,7 +224,7 @@ struct boss_magus_telestraAI : public ScriptedAI
                 uiFrostMagusGUID = 0;
                 uiArcaneMagusGUID = 0;
                 bIsWaitingToAppear = true;
-                uiIsWaitingToAppearTimer = 4*IN_MILISECONDS;
+                uiIsWaitingToAppearTimer = 4*IN_MILLISECONDS;
                 DoScriptText(SAY_MERGE, me);
                 bIsAchievementTimerRunning = false;
                 uiAchievementTimer = 0;
@@ -283,9 +283,9 @@ struct boss_magus_telestraAI : public ScriptedAI
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(pTarget, SPELL_ICE_NOVA, false);
-                uiCooldown = 1.5*IN_MILISECONDS;
+                uiCooldown = 1.5*IN_MILLISECONDS;
             }
-            uiIceNovaTimer = 15*IN_MILISECONDS;
+            uiIceNovaTimer = 15*IN_MILLISECONDS;
         } else uiIceNovaTimer -= diff;
 
         if (uiGravityWellTimer <= diff)
@@ -293,9 +293,9 @@ struct boss_magus_telestraAI : public ScriptedAI
             if (Unit *pTarget = me->getVictim())
             {
                 DoCast(pTarget, SPELL_GRAVITY_WELL);
-                uiCooldown = 6*IN_MILISECONDS;
+                uiCooldown = 6*IN_MILLISECONDS;
             }
-            uiGravityWellTimer = 15*IN_MILISECONDS;
+            uiGravityWellTimer = 15*IN_MILLISECONDS;
         } else uiGravityWellTimer -= diff;
 
         if (uiFireBombTimer <= diff)
@@ -303,9 +303,9 @@ struct boss_magus_telestraAI : public ScriptedAI
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(pTarget, SPELL_FIREBOMB, false);
-                uiCooldown = 2*IN_MILISECONDS;
+                uiCooldown = 2*IN_MILLISECONDS;
             }
-            uiFireBombTimer = 2*IN_MILISECONDS;
+            uiFireBombTimer = 2*IN_MILLISECONDS;
         } else uiFireBombTimer -=diff;
 
         DoMeleeAttackIfReady();

@@ -199,7 +199,7 @@ struct instance_violet_hold : public ScriptedInstance
 
         uiActivationTimer = 5000;
         uiDoorSpellTimer = 2000;
-        uiCyanigosaEventTimer = 3*IN_MILISECONDS;
+        uiCyanigosaEventTimer = 3*IN_MILLISECONDS;
 
         bActive = false;
         bIsDoorSpellCasted = false;
@@ -726,13 +726,13 @@ struct instance_violet_hold : public ScriptedInstance
                     case 1:
                         pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_BLUE_AURA, false);
                         DoScriptText(CYANIGOSA_SAY_SPAWN, pCyanigosa);
-                        uiCyanigosaEventTimer = 7*IN_MILISECONDS;
+                        uiCyanigosaEventTimer = 7*IN_MILLISECONDS;
                         ++uiCyanigosaEventPhase;
                         break;
                     case 2:
                         pCyanigosa->GetMotionMaster()->MoveJump(MiddleRoomLocation.GetPositionX(), MiddleRoomLocation.GetPositionY(), MiddleRoomLocation.GetPositionZ(), 10.0f, 20.0f);
                         pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_BLUE_AURA, false);
-                        uiCyanigosaEventTimer = 7*IN_MILISECONDS;
+                        uiCyanigosaEventTimer = 7*IN_MILLISECONDS;
                         ++uiCyanigosaEventPhase;
                         break;
                     case 3:
@@ -740,7 +740,7 @@ struct instance_violet_hold : public ScriptedInstance
                         pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_SPELL_TRANSFORM, 0);
                         pCyanigosa->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                         pCyanigosa->SetReactState(REACT_AGGRESSIVE);
-                        uiCyanigosaEventTimer = 2*IN_MILISECONDS;
+                        uiCyanigosaEventTimer = 2*IN_MILLISECONDS;
                         ++uiCyanigosaEventPhase;
                         break;
                     case 4:

@@ -2118,7 +2118,7 @@ class Player : public Unit, public GridObject<Player>
         /***                    REST SYSTEM                    ***/
         /*********************************************************/
 
-        bool isRested() const { return GetRestTime() >= 10*IN_MILISECONDS; }
+        bool isRested() const { return GetRestTime() >= 10*IN_MILLISECONDS; }
         uint32 GetXPRestBonus(uint32 xp);
         uint32 GetRestTime() const { return m_restTime;}
         void SetRestTime(uint32 v) { m_restTime = v;}

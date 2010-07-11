@@ -56,7 +56,7 @@ bool GOHello_rookey_egg(Player *pPlayer, GameObject * /*pGO*/)
 {
     Position pos;
     pPlayer->GetPosition(&pos);
-    pPlayer->SummonCreature(NPC_ROOKERY_WHELP, pos, TEMPSUMMON_TIMED_DESPAWN, 15*IN_MILISECONDS);
+    pPlayer->SummonCreature(NPC_ROOKERY_WHELP, pos, TEMPSUMMON_TIMED_DESPAWN, 15*IN_MILLISECONDS);
     //destroy gobject need to be implemented
 
     return true;

@@ -713,7 +713,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
     data << uint32(bid ? GetAuctionOutBid() : 0);
     //minimal outbid
     data << uint32(buyout);                                 //auction->buyout
-    data << uint32((expire_time-time(NULL))*IN_MILISECONDS);//time left
+    data << uint32((expire_time-time(NULL))*IN_MILLISECONDS);//time left
     data << uint64(bidder) ;                                //auction->bidder current
     data << uint32(bid);                                    //current bid
     return true;

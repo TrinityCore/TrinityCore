@@ -71,12 +71,12 @@ struct boss_hadronoxAI : public ScriptedAI
         me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
         me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
 
-        uiAcidTimer = urand(10*IN_MILISECONDS,14*IN_MILISECONDS);
-        uiLeechTimer = urand(3*IN_MILISECONDS,9*IN_MILISECONDS);
-        uiPierceTimer = urand(1*IN_MILISECONDS,3*IN_MILISECONDS);
-        uiGrabTimer = urand(15*IN_MILISECONDS,19*IN_MILISECONDS);
-        uiDoorsTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
-        uiCheckDistanceTimer = 2*IN_MILISECONDS;
+        uiAcidTimer = urand(10*IN_MILLISECONDS,14*IN_MILLISECONDS);
+        uiLeechTimer = urand(3*IN_MILLISECONDS,9*IN_MILLISECONDS);
+        uiPierceTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
+        uiGrabTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
+        uiDoorsTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+        uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
         if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
             pInstance->SetData(DATA_HADRONOX_EVENT, FAIL);
@@ -121,7 +121,7 @@ struct boss_hadronoxAI : public ScriptedAI
         me->GetRespawnCoord(x,y,z);
 
         if (uiCheckDistanceTimer <= uiDiff)
-            uiCheckDistanceTimer = 5*IN_MILISECONDS;
+            uiCheckDistanceTimer = 5*IN_MILLISECONDS;
         else
         {
             uiCheckDistanceTimer -= uiDiff;
@@ -152,7 +152,7 @@ struct boss_hadronoxAI : public ScriptedAI
         if (uiPierceTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
-            uiPierceTimer = 8*IN_MILISECONDS;
+            uiPierceTimer = 8*IN_MILLISECONDS;
         } else uiPierceTimer -= diff;
 
         if (uiAcidTimer <= diff)
@@ -160,7 +160,7 @@ struct boss_hadronoxAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_ACID_CLOUD);
 
-            uiAcidTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
+            uiAcidTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
         } else uiAcidTimer -= diff;
 
         if (uiLeechTimer <= diff)
@@ -168,7 +168,7 @@ struct boss_hadronoxAI : public ScriptedAI
             if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_LEECH_POISON);
 
-            uiLeechTimer = urand(11*IN_MILISECONDS,14*IN_MILISECONDS);
+            uiLeechTimer = urand(11*IN_MILLISECONDS,14*IN_MILLISECONDS);
         } else uiLeechTimer -= diff;
 
         if (uiGrabTimer <= diff)
@@ -176,13 +176,13 @@ struct boss_hadronoxAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
                 DoCast(pTarget, SPELL_WEB_GRAB);
 
-            uiGrabTimer = urand(15*IN_MILISECONDS,30*IN_MILISECONDS);
+            uiGrabTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
         } else uiGrabTimer -= diff;
 
         if (uiDoorsTimer <= diff)
         {
             //DoCast(me, RAND(SPELL_WEB_FRONT_DOORS, SPELL_WEB_SIDE_DOORS));
-            uiDoorsTimer = urand(30*IN_MILISECONDS,60*IN_MILISECONDS);
+            uiDoorsTimer = urand(30*IN_MILLISECONDS,60*IN_MILLISECONDS);
         } else uiDoorsTimer -= diff;
 
         DoMeleeAttackIfReady();

@@ -96,7 +96,7 @@ struct boss_akilzonAI : public ScriptedAI
         GustOfWind_Timer = urand(20000,30000); //20 to 30 seconds(bosskillers)
         CallLighting_Timer = urand(10000,20000); //totaly random timer. can't find any info on this
         ElectricalStorm_Timer = 60000; //60 seconds(bosskillers)
-        Enrage_Timer = 10*MINUTE*IN_MILISECONDS; //10 minutes till enrage(bosskillers)
+        Enrage_Timer = 10*MINUTE*IN_MILLISECONDS; //10 minutes till enrage(bosskillers)
         SummonEagles_Timer = 99999;
 
         TargetGUID = 0;

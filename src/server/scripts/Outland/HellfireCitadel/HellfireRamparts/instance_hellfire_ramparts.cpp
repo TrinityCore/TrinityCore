@@ -59,12 +59,12 @@ struct instance_ramparts : public ScriptedInstance
         {
             case TYPE_VAZRUDEN:
                 if (uiData == DONE && m_auiEncounter[1] == DONE)
-                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILISECONDS);
+                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
                 m_auiEncounter[0] = uiData;
                 break;
             case TYPE_NAZAN:
                 if (uiData == DONE && m_auiEncounter[0] == DONE)
-                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILISECONDS);
+                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
                 m_auiEncounter[1] = uiData;
                 break;
         }

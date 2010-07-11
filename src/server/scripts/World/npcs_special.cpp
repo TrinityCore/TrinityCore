@@ -1850,7 +1850,7 @@ struct npc_ebon_gargoyleAI : CasterAI
         me->GetMotionMaster()->MovePoint(0, x, y, z);
 
         // Despawn as soon as possible
-        despawnTimer = 4 * IN_MILISECONDS;
+        despawnTimer = 4 * IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
