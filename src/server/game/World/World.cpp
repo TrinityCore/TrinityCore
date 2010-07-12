@@ -1013,6 +1013,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] = sConfig.GetIntDefault("Quests.HighLevelHideDiff", 7);
     if (m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] > MAX_LEVEL)
         m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] = MAX_LEVEL;
+    m_configs[CONFIG_QUEST_IGNORE_RAID] = sConfig.GetBoolDefault("Quests.IgnoreRaid", false);
 
     m_configs[CONFIG_RANDOM_BG_RESET_HOUR] = sConfig.GetIntDefault("BattleGround.Random.ResetHour", 6);
     if (m_configs[CONFIG_RANDOM_BG_RESET_HOUR] < 0 || m_configs[CONFIG_RANDOM_BG_RESET_HOUR] > 23)
