@@ -83,8 +83,8 @@ void BattleGroundWS::Update(uint32 diff)
             else if (GetTeamScore(HORDE) == 0)
                 EndBattleGround(ALLIANCE);           // Alliance has > 0, Horde has 0, alliance wins
 
-            else if (GetTeamScore(HORDE) == GetTeamScore(ALLIANCE)) // Team score equal, winner is team that scored the first flag
-                EndBattleGround(m_FirstFlagCaptureTeam);
+            else if (GetTeamScore(HORDE) == GetTeamScore(ALLIANCE)) // Team score equal, winner is team that scored the last flag
+                EndBattleGround(m_LastFlagCaptureTeam);
 
             else if (GetTeamScore(HORDE) > GetTeamScore(ALLIANCE))  // Last but not least, check who has the higher score
                 EndBattleGround(HORDE);
@@ -325,8 +325,8 @@ void BattleGroundWS::EventPlayerCapturedFlag(Player *Source)
     // only flag capture should be updated
     UpdatePlayerScore(Source, SCORE_FLAG_CAPTURES, 1);      // +1 flag captures
 
-    if (!m_FirstFlagCaptureTeam)
-        SetFirstFlagCapture(Source->GetTeam());
+    // update last flag capture to be used if teamscore is equal
+    SetLastFlagCapture(Source->GetTeam());
 
     if (GetTeamScore(ALLIANCE) == BG_WS_MAX_TEAM_SCORE)
         winner = ALLIANCE;
@@ -720,7 +720,7 @@ void BattleGroundWS::Reset()
     m_HonorEndKills = (isBGWeekend) ? 4 : 2;
     // For WorldState
     m_minutesElapsed                    = 0;
-    m_FirstFlagCaptureTeam              = 0;
+    m_LastFlagCaptureTeam               = 0;
 
     /* Spirit nodes is static at this BG and then not required deleting at BG reset.
     if (m_BgCreatures[WS_SPIRIT_MAIN_ALLIANCE])
