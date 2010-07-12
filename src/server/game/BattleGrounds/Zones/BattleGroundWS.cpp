@@ -70,7 +70,7 @@ void BattleGroundWS::Update(uint32 diff)
 
     if (GetStatus() == STATUS_IN_PROGRESS)
     {
-        if (GetStartTime() >= 25*MINUTE*IN_MILLISECONDS)        // Таймер тикать начинает после 25 минут
+        if (GetStartTime() >= 25*MINUTE*IN_MILLISECONDS)
         {
             if (GetTeamScore(ALLIANCE) == 0)
             {
