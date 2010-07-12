@@ -811,6 +811,11 @@ ChatLogTimestamp = 0
 #        Default: 7
 #                -1 (show all available quests marks)
 #
+#    Quests.IgnoreRaid
+#        Allow non-raid quests to be completed when in raid group
+#        Default: 0 (false)
+#                 1 (true)
+#
 #    Guild.EventLogRecordsCount
 #        Count of guild event log records stored in guild_eventlog table
 #         Increase to store more guild events in table, minimum is 100
@@ -928,6 +933,7 @@ Instance.ResetTimeHour = 4
 Instance.UnloadDelay = 1800000
 Quests.LowLevelHideDiff = 4
 Quests.HighLevelHideDiff = 7
+Quests.IgnoreRaid = 0
 Guild.EventLogRecordsCount = 100
 Guild.BankEventLogRecordsCount = 25
 MaxPrimaryTradeSkill = 2
