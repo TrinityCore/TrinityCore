@@ -48,7 +48,7 @@
 RealmID = 1
 DataDir = "."
 LogsDir = ""
-LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;realmd"
+LoginDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;auth"
 WorldDatabaseInfo     = "127.0.0.1;3306;trinity;trinity;world"
 CharacterDatabaseInfo = "127.0.0.1;3306;trinity;trinity;characters"
 MaxPingTime = 30
