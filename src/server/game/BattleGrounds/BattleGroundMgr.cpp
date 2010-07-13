@@ -1269,8 +1269,8 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
     *data << uint32(bg->GetTypeID());
     *data << uint16(0x1F90);
     // End of uint64 segment, decomposed this way for simplicity
-    *data << uint8(0);                                      // 3.3.0
-    *data << uint8(0);                                      // 3.3.0
+    *data << uint8(0);                                      // 3.3.0, some level, only saw 80...
+    *data << uint8(0);                                      // 3.3.0, some level, only saw 80...
     *data << uint32(bg->GetClientInstanceID());
     // alliance/horde for BG and skirmish/rated for Arenas
     // following displays the minimap-icon 0 = faction icon 1 = arenaicon
@@ -1285,10 +1285,12 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
             break;
         case STATUS_WAIT_JOIN:                              // status_invite
             *data << uint32(bg->GetMapId());                // map id
+            *data << uint64(0);                             // 3.3.5, unknown
             *data << uint32(Time1);                         // time to remove from queue, milliseconds
             break;
         case STATUS_IN_PROGRESS:                            // status_in_progress
             *data << uint32(bg->GetMapId());                // map id
+            *data << uint64(0);                             // 3.3.5, unknown
             *data << uint32(Time1);                         // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
             *data << uint32(Time2);                         // time from bg start, milliseconds
             *data << uint8(/*bg->isArena() ? 0 :*/ 1);      // unk, possibly 0 == preparation phase, 1 == battle
