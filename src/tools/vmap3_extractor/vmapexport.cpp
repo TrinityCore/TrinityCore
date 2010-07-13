@@ -311,6 +311,11 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     searchLocales.push_back("esES");
     searchLocales.push_back("frFR");
     searchLocales.push_back("koKR");
+    searchLocales.push_back("zhCN");
+    searchLocales.push_back("zhTW");
+    searchLocales.push_back("enCN");
+    searchLocales.push_back("enTW");
+    searchLocales.push_back("esMX");
     searchLocales.push_back("ruRU");
 
     for (std::vector<std::string>::iterator i = searchLocales.begin(); i != searchLocales.end(); ++i)
