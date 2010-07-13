@@ -467,8 +467,10 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
         bool addUnit = true;
-        // check target immunities
-        if (itr->first->IsImmunedToSpell(GetSpellProto()))
+        // check target immunities 
+        if (itr->first->IsImmunedToSpell(GetSpellProto()) 
+			// check area target requirements
+			|| (itr->first != GetOwner() && !CheckAreaTarget(itr->first)))
             addUnit = false;
 
         if (addUnit)
@@ -540,7 +542,7 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
     UnitList targetList;
     for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
     {
-        if ((appIter->second->GetEffectsToApply() & (1<<effIndex)) && CheckTarget(appIter->second->GetTarget()) && !appIter->second->HasEffect(effIndex))
+        if ((appIter->second->GetEffectsToApply() & (1<<effIndex)) && !appIter->second->HasEffect(effIndex))
             targetList.push_back(appIter->second->GetTarget());
     }
 
@@ -637,45 +639,6 @@ void Aura::Update(uint32 diff, Unit * caster)
                 }
             }
         }
-    }
-}
-
-bool Aura::CheckTarget(Unit *target)
-{
-    // some special cases
-    switch(GetId())
-    {
-        case 45828: // AV Marshal's HP/DMG auras
-        case 45829:
-        case 45830:
-        case 45821:
-        case 45822: // AV Warmaster's HP/DMG auras
-        case 45823:
-        case 45824:
-        case 45826:
-            switch(target->GetEntry())
-            {
-                // alliance
-                case 14762: // Dun Baldar North Marshal
-                case 14763: // Dun Baldar South Marshal
-                case 14764: // Icewing Marshal
-                case 14765: // Stonehearth Marshal
-                case 11948: // Vandar Stormspike
-                // horde
-                case 14772: // East Frostwolf Warmaster
-                case 14776: // Tower Point Warmaster
-                case 14773: // Iceblood Warmaster
-                case 14777: // West Frostwolf Warmaster
-                case 11946: // Drek'thar
-                    return true;
-                default:
-                    return false;
-                    break;
-            }
-            break;
-        default:
-            return true;
-            break;
     }
 }
 
@@ -789,33 +752,6 @@ bool Aura::CanBeSaved() const
     return true;
 }
 
-bool Aura::HasEffectType(AuraType type) const
-{
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (m_effects[i] && m_effects[i]->GetAuraType() == type)
-            return true;
-    }
-    return false;
-}
-
-void Aura::RecalculateAmountOfEffects()
-{
-    assert (!IsRemoved());
-    Unit * caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i])
-            m_effects[i]->RecalculateAmount(caster);
-}
-
-void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply)
-{
-    assert (!IsRemoved());
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i] && !IsRemoved())
-            m_effects[i]->HandleEffect(aurApp, mode, apply);
-}
-
 bool Aura::IsVisible() const
 {
     // Is this blizzlike? show totem passive auras
@@ -848,6 +784,39 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
             m_effects[i]->CalculateSpellMod();
             m_effects[i]->RecalculateAmount(caster);
         }
+}
+
+bool Aura::HasEffectType(AuraType type) const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (m_effects[i] && m_effects[i]->GetAuraType() == type)
+            return true;
+    }
+    return false;
+}
+
+void Aura::RecalculateAmountOfEffects()
+{
+    assert (!IsRemoved());
+    Unit * caster = GetCaster();
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (m_effects[i])
+            m_effects[i]->RecalculateAmount(caster);
+}
+
+void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply)
+{
+    assert (!IsRemoved());
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (m_effects[i] && !IsRemoved())
+            m_effects[i]->HandleEffect(aurApp, mode, apply);
+}
+
+void Aura::SetNeedClientUpdateForTargets() const
+{
+    for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+        appIter->second->SetNeedClientUpdate();
 }
 
 // trigger effects on real aura apply/remove
@@ -1526,10 +1495,44 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
     }
 }
 
-void Aura::SetNeedClientUpdateForTargets() const
+bool Aura::CheckAreaTarget(Unit *target)
 {
-    for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
-        appIter->second->SetNeedClientUpdate();
+	// for owner check use Spell::CheckTarget
+	assert(GetOwner() != target);
+
+    // some special cases
+    switch(GetId())
+    {
+        case 45828: // AV Marshal's HP/DMG auras
+        case 45829:
+        case 45830:
+        case 45821:
+        case 45822: // AV Warmaster's HP/DMG auras
+        case 45823:
+        case 45824:
+        case 45826:
+            switch(target->GetEntry())
+            {
+                // alliance
+                case 14762: // Dun Baldar North Marshal
+                case 14763: // Dun Baldar South Marshal
+                case 14764: // Icewing Marshal
+                case 14765: // Stonehearth Marshal
+                case 11948: // Vandar Stormspike
+                // horde
+                case 14772: // East Frostwolf Warmaster
+                case 14776: // Tower Point Warmaster
+                case 14773: // Iceblood Warmaster
+                case 14777: // West Frostwolf Warmaster
+                case 11946: // Drek'thar
+                    return true;
+                default:
+                    return false;
+                    break;
+            }
+            break;
+    }
+	return true;
 }
 
 void Aura::_DeleteRemovedApplications()
