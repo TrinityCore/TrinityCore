@@ -609,7 +609,7 @@ int32_t libmpq__block_open_offset(mpq_archive_s *mpq_archive, uint32_t file_numb
 	}
 
 	/* check if data has one extra entry. */
-	if ((mpq_archive->mpq_block[mpq_archive->mpq_map[file_number].block_table_indices].flags & LIBMPQ_FLAG_EXTRA) != 0) {
+	if ((mpq_archive->mpq_block[mpq_archive->mpq_map[file_number].block_table_indices].flags & LIBMPQ_FLAG_CRC) != 0) {
 
 		/* add one uint32_t. */
 		packed_size += sizeof(uint32_t);
@@ -654,8 +654,11 @@ int32_t libmpq__block_open_offset(mpq_archive_s *mpq_archive, uint32_t file_numb
 			goto error;
 		}
 
-		/* check if the archive is protected some way, sometimes the file appears not to be encrypted, but it is. */
-		if (mpq_archive->mpq_file[file_number]->packed_offset[0] != rb) {
+		/* check if the archive is protected some way, sometimes the file appears not to be encrypted, but it is.
+		 * a special case are files with an additional sector but LIBMPQ_FLAG_CRC not set. we don't want to handle
+		 * them as encrypted. */
+		if (mpq_archive->mpq_file[file_number]->packed_offset[0] != rb &&
+		    mpq_archive->mpq_file[file_number]->packed_offset[0] != rb + 4) {
 
 			/* file is encrypted. */
 			mpq_archive->mpq_block[mpq_archive->mpq_map[file_number].block_table_indices].flags |= LIBMPQ_FLAG_ENCRYPTED;
