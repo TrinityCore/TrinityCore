@@ -3431,7 +3431,7 @@ bool Player::addSpell(uint32 spell_id, bool active, bool learning, bool dependen
             if (!Has310Flyer(false) && pSkill->id == SKILL_MOUNTS)
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     if (spellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        spellInfo->CalculateSimpleValue(i) == 310)
+                        SpellMgr::CalculateSpellEffectAmount(spellInfo, i) == 310)
                         SetHas310Flyer(true);
 
             if (HasSkill(pSkill->id))
@@ -3705,7 +3705,7 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
                 SpellEntry const *pSpellInfo = sSpellStore.LookupEntry(spell_id);
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     if (pSpellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        pSpellInfo->CalculateSimpleValue(i) == 310)
+                        SpellMgr::CalculateSpellEffectAmount(pSpellInfo, i) == 310)
                         Has310Flyer(true, spell_id);    // with true as first argument its also used to set/remove the flag
             }
         }
@@ -3799,7 +3799,7 @@ bool Player::Has310Flyer(bool checkAllSpells, uint32 excludeSpellId)
                 pSpellInfo = sSpellStore.LookupEntry(itr->first);
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                     if (pSpellInfo->EffectApplyAuraName[i] == SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED &&
-                        pSpellInfo->CalculateSimpleValue(i) == 310)
+                        SpellMgr::CalculateSpellEffectAmount(pSpellInfo, i) == 310)
                     {
                         SetHas310Flyer(true);
                         return true;

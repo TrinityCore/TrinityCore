@@ -399,13 +399,12 @@ Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 origin
     }
 
     for (int i=0; i <3; ++i)
-        m_currentBasePoints[i] = m_spellInfo->CalculateSimpleValue(i);
+        m_currentBasePoints[i] = m_spellInfo->EffectBasePoints[i];
 
     m_spellState = SPELL_STATE_NULL;
 
     m_TriggerSpells.clear();
     m_IsTriggeredSpell = triggered;
-    //m_AreaAura = false;
     m_CastItem = NULL;
 
     unitTarget = NULL;
@@ -5997,7 +5996,7 @@ SpellCastResult Spell::CheckItems()
                             else if (!(p_caster->HasItemCount(m_spellInfo->EffectItemType[i],1)))
                                 return SPELL_FAILED_TOO_MANY_OF_ITEM;
                             else
-                                p_caster->CastSpell(m_caster,m_spellInfo->CalculateSimpleValue(1),false);        // move this to anywhere
+                                p_caster->CastSpell(m_caster,SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1),false);        // move this to anywhere
                             return SPELL_FAILED_DONT_REPORT;
                         }
                     }
@@ -6883,15 +6882,15 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
     switch(mod)
     {
         case SPELLVALUE_BASE_POINT0:
-            m_spellValue->EffectBasePoints[0] = value - int32(1);
+            m_spellValue->EffectBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(value);
             m_currentBasePoints[0] = m_spellValue->EffectBasePoints[0]; //this should be removed in the future
             break;
         case SPELLVALUE_BASE_POINT1:
-            m_spellValue->EffectBasePoints[1] = value - int32(1);
+            m_spellValue->EffectBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(value);
             m_currentBasePoints[1] = m_spellValue->EffectBasePoints[1];
             break;
         case SPELLVALUE_BASE_POINT2:
-            m_spellValue->EffectBasePoints[2] = value - int32(1);
+            m_spellValue->EffectBasePoints[2] = SpellMgr::CalculateSpellEffectBaseAmount(value);
             m_currentBasePoints[2] = m_spellValue->EffectBasePoints[2];
             break;
         case SPELLVALUE_RADIUS_MOD:

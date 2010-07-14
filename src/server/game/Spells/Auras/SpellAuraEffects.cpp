@@ -376,7 +376,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
 AuraEffect::AuraEffect(Aura * base, uint8 effIndex, int32 *baseAmount, Unit * caster) :
     m_base(base), m_spellProto(base->GetSpellProto()), m_spellmod(NULL), m_periodicTimer(0),
     m_tickNumber(0), m_effIndex(effIndex), m_isPeriodic(false), m_canBeRecalculated(true),
-    m_baseAmount (baseAmount ? *baseAmount : m_spellProto->EffectBasePoints[m_effIndex] + 1)
+    m_baseAmount (baseAmount ? *baseAmount : m_spellProto->EffectBasePoints[m_effIndex])
 {
     CalculatePeriodic(caster, true);
 
@@ -405,10 +405,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
 {
     int32 amount;
     // default amount calculation
-    if (caster)
-        amount = caster->CalculateSpellDamage(NULL, m_spellProto, m_effIndex, &m_baseAmount);
-    else
-        amount = m_baseAmount + 1;
+    amount = SpellMgr::CalculateSpellEffectAmount(m_spellProto, m_effIndex, caster, &m_baseAmount, NULL);
 
     // check item enchant aura cast
     if (!amount && caster)
@@ -622,7 +619,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                 if (spellmgr.GetSpellRank(m_spellProto->Id) >= 9)
                 {
                     if (GetBase()->GetUnitOwner()->HasAuraState(AURA_STATE_HEALTH_ABOVE_75_PERCENT, m_spellProto, caster))
-                        amount += int32(amount * m_spellProto->CalculateSimpleValue(2) / 100.0f);
+                        amount += int32(amount * SpellMgr::CalculateSpellEffectAmount(m_spellProto, 2, caster) / 100.0f);
                 }
             }
             break;
@@ -2512,7 +2509,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                     // Heart of the Wild
                     if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetMiscValue() == 3)
                     {
-                        int32 HotWMod = (*i)->GetSpellProto()->EffectBasePoints[1]+1+1;  // +1 for base points and +1 for SetSpellValue (where 1 is substracted)
+                        int32 HotWMod = (*i)->GetAmount();
 
                         target->CastCustomSpell(target, HotWSpellId, &HotWMod, NULL, NULL, true, NULL, this);
                         break;
@@ -2543,7 +2540,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                     // Master Shapeshifter - Cat
                     if (AuraEffect const * aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
                     {
-                        int32 bp = aurEff->GetAmount()+1;
+                        int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48420, &bp, NULL, NULL, true);
                     }
                 break;
@@ -2552,13 +2549,13 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                     // Master Shapeshifter - Bear
                     if (AuraEffect const * aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
                     {
-                        int32 bp = aurEff->GetAmount()+1;
+                        int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48418, &bp, NULL, NULL, true);
                     }
                     // Survival of the Fittest
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DRUID, 961, 0))
                     {
-                        int32 bp = 100 + aurEff->GetSpellProto()->CalculateSimpleValue(2);
+                        int32 bp = 100 + SpellMgr::CalculateSpellEffectAmount(aurEff->GetSpellProto(), 2);
                         target->CastCustomSpell(target, 62069, &bp, NULL, NULL, true, 0, this);
                     }
                 break;
@@ -2566,7 +2563,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                     // Master Shapeshifter - Moonkin
                     if (AuraEffect const * aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
                     {
-                        int32 bp = aurEff->GetAmount()+1;
+                        int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48421, &bp, NULL, NULL, true);
                     }
                 break;
@@ -2574,7 +2571,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                 case FORM_TREE:
                     if (AuraEffect const * aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
                     {
-                        int32 bp = aurEff->GetAmount()+1;
+                        int32 bp = aurEff->GetAmount();
                         target->CastCustomSpell(target, 48422, &bp, NULL, NULL, true);
                     }
                 break;
