@@ -3566,10 +3566,10 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
         // find current aura from spell and change it's stackamount
         if (Aura * foundAura = GetOwnedAura(aura->GetId(), aura->GetCasterGUID(), 0, aura))
         {
-            if (aura->GetSpellProto()->StackAmount)
-            {                       
-                aura->ModStackAmount(foundAura->GetStackAmount());
-                                           
+            if (foundAura->GetSpellProto()->StackAmount)
+            {
+                foundAura->ModStackAmount(foundAura->GetStackAmount());
+
                 // Update periodic timers from the previous aura
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
@@ -7815,7 +7815,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     *handled = true;
                     if (pVictim->HasAura(53601))
                     {
-                        int32 bp0 = (damage/12) * dummySpell->CalculateSimpleValue(2)/100;
+                        int32 bp0 = (damage/12) * SpellMgr::CalculateSpellEffectAmount(procSpell, 2)/100;
                         CastCustomSpell(pVictim, 66922, &bp0, NULL, NULL, true);
                         return true;
                     }   
@@ -7860,7 +7860,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     if (!spInfo)
                         return false;
 
-                    int32 bp0 = this->GetCreateMana() * spInfo->CalculateSimpleValue(0) / 100;
+                    int32 bp0 = this->GetCreateMana() * SpellMgr::CalculateSpellEffectAmount(spInfo, 0) / 100;
                     this->CastCustomSpell(this, 67545, &bp0, NULL, NULL, true, NULL, triggeredByAura->GetEffect(0), this->GetGUID());
                     return true;
                 }
@@ -8247,7 +8247,7 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                             }
                             // percent stored in effect 1 (class scripts) base points
                             int32 cost = originalSpell->manaCost + originalSpell->ManaCostPercentage * GetCreateMana() / 100;
-                            basepoints0 = cost*auraSpellInfo->CalculateSimpleValue(1)/100;
+                            basepoints0 = cost*SpellMgr::CalculateSpellEffectAmount(auraSpellInfo, 1)/100;
                             trigger_spell_id = 20272;
                             target = this;
                         }
@@ -10205,7 +10205,7 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
                         case 49638:
                         {
                             if (const SpellEntry *proto=sSpellStore.LookupEntry(itr->first))
-                                ApCoeffMod *= (100.0f + proto->CalculateSimpleValue(0)) / 100.0f;
+                                ApCoeffMod *= (100.0f + SpellMgr::CalculateSpellEffectAmount(proto, 0)) / 100.0f;
                         }
                         break;
                     }
@@ -12515,7 +12515,7 @@ Unit* Creature::SelectVictim()
 //======================================================================
 //======================================================================
 
-int32 Unit::ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, int32 value)
+int32 Unit::ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, int32 value) const
 {
     if (Player* modOwner = GetSpellModOwner())
     {
@@ -12536,57 +12536,10 @@ int32 Unit::ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_inde
     return value;
 }
 
-int32 Unit::CalculateSpellDamage(Unit const* /*target*/, SpellEntry const* spellProto, uint8 effect_index, int32 const* effBasePoints)
+// function uses real base points (typically value - 1)
+int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProto, uint8 effect_index, int32 const* basePoints) const
 {
-    int32 level = int32(getLevel());
-    if (level > int32(spellProto->maxLevel) && spellProto->maxLevel > 0)
-        level = int32(spellProto->maxLevel);
-    else if (level < int32(spellProto->baseLevel))
-        level = int32(spellProto->baseLevel);
-    level -= int32(spellProto->spellLevel);
-
-    float basePointsPerLevel = spellProto->EffectRealPointsPerLevel[effect_index];
-    int32 basePoints = effBasePoints ? *effBasePoints - 1 : spellProto->EffectBasePoints[effect_index];
-    basePoints += int32(level * basePointsPerLevel);
-    int32 randomPoints = int32(spellProto->EffectDieSides[effect_index]);
-
-    switch(randomPoints)
-    {
-        case 0:                                             // not used
-        case 1: basePoints += 1; break;                     // range 1..1
-        default:
-            // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
-            int32 randvalue = (randomPoints >= 1)
-                ? irand(1, randomPoints)
-                : irand(randomPoints, 1);
-
-            basePoints += randvalue;
-            break;
-    }
-
-    int32 value = basePoints;
-
-    // random damage
-    //if (comboDamage != 0 && unitPlayer /*&& target && (target->GetGUID() == unitPlayer->GetComboTarget())*/)
-    if  (m_movedPlayer)
-        if (uint8 comboPoints = m_movedPlayer->GetComboPoints())
-            if (float comboDamage = spellProto->EffectPointsPerComboPoint[effect_index])
-                value += int32(comboDamage * comboPoints);
-
-    value = ApplyEffectModifiers(spellProto, effect_index, value);
-
-    if (!basePointsPerLevel && (spellProto->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellProto->spellLevel) &&
-            spellProto->Effect[effect_index] != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
-            spellProto->Effect[effect_index] != SPELL_EFFECT_KNOCK_BACK &&
-            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_SPEED_ALWAYS &&
-            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_SPEED_NOT_STACK &&
-            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_INCREASE_SPEED &&
-            spellProto->EffectApplyAuraName[effect_index] != SPELL_AURA_MOD_DECREASE_SPEED)
-            //there are many more: slow speed, -healing pct
-        value = int32(value*0.25f*exp(getLevel()*(70-spellProto->spellLevel)/1000.0f));
-        //value = int32(value * (int32)getLevel() / (int32)(spellProto->spellLevel ? spellProto->spellLevel : 1));
-
-    return value;
+    return SpellMgr::CalculateSpellEffectAmount(spellProto, effect_index, this, basePoints, target);
 }
 
 int32 Unit::CalcSpellDuration(SpellEntry const* spellProto)

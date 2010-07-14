@@ -1513,9 +1513,6 @@ struct SpellEntry
     //uint32  spellDescriptionVariableID;                   // 232      3.2.0
     //uint32  SpellDifficultyId;                            // 233      3.3.0
 
-    // helpers
-    int32 CalculateSimpleValue(uint8 eff) const { return EffectBasePoints[eff]+int32(1); }
-
     private:
         // prevent creating custom entries (copy data from original in fact)
         SpellEntry(SpellEntry const&);                      // DON'T must have implementation

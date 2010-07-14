@@ -469,7 +469,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
         bool addUnit = true;
         // check target immunities 
         if (itr->first->IsImmunedToSpell(GetSpellProto()) 
-			// check area target requirements
+            // check area target requirements
 			|| (itr->first != GetOwner() && !CheckAreaTarget(itr->first)))
             addUnit = false;
 
@@ -1497,8 +1497,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
 
 bool Aura::CheckAreaTarget(Unit *target)
 {
-	// for owner check use Spell::CheckTarget
-	assert(GetOwner() != target);
+    // for owner check use Spell::CheckTarget
+    assert(GetOwner() != target);
 
     // some special cases
     switch(GetId())
@@ -1532,7 +1532,7 @@ bool Aura::CheckAreaTarget(Unit *target)
             }
             break;
     }
-	return true;
+    return true;
 }
 
 void Aura::_DeleteRemovedApplications()

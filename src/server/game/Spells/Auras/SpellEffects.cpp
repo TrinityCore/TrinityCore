@@ -303,7 +303,7 @@ void Spell::EffectEnvirinmentalDMG(uint32 i)
     // Note: this hack with damage replace required until GO casting not implemented
     // environment damage spells already have around enemies targeting but this not help in case not existed GO casting support
     // currently each enemy selected explicitly and self cast damage, we prevent apply self casted spell bonuses/etc
-    damage = m_spellInfo->CalculateSimpleValue(i);
+    damage = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, i, m_caster);
 
     m_caster->CalcAbsorbResist(m_caster, GetSpellSchoolMask(m_spellInfo), SPELL_DIRECT_DAMAGE, damage, &absorb, &resist, m_spellInfo);
 
@@ -583,7 +583,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST &&
                             ((*i)->GetSpellProto()->SpellIconID == 95))
                         {
-                            int chance = (*i)->GetSpellProto()->CalculateSimpleValue(1);
+                            int chance = SpellMgr::CalculateSpellEffectAmount((*i)->GetSpellProto(), 1, m_caster);
                             if (roll_chance_i(chance))
                                 // Mind Trauma
                                 m_caster->CastSpell(unitTarget, 48301, true, 0);
@@ -638,7 +638,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             {
                                 if ((*iter)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_ROGUE && (*iter)->GetSpellProto()->SpellIconID == 1960)
                                 {
-                                    uint32 chance = (*iter)->GetSpellProto()->CalculateSimpleValue(2);
+                                    uint32 chance = SpellMgr::CalculateSpellEffectAmount((*iter)->GetSpellProto(), 2, m_caster);
 
                                     if (chance && roll_chance_i(chance))
                                         needConsume = false;
@@ -1408,8 +1408,8 @@ void Spell::EffectDummy(uint32 i)
                     {
                         case 0:
                         {
-                            uint32 spellID = m_spellInfo->CalculateSimpleValue(0);
-                            uint32 reqAuraID = m_spellInfo->CalculateSimpleValue(1);
+                            uint32 spellID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 0);
+                            uint32 reqAuraID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1);
 
                             if (m_caster->HasAuraEffect(reqAuraID,0))
                                 m_caster->CastSpell(m_caster,spellID,true,NULL);
@@ -1840,7 +1840,7 @@ void Spell::EffectDummy(uint32 i)
 
                     if (Pet *pPet = m_caster->ToPlayer()->GetPet())
                         if (pPet->isAlive())
-                            pPet->CastSpell(unitTarget, m_spellInfo->CalculateSimpleValue(i), true);
+                            pPet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, i), true);
                     return;
                 }
             }
@@ -2140,7 +2140,7 @@ void Spell::EffectDummy(uint32 i)
                 {
                     bp = damage;
                 }
-                m_caster->CastCustomSpell(unitTarget,m_spellInfo->CalculateSimpleValue(1),&bp,NULL,NULL,true);
+                m_caster->CastCustomSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1), &bp,NULL,NULL,true);
                 // Corpse Explosion (Suicide)
                 unitTarget->CastCustomSpell(unitTarget,43999,&bp,NULL,NULL,true);
                 // Set corpse look
@@ -3753,7 +3753,7 @@ void Spell::EffectSummonType(uint32 i)
 
             if (m_spellInfo->EffectBasePoints[i])
             {
-                SpellEntry const *spellProto = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(i));
+                SpellEntry const *spellProto = sSpellStore.LookupEntry(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, i));
                 if (spellProto)
                     m_caster->CastSpell(summon, spellProto, true);
             }
@@ -3905,7 +3905,7 @@ void Spell::EffectDispel(uint32 i)
     // Devour Magic
     if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->Category == SPELLCATEGORY_DEVOUR_MAGIC)
     {
-        int32 heal_amount = m_spellInfo->CalculateSimpleValue(1);
+        int32 heal_amount = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1);
         m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
     }
 }
@@ -4018,7 +4018,7 @@ void Spell::EffectLearnSkill(uint32 i)
 
     uint32 skillid =  m_spellInfo->EffectMiscValue[i];
     uint16 skillval = unitTarget->ToPlayer()->GetPureSkillValue(skillid);
-    unitTarget->ToPlayer()->SetSkill(skillid, m_spellInfo->CalculateSimpleValue(i), skillval?skillval:1, damage*75);
+    unitTarget->ToPlayer()->SetSkill(skillid, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, i), skillval?skillval:1, damage*75);
 }
 
 void Spell::EffectAddHonor(uint32 /*i*/)
@@ -5035,7 +5035,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
                         return;
-                    unitTarget->RemoveAurasDueToSpell(m_spellInfo->CalculateSimpleValue(effIndex));
+                    unitTarget->RemoveAurasDueToSpell(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, effIndex));
                     break;
                 // PX-238 Winter Wondervolt TRAP
                 case 26275:
@@ -5578,8 +5578,8 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || effIndex != 0)
                         return;
 
-                    uint32 spellID = m_spellInfo->CalculateSimpleValue(0);
-                    uint32 questID = m_spellInfo->CalculateSimpleValue(1);
+                    uint32 spellID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 0);
+                    uint32 questID = SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 1);
 
                     if (unitTarget->ToPlayer()->GetQuestStatus(questID) == QUEST_STATUS_COMPLETE && !unitTarget->ToPlayer()->GetQuestRewardStatus (questID))
                         unitTarget->CastSpell(unitTarget, spellID, true);
