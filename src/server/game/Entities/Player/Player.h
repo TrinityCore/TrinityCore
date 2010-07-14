@@ -1439,11 +1439,19 @@ class Player : public Unit, public GridObject<Player>
             if (d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
             else
-                SetMoney (GetMoney() < uint32(MAX_MONEY_AMOUNT - d) ? GetMoney() + d : MAX_MONEY_AMOUNT);
-
-            // "At Gold Limit"
-            if (GetMoney() >= MAX_MONEY_AMOUNT)
-                SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD,NULL,NULL);
+            {
+                uint32 newAmount = 0;
+                if (GetMoney() < uint32(MAX_MONEY_AMOUNT - d))
+                    newAmount = GetMoney() + d;
+                else
+                {
+                    // "At Gold Limit"
+                    newAmount = MAX_MONEY_AMOUNT;
+                    if (d)
+                        SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
+                }
+                SetMoney (newAmount);
+            }
         }
         void SetMoney(uint32 value)
         {
