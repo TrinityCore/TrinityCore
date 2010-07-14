@@ -3566,19 +3566,18 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
         // find current aura from spell and change it's stackamount
         if (Aura * foundAura = GetOwnedAura(aura->GetId(), aura->GetCasterGUID(), 0, aura))
         {
-            if (foundAura->GetSpellProto()->StackAmount)
+            if (aura->GetSpellProto()->StackAmount)
             {
-                foundAura->ModStackAmount(foundAura->GetStackAmount());
-
-                // Update periodic timers from the previous aura
-                for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                {
-                    AuraEffect *existingEff = foundAura->GetEffect(i);
-                    AuraEffect *newEff = aura->GetEffect(i);
-                    if (!existingEff || !newEff) 
-                        continue;
-                    newEff->SetPeriodicTimer(existingEff->GetPeriodicTimer());
-                }
+                aura->ModStackAmount(foundAura->GetStackAmount());
+            }
+            // Update periodic timers from the previous aura
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                AuraEffect *existingEff = foundAura->GetEffect(i);
+                AuraEffect *newEff = aura->GetEffect(i);
+                if (!existingEff || !newEff) 
+                    continue;
+                newEff->SetPeriodicTimer(existingEff->GetPeriodicTimer());
             }
 
             // Use the new one to replace the old one
@@ -7815,7 +7814,7 @@ bool Unit::HandleAuraProc(Unit * pVictim, uint32 damage, Aura * triggeredByAura,
                     *handled = true;
                     if (pVictim->HasAura(53601))
                     {
-                        int32 bp0 = (damage/12) * SpellMgr::CalculateSpellEffectAmount(procSpell, 2)/100;
+                        int32 bp0 = (damage/12) * SpellMgr::CalculateSpellEffectAmount(dummySpell, 2)/100;
                         CastCustomSpell(pVictim, 66922, &bp0, NULL, NULL, true);
                         return true;
                     }   

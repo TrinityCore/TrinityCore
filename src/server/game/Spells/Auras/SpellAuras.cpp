@@ -470,7 +470,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
         // check target immunities 
         if (itr->first->IsImmunedToSpell(GetSpellProto()) 
             // check area target requirements
-			|| (itr->first != GetOwner() && !CheckAreaTarget(itr->first)))
+            || (itr->first != GetOwner() && !CheckAreaTarget(itr->first)))
             addUnit = false;
 
         if (addUnit)
