@@ -2505,14 +2505,14 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
             }
             // Heart of the Wild
             if (HotWSpellId)
-            {
+            {   // hacky, but the only way as spell family is not SPELLFAMILY_DRUID
                 Unit::AuraEffectList const& mModTotalStatPct = target->GetAuraEffectsByType(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE);
                 for (Unit::AuraEffectList::const_iterator i = mModTotalStatPct.begin(); i != mModTotalStatPct.end(); ++i)
                 {
                     // Heart of the Wild
                     if ((*i)->GetSpellProto()->SpellIconID == 240 && (*i)->GetMiscValue() == 3)
                     {
-                        int32 HotWMod = (*i)->GetSpellProto()->EffectBasePoints[1] + 1;
+                        int32 HotWMod = (*i)->GetSpellProto()->EffectBasePoints[1]+1+1;  // +1 for base points and +1 for SetSpellValue (where 1 is substracted)
 
                         target->CastCustomSpell(target, HotWSpellId, &HotWMod, NULL, NULL, true, NULL, this);
                         break;
@@ -2522,11 +2522,11 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
             switch(GetMiscValue())
             {
                 case FORM_CAT:
-              // Savage Roar
+                    // Savage Roar
                     if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_DRUID, 0 , 0x10000000, 0))
                         target->CastSpell(target, 62071, true);
                     // Nurturing Instinct
-                    if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254,0))
+                    if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT, SPELLFAMILY_DRUID, 2254, 0))
                     {
                         uint32 spellId = 0;
                         switch (aurEff->GetId())
@@ -2556,7 +2556,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit * target, bool apply) const
                         target->CastCustomSpell(target, 48418, &bp, NULL, NULL, true);
                     }
                     // Survival of the Fittest
-                    if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE,SPELLFAMILY_DRUID, 961, 0))
+                    if (AuraEffect const * aurEff = target->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DRUID, 961, 0))
                     {
                         int32 bp = 100 + aurEff->GetSpellProto()->CalculateSimpleValue(2);
                         target->CastCustomSpell(target, 62069, &bp, NULL, NULL, true, 0, this);
