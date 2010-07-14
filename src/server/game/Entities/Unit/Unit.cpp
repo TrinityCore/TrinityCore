@@ -6617,11 +6617,11 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                     return false;
 
                 // mana cost save
-                int32 mana = procSpell->manaCost + procSpell->ManaCostPercentage * GetCreateMana() / 100;
-                basepoints0 = mana * 40/100;
+                basepoints0 = CalculatePowerCost(procSpell, this, SpellSchoolMask(procSpell->SchoolMask)) * 4/10;
                 if (basepoints0 <= 0)
                     return false;
 
+                basepoints0 += 1;   // standard basepoint increase for CastCustomSpell
                 target = this;
                 triggered_spell_id = 34720;
                 break;
