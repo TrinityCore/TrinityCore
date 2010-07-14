@@ -1212,6 +1212,8 @@ class SpellMgr
 
         bool IsSkillBonusSpell(uint32 spellId) const;
         bool IsSkillTypeSpell(uint32 spellId, SkillType type) const;
+        static int32 CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 effIndex, Unit const * caster = NULL, int32 const * basePoints = NULL, Unit const * target = NULL);
+        static int32 CalculateSpellEffectBaseAmount(int32 value) {return value-1;};
 
         // Spell correctess for client using
         static bool IsSpellValid(SpellEntry const * spellInfo, Player* pl = NULL, bool msg = true);
@@ -1322,21 +1324,20 @@ class SpellMgr
         }
         void SetSpellDifficultyId(uint32 spellId, uint32 id) { mSpellDifficultySearcherMap[spellId] = id; }
 
-    const SpellsRequiringSpellMap GetSpellsRequiringSpell()
-    {
-      return this->mSpellsReqSpell;
-    }
+        const SpellsRequiringSpellMap GetSpellsRequiringSpell()
+        {
+            return this->mSpellsReqSpell;
+        }
 
-    uint32 GetSpellRequired(uint32 spell_id) const
-    {
-      SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
+        uint32 GetSpellRequired(uint32 spell_id) const
+        {
+            SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
 
-      if (itr == mSpellReq.end())
-        return NULL;
+            if (itr == mSpellReq.end())
+                return NULL;
 
-      return itr->second;
-    }
-
+            return itr->second;
+        }
 
     // Modifiers
     public:

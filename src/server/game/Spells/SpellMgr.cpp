@@ -838,16 +838,16 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                 case SPELL_AURA_MOD_HEALING_PCT:
                 case SPELL_AURA_MOD_HEALING_DONE:
                 case SPELL_AURA_MOD_DAMAGE_PERCENT_DONE:
-                    if (spellproto->CalculateSimpleValue(effIndex) < 0)
+                    if (SpellMgr::CalculateSpellEffectAmount(spellproto, effIndex) < 0)
                         return false;
                     break;
                 case SPELL_AURA_MOD_DAMAGE_TAKEN:           // dependent from bas point sign (positive -> negative)
-                    if (spellproto->CalculateSimpleValue(effIndex) > 0)
+                    if (SpellMgr::CalculateSpellEffectAmount(spellproto, effIndex) > 0)
                         return false;
                     break;
                 case SPELL_AURA_MOD_CRIT_PCT:
                 case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
-                    if (spellproto->CalculateSimpleValue(effIndex) > 0)
+                    if (SpellMgr::CalculateSpellEffectAmount(spellproto, effIndex) > 0)
                         return true;                        // some expected positive spells have SPELL_ATTR_EX_NEGATIVE
                     break;
                 case SPELL_AURA_ADD_TARGET_TRIGGER:
@@ -925,7 +925,7 @@ bool SpellMgr::_isPositiveEffect(uint32 spellId, uint32 effIndex, bool deep) con
                     switch(spellproto->EffectMiscValue[effIndex])
                     {
                         case SPELLMOD_COST:                 // dependent from bas point sign (negative -> positive)
-                            if (spellproto->CalculateSimpleValue(effIndex) > 0)
+                            if (SpellMgr::CalculateSpellEffectAmount(spellproto, effIndex) > 0)
                             {
                                 if (!deep)
                                 {
@@ -1810,6 +1810,80 @@ bool SpellMgr::IsSkillBonusSpell(uint32 spellId) const
     return false;
 }
 
+bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
+{
+    SkillLineAbilityMapBounds bounds = GetSkillLineAbilityMapBounds(spellId);
+
+    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
+        if (_spell_idx->second->skillId == uint32(type))
+            return true;
+
+    return false;
+}
+
+// basepoints provided here have to be valid basepoints (use SpellMgr::CalculateSpellEffectBaseAmount)
+int32 SpellMgr::CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 effIndex, Unit const * caster, int32 const * effBasePoints, Unit const * target)
+{
+    float basePointsPerLevel = spellEntry->EffectRealPointsPerLevel[effIndex];
+    int32 basePoints = effBasePoints ? *effBasePoints : spellEntry->EffectBasePoints[effIndex];
+    int32 randomPoints = int32(spellEntry->EffectDieSides[effIndex]);
+
+    // base amount modification based on spell lvl vs caster lvl
+    if (caster)
+    {
+        int32 level = int32(caster->getLevel());
+        if (level > int32(spellEntry->maxLevel) && spellEntry->maxLevel > 0)
+            level = int32(spellEntry->maxLevel);
+        else if (level < int32(spellEntry->baseLevel))
+            level = int32(spellEntry->baseLevel);
+        level -= int32(spellEntry->spellLevel);
+        basePoints += int32(level * basePointsPerLevel);
+    }
+
+    // roll in a range <1;EffectDieSides> as of patch 3.3.3
+    switch(randomPoints)
+    {
+        case 0:                                             // not used
+        case 1: basePoints += 1; break;                     // range 1..1
+        default:
+            // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
+            int32 randvalue = (randomPoints >= 1)
+                ? irand(1, randomPoints)
+                : irand(randomPoints, 1);
+
+            basePoints += randvalue;
+            break;
+    }
+
+    int32 value = basePoints;
+
+    // random damage
+    if (caster)
+    {
+        // bonus amount from combo points
+        if  (caster->m_movedPlayer)
+            if (uint8 comboPoints = caster->m_movedPlayer->GetComboPoints())
+                if (float comboDamage = spellEntry->EffectPointsPerComboPoint[effIndex])
+                    value += int32(comboDamage * comboPoints);
+
+        value = caster->ApplyEffectModifiers(spellEntry, effIndex, value);
+
+        // amount multiplication based on caster's level
+        if (!basePointsPerLevel && (spellEntry->Attributes & SPELL_ATTR_LEVEL_DAMAGE_CALCULATION && spellEntry->spellLevel) &&
+                spellEntry->Effect[effIndex] != SPELL_EFFECT_WEAPON_PERCENT_DAMAGE &&
+                spellEntry->Effect[effIndex] != SPELL_EFFECT_KNOCK_BACK &&
+                spellEntry->EffectApplyAuraName[effIndex] != SPELL_AURA_MOD_SPEED_ALWAYS &&
+                spellEntry->EffectApplyAuraName[effIndex] != SPELL_AURA_MOD_SPEED_NOT_STACK &&
+                spellEntry->EffectApplyAuraName[effIndex] != SPELL_AURA_MOD_INCREASE_SPEED &&
+                spellEntry->EffectApplyAuraName[effIndex] != SPELL_AURA_MOD_DECREASE_SPEED)
+                //there are many more: slow speed, -healing pct
+            value = int32(value*0.25f*exp(caster->getLevel()*(70-spellEntry->spellLevel)/1000.0f));
+            //value = int32(value * (int32)getLevel() / (int32)(spellProto->spellLevel ? spellProto->spellLevel : 1));
+    }
+
+    return value;
+}
+
 SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spellInfo, uint32 playerLevel) const
 {
     // ignore passive spells
@@ -1872,7 +1946,7 @@ void SpellMgr::LoadSpellLearnSkills()
             {
                 SpellLearnSkillNode dbc_node;
                 dbc_node.skill = entry->EffectMiscValue[i];
-                dbc_node.step  = entry->CalculateSimpleValue(i);
+                dbc_node.step  = SpellMgr::CalculateSpellEffectAmount(entry, i);
                 if (dbc_node.skill != SKILL_RIDING)
                     dbc_node.value = 1;
                 else
@@ -2059,7 +2133,7 @@ void SpellMgr::LoadSpellPetAuras()
                 continue;
             }
 
-            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[eff] == TARGET_UNIT_PET, spellInfo->CalculateSimpleValue(eff));
+            PetAura pa(pet, aura, spellInfo->EffectImplicitTargetA[eff] == TARGET_UNIT_PET, SpellMgr::CalculateSpellEffectAmount(spellInfo, eff));
             mSpellPetAuraMap[(spell<<8) + eff] = pa;
         }
 
@@ -3838,17 +3912,6 @@ void SpellMgr::LoadEnchantCustomAttr()
 
     sLog.outString();
     sLog.outString(">> Loaded %u custom enchant attributes", count);
-}
-
-bool SpellMgr::IsSkillTypeSpell(uint32 spellId, SkillType type) const
-{
-    SkillLineAbilityMapBounds bounds = GetSkillLineAbilityMapBounds(spellId);
-
-    for (SkillLineAbilityMap::const_iterator _spell_idx = bounds.first; _spell_idx != bounds.second; ++_spell_idx)
-        if (_spell_idx->second->skillId == uint32(type))
-            return true;
-
-    return false;
 }
 
 void SpellMgr::LoadSpellLinked()
