@@ -8364,7 +8364,7 @@ void ObjectMgr::AddVendorItem(uint32 entry,uint32 item, int32 maxcount, uint32 i
     vList.AddItem(item, maxcount, incrtime, extendedcost);
 
     if (savetodb)
-        WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%i')", entry, item, maxcount, incrtime, extendedcost);
+        WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')", entry, item, maxcount, incrtime, extendedcost);
 }
 
 bool ObjectMgr::RemoveVendorItem(uint32 entry,uint32 item, bool savetodb)
