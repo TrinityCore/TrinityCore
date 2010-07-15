@@ -19655,12 +19655,12 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         return false;
     }
 
-    if (uint32 extendedCostId = crItem->GetExtendedCostId())
+    if (crItem->ExtendedCost)
     {
-        ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(extendedCostId);
+        ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
         if (!iece)
         {
-            sLog.outError("Item %u have wrong ExtendedCost field value %u", pProto->ItemId, extendedCostId);
+            sLog.outError("Item %u have wrong ExtendedCost field value %u", pProto->ItemId, crItem->ExtendedCost);
             return false;
         }
 
@@ -19697,7 +19697,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
     }
 
-    int32 price  = crItem->IsExcludeMoneyPrice() ? 0 : pProto->BuyPrice * count;
+    int32 price  = crItem->IsGoldRequired(pProto) ? pProto->BuyPrice * count : 0;
 
     // reputation discount
     if (price)
@@ -19721,9 +19721,9 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
 
         ModifyMoney(-(int32)price);
 
-        if (uint32 extendedCostId = crItem->GetExtendedCostId())                            // case for new honor system
+        if (crItem->ExtendedCost)                            // case for new honor system
         {
-            ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(extendedCostId);
+            ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
                 ModifyHonorPoints(- int32(iece->reqhonorpoints * count));
 
@@ -19749,11 +19749,11 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             GetSession()->SendPacket(&data);
             SendNewItem(it, pProto->BuyCount*count, true, false, false);
 
-            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->GetExtendedCostId())
+            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
             {
                 it->SetRefundRecipient(GetGUIDLow());
                 it->SetPaidMoney(price);
-                it->SetPaidExtendedCost(crItem->GetExtendedCostId());
+                it->SetPaidExtendedCost(crItem->ExtendedCost);
                 it->SaveRefundDataToDB();
                 AddRefundReference(it->GetGUIDLow());
             }
@@ -19776,9 +19776,9 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
 
         ModifyMoney(-(int32)price);
-        if (uint32 extendedCostId = crItem->GetExtendedCostId())                            // case for new honor system
+        if (crItem->ExtendedCost)                            // case for new honor system
         {
-            ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(extendedCostId);
+            ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
             if (iece->reqhonorpoints)
                 ModifyHonorPoints(- int32(iece->reqhonorpoints * count));
 
@@ -19807,11 +19807,11 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
 
             AutoUnequipOffhandIfNeed();
 
-            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->GetExtendedCostId())
+            if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_REFUNDABLE) && crItem->ExtendedCost)
             {
                 it->SetRefundRecipient(GetGUIDLow());
                 it->SetPaidMoney(price);
-                it->SetPaidExtendedCost(crItem->GetExtendedCostId());
+                it->SetPaidExtendedCost(crItem->ExtendedCost);
                 it->SaveRefundDataToDB();
                 AddRefundReference(it->GetGUIDLow());
             }
