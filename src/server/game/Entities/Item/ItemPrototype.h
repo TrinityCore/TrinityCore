@@ -136,7 +136,7 @@ enum ItemFlagsExtra
 {
     ITEM_FLAGS_EXTRA_HORDE_ONLY              = 0x00000001,
     ITEM_FLAGS_EXTRA_ALLIANCE_ONLY           = 0x00000002,
-    ITEM_FLAGS_EXTRA_REFUNDABLE              = 0x00000004,
+    ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD  = 0x00000004, // when item uses extended cost, gold is also required
     ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100
 };
 
