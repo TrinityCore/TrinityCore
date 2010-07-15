@@ -586,8 +586,26 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     {
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
         pVictim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, spellProto ? spellProto->Id : 0);
-    }
 
+        // copy damage to casters of this aura
+        AuraEffectList const& vCopyDamage = pVictim->GetAuraEffectsByType(SPELL_AURA_SHARE_DAMAGE_PCT);
+        for (AuraEffectList::const_iterator i = vCopyDamage.begin(); i != vCopyDamage.end(); ++i)
+        {
+            // check damage school mask
+            if (((*i)->GetMiscValue() & damageSchoolMask) == 0)
+                continue;
+
+            Unit * shareDamageTarget = (*i)->GetCaster();
+            if (!shareDamageTarget)
+                continue;
+            SpellEntry const * spell = (*i)->GetSpellProto();
+
+            uint32 share = damage * (float((*i)->GetAmount()) / 100.0f);
+            // TODO: check packets if damage is done by pVictim, or by attacker of pVicitm
+            DealDamageMods(shareDamageTarget, share, NULL);
+            DealDamage(shareDamageTarget, share, NULL, NODAMAGE, GetSpellSchoolMask(spell), spell, false);
+        }
+    }
 
     // Rage from Damage made (only from direct weapon damage)
     if (cleanDamage && damagetype == DIRECT_DAMAGE && this != pVictim && getPowerType() == POWER_RAGE)
