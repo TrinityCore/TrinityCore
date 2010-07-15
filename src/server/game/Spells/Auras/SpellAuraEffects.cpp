@@ -271,7 +271,7 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //214 Tamed Pet Passive
     &AuraEffect::HandleArenaPreparation,                          //215 SPELL_AURA_ARENA_PREPARATION
     &AuraEffect::HandleModCastingSpeed,                           //216 SPELL_AURA_HASTE_SPELLS
-    &AuraEffect::HandleUnused,                                    //217 unused (3.2.0)
+    &AuraEffect::HandleNULL,                                      //217 69106 - killing spree helper - unknown use
     &AuraEffect::HandleAuraModRangedHaste,                        //218 SPELL_AURA_HASTE_RANGED
     &AuraEffect::HandleModManaRegen,                              //219 SPELL_AURA_MOD_MANA_REGEN_FROM_STAT
     &AuraEffect::HandleModRatingFromStat,                         //220 SPELL_AURA_MOD_RATING_FROM_STAT
@@ -347,13 +347,13 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleAuraModCritPct,                            //290 SPELL_AURA_MOD_CRIT_PCT
     &AuraEffect::HandleNoImmediateEffect,                         //291 SPELL_AURA_MOD_XP_QUEST_PCT  implemented in Player::RewardQuest
     &AuraEffect::HandleNULL,                                      //292 call stabled pet
-    &AuraEffect::HandleNULL,                                      //293 2 test spells
+    &AuraEffect::HandleNULL,                                      //293 auras which probably add set of abilities to their target based on it's miscvalue
     &AuraEffect::HandleNoImmediateEffect,                         //294 SPELL_AURA_PREVENT_REGENERATE_POWER implemented in Player::Regenerate(Powers power)
-    &AuraEffect::HandleNULL,                                      //296 2 spells
-    &AuraEffect::HandleNULL,                                      //297 1 spell (counter spell school?)
-    &AuraEffect::HandleNULL,                                      //298 unused
+    &AuraEffect::HandleNULL,                                      //296 6 spells, something vehicle or character display related
+    &AuraEffect::HandleNULL,                                      //297 Spirit Burst spells
+    &AuraEffect::HandleNULL,                                      //298 70569 - Strangulating, maybe prevents talk or cast
     &AuraEffect::HandleNULL,                                      //299 unused
-    &AuraEffect::HandleNULL,                                      //300 3 spells (share damage?)
+    &AuraEffect::HandleNoImmediateEffect,                         //300 SPELL_AURA_SHARE_DAMAGE_PCT implemented in Unit::DealDamage
     &AuraEffect::HandleNoImmediateEffect,                         //301 SPELL_AURA_SCHOOL_HEAL_ABSORB implemented in Unit::CalcHealAbsorb
     &AuraEffect::HandleNULL,                                      //302 unused
     &AuraEffect::HandleNULL,                                      //303 17 spells
