@@ -6852,8 +6852,8 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
                 if (skillId != SKILL_NONE)
                 {
                     // skill bonus provided by casting spell (mostly item spells)
-                    // add the damage modifier from the spell casted (cheat lock / skeleton key etc.) (use m_currentBasePoints, CalculateDamage returns wrong value)
-                    uint32 spellSkillBonus = uint32(m_currentBasePoints[effIndex]);
+                    // add the damage modifier from the spell casted (cheat lock / skeleton key etc.)
+                    uint32 spellSkillBonus = uint32(CalculateDamage(effIndex, NULL));
                     reqSkillValue = lockInfo->Skill[j];
 
                     // castitem check: rogue using skeleton keys. the skill values should not be added in this case.

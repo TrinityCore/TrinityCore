@@ -521,7 +521,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += pdamage * aura->GetTotalTicks() * pct_dir / 100;
 
                         uint32 pct_dot = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effect_idx + 2)) / 3;
-                        m_currentBasePoints[1] = pdamage * aura->GetTotalTicks() * pct_dot / 100;
+                        m_currentBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(pdamage * aura->GetTotalTicks() * pct_dot / 100);
 
                         apply_direct_bonus = false;
                         // Glyph of Conflagrate
@@ -2121,7 +2121,7 @@ void Spell::EffectDummy(uint32 i)
                 if (m_targets.HasDst())
                     targets.setDst(&m_targets.m_dstPos);
 
-                spell_id = m_currentBasePoints[0];
+                spell_id = CalculateDamage(0, NULL);
             }
             // Corpse Explosion
             else if (m_spellInfo->SpellIconID == 1737)
@@ -2173,7 +2173,7 @@ void Spell::EffectDummy(uint32 i)
 
         targets.setUnitTarget(unitTarget);
         Spell* spell = new Spell(m_caster, spellInfo, triggered, m_originalCasterGUID, NULL, true);
-        if (bp) spell->m_currentBasePoints[0] = bp;
+        if (bp) spell->m_currentBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(bp);
         spell->prepare(&targets);
     }
 
