@@ -12710,10 +12710,10 @@ void Unit::IncrDiminishing(DiminishingGroup group)
     m_Diminishing.push_back(DiminishingReturn(group,getMSTime(),DIMINISHING_LEVEL_2));
 }
 
-void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level, int32 limitduration)
+float Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Unit* caster,DiminishingLevels Level, int32 limitduration)
 {
     if (duration == -1 || group == DIMINISHING_NONE || caster->IsFriendlyTo(this))
-        return;
+        return 1.0f;
 
     // test pet/charm masters instead pets/charmeds
     Unit const* targetOwner = GetCharmerOrOwner();
@@ -12767,6 +12767,7 @@ void Unit::ApplyDiminishingToDuration(DiminishingGroup group, int32 &duration,Un
     }
 
     duration = int32(duration * mod);
+    return mod;
 }
 
 void Unit::ApplyDiminishingAura(DiminishingGroup group, bool apply)

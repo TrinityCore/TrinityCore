@@ -1344,7 +1344,15 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
                 // Now Reduce spell duration using data received at spell hit
                 int32 duration = m_spellAura->GetMaxDuration();
                 int32 limitduration = GetDiminishingReturnsLimitDuration(m_diminishGroup,aurSpellInfo);
-                unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel,limitduration);
+                float diminishMod = unit->ApplyDiminishingToDuration(m_diminishGroup, duration, m_originalCaster, m_diminishLevel,limitduration);
+
+                // unit is immune to aura if it was diminished to 0 duration
+                if (diminishMod == 0.0f)
+                {
+                    m_spellAura->Remove();
+                    return SPELL_MISS_IMMUNE;
+                }
+
                 ((UnitAura*)m_spellAura)->SetDiminishGroup(m_diminishGroup);
 
                 bool positive = IsPositiveSpell(m_spellAura->GetId());
@@ -1357,12 +1365,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
                 //mod duration of channeled aura by spell haste
                 if (IsChanneledSpell(m_spellInfo))
                     m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
-
-                if (duration == 0 && !positive)
-                {
-                    m_spellAura->Remove();
-                    return SPELL_MISS_IMMUNE;
-                }
 
                 if (duration != m_spellAura->GetMaxDuration())
                 {
@@ -6783,9 +6785,6 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
                     m_damage = float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask);
                     if (m_caster->GetTypeId() == TYPEID_UNIT)
                         m_damage = float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask);
-
-                    if (int32 reducedPct = unit->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE))
-                        m_damage = m_damage * (100 + reducedPct) / 100;
 
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                     {
