@@ -929,6 +929,46 @@ void Spell::EffectDummy(uint32 i)
                     }
                     return;
                 }
+                case 14537:                                 // Six Demon Bag
+                { 
+                    if( !unitTarget || !unitTarget->isAlive()) return; 
+
+                    uint32 ClearSpellId[6] = 
+                    { 
+                        15662,   // Fireball  
+                        11538,   // Frostball  
+                        21179,   // Chain Lightning  
+                        14621,   // Polymorph  
+                        25189,   // Enveloping Winds
+                        14642    // Summon Felhund minion
+                    };
+
+                    uint32 effect = 0;
+                    uint32 rand = urand(0, 100);
+
+                    if (rand >= 0 && rand < 25)         // Fireball (25% chance)
+                        effect = ClearSpellId[0];
+                    else if (rand >= 25 && rand < 50)   // Frostball (25% chance)
+                        effect = ClearSpellId[1];
+                    else if (rand >=50 && rand < 70)    // Chain Lighting (25% chance)
+                        effect = ClearSpellId[2];
+                    else if (rand >= 70 && rand < 80)   // Polymorph (10% chance)
+                    {
+                        effect = ClearSpellId[3];
+                        if (urand(0, 100) <= 30)        // 30% chance to self-cast
+                            unitTarget = m_caster;
+                    } 
+                    else if (rand >=80 && rand < 95)    // Enveloping Winds (15% chance)
+                         effect = ClearSpellId[4];
+                    else                                // Summon Felhund minion (5% chance)
+                    {
+                         effect = ClearSpellId[5];
+                         unitTarget = m_caster;
+                    }
+
+                    m_caster->CastSpell(unitTarget, effect, true);
+                    return;     
+                }
                 case 15998:                                 // Capture Worg Pup
                 case 29435:                                 // Capture Female Kaliri Hatchling
                 {
