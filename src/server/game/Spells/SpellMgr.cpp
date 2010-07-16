@@ -3705,6 +3705,15 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->procCharges = 6;
             count++;
             break;
+        case 47201:    // Everlasting Affliction
+        case 47202:
+        case 47203:
+        case 47204:
+        case 47205:
+            // add corruption to affected spells
+            spellInfo->EffectSpellClassMask[1][0] |= 2;
+            count++;
+            break;
         case 51852:    // The Eye of Acherus (no spawn in phase 2 in db)
             spellInfo->EffectMiscValue[0] |= 1;
             count++;
