@@ -3615,6 +3615,12 @@ void SpellMgr::LoadSpellCustomAttr()
         case 39365: // Thundering Storm
         case 41071: // Raise Dead (HACK)
         case 52124: // Sky Darkener Assault
+        case 42442: // Vengeance Landing Cannonfire
+        case 45863: // Cosmetic - Incinerate to Random Target
+        case 25425: // Shoot
+        case 45761: // Shoot
+        case 42611: // Shoot
+        case 62374: // Pursued
             spellInfo->MaxAffectedTargets = 1;
             count++;
             break;
@@ -3636,6 +3642,8 @@ void SpellMgr::LoadSpellCustomAttr()
         case 54172: // Divine Storm (heal)
         case 29213: // Curse of the Plaguebringer - Noth
         case 28542: // Life Drain - Sapphiron
+        case 66588: // Flaming Spear
+        case 54171: // Divine Storm
             spellInfo->MaxAffectedTargets = 3;
             count++;
             break;
@@ -3760,10 +3768,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->rangeIndex = 13;
             count++;
             break;
-        case 62374:     // Pursued
-            spellInfo->MaxAffectedTargets = 1;
-            count++;
-            break;
         case 48743: // Death Pact
             spellInfo->AttributesEx &= ~SPELL_ATTR_EX_CANT_TARGET_SELF;
             count++;
@@ -3783,30 +3787,6 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         case 25771: // Forbearance - wrong mechanic immunity in DBC since 3.0.x
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
-            count++;
-            break;
-        case 42442:     // Vengeance Landing Cannonfire
-            spellInfo->MaxAffectedTargets = 1;
-            count++;
-            break;
-        case 45863:     // Cosmetic - Incinerate to Random Target
-            spellInfo->MaxAffectedTargets = 1;
-            count++;
-            break;
-        case 25425:     // Shoot
-            spellInfo->MaxAffectedTargets = 1;
-            count++;
-            break;
-        case 45761:     // Shoot
-            spellInfo->MaxAffectedTargets = 1;
-            count++;
-            break;
-        case 42611:     // Shoot
-            spellInfo->MaxAffectedTargets = 1;
-            count++;
-            break;
-        case 66588:     // Flaming Spear
-            spellInfo->MaxAffectedTargets = 3;
             count++;
             break;
         case 53651:

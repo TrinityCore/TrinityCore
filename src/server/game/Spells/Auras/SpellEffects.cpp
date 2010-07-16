@@ -786,33 +786,6 @@ void Spell::EffectDummy(uint32 i)
         {
             switch (m_spellInfo->Id)
             {
-                // Magic Pull
-                case 51336:
-                    m_caster->CastSpell(unitTarget,50770,true);
-                    break;
-                // Wrath of the Astromancer
-                case 42784:
-                {
-                    uint32 count = 0;
-                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                        if (ihit->effectMask & (1<<i))
-                            ++count;
-
-                    damage = 12000; // maybe wrong value
-                    damage /= count;
-
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(42784);
-
-                     // now deal the damage
-                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                        if (ihit->effectMask & (1<<i))
-                        {
-                            if (Unit* casttarget = Unit::GetUnit((*unitTarget), ihit->targetGUID))
-                                m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
-                        }
-
-                    return;
-                }
                 case 8063:                                  // Deviate Fish
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1163,6 +1136,20 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, spell_id, true, NULL);
                     return;
                 }
+                case 34665:                                 //Administer Antidote
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT
+                        || unitTarget->GetEntry() != 16880 || unitTarget->ToCreature()->isPet())
+                        return;
+
+                    unitTarget->ToCreature()->UpdateEntry(16992);
+                    m_caster->ToPlayer()->RewardPlayerAndGroupAtEvent(16992, unitTarget);
+
+                    if (unitTarget->IsAIEnabled)
+                        unitTarget->ToCreature()->AI()->AttackStart(m_caster);
+
+                    return;
+                }
                 case 35745:                                 // Socrethar's Stone
                 {
                     uint32 spell_id;
@@ -1223,6 +1210,29 @@ void Spell::EffectDummy(uint32 i)
                     DoCreateItem(i, newitemid);
                     return;
                 }
+                // Wrath of the Astromancer
+                case 42784:
+                {
+                    uint32 count = 0;
+                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1<<i))
+                            ++count;
+
+                    damage = 12000; // maybe wrong value
+                    damage /= count;
+
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(42784);
+
+                     // now deal the damage
+                    for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+                        if (ihit->effectMask & (1<<i))
+                        {
+                            if (Unit* casttarget = Unit::GetUnit((*unitTarget), ihit->targetGUID))
+                                m_caster->DealDamage(casttarget, damage, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_ARCANE, spellInfo, false);
+                        }
+
+                    return;
+                }
                 // Demon Broiled Surprise
                 case 43723:
                 {
@@ -1253,20 +1263,6 @@ void Spell::EffectDummy(uint32 i)
 
                     //cast spell Raptor Capture Credit
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
-                    return;
-                }
-                case 34665:                                 //Administer Antidote
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT
-                        || unitTarget->GetEntry() != 16880 || unitTarget->ToCreature()->isPet())
-                        return;
-
-                    unitTarget->ToCreature()->UpdateEntry(16992);
-                    m_caster->ToPlayer()->RewardPlayerAndGroupAtEvent(16992, unitTarget);
-
-                    if (unitTarget->IsAIEnabled)
-                        unitTarget->ToCreature()->AI()->AttackStart(m_caster);
-
                     return;
                 }
                 case 44997:                                 // Converting Sentry
@@ -1327,6 +1323,10 @@ void Spell::EffectDummy(uint32 i)
                             m_caster->CastSpell(m_caster, 49378, true);
                     }
                     return;
+                // Magic Pull
+                case 51336:
+                    m_caster->CastSpell(unitTarget,50770,true);
+                    break;
                 case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -1430,6 +1430,11 @@ void Spell::EffectDummy(uint32 i)
                 {
                     // Runeforging Credit
                     m_caster->CastSpell(m_caster, 54586, true);
+                    return;
+                }
+                case 54171:                                   //Divine Storm
+                {
+                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, 0, 0, true);
                     return;
                 }
                 case 58418:                                 // Portal to Orgrimmar
@@ -1890,10 +1895,6 @@ void Spell::EffectDummy(uint32 i)
 
             switch(m_spellInfo->Id)
             {
-                case 54171:                                   //Divine Storm
-                {
-                    m_caster->CastCustomSpell(unitTarget, 54172, &damage, 0, 0, true);
-                }
                 case 20425:                                   // Judgement of command
                 {
                     if (!unitTarget)
