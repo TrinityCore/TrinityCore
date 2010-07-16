@@ -355,22 +355,21 @@ pAuraEffectHandler AuraEffectHandler[TOTAL_AURAS]=
     &AuraEffect::HandleNULL,                                      //299 unused
     &AuraEffect::HandleNoImmediateEffect,                         //300 SPELL_AURA_SHARE_DAMAGE_PCT implemented in Unit::DealDamage
     &AuraEffect::HandleNoImmediateEffect,                         //301 SPELL_AURA_SCHOOL_HEAL_ABSORB implemented in Unit::CalcHealAbsorb
-    &AuraEffect::HandleNULL,                                      //302 unused
-    &AuraEffect::HandleNULL,                                      //303 17 spells
-    &AuraEffect::HandleNULL,                                      //304 2 spells (alcohol effect?)
+    &AuraEffect::HandleNULL,                                      //302 0 spells in 3.3.5
+    &AuraEffect::HandleNULL,                                      //303 SPELL_AURA_MOD_DMG_VESRUS_AURASTATE_PCT? - 22 and 19 look like serverside aurastates (22 - dark, gas cloud, 19 light, ooze)
+    &AuraEffect::HandleUnused,                                    //304 clientside
     &AuraEffect::HandleAuraModIncreaseSpeed,                      //305 SPELL_AURA_MOD_MINIMUM_SPEED
-    &AuraEffect::HandleNULL,                                      //306 1 spell
-    &AuraEffect::HandleNULL,                                      //307 absorb healing?
+    &AuraEffect::HandleNULL,                                      //306 0 spells in 3.3.5
+    &AuraEffect::HandleNULL,                                      //307 0 spells in 3.3.5
     &AuraEffect::HandleNULL,                                      //308 new aura for hunter traps
-    &AuraEffect::HandleNULL,                                      //309 absorb healing?
-    &AuraEffect::HandleNoImmediateEffect,                         //310 5 spells SPELL_AURA_RANGED_AP_ATTACKER_CREATURES_BONUS implemented in Unit::MeleeDamageBonus
-    &AuraEffect::HandleNULL,                                      //311 0 spells in 3.3
-    &AuraEffect::HandleNULL,                                      //312 0 spells in 3.3
-    &AuraEffect::HandleNULL,                                      //313 0 spells in 3.3
-    &AuraEffect::HandleNULL,                                      //314 1 test spell (reduce duration of silince/magic)
-    &AuraEffect::HandleNULL,                                      //315 underwater walking
+    &AuraEffect::HandleNULL,                                      //309 0 spells in 3.3.5
+    &AuraEffect::HandleNoImmediateEffect,                         //310 SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE implemented in Spell::CalculateDamageDone
+    &AuraEffect::HandleNULL,                                      //311 0 spells in 3.3.5
+    &AuraEffect::HandleNULL,                                      //312 0 spells in 3.3.5
+    &AuraEffect::HandleNULL,                                      //313 0 spells in 3.3.5
+    &AuraEffect::HandleNoImmediateEffect,                         //314 SPELL_AURA_PREVENT_RESSURECTION todo
+    &AuraEffect::HandleNoImmediateEffect,                         //315 SPELL_AURA_UNDERWATER_WALKING todo
     &AuraEffect::HandleNoImmediateEffect,                         //316 SPELL_AURA_PERIODIC_HASTE implemented in AuraEffect::CalculatePeriodic
-    &AuraEffect::HandleNULL
 };
 
 AuraEffect::AuraEffect(Aura * base, uint8 effIndex, int32 *baseAmount, Unit * caster) :
@@ -780,7 +779,8 @@ void AuraEffect::CalculatePeriodic(Unit * caster, bool create)
             modOwner->ModSpellCastTime(m_spellProto, m_amplitude);
         }
         // For spells that can benefit from haste
-        else if (modOwner->HasAuraType(SPELL_AURA_PERIODIC_HASTE)) {
+        else if (modOwner->HasAuraType(SPELL_AURA_PERIODIC_HASTE)) 
+        {
             const Unit::AuraEffectList &effList = modOwner->GetAuraEffectsByType(SPELL_AURA_PERIODIC_HASTE);
             for (Unit::AuraEffectList::const_iterator itr = effList.begin(), end = effList.end(); itr != end; ++itr)
             {

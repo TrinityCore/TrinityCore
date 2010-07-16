@@ -5447,17 +5447,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
                 break;
             }
-            case SPELL_AURA_RANGED_AP_ATTACKER_CREATURES_BONUS:
-            {
-                if (!m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetTypeId() != TYPEID_UNIT)
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-
-                // can be casted at non-friendly unit or own pet/charm
-                if (m_caster->IsFriendlyTo(m_targets.getUnitTarget()))
-                    return SPELL_FAILED_TARGET_FRIENDLY;
-
-                break;
-            }
             case SPELL_AURA_PERIODIC_MANA_LEECH:
             {
                 if (!m_targets.getUnitTarget())
@@ -6791,6 +6780,10 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float *mul
             {
                 if (IsAreaEffectTarget[m_spellInfo->EffectImplicitTargetA[i]] || IsAreaEffectTarget[m_spellInfo->EffectImplicitTargetB[i]])
                 {
+                    m_damage = float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask);
+                    if (m_caster->GetTypeId() == TYPEID_UNIT)
+                        m_damage = float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask);
+
                     if (int32 reducedPct = unit->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE))
                         m_damage = m_damage * (100 + reducedPct) / 100;
 

@@ -11208,17 +11208,7 @@ void Unit::MeleeDamageBonus(Unit *pVictim, uint32 *pdamage, WeaponAttackType att
     // ..done (base at attack power for marked target and base at attack power for creature type)
     int32 APbonus = 0;
 
-    if (attType == RANGED_ATTACK && pVictim->GetTypeId() == TYPEID_UNIT)
-    {
-        APbonus += pVictim->GetTotalAuraModifier(SPELL_AURA_RANGED_AP_ATTACKER_CREATURES_BONUS);
-
-        // ..done (base at attack power and creature type)
-        AuraEffectList const& mCreatureAttackPower = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_VERSUS);
-        for (AuraEffectList::const_iterator i = mCreatureAttackPower.begin(); i != mCreatureAttackPower.end(); ++i)
-            if (creatureTypeMask & uint32((*i)->GetMiscValue()))
-                APbonus += (*i)->GetAmount();
-    }
-    else if (attType == RANGED_ATTACK)
+    if (attType == RANGED_ATTACK)
     {
         APbonus += pVictim->GetTotalAuraModifier(SPELL_AURA_RANGED_ATTACK_POWER_ATTACKER_BONUS);
 
@@ -13689,7 +13679,6 @@ bool InitTriggerAuraData()
 
     isNonTriggerAura[SPELL_AURA_MOD_POWER_REGEN]=true;
     isNonTriggerAura[SPELL_AURA_REDUCE_PUSHBACK]=true;
-    isTriggerAura[SPELL_AURA_RANGED_AP_ATTACKER_CREATURES_BONUS] = true;
 
     return true;
 }
