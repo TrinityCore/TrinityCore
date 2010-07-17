@@ -9,18 +9,8 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 cmake_minimum_required (VERSION 2.6)
-project (MANGOS_VMAP_EXTRACT_IO)
+project (MANGOS_IOMAP_EXTRACTOR)
 
-
-# uncomment next line to disable debug mode
-ADD_DEFINITIONS("-DIOMAP_DEBUG")
-# build setup currently only supports libmpq 0.4.x
-ADD_DEFINITIONS("-DUSE_LIBMPQ04")
-ADD_DEFINITIONS("-Wall")
-ADD_DEFINITIONS("-ggdb")
-ADD_DEFINITIONS("-O3")
-
-include_directories(../libmpq)
-#add_subdirectory(stormlib)
-
-add_subdirectory(vmapextract)
+LINK_DIRECTORIES( ${LINK_DIRECTORIES} ../../libmpq/libmpq/.libs/ )
+add_executable(vmapextractor adtfile.cpp  dbcfile.cpp  model.cpp  mpq_libmpq.cpp  vmapexport.cpp  wdtfile.cpp  wmo.cpp)
+target_link_libraries(vmapextractor mpq)
