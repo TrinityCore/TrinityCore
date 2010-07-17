@@ -2130,7 +2130,7 @@ CREATE TABLE `game_event_npc_vendor` (
   `item` mediumint(8) NOT NULL DEFAULT '0',
   `maxcount` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `incrtime` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `ExtendedCost` mediumint(8) NOT NULL default '0' COMMENT 'negative if cost must exclude normal money cost',
+  `ExtendedCost` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT '',
   PRIMARY KEY (`guid`,`item`),
   INDEX (`slot`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -14756,7 +14756,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (207, 'Item ''%i'' not found in database.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (208, 'Item ''%i'' ''%s'' deleted from vendor list', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (209, 'Item ''%i'' not found in vendor list.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(210, 'Item ''%i'' (with extended cost %i) already in vendor list.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(210, 'Item ''%u'' (with extended cost %u) already in vendor list.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (211, 'Spells of %s reset.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (212, 'Spells of %s will reset at next login.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (213, 'Talents of %s reset.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
