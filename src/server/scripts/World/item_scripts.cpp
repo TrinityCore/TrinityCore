@@ -142,7 +142,7 @@ bool ItemUse_item_flying_machine(Player* pPlayer, Item* pItem, SpellCastTargets 
             return false;
 
     sLog.outDebug("TSCR: Player attempt to use item %u, but did not meet riding requirement",itemId);
-    pPlayer->SendEquipError(EQUIP_ERR_ERR_CANT_EQUIP_SKILL,pItem,NULL);
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_EQUIP_SKILL,pItem,NULL);
     return true;
 }
 

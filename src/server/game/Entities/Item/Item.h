@@ -42,7 +42,7 @@ enum InventoryChangeFailure
 {
     EQUIP_ERR_OK                                 = 0,
     EQUIP_ERR_CANT_EQUIP_LEVEL_I                 = 1,
-    EQUIP_ERR_ERR_CANT_EQUIP_SKILL               = 2,
+    EQUIP_ERR_CANT_EQUIP_SKILL                   = 2,
     EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT             = 3,
     EQUIP_ERR_BAG_FULL                           = 4,
     EQUIP_ERR_NONEMPTY_BAG_OVER_OTHER_BAG        = 5,
