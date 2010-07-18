@@ -10883,9 +10883,10 @@ uint8 Player::CanEquipItem(uint8 slot, uint16 &dest, Item *pItem, bool swap, boo
             if (eslot == NULL_SLOT)
                 return EQUIP_ERR_ITEM_CANT_BE_EQUIPPED;
 
-            uint8 msg = CanUseItem(pItem , not_loading);
-            if (msg != EQUIP_ERR_OK)
-                return msg;
+            res = CanUseItem(pItem, not_loading);
+            if (res != EQUIP_ERR_OK)
+                return res;
+
             if (!swap && GetItemByPos(INVENTORY_SLOT_BAG_0, eslot))
                 return EQUIP_ERR_NO_EQUIPMENT_SLOT_AVAILABLE;
 
@@ -11039,8 +11040,9 @@ uint8 Player::CanBankItem(uint8 bag, uint8 slot, ItemPosCountVec &dest, Item *pI
             if (slot - BANK_SLOT_BAG_START >= GetBankBagSlotCount())
                 return EQUIP_ERR_MUST_PURCHASE_THAT_BAG_SLOT;
 
-            if (uint8 cantuse = CanUseItem(pItem, not_loading) != EQUIP_ERR_OK)
-                return cantuse;
+            res = CanUseItem(pItem, not_loading);
+            if (res != EQUIP_ERR_OK)
+                return res;
         }
 
         res = _CanStoreItem_InSpecificSlot(bag,slot,dest,pProto,count,swap,pItem);
@@ -11203,8 +11205,9 @@ uint8 Player::CanUseItem(Item *pItem, bool not_loading) const
             if (pItem->IsBindedNotWith(this))
                 return EQUIP_ERR_DONT_OWN_THAT_ITEM;
 
-            if ((pProto->AllowableClass & getClassMask()) == 0 || (pProto->AllowableRace & getRaceMask()) == 0)
-                return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+            uint8 res = CanUseItem(pProto);
+            if (res != EQUIP_ERR_OK)
+                return res;
 
             if (pItem->GetSkill() != 0)
             {
@@ -11234,23 +11237,8 @@ uint8 Player::CanUseItem(Item *pItem, bool not_loading) const
                     return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
             }
 
-            if (pProto->RequiredSkill != 0)
-            {
-                if (GetSkillValue(pProto->RequiredSkill) == 0)
-                    return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-
-                if (GetSkillValue(pProto->RequiredSkill) < pProto->RequiredSkillRank)
-                    return EQUIP_ERR_ERR_CANT_EQUIP_SKILL;
-            }
-
-            if (pProto->RequiredSpell != 0 && !HasSpell(pProto->RequiredSpell))
-                return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-
             if (pProto->RequiredReputationFaction && uint32(GetReputationRank(pProto->RequiredReputationFaction)) < pProto->RequiredReputationRank)
                 return EQUIP_ERR_CANT_EQUIP_REPUTATION;
-
-            if (getLevel() < pProto->RequiredLevel)
-                return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
             return EQUIP_ERR_OK;
         }
@@ -11258,28 +11246,35 @@ uint8 Player::CanUseItem(Item *pItem, bool not_loading) const
     return EQUIP_ERR_ITEM_NOT_FOUND;
 }
 
-bool Player::CanUseItem(ItemPrototype const *pProto)
+uint8 Player::CanUseItem(ItemPrototype const *pProto) const
 {
     // Used by group, function NeedBeforeGreed, to know if a prototype can be used by a player
 
     if (pProto)
     {
+        if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY) && GetTeam() != HORDE)
+            return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+
+        if ((pProto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY) && GetTeam() != ALLIANCE)
+            return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+
         if ((pProto->AllowableClass & getClassMask()) == 0 || (pProto->AllowableRace & getRaceMask()) == 0)
-            return false;
+            return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
+
         if (pProto->RequiredSkill != 0)
         {
             if (GetSkillValue(pProto->RequiredSkill) == 0)
-                return false;
+                return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
             else if (GetSkillValue(pProto->RequiredSkill) < pProto->RequiredSkillRank)
-                return false;
+                return EQUIP_ERR_CANT_EQUIP_SKILL;
         }
         if (pProto->RequiredSpell != 0 && !HasSpell(pProto->RequiredSpell))
-            return false;
+            return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
         if (getLevel() < pProto->RequiredLevel)
-            return false;
-        return true;
+            return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
+        return EQUIP_ERR_OK;
     }
-    return false;
+    return EQUIP_ERR_ITEM_NOT_FOUND;
 }
 
 uint8 Player::CanUseAmmo(uint32 item) const
@@ -11294,22 +11289,14 @@ uint8 Player::CanUseAmmo(uint32 item) const
     {
         if (pProto->InventoryType!= INVTYPE_AMMO)
             return EQUIP_ERR_ONLY_AMMO_CAN_GO_HERE;
-        if ((pProto->AllowableClass & getClassMask()) == 0 || (pProto->AllowableRace & getRaceMask()) == 0)
-            return EQUIP_ERR_YOU_CAN_NEVER_USE_THAT_ITEM;
-        if (pProto->RequiredSkill != 0)
-        {
-            if (GetSkillValue(pProto->RequiredSkill) == 0)
-                return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
-            else if (GetSkillValue(pProto->RequiredSkill) < pProto->RequiredSkillRank)
-                return EQUIP_ERR_ERR_CANT_EQUIP_SKILL;
-        }
-        if (pProto->RequiredSpell != 0 && !HasSpell(pProto->RequiredSpell))
-            return EQUIP_ERR_NO_REQUIRED_PROFICIENCY;
+
+        uint8 res = CanUseItem(pProto);
+        if (res != EQUIP_ERR_OK)
+            return res;
+
         /*if (GetReputationMgr().GetReputation() < pProto->RequiredReputation)
         return EQUIP_ERR_CANT_EQUIP_REPUTATION;
         */
-        if (getLevel() < pProto->RequiredLevel)
-            return EQUIP_ERR_CANT_EQUIP_LEVEL_I;
 
         // Requires No Ammo
         if (HasAura(46699))

@@ -725,7 +725,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
                 if (!playerToRoll || !playerToRoll->GetSession())
                     continue;
 
-                if (playerToRoll->CanUseItem(item) && i->AllowedForPlayer(playerToRoll))
+                if (playerToRoll->CanUseItem(item) == EQUIP_ERR_OK && i->AllowedForPlayer(playerToRoll))
                 {
                     if (playerToRoll->IsWithinDistInMap(pLootedObject,sWorld.getConfig(CONFIG_GROUP_XP_DISTANCE),false))
                     {
