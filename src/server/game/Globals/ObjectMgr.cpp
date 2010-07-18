@@ -2029,6 +2029,25 @@ void ObjectMgr::LoadItemPrototypes()
             const_cast<ItemPrototype*>(proto)->Quality = ITEM_QUALITY_NORMAL;
         }
 
+        if (proto->Flags2 & ITEM_FLAGS_EXTRA_HORDE_ONLY)
+        {
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(HORDE))
+                if ((proto->AllowableRace & faction->BaseRepRaceMask[0]) == 0)
+                    sLog.outErrorDb("Item (Entry: %u) have in `AllowableRace` races (%u) only not compatible with ITEM_FLAGS_EXTRA_HORDE_ONLY (%u) in Flags field, item any way will can't be equipped or use by this races.",
+                        i, proto->AllowableRace, ITEM_FLAGS_EXTRA_HORDE_ONLY);
+
+            if (proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY)
+                sLog.outErrorDb("Item (Entry: %u) have in `Flags2` flags ITEM_FLAGS_EXTRA_ALLIANCE_ONLY (%u) and ITEM_FLAGS_EXTRA_HORDE_ONLY (%u) in Flags field, this is wrong combination.",
+                    i, ITEM_FLAGS_EXTRA_ALLIANCE_ONLY, ITEM_FLAGS_EXTRA_HORDE_ONLY);
+        }
+        else if (proto->Flags2 & ITEM_FLAGS_EXTRA_ALLIANCE_ONLY)
+        {
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(ALLIANCE))
+                if ((proto->AllowableRace & faction->BaseRepRaceMask[0]) == 0)
+                    sLog.outErrorDb("Item (Entry: %u) have in `AllowableRace` races (%u) only not compatible with ITEM_FLAGS_EXTRA_ALLIANCE_ONLY (%u) in Flags field, item any way will can't be equipped or use by this races.",
+                        i, proto->AllowableRace, ITEM_FLAGS_EXTRA_ALLIANCE_ONLY);
+        }
+
         if (proto->BuyCount <= 0)
         {
             sLog.outErrorDb("Item (Entry: %u) has wrong BuyCount value (%u), set to default(1).",i,proto->BuyCount);
