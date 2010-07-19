@@ -3932,9 +3932,6 @@ void AuraEffect::HandleModPossessPet(AuraApplication const * aurApp, uint8 mode,
         if (caster->ToPlayer()->GetPet() != target)
             return;
 
-        if (target->IsVehicle()) //Avoid crash when mind controling vehicles due to an assert in Unit::SetCharmedBy
-            return;
-        
         target->SetCharmedBy(caster, CHARM_TYPE_POSSESS);
     }
     else
