@@ -7133,6 +7133,7 @@ void Spell::EffectChargeDest(uint32 /*i*/)
 {
     if (m_targets.HasDst())
     {
+        float x, y, z;
         m_targets.m_dstPos.GetPosition(x, y, z);
         m_caster->GetMotionMaster()->MoveCharge(x, y, z);
     }

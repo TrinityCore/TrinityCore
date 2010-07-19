@@ -5878,8 +5878,8 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 (1099,-1098),
 -- Cast Speed Slow
 (1103,-1100),
-(1103,-1001),
-(1103,-1002),
+(1103,-1101),
+(1103,-1102),
 -- mage freezing spells
 (1107, 122), -- Frost Nova
 (1107, 33395), -- Freeze
