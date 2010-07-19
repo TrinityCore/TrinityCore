@@ -325,7 +325,7 @@ struct npc_muglashAI : public npc_escortAI
         }
     }
 
-    void Aggro(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*pWho*/)
     {
         if (HasEscortState(STATE_ESCORT_PAUSED))
         {

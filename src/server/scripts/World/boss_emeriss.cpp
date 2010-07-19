@@ -59,7 +59,7 @@ struct boss_emerissAI : public ScriptedAI
         m_uiCorruptionsCasted = 0;
     }
 
-    void Aggro(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoScriptText(SAY_AGGRO, me);
     }

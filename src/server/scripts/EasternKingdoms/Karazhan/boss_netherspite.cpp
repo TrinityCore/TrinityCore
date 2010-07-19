@@ -247,7 +247,7 @@ struct boss_netherspiteAI : public ScriptedAI
             Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     }
 
-    void Aggro(Unit * /*who*/)
+    void EnterCombat(Unit * /*who*/)
     {
         HandleDoors(false);
         SwitchToPortalPhase();

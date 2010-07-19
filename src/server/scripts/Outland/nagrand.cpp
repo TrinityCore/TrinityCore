@@ -566,7 +566,7 @@ struct npc_maghar_captiveAI : public npc_escortAI
         m_uiFrostShockTimer = 6000;
     }
 
-    void Aggro(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoCast(me, SPELL_EARTHBIND_TOTEM, false);
     }

@@ -52,7 +52,7 @@ struct npc_mageguard_dalaranAI : public Scripted_NoMovementAI
 
     void Reset(){}
 
-    void Aggro(Unit* /*pWho*/){}
+    void EnterCombat(Unit* /*pWho*/){}
 
     void AttackStart(Unit* /*pWho*/){}
 
