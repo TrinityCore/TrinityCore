@@ -318,6 +318,7 @@ class Spell
         void EffectLearnPetSpell(uint32 i);
         void EffectWeaponDmg(uint32 i);
         void EffectForceCast(uint32 i);
+        void EffectForceCastWithValue(uint32 i);
         void EffectTriggerSpell(uint32 i);
         void EffectTriggerMissileSpell(uint32 i);
         void EffectThreat(uint32 i);
