@@ -154,7 +154,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectActivateObject,                           // 86 SPELL_EFFECT_ACTIVATE_OBJECT
     &Spell::EffectWMODamage,                                // 87 SPELL_EFFECT_WMO_DAMAGE
     &Spell::EffectWMORepair,                                // 88 SPELL_EFFECT_WMO_REPAIR
-    &Spell::EffectUnused,                                   // 89 SPELL_EFFECT_WMO_CHANGE
+    &Spell::EffectUnused,                                   // 89 SPELL_EFFECT_WMO_CHANGE // 0 intact // 1 damaged // 2 destroyed // 3 rebuilding
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM

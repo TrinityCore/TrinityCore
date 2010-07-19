@@ -5391,6 +5391,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->IsVehicle())
                         return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 
+                    if (target->IsMounted())
+                        return SPELL_FAILED_CANT_BE_CHARMED;
+
                     if (target->GetCharmerGUID())
                         return SPELL_FAILED_CHARMED;
 
@@ -6441,6 +6444,8 @@ bool Spell::CheckTarget(Unit* target, uint32 eff)
         case SPELL_AURA_MOD_POSSESS_PET:
         case SPELL_AURA_AOE_CHARM:
             if (target->GetTypeId() == TYPEID_UNIT && target->IsVehicle())
+                return false;
+            if (target->IsMounted())
                 return false;
             if (target->GetCharmerGUID())
                 return false;
