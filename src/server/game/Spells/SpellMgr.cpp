@@ -83,6 +83,7 @@ SpellMgr::SpellMgr()
             case SPELL_EFFECT_APPLY_AREA_AURA_OWNER:
             case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
             case SPELL_EFFECT_CHARGE:
+            case SPELL_EFFECT_CHARGE_DEST:
             case SPELL_EFFECT_JUMP:
             case SPELL_EFFECT_JUMP2:
             case SPELL_EFFECT_LEAP_BACK:
@@ -3461,6 +3462,7 @@ void SpellMgr::LoadSpellCustomAttr()
                     count++;
                     break;
                 case SPELL_EFFECT_CHARGE:
+                case SPELL_EFFECT_CHARGE_DEST:
                 case SPELL_EFFECT_JUMP:
                 case SPELL_EFFECT_JUMP2:
                 case SPELL_EFFECT_LEAP_BACK:
