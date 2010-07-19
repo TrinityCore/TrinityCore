@@ -15204,6 +15204,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type)
     if (!charmer)
         return false;
 
+    // unmount players when charmed
+    if (GetTypeId() == TYPEID_PLAYER)
+        Unmount();
+
     assert(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     assert((type == CHARM_TYPE_VEHICLE) == IsVehicle());
 
