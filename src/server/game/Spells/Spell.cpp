@@ -3037,8 +3037,9 @@ void Spell::cast(bool skipCheck)
         switch(m_spellInfo->Effect[i])
         {
             case SPELL_EFFECT_CHARGE:
+            case SPELL_EFFECT_CHARGE_DEST:
             case SPELL_EFFECT_JUMP:
-            case SPELL_EFFECT_JUMP2:
+            case SPELL_EFFECT_JUMP_DEST:
             case SPELL_EFFECT_LEAP_BACK:
             case SPELL_EFFECT_ACTIVATE_RUNE:
                 HandleEffects(NULL,NULL,NULL,i);
