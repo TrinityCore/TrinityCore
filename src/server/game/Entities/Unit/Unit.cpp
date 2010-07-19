@@ -3318,8 +3318,8 @@ void Unit::_UpdateAutoRepeatSpell()
         return;
     }
 
-    //apply delay
-    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500)
+    //apply delay (Auto Shot (spellID 75) not affected)
+    if (m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 && m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != 75)
         setAttackTimer(RANGED_ATTACK,500);
     m_AutoRepeatFirstCast = false;
 
