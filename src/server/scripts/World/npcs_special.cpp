@@ -1691,7 +1691,7 @@ struct mob_mojoAI : public ScriptedAI
         if (Unit* own = me->GetOwner())
             me->GetMotionMaster()->MoveFollow(own,0,0);
     }
-    void Aggro(Unit * /*who*/){}
+    void EnterCombat(Unit * /*who*/){}
     void UpdateAI(const uint32 diff)
     {
         if (me->HasAura(20372))

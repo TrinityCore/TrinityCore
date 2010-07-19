@@ -416,7 +416,7 @@ struct boss_kaelthasAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit * /*who*/)
+    void EnterCombat(Unit * /*who*/)
     {
         if (m_pInstance && !m_pInstance->GetData(DATA_KAELTHASEVENT) && !Phase)
             StartEvent();
@@ -985,7 +985,7 @@ struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         advisorbase_ai::Reset();
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1058,7 +1058,7 @@ struct boss_lord_sanguinarAI : public advisorbase_ai
         advisorbase_ai::Reset();
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1141,7 +1141,7 @@ struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1243,7 +1243,7 @@ struct boss_master_engineer_telonicusAI : public advisorbase_ai
             DoScriptText(SAY_TELONICUS_DEATH, me);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;

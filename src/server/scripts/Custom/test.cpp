@@ -87,7 +87,7 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             }
         }
 
-        void Aggro(Unit*)
+        void EnterCombat(Unit*)
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 me->Say(SAY_AGGRO1, LANG_UNIVERSAL, PlayerGUID);

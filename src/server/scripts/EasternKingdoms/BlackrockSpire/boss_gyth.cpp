@@ -178,7 +178,7 @@ struct boss_gythAI : public ScriptedAI
                 && me->GetHealth() > 0)
             {
                 //summon Rend and Change model to normal Gyth
-                //Inturrupt any spell casting
+                //Interrupt any spell casting
                 me->InterruptNonMeleeSpells(false);
                 //Gyth model
                 me->SetDisplayId(9806);

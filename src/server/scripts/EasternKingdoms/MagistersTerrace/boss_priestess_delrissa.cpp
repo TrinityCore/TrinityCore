@@ -597,7 +597,7 @@ struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
         boss_priestess_lackey_commonAI::Reset();
     }
 
-    void Aggro(Unit* /*pWho*/)
+    void EnterCombat(Unit* /*pWho*/)
     {
         DoCast(me, SPELL_SUMMON_IMP);
     }

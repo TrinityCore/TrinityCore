@@ -109,7 +109,7 @@ struct boss_aranAI : public ScriptedAI
     uint32 FireCooldown;
     uint32 FrostCooldown;
 
-    uint32 DrinkInturruptTimer;
+    uint32 DrinkInterruptTimer;
 
     bool ElementalsSpawned;
     bool Drinking;
@@ -133,7 +133,7 @@ struct boss_aranAI : public ScriptedAI
         FireCooldown = 0;
         FrostCooldown = 0;
 
-        DrinkInturruptTimer = 10000;
+        DrinkInterruptTimer = 10000;
 
         ElementalsSpawned = false;
         Drinking = false;
@@ -261,11 +261,11 @@ struct boss_aranAI : public ScriptedAI
                 DoCast(me, SPELL_CONJURE, false);
                 DoCast(me, SPELL_DRINK, false);
                 me->SetStandState(UNIT_STAND_STATE_SIT);
-                DrinkInturruptTimer = 10000;
+                DrinkInterruptTimer = 10000;
             }
         }
 
-        //Drink Inturrupt
+        //Drink Interrupt
         if (Drinking && DrinkInturrupted)
         {
             Drinking = false;
@@ -275,10 +275,10 @@ struct boss_aranAI : public ScriptedAI
             DoCast(me, SPELL_POTION, false);
         }
 
-        //Drink Inturrupt Timer
+        //Drink Interrupt Timer
         if (Drinking && !DrinkInturrupted)
-            if (DrinkInturruptTimer >= diff)
-                DrinkInturruptTimer -= diff;
+            if (DrinkInterruptTimer >= diff)
+                DrinkInterruptTimer -= diff;
         else
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -476,13 +476,13 @@ struct boss_aranAI : public ScriptedAI
 
     void SpellHit(Unit* /*pAttacker*/, const SpellEntry* Spell)
     {
-        //We only care about inturrupt effects and only if they are durring a spell currently being casted
+        //We only care about interrupt effects and only if they are durring a spell currently being casted
         if ((Spell->Effect[0] != SPELL_EFFECT_INTERRUPT_CAST &&
             Spell->Effect[1] != SPELL_EFFECT_INTERRUPT_CAST &&
             Spell->Effect[2] != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCasted(false))
             return;
 
-        //Inturrupt effect
+        //Interrupt effect
         me->InterruptNonMeleeSpells(false);
 
         //Normally we would set the cooldown equal to the spell duration

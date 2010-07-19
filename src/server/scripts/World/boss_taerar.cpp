@@ -173,7 +173,7 @@ struct boss_taerarAI : public ScriptedAI
         {
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
-                //Inturrupt any spell casting
+                //Interrupt any spell casting
                 me->InterruptNonMeleeSpells(false);
 
                 //horrible workaround, need to fix
