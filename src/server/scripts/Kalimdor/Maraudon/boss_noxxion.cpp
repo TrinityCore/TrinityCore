@@ -96,7 +96,7 @@ struct boss_noxxionAI : public ScriptedAI
         //Adds_Timer
         if (!Invisible && Adds_Timer <= diff)
         {
-            //Inturrupt any spell casting
+            //Interrupt any spell casting
             //me->m_canMove = true;
             me->InterruptNonMeleeSpells(false);
             me->setFaction(35);

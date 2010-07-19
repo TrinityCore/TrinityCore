@@ -292,7 +292,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
                     //Teleport Victor Nefarius way out of the map
                     //sMapMgr.GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
 
-                    //Inturrupt any spell casting
+                    //Interrupt any spell casting
                     me->InterruptNonMeleeSpells(false);
 
                     //Root self

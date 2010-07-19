@@ -233,7 +233,7 @@ struct pyrewood_ambushAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit * /*who*/){}
+    void EnterCombat(Unit * /*who*/){}
 
     void JustSummoned(Creature *pSummoned)
     {

@@ -93,7 +93,7 @@ struct boss_jandicebarovAI : public ScriptedAI
         if (!Invisible && Illusion_Timer <= diff)
         {
 
-            //Inturrupt any spell casting
+            //Interrupt any spell casting
             me->InterruptNonMeleeSpells(false);
             me->setFaction(35);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

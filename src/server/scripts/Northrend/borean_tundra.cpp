@@ -2110,7 +2110,7 @@ struct npc_warmage_coldarraAI : public Scripted_NoMovementAI
         m_uiTimer = 0;
     }
 
-    void Aggro(Unit* /*pWho*/) {}
+    void EnterCombat(Unit* /*pWho*/) {}
 
     void AttackStart(Unit* /*pWho*/) {}
 

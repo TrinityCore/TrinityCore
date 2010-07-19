@@ -91,7 +91,7 @@ struct TRINITY_DLL_DECL custom_exampleAI : public ScriptedAI
 
     //*** HANDLED FUNCTION ***
     //Attack Start is called whenever someone hits us.
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         //Say some stuff
         DoSay(SAY_AGGRO,LANG_UNIVERSAL,NULL);

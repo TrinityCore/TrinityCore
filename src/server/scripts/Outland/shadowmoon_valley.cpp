@@ -972,7 +972,7 @@ struct npc_earthmender_wildaAI : public npc_escortAI
         DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
     }
 
-    void Aggro(Unit* pWho)
+    void EnterCombat(Unit* pWho)
     {
         //don't always use
         if (rand()%5)
