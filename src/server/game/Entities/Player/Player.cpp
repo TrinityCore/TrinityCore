@@ -3537,7 +3537,7 @@ void Player::learnSpell(uint32 spell_id, bool dependent)
     bool learning = addSpell(spell_id,active,true,dependent,false);
 
     // prevent duplicated entires in spell book, also not send if not in world (loading)
-    if (learning || IsInWorld())
+    if (learning && IsInWorld())
     {
         WorldPacket data(SMSG_LEARNED_SPELL, 6);
         data << uint32(spell_id);
