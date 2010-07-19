@@ -107,7 +107,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   // 39 SPELL_EFFECT_LANGUAGE
     &Spell::EffectDualWield,                                // 40 SPELL_EFFECT_DUAL_WIELD
     &Spell::EffectJump,                                     // 41 SPELL_EFFECT_JUMP
-    &Spell::EffectJump,                                     // 42 SPELL_EFFECT_JUMP2
+    &Spell::EffectJumpDest,                                 // 42 SPELL_EFFECT_JUMP_DEST
     &Spell::EffectTeleUnitsFaceCaster,                      // 43 SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER
     &Spell::EffectLearnSkill,                               // 44 SPELL_EFFECT_SKILL_STEP
     &Spell::EffectAddHonor,                                 // 45 SPELL_EFFECT_ADD_HONOR                honor/pvp related
@@ -203,7 +203,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //135 SPELL_EFFECT_CALL_PET
     &Spell::EffectHealPct,                                  //136 SPELL_EFFECT_HEAL_PCT
     &Spell::EffectEnergizePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
-    &Spell::EffectJump2,                                    //138 SPELL_EFFECT_LEAP_BACK                Leap back
+    &Spell::EffectLeapBack,                                 //138 SPELL_EFFECT_LEAP_BACK                Leap back
     &Spell::EffectQuestClear,                               //139 SPELL_EFFECT_CLEAR_QUEST              Reset quest status (miscValue - quest ID)
     &Spell::EffectForceCast,                                //140 SPELL_EFFECT_FORCE_CAST
     &Spell::EffectNULL,                                     //141 SPELL_EFFECT_141                      damage and reduce speed?
@@ -2511,6 +2511,33 @@ void Spell::EffectJump(uint32 i)
     if (m_caster->isInFlight())
         return;
 
+    float x,y,z,o;
+    if (m_targets.getUnitTarget())
+    {
+        m_targets.getUnitTarget()->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
+        o = m_caster->GetOrientation();
+    }
+    else if (m_targets.getGOTarget())
+    {
+        m_targets.getGOTarget()->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
+        o = m_caster->GetOrientation();
+    }
+    else
+    {
+        sLog.outError("Spell::EffectJump - unsupported target mode for spell ID %u", m_spellInfo->Id);
+        return;
+    }
+
+    float speedXY, speedZ;
+    CalculateJumpSpeeds(i, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+}
+
+void Spell::EffectJumpDest(uint32 i)
+{
+    if (m_caster->isInFlight())
+        return;
+
     // Init dest coordinates
     float x,y,z,o;
     if (m_targets.HasDst())
@@ -2534,32 +2561,26 @@ void Spell::EffectJump(uint32 i)
         else
             o = m_caster->GetOrientation();
     }
-    else if (m_targets.getUnitTarget())
-    {
-        m_targets.getUnitTarget()->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
-        o = m_caster->GetOrientation();
-    }
-    else if (m_targets.getGOTarget())
-    {
-        m_targets.getGOTarget()->GetContactPoint(m_caster,x,y,z,CONTACT_DISTANCE);
-        o = m_caster->GetOrientation();
-    }
     else
     {
-        sLog.outError("Spell::EffectJump - unsupported target mode for spell ID %u", m_spellInfo->Id);
+        sLog.outError("Spell::EffectJumpDest - unsupported target mode for spell ID %u", m_spellInfo->Id);
         return;
     }
 
-    //m_caster->NearTeleportTo(x,y,z,o,true);
-    float speedZ;
+    float speedXY, speedZ;
+    CalculateJumpSpeeds(i, m_caster->GetExactDist2d(x, y), speedXY, speedZ);
+    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+}
+
+void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & speedZ)
+{
     if (m_spellInfo->EffectMiscValue[i])
         speedZ = float(m_spellInfo->EffectMiscValue[i])/10;
     else if (m_spellInfo->EffectMiscValueB[i])
         speedZ = float(m_spellInfo->EffectMiscValueB[i])/10;
     else
         speedZ = 10.0f;
-    float speedXY = m_caster->GetExactDist2d(x, y) * 10.0f / speedZ;
-    m_caster->GetMotionMaster()->MoveJump(x, y, z, speedXY, speedZ);
+    speedXY = dist * 10.0f / speedZ;
 }
 
 void Spell::EffectTeleportUnits(uint32 /*i*/)
@@ -7113,9 +7134,6 @@ void Spell::EffectSkinning(uint32 /*i*/)
 
 void Spell::EffectCharge(uint32 /*i*/)
 {
-    if (!m_caster)
-        return;
-
     Unit *target = m_targets.getUnitTarget();
     if (!target)
         return;
@@ -7179,7 +7197,7 @@ void Spell::EffectKnockBack(uint32 i)
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 }
 
-void Spell::EffectJump2(uint32 i)
+void Spell::EffectLeapBack(uint32 i)
 {
     float speedxy = float(m_spellInfo->EffectMiscValue[i])/10;
     float speedz = float(damage/10);
