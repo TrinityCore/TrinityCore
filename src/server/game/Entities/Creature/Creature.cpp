@@ -260,7 +260,7 @@ bool Creature::InitEntry(uint32 Entry, uint32 /*team*/, const CreatureData *data
     CreatureInfo const *normalInfo = objmgr.GetCreatureTemplate(Entry);
     if (!normalInfo)
     {
-        sLog.outErrorDb("Creature::UpdateEntry creature entry %u does not exist.", Entry);
+        sLog.outErrorDb("Creature::InitEntry creature entry %u does not exist.", Entry);
         return false;
     }
 
