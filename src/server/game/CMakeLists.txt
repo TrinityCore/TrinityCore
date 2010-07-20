@@ -168,7 +168,7 @@ set(game_STAT_SRCS
   Skills/SkillExtraItems.cpp
   Spells/Auras/SpellAuras.cpp
   Spells/Auras/SpellAuraEffects.cpp
-  Spells/Auras/SpellEffects.cpp
+  Spells/SpellEffects.cpp
   Spells/Spell.cpp
   Spells/SpellMgr.cpp
   Tools/PlayerDump.cpp
