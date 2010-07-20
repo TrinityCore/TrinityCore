@@ -219,7 +219,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectTriggerRitualOfSummoning,                 //151 SPELL_EFFECT_TRIGGER_SPELL_2
     &Spell::EffectNULL,                                     //152 SPELL_EFFECT_152                      summon Refer-a-Friend
     &Spell::EffectNULL,                                     //153 SPELL_EFFECT_CREATE_PET               misc value is creature entry
-    &Spell::EffectNULL,                                     //154 unused
+    &Spell::EffectDiscoverTaxi,                             //154 SPELL_EFFECT_DISCOVER_TAXI 
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
@@ -7846,6 +7846,15 @@ void Spell::EffectActivateRune(uint32  eff_idx)
                 plr->SetRuneCooldown(i, 0);
         }
     }
+}
+
+void Spell::EffectDiscoverTaxi(uint32 i)
+{
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+        return;
+    uint32 nodeid = m_spellInfo->EffectMiscValue[i];
+    if (sTaxiNodesStore.LookupEntry(nodeid))
+        unitTarget->ToPlayer()->GetSession()->SendDiscoverNewTaxiNode(nodeid);
 }
 
 void Spell::EffectTitanGrip(uint32 /*eff_idx*/)
