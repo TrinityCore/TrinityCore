@@ -754,10 +754,7 @@ bool Aura::CanBeSaved() const
 
 bool Aura::IsVisible() const
 {
-    // Is this blizzlike? show totem passive auras
-    if (GetOwner()->GetTypeId() == TYPEID_UNIT && m_owner->ToCreature()->isTotem() && IsPassive())
-        return true;
-    return !IsPassive() || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
+    return !IsPassive() || HasAreaAuraEffect(GetSpellProto()) || HasEffectType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
 }
 
 void Aura::UnregisterSingleTarget()
