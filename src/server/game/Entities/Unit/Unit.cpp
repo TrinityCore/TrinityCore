@@ -14530,6 +14530,35 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
         return NULL;
     }
 
+    uint8 level = (creatureTarget->getLevel() < (getLevel() - 5)) ? (getLevel() - 5) : creatureTarget->getLevel();
+
+    InitTamedPet(pet, level, spell_id);
+
+    return pet;
+}
+
+Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
+{
+    if (GetTypeId() != TYPEID_PLAYER)
+        return NULL;
+
+    CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(creatureEntry);
+    if (!creatureInfo)
+        return NULL;
+
+    Pet* pet = new Pet((Player*)this, HUNTER_PET);
+
+    if (!pet->CreateBaseAtCreatureInfo(creatureInfo, this) || !InitTamedPet(pet, getLevel(), spell_id))
+    {
+        delete pet;
+        return NULL;
+    }
+
+    return pet;
+}
+
+bool Unit::InitTamedPet(Pet * pet, uint8 level, uint32 spell_id)
+{
     pet->SetCreatorGUID(GetGUID());
     pet->setFaction(getFaction());
     pet->SetUInt32Value(UNIT_CREATED_BY_SPELL, spell_id);
@@ -14537,13 +14566,10 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
     if (GetTypeId() == TYPEID_PLAYER)
         pet->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
 
-    uint8 level = (creatureTarget->getLevel() < (getLevel() - 5)) ? (getLevel() - 5) : creatureTarget->getLevel();
-
     if (!pet->InitStatsForLevel(level))
     {
-        sLog.outError("Pet::InitStatsForLevel() failed for creature (Entry: %u)!",creatureTarget->GetEntry());
-        delete pet;
-        return NULL;
+        sLog.outError("Pet::InitStatsForLevel() failed for creature (Entry: %u)!",pet->GetEntry());
+        return false;
     }
 
     pet->GetCharmInfo()->SetPetNumber(objmgr.GeneratePetNumber(), true);
@@ -14551,8 +14577,7 @@ Pet* Unit::CreateTamedPetFrom(Creature* creatureTarget,uint32 spell_id)
     pet->InitPetCreateSpells();
     //pet->InitLevelupSpellsForLevel();
     pet->SetHealth(pet->GetMaxHealth());
-
-    return pet;
+    return true;
 }
 
 bool Unit::IsTriggeredAtSpellProcEvent(Unit *pVictim, Aura * aura, SpellEntry const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const *& spellProcEvent)

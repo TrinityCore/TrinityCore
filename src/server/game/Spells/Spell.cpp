@@ -5218,6 +5218,17 @@ SpellCastResult Spell::CheckCast(bool strict)
                 }
                 break;
             }
+            case SPELL_EFFECT_CREATE_TAMED_PET:
+            {
+                if (m_targets.getUnitTarget())
+                {
+                    if (m_targets.getUnitTarget()->GetTypeId() != TYPEID_PLAYER)
+                        return SPELL_FAILED_BAD_TARGETS;
+                    if (m_targets.getUnitTarget()->GetPetGUID())
+                        return SPELL_FAILED_ALREADY_HAVE_SUMMON;
+                }
+                break;
+            }
             case SPELL_EFFECT_SUMMON_PET:
             {
                 if (m_caster->GetPetGUID())                  //let warlock do a replacement summon
