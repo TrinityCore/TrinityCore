@@ -492,7 +492,7 @@ inline uint32 GetAllSpellMechanicMask(SpellEntry const* spellInfo)
     if (spellInfo->Mechanic)
         mask |= 1<<spellInfo->Mechanic;
     for (int i=0; i< 3; ++i)
-        if (spellInfo->EffectMechanic[i])
+        if (spellInfo->Effect[i] && spellInfo->EffectMechanic[i])
             mask |= 1<<spellInfo->EffectMechanic[i];
     return mask;
 }
