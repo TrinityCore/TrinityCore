@@ -383,6 +383,7 @@ class Spell
         void EffectWMODamage(uint32 i);
         void EffectWMORepair(uint32 i);
         void EffectActivateRune(uint32 i);
+        void EffectCreateTamedPet(uint32 i);
         void EffectDiscoverTaxi(uint32 i);
         void EffectTitanGrip(uint32 i);
         void EffectEnchantItemPrismatic(uint32 i);

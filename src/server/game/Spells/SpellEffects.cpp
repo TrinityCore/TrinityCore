@@ -213,12 +213,12 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectPlayerPull,                               //145 SPELL_EFFECT_145                      Black Hole Effect
     &Spell::EffectActivateRune,                             //146 SPELL_EFFECT_ACTIVATE_RUNE
     &Spell::EffectQuestFail,                                //147 SPELL_EFFECT_QUEST_FAIL               quest fail
-    &Spell::EffectUnused,                                   //148 SPELL_EFFECT_148                      unused
+    &Spell::EffectUnused,                                   //148 SPELL_EFFECT_148   1 spell - 43509
     &Spell::EffectChargeDest,                               //149 SPELL_EFFECT_CHARGE_DEST
     &Spell::EffectQuestStart,                               //150 SPELL_EFFECT_QUEST_START
     &Spell::EffectTriggerRitualOfSummoning,                 //151 SPELL_EFFECT_TRIGGER_SPELL_2
     &Spell::EffectNULL,                                     //152 SPELL_EFFECT_152                      summon Refer-a-Friend
-    &Spell::EffectNULL,                                     //153 SPELL_EFFECT_CREATE_PET               misc value is creature entry
+    &Spell::EffectCreateTamedPet,                           //153 SPELL_EFFECT_CREATE_TAMED_PET         misc value is creature entry
     &Spell::EffectDiscoverTaxi,                             //154 SPELL_EFFECT_DISCOVER_TAXI 
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
@@ -7845,6 +7845,31 @@ void Spell::EffectActivateRune(uint32  eff_idx)
             if (plr->GetRuneCooldown(i) && (plr->GetCurrentRune(i) == RUNE_FROST ||  plr->GetCurrentRune(i) == RUNE_DEATH))
                 plr->SetRuneCooldown(i, 0);
         }
+    }
+}
+
+void Spell::EffectCreateTamedPet(uint32 i)
+{
+    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER || unitTarget->GetPetGUID() || unitTarget->getClass() != CLASS_HUNTER)
+        return;
+
+    uint32 creatureEntry = m_spellInfo->EffectMiscValue[i];
+    Pet * pet = unitTarget->CreateTamedPetFrom(creatureEntry, m_spellInfo->Id);
+    if (!pet)
+        return;
+
+    // add to world
+    pet->GetMap()->Add(pet->ToCreature());
+
+    // unitTarget has pet now
+    unitTarget->SetMinion(pet, true);
+
+    pet->InitTalentForLevel();
+
+    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+    {
+        pet->SavePetToDB(PET_SAVE_AS_CURRENT);
+        unitTarget->ToPlayer()->PetSpellInitialize();
     }
 }
 
