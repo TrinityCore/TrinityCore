@@ -12324,6 +12324,13 @@ void Player::SwapItem(uint16 src, uint16 dst)
         return;
     }
 
+    // prevent equipping bag in the same slot from its inside
+    if (IsBagPos(dst) && srcbag == dstslot)
+    {
+        SendEquipError(EQUIP_ERR_ITEMS_CANT_BE_SWAPPED, pSrcItem, pDstItem);
+        return;
+    }
+
     // DST checks
 
     if (pDstItem)
