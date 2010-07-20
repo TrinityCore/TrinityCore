@@ -25,7 +25,6 @@
 #ifndef __REALMSOCKET_H__
 #define __REALMSOCKET_H__
 
-#include <ace/Basic_Types.h>
 #include <ace/Synch_Traits.h>
 #include <ace/Svc_Handler.h>
 #include <ace/SOCK_Stream.h>

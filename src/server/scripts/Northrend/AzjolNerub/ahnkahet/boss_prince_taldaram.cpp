@@ -1,22 +1,21 @@
 /*
- * Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ahnkahet.h"
 
 enum Spells
@@ -98,10 +97,10 @@ struct boss_taldaramAI : public ScriptedAI
 
     void Reset()
     {
-        uiBloodthirstTimer = 10*IN_MILISECONDS;
-        uiVanishTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
-        uiEmbraceTimer = 20*IN_MILISECONDS;
-        uiFlamesphereTimer = 5*IN_MILISECONDS;
+        uiBloodthirstTimer = 10*IN_MILLISECONDS;
+        uiVanishTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
+        uiEmbraceTimer = 20*IN_MILLISECONDS;
+        uiFlamesphereTimer = 5*IN_MILLISECONDS;
         uiEmbraceTakenDamage = 0;
         Phase = NORMAL;
         uiPhaseTimer = 0;
@@ -130,7 +129,7 @@ struct boss_taldaramAI : public ScriptedAI
                     Creature* pSpheres[3];
 
                     //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
-                    pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
+                    pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
                     Unit *pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (pSphereTarget && pSpheres[0])
                     {
@@ -143,9 +142,9 @@ struct boss_taldaramAI : public ScriptedAI
                     if (IsHeroic())
                     {
                         //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
-                        pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
+                        pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
                         //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
-                        pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILISECONDS);
+                        pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
                         if (pSphereTarget && pSpheres[1] && pSpheres[2])
                         {
                             float angle,x,y;
@@ -181,7 +180,7 @@ struct boss_taldaramAI : public ScriptedAI
                     me->SetSpeed(MOVE_WALK, 1.0f, true);
                     me->GetMotionMaster()->MoveChase(me->getVictim());
                     Phase = FEEDING;
-                    uiPhaseTimer = 20*IN_MILISECONDS;
+                    uiPhaseTimer = 20*IN_MILLISECONDS;
                     break;
                 case FEEDING:
                     Phase = NORMAL;
@@ -192,15 +191,15 @@ struct boss_taldaramAI : public ScriptedAI
                     if (uiBloodthirstTimer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_BLOODTHIRST);
-                        uiBloodthirstTimer = 10*IN_MILISECONDS;
+                        uiBloodthirstTimer = 10*IN_MILLISECONDS;
                     } else uiBloodthirstTimer -= diff;
 
                     if (uiFlamesphereTimer <= diff)
                     {
                         DoCast(me, SPELL_CONJURE_FLAME_SPHERE);
                         Phase = CASTING_FLAME_SPHERES;
-                        uiPhaseTimer = 3*IN_MILISECONDS + diff;
-                        uiFlamesphereTimer = 15*IN_MILISECONDS;
+                        uiPhaseTimer = 3*IN_MILLISECONDS + diff;
+                        uiFlamesphereTimer = 15*IN_MILLISECONDS;
                     } else uiFlamesphereTimer -= diff;
 
                     if (uiVanishTimer <= diff)
@@ -228,7 +227,7 @@ struct boss_taldaramAI : public ScriptedAI
                                 uiEmbraceTarget = pEmbraceTarget->GetGUID();
 
                         }
-                        uiVanishTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
+                        uiVanishTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
                     } else uiVanishTimer -= diff;
 
                     DoMeleeAttackIfReady();
@@ -339,7 +338,7 @@ struct mob_taldaram_flamesphereAI : public ScriptedAI
         DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
         DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
         DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
-        uiDespawnTimer = 10*IN_MILISECONDS;
+        uiDespawnTimer = 10*IN_MILLISECONDS;
     }
 
     void EnterCombat(Unit * /*who*/) {}

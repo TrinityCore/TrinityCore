@@ -23,7 +23,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 
 #include "AccountMgr.h"
 #include "CellImpl.h"
@@ -133,11 +133,13 @@ ChatCommand * ChatHandler::getCommandTable()
     static ChatCommand channelSetCommandTable[] =
     {
         { "public",      SEC_ADMINISTRATOR,     true,  &ChatHandler::HandleChannelSetPublic,  "", NULL },
+        { NULL,          0,                     false, NULL,                                  "", NULL }
     };
 
     static ChatCommand channelCommandTable[] =
     {
         { "set",      SEC_ADMINISTRATOR,     true,  NULL,  "", channelSetCommandTable },
+        { NULL,       0,                     false, NULL,  "", NULL                   }
     };
 
     static ChatCommand debugPlayCommandTable[] =
@@ -460,6 +462,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "creature_involvedrelation",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureQuestInvRelationsCommand,"",NULL },
         { "creature_linked_respawn",     SEC_GAMEMASTER, true,  &ChatHandler::HandleReloadCreatureLinkedRespawnCommand,   "", NULL },
         { "creature_loot_template",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesCreatureCommand,   "", NULL },
+        { "creature_onkill_reputation",  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadOnKillReputationCommand,        "", NULL },
         { "creature_questrelation",      SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureQuestRelationsCommand,  "", NULL },
         { "creature_template",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCreatureTemplateCommand,        "", NULL },
         //{ "db_script_string",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadDbScriptStringCommand,          "", NULL },
@@ -476,10 +479,12 @@ ChatCommand * ChatHandler::getCommandTable()
         { "gossip_menu_option",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadGossipMenuOptionCommand,        "", NULL },
         { "item_enchantment_template",   SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadItemEnchantementsCommand,       "", NULL },
         { "item_loot_template",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLootTemplatesItemCommand,       "", NULL },
+        { "item_set_names",              SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadItemSetNamesCommand,            "", NULL },
         { "locales_achievement_reward",  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesAchievementRewardCommand,"", NULL },
         { "locales_creature",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesCreatureCommand,         "", NULL },
         { "locales_gameobject",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesGameobjectCommand,       "", NULL },
         { "locales_item",                SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesItemCommand,             "", NULL },
+        { "locales_item_set_name",       SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesItemSetNameCommand,      "", NULL },
         { "locales_npc_text",            SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesNpcTextCommand,          "", NULL },
         { "locales_page_text",           SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesPageTextCommand,         "", NULL },
         { "locales_points_of_interest",  SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadLocalesPointsOfInterestCommand, "", NULL },

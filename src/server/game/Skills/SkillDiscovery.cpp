@@ -18,10 +18,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ProgressBar.h"
-#include "Policies/SingletonImp.h"
 #include "World.h"
 #include "Util.h"
 #include "SkillDiscovery.h"

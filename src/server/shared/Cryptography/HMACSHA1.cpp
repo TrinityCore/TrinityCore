@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "Auth/Hmac.h"
+#include "HMACSHA1.h"
 #include "BigNumber.h"
 
 HmacHash::HmacHash(uint32 len, uint8 *seed)

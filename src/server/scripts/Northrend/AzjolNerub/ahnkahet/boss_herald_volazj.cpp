@@ -1,26 +1,25 @@
 /*
-* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /*
  * Comment: Missing AI for Twisted Visages
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ahnkahet.h"
 
 enum Spells
@@ -125,9 +124,6 @@ struct boss_volazjAI : public ScriptedAI
                 // Summon clone
                 if (Unit *summon = me->SummonCreature(MOB_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(),TEMPSUMMON_CORPSE_DESPAWN,0))
                 {
-                    // required for correct visual
-                    // Fixme: allow mirror image query to send other guid to get rid of minion status
-                    summon->SetUInt64Value(UNIT_FIELD_CREATEDBY, plr->GetGUID());
                     // clone
                     plr->CastSpell(summon, SPELL_CLONE_PLAYER, true);
                     // set phase
@@ -150,9 +146,9 @@ struct boss_volazjAI : public ScriptedAI
 
     void Reset()
     {
-        uiMindFlayTimer = 8*IN_MILISECONDS;
-        uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
-        uiShiverTimer = 15*IN_MILISECONDS;
+        uiMindFlayTimer = 8*IN_MILLISECONDS;
+        uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
+        uiShiverTimer = 15*IN_MILLISECONDS;
 
         if (pInstance)
         {
@@ -276,20 +272,20 @@ struct boss_volazjAI : public ScriptedAI
         if (uiMindFlayTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_MIND_FLAY);
-            uiMindFlayTimer = 20*IN_MILISECONDS;
+            uiMindFlayTimer = 20*IN_MILLISECONDS;
         } else uiMindFlayTimer -= diff;
 
         if (uiShadowBoltVolleyTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
-            uiShadowBoltVolleyTimer = 5*IN_MILISECONDS;
+            uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
         } else uiShadowBoltVolleyTimer -= diff;
 
         if (uiShiverTimer <= diff)
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_SHIVER);
-            uiShiverTimer = 15*IN_MILISECONDS;
+            uiShiverTimer = 15*IN_MILLISECONDS;
         } else uiShiverTimer -= diff;
 
         DoMeleeAttackIfReady();

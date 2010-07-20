@@ -22,7 +22,7 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 
 #include "ArenaTeam.h"
 #include "Log.h"
@@ -91,7 +91,7 @@ void WorldSession::HandleArenaTeamInviteOpcode(WorldPacket & recv_data)
         if (!normalizePlayerName(Invitedname))
             return;
 
-        player = ObjectAccessor::Instance().FindPlayerByName(Invitedname.c_str());
+        player = sObjectAccessor.FindPlayerByName(Invitedname.c_str());
     }
 
     if (!player)

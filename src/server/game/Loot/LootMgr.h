@@ -23,7 +23,7 @@
 
 #include "ItemEnchantmentMgr.h"
 #include "ByteBuffer.h"
-#include "Utilities/LinkedReference/RefManager.h"
+#include "RefManager.h"
 #include "SharedDefines.h"
 #include "ConditionMgr.h"
 

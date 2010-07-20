@@ -20,8 +20,8 @@
 #define _VMAPMANAGER2_H
 
 #include "IVMapManager.h"
-#include "Utilities/UnorderedMap.h"
-#include "Platform/Define.h"
+#include "Dynamic/UnorderedMap.h"
+#include "Define.h"
 #include <G3D/Vector3.h>
 
 //===========================================================

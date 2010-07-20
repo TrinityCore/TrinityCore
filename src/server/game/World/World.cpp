@@ -23,8 +23,8 @@
 */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Config/ConfigEnv.h"
+#include "DatabaseEnv.h"
+#include "ConfigEnv.h"
 #include "SystemConfig.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -48,7 +48,6 @@
 #include "ItemEnchantmentMgr.h"
 #include "MapManager.h"
 #include "CreatureAIRegistry.h"
-#include "Policies/SingletonImp.h"
 #include "BattleGroundMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "TemporarySummon.h"
@@ -57,22 +56,20 @@
 #include "VMapFactory.h"
 #include "GlobalEvents.h"
 #include "GameEventMgr.h"
-#include "PoolHandler.h"
-#include "Database/DatabaseImpl.h"
+#include "PoolMgr.h"
+#include "DatabaseImpl.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceSaveMgr.h"
 #include "Util.h"
 #include "Language.h"
 #include "CreatureGroups.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "ProgressBar.h"
 #include "ScriptMgr.h"
 #include "AddonMgr.h"
 #include "LFGMgr.h"
 #include "ConditionMgr.h"
-
-INSTANTIATE_SINGLETON_1(World);
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -142,7 +139,7 @@ World::~World()
 
     VMAP::VMapFactory::clear();
 
-    if (m_resultQueue) delete m_resultQueue;
+    delete m_resultQueue;
 
     //TODO free addSessQueue
 }
@@ -316,17 +313,18 @@ int32 World::GetQueuePos(WorldSession* sess)
 void World::AddQueuedPlayer(WorldSession* sess)
 {
     sess->SetInQueue(true);
-    m_QueuedPlayer.push_back (sess);
+    m_QueuedPlayer.push_back(sess);
 
     // The 1st SMSG_AUTH_RESPONSE needs to contain other info too.
-    WorldPacket packet (SMSG_AUTH_RESPONSE, 1 + 4 + 1 + 4 + 1);
-    packet << uint8 (AUTH_WAIT_QUEUE);
-    packet << uint32 (0);                                   // BillingTimeRemaining
-    packet << uint8 (0);                                    // BillingPlanFlags
-    packet << uint32 (0);                                   // BillingTimeRested
-    packet << uint8 (sess->Expansion());                    // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
-    packet << uint32(GetQueuePos (sess));
-    sess->SendPacket (&packet);
+    WorldPacket packet(SMSG_AUTH_RESPONSE, 1+4+1+4+1);
+    packet << uint8(AUTH_WAIT_QUEUE);
+    packet << uint32(0);                                    // BillingTimeRemaining
+    packet << uint8(0);                                     // BillingPlanFlags
+    packet << uint32(0);                                    // BillingTimeRested
+    packet << uint8(sess->Expansion());                     // 0 - normal, 1 - TBC, 2 - WOTLK, must be set in database manually for each account
+    packet << uint32(GetQueuePos(sess));                    // Queue position
+    packet << uint8(0);                                     // Unk 3.3.0
+    sess->SendPacket(&packet);
 
     //sess->SendAuthWaitQue (GetQueuePos (sess));
 }
@@ -616,7 +614,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_MAIL_LEVEL_REQ] = sConfig.GetIntDefault("LevelReq.Mail", 1);
     m_configs[CONFIG_ALLOW_PLAYER_COMMANDS] = sConfig.GetBoolDefault("AllowPlayerCommands", 1);
     m_configs[CONFIG_GRID_UNLOAD] = sConfig.GetBoolDefault("GridUnload", true);
-    m_configs[CONFIG_INTERVAL_SAVE] = sConfig.GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILISECONDS);
+    m_configs[CONFIG_INTERVAL_SAVE] = sConfig.GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILLISECONDS);
     m_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfig.GetIntDefault("DisconnectToleranceInterval", 0);
     m_configs[CONFIG_STATS_SAVE_ONLY_ON_LOGOUT] = sConfig.GetBoolDefault("PlayerSave.Stats.SaveOnlyOnLogout", true);
 
@@ -627,14 +625,14 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_MIN_LEVEL_STAT_SAVE] = 0;
     }
 
-    m_configs[CONFIG_INTERVAL_GRIDCLEAN] = sConfig.GetIntDefault("GridCleanUpDelay", 5 * MINUTE * IN_MILISECONDS);
+    m_configs[CONFIG_INTERVAL_GRIDCLEAN] = sConfig.GetIntDefault("GridCleanUpDelay", 5 * MINUTE * IN_MILLISECONDS);
     if (m_configs[CONFIG_INTERVAL_GRIDCLEAN] < MIN_GRID_DELAY)
     {
         sLog.outError("GridCleanUpDelay (%i) must be greater %u. Use this minimal value.",m_configs[CONFIG_INTERVAL_GRIDCLEAN],MIN_GRID_DELAY);
         m_configs[CONFIG_INTERVAL_GRIDCLEAN] = MIN_GRID_DELAY;
     }
     if (reload)
-        MapManager::Instance().SetGridCleanUpDelay(m_configs[CONFIG_INTERVAL_GRIDCLEAN]);
+        sMapMgr.SetGridCleanUpDelay(m_configs[CONFIG_INTERVAL_GRIDCLEAN]);
 
     m_configs[CONFIG_INTERVAL_MAPUPDATE] = sConfig.GetIntDefault("MapUpdateInterval", 100);
     if (m_configs[CONFIG_INTERVAL_MAPUPDATE] < MIN_MAP_UPDATE_DELAY)
@@ -643,15 +641,15 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_INTERVAL_MAPUPDATE] = MIN_MAP_UPDATE_DELAY;
     }
     if (reload)
-        MapManager::Instance().SetMapUpdateInterval(m_configs[CONFIG_INTERVAL_MAPUPDATE]);
+        sMapMgr.SetMapUpdateInterval(m_configs[CONFIG_INTERVAL_MAPUPDATE]);
 
-    m_configs[CONFIG_INTERVAL_CHANGEWEATHER] = sConfig.GetIntDefault("ChangeWeatherInterval", 10 * MINUTE * IN_MILISECONDS);
+    m_configs[CONFIG_INTERVAL_CHANGEWEATHER] = sConfig.GetIntDefault("ChangeWeatherInterval", 10 * MINUTE * IN_MILLISECONDS);
 
     if (reload)
     {
         uint32 val = sConfig.GetIntDefault("WorldServerPort", DEFAULT_WORLDSERVER_PORT);
         if (val != m_configs[CONFIG_PORT_WORLD])
-            sLog.outError("WorldServerPort option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_PORT_WORLD]);
+            sLog.outError("WorldServerPort option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_PORT_WORLD]);
     }
     else
         m_configs[CONFIG_PORT_WORLD] = sConfig.GetIntDefault("WorldServerPort", DEFAULT_WORLDSERVER_PORT);
@@ -660,7 +658,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
         if (val != m_configs[CONFIG_SOCKET_SELECTTIME])
-            sLog.outError("SocketSelectTime option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_SOCKET_SELECTTIME]);
+            sLog.outError("SocketSelectTime option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_SOCKET_SELECTTIME]);
     }
     else
         m_configs[CONFIG_SOCKET_SELECTTIME] = sConfig.GetIntDefault("SocketSelectTime", DEFAULT_SOCKET_SELECT_TIME);
@@ -669,7 +667,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_SESSION_ADD_DELAY] = sConfig.GetIntDefault("SessionAddDelay", 10000);
 
     m_configs[CONFIG_GROUP_XP_DISTANCE] = sConfig.GetIntDefault("MaxGroupXPDistance", 74);
-    /// \todo Add MonsterSight and GuarderSight (with meaning) in Trinityd.conf or put them as define
+    /// \todo Add MonsterSight and GuarderSight (with meaning) in worldserver.conf or put them as define
     m_configs[CONFIG_SIGHT_MONSTER] = sConfig.GetIntDefault("MonsterSight", 50);
     m_configs[CONFIG_SIGHT_GUARDER] = sConfig.GetIntDefault("GuarderSight", 50);
 
@@ -677,7 +675,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("GameType", 0);
         if (val != m_configs[CONFIG_GAME_TYPE])
-            sLog.outError("GameType option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_GAME_TYPE]);
+            sLog.outError("GameType option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_GAME_TYPE]);
     }
     else
         m_configs[CONFIG_GAME_TYPE] = sConfig.GetIntDefault("GameType", 0);
@@ -686,7 +684,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
         if (val != m_configs[CONFIG_REALM_ZONE])
-            sLog.outError("RealmZone option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_REALM_ZONE]);
+            sLog.outError("RealmZone option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_REALM_ZONE]);
     }
     else
         m_configs[CONFIG_REALM_ZONE] = sConfig.GetIntDefault("RealmZone", REALM_ZONE_DEVELOPMENT);
@@ -865,7 +863,7 @@ void World::LoadConfigSettings(bool reload)
 
     m_configs[CONFIG_CAST_UNSTUCK] = sConfig.GetBoolDefault("CastUnstuck", true);
     m_configs[CONFIG_INSTANCE_RESET_TIME_HOUR]  = sConfig.GetIntDefault("Instance.ResetTimeHour", 4);
-    m_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = sConfig.GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILISECONDS);
+    m_configs[CONFIG_INSTANCE_UNLOAD_DELAY] = sConfig.GetIntDefault("Instance.UnloadDelay", 30 * MINUTE * IN_MILLISECONDS);
 
     m_configs[CONFIG_MAX_PRIMARY_TRADE_SKILL] = sConfig.GetIntDefault("MaxPrimaryTradeSkill", 2);
     m_configs[CONFIG_MIN_PETITION_SIGNS] = sConfig.GetIntDefault("MinPetitionSigns", 9);
@@ -913,7 +911,7 @@ void World::LoadConfigSettings(bool reload)
     }
     if (reload)
     {
-        m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILISECONDS);
+        m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
         m_timers[WUPDATE_UPTIME].Reset();
     }
 
@@ -926,7 +924,7 @@ void World::LoadConfigSettings(bool reload)
     }
     if (reload)
     {
-        m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL] * MINUTE * IN_MILISECONDS);
+        m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL] * MINUTE * IN_MILLISECONDS);
         m_timers[WUPDATE_CLEANDB].Reset();
     }
     m_configs[CONFIG_LOGDB_CLEARTIME] = sConfig.GetIntDefault("LogDB.Opt.ClearTime", 1209600); // 14 days default
@@ -990,7 +988,7 @@ void World::LoadConfigSettings(bool reload)
     {
         uint32 val = sConfig.GetIntDefault("Expansion",1);
         if (val != m_configs[CONFIG_EXPANSION])
-            sLog.outError("Expansion option can't be changed at Trinityd.conf reload, using current value (%u).",m_configs[CONFIG_EXPANSION]);
+            sLog.outError("Expansion option can't be changed at worldserver.conf reload, using current value (%u).",m_configs[CONFIG_EXPANSION]);
     }
     else
         m_configs[CONFIG_EXPANSION] = sConfig.GetIntDefault("Expansion",1);
@@ -1015,6 +1013,7 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] = sConfig.GetIntDefault("Quests.HighLevelHideDiff", 7);
     if (m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] > MAX_LEVEL)
         m_configs[CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF] = MAX_LEVEL;
+    m_configs[CONFIG_QUEST_IGNORE_RAID] = sConfig.GetBoolDefault("Quests.IgnoreRaid", false);
 
     m_configs[CONFIG_RANDOM_BG_RESET_HOUR] = sConfig.GetIntDefault("BattleGround.Random.ResetHour", 6);
     if (m_configs[CONFIG_RANDOM_BG_RESET_HOUR] < 0 || m_configs[CONFIG_RANDOM_BG_RESET_HOUR] > 23)
@@ -1061,11 +1060,11 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE]       = sConfig.GetBoolDefault("Battleground.QueueAnnouncer.Enable", false);
     m_configs[CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_PLAYERONLY]   = sConfig.GetBoolDefault("Battleground.QueueAnnouncer.PlayerOnly", false);
     m_configs[CONFIG_BATTLEGROUND_INVITATION_TYPE]              = sConfig.GetIntDefault ("Battleground.InvitationType", 0);
-    m_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]       = sConfig.GetIntDefault ("BattleGround.PrematureFinishTimer", 5 * MINUTE * IN_MILISECONDS);
-    m_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH] = sConfig.GetIntDefault ("BattleGround.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILISECONDS);
+    m_configs[CONFIG_BATTLEGROUND_PREMATURE_FINISH_TIMER]       = sConfig.GetIntDefault ("BattleGround.PrematureFinishTimer", 5 * MINUTE * IN_MILLISECONDS);
+    m_configs[CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH] = sConfig.GetIntDefault ("BattleGround.PremadeGroupWaitForMatch", 30 * MINUTE * IN_MILLISECONDS);
     m_configs[CONFIG_BG_XP_FOR_KILL]                            = sConfig.GetBoolDefault("Battleground.GiveXPForKills", false);
     m_configs[CONFIG_ARENA_MAX_RATING_DIFFERENCE]               = sConfig.GetIntDefault ("Arena.MaxRatingDifference", 150);
-    m_configs[CONFIG_ARENA_RATING_DISCARD_TIMER]                = sConfig.GetIntDefault ("Arena.RatingDiscardTimer", 10 * MINUTE * IN_MILISECONDS);
+    m_configs[CONFIG_ARENA_RATING_DISCARD_TIMER]                = sConfig.GetIntDefault ("Arena.RatingDiscardTimer", 10 * MINUTE * IN_MILLISECONDS);
     m_configs[CONFIG_ARENA_AUTO_DISTRIBUTE_POINTS]              = sConfig.GetBoolDefault("Arena.AutoDistributePoints", false);
     m_configs[CONFIG_ARENA_AUTO_DISTRIBUTE_INTERVAL_DAYS]       = sConfig.GetIntDefault ("Arena.AutoDistributeInterval", 7);
     m_configs[CONFIG_ARENA_QUEUE_ANNOUNCER_ENABLE]              = sConfig.GetBoolDefault("Arena.QueueAnnouncer.Enable", false);
@@ -1180,7 +1179,7 @@ void World::LoadConfigSettings(bool reload)
     if (reload)
     {
         if (dataPath != m_dataPath)
-            sLog.outError("DataDir option can't be changed at Trinityd.conf reload, using current value (%s).",m_dataPath.c_str());
+            sLog.outError("DataDir option can't be changed at worldserver.conf reload, using current value (%s).",m_dataPath.c_str());
     }
     else
     {
@@ -1273,7 +1272,7 @@ void World::SetInitialWorldSettings()
         ||m_configs[CONFIG_EXPANSION] && (
         !MapManager::ExistMapAndVMap(530,10349.6f,-6357.29f) || !MapManager::ExistMapAndVMap(530,-3961.64f,-13931.2f)))
     {
-        sLog.outError("Correct *.map files not found in path '%smaps' or *.vmap/*vmdir files in '%svmaps'. Please place *.map/*.vmap/*.vmdir files in appropriate directories or correct the DataDir value in the Trinityd.conf file.",m_dataPath.c_str(),m_dataPath.c_str());
+        sLog.outError("Correct *.map files not found in path '%smaps' or *.vmtree/*.vmtile files in '%svmaps'. Please place *.map/*.vmtree/*.vmtile files in appropriate directories or correct the DataDir value in the worldserver.conf file.",m_dataPath.c_str(),m_dataPath.c_str());
         exit(1);
     }
 
@@ -1319,6 +1318,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadCreatureLocales();
     objmgr.LoadGameObjectLocales();
     objmgr.LoadItemLocales();
+    objmgr.LoadItemSetNameLocales();
     objmgr.LoadQuestLocales();
     objmgr.LoadNpcTextLocales();
     objmgr.LoadPageTextLocales();
@@ -1331,7 +1331,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Page Texts...");
     objmgr.LoadPageTexts();
 
-    sLog.outString("Loading Game Object Templates...");   // must be after LoadPageTexts
+    sLog.outString("Loading Game Object Templates...");     // must be after LoadPageTexts
     objmgr.LoadGameobjectInfo();
 
     sLog.outString("Loading Spell Rank Data...");
@@ -1370,8 +1370,11 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Item Random Enchantments Table...");
     LoadRandomEnchantmentsTable();
 
-    sLog.outString("Loading Items...");                   // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+    sLog.outString("Loading Items...");                     // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     objmgr.LoadItemPrototypes();
+
+    sLog.outString("Loading Item set names...");            // must be after LoadItemPrototypes
+    objmgr.LoadItemSetNames();
 
     sLog.outString("Loading Creature Model Based Info Data...");
     objmgr.LoadCreatureModelInfo();
@@ -1407,15 +1410,15 @@ void World::SetInitialWorldSettings()
     objmgr.LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
     sLog.outString("Loading Vehicle Accessories...");
-    objmgr.LoadVehicleAccessories();                          // must be after LoadCreatureTemplates()
+    objmgr.LoadVehicleAccessories();                        // must be after LoadCreatureTemplates()
 
-    sLog.outString("Loading Creature Respawn Data...");   // must be after PackInstances()
+    sLog.outString("Loading Creature Respawn Data...");     // must be after PackInstances()
     objmgr.LoadCreatureRespawnTimes();
 
     sLog.outString("Loading Gameobject Data...");
     objmgr.LoadGameobjects();
 
-    sLog.outString("Loading Gameobject Respawn Data..."); // must be after PackInstances()
+    sLog.outString("Loading Gameobject Respawn Data...");   // must be after PackInstances()
     objmgr.LoadGameobjectRespawnTimes();
 
     sLog.outString("Loading Objects Pooling Data...");
@@ -1439,7 +1442,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading UNIT_NPC_FLAG_SPELLCLICK Data...");
     objmgr.LoadNPCSpellClickSpells();
 
-    sLog.outString("Loading SpellArea Data...");          // must be after quest load
+    sLog.outString("Loading SpellArea Data...");            // must be after quest load
     spellmgr.LoadSpellAreas();
 
     sLog.outString("Loading AreaTrigger definitions...");
@@ -1602,7 +1605,7 @@ void World::SetInitialWorldSettings()
     sLog.outString(">>> Scripts loaded");
     sLog.outString();
 
-    sLog.outString("Loading Scripts text locales...");    // must be after Load*Scripts calls
+    sLog.outString("Loading Scripts text locales...");      // must be after Load*Scripts calls
     objmgr.LoadDbScriptStrings();
 
     sLog.outString("Loading CreatureEventAI Texts...");
@@ -1635,24 +1638,24 @@ void World::SetInitialWorldSettings()
 
     static uint32 abtimer = 0;
     abtimer = sConfig.GetIntDefault("AutoBroadcast.Timer", 60000);
-    m_timers[WUPDATE_OBJECTS].SetInterval(IN_MILISECONDS/2);
+    m_timers[WUPDATE_OBJECTS].SetInterval(IN_MILLISECONDS/2);
     m_timers[WUPDATE_SESSIONS].SetInterval(0);
-    m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILISECONDS);
-    m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILISECONDS);
-    m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILISECONDS);
+    m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
+    m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
+    m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
                                                             //Update "uptime" table based on configuration entry in minutes.
-    m_timers[WUPDATE_CORPSES].SetInterval(20*MINUTE*IN_MILISECONDS);
+    m_timers[WUPDATE_CORPSES].SetInterval(20*MINUTE*IN_MILLISECONDS);
                                                             //erase corpses every 20 minutes
-    m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL]*MINUTE*IN_MILISECONDS);
+    m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL]*MINUTE*IN_MILLISECONDS);
                                                             // clean logs table every 14 days by default
     m_timers[WUPDATE_AUTOBROADCAST].SetInterval(abtimer);
 
     //to set mailtimer to return mails every day between 4 and 5 am
     //mailtimer is increased when updating auctions
     //one second is 1000 -(tested on win system)
-    mail_timer = ((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
+    mail_timer = ((((localtime(&m_gameTime)->tm_hour + 20) % 24)* HOUR * IN_MILLISECONDS) / m_timers[WUPDATE_AUCTIONS].GetInterval());
                                                             //1440
-    mail_timer_expires = ((DAY * IN_MILISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
+    mail_timer_expires = ((DAY * IN_MILLISECONDS) / (m_timers[WUPDATE_AUCTIONS].GetInterval()));
     sLog.outDebug("Mail timer set to: %u, mail return is called every %u minutes", mail_timer, mail_timer_expires);
 
     ///- Initilize static helper structures
@@ -1661,7 +1664,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize MapManager
     sLog.outString("Starting Map System");
-    MapManager::Instance().Initialize();
+    sMapMgr.Initialize();
 
     sLog.outString("Starting Game Event system...");
     uint32 nextGameEvent = gameeventmgr.Initialize();
@@ -1670,7 +1673,7 @@ void World::SetInitialWorldSettings()
     sLog.outString("Starting Arena Season...");
     gameeventmgr.StartArenaSeason();
 
-    sLog.outString("Loading World States..."); // must be loaded before battleground and outdoor PvP
+    sLog.outString("Loading World States...");              // must be loaded before battleground and outdoor PvP
     LoadWorldStates();
 
     ///- Initialize Looking For Group
@@ -1688,10 +1691,7 @@ void World::SetInitialWorldSettings()
 
     //Not sure if this can be moved up in the sequence (with static data loading) as it uses MapManager
     sLog.outString("Loading Transports...");
-    MapManager::Instance().LoadTransports();
-
-    sLog.outString("Loading Transports Events...");
-    objmgr.LoadTransportEvents();
+    sMapMgr.LoadTransports();
 
     sLog.outString("Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
@@ -1943,12 +1943,12 @@ void World::Update(uint32 diff)
 
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures,...)
-    MapManager::Instance().Update(diff);                // As interval = 0
+    sMapMgr.Update(diff);                // As interval = 0
 
     /*if (m_timers[WUPDATE_OBJECTS].Passed())
     {
         m_timers[WUPDATE_OBJECTS].Reset();
-        MapManager::Instance().DoDelayedMovesAndRemoves();
+        sMapMgr.DoDelayedMovesAndRemoves();
     }*/
 
     static uint32 autobroadcaston = 0;

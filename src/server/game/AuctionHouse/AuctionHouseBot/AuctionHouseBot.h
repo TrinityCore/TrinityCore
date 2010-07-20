@@ -1,8 +1,27 @@
+/*
+ * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
 #ifndef AUCTION_HOUSE_BOT_H
 #define AUCTION_HOUSE_BOT_H
 
 #include "World.h"
-#include "Config/ConfigEnv.h"
+#include "ConfigEnv.h"
 #include "ItemPrototype.h"
 
 #define AHB_GREY        0
@@ -173,7 +192,8 @@ public:
     void SetMaxItems(uint32 value)
     {
         maxItems = value;
-        CalculatePercents();
+	// CalculatePercents() needs to be called, but only if
+	// SetPercentages() has been called at least once already.
     }
     uint32 GetMaxItems()
     {
@@ -1207,9 +1227,11 @@ private:
     inline uint32 minValue(uint32 a, uint32 b) { return a <= b ? a : b; };
     void addNewAuctions(Player *AHBplayer, AHBConfig *config);
     void addNewAuctionBuyerBotBid(Player *AHBplayer, AHBConfig *config, WorldSession *session);
+    
+    friend class ACE_Singleton<AuctionHouseBot, ACE_Null_Mutex>;
+    AuctionHouseBot();
 
 public:
-    AuctionHouseBot();
     ~AuctionHouseBot();
     void Update();
     void Initialize();
@@ -1220,6 +1242,6 @@ public:
     uint32 GetAHBplayerGUID() { return AHBplayerGUID; };
 };
 
-#define auctionbot Trinity::Singleton<AuctionHouseBot>::Instance()
+#define auctionbot (*ACE_Singleton<AuctionHouseBot, ACE_Null_Mutex>::instance())
 
 #endif

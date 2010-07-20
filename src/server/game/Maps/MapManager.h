@@ -21,8 +21,8 @@
 #ifndef TRINITY_MAPMANAGER_H
 #define TRINITY_MAPMANAGER_H
 
-#include "Platform/Define.h"
-#include "Policies/Singleton.h"
+#include "Define.h"
+#include "ace/Singleton.h"
 #include "ace/Thread_Mutex.h"
 #include "Common.h"
 #include "Map.h"
@@ -31,10 +31,9 @@
 
 class Transport;
 
-class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex> >
+class MapManager
 {
-
-    friend class Trinity::OperatorNew<MapManager>;
+    friend class ACE_Singleton<MapManager, ACE_Thread_Mutex>;
     typedef UNORDERED_MAP<uint32, Map*> MapMapType;
     typedef std::pair<UNORDERED_MAP<uint32, Map*>::iterator, bool>  MapMapPair;
 
@@ -108,6 +107,21 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
             return IsValidMapCoord(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation());
         }
 
+        // modulos a radian orientation to the range of 0..2PI
+        static float NormalizeOrientation(float o)
+        {
+            // fmod only supports positive numbers. Thus we have
+            // to emulate negative numbers
+            if (o < 0)
+            {
+                float mod = o *-1;
+                mod = fmod(mod, 2.0f * static_cast<float>(M_PI));
+                mod = -mod + 2.0f * M_PI;
+                return mod;
+            }
+            return fmod(o, 2.0f * static_cast<float>(M_PI));
+        }
+
         void DoDelayedMovesAndRemoves();
 
         void LoadTransports();
@@ -147,7 +161,7 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
             return (iter == i_maps.end() ? NULL : iter->second);
         }
 
-        typedef Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex>::Lock Guard;
+        ACE_Thread_Mutex Lock;
         uint32 i_gridCleanUpDelay;
         MapMapType i_maps;
         IntervalTimer i_timer;
@@ -155,4 +169,5 @@ class MapManager : public Trinity::Singleton<MapManager, Trinity::ClassLevelLock
         uint32 i_MaxInstanceId;
         MapUpdater m_updater;
 };
+#define sMapMgr (*ACE_Singleton<MapManager, ACE_Thread_Mutex>::instance())
 #endif

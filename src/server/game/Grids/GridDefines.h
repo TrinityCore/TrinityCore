@@ -22,7 +22,7 @@
 #define TRINITY_GRIDDEFINES_H
 
 #include "Common.h"
-#include "GameSystem/NGrid.h"
+#include "NGrid.h"
 #include <cmath>
 
 // Forward class definitions
@@ -42,7 +42,7 @@ class Player;
 
 #define CENTER_GRID_OFFSET      (SIZE_OF_GRIDS/2)
 
-#define MIN_GRID_DELAY          (MINUTE*IN_MILISECONDS)
+#define MIN_GRID_DELAY          (MINUTE*IN_MILLISECONDS)
 #define MIN_MAP_UPDATE_DELAY    50
 
 #define SIZE_OF_GRID_CELL       (SIZE_OF_GRIDS/MAX_NUMBER_OF_CELLS)

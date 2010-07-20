@@ -26,7 +26,7 @@
 #include "UpdateMask.h"
 #include "ItemPrototype.h"
 #include "LootMgr.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Cell.h"
 
 #include <list>
@@ -66,7 +66,7 @@ enum CreatureFlagsExtra
 #endif
 
 #define MAX_KILL_CREDIT 2
-#define CREATURE_REGEN_INTERVAL 2 * IN_MILISECONDS
+#define CREATURE_REGEN_INTERVAL 2 * IN_MILLISECONDS
 
 // from `creature_template` table
 struct CreatureInfo
@@ -314,6 +314,9 @@ struct VendorItem
     int32  maxcount;                                        // 0 for infinity item amount
     uint32 incrtime;                                        // time for restore items amount if maxcount != 0
     uint32 ExtendedCost;
+
+    //helpers
+    bool IsGoldRequired(ItemPrototype const* pProto) const { return pProto->Flags2 & ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD || !ExtendedCost; }
 };
 typedef std::vector<VendorItem*> VendorItemList;
 
@@ -424,9 +427,20 @@ class Creature : public Unit, public GridObject<Creature>
         bool canWalk() const { return GetCreatureInfo()->InhabitType & INHABIT_GROUND; }
         bool canSwim() const { return GetCreatureInfo()->InhabitType & INHABIT_WATER; }
         //bool canFly()  const { return GetCreatureInfo()->InhabitType & INHABIT_AIR; }
+        
         void SetReactState(ReactStates st) { m_reactState = st; }
         ReactStates GetReactState() { return m_reactState; }
         bool HasReactState(ReactStates state) const { return (m_reactState == state); }
+        void InitializeReactState()
+        {
+            if (isTotem() || isTrigger() || GetCreatureType() == CREATURE_TYPE_CRITTER)
+                SetReactState(REACT_PASSIVE);
+            else
+                SetReactState(REACT_AGGRESSIVE);
+            /*else if (isCivilian())
+            SetReactState(REACT_DEFENSIVE);*/;
+        }
+
         ///// TODO RENAME THIS!!!!!
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
@@ -607,10 +621,10 @@ class Creature : public Unit, public GridObject<Creature>
         bool hasInvolvedQuest(uint32 quest_id)  const;
 
         bool isRegeneratingHealth() { return m_regenHealth; }
-        virtual uint8 GetPetAutoSpellSize() const { return CREATURE_MAX_SPELLS; }
+        virtual uint8 GetPetAutoSpellSize() const { return MAX_SPELL_CHARM; }
         virtual uint32 GetPetAutoSpellOnPos(uint8 pos) const
         {
-            if (pos >= CREATURE_MAX_SPELLS || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
+            if (pos >= MAX_SPELL_CHARM || m_charmInfo->GetCharmSpell(pos)->GetType() != ACT_ENABLED)
                 return 0;
             else
                 return m_charmInfo->GetCharmSpell(pos)->GetAction();
@@ -696,7 +710,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         bool DisableReputationGain;
 
-        CreatureInfo const* m_creatureInfo;                 // in difficulty mode > 0 can different from ObjMgr::GetCreatureTemplate(GetEntry())
+        CreatureInfo const* m_creatureInfo;                 // in difficulty mode > 0 can different from objmgr.::GetCreatureTemplate(GetEntry())
         CreatureData const* m_creatureData;
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable

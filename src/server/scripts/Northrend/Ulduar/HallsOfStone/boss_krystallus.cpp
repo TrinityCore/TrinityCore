@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 /* Script Data Start
 SDName: Boss krystallus
 SDAuthor: LordVanMartin
@@ -9,7 +26,7 @@ Script Data End */
 /*** SQL START ***
 update creature_template set scriptname = 'boss_krystallus' where entry = '';
 *** SQL END ***/
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_stone.h"
 
 enum Spells
@@ -20,6 +37,9 @@ enum Spells
     SPELL_GROUND_SLAM                              = 50827,
     SPELL_SHATTER                                  = 50810,
     H_SPELL_SHATTER                                = 61546,
+    SPELL_SHATTER_EFFECT                           = 50811,
+    H_SPELL_SHATTER_EFFECT                         = 61547,
+    SPELL_STONED                                   = 50812,
     SPELL_STOMP                                    = 48131,
     H_SPELL_STOMP                                  = 59744
 };
@@ -108,8 +128,7 @@ struct boss_krystallusAI : public ScriptedAI
         {
             if (uiShatterTimer <= diff)
             {
-                DoCast(me, SPELL_SHATTER);
-                bIsSlam = false;
+                DoCast(me, DUNGEON_MODE(SPELL_SHATTER, H_SPELL_SHATTER));
             } else uiShatterTimer -= diff;
         }
 
@@ -129,6 +148,32 @@ struct boss_krystallusAI : public ScriptedAI
         if (victim == me)
             return;
         DoScriptText(SAY_KILL, me);
+    }
+
+    void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
+    {
+        //this part should be in the core
+        if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)
+        {
+            //this spell must have custom handling in the core, dealing damage based on distance
+            pTarget->CastSpell(pTarget, DUNGEON_MODE(SPELL_SHATTER_EFFECT, H_SPELL_SHATTER_EFFECT), true);
+
+            if (pTarget->HasAura(SPELL_STONED))
+                pTarget->RemoveAurasDueToSpell(SPELL_STONED);
+
+            //clear this, if we are still performing
+            if (bIsSlam)
+            {
+                bIsSlam = false;
+
+                //and correct movement, if not already
+                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                {
+                    if (me->getVictim())
+                        me->GetMotionMaster()->MoveChase(me->getVictim());
+                }
+            }
+        }
     }
 };
 

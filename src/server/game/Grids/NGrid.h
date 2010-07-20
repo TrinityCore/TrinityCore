@@ -24,8 +24,8 @@
 /** NGrid is nothing more than a wrapper of the Grid with an NxN cells
  */
 
-#include "GameSystem/Grid.h"
-#include "GameSystem/GridReference.h"
+#include "Grid.h"
+#include "GridReference.h"
 #include "Timer.h"
 #include "Util.h"
 
@@ -74,14 +74,13 @@ template
 unsigned int N,
 class ACTIVE_OBJECT,
 class WORLD_OBJECT_TYPES,
-class GRID_OBJECT_TYPES,
-class ThreadModel = Trinity::SingleThreaded<ACTIVE_OBJECT>
+class GRID_OBJECT_TYPES
 >
 class NGrid
 {
     public:
 
-        typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES, ThreadModel> GridType;
+        typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> GridType;
         NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true)
             : i_gridId(id), i_x(x), i_y(y), i_cellstate(GRID_STATE_INVALID), i_GridObjectDataLoaded(false)
         {
@@ -109,7 +108,7 @@ class NGrid
         int32 getX() const { return i_x; }
         int32 getY() const { return i_y; }
 
-        void link(GridRefManager<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES, ThreadModel> >* pTo)
+        void link(GridRefManager<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> >* pTo)
         {
             i_Reference.link(pTo, this);
         }
@@ -178,7 +177,7 @@ class NGrid
 
         uint32 i_gridId;
         GridInfo i_GridInfo;
-        GridReference<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES, ThreadModel> > i_Reference;
+        GridReference<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> > i_Reference;
         int32 i_x;
         int32 i_y;
         grid_state_t i_cellstate;

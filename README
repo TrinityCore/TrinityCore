@@ -40,4 +40,4 @@ SQL files to create the database can be found in the sql directory. Files
 to update your database from an older revision/version can be found in the
 sql/updates directory.
 
-See the INSTALL.linux file for installation instructions on Linux.
+See the docs/UnixInstall.txt file for installation instructions on Linux.

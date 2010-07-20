@@ -25,9 +25,9 @@
 
 #include "ace/Thread_Mutex.h"
 #include "ace/Method_Request.h"
-#include "LockedQueue.h"
+#include "Threading/LockedQueue.h"
 #include <queue>
-#include "Utilities/Callback.h"
+#include "Threading/Callback.h"
 #include "QueryResult.h"
 
 /// ---- BASE ---

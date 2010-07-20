@@ -24,7 +24,7 @@
 #ifndef TRINITY_SYSTEMCONFIG_H
 #define TRINITY_SYSTEMCONFIG_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include "revision.h"
 
 #define _PACKAGENAME "TrinityCore "

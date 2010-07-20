@@ -19,7 +19,7 @@
  */
 
 #include "InstanceData.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Map.h"
 #include "Player.h"
 #include "GameObject.h"
@@ -43,7 +43,7 @@ void InstanceData::HandleGameObject(uint64 GUID, bool open, GameObject *go)
     if (go)
         go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
     else
-        debug_log("TSCR: InstanceData: HandleGameObject failed");
+        sLog.outDebug("TSCR: InstanceData: HandleGameObject failed");
 }
 
 bool InstanceData::IsEncounterInProgress() const
@@ -263,7 +263,7 @@ void InstanceData::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, bo
                 pGo->ResetDoorOrButton();
         }
         else
-            error_log("SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.",pGo->GetEntry(),pGo->GetGoType());
+            sLog.outError("SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.",pGo->GetEntry(),pGo->GetGoType());
     }
 }
 
@@ -294,7 +294,7 @@ void InstanceData::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
                 pPlayer->SendUpdateWorldState(uiStateId, uiStateData);
     }
     else
-        debug_log("TSCR: DoUpdateWorldState attempt send data but no players in map.");
+        sLog.outDebug("TSCR: DoUpdateWorldState attempt send data but no players in map.");
 }
 
 // Send Notify to all players in instance
@@ -318,7 +318,7 @@ void InstanceData::DoCompleteAchievement(uint32 achievement)
 
     if (!pAE)
     {
-        error_log("TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
+        sLog.outError("TSCR: DoCompleteAchievement called for not existing achievement %u", achievement);
         return;
     }
 

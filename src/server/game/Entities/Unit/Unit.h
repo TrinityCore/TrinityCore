@@ -31,9 +31,12 @@
 #include "HostileRefManager.h"
 #include "FollowerReference.h"
 #include "FollowerRefManager.h"
-#include "Utilities/EventProcessor.h"
+#include "EventProcessor.h"
 #include "MotionMaster.h"
 #include "DBCStructure.h"
+#include "Path.h"
+#include "WorldPacket.h"
+#include "Timer.h"
 #include <list>
 
 #define WORLD_TRIGGER   12999
@@ -324,7 +327,6 @@ class DynamicObject;
 class GameObject;
 class Item;
 class Pet;
-class Path;
 class PetAura;
 class Minion;
 class Guardian;
@@ -1104,7 +1106,7 @@ class Unit : public WorldObject
 
         DiminishingLevels GetDiminishing(DiminishingGroup  group);
         void IncrDiminishing(DiminishingGroup group);
-        void ApplyDiminishingToDuration(DiminishingGroup  group, int32 &duration,Unit* caster, DiminishingLevels Level, int32 limitduration);
+        float ApplyDiminishingToDuration(DiminishingGroup  group, int32 &duration,Unit* caster, DiminishingLevels Level, int32 limitduration);
         void ApplyDiminishingAura(DiminishingGroup  group, bool apply);
         void ClearDiminishings() { m_Diminishing.clear(); }
 
@@ -1397,7 +1399,7 @@ class Unit : public WorldObject
         virtual bool IsUnderWater() const;
         bool isInAccessiblePlaceFor(Creature const* c) const;
 
-        void SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32 OverHeal, bool critical = false);
+        void SendHealSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage, uint32 OverHeal, uint32 Absorb, bool critical = false);
         void SendEnergizeSpellLog(Unit *pVictim, uint32 SpellID, uint32 Damage,Powers powertype);
         void EnergizeBySpell(Unit *pVictim, uint32 SpellID, uint32 Damage, Powers powertype);
         uint32 SpellNonMeleeDamageLog(Unit *pVictim, uint32 spellID, uint32 damage);
@@ -1436,11 +1438,13 @@ class Unit : public WorldObject
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 Time, Player* player = NULL);
         void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 MoveFlags, uint32 time, float speedZ, Player *player = NULL);
         //void SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint8 type, uint32 MovementFlags, uint32 Time, Player* player = NULL);
-        void SendMonsterMoveByPath(Path const& path, uint32 start, uint32 end);
         void SendMonsterMoveTransport(Unit *vehicleOwner);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
         void SendMonsterMoveWithSpeedToCurrentDestination(Player* player = NULL);
         void SendMovementFlagUpdate();
+
+        template<typename PathElem, typename PathNode>
+        void SendMonsterMoveByPath(Path<PathElem,PathNode> const& path, uint32 start, uint32 end);
 
         void SendChangeCurrentVictimOpcode(HostileReference* pHostileReference);
         void SendClearThreatListOpcode();
@@ -1525,7 +1529,7 @@ class Unit : public WorldObject
         void       DeleteCharmInfo();
         void UpdateCharmAI();
         //Player * GetMoverSource() const;
-        Player *m_movedPlayer;
+        Player * m_movedPlayer;
         SharedVisionList const& GetSharedVisionList() { return m_sharedVision; }
         void AddPlayerToVision(Player* plr);
         void RemovePlayerFromVision(Player* plr);
@@ -1831,6 +1835,7 @@ class Unit : public WorldObject
         uint32 CalcNotIgnoreDamageRedunction(uint32 damage, SpellSchoolMask damageSchoolMask);
         uint32 CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEntry const *spellInfo, WeaponAttackType attackType=MAX_ATTACK);
         void CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellEntry const *spellInfo = NULL);
+        void CalcHealAbsorb(Unit *pVictim, const SpellEntry *spellProto, uint32 &healAmount, uint32 &absorb);
 
         void  UpdateSpeed(UnitMoveType mtype, bool forced);
         float GetSpeed(UnitMoveType mtype) const;
@@ -1841,8 +1846,8 @@ class Unit : public WorldObject
         void SetHover(bool on);
         bool isHover() const { return HasAuraType(SPELL_AURA_HOVER); }
 
-        int32 ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, int32 value);
-        int32 CalculateSpellDamage(Unit const* target, SpellEntry const* spellProto, uint8 effect_index, int32 const* basePoints = NULL);
+        int32 ApplyEffectModifiers(SpellEntry const* spellProto, uint8 effect_index, int32 value) const;
+        int32 CalculateSpellDamage(Unit const* target, SpellEntry const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
         int32 CalcSpellDuration(SpellEntry const* spellProto);
         int32 ModSpellDuration(SpellEntry const* spellProto, Unit const* target, int32 duration, bool positive);
         void  ModSpellCastTime(SpellEntry const* spellProto, int32 & castTime, Spell * spell=NULL);
@@ -2116,4 +2121,30 @@ namespace Trinity
     };
 }
 
+template<typename Elem, typename Node>
+inline void Unit::SendMonsterMoveByPath(Path<Elem,Node> const& path, uint32 start, uint32 end)
+{
+    uint32 traveltime = uint32(path.GetTotalLength(start, end) * 32);
+    uint32 pathSize = end - start;
+    WorldPacket data(SMSG_MONSTER_MOVE, (GetPackGUID().size()+1+4+4+4+4+1+4+4+4+pathSize*4*3));
+    data.append(GetPackGUID());
+    data << uint8(0);
+    data << GetPositionX();
+    data << GetPositionY();
+    data << GetPositionZ();
+    data << uint32(getMSTime());
+    data << uint8(0);
+    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight()) ? (MOVEFLAG_FLY|MOVEFLAG_WALK) : MOVEFLAG_WALK);
+    data << uint32(traveltime);
+    data << uint32(pathSize);
+    
+    for (uint32 i = start; i < end; ++i)
+    {
+        data << float(path[i].x);
+        data << float(path[i].y);
+        data << float(path[i].z);
+    }
+    
+    SendMessageToSet(&data, true);
+}
 #endif

@@ -77,14 +77,15 @@ AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint
         else
             sLog.outDebug("Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
     }
-    m_flags |= (_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE) |
-        (GetBase()->GetCasterGUID() == GetTarget()->GetGUID() ? AFLAG_CASTER : AFLAG_NONE);
 
     m_isNeedManyNegativeEffects = false;
     if (GetBase()->GetCasterGUID() == GetTarget()->GetGUID()) // caster == target - 1 negative effect is enough for aura to be negative
         m_isNeedManyNegativeEffects = false;
     else if (caster)
         m_isNeedManyNegativeEffects = caster->IsFriendlyTo(m_target);
+
+    m_flags |= (_CheckPositive(caster) ? AFLAG_POSITIVE : AFLAG_NEGATIVE) |
+        (GetBase()->GetCasterGUID() == GetTarget()->GetGUID() ? AFLAG_CASTER : AFLAG_NONE);
 }
 
 void AuraApplication::_Remove()
@@ -305,7 +306,7 @@ m_spellProto(spellproto), m_owner(owner), m_casterGuid(casterGUID ? casterGUID :
     m_procCharges(0), m_stackAmount(1), m_isRemoved(false), m_casterLevel(caster ? caster->getLevel() : m_spellProto->spellLevel)
 {
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
-        m_timeCla = 1 * IN_MILISECONDS;
+        m_timeCla = 1 * IN_MILLISECONDS;
 
     Player* modOwner = NULL;
 
@@ -342,8 +343,7 @@ Aura::~Aura()
 {
     // free effects memory
     for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i])
-            delete m_effects[i];
+         delete m_effects[i];
 
     assert(m_applications.empty());
     _DeleteRemovedApplications();
@@ -391,9 +391,17 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
     assert(auraApp);
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
+    // TODO: Figure out why this happens.
+    if (itr == m_applications.end())
+    {
+        sLog.outError("Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
+        target->GetGUIDLow(), caster->GetGUIDLow(), auraApp->GetBase()->GetSpellProto()->Id);
+    }
+    else
+        m_applications.erase(itr);
+
     // aura has to be already applied
-    assert(itr->second == auraApp);
-    m_applications.erase(itr);
+    //assert(itr->second == auraApp);
     m_removedApplications.push_back(auraApp);
 
     // reset cooldown state for spells
@@ -412,7 +420,7 @@ void Aura::_Remove(AuraRemoveMode removeMode)
     assert (!m_isRemoved);
     m_isRemoved = true;
     ApplicationMap::iterator appItr = m_applications.begin();
-    while (!m_applications.empty())
+    for (appItr = m_applications.begin(); appItr != m_applications.end();)
     {
         AuraApplication * aurApp =  appItr->second;
         Unit * target = aurApp->GetTarget();
@@ -459,8 +467,10 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
         bool addUnit = true;
-        // check target immunities
-        if (itr->first->IsImmunedToSpell(GetSpellProto()))
+        // check target immunities 
+        if (itr->first->IsImmunedToSpell(GetSpellProto()) 
+            // check area target requirements
+            || (itr->first != GetOwner() && !CheckAreaTarget(itr->first)))
             addUnit = false;
 
         if (addUnit)
@@ -532,7 +542,7 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
     UnitList targetList;
     for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
     {
-        if ((appIter->second->GetEffectsToApply() & (1<<effIndex)) && CheckTarget(appIter->second->GetTarget()) && !appIter->second->HasEffect(effIndex))
+        if ((appIter->second->GetEffectsToApply() & (1<<effIndex)) && !appIter->second->HasEffect(effIndex))
             targetList.push_back(appIter->second->GetTarget());
     }
 
@@ -632,45 +642,6 @@ void Aura::Update(uint32 diff, Unit * caster)
     }
 }
 
-bool Aura::CheckTarget(Unit *target)
-{
-    // some special cases
-    switch(GetId())
-    {
-        case 45828: // AV Marshal's HP/DMG auras
-        case 45829:
-        case 45830:
-        case 45821:
-        case 45822: // AV Warmaster's HP/DMG auras
-        case 45823:
-        case 45824:
-        case 45826:
-            switch(target->GetEntry())
-            {
-                // alliance
-                case 14762: // Dun Baldar North Marshal
-                case 14763: // Dun Baldar South Marshal
-                case 14764: // Icewing Marshal
-                case 14765: // Stonehearth Marshal
-                case 11948: // Vandar Stormspike
-                // horde
-                case 14772: // East Frostwolf Warmaster
-                case 14776: // Tower Point Warmaster
-                case 14773: // Iceblood Warmaster
-                case 14777: // West Frostwolf Warmaster
-                case 11946: // Drek'thar
-                    return true;
-                default:
-                    return false;
-                    break;
-            }
-            break;
-        default:
-            return true;
-            break;
-    }
-}
-
 void Aura::SetDuration(int32 duration, bool withMods)
 {
     if (withMods)
@@ -691,7 +662,7 @@ void Aura::RefreshDuration()
             m_effects[i]->ResetPeriodic();
 
     if (m_spellProto->manaPerSecond || m_spellProto->manaPerSecondPerLevel)
-        m_timeCla = 1 * IN_MILISECONDS;
+        m_timeCla = 1 * IN_MILLISECONDS;
 }
 
 void Aura::SetCharges(uint8 charges)
@@ -781,33 +752,6 @@ bool Aura::CanBeSaved() const
     return true;
 }
 
-bool Aura::HasEffectType(AuraType type) const
-{
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (m_effects[i] && m_effects[i]->GetAuraType() == type)
-            return true;
-    }
-    return false;
-}
-
-void Aura::RecalculateAmountOfEffects()
-{
-    assert (!IsRemoved());
-    Unit * caster = GetCaster();
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i])
-            m_effects[i]->RecalculateAmount(caster);
-}
-
-void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply)
-{
-    assert (!IsRemoved());
-    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (m_effects[i] && !IsRemoved())
-            m_effects[i]->HandleEffect(aurApp, mode, apply);
-}
-
 bool Aura::IsVisible() const
 {
     // Is this blizzlike? show totem passive auras
@@ -840,6 +784,39 @@ void Aura::SetLoadedState(int32 maxduration, int32 duration, int32 charges, uint
             m_effects[i]->CalculateSpellMod();
             m_effects[i]->RecalculateAmount(caster);
         }
+}
+
+bool Aura::HasEffectType(AuraType type) const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (m_effects[i] && m_effects[i]->GetAuraType() == type)
+            return true;
+    }
+    return false;
+}
+
+void Aura::RecalculateAmountOfEffects()
+{
+    assert (!IsRemoved());
+    Unit * caster = GetCaster();
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (m_effects[i])
+            m_effects[i]->RecalculateAmount(caster);
+}
+
+void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply)
+{
+    assert (!IsRemoved());
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (m_effects[i] && !IsRemoved())
+            m_effects[i]->HandleEffect(aurApp, mode, apply);
+}
+
+void Aura::SetNeedClientUpdateForTargets() const
+{
+    for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
+        appIter->second->SetNeedClientUpdate();
 }
 
 // trigger effects on real aura apply/remove
@@ -895,6 +872,10 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         if (GetStackAmount() >= 5 && !target->HasAura(33652))
                             target->CastSpell(target, 33652, true);
                         break;
+                    case 50836: //Petrifying Grip, becomes stoned
+                        if (GetStackAmount() >= 5 && !target->HasAura(50812))
+                            target->CastSpell(target, 50812, true);
+                        break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             target->ToPlayer()->RemoveSpellCooldown(20252, true);
@@ -936,20 +917,17 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                         // Arcane Potency
                         if (AuraEffect const * aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, 2120, 0))
                         {
-                            if (roll_chance_i(aurEff->GetAmount()))
-                            {
-                                uint32 spellId = 0;
+                            uint32 spellId = 0;
 
-                                switch (aurEff->GetId())
-                                {
-                                    case 31571: spellId = 57529; break;
-                                    case 31572: spellId = 57531; break;
-                                    default:
-                                        sLog.outError("Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
-                                }
-                                if (spellId)
-                                    caster->CastSpell(caster, spellId, true);
+                            switch (aurEff->GetId())
+                            {
+                                case 31571: spellId = 57529; break;
+                                case 31572: spellId = 57531; break;
+                                default:
+                                    sLog.outError("Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
                             }
+                            if (spellId)
+                                caster->CastSpell(caster, spellId, true);
                         }
                         break;
                 }
@@ -1278,7 +1256,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
                             data << uint64(player->GetGUID());
                             data << uint8(0x0);                                     // flags (0x1, 0x2)
                             data << uint32(GetSpellProto()->Id);
-                            data << uint32(aurEff->GetAmount()*IN_MILISECONDS);
+                            data << uint32(aurEff->GetAmount()*IN_MILLISECONDS);
                             player->SendDirectMessage(&data);
                         }
                         break;
@@ -1514,10 +1492,44 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
     }
 }
 
-void Aura::SetNeedClientUpdateForTargets() const
+bool Aura::CheckAreaTarget(Unit *target)
 {
-    for (ApplicationMap::const_iterator appIter = m_applications.begin(); appIter != m_applications.end(); ++appIter)
-        appIter->second->SetNeedClientUpdate();
+    // for owner check use Spell::CheckTarget
+    assert(GetOwner() != target);
+
+    // some special cases
+    switch(GetId())
+    {
+        case 45828: // AV Marshal's HP/DMG auras
+        case 45829:
+        case 45830:
+        case 45821:
+        case 45822: // AV Warmaster's HP/DMG auras
+        case 45823:
+        case 45824:
+        case 45826:
+            switch(target->GetEntry())
+            {
+                // alliance
+                case 14762: // Dun Baldar North Marshal
+                case 14763: // Dun Baldar South Marshal
+                case 14764: // Icewing Marshal
+                case 14765: // Stonehearth Marshal
+                case 11948: // Vandar Stormspike
+                // horde
+                case 14772: // East Frostwolf Warmaster
+                case 14776: // Tower Point Warmaster
+                case 14773: // Iceblood Warmaster
+                case 14777: // West Frostwolf Warmaster
+                case 11946: // Drek'thar
+                    return true;
+                default:
+                    return false;
+                    break;
+            }
+            break;
+    }
+    return true;
 }
 
 void Aura::_DeleteRemovedApplications()

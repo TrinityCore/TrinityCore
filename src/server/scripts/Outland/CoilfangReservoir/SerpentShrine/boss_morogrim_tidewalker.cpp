@@ -1,18 +1,20 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: Boss_Morogrim_Tidewalker
@@ -21,7 +23,7 @@ SDComment: Water globules don't explode properly, remove hacks
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "serpent_shrine.h"
 
 #define SAY_AGGRO                   -1548030
@@ -221,9 +223,8 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             {
                 //Teleport 4 players under the waterfalls
                 Unit *pTarget;
-                using std::set;
-                set<int>list;
-                set<int>::const_iterator itr;
+                std::set<uint64> list;
+                std::set<uint64>::const_iterator itr;
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     counter = 0;
@@ -251,7 +252,7 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             } else WateryGrave_Timer -= diff;
 
             //Start Phase2
-            if ((me->GetHealth()*100 / me->GetMaxHealth()) < 25)
+            if (HealthBelowPct(25))
                 Phase2 = true;
         }
         else
@@ -260,13 +261,13 @@ struct boss_morogrim_tidewalkerAI : public ScriptedAI
             if (WateryGlobules_Timer <= diff)
             {
                 Unit* pGlobuleTarget;
-                using std::set;
-                set<int>globulelist;
-                set<int>::const_iterator itr;
+                std::set<uint64> globulelist;
+                std::set<uint64>::const_iterator itr;
                 for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                 {
                     counter = 0;
-                    do {
+                    do
+                    {
                         pGlobuleTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 50, true);
                         if (pGlobuleTarget)
                             itr = globulelist.find(pGlobuleTarget->GetGUID());

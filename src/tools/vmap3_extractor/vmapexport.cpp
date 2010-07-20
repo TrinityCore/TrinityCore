@@ -1,16 +1,3 @@
-/*****************************************************************************/
-/* StormLibTest.cpp                       Copyright (c) Ladislav Zezula 2003 */
-/*---------------------------------------------------------------------------*/
-/* This module uses very brutal test methods for StormLib. It extracts all   */
-/* files from the archive with Storm.dll and with stormlib and compares them,*/
-/* then tries to build a copy of the entire archive, then removes a few files*/
-/* from the archive and adds them back, then compares the two archives, ...  */
-/*---------------------------------------------------------------------------*/
-/*   Date    Ver   Who  Comment                                              */
-/* --------  ----  ---  -------                                              */
-/* 25.03.03  1.00  Lad  The first version of StormLibTest.cpp                */
-/*****************************************************************************/
-
 #define _CRT_SECURE_NO_DEPRECATE
 #include <cstdio>
 #include <iostream>
@@ -18,7 +5,7 @@
 #include <list>
 #include <errno.h>
 
-#ifdef WIN32
+#ifdef _WIN32
     #include <Windows.h>
     #include <sys/stat.h>
     #include <direct.h>
@@ -68,7 +55,7 @@ bool preciseVectorData = false;
 // Constants
 
 //static const char * szWorkDirMaps = ".\\Maps";
-static const char * szWorkDirWmo = "./Buildings";
+const char * szWorkDirWmo = "./Buildings";
 
 // Local testing functions
 
@@ -114,7 +101,7 @@ void ReadLiquidTypeTableDBC()
     for(uint32 x = 0; x < LiqType_count; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    printf("Done! (%u LiqTypes loaded)\n", LiqType_count);
+    printf("Done! (%u LiqTypes loaded)\n", (unsigned int)LiqType_count);
 }
 
 int ExtractWmo()
@@ -236,18 +223,22 @@ void ParsMapFiles()
         WDTFile WDT(fn,map_ids[i].name);
         if(WDT.init(id, map_ids[i].id))
         {
+            printf("Processing Map %u\n[", map_ids[i].id);
             for (int x=0; x<64; ++x)
             {
                 for (int y=0; y<64; ++y)
                 {
-                    if (ADTFile*ADT = WDT.GetMap(x,y))
+                    if (ADTFile *ADT = WDT.GetMap(x,y))
                     {
                         //sprintf(id_filename,"%02u %02u %03u",x,y,map_ids[i].id);//!!!!!!!!!
                         ADT->init(map_ids[i].id, x, y);
                         delete ADT;
                     }
                 }
+                printf("#");
+                fflush(stdout);
             }
+            printf("]\n");
         }
     }
 }
@@ -260,9 +251,8 @@ void getGamePath()
     LONG l;
     s = sizeof(input_path);
     memset(input_path,0,s);
-    l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\World of Warcraft",0,KEY_QUERY_VALUE,&key);
-    //l = RegOpenKeyEx(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\Burning Crusade Closed Beta",0,KEY_QUERY_VALUE,&key);
-    l = RegQueryValueEx(key,"InstallPath",0,&t,(LPBYTE)input_path,&s);
+    l = RegOpenKeyExA(HKEY_LOCAL_MACHINE,"SOFTWARE\\Blizzard Entertainment\\World of Warcraft",0,KEY_QUERY_VALUE,&key);
+    l = RegQueryValueExA(key,"InstallPath",0,&t,(LPBYTE)input_path,&s);
     RegCloseKey(key);
     if (strlen(input_path) > 0)
     {
@@ -321,6 +311,11 @@ bool fillArchiveNameVector(std::vector<std::string>& pArchiveNames)
     searchLocales.push_back("esES");
     searchLocales.push_back("frFR");
     searchLocales.push_back("koKR");
+    searchLocales.push_back("zhCN");
+    searchLocales.push_back("zhTW");
+    searchLocales.push_back("enCN");
+    searchLocales.push_back("enTW");
+    searchLocales.push_back("esMX");
     searchLocales.push_back("ruRU");
 
     for (std::vector<std::string>::iterator i = searchLocales.begin(); i != searchLocales.end(); ++i)
@@ -445,17 +440,33 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 int main(int argc, char ** argv)
 {
     bool success=true;
-    const char *versionString = "V2.90 2010_05";
+    const char *versionString = "V3.00 2010_07";
 
     // Use command line arguments, when some
     if(!processArgv(argc, argv, versionString))
         return 1;
 
+    // some simple check if working dir is dirty
+    else
+    {
+        std::string sdir = std::string(szWorkDirWmo) + "/dir";
+        std::string sdir_bin = std::string(szWorkDirWmo) + "/dir_bin";
+        struct stat status;
+        if (!stat(sdir.c_str(), &status) || !stat(sdir_bin.c_str(), &status))
+        {
+            printf("Your output directory seems to be polluted, please use an empty directory!\n");
+            printf("<press return to exit>");
+            char garbage[2];
+            scanf("%c", garbage);
+            return 1;
+        }
+    }
+
     printf("Extract %s. Beginning work ....\n",versionString);
     //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
     // Create the working directory
     if(mkdir(szWorkDirWmo
-#ifdef __linux__
+#ifdef _XOPEN_UNIX
                     , 0711
 #endif
                     ))

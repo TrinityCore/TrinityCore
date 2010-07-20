@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: Some cleanup left along with save
 SDCategory: Auchindoun, Shadow Labyrinth
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "shadow_labyrinth.h"
 
 #define MAX_ENCOUNTER 5
@@ -96,7 +98,7 @@ struct instance_shadow_labyrinth : public ScriptedInstance
                 if (pCreature->isAlive())
                 {
                     ++m_uiFelOverseerCount;
-                    debug_log("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
+                    sLog.outDebug("TSCR: Shadow Labyrinth: counting %u Fel Overseers.",m_uiFelOverseerCount);
                 }
                 break;
         }
@@ -113,7 +115,7 @@ struct instance_shadow_labyrinth : public ScriptedInstance
             case TYPE_OVERSEER:
                 if (uiData != DONE)
                 {
-                    error_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
+                    sLog.outError("TSCR: Shadow Labyrinth: TYPE_OVERSEER did not expect other data than DONE");
                     return;
                 }
                 if (m_uiFelOverseerCount)
@@ -121,11 +123,11 @@ struct instance_shadow_labyrinth : public ScriptedInstance
                     --m_uiFelOverseerCount;
 
                     if (m_uiFelOverseerCount)
-                        debug_log("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
+                        sLog.outDebug("TSCR: Shadow Labyrinth: %u Fel Overseers left to kill.",m_uiFelOverseerCount);
                     else
                     {
                         m_auiEncounter[1] = DONE;
-                        debug_log("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
+                        sLog.outDebug("TSCR: Shadow Labyrinth: TYPE_OVERSEER == DONE");
                     }
                 }
                 break;

@@ -42,8 +42,8 @@
 
 #include "Log.h"
 #include "Common.h"
-#include "Config/ConfigEnv.h"
-#include "Database/DatabaseEnv.h"
+#include "ConfigEnv.h"
+#include "DatabaseEnv.h"
 #include "WorldSocket.h"
 
 /**
@@ -84,8 +84,7 @@ class ReactorRunnable : protected ACE_Task_Base
             Stop();
             Wait();
 
-            if (m_Reactor)
-                delete m_Reactor;
+            delete m_Reactor;
         }
 
         void Stop()
@@ -220,11 +219,8 @@ WorldSocketMgr::WorldSocketMgr() :
 
 WorldSocketMgr::~WorldSocketMgr()
 {
-    if (m_NetThreads)
-        delete [] m_NetThreads;
-
-    if (m_Acceptor)
-        delete m_Acceptor;
+    delete [] m_NetThreads;
+    delete m_Acceptor;
 }
 
 int

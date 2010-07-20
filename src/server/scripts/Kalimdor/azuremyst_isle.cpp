@@ -1,17 +1,19 @@
- /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ /*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -32,7 +34,7 @@ go_ravager_cage
 npc_death_ravager
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include <cmath>
 
@@ -512,7 +514,7 @@ struct npc_geezleAI : public ScriptedAI
                 else
                     (*itr)->Respawn();
             }
-        } else error_log("SD2 ERROR: FlagList is empty!");
+        } else sLog.outError("SD2 ERROR: FlagList is empty!");
     }
 
     void UpdateAI(const uint32 diff)
@@ -667,6 +669,67 @@ CreatureAI* GetAI_npc_death_ravagerAI(Creature* pCreature)
     return new npc_death_ravagerAI(pCreature);
 }
 
+/*########
+## Quest: The Prophecy of Akida
+########*/
+enum BristlelimbCage
+{
+    QUEST_THE_PROPHECY_OF_AKIDA         = 9544,
+    NPC_STILLPINE_CAPITIVE              = 17375,
+    GO_BRISTELIMB_CAGE                  = 181714,
+    CAPITIVE_SAY_1                      = -1000474,
+    CAPITIVE_SAY_2                      = -1000475,
+    CAPITIVE_SAY_3                      = -1000476
+};
+
+
+struct npc_stillpine_capitiveAI : public ScriptedAI
+{
+    npc_stillpine_capitiveAI(Creature *c) : ScriptedAI(c){}
+
+    uint32 FleeTimer;
+
+    void Reset()
+    {
+        FleeTimer = 0;
+        GameObject* cage = me->FindNearestGameObject(GO_BRISTELIMB_CAGE, 5.0f);
+        if(cage)
+            cage->ResetDoorOrButton();
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if(FleeTimer)
+        {
+            if(FleeTimer <= diff)
+                me->ForcedDespawn();
+            else FleeTimer -= diff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_stillpine_capitiveAI(Creature* pCreature)
+{
+    return new npc_stillpine_capitiveAI(pCreature);
+}
+
+bool go_bristlelimb_cage(Player* pPlayer, GameObject* pGo)
+{
+    if(pPlayer->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature* pCreature = pGo->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true);
+        if(pCreature)
+        {
+            DoScriptText(RAND(CAPITIVE_SAY_1, CAPITIVE_SAY_2, CAPITIVE_SAY_3), pCreature, pPlayer);
+            pCreature->GetMotionMaster()->MoveFleeing(pPlayer, 3500);
+            pPlayer->KilledMonsterCredit(pCreature->GetEntry(), pCreature->GetGUID());
+            CAST_AI(npc_stillpine_capitiveAI, pCreature->AI())->FleeTimer = 3500;
+            return false;
+        }
+    }
+    return true;
+}
+
 void AddSC_azuremyst_isle()
 {
     Script *newscript;
@@ -713,6 +776,16 @@ void AddSC_azuremyst_isle()
     newscript = new Script;
     newscript->Name="go_ravager_cage";
     newscript->pGOHello = &go_ravager_cage;
+    newscript->RegisterSelf();
+	
+    newscript = new Script;
+    newscript->Name="npc_stillpine_capitive";
+    newscript->GetAI = &GetAI_npc_stillpine_capitiveAI;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name="go_bristlelimb_cage";
+    newscript->pGOHello = &go_bristlelimb_cage;
     newscript->RegisterSelf();
 }
 

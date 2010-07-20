@@ -21,14 +21,13 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "Threading.h"
-#include "Utilities/UnorderedMap.h"
+#include "Threading/Threading.h"
+#include "Dynamic/UnorderedMap.h"
 #include "Database/SqlDelayThread.h"
-#include "Policies/Singleton.h"
 #include "ace/Thread_Mutex.h"
 #include "ace/Guard_T.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #define FD_SETSIZE 1024
 #include <winsock2.h>
 #include <mysql/mysql.h>
@@ -117,7 +116,7 @@ class Database
         bool _UpdateDataBlobValue(const uint32 guid, const uint32 field, const int32 value);
         bool _SetDataBlobValue(const uint32 guid, const uint32 field, const uint32 value);
 
-        // Writes SQL commands to a LOG file (see Trinityd.conf "LogSQL")
+        // Writes SQL commands to a LOG file (see worldserver.conf "LogSQL")
         bool PExecuteLog(const char *format,...) ATTR_PRINTF(2,3);
 
         bool BeginTransaction();

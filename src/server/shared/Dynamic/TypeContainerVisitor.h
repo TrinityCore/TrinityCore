@@ -27,8 +27,8 @@
  * to overload its types as a visit method is called.
  */
 
-#include "Platform/Define.h"
-#include "TypeContainer.h"
+#include "Define.h"
+#include "Dynamic/TypeContainer.h"
 
 // forward declaration
 template<class T, class Y> class TypeContainerVisitor;

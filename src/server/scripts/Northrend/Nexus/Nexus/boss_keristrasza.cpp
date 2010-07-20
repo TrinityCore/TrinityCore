@@ -1,21 +1,22 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "nexus.h"
 
 enum Spells
@@ -70,12 +71,12 @@ struct boss_keristraszaAI : public ScriptedAI
 
     void Reset()
     {
-        uiCrystalfireBreathTimer = 14*IN_MILISECONDS;
-        uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILISECONDS,11*IN_MILISECONDS);
-        uiTailSweepTimer = 5*IN_MILISECONDS;
+        uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
+        uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS,11*IN_MILLISECONDS);
+        uiTailSweepTimer = 5*IN_MILLISECONDS;
         bEnrage = false;
 
-        uiCheckIntenseColdTimer = 2*IN_MILISECONDS;
+        uiCheckIntenseColdTimer = 2*IN_MILLISECONDS;
         bMoreThanTwoIntenseCold = false;
 
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -174,7 +175,7 @@ struct boss_keristraszaAI : public ScriptedAI
                     break;
                 }
             }
-            uiCheckIntenseColdTimer = 2*IN_MILISECONDS;
+            uiCheckIntenseColdTimer = 2*IN_MILLISECONDS;
         } else uiCheckIntenseColdTimer -= diff;
 
         if (!bEnrage && HealthBelowPct(25))
@@ -187,13 +188,13 @@ struct boss_keristraszaAI : public ScriptedAI
         if (uiCrystalfireBreathTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
-            uiCrystalfireBreathTimer = 14*IN_MILISECONDS;
+            uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
         } else uiCrystalfireBreathTimer -= diff;
 
         if (uiTailSweepTimer <= diff)
         {
             DoCast(me, SPELL_TAIL_SWEEP);
-            uiTailSweepTimer = 5*IN_MILISECONDS;
+            uiTailSweepTimer = 5*IN_MILLISECONDS;
         } else uiTailSweepTimer -= diff;
 
         if (uiCrystalChainsCrystalizeTimer <= diff)
@@ -203,7 +204,7 @@ struct boss_keristraszaAI : public ScriptedAI
                 DoCast(me, SPELL_CRYSTALIZE);
             else if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 DoCast(pTarget, SPELL_CRYSTAL_CHAINS);
-            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILISECONDS,11*IN_MILISECONDS);
+            uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS,11*IN_MILLISECONDS);
         } else uiCrystalChainsCrystalizeTimer -= diff;
 
         DoMeleeAttackIfReady();

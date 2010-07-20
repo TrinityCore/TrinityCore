@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: Flame wreath missing cast animation, mods won't triggere.
 SDCategory: Karazhan
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
 #include "karazhan.h"
 #include "GameObject.h"
@@ -107,7 +109,7 @@ struct boss_aranAI : public ScriptedAI
     uint32 FireCooldown;
     uint32 FrostCooldown;
 
-    uint32 DrinkInturruptTimer;
+    uint32 DrinkInterruptTimer;
 
     bool ElementalsSpawned;
     bool Drinking;
@@ -131,7 +133,7 @@ struct boss_aranAI : public ScriptedAI
         FireCooldown = 0;
         FrostCooldown = 0;
 
-        DrinkInturruptTimer = 10000;
+        DrinkInterruptTimer = 10000;
 
         ElementalsSpawned = false;
         Drinking = false;
@@ -259,11 +261,11 @@ struct boss_aranAI : public ScriptedAI
                 DoCast(me, SPELL_CONJURE, false);
                 DoCast(me, SPELL_DRINK, false);
                 me->SetStandState(UNIT_STAND_STATE_SIT);
-                DrinkInturruptTimer = 10000;
+                DrinkInterruptTimer = 10000;
             }
         }
 
-        //Drink Inturrupt
+        //Drink Interrupt
         if (Drinking && DrinkInturrupted)
         {
             Drinking = false;
@@ -273,10 +275,10 @@ struct boss_aranAI : public ScriptedAI
             DoCast(me, SPELL_POTION, false);
         }
 
-        //Drink Inturrupt Timer
+        //Drink Interrupt Timer
         if (Drinking && !DrinkInturrupted)
-            if (DrinkInturruptTimer >= diff)
-                DrinkInturruptTimer -= diff;
+            if (DrinkInterruptTimer >= diff)
+                DrinkInterruptTimer -= diff;
         else
         {
             me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -474,13 +476,13 @@ struct boss_aranAI : public ScriptedAI
 
     void SpellHit(Unit* /*pAttacker*/, const SpellEntry* Spell)
     {
-        //We only care about inturrupt effects and only if they are durring a spell currently being casted
+        //We only care about interrupt effects and only if they are durring a spell currently being casted
         if ((Spell->Effect[0] != SPELL_EFFECT_INTERRUPT_CAST &&
             Spell->Effect[1] != SPELL_EFFECT_INTERRUPT_CAST &&
             Spell->Effect[2] != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCasted(false))
             return;
 
-        //Inturrupt effect
+        //Interrupt effect
         me->InterruptNonMeleeSpells(false);
 
         //Normally we would set the cooldown equal to the spell duration
@@ -534,7 +536,7 @@ CreatureAI* GetAI_water_elemental(Creature* pCreature)
 // CONVERT TO ACID
 CreatureAI* GetAI_shadow_of_aran(Creature* pCreature)
 {
-    outstring_log("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
+    sLog.outString("TSCR: Convert simpleAI script for Creature Entry %u to ACID", pCreature->GetEntry());
     SimpleAI* ai = new SimpleAI (pCreature);
 
     ai->Spell[0].Enabled = true;

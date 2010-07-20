@@ -19,7 +19,7 @@
 #define CREATUREAIIMPL_H
 
 #include "Common.h"
-#include "Platform/Define.h"
+#include "Define.h"
 #include "TemporarySummon.h"
 #include "CreatureAI.h"
 #include "SpellMgr.h"

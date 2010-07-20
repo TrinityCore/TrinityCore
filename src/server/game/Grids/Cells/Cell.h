@@ -23,8 +23,8 @@
 
 #include <cmath>
 
-#include "GameSystem/TypeContainer.h"
-#include "GameSystem/TypeContainerVisitor.h"
+#include "TypeContainer.h"
+#include "TypeContainerVisitor.h"
 
 #include "GridDefines.h"
 

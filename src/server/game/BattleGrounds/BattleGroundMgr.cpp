@@ -22,7 +22,7 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Policies/SingletonImp.h"
+
 
 #include "ArenaTeam.h"
 #include "BattleGroundMgr.h"
@@ -48,8 +48,6 @@
 #include "ProgressBar.h"
 #include "SharedDefines.h"
 #include "Formulas.h"
-
-INSTANTIATE_SINGLETON_1(BattleGroundMgr);
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
@@ -1271,8 +1269,8 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
     *data << uint32(bg->GetTypeID());
     *data << uint16(0x1F90);
     // End of uint64 segment, decomposed this way for simplicity
-    *data << uint8(0);                                      // 3.3.0
-    *data << uint8(0);                                      // 3.3.0
+    *data << uint8(0);                                      // 3.3.0, some level, only saw 80...
+    *data << uint8(0);                                      // 3.3.0, some level, only saw 80...
     *data << uint32(bg->GetClientInstanceID());
     // alliance/horde for BG and skirmish/rated for Arenas
     // following displays the minimap-icon 0 = faction icon 1 = arenaicon
@@ -1287,10 +1285,12 @@ void BattleGroundMgr::BuildBattleGroundStatusPacket(WorldPacket *data, BattleGro
             break;
         case STATUS_WAIT_JOIN:                              // status_invite
             *data << uint32(bg->GetMapId());                // map id
+            *data << uint64(0);                             // 3.3.5, unknown
             *data << uint32(Time1);                         // time to remove from queue, milliseconds
             break;
         case STATUS_IN_PROGRESS:                            // status_in_progress
             *data << uint32(bg->GetMapId());                // map id
+            *data << uint64(0);                             // 3.3.5, unknown
             *data << uint32(Time1);                         // time to bg auto leave, 0 at bg start, 120000 after bg end, milliseconds
             *data << uint32(Time2);                         // time from bg start, milliseconds
             *data << uint8(/*bg->isArena() ? 0 :*/ 1);      // unk, possibly 0 == preparation phase, 1 == battle
@@ -1629,8 +1629,11 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
             return 0;
     }
 
+    // set battelground difficulty before initialization
+    bg->SetBracket(bracketEntry);
+
     // generate a new instance id
-    bg->SetInstanceID(MapManager::Instance().GenerateInstanceId()); // set instance id
+    bg->SetInstanceID(sMapMgr.GenerateInstanceId()); // set instance id
     bg->SetClientInstanceID(CreateClientVisibleInstanceId(isRandom ? BATTLEGROUND_RB : bgTypeId, bracketEntry->GetBracketId()));
 
     // reset the new bg (set status to status_wait_queue from status_none)
@@ -1638,7 +1641,6 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 
     // start the joining of the bg
     bg->SetStatus(STATUS_WAIT_JOIN);
-    bg->SetBracket(bracketEntry);
     bg->SetArenaType(arenaType);
     bg->SetRated(isRated);
     bg->SetRandom(isRandom);
@@ -1893,8 +1895,8 @@ void BattleGroundMgr::BuildBattleGroundListPacket(WorldPacket *data, const uint6
     uint32 win_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
     uint32 loos_kills = plr->GetRandomWinner() ? BG_REWARD_LOOSER_HONOR_LAST : BG_REWARD_LOOSER_HONOR_FIRST;
 
-    win_kills = (uint32)Trinity::Honor::hk_honor_at_level(plr->getLevel(), win_kills);
-    loos_kills = (uint32)Trinity::Honor::hk_honor_at_level(plr->getLevel(), loos_kills);
+    win_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), win_kills);
+    loos_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), loos_kills);
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint64(guid);                                  // battlemaster guid

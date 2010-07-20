@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment:
 SDCategory: Caverns of Time, Mount Hyjal
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "hyjalAI.h"
 #include "hyjal_trash.h"
 #include "MapManager.h"
@@ -400,7 +402,7 @@ void hyjalAI::Reset()
             pInstance->DoUpdateWorldState(WORLD_STATE_ENEMYCOUNT, 0);
             pInstance->SetData(DATA_RESET_TRASH_COUNT, 0);
         }
-    } else error_log(ERROR_INST_DATA);
+    } else sLog.outError(ERROR_INST_DATA);
 
     //Visibility
     DoHide = true;
@@ -531,7 +533,7 @@ void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
 
     if (!pInstance)
     {
-        error_log(ERROR_INST_DATA);
+        sLog.outError(ERROR_INST_DATA);
         return;
     }
     InfernalCount = 0;//reset infernal count every new wave
@@ -561,7 +563,7 @@ void hyjalAI::SummonNextWave(Wave wave[18], uint32 Count, float Base[4][3])
         else
         {
             NextWaveTimer = 15000;
-            debug_log("TSCR: HyjalAI: debug mode is enabled. Next Wave in 15 seconds");
+            sLog.outDebug("TSCR: HyjalAI: debug mode is enabled. Next Wave in 15 seconds");
         }
     }
     else
@@ -605,7 +607,7 @@ uint32 hyjalAI::GetInstanceData(uint32 Event)
 {
     if (pInstance)
         return pInstance->GetData(Event);
-    else error_log(ERROR_INST_DATA);
+    else sLog.outError(ERROR_INST_DATA);
 
     return 0;
 }

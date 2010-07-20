@@ -1,22 +1,21 @@
 /*
-* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "gundrak.h"
 
 enum eSpells
@@ -67,10 +66,10 @@ struct boss_moorabiAI : public ScriptedAI
 
     void Reset()
     {
-        uiGroundTremorTimer = 18*IN_MILISECONDS;
-        uiNumblingShoutTimer =  10*IN_MILISECONDS;
-        uiDeterminedStabTimer = 20*IN_MILISECONDS;
-        uiTransformationTImer = 12*IN_MILISECONDS;
+        uiGroundTremorTimer = 18*IN_MILLISECONDS;
+        uiNumblingShoutTimer =  10*IN_MILLISECONDS;
+        uiDeterminedStabTimer = 20*IN_MILLISECONDS;
+        uiTransformationTImer = 12*IN_MILLISECONDS;
         bPhase = false;
 
         if (pInstance)
@@ -105,7 +104,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(me->getVictim(), SPELL_QUAKE, true);
             else
                 DoCast(me->getVictim(), SPELL_GROUND_TREMOR, true);
-            uiGroundTremorTimer = 10*IN_MILISECONDS;
+            uiGroundTremorTimer = 10*IN_MILLISECONDS;
         } else uiGroundTremorTimer -= uiDiff;
 
         if (uiNumblingShoutTimer <= uiDiff)
@@ -114,7 +113,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(me->getVictim(), SPELL_NUMBING_ROAR, true);
             else
                 DoCast(me->getVictim(), SPELL_NUMBING_SHOUT, true);
-            uiNumblingShoutTimer = 10*IN_MILISECONDS;
+            uiNumblingShoutTimer = 10*IN_MILLISECONDS;
         } else uiNumblingShoutTimer -=uiDiff;
 
         if (uiDeterminedStabTimer <= uiDiff)
@@ -123,7 +122,7 @@ struct boss_moorabiAI : public ScriptedAI
                 DoCast(me->getVictim(), SPELL_DETERMINED_GORE);
             else
                 DoCast(me->getVictim(), SPELL_DETERMINED_STAB, true);
-            uiDeterminedStabTimer = 8*IN_MILISECONDS;
+            uiDeterminedStabTimer = 8*IN_MILLISECONDS;
         } else uiDeterminedStabTimer -=uiDiff;
 
         if (!bPhase && uiTransformationTImer <= uiDiff)
@@ -131,7 +130,7 @@ struct boss_moorabiAI : public ScriptedAI
             DoScriptText(EMOTE_TRANSFORM, me);
             DoScriptText(SAY_TRANSFORM, me);
             DoCast(me, SPELL_TRANSFORMATION, false);
-            uiTransformationTImer = 10*IN_MILISECONDS;
+            uiTransformationTImer = 10*IN_MILLISECONDS;
         } else uiTransformationTImer -= uiDiff;
 
         DoMeleeAttackIfReady();

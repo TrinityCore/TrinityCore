@@ -24,7 +24,7 @@
 
 #include "WorldSocket.h"                                    // must be first to make ACE happy with ACE includes in it
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
@@ -40,7 +40,7 @@
 #include "OutdoorPvPMgr.h"
 #include "MapManager.h"
 #include "SocialMgr.h"
-#include "zlib/zlib.h"
+#include "zlib.h"
 #include "ScriptMgr.h"
 #include "LFGMgr.h"
 
@@ -82,7 +82,6 @@ WorldSession::~WorldSession()
         delete packet;
 
     LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
-    CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = %u;", GetAccountId());
 }
 
 void WorldSession::SizeError(WorldPacket const& packet, uint32 size) const

@@ -19,8 +19,8 @@
  */
 
 #include "DBCStores.h"
-#include "Policies/SingletonImp.h"
-#include "Log.h"
+
+#include "Logging/Log.h"
 #include "ProgressBar.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
@@ -235,15 +235,15 @@ inline void LoadDBC(uint32& availableDbcLocales,barGoLink& bar, StoreProblemList
         else
             errlist.push_back(dbc_filename);
     }
-    if (sql)
-       delete sql;
+
+    delete sql;
 }
 
 void LoadDBCStores(const std::string& dataPath)
 {
     std::string dbcPath = dataPath+"dbc/";
 
-    const uint32 DBCFilesCount = 87;
+    const uint32 DBCFilesCount = 89;
 
     barGoLink bar(DBCFilesCount);
 
@@ -506,8 +506,7 @@ void LoadDBCStores(const std::string& dataPath)
     // fill data
     for (uint32 i = 1; i < sTaxiPathNodeStore.GetNumRows(); ++i)
         if (TaxiPathNodeEntry const* entry = sTaxiPathNodeStore.LookupEntry(i))
-            sTaxiPathNodesByPath[entry->path][entry->index] = TaxiPathNode(entry->mapid,entry->x,entry->y,entry->z,entry->actionFlag,entry->delay);
-    sTaxiPathNodeStore.Clear();
+            sTaxiPathNodesByPath[entry->path].set(entry->index, entry);
 
     // Initialize global taxinodes mask
     // include existed nodes that have at least single not spell base (scripted) path
@@ -579,7 +578,7 @@ void LoadDBCStores(const std::string& dataPath)
     // error checks
     if (bad_dbc_files.size() >= DBCFilesCount)
     {
-        sLog.outError("\nIncorrect DataDir value in Trinityd.conf or ALL required *.dbc files (%d) not found by path: %sdbc",DBCFilesCount,dataPath.c_str());
+        sLog.outError("\nIncorrect DataDir value in worldserver.conf or ALL required *.dbc files (%d) not found by path: %sdbc",DBCFilesCount,dataPath.c_str());
         exit(1);
     }
     else if (!bad_dbc_files.empty())
@@ -593,13 +592,13 @@ void LoadDBCStores(const std::string& dataPath)
     }
 
     // Check loaded DBC files proper version
-    if (!sAreaStore.LookupEntry(3617)              ||       // last area (areaflag) added in 3.3.3a
-        !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.3a
-        !sGemPropertiesStore.LookupEntry(1629)     ||       // last added spell in 3.3.3a
-        !sItemStore.LookupEntry(54860)             ||       // last gem property added in 3.3.3a
-        !sItemExtendedCostStore.LookupEntry(2997)  ||       // last item extended cost added in 3.3.3a
-        !sMapStore.LookupEntry(724)                ||       // last map added in 3.3.3a
-        !sSpellStore.LookupEntry(76567)            )        // last client known item added in 3.3.3a
+    if (!sAreaStore.LookupEntry(3617)              ||       // last area (areaflag) added in 3.3.5a
+        !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.5a
+        !sGemPropertiesStore.LookupEntry(1629)     ||       // last added spell in 3.3.5a
+        !sItemStore.LookupEntry(56806)             ||       // last gem property added in 3.3.5a
+        !sItemExtendedCostStore.LookupEntry(2997)  ||       // last item extended cost added in 3.3.5a
+        !sMapStore.LookupEntry(724)                ||       // last map added in 3.3.5a
+        !sSpellStore.LookupEntry(80864)            )        // last client known item added in 3.3.5a
     {
         sLog.outError("\nYou have _outdated_ DBC files. Please extract correct versions from current using client.");
         exit(1);

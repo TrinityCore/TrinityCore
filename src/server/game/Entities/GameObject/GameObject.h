@@ -25,7 +25,7 @@
 #include "SharedDefines.h"
 #include "Object.h"
 #include "LootMgr.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform
 #if defined(__GNUC__)
@@ -479,7 +479,7 @@ struct GameObjectInfo
             case GAMEOBJECT_TYPE_AREADAMAGE:    autoCloseTime = areadamage.autoCloseTime; break;
             default: break;
         }
-        return autoCloseTime / IN_MILISECONDS;              // prior to 3.0.3, conversion was / 0x10000;
+        return autoCloseTime / IN_MILLISECONDS;              // prior to 3.0.3, conversion was / 0x10000;
     }
 
     uint32 GetLootId() const
@@ -497,6 +497,16 @@ struct GameObjectInfo
         {
             case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.gossipID;
             case GAMEOBJECT_TYPE_GOOBER:        return goober.gossipID;
+            default: return 0;
+        }
+    }
+    uint32 GetEventScriptId() const
+    {
+        switch(type)
+        {
+            case GAMEOBJECT_TYPE_GOOBER:        return goober.eventId;
+            case GAMEOBJECT_TYPE_CHEST:         return chest.eventId;
+            case GAMEOBJECT_TYPE_CAMERA:        return camera.eventID;
             default: return 0;
         }
     }

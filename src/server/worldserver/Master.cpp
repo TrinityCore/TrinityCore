@@ -31,9 +31,8 @@
 #include "WorldRunnable.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
-#include "Policies/SingletonImp.h"
 
 #include "CliRunnable.h"
 #include "Log.h"
@@ -42,25 +41,18 @@
 #include "Timer.h"
 #include "Util.h"
 
-#include "sockets/TcpSocket.h"
-#include "sockets/Utility.h"
-#include "sockets/Parse.h"
-#include "sockets/Socket.h"
-#include "sockets/SocketHandler.h"
-#include "sockets/ListenSocket.h"
-#include "Auth/BigNumber.h"
+#include "TcpSocket.h"
+#include "Utility.h"
+#include "Parse.h"
+#include "Socket.h"
+#include "SocketHandler.h"
+#include "ListenSocket.h"
+#include "BigNumber.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "ServiceWin32.h"
 extern int m_ServiceStatus;
 #endif
-
-/// \todo Warning disabling not useful under VC++2005. Can somebody say on which compiler it is useful?
-#pragma warning(disable:4305)
-
-INSTANTIATE_SINGLETON_1( Master );
-
-volatile uint32 Master::m_masterLoopCounter = 0;
 
 /// Handle cored's termination signals
 class CoredSignalHandler : public Trinity::SignalHandler
@@ -94,42 +86,25 @@ public:
     void SetDelayTime(uint32 t) { _delaytime = t; }
     void run(void)
     {
-        if(!_delaytime)
+        if (!_delaytime)
             return;
         sLog.outString("Starting up anti-freeze thread (%u seconds max stuck time)...",_delaytime/1000);
         m_loops = 0;
         w_loops = 0;
         m_lastchange = 0;
         w_lastchange = 0;
-        while(!World::IsStopped())
+        while (!World::IsStopped())
         {
             ACE_Based::Thread::Sleep(1000);
             uint32 curtime = getMSTime();
-            //DEBUG_LOG("anti-freeze: time=%u, counters=[%u; %u]",curtime,Master::m_masterLoopCounter,World::m_worldLoopCounter);
-
-            // There is no Master anymore
-            // TODO: clear the rest of the code
-//            // normal work
-//            if(m_loops != Master::m_masterLoopCounter)
-//            {
-//                m_lastchange = curtime;
-//                m_loops = Master::m_masterLoopCounter;
-//            }
-//            // possible freeze
-//            else if(getMSTimeDiff(m_lastchange,curtime) > _delaytime)
-//            {
-//                sLog.outError("Main/Sockets Thread hangs, kicking out server!");
-//                *((uint32 volatile*)NULL) = 0;                       // bang crash
-//            }
-
             // normal work
-            if(w_loops != World::m_worldLoopCounter)
+            if (w_loops != World::m_worldLoopCounter)
             {
                 w_lastchange = curtime;
                 w_loops = World::m_worldLoopCounter;
             }
             // possible freeze
-            else if(getMSTimeDiff(w_lastchange,curtime) > _delaytime)
+            else if (getMSTimeDiff(w_lastchange,curtime) > _delaytime)
             {
                 sLog.outError("World Thread hangs, kicking out server!");
                 *((uint32 volatile*)NULL) = 0;                       // bang crash
@@ -285,7 +260,7 @@ int Master::Run()
 
     ACE_Based::Thread* cliThread = NULL;
 
-#ifdef WIN32
+#ifdef _WIN32
     if (sConfig.GetBoolDefault("Console.Enable", true) && (m_ServiceStatus == -1)/* need disable console in service mode*/)
 #else
     if (sConfig.GetBoolDefault("Console.Enable", true))
@@ -298,7 +273,7 @@ int Master::Run()
     ACE_Based::Thread rar_thread(new RARunnable);
 
     ///- Handle affinity for multiple processors and process priority on Windows
-    #ifdef WIN32
+    #ifdef _WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
 
@@ -386,7 +361,7 @@ int Master::Run()
 
     if (cliThread)
     {
-        #ifdef WIN32
+        #ifdef _WIN32
 
         // this only way to terminate CLI thread exist at Win32 (alt. way exist only in Windows Vista API)
         //_exit(1);
@@ -450,14 +425,14 @@ bool Master::_StartDB()
 
     ///- Get world database info from configuration file
     dbstring = sConfig.GetStringDefault("WorldDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
-        sLog.outError("Database not specified in configuration file");
+        sLog.outError("World database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the world database
-    if(!WorldDatabase.Initialize(dbstring.c_str()))
+    if( !WorldDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to world database %s",dbstring.c_str());
         return false;
@@ -465,14 +440,14 @@ bool Master::_StartDB()
 
     ///- Get character database info from configuration file
     dbstring = sConfig.GetStringDefault("CharacterDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
-        sLog.outError("Character Database not specified in configuration file");
+        sLog.outError("Character database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the Character database
-    if(!CharacterDatabase.Initialize(dbstring.c_str()))
+    if (!CharacterDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to Character database %s",dbstring.c_str());
         return false;
@@ -480,14 +455,14 @@ bool Master::_StartDB()
 
     ///- Get login database info from configuration file
     dbstring = sConfig.GetStringDefault("LoginDatabaseInfo", "");
-    if(dbstring.empty())
+    if (dbstring.empty())
     {
         sLog.outError("Login database not specified in configuration file");
         return false;
     }
 
     ///- Initialise the login database
-    if(!LoginDatabase.Initialize(dbstring.c_str()))
+    if (!LoginDatabase.Initialize(dbstring.c_str()))
     {
         sLog.outError("Cannot connect to login database %s",dbstring.c_str());
         return false;
@@ -495,7 +470,7 @@ bool Master::_StartDB()
 
     ///- Get the realm Id from the configuration file
     realmID = sConfig.GetIntDefault("RealmID", 0);
-    if(!realmID)
+    if (!realmID)
     {
         sLog.outError("Realm ID not defined in configuration file");
         return false;

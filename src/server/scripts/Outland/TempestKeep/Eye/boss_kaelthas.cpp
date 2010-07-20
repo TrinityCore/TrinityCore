@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: SQL, weapon scripts, mind control, need correct spells(interruptible/
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "the_eye.h"
 #include "WorldPacket.h"
 
@@ -356,7 +358,7 @@ struct boss_kaelthasAI : public ScriptedAI
 
         if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
         {
-            error_log("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
+            sLog.outError("TSCR: Kael'Thas One or more advisors missing, Skipping Phases 1-3");
 
             DoScriptText(SAY_PHASE4_INTRO2, me);
 
@@ -399,7 +401,7 @@ struct boss_kaelthasAI : public ScriptedAI
             {
                 if (!me->getVictim() && Phase >= 4)
                 {
-                    who->RemoveAurasDueToSpell(SPELL_AURA_MOD_STEALTH);
+                    who->RemoveAurasByType(SPELL_AURA_MOD_STEALTH);
                     AttackStart(who);
                 }
                 else if (me->GetMap()->IsDungeon())
@@ -414,7 +416,7 @@ struct boss_kaelthasAI : public ScriptedAI
         }
     }
 
-    void Aggro(Unit * /*who*/)
+    void EnterCombat(Unit * /*who*/)
     {
         if (m_pInstance && !m_pInstance->GetData(DATA_KAELTHASEVENT) && !Phase)
             StartEvent();
@@ -678,7 +680,7 @@ struct boss_kaelthasAI : public ScriptedAI
                         Advisor = Unit::GetCreature((*me), m_auiAdvisorGuid[i]);
 
                         if (!Advisor)
-                            error_log("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                            sLog.outError("SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                         else
                             CAST_AI(advisorbase_ai, Advisor->AI())->Revive(pTarget);
                     }
@@ -763,7 +765,7 @@ struct boss_kaelthasAI : public ScriptedAI
                         if (me->getThreatManager().getThreatList().size() >= 2)
                             for (uint32 i = 0; i < 3; ++i)
                         {
-                            debug_log("SD2: Kael'Thas mind control not supported.");
+                            sLog.outDebug("SD2: Kael'Thas mind control not supported.");
                             //DoCast(pUnit, SPELL_MIND_CONTROL);
                         }
 
@@ -983,7 +985,7 @@ struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         advisorbase_ai::Reset();
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1056,7 +1058,7 @@ struct boss_lord_sanguinarAI : public advisorbase_ai
         advisorbase_ai::Reset();
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1139,7 +1141,7 @@ struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         }
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1241,7 +1243,7 @@ struct boss_master_engineer_telonicusAI : public advisorbase_ai
             DoScriptText(SAY_TELONICUS_DEATH, me);
     }
 
-    void Aggro(Unit *who)
+    void EnterCombat(Unit *who)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;

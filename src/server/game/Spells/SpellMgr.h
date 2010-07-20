@@ -28,9 +28,9 @@
 #include "SpellAuraDefines.h"
 #include "DBCStructure.h"
 #include "DBCStores.h"
-#include "Database/SQLStorage.h"
+#include "SQLStorage.h"
 
-#include "Utilities/UnorderedMap.h"
+#include "UnorderedMap.h"
 
 #include "Player.h"
 
@@ -192,7 +192,7 @@ AuraState GetSpellAuraState(SpellEntry const * spellInfo);
 inline float GetSpellRadiusForHostile(SpellRadiusEntry const *radius) { return (radius ? radius->radiusHostile : 0); }
 inline float GetSpellRadiusForFriend(SpellRadiusEntry const *radius) { return (radius ? radius->radiusFriend : 0); }
 uint32 GetSpellCastTime(SpellEntry const* spellInfo, Spell * spell = NULL);
-int32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offensive, bool *result);
+uint32 GetDispelChance(Unit* auraCaster, Unit* target, uint32 spellId, bool offensive, bool *result);
 inline float GetSpellMinRangeForHostile(SpellRangeEntry const *range) { return (range ? range->minRangeHostile : 0); }
 inline float GetSpellMaxRangeForHostile(SpellRangeEntry const *range) { return (range ? range->maxRangeHostile : 0); }
 inline float GetSpellMinRangeForFriend(SpellRangeEntry const *range) { return (range ? range->minRangeFriend : 0); }
@@ -1212,6 +1212,8 @@ class SpellMgr
 
         bool IsSkillBonusSpell(uint32 spellId) const;
         bool IsSkillTypeSpell(uint32 spellId, SkillType type) const;
+        static int32 CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 effIndex, Unit const * caster = NULL, int32 const * basePoints = NULL, Unit const * target = NULL);
+        static int32 CalculateSpellEffectBaseAmount(int32 value) {return value-1;};
 
         // Spell correctess for client using
         static bool IsSpellValid(SpellEntry const * spellInfo, Player* pl = NULL, bool msg = true);
@@ -1322,21 +1324,20 @@ class SpellMgr
         }
         void SetSpellDifficultyId(uint32 spellId, uint32 id) { mSpellDifficultySearcherMap[spellId] = id; }
 
-    const SpellsRequiringSpellMap GetSpellsRequiringSpell()
-    {
-      return this->mSpellsReqSpell;
-    }
+        const SpellsRequiringSpellMap GetSpellsRequiringSpell()
+        {
+            return this->mSpellsReqSpell;
+        }
 
-    uint32 GetSpellRequired(uint32 spell_id) const
-    {
-      SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
+        uint32 GetSpellRequired(uint32 spell_id) const
+        {
+            SpellRequiredMap::const_iterator itr = mSpellReq.find(spell_id);
 
-      if (itr == mSpellReq.end())
-        return NULL;
+            if (itr == mSpellReq.end())
+                return NULL;
 
-      return itr->second;
-    }
-
+            return itr->second;
+        }
 
     // Modifiers
     public:

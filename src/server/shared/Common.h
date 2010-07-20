@@ -59,7 +59,7 @@
 #undef VERSION
 #endif //HAVE_CONFIG_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 
 #if COMPILER == COMPILER_MICROSOFT
 #   pragma warning(disable:4996)                            // 'function': was declared deprecated
@@ -76,7 +76,7 @@
 #endif                                                      // __SHOW_STUPID_WARNINGS__
 #endif                                                      // __GNUC__
 
-#include "Utilities/UnorderedMap.h"
+#include "Dynamic/UnorderedMap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -100,8 +100,8 @@
 #include <sstream>
 #include <algorithm>
 
-#include "LockedQueue.h"
-#include "Threading.h"
+#include "Threading/LockedQueue.h"
+#include "Threading/Threading.h"
 
 #include <ace/Basic_Types.h>
 #include <ace/Guard_T.h>
@@ -168,7 +168,7 @@ enum TimeConstants
     WEEK   = DAY*7,
     MONTH  = DAY*30,
     YEAR   = MONTH*12,
-    IN_MILISECONDS = 1000
+    IN_MILLISECONDS = 1000
 };
 
 enum AccountTypes

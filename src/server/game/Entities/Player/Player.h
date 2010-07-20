@@ -26,7 +26,7 @@
 #include "Unit.h"
 #include "Item.h"
 
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "NPCHandler.h"
 #include "QuestDef.h"
 #include "Group.h"
@@ -920,6 +920,55 @@ struct BGData
     bool HasTaxiPath() const { return taxiPath[0] && taxiPath[1]; }
 };
 
+class TradeData
+{
+    public:                                                 // constructors
+        TradeData(Player* player, Player* trader) :
+            m_player(player),  m_trader(trader), m_accepted(false), m_acceptProccess(false),
+            m_money(0), m_spell(0) {}
+
+        Player* GetTrader() const { return m_trader; }
+        TradeData* GetTraderData() const;
+
+        Item* GetItem(TradeSlots slot) const;
+        bool HasItem(uint64 item_guid) const;
+        void SetItem(TradeSlots slot, Item* item);
+
+        uint32 GetSpell() const { return m_spell; }
+        void SetSpell(uint32 spell_id, Item* castItem = NULL);
+
+        Item*  GetSpellCastItem() const;
+        bool HasSpellCastItem() const { return m_spellCastItem != 0; }
+
+        uint32 GetMoney() const { return m_money; }
+        void SetMoney(uint32 money);
+
+        bool IsAccepted() const { return m_accepted; }
+        void SetAccepted(bool state, bool crosssend = false);
+
+        bool IsInAcceptProcess() const { return m_acceptProccess; }
+        void SetInAcceptProcess(bool state) { m_acceptProccess = state; }
+
+    private:                                                // internal functions
+
+        void Update(bool for_trader = true);
+
+    private:                                                // fields
+
+        Player*    m_player;                                // Player who own of this TradeData
+        Player*    m_trader;                                // Player who trade with m_player
+
+        bool       m_accepted;                              // m_player press accept for trade list
+        bool       m_acceptProccess;                        // one from player/trader press accept and this processed
+
+        uint32     m_money;                                 // m_player place money to trade
+
+        uint32     m_spell;                                 // m_player apply spell to non-traded slot item
+        uint64     m_spellCastItem;                         // applied spell casted by item use
+
+        uint64     m_items[TRADE_SLOT_COUNT];               // traded itmes from m_player side including non-traded slot
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1137,8 +1186,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 _CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, uint32* no_space_count = NULL) const;
         uint8 _CanStoreItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 entry, uint32 count, Item *pItem = NULL, bool swap = false, uint32* no_space_count = NULL) const;
 
-        void AddRefundReference(uint64 it);
-        void DeleteRefundReference(uint64 it);
+        void AddRefundReference(uint32 it);
+        void DeleteRefundReference(uint32 it);
 
         void ApplyEquipCooldown(Item * pItem);
         void SetAmmo(uint32 item);
@@ -1191,15 +1240,10 @@ class Player : public Unit, public GridObject<Player>
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
 
         float GetReputationPriceDiscount(Creature const* pCreature) const;
-        Player* GetTrader() const { return pTrader; }
-        void ClearTrade();
+
+        Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
+        TradeData* GetTradeData() const { return m_trade; }
         void TradeCancel(bool sendback);
-        Item *GetItemByTradeSlot(uint8 slot) const
-        {
-            if (slot < TRADE_SLOT_COUNT && tradeItems[slot])
-                return GetItemByGuid(tradeItems[slot]);
-            return NULL;
-        }
 
         void UpdateEnchantTime(uint32 time);
         void UpdateItemDuration(uint32 time, bool realtimeonly=false);
@@ -1395,11 +1439,19 @@ class Player : public Unit, public GridObject<Player>
             if (d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
             else
-                SetMoney (GetMoney() < uint32(MAX_MONEY_AMOUNT - d) ? GetMoney() + d : MAX_MONEY_AMOUNT);
-
-            // "At Gold Limit"
-            if (GetMoney() >= MAX_MONEY_AMOUNT)
-                SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD,NULL,NULL);
+            {
+                uint32 newAmount = 0;
+                if (GetMoney() < uint32(MAX_MONEY_AMOUNT - d))
+                    newAmount = GetMoney() + d;
+                else
+                {
+                    // "At Gold Limit"
+                    newAmount = MAX_MONEY_AMOUNT;
+                    if (d)
+                        SendEquipError(EQUIP_ERR_TOO_MUCH_GOLD, NULL, NULL);
+                }
+                SetMoney (newAmount);
+            }
         }
         void SetMoney(uint32 value)
         {
@@ -1874,7 +1926,7 @@ class Player : public Unit, public GridObject<Player>
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
         void UpdateHonorFields();
-        bool RewardHonor(Unit *pVictim, uint32 groupsize, float honor = -1, bool pvptoken = false);
+        bool RewardHonor(Unit *pVictim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetHonorPoints() { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
         uint32 GetArenaPoints() { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
         void ModifyHonorPoints(int32 value);
@@ -2074,7 +2126,7 @@ class Player : public Unit, public GridObject<Player>
         /***                    REST SYSTEM                    ***/
         /*********************************************************/
 
-        bool isRested() const { return GetRestTime() >= 10*IN_MILISECONDS; }
+        bool isRested() const { return GetRestTime() >= 10*IN_MILLISECONDS; }
         uint32 GetXPRestBonus(uint32 xp);
         uint32 GetRestTime() const { return m_restTime;}
         void SetRestTime(uint32 v) { m_restTime = v;}
@@ -2460,10 +2512,7 @@ class Player : public Unit, public GridObject<Player>
 
         int m_cinematic;
 
-        Player *pTrader;
-        bool acceptTrade;
-        uint64 tradeItems[TRADE_SLOT_COUNT];
-        uint32 tradeGold;
+        TradeData* m_trade;
 
         bool   m_DailyQuestChanged;
         bool   m_WeeklyQuestChanged;
@@ -2535,7 +2584,7 @@ class Player : public Unit, public GridObject<Player>
         uint8 _CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemPrototype const *pProto, uint32& count, bool merge, Item *pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item *pItem, uint32 count, bool clone, bool update);
 
-        std::set<uint64> m_refundableItems;
+        std::set<uint32> m_refundableItems;
         void SendRefundInfo(Item* item);
         void RefundItem(Item* item);
 

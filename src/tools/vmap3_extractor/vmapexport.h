@@ -8,4 +8,6 @@ enum ModelFlags
     MOD_HAS_BOUND = 1<<2
 };
 
+extern const char * szWorkDirWmo;
+
 #endif

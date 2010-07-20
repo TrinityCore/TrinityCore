@@ -21,7 +21,7 @@
 #ifndef _GRIDREFMANAGER
 #define _GRIDREFMANAGER
 
-#include "Utilities/LinkedReference/RefManager.h"
+#include "RefManager.h"
 
 template<class OBJECT>
 class GridReference;

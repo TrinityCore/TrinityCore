@@ -1,28 +1,21 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Script Data Start
-SDName: Boss ichoron
-SDAuthor: ckegg
-SD%Complete: 80%
-SDComment: TODO: better spawn location for adds
-SDCategory:
-Script Data End */
-
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "violet_hold.h"
 
 enum Spells
@@ -298,15 +291,23 @@ struct boss_ichoronAI : public ScriptedAI
 
     void JustSummoned(Creature* pSummoned)
     {
-        pSummoned->SetSpeed(MOVE_RUN, 0.3f);
-        pSummoned->GetMotionMaster()->MoveFollow(me, 0, 0);
-        m_waterElements.push_back(pSummoned->GetGUID());
+        if (pSummoned)
+        {
+            pSummoned->SetSpeed(MOVE_RUN, 0.3f);
+            pSummoned->GetMotionMaster()->MoveFollow(me, 0, 0);
+            m_waterElements.push_back(pSummoned->GetGUID());
+            pInstance->SetData64(DATA_ADD_TRASH_MOB,pSummoned->GetGUID());
+        }
     }
 
 
     void SummonedCreatureDespawn(Creature *pSummoned)
     {
-        m_waterElements.remove(pSummoned->GetGUID());
+        if (pSummoned)
+        {
+            m_waterElements.remove(pSummoned->GetGUID());
+            pInstance->SetData64(DATA_DEL_TRASH_MOB,pSummoned->GetGUID());
+        }
     }
 
     void KilledUnit(Unit * victim)

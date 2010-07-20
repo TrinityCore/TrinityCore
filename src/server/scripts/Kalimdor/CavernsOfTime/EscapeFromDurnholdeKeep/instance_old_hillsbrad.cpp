@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: If thrall escort fail, all parts will reset. In future, save sub-part
 SDCategory: Caverns of Time, Old Hillsbrad Foothills
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "old_hillsbrad.h"
 
 #define MAX_ENCOUNTER      6
@@ -71,7 +73,7 @@ struct instance_old_hillsbrad : public ScriptedInstance
             }
         }
 
-        debug_log("TSCR: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
+        sLog.outDebug("TSCR: Instance Old Hillsbrad: GetPlayerInMap, but PlayerList is empty!");
         return NULL;
     }
 
@@ -111,7 +113,7 @@ struct instance_old_hillsbrad : public ScriptedInstance
 
         if (!pPlayer)
         {
-            debug_log("TSCR: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
+            sLog.outDebug("TSCR: Instance Old Hillsbrad: SetData (Type: %u Data %u) cannot find any player.", type, data);
             return;
         }
 
@@ -127,7 +129,7 @@ struct instance_old_hillsbrad : public ScriptedInstance
                     ++mBarrelCount;
                     DoUpdateWorldState(WORLD_STATE_OH, mBarrelCount);
 
-                    debug_log("TSCR: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
+                    sLog.outDebug("TSCR: Instance Old Hillsbrad: go_barrel_old_hillsbrad count %u",mBarrelCount);
 
                     m_auiEncounter[0] = IN_PROGRESS;
 
@@ -148,7 +150,7 @@ struct instance_old_hillsbrad : public ScriptedInstance
                     {
                         ++mThrallEventCount;
                         m_auiEncounter[1] = NOT_STARTED;
-                        debug_log("TSCR: Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.",mThrallEventCount);
+                        sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.",mThrallEventCount);
                         m_auiEncounter[2] = NOT_STARTED;
                         m_auiEncounter[3] = NOT_STARTED;
                         m_auiEncounter[4] = NOT_STARTED;
@@ -161,29 +163,29 @@ struct instance_old_hillsbrad : public ScriptedInstance
                         m_auiEncounter[3] = data;
                         m_auiEncounter[4] = data;
                         m_auiEncounter[5] = data;
-                        debug_log("TSCR: Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.",mThrallEventCount);
+                        sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall event failed %u times. Resetting all sub-events.",mThrallEventCount);
                     }
                 }
                 else
                     m_auiEncounter[1] = data;
-                debug_log("TSCR: Instance Old Hillsbrad: Thrall escort event adjusted to data %u.",data);
+                sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall escort event adjusted to data %u.",data);
                 break;
             }
             case TYPE_THRALL_PART1:
                 m_auiEncounter[2] = data;
-                debug_log("TSCR: Instance Old Hillsbrad: Thrall event part I adjusted to data %u.",data);
+                sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall event part I adjusted to data %u.",data);
                 break;
             case TYPE_THRALL_PART2:
                 m_auiEncounter[3] = data;
-                debug_log("TSCR: Instance Old Hillsbrad: Thrall event part II adjusted to data %u.",data);
+                sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall event part II adjusted to data %u.",data);
                 break;
             case TYPE_THRALL_PART3:
                 m_auiEncounter[4] = data;
-                debug_log("TSCR: Instance Old Hillsbrad: Thrall event part III adjusted to data %u.",data);
+                sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall event part III adjusted to data %u.",data);
                 break;
             case TYPE_THRALL_PART4:
                 m_auiEncounter[5] = data;
-                 debug_log("TSCR: Instance Old Hillsbrad: Thrall event part IV adjusted to data %u.",data);
+                 sLog.outDebug("TSCR: Instance Old Hillsbrad: Thrall event part IV adjusted to data %u.",data);
                 break;
         }
     }

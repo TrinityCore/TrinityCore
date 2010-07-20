@@ -21,7 +21,7 @@
 #ifndef TRINITY_SHAREDDEFINES_H
 #define TRINITY_SHAREDDEFINES_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include <cassert>
 
 // loot modes for creatures and gameobjects, bitmask!
@@ -287,7 +287,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX_NEGATIVE                    0x00000080            // 7
 #define SPELL_ATTR_EX_NOT_IN_COMBAT_TARGET        0x00000100            // 8 Spell req target not to be in combat state
 #define SPELL_ATTR_EX_UNK9                        0x00000200            // 9 melee spells
-#define SPELL_ATTR_EX_UNK10                       0x00000400            // 10 no generates threat on cast 100%? (old NO_INITIAL_AGGRO)
+#define SPELL_ATTR_EX_NO_THREAT                   0x00000400            // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
 #define SPELL_ATTR_EX_UNK11                       0x00000800            // 11 aura
 #define SPELL_ATTR_EX_UNK12                       0x00001000            // 12
 #define SPELL_ATTR_EX_UNK13                       0x00002000            // 13
@@ -643,7 +643,7 @@ enum SpellEffects
     SPELL_EFFECT_LANGUAGE                  = 39,
     SPELL_EFFECT_DUAL_WIELD                = 40,
     SPELL_EFFECT_JUMP                      = 41,
-    SPELL_EFFECT_JUMP2                     = 42,
+    SPELL_EFFECT_JUMP_DEST                 = 42,
     SPELL_EFFECT_TELEPORT_UNITS_FACE_CASTER= 43,
     SPELL_EFFECT_SKILL_STEP                = 44,
     SPELL_EFFECT_ADD_HONOR                 = 45,
@@ -750,7 +750,7 @@ enum SpellEffects
     SPELL_EFFECT_ACTIVATE_RUNE             = 146,
     SPELL_EFFECT_QUEST_FAIL                = 147,
     SPELL_EFFECT_148                       = 148,
-    SPELL_EFFECT_149                       = 149,
+    SPELL_EFFECT_CHARGE_DEST               = 149,
     SPELL_EFFECT_150                       = 150,
     SPELL_EFFECT_TRIGGER_SPELL_2           = 151,
     SPELL_EFFECT_152                       = 152,
@@ -2767,6 +2767,33 @@ enum SpellFamilyNames
     SPELLFAMILY_DEATHKNIGHT = 15,
     // 16 - unused
     SPELLFAMILY_PET         = 17
+};
+
+enum TradeStatus
+{
+    TRADE_STATUS_BUSY           = 0,
+    TRADE_STATUS_BEGIN_TRADE    = 1,
+    TRADE_STATUS_OPEN_WINDOW    = 2,
+    TRADE_STATUS_TRADE_CANCELED = 3,
+    TRADE_STATUS_TRADE_ACCEPT   = 4,
+    TRADE_STATUS_BUSY_2         = 5,
+    TRADE_STATUS_NO_TARGET      = 6,
+    TRADE_STATUS_BACK_TO_TRADE  = 7,
+    TRADE_STATUS_TRADE_COMPLETE = 8,
+    // 9?
+    TRADE_STATUS_TARGET_TO_FAR  = 10,
+    TRADE_STATUS_WRONG_FACTION  = 11,
+    TRADE_STATUS_CLOSE_WINDOW   = 12,
+    // 13?
+    TRADE_STATUS_IGNORE_YOU     = 14,
+    TRADE_STATUS_YOU_STUNNED    = 15,
+    TRADE_STATUS_TARGET_STUNNED = 16,
+    TRADE_STATUS_YOU_DEAD       = 17,
+    TRADE_STATUS_TARGET_DEAD    = 18,
+    TRADE_STATUS_YOU_LOGOUT     = 19,
+    TRADE_STATUS_TARGET_LOGOUT  = 20,
+    TRADE_STATUS_TRIAL_ACCOUNT  = 21,                       // Trial accounts can not perform that action
+    TRADE_STATUS_ONLY_CONJURED  = 22                        // You can only trade conjured items... (cross realm BG related).
 };
 
 #endif

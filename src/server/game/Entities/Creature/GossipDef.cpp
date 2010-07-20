@@ -522,7 +522,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const *pQuest, uint64 npcGUID,
     }
 
     // rewarded honor points. Multiply with 10 to satisfy client
-    data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
+    data << 10 * Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills());
     data << float(0);                                       // new 3.3.0, honor multiplier?
     data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << int32(pQuest->GetRewSpellCast());               // casted spell
@@ -616,7 +616,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const *pQuest)
     data << int32(pQuest->GetRewSpellCast());               // casted spell
 
     // rewarded honor points
-    data << uint32(Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
+    data << Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills());
     data << float(0);                                       // new reward honor (multipled by ~62 at client side)
     data << uint32(pQuest->GetSrcItemId());                 // source item id
     data << uint32(pQuest->GetFlags() & 0xFFFF);            // quest flags
@@ -775,7 +775,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* pQuest, uint64 npcGUID, 
     data << uint32(pQuest->XPValue(pSession->GetPlayer())*sWorld.getRate(RATE_XP_QUEST));
 
     // rewarded honor points. Multiply with 10 to satisfy client
-    data << uint32(10*Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills()));
+    data << 10 * Trinity::Honor::hk_honor_at_level(pSession->GetPlayer()->getLevel(), pQuest->GetRewHonorableKills());
     data << float(0);                                       // unk, honor multiplier?
     data << uint32(0x08);                                   // unused by client?
     data << uint32(pQuest->GetRewSpell());                  // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)

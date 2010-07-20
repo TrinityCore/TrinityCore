@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -22,20 +22,18 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/SQLStorage.h"
-#include "Policies/SingletonImp.h"
+#include "DatabaseEnv.h"
+#include "SQLStorage.h"
+
 #include "DBCStores.h"
 
 #include "AccountMgr.h"
 #include "AuctionHouseMgr.h"
 #include "Item.h"
 #include "Language.h"
-#include "Log.h"
+#include "Logging/Log.h"
 #include "ProgressBar.h"
 #include <vector>
-
-INSTANTIATE_SINGLETON_1(AuctionHouseMgr);
 
 using namespace std;
 
@@ -483,7 +481,11 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
     bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
     {
         auctionbot.DecrementItemCounts(auction, item_template);
-        return AuctionsMap.erase(auction->Id) ? true : false;
+        bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
+
+	// we need to delete the entry, it is not referenced any more
+	delete auction;
+	return wasInMap;
     }
 
 void AuctionHouseObject::Update()
@@ -711,7 +713,7 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
     data << uint32(bid ? GetAuctionOutBid() : 0);
     //minimal outbid
     data << uint32(buyout);                                 //auction->buyout
-    data << uint32((expire_time-time(NULL))*IN_MILISECONDS);//time left
+    data << uint32((expire_time-time(NULL))*IN_MILLISECONDS);//time left
     data << uint64(bidder) ;                                //auction->bidder current
     data << uint32(bid);                                    //current bid
     return true;

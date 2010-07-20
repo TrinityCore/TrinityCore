@@ -1,20 +1,21 @@
-/* Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "utgarde_pinnacle.h"
 
 enum Spells
@@ -104,7 +105,7 @@ struct boss_svalaAI : public ScriptedAI
     void Reset()
     {
         Phase = IDLE;
-        uiIntroTimer = 1*IN_MILISECONDS;
+        uiIntroTimer = 1*IN_MILLISECONDS;
         uiIntroPhase = 0;
         uiArthasGUID = 0;
 
@@ -149,28 +150,28 @@ struct boss_svalaAI : public ScriptedAI
                 case 0:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, me);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3.5*IN_MILISECONDS;
+                    uiIntroTimer = 3.5*IN_MILLISECONDS;
                     break;
                 case 1:
                     DoScriptText(SAY_DIALOG_OF_ARTHAS_1, pArthas);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3.5*IN_MILISECONDS;
+                    uiIntroTimer = 3.5*IN_MILLISECONDS;
                     break;
                 case 2:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, me);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3.5*IN_MILISECONDS;
+                    uiIntroTimer = 3.5*IN_MILLISECONDS;
                     break;
                 case 3:
                     DoScriptText(SAY_DIALOG_OF_ARTHAS_2, pArthas);
                     ++uiIntroPhase;
-                    uiIntroTimer = 3.5*IN_MILISECONDS;
+                    uiIntroTimer = 3.5*IN_MILLISECONDS;
                     break;
                 case 4:
                     DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, me);
                     DoCast(me, SPELL_SVALA_TRANSFORMING1);
                     ++uiIntroPhase;
-                    uiIntroTimer = 2.8*IN_MILISECONDS;
+                    uiIntroTimer = 2.8*IN_MILLISECONDS;
                     break;
                 case 5:
                     DoCast(me, SPELL_SVALA_TRANSFORMING2);
@@ -178,7 +179,7 @@ struct boss_svalaAI : public ScriptedAI
                     uiIntroTimer = 200;
                     break;
                 case 6:
-                    if (Creature* pSvalaSorrowgrave = me->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILISECONDS))
+                    if (Creature* pSvalaSorrowgrave = me->SummonCreature(CREATURE_SVALA_SORROWGRAVE, SvalaPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILLISECONDS))
                     {
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                         me->SetDisplayId(DATA_SVALA_DISPLAY_ID);
@@ -243,10 +244,10 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
 
     void Reset()
     {
-        uiSinsterStrikeTimer = 7*IN_MILISECONDS;
-        uiCallFlamesTimer = 10*IN_MILISECONDS;
-        uiRitualOfSwordTimer = 20*IN_MILISECONDS;
-        uiSacrificeTimer = 8*IN_MILISECONDS;
+        uiSinsterStrikeTimer = 7*IN_MILLISECONDS;
+        uiCallFlamesTimer = 10*IN_MILLISECONDS;
+        uiRitualOfSwordTimer = 20*IN_MILLISECONDS;
+        uiSacrificeTimer = 8*IN_MILLISECONDS;
 
         bSacrificed = false;
 
@@ -293,7 +294,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
             if (uiSinsterStrikeTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SINSTER_STRIKE);
-                uiSinsterStrikeTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
+                uiSinsterStrikeTimer = urand(5*IN_MILLISECONDS,9*IN_MILLISECONDS);
             } else uiSinsterStrikeTimer -= diff;
 
             if (uiCallFlamesTimer <= diff)
@@ -301,7 +302,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoCast(pTarget, SPELL_CALL_FLAMES);
-                    uiCallFlamesTimer = urand(8*IN_MILISECONDS,12*IN_MILISECONDS);
+                    uiCallFlamesTimer = urand(8*IN_MILLISECONDS,12*IN_MILLISECONDS);
                 }
             } else uiCallFlamesTimer -= diff;
 
@@ -347,7 +348,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     me->GetMotionMaster()->MoveChase(pTarget);
 
-                uiSacrificeTimer = 8*IN_MILISECONDS;
+                uiSacrificeTimer = 8*IN_MILLISECONDS;
             }
             else uiSacrificeTimer -= diff;
         }

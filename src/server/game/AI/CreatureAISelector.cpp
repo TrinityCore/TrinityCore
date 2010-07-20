@@ -21,22 +21,19 @@
 #include "Creature.h"
 #include "CreatureAISelector.h"
 #include "PassiveAI.h"
-#include "Policies/SingletonImp.h"
+
 #include "MovementGenerator.h"
 #include "Pet.h"
 #include "TemporarySummon.h"
 #include "CreatureAIFactory.h"
 #include "ScriptMgr.h"
 
-INSTANTIATE_SINGLETON_1(CreatureAIRegistry);
-INSTANTIATE_SINGLETON_1(MovementGeneratorRegistry);
-
 namespace FactorySelector
 {
     CreatureAI* selectAI(Creature *creature)
     {
         const CreatureAICreator *ai_factory = NULL;
-        CreatureAIRegistry &ai_registry(CreatureAIRepository::Instance());
+        CreatureAIRegistry& ai_registry(*CreatureAIRepository::instance());
 
         if (creature->isPet())
             ai_factory = ai_registry.GetRegistryItem("PetAI");
@@ -106,7 +103,7 @@ namespace FactorySelector
 
     MovementGenerator* selectMovementGenerator(Creature *creature)
     {
-        MovementGeneratorRegistry &mv_registry(MovementGeneratorRepository::Instance());
+        MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
         assert(creature->GetCreatureInfo() != NULL);
         const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
