@@ -5927,16 +5927,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                             return false;
                     }
 
-                    AuraEffectList const& DoTAuras = target->GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
-                    for (Unit::AuraEffectList::const_iterator i = DoTAuras.begin(); i != DoTAuras.end(); ++i)
-                    {
-                        if ((*i)->GetCasterGUID() != GetGUID() || (*i)->GetId() != 12654 || (*i)->GetEffIndex() != 0)
-                            continue;
-                        basepoints0 += ((*i)->GetAmount() * ((*i)->GetTotalTicks() - ((*i)->GetTickNumber()))) / 2;
-                        break;
-                    }
-
                     triggered_spell_id = 12654;
+                    basepoints0 += GetRemainingDotDamage(GetGUID(), triggered_spell_id);
                     break;
                 }
                 // Glyph of Ice Block
@@ -6766,6 +6758,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
                 // 4 damage tick
                 basepoints0 = triggerAmount*damage/400;
                 triggered_spell_id = 61840;
+                // Add remaining ticks to damage done
+                basepoints0 += GetRemainingDotDamage(GetGUID(), triggered_spell_id);
                 break;
             }
             // Sheath of Light
@@ -8157,8 +8151,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, AuraEffect* trig
                     SpellEntry const *TriggerPS = sSpellStore.LookupEntry(trigger_spell_id);
                     if (!TriggerPS)
                         return false;
+
                     basepoints0 = int32(damage * triggerAmount / 100 / (GetSpellMaxDuration(TriggerPS) / TriggerPS->EffectAmplitude[0]));
-                    target = pVictim;
+                    basepoints0 += GetRemainingDotDamage(GetGUID(), trigger_spell_id);
+                    break;
                 }
                 break;
             }
@@ -16563,6 +16559,21 @@ void Unit::OutDebugInfo() const
 
     if (GetVehicle())
         sLog.outString("On vehicle %u.", GetVehicleBase()->GetEntry());
+}
+
+uint32 Unit::GetRemainingDotDamage(uint64 caster, uint32 spellId, uint8 effectIndex) const
+{
+    uint32 amount = 0;
+    AuraEffectList const& DoTAuras = GetAuraEffectsByType(SPELL_AURA_PERIODIC_DAMAGE);
+    for (AuraEffectList::const_iterator i = DoTAuras.begin(); i != DoTAuras.end(); ++i)
+    {
+        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex)
+            continue;
+        amount += ((*i)->GetAmount() * ((*i)->GetTotalTicks() - ((*i)->GetTickNumber()))) / (*i)->GetTotalTicks();
+        break;
+    }
+
+    return amount;
 }
 
 void CharmInfo::SetIsCommandAttack(bool val)
