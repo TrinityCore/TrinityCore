@@ -263,6 +263,12 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
         return;
     }
 
+    if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_INDESTRUCTIBLE))
+    {
+        _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, NULL, NULL);
+        return;
+    }
+
     if (count)
     {
         uint32 i_count = count;
@@ -766,7 +772,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 ++count;
 
                 // reputation discount
-                int32 price = uint32(floor(pProto->BuyPrice * discountMod));
+                int32 price = crItem->IsGoldRequired(pProto) ? uint32(floor(pProto->BuyPrice * discountMod)) : 0;
 
                 data << uint32(vendorslot+1);    // client expects counting to start at 1
                 data << uint32(crItem->item);
@@ -1003,40 +1009,25 @@ void WorldSession::HandleItemNameQueryOpcode(WorldPacket & recv_data)
     recv_data.read_skip<uint64>();                          // guid
 
     sLog.outDebug("WORLD: CMSG_ITEM_NAME_QUERY %u", itemid);
-    ItemPrototype const *pProto = objmgr.GetItemPrototype(itemid);
-    if (pProto)
+    ItemSetNameEntry const *pName = objmgr.GetItemSetNameEntry(itemid);
+    if (pName)
     {
-        std::string Name;
-        Name = pProto->Name1;
-
+        std::string Name = pName->name;
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            ItemLocale const *il = objmgr.GetItemLocale(pProto->ItemId);
-            if (il)
-            {
-                if (il->Name.size() > size_t(loc_idx) && !il->Name[loc_idx].empty())
-                    Name = il->Name[loc_idx];
-            }
+            ItemSetNameLocale const *isnl = objmgr.GetItemSetNameLocale(itemid);
+            if (isnl)
+                if (isnl->Name.size() > size_t(loc_idx) && !isnl->Name[loc_idx].empty())
+                    Name = isnl->Name[loc_idx];
         }
-                                                            // guess size
-        WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4+10));
-        data << uint32(pProto->ItemId);
+
+        WorldPacket data(SMSG_ITEM_NAME_QUERY_RESPONSE, (4+Name.size()+1+4));
+        data << uint32(itemid);
         data << Name;
-        data << uint32(pProto->InventoryType);
+        data << uint32(pName->InventoryType);
         SendPacket(&data);
-        return;
     }
-// This is a BS check, there are lots of items listed in Item.dbc that do not even exist on official -- so we can NEVER get the data for them.
-// If you *really* want to spam your error log -- uncomment this.
-/*    else
-    {
-        // listed in dbc or not expected to exist unknown item
-        if (sItemStore.LookupEntry(itemid))
-            sLog.outErrorDb("WORLD: CMSG_ITEM_NAME_QUERY for item %u failed (item listed in Item.dbc but not exist in DB)", itemid);
-        else
-            sLog.outError("WORLD: CMSG_ITEM_NAME_QUERY for item %u failed (unknown item, not listed in Item.dbc)", itemid);
-    } */
 }
 
 void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)

@@ -1,26 +1,25 @@
 /*
- * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
  * Comment: TODO: spawn troll waves
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
@@ -77,12 +76,12 @@ struct boss_trollgoreAI : public ScriptedAI
 
     void Reset()
     {
-        uiConsumeTimer = 15*IN_MILISECONDS;
-        uiAuraCountTimer = 15.5*IN_MILISECONDS;
-        uiCrushTimer = urand(1*IN_MILISECONDS,5*IN_MILISECONDS);
-        uiInfectedWoundTimer = urand(60*IN_MILISECONDS,10*IN_MILISECONDS);
-        uiExplodeCorpseTimer = 3*IN_MILISECONDS;
-        uiSpawnTimer = urand(30*IN_MILISECONDS,40*IN_MILISECONDS);
+        uiConsumeTimer = 15*IN_MILLISECONDS;
+        uiAuraCountTimer = 15.5*IN_MILLISECONDS;
+        uiCrushTimer = urand(1*IN_MILLISECONDS,5*IN_MILLISECONDS);
+        uiInfectedWoundTimer = urand(60*IN_MILLISECONDS,10*IN_MILLISECONDS);
+        uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
+        uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
 
         bAchiev = IsHeroic();
 
@@ -113,14 +112,14 @@ struct boss_trollgoreAI : public ScriptedAI
             uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
             for (uint8 i = 0; i < spawnNumber; ++i)
                 DoSummon(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
-            uiSpawnTimer = urand(30*IN_MILISECONDS,40*IN_MILISECONDS);
+            uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
         } else uiSpawnTimer -= diff;
 
         if (uiConsumeTimer <= diff)
         {
             DoScriptText(SAY_CONSUME, me);
             DoCast(SPELL_CONSUME);
-            uiConsumeTimer = 15*IN_MILISECONDS;
+            uiConsumeTimer = 15*IN_MILLISECONDS;
         } else uiConsumeTimer -= diff;
 
         if (bAchiev)
@@ -133,20 +132,20 @@ struct boss_trollgoreAI : public ScriptedAI
         if (uiCrushTimer <= diff)
         {
             DoCastVictim(SPELL_CRUSH);
-            uiCrushTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
+            uiCrushTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
         } else uiCrushTimer -= diff;
 
         if (uiInfectedWoundTimer <= diff)
         {
             DoCastVictim(SPELL_INFECTED_WOUND);
-            uiInfectedWoundTimer = urand(25*IN_MILISECONDS,35*IN_MILISECONDS);
+            uiInfectedWoundTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
         } else uiInfectedWoundTimer -= diff;
 
         if (uiExplodeCorpseTimer <= diff)
         {
             DoCast(SPELL_CORPSE_EXPLODE);
             DoScriptText(SAY_EXPLODE, me);
-            uiExplodeCorpseTimer = urand(15*IN_MILISECONDS,19*IN_MILISECONDS);
+            uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
         } else uiExplodeCorpseTimer -= diff;
 
         DoMeleeAttackIfReady();

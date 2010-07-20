@@ -1,26 +1,25 @@
 /*
- * Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
  * Comment: The event with the Living Mojos is not implemented, just is done that when one of the mojos around the boss take damage will make the boss enter in combat!
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "gundrak.h"
 
 enum Spells
@@ -59,7 +58,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->clearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
         me->SetReactState(REACT_PASSIVE);
-        MightyBlowTimer = 10*IN_MILISECONDS;
+        MightyBlowTimer = 10*IN_MILLISECONDS;
         bHealth = false;
         bHealth1 = false;
     }
@@ -115,7 +114,7 @@ struct boss_drakkari_colossusAI : public ScriptedAI
         if (MightyBlowTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_MIGHTY_BLOW, true);
-            MightyBlowTimer = 10*IN_MILISECONDS;
+            MightyBlowTimer = 10*IN_MILLISECONDS;
         } else MightyBlowTimer -= diff;
 
         if (!me->hasUnitState(UNIT_STAT_STUNNED))
@@ -153,7 +152,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
     {
         if (Creature *pColossus = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
             CAST_AI(boss_drakkari_colossusAI, pColossus->AI())->CreatureState(me, true);
-        uiSurgeTimer = 7*IN_MILISECONDS;
+        uiSurgeTimer = 7*IN_MILLISECONDS;
         bGoToColossus = false;
     }
 
@@ -196,7 +195,7 @@ struct boss_drakkari_elementalAI : public ScriptedAI
         if (uiSurgeTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_SURGE);
-            uiSurgeTimer = 7*IN_MILISECONDS;
+            uiSurgeTimer = 7*IN_MILLISECONDS;
         } else uiSurgeTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -223,8 +222,8 @@ struct npc_living_mojoAI : public ScriptedAI
 
     void Reset()
     {
-        uiMojoWaveTimer = 2*IN_MILISECONDS;
-        uiMojoPuddleTimer = 7*IN_MILISECONDS;
+        uiMojoWaveTimer = 2*IN_MILLISECONDS;
+        uiMojoPuddleTimer = 7*IN_MILLISECONDS;
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -268,13 +267,13 @@ struct npc_living_mojoAI : public ScriptedAI
         if (uiMojoWaveTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_MOJO_WAVE);
-            uiMojoWaveTimer = 15*IN_MILISECONDS;
+            uiMojoWaveTimer = 15*IN_MILLISECONDS;
         } else uiMojoWaveTimer -= diff;
 
         if (uiMojoPuddleTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_MOJO_PUDDLE);
-            uiMojoPuddleTimer = 18*IN_MILISECONDS;
+            uiMojoPuddleTimer = 18*IN_MILLISECONDS;
         } else uiMojoPuddleTimer -= diff;
 
         DoMeleeAttackIfReady();

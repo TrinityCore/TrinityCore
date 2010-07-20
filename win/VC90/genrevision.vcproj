@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -44,10 +44,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -64,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -93,8 +94,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -117,10 +118,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -137,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="2"
+				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -166,8 +168,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -191,9 +193,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SECURE_SCL=0"
+				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -241,8 +244,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\genrevision__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -266,10 +269,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SECURE_SCL=0"
+				EnableIntrinsicFunctions="false"
+				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"

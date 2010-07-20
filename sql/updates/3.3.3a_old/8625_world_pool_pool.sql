@@ -1,0 +1,1 @@
+ALTER TABLE `pool_pool` DROP PRIMARY KEY, ADD PRIMARY KEY (`pool_id`);

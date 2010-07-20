@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: Missing some text, Vael beginning event, and spawns Nef in wrong plac
 SDCategory: Blackwing Lair
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_GAMESBEGIN_1        -1469004
 #define SAY_GAMESBEGIN_2        -1469005
@@ -189,9 +191,9 @@ struct boss_victor_nefariusAI : public ScriptedAI
 
         //Trinity::Singleton<MapManager>::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
         /*
-        list <Player*>::const_iterator i = MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin();
+        list <Player*>::const_iterator i = sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().begin();
 
-        for (i = MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != MapManager::Instance().GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
+        for (i = sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().begin(); i != sMapMgr.GetMap(me->GetMapId(), me)->GetPlayers().end(); ++i)
         {
         AttackStart((*i));
         }
@@ -288,9 +290,9 @@ struct boss_victor_nefariusAI : public ScriptedAI
                 if (SpawnedAdds >= 42)
                 {
                     //Teleport Victor Nefarius way out of the map
-                    //MapManager::Instance().GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
+                    //sMapMgr.GetMap(me->GetMapId(), me)->CreatureRelocation(me,0,0,-5000,0);
 
-                    //Inturrupt any spell casting
+                    //Interrupt any spell casting
                     me->InterruptNonMeleeSpells(false);
 
                     //Root self
@@ -312,7 +314,7 @@ struct boss_victor_nefariusAI : public ScriptedAI
                         Nefarian->setFaction(103);
                         NefarianGUID = Nefarian->GetGUID();
                     }
-                    else error_log("TSCR: Blackwing Lair: Unable to spawn nefarian properly.");
+                    else sLog.outError("TSCR: Blackwing Lair: Unable to spawn nefarian properly.");
                 }
 
                 AddSpawnTimer = 4000;

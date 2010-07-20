@@ -175,7 +175,7 @@ uint32 Quest::XPValue(Player *pPlayer) const
         if (!xpentry)
             return 0;
 
-        int diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
+        int32 diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)
@@ -203,4 +203,12 @@ int32  Quest::GetRewOrReqMoney() const
         return RewOrReqMoney;
 
     return int32(RewOrReqMoney * sWorld.getRate(RATE_DROP_MONEY));
+}
+
+bool Quest::IsAllowedInRaid() const
+{
+    if (IsRaidQuest())
+        return true;
+
+    return sWorld.getConfig(CONFIG_QUEST_IGNORE_RAID);
 }

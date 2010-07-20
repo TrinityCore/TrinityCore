@@ -21,8 +21,8 @@
 #ifndef TRINITY_UNORDERED_MAP_H
 #define TRINITY_UNORDERED_MAP_H
 
-#include "Platform/CompilerDefs.h"
-#include "Platform/Define.h"
+#include "CompilerDefs.h"
+#include "Define.h"
 
 #if COMPILER == COMPILER_INTEL
 #include <ext/hash_map>
@@ -62,7 +62,13 @@ namespace __gnu_cxx
     {
         size_t operator()(T * const &__x) const { return (size_t)__x; }
     };
-
+    template<> struct hash<std::string>
+    {
+        size_t operator()(const std::string &__x) const
+        {
+            return hash<const char *>()(__x.c_str());
+        }
+    };
 };
 
 #else

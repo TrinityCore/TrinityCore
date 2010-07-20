@@ -1,18 +1,20 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: Instance_Dark_Portal
@@ -21,7 +23,7 @@ SDComment: Quest support: 9836, 10297. Currently in progress.
 SDCategory: Caverns of Time, The Dark Portal
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "dark_portal.h"
 
 #define MAX_ENCOUNTER              2
@@ -178,7 +180,7 @@ struct instance_dark_portal : public ScriptedInstance
             {
                 if (data == IN_PROGRESS)
                 {
-                    debug_log("TSCR: Instance Dark Portal: Starting event.");
+                    sLog.outDebug("TSCR: Instance Dark Portal: Starting event.");
                     InitWorldState();
                     m_auiEncounter[1] = IN_PROGRESS;
                     NextPortal_Timer = 15000;
@@ -187,7 +189,7 @@ struct instance_dark_portal : public ScriptedInstance
                 if (data == DONE)
                 {
                     //this may be completed further out in the post-event
-                    debug_log("TSCR: Instance Dark Portal: Event completed.");
+                    sLog.outDebug("TSCR: Instance Dark Portal: Event completed.");
                     Map::PlayerList const& players = instance->GetPlayers();
 
                     if (!players.isEmpty())
@@ -252,7 +254,7 @@ struct instance_dark_portal : public ScriptedInstance
         if (entry == RIFT_BOSS)
             entry = RandRiftBoss();
 
-        debug_log("TSCR: Instance Dark Portal: Summoning rift boss entry %u.",entry);
+        sLog.outDebug("TSCR: Instance Dark Portal: Summoning rift boss entry %u.",entry);
 
         Position pos;
         me->GetRandomNearPosition(pos, 10.0f);
@@ -263,7 +265,7 @@ struct instance_dark_portal : public ScriptedInstance
         if (Creature *summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
             return summon;
 
-        debug_log("TSCR: Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
+        sLog.outDebug("TSCR: Instance Dark Portal: What just happened there? No boss, no loot, no fun...");
         return NULL;
     }
 
@@ -276,7 +278,7 @@ struct instance_dark_portal : public ScriptedInstance
             if (tmp >= CurrentRiftId)
                 ++tmp;
 
-            debug_log("TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
+            sLog.outDebug("TSCR: Instance Dark Portal: Creating Time Rift at locationId %i (old locationId was %u).",tmp,CurrentRiftId);
 
             CurrentRiftId = tmp;
 

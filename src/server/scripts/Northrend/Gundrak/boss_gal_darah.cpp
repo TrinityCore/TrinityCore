@@ -1,22 +1,21 @@
 /*
-* Copyright (C) 2009 - 2010 TrinityCore <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "gundrak.h"
 
 //Spells
@@ -95,13 +94,13 @@ struct boss_gal_darahAI : public ScriptedAI
 
     void Reset()
     {
-        uiStampedeTimer = 10*IN_MILISECONDS;
-        uiWhirlingSlashTimer = 21*IN_MILISECONDS;
-        uiPunctureTimer = 10*IN_MILISECONDS;
-        uiEnrageTimer = 15*IN_MILISECONDS;
-        uiImpalingChargeTimer = 21*IN_MILISECONDS;
-        uiStompTimer = 25*IN_MILISECONDS;
-        uiTransformationTimer = 9*IN_MILISECONDS;
+        uiStampedeTimer = 10*IN_MILLISECONDS;
+        uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
+        uiPunctureTimer = 10*IN_MILLISECONDS;
+        uiEnrageTimer = 15*IN_MILLISECONDS;
+        uiImpalingChargeTimer = 21*IN_MILLISECONDS;
+        uiStompTimer = 25*IN_MILLISECONDS;
+        uiTransformationTimer = 9*IN_MILLISECONDS;
         uiPhaseCounter = 0;
 
         lImpaledPlayers.clear();
@@ -141,7 +140,7 @@ struct boss_gal_darahAI : public ScriptedAI
                         Phase = RHINO;
                         uiPhaseCounter = 0;
                         DoScriptText(SAY_TRANSFORM_1, me);
-                        uiTransformationTimer = 5*IN_MILISECONDS;
+                        uiTransformationTimer = 5*IN_MILLISECONDS;
                         bStartOfTransformation = true;
                         me->clearUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -164,13 +163,13 @@ struct boss_gal_darahAI : public ScriptedAI
                     {
                         DoCast(me, SPELL_STAMPEDE);
                         DoScriptText(RAND(SAY_SUMMON_RHINO_1,SAY_SUMMON_RHINO_2,SAY_SUMMON_RHINO_3),me);
-                        uiStampedeTimer = 15*IN_MILISECONDS;
+                        uiStampedeTimer = 15*IN_MILLISECONDS;
                     } else uiStampedeTimer -= diff;
 
                     if (uiWhirlingSlashTimer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_WHIRLING_SLASH);
-                        uiWhirlingSlashTimer = 21*IN_MILISECONDS;
+                        uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
                         ++uiPhaseCounter;
                     } else uiWhirlingSlashTimer -= diff;
                 }
@@ -184,7 +183,7 @@ struct boss_gal_darahAI : public ScriptedAI
                         Phase = TROLL;
                         uiPhaseCounter = 0;
                         DoScriptText(SAY_TRANSFORM_2, me);
-                        uiTransformationTimer = 9*IN_MILISECONDS;
+                        uiTransformationTimer = 9*IN_MILLISECONDS;
                         bStartOfTransformation = true;
                         me->clearUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
                         me->SetReactState(REACT_AGGRESSIVE);
@@ -206,19 +205,19 @@ struct boss_gal_darahAI : public ScriptedAI
                     if (uiPunctureTimer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_PUNCTURE);
-                        uiPunctureTimer = 8*IN_MILISECONDS;
+                        uiPunctureTimer = 8*IN_MILLISECONDS;
                     } else uiPunctureTimer -= diff;
 
                     if (uiEnrageTimer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_ENRAGE);
-                        uiEnrageTimer = 20*IN_MILISECONDS;
+                        uiEnrageTimer = 20*IN_MILLISECONDS;
                     } else uiEnrageTimer -= diff;
 
                     if (uiStompTimer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_STOMP);
-                        uiStompTimer = 20*IN_MILISECONDS;
+                        uiStompTimer = 20*IN_MILLISECONDS;
                     } else uiStompTimer -= diff;
 
                     if (uiImpalingChargeTimer <= diff)
@@ -228,7 +227,7 @@ struct boss_gal_darahAI : public ScriptedAI
                             DoCast(pTarget, SPELL_IMPALING_CHARGE);
                             lImpaledPlayers.insert(pTarget->GetGUID());
                         }
-                        uiImpalingChargeTimer = 31*IN_MILISECONDS;
+                        uiImpalingChargeTimer = 31*IN_MILLISECONDS;
                         ++uiPhaseCounter;
                     } else uiImpalingChargeTimer -= diff;
                 }

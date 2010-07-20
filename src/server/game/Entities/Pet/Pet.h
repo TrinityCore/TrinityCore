@@ -118,7 +118,7 @@ typedef std::vector<uint32> AutoSpellList;
 
 #define PET_FOLLOW_DIST  1
 #define PET_FOLLOW_ANGLE (M_PI/2)
-#define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILISECONDS
+#define PET_FOCUS_REGEN_INTERVAL 4 * IN_MILLISECONDS
 
 class Player;
 

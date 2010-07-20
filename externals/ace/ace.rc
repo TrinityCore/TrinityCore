@@ -1,0 +1,38 @@
+#include "Version.h"
+
+1 VERSIONINFO
+ FILEVERSION ACE_MAJOR_VERSION,ACE_MINOR_VERSION,ACE_BETA_VERSION,0
+ PRODUCTVERSION ACE_MAJOR_VERSION,ACE_MINOR_VERSION,ACE_BETA_VERSION,0
+ FILEFLAGSMASK 0x3fL
+ FILEFLAGS 0x0L
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "FileDescription", "ACE\0"
+            VALUE "FileVersion", ACE_VERSION "\0"
+            VALUE "InternalName", "ACEDLL\0"
+            VALUE "LegalCopyright", "\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "ACE.DLL\0"
+            VALUE "ProductName", "ACE\0"
+            VALUE "ProductVersion", ACE_VERSION "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+/*
+ * The following resource is used by the ACE logger to write messages
+ * to the NT event log. If you are statically linking to the ACE
+ * library, and you wish to use the NT event log, you should copy this
+ * message table to your application's resource script.
+ */
+1 MESSAGETABLE ace_message_table.bin

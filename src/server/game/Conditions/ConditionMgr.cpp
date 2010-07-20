@@ -19,7 +19,7 @@
  */
 
 
-#include "Policies/SingletonImp.h"
+
 #include "Player.h"
 #include "SpellAuras.h"
 #include "SpellMgr.h"
@@ -29,12 +29,10 @@
 #include "InstanceData.h"
 #include "ConditionMgr.h"
 
-INSTANTIATE_SINGLETON_1(ConditionMgr);
-
 // Checks if player meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
 bool Condition::Meets(Player * player, Unit* targetOverride)
-{    
+{
     if (!player)
     {
         sLog.outDebug("Condition player not found");
@@ -126,7 +124,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
             break;
         }
         case CONDITION_SPELL_SCRIPT_TARGET:
-            condMeets = true;//spell target condition is handled in spellsystem, here it is always true    
+            condMeets = true;//spell target condition is handled in spellsystem, here it is always true
             refId = 0;//cant have references! use CONDITION_SOURCE_TYPE_SPELL for it
             break;
         case CONDITION_CREATURE_TARGET:
@@ -165,7 +163,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
             break;
         case CONDITION_ITEM_TARGET:
         {
-            condMeets = true;//handled in Item::IsTargetValidForItemUse    
+            condMeets = true;//handled in Item::IsTargetValidForItemUse
             refId = 0;//cant have references for now
             break;
         }
@@ -201,6 +199,7 @@ ConditionMgr::ConditionMgr()
 
 ConditionMgr::~ConditionMgr()
 {
+    Clean();
 }
 
 ConditionList ConditionMgr::GetConditionReferences(uint32 refId)
@@ -236,12 +235,12 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player,const ConditionLis
                 }else{
                     sLog.outDebug("IsPlayerMeetToConditionList: Reference template -%u not found", (*i)->mReferenceId);//checked at loading, should never happen
                 }
-                
+
             } else//handle normal condition
             {
                 if (!(*i)->Meets(player, targetOverride))
                     ElseGroupMap[(*i)->mElseGroup] = false;
-            }            
+            }
         }
     }
     for (std::map<uint32, bool>::const_iterator i = ElseGroupMap.begin(); i != ElseGroupMap.end(); ++i)
@@ -273,7 +272,7 @@ ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType 
     {
         ConditionMap::const_iterator itr = m_ConditionMap.find(sType);
         if (itr != m_ConditionMap.end())
-        {            
+        {
             ConditionTypeMap::const_iterator i = (*itr).second.find(uEntry);
             if (i != (*itr).second.end())
             {
@@ -287,8 +286,8 @@ ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType 
 
 void ConditionMgr::LoadConditions(bool isReload)
 {
-    m_ConditionMap.clear(); // for reload case
-    m_ConditionReferenceMap.clear(); // for reload case
+    Clean();
+
     //must clear all custom handled cases (groupped types) before reload
     if (isReload)
     {
@@ -336,11 +335,11 @@ void ConditionMgr::LoadConditions(bool isReload)
         Field *fields = result->Fetch();
 
         Condition* cond = new Condition();
-        int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();        
+        int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
         cond->mSourceGroup               = fields[1].GetUInt32();
         cond->mSourceEntry               = fields[2].GetUInt32();
         cond->mElseGroup                 = fields[3].GetUInt32();
-        int32 iConditionTypeOrReference  = fields[4].GetInt32();  
+        int32 iConditionTypeOrReference  = fields[4].GetInt32();
         cond->mConditionValue1           = fields[5].GetUInt32();
         cond->mConditionValue2           = fields[6].GetUInt32();
         cond->mConditionValue3           = fields[7].GetUInt32();
@@ -351,9 +350,10 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         if (iConditionTypeOrReference < 0)//it has a reference
         {
-            if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skipp
+            if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skip
             {
                 sLog.outErrorDb("Condition reference %i is referencing self, skipped", iSourceTypeOrReferenceId);
+                delete cond;
                 continue;
             }
             cond->mReferenceId = uint32(abs(iConditionTypeOrReference));
@@ -373,8 +373,10 @@ void ConditionMgr::LoadConditions(bool isReload)
             if (cond->mSourceEntry && iSourceTypeOrReferenceId < 0)
                 sLog.outErrorDb("Condition %s %i has useless data in SourceEntry (%u)!", rowType, iSourceTypeOrReferenceId, cond->mSourceEntry);
         }else if (!isConditionTypeValid(cond))//doesn't have reference, validate ConditionType
-            continue;  
-
+        {
+            delete cond;
+            continue;
+        }
 
         if (iSourceTypeOrReferenceId < 0)//it is a reference template
         {
@@ -390,15 +392,19 @@ void ConditionMgr::LoadConditions(bool isReload)
         }//end of reference templates
 
         cond->mSourceType = ConditionSourceType(iSourceTypeOrReferenceId);
-        
+
         //if not a reference and SourceType is invalid, skip
         if (iConditionTypeOrReference >= 0 && !isSourceTypeValid(cond))
+        {
+            delete cond;
             continue;
+        }
 
         //Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
         if (cond->mSourceGroup && !isGroupable(cond->mSourceType))
         {
             sLog.outErrorDb("Condition type %u has not allowed grouping %u!", uint32(cond->mSourceType), cond->mSourceGroup);
+            delete cond;
             continue;
         }else if (cond->mSourceGroup)
         {
@@ -450,9 +456,15 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
             }
             if (!bIsDone)
+            {
                 sLog.outErrorDb("Not handled grouped condition, SourceGroup %u", cond->mSourceGroup);
+                delete cond;
+            }
             else
+            {
+                m_AllocatedMemory.push_back(cond);
                 ++count;
+            }
             continue;
         }
 
@@ -505,11 +517,10 @@ bool ConditionMgr::addToGossipMenus(Condition* cond)
             if ((*itr).second.entry == cond->mSourceGroup && (*itr).second.text_id == cond->mSourceEntry)
             {
                 (*itr).second.conditions.push_back(cond);
-                sLog.outDebug("addToGossipMenus: entry %u textId %u", cond->mSourceGroup, cond->mSourceEntry);
                 return true;
             }
         }
-    }    
+    }
     sLog.outErrorDb("addToGossipMenus: GossipMenu %u not found", cond->mSourceGroup);
     return false;
 }
@@ -524,12 +535,11 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
             if ((*itr).second.menu_id == cond->mSourceGroup && (*itr).second.id == cond->mSourceEntry)
             {
                 (*itr).second.conditions.push_back(cond);
-                //sLog.outDebug("addToGossipMenuItems: menuId %u id %u", cond->mSourceGroup, cond->mSourceEntry);
                 return true;
             }
         }
     }
-    sLog.outErrorDb("addToGossipMenuItems: GossipMenuIt %u Item %u not found", cond->mSourceGroup, cond->mSourceEntry);
+    sLog.outErrorDb("addToGossipMenuItems: GossipMenuId %u Item %u not found", cond->mSourceGroup, cond->mSourceEntry);
     return false;
 }
 
@@ -591,7 +601,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         }
         case CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE:
-        {                
+        {
             if (!LootTemplates_Gameobject.HaveLootFor(cond->mSourceGroup))
             {
                 sLog.outErrorDb("SourceGroup %u in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond->mSourceGroup);
@@ -607,7 +617,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         }
         case CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE:
-        {                
+        {
             if (!LootTemplates_Item.HaveLootFor(cond->mSourceGroup))
             {
                 sLog.outErrorDb("SourceGroup %u in `condition` table, does not exist in `item_loot_template`, ignoring.", cond->mSourceGroup);
@@ -776,7 +786,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
             break;
-        }          
+        }
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
         {
             if (!sCreatureStorage.LookupEntry<CreatureInfo>(cond->mSourceEntry))
@@ -1043,10 +1053,10 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             {
                 sLog.outErrorDb("SpellTarget condition has non existing spell target type (%u), skipped", cond->mConditionValue1);
                 return false;
-            }            
+            }
             switch(cond->mConditionValue1)
             {
-                case SPELL_TARGET_TYPE_GAMEOBJECT:                
+                case SPELL_TARGET_TYPE_GAMEOBJECT:
                 {
                     if (cond->mConditionValue2 && !sGOStorage.LookupEntry<GameObjectInfo>(cond->mConditionValue2))
                     {
@@ -1142,4 +1152,32 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             break;
     }
     return true;
+}
+
+void ConditionMgr::Clean()
+{
+    for (ConditionReferenceMap::iterator itr = m_ConditionReferenceMap.begin(); itr != m_ConditionReferenceMap.end(); ++itr)
+    {
+        for (ConditionList::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+            delete *it;
+        itr->second.clear();
+    }
+    m_ConditionReferenceMap.clear();
+
+    for (ConditionMap::iterator itr = m_ConditionMap.begin(); itr != m_ConditionMap.end(); ++itr)
+    {
+        for (ConditionTypeMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+            it->second.clear();
+        }
+        itr->second.clear();
+    }
+    m_ConditionMap.clear();
+
+    // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
+    for (std::list<Condition*>::const_iterator itr = m_AllocatedMemory.begin(); itr != m_AllocatedMemory.end(); ++itr)
+        delete *itr;
+    m_AllocatedMemory.clear();
 }

@@ -25,7 +25,7 @@
 #include "Log.h"
 #include "Opcodes.h"
 #include "World.h"
-#include <zlib/zlib.h>
+#include "zlib.h"
 
 UpdateData::UpdateData() : m_blockCount(0)
 {

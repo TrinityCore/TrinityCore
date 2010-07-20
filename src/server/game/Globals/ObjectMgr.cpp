@@ -19,11 +19,9 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/SQLStorage.h"
-#include "Database/SQLStorageImpl.h"
-#include "Policies/SingletonImp.h"
-
+#include "DatabaseEnv.h"
+#include "SQLStorage.h"
+#include "SQLStorageImpl.h"
 #include "Log.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
@@ -33,7 +31,7 @@
 #include "Group.h"
 #include "Guild.h"
 #include "ArenaTeam.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "ProgressBar.h"
 #include "Language.h"
 #include "GameEventMgr.h"
@@ -47,8 +45,6 @@
 #include "GossipDef.h"
 #include "Vehicle.h"
 #include "AchievementMgr.h"
-
-INSTANTIATE_SINGLETON_1(ObjectMgr);
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -1177,14 +1173,14 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guid, uint32 linkedGuid)
     if (!linkedGuid) // we're removing the linking
     {
         mCreatureLinkedRespawnMap.erase(guid);
-        WorldDatabase.DirectPExecute("DELETE FROM creature_linked_respawn WHERE guid = '%u'",guid);
+        WorldDatabase.PExecute("DELETE FROM creature_linked_respawn WHERE guid = '%u'",guid);
         return true;
     }
 
     if (CheckCreatureLinkedRespawn(guid,linkedGuid)) // we add/change linking
     {
         mCreatureLinkedRespawnMap[guid] = linkedGuid;
-        WorldDatabase.DirectPExecute("REPLACE INTO creature_linked_respawn (guid,linkedGuid) VALUES ('%u','%u')",guid,linkedGuid);
+        WorldDatabase.PExecute("REPLACE INTO creature_linked_respawn (guid,linkedGuid) VALUES ('%u','%u')",guid,linkedGuid);
         return true;
     }
     return false;
@@ -1412,7 +1408,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!goinfo)
         return 0;
 
-    Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId));
+    Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(mapId));
     if (!map)
         return 0;
 
@@ -1473,7 +1469,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
     AddCreatureToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if (Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId)))
+    if (Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(mapId)))
     {
         // We use spawn coords to spawn
         if (!map->Instanceable() && map->IsLoaded(data.posX, data.posY))
@@ -1524,7 +1520,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     AddCreatureToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if (Map* map = const_cast<Map*>(MapManager::Instance().CreateBaseMap(mapId)))
+    if (Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(mapId)))
     {
         // We use spawn coords to spawn
         if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
@@ -2260,10 +2256,17 @@ void ObjectMgr::LoadItemPrototypes()
             const_cast<ItemPrototype*>(proto)->Sheath = SHEATHETYPE_NONE;
         }
 
-        if (proto->RandomProperty && !sItemRandomPropertiesStore.LookupEntry(GetItemEnchantMod(proto->RandomProperty)))
+        if (proto->RandomProperty)
         {
-            sLog.outErrorDb("Item (Entry: %u) has unknown (wrong or not listed in `item_enchantment_template`) RandomProperty (%u)",i,proto->RandomProperty);
-            const_cast<ItemPrototype*>(proto)->RandomProperty = 0;
+            // To be implemented later
+            if (proto->RandomProperty == -1)
+                const_cast<ItemPrototype*>(proto)->RandomProperty = 0;
+                
+            else if (!sItemRandomPropertiesStore.LookupEntry(GetItemEnchantMod(proto->RandomProperty)))
+            {
+                sLog.outErrorDb("Item (Entry: %u) has unknown (wrong or not listed in `item_enchantment_template`) RandomProperty (%u)",i,proto->RandomProperty);
+                const_cast<ItemPrototype*>(proto)->RandomProperty = 0;
+            }    
         }
 
         if (proto->RandomSuffix && !sItemRandomSuffixStore.LookupEntry(GetItemEnchantMod(proto->RandomSuffix)))
@@ -2368,7 +2371,132 @@ void ObjectMgr::LoadItemPrototypes()
     }
 
     for (std::set<uint32>::const_iterator itr = notFoundOutfit.begin(); itr != notFoundOutfit.end(); ++itr)
-        sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dnc`", *itr);
+        sLog.outErrorDb("Item (Entry: %u) not exist in `item_template` but referenced in `CharStartOutfit.dbc`", *itr);
+}
+
+void ObjectMgr::LoadItemSetNameLocales()
+{
+    mItemSetNameLocaleMap.clear();                                 // need for reload case
+
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT `entry`,`name_loc1`,`name_loc2`,`name_loc3`,`name_loc4`,`name_loc5`,`name_loc6`,`name_loc7`,`name_loc8` FROM `locales_item_set_names`");
+
+    if (!result)
+        return;
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 entry = fields[0].GetUInt32();
+
+        ItemSetNameLocale& data = mItemSetNameLocaleMap[entry];
+
+        for (uint8 i = 1; i < MAX_LOCALE; ++i)
+        {
+            std::string str = fields[i].GetCppString();
+            if (!str.empty())
+            {
+                int idx = GetOrNewIndexForLocale(LocaleConstant(i));
+                if (idx >= 0)
+                {
+                    if (data.Name.size() <= idx)
+                        data.Name.resize(idx+1);
+
+                    data.Name[idx] = str;
+                }
+            }
+        }
+    } while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %lu Item set name locale strings", (uint32)mItemSetNameLocaleMap.size());
+}
+
+void ObjectMgr::LoadItemSetNames()
+{
+    mItemSetNameMap.clear();                               // needed for reload case
+
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT `entry`,`name`,`InventoryType` FROM `item_set_names`");
+
+    uint32 count = 0;
+    std::set<uint32> itemSetItems;
+
+    // fill item set member ids
+    for (uint32 entryId = 0; entryId < sItemSetStore.GetNumRows(); ++entryId)
+    {
+        ItemSetEntry const* setEntry = sItemSetStore.LookupEntry(entryId);
+        if (!setEntry)
+            continue;
+
+        for (uint32 i = 0; i < MAX_ITEM_SET_ITEMS; ++i)
+            if (setEntry->itemId[i])
+                itemSetItems.insert(setEntry->itemId[i]);
+    }
+
+    if (result)
+    {
+        barGoLink bar(result->GetRowCount());
+        do
+        {
+            Field *fields = result->Fetch();
+            bar.step();
+
+            uint32 entry = fields[0].GetUInt32();
+            if (itemSetItems.find(entry) == itemSetItems.end())
+            {
+                sLog.outErrorDb("Item set name (Entry: %u) not found in ItemSet.dbc, data useless.", entry);
+                continue;
+            }
+
+            ItemSetNameEntry &data = mItemSetNameMap[entry];
+            data.name = fields[1].GetCppString();
+
+            uint32 invType = fields[2].GetUInt32();
+            if (invType >= MAX_INVTYPE)
+            {
+                sLog.outErrorDb("Item set name (Entry: %u) has wrong InventoryType value (%u)", entry, invType);
+                invType = INVTYPE_NON_EQUIP;
+            }
+
+            data.InventoryType = invType;
+            itemSetItems.erase(entry);
+            ++count;
+        } while (result->NextRow());
+    }
+    else
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 item set names. DB table `item_set_names` is empty.");
+    }
+
+    if (!itemSetItems.empty())
+    {
+        ItemPrototype const* pProto;
+        for (std::set<uint32>::iterator itr = itemSetItems.begin(); itr != itemSetItems.end(); ++itr)
+        {
+            uint32 entry = *itr;
+            // add data from item_template if available
+            if (pProto = GetItemPrototype(entry))
+            {
+                sLog.outErrorDb("Item set part (Entry: %u) does not have entry in `item_set_names`, adding data from `item_template`.", entry);
+                ItemSetNameEntry &data = mItemSetNameMap[entry];
+                data.name = pProto->Name1;
+                data.InventoryType = pProto->InventoryType;
+                ++count;
+            }
+            else
+                sLog.outErrorDb("Item set part (Entry: %u) does not have entry in `item_set_names`, set will not display properly.", entry);
+        }
+    }
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u item set names", count);
 }
 
 void ObjectMgr::LoadVehicleAccessories()
@@ -2462,7 +2590,7 @@ void ObjectMgr::LoadPetLevelInfo()
                     sLog.outErrorDb("Wrong (> %u) level %u in `pet_levelstats` table, ignoring.",STRONG_MAX_LEVEL,current_level);
                 else
                 {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in Trinityd.conf) level %u in `pet_levelstats` table, ignoring.",current_level);
+                    sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `pet_levelstats` table, ignoring.",current_level);
                     ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                 }
                 continue;
@@ -2533,6 +2661,47 @@ PetLevelInfo const* ObjectMgr::GetPetLevelInfo(uint32 creature_id, uint8 level) 
         return NULL;
 
     return &itr->second[level-1];                           // data for level 1 stored in [0] array element, ...
+}
+
+void ObjectMgr::PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count)
+{
+    if (count > 0)
+        playerInfo[race_][class_].item.push_back(PlayerCreateInfoItem(itemId, count));
+    else
+    {
+        if (count < -1)
+            sLog.outErrorDb("Invalid count %i specified on item %u be removed from original player create info (use -1)!", count, itemId);
+
+        uint32 RaceClass = (race_) | (class_ << 8);
+        bool doneOne = false;
+        for (uint32 i = 1; i < sCharStartOutfitStore.GetNumRows(); ++i)
+        {
+            if (CharStartOutfitEntry const* entry = sCharStartOutfitStore.LookupEntry(i))
+            {
+                if (entry->RaceClassGender == RaceClass || entry->RaceClassGender == (RaceClass | (1 << 16)))
+                {
+                    bool found = false;
+                    for (uint8 x = 0; x < MAX_OUTFIT_ITEMS; ++x)
+                    {
+                        if (entry->ItemId[x] == itemId)
+                        {
+                            found = true;
+                            const_cast<CharStartOutfitEntry*>(entry)->ItemId[x] = 0;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                        sLog.outErrorDb("Item %u specified to be removed from original create info not found in dbc!", itemId);
+                    
+                    if (!doneOne)
+                        doneOne = true;
+                    else
+                        break;
+                }
+            }
+        }
+    }
 }
 
 void ObjectMgr::LoadPlayerInfo()
@@ -2665,8 +2834,6 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                PlayerInfo* pInfo = &playerInfo[current_race][current_class];
-
                 uint32 item_id = fields[2].GetUInt32();
 
                 if (!GetItemPrototype(item_id))
@@ -2675,7 +2842,7 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                uint32 amount  = fields[3].GetUInt32();
+                int32 amount   = fields[3].GetInt32();
 
                 if (!amount)
                 {
@@ -2683,7 +2850,18 @@ void ObjectMgr::LoadPlayerInfo()
                     continue;
                 }
 
-                pInfo->item.push_back(PlayerCreateInfoItem(item_id, amount));
+                if (!current_race || !current_class)
+                {
+                    uint32 min_race = current_race ? current_race : 1;
+                    uint32 max_race = current_race ? current_race + 1 : MAX_RACES;
+                    uint32 min_class = current_class ? current_class : 1;
+                    uint32 max_class = current_class ? current_class + 1 : MAX_CLASSES;
+                    for (uint32 r = min_race; r < max_race; ++r)
+                        for (uint32 c = min_class; c < max_class; ++c)
+                            PlayerCreateInfoAddItemHelper(r, c, item_id, amount);
+                }
+                else
+                    PlayerCreateInfoAddItemHelper(current_race, current_class, item_id, amount);
 
                 bar.step();
                 ++count;
@@ -2849,7 +3027,7 @@ void ObjectMgr::LoadPlayerInfo()
                     sLog.outErrorDb("Wrong (> %u) level %u in `player_classlevelstats` table, ignoring.",STRONG_MAX_LEVEL,current_level);
                 else
                 {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in Trinityd.conf) level %u in `player_classlevelstats` table, ignoring.",current_level);
+                    sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_classlevelstats` table, ignoring.",current_level);
                     ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                 }
                 continue;
@@ -2946,7 +3124,7 @@ void ObjectMgr::LoadPlayerInfo()
                     sLog.outErrorDb("Wrong (> %u) level %u in `player_levelstats` table, ignoring.",STRONG_MAX_LEVEL,current_level);
                 else
                 {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in Trinityd.conf) level %u in `player_levelstats` table, ignoring.",current_level);
+                    sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_levelstats` table, ignoring.",current_level);
                     ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                 }
                 continue;
@@ -3056,7 +3234,7 @@ void ObjectMgr::LoadPlayerInfo()
                     sLog.outErrorDb("Wrong (> %u) level %u in `player_xp_for_level` table, ignoring.", STRONG_MAX_LEVEL,current_level);
                 else
                 {
-                    sLog.outDetail("Unused (> MaxPlayerLevel in TrinityCore.conf) level %u in `player_xp_for_levels` table, ignoring.",current_level);
+                    sLog.outDetail("Unused (> MaxPlayerLevel in worldserver.conf) level %u in `player_xp_for_levels` table, ignoring.",current_level);
                     ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                 }
                 continue;
@@ -3244,7 +3422,7 @@ void ObjectMgr::LoadGuilds()
             !newGuild->LoadMembersFromDB(guildMembersResult) ||
             !newGuild->LoadBankRightsFromDB(guildBankTabRightsResult) ||
             !newGuild->CheckGuildStructure()
-)
+            )
         {
             newGuild->Disband();
             delete newGuild;
@@ -4638,26 +4816,9 @@ void ObjectMgr::LoadEventScripts()
     // Load all possible script entries from gameobjects
     for (uint32 i = 1; i < sGOStorage.MaxEntry; ++i)
     {
-        GameObjectInfo const * goInfo = sGOStorage.LookupEntry<GameObjectInfo>(i);
-        if (goInfo)
-        {
-            switch(goInfo->type)
-            {
-                case GAMEOBJECT_TYPE_GOOBER:
-                    if (goInfo->goober.eventId)
-                        evt_scripts.insert(goInfo->goober.eventId);
-                    break;
-                case GAMEOBJECT_TYPE_CHEST:
-                    if (goInfo->chest.eventId)
-                        evt_scripts.insert(goInfo->chest.eventId);
-                    break;
-                case GAMEOBJECT_TYPE_CAMERA:
-                    if (goInfo->camera.eventID)
-                        evt_scripts.insert(goInfo->camera.eventID);
-                default:
-                    break;
-            }
-        }
+        if (GameObjectInfo const * goInfo = sGOStorage.LookupEntry<GameObjectInfo>(i))
+            if (uint32 eventId = goInfo->GetEventScriptId())
+                evt_scripts.insert(eventId);
     }
     // Load all possible script entries from spells
     for (uint32 i = 1; i < sSpellStore.GetNumRows(); ++i)
@@ -4673,6 +4834,20 @@ void ObjectMgr::LoadEventScripts()
                         evt_scripts.insert(spell->EffectMiscValue[j]);
                 }
             }
+        }
+    }
+
+    for(size_t path_idx = 0; path_idx < sTaxiPathNodesByPath.size(); ++path_idx)
+    {
+        for(size_t node_idx = 0; node_idx < sTaxiPathNodesByPath[path_idx].size(); ++node_idx)
+        {
+            TaxiPathNodeEntry const& node = sTaxiPathNodesByPath[path_idx][node_idx];
+
+            if (node.arrivalEventID)
+                evt_scripts.insert(node.arrivalEventID);
+
+            if (node.departureEventID)
+                evt_scripts.insert(node.departureEventID);
         }
     }
 
@@ -4693,7 +4868,7 @@ void ObjectMgr::LoadWaypointScripts()
 
     for (ScriptMapMap::const_iterator itr = sWaypointScripts.begin(); itr != sWaypointScripts.end(); ++itr)
     {
-        QueryResult_AutoPtr query = WorldDatabase.PQuery("SELECT * FROM waypoint_scripts WHERE id = %u", itr->first);
+        QueryResult_AutoPtr query = WorldDatabase.PQuery("SELECT * FROM waypoint_data WHERE action = %u", itr->first);
         if (!query || !query->GetRowCount())
             sLog.outErrorDb("There is no waypoint which links to the waypoint script %u", itr->first);
     }
@@ -5307,46 +5482,6 @@ uint32 ObjectMgr::GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt
     return mount_id;
 }
 
-void ObjectMgr::GetTaxiPathNodes(uint32 path, Path &pathnodes, std::vector<uint32>& mapIds)
-{
-    if (path >= sTaxiPathNodesByPath.size())
-        return;
-
-    TaxiPathNodeList& nodeList = sTaxiPathNodesByPath[path];
-
-    pathnodes.Resize(nodeList.size());
-    mapIds.resize(nodeList.size());
-
-    for (size_t i = 0; i < nodeList.size(); ++i)
-    {
-        pathnodes[ i ].x = nodeList[i].x;
-        pathnodes[ i ].y = nodeList[i].y;
-        pathnodes[ i ].z = nodeList[i].z;
-
-        mapIds[i] = nodeList[i].mapid;
-    }
-}
-
-void ObjectMgr::GetTransportPathNodes(uint32 path, TransportPath &pathnodes)
-{
-    if (path >= sTaxiPathNodesByPath.size())
-        return;
-
-    TaxiPathNodeList& nodeList = sTaxiPathNodesByPath[path];
-
-    pathnodes.Resize(nodeList.size());
-
-    for (size_t i = 0; i < nodeList.size(); ++i)
-    {
-        pathnodes[ i ].mapid = nodeList[i].mapid;
-        pathnodes[ i ].x = nodeList[i].x;
-        pathnodes[ i ].y = nodeList[i].y;
-        pathnodes[ i ].z = nodeList[i].z;
-        pathnodes[ i ].actionFlag = nodeList[i].actionFlag;
-        pathnodes[ i ].delay = nodeList[i].delay;
-    }
-}
-
 void ObjectMgr::LoadGraveyardZones()
 {
     mGraveYardMap.clear();                                  // need for reload case
@@ -5415,7 +5550,7 @@ void ObjectMgr::LoadGraveyardZones()
 WorldSafeLocsEntry const *ObjectMgr::GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team)
 {
     // search for zone associated closest graveyard
-    uint32 zoneId = MapManager::Instance().GetZoneId(MapId,x,y,z);
+    uint32 zoneId = sMapMgr.GetZoneId(MapId,x,y,z);
 
     // Simulate std. algorithm:
     //   found some graveyard associated to (ghost_zone,ghost_map)
@@ -6476,7 +6611,7 @@ void ObjectMgr::LoadCorpses()
             continue;
         }
 
-        ObjectAccessor::Instance().AddCorpse(corpse);
+        sObjectAccessor.AddCorpse(corpse);
 
         ++count;
     }
@@ -6488,6 +6623,9 @@ void ObjectMgr::LoadCorpses()
 
 void ObjectMgr::LoadReputationOnKill()
 {
+    // For reload case
+    mRepOnKill.clear();
+
     uint32 count = 0;
 
     //                                                0            1                     2
@@ -6529,7 +6667,7 @@ void ObjectMgr::LoadReputationOnKill()
 
         if (!GetCreatureTemplate(creature_id))
         {
-            sLog.outErrorDb("Table `creature_onkill_reputation` have data for not existed creature entry (%u), skipped",creature_id);
+            sLog.outErrorDb("Table `creature_onkill_reputation` have data for not existed creature entry (%u), skipped", creature_id);
             continue;
         }
 
@@ -6538,7 +6676,7 @@ void ObjectMgr::LoadReputationOnKill()
             FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(repOnKill.repfaction1);
             if (!factionEntry1)
             {
-                sLog.outErrorDb("Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`",repOnKill.repfaction1);
+                sLog.outErrorDb("Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`", repOnKill.repfaction1);
                 continue;
             }
         }
@@ -6548,7 +6686,7 @@ void ObjectMgr::LoadReputationOnKill()
             FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(repOnKill.repfaction2);
             if (!factionEntry2)
             {
-                sLog.outErrorDb("Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`",repOnKill.repfaction2);
+                sLog.outErrorDb("Faction (faction.dbc) %u does not exist but is used in `creature_onkill_reputation`", repOnKill.repfaction2);
                 continue;
             }
         }
@@ -7953,12 +8091,12 @@ int ObjectMgr::LoadReferenceVendor(int32 vendor, int32 item, std::set<uint32> *s
             uint32 incrtime     = fields[2].GetUInt32();
             uint32 ExtendedCost = fields[3].GetUInt32();
 
-            if (!IsVendorItemValid(vendor,item_id,maxcount,incrtime,ExtendedCost,NULL,skip_vendors))
+            if (!IsVendorItemValid(vendor, item_id, maxcount, incrtime, ExtendedCost, NULL, skip_vendors))
                 continue;
 
             VendorItemData& vList = m_mCacheVendorItemMap[vendor];
 
-            vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
             ++count;
         }
 
@@ -8008,12 +8146,12 @@ void ObjectMgr::LoadVendors()
             uint32 incrtime     = fields[3].GetUInt32();
             uint32 ExtendedCost = fields[4].GetUInt32();
 
-            if (!IsVendorItemValid(entry,item_id,maxcount,incrtime,ExtendedCost,NULL,&skip_vendors))
+            if (!IsVendorItemValid(entry, item_id, maxcount, incrtime, ExtendedCost, NULL, &skip_vendors))
                 continue;
 
             VendorItemData& vList = m_mCacheVendorItemMap[entry];
 
-            vList.AddItem(item_id,maxcount,incrtime,ExtendedCost);
+            vList.AddItem(item_id, maxcount, incrtime, ExtendedCost);
             ++count;
         }
 
@@ -8128,7 +8266,7 @@ void ObjectMgr::LoadGossipMenuItems()
     QueryResult_AutoPtr result = WorldDatabase.Query(
         "SELECT menu_id, id, option_icon, option_text, option_id, npc_option_npcflag, "
         "action_menu_id, action_poi_id, action_script_id, box_coded, box_money, box_text "
-        "FROM gossip_menu_option");
+        "FROM gossip_menu_option ORDER BY menu_id, id");
 
     if (!result)
     {
@@ -8223,9 +8361,10 @@ void ObjectMgr::LoadGossipMenuItems()
 void ObjectMgr::AddVendorItem(uint32 entry,uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
 {
     VendorItemData& vList = m_mCacheVendorItemMap[entry];
-    vList.AddItem(item,maxcount,incrtime,extendedcost);
+    vList.AddItem(item, maxcount, incrtime, extendedcost);
 
-    if (savetodb) WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')",entry, item, maxcount,incrtime,extendedcost);
+    if (savetodb)
+        WorldDatabase.PExecuteLog("INSERT INTO npc_vendor (entry,item,maxcount,incrtime,extendedcost) VALUES('%u','%u','%u','%u','%u')", entry, item, maxcount, incrtime, extendedcost);
 }
 
 bool ObjectMgr::RemoveVendorItem(uint32 entry,uint32 item, bool savetodb)
@@ -8273,16 +8412,16 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
         if (pl)
             ChatHandler(pl).PSendSysMessage(LANG_ITEM_NOT_FOUND, item_id);
         else
-            sLog.outErrorDb("Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u), ignore",vendor_entry,item_id);
+            sLog.outErrorDb("Table `(game_event_)npc_vendor` for Vendor (Entry: %u) have in item list non-existed item (%u), ignore", vendor_entry, item_id);
         return false;
     }
 
     if (ExtendedCost && !sItemExtendedCostStore.LookupEntry(ExtendedCost))
     {
         if (pl)
-            ChatHandler(pl).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST,ExtendedCost);
+            ChatHandler(pl).PSendSysMessage(LANG_EXTENDED_COST_NOT_EXIST, ExtendedCost);
         else
-            sLog.outErrorDb("Table `(game_event_)npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore",item_id,ExtendedCost,vendor_entry);
+            sLog.outErrorDb("Table `(game_event_)npc_vendor` have Item (Entry: %u) with wrong ExtendedCost (%u) for vendor (%u), ignore", item_id, ExtendedCost, vendor_entry);
         return false;
     }
 
@@ -8307,7 +8446,7 @@ bool ObjectMgr::IsVendorItemValid(uint32 vendor_entry, uint32 item_id, int32 max
     if (!vItems)
         return true;                                        // later checks for non-empty lists
 
-    if(vItems->FindItemCostPair(item_id,ExtendedCost))
+    if (vItems->FindItemCostPair(item_id, ExtendedCost))
     {
         if (pl)
             ChatHandler(pl).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST, item_id, ExtendedCost);
@@ -8460,40 +8599,6 @@ GameObjectInfo const *GetGameObjectInfo(uint32 id)
 CreatureInfo const *GetCreatureInfo(uint32 id)
 {
     return objmgr.GetCreatureTemplate(id);
-}
-
-void ObjectMgr::LoadTransportEvents()
-{
-
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, waypoint_id, event_id FROM transport_events");
-
-    if (!result)
-    {
-        barGoLink bar1(1);
-        bar1.step();
-        sLog.outString("\n>> Transport events table is empty \n");
-        return;
-    }
-
-    barGoLink bar1(result->GetRowCount());
-
-    do
-    {
-        bar1.step();
-
-        Field *fields = result->Fetch();
-
-        //Load event values
-        uint32 entry = fields[0].GetUInt32();
-        uint32 waypoint_id = fields[1].GetUInt32();
-        uint32 event_id = fields[2].GetUInt32();
-
-        uint32 event_count = (entry*100)+waypoint_id;
-        TransportEventMap[event_count] = event_id;
-    }
-    while (result->NextRow());
-
-    sLog.outString("\n>> Loaded %u transport events \n", result->GetRowCount());
 }
 
 CreatureInfo const* GetCreatureTemplateStore(uint32 entry)

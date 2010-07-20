@@ -47,38 +47,44 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     bool is_water_ok, is_land_ok;
     _InitSpecific(unit, is_water_ok, is_land_ok);
 
-    VMAP::IVMapManager *vMaps = VMAP::VMapFactory::createOrGetVMapManager();
-
     for (uint8 idx = 0; idx <= MAX_CONF_WAYPOINTS; ++idx)
     {
-        const bool isInLoS = vMaps->isInLineOfSight(unit.GetMapId(), x, y, z + 2.0f, i_waypoints[idx][0], i_waypoints[idx][1], z + 2.0f);
-        if (isInLoS)
+        float wanderX = x + wander_distance*rand_norm() - wander_distance/2;
+        float wanderY = y + wander_distance*rand_norm() - wander_distance/2;
+        Trinity::NormalizeMapCoord(wanderX);
+        Trinity::NormalizeMapCoord(wanderY);
+        
+        float new_z = map->GetHeight(wanderX, wanderY, z, true);
+        if (new_z > INVALID_HEIGHT && unit.IsWithinLOS(wanderX, wanderY, new_z))
         {
-            const float wanderX = wander_distance*rand_norm() - wander_distance/2;
-            const float wanderY = wander_distance*rand_norm() - wander_distance/2;
-            i_waypoints[idx][0] = x + wanderX;
-            i_waypoints[idx][1] = y + wanderY;
+            // Don't move in water if we're not already in
+            // Don't move on land if we're not already on it either
+            bool is_water_now = map->IsInWater(x, y, z);
+            bool is_water_next = map->IsInWater(wanderX, wanderY, new_z);
+            if ((is_water_now && !is_water_next && !is_land_ok) || (!is_water_now && is_water_next && !is_water_ok))
+            {
+                i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x; // Back to previous location
+                i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
+                i_waypoints[idx][2] = idx > 0 ? i_waypoints[idx-1][2] : z;
+                continue;
+            }
+            
+            // Taken from FleeingMovementGenerator
+            if (!(new_z - z) || wander_distance / fabs(new_z - z) > 1.0f)
+            {
+                i_waypoints[idx][0] = wanderX;
+                i_waypoints[idx][1] = wanderY;
+                i_waypoints[idx][2] = new_z;
+                continue;
+            }
         }
-        else
-        {
-            i_waypoints[idx][0] = x;
-            i_waypoints[idx][1] = y;
-        }
-
-        // prevent invalid coordinates generation
-        Trinity::NormalizeMapCoord(i_waypoints[idx][0]);
-        Trinity::NormalizeMapCoord(i_waypoints[idx][1]);
-
-        bool is_water = map->IsInWater(i_waypoints[idx][0],i_waypoints[idx][1],z);
-        // if generated wrong path just ignore
-        if ((is_water && !is_water_ok) || (!is_water && !is_land_ok))
+        else    // Back to previous location
         {
             i_waypoints[idx][0] = idx > 0 ? i_waypoints[idx-1][0] : x;
             i_waypoints[idx][1] = idx > 0 ? i_waypoints[idx-1][1] : y;
+            i_waypoints[idx][2] = idx > 0 ? i_waypoints[idx-1][2] : z;
+            continue;
         }
-
-        unit.UpdateGroundPositionZ(i_waypoints[idx][0],i_waypoints[idx][1],z);
-        i_waypoints[idx][2] = z;
     }
 
     unit.SetUInt64Value(UNIT_FIELD_TARGET, 0);

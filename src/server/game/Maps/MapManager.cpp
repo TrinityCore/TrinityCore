@@ -20,26 +20,21 @@
 
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
-#include "Policies/SingletonImp.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectAccessor.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "GridDefines.h"
 #include "MapInstanced.h"
 #include "InstanceData.h"
 #include "DestinationHolderImp.h"
-#include "Config/ConfigEnv.h"
+#include "ConfigEnv.h"
 #include "World.h"
 #include "CellImpl.h"
 #include "Corpse.h"
 #include "ObjectMgr.h"
 #include "Language.h"
 #include "WorldPacket.h"
-
-#define CLASS_LOCK Trinity::ClassLevelLockable<MapManager, ACE_Thread_Mutex>
-INSTANTIATE_SINGLETON_2(MapManager, CLASS_LOCK);
-INSTANTIATE_CLASS_MUTEX(MapManager, ACE_Thread_Mutex);
 
 extern GridState* si_GridStates[];                          // debugging code, should be deleted some day
 
@@ -116,7 +111,7 @@ Map* MapManager::_createBaseMap(uint32 id)
 
     if (m == NULL)
     {
-        Guard guard(*this);
+        ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
@@ -166,14 +161,35 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     if (!entry->IsDungeon())
         return true;
 
+    InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
+    if (!instance)
+        return false;
+
+    //The player has a heroic mode and tries to enter into instance which has no a heroic mode
+    MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID,player->GetDifficulty(entry->IsRaid()));
+    if (!mapDiff)
+    {
+        bool isNormalTargetMap = entry->IsRaid()
+        ? (player->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+        : (player->GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
+        
+        // Send aborted message
+        // FIX ME: what about absent normal/heroic mode with specific players limit...
+        player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, isNormalTargetMap ? DUNGEON_DIFFICULTY_NORMAL : DUNGEON_DIFFICULTY_HEROIC);
+        return false;
+    }
+
+    //Bypass checks for GMs
+    if (player->isGameMaster())
+        return true;
+
     const char *mapName = entry->name[player->GetSession()->GetSessionDbcLocale()];
 
     Group* pGroup = player->GetGroup();
     if (entry->IsRaid())
     {
         // can only enter in a raid group
-        // GMs can avoid raid limitations
-        if ((!pGroup || !pGroup->isRaidGroup()) && !player->isGameMaster() && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_RAID))
+        if ((!pGroup || !pGroup->isRaidGroup()) && !sWorld.getConfig(CONFIG_INSTANCE_IGNORE_RAID))
         {
             // probably there must be special opcode, because client has this string constant in GlobalStrings.lua
             // TODO: this is not a good place to send the message
@@ -181,20 +197,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             sLog.outDebug("MAP: Player '%s' must be in a raid group to enter instance '%s'", player->GetName(), mapName);
             return false;
         }
-    }
-
-    //The player has a heroic mode and tries to enter into instance which has no a heroic mode
-    MapDifficulty const* mapDiff = GetMapDifficultyData(entry->MapID,player->GetDifficulty(entry->IsRaid()));
-    if (!mapDiff)
-    {
-        bool isNormalTargetMap = entry->IsRaid()
-            ? (player->GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
-            : (player->GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
-
-        // Send aborted message
-        // FIX ME: what about absent normal/heroic mode with specific players limit...
-        player->SendTransferAborted(mapid, TRANSFER_ABORT_DIFFICULTY, isNormalTargetMap ? DUNGEON_DIFFICULTY_NORMAL : DUNGEON_DIFFICULTY_HEROIC);
-        return false;
     }
 
     if (!player->isAlive())
@@ -226,49 +228,24 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             sLog.outDebug("Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName());
     }
 
-    InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
-    if (!instance)
-        return false;
-
     //Get instance where player's group is bound & its map
     if (pGroup)
     {
-        InstanceGroupBind* boundedInstance = pGroup->GetBoundInstance(player);
+        InstanceGroupBind* boundedInstance = pGroup->GetBoundInstance(entry);
         if (boundedInstance && boundedInstance->save)
-        {
-            if (Map *boundedMap = MapManager::Instance().FindMap(mapid,boundedInstance->save->GetInstanceId()))
-            {
+            if (Map *boundedMap = sMapMgr.FindMap(mapid,boundedInstance->save->GetInstanceId()))
+                if (!loginCheck && !boundedMap->CanEnter(player))
+                    return false;
+            /*
+                This check has to be moved to InstanceMap::CanEnter()
                 // Player permanently bounded to different instance than groups one
-                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDungeonDifficulty());
+                InstancePlayerBind* playerBoundedInstance = player->GetBoundInstance(mapid, player->GetDifficulty(entry->IsRaid()));
                 if (playerBoundedInstance && playerBoundedInstance->perm && playerBoundedInstance->save &&
                     boundedInstance->save->GetInstanceId() != playerBoundedInstance->save->GetInstanceId())
                 {
                     //TODO: send some kind of error message to the player
                     return false;
-                }
-
-                // Encounters in progress
-                if (!loginCheck && entry->IsRaid() && ((InstanceMap*)boundedMap)->GetInstanceData() && ((InstanceMap*)boundedMap)->GetInstanceData()->IsEncounterInProgress())
-                {
-                    sLog.outDebug("MAP: Player '%s' cannot enter instance '%s' while an encounter is in progress.", player->GetName(), mapName);
-                    player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
-                    return false;
-                }
-
-                // Instance is full
-                MapDifficulty const* mapDiff = ((InstanceMap*)boundedMap)->GetMapDifficulty();
-                int8 maxPlayers = mapDiff ? mapDiff->maxPlayers : 0;
-                if (maxPlayers != -1) //-1: unlimited access
-                {
-                    if (boundedMap->GetPlayersCountExceptGMs() >= (loginCheck ? maxPlayers+1 : maxPlayers))
-                    {
-                        sLog.outDebug("MAP: Player '%s' cannot enter instance '%s' because it is full.", player->GetName(), mapName);
-                        player->SendTransferAborted(mapid, TRANSFER_ABORT_MAX_PLAYERS);
-                        return false;
-                    }
-                }
-            }
-        }
+                }*/
     }
 
     //Other requirements
@@ -307,7 +284,7 @@ void MapManager::Update(uint32 diff)
     for (iter = i_maps.begin(); iter != i_maps.end(); ++iter)
         iter->second->DelayedUpdate(i_timer.GetCurrent());
 
-    ObjectAccessor::Instance().Update(i_timer.GetCurrent());
+    sObjectAccessor.Update(i_timer.GetCurrent());
     for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
         (*iter)->Update(i_timer.GetCurrent());
 
@@ -361,7 +338,7 @@ void MapManager::InitMaxInstanceId()
 
 uint32 MapManager::GetNumInstances()
 {
-    Guard guard(*this);
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
@@ -378,7 +355,7 @@ uint32 MapManager::GetNumInstances()
 
 uint32 MapManager::GetNumPlayersInInstances()
 {
-    Guard guard(*this);
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)

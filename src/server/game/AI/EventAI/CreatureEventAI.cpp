@@ -456,7 +456,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                 caster = target;
 
             //Allowed to cast only if not casting (unless we interrupt ourself) or if spell is triggered
-            bool canCast = !caster->IsNonMeleeSpellCasted(false) || (action.cast.castFlags & (CAST_TRIGGERED | CAST_INTURRUPT_PREVIOUS));
+            bool canCast = !caster->IsNonMeleeSpellCasted(false) || (action.cast.castFlags & (CAST_TRIGGERED | CAST_INTERRUPT_PREVIOUS));
 
             // If cast flag CAST_AURA_NOT_PRESENT is active, check if target already has aura on them
             if (action.cast.castFlags & CAST_AURA_NOT_PRESENT)
@@ -492,7 +492,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     else
                     {
                         //Interrupt any previous spell
-                        if (caster->IsNonMeleeSpellCasted(false) && action.cast.castFlags & CAST_INTURRUPT_PREVIOUS)
+                        if (caster->IsNonMeleeSpellCasted(false) && action.cast.castFlags & CAST_INTERRUPT_PREVIOUS)
                             caster->InterruptNonMeleeSpells(false);
 
                         caster->CastSpell(target, action.cast.spellId, (action.cast.castFlags & CAST_TRIGGERED));
@@ -1331,12 +1331,12 @@ void CreatureEventAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
             if ((*itr).Event.receive_emote.emoteId != text_emote)
                 return;
 
-            Condition* cond = new Condition();
-            cond->mConditionType = ConditionType((*itr).Event.receive_emote.condition);            
-            cond->mConditionValue1 = (*itr).Event.receive_emote.conditionValue1;
-            cond->mConditionValue2 = (*itr).Event.receive_emote.conditionValue2;
+            Condition cond;
+            cond.mConditionType = ConditionType((*itr).Event.receive_emote.condition);            
+            cond.mConditionValue1 = (*itr).Event.receive_emote.conditionValue1;
+            cond.mConditionValue2 = (*itr).Event.receive_emote.conditionValue2;
             
-            if (cond->Meets(pPlayer))
+            if (cond.Meets(pPlayer))
             {
                 sLog.outDebug("CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
                 ProcessEvent(*itr, pPlayer);

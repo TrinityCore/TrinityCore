@@ -28,7 +28,7 @@
 #include "Vehicle.h"
 #include "SpellAuras.h"
 #include "MapManager.h"
-#include "Transports.h"
+#include "Transport.h"
 #include "BattleGround.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
@@ -75,7 +75,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     }
 
     // relocate the player to the teleport destination
-    Map * newMap = MapManager::Instance().CreateMap(loc.GetMapId(), GetPlayer(), 0);
+    Map * newMap = sMapMgr.CreateMap(loc.GetMapId(), GetPlayer(), 0);
     // the CanEnter checks are done in TeleporTo but conditions may change
     // while the player is in transit, for example the map may get full
     if (!newMap || !newMap->CanEnter(GetPlayer()))
@@ -198,7 +198,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     uint32 flags, time;
     recv_data >> flags >> time;
     DEBUG_LOG("Guid " UI64FMTD, guid);
-    DEBUG_LOG("Flags %u, time %u", flags, time/IN_MILISECONDS);
+    DEBUG_LOG("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
     Unit *mover = _player->m_mover;
     Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
@@ -302,7 +302,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         if (plMover && !plMover->GetTransport())
         {
             // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just unmount if the guid can be found in the transport list
-            for (MapManager::TransportSet::const_iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
+            for (MapManager::TransportSet::const_iterator iter = sMapMgr.m_Transports.begin(); iter != sMapMgr.m_Transports.end(); ++iter)
             {
                 if ((*iter)->GetGUID() == movementInfo.t_guid)
                 {

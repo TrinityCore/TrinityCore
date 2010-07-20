@@ -203,6 +203,7 @@ void extractDataFromGit(FILE* EntriesFile, std::string path, bool url, RawData& 
         strcpy(data.rev_str,hash_str);
         strcpy(data.hash_str,"*");
 
+
     time_t rev_time = 0;
     // extracting date/time
     FILE* LogFile = fopen((path+".git/logs/HEAD").c_str(), "r");
@@ -448,6 +449,7 @@ int main(int argc, char **argv)
             if (!res)
                 res = extractDataFromArchive(path+"_hg_archival.txt",path,use_url,data);
         }
+
 
         else if(hg_prefered)
         {

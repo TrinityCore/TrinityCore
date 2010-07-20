@@ -37,7 +37,7 @@ Weather::Weather(uint32 zone, WeatherZoneChances const* weatherChances) : m_zone
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 
-    sLog.outDetail("WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILISECONDS)));
+    sLog.outDetail("WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update

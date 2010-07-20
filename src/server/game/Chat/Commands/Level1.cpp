@@ -19,7 +19,7 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -817,7 +817,7 @@ bool ChatHandler::HandleNamegoCommand(const char* args)
         if (pMap->IsBattleGroundOrArena())
         {
             // only allow if gm mode is on
-            if (!target->isGameMaster())
+            if (!_player->isGameMaster())
             {
                 PSendSysMessage(LANG_CANNOT_GO_TO_BG_GM,nameLink.c_str());
                 SetSentErrorMessage(true);
@@ -2381,7 +2381,7 @@ bool ChatHandler::HandleWhispersCommand(const char* args)
 //Save all players in the world
 bool ChatHandler::HandleSaveAllCommand(const char* /*args*/)
 {
-    ObjectAccessor::Instance().SaveAllPlayers();
+    sObjectAccessor.SaveAllPlayers();
     SendSysMessage(LANG_PLAYERS_SAVED);
     return true;
 }
@@ -2502,7 +2502,7 @@ bool ChatHandler::HandleTeleNameCommand(const char * args)
 
         PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), GetTrinityString(LANG_OFFLINE), tele->name.c_str());
         Player::SavePositionInDB(tele->mapId,tele->position_x,tele->position_y,tele->position_z,tele->orientation,
-            MapManager::Instance().GetZoneId(tele->mapId,tele->position_x,tele->position_y,tele->position_z),target_guid);
+            sMapMgr.GetZoneId(tele->mapId,tele->position_x,tele->position_y,tele->position_z),target_guid);
     }
 
     return true;
@@ -2768,7 +2768,7 @@ bool ChatHandler::HandleGoXYCommand(const char* args)
     else
         _player->SaveRecallPosition();
 
-    Map const *map = MapManager::Instance().CreateBaseMap(mapid);
+    Map const *map = sMapMgr.CreateBaseMap(mapid);
     float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
 
     _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
@@ -2861,7 +2861,7 @@ bool ChatHandler::HandleGoZoneXYCommand(const char* args)
     // update to parent zone if exist (client map show only zones without parents)
     AreaTableEntry const* zoneEntry = areaEntry->zone ? GetAreaEntryByAreaID(areaEntry->zone) : areaEntry;
 
-    Map const *map = MapManager::Instance().CreateBaseMap(zoneEntry->mapid);
+    Map const *map = sMapMgr.CreateBaseMap(zoneEntry->mapid);
 
     if (map->Instanceable())
     {
@@ -2936,7 +2936,7 @@ bool ChatHandler::HandleGoGridCommand(const char* args)
     else
         _player->SaveRecallPosition();
 
-    Map const *map = MapManager::Instance().CreateBaseMap(mapid);
+    Map const *map = sMapMgr.CreateBaseMap(mapid);
     float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
     _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
 

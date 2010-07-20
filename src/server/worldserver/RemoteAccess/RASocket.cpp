@@ -23,7 +23,7 @@
 */
 
 #include "Common.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 #include "Database/DatabaseEnv.h"
 #include "AccountMgr.h"
 #include "Log.h"
@@ -254,7 +254,7 @@ void RASocket::zprint( const char * szText )
     unsigned int sz=strlen(megabuffer);
     Encrypt(megabuffer,sz);
     send(r,megabuffer,sz,0);
-    delete [] megabuffer;
+    free(megabuffer);
 
     #else
 

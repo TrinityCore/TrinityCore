@@ -79,8 +79,7 @@ Group::~Group()
             itr2->second.save->RemoveGroup(this);
 
     // Sub group counters clean up
-    if (m_subGroupsCounts)
-        delete[] m_subGroupsCounts;
+    delete[] m_subGroupsCounts;
 }
 
 bool Group::Create(const uint64 &guid, const char * name)
@@ -486,13 +485,6 @@ void Group::Disband(bool hideDestroy)
         CharacterDatabase.CommitTransaction();
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, false, NULL);
         ResetInstances(INSTANCE_RESET_GROUP_DISBAND, true, NULL);
-        // FIXME - Safe check! Debug purposes - Will remove after a time if got no reports
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT COUNT(1) FROM group_instance WHERE guid=%u", lowguid);
-        if (result)
-        {
-            sLog.outError("Group::Disband: %u instances are not being properly deleted from group %u", (*result)[0].GetUInt8(), lowguid);
-            CharacterDatabase.PExecute("DELETE FROM group_instance WHERE guid=%u", lowguid);
-        }
     }
 
     m_guid = 0;
@@ -1200,7 +1192,7 @@ bool Group::_addMember(const uint64 &guid, const char* name)
     if (m_subGroupsCounts)
     {
         bool groupFound = false;
-        for (; groupid < MAXRAIDSIZE/MAXGROUPSIZE; ++groupid)
+        for (; groupid < MAX_RAID_SUBGROUPS; ++groupid)
         {
             if (m_subGroupsCounts[groupid] < MAXGROUPSIZE)
             {
@@ -1453,17 +1445,20 @@ void Group::ChangeMembersGroup(const uint64 &guid, const uint8 &group)
 {
     if (!isRaidGroup())
         return;
+
     Player *player = objmgr.GetPlayer(guid);
 
     if (!player)
     {
-        uint8 prevSubGroup;
-        prevSubGroup = GetMemberGroup(guid);
-
-        SubGroupCounterDecrease(prevSubGroup);
+        uint8 prevSubGroup = GetMemberGroup(guid);
+        if (prevSubGroup == group)
+            return;
 
         if (_setMembersGroup(guid, group))
+        {
+            SubGroupCounterDecrease(prevSubGroup);
             SendUpdate();
+        }
     }
     else
         // This methods handles itself groupcounter decrease
@@ -1475,9 +1470,13 @@ void Group::ChangeMembersGroup(Player *player, const uint8 &group)
 {
     if (!player || !isRaidGroup())
         return;
+        
+    uint8 prevSubGroup = player->GetSubGroup();
+    if (prevSubGroup == group)
+        return;
+
     if (_setMembersGroup(player->GetGUID(), group))
     {
-        uint8 prevSubGroup = player->GetSubGroup();
         if (player->GetGroup() == this)
             player->GetGroupRef().setSubGroup(group);
         //if player is in BG raid, it is possible that he is also in normal raid - and that normal raid is stored in m_originalGroup reference
@@ -1725,7 +1724,7 @@ void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
 
         bool isEmpty = true;
         // if the map is loaded, reset it
-        Map *map = MapManager::Instance().FindMap(p->GetMapId(), p->GetInstanceId());
+        Map *map = sMapMgr.FindMap(p->GetMapId(), p->GetInstanceId());
         if (map && map->IsDungeon() && !(method == INSTANCE_RESET_GROUP_DISBAND && !p->CanReset()))
         {
             if (p->CanReset())
@@ -1761,21 +1760,7 @@ InstanceGroupBind* Group::GetBoundInstance(Player* player)
 {
     uint32 mapid = player->GetMapId();
     MapEntry const* mapEntry = sMapStore.LookupEntry(mapid);
-    if (!mapEntry)
-        return NULL;
-
-    Difficulty difficulty = player->GetDifficulty(mapEntry->IsRaid());
-
-    // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
-    if (!mapDiff)
-        difficulty = DUNGEON_DIFFICULTY_NORMAL;
-
-    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapid);
-    if (itr != m_boundInstances[difficulty].end())
-        return &itr->second;
-    else
-        return NULL;
+    return GetBoundInstance(mapEntry);
 }
 
 InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
@@ -1789,6 +1774,25 @@ InstanceGroupBind* Group::GetBoundInstance(Map* aMap)
         return NULL;
 
     BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(aMap->GetId());
+    if (itr != m_boundInstances[difficulty].end())
+        return &itr->second;
+    else
+        return NULL;
+}
+
+InstanceGroupBind* Group::GetBoundInstance(MapEntry const* mapEntry)
+{
+    if (!mapEntry)
+        return NULL;
+    
+    Difficulty difficulty = GetDifficulty(mapEntry->IsRaid());
+    
+    // some instances only have one difficulty
+    MapDifficulty const* mapDiff = GetMapDifficultyData(mapEntry->MapID,difficulty);
+    if (!mapDiff)
+        difficulty = DUNGEON_DIFFICULTY_NORMAL;
+    
+    BoundInstancesMap::iterator itr = m_boundInstances[difficulty].find(mapEntry->MapID);
     if (itr != m_boundInstances[difficulty].end())
         return &itr->second;
     else

@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: Timers need to be confirmed, Golemagg's Trust need to be checked
 SDCategory: Molten Core
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "molten_core.h"
 
 enum eEnums
@@ -53,9 +55,9 @@ struct boss_golemaggAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiPyroblastTimer = 7*IN_MILISECONDS;              // These timers are probably wrong
-        m_uiEarthquakeTimer = 3*IN_MILISECONDS;
-        m_uiBuffTimer = 2.5*IN_MILISECONDS;
+        m_uiPyroblastTimer = 7*IN_MILLISECONDS;              // These timers are probably wrong
+        m_uiEarthquakeTimer = 3*IN_MILLISECONDS;
+        m_uiBuffTimer = 2.5*IN_MILLISECONDS;
         m_bEnraged = false;
 
         DoCast(me, SPELL_MAGMASPLASH, true);
@@ -78,7 +80,7 @@ struct boss_golemaggAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_PYROBLAST);
 
-            m_uiPyroblastTimer = 7*IN_MILISECONDS;
+            m_uiPyroblastTimer = 7*IN_MILLISECONDS;
         }
         else
             m_uiPyroblastTimer -= uiDiff;
@@ -96,7 +98,7 @@ struct boss_golemaggAI : public ScriptedAI
             if (m_uiEarthquakeTimer <= uiDiff)
             {
                 DoCast(me->getVictim(), SPELL_EARTHQUAKE);
-                m_uiEarthquakeTimer = 3*IN_MILISECONDS;
+                m_uiEarthquakeTimer = 3*IN_MILLISECONDS;
             }
             else
                 m_uiEarthquakeTimer -= uiDiff;
@@ -107,7 +109,7 @@ struct boss_golemaggAI : public ScriptedAI
         if (m_uiBuffTimer <= uidiff)
         {
             DoCast(me, SPELL_GOLEMAGG_TRUST);
-            m_uiBuffTimer = 2.5*IN_MILISECONDS;
+            m_uiBuffTimer = 2.5*IN_MILLISECONDS;
         }
         else
             m_uiBuffTimer -= uiDiff;
@@ -130,7 +132,7 @@ struct mob_core_ragerAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiMangleTimer = 7*IN_MILISECONDS;                 // These times are probably wrong
+        m_uiMangleTimer = 7*IN_MILLISECONDS;                 // These times are probably wrong
     }
 
     void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage)
@@ -162,7 +164,7 @@ struct mob_core_ragerAI : public ScriptedAI
         if (m_uiMangleTimer <= uiDiff)
         {
             DoCast(me->getVictim(), SPELL_MANGLE);
-            m_uiMangleTimer = 10*IN_MILISECONDS;
+            m_uiMangleTimer = 10*IN_MILLISECONDS;
         }
         else
             m_uiMangleTimer -= uiDiff;

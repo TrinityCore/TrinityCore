@@ -27,7 +27,7 @@
 
 #include "Common.h"
 #include "Timer.h"
-#include "Policies/Singleton.h"
+#include <ace/Singleton.h>
 #include "SharedDefines.h"
 #include "ace/Atomic_Op.h"
 #include "QueryResult.h"
@@ -188,6 +188,7 @@ enum WorldConfigs
     CONFIG_WORLD_BOSS_LEVEL_DIFF,
     CONFIG_QUEST_LOW_LEVEL_HIDE_DIFF,
     CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF,
+    CONFIG_QUEST_IGNORE_RAID,
     CONFIG_DETECT_POS_COLLISION,
     CONFIG_RESTRICTED_LFG_CHANNEL,
     CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL,
@@ -779,6 +780,6 @@ class World
 
 extern uint32 realmID;
 
-#define sWorld Trinity::Singleton<World>::Instance()
+#define sWorld (*ACE_Singleton<World, ACE_Null_Mutex>::instance())
 #endif
 /// @}

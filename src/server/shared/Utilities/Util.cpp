@@ -20,9 +20,10 @@
 
 #include "Util.h"
 
-#include "sockets/socket_include.h"
-#include "utf8cpp/utf8.h"
-#include "mersennetwister/MersenneTwister.h"
+#include "socket_include.h"
+#include "utf8.h"
+//#include "SFMT.h"
+#include "MersenneTwister.h"
 #include <ace/TSS_T.h>
 
 typedef ACE_TSS<MTRand> MTRandTSS;
@@ -194,7 +195,7 @@ uint32 CreatePIDFile(const std::string& filename)
     if (pid_file == NULL)
         return 0;
 
-#ifdef WIN32
+#ifdef _WIN32
     DWORD pid = GetCurrentProcessId();
 #else
     pid_t pid = getpid();

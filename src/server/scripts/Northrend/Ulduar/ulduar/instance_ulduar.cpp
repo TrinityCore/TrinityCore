@@ -1,22 +1,21 @@
 /*
- * Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ulduar.h"
 
 enum eGameObjects
@@ -64,8 +63,7 @@ struct instance_ulduar : public ScriptedInstance
     uint64 uiFreyaChestGUID;
 
     void Initialize()
-    {
-        uiLeviathanGUID       = 0;
+    {   
         uiIgnisGUID           = 0;
         uiRazorscaleGUID      = 0;
         uiXT002GUID           = 0;
@@ -106,7 +104,7 @@ struct instance_ulduar : public ScriptedInstance
         switch(pCreature->GetEntry())
         {
             case NPC_LEVIATHAN:
-                uiLeviathanGUID = pCreature->GetGUID();
+                uiLeviathanGUID = pCreature->GetGUID();             
                 break;
             case NPC_IGNIS:
                 uiIgnisGUID = pCreature->GetGUID();
@@ -187,22 +185,24 @@ struct instance_ulduar : public ScriptedInstance
                 if (flag == 7)
                     flag =0;
                 break;
-            case GO_LEVIATHAN_GATE:
-                uiLeviathanGateGUID = pGO->GetGUID();
-                HandleGameObject(NULL, false, pGO);
-                break;
+            case GO_LEVIATHAN_GATE:                
+                uiLeviathanGateGUID = add ? pGO->GetGUID() : NULL;
+                HandleGameObject(NULL, false, pGO); 
+                break;             
         }
     }
 
     void ProcessEvent(GameObject* pGO, uint32 uiEventId)
     {
         // Flame Leviathan's Tower Event triggers
-        Creature* pFlameLeviathan = instance->GetCreature(NPC_LEVIATHAN);
+       Creature* pFlameLeviathan = instance->GetCreature(uiLeviathanGUID);
+
         if (pFlameLeviathan && pFlameLeviathan->isAlive()) //No leviathan, no event triggering ;)
             switch(uiEventId)
             {
                 case EVENT_TOWER_OF_STORM_DESTROYED:
-                    pFlameLeviathan->AI()->DoAction(1);
+                    //pGO->GetInstanceData()->SetData(DATA_TOWER_STORMS,DESTROYED);
+                    pFlameLeviathan->AI()->DoAction(1);                    
                     break;
                 case EVENT_TOWER_OF_FROST_DESTROYED:
                     pFlameLeviathan->AI()->DoAction(2);
@@ -210,7 +210,7 @@ struct instance_ulduar : public ScriptedInstance
                 case EVENT_TOWER_OF_FLAMES_DESTROYED:
                     pFlameLeviathan->AI()->DoAction(3);
                     break;
-                case EVENT_TOWER_OF_NATURE_DESTROYED:
+                case EVENT_TOWER_OF_LIFE_DESTROYED:
                     pFlameLeviathan->AI()->DoAction(4);
                     break;
             }
@@ -218,9 +218,6 @@ struct instance_ulduar : public ScriptedInstance
 
     void SetData(uint32 type, uint32 data)
     {
-        if (type != TYPE_COLOSSUS)
-            uiEncounter[type] = data;
-
         switch(type)
         {
             /*case TYPE_IGNIS:
@@ -235,12 +232,12 @@ struct instance_ulduar : public ScriptedInstance
             case TYPE_LEVIATHAN:
                 if (data == IN_PROGRESS)
                 {
-                    for (uint8 uiI = 0; uiI < 7; uiI++)
+                    for (uint8 uiI = 0; uiI < 7; ++uiI)
                         HandleGameObject(uiLeviathanDoor[uiI],false);
                 }
                 else
                 {
-                    for (uint8 uiI = 0; uiI < 7; uiI++)
+                    for (uint8 uiI = 0; uiI < 7; ++uiI)
                         HandleGameObject(uiLeviathanDoor[uiI],true);
                 }
                 break;
@@ -265,32 +262,21 @@ struct instance_ulduar : public ScriptedInstance
                         pGO->SetRespawnTime(pGO->GetRespawnDelay());
                 break;
             case TYPE_COLOSSUS:
+                uiEncounter[TYPE_COLOSSUS] = data;
                 if (data == 2)
                 {
                     if (Creature* pBoss = instance->GetCreature(uiLeviathanGUID))
                         pBoss->AI()->DoAction(10);
                     if (GameObject* pGate = instance->GetGameObject(uiLeviathanGateGUID))
-                        pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                        pGate->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);                                                               
                 }
-                break;
+                break;            
             default:
                 break;
         }
 
         if (data == DONE)
-        {
-            OUT_SAVE_INST_DATA;
-
-            std::ostringstream saveStream;
-
-            for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
-                saveStream << uiEncounter[i] << " ";
-
-            m_strInstData = saveStream.str();
-
             SaveToDB();
-            OUT_SAVE_INST_DATA_COMPLETE;
-        }
     }
 
     uint64 GetData64(uint32 data)
@@ -351,9 +337,9 @@ struct instance_ulduar : public ScriptedInstance
 
         std::ostringstream saveStream;
         saveStream << "U U " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2] << " " << uiEncounter[3]
-                   << uiEncounter[4] << " " << uiEncounter[5] << " " << uiEncounter[6] << " " << uiEncounter[7]
-                   << uiEncounter[8] << " " << uiEncounter[9] << " " << uiEncounter[10] << " " << uiEncounter[11]
-                   << uiEncounter[12] << " " << uiEncounter[13] << " " << uiEncounter[14];
+                   << " " << uiEncounter[4] << " " << uiEncounter[5] << " " << uiEncounter[6] << " " << uiEncounter[7]
+                   << " " << uiEncounter[8] << " " << uiEncounter[9] << " " << uiEncounter[10] << " " << uiEncounter[11]
+                   << " " << uiEncounter[12] << " " << uiEncounter[13] << " " << uiEncounter[14];
 
         m_strInstData = saveStream.str();
 

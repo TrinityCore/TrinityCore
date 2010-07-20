@@ -1,0 +1,19 @@
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmpq", "VC90\libmpq.vcproj", "{03AB0F44-628E-4855-99A0-C98A1EB52C50}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Debug|Win32.ActiveCfg = Debug|Win32
+		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Debug|Win32.Build.0 = Debug|Win32
+		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Release|Win32.ActiveCfg = Release|Win32
+		{03AB0F44-628E-4855-99A0-C98A1EB52C50}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

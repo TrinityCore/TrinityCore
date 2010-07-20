@@ -1,20 +1,21 @@
-/* Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum Spells
 {
@@ -53,15 +54,15 @@ struct boss_drektharAI : public ScriptedAI
 
     void Reset()
     {
-        uiWhirlwindTimer = urand(1*IN_MILISECONDS,20*IN_MILISECONDS);
-        uiWhirlwind2Timer = urand(1*IN_MILISECONDS,20*IN_MILISECONDS);
-        uiKnockdownTimer = 12*IN_MILISECONDS;
-        uiFrenzyTimer = 6*IN_MILISECONDS;
-        uiResetTimer = 5*IN_MILISECONDS;
-        uiYellTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS); //20 to 30 seconds
+        uiWhirlwindTimer = urand(1*IN_MILLISECONDS,20*IN_MILLISECONDS);
+        uiWhirlwind2Timer = urand(1*IN_MILLISECONDS,20*IN_MILLISECONDS);
+        uiKnockdownTimer = 12*IN_MILLISECONDS;
+        uiFrenzyTimer = 6*IN_MILLISECONDS;
+        uiResetTimer = 5*IN_MILLISECONDS;
+        uiYellTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS); //20 to 30 seconds
     }
 
-    void Aggro(Unit * /*who*/)
+    void EnterCombat(Unit * /*who*/)
     {
         DoScriptText(YELL_AGGRO, me);
     }
@@ -80,31 +81,31 @@ struct boss_drektharAI : public ScriptedAI
         if (uiWhirlwindTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_WHIRLWIND);
-            uiWhirlwindTimer =  urand(8*IN_MILISECONDS,18*IN_MILISECONDS);
+            uiWhirlwindTimer =  urand(8*IN_MILLISECONDS,18*IN_MILLISECONDS);
         } else uiWhirlwindTimer -= diff;
 
         if (uiWhirlwind2Timer <= diff)
         {
             DoCast(me->getVictim(), SPELL_WHIRLWIND2);
-            uiWhirlwind2Timer = urand(7*IN_MILISECONDS,25*IN_MILISECONDS);
+            uiWhirlwind2Timer = urand(7*IN_MILLISECONDS,25*IN_MILLISECONDS);
         } else uiWhirlwind2Timer -= diff;
 
         if (uiKnockdownTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_KNOCKDOWN);
-            uiKnockdownTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
+            uiKnockdownTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
         } else uiKnockdownTimer -= diff;
 
         if (uiFrenzyTimer <= diff)
         {
             DoCast(me->getVictim(), SPELL_FRENZY);
-            uiFrenzyTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS);
+            uiFrenzyTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
         } else uiFrenzyTimer -= diff;
 
         if (uiYellTimer <= diff)
         {
             DoScriptText(RAND(YELL_RANDOM1,YELL_RANDOM2,YELL_RANDOM3,YELL_RANDOM4,YELL_RANDOM5), me);
-            uiYellTimer = urand(20*IN_MILISECONDS,30*IN_MILISECONDS); //20 to 30 seconds
+            uiYellTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS); //20 to 30 seconds
         } else uiYellTimer -= diff;
 
         // check if creature is not outside of building
@@ -115,7 +116,7 @@ struct boss_drektharAI : public ScriptedAI
                 EnterEvadeMode();
                 DoScriptText(YELL_EVADE, me);
             }
-            uiResetTimer = 5*IN_MILISECONDS;
+            uiResetTimer = 5*IN_MILLISECONDS;
         } else uiResetTimer -= diff;
 
         DoMeleeAttackIfReady();

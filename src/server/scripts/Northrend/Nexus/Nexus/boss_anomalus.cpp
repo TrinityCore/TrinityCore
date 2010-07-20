@@ -1,21 +1,22 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "nexus.h"
 
 enum Spells
@@ -77,7 +78,7 @@ struct boss_anomalusAI : public ScriptedAI
     void Reset()
     {
         Phase = 0;
-        uiSparkTimer = 5*IN_MILISECONDS;
+        uiSparkTimer = 5*IN_MILLISECONDS;
         uiChaoticRiftGUID = 0;
 
         bDeadChaoticRift = false;
@@ -138,7 +139,7 @@ struct boss_anomalusAI : public ScriptedAI
             Phase = 1;
             DoScriptText(SAY_SHIELD, me);
             DoCast(me, SPELL_RIFT_SHIELD);
-            Creature* Rift = me->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0,5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
+            Creature* Rift = me->SummonCreature(MOB_CHAOTIC_RIFT, RiftLocation[urand(0,5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS);
             if (Rift)
             {
                 //DoCast(Rift, SPELL_CHARGE_RIFT);
@@ -154,7 +155,7 @@ struct boss_anomalusAI : public ScriptedAI
         {
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_SPARK);
-            uiSparkTimer = 5*IN_MILISECONDS;
+            uiSparkTimer = 5*IN_MILLISECONDS;
         } else uiSparkTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -187,8 +188,8 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        uiChaoticEnergyBurstTimer = 1*IN_MILISECONDS;
-        uiSummonCrazedManaWraithTimer = 5*IN_MILISECONDS;
+        uiChaoticEnergyBurstTimer = 1*IN_MILLISECONDS;
+        uiSummonCrazedManaWraithTimer = 5*IN_MILLISECONDS;
         //me->SetDisplayId(25206); //For some reason in DB models for ally and horde are different.
                                          //Model for ally (1126) does not show auras. Horde model works perfect.
                                          //Set model to horde number
@@ -214,20 +215,20 @@ struct mob_chaotic_riftAI : public Scripted_NoMovementAI
                     DoCast(pTarget, SPELL_CHARGED_CHAOTIC_ENERGY_BURST);
                 else
                     DoCast(pTarget, SPELL_CHAOTIC_ENERGY_BURST);
-            uiChaoticEnergyBurstTimer = 1*IN_MILISECONDS;
+            uiChaoticEnergyBurstTimer = 1*IN_MILLISECONDS;
         } else uiChaoticEnergyBurstTimer -= diff;
 
         if (uiSummonCrazedManaWraithTimer <= diff)
         {
-            Creature* Wraith = me->SummonCreature(MOB_CRAZED_MANA_WRAITH, me->GetPositionX()+1, me->GetPositionY()+1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS);
+            Creature* Wraith = me->SummonCreature(MOB_CRAZED_MANA_WRAITH, me->GetPositionX()+1, me->GetPositionY()+1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS);
             if (Wraith)
                 if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     Wraith->AI()->AttackStart(pTarget);
             Unit* Anomalus = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_ANOMALUS) : 0);
             if (Anomalus && Anomalus->HasAura(SPELL_RIFT_SHIELD))
-                uiSummonCrazedManaWraithTimer = 5*IN_MILISECONDS;
+                uiSummonCrazedManaWraithTimer = 5*IN_MILLISECONDS;
             else
-                uiSummonCrazedManaWraithTimer = 10*IN_MILISECONDS;
+                uiSummonCrazedManaWraithTimer = 10*IN_MILLISECONDS;
         } else uiSummonCrazedManaWraithTimer -= diff;
     }
 };

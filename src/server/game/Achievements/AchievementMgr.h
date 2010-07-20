@@ -22,8 +22,8 @@
 #include <string>
 
 #include "Common.h"
-#include "Policies/Singleton.h"
-#include "Database/DatabaseEnv.h"
+#include "ace/Singleton.h"
+#include "DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "DBCStores.h"
 
@@ -36,7 +36,7 @@ typedef std::map<uint32,AchievementEntryList>         AchievementListByReference
 struct CriteriaProgress
 {
     uint32 counter;
-    time_t date;
+    time_t date;                                            // latest update time.
     bool changed;
 };
 
@@ -258,6 +258,7 @@ class AchievementMgr
         enum ProgressType { PROGRESS_SET, PROGRESS_ACCUMULATE, PROGRESS_HIGHEST };
         void SendAchievementEarned(AchievementEntry const* achievement);
         void SendCriteriaUpdate(AchievementCriteriaEntry const* entry, CriteriaProgress const* progress, uint32 timeElapsed, bool timedCompleted);
+        CriteriaProgress* GetCriteriaProgress(AchievementCriteriaEntry const* entry);
         void SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype = PROGRESS_SET);
         void CompletedCriteriaFor(AchievementEntry const* achievement);
         bool IsCompletedCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement);
@@ -341,6 +342,6 @@ class AchievementGlobalMgr
         AchievementRewardLocales m_achievementRewardLocales;
 };
 
-#define achievementmgr Trinity::Singleton<AchievementGlobalMgr>::Instance()
+#define achievementmgr (*ACE_Singleton<AchievementGlobalMgr, ACE_Null_Mutex>::instance())
 
 #endif

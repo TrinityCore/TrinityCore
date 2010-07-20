@@ -1,22 +1,21 @@
 /*
- * Copyright (C) 2009 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include "ScriptedEscortAI.h"
@@ -199,7 +198,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                 anchorGUID = anchor->GetGUID();
             }
             else
-                error_log("npc_unworthy_initiateAI: unable to find anchor!");
+                sLog.outError("npc_unworthy_initiateAI: unable to find anchor!");
 
             float dist = 99.0f;
             GameObject *prison = NULL;
@@ -219,7 +218,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             if (prison)
                 prison->ResetDoorOrButton();
             else
-                error_log("npc_unworthy_initiateAI: unable to find prison!");
+                sLog.outError("npc_unworthy_initiateAI: unable to find prison!");
         }
         return;
     case PHASE_TO_EQUIP:
@@ -230,7 +229,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
             else
             {
                 me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
-                //debug_log("npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
+                //sLog.outDebug("npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
                 phase = PHASE_EQUIPING;
                 wait_timer = 0;
             }
@@ -989,9 +988,9 @@ bool GOHello_go_inconspicuous_mine_car(Player* pPlayer, GameObject* /*pGO*/)
                 {
                     car->AI()->SetGUID(miner->GetGUID());
                     CAST_AI(npc_scarlet_minerAI, miner->AI())->InitCartQuest(pPlayer);
-                } else error_log("TSCR: GOHello_go_inconspicuous_mine_car vehicle entry is not correct.");
-            } else error_log("TSCR: GOHello_go_inconspicuous_mine_car player is not on the vehicle.");
-        } else error_log("TSCR: GOHello_go_inconspicuous_mine_car Scarlet Miner cant be found by script.");
+                } else sLog.outError("TSCR: GOHello_go_inconspicuous_mine_car vehicle entry is not correct.");
+            } else sLog.outError("TSCR: GOHello_go_inconspicuous_mine_car player is not on the vehicle.");
+        } else sLog.outError("TSCR: GOHello_go_inconspicuous_mine_car Scarlet Miner cant be found by script.");
     }
     return true;
 }

@@ -19,7 +19,7 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
 #include "Player.h"
@@ -32,7 +32,7 @@
 #include "World.h"
 #include "GameEventMgr.h"
 #include "SpellMgr.h"
-#include "PoolHandler.h"
+#include "PoolMgr.h"
 #include "AccountMgr.h"
 #include "WaypointManager.h"
 #include "Util.h"
@@ -1672,7 +1672,7 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
     if (/*creature->GetMotionMaster()->empty() ||*/
         creature->GetMotionMaster()->GetCurrentMovementGeneratorType () != TARGETED_MOTION_TYPE)
     {
-        PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
+        PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName());
         SetSentErrorMessage(true);
         return false;
     }
@@ -1682,7 +1682,7 @@ bool ChatHandler::HandleNpcUnFollowCommand(const char* /*args*/)
 
     if (mgen->GetTarget() != player)
     {
-        PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU);
+        PSendSysMessage(LANG_CREATURE_NOT_FOLLOW_YOU, creature->GetName());
         SetSentErrorMessage(true);
         return false;
     }
@@ -2844,7 +2844,7 @@ bool ChatHandler::HandleWpModifyCommand(const char* args)
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 wpCreature2->LoadFromDB(wpCreature2->GetDBTableGUIDLow(), map);
                 map->Add(wpCreature2);
-                //MapManager::Instance().GetMap(npcCreature->GetMapId())->Add(wpCreature2);
+                //sMapMgr.GetMap(npcCreature->GetMapId())->Add(wpCreature2);
             }
 
             WorldDatabase.PExecuteLog("UPDATE waypoint_data SET position_x = '%f',position_y = '%f',position_z = '%f' where id = '%u' AND point='%u'",

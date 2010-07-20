@@ -20,8 +20,8 @@
 
 #include "Common.h"
 #include "Language.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/DatabaseImpl.h"
+#include "DatabaseEnv.h"
+#include "DatabaseImpl.h"
 #include "WorldPacket.h"
 #include "Opcodes.h"
 #include "Log.h"
@@ -30,12 +30,12 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "WorldSession.h"
-#include "Auth/BigNumber.h"
-#include "Auth/Sha1.h"
+#include "BigNumber.h"
+#include "SHA1.h"
 #include "UpdateData.h"
 #include "LootMgr.h"
 #include "Chat.h"
-#include <zlib/zlib.h>
+#include "zlib.h"
 #include "ObjectAccessor.h"
 #include "Object.h"
 #include "BattleGround.h"
@@ -232,8 +232,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     data << uint32(clientcount);                            // clientcount place holder, listed count
     data << uint32(clientcount);                            // clientcount place holder, online count
 
-    ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
-    HashMapHolder<Player>::MapType& m = ObjectAccessor::Instance().GetPlayers();
+    ACE_GUARD(ACE_Thread_Mutex, g, *HashMapHolder<Player>::GetLock());
+    HashMapHolder<Player>::MapType& m = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (security == SEC_PLAYER)
@@ -374,7 +374,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
         return;
     }
 
-    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in TrinityCore.conf
+    //instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
         GetSecurity() >= sWorld.getConfig(CONFIG_INSTANT_LOGOUT))
     {
@@ -931,11 +931,13 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     if (!at)
         return;
 
-    if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
-        return;
+    // MapManager::CanPlayerEnter() calls players->Satisfy() so this is not needed here
+    // if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
+    //    return;
 
+    // Check only if target map != current player's map
     // check if player can enter instance : instance not full, and raid instance not in encounter fight
-    if (!MapManager::Instance().CanPlayerEnter(at->target_mapId, GetPlayer(), false))
+    if (GetPlayer()->GetMapId() != at->target_mapId && !sMapMgr.CanPlayerEnter(at->target_mapId, GetPlayer(), false))
         return;
 
     GetPlayer()->TeleportTo(at->target_mapId,at->target_X,at->target_Y,at->target_Z,at->target_Orientation,TELE_TO_NOT_LEAVE_TRANSPORT);

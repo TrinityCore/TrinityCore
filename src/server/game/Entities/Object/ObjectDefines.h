@@ -21,7 +21,7 @@
 #ifndef TRINITY_OBJECTDEFINES_H
 #define TRINITY_OBJECTDEFINES_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 
 // used for creating values for respawn for example
 #define MAKE_PAIR64(l, h)  uint64(uint32(l) | (uint64(h) << 32))

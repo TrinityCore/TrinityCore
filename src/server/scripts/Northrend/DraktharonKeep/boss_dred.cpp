@@ -1,26 +1,25 @@
 /*
- * Copyright (C) 2008 - 2010 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
  * Comment: MAYBE need more improve the "Raptor Call".
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "drak_tharon_keep.h"
 
 enum eSpells
@@ -71,12 +70,12 @@ struct boss_dredAI : public ScriptedAI
             pInstance->SetData(DATA_KING_DRED_ACHIEV, 0);
         }
 
-        uiBellowingRoarTimer = 33*IN_MILISECONDS;
-        uiGrievousBiteTimer  = 20*IN_MILISECONDS;
-        uiManglingSlashTimer = 18.5*IN_MILISECONDS;
-        uiFearsomeRoarTimer  = urand(10*IN_MILISECONDS,20*IN_MILISECONDS);
-        uiPiercingSlashTimer = 17*IN_MILISECONDS;
-        uiRaptorCallTimer    = urand(20*IN_MILISECONDS,25*IN_MILISECONDS);
+        uiBellowingRoarTimer = 33*IN_MILLISECONDS;
+        uiGrievousBiteTimer  = 20*IN_MILLISECONDS;
+        uiManglingSlashTimer = 18.5*IN_MILLISECONDS;
+        uiFearsomeRoarTimer  = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+        uiPiercingSlashTimer = 17*IN_MILLISECONDS;
+        uiRaptorCallTimer    = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -94,31 +93,31 @@ struct boss_dredAI : public ScriptedAI
         if (uiBellowingRoarTimer < diff)
         {
             DoCastAOE(SPELL_BELLOWING_ROAR, false);
-            uiBellowingRoarTimer = 40*IN_MILISECONDS;
+            uiBellowingRoarTimer = 40*IN_MILLISECONDS;
         } else uiBellowingRoarTimer -=diff;
 
         if (uiGrievousBiteTimer < diff)
         {
             DoCastVictim(SPELL_GRIEVOUS_BITE ,false);
-            uiGrievousBiteTimer = 20*IN_MILISECONDS;
+            uiGrievousBiteTimer = 20*IN_MILLISECONDS;
         } else uiGrievousBiteTimer -=diff;
 
         if (uiManglingSlashTimer < diff)
         {
             DoCastVictim(SPELL_MANGLING_SLASH,false);
-            uiManglingSlashTimer = 20*IN_MILISECONDS;
+            uiManglingSlashTimer = 20*IN_MILLISECONDS;
         } else uiManglingSlashTimer -=diff;
 
         if (uiFearsomeRoarTimer < diff)
         {
             DoCastAOE(SPELL_FEARSOME_ROAR,false);
-            uiFearsomeRoarTimer = urand(16*IN_MILISECONDS,18*IN_MILISECONDS);
+            uiFearsomeRoarTimer = urand(16*IN_MILLISECONDS,18*IN_MILLISECONDS);
         } else uiFearsomeRoarTimer -=diff;
 
         if (uiPiercingSlashTimer < diff)
         {
             DoCastVictim(SPELL_PIERCING_SLASH,false);
-            uiPiercingSlashTimer = 20*IN_MILISECONDS;
+            uiPiercingSlashTimer = 20*IN_MILLISECONDS;
         } else uiPiercingSlashTimer -=diff;
 
         if (uiRaptorCallTimer < diff)
@@ -128,9 +127,9 @@ struct boss_dredAI : public ScriptedAI
             float x,y,z;
 
             me->GetClosePoint(x,y,z,me->GetObjectSize()/3,10.0f);
-            me->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILISECONDS);
+            me->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILLISECONDS);
 
-            uiRaptorCallTimer = urand(20*IN_MILISECONDS,25*IN_MILISECONDS);
+            uiRaptorCallTimer = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);
         } else uiRaptorCallTimer -=diff;
 
         DoMeleeAttackIfReady();
@@ -214,7 +213,7 @@ struct npc_drakkari_scytheclawAI : public ScriptedAI
 
     void Reset()
     {
-        uiRendTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
+        uiRendTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
     }
 
     void UpdateAI(const uint32 diff)
@@ -226,7 +225,7 @@ struct npc_drakkari_scytheclawAI : public ScriptedAI
         if (uiRendTimer < diff)
         {
             DoCastVictim(SPELL_REND,false);
-            uiRendTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
+            uiRendTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
         }else uiRendTimer -=diff;
 
         DoMeleeAttackIfReady();

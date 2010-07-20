@@ -111,8 +111,9 @@ enum ITEM_FLAGS
     ITEM_FLAGS_OPENABLE                       = 0x00000004,
     ITEM_FLAGS_WRAPPED                        = 0x00000008,
     ITEM_FLAGS_BROKEN                         = 0x00000010, // appears red icon (like when item durability == 0)
-    ITEM_FLAGS_TOTEM                          = 0x00000020, // ?
+    ITEM_FLAGS_INDESTRUCTIBLE                 = 0x00000020, // Item can not be destroyed, except by using spell (item can be reagent for spell and then allowed)
     ITEM_FLAGS_USABLE                         = 0x00000040, // ?
+    ITEM_FLAGS_NO_EQUIP_COOLDOWN              = 0x00000080, // ?
     ITEM_FLAGS_WRAPPER                        = 0x00000200, // used or not used wrapper
     ITEM_FLAGS_PARTY_LOOT                     = 0x00000800, // determines if item is party loot or not
     ITEM_FLAGS_REFUNDABLE                     = 0x00001000, // item cost can be refunded within 2 hours after purchase
@@ -135,7 +136,7 @@ enum ItemFlagsExtra
 {
     ITEM_FLAGS_EXTRA_HORDE_ONLY              = 0x00000001,
     ITEM_FLAGS_EXTRA_ALLIANCE_ONLY           = 0x00000002,
-    ITEM_FLAGS_EXTRA_REFUNDABLE              = 0x00000004,
+    ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD  = 0x00000004, // when item uses extended cost, gold is also required
     ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100
 };
 
@@ -623,7 +624,7 @@ struct ItemPrototype
 
     uint32 GetMaxStackSize() const
     {
-        return (Stackable == 2147483647 || Stackable <= 0 || Stackable == 1000) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
+        return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
     }
 
     float getDPS() const
@@ -659,6 +660,17 @@ struct ItemLocale
 {
     std::vector<std::string> Name;
     std::vector<std::string> Description;
+};
+
+struct ItemSetNameEntry
+{
+    std::string name;
+    uint32 InventoryType;
+};
+
+struct ItemSetNameLocale
+{
+    std::vector<std::string> Name;
 };
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform

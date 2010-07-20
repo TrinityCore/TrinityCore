@@ -19,7 +19,7 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "World.h"
 #include "ObjectMgr.h"
@@ -28,7 +28,7 @@
 #include "QuestDef.h"
 #include "GossipDef.h"
 #include "Player.h"
-#include "PoolHandler.h"
+#include "PoolMgr.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "LootMgr.h"
@@ -49,7 +49,7 @@
 #include "Vehicle.h"
 #include "SpellAuraEffects.h"
 // apply implementation of the singletons
-#include "Policies/SingletonImp.h"
+
 
 TrainerSpell const* TrainerSpellData::Find(uint32 spell_id) const
 {
@@ -171,11 +171,8 @@ Creature::~Creature()
 {
     m_vendorItemCounts.clear();
 
-    if (i_AI)
-    {
-        delete i_AI;
-        i_AI = NULL;
-    }
+    delete i_AI;
+    i_AI = NULL;
 
     //if (m_uint32Values)
     //    sLog.outError("Deconstruct Creature Entry = %u", GetEntry());
@@ -188,7 +185,7 @@ void Creature::AddToWorld()
     {
         if (m_zoneScript)
             m_zoneScript->OnCreatureCreate(this, true);
-        ObjectAccessor::Instance().AddObject(this);
+        sObjectAccessor.AddObject(this);
         Unit::AddToWorld();
         SearchFormation();
         AIM_Initialize();
@@ -206,7 +203,7 @@ void Creature::RemoveFromWorld()
         if (m_formation)
             formation_mgr.RemoveCreatureFromGroup(m_formation, this);
         Unit::RemoveFromWorld();
-        ObjectAccessor::Instance().RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
     }
 }
 
@@ -413,13 +410,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
     if (isTrigger())
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-    if (isTotem() || isTrigger()
-        || GetCreatureType() == CREATURE_TYPE_CRITTER)
-        SetReactState(REACT_PASSIVE);
-    /*else if (isCivilian())
-        SetReactState(REACT_DEFENSIVE);*/
-    else
-        SetReactState(REACT_AGGRESSIVE);
+    InitializeReactState();
 
     if (cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_TAUNT)
     {
@@ -629,7 +620,7 @@ void Creature::RegenerateMana()
         if ((*i)->GetMiscValue() == POWER_MANA)
             addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
 
-    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILISECONDS);
+    addvalue += GetTotalAuraModifierByMiscValue(SPELL_AURA_MOD_POWER_REGEN, POWER_MANA) * CREATURE_REGEN_INTERVAL / (5 * IN_MILLISECONDS);
 
     ModifyPower(POWER_MANA, addvalue);
 }
@@ -666,7 +657,7 @@ void Creature::RegenerateHealth()
     for (AuraEffectList::const_iterator i = ModPowerRegenPCTAuras.begin(); i != ModPowerRegenPCTAuras.end(); ++i)
         addvalue *= ((*i)->GetAmount() + 100) / 100.0f;
 
-    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * CREATURE_REGEN_INTERVAL  / (5 * IN_MILISECONDS);
+    addvalue += GetTotalAuraModifier(SPELL_AURA_MOD_REGEN) * CREATURE_REGEN_INTERVAL  / (5 * IN_MILLISECONDS);
 
     ModifyHealth(addvalue);
 }
@@ -721,7 +712,7 @@ bool Creature::AIM_Initialize(CreatureAI* ai)
     Motion_Initialize();
 
     i_AI = ai ? ai : FactorySelector::selectAI(this);
-    if (oldAI) delete oldAI;
+    delete oldAI;
     IsAIEnabled = true;
     i_AI->InitializeAI();
     return true;
@@ -1271,16 +1262,26 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
         }
     }
 
-    uint32 curhealth = data->curhealth;
-    if (curhealth)
+    uint32 curhealth;
+    
+    if (!m_regenHealth)
     {
-        curhealth = uint32(curhealth*_GetHealthMod(GetCreatureInfo()->rank));
-        if (curhealth < 1)
-            curhealth = 1;
+        curhealth = data->curhealth;
+        if (curhealth)
+        {
+            curhealth = uint32(curhealth*_GetHealthMod(GetCreatureInfo()->rank));
+            if (curhealth < 1)
+                curhealth = 1;
+        }
+        SetPower(POWER_MANA,data->curmana);
+    }
+    else
+    {
+        curhealth = GetMaxHealth();
+        SetPower(POWER_MANA,GetMaxPower(POWER_MANA));
     }
 
     SetHealth(m_deathState == ALIVE ? curhealth : 0);
-    SetPower(POWER_MANA,data->curmana);
 
     // checked at creature_template loading
     m_defaultMovementType = MovementGeneratorType(data->movementType);
@@ -1472,7 +1473,7 @@ void Creature::setDeathState(DeathState s)
 {
     if ((s == JUST_DIED && !m_isDeadByDefault)||(s == JUST_ALIVED && m_isDeadByDefault))
     {
-        m_deathTimer = m_corpseDelay*IN_MILISECONDS;
+        m_deathTimer = m_corpseDelay*IN_MILLISECONDS;
 
         // always save boss respawn time at death to prevent crash cheating
         if (sWorld.getConfig(CONFIG_SAVE_RESPAWN_TIME_IMMEDIATELY) || isWorldBoss())
@@ -1605,6 +1606,9 @@ void Creature::Respawn(bool force)
         uint16 poolid = GetDBTableGUIDLow() ? poolhandler.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
             poolhandler.UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
+            
+        //Re-initialize reactstate that could be altered by movementgenerators
+        InitializeReactState();
     }
 
     UpdateObjectVisibility();
@@ -1983,7 +1987,7 @@ void Creature::SaveRespawnTime()
     if (m_respawnTime > time(NULL))                          // dead (no corpse)
         objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),m_respawnTime);
     else if (m_deathTimer > 0)                               // dead (corpse)
-        objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),time(NULL)+m_respawnDelay+m_deathTimer/IN_MILISECONDS);
+        objmgr.SaveCreatureRespawnTime(m_DBTableGuid,GetInstanceId(),time(NULL)+m_respawnDelay+m_deathTimer/IN_MILLISECONDS);
 }
 
 // this should not be called by petAI or
@@ -2166,7 +2170,7 @@ void Creature::AddCreatureSpellCooldown(uint32 spellid)
         modOwner->ApplySpellMod(spellid, SPELLMOD_COOLDOWN, cooldown);
 
     if (cooldown)
-        _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILISECONDS);
+        _AddCreatureSpellCooldown(spellid, time(NULL) + cooldown/IN_MILLISECONDS);
 
     if (spellInfo->Category)
         _AddCreatureCategoryCooldown(spellInfo->Category, time(NULL));
@@ -2185,7 +2189,7 @@ bool Creature::HasCategoryCooldown(uint32 spell_id) const
         return true;
 
     CreatureSpellCooldowns::const_iterator itr = m_CreatureCategoryCooldowns.find(spellInfo->Category);
-    return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILISECONDS)) > time(NULL));
+    return(itr != m_CreatureCategoryCooldowns.end() && time_t(itr->second + (spellInfo->CategoryRecoveryTime / IN_MILLISECONDS)) > time(NULL));
 }
 
 bool Creature::HasSpellCooldown(uint32 spell_id) const
@@ -2209,7 +2213,7 @@ time_t Creature::GetRespawnTimeEx() const
     if (m_respawnTime > now)                                 // dead (no corpse)
         return m_respawnTime;
     else if (m_deathTimer > 0)                               // dead (corpse)
-        return now+m_respawnDelay+m_deathTimer/IN_MILISECONDS;
+        return now+m_respawnDelay+m_deathTimer/IN_MILLISECONDS;
     else
         return now;
 }
@@ -2251,7 +2255,7 @@ void Creature::AllLootRemovedFromCorpse()
 
         // corpse was not skinnable -> apply corpse looted timer
         if (!cinfo || !cinfo->SkinLootId)
-            nDeathTimer = (uint32)((m_corpseDelay * IN_MILISECONDS) * sWorld.getRate(RATE_CORPSE_DECAY_LOOTED));
+            nDeathTimer = (uint32)((m_corpseDelay * IN_MILLISECONDS) * sWorld.getRate(RATE_CORPSE_DECAY_LOOTED));
         // corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
         else
             nDeathTimer = 0;
@@ -2413,7 +2417,7 @@ time_t Creature::GetLinkedCreatureRespawnTime() const
             if (data->mapid == GetMapId())   // look up on the same map
                 targetMap = GetMap();
             else                            // it shouldn't be instanceable map here
-                targetMap = MapManager::Instance().FindMap(data->mapid);
+                targetMap = sMapMgr.FindMap(data->mapid);
         }
         if (targetMap)
             return objmgr.GetCreatureRespawnTime(targetGuid,targetMap->GetInstanceId());

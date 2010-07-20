@@ -1,17 +1,19 @@
- /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ /*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -27,7 +29,7 @@ npc_berthold
 npc_image_of_medivh
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "karazhan.h"
 #include "ScriptedEscortAI.h"
 
@@ -220,7 +222,7 @@ struct npc_barnesAI : public npc_escortAI
 
     void PrepareEncounter()
     {
-        debug_log("TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+        sLog.outDebug("TSCR: Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
         uint8 index = 0;
         uint8 count = 0;
 
@@ -245,7 +247,7 @@ struct npc_barnesAI : public npc_escortAI
             uint32 entry = ((uint32)Spawns[index][0]);
             float PosX = Spawns[index][1];
 
-            if (Creature* pCreature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+            if (Creature* pCreature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
             {
                 // In case database has bad flags
                 pCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -371,17 +373,17 @@ bool GossipSelect_npc_barnes(Player* pPlayer, Creature* pCreature, uint32 /*uiSe
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->m_uiEventId = EVENT_OZ;
-            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",pPlayer->GetGUID());
+            sLog.outString("TSCR: player (GUID %i) manually set Opera event to EVENT_OZ",pPlayer->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+4:
             pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->m_uiEventId = EVENT_HOOD;
-            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",pPlayer->GetGUID());
+            sLog.outString("TSCR: player (GUID %i) manually set Opera event to EVENT_HOOD",pPlayer->GetGUID());
             break;
         case GOSSIP_ACTION_INFO_DEF+5:
             pPlayer->CLOSE_GOSSIP_MENU();
             pBarnesAI->m_uiEventId = EVENT_RAJ;
-            outstring_log("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",pPlayer->GetGUID());
+            sLog.outString("TSCR: player (GUID %i) manually set Opera event to EVENT_RAJ",pPlayer->GetGUID());
             break;
     }
 

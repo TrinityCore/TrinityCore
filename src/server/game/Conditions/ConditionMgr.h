@@ -47,7 +47,7 @@ enum ConditionType
     CONDITION_CLASS                 = 15,                   // class            0           +referenceID       true if player's class is equal to class
     CONDITION_RACE                  = 16,                   // race             0           +referenceID       true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0           +referenceID       true if achievement is complete
-    CONDITION_SPELL_SCRIPT_TARGET   = 18,                   // SpellScriptTargetType, TargetEntry, 0 
+    CONDITION_SPELL_SCRIPT_TARGET   = 18,                   // SpellScriptTargetType, TargetEntry, 0
     CONDITION_CREATURE_TARGET       = 19,                   // creature entry   0           +referenceID       true if current target is creature with value1 entry
     CONDITION_TARGET_HEALTH_BELOW_PCT = 20,                 // 0-100            0           +referenceID       true if target's health is below value1 percent, false if over or no target
     CONDITION_TARGET_RANGE          = 21,                   // minDistance      maxDist     +referenceID       true if target is closer then minDist and further then maxDist or if max is 0 then max dist is infinit
@@ -84,7 +84,7 @@ enum ConditionSourceType
 #define MAX_CONDITIONSOURCETYPE                            19
 
 struct Condition
-{    
+{
     ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
     uint32                  mSourceGroup;
     uint32                  mSourceEntry;
@@ -121,14 +121,16 @@ typedef std::map<uint32, ConditionList > ConditionReferenceMap;//only used for r
 
 class ConditionMgr
 {
+    friend class ACE_Singleton<ConditionMgr, ACE_Null_Mutex>;
+    ConditionMgr();
+    
     public:
-        ConditionMgr();
         ~ConditionMgr();
 
         void LoadConditions(bool isReload = false);
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
-        
+
         bool IsPlayerMeetToConditions(Player* player, ConditionList conditions, Unit* targetOverride = NULL);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry);
 
@@ -160,8 +162,11 @@ class ConditionMgr
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION);
         }
+
+        void Clean(); // free up resources
+        std::list<Condition*> m_AllocatedMemory; // some garbage collection :)
 };
 
-#define sConditionMgr Trinity::Singleton<ConditionMgr>::Instance()
+#define sConditionMgr (*ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance())
 
 #endif

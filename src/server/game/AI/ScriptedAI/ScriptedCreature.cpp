@@ -5,7 +5,7 @@
  * This program is free software licensed under GPL version 2
  * Please see the included DOCS/LICENSE.TXT for more information */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "Item.h"
 #include "Spell.h"
 #include "ObjectMgr.h"
@@ -153,7 +153,7 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* pSource, uint32 uiSoundId)
 
     if (!GetSoundEntriesStore()->LookupEntry(uiSoundId))
     {
-        error_log("TSCR: Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", uiSoundId, pSource->GetTypeId(), pSource->GetGUIDLow());
+        sLog.outError("TSCR: Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", uiSoundId, pSource->GetTypeId(), pSource->GetGUIDLow());
         return;
     }
 
@@ -398,7 +398,7 @@ void ScriptedAI::DoResetThreat()
 {
     if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
     {
-        error_log("TSCR: DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
+        sLog.outError("TSCR: DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
         return;
     }
 
@@ -441,7 +441,7 @@ void ScriptedAI::DoTeleportPlayer(Unit* pUnit, float fX, float fY, float fZ, flo
     if (!pUnit || pUnit->GetTypeId() != TYPEID_PLAYER)
     {
         if (pUnit)
-            error_log("TSCR: Creature %u (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: %u) to x: %f y:%f z: %f o: %f. Aborted.", me->GetGUID(), me->GetEntry(), pUnit->GetTypeId(), pUnit->GetGUID(), fX, fY, fZ, fO);
+            sLog.outError("TSCR: Creature %u (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: %u) to x: %f y:%f z: %f o: %f. Aborted.", me->GetGUID(), me->GetEntry(), pUnit->GetTypeId(), pUnit->GetGUID(), fX, fY, fZ, fO);
         return;
     }
 
@@ -578,7 +578,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(const uint32 uiDiff)
                 return false;
             break;
         default:
-            error_log("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", me->GetEntry());
+            sLog.outError("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", me->GetEntry());
             return false;
     }
 

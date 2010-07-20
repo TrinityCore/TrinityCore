@@ -1,25 +1,26 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
  * Comment: Timer check pending
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "halls_of_lightning.h"
 
 enum Spells
@@ -93,10 +94,10 @@ struct boss_ionarAI : public ScriptedAI
         bIsSplitPhase = true;
         bHasDispersed = false;
 
-        uiSplitTimer = 25*IN_MILISECONDS;
+        uiSplitTimer = 25*IN_MILLISECONDS;
 
-        uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);
-        uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
+        uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
+        uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
 
         uiDisperseHealth = 45 + urand(0,10);
 
@@ -199,7 +200,7 @@ struct boss_ionarAI : public ScriptedAI
         {
             if (uiSplitTimer <= uiDiff)
             {
-                uiSplitTimer = 2.5*IN_MILISECONDS;
+                uiSplitTimer = 2.5*IN_MILLISECONDS;
 
                 // Return sparks to where Ionar splitted
                 if (bIsSplitPhase)
@@ -215,7 +216,7 @@ struct boss_ionarAI : public ScriptedAI
 
                     DoCast(me, SPELL_SPARK_DESPAWN, false);
 
-                    uiSplitTimer = 25*IN_MILISECONDS;
+                    uiSplitTimer = 25*IN_MILLISECONDS;
                     bIsSplitPhase = true;
 
                     if (me->getVictim())
@@ -233,7 +234,7 @@ struct boss_ionarAI : public ScriptedAI
             if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                 DoCast(pTarget, SPELL_STATIC_OVERLOAD);
 
-            uiStaticOverloadTimer = urand(5*IN_MILISECONDS, 6*IN_MILISECONDS);
+            uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
         }
         else
             uiStaticOverloadTimer -= uiDiff;
@@ -241,7 +242,7 @@ struct boss_ionarAI : public ScriptedAI
         if (uiBallLightningTimer <= uiDiff)
         {
             DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
-            uiBallLightningTimer = urand(10*IN_MILISECONDS, 11*IN_MILISECONDS);
+            uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
         }
         else
             uiBallLightningTimer -= uiDiff;
@@ -309,7 +310,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
 
     void Reset()
     {
-        uiCheckTimer = 2*IN_MILISECONDS;
+        uiCheckTimer = 2*IN_MILLISECONDS;
         me->SetReactState(REACT_PASSIVE);
     }
 
@@ -357,7 +358,7 @@ struct mob_spark_of_ionarAI : public ScriptedAI
                 else
                     me->ForcedDespawn();
             }
-            uiCheckTimer = 2*IN_MILISECONDS;
+            uiCheckTimer = 2*IN_MILLISECONDS;
         }
         else
             uiCheckTimer -= uiDiff;

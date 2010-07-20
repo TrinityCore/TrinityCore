@@ -19,7 +19,7 @@
  */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Opcodes.h"
 #include "Log.h"
 #include "WorldPacket.h"
@@ -126,7 +126,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     if (group)
     {
         // not have permissions for invite
-        if (group->isRaidGroup() && !group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
+        if (!group->IsLeader(GetPlayer()->GetGUID()) && !group->IsAssistant(GetPlayer()->GetGUID()))
         {
             SendPartyResult(PARTY_OP_INVITE, "", ERR_NOT_LEADER);
             return;
@@ -534,8 +534,10 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     std::string name;
     uint8 groupNr;
     recv_data >> name;
-
     recv_data >> groupNr;
+    
+    if (groupNr >= MAX_RAID_SUBGROUPS)
+        return;
 
     /** error handling **/
     uint64 senderGuid = GetPlayer()->GetGUID();
@@ -546,16 +548,18 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
         return;
     /********************/
 
-    Player *movedPlayer=objmgr.GetPlayer(name.c_str());
-    if (!movedPlayer)
-        return;
+    Player *movedPlayer = objmgr.GetPlayer(name.c_str());
+    if (movedPlayer)
+    {   
+        //Do not allow leader to change group of player in combat
+        if (movedPlayer->isInCombat())
+            return;
 
-    //Do not allow leader to change group of player in combat
-    if (movedPlayer->isInCombat())
-        return;
-
-    // everything's fine, do it
-    group->ChangeMembersGroup(movedPlayer, groupNr);
+        // everything's fine, do it
+        group->ChangeMembersGroup(movedPlayer, groupNr);
+    }
+    else
+        group->ChangeMembersGroup(objmgr.GetPlayerGUIDByName(name.c_str()), groupNr);
 }
 
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recv_data)
@@ -593,7 +597,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket & recv_data)
 
     /** error handling **/
     uint64 senderGuid = GetPlayer()->GetGUID();
-    if (!group->IsLeader(senderGuid) && group->IsAssistant(senderGuid))
+    if (!group->IsLeader(senderGuid) && !group->IsAssistant(senderGuid))
         return;
     /********************/
 

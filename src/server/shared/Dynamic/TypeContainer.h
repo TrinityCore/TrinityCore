@@ -28,9 +28,9 @@
 
 #include <map>
 #include <vector>
-#include "Platform/Define.h"
-#include "Utilities/TypeList.h"
-#include "GameSystem/GridRefManager.h"
+#include "Define.h"
+#include "Dynamic/TypeList.h"
+#include "GridRefManager.h"
 
 /*
  * @class ContainerMapList is a mulit-type container for map elements

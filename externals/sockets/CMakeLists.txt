@@ -1,26 +1,21 @@
-SET(trinitysockets_STAT_SRCS
-   Base64.cpp
-   Exception.cpp
-   Ipv4Address.cpp
-   Ipv6Address.cpp
-   Lock.cpp
-   Mutex.cpp
-   Parse.cpp
-   ResolvServer.cpp
-   ResolvSocket.cpp
-   Socket.cpp
-   SocketHandler.cpp
-   StdoutLog.cpp
-   StreamSocket.cpp
-   TcpSocket.cpp
-   Thread.cpp
-   UdpSocket.cpp
-   Utility.cpp
-   socket_include.cpp
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+#
+# This file is free software; as a special exception the author gives
+# unlimited permission to copy and/or distribute it, with or without
+# modifications, as long as this notice is preserved.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
+# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+file(GLOB sources *.cpp)
+
+set(trinitysockets_STAT_SRCS
+  ${sources}
 )
 
 include_directories(
-  ${CMAKE_SOURCE_DIR}/dep/include/sockets
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 add_library(trinitysockets STATIC ${trinitysockets_STAT_SRCS})

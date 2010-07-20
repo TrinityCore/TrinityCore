@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <functional>
 #include "ItemEnchantmentMgr.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Log.h"
 #include "ObjectMgr.h"
 #include "ProgressBar.h"
@@ -91,18 +91,10 @@ uint32 GetItemEnchantMod(int32 entry)
     if (!entry)
         return 0;
 
-    EnchantmentStore::const_iterator tab;
-
     if (entry == -1)
-    {
-        tab = RandomItemEnch.begin();
-        entry = urand(1, RandomItemEnch.size()) - 1;
-        for (uint32 i = 0; i < entry; ++i)
-            ++tab;
-    }
-    else
-        tab = RandomItemEnch.find(entry);
-
+        return 0;
+    
+    EnchantmentStore::const_iterator tab = RandomItemEnch.find(entry);    
     if (tab == RandomItemEnch.end())
     {
         sLog.outErrorDb("Item RandomProperty / RandomSuffix id #%u used in `item_template` but it does not have records in `item_enchantment_template` table.",entry);

@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "BIH.h"
+#include "BoundingIntervalHierarchy.h"
 
 void BIH::buildHierarchy(std::vector<uint32> &tempTree, buildData &dat, BuildStats &stats)
 {

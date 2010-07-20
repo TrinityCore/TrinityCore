@@ -26,19 +26,19 @@
 #define TRINITY_WORLDLOG_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
+#include "ace/Singleton.h"
 #include "Errors.h"
 
 #include <stdarg.h>
 
 /// %Log packets to a file
-class WorldLog : public Trinity::Singleton<WorldLog, Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex> >
+class WorldLog
 {
-    friend class Trinity::OperatorNew<WorldLog>;
+    friend class ACE_Singleton<WorldLog, ACE_Thread_Mutex>;
     WorldLog();
     WorldLog(const WorldLog &);
     WorldLog& operator=(const WorldLog &);
-    typedef Trinity::ClassLevelLockable<WorldLog, ACE_Thread_Mutex>::Lock Guard;
+    ACE_Thread_Mutex Lock;
 
     /// Close the file in destructor
     ~WorldLog();
@@ -57,7 +57,7 @@ class WorldLog : public Trinity::Singleton<WorldLog, Trinity::ClassLevelLockable
         bool m_dbWorld;
 };
 
-#define sWorldLog WorldLog::Instance()
+#define sWorldLog (*ACE_Singleton<WorldLog, ACE_Thread_Mutex>::instance())
 #endif
 /// @}
 

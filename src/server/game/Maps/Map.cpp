@@ -28,8 +28,8 @@
 #include "InstanceData.h"
 #include "Map.h"
 #include "GridNotifiersImpl.h"
-#include "Config/ConfigEnv.h"
-#include "Transports.h"
+#include "ConfigEnv.h"
+#include "Transport.h"
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "World.h"
@@ -94,10 +94,9 @@ bool Map::ExistMap(uint32 mapid,int gx,int gy)
 
     map_fileheader header;
     fread(&header, sizeof(header), 1, pf);
-    if (header.mapMagic != uint32(MAP_MAGIC) ||
-        header.versionMagic != uint32(MAP_VERSION_MAGIC))
+    if (header.mapMagic != uint32(MAP_MAGIC) || header.versionMagic != uint32(MAP_VERSION_MAGIC))
     {
-        sLog.outError("Map file '%s' is non-compatible version (outdated?). Please, create new using ad.exe program.",tmp);
+        sLog.outError("Map file '%s' is from an incompatible clientversion. Please recreate using the mapextractor.",tmp);
         delete [] tmp;
         fclose(pf);                                         //close file before return
         return false;
@@ -114,7 +113,6 @@ bool Map::ExistVMap(uint32 mapid,int gx,int gy)
     {
         if (vmgr->isMapLoadingEnabled())
         {
-                                                            // x and y are swapped !! => fixed now
             bool exists = vmgr->existsMap((sWorld.GetDataPath()+ "vmaps").c_str(),  mapid, gx,gy);
             if (!exists)
             {
@@ -326,7 +324,7 @@ void Map::DeleteFromWorld(T* obj)
 template<>
 void Map::DeleteFromWorld(Player* pl)
 {
-    ObjectAccessor::Instance().RemoveObject(pl);
+    sObjectAccessor.RemoveObject(pl);
     delete pl;
 }
 
@@ -335,7 +333,7 @@ Map::EnsureGridCreated(const GridPair &p)
 {
     if (!getNGrid(p.x_coord, p.y_coord))
     {
-        Guard guard(*this);
+        ACE_GUARD(ACE_Thread_Mutex, Guard, Lock);
         if (!getNGrid(p.x_coord, p.y_coord))
         {
             sLog.outDebug("Creating grid[%u,%u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
@@ -396,7 +394,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
         loader.LoadN();
 
         // Add resurrectable corpses to world object list in grid
-        ObjectAccessor::Instance().AddCorpsesToGrid(GridPair(cell.GridX(),cell.GridY()),(*grid)(cell.CellX(), cell.CellY()), this);
+        sObjectAccessor.AddCorpsesToGrid(GridPair(cell.GridX(),cell.GridY()),(*grid)(cell.CellX(), cell.CellY()), this);
 
         setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
         return true;
@@ -829,7 +827,7 @@ bool Map::RemoveBones(uint64 guid, float x, float y)
 {
     if (IsRemovalGrid(x, y))
     {
-        Corpse * corpse = ObjectAccessor::Instance().GetObjectInWorld(GetId(), x, y, guid, (Corpse*)NULL);
+        Corpse * corpse = sObjectAccessor.GetObjectInWorld(GetId(), x, y, guid, (Corpse*)NULL);
         if (corpse && corpse->GetTypeId() == TYPEID_CORPSE && corpse->GetType() == CORPSE_BONES)
             corpse->DeleteBonesFromWorld();
         else
@@ -1209,8 +1207,7 @@ bool GridMap::loadData(char *filename)
     if (!in)
         return true;
     fread(&header, sizeof(header),1,in);
-    if (header.mapMagic == uint32(MAP_MAGIC) &&
-        header.versionMagic == uint32(MAP_VERSION_MAGIC))
+    if (header.mapMagic == uint32(MAP_MAGIC) && header.versionMagic == uint32(MAP_VERSION_MAGIC))
     {
         // loadup area data
         if (header.areaMapOffset && !loadAreaData(in, header.areaMapOffset, header.areaMapSize))
@@ -1236,18 +1233,18 @@ bool GridMap::loadData(char *filename)
         fclose(in);
         return true;
     }
-    sLog.outError("Map file '%s' is a non-compatible version (outdated?). Please, create new using the ad.exe program.", filename);
+    sLog.outError("Map file '%s' is from an incompatible clientversion. Please recreate using the mapextractor.", filename);
     fclose(in);
     return false;
 }
 
 void GridMap::unloadData()
 {
-    if (m_area_map) delete[] m_area_map;
-    if (m_V9) delete[] m_V9;
-    if (m_V8) delete[] m_V8;
-    if (m_liquid_type) delete[] m_liquid_type;
-    if (m_liquid_map) delete[] m_liquid_map;
+    delete[] m_area_map;
+    delete[] m_V9;
+    delete[] m_V8;
+    delete[] m_liquid_type;
+    delete[] m_liquid_map;
     m_area_map = NULL;
     m_V9 = NULL;
     m_V8 = NULL;
@@ -2071,7 +2068,7 @@ void Map::SendInitSelf(Player * player)
 void Map::SendInitTransports(Player * player)
 {
     // Hack to send out transports
-    MapManager::TransportMap& tmap = MapManager::Instance().m_TransportsByMap;
+    MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
 
     // no transports at map
     if (tmap.find(player->GetMapId()) == tmap.end())
@@ -2098,7 +2095,7 @@ void Map::SendInitTransports(Player * player)
 void Map::SendRemoveTransports(Player * player)
 {
     // Hack to send out transports
-    MapManager::TransportMap& tmap = MapManager::Instance().m_TransportsByMap;
+    MapManager::TransportMap& tmap = sMapMgr.m_TransportsByMap;
 
     // no transports at map
     if (tmap.find(player->GetMapId()) == tmap.end())
@@ -2198,7 +2195,7 @@ void Map::RemoveAllObjectsInRemoveList()
         {
             case TYPEID_CORPSE:
             {
-                Corpse* corpse = ObjectAccessor::Instance().GetCorpse(*obj, obj->GetGUID());
+                Corpse* corpse = sObjectAccessor.GetCorpse(*obj, obj->GetGUID());
                 if (!corpse)
                     sLog.outError("Tried to delete corpse/bones %u that is not in map.", obj->GetGUIDLow());
                 else
@@ -2352,11 +2349,8 @@ InstanceMap::InstanceMap(uint32 id, time_t expiry, uint32 InstanceId, uint8 Spaw
 
 InstanceMap::~InstanceMap()
 {
-    if (i_data)
-    {
-        delete i_data;
-        i_data = NULL;
-    }
+    delete i_data;
+    i_data = NULL;
 }
 
 void InstanceMap::InitVisibilityDistance()
@@ -2400,6 +2394,32 @@ bool InstanceMap::CanEnter(Player *player)
         return false;
     }
 
+    // cannot enter if instance is in use by another party/soloer that have a
+    // permanent save in the same instance id
+
+    PlayerList const &playerList = GetPlayers();
+    Player *firstInsidePlayer = NULL;
+
+    if (!playerList.isEmpty())
+        for (PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+            if (Player *iPlayer = i->getSource())
+            {
+                if (iPlayer->isGameMaster()) // bypass GMs
+                    continue;
+                if (!player->GetGroup()) // player has not group and there is someone inside, deny entry
+                {
+                    player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
+                    return false;
+                }
+                // player inside instance has no group or his groups is different to entering player's one, deny entry
+                if (!iPlayer->GetGroup() || iPlayer->GetGroup() != player->GetGroup() )
+                {
+                    player->SendTransferAborted(GetId(), TRANSFER_ABORT_MAX_PLAYERS);
+                    return false;
+                }
+                break;
+            }
+
     return Map::CanEnter(player);
 }
 
@@ -2413,7 +2433,7 @@ bool InstanceMap::Add(Player *player)
     // Is it needed?
 
     {
-        Guard guard(*this);
+        ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);
         // Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
         //if (!CanEnter(player))
             //return false;
@@ -2738,7 +2758,7 @@ bool BattleGroundMap::CanEnter(Player * player)
 bool BattleGroundMap::Add(Player * player)
 {
     {
-        Guard guard(*this);
+        ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);
         //Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
         //if (!CanEnter(player))
             //return false;
@@ -2882,7 +2902,7 @@ void Map::ScriptsProcess()
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_MO_TRANSPORT:
-                    for (MapManager::TransportSet::iterator iter = MapManager::Instance().m_Transports.begin(); iter != MapManager::Instance().m_Transports.end(); ++iter)
+                    for (MapManager::TransportSet::iterator iter = sMapMgr.m_Transports.begin(); iter != sMapMgr.m_Transports.end(); ++iter)
                     {
                         if ((*iter)->GetGUID() == step.sourceGUID)
                         {
@@ -2941,8 +2961,9 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = NULL;
-                cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
 
                 if (!cSource)
                 {
@@ -2998,8 +3019,9 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = NULL;
-                cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    target->ToCreature();
 
                 if (!cSource)
                 {
@@ -3023,7 +3045,10 @@ void Map::ScriptsProcess()
                     break;
                 }
                 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id: %u) call for non-creature source.", step.script->id);
@@ -3049,7 +3074,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_MOVE_TO (script id: %u) call for non-creature (TypeId: %u, Entry: %u, GUID: %u), skipping.",
@@ -3070,7 +3098,10 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_SET (script id: %u) call for non-creature source.", step.script->id);
@@ -3096,7 +3127,10 @@ void Map::ScriptsProcess()
                     break;
                 }
                 
-                Creature* cSource = source->ToCreature() != NULL ? source->ToCreature() : target->ToCreature();
+                Creature* cSource = source->ToCreature();
+                if (!cSource && target)
+                    cSource = target->ToCreature();
+
                 if (!cSource)
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_REMOVE (script id: %u) call for non-creature source.", step.script->id);
@@ -3125,7 +3159,12 @@ void Map::ScriptsProcess()
 
                 if (step.script->datalong2 == 0)
                 {
-                    Player* pSource = target->ToPlayer() != NULL ? target->ToPlayer() : source->ToPlayer();
+                    Player* pSource = NULL;
+                    if (target)
+                        pSource = target->ToPlayer();
+                    if (!pSource && source)
+                        pSource = source->ToPlayer();
+
                     // must be only Player
                     if (!pSource)
                     {
@@ -3138,7 +3177,12 @@ void Map::ScriptsProcess()
                 }
                 else if (step.script->datalong2 == 1)
                 {
-                    Creature *cSource = target->ToCreature() != NULL ? target->ToCreature() : source->ToCreature();
+                    Creature *cSource = NULL;
+                    if (target)
+                        cSource = target->ToCreature();
+                    if (!cSource && source)
+                        cSource = source->ToCreature();
+                    
                     // must be only Creature
                     if (!cSource)
                     {
@@ -3154,16 +3198,14 @@ void Map::ScriptsProcess()
 
             case SCRIPT_COMMAND_KILL_CREDIT:
             {
+                Player* pSource = NULL;
                 // accept player in any one from target/source arg
-                if (!target && !source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id: %u) call for NULL object.", step.script->id);
-                    break;
-                }
-
-                Player* pSource = target->ToPlayer() != NULL ? target->ToPlayer() : source->ToPlayer();
-                // must be only Player
-                if (!pSource)
+                if (target)
+                    pSource = target->ToPlayer();
+                if (!pSource && source)
+                    pSource = source->ToPlayer();
+                               
+                if (!pSource)       // must be only Player
                 {
                     sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id: %u) call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.",
                     step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
@@ -3277,6 +3319,7 @@ void Map::ScriptsProcess()
                 go->GetMap()->Add(go);
                 break;
             }
+
             case SCRIPT_COMMAND_OPEN_DOOR:
             {
                 if (!step.script->datalong)                  // door not specified
@@ -3334,6 +3377,7 @@ void Map::ScriptsProcess()
                     ((GameObject*)target)->UseDoorOrButton(time_to_close);
                 break;
             }
+
             case SCRIPT_COMMAND_CLOSE_DOOR:
             {
                 if (!step.script->datalong)                  // guid for door not specified
@@ -3392,6 +3436,7 @@ void Map::ScriptsProcess()
 
                 break;
             }
+
             case SCRIPT_COMMAND_QUEST_EXPLORED:
             {
                 if (!source)
@@ -3408,7 +3453,7 @@ void Map::ScriptsProcess()
 
                 // when script called for item spell casting then target == (unit or GO) and source is player
                 WorldObject* worldObject;
-                Player* pTarget;
+                Player* pTarget = NULL;
 
                 pTarget = target->ToPlayer();
                 if (pTarget)
@@ -3577,7 +3622,7 @@ void Map::ScriptsProcess()
                 }
 
                 // bitmask: 0/1=anyone/target, 0/2=with distance dependent
-                Player* pTarget;
+                Player* pTarget = NULL;
                 if (step.script->datalong2 & 1)
                 {
                     if (!target)
@@ -3586,7 +3631,7 @@ void Map::ScriptsProcess()
                         break;
                     }
 
-                    pTarget = target->ToPlayer();
+                    pTarget = target ? target->ToPlayer() : NULL;
                     if (!pTarget)
                     {
                         sLog.outError("SCRIPT_COMMAND_PLAY_SOUND (script id: %u) in targeted mode call for non-player (TypeId: %u, Entry: %u, GUID: %u), skipping.",
@@ -3605,13 +3650,19 @@ void Map::ScriptsProcess()
             
             case SCRIPT_COMMAND_CREATE_ITEM:
             {
-                if (!target && !source)
+                if (!source)
                 {
-                    sLog.outError("SCRIPT_COMMAND_CREATE_ITEM (script id: %u) call for NULL object.", step.script->id);
+                    sLog.outError("SCRIPT_COMMAND_CREATE_ITEM (script id: %u) call for NULL source.",
+                    step.script->id);
                     break;
                 }
 
-                Player *pReceiver = target->ToPlayer() != NULL ? target->ToPlayer() : source->ToPlayer();
+                Player *pReceiver = NULL;
+                if (target)
+                    pReceiver = target->ToPlayer();
+                if (!pReceiver)
+                    pReceiver = source->ToPlayer();
+                    
                 // only Player
                 if (!pReceiver)
                 {
@@ -3798,6 +3849,7 @@ void Map::ScriptsProcess()
                 uSource->SendMovementFlagUpdate();
                 break;
             }
+
             case SCRIPT_COMMAND_EQUIP:
             {
                 if (!source)
@@ -3816,6 +3868,7 @@ void Map::ScriptsProcess()
                 cSource->LoadEquipment(step.script->datalong);
                 break;
             }
+
             case SCRIPT_COMMAND_MODEL:
             {
                 if (!source)

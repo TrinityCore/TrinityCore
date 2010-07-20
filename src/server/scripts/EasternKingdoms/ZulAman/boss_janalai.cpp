@@ -1,18 +1,20 @@
- /* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-*(at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: Boss_Janalai
@@ -21,7 +23,7 @@ SDComment:
 SDCategory: Zul'Aman
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "zulaman.h"
 #include "GridNotifiers.h"
 
@@ -141,7 +143,7 @@ struct boss_janalaiAI : public ScriptedAI
         BombSequenceTimer = 1000;
         BombCount = 0;
         HatcherTimer = 10000;
-        EnrageTimer = MINUTE*5*IN_MILISECONDS;
+        EnrageTimer = MINUTE*5*IN_MILLISECONDS;
 
         noeggs = false;
         isBombing =false;
@@ -242,7 +244,7 @@ struct boss_janalaiAI : public ScriptedAI
             cell.Visit(pair, cSearcher, *(me->GetMap()));
         }
 
-        //error_log("Eggs %d at middle", templist.size());
+        //sLog.outError("Eggs %d at middle", templist.size());
         if (!templist.size())
             return false;
 
@@ -508,7 +510,7 @@ struct mob_amanishi_hatcherAI : public ScriptedAI
             cell.Visit(pair, cSearcher, *(me->GetMap()));
         }
 
-        //error_log("Eggs %d at %d", templist.size(), side);
+        //sLog.outError("Eggs %d at %d", templist.size(), side);
 
         for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end() && num > 0; ++i)
             if ((*i)->GetDisplayId() != 11686)

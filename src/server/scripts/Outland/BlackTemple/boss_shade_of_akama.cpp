@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,7 +23,7 @@ SDComment: Seems to be complete.
 SDCategory: Black Temple
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "black_temple.h"
 
 #define SAY_DEATH                   -1564013
@@ -276,7 +278,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
                         GridSearcherSucceeded = true;
                     }
                 }
-            } else error_log("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
+            } else sLog.outError("SD2 ERROR: No Channelers are stored in the list. This encounter will not work properly");
         }
     }
 
@@ -293,13 +295,13 @@ struct boss_shade_of_akamaAI : public ScriptedAI
         if (reseting)
             return;
 
-        debug_log("TSCR: Increasing Death Count for Shade of Akama encounter");
+        sLog.outDebug("TSCR: Increasing Death Count for Shade of Akama encounter");
         ++DeathCount;
         me->RemoveAuraFromStack(SPELL_SHADE_SOUL_CHANNEL_2);
         if (guid)
         {
             if (Sorcerers.empty())
-                error_log("SD2 ERROR: Shade of Akama - attempt to remove guid %u from Sorcerers list but list is already empty", guid);
+                sLog.outError("SD2 ERROR: Shade of Akama - attempt to remove guid %u from Sorcerers list but list is already empty", guid);
             else  Sorcerers.remove(guid);
         }
     }
@@ -351,17 +353,17 @@ struct boss_shade_of_akamaAI : public ScriptedAI
             {
                 CAST_AI(mob_ashtongue_channelerAI, (*itr)->AI())->ShadeGUID = me->GetGUID();
                 Channelers.push_back((*itr)->GetGUID());
-                debug_log("TSCR: Shade of Akama Grid Search found channeler %u. Adding to list", (*itr)->GetGUID());
+                sLog.outDebug("TSCR: Shade of Akama Grid Search found channeler %u. Adding to list", (*itr)->GetGUID());
             }
         }
-        else error_log("SD2 ERROR: Grid Search was unable to find any channelers. Shade of Akama encounter will be buggy");
+        else sLog.outError("SD2 ERROR: Grid Search was unable to find any channelers. Shade of Akama encounter will be buggy");
     }
 
     void SetSelectableChannelers()
     {
         if (Channelers.empty())
         {
-            error_log("SD2 ERROR: Channeler List is empty, Shade of Akama encounter will be buggy");
+            sLog.outError("SD2 ERROR: Channeler List is empty, Shade of Akama encounter will be buggy");
             return;
         }
 
@@ -485,7 +487,7 @@ void mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
         CAST_AI(boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount();
-    else error_log("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
+    else sLog.outError("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
 
 void mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
@@ -493,7 +495,7 @@ void mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
         CAST_AI(boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount(me->GetGUID());
-    else error_log("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
+    else sLog.outError("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
 struct npc_akamaAI : public ScriptedAI

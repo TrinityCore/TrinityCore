@@ -23,7 +23,7 @@
 #include "Player.h"
 #include "UpdateMask.h"
 #include "ObjectAccessor.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Opcodes.h"
 #include "GossipDef.h"
 #include "World.h"
@@ -54,7 +54,7 @@ void Corpse::AddToWorld()
 {
     ///- Register the corpse for guid lookup
     if (!IsInWorld())
-        ObjectAccessor::Instance().AddObject(this);
+        sObjectAccessor.AddObject(this);
 
     Object::AddToWorld();
 }
@@ -63,7 +63,7 @@ void Corpse::RemoveFromWorld()
 {
     ///- Remove the corpse from the accessor
     if (IsInWorld())
-        ObjectAccessor::Instance().RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
 
     Object::RemoveFromWorld();
 }

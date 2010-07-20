@@ -20,8 +20,8 @@
 
 #include "Common.h"
 #include "Language.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/DatabaseImpl.h"
+#include "DatabaseEnv.h"
+#include "DatabaseImpl.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "Opcodes.h"
@@ -302,7 +302,7 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
             if (corpseMapEntry->IsDungeon() && corpseMapEntry->entrance_map >= 0)
             {
                 // if corpse map have entrance
-                if (Map const* entranceMap = MapManager::Instance().CreateBaseMap(corpseMapEntry->entrance_map))
+                if (Map const* entranceMap = sMapMgr.CreateBaseMap(corpseMapEntry->entrance_map))
                 {
                     mapid = corpseMapEntry->entrance_map;
                     x = corpseMapEntry->entrance_x;

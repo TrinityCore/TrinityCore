@@ -1,22 +1,21 @@
 /*
-* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "drak_tharon_keep.h"
 
 enum Spells
@@ -86,10 +85,10 @@ struct boss_tharon_jaAI : public ScriptedAI
 
     void Reset()
     {
-        uiPhaseTimer = 20*IN_MILISECONDS;
-        uiCurseOfLifeTimer = 1*IN_MILISECONDS;
-        uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
-        uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
+        uiPhaseTimer = 20*IN_MILLISECONDS;
+        uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
+        uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
+        uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
         Phase = SKELETAL;
         me->SetDisplayId(me->GetNativeDisplayId());
         if (pInstance)
@@ -117,26 +116,26 @@ struct boss_tharon_jaAI : public ScriptedAI
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_CURSE_OF_LIFE);
-                    uiCurseOfLifeTimer = urand(10*IN_MILISECONDS,15*IN_MILISECONDS);
+                    uiCurseOfLifeTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
                 } else uiCurseOfLifeTimer -= diff;
 
                 if (uiShadowVolleyTimer < diff)
                 {
                     DoCastVictim(SPELL_SHADOW_VOLLEY);
-                    uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
+                    uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
                 } else uiShadowVolleyTimer -= diff;
 
                 if (uiRainOfFireTimer < diff)
                 {
                     DoCastAOE(SPELL_RAIN_OF_FIRE);
-                    uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
+                    uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
                 } else uiRainOfFireTimer -= diff;
 
                 if (uiPhaseTimer < diff)
                 {
                     DoCast(SPELL_DECAY_FLESH);
                     Phase = GOING_FLESH;
-                    uiPhaseTimer = 6*IN_MILISECONDS;
+                    uiPhaseTimer = 6*IN_MILLISECONDS;
                 } else uiPhaseTimer -= diff;
 
                 DoMeleeAttackIfReady();
@@ -156,10 +155,10 @@ struct boss_tharon_jaAI : public ScriptedAI
                             pTemp->SetDisplayId(MODEL_SKELETON);
                         }
                     }
-                    uiPhaseTimer = 20*IN_MILISECONDS;
-                    uiLightningBreathTimer = urand(3*IN_MILISECONDS,4*IN_MILISECONDS);
-                    uiEyeBeamTimer = urand(4*IN_MILISECONDS,8*IN_MILISECONDS);
-                    uiPoisonCloudTimer = urand(6*IN_MILISECONDS,7*IN_MILISECONDS);
+                    uiPhaseTimer = 20*IN_MILLISECONDS;
+                    uiLightningBreathTimer = urand(3*IN_MILLISECONDS,4*IN_MILLISECONDS);
+                    uiEyeBeamTimer = urand(4*IN_MILLISECONDS,8*IN_MILLISECONDS);
+                    uiPoisonCloudTimer = urand(6*IN_MILLISECONDS,7*IN_MILLISECONDS);
                     Phase = FLESH;
                 } else uiPhaseTimer -= diff;
                 break;
@@ -168,27 +167,27 @@ struct boss_tharon_jaAI : public ScriptedAI
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_LIGHTNING_BREATH);
-                    uiLightningBreathTimer = urand(6*IN_MILISECONDS,7*IN_MILISECONDS);
+                    uiLightningBreathTimer = urand(6*IN_MILLISECONDS,7*IN_MILLISECONDS);
                 } else uiLightningBreathTimer -= diff;
 
                 if (uiEyeBeamTimer < diff)
                 {
                     if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         DoCast(pTarget, SPELL_EYE_BEAM);
-                    uiEyeBeamTimer = urand(4*IN_MILISECONDS,6*IN_MILISECONDS);
+                    uiEyeBeamTimer = urand(4*IN_MILLISECONDS,6*IN_MILLISECONDS);
                 } else uiEyeBeamTimer -= diff;
 
                 if (uiPoisonCloudTimer < diff)
                 {
                     DoCastAOE(SPELL_POISON_CLOUD);
-                    uiPoisonCloudTimer = urand(10*IN_MILISECONDS,12*IN_MILISECONDS);
+                    uiPoisonCloudTimer = urand(10*IN_MILLISECONDS,12*IN_MILLISECONDS);
                 } else uiPoisonCloudTimer -= diff;
 
                 if (uiPhaseTimer < diff)
                 {
                     DoCast(SPELL_RETURN_FLESH);
                     Phase = GOING_SKELETAL;
-                    uiPhaseTimer = 6*IN_MILISECONDS;
+                    uiPhaseTimer = 6*IN_MILLISECONDS;
                 } else uiPhaseTimer -= diff;
                 DoMeleeAttackIfReady();
                 break;
@@ -198,10 +197,10 @@ struct boss_tharon_jaAI : public ScriptedAI
                     DoScriptText(RAND(SAY_SKELETON_1,SAY_SKELETON_2), me);
                     me->DeMorph();
                     Phase = SKELETAL;
-                    uiPhaseTimer = 20*IN_MILISECONDS;
-                    uiCurseOfLifeTimer = 1*IN_MILISECONDS;
-                    uiRainOfFireTimer = urand(14*IN_MILISECONDS,18*IN_MILISECONDS);
-                    uiShadowVolleyTimer = urand(8*IN_MILISECONDS,10*IN_MILISECONDS);
+                    uiPhaseTimer = 20*IN_MILLISECONDS;
+                    uiCurseOfLifeTimer = 1*IN_MILLISECONDS;
+                    uiRainOfFireTimer = urand(14*IN_MILLISECONDS,18*IN_MILLISECONDS);
+                    uiShadowVolleyTimer = urand(8*IN_MILLISECONDS,10*IN_MILLISECONDS);
                     std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                     {

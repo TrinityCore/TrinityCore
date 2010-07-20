@@ -30,16 +30,15 @@
 #include "GameObject.h"
 #include "Corpse.h"
 #include "QuestDef.h"
-#include "Path.h"
 #include "ItemPrototype.h"
 #include "NPCHandler.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "Mail.h"
 #include "Map.h"
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
-#include "Policies/Singleton.h"
-#include "Database/SQLStorage.h"
+#include "ace/Singleton.h"
+#include "SQLStorage.h"
 #include "Vehicle.h"
 #include "ObjectMgr.h"
 #include <string>
@@ -60,8 +59,6 @@ extern SQLStorage sInstanceTemplate;
 class Group;
 class Guild;
 class ArenaTeam;
-class Path;
-class TransportPath;
 class Item;
 
 struct GameTele
@@ -164,6 +161,7 @@ typedef UNORDERED_MAP<uint32,GameObjectData> GameObjectDataMap;
 typedef UNORDERED_MAP<uint32,CreatureLocale> CreatureLocaleMap;
 typedef UNORDERED_MAP<uint32,GameObjectLocale> GameObjectLocaleMap;
 typedef UNORDERED_MAP<uint32,ItemLocale> ItemLocaleMap;
+typedef UNORDERED_MAP<uint32,ItemSetNameLocale> ItemSetNameLocaleMap;
 typedef UNORDERED_MAP<uint32,QuestLocale> QuestLocaleMap;
 typedef UNORDERED_MAP<uint32,NpcTextLocale> NpcTextLocaleMap;
 typedef UNORDERED_MAP<uint32,PageTextLocale> PageTextLocaleMap;
@@ -356,11 +354,11 @@ class PlayerDumpReader;
 class ObjectMgr
 {
     friend class PlayerDumpReader;
-
+    friend class ACE_Singleton<ObjectMgr, ACE_Null_Mutex>;
+    ObjectMgr();
+    ~ObjectMgr();
+    
     public:
-        ObjectMgr();
-        ~ObjectMgr();
-
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
         typedef std::set< Group * > GroupSet;
@@ -384,9 +382,7 @@ class ObjectMgr
 
         typedef std::vector<std::string> ScriptNameMap;
 
-        UNORDERED_MAP<uint32, uint32> TransportEventMap;
-
-        Player* GetPlayer(const char* name) const { return ObjectAccessor::Instance().FindPlayerByName(name);}
+        Player* GetPlayer(const char* name) const { return sObjectAccessor.FindPlayerByName(name);}
         Player* GetPlayer(uint64 guid) const { return ObjectAccessor::FindPlayer(guid); }
 
         static GameObjectInfo const *GetGameObjectInfo(uint32 id) { return sGOStorage.LookupEntry<GameObjectInfo>(id); }
@@ -431,6 +427,14 @@ class ObjectMgr
 
         static ItemPrototype const* GetItemPrototype(uint32 id) { return sItemStorage.LookupEntry<ItemPrototype>(id); }
 
+        ItemSetNameEntry const* GetItemSetNameEntry(uint32 itemId)
+        {
+            ItemSetNameMap::iterator itr = mItemSetNameMap.find(itemId);
+            if(itr != mItemSetNameMap.end())
+                return &itr->second;
+            return NULL;
+        }
+
         static InstanceTemplate const* GetInstanceTemplate(uint32 map)
         {
             return sInstanceTemplate.LookupEntry<InstanceTemplate>(map);
@@ -464,8 +468,6 @@ class ObjectMgr
         uint32 GetNearestTaxiNode(float x, float y, float z, uint32 mapid, uint32 team);
         void GetTaxiPath(uint32 source, uint32 destination, uint32 &path, uint32 &cost);
         uint32 GetTaxiMountDisplayId(uint32 id, uint32 team, bool allowed_alt_team = false);
-        void GetTaxiPathNodes(uint32 path, Path &pathnodes, std::vector<uint32>& mapIds);
-        void GetTransportPathNodes(uint32 path, TransportPath &pathnodes);
 
         Quest const* GetQuestTemplate(uint32 quest_id) const
         {
@@ -585,8 +587,6 @@ class ObjectMgr
         void LoadGossipScripts();
         void LoadWaypointScripts();
 
-        void LoadTransportEvents();
-
         bool LoadTrinityStrings(DatabaseType& db, char const* table, int32 min_value, int32 max_value);
         bool LoadTrinityStrings() { return LoadTrinityStrings(WorldDatabase,"trinity_string",MIN_TRINITY_STRING_ID,MAX_TRINITY_STRING_ID); }
         void LoadDbScriptStrings();
@@ -607,6 +607,8 @@ class ObjectMgr
         void LoadGameobjectRespawnTimes();
         void LoadItemPrototypes();
         void LoadItemLocales();
+        void LoadItemSetNames();
+        void LoadItemSetNameLocales();
         void LoadQuestLocales();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
@@ -738,6 +740,12 @@ class ObjectMgr
         {
             ItemLocaleMap::const_iterator itr = mItemLocaleMap.find(entry);
             if (itr == mItemLocaleMap.end()) return NULL;
+            return &itr->second;
+        }
+        ItemSetNameLocale const* GetItemSetNameLocale(uint32 entry) const
+        {
+            ItemSetNameLocaleMap::const_iterator itr = mItemSetNameLocaleMap.find(entry);
+            if (itr == mItemSetNameLocaleMap.end())return NULL;
             return &itr->second;
         }
         QuestLocale const* GetQuestLocale(uint32 entry) const
@@ -875,7 +883,7 @@ class ObjectMgr
             return &iter->second;
         }
         void AddVendorItem(uint32 entry,uint32 item, int32 maxcount, uint32 incrtime, uint32 ExtendedCost, bool savetodb = true); // for event
-        bool RemoveVendorItem(uint32 entry,uint32 item, bool savetodb = true); // for event
+        bool RemoveVendorItem(uint32 entry, uint32 item, bool savetodb = true); // for event
         bool IsVendorItemValid(uint32 vendor_entry, uint32 item, int32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL, uint32 ORnpcflag = 0) const;
 
         void LoadScriptNames();
@@ -1018,6 +1026,7 @@ class ObjectMgr
         void LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelations& map,char const* table);
+        void PlayerCreateInfoAddItemHelper(uint32 race_, uint32 class_, uint32 itemId, int32 count);
 
         MailLevelRewardMap m_mailLevelRewardMap;
 
@@ -1045,6 +1054,9 @@ class ObjectMgr
         HalfNameMap PetHalfName0;
         HalfNameMap PetHalfName1;
 
+        typedef UNORDERED_MAP<uint32, ItemSetNameEntry> ItemSetNameMap;
+        ItemSetNameMap mItemSetNameMap;
+
         MapObjectGuids mMapObjectGuids;
         CreatureDataMap mCreatureDataMap;
         CreatureLinkedRespawnMap mCreatureLinkedRespawnMap;
@@ -1052,6 +1064,7 @@ class ObjectMgr
         GameObjectDataMap mGameObjectDataMap;
         GameObjectLocaleMap mGameObjectLocaleMap;
         ItemLocaleMap mItemLocaleMap;
+        ItemSetNameLocaleMap mItemSetNameLocaleMap;
         QuestLocaleMap mQuestLocaleMap;
         NpcTextLocaleMap mNpcTextLocaleMap;
         PageTextLocaleMap mPageTextLocaleMap;
@@ -1070,7 +1083,7 @@ class ObjectMgr
 
 };
 
-#define objmgr Trinity::Singleton<ObjectMgr>::Instance()
+#define objmgr (*ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance())
 
 // scripting access functions
  bool LoadTrinityStrings(DatabaseType& db, char const* table,int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());

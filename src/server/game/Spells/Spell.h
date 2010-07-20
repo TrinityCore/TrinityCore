@@ -180,6 +180,7 @@ class SpellCastTargets
         Item* getItemTarget() const { return m_itemTarget; }
         uint32 getItemTargetEntry() const { return m_itemTargetEntry; }
         void setItemTarget(Item* item);
+        void setTradeItemTarget(Player* caster);
         void updateTradeSlotItem()
         {
             if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
@@ -303,7 +304,9 @@ class Spell
         void EffectAddFarsight(uint32 i);
         void EffectHealMechanical(uint32 i);
         void EffectJump(uint32 i);
-        void EffectJump2(uint32 i);
+        void EffectJumpDest(uint32 i);
+        void EffectLeapBack(uint32 i);
+        void EffectQuestClear(uint32 i);
         void EffectTeleUnitsFaceCaster(uint32 i);
         void EffectLearnSkill(uint32 i);
         void EffectAddHonor(uint32 i);
@@ -315,6 +318,7 @@ class Spell
         void EffectLearnPetSpell(uint32 i);
         void EffectWeaponDmg(uint32 i);
         void EffectForceCast(uint32 i);
+        void EffectForceCastWithValue(uint32 i);
         void EffectTriggerSpell(uint32 i);
         void EffectTriggerMissileSpell(uint32 i);
         void EffectThreat(uint32 i);
@@ -345,7 +349,7 @@ class Spell
         void EffectSelfResurrect(uint32 i);
         void EffectSkinning(uint32 i);
         void EffectCharge(uint32 i);
-        void EffectCharge2(uint32 i);
+        void EffectChargeDest(uint32 i);
         void EffectProspecting(uint32 i);
         void EffectMilling(uint32 i);
         void EffectRenamePet(uint32 i);
@@ -460,7 +464,7 @@ class Spell
         void HandleThreatSpells(uint32 spellId);
 
         const SpellEntry * const m_spellInfo;
-        int32 m_currentBasePoints[3];                       // cache SpellEntry::EffectBasePoints and use for set custom base points
+        int32 m_currentBasePoints[3]; // overrides SpellEntry::EffectBasePoints IMPORTANT: base points != points calculated
         Item* m_CastItem;
         uint64 m_castItemGUID;
         uint8 m_cast_count;
@@ -642,8 +646,10 @@ class Spell
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
 
+        // effect helpers
         void GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0);
         void SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const *properties);
+        void CalculateJumpSpeeds(uint8 i, float dist, float & speedxy, float & speedz);
 
         SpellCastResult CanOpenLock(uint32 effIndex, uint32 lockid, SkillType& skillid, int32& reqSkillValue, int32& skillValue);
         // -------------------------------------------
@@ -769,14 +775,14 @@ namespace Trinity
             }
         }
 
-        #ifdef WIN32
+        #ifdef _WIN32
         template<> inline void Visit(CorpseMapType &) {}
         template<> inline void Visit(GameObjectMapType &) {}
         template<> inline void Visit(DynamicObjectMapType &) {}
         #endif
     };
 
-    #ifndef WIN32
+    #ifndef _WIN32
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType&) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType&) {}
     template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType&) {}
