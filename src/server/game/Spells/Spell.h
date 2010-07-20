@@ -378,6 +378,7 @@ class Spell
         void EffectKillCreditPersonal(uint32 i);
         void EffectKillCredit(uint32 i);
         void EffectQuestFail(uint32 i);
+        void EffectQuestStart(uint32 i);
         void EffectRedirectThreat(uint32 i);
         void EffectWMODamage(uint32 i);
         void EffectWMORepair(uint32 i);
