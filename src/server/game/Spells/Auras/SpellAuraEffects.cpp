@@ -1295,7 +1295,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                     {
                         if (roll_chance_i(20))
                         {
-                            caster->CastSpell(caster, 64018, true, 0, this);
+                            caster->CastSpell(caster, 43836, true, 0, this);
                             // Glyph of Drain Soul - chance to create an additional Soul Shard
                             if (AuraEffect *aur = caster->GetAuraEffect(58070, 0))
                                 if (roll_chance_i(aur->GetMiscValue()))
