@@ -745,7 +745,7 @@ enum SpellEffects
     SPELL_EFFECT_141                       = 141,
     SPELL_EFFECT_TRIGGER_SPELL_WITH_VALUE  = 142,
     SPELL_EFFECT_APPLY_AREA_AURA_OWNER     = 143,
-    SPELL_EFFECT_KNOCK_BACK_2              = 144,
+    SPELL_EFFECT_KNOCK_BACK_DEST           = 144,
     SPELL_EFFECT_145                       = 145,
     SPELL_EFFECT_ACTIVATE_RUNE             = 146,
     SPELL_EFFECT_QUEST_FAIL                = 147,
@@ -765,7 +765,7 @@ enum SpellEffects
     SPELL_EFFECT_TALENT_SPEC_COUNT         = 161,
     SPELL_EFFECT_TALENT_SPEC_SELECT        = 162,
     SPELL_EFFECT_163                       = 163,
-    SPELL_EFFECT_164                       = 164,
+    SPELL_EFFECT_REMOVE_AURA               = 164,
     TOTAL_SPELL_EFFECTS                    = 165
 };
 
