@@ -88,6 +88,8 @@ static bool InitTriggerAuraData();
 static bool isTriggerAura[TOTAL_AURAS];
 // Define can`t trigger auras (need for disable second trigger)
 static bool isNonTriggerAura[TOTAL_AURAS];
+// Triggered always, even from triggered spells
+static bool isAlwaysTriggeredAura[TOTAL_AURAS];
 // Prepare lists
 static bool procPrepared = InitTriggerAuraData();
 
@@ -13643,6 +13645,7 @@ bool InitTriggerAuraData()
     {
         isTriggerAura[i]=false;
         isNonTriggerAura[i] = false;
+        isAlwaysTriggeredAura[i] = false;
     }
     isTriggerAura[SPELL_AURA_DUMMY] = true;
     isTriggerAura[SPELL_AURA_MOD_CONFUSE] = true;
@@ -13682,6 +13685,15 @@ bool InitTriggerAuraData()
 
     isNonTriggerAura[SPELL_AURA_MOD_POWER_REGEN]=true;
     isNonTriggerAura[SPELL_AURA_REDUCE_PUSHBACK]=true;
+
+    isAlwaysTriggeredAura[SPELL_AURA_OVERRIDE_CLASS_SCRIPTS] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_FEAR] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_ROOT] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STUN] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_TRANSFORM] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_SPELL_MAGNET] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_SCHOOL_ABSORB] = true;
+    isAlwaysTriggeredAura[SPELL_AURA_MOD_STEALTH] = true;
 
     return true;
 }
@@ -13804,9 +13816,16 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
             continue;
         ProcTriggeredData triggerData(itr->second->GetBase());
         // Defensive procs are active on absorbs (so absorption effects are not a hindrance)
-        bool active = (damage > 0) || ((procExtra & PROC_EX_ABSORB) && isVictim);
-        if (!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
+        bool active = (damage > 0) || (procExtra & (PROC_EX_ABSORB|PROC_EX_BLOCK) && isVictim);
+        if (isVictim)
+            procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
+        SpellEntry const* spellProto = itr->second->GetBase()->GetSpellProto();
+        if(!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, (damage != NULL), triggerData.spellProcEvent))
             continue;
+
+        // Triggered spells not triggering additional spells
+        bool triggered= !(spellProto->AttributesEx3 & SPELL_ATTR_EX3_CAN_PROC_TRIGGERED) ?
+            (procExtra & PROC_EX_INTERNAL_TRIGGERED && !(procFlag & PROC_FLAG_ON_TRAP_ACTIVATION)) : false;
 
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
@@ -13828,7 +13847,9 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                                 IsPositiveSpell(triggered_spell_id);
                 if (!damage && (procExtra & PROC_EX_ABSORB) && isVictim && positive)
                     continue;
-                triggerData.effMask |= 1<<i;
+                // Some spells must always trigger
+                if (!triggered || isAlwaysTriggeredAura[aurEff->GetAuraType()])
+                    triggerData.effMask |= 1<<i;
             }
         }
         if (triggerData.effMask)
