@@ -157,6 +157,15 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
         return false;
 }
 
+void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)
+{
+    if (GetPlayer()->m_taxi.SetTaximaskNode(nodeid))
+    {
+        WorldPacket msg(SMSG_NEW_TAXI_PATH, 0);
+        SendPacket(&msg);
+    }
+}
+
 void WorldSession::HandleActivateTaxiExpressOpcode (WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: Received CMSG_ACTIVATETAXIEXPRESS");
