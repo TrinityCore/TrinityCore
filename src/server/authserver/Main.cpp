@@ -24,8 +24,9 @@
 
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
+#include "Database/PreparedStatements.h"
 
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 #include "Log.h"
 #include "SystemConfig.h"
 #include "Util.h"
@@ -42,10 +43,10 @@
 #include <openssl/crypto.h>
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "TrinityRealm.conf"
+# define _TRINITY_REALM_CONFIG  "authserver.conf"
 #endif //_TRINITY_REALM_CONFIG
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "ServiceWin32.h"
 char serviceName[] = "TrinityRealm";
 char serviceLongName[] = "Trinity realm service";
@@ -92,7 +93,7 @@ void usage(const char *prog)
 {
     sLog.outString("Usage: \n %s [<options>]\n"
         "    -c config_file           use config_file as configuration file\n\r"
-        #ifdef WIN32
+        #ifdef _WIN32
         "    Running as service functions:\n\r"
         "    --service                run as service\n\r"
         "    -s install               install service\n\r"
@@ -122,7 +123,7 @@ extern int main(int argc, char **argv)
                 cfg_file = argv[c];
         }
 
-        #ifdef WIN32
+        #ifdef _WIN32
         ////////////
         //Services//
         ////////////
@@ -243,7 +244,7 @@ extern int main(int argc, char **argv)
     #endif /* _WIN32 */();
 
     ///- Handle affinity for multiple processors and process priority on Windows
-    #ifdef WIN32
+    #ifdef _WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
 
@@ -313,9 +314,9 @@ extern int main(int argc, char **argv)
         {
             loopCounter = 0;
             sLog.outDetail("Ping MySQL to keep connection alive");
-            LoginDatabase.Query("SELECT 1 FROM realmlist LIMIT 1");
+            sPreparedStatement.Query(&LoginDatabase, "auth_ping");
         }
-#ifdef WIN32
+#ifdef _WIN32
         if (m_ServiceStatus == 0) stopEvent = true;
         while (m_ServiceStatus == 2) Sleep(1000);
 #endif
@@ -345,6 +346,10 @@ bool StartDB()
         return false;
     }
     LoginDatabase.ThreadStart();
+    
+    uint32 count = 0;
+    sPreparedStatement.LoadAuthserver(&LoginDatabase, count);
+    sLog.outString("Loaded %u prepared MySQL statements for auth DB.", count);
 
     return true;
 }

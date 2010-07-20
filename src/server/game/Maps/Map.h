@@ -21,8 +21,7 @@
 #ifndef TRINITY_MAP_H
 #define TRINITY_MAP_H
 
-#include "Platform/Define.h"
-#include "Policies/ThreadingModel.h"
+#include "Define.h"
 #include "ace/RW_Thread_Mutex.h"
 #include "ace/Thread_Mutex.h"
 
@@ -31,9 +30,9 @@
 #include "Cell.h"
 #include "Timer.h"
 #include "SharedDefines.h"
-#include "GameSystem/GridRefManager.h"
+#include "GridRefManager.h"
 #include "MapRefManager.h"
-#include "mersennetwister/MersenneTwister.h"
+#include "MersenneTwister.h"
 
 #include <bitset>
 #include <list>
@@ -57,7 +56,7 @@ class BattleGround;
 // Map file format defines
 //******************************************
 #define MAP_MAGIC             'SPAM'
-#define MAP_VERSION_MAGIC     '0.1w'
+#define MAP_VERSION_MAGIC     '1.1v'
 #define MAP_AREA_MAGIC        'AERA'
 #define MAP_HEIGHT_MAGIC      'TGHM'
 #define MAP_LIQUID_MAGIC      'QILM'
@@ -66,6 +65,7 @@ struct map_fileheader
 {
     uint32 mapMagic;
     uint32 versionMagic;
+    uint32 buildMagic;
     uint32 areaMapOffset;
     uint32 areaMapSize;
     uint32 heightMapOffset;
@@ -238,7 +238,7 @@ typedef UNORDERED_MAP<Creature*, CreatureMover> CreatureMoveList;
 
 typedef std::map<uint32/*leaderDBGUID*/, CreatureGroup*>        CreatureGroupHolderType;
 
-class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockable<Map, ACE_Thread_Mutex>
+class Map : public GridRefManager<NGridType>
 {
     friend class MapReference;
     public:
@@ -489,7 +489,7 @@ class Map : public GridRefManager<NGridType>, public Trinity::ObjectLevelLockabl
     protected:
         void SetUnloadReferenceLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
-        typedef Trinity::ObjectLevelLockable<Map, ACE_Thread_Mutex>::Lock Guard;
+        ACE_Thread_Mutex Lock;
 
         MapEntry const* i_mapEntry;
         uint8 i_spawnMode;

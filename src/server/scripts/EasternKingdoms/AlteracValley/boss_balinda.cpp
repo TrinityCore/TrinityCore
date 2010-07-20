@@ -1,20 +1,21 @@
-/* Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 enum Spells
 {
@@ -50,8 +51,8 @@ struct mob_water_elementalAI : public ScriptedAI
 
     void Reset()
     {
-        uiWaterBoltTimer            = 3*IN_MILISECONDS;
-        uiResetTimer                = 5*IN_MILISECONDS;
+        uiWaterBoltTimer            = 3*IN_MILLISECONDS;
+        uiResetTimer                = 5*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -62,7 +63,7 @@ struct mob_water_elementalAI : public ScriptedAI
         if (uiWaterBoltTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_WATERBOLT);
-            uiWaterBoltTimer = 5*IN_MILISECONDS;
+            uiWaterBoltTimer = 5*IN_MILLISECONDS;
         } else uiWaterBoltTimer -= diff;
 
         // check if creature is not outside of building
@@ -71,7 +72,7 @@ struct mob_water_elementalAI : public ScriptedAI
             if (Creature *pBalinda = Unit::GetCreature(*me, uiBalindaGUID))
                 if (me->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
                     EnterEvadeMode();
-                uiResetTimer = 5*IN_MILISECONDS;
+                uiResetTimer = 5*IN_MILLISECONDS;
         } else uiResetTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -93,11 +94,11 @@ struct boss_balindaAI : public ScriptedAI
 
     void Reset()
     {
-        uiArcaneExplosionTimer      = urand(5*IN_MILISECONDS,15*IN_MILISECONDS);
-        uiConeOfColdTimer           = 8*IN_MILISECONDS;
-        uiFireBoltTimer             = 1*IN_MILISECONDS;
-        uiFrostboltTimer            = 4*IN_MILISECONDS;
-        uiResetTimer                = 5*IN_MILISECONDS;
+        uiArcaneExplosionTimer      = urand(5*IN_MILLISECONDS,15*IN_MILLISECONDS);
+        uiConeOfColdTimer           = 8*IN_MILLISECONDS;
+        uiFireBoltTimer             = 1*IN_MILLISECONDS;
+        uiFrostboltTimer            = 4*IN_MILLISECONDS;
+        uiResetTimer                = 5*IN_MILLISECONDS;
         uiWaterElementalTimer       = 0;
 
         Summons.DespawnAll();
@@ -134,32 +135,32 @@ struct boss_balindaAI : public ScriptedAI
         if (uiWaterElementalTimer < diff)
         {
             if (Summons.empty())
-                me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILISECONDS);
-            uiWaterElementalTimer = 50*IN_MILISECONDS;
+                me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILLISECONDS);
+            uiWaterElementalTimer = 50*IN_MILLISECONDS;
         } else uiWaterElementalTimer -= diff;
 
         if (uiArcaneExplosionTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
-            uiArcaneExplosionTimer =  urand(5*IN_MILISECONDS,15*IN_MILISECONDS);
+            uiArcaneExplosionTimer =  urand(5*IN_MILLISECONDS,15*IN_MILLISECONDS);
         } else uiArcaneExplosionTimer -= diff;
 
         if (uiConeOfColdTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
-            uiConeOfColdTimer = urand(10*IN_MILISECONDS,20*IN_MILISECONDS);
+            uiConeOfColdTimer = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
         } else uiConeOfColdTimer -= diff;
 
         if (uiFireBoltTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_FIREBALL);
-            uiFireBoltTimer = urand(5*IN_MILISECONDS,9*IN_MILISECONDS);
+            uiFireBoltTimer = urand(5*IN_MILLISECONDS,9*IN_MILLISECONDS);
         } else uiFireBoltTimer -= diff;
 
         if (uiFrostboltTimer < diff)
         {
             DoCast(me->getVictim(), SPELL_FROSTBOLT);
-            uiFrostboltTimer = urand(4*IN_MILISECONDS,12*IN_MILISECONDS);
+            uiFrostboltTimer = urand(4*IN_MILLISECONDS,12*IN_MILLISECONDS);
         } else uiFrostboltTimer -= diff;
 
 
@@ -171,7 +172,7 @@ struct boss_balindaAI : public ScriptedAI
                 EnterEvadeMode();
                 DoScriptText(YELL_EVADE, me);
             }
-            uiResetTimer = 5*IN_MILISECONDS;
+            uiResetTimer = 5*IN_MILLISECONDS;
         } else uiResetTimer -= diff;
 
         DoMeleeAttackIfReady();

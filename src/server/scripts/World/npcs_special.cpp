@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -40,7 +42,7 @@ npc_shadowfiend         100%   restore 5% of owner's mana when shadowfiend die f
 npc_locksmith            75%    list of keys needs to be confirmed
 EndContentData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
 #include "ScriptMgr.h"
@@ -123,7 +125,7 @@ struct npc_air_force_botsAI : public ScriptedAI
         }
 
         if (!m_pSpawnAssoc)
-            error_db_log("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
+            sLog.outErrorDb("TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", pCreature->GetEntry());
         else
         {
             CreatureInfo const* spawnedTemplate = GetCreatureTemplateStore(m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
@@ -131,7 +133,7 @@ struct npc_air_force_botsAI : public ScriptedAI
             if (!spawnedTemplate)
             {
                 m_pSpawnAssoc = NULL;
-                error_db_log("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+                sLog.outErrorDb("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
                 return;
             }
         }
@@ -150,7 +152,7 @@ struct npc_air_force_botsAI : public ScriptedAI
             m_uiSpawnedGUID = pSummoned->GetGUID();
         else
         {
-            error_db_log("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
+            sLog.outErrorDb("TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", m_pSpawnAssoc->m_uiSpawnedCreatureEntry);
             m_pSpawnAssoc = NULL;
         }
 
@@ -787,7 +789,7 @@ void npc_doctorAI::UpdateAI(const uint32 diff)
                 case DOCTOR_ALLIANCE: patientEntry = AllianceSoldierId[rand()%3]; break;
                 case DOCTOR_HORDE:    patientEntry = HordeSoldierId[rand()%3]; break;
                 default:
-                    error_log("TSCR: Invalid entry for Triage doctor. Please check your database");
+                    sLog.outError("TSCR: Invalid entry for Triage doctor. Please check your database");
                     return;
             }
 
@@ -1689,7 +1691,7 @@ struct mob_mojoAI : public ScriptedAI
         if (Unit* own = me->GetOwner())
             me->GetMotionMaster()->MoveFollow(own,0,0);
     }
-    void Aggro(Unit * /*who*/){}
+    void EnterCombat(Unit * /*who*/){}
     void UpdateAI(const uint32 diff)
     {
         if (me->HasAura(20372))
@@ -1848,7 +1850,7 @@ struct npc_ebon_gargoyleAI : CasterAI
         me->GetMotionMaster()->MovePoint(0, x, y, z);
 
         // Despawn as soon as possible
-        despawnTimer = 4 * IN_MILISECONDS;
+        despawnTimer = 4 * IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)

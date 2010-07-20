@@ -1,21 +1,22 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "nexus.h"
 
 enum Spells
@@ -49,7 +50,7 @@ enum Yells
 enum Achievements
 {
     ACHIEV_SPLIT_PERSONALITY                      = 2150,
-    ACHIEV_TIMER                                  = 5*IN_MILISECONDS
+    ACHIEV_TIMER                                  = 5*IN_MILLISECONDS
 };
 
 const Position  CenterOfRoom = {504.80, 89.07, -16.12, 6.27};
@@ -87,9 +88,9 @@ struct boss_magus_telestraAI : public ScriptedAI
     {
         Phase = 0;
         //These times are probably wrong
-        uiIceNovaTimer =  7*IN_MILISECONDS;
+        uiIceNovaTimer =  7*IN_MILLISECONDS;
         uiFireBombTimer =  0;
-        uiGravityWellTimer = 15*IN_MILISECONDS;
+        uiGravityWellTimer = 15*IN_MILLISECONDS;
         uiCooldown = 0;
 
         uiFireMagusGUID = 0;
@@ -136,7 +137,7 @@ struct boss_magus_telestraAI : public ScriptedAI
 
     uint64 SplitPersonality(uint32 entry)
     {
-        if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILISECONDS))
+        if (Creature* Summoned = me->SummonCreature(entry, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1*IN_MILLISECONDS))
         {
             switch (entry)
             {
@@ -223,7 +224,7 @@ struct boss_magus_telestraAI : public ScriptedAI
                 uiFrostMagusGUID = 0;
                 uiArcaneMagusGUID = 0;
                 bIsWaitingToAppear = true;
-                uiIsWaitingToAppearTimer = 4*IN_MILISECONDS;
+                uiIsWaitingToAppearTimer = 4*IN_MILLISECONDS;
                 DoScriptText(SAY_MERGE, me);
                 bIsAchievementTimerRunning = false;
                 uiAchievementTimer = 0;
@@ -282,9 +283,9 @@ struct boss_magus_telestraAI : public ScriptedAI
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(pTarget, SPELL_ICE_NOVA, false);
-                uiCooldown = 1.5*IN_MILISECONDS;
+                uiCooldown = 1.5*IN_MILLISECONDS;
             }
-            uiIceNovaTimer = 15*IN_MILISECONDS;
+            uiIceNovaTimer = 15*IN_MILLISECONDS;
         } else uiIceNovaTimer -= diff;
 
         if (uiGravityWellTimer <= diff)
@@ -292,9 +293,9 @@ struct boss_magus_telestraAI : public ScriptedAI
             if (Unit *pTarget = me->getVictim())
             {
                 DoCast(pTarget, SPELL_GRAVITY_WELL);
-                uiCooldown = 6*IN_MILISECONDS;
+                uiCooldown = 6*IN_MILLISECONDS;
             }
-            uiGravityWellTimer = 15*IN_MILISECONDS;
+            uiGravityWellTimer = 15*IN_MILLISECONDS;
         } else uiGravityWellTimer -= diff;
 
         if (uiFireBombTimer <= diff)
@@ -302,9 +303,9 @@ struct boss_magus_telestraAI : public ScriptedAI
             if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
             {
                 DoCast(pTarget, SPELL_FIREBOMB, false);
-                uiCooldown = 2*IN_MILISECONDS;
+                uiCooldown = 2*IN_MILLISECONDS;
             }
-            uiFireBombTimer = 2*IN_MILISECONDS;
+            uiFireBombTimer = 2*IN_MILLISECONDS;
         } else uiFireBombTimer -=diff;
 
         DoMeleeAttackIfReady();

@@ -1,4 +1,5 @@
 # Copyright (C) 2005-2009 MaNGOS project <http://getmangos.com/>
+# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -8,19 +9,30 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-cmake_minimum_required (VERSION 2.6)
-project (MANGOS_MAP_EXTRACTOR)
+file(GLOB sources *.cpp)
 
-add_subdirectory (libmpq)
-add_subdirectory (loadlib)
+include_directories (
+  ${CMAKE_SOURCE_DIR}/src/server/shared
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/loadlib
+)
 
-include_directories (${MANGOS_MAP_EXTRACTOR_SOURCE_DIR}/libmpq) 
-include_directories (${MANGOS_MAP_EXTRACTOR_SOURCE_DIR}/loadlib) 
+add_executable(mapextractor
+  ${sources}
+)
 
-link_directories (${MANGOS_MAP_EXTRACTOR_SOURCE_DIR}/libmpq) 
-link_directories (${MANGOS_MAP_EXTRACTOR_SOURCE_DIR}/loadlib) 
+if(WIN32)
+  target_link_libraries(mapextractor
+    mpq
+    bzip2
+  )
+else()
+  target_link_libraries(mapextractor
+    mpq
+    ${BZIP2_LIBRARIES}
+  )
+endif()
 
-add_executable (ad dbcfile.cpp mpq_libmpq.cpp System.cpp)
-
-target_link_libraries (ad libmpq)
-target_link_libraries (ad loadlib)
+if( UNIX )
+  install(TARGETS mapextractor DESTINATION bin)
+endif()

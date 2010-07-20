@@ -1,21 +1,22 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * Copyright (C) 2008 - 2010 TrinityCore <http://www.trinitycore.org>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "nexus.h"
 
 enum Spells
@@ -75,10 +76,10 @@ struct boss_ormorokAI : public ScriptedAI
 
     void Reset()
     {
-        uiCrystalSpikesTimer = 12*IN_MILISECONDS;
-        uiTrampleTimer = 10*IN_MILISECONDS;
-        uiSpellReflectionTimer = 30*IN_MILISECONDS;
-        uiSummonCrystallineTanglerTimer = 17*IN_MILISECONDS;
+        uiCrystalSpikesTimer = 12*IN_MILLISECONDS;
+        uiTrampleTimer = 10*IN_MILLISECONDS;
+        uiSpellReflectionTimer = 30*IN_MILLISECONDS;
+        uiSummonCrystallineTanglerTimer = 17*IN_MILLISECONDS;
         bFrenzy = false;
         bCrystalSpikes = false;
 
@@ -125,7 +126,7 @@ struct boss_ormorokAI : public ScriptedAI
                 fSpikeXY[3][0] = fBaseX-(SPIKE_DISTANCE*uiCrystalSpikesCount*cos(fBaseO-(M_PI/2)));
                 fSpikeXY[3][1] = fBaseY-(SPIKE_DISTANCE*uiCrystalSpikesCount*sin(fBaseO-(M_PI/2)));
                 for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILISECONDS);
+                    me->SummonCreature(MOB_CRYSTAL_SPIKE, fSpikeXY[i][0], fSpikeXY[i][1], fBaseZ, 0, TEMPSUMMON_TIMED_DESPAWN, 7*IN_MILLISECONDS);
                 if (++uiCrystalSpikesCount >= 13)
                     bCrystalSpikes = false;
                 uiCrystalSpikesTimer2 = 200;
@@ -140,14 +141,14 @@ struct boss_ormorokAI : public ScriptedAI
         if (uiTrampleTimer <= diff)
         {
             DoCast(me, SPELL_TRAMPLE);
-            uiTrampleTimer = 10*IN_MILISECONDS;
+            uiTrampleTimer = 10*IN_MILLISECONDS;
         } else uiTrampleTimer -= diff;
 
         if (uiSpellReflectionTimer <= diff)
         {
             DoScriptText(SAY_REFLECT, me);
             DoCast(me, SPELL_SPELL_REFLECTION);
-            uiSpellReflectionTimer = 30*IN_MILISECONDS;
+            uiSpellReflectionTimer = 30*IN_MILLISECONDS;
         } else uiSpellReflectionTimer -= diff;
 
         if (uiCrystalSpikesTimer <= diff)
@@ -160,7 +161,7 @@ struct boss_ormorokAI : public ScriptedAI
             fBaseY = me->GetPositionY();
             fBaseZ = me->GetPositionZ();
             fBaseO = me->GetOrientation();
-            uiCrystalSpikesTimer = 20*IN_MILISECONDS;
+            uiCrystalSpikesTimer = 20*IN_MILLISECONDS;
         } else uiCrystalSpikesTimer -= diff;
 
         if (IsHeroic() && (uiSummonCrystallineTanglerTimer <= diff))
@@ -200,7 +201,7 @@ struct boss_ormorokAI : public ScriptedAI
                     Crystalline_Tangler->getThreatManager().addThreat(pTarget, 1000000000.0f);
                 }
             }
-            uiSummonCrystallineTanglerTimer = 17*IN_MILISECONDS;
+            uiSummonCrystallineTanglerTimer = 17*IN_MILLISECONDS;
         } else uiSummonCrystallineTanglerTimer -= diff;
 
         DoMeleeAttackIfReady();
@@ -218,8 +219,8 @@ struct mob_crystal_spikeAI : public Scripted_NoMovementAI
 
     void Reset()
     {
-        SpellCrystalSpikeDamageTimer = 3.7*IN_MILISECONDS;
-        SpellCrystalSpikePrevisualTimer = 1*IN_MILISECONDS;
+        SpellCrystalSpikeDamageTimer = 3.7*IN_MILLISECONDS;
+        SpellCrystalSpikePrevisualTimer = 1*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -227,13 +228,13 @@ struct mob_crystal_spikeAI : public Scripted_NoMovementAI
         if (SpellCrystalSpikePrevisualTimer <= diff)
         {
             DoCast(me, SPELL_CRYSTAL_SPIKE_PREVISUAL);
-            SpellCrystalSpikePrevisualTimer = 10*IN_MILISECONDS;
+            SpellCrystalSpikePrevisualTimer = 10*IN_MILLISECONDS;
         } else SpellCrystalSpikePrevisualTimer -= diff;
 
         if (SpellCrystalSpikeDamageTimer <= diff)
         {
             DoCast(me, SPELL_CRYSTALL_SPIKE_DAMAGE);
-            SpellCrystalSpikeDamageTimer = 10*IN_MILISECONDS;
+            SpellCrystalSpikeDamageTimer = 10*IN_MILLISECONDS;
         } else SpellCrystalSpikeDamageTimer -= diff;
     }
 };
@@ -246,7 +247,7 @@ struct mob_crystalline_tanglerAI : public ScriptedAI
 
     void Reset()
     {
-        uiRootsTimer = 1*IN_MILISECONDS;
+        uiRootsTimer = 1*IN_MILLISECONDS;
     }
 
     void UpdateAI(const uint32 diff)
@@ -256,7 +257,7 @@ struct mob_crystalline_tanglerAI : public ScriptedAI
             if (me->IsWithinDist(me->getVictim(), 5.0f, false))
             {
                 DoCast(me->getVictim(), SPELL_ROOTS);
-                uiRootsTimer = 15*IN_MILISECONDS;
+                uiRootsTimer = 15*IN_MILLISECONDS;
             }
         } else uiRootsTimer -= diff;
     }

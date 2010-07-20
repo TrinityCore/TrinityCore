@@ -38,9 +38,9 @@
 #include "SharedDefines.h"
 #include "ByteBuffer.h"
 #include "Opcodes.h"
-#include "Database/DatabaseEnv.h"
-#include "Auth/BigNumber.h"
-#include "Auth/Sha1.h"
+#include "DatabaseEnv.h"
+#include "BigNumber.h"
+#include "SHA1.h"
 #include "WorldSession.h"
 #include "WorldSocketMgr.h"
 #include "Log.h"
@@ -120,8 +120,7 @@ m_LastPingTime(ACE_Time_Value::zero)
 
 WorldSocket::~WorldSocket (void)
 {
-    if (m_RecvWPct)
-        delete m_RecvWPct;
+    delete m_RecvWPct;
 
     if (m_OutBuffer)
         m_OutBuffer->release();
@@ -769,7 +768,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     // NOTE: ATM the socket is singlethread, have this in mind ...
     uint8 digest[20];
     uint32 clientSeed;
-    uint32 unk2, unk3;
+    uint32 unk2, unk3, unk5, unk6, unk7;
     uint64 unk4;
     uint32 BuiltNumberClient;
     uint32 id, security;
@@ -798,6 +797,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> account;
     recvPacket >> unk3;
     recvPacket >> clientSeed;
+    recvPacket >> unk5 >> unk6 >> unk7;
     recvPacket >> unk4;
     recvPacket.read (digest, 20);
 

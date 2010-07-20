@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: ACE
+Description: ADAPTIVE Communication Environment 
+Version: @VERSION@
+Libs: -L${libdir} -lACE @LIBS@
+Cflags: -I${includedir}

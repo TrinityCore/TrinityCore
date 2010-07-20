@@ -1,18 +1,20 @@
-/* Copyright (C) 2006,2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2007 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: boss_archaedas
@@ -24,7 +26,7 @@ At 33%, he will awaken the Vault Walkers
 On his death the vault door opens.
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SAY_AGGRO           "Who dares awaken Archaedas? Who dares the wrath of the makers!"
 #define SOUND_AGGRO         5855
@@ -348,7 +350,7 @@ SDComment: After activating the altar of the keepers, the stone keepers will
 wake up one by one.
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
 #define SPELL_SELF_DESTRUCT          9874
 
@@ -436,7 +438,7 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* /*pGo*/)
 
     //if (altarOfTheKeeperCounter < NUMBER_NEEDED_TO_ACTIVATE)
     //{
-          //error_log("not enough people yet, altarOfTheKeeperCounter = %d", altarOfTheKeeperCounter);
+          //sLog.outError("not enough people yet, altarOfTheKeeperCounter = %d", altarOfTheKeeperCounter);
     //    return false; // not enough people yet
     //}
 /*
@@ -446,7 +448,7 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* /*pGo*/)
     for (uint8 x = 0; x < 5; ++x)
     {
         pTarget = Unit::GetUnit(*pPlayer, altarOfTheKeeperCount[x]);
-        //error_log("number of people currently activating it: %d", x+1);
+        //sLog.outError("number of people currently activating it: %d", x+1);
         if (!pTarget)
             continue;
         if (pTarget->IsNonMeleeSpellCasted(true))
@@ -457,11 +459,11 @@ bool GOHello_go_altar_of_the_keepers(Player* pPlayer, GameObject* /*pGo*/)
 
     if (count < NUMBER_NEEDED_TO_ACTIVATE)
     {
-        //error_log("still not enough people");
+        //sLog.outError("still not enough people");
         return true; // not enough people
     }
 */
-    //error_log ("activating stone keepers");
+    //sLog.outError ("activating stone keepers");
     pInstance->SetData(NULL,1); // activate the Stone Keepers
     return true;
 }

@@ -18,11 +18,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+ #include <ace/Auto_Ptr.h>
+
 #include "Common.h"
 #include "Item.h"
 #include "ObjectMgr.h"
 #include "WorldPacket.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "ItemEnchantmentMgr.h"
 #include "SpellMgr.h"
 #include "ScriptMgr.h"
@@ -633,7 +635,7 @@ void Item::SetState(ItemUpdateState state, Player *forplayer)
     {
         // pretend the item never existed
         RemoveFromUpdateQueueOf(forplayer);
-        forplayer->DeleteRefundReference(GetGUID());
+        forplayer->DeleteRefundReference(GetGUIDLow());
         delete this;
         return;
     }
@@ -834,7 +836,7 @@ bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
 
     for (ConditionList::const_iterator itr = conditions.begin(); itr != conditions.end(); ++itr)
     {
-        ItemRequiredTarget *irt = new ItemRequiredTarget((ItemRequiredTargetType)(*itr)->mConditionValue1, (*itr)->mConditionValue2);
+        ACE_Auto_Ptr<ItemRequiredTarget> irt(new ItemRequiredTarget((ItemRequiredTargetType)(*itr)->mConditionValue1, (*itr)->mConditionValue2));
         if (irt->IsFitToRequirements(pUnitTarget))
             return true;
     }
@@ -1035,20 +1037,11 @@ bool Item::IsBindedNotWith(Player const* player) const
     if (GetOwnerGUID() == player->GetGUID())
         return false;
 
-    // not BOA item case
-    if (!IsBoundAccountWide())
-        return true;
-
-    // online
-    if (Player* owner = objmgr.GetPlayer(GetOwnerGUID()))
-    {
-        return owner->GetSession()->GetAccountId() != player->GetSession()->GetAccountId();
-    }
-    // offline slow case
-    else
-    {
-        return objmgr.GetPlayerAccountIdByGUID(GetOwnerGUID()) != player->GetSession()->GetAccountId();
-    }
+    // BOA item case
+    if (IsBoundAccountWide())
+        return false;
+        
+    return true;
 }
 
 bool ItemRequiredTarget::IsFitToRequirements(Unit* pUnitTarget) const
@@ -1106,7 +1099,7 @@ void Item::SetNotRefundable(Player *owner, bool changestate)
     SetPaidExtendedCost(0);
     DeleteRefundDataFromDB();
 
-    owner->DeleteRefundReference(GetGUID());
+    owner->DeleteRefundReference(GetGUIDLow());
 }
 
 void Item::UpdatePlayedTime(Player *owner)

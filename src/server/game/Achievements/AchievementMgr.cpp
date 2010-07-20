@@ -21,8 +21,8 @@
 #include "ObjectMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Database/DatabaseEnv.h"
-#include "Policies/SingletonImp.h"
+#include "DatabaseEnv.h"
+
 
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
@@ -40,8 +40,6 @@
 #include "BattleGroundAB.h"
 #include "Map.h"
 #include "InstanceData.h"
-
-INSTANTIATE_SINGLETON_1(AchievementGlobalMgr);
 
 namespace Trinity
 {
@@ -873,6 +871,36 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, counter);
                 break;
             }
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
+            {
+                time_t nextDailyResetTime = sWorld.GetNextDailyQuestsResetTime();
+                CriteriaProgress *progress = GetCriteriaProgress(achievementCriteria);
+
+                if (!miscvalue1) // Login case.
+                {
+                    // reset if player missed one day.
+                    if (progress && progress->date < (nextDailyResetTime - 2 * DAY))
+                        SetCriteriaProgress(achievementCriteria, 0, PROGRESS_SET);
+                    continue;
+                }
+
+                ProgressType progressType;
+                if (!progress) 
+                    // 1st time. Start count.
+                    progressType = PROGRESS_SET;
+                else if (progress->date < (nextDailyResetTime - 2 * DAY))
+                    // last progress is older than 2 days. Player missed 1 day => Retart count.
+                    progressType = PROGRESS_SET;
+                else if (progress->date < (nextDailyResetTime - DAY))
+                    // last progress is between 1 and 2 days. => 1st time of the day.
+                    progressType = PROGRESS_ACCUMULATE;
+                else
+                    // last progress is within the day before the reset => Already counted today.
+                    continue;
+
+                SetCriteriaProgress(achievementCriteria, 1, progressType);
+                break;
+            }
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
             {
                 // speedup for non-login case
@@ -935,7 +963,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscvalue1)
                     continue;
 
-                Map const* map = GetPlayer()->IsInWorld() ? GetPlayer()->GetMap() : MapManager::Instance().FindMap(GetPlayer()->GetMapId(), GetPlayer()->GetInstanceId());
+                Map const* map = GetPlayer()->IsInWorld() ? GetPlayer()->GetMap() : sMapMgr.FindMap(GetPlayer()->GetMapId(), GetPlayer()->GetInstanceId());
                 if (!map || !map->IsDungeon())
                     continue;
 
@@ -1428,7 +1456,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_RATING:
                 break;
             // FIXME: not triggered in code as result, need to implement
-            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
@@ -1483,11 +1510,10 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return false;
     }
 
-    CriteriaProgressMap::const_iterator itr = m_criteriaProgress.find(achievementCriteria->ID);
-    if (itr == m_criteriaProgress.end())
+    CriteriaProgress const* progress = GetCriteriaProgress(achievementCriteria);
+    if (!progress)
         return false;
 
-    CriteriaProgress const* progress = &itr->second;
 
     switch(achievementCriteria->requiredType)
     {
@@ -1516,6 +1542,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= 1;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT:
             return progress->counter >= achievementCriteria->complete_quest_count.totalQuestCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
+            return progress->counter >= achievementCriteria->complete_daily_quest_daily.numberOfDays;
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_IN_ZONE:
             return progress->counter >= achievementCriteria->complete_quests_in_zone.questCount;
         case ACHIEVEMENT_CRITERIA_TYPE_DAMAGE_DONE:
@@ -1661,11 +1689,10 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
         {
             AchievementCriteriaEntry const* criteria = *itr;
 
-            CriteriaProgressMap::const_iterator itrProgress = m_criteriaProgress.find(criteria->ID);
-            if (itrProgress == m_criteriaProgress.end())
+            CriteriaProgress const* progress = GetCriteriaProgress(criteria);
+            if (!progress)
                 continue;
 
-            CriteriaProgress const* progress = &itrProgress->second;
             count += progress->counter;
 
             // for counters, field4 contains the main count requirement
@@ -1701,6 +1728,16 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
     return false;
 }
 
+CriteriaProgress* AchievementMgr::GetCriteriaProgress(AchievementCriteriaEntry const* entry)
+{
+    CriteriaProgressMap::iterator iter = m_criteriaProgress.find(entry->ID);
+
+    if (iter == m_criteriaProgress.end())
+        return NULL;
+
+    return &(iter->second);
+}
+
 void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, uint32 changeValue, ProgressType ptype)
 {
     // Don't allow to cheat - doing timed achievements without timer active
@@ -1711,11 +1748,8 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     if ((sLog.getLogFilter() & LOG_FILTER_ACHIEVEMENT_UPDATES) == 0)
         sLog.outDetail("AchievementMgr::SetCriteriaProgress(%u, %u) for (GUID:%u)", entry->ID, changeValue, m_player->GetGUIDLow());
 
-    CriteriaProgress *progress = NULL;
-
-    CriteriaProgressMap::iterator iter = m_criteriaProgress.find(entry->ID);
-
-    if (iter == m_criteriaProgress.end())
+    CriteriaProgress* progress = GetCriteriaProgress(entry);
+    if (!progress)
     {
         // not create record for 0 counter but allow it for timed achievements
         // we will need to send 0 progress to client to start the timer
@@ -1724,12 +1758,9 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
 
         progress = &m_criteriaProgress[entry->ID];
         progress->counter = changeValue;
-        progress->date = time(NULL);
     }
     else
     {
-        progress = &iter->second;
-
         uint32 newValue = 0;
         switch(ptype)
         {
@@ -1756,6 +1787,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     }
 
     progress->changed = true;
+    progress->date = time(NULL); // set the date to the latest update.
 
     uint32 timeElapsed = 0;
     bool timedCompleted = false;
@@ -1765,7 +1797,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
         //has to exist else we wouldn't be here
         timedCompleted = IsCompletedCriteria(entry, sAchievementStore.LookupEntry(entry->referredAchievement));
         // Client expects this in packet
-        timeElapsed = entry->timeLimit - (timedIter->second/IN_MILISECONDS);
+        timeElapsed = entry->timeLimit - (timedIter->second/IN_MILLISECONDS);
 
         // Remove the timer, we wont need it anymore
         if (timedCompleted)
@@ -1809,7 +1841,7 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
         if (m_timedAchievements.find((*i)->ID) == m_timedAchievements.end() && !IsCompletedCriteria(*i, achievement))
         {
             // Start the timer
-            m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILISECONDS;
+            m_timedAchievements[(*i)->ID] = (*i)->timeLimit * IN_MILLISECONDS;
 
             // and at client too
             SetCriteriaProgress(*i, 0, PROGRESS_SET);

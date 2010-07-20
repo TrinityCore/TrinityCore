@@ -1,18 +1,20 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or
-* (at your option) any later version.
-*
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 /* ScriptData
 SDName: instance_stratholme
@@ -21,7 +23,7 @@ SDComment: In progress. Undead side 75% implemented. Save/load not implemented.
 SDCategory: Stratholme
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "stratholme.h"
 
 #define GO_SERVICE_ENTRANCE     175368
@@ -112,7 +114,7 @@ struct instance_stratholme : public ScriptedInstance
             return true;
         }
 
-        debug_log("TSCR: Instance Stratholme: Cannot open slaugther square yet.");
+        sLog.outDebug("TSCR: Instance Stratholme: Cannot open slaugther square yet.");
         return false;
     }
 
@@ -208,7 +210,7 @@ struct instance_stratholme : public ScriptedInstance
                     break;
                 Encounter[0] = data;
                 BaronRun_Timer = 2700000;
-                debug_log("TSCR: Instance Stratholme: Baron run in progress.");
+                sLog.outDebug("TSCR: Instance Stratholme: Baron run in progress.");
                 break;
             case FAIL:
                 //may add code to remove aura from players, but in theory the time should be up already and removed.
@@ -266,10 +268,10 @@ struct instance_stratholme : public ScriptedInstance
                     //UpdateGoState(ziggurat4GUID,0,true);
                     if (Creature* pBaron = instance->GetCreature(baronGUID))
                         pBaron->SummonCreature(C_RAMSTEIN,4032.84,-3390.24,119.73,4.71,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,1800000);
-                    debug_log("TSCR: Instance Stratholme: Ramstein spawned.");
+                    sLog.outDebug("TSCR: Instance Stratholme: Ramstein spawned.");
                 }
                 else
-                    debug_log("TSCR: Instance Stratholme: %u Abomnation left to kill.",count);
+                    sLog.outDebug("TSCR: Instance Stratholme: %u Abomnation left to kill.",count);
             }
 
             if (data == NOT_STARTED)
@@ -278,7 +280,7 @@ struct instance_stratholme : public ScriptedInstance
             if (data == DONE)
             {
                 SlaugtherSquare_Timer = 300000;
-                debug_log("TSCR: Instance Stratholme: Slaugther event will continue in 5 minutes.");
+                sLog.outDebug("TSCR: Instance Stratholme: Slaugther event will continue in 5 minutes.");
             }
             Encounter[4] = data;
             break;
@@ -419,7 +421,7 @@ struct instance_stratholme : public ScriptedInstance
                 if (GetData(TYPE_BARON_RUN) != DONE)
                     SetData(TYPE_BARON_RUN, FAIL);
                 BaronRun_Timer = 0;
-                debug_log("TSCR: Instance Stratholme: Baron run event reached end. Event has state %u.",GetData(TYPE_BARON_RUN));
+                sLog.outDebug("TSCR: Instance Stratholme: Baron run event reached end. Event has state %u.",GetData(TYPE_BARON_RUN));
             } else BaronRun_Timer -= diff;
         }
 
@@ -434,7 +436,7 @@ struct instance_stratholme : public ScriptedInstance
 
                     HandleGameObject(ziggurat4GUID, true);
                     HandleGameObject(ziggurat5GUID, true);
-                    debug_log("TSCR: Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
+                    sLog.outDebug("TSCR: Instance Stratholme: Black guard sentries spawned. Opening gates to baron.");
                 }
                 SlaugtherSquare_Timer = 0;
             } else SlaugtherSquare_Timer -= diff;

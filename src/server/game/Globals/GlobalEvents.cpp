@@ -23,9 +23,9 @@
 */
 
 #include "Log.h"
-#include "Database/DatabaseEnv.h"
-#include "Database/DatabaseImpl.h"
-#include "Platform/Define.h"
+#include "DatabaseEnv.h"
+#include "DatabaseImpl.h"
+#include "Define.h"
 #include "MapManager.h"
 #include "ObjectAccessor.h"
 #include "GlobalEvents.h"
@@ -53,7 +53,7 @@ static void CorpsesEraseCallBack(QueryResult_AutoPtr result, bool bones)
         /// Resurrectable - convert corpses to bones
         if (!bones)
         {
-            if (!ObjectAccessor::Instance().ConvertCorpseForPlayer(player_guid))
+            if (!sObjectAccessor.ConvertCorpseForPlayer(player_guid))
             {
                 sLog.outDebug("Corpse %u not found in world or bones creating forbidden. Delete from DB.",guidlow);
                 CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%u'",guidlow);
@@ -62,7 +62,7 @@ static void CorpsesEraseCallBack(QueryResult_AutoPtr result, bool bones)
         else
             ///- or delete bones
         {
-            MapManager::Instance().RemoveBonesFromMap(mapid, guid, positionX, positionY);
+            sMapMgr.RemoveBonesFromMap(mapid, guid, positionX, positionY);
 
             ///- remove bones from the database
             CharacterDatabase.PExecute("DELETE FROM corpse WHERE guid = '%u'",guidlow);

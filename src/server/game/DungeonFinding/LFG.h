@@ -19,7 +19,7 @@
 #ifndef _LFG_H
 #define _LFG_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include "Object.h"
 
 enum LfgRoles

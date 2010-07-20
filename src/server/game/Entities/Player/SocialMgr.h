@@ -21,8 +21,8 @@
 #ifndef __TRINITY_SOCIALMGR_H
 #define __TRINITY_SOCIALMGR_H
 
-#include "Policies/Singleton.h"
-#include "Database/DatabaseEnv.h"
+#include "ace/Singleton.h"
+#include "DatabaseEnv.h"
 #include "Common.h"
 
 class SocialMgr;
@@ -43,7 +43,8 @@ enum SocialFlag
 {
     SOCIAL_FLAG_FRIEND      = 0x01,
     SOCIAL_FLAG_IGNORED     = 0x02,
-    SOCIAL_FLAG_MUTED       = 0x04                          // guessed
+    SOCIAL_FLAG_MUTED       = 0x04,                          // guessed
+    SOCIAL_FLAG_RAF         = 0x08                           // Recruit A Friend
 };
 
 struct FriendInfo
@@ -112,7 +113,7 @@ enum FriendsResult
 };
 
 #define SOCIALMGR_FRIEND_LIMIT  50
-#define SOCIALMGR_IGNORE_LIMIT  25
+#define SOCIALMGR_IGNORE_LIMIT  50
 
 class PlayerSocial
 {
@@ -139,8 +140,9 @@ class PlayerSocial
 
 class SocialMgr
 {
+    friend class ACE_Singleton<SocialMgr, ACE_Null_Mutex>;
+    SocialMgr();
     public:
-        SocialMgr();
         ~SocialMgr();
         // Misc
         void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
@@ -156,6 +158,6 @@ class SocialMgr
         SocialMap m_socialMap;
 };
 
-#define sSocialMgr Trinity::Singleton<SocialMgr>::Instance()
+#define sSocialMgr (*ACE_Singleton<SocialMgr, ACE_Null_Mutex>::instance())
 #endif
 

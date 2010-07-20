@@ -1,5 +1,4 @@
-#define __STORMLIB_SELF__
-
+#include "vmapexport.h"
 #include "wdtfile.h"
 #include "adtfile.h"
 #include <cstdio>
@@ -29,12 +28,12 @@ bool WDTFile::init(char *map_id, unsigned int mapID)
     char fourcc[5];
     uint32 size;
 
-    const char dirname[] = "Buildings/dir_bin";
+    std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE *dirfile;
-    dirfile = fopen(dirname, "ab");
+    dirfile = fopen(dirname.c_str(), "ab");
     if(!dirfile)
     {
-        printf("Can't open dirfile!'%s'\n", dirname);
+        printf("Can't open dirfile!'%s'\n", dirname.c_str());
         return false;
     }
 

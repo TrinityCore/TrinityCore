@@ -1,19 +1,19 @@
 /*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <iostream>
@@ -25,6 +25,7 @@
 #include "ModelInstance.h"
 #include "WorldModel.h"
 #include "VMapDefinitions.h"
+#include "Log.h"
 
 using G3D::Vector3;
 
@@ -56,7 +57,7 @@ namespace VMAP
     Vector3 VMapManager2::convertPositionToInternalRep(float x, float y, float z) const
     {
         Vector3 pos;
-        const float mid = 0.5 * 64.0 * 533.33333333f;
+        const float mid = 0.5f * 64.0f * 533.33333333f;
         pos.x = mid - x;
         pos.y = mid - y;
         pos.z = z;
@@ -69,7 +70,7 @@ namespace VMAP
     Vector3 VMapManager2::convertPositionToMangosRep(float x, float y, float z) const
     {
         Vector3 pos;
-        const float mid = 0.5 * 64.0 * 533.33333333f;
+        const float mid = 0.5f * 64.0f * 533.33333333f;
         pos.x = mid - x;
         pos.y = mid - y;
         pos.z = z;
@@ -109,7 +110,7 @@ namespace VMAP
                 ss2 >> map_num;
                 if (map_num >= 0)
                 {
-                    std::cout << "ingoring Map " << map_num << " for VMaps\n";
+                    sLog.outDebug("Ignoring Map %i for VMaps", map_num);
                     iIgnoreMapIds[map_num] = true;
                     // unload map in case it is loaded
                     unloadMap(map_num);
@@ -279,6 +280,7 @@ namespace VMAP
             if (instanceTree->second->GetLocationInfo(pos, info))
             {
                 floor = info.ground_Z;
+                ASSERT(floor < std::numeric_limits<float>::max());
                 type = info.hitModel->GetLiquidType();
                 if (ReqLiquidType && !(type & ReqLiquidType))
                     return false;
@@ -299,11 +301,11 @@ namespace VMAP
             WorldModel *worldmodel = new WorldModel();
             if (!worldmodel->readFile(basepath + filename + ".vmo"))
             {
-                std::cout << "VMapManager2: could not load '" << basepath << filename << ".vmo'!\n";
+                sLog.outError("VMapManager2: could not load '%s%s.vmo'", basepath.c_str(), filename.c_str());
                 delete worldmodel;
                 return NULL;
             }
-            std::cout << "VMapManager2: loading file '" << basepath << filename << "'.\n";
+            sLog.outDebug("VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
             model->second.setModel(worldmodel);
         }
@@ -316,12 +318,12 @@ namespace VMAP
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
-            std::cout << "VMapManager2: trying to unload non-loaded file '" << filename << "'!\n";
+            sLog.outError("VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
             return;
         }
         if( model->second.decRefCount() == 0)
         {
-            std::cout << "VMapManager2: unloading file '" << filename << "'.\n";
+            sLog.outDebug("VMapManager2: unloading file '%s'", filename.c_str());
             delete model->second.getModel();
             iLoadedModelFiles.erase(model);
         }

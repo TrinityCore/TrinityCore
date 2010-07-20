@@ -1,7 +1,6 @@
 /*
+ * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
- *
- * Copyright (C) 2008-2009 Trinity <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +21,7 @@
 #define _ADDONMGR_H
 
 #include "Common.h"
-#include "Policies/Singleton.h"
+#include "ace/Singleton.h"
 
 #include <string>
 
@@ -68,9 +67,10 @@ typedef std::list<SavedAddon> SavedAddonsList;
 
 class AddonMgr
 {
+    friend class ACE_Singleton<AddonMgr, ACE_Null_Mutex>;
+    AddonMgr();
     public:
 
-        AddonMgr();
         ~AddonMgr();
 
         void LoadFromDB();
@@ -83,7 +83,7 @@ class AddonMgr
         SavedAddonsList m_knownAddons;                           // Known addons.
 };
 
-#define sAddonMgr Trinity::Singleton<AddonMgr>::Instance()
+#define sAddonMgr (*ACE_Singleton<AddonMgr, ACE_Null_Mutex>::instance())
 
 #endif
 

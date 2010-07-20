@@ -375,8 +375,8 @@ void WorldSession::HandleMailReturnToSender(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction();
     pl->RemoveMail(mailId);
 
-    // send back only to players and simple drop for other cases
-    if (m->messageType == MAIL_NORMAL)
+    // only return mail if the player exists (and delete if not existing)
+    if (m->messageType == MAIL_NORMAL && m->sender)
     {
         MailDraft draft(m->subject, m->body);
         if (m->mailTemplateId)

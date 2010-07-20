@@ -538,11 +538,7 @@ void WorldSession::HandleSpellClick(WorldPacket & recv_data)
 
     // TODO: Unit::SetCharmedBy: 28782 is not in world but 0 is trying to charm it! -> crash
     if (!unit->IsInWorld())
-    {
-        sLog.outCrash("Spell click target %u is not in world!", unit->GetEntry());
-        assert(false);
         return;
-    }
 
     SpellClickInfoMapBounds clickPair = objmgr.GetSpellClickInfoMapBounds(unit->GetEntry());
     for (SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)

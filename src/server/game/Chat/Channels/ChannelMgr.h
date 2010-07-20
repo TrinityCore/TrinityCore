@@ -22,14 +22,11 @@
 
 #include "Common.h"
 #include "Channel.h"
-#include "Policies/Singleton.h"
+#include "ace/Singleton.h"
 
 #include <map>
 #include <string>
 
-#include "Policies/Singleton.h"
-
-#include "Channel.h"
 #include "World.h"
 
 class ChannelMgr

@@ -1,20 +1,21 @@
-/* Copyright (C) 2008 - 2010 Trinity <http://www.trinitycore.org/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 #include "naxxramas.h"
 
 const DoorData doorData[] =
@@ -128,6 +129,8 @@ struct instance_naxxramas : public InstanceData
     uint64 uiKelthuzadTrigger;
     uint64 uiPortals[4];
 
+    GOState gothikDoorState;
+
     time_t minHorsemenDiedTime;
     time_t maxHorsemenDiedTime;
 
@@ -171,7 +174,10 @@ struct instance_naxxramas : public InstanceData
                     pSapphiron->AI()->DoAction(DATA_SAPPHIRON_BIRTH);
                 return;
             }
-            case GO_GOTHIK_GATE: GothikGateGUID = add ? pGo->GetGUID() : 0; break;
+            case GO_GOTHIK_GATE:
+                GothikGateGUID = add ? pGo->GetGUID() : 0;
+                pGo->SetGoState(gothikDoorState);
+                break;
             case GO_HORSEMEN_CHEST: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
             case GO_HORSEMEN_CHEST_HERO: HorsemenChestGUID = add ? pGo->GetGUID() : 0; break;
             case GO_KELTHUZAD_PORTAL01: uiPortals[0] = pGo->GetGUID(); break;
@@ -194,6 +200,7 @@ struct instance_naxxramas : public InstanceData
             case DATA_GOTHIK_GATE:
                 if (GameObject *pGothikGate = instance->GetGameObject(GothikGateGUID))
                     pGothikGate->SetGoState(GOState(value));
+                gothikDoorState = GOState(value);
                 break;
 
             case DATA_HORSEMEN0:
@@ -306,6 +313,21 @@ struct instance_naxxramas : public InstanceData
                 break;
         }
         return false;
+    }
+
+    std::string GetSaveData()
+    {
+        std::ostringstream saveStream;
+        saveStream << GetBossSaveData() << " " << gothikDoorState;
+        return saveStream.str();
+    }
+
+    void Load(const char * data)
+    {
+        std::istringstream loadStream(LoadBossState(data));
+        uint32 buff;
+        loadStream >> buff;
+        gothikDoorState = GOState(buff);
     }
 };
 

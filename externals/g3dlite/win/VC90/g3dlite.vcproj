@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -45,18 +45,19 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\zip.lib\include;..\..\G3D.lib\include;..\..\..\zlib;"
+				AdditionalIncludeDirectories="..\..\..\zlib\;"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
-				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
+				AssemblerListingLocation=""
+				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -73,8 +74,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/g3dlite.lib"
-				IgnoreAllDefaultLibraries="true"
+				LinkLibraryDependencies="false"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
+				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -94,8 +96,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -119,18 +121,19 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\zip.lib\include;..\..\G3D.lib\include;..\..\..\zlib;"
+				AdditionalIncludeDirectories="..\..\..\zlib\;"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="true"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
-				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
+				AssemblerListingLocation=""
+				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -147,8 +150,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/g3dlite.lib"
-				IgnoreAllDefaultLibraries="true"
+				LinkLibraryDependencies="false"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
+				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -168,8 +172,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -191,15 +195,17 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\zip.lib\include;..\..\G3D.lib\include;..\..\..\zlib;"
+				AdditionalIncludeDirectories="..\..\..\zlib\;"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SECURE_SCL=0"
+				PreprocessorDefinitions="WIN32"
+				StringPooling="true"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="1"
 				UsePrecompiledHeader="0"
-				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
+				AssemblerListingLocation=""
+				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -216,8 +222,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/g3dlite.lib"
-				IgnoreAllDefaultLibraries="true"
+				LinkLibraryDependencies="false"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
+				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -237,8 +244,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\$(PlatformName)_$(ConfigurationName)"
-			IntermediateDirectory=".\g3dlite__$(PlatformName)_$(ConfigurationName)"
+			OutputDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
+			IntermediateDirectory="$(ProjectName)__$(PlatformName)_$(ConfigurationName)"
 			ConfigurationType="4"
 			CharacterSet="2"
 			>
@@ -261,15 +268,17 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
-				AdditionalIncludeDirectories="..\..\zip.lib\include;..\..\G3D.lib\include;..\..\..\zlib;"
+				AdditionalIncludeDirectories="..\..\..\zlib\;"
 				AdditionalUsingDirectories=""
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_SECURE_SCL=0"
+				PreprocessorDefinitions="WIN32"
+				StringPooling="true"
 				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
 				EnableEnhancedInstructionSet="0"
 				UsePrecompiledHeader="0"
 				AssemblerListingLocation=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ObjectFile=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
-				ProgramDataBaseFileName=".\g3dlite__$(PlatformName)_$(ConfigurationName)\"
+				ObjectFile=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
+				ProgramDataBaseFileName=".\$(ProjectName)__$(PlatformName)_$(ConfigurationName)\"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -286,8 +295,9 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/g3dlite.lib"
-				IgnoreAllDefaultLibraries="true"
+				LinkLibraryDependencies="false"
+				OutputFile="$(OutDir)\$(ProjectName).lib"
+				IgnoreAllDefaultLibraries="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -312,148 +322,640 @@
 		<Filter
 			Name="Header Files"
 			>
+			<File
+				RelativePath="..\..\G3D\AABox.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Any.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\AnyVal.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\AreaMemoryManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Array.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\AtomicInt32.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\BinaryFormat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\BinaryInput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\BinaryOutput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\BoundsTrait.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Box.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Box2D.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\BumpMapPreprocess.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Capsule.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\CollisionDetection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Color1.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Color1uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Color3.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Color3uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Color4.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Color4uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Cone.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\constants.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\ConvexPolyhedron.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\CoordinateFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Crypto.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Cylinder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\debug.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\debugAssert.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\debugPrintf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\enumclass.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\EqualsTrait.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\fileutils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\filter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\format.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\G3D.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\G3DAll.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\g3dfnmatch.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\G3DGameUnits.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\g3dmath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\g3dmath.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\GCamera.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\GImage.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\GLight.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\GMutex.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\GThread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\GUniqueID.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\HashTrait.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Image1.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Image1uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Image3.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Image3uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Image4.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Image4uint8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\ImageFormat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Intersect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\KDTree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Line.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\LineSegment.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Map2D.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Matrix.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Matrix2.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Matrix3.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Matrix4.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\MemoryManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\MeshAlg.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\MeshBuilder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\NetAddress.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\NetworkDevice.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\ParseError.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\PhysicsFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Plane.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\platform.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Pointer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\PointHashGrid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\PointKDTree.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\PositionTrait.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\PrecomputedRandom.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\prompt.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Quat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Quat.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Queue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Random.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Ray.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Rect2D.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\ReferenceCount.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\RegistryUtil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\serialize.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Set.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\SmallArray.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Sphere.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Spline.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\splinefunc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Stopwatch.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\stringutils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\System.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\TextInput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\TextOutput.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\ThreadSet.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Triangle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\uint128.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\units.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\UprightFrame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector2.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector2.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector2int16.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector3.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector3.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector3int16.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector3int32.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector4.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector4.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Vector4int8.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\vectorMath.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\WeakCache.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\Welder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\G3D\WrapMode.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Source Files"
 			>
 			<File
-				RelativePath="..\..\G3D.lib\source\AABox.cpp"
+				RelativePath="..\..\AABox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\AnyVal.cpp"
+				RelativePath="..\..\Any.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\BinaryFormat.cpp"
+				RelativePath="..\..\BinaryFormat.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\BinaryInput.cpp"
+				RelativePath="..\..\BinaryInput.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\BinaryOutput.cpp"
+				RelativePath="..\..\BinaryOutput.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Box.cpp"
+				RelativePath="..\..\Box.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Capsule.cpp"
+				RelativePath="..\..\Capsule.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\CollisionDetection.cpp"
+				RelativePath="..\..\CollisionDetection.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\CoordinateFrame.cpp"
+				RelativePath="..\..\CoordinateFrame.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Crypto.cpp"
+				RelativePath="..\..\Crypto.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Cylinder.cpp"
+				RelativePath="..\..\Cylinder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\debugAssert.cpp"
+				RelativePath="..\..\debugAssert.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\fileutils.cpp"
+				RelativePath="..\..\fileutils.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\format.cpp"
+				RelativePath="..\..\format.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\g3dmath.cpp"
+				RelativePath="..\..\g3dfnmatch.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Line.cpp"
+				RelativePath="..\..\g3dmath.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\LineSegment.cpp"
+				RelativePath="..\..\Line.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Log.cpp"
+				RelativePath="..\..\LineSegment.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Matrix3.cpp"
+				RelativePath="..\..\Log.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Matrix4.cpp"
+				RelativePath="..\..\Matrix3.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Plane.cpp"
+				RelativePath="..\..\Matrix4.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\prompt.cpp"
+				RelativePath="..\..\MemoryManager.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Quat.cpp"
+				RelativePath="..\..\Plane.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Ray.cpp"
+				RelativePath="..\..\prompt.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\RegistryUtil.cpp"
+				RelativePath="..\..\Quat.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Sphere.cpp"
+				RelativePath="..\..\Random.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\stringutils.cpp"
+				RelativePath="..\..\Ray.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\System.cpp"
+				RelativePath="..\..\ReferenceCount.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\TextInput.cpp"
+				RelativePath="..\..\RegistryUtil.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\TextOutput.cpp"
+				RelativePath="..\..\Sphere.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Triangle.cpp"
+				RelativePath="..\..\stringutils.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\UprightFrame.cpp"
+				RelativePath="..\..\System.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Vector2.cpp"
+				RelativePath="..\..\TextInput.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Vector3.cpp"
+				RelativePath="..\..\TextOutput.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\G3D.lib\source\Vector4.cpp"
+				RelativePath="..\..\Triangle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\UprightFrame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Vector2.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Vector3.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Vector4.cpp"
 				>
 			</File>
 		</Filter>

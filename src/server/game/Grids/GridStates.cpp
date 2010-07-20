@@ -20,7 +20,7 @@
 
 #include "GridStates.h"
 #include "GridNotifiers.h"
-#include "GameSystem/Grid.h"
+#include "Grid.h"
 #include "Log.h"
 
 void

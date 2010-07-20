@@ -19,7 +19,7 @@
 */
 
 #include "Common.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "World.h"
@@ -45,7 +45,7 @@
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "SystemConfig.h"
-#include "Config/ConfigEnv.h"
+#include "ConfigEnv.h"
 #include "Util.h"
 #include "ItemEnchantmentMgr.h"
 #include "BattleGroundMgr.h"
@@ -689,7 +689,7 @@ bool ChatHandler::HandleReloadConfigCommand(const char* /*args*/)
 {
     sLog.outString("Re-Loading config settings...");
     sWorld.LoadConfigSettings(true);
-    MapManager::Instance().InitializeVisibilityDistanceInfo();
+    sMapMgr.InitializeVisibilityDistanceInfo();
     SendGlobalGMSysMessage("World config settings reloaded.");
     return true;
 }
@@ -749,6 +749,14 @@ bool ChatHandler::HandleReloadCommandCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadOnKillReputationCommand(const char*)
+{
+    sLog.outString("Re-Loading creature award reputation definitions...");
+    objmgr.LoadReputationOnKill();
+    SendGlobalGMSysMessage("DB table `creature_onkill_reputation` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadCreatureTemplateCommand(const char* args)
 {
     if (!*args)
@@ -787,24 +795,21 @@ bool ChatHandler::HandleReloadCreatureTemplateCommand(const char* args)
     size_t len = 0;
     if (const char* temp = fields[9].GetString())
     {
-        if (cInfo->Name)
-            delete cInfo->Name;
+        delete[] cInfo->Name;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->Name = new char[len];
         strncpy(cInfo->Name, temp, len);
     }
     if (const char* temp = fields[10].GetString())
     {
-        if (cInfo->SubName)
-            delete cInfo->SubName;
+        delete[] cInfo->SubName;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->SubName = new char[len];
         strncpy(cInfo->SubName, temp, len);
     }
     if (const char* temp = fields[11].GetString())
     {
-        if (cInfo->IconName)
-            delete cInfo->IconName;
+        delete[] cInfo->IconName;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->IconName = new char[len];
         strncpy(cInfo->IconName, temp, len);
@@ -863,8 +868,7 @@ bool ChatHandler::HandleReloadCreatureTemplateCommand(const char* args)
     const_cast<CreatureInfo*>(cInfo)->maxgold = fields[63].GetUInt32();
     if (const char* temp = fields[64].GetString())
     {
-        if (cInfo->AIName)
-            delete cInfo->AIName;
+        delete[] cInfo->AIName;
         len = strlen(temp)+1;
         const_cast<CreatureInfo*>(cInfo)->AIName = new char[len];
         strncpy(const_cast<char*>(cInfo->AIName), temp, len);
@@ -1276,6 +1280,14 @@ bool ChatHandler::HandleReloadItemEnchantementsCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadItemSetNamesCommand(const char*)
+{
+    sLog.outString("Re-Loading Item set names...");
+    LoadRandomEnchantmentsTable();
+    SendGlobalGMSysMessage("DB table `item_set_names` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadGameObjectScriptsCommand(const char* arg)
 {
     if (sWorld.IsScriptScheduled())
@@ -1491,6 +1503,14 @@ bool ChatHandler::HandleReloadLocalesItemCommand(const char* /*arg*/)
     sLog.outString("Re-Loading Locales Item ... ");
     objmgr.LoadItemLocales();
     SendGlobalGMSysMessage("DB table `locales_item` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadLocalesItemSetNameCommand(const char* /*arg*/)
+{
+    sLog.outString("Re-Loading Locales Item set name... ");
+    objmgr.LoadItemSetNameLocales();
+    SendGlobalGMSysMessage("DB table `locales_item_set_name` reloaded.");
     return true;
 }
 
@@ -4493,7 +4513,7 @@ bool ChatHandler::HandleReviveCommand(const char *args)
     }
     else
         // will resurrected at login without corpse
-        ObjectAccessor::Instance().ConvertCorpseForPlayer(target_guid);
+        sObjectAccessor.ConvertCorpseForPlayer(target_guid);
 
     return true;
 }
@@ -5513,8 +5533,8 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
 
     CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE (at_login & '%u') = '0'",atLogin,atLogin);
 
-    ObjectAccessor::Guard guard(*HashMapHolder<Player>::GetLock());
-    HashMapHolder<Player>::MapType const& plist = ObjectAccessor::Instance().GetPlayers();
+    ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, *HashMapHolder<Player>::GetLock(), true);
+    HashMapHolder<Player>::MapType const& plist = sObjectAccessor.GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
         itr->second->SetAtLoginFlag(atLogin);
 
@@ -7000,8 +7020,8 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
 
 bool ChatHandler::HandleInstanceStatsCommand(const char* /*args*/)
 {
-    PSendSysMessage("instances loaded: %d", MapManager::Instance().GetNumInstances());
-    PSendSysMessage("players in instances: %d", MapManager::Instance().GetNumPlayersInInstances());
+    PSendSysMessage("instances loaded: %d", sMapMgr.GetNumInstances());
+    PSendSysMessage("players in instances: %d", sMapMgr.GetNumPlayersInInstances());
     PSendSysMessage("instance saves: %d", sInstanceSaveManager.GetNumInstanceSaves());
     PSendSysMessage("players bound: %d", sInstanceSaveManager.GetNumBoundPlayersTotal());
     PSendSysMessage("groups bound: %d", sInstanceSaveManager.GetNumBoundGroupsTotal());

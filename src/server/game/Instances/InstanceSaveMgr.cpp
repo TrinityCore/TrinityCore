@@ -20,8 +20,7 @@
  */
 
 #include "Common.h"
-#include "Database/SQLStorage.h"
-
+#include "SQLStorage.h"
 #include "Player.h"
 #include "GridNotifiers.h"
 #include "Log.h"
@@ -33,21 +32,14 @@
 #include "InstanceSaveMgr.h"
 #include "Timer.h"
 #include "GridNotifiersImpl.h"
-#include "Config/ConfigEnv.h"
-#include "Transports.h"
+#include "ConfigEnv.h"
+#include "Transport.h"
 #include "ObjectMgr.h"
 #include "World.h"
 #include "Group.h"
 #include "InstanceData.h"
 #include "ProgressBar.h"
-#include "Policies/Singleton.h"
-#include "Policies/SingletonImp.h"
 
-INSTANTIATE_SINGLETON_1(InstanceSaveManager);
-
-InstanceSaveManager::InstanceSaveManager() : lock_instLists(false)
-{
-}
 
 InstanceSaveManager::~InstanceSaveManager()
 {
@@ -173,7 +165,7 @@ void InstanceSave::SaveToDB()
     // save instance data too
     std::string data;
 
-    Map *map = MapManager::Instance().FindMap(GetMapId(),m_instanceid);
+    Map *map = sMapMgr.FindMap(GetMapId(),m_instanceid);
     if (map)
     {
         assert(map->IsDungeon());
@@ -251,7 +243,7 @@ void InstanceSaveManager::_DelHelper(DatabaseType &db, const char *fields, const
                 db.escape_string(fieldValue);
                 ss << (i != 0 ? " AND " : "") << fieldTokens[i] << " = '" << fieldValue << "'";
             }
-            db.DirectPExecute("DELETE FROM %s WHERE %s", table, ss.str().c_str());
+            db.PExecute("DELETE FROM %s WHERE %s", table, ss.str().c_str());
         } while (result->NextRow());
     }
 }
@@ -297,7 +289,7 @@ void InstanceSaveManager::CleanupInstances()
         {
             Field *fields = result->Fetch();
             if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
-                WorldDatabase.DirectPExecute("DELETE FROM creature_respawn WHERE instance = '%u'", fields[0].GetUInt32());
+                WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
     }
@@ -310,7 +302,7 @@ void InstanceSaveManager::CleanupInstances()
         {
             Field *fields = result->Fetch();
             if (InstanceSet.find(fields[0].GetUInt32()) == InstanceSet.end())
-                WorldDatabase.DirectPExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", fields[0].GetUInt32());
+                WorldDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", fields[0].GetUInt32());
         }
         while (result->NextRow());
     }
@@ -441,7 +433,7 @@ void InstanceSaveManager::LoadResetTimes()
                 InstResetTimeMapDiffType::iterator itr = instResetTime.find(instance);
                 if (itr != instResetTime.end() && itr->second.second != resettime)
                 {
-                    CharacterDatabase.DirectPExecute("UPDATE instance SET resettime = '"UI64FMTD"' WHERE id = '%u'", uint64(resettime), instance);
+                    CharacterDatabase.PExecute("UPDATE instance SET resettime = '"UI64FMTD"' WHERE id = '%u'", uint64(resettime), instance);
                     itr->second.second = resettime;
                 }
             }
@@ -470,14 +462,14 @@ void InstanceSaveManager::LoadResetTimes()
             if (!mapDiff)
             {
                 sLog.outError("InstanceSaveManager::LoadResetTimes: invalid mapid(%u)/difficulty(%u) pair in instance_reset!", mapid, difficulty);
-                CharacterDatabase.DirectPExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid,difficulty);
+                CharacterDatabase.PExecute("DELETE FROM instance_reset WHERE mapid = '%u' AND difficulty = '%u'", mapid,difficulty);
                 continue;
             }
 
             // update the reset time if the hour in the configs changes
             uint64 newresettime = (oldresettime / DAY) * DAY + diff;
             if (oldresettime != newresettime)
-                CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty = '%u'", newresettime, mapid, difficulty);
+                CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty = '%u'", newresettime, mapid, difficulty);
 
             SetResetTimeFor(mapid,difficulty,newresettime);
         } while (result->NextRow());
@@ -508,7 +500,7 @@ void InstanceSaveManager::LoadResetTimes()
         {
             // initialize the reset time
             t = today + period + diff;
-            CharacterDatabase.DirectPExecute("INSERT INTO instance_reset VALUES ('%u','%u','"UI64FMTD"')", mapid, difficulty, (uint64)t);
+            CharacterDatabase.PExecute("INSERT INTO instance_reset VALUES ('%u','%u','"UI64FMTD"')", mapid, difficulty, (uint64)t);
         }
 
         if (t < now)
@@ -517,7 +509,7 @@ void InstanceSaveManager::LoadResetTimes()
             // calculate the next reset time
             t = (t / DAY) * DAY;
             t += ((today - t) / period + 1) * period + diff;
-            CharacterDatabase.DirectPExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty= '%u'", (uint64)t, mapid, difficulty);
+            CharacterDatabase.PExecute("UPDATE instance_reset SET resettime = '"UI64FMTD"' WHERE mapid = '%u' AND difficulty= '%u'", (uint64)t, mapid, difficulty);
         }
 
         SetResetTimeFor(mapid,difficulty,t);
@@ -615,7 +607,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     sLog.outDebug("InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
-    Map *map = (MapInstanced*)MapManager::Instance().CreateBaseMap(mapid);
+    Map *map = (MapInstanced*)sMapMgr.CreateBaseMap(mapid);
     if (!map->Instanceable())
         return;
 
@@ -679,7 +671,7 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
     }
 
     // note: this isn't fast but it's meant to be executed very rarely
-    Map const *map = MapManager::Instance().CreateBaseMap(mapid);          // _not_ include difficulty
+    Map const *map = sMapMgr.CreateBaseMap(mapid);          // _not_ include difficulty
     MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
     MapInstanced::InstancedMaps::iterator mitr;
     for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)

@@ -19,18 +19,17 @@
  */
 
 #include "DatabaseEnv.h"
-#include "Config/ConfigEnv.h"
+#include "Configuration/ConfigEnv.h"
 
 #include "Common.h"
-#include "UpdateFields.h"
+#include "Updates/UpdateFields.h"
 
-#include "Util.h"
-#include "Policies/SingletonImp.h"
-#include "Platform/Define.h"
-#include "Threading.h"
+#include "Utilities/Util.h"
+#include "Define.h"
+#include "Threading/Threading.h"
 #include "Database/SqlDelayThread.h"
 #include "Database/SqlOperations.h"
-#include "Timer.h"
+#include "Utilities/Timer.h"
 
 
 #include <ctime>
@@ -113,7 +112,7 @@ bool Database::Initialize(const char *infoString)
         database = *iter++;
 
     mysql_options(mysqlInit, MYSQL_SET_CHARSET_NAME, "utf8");
-    #ifdef WIN32
+    #ifdef _WIN32
     if (host==".")                                           // named pipe use option (Windows)
     {
         unsigned int opt = MYSQL_PROTOCOL_PIPE;

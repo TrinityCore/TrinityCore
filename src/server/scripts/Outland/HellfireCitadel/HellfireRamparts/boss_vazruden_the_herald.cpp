@@ -1,17 +1,19 @@
-/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+/*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* ScriptData
@@ -21,34 +23,45 @@ Comment:
 Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
-#include "ScriptedPch.h"
+#include "ScriptPCH.h"
 
-#define SPELL_FIREBALL              DUNGEON_MODE(34653, 36920)
-#define SPELL_CONE_OF_FIRE          DUNGEON_MODE(30926, 36921)
-#define SPELL_SUMMON_LIQUID_FIRE    DUNGEON_MODE(23971, 30928)
-#define SPELL_BELLOWING_ROAR        39427
-#define SPELL_REVENGE               DUNGEON_MODE(19130, 40392)
-#define SPELL_KIDNEY_SHOT           30621
-#define SPELL_FIRE_NOVA_VISUAL      19823
+enum eSpells
+{
+    SPELL_FIREBALL                = 34653,
+    SPELL_FIREBALL_H              = 36920,
+    SPELL_CONE_OF_FIRE            = 30926,
+    SPELL_CONE_OF_FIRE_H          = 36921,
+    SPELL_SUMMON_LIQUID_FIRE      = 23971,
+    SPELL_SUMMON_LIQUID_FIRE_H    = 30928,
+    SPELL_BELLOWING_ROAR          = 39427,
+    SPELL_REVENGE                 = 19130,
+    SPELL_REVENGE_H               = 40392,
+    SPELL_KIDNEY_SHOT             = 30621,
+    SPELL_FIRE_NOVA_VISUAL        = 19823,
+};
 
-#define ENTRY_HELLFIRE_SENTRY       17517
-#define ENTRY_VAZRUDEN_HERALD       17307
-#define ENTRY_VAZRUDEN              17537
-#define ENTRY_NAZAN                 17536
-#define ENTRY_LIQUID_FIRE           22515
-#define ENTRY_REINFORCED_FEL_IRON_CHEST DUNGEON_MODE(185168, 185169)
-
-#define SAY_INTRO               -1543017
-#define SAY_WIPE                -1543018
-#define SAY_AGGRO_1             -1543019
-#define SAY_AGGRO_2             -1543020
-#define SAY_AGGRO_3             -1543021
-#define SAY_KILL_1              -1543022
-#define SAY_KILL_2              -1543023
-#define SAY_DIE                 -1543024
-#define EMOTE                   -1543025
-
-#define PATH_ENTRY              2081
+enum eUnits
+{
+    ENTRY_HELLFIRE_SENTRY             = 17517,
+    ENTRY_VAZRUDEN_HERALD             = 17307,
+    ENTRY_VAZRUDEN                    = 17537,
+    ENTRY_NAZAN                       = 17536,
+    ENTRY_LIQUID_FIRE                 = 22515,
+    ENTRY_REINFORCED_FEL_IRON_CHEST   = 185168,
+    ENTRY_REINFORCED_FEL_IRON_CHEST_H = 185169,
+};
+enum eSays
+{
+    SAY_INTRO                     = -1543017,
+    SAY_WIPE                      = -1543018,
+    SAY_AGGRO_1                   = -1543019,
+    SAY_AGGRO_2                   = -1543020,
+    SAY_AGGRO_3                   = -1543021,
+    SAY_KILL_1                    = -1543022,
+    SAY_KILL_2                    = -1543023,
+    SAY_DIE                       = -1543024,
+    EMOTE                         = -1543025,
+};
 
 const float VazrudenMiddle[3] = {-1406.5, 1746.5, 81.2};
 const float VazrudenRing[2][3] =
@@ -59,10 +72,10 @@ const float VazrudenRing[2][3] =
 
 struct boss_nazanAI : public ScriptedAI
 {
-    boss_nazanAI(Creature *c) : ScriptedAI(c)
+    boss_nazanAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         VazrudenGUID = 0;
-        flight = true;
+        flight = true;        
     }
 
     uint32 Fireball_Timer;
@@ -70,7 +83,6 @@ struct boss_nazanAI : public ScriptedAI
     uint32 BellowingRoar_Timer;
     uint32 Fly_Timer;
     uint32 Turn_Timer;
-    uint32 UnsummonCheck;
     bool flight;
     uint64 VazrudenGUID;
     SpellEntry *liquid_fire;
@@ -80,8 +92,7 @@ struct boss_nazanAI : public ScriptedAI
         Fireball_Timer = 4000;
         Fly_Timer = 45000;
         Turn_Timer = 0;
-        UnsummonCheck = 5000;
-    }
+    }  
 
     void EnterCombat(Unit* /*who*/) {}
 
@@ -91,7 +102,7 @@ struct boss_nazanAI : public ScriptedAI
         {
             summoned->SetLevel(me->getLevel());
             summoned->setFaction(me->getFaction());
-            summoned->CastSpell(summoned,SPELL_SUMMON_LIQUID_FIRE,true);
+            summoned->CastSpell(summoned, DUNGEON_MODE(SPELL_SUMMON_LIQUID_FIRE,SPELL_SUMMON_LIQUID_FIRE_H),true);
             summoned->CastSpell(summoned,SPELL_FIRE_NOVA_VISUAL,true);
         }
     }
@@ -105,18 +116,12 @@ struct boss_nazanAI : public ScriptedAI
     void UpdateAI(const uint32 diff)
     {
         if (!UpdateVictim())
-        {
-            if (UnsummonCheck < diff && me->isAlive())
-                me->DisappearAndDie();
-            else
-                UnsummonCheck -= diff;
             return;
-        }
 
         if (Fireball_Timer <= diff)
         {
-            if (Unit *victim = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(victim, SPELL_FIREBALL, true);
+            if (Unit* pVictim = SelectUnit(SELECT_TARGET_RANDOM,0))
+                DoCast(pVictim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
             Fireball_Timer = urand(4000,7000);
         } else Fireball_Timer -= diff;
 
@@ -127,12 +132,12 @@ struct boss_nazanAI : public ScriptedAI
             {
                 flight = false;
                 BellowingRoar_Timer = 6000;
-                ConeOfFire_Timer = 12000;
+                ConeOfFire_Timer = 12000;                
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
                 me->GetMotionMaster()->Clear();
-                if (Unit *victim = SelectUnit(SELECT_TARGET_NEAREST,0))
-                    me->AI()->AttackStart(victim);
+                if (Unit* pVictim = SelectUnit(SELECT_TARGET_NEAREST,0))
+                    me->AI()->AttackStart(pVictim);
                 DoStartMovement(me->getVictim());
                 DoScriptText(EMOTE, me);
                 return;
@@ -141,7 +146,7 @@ struct boss_nazanAI : public ScriptedAI
             if (Turn_Timer <= diff)
             {
                 uint32 waypoint = (Fly_Timer/10000)%2;
-                if (me->IsWithinDist3d(VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2], 5))
+                if (!me->IsWithinDist3d(VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2], 5))
                     me->GetMotionMaster()->MovePoint(0,VazrudenRing[waypoint][0],VazrudenRing[waypoint][1],VazrudenRing[waypoint][2]);
                 Turn_Timer = 10000;
             } else Turn_Timer -= diff;
@@ -150,7 +155,7 @@ struct boss_nazanAI : public ScriptedAI
         {
             if (ConeOfFire_Timer <= diff)
             {
-                DoCast(me, SPELL_CONE_OF_FIRE);
+                DoCast(me, DUNGEON_MODE(SPELL_CONE_OF_FIRE, SPELL_CONE_OF_FIRE_H));
                 ConeOfFire_Timer = 12000;
                 Fireball_Timer = 4000;
             } else ConeOfFire_Timer -= diff;
@@ -169,7 +174,7 @@ struct boss_nazanAI : public ScriptedAI
 
 struct boss_vazrudenAI : public ScriptedAI
 {
-    boss_vazrudenAI(Creature *c) : ScriptedAI(c)
+    boss_vazrudenAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
     }
 
@@ -220,7 +225,7 @@ struct boss_vazrudenAI : public ScriptedAI
         if (Revenge_Timer <= diff)
         {
             if (Unit *victim = me->getVictim())
-                DoCast(victim, SPELL_REVENGE);
+                DoCast(victim, DUNGEON_MODE(SPELL_REVENGE,SPELL_REVENGE_H));
             Revenge_Timer = 5000;
         } else Revenge_Timer -= diff;
 
@@ -230,7 +235,7 @@ struct boss_vazrudenAI : public ScriptedAI
 
 struct boss_vazruden_the_heraldAI : public ScriptedAI
 {
-    boss_vazruden_the_heraldAI(Creature *c) : ScriptedAI(c)
+    boss_vazruden_the_heraldAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         summoned = false;
         sentryDown = false;
@@ -251,8 +256,7 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
         phase = 0;
         waypoint = 0;
         check = 0;
-        UnsummonAdds();
-        me->GetMotionMaster()->MovePath(PATH_ENTRY, true);
+        UnsummonAdds();        
     }
 
     void UnsummonAdds()
@@ -288,15 +292,15 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
         {
             if (Creature* Vazruden = me->SummonCreature(ENTRY_VAZRUDEN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))
                 VazrudenGUID = Vazruden->GetGUID();
-            if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))
-                NazanGUID = Nazan->GetGUID();
+            if (Creature* Nazan = me->SummonCreature(ENTRY_NAZAN,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,6000000))                            
+                NazanGUID = Nazan->GetGUID();            
             summoned = true;
             me->SetVisibility(VISIBILITY_OFF);
             me->addUnitState(UNIT_STAT_ROOT);
         }
     }
 
-    void EnterCombat(Unit * /*who*/)
+    void EnterCombat(Unit* /*who*/)
     {
         if (phase == 0)
         {
@@ -306,27 +310,29 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
         }
     }
 
-    void JustSummoned(Creature *summoned)
+    void JustSummoned(Creature* pSummoned)
     {
-        if (!summoned) return;
-        Unit *victim = me->getVictim();
-        if (summoned->GetEntry() == ENTRY_NAZAN)
+        if (!pSummoned)
+            return;
+        Unit* pVictim = me->getVictim();
+        if (pSummoned->GetEntry() == ENTRY_NAZAN)
         {
-            CAST_AI(boss_nazanAI, summoned->AI())->VazrudenGUID = VazrudenGUID;
-            summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            summoned->SetSpeed(MOVE_FLIGHT, 2.5);
-            if (victim)
-                AttackStartNoMove(victim);
+            CAST_AI(boss_nazanAI, pSummoned->AI())->VazrudenGUID = VazrudenGUID;
+            pSummoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            pSummoned->SetSpeed(MOVE_FLIGHT, 2.5);            
+            if (pVictim)
+                AttackStartNoMove(pVictim);
         }
-        else if (victim)
-            summoned->AI()->AttackStart(victim);
+        else 
+            if (pVictim)
+                pSummoned->AI()->AttackStart(pVictim);
     }
 
-    void SentryDownBy(Unit* killer)
+    void SentryDownBy(Unit* pKiller)
     {
         if (sentryDown)
         {
-            AttackStartNoMove(killer);
+            AttackStartNoMove(pKiller);
             sentryDown = false;
         }
         else
@@ -375,9 +381,9 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
                 }
                 else
                 {
-                    me->SummonGameObject(ENTRY_REINFORCED_FEL_IRON_CHEST,VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
+                    me->SummonGameObject(DUNGEON_MODE(ENTRY_REINFORCED_FEL_IRON_CHEST, ENTRY_REINFORCED_FEL_IRON_CHEST_H),VazrudenMiddle[0],VazrudenMiddle[1],VazrudenMiddle[2],0,0,0,0,0,0);
                     me->SetLootRecipient(NULL); // don't think this is necessary..
-                    me->Kill(me);
+                    //me->Kill(me);
                 }
                 check = 2000;
             } else check -= diff;
@@ -388,7 +394,7 @@ struct boss_vazruden_the_heraldAI : public ScriptedAI
 
 struct mob_hellfire_sentryAI : public ScriptedAI
 {
-    mob_hellfire_sentryAI(Creature *c) : ScriptedAI(c) {}
+    mob_hellfire_sentryAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
     uint32 KidneyShot_Timer;
 

@@ -22,14 +22,14 @@
 #include "QuestDef.h"
 #include "GameObject.h"
 #include "ObjectMgr.h"
-#include "PoolHandler.h"
+#include "PoolMgr.h"
 #include "SpellMgr.h"
 #include "Spell.h"
 #include "UpdateMask.h"
 #include "Opcodes.h"
 #include "WorldPacket.h"
 #include "World.h"
-#include "Database/DatabaseEnv.h"
+#include "DatabaseEnv.h"
 #include "LootMgr.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -117,7 +117,7 @@ void GameObject::AddToWorld()
         if (m_zoneScript)
             m_zoneScript->OnGameObjectCreate(this, true);
 
-        ObjectAccessor::Instance().AddObject(this);
+        sObjectAccessor.AddObject(this);
         WorldObject::AddToWorld();
     }
 }
@@ -139,7 +139,7 @@ void GameObject::RemoveFromWorld()
                 sLog.outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
-        ObjectAccessor::Instance().RemoveObject(this);
+        sObjectAccessor.RemoveObject(this);
     }
 }
 
@@ -1626,7 +1626,7 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
         if (m_goValue->building.health <= m_goInfo->building.damagedNumHits)
         {
             if (!m_goInfo->building.destroyedDisplayId)
-                m_goValue->building.health = 0;
+                m_goValue->building.health = m_goInfo->building.damagedNumHits;
             else if (!m_goValue->building.health)
                 m_goValue->building.health = 1;
 

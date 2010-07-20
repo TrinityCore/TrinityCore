@@ -21,8 +21,10 @@
 #ifndef TRINITY_DBCSTRUCTURE_H
 #define TRINITY_DBCSTRUCTURE_H
 
+#include "Common.h"
 #include "DBCEnums.h"
-#include "Platform/Define.h"
+#include "Define.h"
+#include "Path.h"
 #include "Util.h"
 
 #include <map>
@@ -1080,12 +1082,14 @@ struct ItemRandomSuffixEntry
     uint32    prefix[5];                                    // 22-24    m_allocationPct
 };
 
+#define MAX_ITEM_SET_ITEMS 10
 struct ItemSetEntry
 {
     //uint32    id                                          // 0        m_ID
     char*     name[16];                                     // 1-16     m_name_lang
                                                             // 17 string flags, unused
-    //uint32    itemId[17];                                 // 18-34    m_itemID
+    uint32    itemId[MAX_ITEM_SET_ITEMS];                   // 18-27    m_itemID
+    //uint32    unknown[7];                                 // 28-34    unk, all 0
     uint32    spells[8];                                    // 35-42    m_setSpellID
     uint32    items_to_triggerspell[8];                     // 43-50    m_setThreshold
     uint32    required_skill_id;                            // 51       m_requiredSkill
@@ -1509,9 +1513,6 @@ struct SpellEntry
     //uint32  spellDescriptionVariableID;                   // 232      3.2.0
     //uint32  SpellDifficultyId;                            // 233      3.3.0
 
-    // helpers
-    int32 CalculateSimpleValue(uint8 eff) const { return EffectBasePoints[eff]+int32(1); }
-
     private:
         // prevent creating custom entries (copy data from original in fact)
         SpellEntry(SpellEntry const&);                      // DON'T must have implementation
@@ -1712,8 +1713,8 @@ struct TaxiPathNodeEntry
     float     z;                                            // 6        m_LocZ
     uint32    actionFlag;                                   // 7        m_flags
     uint32    delay;                                        // 8        m_delay
-                                                            // 9        m_arrivalEventID
-                                                            // 10       m_departureEventID
+    uint32    arrivalEventID;                               // 9        m_arrivalEventID
+    uint32    departureEventID;                             // 10       m_departureEventID
 };
 
 struct TotemCategoryEntry
@@ -1909,19 +1910,15 @@ struct TaxiPathBySourceAndDestination
 typedef std::map<uint32,TaxiPathBySourceAndDestination> TaxiPathSetForSource;
 typedef std::map<uint32,TaxiPathSetForSource> TaxiPathSetBySource;
 
-struct TaxiPathNode
+struct TaxiPathNodePtr
 {
-    TaxiPathNode() : mapid(0), x(0),y(0),z(0),actionFlag(0),delay(0) {}
-    TaxiPathNode(uint32 _mapid, float _x, float _y, float _z, uint32 _actionFlag, uint32 _delay) : mapid(_mapid), x(_x),y(_y),z(_z),actionFlag(_actionFlag),delay(_delay) {}
-
-    uint32    mapid;
-    float     x;
-    float     y;
-    float     z;
-    uint32    actionFlag;
-    uint32    delay;
+    TaxiPathNodePtr() : i_ptr(NULL) {}
+    TaxiPathNodePtr(TaxiPathNodeEntry const* ptr) : i_ptr(ptr) {}
+    TaxiPathNodeEntry const* i_ptr;
+    operator TaxiPathNodeEntry const& () const { return *i_ptr; }
 };
-typedef std::vector<TaxiPathNode> TaxiPathNodeList;
+
+typedef Path<TaxiPathNodePtr,TaxiPathNodeEntry const> TaxiPathNodeList;
 typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 
 #define TaxiMaskSize 12

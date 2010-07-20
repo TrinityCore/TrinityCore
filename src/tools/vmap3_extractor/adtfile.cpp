@@ -1,9 +1,10 @@
+#include "vmapexport.h"
 #include "adtfile.h"
 
 #include <algorithm>
 #include <cstdio>
 
-#ifdef WIN32
+#ifdef _WIN32
 #define snprintf _snprintf
 #endif
 
@@ -69,12 +70,12 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
     //printf("xMap = %s\n", xMap.c_str());
     //printf("yMap = %s\n", yMap.c_str());
 
-    const char dirname[] = "Buildings/dir_bin";
+    std::string dirname = std::string(szWorkDirWmo) + "/dir_bin";
     FILE *dirfile;
-    dirfile = fopen(dirname, "ab");
+    dirfile = fopen(dirname.c_str(), "ab");
     if(!dirfile)
     {
-        printf("Can't open dirfile!'%s'\n", dirname);
+        printf("Can't open dirfile!'%s'\n", dirname.c_str());
         return false;
     }
 
@@ -125,7 +126,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     // nothing do
 
                     char szLocalFile[1024];
-                    snprintf(szLocalFile, 1024, "./Buildings/%s", s);
+                    snprintf(szLocalFile, 1024, "%s/%s", szWorkDirWmo, s);
                     FILE * output = fopen(szLocalFile,"rb");
                     if(!output)
                     {

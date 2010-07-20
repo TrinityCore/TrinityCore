@@ -21,8 +21,9 @@
 #ifndef TRINITYCORE_QUEST_H
 #define TRINITYCORE_QUEST_H
 
-#include "Platform/Define.h"
-#include "Database/DatabaseEnv.h"
+#include "Define.h"
+#include "DatabaseEnv.h"
+#include "SharedDefines.h"
 
 #include <string>
 #include <vector>
@@ -244,6 +245,8 @@ class Quest
         bool   IsWeekly() const { return QuestFlags & QUEST_FLAGS_WEEKLY; }
         bool   IsDailyOrWeekly() const { return QuestFlags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
         bool   IsAutoAccept() const { return QuestFlags & QUEST_FLAGS_AUTO_ACCEPT; }
+        bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25; }
+        bool   IsAllowedInRaid() const;
 
         // multiple values
         std::string ObjectiveText[QUEST_OBJECTIVES_COUNT];

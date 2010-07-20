@@ -150,7 +150,7 @@ enum Target
 
 enum CastFlags
 {
-    CAST_INTURRUPT_PREVIOUS     = 0x01,                     //Interrupt any spell casting
+    CAST_INTERRUPT_PREVIOUS     = 0x01,                     //Interrupt any spell casting
     CAST_TRIGGERED              = 0x02,                     //Triggered (this makes spell cost zero mana and have no cast time)
     CAST_FORCE_CAST             = 0x04,                     //Forces cast even if creature is out of mana or out of range
     CAST_NO_MELEE_IF_OOM        = 0x08,                     //Prevents creature from entering melee if out of mana or out of range

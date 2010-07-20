@@ -21,7 +21,7 @@
 #ifndef TRINITY_DESTINATION_HOLDER_H
 #define TRINITY_DESTINATION_HOLDER_H
 
-#include "Platform/Define.h"
+#include "Define.h"
 #include "Timer.h"
 
 class WorldObject;

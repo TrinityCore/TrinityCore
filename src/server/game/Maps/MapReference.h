@@ -19,7 +19,7 @@
 #ifndef _MAPREFERENCE_H
 #define _MAPREFERENCE_H
 
-#include "Utilities/LinkedReference/Reference.h"
+#include "Reference.h"
 #include "Map.h"
 
 class MapReference : public Reference<Map, Player>
