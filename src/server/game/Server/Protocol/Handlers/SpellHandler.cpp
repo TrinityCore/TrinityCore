@@ -411,6 +411,10 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (!IsPositiveSpell(spellId) || (spellInfo->Attributes & SPELL_ATTR_CANT_CANCEL))
         return;
 
+    // don't allow cancelling passive auras (some of them are visible)
+    if (IsPassiveSpell(spellInfo))
+        return;
+
     // channeled spell case (it currently casted then)
     if (IsChanneledSpell(spellInfo))
     {
