@@ -52,9 +52,9 @@ enum SpellCategories
 
 enum SpellDisableTypes
 {
-    SPELL_DISABLE_PLAYER = 1,
-    SPELL_DISABLE_CREATURE = 2,
-    SPELL_DISABLE_PET = 4
+    SPELL_DISABLE_PLAYER    = 1,
+    SPELL_DISABLE_CREATURE  = 2,
+    SPELL_DISABLE_PET       = 4
 };
 
 enum SpellEffectTargetTypes

@@ -34,6 +34,7 @@
 #include "Player.h"
 #include "Object.h"
 #include "Opcodes.h"
+#include "DisableMgr.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket & recv_data)
 {
@@ -87,6 +88,12 @@ void WorldSession::HandleBattlemasterJoinOpcode(WorldPacket & recv_data)
     if (!sBattlemasterListStore.LookupEntry(bgTypeId_))
     {
         sLog.outError("Battleground: invalid bgtype (%u) received. possible cheater? player guid %u",bgTypeId_,_player->GetGUIDLow());
+        return;
+    }
+
+    if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeId_, NULL))
+    {
+        ChatHandler(this).PSendSysMessage(LANG_BG_DISABLED);
         return;
     }
 
@@ -656,6 +663,12 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     if (!bg)
     {
         sLog.outError("Battleground: template bg (all arenas) not found");
+        return;
+    }
+
+    if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, BATTLEGROUND_AA, NULL))
+    {
+        ChatHandler(this).PSendSysMessage(LANG_ARENA_DISABLED);
         return;
     }
 

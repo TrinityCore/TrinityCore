@@ -434,8 +434,6 @@ INSERT INTO `command` VALUES
 ('instance savedata',3,'Syntax: .instance savedata\r\n  Save the InstanceData for the current player''s map to the DB.'),
 ('instance stats',3,'Syntax: .instance stats\r\n  Shows statistics about instances.'),
 ('instance unbind',3,'Syntax: .instance unbind all\r\n  All of the selected player''s binds will be cleared.'),
-('instance open', 3, 'Syntax: .instance open mapid [normal|heroic|10normal|10heroic|25normal|25heroic]'),
-('instance close', 3, 'Syntax: .instance close mapid [normal|heroic|10normal|10heroic|25normal|25heroic]'),
 ('itemmove',2,'Syntax: .itemmove #sourceslotid #destinationslotid\r\n\r\nMove an item from slots #sourceslotid to #destinationslotid in your inventory\r\n\r\nNot yet implemented'),
 ('kick',2,'Syntax: .kick [$charactername] [$reason]\r\n\r\nKick the given character name from the world with or without reason. If no character name is provided then the selected player (except for yourself) will be kicked. If no reason is provided, default is \"No Reason\".'),
 ('learn',3,'Syntax: .learn #spell [all]\r\n\r\nSelected character learn a spell of id #spell. If ''all'' provided then all ranks learned.'),
@@ -574,6 +572,7 @@ INSERT INTO `command` VALUES
 ('reload creature_loot_template',3,'Syntax: .reload creature_loot_template\nReload creature_loot_template table.'),
 ('reload creature_onkill_reputation','3','Syntax: .reload creature_onkill_reputation\r\nReload creature_onkill_reputation table.'),
 ('reload creature_questrelation',3,'Syntax: .reload creature_questrelation\nReload creature_questrelation table.'),
+('reload disables',3,'Syntax: .reload disables\r\nReload disables table.'),
 ('reload disenchant_loot_template',3,'Syntax: .reload disenchant_loot_template\nReload disenchant_loot_template table.'),
 ('reload event_scripts',3,'Syntax: .reload event_scripts\nReload event_scripts table.'),
 ('reload fishing_loot_template',3,'Syntax: .reload fishing_loot_template\nReload fishing_loot_template table.'),
@@ -615,7 +614,6 @@ INSERT INTO `command` VALUES
 ('reload skinning_loot_template',3,'Syntax: .reload skinning_loot_template\nReload skinning_loot_template table.'),
 ('reload spell_area',3,'Syntax: .reload spell_area\nReload spell_area table.'),
 ('reload spell_bonus_data',3,'Syntax: .reload spell_bonus_data\nReload spell_bonus_data table.'),
-('reload spell_disabled',3,'Syntax: .reload spell_disabled\nReload spell_disabled table.'),
 ('reload spell_group',3,'Syntax: .reload spell_group\nReload spell_group table.'),
 ('reload spell_group_stack_rules',3,'Syntax: .reload spell_group\nReload spell_group_stack_rules table.'),
 ('reload spell_learn_spell',3,'Syntax: .reload spell_learn_spell\nReload spell_learn_spell table.'),
@@ -1780,6 +1778,28 @@ CREATE TABLE `db_script_string` (
 LOCK TABLES `db_script_string` WRITE;
 /*!40000 ALTER TABLE `db_script_string` DISABLE KEYS */;
 /*!40000 ALTER TABLE `db_script_string` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `disables`
+--
+
+DROP TABLE IF EXISTS `disables`;
+CREATE TABLE `disables` (
+  `sourceType` int(10) unsigned NOT NULL,
+  `entry` int(10) unsigned NOT NULL,
+  `flags` tinyint(3) unsigned NOT NULL default '0',
+  `comment` varchar(255) character set utf8 NOT NULL default '',
+  PRIMARY KEY  (`sourceType`,`entry`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `disables`
+--
+
+LOCK TABLES `db_script_string` WRITE;
+/*!40000 ALTER TABLE `disables` DISABLE KEYS */;
+/*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
