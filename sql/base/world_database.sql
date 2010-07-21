@@ -38,8 +38,7 @@ CREATE TABLE `access_requirement` (
   `heroic_quest_done` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `heroic_quest_failed_text` text,
   `comment` text,
-  `status` tinyint(3) unsigned DEFAULT '15' COMMENT 'instance status (open/close)',
-  PRIMARY KEY (`id`)
+   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -244,7 +243,6 @@ CREATE TABLE `battleground_template` (
   `AllianceStartO` float NOT NULL,
   `HordeStartLoc` mediumint(8) unsigned NOT NULL,
   `HordeStartO` float NOT NULL,
-  `Disable` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1785,6 +1783,8 @@ UNLOCK TABLES;
 --
 
 DROP TABLE IF EXISTS `disables`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `disables` (
   `sourceType` int(10) unsigned NOT NULL,
   `entry` int(10) unsigned NOT NULL,
@@ -1792,12 +1792,13 @@ CREATE TABLE `disables` (
   `comment` varchar(255) character set utf8 NOT NULL default '',
   PRIMARY KEY  (`sourceType`,`entry`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `disables`
 --
 
-LOCK TABLES `db_script_string` WRITE;
+LOCK TABLES `disables` WRITE;
 /*!40000 ALTER TABLE `disables` DISABLE KEYS */;
 /*!40000 ALTER TABLE `disables` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -5367,30 +5368,6 @@ INSERT INTO `spell_dbc` (`Id`,`Dispel`,`Mechanic`,`Attributes`,`AttributesEx`,`A
 (71098,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Quest 24451 RewSpellCast serverside spell'),
 (70878,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, -1, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Creature 40160 creature_addon serverside spell');
 /*!40000 ALTER TABLE `spell_dbc` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `spell_disabled`
---
-
-DROP TABLE IF EXISTS `spell_disabled`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `spell_disabled` (
-  `entry` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'Spell entry',
-  `disable_mask` int(8) unsigned NOT NULL DEFAULT '0',
-  `comment` varchar(64) NOT NULL DEFAULT '',
-  PRIMARY KEY (`entry`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=FIXED COMMENT='Disabled Spell System';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `spell_disabled`
---
-
-LOCK TABLES `spell_disabled` WRITE;
-/*!40000 ALTER TABLE `spell_disabled` DISABLE KEYS */;
-/*!40000 ALTER TABLE `spell_disabled` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
