@@ -2179,7 +2179,7 @@ void ObjectMgr::LoadItemPrototypes()
             else if (proto->Spells[1].SpellId != -1)
             {
                 SpellEntry const* spellInfo = sSpellStore.LookupEntry(proto->Spells[1].SpellId);
-                if (!spellInfo)
+                if (!spellInfo && !sDisableMgr.IsDisabledFor(DISABLE_TYPE_SPELL, spellInfo->Id, NULL))
                 {
                     sLog.outErrorDb("Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%d)",i,1+1,proto->Spells[1].SpellId);
                     const_cast<ItemPrototype*>(proto)->Spells[0].SpellId = 0;
@@ -2227,7 +2227,7 @@ void ObjectMgr::LoadItemPrototypes()
                 if (proto->Spells[j].SpellId && proto->Spells[j].SpellId != -1)
                 {
                     SpellEntry const* spellInfo = sSpellStore.LookupEntry(proto->Spells[j].SpellId);
-                    if (!spellInfo)
+                    if (!spellInfo && !sDisableMgr.IsDisabledFor(DISABLE_TYPE_SPELL, spellInfo->Id, NULL))
                     {
                         sLog.outErrorDb("Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%d)",i,j+1,proto->Spells[j].SpellId);
                         const_cast<ItemPrototype*>(proto)->Spells[j].SpellId = 0;
@@ -5826,8 +5826,8 @@ void ObjectMgr::LoadAccessRequirements()
 
     uint32 count = 0;
 
-    //                                                0       1          2       3      4        5           6             7              8                   9                  10                         11              12
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text, heroic_level_min, status FROM access_requirement");
+    //                                                0       1          2       3      4        5           6             7              8                   9                  10                         11
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text, heroic_level_min FROM access_requirement");
     if (!result)
     {
 
@@ -5865,7 +5865,6 @@ void ObjectMgr::LoadAccessRequirements()
         ar.questFailedText          = fields[8].GetCppString();
         ar.heroicQuest              = fields[9].GetUInt32();
         ar.heroicQuestFailedText    = fields[10].GetCppString();
-        ar.status                   = fields[12].GetUInt8();
 
         if (ar.item)
         {
