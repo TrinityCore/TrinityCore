@@ -2005,6 +2005,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             float objSize = m_caster->GetObjectSize();
             dist = GetSpellRadiusForFriend(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[i]));
+            if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RADIUS, dist, this);
             if (dist < objSize)
                 dist = objSize;
             else if (cur == TARGET_DEST_CASTER_RANDOM)
@@ -2026,7 +2027,10 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             }
 
             Position pos;
-            m_caster->GetNearPosition(pos, dist, angle);
+            if (cur == TARGET_DEST_CASTER_FRONT_LEAP)
+                m_caster->GetFirstCollisionPosition(pos, dist, angle);
+            else
+                m_caster->GetNearPosition(pos, dist, angle);
             m_targets.setDst(&pos); // also flag
             break;
         }
