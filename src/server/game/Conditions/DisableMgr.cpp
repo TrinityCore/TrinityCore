@@ -73,12 +73,12 @@ void DisableMgr::LoadDisables()
         switch (type)
         {
             case DISABLE_TYPE_SPELL:
-                if (!sSpellStore.LookupEntry(entry))
+                if (!(sSpellStore.LookupEntry(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
                 {
                     sLog.outErrorDb("Spell entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
                 }
-                if (!flags || flags > 7)
+                if (!flags || flags > 15)
                 {
                     sLog.outErrorDb("Disable flags for spell %u are invalid, skipped.", entry);
                     continue;
@@ -198,19 +198,24 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
         case DISABLE_TYPE_SPELL:
         {
             uint8 flags = itr->second;
-            if (flags & SPELL_DISABLE_PLAYER && pUnit->GetTypeId() == TYPEID_PLAYER)
-                return true;
-            else if (pUnit->GetTypeId() == TYPEID_UNIT)
+            if (pUnit)
             {
-                if (pUnit->ToCreature()->isPet())
+                if (flags & SPELL_DISABLE_PLAYER && pUnit->GetTypeId() == TYPEID_PLAYER)
+                    return true;
+                else if (pUnit->GetTypeId() == TYPEID_UNIT)
                 {
-                    if (flags & SPELL_DISABLE_PET)
+                    if (pUnit->ToCreature()->isPet())
+                    {
+                        if (flags & SPELL_DISABLE_PET)
+                            return true;
+                    }
+                    else if (flags & SPELL_DISABLE_CREATURE)
                         return true;
                 }
-                else if (flags & SPELL_DISABLE_CREATURE)
-                    return true;
+                return false;
             }
-            return false;
+            else if (flags & SPELL_DISABLE_DEPRECATED_SPELL)    // call not from spellcast
+                return true;
         }
         case DISABLE_TYPE_MAP:
             if (!pUnit)
@@ -247,8 +252,6 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
         case DISABLE_TYPE_BATTLEGROUND:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             return true;
-        default:
-            return false;
     }
 
     return false;
