@@ -837,7 +837,6 @@ struct AccessRequirement
     std::string questFailedText;
     uint32 heroicQuest;
     std::string heroicQuestFailedText;
-    uint8  status;
 };
 
 class PlayerTaxi
