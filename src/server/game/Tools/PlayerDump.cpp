@@ -24,6 +24,7 @@
 #include "SQLStorage.h"
 #include "UpdateFields.h"
 #include "ObjectMgr.h"
+#include "AccountMgr.h"
 
 #define DUMP_TABLE_COUNT 26
 struct DumpTable
@@ -359,19 +360,9 @@ DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
 
 DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, std::string name, uint32 guid)
 {
-    // check character count
-    {
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters WHERE account = '%d'", account);
-        uint8 charcount = 0;
-        if (result)
-        {
-            Field *fields=result->Fetch();
-            charcount = fields[0].GetUInt8();
-
-            if (charcount >= 10)
-                return DUMP_TOO_MANY_CHARS;
-        }
-    }
+    uint32 charcount = accmgr.GetCharactersCount(account);
+    if (charcount >= 10)
+        return DUMP_TOO_MANY_CHARS;
 
     FILE *fin = fopen(file.c_str(), "r");
     if (!fin)

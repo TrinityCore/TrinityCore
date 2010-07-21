@@ -839,6 +839,13 @@ struct AccessRequirement
     std::string heroicQuestFailedText;
 };
 
+enum CharDeleteMethod
+{
+    CHAR_DELETE_REMOVE = 0,                      // Completely remove from the database
+    CHAR_DELETE_UNLINK = 1                       // The character gets unlinked from the account, 
+                                                 // the name gets freed up and appears as deleted ingame
+};
+
 class PlayerTaxi
 {
     public:
@@ -1418,6 +1425,10 @@ class Player : public Unit, public GridObject<Player>
         static void Customize(uint64 guid, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair);
         static void SavePositionInDB(uint32 mapid, float x,float y,float z,float o,uint32 zone,uint64 guid);
 
+        static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true, bool deleteFinally = false);
+        static void DeleteOldCharacters();
+        static void DeleteOldCharacters(uint32 keepDays);
+
         bool m_mailsLoaded;
         bool m_mailsUpdated;
 
@@ -1835,8 +1846,6 @@ class Player : public Unit, public GridObject<Player>
 
         void SendTeleportPacket(Position &oldPos);
         void SendTeleportAckPacket();
-
-        static void DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmChars = true);
 
         Corpse *GetCorpse() const;
         void SpawnCorpseBones();
