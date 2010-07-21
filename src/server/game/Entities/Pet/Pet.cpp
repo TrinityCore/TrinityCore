@@ -2000,13 +2000,13 @@ void Pet::SynchronizeLevelWithOwner()
             {
                 GivePetLevel(owner->getLevel());
                 SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(owner->getLevel())/5);
-                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP)-1);
+                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             }
             if (getLevel() < owner->getLevel()-5)
             {
                 GivePetLevel(owner->getLevel()-5);
                 SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, objmgr.GetXPForLevel(owner->getLevel()-5)/5);
-                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP)-1);
+                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             }
             break;
         default:
