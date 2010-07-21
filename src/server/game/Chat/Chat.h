@@ -234,9 +234,6 @@ class ChatHandler
         bool HandleInstanceUnbindCommand(const char* args);
         bool HandleInstanceStatsCommand(const char* args);
         bool HandleInstanceSaveDataCommand(const char * args);
-        bool HandleInstanceOpenCommand(const char * args);
-        bool HandleInstanceCloseCommand(const char * args);
-        bool HandleInstanceOpenCloseCommand(const char * args, bool open);
 
         bool HandleLearnCommand(const char* args);
         bool HandleLearnAllCommand(const char* args);
@@ -428,7 +425,7 @@ class ChatHandler
         bool HandleReloadSpellTargetPositionCommand(const char* args);
         bool HandleReloadSpellThreatsCommand(const char* args);
         bool HandleReloadSpellPetAurasCommand(const char* args);
-        bool HandleReloadSpellDisabledCommand(const char* args);
+        bool HandleReloadDisablesCommand(const char* args);
         bool HandleReloadSpellGroupStackRulesCommand(const char* args);
         bool HandleReloadAuctionsCommand(const char* args);
         bool HandleReloadWpScriptsCommand(const char* args);

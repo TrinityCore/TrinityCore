@@ -70,6 +70,7 @@
 #include "AddonMgr.h"
 #include "LFGMgr.h"
 #include "ConditionMgr.h"
+#include "DisableMgr.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1224,20 +1225,6 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_MIN_LOG_UPDATE] = sConfig.GetIntDefault("MinRecordUpdateTimeDiff", 10);
     m_configs[CONFIG_NUMTHREADS] = sConfig.GetIntDefault("MapUpdate.Threads", 1);
 
-    std::string forbiddenmaps = sConfig.GetStringDefault("ForbiddenMaps", "");
-    char * forbiddenMaps = new char[forbiddenmaps.length() + 1];
-    forbiddenMaps[forbiddenmaps.length()] = 0;
-    strncpy(forbiddenMaps, forbiddenmaps.c_str(), forbiddenmaps.length());
-    const char * delim = ",";
-    char * token = strtok(forbiddenMaps, delim);
-    while (token != NULL)
-    {
-        int32 mapid = strtol(token, NULL, 10);
-        m_forbiddenMapIds.insert(mapid);
-        token = strtok(NULL,delim);
-    }
-    delete[] forbiddenMaps;
-
     // chat logging
     m_configs[CONFIG_CHATLOG_CHANNEL] = sConfig.GetBoolDefault("ChatLogs.Channel", false);
     m_configs[CONFIG_CHATLOG_WHISPER] = sConfig.GetBoolDefault("ChatLogs.Whisper", false);
@@ -1430,8 +1417,14 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Weather Data...");
     objmgr.LoadWeatherZoneChances();
 
+    sLog.outString("Loading Disables");
+    sDisableMgr.LoadDisables();                             // must be before loading quests
+
     sLog.outString("Loading Quests...");
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
+
+    sLog.outString("Checking Quest Disables");
+    sDisableMgr.CheckQuestDisables();                       // must be after loading quests
 
     sLog.outString("Loading Quest POI");
     objmgr.LoadQuestPOI();
@@ -1498,9 +1491,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Player level dependent mail rewards...");
     objmgr.LoadMailLevelRewards();
-
-    sLog.outString("Loading Disabled Spells...");
-    objmgr.LoadSpellDisabledEntrys();
 
     // Loot tables
     LoadLootTables();

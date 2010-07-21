@@ -56,6 +56,7 @@
 #include "SpellAuraEffects.h"
 #include "DBCEnums.h"
 #include "ConditionMgr.h"
+#include "DisableMgr.h"
 
 bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
 {
@@ -661,7 +662,6 @@ bool ChatHandler::HandleReloadAllSpellCommand(const char*)
     HandleReloadSpellThreatsCommand("a");
     HandleReloadSpellGroupStackRulesCommand("a");
     HandleReloadSpellPetAurasCommand("a");
-    HandleReloadSpellDisabledCommand("a");
     return true;
 }
 
@@ -1463,14 +1463,13 @@ bool ChatHandler::HandleReloadGameTeleCommand(const char* /*arg*/)
     return true;
 }
 
-bool ChatHandler::HandleReloadSpellDisabledCommand(const char* /*arg*/)
+bool ChatHandler::HandleReloadDisablesCommand(const char* /*arg*/)
 {
-    sLog.outString("Re-Loading spell disabled table...");
-
-    objmgr.LoadSpellDisabledEntrys();
-
-    SendGlobalGMSysMessage("DB table `spell_disabled` reloaded.");
-
+    sLog.outString("Re-Loading disables table...");
+    sDisableMgr.LoadDisables();
+    sLog.outString("Checking quest disables...");
+    sDisableMgr.CheckQuestDisables();
+    SendGlobalGMSysMessage("DB table `disables` reloaded.");
     return true;
 }
 
@@ -7048,103 +7047,6 @@ bool ChatHandler::HandleInstanceSaveDataCommand(const char * /*args*/)
     }
 
     ((InstanceMap*)map)->GetInstanceData()->SaveToDB();
-    return true;
-}
-
-bool ChatHandler::HandleInstanceOpenCommand(const char *args)
-{
-    return HandleInstanceOpenCloseCommand(args,true);
-}
-
-bool ChatHandler::HandleInstanceCloseCommand(const char *args)
-{
-    return HandleInstanceOpenCloseCommand(args,false);
-}
-
-bool ChatHandler::HandleInstanceOpenCloseCommand(const char *args,bool open)
-{
-    char *mapIdStr;
-    char *instanceModeStr;
-    extractOptFirstArg((char*)args,&mapIdStr,&instanceModeStr);
-    if (!mapIdStr || !instanceModeStr)
-        return false;
-
-    uint32 mapid = atoi(mapIdStr);
-
-    InstanceTemplate const* instance = objmgr.GetInstanceTemplate(mapid);
-    if (!instance)
-    {
-        PSendSysMessage("Invalid map id");
-        SetSentErrorMessage(true);
-        return false;
-    }
-
-    uint8 status = objmgr.GetAccessRequirement(instance->access_id)->status;
-    uint8 flag = 0;
-
-    const MapEntry *entry = sMapStore.LookupEntry(mapid);
-    if (!entry)
-        return false;
-
-    if (entry->IsDungeon())
-    {
-        if (strcmp(instanceModeStr,"normal"))
-            flag = DUNGEON_STATUSFLAG_NORMAL;
-        else if (strcmp(instanceModeStr,"heroic"))
-            flag = DUNGEON_STATUSFLAG_HEROIC;
-        else if (strcmp(instanceModeStr,"all"))
-            flag = DUNGEON_STATUSFLAG_NORMAL & DUNGEON_STATUSFLAG_HEROIC;
-        else
-        {
-            PSendSysMessage("Unrecognized difficulty string");
-            SetSentErrorMessage(true);
-            return false;
-        }
-    }
-
-    else if (entry->IsRaid())
-    {
-        if (strcmp(instanceModeStr,"normal"))
-            flag = RAID_STATUSFLAG_10MAN_NORMAL & RAID_STATUSFLAG_25MAN_NORMAL;
-        else if (strcmp(instanceModeStr,"heroic"))
-            flag = RAID_STATUSFLAG_10MAN_HEROIC & RAID_STATUSFLAG_25MAN_HEROIC;
-        else if (strcmp(instanceModeStr,"10man"))    
-            flag = RAID_STATUSFLAG_10MAN_NORMAL & RAID_STATUSFLAG_10MAN_HEROIC;
-        else if (strcmp(instanceModeStr,"25man"))
-            flag = RAID_STATUSFLAG_25MAN_NORMAL & RAID_STATUSFLAG_25MAN_HEROIC;
-        else if (strcmp(instanceModeStr,"heroic"))
-            flag = RAID_STATUSFLAG_10MAN_HEROIC & RAID_STATUSFLAG_25MAN_HEROIC;
-        else if (strcmp(instanceModeStr,"10normal"))
-            flag = DUNGEON_STATUSFLAG_NORMAL;
-        else if (strcmp(instanceModeStr,"25normal"))
-            flag = DUNGEON_STATUSFLAG_HEROIC;
-        else if (strcmp(instanceModeStr,"10heroic"))
-            flag = RAID_STATUSFLAG_10MAN_HEROIC;
-        else if (strcmp(instanceModeStr,"25heroic"))
-            flag = RAID_STATUSFLAG_25MAN_HEROIC;
-        else if (strcmp(instanceModeStr,"all"))
-            flag = RAID_STATUSFLAG_10MAN_NORMAL & RAID_STATUSFLAG_10MAN_HEROIC & RAID_STATUSFLAG_25MAN_NORMAL & RAID_STATUSFLAG_25MAN_HEROIC;
-        else
-        {
-            PSendSysMessage("Unrecognized difficulty string");
-            SetSentErrorMessage(true);
-            return false;
-        }
-    }
-    else
-    {
-        PSendSysMessage("Map is not a dungeon/raid");
-        SetSentErrorMessage(true);
-        return false;
-    }
-    
-    if (open)
-        status |= flag;
-    else
-        status &= ~flag;
-
-    WorldDatabase.PExecute("UPDATE access_requirement SET status = '%u' WHERE id = '%u'", status, instance->access_id);
-    PSendSysMessage("Instance status changed. Don't forget to reload access_requirement table");
     return true;
 }
 

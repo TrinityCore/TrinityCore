@@ -51,6 +51,7 @@
 #include "SpellAuraEffects.h"
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
+#include "DisableMgr.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -2740,31 +2741,12 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
         finish(false);
         return;
     }
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+
+    if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, m_caster))
     {
-        if (objmgr.IsPlayerSpellDisabled(m_spellInfo->Id))
-        {
-            SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
-            finish(false);
-            return;
-        }
-    }
-    else if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet())
-    {
-        if (objmgr.IsPetSpellDisabled(m_spellInfo->Id))
-        {
-            SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
-            finish(false);
-            return;
-        }
-    }
-    else
-    {
-        if (objmgr.IsCreatureSpellDisabled(m_spellInfo->Id))
-        {
-            finish(false);
-            return;
-        }
+        SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
+        finish(false);
+        return;
     }
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)

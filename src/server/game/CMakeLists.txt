@@ -63,6 +63,7 @@ set(game_STAT_SRCS
   Combat/HostileRefManager.cpp
   Combat/ThreatManager.cpp
   Conditions/ConditionMgr.cpp
+  Conditions/DisableMgr.cpp
   DataStores/DBCStores.cpp
   DungeonFinding/LFGMgr.cpp
   Entities/Corpse/Corpse.cpp
