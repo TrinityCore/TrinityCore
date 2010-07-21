@@ -67,6 +67,7 @@
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "ConditionMgr.h"
+#include "DisableMgr.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -1809,7 +1810,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         return false;
     }
 
-    if ((GetSession()->GetSecurity() < SEC_GAMEMASTER) && !sWorld.IsAllowedMap(mapid))
+    if ((GetSession()->GetSecurity() < SEC_GAMEMASTER) && sDisableMgr.IsDisabledFor(DISABLE_TYPE_MAP, mapid, NULL))
     {
         sLog.outError("Player %s tried to enter a forbidden map", GetName());
         return false;
@@ -13972,7 +13973,8 @@ bool Player::CanSeeStartQuest(Quest const *pQuest)
     if (SatisfyQuestRace(pQuest, false) && SatisfyQuestSkillOrClass(pQuest, false) &&
         SatisfyQuestExclusiveGroup(pQuest, false) && SatisfyQuestReputation(pQuest, false) &&
         SatisfyQuestPreviousQuest(pQuest, false) && SatisfyQuestNextChain(pQuest, false) &&
-        SatisfyQuestPrevChain(pQuest, false) && SatisfyQuestDay(pQuest, false) && SatisfyQuestWeek(pQuest, false))
+        SatisfyQuestPrevChain(pQuest, false) && SatisfyQuestDay(pQuest, false) && SatisfyQuestWeek(pQuest, false) &&
+        !sDisableMgr.IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this))
     {
         return getLevel() + sWorld.getConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= pQuest->GetMinLevel();
     }
@@ -13987,7 +13989,8 @@ bool Player::CanTakeQuest(Quest const *pQuest, bool msg)
         && SatisfyQuestSkillOrClass(pQuest, msg) && SatisfyQuestReputation(pQuest, msg)
         && SatisfyQuestPreviousQuest(pQuest, msg) && SatisfyQuestTimed(pQuest, msg)
         && SatisfyQuestNextChain(pQuest, msg) && SatisfyQuestPrevChain(pQuest, msg)
-        && SatisfyQuestDay(pQuest, msg) && SatisfyQuestWeek(pQuest, msg);
+        && SatisfyQuestDay(pQuest, msg) && SatisfyQuestWeek(pQuest, msg)
+        && !sDisableMgr.IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this);
 }
 
 bool Player::CanAddQuest(Quest const *pQuest, bool msg)
@@ -17446,25 +17449,7 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
         if (!mapEntry)
             return false;
 
-        bool closed = false;
-
-        switch(mapEntry->IsRaid() ? GetRaidDifficulty() : GetDungeonDifficulty())
-        {
-            case DUNGEON_DIFFICULTY_NORMAL:
-                closed = (ar->status & DUNGEON_STATUSFLAG_NORMAL) == 0;
-                break;
-            case DUNGEON_DIFFICULTY_HEROIC:
-                closed = (ar->status & DUNGEON_STATUSFLAG_HEROIC) == 0;
-                break;
-            case RAID_DIFFICULTY_10MAN_HEROIC:
-                closed = (ar->status & RAID_STATUSFLAG_10MAN_HEROIC) == 0;
-                break;
-            case RAID_DIFFICULTY_25MAN_HEROIC:
-                closed = (ar->status & RAID_STATUSFLAG_25MAN_HEROIC) == 0;
-                break;
-        }
-
-        if (closed)
+        if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
         {
             GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
             return false;

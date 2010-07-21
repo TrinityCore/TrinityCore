@@ -2147,14 +2147,6 @@ Ra.Secure = 1
 #       Default: 0 = Only 1 Guild Master per guild
 #                1 = Allow more than one Guild Master
 #
-#   ForbiddenMaps
-#       Map ids that users below SEC_GAMEMASTER cannot enter,
-#        with delimiter ','
-#       Default: ""
-#       example: "538,90"
-#       Note that it's HIGHLY DISCOURAGED to forbid starting maps
-#        (0, 1, 530)!
-#
 #   ShowKickInWorld
 #        Determines wether a message is broadcasted to the entire server
 #         when a player gets kicked

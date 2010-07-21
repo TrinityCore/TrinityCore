@@ -3579,6 +3579,14 @@
 				RelativePath="..\..\src\server\game\Conditions\ConditionMgr.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\src\server\game\Conditions\DisableMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Conditions\DisableMgr.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="DataStores"

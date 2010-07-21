@@ -34,6 +34,7 @@
 #include "Player.h"
 #include "ProgressBar.h"
 #include "SpellMgr.h"
+#include "DisableMgr.h"
 
 #include "MapManager.h"
 #include "BattleGround.h"
@@ -107,7 +108,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
     {
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE:
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_DISABLED:
         case ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT:
             return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_CREATURE:
@@ -305,8 +305,6 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             if (!target)
                 return false;
             return target->getGender() == gender.gender;
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_DISABLED:
-            return false;                                   // always fail
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             return source->GetMap()->GetSpawnMode() == difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
@@ -715,6 +713,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
         AchievementCriteriaEntry const *achievementCriteria = (*i);
+        if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, achievementCriteria->ID, NULL))
+            continue;
 
         AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
         if (!achievement)
@@ -2084,7 +2084,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
     }
 
     uint32 count = 0;
-    uint32 disabled_count = 0;
     barGoLink bar(result->GetRowCount());
     do
     {
@@ -2110,9 +2109,6 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
         // this will allocate empty data set storage
         AchievementCriteriaDataSet& dataSet = m_criteriaDataMap[criteria_id];
         dataSet.SetCriteriaId(criteria_id);
-
-        if (data.dataType == ACHIEVEMENT_CRITERIA_DATA_TYPE_DISABLED)
-            ++disabled_count;
 
         // add real data only for not NONE data types
         if (data.dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE)
@@ -2193,12 +2189,12 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 continue;
         }
 
-        if (!GetCriteriaDataSet(criteria))
+        if (!GetCriteriaDataSet(criteria) && !sDisableMgr.IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, entryId, NULL))
             sLog.outErrorDb("Table `achievement_criteria_data` does not have expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 
     sLog.outString();
-    sLog.outString(">> Loaded %u additional achievement criteria data (%u disabled).",count,disabled_count);
+    sLog.outString(">> Loaded %u additional achievement criteria data.",count);
 }
 
 void AchievementGlobalMgr::LoadCompletedAchievements()
