@@ -1357,6 +1357,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Item Random Enchantments Table...");
     LoadRandomEnchantmentsTable();
 
+    sLog.outString("Loading Disables");
+    sDisableMgr.LoadDisables();                             // must be before loading quests and items
+
     sLog.outString("Loading Items...");                     // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     objmgr.LoadItemPrototypes();
 
@@ -1416,9 +1419,6 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Weather Data...");
     objmgr.LoadWeatherZoneChances();
-
-    sLog.outString("Loading Disables");
-    sDisableMgr.LoadDisables();                             // must be before loading quests
 
     sLog.outString("Loading Quests...");
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
