@@ -20,6 +20,7 @@
 
 #include "ProgressBar.h"
 #include "SpellMgr.h"
+#include "ObjectMgr.h"
 #include "DisableMgr.h"
 
 DisableMgr::DisableMgr()
