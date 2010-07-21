@@ -182,6 +182,15 @@ inline bool isNumeric(char c)
     return (c >= '0' && c <='9');
 }
 
+inline bool isNumeric(char const* str)
+{
+    for (char const* c = str; *c; ++c)
+        if (!isNumeric(*c))
+            return false;
+
+    return true;
+}
+
 inline bool isNumericOrSpace(wchar_t wchar)
 {
     return isNumeric(wchar) || wchar == L' ';

@@ -6522,7 +6522,7 @@ bool ChatHandler::HandlePDumpWriteCommand(const char *args)
 
     uint32 guid;
     // character name can't start from number
-    if (isNumeric(p2[0]))
+    if (isNumeric(p2))
         guid = atoi(p2);
     else
     {

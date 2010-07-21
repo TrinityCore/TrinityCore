@@ -119,10 +119,20 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand characterDeletedCommandTable[] =
+    {
+        { "delete",         SEC_CONSOLE,        true,  &ChatHandler::HandleCharacterDeletedDeleteCommand,   "", NULL },
+        { "list",           SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleCharacterDeletedListCommand,     "", NULL },
+        { "restore",        SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleCharacterDeletedRestoreCommand,  "", NULL },
+        { "old",            SEC_CONSOLE,        true,  &ChatHandler::HandleCharacterDeletedOldCommand,      "", NULL },
+        { NULL,             0,                  false, NULL,                                                "", NULL }
+    };
+
     static ChatCommand characterCommandTable[] =
     {
         { "customize",      SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterCustomizeCommand,  "", NULL },
-        { "delete",         SEC_CONSOLE,        true,  &ChatHandler::HandleCharacterDeleteCommand,     "", NULL },
+        { "deleted",        SEC_GAMEMASTER,     true,  NULL,                                           "", characterDeletedCommandTable},
+        { "erase",          SEC_CONSOLE,        true,  &ChatHandler::HandleCharacterEraseCommand,      "", NULL },
         { "level",          SEC_ADMINISTRATOR,  true,  &ChatHandler::HandleCharacterLevelCommand,      "", NULL },
         { "rename",         SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterRenameCommand,     "", NULL },
         { "reputation",     SEC_GAMEMASTER,     true,  &ChatHandler::HandleCharacterReputationCommand, "", NULL },
@@ -667,7 +677,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "modify",         SEC_MODERATOR,      false, NULL,                                           "", modifyCommandTable   },
         { "debug",          SEC_MODERATOR,      true,  NULL,                                           "", debugCommandTable    },
         { "tele",           SEC_MODERATOR,      true,  NULL,                                           "", teleCommandTable     },
-        { "character",      SEC_GAMEMASTER,     false, NULL,                                           "", characterCommandTable},
+        { "character",      SEC_GAMEMASTER,     true,  NULL,                                           "", characterCommandTable},
         { "event",          SEC_GAMEMASTER,     false, NULL,                                           "", eventCommandTable    },
         { "gobject",        SEC_GAMEMASTER,     false, NULL,                                           "", gobjectCommandTable  },
         { "honor",          SEC_GAMEMASTER,     false, NULL,                                           "", honorCommandTable    },
