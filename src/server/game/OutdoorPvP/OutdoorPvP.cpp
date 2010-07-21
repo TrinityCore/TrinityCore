@@ -222,7 +222,11 @@ void OPvPCapturePoint::DeleteSpawns()
 void OutdoorPvP::DeleteSpawns()
 {
     for (OPvPCapturePointMap::iterator itr = m_capturePoints.begin(); itr != m_capturePoints.end(); ++itr)
+    {
         itr->second->DeleteSpawns();
+        delete itr->second;
+    }
+    m_capturePoints.clear();
 }
 
 OutdoorPvP::OutdoorPvP() : m_sendUpdate(true)
