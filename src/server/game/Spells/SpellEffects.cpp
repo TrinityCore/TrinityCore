@@ -3757,6 +3757,11 @@ void Spell::EffectSummonType(uint32 i)
                         && properties->Slot >= SUMMON_SLOT_TOTEM
                         && properties->Slot < MAX_TOTEM_SLOT)
                     {
+                        // set display id depending on race
+                        uint32 displayId = m_originalCaster->GetModelForTotem(PlayerTotemType(properties->Id));
+                        summon->SetNativeDisplayId(displayId);
+                        summon->SetDisplayId(displayId);
+
                         //summon->SendUpdateToPlayerm_originalCaster->ToPlayer();
                         WorldPacket data(SMSG_TOTEM_CREATED, 1+8+4+4);
                         data << uint8(properties->Slot-1);
