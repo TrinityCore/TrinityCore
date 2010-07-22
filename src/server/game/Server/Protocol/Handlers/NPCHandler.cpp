@@ -501,12 +501,8 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
 
     recv_data >> npcGUID;
 
-    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
-    if (!unit)
-    {
-        sLog.outDebug("WORLD: HandleListStabledPetsOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+    if (!CheckStableMaster(npcGUID))
         return;
-    }
 
     // remove fake death
     if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
@@ -591,10 +587,8 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
         return;
     }
 
-    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
-    if (!unit)
+    if (!CheckStableMaster(npcGUID))
     {
-        sLog.outDebug("WORLD: HandleStablePet - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
@@ -651,10 +645,8 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
 
     recv_data >> npcGUID >> petnumber;
 
-    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
-    if (!unit)
+    if (!CheckStableMaster(npcGUID))
     {
-        sLog.outDebug("WORLD: HandleUnstablePet - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
@@ -722,10 +714,8 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
 
     recv_data >> npcGUID;
 
-    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
-    if (!unit)
+    if (!CheckStableMaster(npcGUID))
     {
-        sLog.outDebug("WORLD: HandleBuyStableSlot - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
@@ -763,10 +753,8 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
 
     recv_data >> npcGUID >> pet_number;
 
-    Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
-    if (!unit)
+    if (!CheckStableMaster(npcGUID))
     {
-        sLog.outDebug("WORLD: HandleStableSwapPet - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
