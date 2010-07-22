@@ -206,14 +206,16 @@ class WorldSession
         void SendBattlegGroundList(uint64 guid, BattleGroundTypeId bgTypeId);
 
         void SendTradeStatus(TradeStatus status);
+        void SendUpdateTrade(bool trader_data = true);
         void SendCancelTrade();
 
-        void SendStablePet(uint64 guid);
         void SendPetitionQueryOpcode(uint64 petitionguid);
-        void SendUpdateTrade(bool trader_data = true);
 
         //pet
         void SendPetNameQuery(uint64 guid, uint32 petnumber);
+        void SendStablePet(uint64 guid);
+        void SendStableResult(uint8 guid);
+        bool CheckStableMaster(uint64 guid);
 
         // Account Data
         AccountData *GetAccountData(AccountDataType type) { return &m_accountData[type]; }
