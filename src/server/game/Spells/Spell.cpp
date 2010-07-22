@@ -6921,15 +6921,15 @@ void Spell::SetSpellValue(SpellValueMod mod, int32 value)
     switch(mod)
     {
         case SPELLVALUE_BASE_POINT0:
-            m_spellValue->EffectBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(value);
+            m_spellValue->EffectBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(value, m_spellInfo, 0);
             m_currentBasePoints[0] = m_spellValue->EffectBasePoints[0]; //this should be removed in the future
             break;
         case SPELLVALUE_BASE_POINT1:
-            m_spellValue->EffectBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(value);
+            m_spellValue->EffectBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(value, m_spellInfo, 1);
             m_currentBasePoints[1] = m_spellValue->EffectBasePoints[1];
             break;
         case SPELLVALUE_BASE_POINT2:
-            m_spellValue->EffectBasePoints[2] = SpellMgr::CalculateSpellEffectBaseAmount(value);
+            m_spellValue->EffectBasePoints[2] = SpellMgr::CalculateSpellEffectBaseAmount(value, m_spellInfo, 2);
             m_currentBasePoints[2] = m_spellValue->EffectBasePoints[2];
             break;
         case SPELLVALUE_RADIUS_MOD:
