@@ -249,6 +249,7 @@ struct PlayerInfo
     float positionX;
     float positionY;
     float positionZ;
+    float orientation;
     uint16 displayId_m;
     uint16 displayId_f;
     PlayerCreateInfoItems item;
