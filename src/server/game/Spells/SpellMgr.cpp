@@ -1845,7 +1845,7 @@ int32 SpellMgr::CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 
     // roll in a range <1;EffectDieSides> as of patch 3.3.3
     switch(randomPoints)
     {
-        case 0:                                             // not used
+        case 0: break;
         case 1: basePoints += 1; break;                     // range 1..1
         default:
             // range can have positive (1..rand) and negative (rand..1) values, so order its for irand
@@ -1884,6 +1884,14 @@ int32 SpellMgr::CalculateSpellEffectAmount(SpellEntry const * spellEntry, uint8 
     }
 
     return value;
+}
+
+int32 SpellMgr::CalculateSpellEffectBaseAmount(int32 value, SpellEntry const * spellEntry, uint8 effIndex)
+{
+    if (spellEntry->EffectDieSides[effIndex] == 0)
+        return value;
+    else
+        return value - 1;
 }
 
 SpellEntry const* SpellMgr::SelectAuraRankForPlayerLevel(SpellEntry const* spellInfo, uint32 playerLevel) const

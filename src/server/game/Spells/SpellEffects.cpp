@@ -521,7 +521,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage += pdamage * aura->GetTotalTicks() * pct_dir / 100;
 
                         uint32 pct_dot = m_caster->CalculateSpellDamage(unitTarget, m_spellInfo, (effect_idx + 2)) / 3;
-                        m_currentBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(pdamage * aura->GetTotalTicks() * pct_dot / 100);
+                        m_currentBasePoints[1] = SpellMgr::CalculateSpellEffectBaseAmount(pdamage * aura->GetTotalTicks() * pct_dot / 100, m_spellInfo, 1);
 
                         apply_direct_bonus = false;
                         // Glyph of Conflagrate
@@ -2214,7 +2214,7 @@ void Spell::EffectDummy(uint32 i)
 
         targets.setUnitTarget(unitTarget);
         Spell* spell = new Spell(m_caster, spellInfo, triggered, m_originalCasterGUID, NULL, true);
-        if (bp) spell->m_currentBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(bp);
+        if (bp) spell->m_currentBasePoints[0] = SpellMgr::CalculateSpellEffectBaseAmount(bp, spellInfo, 0);
         spell->prepare(&targets);
     }
 
