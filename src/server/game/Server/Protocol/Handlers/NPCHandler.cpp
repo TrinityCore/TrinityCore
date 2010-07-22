@@ -38,6 +38,16 @@
 #include "Guild.h"
 #include "ScriptMgr.h"
 
+enum StableResultCode	
+{
+    STABLE_ERR_MONEY        = 0x01,                         // "you don't have enough money"
+    STABLE_ERR_STABLE       = 0x06,                         // currently used in most fail cases
+    STABLE_SUCCESS_STABLE   = 0x08,                         // stable success
+    STABLE_SUCCESS_UNSTABLE = 0x09,                         // unstable/swap success
+    STABLE_SUCCESS_BUY_SLOT = 0x0A,                         // buy slot success
+    STABLE_ERR_EXOTIC       = 0x0C,                         // "you are unable to control exotic creatures"
+};
+
 void WorldSession::HandleTabardVendorActivateOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
@@ -560,6 +570,14 @@ void WorldSession::SendStablePet(uint64 guid)
     SendPacket(&data);
 }
 
+
+void WorldSession::SendStableResult(uint8 res)
+{
+    WorldPacket data(SMSG_STABLE_RESULT, 1);
+    data << uint8(res);
+    SendPacket(&data);
+}
+
 void WorldSession::HandleStablePet(WorldPacket & recv_data)
 {
     sLog.outDebug("WORLD: Recv CMSG_STABLE_PET");
@@ -568,12 +586,16 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
     recv_data >> npcGUID;
 
     if (!GetPlayer()->isAlive())
+    {
+        SendStableResult(STABLE_ERR_STABLE);
         return;
+    }
 
     Creature *unit = GetPlayer()->GetNPCIfCanInteractWith(npcGUID, UNIT_NPC_FLAG_STABLEMASTER);
     if (!unit)
     {
         sLog.outDebug("WORLD: HandleStablePet - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -586,9 +608,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
     // can't place in stable dead pet
     if (!pet||!pet->isAlive()||pet->getPetType() != HUNTER_PET)
     {
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -617,12 +637,10 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
     if (free_slot > 0 && free_slot <= GetPlayer()->m_stableSlots)
     {
         _player->RemovePet(pet,PetSaveMode(free_slot));
-        data << uint8(0x08);
+        SendStableResult(STABLE_SUCCESS_STABLE);
     }
     else
-        data << uint8(0x06);
-
-    SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
 }
 
 void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
@@ -637,6 +655,7 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
     if (!unit)
     {
         sLog.outDebug("WORLD: HandleUnstablePet - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -658,27 +677,25 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
 
     if (!creature_id)
     {
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
     CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(creature_id);
     if (!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
     {
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        // if problem in exotic pet
+        if (creatureInfo && creatureInfo->isTameable(true))
+            SendStableResult(STABLE_ERR_EXOTIC);
+        else
+            SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
     Pet* pet = _player->GetPet();
     if (pet && pet->isAlive())
     {
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -691,15 +708,11 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
     {
         delete newpet;
         newpet = NULL;
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    WorldPacket data(SMSG_STABLE_RESULT, 1);
-    data << uint8(0x09);
-    SendPacket(&data);
+    SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
 void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
@@ -713,14 +726,13 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
     if (!unit)
     {
         sLog.outDebug("WORLD: HandleBuyStableSlot - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
     // remove fake death
     if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    WorldPacket data(SMSG_STABLE_RESULT, 200);
 
     if (GetPlayer()->m_stableSlots < MAX_PET_STABLES)
     {
@@ -729,15 +741,13 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
         {
             ++GetPlayer()->m_stableSlots;
             _player->ModifyMoney(-int32(SlotPrice->Price));
-            data << uint8(0x0A);                            // success buy
+            SendStableResult(STABLE_SUCCESS_BUY_SLOT);
         }
         else
-            data << uint8(0x06);
+            SendStableResult(STABLE_ERR_MONEY);
     }
     else
-        data << uint8(0x06);
-
-    SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
 }
 
 void WorldSession::HandleStableRevivePet(WorldPacket &/* recv_data */)
@@ -757,6 +767,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
     if (!unit)
     {
         sLog.outDebug("WORLD: HandleStableSwapPet - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(npcGUID)));
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -764,18 +775,22 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
     if (GetPlayer()->hasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    WorldPacket data(SMSG_STABLE_RESULT, 200);              // guess size
-
     Pet* pet = _player->GetPet();
 
     if (!pet || pet->getPetType() != HUNTER_PET)
+    {
+        SendStableResult(STABLE_ERR_STABLE);
         return;
+    }
 
     // find swapped pet slot in stable
     QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT slot,entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
         _player->GetGUIDLow(),pet_number);
     if (!result)
+    {
+        SendStableResult(STABLE_ERR_STABLE);
         return;
+    }
 
     Field *fields = result->Fetch();
 
@@ -784,18 +799,18 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
 
     if (!creature_id)
     {
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
     CreatureInfo const* creatureInfo = objmgr.GetCreatureTemplate(creature_id);
     if (!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
     {
-        WorldPacket data(SMSG_STABLE_RESULT, 1);
-        data << uint8(0x06);
-        SendPacket(&data);
+        // if problem in exotic pet
+        if (creatureInfo && creatureInfo->isTameable(true))
+            SendStableResult(STABLE_ERR_EXOTIC);
+        else
+            SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
@@ -807,12 +822,10 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
     if (!newpet->LoadPetFromDB(_player,creature_id,pet_number))
     {
         delete newpet;
-        data << uint8(0x06);
+        SendStableResult(STABLE_ERR_STABLE);
     }
     else
-        data << uint8(0x09);
-
-    SendPacket(&data);
+        SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
 void WorldSession::HandleRepairItemOpcode(WorldPacket & recv_data)
