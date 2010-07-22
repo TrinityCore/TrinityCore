@@ -7035,7 +7035,7 @@ void Spell::EffectQuestComplete(uint32 i)
         uint16 log_slot = pPlayer->FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
             pPlayer->AreaExploredOrEventHappens(quest_id);
-        else if (!GetQuestRewardStatus(quest_id))   // never rewarded before
+        else if (!pPlayer->GetQuestRewardStatus(quest_id))   // never rewarded before
             pPlayer->CompleteQuest(quest_id);   // quest not in log - for internal use
     }
 }
