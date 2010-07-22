@@ -1074,6 +1074,14 @@ enum ReactiveType
 #define SUMMON_SLOT_QUEST   6
 #define MAX_SUMMON_SLOT     7
 
+enum PlayerTotemType
+{
+    SUMMON_TYPE_TOTEM_FIRE  = 63,
+    SUMMON_TYPE_TOTEM_EARTH = 81,
+    SUMMON_TYPE_TOTEM_WATER = 82,
+    SUMMON_TYPE_TOTEM_AIR   = 83,
+};
+
 // delay time next attack to prevent client attack animation problems
 #define ATTACK_DISPLAY_DELAY 200
 #define MAX_PLAYER_STEALTH_DETECT_RANGE 45.0f               // max distance for detection targets by player
@@ -1917,6 +1925,7 @@ class Unit : public WorldObject
         void RemovePetAura(PetAura const* petSpell);
 
         uint32 GetModelForForm(ShapeshiftForm form);
+        uint32 GetModelForTotem(PlayerTotemType totemType);
 
         void SetReducedThreatPercent(uint32 pct, uint64 guid)
         {
