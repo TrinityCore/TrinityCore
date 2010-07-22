@@ -2899,8 +2899,24 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit *pVictim, SpellEntry const *spell)
     tmp += resist_chance;
 
     // Chance resist debuff
-    tmp += pVictim->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
-    tmp += pVictim->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
+    if (!IsPositiveSpell(spell->Id))
+    {
+        bool bNegativeAura = false;
+        for (uint8 I = 0; I < 3; I++)
+        {
+            if (spell->EffectApplyAuraName[I] != 0)
+            {
+                bNegativeAura = true;
+                break;
+            }
+        }
+
+        if (bNegativeAura)
+        {
+            tmp += pVictim->GetMaxPositiveAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
+            tmp += pVictim->GetMaxNegativeAuraModifierByMiscValue(SPELL_AURA_MOD_DEBUFF_RESISTANCE, int32(spell->Dispel)) * 100;
+        }
+    }
 
    // Roll chance
     if (rand < tmp)
