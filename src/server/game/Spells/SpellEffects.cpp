@@ -1109,13 +1109,6 @@ void Spell::EffectDummy(uint32 i)
                 case 26074:                                 // Holiday Cheer
                     // implemented at client side
                     return;
-                case 28006:                                 // Arcane Cloaking
-                {
-                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
-                        // Naxxramas Entry Flag Effect DND
-                        m_caster->CastSpell(unitTarget, 29294, true);
-                    return;
-                }
                 // Polarity Shift
                 case 28089:
                     if (unitTarget)
@@ -7042,7 +7035,7 @@ void Spell::EffectQuestComplete(uint32 i)
         uint16 log_slot = pPlayer->FindQuestSlot(quest_id);
         if (log_slot < MAX_QUEST_LOG_SIZE)
             pPlayer->AreaExploredOrEventHappens(quest_id);
-        else
+        else if (CanCompleteQuest(quest_id))
             pPlayer->CompleteQuest(quest_id);   // quest not in log - for internal use
     }
 }
