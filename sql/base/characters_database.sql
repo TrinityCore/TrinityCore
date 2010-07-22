@@ -1976,7 +1976,8 @@ LOCK TABLES `worldstates` WRITE;
 INSERT INTO `worldstates` (`entry`,`value`, `comment`) VALUES 
 (20001, 0, 'NextArenaPointDistributionTime'),
 (20002, 0, 'NextWeeklyQuestResetTime'),
-(20003, 0, 'NextBGRandomDailyResetTime');
+(20003, 0, 'NextBGRandomDailyResetTime'),
+(20004, 0, 'cleaning_flags');
 /*!40000 ALTER TABLE `worldstates` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

@@ -225,6 +225,11 @@ EAIErrorLevel = 2
 #	Number of threads to update maps.
 #	Default: 1
 #
+#    CleanCharacterDB
+#        Perform character db clean ups on start up
+#        Default: 0 (Disabled)
+#                 1 (Enable)
+#
 ###############################################################################
 
 UseProcessors = 0
@@ -257,6 +262,7 @@ LogDB.Opt.ClearTime = 1209600
 MaxCoreStuckTime = 0
 AddonChannel = 1
 MapUpdate.Threads = 1
+CleanCharacterDB = 0
 
 ###############################################################################
 # SERVER LOGGING

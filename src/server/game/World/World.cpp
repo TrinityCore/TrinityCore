@@ -71,6 +71,7 @@
 #include "LFGMgr.h"
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
+#include "CharacterDatabaseCleaner.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -606,6 +607,7 @@ void World::LoadConfigSettings(bool reload)
         m_configs[CONFIG_COMPRESSION] = 1;
     }
     m_configs[CONFIG_ADDON_CHANNEL] = sConfig.GetBoolDefault("AddonChannel", true);
+    m_configs[CONFIG_CLEAN_CHARACTER_DB] = sConfig.GetBoolDefault("CleanCharacterDB", false);
     m_configs[CONFIG_CHAT_CHANNEL_LEVEL_REQ] = sConfig.GetIntDefault("ChatLevelReq.Channel", 1);
     m_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfig.GetIntDefault("ChatLevelReq.Whisper", 1);
     m_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfig.GetIntDefault("ChatLevelReq.Say", 1);
@@ -1484,6 +1486,8 @@ void World::SetInitialWorldSettings()
 
     sLog.outString("Loading Pet Name Parts...");
     objmgr.LoadPetNames();
+
+    CharacterDatabaseCleaner::CleanDatabase();
 
     sLog.outString("Loading the max pet number...");
     objmgr.LoadPetNumber();

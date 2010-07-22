@@ -172,6 +172,7 @@ set(game_STAT_SRCS
   Spells/SpellEffects.cpp
   Spells/Spell.cpp
   Spells/SpellMgr.cpp
+  Tools/CharacterDatabaseCleaner.cpp
   Tools/PlayerDump.cpp
   Tools/Tools.cpp
   Weather/Weather.cpp
