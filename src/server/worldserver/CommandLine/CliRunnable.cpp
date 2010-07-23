@@ -85,7 +85,7 @@ char ** cli_completion(const char * text, int start, int end)
 }
 #endif
 
-void utf8print(const char* str)
+void utf8print(void* arg, const char* str)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     wchar_t wtemp_buf[6000];
@@ -106,6 +106,11 @@ void utf8print(const char* str)
 #endif
 }
 
+void commandFinished(void*, bool sucess)
+{
+    printf("TC> ");
+    fflush(stdout);
+}
 /// Delete a user account and all associated characters in this realm
 /// \todo This function has to be enhanced to respect the login/realm split (delete char, delete account chars in realm, delete account chars in realm then delete account
 bool ChatHandler::HandleAccountDeleteCommand(const char* args)
@@ -741,7 +746,7 @@ void CliRunnable::run()
                 continue;
             }
             fflush(stdout);
-            sWorld.QueueCliCommand(&utf8print,command.c_str());
+            sWorld.QueueCliCommand(new CliCommandHolder(NULL, command.c_str(), &utf8print, &commandFinished));
             #if PLATFORM != WINDOWS
             add_history(command.c_str());
             #endif

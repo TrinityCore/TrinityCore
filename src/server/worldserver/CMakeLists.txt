@@ -13,6 +13,7 @@
 set(worldserver_SRCS
   CommandLine/CliRunnable.cpp
   RemoteAccess/RASocket.cpp
+  TCSoap/TCSoap.cpp
   WorldThread/WorldRunnable.cpp
   Main.cpp
   Master.cpp
@@ -23,6 +24,7 @@ include_directories(
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/externals/gsoap
   ${CMAKE_SOURCE_DIR}/externals/sockets/include
   ${CMAKE_SOURCE_DIR}/externals/mersennetwister
   ${CMAKE_SOURCE_DIR}/dep/include
@@ -112,6 +114,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/worldserver
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/CommandLine
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/RemoteAccess
+  ${CMAKE_SOURCE_DIR}/src/server/worldserver/TCSoap
   ${CMAKE_SOURCE_DIR}/src/server/worldserver/WorldThread
 )
 
@@ -154,6 +157,7 @@ if( WIN32 )
     trinityconfig
     collision
     g3dlib
+    gsoap
     ${SCRIPT_LIB}
     ace
     ${MYSQL_LIBRARY}
@@ -171,6 +175,7 @@ else()
     trinityconfig
     collision
     g3dlib
+    gsoap
     jemalloc
     ${SCRIPT_LIB}
     ${READLINE_LIBRARY}

@@ -464,19 +464,23 @@ enum WorldStates
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder
 {
-    typedef void Print(const char*);
-
+    typedef void Print(void*, const char*);
+    typedef void CommandFinished(void*, bool success);
+      
+    void* m_callbackArg;
     char *m_command;
     Print* m_print;
 
-    CliCommandHolder(const char *command, Print* zprint)
-        : m_print(zprint)
+    CommandFinished* m_commandFinished;
+
+    CliCommandHolder(void* callbackArg, const char *command, Print* zprint, CommandFinished* commandFinished)
+        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
     {
         size_t len = strlen(command)+1;
         m_command = new char[len];
         memcpy(m_command, command, len);
     }
-
+    
     ~CliCommandHolder() { delete[] m_command; }
 };
 
@@ -657,7 +661,7 @@ class World
         static int32 GetVisibilityNotifyPeriodInBGArenas()  { return m_visibility_notify_periodInBGArenas;   }
 
         void ProcessCliCommands();
-        void QueueCliCommand(CliCommandHolder::Print* zprintf, char const* input) { cliCmdQueue.add(new CliCommandHolder(input, zprintf)); }
+        void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
 
         void UpdateResultQueue();
         void InitResultQueue();
