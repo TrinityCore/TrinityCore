@@ -38,7 +38,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "worldserver", "VC90\worldserver.vcproj", "{A3A04E47-43A2-4C08-90B3-029CEF558594}"
 	ProjectSection(ProjectDependencies) = postProject
 		{1DC6C4DA-A028-41F3-877D-D5400C594F88} = {1DC6C4DA-A028-41F3-877D-D5400C594F88}
+		{014331FB-7472-4465-9844-EEED2A79FE97} = {014331FB-7472-4465-9844-EEED2A79FE97}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gsoap", "..\externals\gsoap\VC90\gsoap.vcproj", "{014331FB-7472-4465-9844-EEED2A79FE97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,6 +131,14 @@ Global
 		{A3A04E47-43A2-4C08-90B3-029CEF558594}.Release|Win32.Build.0 = Release|Win32
 		{A3A04E47-43A2-4C08-90B3-029CEF558594}.Release|x64.ActiveCfg = Release|x64
 		{A3A04E47-43A2-4C08-90B3-029CEF558594}.Release|x64.Build.0 = Release|x64
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Debug|Win32.ActiveCfg = Debug|Win32
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Debug|Win32.Build.0 = Debug|Win32
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Debug|x64.ActiveCfg = Debug|x64
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Debug|x64.Build.0 = Debug|x64
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Release|Win32.ActiveCfg = Release|Win32
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Release|Win32.Build.0 = Release|Win32
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Release|x64.ActiveCfg = Release|x64
+		{014331FB-7472-4465-9844-EEED2A79FE97}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
