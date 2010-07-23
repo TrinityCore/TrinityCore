@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\gsoap;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\TCSoap;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -81,11 +81,11 @@
 				Name="VCLinkerTool"
 				LinkLibraryDependencies="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib"
+				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib gsoap.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\gsoap\bin\$(PlatformName)_$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).pdb"
 				GenerateMapFile="true"
@@ -117,7 +117,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -150,7 +150,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\gsoap;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\TCSoap;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -181,11 +181,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib"
+				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib gsoap.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\gsoap\bin\$(PlatformName)_$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).pdb"
 				GenerateMapFile="true"
@@ -217,7 +217,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -249,7 +249,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\gsoap;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\TCSoap;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_WARNINGS"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
@@ -282,12 +282,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib dbghelp.lib"
+				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib gsoap.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\gsoap\bin\$(PlatformName)_$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).pdb"
 				GenerateMapFile="true"
@@ -319,7 +319,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -352,7 +352,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\externals;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\WorldThread"
+				AdditionalIncludeDirectories="..\..\externals;..\..\externals\gsoap;..\..\externals\mersennetwister;..\..\externals\sockets\include;..\..\src\server\game\Accounts;..\..\src\server\game\Achievements;..\..\src\server\game\Addons;..\..\src\server\game\BattleGrounds;..\..\src\server\game\Chat;..\..\src\server\game\Combat;..\..\src\server\game\Conditions;..\..\src\server\game\DataStores;..\..\src\server\game\DungeonFinding;..\..\src\server\game\Entities\Corpse;..\..\src\server\game\Entities\Creature;..\..\src\server\game\Entities\DynamicObject;..\..\src\server\game\Entities\GameObject;..\..\src\server\game\Entities\Item;..\..\src\server\game\Entities\Item\Container;..\..\src\server\game\Entities\Object;..\..\src\server\game\Entities\Object\Updates;..\..\src\server\game\Entities\Pet;..\..\src\server\game\Entities\Player;..\..\src\server\game\Entities\Unit;..\..\src\server\game\Entities\Vehicle;..\..\src\server\game\Globals;..\..\src\server\game\Grids;..\..\src\server\game\Grids\Cells;..\..\src\server\game\Groups;..\..\src\server\game\Loot;..\..\src\server\game\Mails;..\..\src\server\game\Maps;..\..\src\server\game\Miscellaneous;..\..\src\server\game\Movement;..\..\src\server\game\Movement\Waypoints;..\..\src\server\game\Quests;..\..\src\server\game\Reputation;..\..\src\server\game\Server;..\..\src\server\game\Server\Protocol;..\..\src\server\game\Server\Protocol\Handlers;..\..\src\server\game\Spells\Auras;..\..\src\server\game\World;..\..\src\server\shared;..\..\src\server\shared\Cryptography;..\..\src\server\shared\Cryptography\Authentication;..\..\src\server\shared\Database;..\..\src\server\shared\DataStores;..\..\src\server\shared\Dynamic;..\..\src\server\shared\Dynamic\LinkedReference;..\..\src\server\shared\Logging;..\..\src\server\shared\Packets;..\..\src\server\shared\Policies;..\..\src\server\shared\Threading;..\..\src\server\shared\Utilities;..\..\src\server\worldserver;..\..\src\server\worldserver\CommandLine;..\..\src\server\worldserver\RemoteAccess;..\..\src\server\worldserver\TCSoap;..\..\src\server\worldserver\WorldThread"
 				PreprocessorDefinitions="WIN32;_CRT_SECURE_NO_WARNINGS"
 				IgnoreStandardIncludePath="false"
 				BasicRuntimeChecks="3"
@@ -384,12 +384,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib"
+				AdditionalDependencies="libmysql.lib ssleay32.lib libeay32.lib ws2_32.lib dbghelp.lib gsoap.lib"
 				OutputFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).exe"
 				Version=""
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\lib\$(PlatformName)_$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)&quot;;&quot;..\..\externals\gsoap\bin\$(PlatformName)_$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="..\..\bin\$(PlatformName)_$(ConfigurationName)\$(ProjectName).pdb"
 				GenerateMapFile="true"
@@ -421,7 +421,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\ssleay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\lib\$(PlatformName)_$(ConfigurationName)\libeay32.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)"
+				CommandLine="copy ..\..\externals\ace\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\externals\mysql\bin\$(PlatformName)_$(ConfigurationName)\*.dll ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\src\server\worldserver\worldserver.conf.dist ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;copy ..\..\README.* ..\..\bin\$(PlatformName)_$(ConfigurationName)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -445,6 +445,18 @@
 			</File>
 			<File
 				RelativePath="..\..\THANKS"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="TCSoap"
+			>
+			<File
+				RelativePath="..\..\src\server\worldserver\TCSoap\TCSoap.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\worldserver\TCSoap\TCSoap.h"
 				>
 			</File>
 		</Filter>
