@@ -38,6 +38,7 @@
 #include "Log.h"
 #include "Master.h"
 #include "RASocket.h"
+#include "TCSoap.h"
 #include "Timer.h"
 #include "Util.h"
 
@@ -315,6 +316,15 @@ int Master::Run()
         }
     }
     #endif
+    //Start soap serving thread
+    ACE_Based::Thread* soap_thread = NULL;
+
+    if(sConfig.GetBoolDefault("SOAP.Enabled", false))
+    {
+        TCSoapRunnable *runnable = new TCSoapRunnable();
+        runnable->setListenArguments(sConfig.GetStringDefault("SOAP.IP", "127.0.0.1"), sConfig.GetIntDefault("SOAP.Port", 7878));
+        soap_thread = new ACE_Based::Thread(runnable);
+    }
 
     uint32 realCurrTime, realPrevTime;
     realCurrTime = realPrevTime = getMSTime();
@@ -340,6 +350,13 @@ int Master::Run()
     }
 
     sWorldSocketMgr->Wait ();
+
+    if(soap_thread)
+    {
+          soap_thread->wait();
+          soap_thread->destroy();
+          delete soap_thread;
+    }
 
     // set server offline
     LoginDatabase.PExecute("UPDATE realmlist SET color = 2 WHERE id = '%d'",realmID);

@@ -2445,19 +2445,19 @@ void World::UpdateSessions(uint32 diff)
 void World::ProcessCliCommands()
 {
     CliCommandHolder::Print* zprint = NULL;
-
+    void* callbackArg = NULL;
     CliCommandHolder* command;
     while (cliCmdQueue.next(command))
     {
         sLog.outDebug("CLI command under processing...");
         zprint = command->m_print;
-        CliHandler(zprint).ParseCommands(command->m_command);
+        callbackArg = command->m_callbackArg;
+        CliHandler handler(callbackArg, zprint);
+        handler.ParseCommands(command->m_command);
+        if(command->m_commandFinished)
+            command->m_commandFinished(callbackArg, !handler.HasSentErrorMessage());
         delete command;
     }
-
-    // print the console message here so it looks right
-    if (zprint)
-        zprint("TC> ");
 }
 
 void World::SendRNDBroadcast()

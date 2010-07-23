@@ -28,10 +28,13 @@
 #include "TcpSocket.h"
 
 #include "Common.h"
+#include <ace/Synch_Traits.h>
 
 #define RA_BUFF_SIZE 1024
 
 class ISocketHandler;
+
+typedef ACE_Atomic_Op<ACE_SYNCH_MUTEX, uint64> AtomicInt;
 
 /// Remote Administration socket
 class RASocket: public TcpSocket
@@ -44,14 +47,14 @@ class RASocket: public TcpSocket
         void OnAccept();
         void OnRead();
 
-    private:
+    AtomicInt pendingCommands;
 
-        char * buff;
+    private:
+        char buff[RA_BUFF_SIZE];
         std::string szLogin;
-        uint32 iSess;
+       
         unsigned int iInputLength;
-        bool bLog;
-        bool bSecure;                                       //kick on wrong pass, non exist. user, user with no priv
+        bool bSecure;
         //will protect from DOS, bruteforce attacks
         //some 'smart' protection must be added for more security
         uint8 iMinLevel;
@@ -62,7 +65,8 @@ class RASocket: public TcpSocket
             OK,                                             //both login and pass were given, and they are correct and user have enough priv.
         }stage;
 
-        static void zprint( const char * szText );
+        static void zprint(void* callbackArg, const char * szText );
+        static void commandFinished(void* callbackArg, bool success);
 };
 #endif
 /// @}
