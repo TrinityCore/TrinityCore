@@ -1,6 +1,6 @@
-##########################################
-# Trinity Core worldd configuration file #
-##########################################
+################################################
+# Trinity Core World Server configuration file #
+################################################
 # Note to devs, line breaks should be at column 80
 ###############################################################################
 # CONNECTIONS AND DIRECTORIES
