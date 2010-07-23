@@ -31,27 +31,14 @@
 #include "Util.h"
 #include "World.h"
 
-/// \todo Make this thread safe if in the future 2 admins should be able to log at the same time.
-SOCKET r;
-
 #define dropclient {Sendf("I'm busy right now, come back later."); \
         SetCloseAndDelete(); \
         return; \
     }
 
-uint32 iSession=0;                                          ///< Session number (incremented each time a new connection is made)
-unsigned int iUsers=0;                                      ///< Number of active administrators
-
-typedef int(* pPrintf)(const char*,...);
-
-void ParseCommand(CliCommandHolder::Print*, char*command);
-
 /// RASocket constructor
 RASocket::RASocket(ISocketHandler &h): TcpSocket(h)
 {
-
-    ///- Increment the session number
-    iSess =iSession++ ;
 
     ///- Get the config parameters
     bSecure = sConfig.GetBoolDefault( "RA.Secure", true );
@@ -59,20 +46,13 @@ RASocket::RASocket(ISocketHandler &h): TcpSocket(h)
 
     ///- Initialize buffer and data
     iInputLength=0;
-    buff=new char[RA_BUFF_SIZE];
     stage=NONE;
 }
 
 /// RASocket destructor
 RASocket::~RASocket()
 {
-    ///- Delete buffer and decrease active admins count
-    delete [] buff;
-
     sLog.outRemote("Connection was closed.\n");
-
-    if(stage==OK)
-        iUsers--;
 }
 
 /// Accept an incoming connection
@@ -80,12 +60,8 @@ void RASocket::OnAccept()
 {
     std::string ss=GetRemoteAddress();
     sLog.outRemote("Incoming connection from %s.\n",ss.c_str());
-    ///- If there is already an active admin, drop the connection
-    if(iUsers)
-        dropclient
-
-        ///- Else print Motd
-            Sendf("%s\r\n",sWorld.GetMotd());
+     ///- print Motd
+    Sendf("%s\r\n",sWorld.GetMotd());
 }
 
 /// Read data from the network
@@ -102,11 +78,7 @@ void RASocket::OnRead()
         return;
     }
 
-    ///- If there is already an active admin (other than you), drop the connection
-    if(stage!=OK && iUsers)
-        dropclient
-
-            char *inp = new char [sz+1];
+    char *inp = new char [sz+1];
     ibuf.Read(inp,sz);
 
     /// \todo Can somebody explain this 'Linux bugfix'?
@@ -209,9 +181,8 @@ void RASocket::OnRead()
 
                     if(check)
                     {
-                        r=GetSocket();
+                        GetSocket();
                         stage=OK;
-                        ++iUsers;
 
                         Sendf("+Logged in.\r\n");
                         sLog.outRemote("User %s has logged in.\n",szLogin.c_str());
@@ -231,7 +202,10 @@ void RASocket::OnRead()
                 if(strlen(buff))
                 {
                     sLog.outRemote("Got '%s' cmd.\n",buff);
-                    sWorld.QueueCliCommand(&RASocket::zprint , buff);
+                       SetDeleteByHandler(false);
+                    CliCommandHolder* cmd = new CliCommandHolder(this, buff, &RASocket::zprint, &RASocket::commandFinished);
+                    sWorld.QueueCliCommand(cmd);
+                    ++pendingCommands; 
                 }
                 else
                     Sendf("TC>");
@@ -243,23 +217,21 @@ void RASocket::OnRead()
 }
 
 /// Output function
-void RASocket::zprint( const char * szText )
+void RASocket::zprint(void* callbackArg, const char * szText )
 {
     if( !szText )
         return;
 
-    #ifdef RA_CRYPT
-
-    char *megabuffer=strdup(szText);
-    unsigned int sz=strlen(megabuffer);
-    Encrypt(megabuffer,sz);
-    send(r,megabuffer,sz,0);
-    free(megabuffer);
-
-    #else
-
     unsigned int sz=strlen(szText);
-    send(r,szText,sz,0);
-
-    #endif
+       send(((RASocket*)callbackArg)->GetSocket(), szText, sz, 0);
 }
+
+void RASocket::commandFinished(void* callbackArg, bool success)
+{
+    RASocket* raSocket = (RASocket*)callbackArg;
+    raSocket->Sendf("TC>");
+    uint64 remainingCommands = --raSocket->pendingCommands;
+ 
+    if(remainingCommands == 0)
+        raSocket->SetDeleteByHandler(true);
+ }

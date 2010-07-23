@@ -20,6 +20,7 @@ endif()
 
 add_subdirectory(g3dlite)
 add_subdirectory(sockets)
+add_subdirectory(gsoap)
 
 # temporary disable libmpq building (through CMake at least) for now
 # - needs a proper CMakeLists.txt
