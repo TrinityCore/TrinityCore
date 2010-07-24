@@ -312,6 +312,29 @@ void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result);
 #define PAIR64_LOPART(x)   (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 #endif
 
+// simple class for not-modifyable list
+template <typename T>
+class HookList
+{
+    typedef typename std::list<T>::iterator ListIterator;
+    private:
+        typename std::list<T> m_list;
+    public:
+        HookList<T> & operator+=(T t) 
+        {
+            m_list.push_back(t);
+            return *this;
+        }
+        ListIterator begin()
+        {
+            return m_list.begin();
+        }
+        ListIterator end()
+        {
+            return m_list.end();
+        }
+};
+
 class flag96
 {
 private:

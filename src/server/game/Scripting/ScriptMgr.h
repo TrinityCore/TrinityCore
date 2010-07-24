@@ -17,6 +17,7 @@ class Player;
 class Creature;
 class CreatureAI;
 class InstanceData;
+class SpellScript;
 class Quest;
 class Item;
 class GameObject;
@@ -25,6 +26,7 @@ class Map;
 class Unit;
 class WorldObject;
 struct ItemPrototype;
+class Spell;
 
 #define MAX_SCRIPTS         5000                            //72 bytes each (approx 351kb)
 #define VISIBLE_RANGE       (166.0f)                        //MAX visible range (size of grid)
@@ -42,7 +44,7 @@ struct Script
         pChooseReward(NULL), pGODestroyed(NULL), pItemHello(NULL), pGOHello(NULL), pAreaTrigger(NULL), pItemQuestAccept(NULL),
         pGOQuestAccept(NULL), pGOChooseReward(NULL),pItemUse(NULL), pItemExpire(NULL),
         pEffectDummyCreature(NULL), pEffectDummyGameObj(NULL), pEffectDummyItem(NULL),
-        GetAI(NULL), GetInstanceData(NULL)
+        GetAI(NULL), GetInstanceData(NULL), GetSpellScript(NULL)
     {}
 
     std::string Name;
@@ -88,6 +90,9 @@ struct Script
 
     CreatureAI* (*GetAI)(Creature*);
     InstanceData* (*GetInstanceData)(Map*);
+
+    SpellScript*(*GetSpellScript)();
+    //AuraScript*(*GetAuraScript)();
 
     void RegisterSelf();
 };
@@ -143,6 +148,8 @@ class ScriptMgr
         bool EffectDummyGameObj(Unit *caster, uint32 spellId, uint32 effIndex, GameObject *gameObjTarget);
         bool EffectDummyItem(Unit *caster, uint32 spellId, uint32 effIndex, Item *itemTarget);
         InstanceData* CreateInstanceData(Map *map);
+        void CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & script_vector);
+        void CreateSpellScripts(uint32 spell_id, std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> > & script_vector);
 };
 
 //Config file accessors

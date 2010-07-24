@@ -1616,8 +1616,14 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading CreatureEventAI Scripts...");
     CreatureEAI_Mgr.LoadCreatureEventAI_Scripts();
 
+    sLog.outString("Loading spell script names...");
+    objmgr.LoadSpellScriptNames();
+
     sLog.outString("Initializing Scripts...");
     sScriptMgr.ScriptsInit();
+
+    sLog.outString("Validating spell scripts...");
+    objmgr.ValidateSpellScripts();
 
     ///- Initialize game time and timers
     sLog.outDebug("DEBUG:: Initialize game time and timers");
