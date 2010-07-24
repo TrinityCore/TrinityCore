@@ -7339,6 +7339,7 @@ DROP TABLE IF EXISTS `spell_scripts`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `spell_scripts` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `effIndex` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `delay` int(10) unsigned NOT NULL DEFAULT '0',
   `command` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `datalong` mediumint(8) unsigned NOT NULL DEFAULT '0',
