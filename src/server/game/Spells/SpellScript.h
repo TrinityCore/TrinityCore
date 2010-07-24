@@ -19,10 +19,16 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
+#include "SharedDefines.h"
+
 class Unit;
 struct SpellEntry;
 class SpellScript;
 class Spell;
+class Creature;
+class GameObject;
+class Player;
+class Item;
 
 typedef void(SpellScript::*EffectHandlerFnType)(SpellEffIndex);
 
