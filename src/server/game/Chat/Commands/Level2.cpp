@@ -2130,6 +2130,7 @@ bool ChatHandler::HandleGOInfoCommand(const char* args)
     uint32 type = 0;
     uint32 displayid = 0;
     std::string name;
+    uint32 lootId = 0;
 
     if (!*args)
     {
@@ -2147,9 +2148,14 @@ bool ChatHandler::HandleGOInfoCommand(const char* args)
     type = goinfo->type;
     displayid = goinfo->displayId;
     name = goinfo->name;
+    if (type == GAMEOBJECT_TYPE_CHEST)
+        lootId = goinfo->chest.lootId;
+    else if (type == GAMEOBJECT_TYPE_FISHINGHOLE)
+        lootId = goinfo->fishinghole.lootId;
 
     PSendSysMessage(LANG_GOINFO_ENTRY, entry);
     PSendSysMessage(LANG_GOINFO_TYPE, type);
+    PSendSysMessage(LANG_GOINFO_LOOTID, lootId);
     PSendSysMessage(LANG_GOINFO_DISPLAYID, displayid);
     PSendSysMessage(LANG_GOINFO_NAME, name.c_str());
 
