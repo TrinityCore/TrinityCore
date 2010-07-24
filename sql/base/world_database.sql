@@ -5715,7 +5715,7 @@ INSERT INTO `spell_group` (`id`, `spell_id`) VALUES
 -- Bleed Damage Increase Debuff
 (1030,33878), -- Mangle (Bear)
 (1031,33876), -- Mangle (Cat)
-(1032,46854), -- Trauma
+(1032,46856), -- Trauma
 -- Spell Critical Strike Chance Buff
 (1034,24907), -- moonkng aura
 (1035,51466), -- elemental oath
