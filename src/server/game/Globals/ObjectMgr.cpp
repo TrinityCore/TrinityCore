@@ -4494,7 +4494,10 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
     scripts.clear();                                        // need for reload support
 
-    QueryResult_AutoPtr result = WorldDatabase.PQuery("SELECT id,delay,command,datalong,datalong2,dataint, x, y, z, o FROM %s", tablename);
+    char buff[125];
+    bool isSpellScriptTable = !strcmp(tablename, "spell_scripts");
+    sprintf(buff, "SELECT id,delay,command,datalong,datalong2,dataint,x,y,z,o%s FROM %s", isSpellScriptTable ? ",effIndex" : "", tablename);
+    QueryResult_AutoPtr result = WorldDatabase.Query(buff);
 
     uint32 count = 0;
 
@@ -4517,6 +4520,8 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
         Field *fields = result->Fetch();
         ScriptInfo tmp;
         tmp.id        = fields[0].GetUInt32();
+        if (isSpellScriptTable)
+            tmp.id |= fields[10].GetUInt32() << 16;
         tmp.delay     = fields[1].GetUInt32();
         tmp.command   = fields[2].GetUInt32();
         tmp.datalong  = fields[3].GetUInt32();
@@ -4806,31 +4811,19 @@ void ObjectMgr::LoadSpellScripts()
     // check ids
     for (ScriptMapMap::const_iterator itr = sSpellScripts.begin(); itr != sSpellScripts.end(); ++itr)
     {
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(itr->first);
+        uint32 spellId = PAIR32_LOPART(itr->first);
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
 
         if (!spellInfo)
         {
-            sLog.outErrorDb("Table `spell_scripts` has not existing spell (Id: %u) as script id",itr->first);
+            sLog.outErrorDb("Table `spell_scripts` has not existing spell (Id: %u) as script id", spellId);
             continue;
         }
 
+        uint32 i = PAIR32_HIPART(itr->first);
         //check for correct spellEffect
-        bool found = false;
-        for (uint8 i=0; i<3; ++i)
-        {
-            // skip empty effects
-            if (!spellInfo->Effect[i])
-                continue;
-
-            if (spellInfo->Effect[i] == SPELL_EFFECT_SCRIPT_EFFECT)
-            {
-                found =  true;
-                break;
-            }
-        }
-
-        if (!found)
-            sLog.outErrorDb("Table `spell_scripts` has unsupported spell (Id: %u) without SPELL_EFFECT_SCRIPT_EFFECT (%u) spell effect",itr->first,SPELL_EFFECT_SCRIPT_EFFECT);
+        if (!spellInfo->Effect[i] || (spellInfo->Effect[i] != SPELL_EFFECT_SCRIPT_EFFECT && spellInfo->Effect[i] != SPELL_EFFECT_DUMMY))
+            sLog.outErrorDb("Table `spell_scripts` - spell %u effect %u is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY", spellId, i);
     }
 }
 
