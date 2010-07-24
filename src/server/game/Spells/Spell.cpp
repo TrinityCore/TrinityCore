@@ -52,6 +52,7 @@
 #include "ScriptMgr.h"
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
+#include "SpellScript.h"
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
@@ -455,6 +456,14 @@ Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 origin
 
 Spell::~Spell()
 {
+    // unload scripts
+    while(!m_loadedScripts.empty())
+    {
+        std::list<SpellScript *>::iterator itr = m_loadedScripts.begin();
+        (*itr)->Unload();
+        delete (*itr);
+        m_loadedScripts.erase(itr);
+    }
     if (m_referencedFromCurrentSpell && m_selfContainer && *m_selfContainer == this)
     {
         // Clean the reference to avoid later crash.
@@ -2748,6 +2757,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
         finish(false);
         return;
     }
+    LoadScripts();
 
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
@@ -4479,7 +4489,6 @@ void Spell::HandleThreatSpells(uint32 spellId)
 
 void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i)
 {
-
     if (!sScriptMgr.OnSpellCast(pUnitTarget,pItemTarget,pGOTarget,i,m_spellInfo))
         return;
 
@@ -4495,12 +4504,21 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
 
     sLog.outDebug("Spell: %u Effect : %u", m_spellInfo->Id, eff);
 
+    for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->EffectHandlers.end(), effItr = (*scritr)->EffectHandlers.begin();
+        for(; effItr != effEndItr ; ++effItr)
+        {
+            if ((*effItr).IsEffectAffected(m_spellInfo, i))
+                (*effItr).Call(*scritr, (SpellEffIndex)i);
+        }
+    }
+
     //we do not need DamageMultiplier here.
     damage = CalculateDamage(i, NULL);
 
     if (eff < TOTAL_SPELL_EFFECTS)
     {
-        //sLog.outDebug("WORLD: Spell FX %d < TOTAL_SPELL_EFFECTS ", eff);
         (this->*SpellEffects[eff])(i);
     }
 }
@@ -7074,5 +7092,23 @@ void Spell::SelectTrajTargets()
         }
 
         m_targets.setDst(x, y, z, m_caster->GetOrientation());
+    }
+}
+
+void Spell::LoadScripts()
+{
+    sLog.outError("Spell::LoadScripts");
+    sScriptMgr.CreateSpellScripts(m_spellInfo->Id, m_loadedScripts);
+    for(std::list<SpellScript *>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end() ;)
+    {
+        if (!(*itr)->_Load(this))
+        {
+            std::list<SpellScript *>::iterator bitr = itr;
+            ++itr;
+            m_loadedScripts.erase(bitr);
+            continue;
+        }
+        (*itr)->Register();
+        ++itr;
     }
 }

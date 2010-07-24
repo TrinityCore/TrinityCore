@@ -22,6 +22,7 @@
 #include "DBCStructure.h"
 #include "DBCStores.h"
 #include "ObjectMgr.h"
+#include "SpellScript.h"
 
 #ifdef _WIN32
 #include <windows.h>

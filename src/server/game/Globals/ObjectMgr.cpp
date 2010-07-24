@@ -46,6 +46,8 @@
 #include "Vehicle.h"
 #include "AchievementMgr.h"
 #include "DisableMgr.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -4893,6 +4895,106 @@ void ObjectMgr::LoadWaypointScripts()
     }
 }
 
+void ObjectMgr::LoadSpellScriptNames()
+{
+    mSpellScripts.clear();                            // need for reload case
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
+
+    uint32 count = 0;
+
+    if (!result)
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded %u spell script names", count);
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        ++count;
+        bar.step();
+
+        Field *fields = result->Fetch();
+
+        int32 spellId         = fields[0].GetInt32();
+        const char *scriptName = fields[1].GetString();
+
+        bool allRanks = false;
+        if (spellId <=0)
+        {
+            allRanks = true;
+            spellId = -spellId;
+        }
+
+        SpellEntry const* spellEntry = sSpellStore.LookupEntry(spellId);
+        if (!spellEntry)
+        {
+            sLog.outErrorDb("Scriptname:`%s` spell (spell_id:%d) does not exist in `Spell.dbc`.",scriptName,fields[0].GetInt32());
+            continue;
+        }
+
+        if (allRanks)
+        {
+            if (spellmgr.GetFirstSpellInChain(spellId) != spellId)
+            {
+                sLog.outErrorDb("Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.",scriptName,fields[0].GetInt32());
+                continue;
+            }
+            while(spellId)
+            {
+                mSpellScripts.insert(SpellScriptsMap::value_type(spellId, GetScriptId(scriptName)));
+                spellId = spellmgr.GetNextSpellInChain(spellId);
+            }
+        }
+        else
+            mSpellScripts.insert(SpellScriptsMap::value_type(spellId, GetScriptId(scriptName)));
+
+    } while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u spell script names", count);
+}
+
+void ObjectMgr::ValidateSpellScripts()
+{
+    if (mSpellScripts.empty())
+    {
+        barGoLink bar(1);
+        bar.step();
+
+        sLog.outString();
+        sLog.outString(">> Validation done");
+        return;
+    }
+
+    barGoLink bar(mSpellScripts.size());
+    for (SpellScriptsMap::iterator itr = mSpellScripts.begin(); itr != mSpellScripts.end();)
+    {
+        SpellEntry const * spellEntry = sSpellStore.LookupEntry(itr->first);
+        std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> > spellScripts;
+        sScriptMgr.CreateSpellScripts(itr->first, spellScripts);
+        SpellScriptsMap::iterator bitr;
+        itr = mSpellScripts.upper_bound(itr->first);
+
+        for (std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> >::iterator sitr = spellScripts.begin(); sitr != spellScripts.end(); ++sitr)
+        {
+            bar.step();
+            sitr->first->Register();
+            if (!sitr->first->_Validate(spellEntry, objmgr.GetScriptName(sitr->second->second)))
+                mSpellScripts.erase(sitr->second);
+            delete sitr->first;
+        }
+    }
+
+    sLog.outString();
+    sLog.outString(">> Validation done");
+}
+
 void ObjectMgr::LoadGossipScripts()
 {
     LoadScripts(sGossipScripts, "gossip_scripts");
@@ -7658,6 +7760,11 @@ uint32 ObjectMgr::GetAreaTriggerScriptId(uint32 trigger_id)
     return 0;
 }
 
+SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spell_id)
+{
+    return SpellScriptsBounds(mSpellScripts.lower_bound(spell_id),mSpellScripts.upper_bound(spell_id));
+}
+
 SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial)
 {
     switch(pSkill->categoryId)
@@ -8450,6 +8557,8 @@ void ObjectMgr::LoadScriptNames()
       "SELECT DISTINCT(ScriptName) FROM item_template WHERE ScriptName <> '' "
       "UNION "
       "SELECT DISTINCT(ScriptName) FROM areatrigger_scripts WHERE ScriptName <> '' "
+      "UNION "
+      "SELECT DISTINCT(ScriptName) FROM spell_script_names WHERE ScriptName <> '' "
       "UNION "
       "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 

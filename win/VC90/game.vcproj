@@ -762,6 +762,50 @@
 					RelativePath="..\..\src\server\scripts\World\npcs_special.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_dk.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_druid.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_generic.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_hunter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_mage.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_paladin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_priest.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_rogue.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_shaman.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_warlock.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\World\spell_warrior.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Eastern Kingdoms"
@@ -1644,6 +1688,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\server\scripts\Examples\example_misc.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\scripts\Examples\example_spell.cpp"
 					>
 				</File>
 			</Filter>
@@ -4200,16 +4248,16 @@
 					<File
 						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\ChannelHandler.cpp"
 						>
-                                        </File>
-                                        <File
-                                                RelativePath="..\..\src\server\game\Tools\CharacterDatabaseCleaner.cpp"
-                                                >
-                                        </File>
-                                        <File
-                                                RelativePath="..\..\src\server\game\Tools\CharacterDatabaseCleaner.h"
-                                                >
-                                        </File>
-                                        <File
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Tools\CharacterDatabaseCleaner.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\server\game\Tools\CharacterDatabaseCleaner.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\src\server\game\Server\Protocol\Handlers\CharacterHandler.cpp"
 						>
 					</File>
@@ -4469,6 +4517,14 @@
 			</File>
 			<File
 				RelativePath="..\..\src\server\game\Spells\SpellMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Spells\SpellScript.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\game\Spells\SpellScript.h"
 				>
 			</File>
 			<Filter

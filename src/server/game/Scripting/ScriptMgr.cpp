@@ -544,3 +544,25 @@ InstanceData* ScriptMgr::CreateInstanceData(Map *map)
     return tmpscript->GetInstanceData(map);
 }
 
+void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & script_vector)
+{
+    SpellScriptsBounds bounds = objmgr.GetSpellScriptsBounds(spell_id);
+    for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        Script *tmpscript = m_scripts[itr->second];
+        if (!tmpscript || !tmpscript->GetSpellScript) continue;
+        script_vector.push_back(tmpscript->GetSpellScript());
+    }
+}
+
+void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::vector<std::pair<SpellScript *, SpellScriptsMap::iterator> > & script_vector)
+{
+    SpellScriptsBounds bounds = objmgr.GetSpellScriptsBounds(spell_id);
+    script_vector.reserve(std::distance(bounds.first, bounds.second));
+    for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
+    {
+        Script *tmpscript = m_scripts[itr->second];
+        if (!tmpscript || !tmpscript->GetSpellScript) continue;
+        script_vector.push_back(std::make_pair(tmpscript->GetSpellScript(), itr));
+    }
+}

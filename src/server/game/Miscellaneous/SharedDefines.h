@@ -24,6 +24,17 @@
 #include "Define.h"
 #include <cassert>
 
+enum SpellEffIndex
+{
+    EFFECT_0 = 0,
+    EFFECT_1 = 1,
+    EFFECT_2 = 2,
+};
+
+// used in script definitions
+#define EFFECT_FIRST_FOUND 254
+#define EFFECT_ALL 255
+
 // loot modes for creatures and gameobjects, bitmask!
 enum LootModes
 {
@@ -1177,7 +1188,7 @@ enum Targets
     TARGET_UNIT_MINIPET                = 90,
     TARGET_DEST_DEST_RANDOM_DIR_DIST   = 91,
     TARGET_UNIT_UNK_92                 = 92,
-    TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93,
+    TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93, // TODO
     TARGET_UNIT_VEHICLE                = 94,
     TARGET_UNIT_DRIVER                 = 95,
     TARGET_UNIT_PASSENGER_0            = 96,
@@ -1190,6 +1201,9 @@ enum Targets
     TARGET_UNIT_PASSENGER_7            = 103,
     TARGET_UNIT_AREA_PATH              = 104,
     TARGET_UNIT_UNK_105                = 105, // 1 spell
+    TARGET_DEST_CHANNEL_TARGET         = 106, // TODO
+    TARGET_UNK_AREA_UNK_DST_107        = 107, // not enough info - only generic spells avalible
+    TARGET_GAMEOBJECT_AREA_PATH        = 108, // TODO
     TARGET_DEST_UNK_110                = 110, // some kind of traj?
 };
 
