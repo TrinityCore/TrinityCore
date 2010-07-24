@@ -12,7 +12,7 @@
 #include "CompilerDefs.h"
 #include "DBCStructure.h"
 #include "ConfigEnv.h"
-
+#include "ObjectMgr.h"
 
 class Player;
 class Creature;
