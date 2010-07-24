@@ -6302,7 +6302,7 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         break;
                     }
                     if (spellId)
-                        m_caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, true);
+                        m_caster->CastCustomSpell(unitTarget, spellId, &basePoint, 0, 0, false);
                     return;
                 }
                 // Master's Call
