@@ -141,7 +141,7 @@ enum __QuestFlags
     QUEST_FLAGS_AUTOCOMPLETE   = 0x00010000,                // auto complete
     QUEST_FLAGS_SPECIAL_ITEM   = 0x00020000,                // has something to do with ReqItemId and SrcItemId
     QUEST_FLAGS_OBJ_TEXT       = 0x00040000,                // use Objective text as Complete text
-    QUEST_FLAGS_UNK7           = 0x00080000,                // unknown 
+    QUEST_FLAGS_AUTO_ACCEPT    = 0x00080000,                // The client recognizes this flag as auto-accept. However, NONE of the current quests (3.3.5a) have this flag. Maybe blizz used to use it, or will use it in the future. 
 
     // Trinity flags for set SpecialFlags in DB if required but used only at server
     QUEST_TRINITY_FLAGS_REPEATABLE           = 0x00100000,   // Set by 1 in SpecialFlags from DB
