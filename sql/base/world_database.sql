@@ -15391,6 +15391,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (5025, 'Type: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5026, 'DisplayID: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (5027, 'Name: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(5028, 'Lootid: %u', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6604, 'You cannot say, yell or emote until you become level %d.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6605, 'You cannot whisper until you become level %d.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (6606, 'You cannot write to channels until you become level %d.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
