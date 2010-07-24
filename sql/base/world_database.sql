@@ -14570,6 +14570,20 @@ INSERT INTO `spelldifficulty_dbc` VALUES
 UNLOCK TABLES;
 
 --
+-- Table structure for table `spell_script_names`
+--
+
+DROP TABLE IF EXISTS `spell_script_names`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `spell_script_names` (
+  `spell_id` mediumint(8) NOT NULL,
+  `ScriptName` char(64) NOT NULL,
+  UNIQUE (`spell_id`, `ScriptName`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `transports`
 --
 

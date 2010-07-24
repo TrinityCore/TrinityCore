@@ -29,6 +29,8 @@ class Player;
 class GameObject;
 class DynamicObject;
 class Aura;
+struct SpellEntry;
+class SpellScript;
 
 // These flags represent the inner states of the targeting system
 enum SpellInternalTargetFlags
@@ -268,6 +270,7 @@ class Spell
 {
     friend struct Trinity::SpellNotifierCreatureAndPlayer;
     friend void Unit::SetCurrentCastedSpell(Spell * pSpell);
+    friend class SpellScript;
     public:
 
         void EffectNULL(uint32);
@@ -506,6 +509,7 @@ class Spell
 
         Unit* GetCaster() const { return m_caster; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
+        SpellEntry const * GetSpellInfo() const { return m_spellInfo; }
         int32 GetPowerCost() const { return m_powerCost; }
 
         void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
@@ -649,6 +653,10 @@ class Spell
         void SpellDamageSchoolDmg(uint32 i);
         void SpellDamageWeaponDmg(uint32 i);
         void SpellDamageHeal(uint32 i);
+
+        // Scripting system
+        void LoadScripts();
+        std::list<SpellScript *> m_loadedScripts;
 
         // effect helpers
         void GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0);
