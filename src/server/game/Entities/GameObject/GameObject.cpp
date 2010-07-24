@@ -1367,8 +1367,8 @@ void GameObject::Use(Unit* user)
 
             Player* targetPlayer = ObjectAccessor::FindPlayer(player->GetSelection());
 
-            // accept only use by player from same group for caster except caster itself
-            if (!targetPlayer || targetPlayer == player || !targetPlayer->IsInSameGroupWith(player))
+            // accept only use by player from same raid as caster, except caster itself
+            if (!targetPlayer || targetPlayer == player || !targetPlayer->IsInSameRaidWith(player))
                 return;
 
             //required lvl checks!
