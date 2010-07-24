@@ -246,7 +246,7 @@ void WorldSession::HandleQuestgiverQueryQuestOpcode(WorldPacket & recv_data)
     Quest const* pQuest = objmgr.GetQuestTemplate(quest);
     if (pQuest)
     {
-        if (pQuest->HasFlag(QUEST_FLAGS_AUTO_ACCEPT) && _player->CanAddQuest(pQuest, true))
+        if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_AUTO_ACCEPT) && _player->CanAddQuest(pQuest, true))
         {
             _player->AddQuest(pQuest, pObject);
             if (_player->CanCompleteQuest(quest))

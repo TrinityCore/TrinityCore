@@ -12,7 +12,7 @@
 #include "CompilerDefs.h"
 #include "DBCStructure.h"
 #include "ConfigEnv.h"
-#include "SpellScript.h"
+
 
 class Player;
 class Creature;
