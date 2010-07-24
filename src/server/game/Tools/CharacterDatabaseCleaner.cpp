@@ -1,22 +1,19 @@
 /*
+ * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
- * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
-USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "Common.h"
@@ -77,8 +74,7 @@ char* table, bool (*check)(uint32))
         {
             if(!found)
             {
-                ss << "DELETE FROM " << table << " WHERE " << column << 
-" IN (";
+                ss << "DELETE FROM " << table << " WHERE " << column << " IN (";
                 found = true;
             }
             else
@@ -102,8 +98,7 @@ bool CharacterDatabaseCleaner::AchievementProgressCheck(uint32 criteria)
 
 void CharacterDatabaseCleaner::CleanCharacterAchievementProgress()
 {
-    CheckUnique("criteria", "character_achievement_progress", 
-&AchievementProgressCheck);
+    CheckUnique("criteria", "character_achievement_progress", &AchievementProgressCheck);
 }
 
 bool CharacterDatabaseCleaner::SkillCheck(uint32 skill)
@@ -118,8 +113,7 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    return sSpellStore.LookupEntry(spell_id) && 
-!GetTalentSpellPos(spell_id);
+    return sSpellStore.LookupEntry(spell_id) && !GetTalentSpellPos(spell_id);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()
@@ -129,19 +123,15 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
 
 bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 {
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry( talent_id 
-);
+    TalentEntry const *talentInfo = sTalentStore.LookupEntry( talent_id );
     if(!talentInfo)
         return false;
-
     return sTalentTabStore.LookupEntry( talentInfo->TalentTab );
 }
 
 void CharacterDatabaseCleaner::CleanCharacterTalent()
 {
-    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE spec > %u OR current_rank > %u", MAX_TALENT_SPECS, 
-MAX_TALENT_RANK);
-
-    CheckUnique("talent_id", "character_talent", &TalentCheck);
+    CharacterDatabase.DirectPExecute("DELETE FROM character_talent WHERE spec > %u", MAX_TALENT_SPECS);
+    CheckUnique("spell", "character_talent", &TalentCheck);
 }
 
