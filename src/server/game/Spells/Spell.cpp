@@ -7097,7 +7097,7 @@ void Spell::SelectTrajTargets()
 
 void Spell::LoadScripts()
 {
-    sLog.outError("Spell::LoadScripts");
+    sLog.outDebug("Spell::LoadScripts");
     sScriptMgr.CreateSpellScripts(m_spellInfo->Id, m_loadedScripts);
     for(std::list<SpellScript *>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end() ;)
     {

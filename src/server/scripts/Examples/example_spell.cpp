@@ -26,10 +26,9 @@
 
 class spell_ex_49375SpellScript : public SpellScript
 {
-public:
     std::string localVariable;
     char * localVariable2;
-private:
+
     // effect handler hook - effIndex - effIndex of handled effect of a spell
     void HandleDummy(SpellEffIndex effIndex)
     {
@@ -86,6 +85,25 @@ SpellScript * GetSpellScript_spell_ex_49375()
 {
     return new spell_ex_49375SpellScript();
 }
+
+/* empty script for copypasting
+class spell_ex_SpellScript : public SpellScript
+{
+    void Function(SpellEffIndex effIndex){}
+    void Register()
+    {
+        //EffectHandlers += EffectHandlerFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_EFFECT_ANY);
+    }
+
+    //bool Load(){return true}
+    //void Unload(){}
+    //bool Validate(SpellEntry const * spellEntry){return true;}
+};
+SpellScript * GetSpellScript_spell_ex_()
+{
+    return new spell_ex_SpellScript();
+}
+*/
 
 // this function has to be added to function set in ScriptLoader.cpp
 void AddSC_example_spell_scripts()
