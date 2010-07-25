@@ -36,7 +36,7 @@ class spell_ex_49375SpellScript : public SpellScript
         sLog.outError("WE ARE HANDLING DUMMY!");
         sLog.outError(localVariable.c_str());
         // make caster cast a spell on a unit target of effect
-        if (Unit * target = GetEffectUnitTarget())
+        if (Unit * target = GetHitUnit())
             GetCaster()->CastSpell(target, 70522, true);
     };
     void Register()
@@ -70,7 +70,7 @@ class spell_ex_49375SpellScript : public SpellScript
         // script will be immediately removed from the spell
         // for example - we don't want this script to be executed on a creature
         // if (GetCaster()->GetTypeID() != TYPEID_PLAYER)
-        //     return false 
+        //     return false; 
     }
     // function called just before script delete
     // we free allocated memory
@@ -95,7 +95,7 @@ class spell_ex_SpellScript : public SpellScript
         //EffectHandlers += EffectHandlerFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_EFFECT_ANY);
     }
 
-    //bool Load(){return true}
+    //bool Load(){return true;}
     //void Unload(){}
     //bool Validate(SpellEntry const * spellEntry){return true;}
 };

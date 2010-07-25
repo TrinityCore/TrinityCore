@@ -4504,6 +4504,9 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
 
     sLog.outDebug("Spell: %u Effect : %u", m_spellInfo->Id, eff);
 
+    //we do not need DamageMultiplier here.
+    damage = CalculateDamage(i, NULL);
+
     for(std::list<SpellScript *>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
         std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->EffectHandlers.end(), effItr = (*scritr)->EffectHandlers.begin();
@@ -4513,9 +4516,6 @@ void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTar
                 (*effItr).Call(*scritr, (SpellEffIndex)i);
         }
     }
-
-    //we do not need DamageMultiplier here.
-    damage = CalculateDamage(i, NULL);
 
     if (eff < TOTAL_SPELL_EFFECTS)
     {
