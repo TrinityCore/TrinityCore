@@ -440,19 +440,8 @@ void npc_secondTrialAI::JustDied(Unit* Killer)
         // last kill quest complete for group
         if (me->GetEntry() == CHAMPION_SUNSTRIKER)
         {
-            if (Group *pGroup = CAST_PLR(Killer)->GetGroup())
-            {
-                for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
-                {
-                    Player *pGroupGuy = itr->getSource();
-
-                    // for any leave or dead (with not released body) group member at appropriate distance
-                    if (pGroupGuy && pGroupGuy->IsAtGroupRewardDistance(me) && !pGroupGuy->GetCorpse() && pGroupGuy->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-                        pGroupGuy->CompleteQuest(QUEST_SECOND_TRIAL);
-                }
-            }
-            else if (CAST_PLR(Killer)->GetQuestStatus(QUEST_SECOND_TRIAL) == QUEST_STATUS_INCOMPLETE)
-                CAST_PLR(Killer)->CompleteQuest(QUEST_SECOND_TRIAL);
+            if (Killer->GetTypeId() == TYPEID_PLAYER)
+                Killer->ToPlayer()->GroupEventHappens(QUEST_SECOND_TRIAL,Killer);
         }
     }
 }
