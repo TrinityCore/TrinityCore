@@ -29,6 +29,7 @@ class Creature;
 class GameObject;
 class Player;
 class Item;
+class WorldLocation;
 
 typedef void(SpellScript::*EffectHandlerFnType)(SpellEffIndex);
 
@@ -120,23 +121,38 @@ class SpellScript : public _SpellScript
         // example EffectHandlers += EffectHandlerFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
         HookList<EffectHandler> EffectHandlers;
 
+        //
         // methods allowing interaction with Spell object
+        //
+        // methods useable during all spell handling phases
         Unit * GetCaster();
         Unit * GetOriginalCaster();
         SpellEntry const * GetSpellInfo();
 
-        // functions useable only during spell hit on target phase
+        // methods useable after spell targets are set
+        // returns: destination of the spell if exists, otherwise NULL
+        WorldLocation * GetDest();
+
+        // methods useable only during spell hit on target phase:
         
         // returns: target of current effect if it was Unit otherwise NULL
-        Unit * GetEffectUnitTarget(); 
+        Unit * GetHitUnit(); 
         // returns: target of current effect if it was Creature otherwise NULL
-        Creature * GetEffectCreatureTarget();
+        Creature * GetHitCreature();
         // returns: target of current effect if it was Player otherwise NULL
-        Player * GetEffectPlayerTarget();
+        Player * GetHitPlayer();
         // returns: target of current effect if it was Item otherwise NULL
-        Item * GetEffectItemTarget();
+        Item * GetHitItem();
         // returns: target of current effect if it was GameObject otherwise NULL
-        GameObject * GetEffectGOTarget();
+        GameObject * GetHitGObj();
+        // setter/getter for for damage done by spell to target of spell hit
+        int32 GetHitDamage();
+        void SetHitDamage(int32 damage);
+        // setter/getter for for heal done by spell to target of spell hit
+        int32 GetHitHeal();
+        void SetHitHeal(int32 heal);
+
+        // method avalible only in EffectHandler method
         int32 GetEffectValue();
 };
 // SpellScript interface
