@@ -124,11 +124,18 @@ class SpellScript : public _SpellScript
         Unit * GetCaster();
         Unit * GetOriginalCaster();
         SpellEntry const * GetSpellInfo();
+
         // functions useable only during spell hit on target phase
-        Unit * GetEffectUnitTarget();
+        
+        // returns: target of current effect if it was Unit otherwise NULL
+        Unit * GetEffectUnitTarget(); 
+        // returns: target of current effect if it was Creature otherwise NULL
         Creature * GetEffectCreatureTarget();
+        // returns: target of current effect if it was Player otherwise NULL
         Player * GetEffectPlayerTarget();
+        // returns: target of current effect if it was Item otherwise NULL
         Item * GetEffectItemTarget();
+        // returns: target of current effect if it was GameObject otherwise NULL
         GameObject * GetEffectGOTarget();
         int32 GetEffectValue();
 };
