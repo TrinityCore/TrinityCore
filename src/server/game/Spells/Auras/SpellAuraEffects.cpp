@@ -1000,7 +1000,7 @@ void AuraEffect::Update(uint32 diff, Unit * caster)
 {
     if (m_isPeriodic && (GetBase()->GetDuration() >=0 || GetBase()->IsPassive() || GetBase()->IsPermanent()))
     {
-        if (m_periodicTimer > diff)
+        if (m_periodicTimer > int32(diff))
             m_periodicTimer -= diff;
         else // tick also at m_periodicTimer == 0 to prevent lost last tick in case max m_duration == (max m_periodicTimer)*N
         {
