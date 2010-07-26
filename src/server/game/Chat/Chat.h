@@ -416,6 +416,7 @@ class ChatHandler
         bool HandleReloadQuestStartScriptsCommand(const char* args);
         bool HandleReloadQuestTemplateCommand(const char* args);
         bool HandleReloadReservedNameCommand(const char*);
+        bool HandleReloadReputationRewardRateCommand(const char* args);
         bool HandleReloadSkillDiscoveryTemplateCommand(const char* args);
         bool HandleReloadSkillExtraItemTemplateCommand(const char* args);
         bool HandleReloadSkillFishingBaseLevelCommand(const char* args);

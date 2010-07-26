@@ -1152,6 +1152,14 @@ bool ChatHandler::HandleReloadReservedNameCommand(const char*)
     return true;
 }
 
+bool ChatHandler::HandleReloadReputationRewardRateCommand(const char*)
+{
+    sLog.outString( "Re-Loading `reputation_reward_rate` Table!" );
+    objmgr.LoadReputationRewardRate();
+    SendGlobalSysMessage("DB table `reputation_reward_rate` reloaded.");
+    return true;
+}
+
 bool ChatHandler::HandleReloadSkillDiscoveryTemplateCommand(const char* /*args*/)
 {
     sLog.outString("Re-Loading Skill Discovery Table...");
