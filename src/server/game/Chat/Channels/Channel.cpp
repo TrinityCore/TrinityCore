@@ -168,9 +168,6 @@ void Channel::Join(uint64 p, const char *pass)
             return;
         }
 
-        if (plr->GetGuildId() && (GetFlags() == 0x38))
-            return;
-
         plr->JoinedChannel(this);
     }
 
