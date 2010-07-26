@@ -140,14 +140,29 @@ void ReputationMgr::SendState(FactionState const* faction) const
 {
     if (faction->Flags & FACTION_FLAG_VISIBLE)               //If faction is visible then update it
     {
+        uint32 count = 1;
+
         WorldPacket data(SMSG_SET_FACTION_STANDING, (16));  // last check 2.4.0
         data << (float) 0;                                  // unk 2.4.0
         data << (uint8) 0;                                  // wotlk 8634
-        data << (uint32) 1;                                 // count
-        // for
+
+        size_t p_count = data.wpos();
+        data << (uint32) count;                             // placeholder
+ 
         data << (uint32) faction->ReputationListID;
         data << (uint32) faction->Standing;
-        // end for
+
+        for(FactionStateList::const_iterator itr = m_factions.begin(); itr != m_factions.end(); ++itr)
+        {
+            if (itr->second.Changed && itr->second.ReputationListID != faction->ReputationListID)
+            {
+                data << (uint32) itr->second.ReputationListID;
+                data << (uint32) itr->second.Standing;
+                ++count;
+            }
+        }
+
+        data.put<uint32>(p_count, count);
         m_player->SendDirectMessage(&data);
     }
 }
@@ -235,82 +250,57 @@ void ReputationMgr::Initialize()
 
 bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
 {
-    // Determines whether or not the faction is part of a team or the leader of a team.
-    bool isTeamMember = false;
-
-    // Return variable for the function
-    bool res = false;
-
-    SimpleFactionsList const* flist = GetFactionTeamList(factionEntry->ID, isTeamMember);
-    // Determines whether reputation should be sent to team parent or other team members.
-    int8 extraTarget = (isTeamMember || !flist ? -1 : 0);     // 0 = Give equal amount of reputation to anyone in the team (unhandled cases).
-
-    /* When gaining reputation with some factions, you receive a reputation increase
-       towards other reputations for that group.
-    */
-    uint32 team = factionEntry->team;
-
-    int32 sharedStanding = standing;            // Here we decide what the amount is to send to the others of the group.
-    switch(factionEntry->ID)
+    if (SimpleFactionsList const* flist = GetFactionTeamList(factionEntry->ID))
     {
-        case 1037:                              // Alliance Vanguard
-        case 1052:                              // Horde Expedition
-            extraTarget = -1;                   // Make possible to earn rep with this two factions
-            break;
-
-    }
-    switch(team)
-    {
-        case HORDE:                             // When earning reputation with home city factions, 25% of the earned reputation
-        case ALLIANCE:                          // is added to others of your alliance. (http://www.wowwiki.com/Reputation)
-            sharedStanding *= 0.25f;
-            extraTarget = 1;
-            break;
-        case 1037:                              // Alliance Vanguard
-        case 1052:                              // Horde Expedition
-            sharedStanding *= 0.5f;             // Half of the reputation earned by any of the four subfactions of this team will
-            extraTarget = 2;                    // be added to the main faction. (http://www.wowwiki.com/Alliance_Vanguard)
-            break;
-    }
-
-    FactionEntry const *targetFaction = NULL;
-    switch(extraTarget)
-    {
-        case 0:                       // To entire team
+        bool res = false;
+        for (SimpleFactionsList::const_iterator itr = flist->begin();itr != flist->end();++itr)
         {
-            for (SimpleFactionsList::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
+            if (FactionEntry const *factionEntryCalc = sFactionStore.LookupEntry(*itr))
             {
-                targetFaction = sFactionStore.LookupEntry(*itr);
-                ASSERT(targetFaction != NULL);
-                res = SetOneFactionReputation(targetFaction, sharedStanding, incremental);
-            }
-            return res;
-        }break;
-        case 1:                       // To other team members
-        {
-            for (SimpleFactionsList::const_iterator itr = flist->begin(); itr != flist->end(); ++itr)
-            {
-                if ((*itr) == factionEntry->ID)  // Not to self
-                    continue;
+                res = SetOneFactionReputation(factionEntryCalc, standing, incremental);
 
-                targetFaction = sFactionStore.LookupEntry(*itr);
-                ASSERT(targetFaction != NULL);
-                res = SetOneFactionReputation(targetFaction, sharedStanding, incremental);
+                if (res)
+                {
+                    FactionStateList::iterator itr = m_factions.find(factionEntry->reputationListID);
+                    if (itr != m_factions.end())
+                        SendState(&itr->second);
+                }
             }
-        }break;
-        case 2:                        // Extra rep to team parent.
-        {
-            targetFaction = sFactionStore.LookupEntry(team);
-            ASSERT(targetFaction != NULL);
-            res = SetOneFactionReputation(targetFaction, sharedStanding, incremental);
         }
-        break;
-        default:                      // -1 Default case, 1 faction
-            return SetOneFactionReputation(factionEntry, standing, incremental);
-            break;
+        return res;
     }
+    else
+    {
+        // update for the actual faction first
+                bool res = SetOneFactionReputation(factionEntry, standing, incremental);
 
-    return (SetOneFactionReputation(factionEntry, standing, incremental) && res);
+        if (res)
+        {
+            // then some spillover calculation here if it exist
+                        if (const RepSpilloverTemplate *repTemplate = objmgr.GetRepSpilloverTemplate(factionEntry->ID))
+            {
+                for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
+                {
+                    if (repTemplate->faction[i])
+                    {
+                        if (m_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
+                        {
+                            // bonuses are already given, so just modify standing by rate
+                                                        int32 spilloverRep = standing * repTemplate->faction_rate[i];
+                            SetOneFactionReputation(sFactionStore.LookupEntry(repTemplate->faction[i]), spilloverRep, incremental);
+                        }
+                    }
+                }
+            }
+
+            // now we can send it
+                        FactionStateList::iterator itr = m_factions.find(factionEntry->reputationListID);
+            if (itr != m_factions.end())
+                SendState(&itr->second);
+        }
+
+        return res;
+    }
 }
 
 bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, int32 standing, bool incremental)
@@ -342,8 +332,6 @@ bool ReputationMgr::SetOneFactionReputation(FactionEntry const* factionEntry, in
 
         if (new_rank <= REP_HOSTILE)
             SetAtWar(&itr->second,true);
-
-        SendState(&itr->second);
 
         UpdateRankCounters(old_rank, new_rank);
 
