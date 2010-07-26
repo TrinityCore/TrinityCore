@@ -1046,6 +1046,23 @@ void Spell::AddItemTarget(Item* pitem, uint32 effIndex)
 
 void Spell::DoAllEffectOnTarget(TargetInfo *target)
 {
+    // invalid pointer, log debug info to trac the reason
+    if (target && target < ((TargetInfo*)1024))
+    {
+        sLog.outString("Spell::DoAllEffectOnTarget CRASH! - debug info:");
+        sLog.outString("Caster:");
+        m_caster->OutDebugInfo();
+        if (m_targets.getUnitTarget())
+        {
+            sLog.outString("Unit target:");
+            m_targets.getUnitTarget()->OutDebugInfo();
+        }
+        sLog.outString("SpellId: %d", m_spellInfo->Id);
+        sLog.outString("SpellTargetMap:");
+        for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+            sLog.outStringInLine("guid:%u, effmask:%u, ", ihit->targetGUID, ihit->effectMask);
+        ASSERT(false);
+    }
     if (!target || target->processed)
         return;
 
@@ -5626,7 +5643,7 @@ SpellCastResult Spell::CheckCasterAuras() const
             else if (m_spellInfo->EffectApplyAuraName[i] == SPELL_AURA_DISPEL_IMMUNITY)
                 dispel_immune |= GetDispellMask(DispelType(m_spellInfo->EffectMiscValue[i]));
         }
-        //immune movement impairment and loss of control
+        // immune movement impairment and loss of control
         if (m_spellInfo->Id == 42292 || m_spellInfo->Id == 59752)
             mechanic_immune = IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
     }
