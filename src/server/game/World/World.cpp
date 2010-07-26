@@ -1382,6 +1382,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Creature templates...");
     objmgr.LoadCreatureTemplates();
 
+    sLog.outString("Loading Reputation Reward Rates...");
+    objmgr.LoadReputationRewardRate();
+
     sLog.outString("Loading Creature Reputation OnKill Data...");
     objmgr.LoadReputationOnKill();
 
