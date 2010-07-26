@@ -344,6 +344,7 @@ CleanCharacterDB = 0
 #         and load it using the loadpdump command
 #        Default: 0 - don't include dumping chars to log
 #                 1 - include dumping chars to log
+#
 #    CharLogDump.Separate
 #        Write character dump to separate file
 #        Default: 0 - don't write dump to separate file
