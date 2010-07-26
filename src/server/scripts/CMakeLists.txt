@@ -13,6 +13,7 @@ file(GLOB_RECURSE scripts_kalimdor Kalimdor/*.cpp)
 file(GLOB_RECURSE scripts_northrend Northrend/*.cpp)
 file(GLOB_RECURSE scripts_outland Outland/*.cpp)
 file(GLOB_RECURSE scripts_world World/*.cpp)
+file(GLOB_RECURSE scripts_spells Spells/*.cpp)
 file(GLOB_RECURSE scripts_examples Examples/*.cpp)
 
 # Enable precompiled headers when using the GCC compiler.
@@ -34,6 +35,7 @@ set(scripts_STAT_SRCS
   ${scripts_northrend}
   ${scripts_outland}
   ${scripts_world}
+  ${script_spells}
   ${scripts_examples}
 )
 message("-- Added Scriptengine to SCRIPTS lib")
