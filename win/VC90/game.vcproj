@@ -762,48 +762,52 @@
 					RelativePath="..\..\src\server\scripts\World\npcs_special.cpp"
 					>
 				</File>
+			</Filter>
+			<Filter
+				Name="Spells"
+				>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_dk.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_dk.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_druid.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_druid.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_generic.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_generic.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_hunter.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_hunter.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_mage.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_mage.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_paladin.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_paladin.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_priest.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_priest.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_rogue.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_rogue.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_shaman.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_shaman.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_warlock.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_warlock.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\server\scripts\World\spell_warrior.cpp"
+					RelativePath="..\..\src\server\scripts\Spells\spell_warrior.cpp"
 					>
 				</File>
 			</Filter>
