@@ -1,4 +1,4 @@
-﻿-- Up to TC2 5408
+-- Up to TC2 5408
 -- 
 -- trinityscript_script_texts.sql Contains data for table `script_texts` mainly used in C++ parts.
 -- valid entries for table are between -1000000 and -1999999
@@ -303,7 +303,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (10181,-1000358,'Look out! We''re under attack!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'KAYA_AMBUSH'),
    (17900,-1000359,'Thank you for helping me. I know my way back from here.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0,'KAYA_END'),
    (17969,-1000360,'The strands of LIFE have been severed! The Dreamers must be avenged!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,' ysondre SAY_AGGRO'),
-   (17969,-1000361,'Come forth, ye Dreamers � and claim your vengeance!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,' ysondre SAY_SUMMONDRUIDS'),
+   (17969,-1000361,'Come forth, ye Dreamers   and claim your vengeance!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,0,' ysondre SAY_SUMMONDRUIDS'),
    (17969,-1000362,'Let''s go $N. I am ready to reach Whitereach Post.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'paoka SAY_START'),
    (17969,-1000363,'Now this looks familiar. If we keep heading east, I think we can... Ahh, Wyvern on the attack!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'paoka SAY_WYVERN'),
    (17969,-1000364,'Thanks a bunch... I can find my way back to Whitereach Post from here. Be sure to talk with Motega Firemane; perhaps you can keep him from sending me home.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,1,0,'paoka SAY_COMPLETE'),
@@ -629,6 +629,10 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (3974,-1189021,'Release the hounds!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,5841,1,0,0,'loksey SAY_AGGRO'),
 
 -- -1 209 000 ZUL'FARRAK
+   ('7607','-1209000','Oh no! Here they come!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Weegli Blastfuse SAY_WEEGLI_OHNO'),
+   ('7607','-1209001','OK. Here I go.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Weegli Blastfuse SAY_WEEGLI_OK_I_GO'),
+   ('7604','-1209002','Placeholder 1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Sergeant Bly SAY_1'),
+   ('7604','-1209003','Placeholder 2',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'0','0','1','0','Sergeant Bly SAY_2');
 
 -- -1 229 000 BLACKROCK SPIRE
 
@@ -3059,7 +3063,7 @@ INSERT INTO `script_texts` (`npc_entry`,`entry`,`content_default`,`content_loc1`
    (29173,-1609283,'%s collapses.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Darion Mograine'),
    (29173,-1609284,'%s charges towards the Lich King, Ashbringer in hand and strikes the Lich King.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'Highlord Tirion Fordring'),
    (29173,-1609285,'%s disappears. Tirion walks over to where Darion lay',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,'The Lich King'),
-   (29173,-1609286,'Light washes over the chapel  the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,''),
+   (29173,-1609286,'Light washes over the chapel ? the Light of Dawn is uncovered.',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,2,0,0,''),
    (25504, -1750040, 'My father''s aura is quite strong, he cannot be far. Could you be a doll and fight off the monsters wandering throught the mist?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, 'npc_mootoo_the_younger'),
    (25504, -1750041, 'Watch out for the monsters!Which way should we go first? Let''s try this way...',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, 'npc_mootoo_the_younger'),
    (25504, -1750042, 'What could this be?',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,0,0,0, 'npc_mootoo_the_younger'),
