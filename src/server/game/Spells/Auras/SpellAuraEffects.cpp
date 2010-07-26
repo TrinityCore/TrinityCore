@@ -4273,7 +4273,7 @@ void AuraEffect::HandleAuraModSchoolImmunity(AuraApplication const * aurApp, uin
         {
             SpellEntry const *spell = iter->second->GetBase()->GetSpellProto();
             if ((GetSpellSchoolMask(spell) & school_mask)//Check for school mask
-                && IsDispelableBySpell(GetSpellProto(),spell->Id, true)
+                && CanSpellDispelAura(GetSpellProto(),spell)
                 && !iter->second->IsPositive()          //Don't remove positive spells
                 && spell->Id != GetId())               //Don't remove self
             {

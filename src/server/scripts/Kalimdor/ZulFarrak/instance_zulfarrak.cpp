@@ -336,9 +336,11 @@ struct instance_zulfarrak : public ScriptedInstance
         //pop a add from list, send him up the stairs...
         for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); addCount++)
         {
-            Creature* add = instance->GetCreature(*addsAtBase.begin());
-            add->GetMotionMaster()->MovePath(PATH_ADDS,false);
-            movedadds.push_back(add->GetGUID());
+            if (Creature* add = instance->GetCreature(*addsAtBase.begin()))
+            {
+                add->GetMotionMaster()->MovePath(PATH_ADDS,false);
+                movedadds.push_back(add->GetGUID());
+            }
             addsAtBase.erase(addsAtBase.begin());
         }
     }
