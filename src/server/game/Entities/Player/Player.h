@@ -2598,7 +2598,7 @@ class Player : public Unit, public GridObject<Player>
         void RefundItem(Item* item);
 
         void UpdateKnownCurrencies(uint32 itemId, bool apply);
-        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest);
+        int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
         void AdjustQuestReqItemCount(Quest const* pQuest, QuestStatusData& questStatusData);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
