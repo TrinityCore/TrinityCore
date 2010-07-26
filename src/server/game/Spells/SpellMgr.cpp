@@ -3200,20 +3200,40 @@ bool SpellMgr::CanAurasStack(SpellEntry const *spellInfo_1, SpellEntry const *sp
     return false;
 }
 
-bool IsDispelableBySpell(SpellEntry const * dispelSpell, uint32 spellId, bool def)
+bool CanSpellDispelAura(SpellEntry const * dispelSpell, SpellEntry const * aura)
 {
-    if (!dispelSpell) return false;
-    SpellEntry const *spellproto = sSpellStore.LookupEntry(spellId);
-    if (!spellproto) return false;
-
-    // Cyclone etc..
-    if (spellproto->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+    // These auras (like ressurection sickness) can't be dispelled
+    if (aura->Attributes & SPELL_ATTR_NEGATIVE_1)
         return false;
 
+    // These spells (like Mass Dispel) can dispell all auras
     if (dispelSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
         return true;
 
-    return def;
+    // These auras (like Divine Shield) can't be dispelled
+    if (aura->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return false;
+
+    // These auras (Cyclone for example) are not dispelable
+    if (aura->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+        return false;
+
+    return true;
+}
+
+bool CanSpellPierceImmuneAura(SpellEntry const * pierceSpell, SpellEntry const * aura)
+{
+    // these spells pierce all avalible spells (Resurrection Sickness for example)
+    if (pierceSpell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)
+        return true;
+
+    // these spells (Cyclone for example) can pierce all...
+    if ((pierceSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
+        // ...but not these (Divine shield for example)
+        && !(aura->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
+        return true;
+
+    return false;
 }
 
 void SpellMgr::LoadSpellEnchantProcData()
