@@ -1388,6 +1388,9 @@ void World::SetInitialWorldSettings()
     sLog.outString("Loading Creature Reputation OnKill Data...");
     objmgr.LoadReputationOnKill();
 
+    sLog.outString( "Loading Reputation Spillover Data..." );
+    objmgr.LoadReputationSpilloverTemplate();
+
     sLog.outString("Loading Points Of Interest Data...");
     objmgr.LoadPointsOfInterest();
 
