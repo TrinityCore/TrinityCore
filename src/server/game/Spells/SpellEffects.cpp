@@ -4116,7 +4116,7 @@ void Spell::EffectAddHonor(uint32 /*i*/)
     if (m_CastItem)
     {
         unitTarget->ToPlayer()->RewardHonor(NULL, 1, damage/10);
-        sLog.outError("SpellEffect::AddHonor (spell_id %u) rewards %d honor points (item %u) for player: %u", m_spellInfo->Id, damage/10, m_CastItem->GetEntry(),unitTarget->ToPlayer()->GetGUIDLow());
+        sLog.outDebug("SpellEffect::AddHonor (spell_id %u) rewards %d honor points (item %u) for player: %u", m_spellInfo->Id, damage/10, m_CastItem->GetEntry(),unitTarget->ToPlayer()->GetGUIDLow());
         return;
     }
 

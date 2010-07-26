@@ -1585,7 +1585,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage, SpellEnt
             // item dependent spell - check curent weapons
             for (int i = 0; i < MAX_ATTACK; ++i)
             {
-                Item *weapon = ToPlayer()->GetWeaponForAttack(WeaponAttackType(i));
+                Item *weapon = ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), true);
 
                 if (weapon && weapon->IsFitToSpellRequirements((*itr)->GetSpellProto()))
                 {
@@ -14488,7 +14488,7 @@ float Unit::GetAPMultiplier(WeaponAttackType attType, bool normalized)
     if (!normalized || GetTypeId() != TYPEID_PLAYER)
         return float(GetAttackTime(attType))/1000.0f;
 
-    Item *Weapon = this->ToPlayer()->GetWeaponForAttack(attType);
+    Item *Weapon = this->ToPlayer()->GetWeaponForAttack(attType, true);
     if (!Weapon)
         return 2.4;                                         // fist attack
 
