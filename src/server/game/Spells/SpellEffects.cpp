@@ -1540,61 +1540,6 @@ void Spell::EffectDummy(uint32 i)
 
             break;
         }
-        case SPELLFAMILY_MAGE:
-            switch(m_spellInfo->Id)
-            {
-                case 11958:                                 // Cold Snap
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // immediately finishes the cooldown on Frost spells
-                    const SpellCooldowns& cm = m_caster->ToPlayer()->GetSpellCooldownMap();
-                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                    {
-                        SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
-                            (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST) &&
-                            spellInfo->Id != 11958 && GetSpellRecoveryTime(spellInfo) > 0)
-                        {
-                            m_caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
-                        }
-                        else
-                            ++itr;
-                    }
-                    return;
-                }
-                case 32826:                                 // Polymorph Cast Visual
-                {
-                    if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-                    {
-                        //Polymorph Cast Visual Rank 1
-                        const uint32 spell_list[6] = {
-                            32813,                          // Squirrel Form
-                            32816,                          // Giraffe Form
-                            32817,                          // Serpent Form
-                            32818,                          // Dragonhawk Form
-                            32819,                          // Worgen Form
-                            32820                           // Sheep Form
-                        };
-                        unitTarget->CastSpell(unitTarget, spell_list[urand(0, 5)], true);
-                    }
-                    return;
-                }
-                case 31687: // Summon Water Elemental
-                {
-                    if (!unitTarget)
-                        return;
-
-                    // Glyph of Eternal Water
-                    if (unitTarget->HasAura(70937))
-                        unitTarget->CastSpell(unitTarget, 70908, true);
-                    else
-                        unitTarget->CastSpell(unitTarget, 70907, true);
-                }
-            }
-            break;
         case SPELLFAMILY_WARRIOR:
             // Charge
             if (m_spellInfo->SpellFamilyFlags & SPELLFAMILYFLAG_WARRIOR_CHARGE && m_spellInfo->SpellVisual[0] == 867)
