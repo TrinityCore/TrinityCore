@@ -19,6 +19,7 @@
 #ifndef __SPELL_SCRIPT_H
 #define __SPELL_SCRIPT_H
 
+#include "Util.h"
 #include "SharedDefines.h"
 
 class Unit;
