@@ -463,14 +463,6 @@
 			RelativePath="..\..\src\server\authserver\Server\RealmSocket.h"
 			>
 		</File>
-		<File
-			RelativePath="..\..\src\server\shared\Debugging\WheatyExceptionReport.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\..\src\server\shared\Debugging\WheatyExceptionReport.h"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
