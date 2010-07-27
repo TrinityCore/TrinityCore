@@ -146,9 +146,27 @@ bool BattleGroundSA::ResetObjs()
     }
 
     //GY capture points
-    for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_MAXOBJ; i++)
+    for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_PORTAL_DEFFENDER_BLUE; i++)
     {
-        AddObject(i, BG_SA_ObjEntries[(i + (attackers == TEAM_ALLIANCE ? 3:0))],
+        AddObject(i, (BG_SA_ObjEntries[i] - (attackers == TEAM_ALLIANCE ? 1:0)),
+            BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
+            BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
+            0,0,0,0,RESPAWN_ONE_DAY);
+        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
+    }
+
+	for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
+    {
+        AddObject(i, BG_SA_ObjEntries[i],
+            BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
+            BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
+            0,0,0,0,RESPAWN_ONE_DAY);
+        GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
+    }
+
+    for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
+    {
+        AddObject(i, BG_SA_ObjEntries[BG_SA_BOMB],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
             BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3],
             0,0,0,0,RESPAWN_ONE_DAY);
@@ -302,7 +320,10 @@ void BattleGroundSA::Update(uint32 diff)
                 TotalTime = 0;
                 status = BG_SA_SECOND_WARMUP;
                 attackers = (attackers == TEAM_ALLIANCE) ? TEAM_HORDE : TEAM_ALLIANCE;                
-                status = BG_SA_SECOND_WARMUP;
+                UpdateWaitTimer = 5000;
+                SignaledRoundTwo = false;
+                SignaledRoundTwoHalfMin = false;
+                InitSecondRound = true;
                 ToggleTimer();
                 ResetObjs();
                 return;
@@ -665,6 +686,9 @@ void BattleGroundSA::EventPlayerClickedOnFlag(Player *Source, GameObject* target
 
 void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
 {
+    if (GraveyardStatus[i] == attackers)
+        return;
+
     DelCreature(BG_SA_MAXNPC + i);
     GraveyardStatus[i] = Source->GetTeamId();
     WorldSafeLocsEntry const *sg = NULL;
@@ -678,7 +702,7 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
         case BG_SA_LEFT_CAPTURABLE_GY:
             flag = BG_SA_LEFT_FLAG;
             DelObject(flag);
-            AddObject(flag,BG_SA_ObjEntries[(flag + (Source->GetTeamId() == TEAM_ALLIANCE ? 0:3))],
+            AddObject(flag,(BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0:1)),
             BG_SA_ObjSpawnlocs[flag][0],BG_SA_ObjSpawnlocs[flag][1],
             BG_SA_ObjSpawnlocs[flag][2],BG_SA_ObjSpawnlocs[flag][3],0,0,0,0,RESPAWN_ONE_DAY);
 
@@ -697,7 +721,7 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
         case BG_SA_RIGHT_CAPTURABLE_GY:
             flag = BG_SA_RIGHT_FLAG;
             DelObject(flag);
-            AddObject(flag,BG_SA_ObjEntries[(flag + (Source->GetTeamId() == TEAM_ALLIANCE ? 0:3))],
+            AddObject(flag, (BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0:1)),
               BG_SA_ObjSpawnlocs[flag][0],BG_SA_ObjSpawnlocs[flag][1],
               BG_SA_ObjSpawnlocs[flag][2],BG_SA_ObjSpawnlocs[flag][3],0,0,0,0,RESPAWN_ONE_DAY);
 
@@ -716,7 +740,7 @@ void BattleGroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player *Source)
         case BG_SA_CENTRAL_CAPTURABLE_GY:
             flag = BG_SA_CENTRAL_FLAG;
             DelObject(flag);
-            AddObject(flag,BG_SA_ObjEntries[(flag + (Source->GetTeamId() == TEAM_ALLIANCE ? 0:3))],
+            AddObject(flag, (BG_SA_ObjEntries[flag] - (Source->GetTeamId() == TEAM_ALLIANCE ? 0:1)),
               BG_SA_ObjSpawnlocs[flag][0],BG_SA_ObjSpawnlocs[flag][1],
               BG_SA_ObjSpawnlocs[flag][2],BG_SA_ObjSpawnlocs[flag][3],0,0,0,0,RESPAWN_ONE_DAY);
 
@@ -806,11 +830,8 @@ void BattleGroundSA::UpdateDemolisherSpawns()
                 {
                     uint8 gy = (i >= BG_SA_DEMOLISHER_3 ? 3 : 2);
                     if (GraveyardStatus[gy] == attackers)
-                        Demolisher->Relocate(BG_SA_NpcSpawnlocs[i + 6][0], BG_SA_NpcSpawnlocs[i + 6][1],
-                          BG_SA_NpcSpawnlocs[i + 6][2], BG_SA_NpcSpawnlocs[i + 6][3]);
-                    else
-                        Demolisher->Relocate(BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
-                          BG_SA_NpcSpawnlocs[i][2], BG_SA_NpcSpawnlocs[i][3]);
+                        Demolisher->Relocate(BG_SA_NpcSpawnlocs[i + 11][0], BG_SA_NpcSpawnlocs[i + 10][1],
+                          BG_SA_NpcSpawnlocs[i + 10][2], BG_SA_NpcSpawnlocs[i + 10][3]);
 
                     Demolisher->Respawn();
                 }
