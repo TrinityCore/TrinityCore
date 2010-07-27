@@ -16,7 +16,7 @@
 
 #include "ScriptPCH.h"
 
-#ifdef DO_SCRIPTS
+#ifdef SCRIPTS
 //custom
 
 //examples
@@ -531,7 +531,7 @@ void AddSC_example_spell_scripts();
 
 void AddScripts()
 {
-#ifdef DO_SCRIPTS
+#ifdef SCRIPTS
 
     //custom
 

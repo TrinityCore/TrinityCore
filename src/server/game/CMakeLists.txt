@@ -11,7 +11,7 @@
 ######## game ########
 
 # Enable precompiled headers when using the GCC compiler.
-if(DO_PCH)
+if(PCH)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
@@ -271,7 +271,7 @@ include_directories(
   ${ACE_INCLUDE_DIR}
 )
 
-if(NOT DO_SCRIPTS)
+if(NOT SCRIPTS)
   set(game_STAT_SRCS
     ${game_STAT_SRCS}
     AI/ScriptedAI/ScriptedEscortAI.cpp
@@ -295,7 +295,7 @@ add_library(game STATIC ${game_STAT_SRCS})
 add_dependencies(game revision.h)
 
 # Generate precompiled header
-if(DO_PCH)
+if(PCH)
   if(CMAKE_COMPILER_IS_GNUCXX)
     add_precompiled_header(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/gamePCH.h)
   elseif(MSVC)

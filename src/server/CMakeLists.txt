@@ -8,22 +8,22 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-if(DO_WORLDSERVER)
+if(WORLDSERVER)
   add_subdirectory(shared)
   add_subdirectory(game)
   add_subdirectory(collision)
-  if(DO_SCRIPTS)
+  if(SCRIPTS)
     add_subdirectory(scripts)
   endif()
   add_subdirectory(worldserver)
 else()
-  if(DO_TOOLS)
+  if(TOOLS)
     add_subdirectory(collision)
   endif()
 endif()
 
-if (DO_AUTHSERVER)
-  if(NOT DO_WORLDSERVER)
+if (AUTHSERVER)
+  if(NOT WORLDSERVER)
     add_subdirectory(shared)
   endif()
   add_subdirectory(authserver)
