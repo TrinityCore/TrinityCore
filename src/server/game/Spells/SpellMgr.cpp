@@ -3832,8 +3832,11 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->EffectMiscValue[0] = MECHANIC_IMMUNE_SHIELD;
             count++;
             break;
-        case 53651:
-            spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_INITIAL_AGGRO;
+        case 64321: // Potent Pheromones
+            // spell should dispel area aura, but doesn't have the attribute
+            // may be db data bug, or blizz may keep reapplying area auras every update with checking immunity
+            // that will be clear if we get more spells with problem like this
+            spellInfo->AttributesEx |= SPELL_ATTR_EX_DISPEL_AURAS_ON_IMMUNITY;
             count++;
             break;
         default:
