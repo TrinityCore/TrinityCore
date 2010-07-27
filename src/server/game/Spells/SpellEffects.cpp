@@ -7024,6 +7024,11 @@ void Spell::EffectReputation(uint32 i)
     if (!factionEntry)
         return;
 
+    if (RepRewardRate const * repData = objmgr.GetRepRewardRate(faction_id))
+    {
+        rep_change = (float)rep_change * repData->spell_rate;
+    }
+
     _player->GetReputationMgr().ModifyReputation(factionEntry, rep_change);
 }
 
