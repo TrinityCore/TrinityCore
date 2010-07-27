@@ -148,7 +148,7 @@ enum __QuestFlags
     QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT = 0x00200000,   // Set by 2 in SpecialFlags from DB (if reequired area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
     QUEST_TRINITY_FLAGS_AUTO_ACCEPT          = 0x00400000,  // Set by 4 in SpecialFlags in DB if the quest is to be auto-accepted.
 
-    QUEST_TRINITY_FLAGS_DB_ALLOWED = 0xFFFFF | QUEST_TRINITY_FLAGS_REPEATABLE | QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT,
+    QUEST_TRINITY_FLAGS_DB_ALLOWED = 0xFFFFF | QUEST_TRINITY_FLAGS_REPEATABLE | QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT | QUEST_TRINITY_FLAGS_AUTO_ACCEPT,
 
     // Trinity flags for internal use only
     QUEST_TRINITY_FLAGS_DELIVER              = 0x04000000,   // Internal flag computed only
