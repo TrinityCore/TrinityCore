@@ -1,11 +1,10 @@
 = TrinityCore -- Linux installation =
-
-Copyright (C) Trinity Core (http://www.trinitycore.org)
+Copyright (C) 2008-2010 TrinityCore (http://www.trinitycore.org)
 
 CHECK http://www.trinitycore.info/w/Linux_Build_HOWTO FOR FURTHER HELP
 
-Installing Trinity Core is fairly simple on a Linux machine, assuming
-you have all required applications
+Installing TrinityCore is fairly simple on a Linux machine, assuming you 
+have all required applications
 
 The most important ones are:
 
@@ -25,37 +24,37 @@ The most important ones are:
     build-essential
     mysql-client
     
-Most of these are included on common Linux distros, others you may have to install by your self. 
-Please check your distro's repos.
+Most of these are included on common Linux distros, others you may have 
+to install by your self. Please check your distro's repos.
 
-Make a directory to build in, you can call it anything you want like build or bin etc, then go into 
-the directory and cmake and make. E.G. you created a dir named build ad want to have your final
- compiled product installed in /home/trinity/server, an example sequence of commands can be : 
+Make a directory to build in, you can call it anything you want like 
+build or bin etc, then go into the directory and cmake and make. E.G. 
+you created a dir named build ad want to have your finalcompiled product 
+installed in /home/trinity/server, an example sequence of commands can 
+be :
 
     cmake ../ -DPREFIX=/home/trinity/server
     make
     make install
     
-Thats just about all thats needed. You can however tweak more settings than where to install using flags built into our cmake files. Just open up CMakeLists.txt in the main folder and take a look at some of the flags like 
+Thats just about all thats needed. You can however tweak more settings 
+than where to install using flags built into our cmake files. Just open 
+up CMakeLists.txt in the main folder and take a look at some of the 
+flags like
 
-    DO_MYSQL --mysql database support (enabled or disabled by a 1 or 0, enabled by default)
-    DO_SCRIPTS --enable or disable trinity script (enabled or disabled by a 1 or 0, enabled by default)
-    DO_RA --remote administration (enabled or disabled by a 1 or 0)
-    DO_DEBUG --enable debugging (enabled or disabled by a 1 or 0)
-    DO_CLI --enable command line support (enabled or disabled by a 1 or 0, enabled by default)
-    LARGE_CELL --enable large cells (enabled or disabled by a 1 or 0, disabled by default, enabling can cause CPU spikes)
-    SHORT_SLEEP --changes sleep time from 100ms to 50ms
+    SCRIPTS --enable or disable trinity script (enabled or disabled by a 1 or 0, enabled by default)
+    DEBUG --enable debugging (enabled or disabled by a 1 or 0)
+    CLI --enable command line support (enabled or disabled by a 1 or 0, enabled by default)
     PREFIX --prefix directory for install (see example for use)
     CONF_DIR --location for your trinity config files
     CMAKE_C_FLAGS --advanced users only
     CMAKE_CXX_FLAGS --advanced users only
 
 
-Of course, replace the paths in prefix, conf_dir with the directories you wish to install 
-Trinity Core to. The datadir is where maps, DBCs, and SQLs are stored. The sysconfdir
-is where configuration files are stored.
+Of course, replace the paths in prefix, conf_dir with the directories 
+you wish to install TrinityCore to. The datadir is where maps, DBCs, and 
+SQLs are stored. The sysconfdir is where configuration files are stored.
 
-Once Trinity Core is installed you will need to
-apply database updates where necessary. Furthermore, you must
-configure your installation by editing the config files in the
-sysconfdir.
+Once TrinityCore is installed you will need to apply database updates 
+where necessary. Furthermore, you must configure your installation by 
+editing the config files in the sysconfdir.
