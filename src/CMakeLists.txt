@@ -10,7 +10,7 @@
 
 add_subdirectory(server)
 
-if(DO_TOOLS)
+if(TOOLS)
   add_subdirectory(tools)
-endif(DO_TOOLS)
+endif(TOOLS)
 

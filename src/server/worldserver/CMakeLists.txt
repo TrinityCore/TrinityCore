@@ -139,7 +139,7 @@ endif()
 
 set_target_properties(worldserver PROPERTIES LINK_FLAGS "${worldserver_LINK_FLAGS}")
 
-if( DO_SCRIPTS )
+if( SCRIPTS )
   set(SCRIPT_LIB "scripts")
 else()
   set(SCRIPT_LIB "")
