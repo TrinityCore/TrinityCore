@@ -4709,13 +4709,13 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
             {
                 if (!sSpellStore.LookupEntry(tmp.datalong))
                 {
-                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA for script id %u",
                         tablename,tmp.datalong,tmp.id);
                     continue;
                 }
                 if (tmp.datalong2 & ~0x1)                    // 1 bits (0,1)
                 {
-                    sLog.outErrorDb("Table `%s` using unknown flags in datalong2 (%u)i n SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                    sLog.outErrorDb("Table `%s` using unknown flags in datalong2 (%u) in SCRIPT_COMMAND_REMOVE_AURA for script id %u",
                         tablename,tmp.datalong2,tmp.id);
                     continue;
                 }
@@ -4725,14 +4725,20 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
             {
                 if (!sSpellStore.LookupEntry(tmp.datalong))
                 {
-                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_REMOVE_AURA or SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                    sLog.outErrorDb("Table `%s` using non-existent spell (id: %u) in SCRIPT_COMMAND_CAST_SPELL for script id %u",
                         tablename,tmp.datalong,tmp.id);
                     continue;
                 }
-                if (tmp.datalong2 & ~0x3)                    // 2 bits
+                if (tmp.datalong2 > 4)                      // targeting type
                 {
-                    sLog.outErrorDb("Table `%s` using unknown flags in datalong2 (%u)i n SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                    sLog.outErrorDb("Table `%s` using unknown target in datalong2 (%u) in SCRIPT_COMMAND_CAST_SPELL for script id %u",
                         tablename,tmp.datalong2,tmp.id);
+                    continue;
+                }
+                if (tmp.dataint & ~0x1)                      // 1 bit (0,1)
+                {
+                    sLog.outErrorDb("Table `%s` using unknown flags in dataint (%u) in SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.dataint,tmp.id);
                     continue;
                 }
                 break;

@@ -3583,7 +3583,7 @@ void Map::ScriptsProcess()
                         uSource = dynamic_cast<Unit*>(target);
                         uTarget = dynamic_cast<Unit*>(source);
                     break;
-                    case 4: // creature
+                    case 4: // source -> creature with entry
                         uSource = dynamic_cast<Unit*>(source);
                         uTarget = GetClosestCreatureWithEntry(uSource, step.script->dataint, step.script->x);
                     break;
@@ -3601,7 +3601,8 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                uSource->CastSpell(uTarget, step.script->datalong, false);
+                bool triggered = step.script->dataint & 0x1;
+                uSource->CastSpell(uTarget, step.script->datalong, triggered);
                 break;
             }
 
