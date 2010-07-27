@@ -1298,36 +1298,12 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
                     return;
                 }
-                case 44997:                                 // Converting Sentry
-                {
-                    //Converted Sentry Credit
-                    m_caster->CastSpell(m_caster, 45009, true);
-                    return;
-                }
-                case 45030:                                 // Impale Emissary
-                {
-                    // Emissary of Hate Credit
-                    m_caster->CastSpell(m_caster, 45088, true);
-                    return;
-                }
                 case 47170:                                 // Impale Leviroth
                 {
                     if (!unitTarget && unitTarget->GetEntry() != 26452 && ((unitTarget->GetHealth() / unitTarget->GetMaxHealth()) * 100.0f) > 95.0f)
                     return;
 
                     m_caster->DealDamage(unitTarget, unitTarget->GetMaxHealth()*0.93f);
-                    return;
-                }
-                case 49625:                                 // Brave's Flare
-                {
-                    //Trigger Brave's Flare Effect (with EffectTarget)
-                    m_caster->CastSpell(m_caster, 43106, true);
-                    return;
-                }
-                case 49634:                                 // Sergeant's Flare
-                {
-                    //Trigger Sergeant's Flare Effect (with EffectTarget)
-                    m_caster->CastSpell(m_caster, 43068, true);
                     return;
                 }
                 case 49357:                                 // Brewfest Mount Transformation
@@ -1458,13 +1434,6 @@ void Spell::EffectDummy(uint32 i)
                         return;
                     m_caster->CastCustomSpell(unitTarget, 52752, &damage, NULL, NULL, true);
                     return;
-                case 53341:                                 // Rune of Cinderglacier
-                case 53343:                                 // Rune of Razorice
-                {
-                    // Runeforging Credit
-                    m_caster->CastSpell(m_caster, 54586, true);
-                    return;
-                }
                 case 54171:                                   //Divine Storm
                 {
                     m_caster->CastCustomSpell(unitTarget, 54172, &damage, 0, 0, true);
