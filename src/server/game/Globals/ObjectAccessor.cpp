@@ -54,43 +54,16 @@ ObjectAccessor::~ObjectAccessor()
     }
 }
 
-Creature* ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const& u, uint64 guid)
-{
-    if (IS_PLAYER_GUID(guid))
-        return NULL;
-
-    if (IS_PET_GUID(guid))
-        return GetPet(guid);
-
-    return u.IsInWorld() ? u.GetMap()->GetCreature(guid) : NULL;
-}
-
-Corpse* ObjectAccessor::GetCorpse(WorldObject const& u, uint64 guid)
-{
-    Corpse* ret = GetObjectInWorld(guid, (Corpse*)NULL);
-
-    if (!ret)
-        return NULL;
-
-    if (ret->GetMapId() != u.GetMapId())
-        return NULL;
-
-    if (ret->GetInstanceId() != u.GetInstanceId())
-        return NULL;
-
-    return ret;
-}
-
 WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, uint64 guid)
 {
     switch (GUID_HIPART(guid))
     {
-        case HIGHGUID_PLAYER:        return FindPlayer(guid);
-        case HIGHGUID_GAMEOBJECT:    return p.GetMap()->GetGameObject(guid);
+        case HIGHGUID_PLAYER:        return GetPlayer(p, guid);
+        case HIGHGUID_GAMEOBJECT:    return GetGameObject(p, guid);
         case HIGHGUID_VEHICLE:
-        case HIGHGUID_UNIT:          return p.GetMap()->GetCreature(guid);
-        case HIGHGUID_PET:           return GetPet(guid);
-        case HIGHGUID_DYNAMICOBJECT: return p.GetMap()->GetDynamicObject(guid);
+        case HIGHGUID_UNIT:          return GetCreature(p, guid);
+        case HIGHGUID_PET:           return GetPet(p, guid);
+        case HIGHGUID_DYNAMICOBJECT: return GetDynamicObject(p, guid);
         case HIGHGUID_TRANSPORT:     return NULL;
         case HIGHGUID_CORPSE:        return GetCorpse(p,guid);
         case HIGHGUID_MO_TRANSPORT:  return NULL;
@@ -108,24 +81,24 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
             break;
         case HIGHGUID_PLAYER:
             if (typemask & TYPEMASK_PLAYER)
-                return FindPlayer(guid);
+                return GetPlayer(p, guid);
             break;
         case HIGHGUID_GAMEOBJECT:
             if (typemask & TYPEMASK_GAMEOBJECT)
-                return p.GetMap()->GetGameObject(guid);
+                return GetGameObject(p, guid);
             break;
         case HIGHGUID_UNIT:
         case HIGHGUID_VEHICLE:
             if (typemask & TYPEMASK_UNIT)
-                return p.GetMap()->GetCreature(guid);
+                return GetCreature(p, guid);
             break;
         case HIGHGUID_PET:
             if (typemask & TYPEMASK_UNIT)
-                return GetPet(guid);
+                return GetPet(p, guid);
             break;
         case HIGHGUID_DYNAMICOBJECT:
             if (typemask & TYPEMASK_DYNAMICOBJECT)
-                return p.GetMap()->GetDynamicObject(guid);
+                return GetDynamicObject(p, guid);
             break;
         case HIGHGUID_TRANSPORT:
         case HIGHGUID_CORPSE:
@@ -136,13 +109,60 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
     return NULL;
 }
 
+Corpse* ObjectAccessor::GetCorpse(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (Corpse*)NULL);
+}
+
+GameObject* ObjectAccessor::GetGameObject(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (GameObject*)NULL);
+}
+
+DynamicObject* ObjectAccessor::GetDynamicObject(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (DynamicObject*)NULL);
+}
+
+Unit* ObjectAccessor::GetUnit(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (Unit*)NULL);
+}
+
+Creature* ObjectAccessor::GetCreature(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (Creature*)NULL);
+}
+
+Pet* ObjectAccessor::GetPet(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (Pet*)NULL);
+}
+
+Player* ObjectAccessor::GetPlayer(WorldObject const& u, uint64 guid)
+{
+    return GetObjectInMap(guid, u.GetMap(), (Player*)NULL);
+}
+
+Creature* ObjectAccessor::GetCreatureOrPetOrVehicle(WorldObject const& u, uint64 guid)
+{
+    if (IS_PET_GUID(guid))
+        return GetPet(u, guid);
+
+    if (IS_CRE_OR_VEH_GUID(guid))
+        return GetCreature(u, guid);
+
+    return NULL;
+}
+
+Pet* ObjectAccessor::FindPet(uint64 guid)
+{
+    return GetObjectInWorld(guid, (Pet*)NULL);
+}
+
 Player* ObjectAccessor::FindPlayer(uint64 guid)
 {
-    Player* plr = GetObjectInWorld(guid, (Player*)NULL);
-    if (!plr || !plr->IsInWorld())
-        return NULL;
-
-    return plr;
+    return GetObjectInWorld(guid, (Player*)NULL);
 }
 
 Player* ObjectAccessor::FindPlayerByName(const char* name)
@@ -162,11 +182,6 @@ void ObjectAccessor::SaveAllPlayers()
     HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
     for (HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
-}
-
-Pet* ObjectAccessor::GetPet(uint64 guid)
-{
-    return GetObjectInWorld(guid, (Pet*)NULL);
 }
 
 Corpse* ObjectAccessor::GetCorpseForPlayerGUID(uint64 guid)

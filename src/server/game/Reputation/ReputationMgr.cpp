@@ -273,12 +273,12 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     else
     {
         // update for the actual faction first
-                bool res = SetOneFactionReputation(factionEntry, standing, incremental);
+        bool res = SetOneFactionReputation(factionEntry, standing, incremental);
 
         if (res)
         {
             // then some spillover calculation here if it exist
-                        if (const RepSpilloverTemplate *repTemplate = objmgr.GetRepSpilloverTemplate(factionEntry->ID))
+            if (RepSpilloverTemplate const * repTemplate = objmgr.GetRepSpilloverTemplate(factionEntry->ID))
             {
                 for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
                 {
@@ -287,7 +287,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
                         if (m_player->GetReputationRank(repTemplate->faction[i]) <= ReputationRank(repTemplate->faction_rank[i]))
                         {
                             // bonuses are already given, so just modify standing by rate
-                                                        int32 spilloverRep = standing * repTemplate->faction_rate[i];
+                            int32 spilloverRep = standing * repTemplate->faction_rate[i];
                             SetOneFactionReputation(sFactionStore.LookupEntry(repTemplate->faction[i]), spilloverRep, incremental);
                         }
                     }
@@ -295,7 +295,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
             }
 
             // now we can send it
-                        FactionStateList::iterator itr = m_factions.find(factionEntry->reputationListID);
+            FactionStateList::iterator itr = m_factions.find(factionEntry->reputationListID);
             if (itr != m_factions.end())
                 SendState(&itr->second);
         }
