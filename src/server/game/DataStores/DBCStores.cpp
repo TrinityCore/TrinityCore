@@ -609,20 +609,10 @@ void LoadDBCStores(const std::string& dataPath)
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)
 {
-    for (FactionTeamMap::const_iterator itr = sFactionTeamMap.begin(); itr != sFactionTeamMap.end(); ++itr)
-    {
-        if (itr->first == faction)
-        {
-            return &itr->second;
-        }
-        for (SimpleFactionsList::const_iterator itr2 = itr->second.begin(); itr2 != itr->second.end(); ++itr2)
-        {
-            if ((*itr2) == faction)
-            {
-                return &itr->second;
-            }
-        }
-    }
+    FactionTeamMap::const_iterator itr = sFactionTeamMap.find(faction);
+    if (itr != sFactionTeamMap.end())
+        return &itr->second;
+
     return NULL;
 }
 
