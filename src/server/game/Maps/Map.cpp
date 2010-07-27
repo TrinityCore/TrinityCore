@@ -3601,7 +3601,8 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                bool triggered = step.script->dataint & 0x1;
+                // sorry, no triggered for case 4 yet
+                bool triggered = step.script->dataint & 0x1 && step.script->datalong2 != 4;
                 uSource->CastSpell(uTarget, step.script->datalong, triggered);
                 break;
             }
