@@ -24,17 +24,7 @@
 
 namespace VMAP
 {
-    //=====================================
-    #define MAX_CAN_FALL_DISTANCE 10.0f
     const char VMAP_MAGIC[] = "VMAP_3.0";
-
-    class VMapDefinitions
-    {
-        public:
-            static float getMaxCanFallDistance() { return MAX_CAN_FALL_DISTANCE; }
-    };
-
-    //======================================
 
     // defined in TileAssembler.cpp currently...
     bool readChunk(FILE *rf, char *dest, const char *compare, uint32 len);
