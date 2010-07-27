@@ -3836,14 +3836,6 @@ void SpellMgr::LoadSpellCustomAttr()
             spellInfo->AttributesEx3 |= SPELL_ATTR_EX3_NO_INITIAL_AGGRO;
             count++;
             break;
-        case 61306:     // Kirin Tor Commendation Badge
-        case 61308:     // Wyrmrest Commendation Badge
-        case 61311:     // Argent Crusade Commendation Badge
-        case 61312:     // Ebon Blade Commendadtion Badge
-        case 69757:     // Sons of Hodir Commendation Badge
-            spellInfo->EffectBasePoints[0] = 519;           // Some suggest a global multiplier is used for rep gain
-            count++;                                        // but basepoints * 1,3 hard coded in the tooltip says
-            break;                                          // otherwise.
         default:
             break;
         }

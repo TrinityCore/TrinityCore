@@ -6493,14 +6493,10 @@ int32 Player::CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, in
     float percent = 100.0f;
 
     // Get the generic rate first
-    if (const RepRewardRate *repData = objmgr.GetRepRewardRate(faction))
+    if (RepRewardRate const * repData = objmgr.GetRepRewardRate(faction))
     {
         float repRate = for_quest ? repData->quest_rate : repData->creature_rate;
         percent *= repRate;
-
-        // for custom, a rate of 0.0 will totally disable reputation gain for this faction/type
-        if (repRate <= 0.0f)
-            percent = repRate;
     }
 
     float rate = for_quest ? sWorld.getRate(RATE_REPUTATION_LOWLEVEL_QUEST) : sWorld.getRate(RATE_REPUTATION_LOWLEVEL_KILL);
