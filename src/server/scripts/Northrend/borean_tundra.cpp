@@ -2017,7 +2017,7 @@ struct npc_seaforium_depth_chargeAI : public ScriptedAI
             {
                 if (Creature* cCredit = me->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
                 {
-                    if (Unit* uOwner = me->GetOwner(true))
+                    if (Unit* uOwner = me->GetOwner())
                     {
                         Player* pOwner = uOwner->ToPlayer();
                         if (pOwner && pOwner->GetQuestStatus(QUEST_BURY_THOSE_COCKROACHES) == QUEST_STATUS_INCOMPLETE)

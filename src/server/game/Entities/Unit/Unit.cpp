@@ -9400,13 +9400,11 @@ bool Unit::HasAuraState(AuraState flag, SpellEntry const *spellProto, Unit const
     return HasFlag(UNIT_FIELD_AURASTATE, 1<<(flag-1));
 }
 
-Unit *Unit::GetOwner(bool inWorld) const
+Unit *Unit::GetOwner() const
 {
     if (uint64 ownerid = GetOwnerGUID())
     {
-        if (inWorld)
-            return ObjectAccessor::GetUnit(*this, ownerid);
-        return ObjectAccessor::GetUnitInOrOutOfWorld(*this, ownerid);
+        return ObjectAccessor::GetUnit(*this, ownerid);
     }
     return NULL;
 }

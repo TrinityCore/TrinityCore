@@ -557,7 +557,7 @@ void WorldSession::HandlePetRename(WorldPacket & recv_data)
     recv_data >> name;
     recv_data >> isdeclined;
 
-    Pet* pet = ObjectAccessor::GetPet(petguid);
+    Pet* pet = ObjectAccessor::FindPet(petguid);
                                                             // check it!
     if (!pet || !pet->isPet() || ((Pet*)pet)->getPetType()!= HUNTER_PET ||
         !pet->HasByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_RENAMED) ||

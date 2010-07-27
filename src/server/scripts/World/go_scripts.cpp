@@ -753,7 +753,7 @@ bool GOHello_go_inconspicuous_landmark(Player *pPlayer, GameObject* /*pGO*/)
 
 bool GOHello_go_soulwell(Player *pPlayer, GameObject* pGO)
 {
-    Unit *caster = pGO->GetOwner(false);
+    Unit *caster = pGO->GetOwner();
     if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
         return true;
 

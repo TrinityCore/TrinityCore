@@ -640,7 +640,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
             SetUInt64Value(OBJECT_FIELD_CREATED_BY, owner);
         }
         uint64 GetOwnerGUID() const { return GetUInt64Value(OBJECT_FIELD_CREATED_BY); }
-        Unit* GetOwner(bool inWorld = true) const;
+        Unit* GetOwner() const;
 
         void SetSpellId(uint32 id)
         {

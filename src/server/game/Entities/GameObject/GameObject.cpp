@@ -85,12 +85,7 @@ void GameObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if (uint64 owner_guid = GetOwnerGUID())
         {
-            Unit* owner = NULL;
-            // Object may be deleted while player is not in world, skip this check for now.
-            /*if (IS_PLAYER_GUID(owner_guid))
-                owner = ObjectAccessor::GetObjectInWorld(owner_guid, (Player*)NULL);
-            else*/
-                owner = ObjectAccessor::GetUnit(*this,owner_guid);
+            Unit* owner = ObjectAccessor::GetUnit(*this,owner_guid);
 
             if (owner)
                 owner->RemoveGameObject(this,false);
@@ -133,9 +128,9 @@ void GameObject::RemoveFromWorld()
         // Possible crash at access to deleted GO in Unit::m_gameobj
         if (uint64 owner_guid = GetOwnerGUID())
         {
-            if (Unit * owner = GetOwner(false))
+            if (Unit * owner = GetOwner())
                 owner->RemoveGameObject(this,false);
-            else if (!IS_PLAYER_GUID(owner_guid))
+            else
                 sLog.outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.",GetGUIDLow(),GetGOInfo()->id,GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
@@ -490,7 +485,7 @@ void GameObject::Update(uint32 diff)
 
             if (GetOwnerGUID())
             {
-                if (Unit* owner = GetOwner(false))
+                if (Unit* owner = GetOwner())
                 {
                     owner->RemoveGameObject(this, false);
                     SetRespawnTime(0);
@@ -553,7 +548,7 @@ void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
     if (GetOwnerGUID())
-        if (Unit * owner = GetOwner(false))
+        if (Unit * owner = GetOwner())
             owner->RemoveGameObject(this, false);
 
     assert (!GetOwnerGUID());
@@ -776,11 +771,9 @@ bool GameObject::IsDynTransport() const
 }
 
 
-Unit* GameObject::GetOwner(bool inWorld) const
+Unit* GameObject::GetOwner() const
 {
-    if (inWorld)
-        return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
-    return ObjectAccessor::GetUnitInOrOutOfWorld(*this, GetOwnerGUID());
+    return ObjectAccessor::GetUnit(*this, GetOwnerGUID());
 }
 
 void GameObject::SaveRespawnTime()
