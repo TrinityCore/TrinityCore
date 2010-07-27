@@ -35,7 +35,7 @@ set(scripts_STAT_SRCS
   ${scripts_northrend}
   ${scripts_outland}
   ${scripts_world}
-  ${script_spells}
+  ${scripts_spells}
   ${scripts_examples}
 )
 message("-- Added Scriptengine to SCRIPTS lib")
