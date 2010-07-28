@@ -250,6 +250,7 @@ typedef std::vector<GuildItemPosCount> GuildItemPosCountVec;
 struct MemberSlot
 {
     uint64 LogoutTime;
+    uint32 accountId;
     std::string Name;
     std::string Pnote;
     std::string OFFnote;
@@ -322,6 +323,7 @@ class Guild
         void SetEmblem(uint32 emblemStyle, uint32 emblemColor, uint32 borderStyle, uint32 borderColor, uint32 backgroundColor);
 
         uint32 GetMemberSize() const { return members.size(); }
+        uint32 GetAccountsNumber() const { return m_accountsNumber; }
 
         bool LoadGuildFromDB(QueryResult_AutoPtr guildDataResult);
         bool CheckGuildStructure();
@@ -441,6 +443,7 @@ class Guild
         uint32 m_BorderStyle;
         uint32 m_BorderColor;
         uint32 m_BackgroundColor;
+        uint32 m_accountsNumber;
 
         RankList m_Ranks;
 
@@ -464,6 +467,7 @@ class Guild
         uint8 m_PurchasedTabs;
 
     private:
+        void UpdateAccountsNumber();
         // used only from high level Swap/Move functions
         Item*  GetItem(uint8 TabId, uint8 SlotId);
         uint8  CanStoreItem(uint8 tab, uint8 slot, GuildItemPosCountVec& dest, uint32 count, Item *pItem, bool swap = false) const;

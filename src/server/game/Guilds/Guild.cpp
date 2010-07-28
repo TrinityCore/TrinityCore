@@ -43,6 +43,7 @@ Guild::Guild()
     m_BorderStyle = 0;
     m_BorderColor = 0;
     m_BackgroundColor = 0;
+    m_accountsNumber = 0;
 
     m_CreatedDate = time(0);
 
@@ -136,6 +137,7 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
 
     if (pl)
     {
+        newmember.accountId = pl->GetSession()->GetAccountId();
         newmember.Name   = pl->GetName();
         newmember.ZoneId = pl->GetZoneId();
         newmember.Level  = pl->getLevel();
@@ -143,15 +145,16 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
     }
     else
     {
-        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name,zone,level,class FROM characters WHERE guid = '%u'", GUID_LOPART(plGuid));
+        QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT name,zone,level,class,account FROM characters WHERE guid = '%u'", GUID_LOPART(plGuid));
         if (!result)
             return false;                                   // player doesn't exist
 
-        Field *fields    = result->Fetch();
-        newmember.Name   = fields[0].GetCppString();
-        newmember.ZoneId = fields[1].GetUInt32();
-        newmember.Level  = fields[2].GetUInt8();
-        newmember.Class  = fields[3].GetUInt8();
+        Field *fields       = result->Fetch();
+        newmember.Name      = fields[0].GetCppString();
+        newmember.ZoneId    = fields[1].GetUInt32();
+        newmember.Level     = fields[2].GetUInt8();
+        newmember.Class     = fields[3].GetUInt8();
+        newmember.accountId = fields[4].GetInt32();
 
         if (newmember.Level < 1 || newmember.Level > STRONG_MAX_LEVEL ||
             newmember.Class < CLASS_WARRIOR || newmember.Class >= MAX_CLASSES)
@@ -185,6 +188,9 @@ bool Guild::AddMember(uint64 plGuid, uint32 plRank)
         pl->SetRank(newmember.RankId);
         pl->SetGuildIdInvited(0);
     }
+
+    UpdateAccountsNumber();
+
     return true;
 }
 
@@ -340,6 +346,8 @@ bool Guild::LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult)
     if (!guildMembersResult)
         return false;
 
+    UpdateAccountsNumber();
+
     do
     {
         Field *fields = guildMembersResult->Fetch();
@@ -382,6 +390,7 @@ bool Guild::LoadMembersFromDB(QueryResult_AutoPtr guildMembersResult)
         newmember.Class                 = fields[21].GetUInt8();
         newmember.ZoneId                = fields[22].GetUInt32();
         newmember.LogoutTime            = fields[23].GetUInt64();
+        newmember.accountId             = fields[24].GetInt32();
 
         //this code will remove unexisting character guids from guild
         if (newmember.Level < 1 || newmember.Level > STRONG_MAX_LEVEL) // can be at broken `data` field
@@ -492,6 +501,9 @@ void Guild::DelMember(uint64 guid, bool isDisbanding)
     }
 
     CharacterDatabase.PExecute("DELETE FROM guild_member WHERE guid = '%u'", GUID_LOPART(guid));
+
+    if (!isDisbanding)
+        UpdateAccountsNumber();
 }
 
 void Guild::ChangeRank(uint64 guid, uint32 newRank)
@@ -799,6 +811,20 @@ void Guild::UpdateLogoutTime(uint64 guid)
         return;
 
     itr->second.LogoutTime = time(NULL);
+}
+
+/**
+ * Updates the number of accounts that are in the guild
+ * A player may have many characters in the guild, but with the same account
+ */
+void Guild::UpdateAccountsNumber()
+{
+    // We use a set to be sure each element will be unique
+    std::set<uint32> accountsIdSet;
+    for (MembersList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+        accountsIdSet.insert(itr->second.accountId);
+
+    m_accountsNumber = accountsIdSet.size();
 }
 
 // *************************************************
