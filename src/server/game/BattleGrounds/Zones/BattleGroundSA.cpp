@@ -830,8 +830,11 @@ void BattleGroundSA::UpdateDemolisherSpawns()
                 {
                     uint8 gy = (i >= BG_SA_DEMOLISHER_3 ? 3 : 2);
                     if (GraveyardStatus[gy] == attackers)
-                        Demolisher->Relocate(BG_SA_NpcSpawnlocs[i + 11][0], BG_SA_NpcSpawnlocs[i + 10][1],
-                          BG_SA_NpcSpawnlocs[i + 10][2], BG_SA_NpcSpawnlocs[i + 10][3]);
+                        Demolisher->Relocate(BG_SA_NpcSpawnlocs[i + 11][0], BG_SA_NpcSpawnlocs[i + 11][1],
+                          BG_SA_NpcSpawnlocs[i + 11][2], BG_SA_NpcSpawnlocs[i + 11][3]);
+                    else
+                        Demolisher->Relocate(BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
+                          BG_SA_NpcSpawnlocs[i][2], BG_SA_NpcSpawnlocs[i][3]);
 
                     Demolisher->Respawn();
                 }
