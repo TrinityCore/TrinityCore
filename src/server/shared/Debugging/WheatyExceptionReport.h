@@ -108,8 +108,10 @@ class WheatyExceptionReport
 
         // Variables used by the class
         static TCHAR m_szLogFileName[MAX_PATH];
+        static TCHAR m_szDumpFileName[MAX_PATH];
         static LPTOP_LEVEL_EXCEPTION_FILTER m_previousFilter;
         static HANDLE m_hReportFile;
+        static HANDLE m_hDumpFile;
         static HANDLE m_hProcess;
 };
 
