@@ -25,7 +25,7 @@
 #include "Common.h"
 #include "Database/DatabaseEnv.h"
 #include "ByteBuffer.h"
-#include "Configuration/ConfigEnv.h"
+#include "Configuration/Config.h"
 #include "Log.h"
 #include "RealmList.h"
 #include "AuthSocket.h"

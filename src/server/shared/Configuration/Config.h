@@ -21,10 +21,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "Common.h"
 #include <ace/Singleton.h>
 #include "Define.h"
 
-class DOTCONFDocument;
+class ACE_Configuration_Heap;
 
 class Config
 {
@@ -33,7 +34,7 @@ class Config
     public:
         ~Config();
 
-        bool SetSource(const char *file, bool ignorecase = true);
+        bool SetSource(const char *file);
         bool Reload();
 
         std::string GetStringDefault(const char * name, std::string def);
@@ -44,8 +45,7 @@ class Config
         std::string GetFilename() const { return mFilename; }
     private:
         std::string mFilename;
-        bool mIgnoreCase;
-        DOTCONFDocument *mConf;
+        ACE_Configuration_Heap *mConf;
 };
 
 #define sConfig (*ACE_Singleton<Config, ACE_Null_Mutex>::instance())

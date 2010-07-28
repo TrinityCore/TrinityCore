@@ -26,7 +26,7 @@
 #include "Database/DatabaseEnv.h"
 #include "Database/PreparedStatements.h"
 
-#include "Configuration/ConfigEnv.h"
+#include "Configuration/Config.h"
 #include "Log.h"
 #include "SystemConfig.h"
 #include "Util.h"

@@ -67,8 +67,6 @@ endif()
 ########### trinityconfig ###############
 
 set(trinityconfig_STAT_SRCS
-  Configuration/dotconfpp/dotconfpp.cpp
-  Configuration/dotconfpp/mempool.cpp
   Configuration/Config.cpp
 )
 
