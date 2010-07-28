@@ -23,14 +23,120 @@
 
 #include "ScriptPCH.h"
 
+enum HunterSpells
+{
+    HUNTER_SPELL_READINESS                       = 23989,
+    HUNTER_SPELL_BESTIAL_WRATH                   = 19574,
+    HUNTER_PET_SPELL_LAST_STAND_TRIGGERED        = 53479,
+};
+
+class spell_hun_last_stand_pet_SpellScript : public SpellScript
+{
+    bool Validate(SpellEntry const * spellEntry)
+    {
+        if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
+            return false;
+        return true;
+    }
+
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        Unit *caster = GetCaster();
+        int32 healthModSpellBasePoints0 = int32(caster->GetMaxHealth()*0.3);
+        caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+    }
+
+    void Register()
+    {
+        // add dummy effect spell handler to pet's Last Stand
+        EffectHandlers += EffectHandlerFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+SpellScript * GetSpellScript_spell_hun_last_stand_pet()
+{
+    return new spell_hun_last_stand_pet_SpellScript();
+}
+
+class spell_hun_masters_call_SpellScript : public SpellScript
+{
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        Unit *caster = GetCaster();
+        Unit *unitTarget = GetHitUnit();
+
+        if (caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
+            return;
+
+        if (Pet *pet = caster->ToPlayer()->GetPet())
+            if (pet->isAlive())
+                pet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), effIndex), true);
+    }
+
+    void Register()
+    {
+        // add dummy effect spell handler to Master's Call
+        EffectHandlers += EffectHandlerFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+SpellScript * GetSpellScript_spell_hun_masters_call()
+{
+    return new spell_hun_masters_call_SpellScript();
+}
+
+class spell_hun_readiness_SpellScript : public SpellScript
+{
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        Unit *caster = GetCaster();
+        if (caster->GetTypeId() != TYPEID_PLAYER)
+            return;
+
+        // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
+        const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
+        for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+        {
+            SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+
+            if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
+                spellInfo->Id != HUNTER_SPELL_READINESS &&
+                spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
+                GetSpellRecoveryTime(spellInfo) > 0)
+                caster->ToPlayer()->RemoveSpellCooldown((itr++)->first,true);
+            else
+                ++itr;
+        }
+    }
+
+    void Register()
+    {
+        // add dummy effect spell handler to Readiness
+        EffectHandlers += EffectHandlerFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+SpellScript * GetSpellScript_spell_hun_readiness()
+{
+    return new spell_hun_readiness_SpellScript();
+}
+
 void AddSC_hunter_spell_scripts()
 {
-    //Script *newscript;
+    Script *newscript;
 
-    /*
     newscript = new Script;
-    newscript->Name = "spell_hun_";
-    newscript->GetSpellScript = &GetSpellScript_spell_hun_;
+    newscript->Name = "spell_hun_last_stand_pet";
+    newscript->GetSpellScript = &GetSpellScript_spell_hun_last_stand_pet;
     newscript->RegisterSelf();
-    */
+
+    newscript = new Script;
+    newscript->Name = "spell_hun_masters_call";
+    newscript->GetSpellScript = &GetSpellScript_spell_hun_masters_call;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "spell_hun_readiness";
+    newscript->GetSpellScript = &GetSpellScript_spell_hun_readiness;
+    newscript->RegisterSelf();
 }
