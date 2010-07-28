@@ -439,6 +439,45 @@ bool GossipSelect_npc_injured_goblin(Player* pPlayer, Creature* pCreature, uint3
     return true;
 }
 
+/*######
+## npc_roxi_ramrocket
+######*/
+
+#define SPELL_MECHANO_HOG           60866
+#define SPELL_MEKGINEERS_CHOPPER    60867
+
+bool GossipHello_npc_roxi_ramrocket(Player* pPlayer, Creature* pCreature)
+{
+    //Quest Menu
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    //Trainer Menu
+    if( pCreature->isTrainer() )
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+    //Vendor Menu
+    if( pCreature->isVendor() )
+        if(pPlayer->HasSpell(SPELL_MECHANO_HOG) || pPlayer->HasSpell(SPELL_MEKGINEERS_CHOPPER))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_roxi_ramrocket(Player* pPlayer, Creature* pCreature, uint32 sender, uint32 action )
+{
+    switch(action)
+    {
+    case GOSSIP_ACTION_TRAIN:
+        pPlayer->SEND_TRAINERLIST( pCreature->GetGUID() );
+        break;
+    case GOSSIP_ACTION_TRADE:
+        pPlayer->SEND_VENDORLIST( pCreature->GetGUID() );
+        break;
+    }
+    return true;
+}
 
 void AddSC_storm_peaks()
 {
@@ -487,5 +526,11 @@ void AddSC_storm_peaks()
     newscript->pGossipHello = &GossipHello_npc_injured_goblin;
     newscript->pGossipSelect = &GossipSelect_npc_injured_goblin;
     newscript->pQuestAccept =  &QuestAccept_npc_injured_goblin;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_roxi_ramrocket";
+    newscript->pGossipHello = &GossipHello_npc_roxi_ramrocket;
+    newscript->pGossipSelect = &GossipSelect_npc_roxi_ramrocket;
     newscript->RegisterSelf();
 }
