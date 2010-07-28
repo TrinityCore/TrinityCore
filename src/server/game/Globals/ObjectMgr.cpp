@@ -4735,9 +4735,15 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                         tablename,tmp.datalong2,tmp.id);
                     continue;
                 }
-                if (tmp.dataint & ~0x1)                      // 1 bit (0,1)
+                if (tmp.datalong2 != 4 && tmp.dataint & ~0x1)                      // 1 bit (0,1)
                 {
                     sLog.outErrorDb("Table `%s` using unknown flags in dataint (%u) in SCRIPT_COMMAND_CAST_SPELL for script id %u",
+                        tablename,tmp.dataint,tmp.id);
+                    continue;
+                }
+                else if (tmp.datalong2 == 4 && !GetCreatureTemplate(tmp.dataint))
+                {
+                    sLog.outErrorDb("Table `%s` using invalid creature entry in dataint (%u) in SCRIPT_COMMAND_CAST_SPELL for script id %u",
                         tablename,tmp.dataint,tmp.id);
                     continue;
                 }
