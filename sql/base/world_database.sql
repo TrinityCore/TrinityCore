@@ -5005,7 +5005,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (42231, 0.12898, -1, -1, -1, 'Druid - Hurricane Triggered'),
 (5570, -1, 0.2, -1, -1, 'Druid - Insect Swarm'),
 (33745, -1, -1, -1, 0.01, 'Druid - Lacerate($AP*0.05 / number of ticks)'),
-(33778, 0.516, 0, 0, 0, 'Druid - Lifebloom final heal'),
+(33778, 0.589714, 0, 0, 0, 'Druid - Lifebloom final heal'),
 (33763, 0, 0.09518, 0, 0, 'Druid - Lifebloom HoT(rank 1)'),
 (48450, 0, 0.09518, 0, 0, 'Druid - Lifebloom HoT(rank 2)'),
 (48451, 0, 0.09518, 0, 0, 'Druid - Lifebloom HoT(rank 3)'),
