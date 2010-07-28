@@ -821,7 +821,7 @@ void Guild::UpdateAccountsNumber()
 {
     // We use a set to be sure each element will be unique
     std::set<uint32> accountsIdSet;
-    for (MembersList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
+    for (MemberList::const_iterator itr = members.begin(); itr != members.end(); ++itr)
         accountsIdSet.insert(itr->second.accountId);
 
     m_accountsNumber = accountsIdSet.size();
