@@ -48,10 +48,13 @@ void PetAI::EnterEvadeMode()
 {
 }
 
-bool PetAI::_needToStop() const
+bool PetAI::_needToStop()
 {
     // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
     if (me->isCharmed() && me->getVictim() == me->GetCharmer())
+        return true;
+
+    if (_CheckTargetCC(me->getVictim()) != targetHasCC)
         return true;
 
     return !me->canAttack(me->getVictim());
@@ -295,6 +298,9 @@ void PetAI::AttackStart(Unit *target)
     if (!_CanAttack(target))
         return;
 
+    if (_CheckTargetCC(target))
+        targetHasCC = true;
+
     // We can attack, should we chase or not?
     if (me->GetCharmInfo()->HasCommandState(COMMAND_FOLLOW))
         DoAttack(target,true); // FOLLOW, attack with chase
@@ -315,21 +321,20 @@ Unit *PetAI::SelectNextTarget()
     if (me->HasReactState(REACT_PASSIVE))
         return NULL;
 
+    Unit *target = NULL;
+    targetHasCC = false;
+
     // Check pet's attackers first to prevent dragging mobs back
     // to owner
-    if (me->getAttackerForHelper())
-        return me->getAttackerForHelper();
-
+    if ((target = me->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
     // Check owner's attackers if pet didn't have any
-    if (me->GetCharmerOrOwner()->getAttackerForHelper())
-        return me->GetCharmerOrOwner()->getAttackerForHelper();
-
+    else if ((target = me->GetCharmerOrOwner()->getAttackerForHelper()) && !_CheckTargetCC(target)) {}
     // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
-    if (me->GetCharmerOrOwner()->getVictim())
-        return me->GetCharmerOrOwner()->getVictim();
-
+    else if ((target = me->GetCharmerOrOwner()->getVictim()) && !_CheckTargetCC(target)) {}
     // Default
-    return NULL;
+    else return NULL;
+
+    return target;
 }
 
 void PetAI::HandleReturnMovement()
@@ -467,5 +472,13 @@ bool PetAI::_CanAttack(Unit *target)
         return true;
 
     // default, though we shouldn't ever get here
+    return false;
+}
+
+bool PetAI::_CheckTargetCC(Unit *target)
+{
+    if (me->GetOwnerGUID() && target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, me->GetOwnerGUID()))
+        return true;
+    
     return false;
 }
