@@ -1659,24 +1659,6 @@ void Spell::EffectDummy(uint32 i)
         case SPELLFAMILY_HUNTER:
             switch(m_spellInfo->Id)
             {
-                case 23989:                                 // Readiness talent
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
-                    const SpellCooldowns& cm = m_caster->ToPlayer()->GetSpellCooldownMap();
-                    for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
-                    {
-                        SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-
-                        if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->Id != 23989 && spellInfo->Id != 19574 && GetSpellRecoveryTime(spellInfo) > 0)
-                            m_caster->ToPlayer()->RemoveSpellCooldown((itr++)->first,true);
-                        else
-                            ++itr;
-                    }
-                    return;
-                }
                 case 37506:                                 // Scatter Shot
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1686,24 +1668,6 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
                     m_caster->AttackStop();
                     m_caster->ToPlayer()->SendAttackSwingCancelAttack();
-                    return;
-                }
-                // Last Stand (pet)
-                case 53478:
-                {
-                    int32 healthModSpellBasePoints0 = int32(m_caster->GetMaxHealth()*0.3);
-                    m_caster->CastCustomSpell(m_caster, 53479, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                    return;
-                }
-                // Master's Call
-                case 53271:
-                {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
-                        return;
-
-                    if (Pet *pPet = m_caster->ToPlayer()->GetPet())
-                        if (pPet->isAlive())
-                            pPet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(m_spellInfo, i), true);
                     return;
                 }
             }
