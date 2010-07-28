@@ -13918,7 +13918,7 @@ void Player::SendPreparedQuest(uint64 guid)
                     return;
                 }
 
-                if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_AUTO_ACCEPT) && CanAddQuest(pQuest, true))
+                if (pQuest->IsAutoAccept() && CanAddQuest(pQuest, true))
                 {
                     AddQuest(pQuest, pObject);
                     if (CanCompleteQuest(quest_id))
