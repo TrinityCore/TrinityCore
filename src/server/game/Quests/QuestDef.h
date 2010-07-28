@@ -246,7 +246,7 @@ class Quest
         bool   IsDaily() const { return QuestFlags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return QuestFlags & QUEST_FLAGS_WEEKLY; }
         bool   IsDailyOrWeekly() const { return QuestFlags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
-        bool   IsAutoAccept() const { return QuestFlags & QUEST_TRINITY_FLAGS_AUTO_ACCEPT; }
+        bool   IsAutoAccept() const { return QuestFlags & QUEST_FLAGS_AUTO_ACCEPT; }
         bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25; }
         bool   IsAllowedInRaid() const;
 
