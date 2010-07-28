@@ -1655,6 +1655,9 @@ DELETE FROM spell_script_names WHERE spell_id=31231 AND ScriptName='spell_rog_ch
 DELETE FROM spell_script_names WHERE spell_id=51662 AND ScriptName='spell_rog_hunger_for_blood';
 DELETE FROM spell_script_names WHERE spell_id=14185 AND ScriptName='spell_rog_preparation';
 DELETE FROM spell_script_names WHERE spell_id=5938 AND ScriptName='spell_rog_shiv';
+DELETE FROM spell_script_names WHERE spell_id=53271 AND ScriptName='spell_hun_masters_call';
+DELETE FROM spell_script_names WHERE spell_id=53478 AND ScriptName='spell_hun_last_stand_pet';
+DELETE FROM spell_script_names WHERE spell_id=23989 AND ScriptName='spell_hun_readiness';
 INSERT INTO spell_script_names (spell_id, ScriptName) VALUES 
 (11958,'spell_mage_cold_snap'),
 (32826,'spell_mage_polymorph_visual'),
@@ -1663,4 +1666,7 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (31231,'spell_rog_cheat_death'),
 (51662,'spell_rog_hunger_for_blood'),
 (14185,'spell_rog_preparation'),
-(5938,'spell_rog_shiv');
+(5938,'spell_rog_shiv'),
+(53271,'spell_hun_masters_call'),
+(53478,'spell_hun_last_stand_pet'),
+(23989,'spell_hun_readiness');

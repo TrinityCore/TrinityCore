@@ -162,7 +162,7 @@ class spell_rog_shiv_SpellScript : public SpellScript
 
     void Register()
     {
-        // add dummy effect spell handler to Hunger for Blood
+        // add dummy effect spell handler to Shiv
         EffectHandlers += EffectHandlerFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
