@@ -297,6 +297,7 @@ struct boss_sartharionAI : public ScriptedAI
                     {
                         pTenebron->Respawn();
                         pTenebron->GetMotionMaster()->MoveTargetedHome();
+                        pTenebron->SetLootRecipient(NULL);
                     }
                 }
             }
@@ -314,6 +315,7 @@ struct boss_sartharionAI : public ScriptedAI
                     {
                         pShadron->Respawn();
                         pShadron->GetMotionMaster()->MoveTargetedHome();
+                        pShadron->SetLootRecipient(NULL);
                     }
                 }
             }
@@ -331,6 +333,7 @@ struct boss_sartharionAI : public ScriptedAI
                     {
                         pVesperon->Respawn();
                         pVesperon->GetMotionMaster()->MoveTargetedHome();
+                        pVesperon->SetLootRecipient(NULL);
                     }
                 }
             }

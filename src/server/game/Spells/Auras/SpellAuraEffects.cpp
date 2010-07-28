@@ -5726,21 +5726,19 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                     // Lifebloom
                     if (GetSpellProto()->SpellFamilyFlags[1] & 0x10)
                     {
-                        if (!apply)
+                        // Final heal only on dispelled or duration end
+                        if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && aurApp->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
+                            return;
+
+                        // final heal
+                        int32 stack = GetBase()->GetStackAmount();
+                        target->CastCustomSpell(target, 33778, &m_amount, &stack, NULL, true, NULL, this, GetCasterGUID());
+
+                        // restore mana
+                        if (caster)
                         {
-                            // Final heal only on dispelled or duration end
-                            if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE && aurApp->GetRemoveMode() != AURA_REMOVE_BY_ENEMY_SPELL)
-                                return;
-
-                            // final heal
-                            target->CastCustomSpell(target,33778,&m_amount,NULL,NULL,true,NULL,this,GetCasterGUID());
-
-                            // restore mana
-                            if (caster)
-                            {
-                                int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100) * GetBase()->GetStackAmount() / 2;
-                                caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
-                            }
+                            int32 returnmana = (GetSpellProto()->ManaCostPercentage * caster->GetCreateMana() / 100) * stack / 2;
+                            caster->CastCustomSpell(caster, 64372, &returnmana, NULL, NULL, true, NULL, this, GetCasterGUID());
                         }
                     }
                     break;
