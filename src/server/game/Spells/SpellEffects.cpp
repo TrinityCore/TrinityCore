@@ -2776,6 +2776,9 @@ void Spell::SpellDamageHeal(uint32 /*i*/)
                 }
             }
         }
+        // Lifebloom - final heal coef multiplied by original DoT stack
+        else if (m_spellInfo->Id == 33778)
+            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL, m_spellValue->EffectBasePoints[1]);
         // Riptide - increase healing done by Chain Heal
         else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x100)
         {
