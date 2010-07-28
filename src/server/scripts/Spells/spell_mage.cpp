@@ -39,23 +39,15 @@ enum MageSpells
 
 class spell_mage_cold_snap_SpellScript : public SpellScript
 {
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        return true;
-    };
-
     void HandleDummy(SpellEffIndex effIndex)
     {
-        Unit *m_caster = GetCaster();
+        Unit *caster = GetCaster();
 
-        if (!m_caster)
-            return;
-
-        if (m_caster->GetTypeId() != TYPEID_PLAYER)
+        if (caster->GetTypeId() != TYPEID_PLAYER)
             return;
 
         // immediately finishes the cooldown on Frost spells
-        const SpellCooldowns& cm = m_caster->ToPlayer()->GetSpellCooldownMap();
+        const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
         for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
         {
             SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
@@ -64,7 +56,7 @@ class spell_mage_cold_snap_SpellScript : public SpellScript
                 (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST) &&
                 spellInfo->Id != SPELL_MAGE_COLD_SNAP && GetSpellRecoveryTime(spellInfo) > 0)
             {
-                m_caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
+                caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
             }
             else
                 ++itr;
@@ -85,35 +77,19 @@ SpellScript * GetSpellScript_spell_mage_cold_snap()
 
 class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
 {
+    static const uint32 spell_list[6];
+
     bool Validate(SpellEntry const * spellEntry)
     {
-        const uint32 spell_list[6] = {
-            SPELL_MAGE_SQUIRREL_FORM,
-            SPELL_MAGE_GIRAFFE_FORM,
-            SPELL_MAGE_SERPENT_FORM,
-            SPELL_MAGE_DRAGONHAWK_FORM,
-            SPELL_MAGE_WORGEN_FORM,
-            SPELL_MAGE_SHEEP_FORM
-        };
-
         // check if spell ids exist in dbc
         for (int i = 0; i < 6; i++)
             if (!sSpellStore.LookupEntry(spell_list[i]))
                 return false;
         return true;
-    };
+    }
 
     void HandleDummy(SpellEffIndex effIndex)
     {
-        const uint32 spell_list[6] = {
-            SPELL_MAGE_SQUIRREL_FORM,
-            SPELL_MAGE_GIRAFFE_FORM,
-            SPELL_MAGE_SERPENT_FORM,
-            SPELL_MAGE_DRAGONHAWK_FORM,
-            SPELL_MAGE_WORGEN_FORM,
-            SPELL_MAGE_SHEEP_FORM
-        };
-
         if (Unit *unitTarget = GetHitUnit())
             if (unitTarget->GetTypeId() == TYPEID_UNIT)
                 unitTarget->CastSpell(unitTarget, spell_list[urand(0, 5)], true);
@@ -124,6 +100,15 @@ class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
         // add dummy effect spell handler to Polymorph visual
         EffectHandlers += EffectHandlerFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
+};
+
+const uint32 spell_mage_polymorph_cast_visual_SpellScript::spell_list[6] = {
+    SPELL_MAGE_SQUIRREL_FORM,
+    SPELL_MAGE_GIRAFFE_FORM,
+    SPELL_MAGE_SERPENT_FORM,
+    SPELL_MAGE_DRAGONHAWK_FORM,
+    SPELL_MAGE_WORGEN_FORM,
+    SPELL_MAGE_SHEEP_FORM
 };
 
 SpellScript * GetSpellScript_spell_mage_polymorph_visual()
@@ -142,7 +127,7 @@ class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         if (!sSpellStore.LookupEntry(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT))
             return false;
         return true;
-    };
+    }
 
     void HandleDummy(SpellEffIndex effIndex)
     {
