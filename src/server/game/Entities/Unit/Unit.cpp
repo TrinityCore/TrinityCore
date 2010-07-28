@@ -4625,13 +4625,13 @@ bool Unit::HasAuraTypeWithValue(AuraType auratype, int32 value) const
     return false;
 }
 
-bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag)
+bool Unit::HasNegativeAuraWithInterruptFlag(uint32 flag, uint64 guid)
 {
     if (!(m_interruptMask & flag))
         return false;
     for (AuraApplicationList::iterator iter = m_interruptableAuras.begin(); iter != m_interruptableAuras.end(); ++iter)
     {
-        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellProto()->AuraInterruptFlags & flag)
+        if (!(*iter)->IsPositive() && (*iter)->GetBase()->GetSpellProto()->AuraInterruptFlags & flag && (!guid || (*iter)->GetBase()->GetCasterGUID() == guid))
             return true;
     }
     return false;

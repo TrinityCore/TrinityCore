@@ -45,13 +45,14 @@ class PetAI : public CreatureAI
 
     private:
         bool _isVisible(Unit *) const;
-        bool _needToStop(void) const;
+        bool _needToStop(void);
         void _stopAttack(void);
 
         void UpdateAllies();
 
         TimeTracker i_tracker;
         bool inCombat;
+        bool targetHasCC;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
 
@@ -59,6 +60,7 @@ class PetAI : public CreatureAI
         void HandleReturnMovement();
         void DoAttack(Unit *target, bool chase);
         bool _CanAttack(Unit *target);
+        bool _CheckTargetCC(Unit *target);
 };
 #endif
 
