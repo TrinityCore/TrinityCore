@@ -30,7 +30,7 @@
 #include "Util.h"
 #include "Language.h"
 #include "World.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 
 Guild::Guild()
 {

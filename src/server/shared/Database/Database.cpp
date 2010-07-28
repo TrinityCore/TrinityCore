@@ -19,7 +19,7 @@
  */
 
 #include "DatabaseEnv.h"
-#include "Configuration/ConfigEnv.h"
+#include "Configuration/Config.h"
 
 #include "Common.h"
 #include "Updates/UpdateFields.h"

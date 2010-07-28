@@ -18,9 +18,31 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ConfigEnv.h"
+#include "Config.h"
+#include <ace/Configuration_Import_Export.h>
 
-Config::Config() : mIgnoreCase(true), mConf(NULL)
+static bool GetValueHelper(ACE_Configuration_Heap *mConf, const char *name, ACE_TString &result)
+{
+    if (!mConf)
+        return false;
+
+    ACE_TString section_name;
+    ACE_Configuration_Section_Key section_key;
+    ACE_Configuration_Section_Key root_key = mConf->root_section();
+
+    int i = 0;
+    while (mConf->enumerate_sections(root_key, i, section_name) == 0)
+    {
+        mConf->open_section(root_key, section_name.c_str(), 0, section_key);
+        if (mConf->get_string_value(section_key, name, result) == 0)
+            return true;
+        ++i;
+    }
+
+    return false;
+}
+
+Config::Config() : mConf(NULL)
 {
 }
 
@@ -29,50 +51,40 @@ Config::~Config()
     delete mConf;
 }
 
-bool Config::SetSource(const char *file, bool ignorecase)
+bool Config::SetSource(const char *file)
 {
-    mIgnoreCase = ignorecase;
     mFilename = file;
-
     return Reload();
 }
 
 bool Config::Reload()
 {
     delete mConf;
-
-    mConf = new DOTCONFDocument(mIgnoreCase ?
-        DOTCONFDocument::CASEINSENSETIVE :
-    DOTCONFDocument::CASESENSETIVE);
-
-    if (mConf->setContent(mFilename.c_str()) == -1)
+    mConf = new ACE_Configuration_Heap;
+    if (mConf->open() == 0)
     {
-        delete mConf;
-        mConf = NULL;
-        return false;
+        ACE_Ini_ImpExp config_importer(*mConf);
+        if (config_importer.import_config(mFilename.c_str()) == 0)
+            return true;
     }
-
-    return true;
+    delete mConf;
+    mConf = NULL;
+    return false;
 }
 
 std::string Config::GetStringDefault(const char * name, std::string def)
 {
-    if(!mConf)
-        return std::string(def);
-    const DOTCONFDocumentNode * node = mConf->findNode(name);
-    if(!node || !node->getValue())
-        return std::string(def);
-    return std::string(node->getValue());
+    ACE_TString val;
+    return GetValueHelper(mConf, name, val) ? val.c_str() : def;
 };
 
 bool Config::GetBoolDefault(const char * name, const bool def)
 {
-    if(!mConf)
-        return false;
-    const DOTCONFDocumentNode * node = mConf->findNode(name);
-    if(!node || !node->getValue())
+    ACE_TString val;
+    if (!GetValueHelper(mConf, name, val))
         return def;
-    const char * str = node->getValue();
+    const char* str = val.c_str();
+
     if(strcmp(str, "true") == 0 || strcmp(str, "TRUE") == 0 ||
         strcmp(str, "yes") == 0 || strcmp(str, "YES") == 0 ||
         strcmp(str, "1") == 0)
@@ -83,20 +95,12 @@ bool Config::GetBoolDefault(const char * name, const bool def)
 
 int32 Config::GetIntDefault(const char * name, const int32 def)
 {
-    if(!mConf)
-        return def;
-    const DOTCONFDocumentNode * node = mConf->findNode(name);
-    if(!node || !node->getValue())
-        return def;
-    return atoi(node->getValue());
+    ACE_TString val;
+    return GetValueHelper(mConf, name, val) ? atoi(val.c_str()) : def;
 };
 
 float Config::GetFloatDefault(const char * name, const float def)
 {
-    if(!mConf)
-        return def;
-    const DOTCONFDocumentNode * node = mConf->findNode(name);
-    if(!node || !node->getValue())
-        return def;
-    return atof(node->getValue());
+    ACE_TString val;
+    return GetValueHelper(mConf, name, val) ? (float)atof(val.c_str()) : def;
 };

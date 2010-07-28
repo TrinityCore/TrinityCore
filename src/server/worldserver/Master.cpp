@@ -31,7 +31,7 @@
 #include "WorldRunnable.h"
 #include "WorldSocket.h"
 #include "WorldSocketMgr.h"
-#include "Configuration/ConfigEnv.h"
+#include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
 
 #include "CliRunnable.h"

@@ -22,7 +22,7 @@
 #define __ADDONHANDLER_H
 
 #include "Common.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 #include "ace/Singleton.h"
 #include "WorldPacket.h"
 

@@ -23,7 +23,7 @@
 */
 
 #include "Common.h"
-#include "Configuration/ConfigEnv.h"
+#include "Configuration/Config.h"
 #include "Database/DatabaseEnv.h"
 #include "AccountMgr.h"
 #include "Log.h"
