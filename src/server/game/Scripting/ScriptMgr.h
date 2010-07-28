@@ -11,7 +11,7 @@
 #include "Common.h"
 #include "CompilerDefs.h"
 #include "DBCStructure.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 #include "ObjectMgr.h"
 
 class Player;

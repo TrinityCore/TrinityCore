@@ -23,7 +23,7 @@
 */
 
 #include "WorldLog.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 #include "Log.h"
 
 WorldLog::WorldLog() : i_file(NULL)

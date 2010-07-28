@@ -24,7 +24,7 @@
 
 #include "Common.h"
 #include "DatabaseEnv.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 #include "SystemConfig.h"
 #include "Log.h"
 #include "Opcodes.h"

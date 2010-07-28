@@ -28,7 +28,7 @@
 #include "MapInstanced.h"
 #include "InstanceData.h"
 #include "DestinationHolderImp.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 #include "World.h"
 #include "CellImpl.h"
 #include "Corpse.h"

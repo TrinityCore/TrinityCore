@@ -21,7 +21,7 @@
 #define AUCTION_HOUSE_BOT_H
 
 #include "World.h"
-#include "ConfigEnv.h"
+#include "Config.h"
 #include "ItemPrototype.h"
 
 #define AHB_GREY        0
