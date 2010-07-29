@@ -364,30 +364,6 @@
 				RelativePath="..\..\src\server\shared\Configuration\Config.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\shared\Configuration\ConfigEnv.h"
-				>
-			</File>
-			<Filter
-				Name="dotconfpp"
-				>
-				<File
-					RelativePath="..\..\src\server\shared\Configuration\dotconfpp\dotconfpp.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\shared\Configuration\dotconfpp\dotconfpp.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\shared\Configuration\dotconfpp\mempool.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\shared\Configuration\dotconfpp\mempool.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Cryptography"
