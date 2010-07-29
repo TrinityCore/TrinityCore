@@ -1052,11 +1052,34 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     target->processed = true;                               // Target checked in apply effects procedure
 
     // Get mask of effects for target
-    uint32 mask = target->effectMask;
+    uint8 mask = target->effectMask;
 
     Unit* unit = m_caster->GetGUID() == target->targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster,target->targetGUID);
     if (!unit)
+    {
+        uint8 farMask = 0;
+        // create far target mask
+        for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (IsFarUnitTargetEffect(m_spellInfo->Effect[i]))
+                if ((1<<i) & mask)
+                    farMask |= (1<<i);
+        }
+        if (!farMask)
+            return;
+        // find unit in world
+        unit = ObjectAccessor::FindUnit(target->targetGUID);
+        if (!unit)
+            return;
+        // do far effects on the unit
+        // can't use default call because of threading, do stuff as fast as possible
+        for(uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (farMask & (1<<i))
+                HandleEffects(unit,NULL,NULL,i);
+        }
         return;
+    }
 
     if (unit->isAlive() != target->alive)
         return;

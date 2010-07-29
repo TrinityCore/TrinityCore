@@ -179,6 +179,7 @@ class ObjectAccessor
         // ACCESS LIKE THAT IS NOT THREAD SAFE
         static Pet * FindPet(uint64);
         static Player* FindPlayer(uint64);
+        static Unit* FindUnit(uint64);
         Player* FindPlayerByName(const char* name);
 
         // when using this, you must use the hashmapholder's lock
