@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-project(Trinity)
+project(TrinityCore)
 
 # CMake policies
 cmake_minimum_required(VERSION 2.6)
@@ -80,8 +80,7 @@ add_custom_target(uninstall
 )
 endif()
 
-option(AUTHSERVER "Build authserver" 1)
-option(WORLDSERVER "Build worldserver" 1)
+option(SERVERS "Build servers" 1)
 option(CLI "With CLI" 1)
 option(DEBUG "Debug mode" 0)
 option(PCH "Use precompiled headers" 1)
@@ -159,16 +158,10 @@ message("* Install libraries to  : ${LIBSDIR}")
 message("* Install configs to    : ${CONF_DIR}")
 message("")
 
-if( AUTHSERVER )
-  message("* Build authserver      : Yes (default)")
+if( SERVERS )
+  message("* Build server          : Yes (default)")
 else()
-  message("* Build authserver      : No")
-endif()
-
-if( WORLDSERVER )
-  message("* Build worldserver     : Yes (default)")
-else()
-  message("* Build worldserver     : No")
+  message("* Build server          : No")
 endif()
 
 if( SCRIPTS )
@@ -260,4 +253,3 @@ add_subdirectory(src)
 if( SQL )
   add_subdirectory(sql)
 endif()
-

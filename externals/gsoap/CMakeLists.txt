@@ -1,4 +1,5 @@
-file(GLOB sources *.cpp)
+file(GLOB sources *.cpp *.h)
+
 set(gsoap_STAT_SRCS
    ${sources}
 )
