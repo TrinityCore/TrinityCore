@@ -8,16 +8,59 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-########### shared ###############
+file(GLOB_RECURSE sources_Configuration Configuration/*.cpp Configuration*/.h)
+file(GLOB_RECURSE sources_Cryptography Cryptography/*.cpp Cryptography*/.h)
+file(GLOB_RECURSE sources_Database Database/*.cpp Database*/.h)
+file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores*/.h)
+file(GLOB_RECURSE sources_Dynamic Dynamic/*.cpp Dynamic*/.h)
+file(GLOB_RECURSE sources_Logging Logging/*.cpp Logging*/.h)
+file(GLOB_RECURSE sources_Packets Packets/*.cpp Packets*/.h)
+file(GLOB_RECURSE sources_Threading Threading/*.cpp Threading*/.h)
+
+file(GLOB sources_localdir *.cpp *.h)
+
+#
+# Debugging/ contains platform specific files - create baselist
+#
+
+set(sources_Debugging
+  Debugging/Errors.h
+  Debugging/MemoryLeaks.cpp
+  Debugging/MemoryLeaks.h
+)
+
+#
+# Utilities/ contains platform specific files - create baselist
+#
+
+set(sources_Utilities
+  Utilities/ByteConverter.h
+  Utilities/EventProcessor.cpp
+  Utilities/EventProcessor.h
+  Utilities/ProgressBar.cpp
+  Utilities/ProgressBar.h
+  Utilities/SignalHandler.h
+  Utilities/Timer.h
+  Utilities/Util.cpp
+  Utilities/Util.h
+)
+
+#
+# Build shared sourcelist
+#
 
 set(shared_STAT_SRCS
-  Logging/Log.cpp
-  Threading/DelayExecutor.cpp
-  Threading/Threading.cpp
-  Utilities/ProgressBar.cpp
-  Utilities/Util.cpp
-  Utilities/EventProcessor.cpp
-  Common.cpp
+  ${sources_Configuration}
+  ${sources_Cryptography}
+  ${sources_Database}
+  ${sources_DataStores}
+  ${sources_Debugging}
+  ${sources_Dynamic}
+  ${sources_Logging}
+  ${sources_Packets}
+  ${sources_Threading}
+  ${sources_Utilities}
+  ${sources_localdir}
 )
 
 # Windows specific files
@@ -36,6 +79,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/externals/SFMT
   ${CMAKE_SOURCE_DIR}/externals/sockets/include
   ${CMAKE_SOURCE_DIR}/externals/utf8cpp
+  ${CMAKE_SOURCE_DIR}/src/server
   ${CMAKE_SOURCE_DIR}/src/server/shared
   ${CMAKE_SOURCE_DIR}/src/server/shared/Configuration
   ${CMAKE_SOURCE_DIR}/src/server/shared/Cryptography
@@ -47,77 +91,18 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Packets
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
+  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
   ${MYSQL_INCLUDE_DIR}
 )
 
 add_library(shared STATIC ${shared_STAT_SRCS})
 
 if(WIN32)
-target_link_libraries(
-  shared
-  ace
-)
+  target_link_libraries(shared
+    ace
+  )
 else()
-target_link_libraries(
-  shared
-  ${ACE_LIBRARY}
-)
+  target_link_libraries(shared
+    ${ACE_LIBRARY}
+  )
 endif()
-
-########### trinityconfig ###############
-
-set(trinityconfig_STAT_SRCS
-  Configuration/Config.cpp
-)
-
-include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-)
-
-add_library(trinityconfig STATIC ${trinityconfig_STAT_SRCS})
-
-########### trinityauth ###############
-
-set(trinityauth_STAT_SRCS
-  Cryptography/Authentication/AuthCrypt.cpp
-  Cryptography/BigNumber.cpp
-  Cryptography/HMACSHA1.cpp
-  Cryptography/SHA1.cpp
-  Cryptography/MD5.c
-  Cryptography/ARC4.cpp
-)
-
-include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${MYSQL_INCLUDE_DIR}
-)
-
-add_library(trinityauth STATIC ${trinityauth_STAT_SRCS})
-
-########### trinitydatabase ###############
-
-set(trinitydatabase_STAT_SRCS
-  DataStores/DBCFileLoader.cpp
-  Database/Database.cpp
-  Database/Field.cpp
-  Database/QueryResult.cpp
-  Database/SQLStorage.cpp
-  Database/SqlDelayThread.cpp
-  Database/SqlOperations.cpp
-  Database/PreparedStatements.cpp
-)
-
-include_directories(
-  ${ACE_INCLUDE_DIR}
-  ${CMAKE_BINARY_DIR}
-  ${CMAKE_SOURCE_DIR}/src/server/shared
-  ${CMAKE_SOURCE_DIR}/src/server/shared/Database
-  ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
-  ${MYSQL_INCLUDE_DIR}
-)
-
-add_library(trinitydatabase STATIC ${trinitydatabase_STAT_SRCS})

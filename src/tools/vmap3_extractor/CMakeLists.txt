@@ -9,7 +9,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB sources *.cpp)
+file(GLOB_RECURSE sources *.cpp *.h)
 
 # uncomment next line to disable debug mode
 add_definitions("-DIOMAP_DEBUG")

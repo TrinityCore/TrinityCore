@@ -8,16 +8,27 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-########### worldserver ###############
+file(GLOB_RECURSE sources_CommandLine CommandLine/*.cpp CommandLine/*.h)
+file(GLOB_RECURSE sources_RemoteAccess RemoteAccess/*.cpp RemoteAccess/*.h)
+file(GLOB_RECURSE sources_TCSoap TCSoap/*.cpp TCSoap/*.h)
+file(GLOB_RECURSE sources_WorldThread WorldThread/*.cpp WorldThread/*.h)
 
 set(worldserver_SRCS
-  CommandLine/CliRunnable.cpp
-  RemoteAccess/RASocket.cpp
-  TCSoap/TCSoap.cpp
-  WorldThread/WorldRunnable.cpp
+  ${sources_CommandLine}
+  ${sources_RemoteAccess}
+  ${sources_TCSoap}
+  ${sources_WorldThread}
   Main.cpp
   Master.cpp
+  Master.h
 )
+
+if( WIN32 )
+  set(worldserver_SRCS
+    ${worldserver_SRCS}
+    worldserver.rc
+  )
+endif()
 
 include_directories(
   ${ACE_INCLUDE_DIR}
@@ -152,14 +163,11 @@ if( WIN32 )
     shared
     zlib
     trinitysockets
-    trinitydatabase
-    trinityauth
-    trinityconfig
     collision
     g3dlib
     gsoap
-    ${SCRIPT_LIB}
     ace
+    ${SCRIPT_LIB}
     ${MYSQL_LIBRARY}
     ${OPENSSL_LIBRARIES}
     ${OPENSSL_EXTRA_LIBRARIES}
@@ -170,9 +178,6 @@ else()
     game
     shared
     trinitysockets
-    trinitydatabase
-    trinityauth
-    trinityconfig
     collision
     g3dlib
     gsoap

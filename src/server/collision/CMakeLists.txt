@@ -8,16 +8,10 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-########### collision ###############
+file(GLOB_RECURSE sources *.cpp *.h)
 
 set(collision_STAT_SRCS
-  BoundingIntervalHierarchy.cpp
-  Maps/MapTree.cpp
-  Maps/TileAssembler.cpp
-  Models/ModelInstance.cpp
-  Models/WorldModel.cpp
-  Management/VMapFactory.cpp
-  Management/VMapManager2.cpp
+  ${sources}
 )
 
 include_directories(

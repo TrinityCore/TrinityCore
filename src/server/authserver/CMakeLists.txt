@@ -10,13 +10,23 @@
 
 ########### authserver ###############
 
+file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
+file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
+file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
+
 set(authserver_SRCS
-  Authentication/AuthCodes.cpp
-  Realms/RealmList.cpp
-  Server/AuthSocket.cpp
-  Server/RealmSocket.cpp
+  ${sources_authentication}
+  ${sources_realms}
+  ${sources_server}
   Main.cpp
 )
+
+if( WIN32 )
+set(authserver_SRCS
+    ${authserver_SRCS}
+    authserver.rc
+)
+endif()
 
 include_directories(
   ${ACE_INCLUDE_DIR}
@@ -62,9 +72,6 @@ if( WIN32 )
   target_link_libraries(
     authserver
     shared
-    trinitydatabase
-    trinityauth
-    trinityconfig
     ${MYSQL_LIBRARY}
     ${OPENSSL_LIBRARIES}
     ${OPENSSL_EXTRA_LIBRARIES}
@@ -73,9 +80,6 @@ else()
   target_link_libraries(
     authserver
     shared
-    trinitydatabase
-    trinityauth
-    trinityconfig
     ${MYSQL_LIBRARY}
     ${OPENSSL_LIBRARIES}
     ${OSX_LIBS}
