@@ -120,7 +120,6 @@ typedef std::pair<SpellClickInfoMap::const_iterator,SpellClickInfoMap::const_ite
 
 struct AreaTrigger
 {
-    uint32 access_id;
     uint32 target_mapId;
     float  target_X;
     float  target_Y;
@@ -529,9 +528,9 @@ class ObjectMgr
             return NULL;
         }
 
-        AccessRequirement const* GetAccessRequirement(uint32 requirement) const
+        AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
         {
-            AccessRequirementMap::const_iterator itr = mAccessRequirements.find(requirement);
+            AccessRequirementMap::const_iterator itr = mAccessRequirements.find(MAKE_PAIR32(mapid,difficulty));
             if (itr != mAccessRequirements.end())
                 return &itr->second;
             return NULL;

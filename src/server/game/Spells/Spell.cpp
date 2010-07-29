@@ -5312,10 +5312,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                 // check if our map is dungeon
                 if (sMapStore.LookupEntry(m_caster->GetMapId())->IsDungeon())
                 {
-                    InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(m_caster->GetMapId());
+                    Map const* pMap = m_caster->GetMap();
+                    InstanceTemplate const* instance = ObjectMgr::GetInstanceTemplate(pMap->GetId());
                     if (!instance)
                         return SPELL_FAILED_TARGET_NOT_IN_INSTANCE;
-                    if (!target->Satisfy(objmgr.GetAccessRequirement(instance->access_id), m_caster->GetMapId()))
+                    if (!target->Satisfy(objmgr.GetAccessRequirement(pMap->GetId(), pMap->GetDifficulty()), pMap->GetId()))
                         return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;

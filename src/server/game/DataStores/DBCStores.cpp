@@ -352,7 +352,7 @@ void LoadDBCStores(const std::string& dataPath)
     // fill data
     for (uint32 i = 1; i < sMapDifficultyStore.GetNumRows(); ++i)
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId,entry->Difficulty)] = MapDifficulty(entry->resetTime,entry->maxPlayers);
+            sMapDifficultyMap[MAKE_PAIR32(entry->MapId,entry->Difficulty)] = MapDifficulty(entry->resetTime,entry->maxPlayers,strlen(entry->areaTriggerText)>0);
     sMapDifficultyStore.Clear();
 
     LoadDBC(availableDbcLocales,bar,bad_dbc_files,sMovieStore,               dbcPath,"Movie.dbc");
@@ -780,6 +780,30 @@ MapDifficulty const* GetMapDifficultyData(uint32 mapId, Difficulty difficulty)
 {
     MapDifficultyMap::const_iterator itr = sMapDifficultyMap.find(MAKE_PAIR32(mapId,difficulty));
     return itr != sMapDifficultyMap.end() ? &itr->second : NULL;
+}
+
+MapDifficulty const* GetDownscaledMapDifficultyData(uint32 mapId, Difficulty &difficulty)
+{
+    uint32 tmpDiff = difficulty;
+    MapDifficulty const* mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff));
+    if (!mapDiff)
+    {
+        if (tmpDiff > RAID_DIFFICULTY_25MAN_NORMAL) // heroic, downscale to normal
+            tmpDiff -= 2;
+        else
+            tmpDiff -= 1;   // any non-normal mode for raids like tbc (only one mode)
+
+        // pull new data
+        mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // we are 10 normal or 25 normal
+        if (!mapDiff)
+        {
+            tmpDiff -= 1;
+            mapDiff = GetMapDifficultyData(mapId, Difficulty(tmpDiff)); // 10 normal
+        }
+    }
+
+    difficulty = Difficulty(tmpDiff);
+    return mapDiff;
 }
 
 PvPDifficultyEntry const* GetBattlegroundBracketByLevel(uint32 mapid, uint32 level)
