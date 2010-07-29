@@ -5885,8 +5885,8 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
     uint32 count = 0;
 
-    //                                                0       1           2              3               4                   5                   6
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, access_id, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
+    //                                                        0            1                  2                  3                  4                   5
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id,  target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM areatrigger_teleport");
     if (!result)
     {
 
@@ -5913,12 +5913,11 @@ void ObjectMgr::LoadAreaTriggerTeleports()
 
         AreaTrigger at;
 
-        at.access_id                = fields[1].GetUInt32();
-        at.target_mapId             = fields[2].GetUInt32();
-        at.target_X                 = fields[3].GetFloat();
-        at.target_Y                 = fields[4].GetFloat();
-        at.target_Z                 = fields[5].GetFloat();
-        at.target_Orientation       = fields[6].GetFloat();
+        at.target_mapId             = fields[1].GetUInt32();
+        at.target_X                 = fields[2].GetFloat();
+        at.target_Y                 = fields[3].GetFloat();
+        at.target_Z                 = fields[4].GetFloat();
+        at.target_Orientation       = fields[5].GetFloat();
 
         AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
         if (!atEntry)
@@ -5954,8 +5953,8 @@ void ObjectMgr::LoadAccessRequirements()
 
     uint32 count = 0;
 
-    //                                                0       1          2       3      4        5           6             7              8                   9                  10                         11
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, level_min, level_max, item, item2, heroic_key, heroic_key2, quest_done, quest_failed_text, heroic_quest_done, heroic_quest_failed_text, heroic_level_min FROM access_requirement");
+    //                                                           0           1          2          3     4      5             6             7                      8                  9
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
     if (!result)
     {
 
@@ -5978,28 +5977,27 @@ void ObjectMgr::LoadAccessRequirements()
 
         ++count;
 
-        uint32 requiremt_ID = fields[0].GetUInt32();
+        uint32 mapid = fields[0].GetUInt32();
+        uint8 difficulty = fields[1].GetUInt8();
+        uint32 requirement_ID = MAKE_PAIR32(mapid,difficulty);
 
         AccessRequirement ar;
 
-        ar.levelMin                 = fields[1].GetUInt8();
-        ar.levelMax                 = fields[2].GetUInt8();
-        ar.heroicLevelMin           = fields[11].GetUInt8();
-        ar.item                     = fields[3].GetUInt32();
-        ar.item2                    = fields[4].GetUInt32();
-        ar.heroicKey                = fields[5].GetUInt32();
-        ar.heroicKey2               = fields[6].GetUInt32();
-        ar.quest                    = fields[7].GetUInt32();
-        ar.questFailedText          = fields[8].GetCppString();
-        ar.heroicQuest              = fields[9].GetUInt32();
-        ar.heroicQuestFailedText    = fields[10].GetCppString();
+        ar.levelMin                 = fields[2].GetUInt8();
+        ar.levelMax                 = fields[3].GetUInt8();
+        ar.item                     = fields[4].GetUInt32();
+        ar.item2                    = fields[5].GetUInt32();
+        ar.quest_A                  = fields[6].GetUInt32();
+        ar.quest_H                  = fields[7].GetUInt32();
+        ar.achievement              = fields[8].GetUInt32();
+        ar.questFailedText          = fields[9].GetCppString();
 
         if (ar.item)
         {
             ItemPrototype const *pProto = GetItemPrototype(ar.item);
             if (!pProto)
             {
-                sLog.outError("Key item %u does not exist for requirement %u, removing key requirement.", ar.item, requiremt_ID);
+                sLog.outError("Key item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item, mapid, difficulty);
                 ar.item = 0;
             }
         }
@@ -6009,53 +6007,39 @@ void ObjectMgr::LoadAccessRequirements()
             ItemPrototype const *pProto = GetItemPrototype(ar.item2);
             if (!pProto)
             {
-                sLog.outError("Second item %u does not exist for requirement %u, removing key requirement.", ar.item2, requiremt_ID);
+                sLog.outError("Second item %u does not exist for map %u difficulty %u, removing key requirement.", ar.item2, mapid, difficulty);
                 ar.item2 = 0;
             }
         }
 
-        if (ar.heroicKey)
+        if (ar.quest_A)
         {
-            ItemPrototype const *pProto = GetItemPrototype(ar.heroicKey);
-            if (!pProto)
+            if (!GetQuestTemplate(ar.quest_A))
             {
-                sLog.outError("Heroic key %u not exist for trigger %u, remove key requirement.", ar.heroicKey, requiremt_ID);
-                ar.heroicKey = 0;
+                sLog.outErrorDb("Required Alliance Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar.quest_A, mapid, difficulty);
+                ar.quest_A = 0;
             }
         }
 
-        if (ar.heroicKey2)
+        if (ar.quest_H)
         {
-            ItemPrototype const *pProto = GetItemPrototype(ar.heroicKey2);
-            if (!pProto)
+            if (!GetQuestTemplate(ar.quest_H))
             {
-                sLog.outError("Second heroic key %u not exist for trigger %u, remove key requirement.", ar.heroicKey2, requiremt_ID);
-                ar.heroicKey2 = 0;
+                sLog.outErrorDb("Required Horde Quest %u not exist for map %u difficulty %u, remove quest done requirement.", ar.quest_H, mapid, difficulty);
+                ar.quest_H = 0;
             }
         }
 
-        if (ar.heroicQuest)
+        if (ar.achievement)
         {
-            QuestMap::iterator qReqItr = mQuestTemplates.find(ar.heroicQuest);
-            if (qReqItr == mQuestTemplates.end())
+            if (!sAchievementStore.LookupEntry(ar.achievement))
             {
-                sLog.outErrorDb("Required Heroic Quest %u not exist for trigger %u, remove heroic quest done requirement.",ar.heroicQuest,requiremt_ID);
-                ar.heroicQuest = 0;
+                sLog.outErrorDb("Required Achievement %u not exist for map %u difficulty %u, remove quest done requirement.", ar.achievement, mapid, difficulty);
+                ar.achievement = 0;
             }
         }
 
-        if (ar.quest)
-        {
-            QuestMap::iterator qReqItr = mQuestTemplates.find(ar.quest);
-            if (qReqItr == mQuestTemplates.end())
-            {
-                sLog.outErrorDb("Required Quest %u not exist for trigger %u, remove quest done requirement.",ar.quest,requiremt_ID);
-                ar.quest = 0;
-            }
-        }
-
-        mAccessRequirements[requiremt_ID] = ar;
-
+        mAccessRequirements[requirement_ID] = ar;
     } while (result->NextRow());
 
     sLog.outString();

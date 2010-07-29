@@ -25,20 +25,18 @@ DROP TABLE IF EXISTS `access_requirement`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `access_requirement` (
-  `id` bigint(20) unsigned NOT NULL COMMENT 'Identifier',
+  `mapId` mediumint(8) unsigned NOT NULL,
+  `difficulty` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `level_min` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `heroic_level_min` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `level_max` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `item` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `item2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `heroic_key` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `heroic_key2` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `quest_done` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `quest_done_A` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `quest_done_H` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `completed_achievement` mediumint(8) unsigned NOT NULL DEFAULT '0',
   `quest_failed_text` text,
-  `heroic_quest_done` mediumint(8) unsigned NOT NULL DEFAULT '0',
-  `heroic_quest_failed_text` text,
   `comment` text,
-   PRIMARY KEY (`id`)
+  PRIMARY KEY (`mapId`,`difficulty`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Access Requirements';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
