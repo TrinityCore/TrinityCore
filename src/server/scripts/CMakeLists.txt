@@ -32,6 +32,11 @@ set(scripts_STAT_SRCS
   ${scripts_spells}
   ${scripts_examples}
   Custom/on_events.cpp
+  ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
+  ../game/AI/ScriptedAI/ScriptedCreature.cpp
+  ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
+  ../game/AI/ScriptedAI/ScriptedGuardAI.cpp
+  ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
 )
 
 message("-- Added Scriptengine to SCRIPTS lib")
