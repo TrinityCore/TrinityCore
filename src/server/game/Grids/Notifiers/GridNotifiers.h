@@ -1177,13 +1177,17 @@ namespace Trinity
     class GameObjectInRangeCheck
     {
     public:
-        GameObjectInRangeCheck(float _x, float _y, float _z, float _range) : x(_x), y(_y), z(_z), range(_range) {}
+        GameObjectInRangeCheck(float _x, float _y, float _z, float _range, uint32 _entry = 0) : 
+          x(_x), y(_y), z(_z), range(_range), entry(_entry) {}
         bool operator() (GameObject* go)
         {
-            return go->IsInRange(x, y, z, range);
+            if (!entry || go->GetGOInfo() && go->GetGOInfo()->id == entry)
+                return go->IsInRange(x, y, z, range);
+            else return false;
         }
     private:
         float x, y, z, range;
+        uint32 entry;
     };
 
     // Player checks and do
