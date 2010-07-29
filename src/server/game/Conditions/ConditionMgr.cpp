@@ -770,6 +770,10 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     spellProto->EffectImplicitTargetB[i] == TARGET_UNIT_NEARBY_ENTRY ||
                     spellProto->EffectImplicitTargetA[i] == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
                     spellProto->EffectImplicitTargetB[i] == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
+                    spellProto->EffectImplicitTargetA[i] == TARGET_GAMEOBJECT_AREA_SRC ||
+                    spellProto->EffectImplicitTargetB[i] == TARGET_GAMEOBJECT_AREA_SRC ||
+                    spellProto->EffectImplicitTargetA[i] == TARGET_GAMEOBJECT_AREA_DST ||
+                    spellProto->EffectImplicitTargetB[i] == TARGET_GAMEOBJECT_AREA_DST ||
                     spellProto->EffectImplicitTargetA[i] == TARGET_DST_NEARBY_ENTRY ||
                     spellProto->EffectImplicitTargetB[i] == TARGET_DST_NEARBY_ENTRY ||
                     spellProto->EffectImplicitTargetA[i] == TARGET_UNIT_CONE_ENTRY ||
@@ -781,8 +785,9 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             if (!targetfound)
             {
-                sLog.outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)\
-                                ,TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)",cond->mSourceEntry);
+                sLog.outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)"
+                                ",TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
+                                "TARGET_GAMEOBJECT_AREA_SRC(51), TARGET_GAMEOBJECT_AREA_DST(52)", cond->mSourceEntry);
                 return false;
             }
             break;

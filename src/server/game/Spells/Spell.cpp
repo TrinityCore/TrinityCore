@@ -1729,6 +1729,9 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
 
 void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry)
 {
+    if (TargetType == SPELL_TARGETS_GO)
+        return;
+    
     Position *pos;
     switch(type)
     {
@@ -1765,6 +1768,32 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
 
     if (m_customAttr & SPELL_ATTR_CU_EXCLUDE_SELF)
         TagUnitMap.remove(m_caster);
+}
+
+void Spell::SearchGOAreaTarget(std::list<GameObject*> &TagGOMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry)
+{
+    if (TargetType != SPELL_TARGETS_GO)
+        return;
+
+    Position *pos;
+    switch (type)
+    {
+        case PUSH_DST_CENTER:
+            CheckDst();
+            pos = &m_targets.m_dstPos;
+            break;
+        case PUSH_SRC_CENTER:
+            CheckSrc();
+            pos = &m_targets.m_srcPos;
+            break;
+        default:
+            pos = m_caster;
+            break;
+    }
+
+    Trinity::GameObjectInRangeCheck check(pos->m_positionX, pos->m_positionY, pos->m_positionZ, radius + 50, entry);
+    Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(m_caster, TagGOMap, check);
+    m_caster->GetMap()->VisitGrid(pos->m_positionX, pos->m_positionY, radius, searcher);
 }
 
 WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType)
@@ -2328,6 +2357,11 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 radius = GetSpellRadius(m_spellInfo, i, IsPositiveSpell(m_spellInfo->Id));
                 targetType = SPELL_TARGETS_ENTRY;
                 break;
+            case TARGET_GAMEOBJECT_AREA_SRC:
+            case TARGET_GAMEOBJECT_AREA_DST:
+                radius = GetSpellRadius(m_spellInfo, i, true);
+                targetType = SPELL_TARGETS_GO;
+                break;
             default:
                 radius = GetSpellRadius(m_spellInfo, i, true);
                 targetType = SPELL_TARGETS_NONE;
@@ -2339,169 +2373,170 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
         radius *= m_spellValue->RadiusMod;
 
         std::list<Unit*> unitList;
-        if (targetType == SPELL_TARGETS_ENTRY)
+        std::list<GameObject*> gobjectList;
+        switch (targetType)
         {
-            ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, m_spellInfo->Id);
-            if (conditions.empty())
+            case SPELL_TARGETS_ENTRY:
             {
-                // Custom entries
-                // TODO: move these to sql
-                switch (m_spellInfo->Id)
+                ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, m_spellInfo->Id);
+                if (!conditions.empty())
                 {
-                    case 46584: // Raise Dead
+                    for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
                     {
-                        if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
+                        if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                            continue;
+                        if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CREATURE)
+                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, (*i_spellST)->mConditionValue2);
+                        else if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CONTROLLED)
                         {
-                            switch(result->GetTypeId())
-                            {
-                                case TYPEID_UNIT:
-                                    m_targets.setDst(result);
-                            }
+                            for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
+                                if ((*itr)->GetEntry() == (*i_spellST)->mConditionValue2 &&
+                                    /*(*itr)->IsWithinDistInMap(m_caster, radius)*/ (*itr)->IsInMap(m_caster)) // For 60243 and 52173 need skip radius check or use range (no radius entry for effect)
+                                    unitList.push_back(*itr);
                         }
-                        break;
                     }
-                    // Corpse Explosion
-                    case 49158:
-                    case 51325:
-                    case 51326:
-                    case 51327:
-                    case 51328:
-                        // Search for ghoul if our ghoul or dead body not valid unit target
-                        if (!(m_targets.getUnitTarget() && (m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()
-                            || (m_targets.getUnitTarget()->getDeathState() == CORPSE
-                                && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId()
-                                && m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT
-                                && !m_targets.getUnitTarget()->ToCreature()->isDeadByDefault()
-                                && !(m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL))
-                                && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId())))
+                }
+                else
+                {
+                    // Custom entries
+                    // TODO: move these to sql
+                    switch (m_spellInfo->Id)
+                    {
+                        case 46584: // Raise Dead
                         {
-                            CleanupTargetList();
-
-                            WorldObject* result = FindCorpseUsing <Trinity::ExplodeCorpseObjectCheck> ();
-
-                            if (result)
+                            if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
                             {
-                                switch (result->GetTypeId())
+                                switch(result->GetTypeId())
                                 {
                                     case TYPEID_UNIT:
-                                    case TYPEID_PLAYER:
-                                        m_targets.setUnitTarget((Unit*)result);
-                                        break;
+                                        m_targets.setDst(result);
                                 }
                             }
+                            break;
+                        }
+                        // Corpse Explosion
+                        case 49158:
+                        case 51325:
+                        case 51326:
+                        case 51327:
+                        case 51328:
+                            // Search for ghoul if our ghoul or dead body not valid unit target
+                            if (!(m_targets.getUnitTarget() && (m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()
+                                || (m_targets.getUnitTarget()->getDeathState() == CORPSE
+                                    && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId()
+                                    && m_targets.getUnitTarget()->GetTypeId() == TYPEID_UNIT
+                                    && !m_targets.getUnitTarget()->ToCreature()->isDeadByDefault()
+                                    && !(m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL))
+                                    && m_targets.getUnitTarget()->GetDisplayId() == m_targets.getUnitTarget()->GetNativeDisplayId())))
+                            {
+                                CleanupTargetList();
+
+                                WorldObject* result = FindCorpseUsing <Trinity::ExplodeCorpseObjectCheck> ();
+
+                                if (result)
+                                {
+                                    switch (result->GetTypeId())
+                                    {
+                                        case TYPEID_UNIT:
+                                        case TYPEID_PLAYER:
+                                            m_targets.setUnitTarget((Unit*)result);
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                                        m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id,true);
+                                    SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                                    finish(false);
+                                }
+                            }
+                            break;
+
+                        default:
+                            sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have type CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET record in `conditions` table.", m_spellInfo->Id, m_caster->GetEntry());
+
+                            if (m_spellInfo->Effect[i] == SPELL_EFFECT_TELEPORT_UNITS)
+                                SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, 0);
+                            else if (IsPositiveEffect(m_spellInfo->Id, i))
+                                SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
                             else
-                            {
-                                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                                    m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id,true);
-                                SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
-                                finish(false);
-                            }
-                        }
+                                SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENEMY);
+                    }
+                }
+                break;
+            }
+            case SPELL_TARGETS_GO:
+            {
+                ConditionList conditions = sConditionMgr.GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, m_spellInfo->Id);
+                if (!conditions.empty())
+                {
+                    for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
+                    {
+                        if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                            continue;
+                        if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_GAMEOBJECT)
+                            SearchGOAreaTarget(gobjectList, radius, pushType, SPELL_TARGETS_GO, (*i_spellST)->mConditionValue2);
+                    }
+                }
+                else
+                {
+                    if (m_spellInfo->Effect[i] == SPELL_EFFECT_ACTIVATE_OBJECT)
+                        sLog.outDebug("Spell (ID: %u) (caster Entry: %u) with SPELL_EFFECT_ACTIVATE_OBJECT does not have type CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET record in `conditions` table.", m_spellInfo->Id, m_caster->GetEntry());
+                    SearchGOAreaTarget(gobjectList, radius, pushType, SPELL_TARGETS_GO);
+                }
+                break;
+            }
+            case SPELL_TARGETS_ALLY:
+            case SPELL_TARGETS_ENEMY:
+            case SPELL_TARGETS_CHAINHEAL:
+            case SPELL_TARGETS_ANY:
+                SearchAreaTarget(unitList, radius, pushType, targetType);
+                break;
+            default:
+                switch (cur)
+                {
+                    case TARGET_UNIT_AREA_PARTY_SRC:
+                    case TARGET_UNIT_AREA_PARTY_DST:
+                        m_caster->GetPartyMemberInDist(unitList, radius); //fix me
                         break;
-
-                    default:
-                        sLog.outDebug("Spell (ID: %u) (caster Entry: %u) does not have record in `spell_script_target`", m_spellInfo->Id, m_caster->GetEntry());
-
-                        if (m_spellInfo->Effect[i] == SPELL_EFFECT_TELEPORT_UNITS)
-                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, 0);
-                        else if (IsPositiveEffect(m_spellInfo->Id, i))
-                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ALLY);
-                        else
-                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENEMY);
-                }
-            }
-            // let it be done in one check?
-            else
-            {
-                for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
-                {
-                    if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
-                        continue;
-                    if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CREATURE)
-                        SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, (*i_spellST)->mConditionValue2);
-                    else if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CONTROLLED)
+                    case TARGET_UNIT_PARTY_TARGET:
+                        m_targets.getUnitTarget()->GetPartyMemberInDist(unitList, radius);
+                        break;
+                    case TARGET_UNIT_PARTY_CASTER:
+                        m_caster->GetPartyMemberInDist(unitList, radius);
+                        break;
+                    case TARGET_UNIT_RAID_CASTER:
+                        m_caster->GetRaidMember(unitList, radius);
+                        break;
+                    case TARGET_UNIT_CLASS_TARGET:
                     {
-                        for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == (*i_spellST)->mConditionValue2 &&
-                                /*(*itr)->IsWithinDistInMap(m_caster, radius)*/ (*itr)->IsInMap(m_caster)) // For 60243 and 52173 need skip radius check or use range (no radius entry for effect)
-                                unitList.push_back(*itr);
-                    }
-                }
-            }
-        }
-        else if (targetType)
-            SearchAreaTarget(unitList, radius, pushType, targetType);
-        else
-        {
-            switch (cur)
-            {
-                case TARGET_UNIT_AREA_PARTY_SRC:
-                case TARGET_UNIT_AREA_PARTY_DST:
-                    m_caster->GetPartyMemberInDist(unitList, radius); //fix me
-                    break;
-                case TARGET_OBJECT_AREA_SRC: // fix me
-                case TARGET_OBJECT_AREA_DST:
-                {
-                    float x, y, z;
-                    if (cur == TARGET_OBJECT_AREA_SRC)
-                    {
-                        if (m_targets.HasSrc())
-                            m_targets.m_srcPos.GetPosition(x, y, z);
-                        else
-                            break;
-                    }
-                    else
-                    {
-                        if (m_targets.HasDst())
-                            m_targets.m_dstPos.GetPosition(x, y, z);
-                        else
-                            break;
-                    }
+                        Player* targetPlayer = m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER
+                            ? (Player*)m_targets.getUnitTarget() : NULL;
 
-                    Trinity::GameObjectInRangeCheck check(x, y, z, radius + 50);
-                    std::list<GameObject*> goList;
-                    Trinity::GameObjectListSearcher<Trinity::GameObjectInRangeCheck> searcher(m_caster, goList, check);
-                    m_caster->GetMap()->VisitGrid(x, y, radius, searcher);
-                    for (std::list<GameObject*>::iterator itr = goList.begin(); itr != goList.end(); ++itr)
-                        AddGOTarget(*itr, i);
-                    break;
-                }
-                case TARGET_UNIT_PARTY_TARGET:
-                    m_targets.getUnitTarget()->GetPartyMemberInDist(unitList, radius);
-                    break;
-                case TARGET_UNIT_PARTY_CASTER:
-                    m_caster->GetPartyMemberInDist(unitList, radius);
-                    break;
-                case TARGET_UNIT_RAID_CASTER:
-                    m_caster->GetRaidMember(unitList, radius);
-                    break;
-                case TARGET_UNIT_CLASS_TARGET:
-                {
-                    Player* targetPlayer = m_targets.getUnitTarget() && m_targets.getUnitTarget()->GetTypeId() == TYPEID_PLAYER
-                        ? (Player*)m_targets.getUnitTarget() : NULL;
-
-                    Group* pGroup = targetPlayer ? targetPlayer->GetGroup() : NULL;
-                    if (pGroup)
-                    {
-                        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                        Group* pGroup = targetPlayer ? targetPlayer->GetGroup() : NULL;
+                        if (pGroup)
                         {
-                            Player* Target = itr->getSource();
-
-                            // IsHostileTo check duel and controlled by enemy
-                            if (Target && targetPlayer->IsWithinDistInMap(Target, radius) &&
-                                targetPlayer->getClass() == Target->getClass() &&
-                                !m_caster->IsHostileTo(Target))
+                            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                             {
-                                AddUnitTarget(Target, i);
+                                Player* Target = itr->getSource();
+
+                                // IsHostileTo check duel and controlled by enemy
+                                if (Target && targetPlayer->IsWithinDistInMap(Target, radius) &&
+                                    targetPlayer->getClass() == Target->getClass() &&
+                                    !m_caster->IsHostileTo(Target))
+                                {
+                                    AddUnitTarget(Target, i);
+                                }
                             }
                         }
+                        else if (m_targets.getUnitTarget())
+                            AddUnitTarget(m_targets.getUnitTarget(), i);
+                        break;
                     }
-                    else if (m_targets.getUnitTarget())
-                        AddUnitTarget(m_targets.getUnitTarget(), i);
-                    break;
                 }
+                break;
             }
-        }
 
         if (!unitList.empty())
         {
@@ -2625,7 +2660,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
                 if (m_spellInfo->Id == 5246) //Intimidating Shout
                     unitList.remove(m_targets.getUnitTarget());
-                Trinity::RandomResizeList(unitList, m_spellValue->MaxAffectedTargets);
+                Trinity::RandomResizeList(unitList, maxTargets);
             }
             else
             {
@@ -2670,6 +2705,21 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
             }
             for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
                 AddUnitTarget(*itr, i);
+        }
+
+        if (!gobjectList.empty())
+        {
+            if (uint32 maxTargets = m_spellValue->MaxAffectedTargets)
+            {
+                Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
+                for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
+                    if ((*j)->IsAffectedOnSpell(m_spellInfo))
+                        maxTargets += (*j)->GetAmount();
+
+                Trinity::RandomResizeList(gobjectList, maxTargets);
+            }
+            for (std::list<GameObject*>::iterator itr = gobjectList.begin(); itr != gobjectList.end(); ++itr)
+                AddGOTarget(*itr, i);
         }
     }
 }
