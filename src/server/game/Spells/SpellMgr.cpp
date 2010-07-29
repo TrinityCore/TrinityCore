@@ -145,14 +145,14 @@ SpellMgr::SpellMgr()
             case TARGET_UNIT_AREA_ALLY_SRC:
             case TARGET_UNIT_AREA_ENTRY_SRC:
             case TARGET_UNIT_AREA_PARTY_SRC:
-            case TARGET_OBJECT_AREA_SRC:
+            case TARGET_GAMEOBJECT_AREA_SRC:
                 SpellTargetType[i] = TARGET_TYPE_AREA_SRC;
                 break;
             case TARGET_UNIT_AREA_ENEMY_DST:
             case TARGET_UNIT_AREA_ALLY_DST:
             case TARGET_UNIT_AREA_ENTRY_DST:
             case TARGET_UNIT_AREA_PARTY_DST:
-            case TARGET_OBJECT_AREA_DST:
+            case TARGET_GAMEOBJECT_AREA_DST:
                 SpellTargetType[i] = TARGET_TYPE_AREA_DST;
                 break;
             case TARGET_UNIT_CONE_ENEMY:

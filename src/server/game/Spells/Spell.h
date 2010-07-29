@@ -265,6 +265,7 @@ enum SpellTargets
     SPELL_TARGETS_ENTRY,
     SPELL_TARGETS_CHAINHEAL,
     SPELL_TARGETS_ANY,
+    SPELL_TARGETS_GO
 };
 
 class Spell
@@ -645,6 +646,7 @@ class Spell
         void DoAllEffectOnTarget(ItemTargetInfo *target);
         bool UpdateChanneledTargetList();
         void SearchAreaTarget(std::list<Unit*> &unitList, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry = 0);
+        void SearchGOAreaTarget(std::list<GameObject*> &gobjectList, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry = 0);
         void SearchChainTarget(std::list<Unit*> &unitList, float radius, uint32 unMaxTargets, SpellTargets TargetType);
         WorldObject* SearchNearbyTarget(float range, SpellTargets TargetType);
         bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
