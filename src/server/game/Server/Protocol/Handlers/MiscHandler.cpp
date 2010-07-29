@@ -931,10 +931,6 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
     if (!at)
         return;
 
-    // MapManager::CanPlayerEnter() calls players->Satisfy() so this is not needed here
-    // if (!GetPlayer()->Satisfy(objmgr.GetAccessRequirement(at->access_id), at->target_mapId, true))
-    //    return;
-
     // Check only if target map != current player's map
     // check if player can enter instance : instance not full, and raid instance not in encounter fight
     if (GetPlayer()->GetMapId() != at->target_mapId && !sMapMgr.CanPlayerEnter(at->target_mapId, GetPlayer(), false))
@@ -1623,7 +1619,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
     {
         _player->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true);
         _player->SetRaidDifficulty(Difficulty(mode));
-     }
+    }
 }
 
 void WorldSession::HandleCancelMountAuraOpcode(WorldPacket & /*recv_data*/)

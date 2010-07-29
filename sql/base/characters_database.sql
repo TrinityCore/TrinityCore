@@ -342,7 +342,7 @@ CREATE TABLE `characters` (
   `position_z` float NOT NULL default '0',
   `map` int(11) unsigned NOT NULL default '0' COMMENT 'Map Identifier',
   `instance_id` int(11) unsigned NOT NULL default '0',
-  `dungeon_difficulty` tinyint(1) unsigned NOT NULL default '0',
+  `instance_mode_mask` tinyint(2) unsigned NOT NULL default '0',
   `orientation` float NOT NULL default '0',
   `taximask` longtext,
   `online` tinyint(3) unsigned NOT NULL default '0',

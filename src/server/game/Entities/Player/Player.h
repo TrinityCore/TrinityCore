@@ -829,15 +829,12 @@ struct AccessRequirement
 {
     uint8  levelMin;
     uint8  levelMax;
-    uint8  heroicLevelMin;
     uint32 item;
     uint32 item2;
-    uint32 heroicKey;
-    uint32 heroicKey2;
-    uint32 quest;
+    uint32 quest_A;
+    uint32 quest_H;
+    uint32 achievement;
     std::string questFailedText;
-    uint32 heroicQuest;
-    std::string heroicQuestFailedText;
 };
 
 enum CharDeleteMethod
@@ -1743,8 +1740,10 @@ class Player : public Unit, public GridObject<Player>
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
         Difficulty GetRaidDifficulty() const { return m_raidDifficulty; }
+        Difficulty GetStoredRaidDifficulty() const { return m_raidMapDifficulty; } // only for use in difficulty packet after exiting to raid map
         void SetDungeonDifficulty(Difficulty dungeon_difficulty) { m_dungeonDifficulty = dungeon_difficulty; }
         void SetRaidDifficulty(Difficulty raid_difficulty) { m_raidDifficulty = raid_difficulty; }
+        void StoreRaidMapDifficulty() { m_raidMapDifficulty = GetMap()->GetDifficulty(); }
 
         bool UpdateSkill(uint32 skill_id, uint32 step);
         bool UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step);
@@ -1830,7 +1829,7 @@ class Player : public Unit, public GridObject<Player>
         void SendExplorationExperience(uint32 Area, uint32 Experience);
 
         void SendDungeonDifficulty(bool IsInGroup);
-        void SendRaidDifficulty(bool IsInGroup);
+        void SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty = -1);
         void ResetInstances(uint8 method, bool isRaid);
         void SendResetInstanceSuccess(uint32 MapId);
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
@@ -2268,7 +2267,7 @@ class Player : public Unit, public GridObject<Player>
         void SendRaidInfo();
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player *player, Group *group = NULL, uint64 player_guid = 0);
-        bool Satisfy(AccessRequirement const*, uint32 target_map, bool report = false);
+        bool Satisfy(AccessRequirement const* ar, uint32 target_map, bool report = false);
         bool CheckInstanceLoginValid();
 
         // last used pet number (for BG's)
@@ -2458,6 +2457,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_speakCount;
         Difficulty m_dungeonDifficulty;
         Difficulty m_raidDifficulty;
+        Difficulty m_raidMapDifficulty;
 
         uint32 m_atLoginFlags;
 

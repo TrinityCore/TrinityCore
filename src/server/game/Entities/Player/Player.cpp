@@ -6540,15 +6540,13 @@ void Player::RewardReputation(Unit *pVictim, float rate)
         Map const *pMap = GetMap();
         if (pMap && pMap->IsDungeon())
         {
-            bool Heroic = ((InstanceMap*)pMap)->GetDifficulty() == DUNGEON_DIFFICULTY_HEROIC;
-
             InstanceTemplate const *pInstance = objmgr.GetInstanceTemplate(pMap->GetId());
             if (pInstance)
             {
-                AccessRequirement const *pAccessRequirement = objmgr.GetAccessRequirement(pInstance->access_id);
+                AccessRequirement const *pAccessRequirement = objmgr.GetAccessRequirement(pMap->GetId(), ((InstanceMap*)pMap)->GetDifficulty());
                 if (pAccessRequirement)
                 {
-                    if (!pMap->IsRaid() && ((!Heroic && pAccessRequirement->levelMin == 80) || (Heroic && pAccessRequirement->heroicLevelMin == 80)))
+                    if (!pMap->IsRaid() && pAccessRequirement->levelMin == 80)
                         ChampioningFaction = GetChampioningFaction();
                 }
             }
@@ -15891,7 +15889,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
      // 12          13          14          15   16           17        18        19         20         21          22           23                 24
     //"position_x, position_y, position_z, map, orientation, taximask, cinematic, totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost,"
     // 25                 26       27       28       29       30         31           32             33        34    35      36                 37         38
-    //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, dungeon_difficulty,"
+    //"resettalents_time, trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, online, death_expire_time, taxi_path, instance_mode_mask,"
     // 39           40                41                 42                    43          44          45              46           47               48              49
     //"arenaPoints, totalHonorPoints, todayHonorPoints, yesterdayHonorPoints, totalKills, todayKills, yesterdayKills, chosenTitle, knownCurrencies, watchedFaction, drunk,"
     // 50      51      52      53      54      55      56      57      58           59         60          61             62              63      64           65
@@ -15997,10 +15995,15 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     uint32 mapId = fields[15].GetUInt32();
     uint32 instanceId = fields[58].GetFloat();
 
-    uint32 difficulty = fields[38].GetUInt32();
-    if (difficulty >= MAX_DUNGEON_DIFFICULTY)
-        difficulty = DUNGEON_DIFFICULTY_NORMAL;
-    SetDungeonDifficulty(Difficulty(difficulty));           // may be changed in _LoadGroup
+    uint32 dungeonDiff = fields[38].GetUInt32() & 0x0F;
+    if (dungeonDiff >= MAX_DUNGEON_DIFFICULTY)
+        dungeonDiff = DUNGEON_DIFFICULTY_NORMAL;
+    uint32 raidDiff = (fields[38].GetUInt32() >> 4) & 0x0F;
+    if (raidDiff >= MAX_RAID_DIFFICULTY)
+        raidDiff = RAID_DIFFICULTY_10MAN_NORMAL;
+    SetDungeonDifficulty(Difficulty(dungeonDiff));          // may be changed in _LoadGroup
+    SetRaidDifficulty(Difficulty(raidDiff));                // may be changed in _LoadGroup
+
     std::string taxi_nodes = fields[37].GetCppString();
 
 #define RelocateToHomebind(){ mapId = m_homebindMapId; instanceId = 0; Relocate(m_homebindX, m_homebindY, m_homebindZ); }
@@ -16252,6 +16255,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
     }
 
     SetMap(map);
+    StoreRaidMapDifficulty();
 
     // randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
     // this must help in case next save after mass player load after server startup
@@ -17293,7 +17297,7 @@ void Player::_LoadBoundInstances(QueryResult_AutoPtr result)
 InstancePlayerBind* Player::GetBoundInstance(uint32 mapid, Difficulty difficulty)
 {
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetMapDifficultyData(mapid,difficulty);
+    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(mapid,difficulty);
     if (!mapDiff)
         return NULL;
 
@@ -17489,7 +17493,7 @@ void Player::ConvertInstancesToGroup(Player *player, Group *group, uint64 player
         CharacterDatabase.PExecute("DELETE FROM character_instance WHERE guid = '%d' AND permanent = 0", GUID_LOPART(player_guid));
 }
 
-bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report)
+bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report)
 {
     if (!isGameMaster() && ar)
     {
@@ -17504,8 +17508,6 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
         {
             if (ar->levelMin && getLevel() < ar->levelMin)
                 LevelMin = ar->levelMin;
-            if (mapEntry->IsNonRaidDungeon() && ar->heroicLevelMin && GetDungeonDifficulty() == DUNGEON_DIFFICULTY_HEROIC && getLevel() < ar->heroicLevelMin)
-                LevelMin = ar->heroicLevelMin;
             if (ar->levelMax && getLevel() > ar->levelMax)
                 LevelMax = ar->levelMax;
         }
@@ -17530,39 +17532,28 @@ bool Player::Satisfy(AccessRequirement const *ar, uint32 target_map, bool report
             ? (GetRaidDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
             : (GetDungeonDifficulty() == DUNGEON_DIFFICULTY_NORMAL);
 
-        uint32 missingKey = 0;
-        uint32 missingHeroicQuest = 0;
-        if (!isNormalTargetMap)
-        {
-            if (ar->heroicKey)
-            {
-                if (!HasItemCount(ar->heroicKey, 1) &&
-                    (!ar->heroicKey2 || !HasItemCount(ar->heroicKey2, 1)))
-                    missingKey = ar->heroicKey;
-            }
-            else if (ar->heroicKey2 && !HasItemCount(ar->heroicKey2, 1))
-                missingKey = ar->heroicKey2;
-
-            if (ar->heroicQuest && !GetQuestRewardStatus(ar->heroicQuest))
-                missingHeroicQuest = ar->heroicQuest;
-        }
-
         uint32 missingQuest = 0;
-        if (ar->quest && !GetQuestRewardStatus(ar->quest))
-            missingQuest = ar->quest;
+        if (GetTeam() == ALLIANCE && ar->quest_A && !GetQuestRewardStatus(ar->quest_A))
+            missingQuest = ar->quest_A;
+        else if (GetTeam() == HORDE && ar->quest_H && !GetQuestRewardStatus(ar->quest_H))
+            missingQuest = ar->quest_H;
 
-        if (LevelMin || LevelMax || missingItem || missingKey || missingQuest || missingHeroicQuest)
+        uint32 missingAchievement = 0;
+        if (ar->achievement && !GetAchievementMgr().HasAchieved(sAchievementStore.LookupEntry(ar->achievement)))
+            missingAchievement = ar->achievement;
+
+        Difficulty target_difficulty = GetDifficulty(mapEntry->IsRaid());
+        MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
+        if (LevelMin || LevelMax || missingItem || missingQuest || missingAchievement)
         {
             if (report)
             {
-                if (missingItem)
+                if (missingQuest && !ar->questFailedText.empty())
+                    ChatHandler(GetSession()).PSendSysMessage(ar->questFailedText.c_str());
+                else if (mapDiff->hasErrorMessage) // if (missingAchievement) covered by this case
+                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, target_difficulty);
+                else if (missingItem)
                     GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED_AND_ITEM), LevelMin, objmgr.GetItemPrototype(missingItem)->Name1);
-                else if (missingKey)
-                    SendTransferAborted(target_map, TRANSFER_ABORT_DIFFICULTY, isNormalTargetMap ? DUNGEON_DIFFICULTY_NORMAL : DUNGEON_DIFFICULTY_HEROIC);
-                else if (missingHeroicQuest)
-                    GetSession()->SendAreaTriggerMessage(ar->heroicQuestFailedText.c_str());
-                else if (missingQuest)
-                    GetSession()->SendAreaTriggerMessage(ar->questFailedText.c_str());
                 else if (LevelMin)
                     GetSession()->SendAreaTriggerMessage(GetSession()->GetTrinityString(LANG_LEVEL_MINREQUIRED), LevelMin);
             }
@@ -17672,7 +17663,7 @@ void Player::SaveToDB()
 
     std::ostringstream ss;
     ss << "REPLACE INTO characters (guid,account,name,race,class,gender,level,xp,money,playerBytes,playerBytes2,playerFlags,"
-        "map, instance_id, dungeon_difficulty, position_x, position_y, position_z, orientation, "
+        "map, instance_id, instance_mode_mask, position_x, position_y, position_z, orientation, "
         "taximask, online, cinematic, "
         "totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, "
         "trans_x, trans_y, trans_z, trans_o, transguid, extra_flags, stable_slots, at_login, zone, "
@@ -17696,7 +17687,7 @@ void Player::SaveToDB()
     {
         ss << GetMapId() << ", "
         << (uint32)GetInstanceId() << ", "
-        << (uint32)GetDungeonDifficulty() << ", "
+        << uint32(uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4) << ", "
         << finiteAlways(GetPositionX()) << ", "
         << finiteAlways(GetPositionY()) << ", "
         << finiteAlways(GetPositionZ()) << ", "
@@ -17706,7 +17697,7 @@ void Player::SaveToDB()
     {
         ss << GetTeleportDest().GetMapId() << ", "
         << (uint32)0 << ", "
-        << (uint32)GetDungeonDifficulty() << ", "
+        << uint32(uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4) << ", "
         << finiteAlways(GetTeleportDest().GetPositionX()) << ", "
         << finiteAlways(GetTeleportDest().GetPositionY()) << ", "
         << finiteAlways(GetTeleportDest().GetPositionZ()) << ", "
@@ -18387,11 +18378,11 @@ void Player::SendDungeonDifficulty(bool IsInGroup)
     GetSession()->SendPacket(&data);
 }
 
-void Player::SendRaidDifficulty(bool IsInGroup)
+void Player::SendRaidDifficulty(bool IsInGroup, int32 forcedDifficulty)
 {
     uint8 val = 0x00000001;
     WorldPacket data(MSG_SET_RAID_DIFFICULTY, 12);
-    data << uint32(GetRaidDifficulty());
+    data << uint32(forcedDifficulty == -1 ? GetRaidDifficulty() : forcedDifficulty);
     data << uint32(val);
     data << uint32(IsInGroup);
     GetSession()->SendPacket(&data);
@@ -21005,6 +20996,18 @@ void Player::SendInitialPacketsAfterAddToMap()
     SendAurasForTarget(this);
     SendEnchantmentDurations();                             // must be after add to map
     SendItemDurations();                                    // must be after add to map
+
+    // raid downscaling - send difficulty to player
+    if (GetMap()->IsRaid())
+    {
+        if (GetMap()->GetDifficulty() != GetRaidDifficulty())
+        {
+            StoreRaidMapDifficulty();
+            SendRaidDifficulty(GetGroup() != NULL, GetStoredRaidDifficulty());
+        }
+    }
+    else if (GetRaidDifficulty() != GetStoredRaidDifficulty())
+        SendRaidDifficulty(GetGroup() != NULL);
 }
 
 void Player::SendUpdateToOutOfRangeGroupMembers()

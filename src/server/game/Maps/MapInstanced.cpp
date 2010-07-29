@@ -200,9 +200,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
     }
 
     // some instances only have one difficulty
-    MapDifficulty const* mapDiff = GetMapDifficultyData(GetId(),difficulty);
-    if (!mapDiff)
-        difficulty = DUNGEON_DIFFICULTY_NORMAL;
+    MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(GetId(),difficulty);
 
     sLog.outDebug("MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
