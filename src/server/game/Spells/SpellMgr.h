@@ -398,6 +398,16 @@ inline bool IsAreaOfEffectSpell(SpellEntry const *spellInfo)
     return false;
 }
 
+inline bool IsFarUnitTargetEffect(uint32 effect)
+{
+    return (effect == SPELL_EFFECT_SUMMON_PLAYER);
+}
+
+inline bool IsFarDestTargetEffect(uint32 effect)
+{
+    return (effect == SPELL_EFFECT_TELEPORT_UNITS);
+}
+
 inline bool IsAreaAuraEffect(uint32 effect)
 {
     if (effect == SPELL_EFFECT_APPLY_AREA_AURA_PARTY    ||
