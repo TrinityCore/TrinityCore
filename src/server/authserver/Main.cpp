@@ -165,8 +165,8 @@ extern int main(int argc, char **argv)
 
     if (!sConfig.SetSource(cfg_file))
     {
-        sLog.outError("\x1b[31mInvalid or missing configuration file :\x1b[0m %s", cfg_file);
-        sLog.outError("\x1b[31mVerify that the file exists and has \'\x1b[0m[authserver]\x1b[31m\' written in the top of the file!\x1b[0m");
+        sLog.outError("Invalid or missing configuration file : %s", cfg_file);
+        sLog.outError("Verify that the file exists and has \'[authserver]\' written in the top of the file!");
         return 1;
     }
     sLog.Initialize();
