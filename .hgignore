@@ -9,6 +9,7 @@ bin/
 *.rej
 *~
 .git/
+VC90/*/
 win/VC90/*/
 src/tools/bin/*/
 src/tools/map_extractor/VC90/*/
