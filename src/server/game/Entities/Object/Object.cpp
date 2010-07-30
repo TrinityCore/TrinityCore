@@ -769,6 +769,24 @@ bool Object::LoadValues(const char* data)
     return true;
 }
 
+void Object::_LoadIntoDataField(const char* data, uint32 startOffset, uint32 count)
+{
+    if (!data)
+        return;
+
+    Tokens tokens = StrSplit(data, " ");
+
+    if (tokens.size() != count)
+        return;
+
+    Tokens::iterator iter;
+    uint32 index;
+    for (iter = tokens.begin(), index = 0; index < count; ++iter, ++index)
+    {
+        m_uint32Values[startOffset + index] = atol((*iter).c_str());
+    }
+}
+
 void Object::_SetUpdateBits(UpdateMask *updateMask, Player* /*target*/) const
 {
     uint32 *value = m_uint32Values;
