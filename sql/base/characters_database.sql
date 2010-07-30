@@ -1211,7 +1211,13 @@ CREATE TABLE `corpse` (
   `zone` int(11) unsigned NOT NULL default '38' COMMENT 'Zone Identifier',
   `map` int(11) unsigned NOT NULL default '0' COMMENT 'Map Identifier',
   `phaseMask` smallint(5) unsigned NOT NULL default '1',
-  `data` longtext,
+  `displayId` int(10) unsigned NOT NULL default '0',
+  `itemCache` text NOT NULL AFTER `displayId`,
+  `bytes1` int(10) unsigned NOT NULL default '0',
+  `bytes2` int(10) unsigned NOT NULL default '0',
+  `guild` int(10) unsigned NOT NULL default '0',
+  `flags` int(10) unsigned NOT NULL default '0',
+  `dynFlags` int(10) unsigned NOT NULL default '0',
   `time` bigint(20) unsigned NOT NULL default '0',
   `corpse_type` tinyint(3) unsigned NOT NULL default '0',
   `instance` int(11) unsigned NOT NULL default '0',
@@ -1720,7 +1726,7 @@ CREATE TABLE `item_instance` (
   `enchantments` text NOT NULL,
   `randomPropertyId` int(11) NOT NULL default '0',
   `durability` int(10) unsigned NOT NULL default '0',
-  `playedTime` int(10) unsigned NOT NULL default '0';
+  `playedTime` int(10) unsigned NOT NULL default '0',
   `text` longtext,
   PRIMARY KEY  (`guid`),
   KEY `idx_owner_guid` (`owner_guid`)
