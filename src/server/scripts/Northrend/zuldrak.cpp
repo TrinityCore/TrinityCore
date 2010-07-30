@@ -389,7 +389,7 @@ struct npc_gurgthockAI : public ScriptedAI
 
         if (uiPhase)
         {
-            Player* pPlayer = me->GetPlayer(uiPlayerGUID);
+            Player* pPlayer = me->GetPlayer(*me, uiPlayerGUID);
 
             if (uiTimer <= uiDiff)
             {

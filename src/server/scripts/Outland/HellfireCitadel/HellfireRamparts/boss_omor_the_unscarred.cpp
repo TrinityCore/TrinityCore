@@ -123,7 +123,7 @@ struct boss_omor_the_unscarredAI : public ScriptedAI
         {
             if (ShadowWhip_Timer <= diff)
             {
-                if (Player* temp = Unit::GetPlayer(PlayerGUID))
+                if (Player* temp = Unit::GetPlayer(*me, PlayerGUID))
                 {
                     //if unit dosen't have this flag, then no pulling back (script will attempt cast, even if orbital strike was resisted)
                     if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))

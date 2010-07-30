@@ -92,7 +92,7 @@ struct npc_crusade_persuadedAI : public ScriptedAI
         {
             if (uiSpeech_timer <= diff)
             {
-                Player* pPlayer = Unit::GetPlayer(uiPlayerGUID);
+                Player* pPlayer = Unit::GetPlayer(*me, uiPlayerGUID);
                 if (!pPlayer)
                 {
                     EnterEvadeMode();
@@ -634,7 +634,7 @@ struct npc_a_special_surpriseAI : public ScriptedAI
         {
             if (ExecuteSpeech_Timer <= diff)
             {
-                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
                 if (!pPlayer)
                 {

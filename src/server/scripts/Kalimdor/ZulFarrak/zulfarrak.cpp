@@ -101,7 +101,7 @@ struct npc_sergeant_blyAI : public ScriptedAI
                         break;
                     case 3:
                         me->setFaction(FACTION_HOSTILE);
-                        if (Player* pTarget = Player::GetPlayer(PlayerGUID))
+                        if (Player* pTarget = Player::GetPlayer(*me, PlayerGUID))
                             AttackStart(pTarget);
 
                         if (pInstance)

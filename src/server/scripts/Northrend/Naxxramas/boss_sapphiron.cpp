@@ -203,7 +203,7 @@ struct boss_sapphironAI : public BossAI
     {
         for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
         {
-            if (Player* pPlayer = Unit::GetPlayer(itr->first))
+            if (Player* pPlayer = Unit::GetPlayer(*me, itr->first))
                 pPlayer->RemoveAura(SPELL_ICEBOLT);
             if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
                 pGo->Delete();

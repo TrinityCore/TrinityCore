@@ -291,7 +291,7 @@ public:
         if (!PlayerGUID)
             return;
 
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
         if (pPlayer && pPlayer->GetQuestStatus(10965) == QUEST_STATUS_INCOMPLETE)
         {
             pPlayer->FailQuest(10965);
@@ -302,7 +302,7 @@ public:
 
     void EnterEvadeMode()
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
         if (pPlayer && pPlayer->isInCombat() && pPlayer->getAttackerForHelper())
         {
             AttackStart(pPlayer->getAttackerForHelper());
@@ -351,7 +351,7 @@ public:
         {
             if (checkPlayer_Timer <= diff)
             {
-                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
                 if (pPlayer && pPlayer->isInCombat() && pPlayer->getAttackerForHelper())
                     AttackStart(pPlayer->getAttackerForHelper());
                 checkPlayer_Timer = 1000;
@@ -361,7 +361,7 @@ public:
         if (Event_onWait && Event_Timer <= diff)
         {
 
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
             if (!pPlayer || (pPlayer && pPlayer->GetQuestStatus(10965) == QUEST_STATUS_NONE))
             {
                 me->setDeathState(JUST_DIED);

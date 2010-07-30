@@ -125,7 +125,7 @@ struct npc_draenei_survivorAI : public ScriptedAI
             {
                 me->RemoveAurasDueToSpell(SPELL_IRRIDATION);
 
-                if (Player* pPlayer = Unit::GetPlayer(pCaster))
+                if (Player* pPlayer = Unit::GetPlayer(*me, pCaster))
                 {
                     DoScriptText(RAND(SAY_HEAL1, SAY_HEAL2, SAY_HEAL3, SAY_HEAL4), me, pPlayer);
 

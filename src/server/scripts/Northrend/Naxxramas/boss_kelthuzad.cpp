@@ -286,7 +286,7 @@ struct boss_kelthuzadAI : public BossAI
         std::map<uint64, float>::const_iterator itr;
         for (itr = chained.begin(); itr != chained.end(); ++itr)
         {
-            if (Player* charmed = Unit::GetPlayer((*itr).first))
+            if (Player* charmed = Unit::GetPlayer(*me, (*itr).first))
                 charmed->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
         }
 
@@ -331,7 +331,7 @@ struct boss_kelthuzadAI : public BossAI
         std::map<uint64, float>::const_iterator itr;
         for (itr = chained.begin(); itr != chained.end(); ++itr)
         {
-            if (Player* pPlayer = Unit::GetPlayer((*itr).first))
+            if (Player* pPlayer = Unit::GetPlayer(*me, (*itr).first))
                 pPlayer->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
         }
         chained.clear();
@@ -511,7 +511,7 @@ struct boss_kelthuzadAI : public BossAI
                         std::map<uint64, float>::iterator itr;
                         for (itr = chained.begin(); itr != chained.end();)
                         {
-                            if (Unit* player = Unit::GetPlayer((*itr).first))
+                            if (Unit* player = Unit::GetPlayer(*me, (*itr).first))
                             {
                                 if (!player->isCharmed())
                                 {

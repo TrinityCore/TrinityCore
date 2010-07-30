@@ -500,7 +500,7 @@ struct npc_anachronos_the_ancientAI : public ScriptedAI
 
     void HandleAnimation()
     {
-        Player* plr = Unit::GetPlayer(PlayerGUID);
+        Player* plr = Unit::GetPlayer(*me, PlayerGUID);
         if (!plr)
             return;
 
@@ -960,7 +960,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
 
     void CheckEventFail()
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
         if (!pPlayer)
             return;
@@ -977,7 +977,7 @@ struct npc_anachronos_quest_triggerAI : public ScriptedAI
 
             for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
             {
-                GroupMember = (Unit::GetPlayer(itr->guid));
+                GroupMember = (Unit::GetPlayer(*me, itr->guid));
                 if (!GroupMember)
                     continue;
                 if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_A_PAWN_ON_THE_ETERNAL_BOARD) == QUEST_STATUS_INCOMPLETE)
