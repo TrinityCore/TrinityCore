@@ -11,12 +11,18 @@ ALTER TABLE `item_instance`
  ADD `durability` int(10) unsigned NOT NULL default '0' AFTER `randomPropertyId`,
  ADD `playedTime` int(10) unsigned NOT NULL default '0' AFTER `durability`;
 
+-- Temporarily change delimiter to prevent SQL syntax errors
+DELIMITER ||
+
 -- Function to convert ints from unsigned to signed
 DROP FUNCTION IF EXISTS `uint32toint32`;
 CREATE FUNCTION `uint32toint32`(input INT(10) UNSIGNED) RETURNS INT(11) SIGNED DETERMINISTIC
 BEGIN
   RETURN input;
-END;
+END||
+
+-- Restore original delimiter
+DELIMITER ;
 
 -- Move data to new fields
 UPDATE `item_instance` SET
