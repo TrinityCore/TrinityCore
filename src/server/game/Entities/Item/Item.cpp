@@ -334,8 +334,8 @@ void Item::SaveToDB()
 
             ss << "'," << GetItemRandomPropertyId() << ",";
             ss << GetUInt32Value(ITEM_FIELD_DURABILITY) << ",";
-            ss << GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) << ",";
-            ss << ",'" << text << "')";
+            ss << GetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME) << ",'";
+            ss << text << "')";
 
             CharacterDatabase.Execute(ss.str().c_str());
         }break;
