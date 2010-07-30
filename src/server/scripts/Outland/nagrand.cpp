@@ -779,7 +779,7 @@ struct mob_sparrowhawkAI : public ScriptedAI
                 if (fleeing && me->GetMotionMaster()->GetCurrentMovementGeneratorType() != FLEEING_MOTION_TYPE)
                     fleeing = false;
 
-                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
                 if (pPlayer && me->IsWithinDistInMap(pPlayer, 30))
                 {
                     if (!fleeing)

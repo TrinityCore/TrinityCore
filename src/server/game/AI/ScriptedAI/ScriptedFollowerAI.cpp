@@ -309,7 +309,7 @@ void FollowerAI::StartFollow(Player* pLeader, uint32 uiFactionForFollower, const
 
 Player* FollowerAI::GetLeaderForFollower()
 {
-    if (Player* pLeader = Unit::GetPlayer(m_uiLeaderGUID))
+    if (Player* pLeader = Unit::GetPlayer(*me, m_uiLeaderGUID))
     {
         if (pLeader->isAlive())
             return pLeader;

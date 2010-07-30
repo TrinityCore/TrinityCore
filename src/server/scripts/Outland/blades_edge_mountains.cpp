@@ -446,7 +446,7 @@ struct npc_ogre_bruteAI : public ScriptedAI
 
     void MovementInform(uint32 /*type*/, uint32 id)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
         if (id == 1)
         {
             GameObject* Keg = me->FindNearestGameObject(GO_KEG, 20);

@@ -401,7 +401,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
     {
         Creature *ardonis = Unit::GetCreature(*me,ardonisGUID);
         Creature *pathaleon = Unit::GetCreature(*me,pathaleonGUID);
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
         if (!ardonis || !pathaleon || !pPlayer)
             return;
@@ -427,7 +427,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
     {
         if (Unit *ardonis = Unit::GetUnit(*me,ardonisGUID))
         {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
             if (!pPlayer)
                 return;
@@ -484,7 +484,7 @@ struct npc_commander_dawnforgeAI : public ScriptedAI
 
         Unit *ardonis = Unit::GetUnit(*me,ardonisGUID);
         Unit *pathaleon = Unit::GetUnit(*me,pathaleonGUID);
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
         if (!ardonis || !pPlayer)
         {
@@ -767,7 +767,7 @@ struct mob_phase_hunterAI : public ScriptedAI
                 ManaBurnTimer = 3500;
         } else ManaBurnTimer -= diff;
 
-        if (Player *pPlayer = Unit::GetPlayer(PlayerGUID)) // start: support for quest 10190
+        if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID)) // start: support for quest 10190
         {
             if (!Weak && me->GetHealth() < (me->GetMaxHealth() / 100 * WeakPercent)
                 && pPlayer->GetQuestStatus(QUEST_RECHARGING_THE_BATTERIES) == QUEST_STATUS_INCOMPLETE)

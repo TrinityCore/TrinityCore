@@ -1651,6 +1651,9 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit * caster)
 DynObjAura::DynObjAura(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
     : Aura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID)
 {
+    ASSERT(GetDynobjOwner());
+    ASSERT(GetDynobjOwner()->IsInWorld());
+    ASSERT(GetDynobjOwner()->GetMap() == caster->GetMap());
     GetDynobjOwner()->SetAura(this);
 }
 

@@ -156,7 +156,7 @@ struct npc_kyle_frenziedAI : public ScriptedAI
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
                         break;
                     case 3:
-                        if (Player* pUnit = Unit::GetPlayer(uiPlayerGUID))
+                        if (Player* pUnit = Unit::GetPlayer(*me, uiPlayerGUID))
                             pUnit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
                         me->UpdateEntry(NPC_KYLE_FRIENDLY);
