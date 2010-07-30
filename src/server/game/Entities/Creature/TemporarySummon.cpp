@@ -168,7 +168,7 @@ void TempSummon::Update(uint32 diff)
 
 void TempSummon::InitStats(uint32 duration)
 {
-    assert(!isPet());
+    ASSERT(!isPet());
 
     m_timer = duration;
     m_lifetime = duration;
@@ -228,11 +228,11 @@ void TempSummon::SetTempSummonType(TempSummonType type)
 
 void TempSummon::UnSummon()
 {
-    //assert(!isPet());
+    //ASSERT(!isPet());
     if (isPet())
     {
         ((Pet*)this)->Remove(PET_SAVE_NOT_IN_SLOT);
-        assert(!IsInWorld());
+        ASSERT(!IsInWorld());
         return;
     }
 
@@ -267,7 +267,7 @@ void TempSummon::SaveToDB()
 Minion::Minion(SummonPropertiesEntry const *properties, Unit *owner) : TempSummon(properties, owner)
 , m_owner(owner)
 {
-    assert(m_owner);
+    ASSERT(m_owner);
     m_unitTypeMask |= UNIT_MASK_MINION;
     m_followAngle = PET_FOLLOW_ANGLE;
 }
@@ -333,7 +333,7 @@ void Guardian::InitSummon()
 
 Puppet::Puppet(SummonPropertiesEntry const *properties, Unit *owner) : Minion(properties, owner)
 {
-    assert(owner->GetTypeId() == TYPEID_PLAYER);
+    ASSERT(owner->GetTypeId() == TYPEID_PLAYER);
     m_owner = (Player*)owner;
     m_unitTypeMask |= UNIT_MASK_PUPPET;
 }
@@ -349,7 +349,7 @@ void Puppet::InitSummon()
 {
     Minion::InitSummon();
     if (!SetCharmedBy(m_owner, CHARM_TYPE_POSSESS))
-        assert(false);
+        ASSERT(false);
 }
 
 void Puppet::Update(uint32 time)

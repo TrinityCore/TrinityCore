@@ -358,7 +358,7 @@ void LFGMgr::Join(Player *plr)
 void LFGMgr::Leave(Player *plr, Group *grp /* = NULL*/)
 {
     uint64 guid = grp ? grp->GetGUID() : plr ? plr->GetGUID() : 0;
-    assert(guid);
+    ASSERT(guid);
 
     // Check if player was in a rolecheck
     if (grp)
@@ -405,7 +405,7 @@ void LFGMgr::Leave(Player *plr, Group *grp /* = NULL*/)
 /// <param name="plr">Player</param>
 void LFGMgr::UpdateRoleCheck(Group *grp, Player *plr /* = NULL*/)
 {
-    assert(grp);
+    ASSERT(grp);
 
     uint32 rolecheckId = GUID_LOPART(grp->GetGUID());
     LfgRoleCheck *pRoleCheck = NULL;
@@ -685,7 +685,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag /*= true
 /// <param name="status">Player status in LFG system</param>
 void LFGMgr::BuildLfgRoleCheck(WorldPacket &data, LfgRoleCheck *pRoleCheck)
 {
-    assert(pRoleCheck);
+    ASSERT(pRoleCheck);
 
     Player *plr;
     uint8 roles;
@@ -818,7 +818,7 @@ void LFGMgr::BuildRewardBlock(WorldPacket &data, uint32 dungeon, Player *plr)
 /// <param name="lock">lock status map</param>
 void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *lockMap)
 {
-    assert(lockMap);
+    ASSERT(lockMap);
 
     data << uint8(lockMap->size());
 
@@ -845,7 +845,7 @@ void LFGMgr::BuildPartyLockDungeonBlock(WorldPacket &data, LfgLockStatusMap *loc
 /// <param name="lock">lock status list</param>
 void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lockSet)
 {
-    assert(lockSet);
+    ASSERT(lockSet);
     data << uint32(lockSet->size());                        // Size of lock dungeons
     for (LfgLockStatusSet::iterator it = lockSet->begin(); it != lockSet->end(); ++it)
     {
@@ -873,8 +873,8 @@ void LFGMgr::BuildPlayerLockDungeonBlock(WorldPacket &data, LfgLockStatusSet *lo
 /// <returns>LfgLockStatusMap*</returns>
 LfgLockStatusMap* LFGMgr::GetPartyLockStatusDungeons(Player *plr, LfgDungeonSet *dungeons)
 {
-    assert(plr);
-    assert(dungeons);
+    ASSERT(plr);
+    ASSERT(dungeons);
     Group *grp = plr->GetGroup();
     if (!grp)
         return NULL;
@@ -919,7 +919,7 @@ LfgLockStatusSet* LFGMgr::GetPlayerLockStatusDungeons(Player *plr, LfgDungeonSet
     for (LfgDungeonSet::const_iterator it = dungeons->begin(); it != dungeons->end(); ++it)
     {
         dungeon = sLFGDungeonStore.LookupEntry(*it);
-        assert(dungeon); // Will never happen - We provide a list from sLFGDungeonStore
+        ASSERT(dungeon); // Will never happen - We provide a list from sLFGDungeonStore
 
         locktype = LFG_LOCKSTATUS_OK;
         if (dungeon->expansion > expansion)

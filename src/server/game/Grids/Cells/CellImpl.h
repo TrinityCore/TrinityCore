@@ -112,7 +112,7 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
         }
         default:
         {
-            assert(false);
+            ASSERT(false);
             break;
         }
     }

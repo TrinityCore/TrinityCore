@@ -40,7 +40,7 @@ class DynamicObject : public WorldObject, public GridObject<DynamicObject>
         void Delete();
         void SetDuration(int32 newDuration);
         int32 GetDuration() const;
-        void SetAura(Aura * aura) {assert (!m_aura && aura); m_aura = aura;}
+        void SetAura(Aura * aura) {ASSERT (!m_aura && aura); m_aura = aura;}
         void Delay(int32 delaytime);
         uint32 GetSpellId() const {  return GetUInt32Value(DYNAMICOBJECT_SPELLID); }
         uint64 GetCasterGUID() const { return GetUInt64Value(DYNAMICOBJECT_CASTER); }

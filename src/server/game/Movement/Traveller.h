@@ -50,7 +50,7 @@ struct Traveller
     float GetPositionZ() const { return i_traveller.GetPositionZ(); }
     T& GetTraveller(void) { return i_traveller; }
 
-    float Speed(void) { assert(false); return 0.0f; }
+    float Speed(void) { ASSERT(false); return 0.0f; }
     float GetMoveDestinationTo(float x, float y, float z);
     uint32 GetTotalTrevelTimeTo(float x, float y, float z);
 

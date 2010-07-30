@@ -2540,7 +2540,7 @@ void Spell::EffectApplyAura(uint32 i)
 {
     if (!m_spellAura || !unitTarget)
         return;
-    assert(unitTarget == m_spellAura->GetOwner());
+    ASSERT(unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(i);
 }
 
@@ -2548,7 +2548,7 @@ void Spell::EffectApplyAreaAura(uint32 i)
 {
     if (!m_spellAura || !unitTarget)
         return;
-    assert (unitTarget == m_spellAura->GetOwner());
+    ASSERT (unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(i);
 }
 
@@ -3067,12 +3067,12 @@ void Spell::EffectPersistentAA(uint32 i)
             m_spellAura = aura;
         else
         {
-            assert(false);
+            ASSERT(false);
             return;
         }
         m_spellAura->_RegisterForTargets();
     }
-    assert(m_spellAura->GetDynobjOwner());
+    ASSERT(m_spellAura->GetDynobjOwner());
     m_spellAura->_ApplyEffectForTargets(i);
 }
 
@@ -4265,7 +4265,7 @@ void Spell::EffectSummonPet(uint32 i)
             if (OldSummon->isDead())
                 return;
 
-            assert(OldSummon->GetMap() == owner->GetMap());
+            ASSERT(OldSummon->GetMap() == owner->GetMap());
 
             //OldSummon->GetMap()->Remove(OldSummon->ToCreature(),false);
 

@@ -89,7 +89,7 @@ WorldObject::~WorldObject()
         if (GetTypeId() == TYPEID_CORPSE)
         {
             sLog.outCrash("Object::~Object Corpse guid="UI64FMTD", type=%d, entry=%u deleted but still in map!!", GetGUID(), ((Corpse*)this)->GetType(), GetEntry());
-            assert(false);
+            ASSERT(false);
         }
         ResetMap();
     }
@@ -102,14 +102,14 @@ Object::~Object()
         sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
         if (isType(TYPEMASK_ITEM))
             sLog.outCrash("Item slot %u", ((Item*)this)->GetSlot());
-        assert(false);
+        ASSERT(false);
         RemoveFromWorld();
     }
 
     if (m_objectUpdated)
     {
         sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
-        assert(false);
+        ASSERT(false);
         sObjectAccessor.RemoveUpdateObject(this);
     }
 
@@ -743,7 +743,7 @@ void Object::BuildFieldsUpdate(Player *pl, UpdateDataMapType &data_map) const
     if (iter == data_map.end())
     {
         std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(pl, UpdateData()));
-        assert(p.second);
+        ASSERT(p.second);
         iter = p.first;
     }
 
@@ -1131,7 +1131,7 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 {
     sLog.outError("Attempt %s non-existed value field: %u (count: %u) for object typeid: %u type mask: %u",(set ? "set value to" : "get value from"),index,m_valuesCount,GetTypeId(),m_objectType);
 
-    // assert must fail after function call
+    // ASSERT must fail after function call
     return false;
 }
 
@@ -1683,7 +1683,7 @@ void WorldObject::SetMap(Map * map)
     if (m_currMap)
     {
         sLog.outCrash("WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
-        assert(false);
+        ASSERT(false);
     }
     m_currMap = map;
     m_mapId = map->GetId();
@@ -1712,7 +1712,7 @@ Map const* WorldObject::GetBaseMap() const
 
 void WorldObject::AddObjectToRemoveList()
 {
-    assert(m_uint32Values);
+    ASSERT(m_uint32Values);
 
     Map* map = FindMap();
     if (!map)
