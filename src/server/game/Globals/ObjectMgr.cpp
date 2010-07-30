@@ -6697,8 +6697,8 @@ uint32 ObjectMgr::GeneratePetNumber()
 void ObjectMgr::LoadCorpses()
 {
     uint32 count = 0;
-    //                                                               0           1           2            3        4    5     6         7          8          9       10
-    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, data, time, corpse_type, instance, phaseMask, guid FROM corpse WHERE corpse_type <> 0");
+    //                                                                    0           1           2            3    4          5          6       7       8      9     10        11    12           13        14         15    16      17
+    QueryResult_AutoPtr result = CharacterDatabase.Query("SELECT position_x, position_y, position_z, orientation, map, displayId, itemCache, bytes1, bytes2, guild, flags, dynFlags, time, corpse_type, instance, phaseMask, guid, player FROM corpse WHERE corpse_type <> 0");
 
     if (!result)
     {
@@ -6719,10 +6719,10 @@ void ObjectMgr::LoadCorpses()
 
         Field *fields = result->Fetch();
 
-        uint32 guid = fields[result->GetFieldCount()-1].GetUInt32();
+        uint32 guid = fields[16].GetUInt32();
 
         Corpse *corpse = new Corpse;
-        if (!corpse->LoadFromDB(guid,fields))
+        if (!corpse->LoadFromDB(guid, fields))
         {
             delete corpse;
             continue;

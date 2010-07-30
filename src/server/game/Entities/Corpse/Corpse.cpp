@@ -109,7 +109,7 @@ void Corpse::SaveToDB()
     DeleteFromDB();
 
     std::ostringstream ss;
-    ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,data,time,corpse_type,instance,phaseMask) VALUES ("
+    ss  << "INSERT INTO corpse (guid,player,position_x,position_y,position_z,orientation,zone,map,displayId,itemCache,bytes1,bytes2,guild,flags,dynFlags,time,corpse_type,instance,phaseMask) VALUES ("
         << GetGUIDLow() << ", "
         << GUID_LOPART(GetOwnerGUID()) << ", "
         << GetPositionX() << ", "
@@ -117,11 +117,17 @@ void Corpse::SaveToDB()
         << GetPositionZ() << ", "
         << GetOrientation() << ", "
         << GetZoneId() << ", "
-        << GetMapId() << ", '";
-    for (uint16 i = 0; i < m_valuesCount; ++i)
-        ss << GetUInt32Value(i) << " ";
-    ss  << "',"
-        << uint64(m_time) <<", "
+        << GetMapId() << ", "
+        << GetUInt32Value(CORPSE_FIELD_DISPLAY_ID) << ", '";
+    for (uint16 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+        ss << GetUInt32Value(CORPSE_FIELD_ITEM+i) << " ";
+    ss  << "', "
+        << GetUInt32Value(CORPSE_FIELD_BYTES_1) << ", "
+        << GetUInt32Value(CORPSE_FIELD_BYTES_2) << ", "
+        << GetUInt32Value(CORPSE_FIELD_GUILD) << ", "
+        << GetUInt32Value(CORPSE_FIELD_FLAGS) << ", "
+        << GetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS) << ", "
+        << uint64(m_time) << ", "
         << uint32(GetType()) << ", "
         << int(GetInstanceId()) << ", "
         << uint16(GetPhaseMask()) << ")";           // prevent out of range error
@@ -153,38 +159,10 @@ void Corpse::DeleteFromDB()
         CharacterDatabase.PExecute("DELETE FROM corpse WHERE player = '%d' AND corpse_type <> '0'",  GUID_LOPART(GetOwnerGUID()));
 }
 
-/*
-bool Corpse::LoadFromDB(uint32 guid, QueryResult *result, uint32 InstanceId)
-{
-    bool external = (result != NULL);
-    if (!external)
-        //                                        0          1          2          3           4   5    6    7           8        9
-        result = CharacterDatabase.PQuery("SELECT position_x,position_y,position_z,orientation,map,data,time,corpse_type,instance,phaseMask FROM corpse WHERE guid = '%u'",guid);
-
-    if (!result)
-    {
-        sLog.outError("Corpse (GUID: %u) not found in table `corpse`, can't load. ",guid);
-        return false;
-    }
-
-    Field *fields = result->Fetch();
-
-    if (!LoadFromDB(guid, fields))
-    {
-        if (!external)
-            delete result;
-
-        return false;
-    }
-
-    if (!external)
-        delete result;
-
-    return true;
-}*/
-
 bool Corpse::LoadFromDB(uint32 guid, Field *fields)
 {
+    //                0           1           2            3    4          5          6       7       8      9     10        11    12           13        14         15    16      17
+    //SELECT position_x, position_y, position_z, orientation, map, displayId, itemCache, bytes1, bytes2, guild, flags, dynFlags, time, corpse_type, instance, phaseMask, guid, player FROM corpse WHERE corpse_type <> 0
     float positionX = fields[0].GetFloat();
     float positionY = fields[1].GetFloat();
     float positionZ = fields[2].GetFloat();
@@ -193,14 +171,17 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
 
     Object::_Create(guid, 0, HIGHGUID_CORPSE);
 
-    if (!LoadValues(fields[5].GetString()))
-    {
-        sLog.outError("Corpse #%d have broken data in `data` field. Can't be loaded.",guid);
-        return false;
-    }
+    SetUInt32Value(CORPSE_FIELD_DISPLAY_ID, fields[5].GetUInt32());
+    _LoadIntoDataField(fields[6].GetString(), CORPSE_FIELD_ITEM, EQUIPMENT_SLOT_END);
+    SetUInt32Value(CORPSE_FIELD_BYTES_1, fields[7].GetUInt32());
+    SetUInt32Value(CORPSE_FIELD_BYTES_2, fields[8].GetUInt32());
+    SetUInt32Value(CORPSE_FIELD_GUILD, fields[9].GetUInt32());
+    SetUInt32Value(CORPSE_FIELD_FLAGS, fields[10].GetUInt32());
+    SetUInt32Value(CORPSE_FIELD_DYNAMIC_FLAGS, fields[11].GetUInt32());
+    SetUInt64Value(CORPSE_FIELD_OWNER, MAKE_NEW_GUID(fields[17].GetUInt32(), 0, HIGHGUID_PLAYER));
 
-    m_time = time_t(fields[6].GetUInt64());
-    m_type = CorpseType(fields[7].GetUInt32());
+    m_time = time_t(fields[12].GetUInt64());
+    m_type = CorpseType(fields[13].GetUInt32());
 
     if (m_type >= MAX_CORPSE_TYPE)
     {
@@ -211,12 +192,8 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     if (m_type != CORPSE_BONES)
         m_isWorldObject = true;
 
-    uint32 instanceid  = fields[8].GetUInt32();
-
-    uint32 phaseMask   = fields[9].GetUInt32();
-
-    // overwrite possible wrong/corrupted guid
-    SetUInt64Value(OBJECT_FIELD_GUID, MAKE_NEW_GUID(guid, 0, HIGHGUID_CORPSE));
+    uint32 instanceid  = fields[14].GetUInt32();
+    uint32 phaseMask   = fields[15].GetUInt32();
 
     // place
     SetLocationInstanceId(instanceid);
@@ -232,7 +209,6 @@ bool Corpse::LoadFromDB(uint32 guid, Field *fields)
     }
 
     m_grid = Trinity::ComputeGridPair(GetPositionX(), GetPositionY());
-
     return true;
 }
 
