@@ -369,7 +369,7 @@ struct boss_kalecgosAI : public ScriptedAI
                 {
                     Player* pPlayer = itr->getSource();
                     if (pPlayer)
-                        ((InstanceMap*)me->GetMap())->PermBindAllPlayers(pPlayer);
+                        me->GetMap()->ToInstanceMap()->PermBindAllPlayers(pPlayer);
                 }
             }
         }

@@ -72,7 +72,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
             uint64 guid = MAKE_NEW_GUID(guidlo, 0, HIGHGUID_PLAYER);
 
             // kick if player currently
-            if (Player* p = ObjectAccessor::GetObjectInWorld(guid, (Player*)NULL))
+            if (Player* p = ObjectAccessor::FindPlayer(guid))
             {
                 WorldSession* s = p->GetSession();
                 s->KickPlayer();                            // mark session to remove at next session list update
