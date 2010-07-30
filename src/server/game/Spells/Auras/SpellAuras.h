@@ -65,7 +65,7 @@ class AuraApplication
         uint8 GetSlot() const { return m_slot; }
         uint8 GetFlags() const { return m_flags; }
         uint8 GetEffectMask() const { return m_flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
-        bool HasEffect(uint8 effect) const { assert(effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
+        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
         bool IsPositive() const { return m_flags & AFLAG_POSITIVE; }
         uint8 GetEffectsToApply() const { return m_effectsToApply; }
 
@@ -95,8 +95,8 @@ class Aura
         uint64 const& GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
         WorldObject * GetOwner() const { return m_owner; }
-        Unit * GetUnitOwner() const { assert(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
-        DynamicObject * GetDynobjOwner() const { assert(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
+        Unit * GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
+        DynamicObject * GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
 
         AuraObjectType GetType() const;
 
@@ -150,7 +150,7 @@ class Aura
         // helpers for aura effects
         bool HasEffect(uint8 effIndex) const { return bool(GetEffect(effIndex)); }
         bool HasEffectType(AuraType type) const;
-        AuraEffect * GetEffect (uint8 effIndex) const { assert (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
+        AuraEffect * GetEffect (uint8 effIndex) const { ASSERT (effIndex < MAX_SPELL_EFFECTS); return m_effects[effIndex]; }
         uint8 GetEffectMask() const { uint8 effMask = 0; for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i) if (m_effects[i]) effMask |= 1<<i; return effMask; }
         void RecalculateAmountOfEffects();
         void HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply);

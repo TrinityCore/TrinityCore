@@ -39,7 +39,7 @@ AuraApplication::AuraApplication(Unit * target, Unit * caster, Aura * aura, uint
     : m_target(target), m_base(aura), m_slot(MAX_AURAS), m_flags(AFLAG_NONE), m_needClientUpdate(false)
     , m_removeMode(AURA_REMOVE_NONE), m_effectsToApply(effMask)
 {
-    assert(GetTarget() && GetBase());
+    ASSERT(GetTarget() && GetBase());
 
     if (GetBase()->IsVisible())
     {
@@ -137,9 +137,9 @@ bool AuraApplication::_CheckPositive(Unit * /*caster*/) const
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
 {
     AuraEffect * aurEff = GetBase()->GetEffect(effIndex);
-    assert(aurEff);
-    assert(HasEffect(effIndex) == (!apply));
-    assert((1<<effIndex) & m_effectsToApply);
+    ASSERT(aurEff);
+    ASSERT(HasEffect(effIndex) == (!apply));
+    ASSERT((1<<effIndex) & m_effectsToApply);
     sLog.outDebug("AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
 
     Unit * caster = GetBase()->GetCaster();
@@ -177,13 +177,13 @@ void AuraApplication::ClientUpdate(bool remove)
 
     if (remove)
     {
-        assert(!m_target->GetVisibleAura(m_slot));
+        ASSERT(!m_target->GetVisibleAura(m_slot));
         data << uint32(0);
         sLog.outDebug("Aura %u removed slot %u",GetBase()->GetId(), m_slot);
         m_target->SendMessageToSet(&data, true);
         return;
     }
-    assert(m_target->GetVisibleAura(m_slot));
+    ASSERT(m_target->GetVisibleAura(m_slot));
 
     Aura const * aura = GetBase();
     data << uint32(aura->GetId());
@@ -208,10 +208,10 @@ void AuraApplication::ClientUpdate(bool remove)
 
 Aura * Aura::TryCreate(SpellEntry const* spellproto, uint8 tryEffMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
 {
-    assert(spellproto);
-    assert(owner);
-    assert(caster || casterGUID);
-    assert(tryEffMask <= MAX_EFFECT_MASK);
+    ASSERT(spellproto);
+    ASSERT(owner);
+    ASSERT(caster || casterGUID);
+    ASSERT(tryEffMask <= MAX_EFFECT_MASK);
     uint8 effMask = 0;
     switch(owner->GetTypeId())
     {
@@ -238,9 +238,9 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, uint8 tryEffMask, WorldObje
 
 Aura * Aura::TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
 {
-    assert(spellproto);
-    assert(owner);
-    assert(caster || casterGUID);
+    ASSERT(spellproto);
+    ASSERT(owner);
+    ASSERT(caster || casterGUID);
     uint8 effMask = 0;
     switch(owner->GetTypeId())
     {
@@ -267,11 +267,11 @@ Aura * Aura::TryCreate(SpellEntry const* spellproto, WorldObject * owner, Unit *
 
 Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * owner, Unit * caster, int32 *baseAmount, Item * castItem, uint64 casterGUID)
 {
-    assert(effMask);
-    assert(spellproto);
-    assert(owner);
-    assert(caster || casterGUID);
-    assert(effMask <= MAX_EFFECT_MASK);
+    ASSERT(effMask);
+    ASSERT(spellproto);
+    ASSERT(owner);
+    ASSERT(caster || casterGUID);
+    ASSERT(effMask <= MAX_EFFECT_MASK);
     // try to get caster of aura
     if (casterGUID)
     {
@@ -291,7 +291,7 @@ Aura * Aura::Create(SpellEntry const* spellproto, uint8 effMask, WorldObject * o
             aura = new DynObjAura(spellproto,effMask,owner,caster,baseAmount,castItem, casterGUID);
             break;
         default:
-            assert(false);
+            ASSERT(false);
             return NULL;
     }
     // aura can be removed in Unit::_AddAura call
@@ -345,7 +345,7 @@ Aura::~Aura()
     for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
          delete m_effects[i];
 
-    assert(m_applications.empty());
+    ASSERT(m_applications.empty());
     _DeleteRemovedApplications();
 }
 
@@ -366,10 +366,10 @@ AuraObjectType Aura::GetType() const
 
 void Aura::_ApplyForTarget(Unit * target, Unit * caster, AuraApplication * auraApp)
 {
-    assert(target);
-    assert(auraApp);
+    ASSERT(target);
+    ASSERT(auraApp);
     // aura mustn't be already applied
-    assert (m_applications.find(target->GetGUID()) == m_applications.end());
+    ASSERT (m_applications.find(target->GetGUID()) == m_applications.end());
 
     m_applications[target->GetGUID()] = auraApp;
 
@@ -386,9 +386,9 @@ void Aura::_ApplyForTarget(Unit * target, Unit * caster, AuraApplication * auraA
 
 void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * auraApp)
 {
-    assert(target);
-    assert(auraApp->GetRemoveMode());
-    assert(auraApp);
+    ASSERT(target);
+    ASSERT(auraApp->GetRemoveMode());
+    ASSERT(auraApp);
 
     ApplicationMap::iterator itr = m_applications.find(target->GetGUID());
     // TODO: Figure out why this happens.
@@ -401,7 +401,7 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
         m_applications.erase(itr);
 
     // aura has to be already applied
-    //assert(itr->second == auraApp);
+    //ASSERT(itr->second == auraApp);
     m_removedApplications.push_back(auraApp);
 
     // reset cooldown state for spells
@@ -417,7 +417,7 @@ void Aura::_UnapplyForTarget(Unit * target, Unit * caster, AuraApplication * aur
 // and marks aura as removed
 void Aura::_Remove(AuraRemoveMode removeMode)
 {
-    assert (!m_isRemoved);
+    ASSERT (!m_isRemoved);
     m_isRemoved = true;
     ApplicationMap::iterator appItr = m_applications.begin();
     for (appItr = m_applications.begin(); appItr != m_applications.end();)
@@ -506,7 +506,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
         else
         {
             // owner has to be in world, or effect has to be applied to self
-            assert((!GetOwner()->IsInWorld() && GetOwner() == itr->first) || GetOwner()->IsInMap(itr->first));
+            ASSERT((!GetOwner()->IsInWorld() && GetOwner() == itr->first) || GetOwner()->IsInMap(itr->first));
             itr->first->_CreateAuraApplication(this, itr->second);
             ++itr;
         }
@@ -528,7 +528,7 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
         if (AuraApplication * aurApp = GetApplicationOfTarget(itr->first->GetGUID()))
         {
             // owner has to be in world, or effect has to be applied to self
-            assert((!GetOwner()->IsInWorld() && GetOwner() == itr->first) || GetOwner()->IsInMap(itr->first));
+            ASSERT((!GetOwner()->IsInWorld() && GetOwner() == itr->first) || GetOwner()->IsInMap(itr->first));
             itr->first->_ApplyAura(aurApp, itr->second);
         }
     }
@@ -552,14 +552,14 @@ void Aura::_ApplyEffectForTargets(uint8 effIndex)
         if (GetApplicationOfTarget((*itr)->GetGUID()))
         {
             // owner has to be in world, or effect has to be applied to self
-            assert((!GetOwner()->IsInWorld() && GetOwner() == *itr) || GetOwner()->IsInMap(*itr));
+            ASSERT((!GetOwner()->IsInWorld() && GetOwner() == *itr) || GetOwner()->IsInMap(*itr));
             (*itr)->_ApplyAuraEffect(this, effIndex);
         }
     }
 }
 void Aura::UpdateOwner(uint32 diff, WorldObject * owner)
 {
-    assert(owner == m_owner);
+    ASSERT(owner == m_owner);
 
     Unit * caster = GetCaster();
     // Apply spellmods for channeled auras
@@ -759,7 +759,7 @@ bool Aura::IsVisible() const
 
 void Aura::UnregisterSingleTarget()
 {
-    assert(m_isSingleTarget);
+    ASSERT(m_isSingleTarget);
     Unit * caster = GetCaster();
     caster->GetSingleCastAuras().remove(this);
     SetIsSingleTarget(false);
@@ -795,7 +795,7 @@ bool Aura::HasEffectType(AuraType type) const
 
 void Aura::RecalculateAmountOfEffects()
 {
-    assert (!IsRemoved());
+    ASSERT (!IsRemoved());
     Unit * caster = GetCaster();
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_effects[i])
@@ -804,7 +804,7 @@ void Aura::RecalculateAmountOfEffects()
 
 void Aura::HandleAllEffects(AuraApplication const * aurApp, uint8 mode, bool apply)
 {
-    assert (!IsRemoved());
+    ASSERT (!IsRemoved());
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_effects[i] && !IsRemoved())
             m_effects[i]->HandleEffect(aurApp, mode, apply);
@@ -1492,7 +1492,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster,
 bool Aura::CheckAreaTarget(Unit *target)
 {
     // for owner check use Spell::CheckTarget
-    assert(GetOwner() != target);
+    ASSERT(GetOwner() != target);
 
     // some special cases
     switch(GetId())

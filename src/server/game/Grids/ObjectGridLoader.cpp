@@ -59,7 +59,7 @@ ObjectGridRespawnMover::Visit(CreatureMapType &m)
         Creature * c = iter->getSource();
         ++iter;
 
-        assert(!c->isPet() && "ObjectGridRespawnMover don't must be called for pets");
+        ASSERT(!c->isPet() && "ObjectGridRespawnMover don't must be called for pets");
 
         Cell const& cur_cell  = c->GetCurrentCell();
 

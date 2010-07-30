@@ -197,14 +197,14 @@ Corpse* ObjectAccessor::GetCorpseForPlayerGUID(uint64 guid)
     if (iter == i_player2corpse.end())
         return NULL;
 
-    assert(iter->second->GetType() != CORPSE_BONES);
+    ASSERT(iter->second->GetType() != CORPSE_BONES);
 
     return iter->second;
 }
 
 void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 {
-    assert(corpse && corpse->GetType() != CORPSE_BONES);
+    ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
     if (corpse->FindMap())
         corpse->FindMap()->Remove(corpse, false);
@@ -231,13 +231,13 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 
 void ObjectAccessor::AddCorpse(Corpse* corpse)
 {
-    assert(corpse && corpse->GetType() != CORPSE_BONES);
+    ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
     // Critical section
     {
         ACE_GUARD(LockType, g, i_corpseGuard);
 
-        assert(i_player2corpse.find(corpse->GetOwnerGUID()) == i_player2corpse.end());
+        ASSERT(i_player2corpse.find(corpse->GetOwnerGUID()) == i_player2corpse.end());
         i_player2corpse[corpse->GetOwnerGUID()] = corpse;
 
         // build mapid*cellid -> guid_set map
@@ -354,7 +354,7 @@ void ObjectAccessor::Update(uint32 /*diff*/)
         while (!i_objects.empty())
         {
             Object* obj = *i_objects.begin();
-            assert(obj && obj->IsInWorld());
+            ASSERT(obj && obj->IsInWorld());
             i_objects.erase(i_objects.begin());
             obj->BuildUpdate(update_players);
         }

@@ -83,7 +83,7 @@ MotionMaster::UpdateMotion(uint32 diff)
 {
     if (i_owner->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED)) // what about UNIT_STAT_DISTRACTED? Why is this not included?
         return;
-    assert(!empty());
+    ASSERT(!empty());
     m_cleanFlag |= MMCF_UPDATE;
     if (!top()->Update(*i_owner, diff))
     {

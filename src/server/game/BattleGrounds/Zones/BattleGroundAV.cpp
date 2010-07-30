@@ -240,7 +240,7 @@ void BattleGroundAV::HandleQuestComplete(uint32 questid, Player *player)
 
 void BattleGroundAV::UpdateScore(uint16 team, int16 points)
 { //note: to remove reinforcementpoints points must be negative, for adding reinforcements points must be positive
-    assert(team == ALLIANCE || team == HORDE);
+    ASSERT(team == ALLIANCE || team == HORDE);
     uint8 teamindex = GetTeamIndexByTeamId(team); //0=ally 1=horde
     m_Team_Scores[teamindex] += points;
 
@@ -266,7 +266,7 @@ Creature* BattleGroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
     uint8 level;
     bool isStatic = false;
     Creature* creature = NULL;
-    assert(type <= AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
+    ASSERT(type <= AV_CPLACE_MAX + AV_STATICCPLACE_MAX);
     if (type >= AV_CPLACE_MAX) //static
     {
         type -= AV_CPLACE_MAX;
@@ -630,7 +630,7 @@ void BattleGroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
 void BattleGroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
 { //mine=0 northmine mine=1 southmin
 //changing the owner results in setting respawntim to infinite for current creatures, spawning new mine owners creatures and changing the chest-objects so that the current owning team can use them
-    assert(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
+    ASSERT(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
     if (team != ALLIANCE && team != HORDE)
         team = AV_NEUTRAL_TEAM;
     else
@@ -729,7 +729,7 @@ bool BattleGroundAV::PlayerCanDoMineQuest(int32 GOId,uint32 team)
 void BattleGroundAV::PopulateNode(BG_AV_Nodes node)
 {
     uint32 owner = m_Nodes[node].Owner;
-    assert(owner);
+    ASSERT(owner);
 
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     uint32 creatureid;
@@ -809,7 +809,7 @@ const BG_AV_Nodes BattleGroundAV::GetNodeThroughObject(uint32 object)
     if (object == BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE)
         return BG_AV_NODES_SNOWFALL_GRAVE;
     sLog.outError("BattleGroundAV: ERROR! GetPlace got a wrong object :(");
-    assert(false);
+    ASSERT(false);
     return BG_AV_Nodes(0);
 }
 
@@ -845,7 +845,7 @@ const uint32 BattleGroundAV::GetObjectThroughNode(BG_AV_Nodes node)
     else if (m_Nodes[node].Owner == AV_NEUTRAL_TEAM)
         return BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE;
     sLog.outError("BattleGroundAV: Error! GetPlaceNode couldn't resolve node %i",node);
-    assert(false);
+    ASSERT(false);
     return 0;
 }
 
@@ -881,7 +881,7 @@ void BattleGroundAV::EventPlayerClickedOnFlag(Player *source, GameObject* target
 
 void BattleGroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
 {
-    assert(GetStatus() == STATUS_IN_PROGRESS);
+    ASSERT(GetStatus() == STATUS_IN_PROGRESS);
     BG_AV_Nodes node = GetNodeThroughObject(object);
 
     uint32 owner = m_Nodes[node].Owner; //maybe should name it prevowner
@@ -891,7 +891,7 @@ void BattleGroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
         return;
     if (m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM)
     { //until snowfall doesn't belong to anyone it is better handled in assault-code
-        assert(node == BG_AV_NODES_SNOWFALL_GRAVE); //currently the only neutral grave
+        ASSERT(node == BG_AV_NODES_SNOWFALL_GRAVE); //currently the only neutral grave
         EventPlayerAssaultsPoint(player,object);
         return;
     }
@@ -952,7 +952,7 @@ void BattleGroundAV::EventPlayerDefendsPoint(Player* player, uint32 object)
 
 void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
 {
-    assert(GetStatus() == STATUS_IN_PROGRESS);
+    ASSERT(GetStatus() == STATUS_IN_PROGRESS);
 
     BG_AV_Nodes node = GetNodeThroughObject(object);
     uint32 owner = m_Nodes[node].Owner; //maybe name it prevowner
@@ -965,7 +965,7 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     {
         if (object == BG_AV_OBJECT_FLAG_N_SNOWFALL_GRAVE) //initial capping
         {
-            assert(owner == AV_NEUTRAL_TEAM && m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM);
+            ASSERT(owner == AV_NEUTRAL_TEAM && m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM);
             if (team == ALLIANCE)
                 SpawnBGObject(BG_AV_OBJECT_FLAG_C_A_SNOWFALL_GRAVE, RESPAWN_IMMEDIATELY);
             else
@@ -974,7 +974,7 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
         }
         else if (m_Nodes[node].TotalOwner == AV_NEUTRAL_TEAM) //recapping, when no team owns this node realy
         {
-            assert(m_Nodes[node].State != POINT_CONTROLED);
+            ASSERT(m_Nodes[node].State != POINT_CONTROLED);
             if (team == ALLIANCE)
                 SpawnBGObject(object-11, RESPAWN_IMMEDIATELY);
             else
@@ -1002,7 +1002,7 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
     //if snowfall gots capped it can be handled like all other graveyards
     if (m_Nodes[node].TotalOwner != AV_NEUTRAL_TEAM)
     {
-        assert(m_Nodes[node].Owner != AV_NEUTRAL_TEAM);
+        ASSERT(m_Nodes[node].Owner != AV_NEUTRAL_TEAM);
         if (team == ALLIANCE)
             SpawnBGObject(object-22, RESPAWN_IMMEDIATELY);
         else
@@ -1098,7 +1098,7 @@ void BattleGroundAV::FillInitialWorldStates(WorldPacket& data)
 const uint8 BattleGroundAV::GetWorldStateType(uint8 state, uint16 team) //this is used for node worldstates and returns values which fit good into the worldstatesarray
 {
     //neutral stuff cant get handled (currently its only snowfall)
-    assert(team != AV_NEUTRAL_TEAM);
+    ASSERT(team != AV_NEUTRAL_TEAM);
     //a_c a_a h_c h_a the positions in worldstate-array
     if (team == ALLIANCE)
     {
@@ -1129,10 +1129,10 @@ void BattleGroundAV::UpdateNodeWorldState(BG_AV_Nodes node)
 
 void BattleGroundAV::SendMineWorldStates(uint32 mine)
 {
-    assert(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
+    ASSERT(mine == AV_NORTH_MINE || mine == AV_SOUTH_MINE);
 // currently i'm sure, that this works (:
-//    assert(m_Mine_PrevOwner[mine] == ALLIANCE || m_Mine_PrevOwner[mine] == HORDE || m_Mine_PrevOwner[mine] == AV_NEUTRAL_TEAM);
-//    assert(m_Mine_Owner[mine] == ALLIANCE || m_Mine_Owner[mine] == HORDE || m_Mine_Owner[mine] == AV_NEUTRAL_TEAM);
+//    ASSERT(m_Mine_PrevOwner[mine] == ALLIANCE || m_Mine_PrevOwner[mine] == HORDE || m_Mine_PrevOwner[mine] == AV_NEUTRAL_TEAM);
+//    ASSERT(m_Mine_Owner[mine] == ALLIANCE || m_Mine_Owner[mine] == HORDE || m_Mine_Owner[mine] == AV_NEUTRAL_TEAM);
 
     uint8 owner,prevowner,mine2; //those variables are needed to access the right worldstate in the BG_AV_MineWorldStates array
     mine2 = (mine == AV_NORTH_MINE)?0:1;
@@ -1396,22 +1396,22 @@ void BattleGroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
     if (m_Nodes[node].TotalOwner == team)
     {
         sLog.outCrash("Assaulting team is TotalOwner of node");
-        assert (false);
+        ASSERT (false);
     }
     if (m_Nodes[node].Owner == team)
     {
         sLog.outCrash("Assaulting team is owner of node");
-        assert (false);
+        ASSERT (false);
     }
     if (m_Nodes[node].State == POINT_DESTROYED)
     {
         sLog.outCrash("Destroyed node is being assaulted");
-        assert (false);
+        ASSERT (false);
     }
     if (m_Nodes[node].State == POINT_ASSAULTED && m_Nodes[node].TotalOwner) //only assault an assaulted node if no totalowner exists
     {
         sLog.outCrash("Assault on an not assaulted node with total owner");
-        assert (false);
+        ASSERT (false);
     }
     //the timer gets another time, if the previous owner was 0 == Neutral
     m_Nodes[node].Timer      = (m_Nodes[node].PrevOwner)? BG_AV_CAPTIME : BG_AV_SNOWFALL_FIRSTCAP;
@@ -1423,7 +1423,7 @@ void BattleGroundAV::AssaultNode(BG_AV_Nodes node, uint16 team)
 
 void BattleGroundAV::DestroyNode(BG_AV_Nodes node)
 {
-    assert(m_Nodes[node].State == POINT_ASSAULTED);
+    ASSERT(m_Nodes[node].State == POINT_ASSAULTED);
 
     m_Nodes[node].TotalOwner = m_Nodes[node].Owner;
     m_Nodes[node].PrevOwner  = m_Nodes[node].Owner;
@@ -1446,9 +1446,9 @@ void BattleGroundAV::InitNode(BG_AV_Nodes node, uint16 team, bool tower)
 
 void BattleGroundAV::DefendNode(BG_AV_Nodes node, uint16 team)
 {
-    assert(m_Nodes[node].TotalOwner == team);
-    assert(m_Nodes[node].Owner != team);
-    assert(m_Nodes[node].State != POINT_CONTROLED && m_Nodes[node].State != POINT_DESTROYED);
+    ASSERT(m_Nodes[node].TotalOwner == team);
+    ASSERT(m_Nodes[node].Owner != team);
+    ASSERT(m_Nodes[node].State != POINT_CONTROLED && m_Nodes[node].State != POINT_DESTROYED);
     m_Nodes[node].PrevOwner  = m_Nodes[node].Owner;
     m_Nodes[node].Owner      = team;
     m_Nodes[node].PrevState  = m_Nodes[node].State;
