@@ -505,7 +505,7 @@ bool GOHello_altar(Player * /*pPlayer*/, GameObject *pGO)
             case 192519: uiStatue = pInstance->GetData64(DATA_MOORABI_STATUE); break;
             case 192520: uiStatue = pInstance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE); break;
         }
-        if (((instance_gundrak*)pInstance)->QueueActivation(uiStatue, 3500))
+        if (CAST_INST(instance_gundrak, pInstance)->QueueActivation(uiStatue, 3500))
         {
             pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
             pGO->SetGoState(GO_STATE_ACTIVE);

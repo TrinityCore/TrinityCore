@@ -1497,7 +1497,7 @@ struct mob_twilight_eggsAI : public Scripted_NoMovementAI
         {
             Creature* Tenebron = pInstance->instance->GetCreature(pInstance->GetData64(DATA_TENEBRON));
             if(Tenebron)
-                ((mob_tenebronAI*)Tenebron->AI())->m_bHasPortalOpen = false;
+                (CAST_AI(mob_tenebronAI,Tenebron->AI()))->m_bHasPortalOpen = false;
             SpawnWhelps();
         }
         else
