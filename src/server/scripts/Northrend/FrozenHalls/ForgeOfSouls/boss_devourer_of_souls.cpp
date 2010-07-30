@@ -171,7 +171,7 @@ struct boss_devourer_of_soulsAI : public ScriptedAI
     {
         if (uiMirroredSoulTarget && me->HasAura(SPELL_MIRRORED_SOUL))
         {
-            if (Player *pPlayer = Unit::GetPlayer(uiMirroredSoulTarget))
+            if (Player *pPlayer = Unit::GetPlayer(*me, uiMirroredSoulTarget))
             {
                 if (Aura *pAura = pPlayer->GetAura(SPELL_MIRRORED_SOUL))
                 {

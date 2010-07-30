@@ -362,7 +362,7 @@ struct npc_twiggy_flatheadAI : public ScriptedAI
             Player* pWarrior = NULL;
 
             if (PlayerGUID)
-                pWarrior = Unit::GetPlayer(PlayerGUID);
+                pWarrior = Unit::GetPlayer(*me, PlayerGUID);
 
             if (!pWarrior)
                 return;

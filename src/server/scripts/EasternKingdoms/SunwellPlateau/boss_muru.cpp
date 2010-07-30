@@ -383,7 +383,7 @@ struct npc_muru_portalAI : public Scripted_NoMovementAI
     void JustSummoned(Creature* summoned)
     {
         if (pInstance)
-            if (Player* Target = Unit::GetPlayer(pInstance->GetData64(DATA_PLAYER_GUID)))
+            if (Player* Target = Unit::GetPlayer(*me, pInstance->GetData64(DATA_PLAYER_GUID)))
                 summoned->AI()->AttackStart(Target);
 
         Summons.Summon(summoned);

@@ -404,7 +404,7 @@ struct npc_dirty_larryAI : public ScriptedAI
 
     uint32 NextStep(uint32 Step)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
         switch(Step)
         {
@@ -438,7 +438,7 @@ struct npc_dirty_larryAI : public ScriptedAI
 
         if (Attack)
         {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
             me->setFaction(14);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             if (pPlayer)
@@ -492,7 +492,7 @@ struct npc_dirty_larryAI : public ScriptedAI
             me->DeleteThreatList();
             me->CombatStop();
             me->GetMotionMaster()->MoveTargetedHome();
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
             if (pPlayer)
                 CAST_PLR(pPlayer)->GroupEventHappens(QUEST_WBI, me);
         }

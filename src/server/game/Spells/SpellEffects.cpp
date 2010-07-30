@@ -351,7 +351,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             uint8 count = 0;
                             for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                                 if (ihit->targetGUID != m_caster->GetGUID())
-                                    if (Player *target = ObjectAccessor::FindPlayer(ihit->targetGUID))
+                                    if (Player *target = ObjectAccessor::GetPlayer(*m_caster, ihit->targetGUID))
                                         if (target->HasAura(m_triggeredByAuraSpell->Id))
                                             ++count;
                             if (count)

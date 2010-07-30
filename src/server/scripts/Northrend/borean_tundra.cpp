@@ -133,7 +133,7 @@ struct npc_sinkhole_kill_creditAI : public ScriptedAI
                     break;
                 case 7:
                     DoCast(me, SPELL_EXPLODE_CART, true);
-                    if (Player *caster = Unit::GetPlayer(casterGuid))
+                    if (Player *caster = Unit::GetPlayer(*me, casterGuid))
                         caster->KilledMonster(me->GetCreatureInfo(),me->GetGUID());
                     uiPhaseTimer = 5000;
                     Phase = 8;
@@ -808,7 +808,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
         {
             if (me->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
             {
-                if (Player *pHarpooner = Unit::GetPlayer(HarpoonerGUID))
+                if (Player *pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
                 {
                     pHarpooner->KilledMonsterCredit(26175,0);
                     pHarpooner->RemoveAura(SPELL_DRAKE_HATCHLING_SUBDUED);
@@ -824,7 +824,7 @@ struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the
     {
         if (WithRedDragonBlood && HarpoonerGUID && !me->HasAura(SPELL_RED_DRAGONBLOOD))
         {
-            if (Player *pHarpooner = Unit::GetPlayer(HarpoonerGUID))
+            if (Player *pHarpooner = Unit::GetPlayer(*me, HarpoonerGUID))
             {
                 EnterEvadeMode();
                 StartFollow(pHarpooner, 35, NULL);
@@ -1640,7 +1640,7 @@ struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
             case 5:
                 if (uiStep == 5)
                 {
-                    if (Player *pCaster = Unit::GetPlayer(CasterGUID))
+                    if (Player *pCaster = Unit::GetPlayer(*me, CasterGUID))
                     {
                         DoScriptText(SAY_IMPRISIONED_BERYL_5, me);
                         pCaster->KilledMonsterCredit(25478,0);

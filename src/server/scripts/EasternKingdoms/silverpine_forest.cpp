@@ -255,7 +255,7 @@ struct pyrewood_ambushAI : public ScriptedAI
             Unit *pTarget = NULL;
             if (PlayerGUID)
             {
-                pPlayer = Unit::GetPlayer(PlayerGUID);
+                pPlayer = Unit::GetPlayer(*me, PlayerGUID);
                 if (pPlayer)
                     pTarget = RAND((Unit*)me, (Unit*)pPlayer);
             } else
@@ -273,7 +273,7 @@ struct pyrewood_ambushAI : public ScriptedAI
     void JustDied(Unit * /*pKiller*/)
     {
         if (PlayerGUID)
-            if (Player *pPlayer = Unit::GetPlayer(PlayerGUID))
+            if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID))
                 if (pPlayer->GetQuestStatus(QUEST_PYREWOOD_AMBUSH) == QUEST_STATUS_INCOMPLETE)
                     pPlayer->FailQuest(QUEST_PYREWOOD_AMBUSH);
     }
@@ -326,7 +326,7 @@ struct pyrewood_ambushAI : public ScriptedAI
             case 5: //end
                 if (PlayerGUID)
                 {
-                    if (Player *pPlayer = Unit::GetPlayer(PlayerGUID))
+                    if (Player *pPlayer = Unit::GetPlayer(*me, PlayerGUID))
                     {
                         me->MonsterSay(NPCSAY_END, LANG_UNIVERSAL, 0); //not blizzlike
                         pPlayer->GroupEventHappens(QUEST_PYREWOOD_AMBUSH, me);

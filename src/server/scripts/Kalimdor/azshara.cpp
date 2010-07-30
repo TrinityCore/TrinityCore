@@ -309,7 +309,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
                     me->AI_SendMoveToPacket(3706.39, -3969.15, 35.9118, 0, 0, 0);
                 }
                 //begin swimming and summon depth charges
-                Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+                Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
                 SendText(MSG_ESCAPE_NOTICE, pPlayer);
                 DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
                 me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
@@ -330,7 +330,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
 
         if (Grenade_Timer <= diff)
         {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
             if (pPlayer)
             {
                DoScriptText(SAY_RIZZLE_GRENADE, me, pPlayer);
@@ -341,7 +341,7 @@ struct mob_rizzle_sprysprocketAI : public ScriptedAI
 
         if (Check_Timer <= diff)
         {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
             if (!pPlayer)
             {
                 me->ForcedDespawn();

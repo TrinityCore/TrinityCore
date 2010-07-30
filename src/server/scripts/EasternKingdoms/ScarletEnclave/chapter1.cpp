@@ -138,7 +138,7 @@ struct npc_unworthy_initiateAI : public ScriptedAI
             wait_timer = 5000;
             me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
-            if (Player* starter = Unit::GetPlayer(playerGUID))
+            if (Player* starter = Unit::GetPlayer(*me, playerGUID))
                 DoScriptText(say_event_attack[rand()%9], me, starter);
 
             phase = PHASE_TO_ATTACK;
@@ -246,7 +246,7 @@ void npc_unworthy_initiateAI::UpdateAI(const uint32 diff)
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 phase = PHASE_ATTACKING;
 
-                if (Player *pTarget = Unit::GetPlayer(playerGUID))
+                if (Player *pTarget = Unit::GetPlayer(*me, playerGUID))
                     me->AI()->AttackStart(pTarget);
                 wait_timer = 0;
             }

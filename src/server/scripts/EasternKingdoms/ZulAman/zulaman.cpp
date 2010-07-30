@@ -115,7 +115,7 @@ struct npc_zulaman_hostageAI : public ScriptedAI
     void EnterCombat(Unit * /*who*/) {}
     void JustDied(Unit* /*who*/)
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
         if (pPlayer) pPlayer->SendLoot(me->GetGUID(), LOOT_CORPSE);
     }
     void UpdateAI(const uint32 /*diff*/)

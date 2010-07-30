@@ -706,7 +706,7 @@ void npc_doctorAI::BeginEvent(Player* pPlayer)
 
 void npc_doctorAI::PatientDied(Location* Point)
 {
-    Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+    Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
     if (pPlayer && ((pPlayer->GetQuestStatus(6624) == QUEST_STATUS_INCOMPLETE) || (pPlayer->GetQuestStatus(6622) == QUEST_STATUS_INCOMPLETE)))
     {
         ++PatientDiedCount;
@@ -1730,7 +1730,7 @@ struct mob_mojoAI : public ScriptedAI
             me->MonsterWhisper(whisp.c_str(),pPlayer->GetGUID());
             if (victimGUID)
             {
-                Player* victim = Unit::GetPlayer(victimGUID);
+                Player* victim = Unit::GetPlayer(*me, victimGUID);
                 if (victim)
                     victim->RemoveAura(43906);//remove polymorph frog thing
             }

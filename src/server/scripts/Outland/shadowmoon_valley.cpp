@@ -139,7 +139,7 @@ struct mob_mature_netherwing_drakeAI : public ScriptedAI
                     DoCast(me, SPELL_JUST_EATEN);
                     DoScriptText(SAY_JUST_EATEN, me);
 
-                    if (Player* pPlr = Unit::GetPlayer(uiPlayerGUID))
+                    if (Player* pPlr = Unit::GetPlayer(*me, uiPlayerGUID))
                     {
                         pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, me->GetGUID());
 
@@ -270,7 +270,7 @@ struct mob_enslaved_netherwing_drakeAI : public ScriptedAI
                 Tapped = false;
                 if (PlayerGUID)
                 {
-                    Player* plr = Unit::GetPlayer(PlayerGUID);
+                    Player* plr = Unit::GetPlayer(*me, PlayerGUID);
                     if (plr && plr->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                     {
                         DoCast(plr, SPELL_FORCE_OF_NELTHARAKU, true);
@@ -364,7 +364,7 @@ struct mob_dragonmaw_peonAI : public ScriptedAI
         {
             if (PlayerGUID)
             {
-                Player* plr = Unit::GetPlayer(PlayerGUID);
+                Player* plr = Unit::GetPlayer(*me, PlayerGUID);
                 if (plr && plr->GetQuestStatus(11020) == QUEST_STATUS_INCOMPLETE)
                     plr->KilledMonsterCredit(23209, me->GetGUID());
             }
@@ -709,7 +709,7 @@ struct npc_overlord_morghorAI : public ScriptedAI
         }
         if (PlayerGUID)
         {
-            Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+            Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
             if (pPlayer)
                 DoScriptText(OVERLORD_SAY_1, me, pPlayer);
         }
@@ -1281,7 +1281,7 @@ struct mob_torloth_the_magnificentAI : public ScriptedAI
             me->RemoveFlag(UNIT_FIELD_BYTES_1,8);
             break;
         case 5:
-            if (Player* AggroTarget = (Unit::GetPlayer(AggroTargetGUID)))
+            if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
             {
                 me->SetUInt64Value(UNIT_FIELD_TARGET, AggroTarget->GetGUID());
                 me->AddThreat(AggroTarget, 1);
@@ -1289,7 +1289,7 @@ struct mob_torloth_the_magnificentAI : public ScriptedAI
             }
             break;
         case 6:
-            if (Player* AggroTarget = (Unit::GetPlayer(AggroTargetGUID)))
+            if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->clearUnitState(UNIT_STAT_ROOT);
@@ -1458,7 +1458,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
                 {
                     if (PlayerGUID)
                     {
-                        if (Player* pTarget = Unit::GetPlayer(PlayerGUID))
+                        if (Player* pTarget = Unit::GetPlayer(*me, PlayerGUID))
                         {
                             float x, y, z;
                             pTarget->GetPosition(x,y,z);
@@ -1483,7 +1483,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
 
     void CheckEventFail()
     {
-        Player* pPlayer = Unit::GetPlayer(PlayerGUID);
+        Player* pPlayer = Unit::GetPlayer(*me, PlayerGUID);
 
         if (!pPlayer)
             return;
@@ -1500,7 +1500,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
 
             for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
             {
-                GroupMember = (Unit::GetPlayer(itr->guid));
+                GroupMember = (Unit::GetPlayer(*me, itr->guid));
                 if (!GroupMember)
                     continue;
                 if (!GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS) && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
@@ -1526,7 +1526,7 @@ struct npc_lord_illidan_stormrageAI : public ScriptedAI
             {
                 for (Group::member_citerator itr = members.begin(); itr!= members.end(); ++itr)
                 {
-                    GroupMember = Unit::GetPlayer(itr->guid);
+                    GroupMember = Unit::GetPlayer(*me, itr->guid);
 
                     if (GroupMember && GroupMember->GetQuestStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) == QUEST_STATUS_INCOMPLETE)
                     {
