@@ -394,6 +394,11 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
     Object::_Create(guid, 0, HIGHGUID_ITEM);
+
+    // Set entry, MUST be before proto check
+    SetEntry(entry);
+    SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+
     ItemPrototype const* proto = GetProto();
     if (!proto)
         return false;
@@ -404,8 +409,6 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
         return false;
     }
 
-    SetEntry(entry);
-    SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
     // set owner (not if item is only loaded for gbank/auction/mail
     if (owner_guid != 0)
         SetOwnerGUID(owner_guid);
