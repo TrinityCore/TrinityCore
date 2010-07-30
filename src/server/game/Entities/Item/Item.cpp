@@ -278,7 +278,7 @@ bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
     for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
         SetSpellCharges(i,itemProto->Spells[i].SpellCharges);
 
-    SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags);
+    SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags & 0xFFFFFFF7);    // TEMP HACK, DONT REMOVE - Shauren
     SetUInt32Value(ITEM_FIELD_DURATION, abs(itemProto->Duration));
 
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, 0);
@@ -388,23 +388,27 @@ void Item::SaveToDB()
 
 bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result, uint32 entry)
 {
+    //                                                    0                1      2         3        4      5             6                 7           8           9    10
+    //result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
+
     // create item before any checks for store correct guid
     // and allow use "FSetState(ITEM_REMOVED); SaveToDB();" for deleting item from DB
     Object::_Create(guid, 0, HIGHGUID_ITEM);
-
-    SetEntry(entry);
     ItemPrototype const* proto = GetProto();
     if (!proto)
         return false;
-
-    //if (!result)                           //               0                1      2         3        4      5             6                 7           8           9    10
-    //    result = CharacterDatabase.PQuery("SELECT creatorGuid, giftCreatorGuid, count, duration, charges, flags, enchantments, randomPropertyId, durability, playedTime, text FROM item_instance WHERE guid = '%u'", guid);
 
     if (!result)
     {
         sLog.outError("Item (GUID: %u owner: %u) not found in table `item_instance`, can't load. ", guid, GUID_LOPART(owner_guid));
         return false;
     }
+
+    SetEntry(entry);
+    SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
+    // set owner (not if item is only loaded for gbank/auction/mail
+    if (owner_guid != 0)
+        SetOwnerGUID(owner_guid);
 
     Field *fields = result->Fetch();
     bool need_save = false;                                 // need explicit save data at load fixes
@@ -453,20 +457,12 @@ bool Item::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result
     SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, fields[9].GetUInt32());
     SetText(fields[10].GetCppString());
 
-    // set correct owner
-    if (owner_guid != 0 && GetOwnerGUID() != owner_guid)
-    {
-        SetOwnerGUID(owner_guid);
-        need_save = true;
-    }
-
     if (need_save)                                           // normal item changed state set not work at loading
     {
         std::ostringstream ss;
         ss << "UPDATE item_instance SET duration = " << GetUInt32Value(ITEM_FIELD_DURABILITY)
             << ", flags = " << GetUInt32Value(ITEM_FIELD_FLAGS)
             << ", durability = " << GetUInt32Value(ITEM_FIELD_DURABILITY)
-            << ", owner_guid = " << GUID_LOPART(GetOwnerGUID())
             << " WHERE guid = " << guid;
 
         CharacterDatabase.Execute(ss.str().c_str());
