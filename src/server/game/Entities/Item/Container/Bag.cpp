@@ -87,7 +87,7 @@ bool Bag::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 
     SetUInt32Value(ITEM_FIELD_MAXDURABILITY, itemProto->MaxDurability);
     SetUInt32Value(ITEM_FIELD_DURABILITY, itemProto->MaxDurability);
-    SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags);
+    SetUInt32Value(ITEM_FIELD_FLAGS, itemProto->Flags & 0xFFFFFFF7);    // TEMP HACK, DONT REMOVE - Shauren
     SetUInt32Value(ITEM_FIELD_STACK_COUNT, 1);
 
     // Setting the number of Slots the Container has
@@ -113,6 +113,8 @@ bool Bag::LoadFromDB(uint32 guid, uint64 owner_guid, QueryResult_AutoPtr result,
     if (!Item::LoadFromDB(guid, owner_guid, result, entry))
         return false;
 
+    ItemPrototype const* itemProto = GetProto(); // checked in Item::LoadFromDB
+    SetUInt32Value(CONTAINER_FIELD_NUM_SLOTS, itemProto->ContainerSlots);
     // cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
     {
