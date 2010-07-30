@@ -1711,7 +1711,16 @@ DROP TABLE IF EXISTS `item_instance`;
 CREATE TABLE `item_instance` (
   `guid` int(11) unsigned NOT NULL default '0',
   `owner_guid` int(11) unsigned NOT NULL default '0',
-  `data` longtext,
+  `creatorGuid` int(10) unsigned NOT NULL default '0',
+  `giftCreatorGuid` int(10) unsigned NOT NULL default '0',
+  `count` int(10) unsigned NOT NULL default '1',
+  `duration` int(10) unsigned NOT NULL default '0',
+  `charges` text NOT NULL,
+  `flags` int(10) unsigned NOT NULL default '0',
+  `enchantments` text NOT NULL,
+  `randomPropertyId` int(11) NOT NULL default '0',
+  `durability` int(10) unsigned NOT NULL default '0',
+  `playedTime` int(10) unsigned NOT NULL default '0';
   `text` longtext,
   PRIMARY KEY  (`guid`),
   KEY `idx_owner_guid` (`owner_guid`)
