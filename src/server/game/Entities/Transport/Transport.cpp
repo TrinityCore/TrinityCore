@@ -457,7 +457,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     ResetMap();
     Map * newMap = sMapMgr.CreateMap(newMapid, this, 0);
     SetMap(newMap);
-    assert (GetMap());
+    ASSERT (GetMap());
 
     if (oldMap != newMap)
     {

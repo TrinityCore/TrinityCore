@@ -716,7 +716,7 @@ namespace Trinity
             : i_source(source), i_data(&data), i_radius(radius), i_push_type(type)
             , i_TargetType(TargetType), i_pos(pos), i_entry(entry)
         {
-            assert(i_source);
+            ASSERT(i_source);
         }
 
         template<class T> inline void Visit(GridRefManager<T>  &m)

@@ -212,7 +212,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
                         _player->StopCastingCharm();
                     else if (pet->GetOwnerGUID() == GetPlayer()->GetGUID())
                     {
-                        assert(pet->GetTypeId() == TYPEID_UNIT);
+                        ASSERT(pet->GetTypeId() == TYPEID_UNIT);
                         if (pet->isPet())
                         {
                             if (((Pet*)pet)->getPetType() == HUNTER_PET)

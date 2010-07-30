@@ -127,7 +127,7 @@ class ObjectAccessor
         // returns object if is in map
         template<class T> static T* GetObjectInMap(uint64 guid, Map * map, T* /*typeSpecifier*/)
         {
-            assert(map);
+            ASSERT(map);
             if (T * obj = GetObjectInWorld(guid, (T*)NULL))
                 if (obj->GetMap() == map)
                     return obj;

@@ -1959,7 +1959,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 // friendlies and other mobs they shouldn't attack
 bool Creature::_IsTargetAcceptable(const Unit *target) const
 {
-    assert(target);
+    ASSERT(target);
 
     // if the target cannot be attacked, the target is not acceptable
     if (IsFriendlyTo(target)

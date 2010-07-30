@@ -280,7 +280,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* pAttacker, Hostile
         currentRef = (*iter);
 
         Unit* target = currentRef->getTarget();
-        assert(target);                                     // if the ref has status online the target must be there !
+        ASSERT(target);                                     // if the ref has status online the target must be there !
 
         // some units are prefered in comparison to others
         if (!noPriorityTargetFound && (target->IsImmunedToDamage(pAttacker->GetMeleeDamageSchoolMask()) || target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))
@@ -375,7 +375,7 @@ void ThreatManager::addThreat(Unit* pVictim, float fThreat, SpellSchoolMask scho
     if (!pVictim->isAlive() || !getOwner()->isAlive())
         return;
 
-    assert(getOwner()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(getOwner()->GetTypeId() == TYPEID_UNIT);
 
     float threat = ThreatCalcHelper::calcThreat(pVictim, iOwner, fThreat, schoolMask, pThreatSpell);
 
