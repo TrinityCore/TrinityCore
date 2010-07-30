@@ -3616,23 +3616,17 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
         // register single target aura
         caster->GetSingleCastAuras().push_back(aura);
         // remove other single target auras
-        for (;;)
+        Unit::AuraList& scAuras = caster->GetSingleCastAuras();
+        for (Unit::AuraList::iterator itr = scAuras.begin(); itr != scAuras.end();)
         {
-            bool restart = false;
-            Unit::AuraList& scAuras = caster->GetSingleCastAuras();
-            for (Unit::AuraList::iterator itr = scAuras.begin(); itr != scAuras.end(); ++itr)
+            if ((*itr) != aura &&
+                IsSingleTargetSpells((*itr)->GetSpellProto(), aura->GetSpellProto()))
             {
-                if ((*itr) != aura &&
-                    IsSingleTargetSpells((*itr)->GetSpellProto(), aura->GetSpellProto()))
-                {
-                    (*itr)->Remove();
-                    restart = true;
-                    break;
-                }
+                (*itr)->Remove();
+                itr = scAuras.begin();
             }
-
-            if (!restart)
-                break;
+            else
+                ++itr;
         }
     }
 }
@@ -4266,7 +4260,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
         AuraApplication const * aurApp = iter->second;
         Aura const * aura = aurApp->GetBase();
 
-        if (aura->GetCasterGUID() !=GetGUID() && IsSingleTargetSpell(aura->GetSpellProto()))
+        if (aura->GetCasterGUID() != GetGUID() && IsSingleTargetSpell(aura->GetSpellProto()))
         {
             if (!newPhase)
                 RemoveAura(iter);
@@ -4288,14 +4282,13 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     for (AuraList::iterator iter = scAuras.begin(); iter != scAuras.end();)
     {
         Aura * aura = *iter;
-        ++iter;
         if (aura->GetUnitOwner() != this && !aura->GetUnitOwner()->InSamePhase(newPhase))
         {
-            uint32 removedAuras = m_removedAurasCount;
             aura->Remove();
-            if (m_removedAurasCount > removedAuras + 1)
-                iter = scAuras.begin();
+            iter = scAuras.begin();
         }
+        else
+            ++iter;
     }
 }
 

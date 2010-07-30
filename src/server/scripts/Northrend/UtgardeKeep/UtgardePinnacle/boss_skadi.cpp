@@ -446,8 +446,7 @@ struct boss_skadiAI : public ScriptedAI
 
 bool GOHello_go_harpoon_launcher(Player *pPlayer, GameObject *pGO)
 {
-    ScriptedInstance* m_pInstance;
-    m_pInstance = (ScriptedInstance*)pGO->GetInstanceData();
+    ScriptedInstance* m_pInstance = pGO->GetInstanceData();
     if (!m_pInstance) return false;
 
     if (Creature* pSkadi = Unit::GetCreature((*pGO),m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
