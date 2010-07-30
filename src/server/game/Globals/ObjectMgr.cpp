@@ -515,14 +515,8 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         CreatureInfo const* difficultyInfo = GetCreatureTemplate(cInfo->DifficultyEntry[diff]);
         if (!difficultyInfo)
         {
-            sLog.outErrorDb("Creature (Entry: %u) have `difficulty_entry_%u`=%u but creature entry %u not exist.",
+            sLog.outErrorDb("Creature (Entry: %u) has `difficulty_entry_%u`=%u but creature entry %u does not exist.",
                 cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff], cInfo->DifficultyEntry[diff]);
-            continue;
-        }
-
-        if (difficultyEntries[diff].find(cInfo->Entry) != difficultyEntries[diff].end())
-        {
-            sLog.outErrorDb("Creature (Entry: %u) listed as difficulty %u but have value in `difficulty_entry_1`.", cInfo->Entry, diff + 1);
             continue;
         }
 
@@ -530,15 +524,22 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         for (uint32 diff2 = 0; diff2 < MAX_DIFFICULTY - 1 && ok2; ++diff2)
         {
             ok2 = false;
+            if (difficultyEntries[diff2].find(cInfo->Entry) != difficultyEntries[diff2].end())
+            {
+                sLog.outErrorDb("Creature (Entry: %u) is listed as `difficulty_entry_%u` of another creature, but itself lists %u in `difficulty_entry_%u`.", 
+                    cInfo->Entry, diff2 + 1, cInfo->DifficultyEntry[diff], diff + 1);
+                continue;
+            }
+
             if (difficultyEntries[diff2].find(cInfo->DifficultyEntry[diff]) != difficultyEntries[diff2].end())
             {
-                sLog.outErrorDb("Creature (Entry: %u) already listed as difficulty %u for another entry.", cInfo->DifficultyEntry[diff], diff2 + 1);
+                sLog.outErrorDb("Creature (Entry: %u) already listed as `difficulty_entry_%u` for another entry.", cInfo->DifficultyEntry[diff], diff2 + 1);
                 continue;
             }
 
             if (hasDifficultyEntries[diff2].find(cInfo->DifficultyEntry[diff]) != hasDifficultyEntries[diff2].end())
             {
-                sLog.outErrorDb("Creature (Entry: %u) have `difficulty_entry_%u`=%u but creature entry %u have difficulty %u entry also.",
+                sLog.outErrorDb("Creature (Entry: %u) has `difficulty_entry_%u`=%u but creature entry %u has itself a value in `difficulty_entry_%u`.",
                     cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff], cInfo->DifficultyEntry[diff], diff2 + 1);
                 continue;
             }
@@ -586,15 +587,15 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
         if (difficultyInfo->AIName && *difficultyInfo->AIName)
         {
-            sLog.outErrorDb("Difficulty %u mode creature (Entry: %u) has `AIName`, but in any case will used difficulty 0 mode creature (Entry: %u) AIName.",
-                diff, cInfo->DifficultyEntry[diff], cInfo->Entry);
+            sLog.outErrorDb("Creature (Entry: %u) lists difficulty %u mode entry %u with `AIName` filled in. `AIName` of difficulty 0 mode creature is always used instead.",
+                cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
         if (difficultyInfo->ScriptID)
         {
-            sLog.outErrorDb("Difficulty %u mode creature (Entry: %u) has `ScriptName`, but in any case will used difficulty 0 mode creature (Entry: %u) ScriptName.",
-                diff, cInfo->DifficultyEntry[diff], cInfo->Entry);
+            sLog.outErrorDb("Creature (Entry: %u) lists difficulty %u mode entry %u with `ScriptName` filled in. `ScriptName` of difficulty 0 mode creature is always used instead.",
+                cInfo->Entry, diff + 1, cInfo->DifficultyEntry[diff]);
             continue;
         }
 
@@ -605,11 +606,11 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
     FactionTemplateEntry const* factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_A);
     if (!factionTemplate)
-        sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_A template (%u)", cInfo->Entry, cInfo->faction_A);
+        sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_A template (%u).", cInfo->Entry, cInfo->faction_A);
 
     factionTemplate = sFactionTemplateStore.LookupEntry(cInfo->faction_H);
     if (!factionTemplate)
-        sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_H template (%u)", cInfo->Entry, cInfo->faction_H);
+        sLog.outErrorDb("Creature (Entry: %u) has non-existing faction_H template (%u).", cInfo->Entry, cInfo->faction_H);
 
     // used later for scale
     CreatureDisplayInfoEntry const* displayScaleEntry = NULL;
@@ -619,7 +620,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid1);
         if (!displayEntry)
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid1 id (%u), can crash client", cInfo->Entry, cInfo->Modelid1);
+            sLog.outErrorDb("Creature (Entry: %u) lists non-existing Modelid1 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid1);
             const_cast<CreatureInfo*>(cInfo)->Modelid1 = 0;
         }
         else if (!displayScaleEntry)
@@ -627,7 +628,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
         CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid1);
         if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid1 (%u)", cInfo->Entry, cInfo->Modelid1);
+            sLog.outErrorDb("No model data exist for `Modelid1` = %u listed by creature (Entry: %u).", cInfo->Modelid1, cInfo->Entry);
     }
 
     if (cInfo->Modelid2)
@@ -635,7 +636,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid2);
         if (!displayEntry)
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid2 id (%u), can crash client", cInfo->Entry, cInfo->Modelid2);
+            sLog.outErrorDb("Creature (Entry: %u) lists non-existing Modelid2 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid2);
             const_cast<CreatureInfo*>(cInfo)->Modelid2 = 0;
         }
         else if (!displayScaleEntry)
@@ -643,7 +644,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
         CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid2);
         if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid2 (%u)", cInfo->Entry, cInfo->Modelid2);
+            sLog.outErrorDb("No model data exist for `Modelid2` = %u listed by creature (Entry: %u).", cInfo->Modelid2, cInfo->Entry);
     }
 
     if (cInfo->Modelid3)
@@ -651,7 +652,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid3);
         if (!displayEntry)
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid3 id (%u), can crash client", cInfo->Entry, cInfo->Modelid3);
+            sLog.outErrorDb("Creature (Entry: %u) lists non-existing Modelid3 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid3);
             const_cast<CreatureInfo*>(cInfo)->Modelid3 = 0;
         }
         else if (!displayScaleEntry)
@@ -659,7 +660,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
         CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid3);
         if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid3 (%u)", cInfo->Entry, cInfo->Modelid3);
+            sLog.outErrorDb("No model data exist for `Modelid3` = %u listed by creature (Entry: %u).", cInfo->Modelid3, cInfo->Entry);
     }
 
     if (cInfo->Modelid4)
@@ -667,7 +668,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(cInfo->Modelid4);
         if (!displayEntry)
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Modelid4 id (%u), can crash client", cInfo->Entry, cInfo->Modelid4);
+            sLog.outErrorDb("Creature (Entry: %u) lists non-existing Modelid4 id (%u), this can crash the client.", cInfo->Entry, cInfo->Modelid4);
             const_cast<CreatureInfo*>(cInfo)->Modelid4 = 0;
         }
         else if (!displayScaleEntry)
@@ -675,11 +676,11 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
         CreatureModelInfo const* minfo = sCreatureModelStorage.LookupEntry<CreatureModelInfo>(cInfo->Modelid4);
         if (!minfo)
-            sLog.outErrorDb("Creature (Entry: %u) not has model data for Modelid4 (%u)", cInfo->Entry, cInfo->Modelid4);
+            sLog.outErrorDb("No model data exist for `Modelid4` = %u listed by creature (Entry: %u).", cInfo->Modelid4, cInfo->Entry);
     }
 
     if (!displayScaleEntry)
-        sLog.outErrorDb("Creature (Entry: %u) not has any existed display id in Modelid1/Modelid2/Modelid3/Modelid4", cInfo->Entry);
+        sLog.outErrorDb("Creature (Entry: %u) does not have any existing display id in Modelid1/Modelid2/Modelid3/Modelid4.", cInfo->Entry);
 
     for (int k = 0; k < MAX_KILL_CREDIT; ++k)
     {
@@ -687,7 +688,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
         {
             if (!GetCreatureTemplate(cInfo->KillCredit[k]))
             {
-                sLog.outErrorDb("Creature (Entry: %u) has not existed creature entry in `KillCredit%d` (%u)",cInfo->Entry,k+1,cInfo->KillCredit[k]);
+                sLog.outErrorDb("Creature (Entry: %u) lists non-existing creature entry %u in `KillCredit%d`.", cInfo->Entry, cInfo->KillCredit[k], k + 1);
                 const_cast<CreatureInfo*>(cInfo)->KillCredit[k] = 0;
             }
         }
@@ -695,13 +696,13 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
     if (!cInfo->unit_class || ((1 << (cInfo->unit_class-1)) & CLASSMASK_ALL_CREATURES) == 0)
     {
-        sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class(%u) for creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->Entry, cInfo->unit_class);
+        sLog.outErrorDb("Creature (Entry: %u) has invalid unit_class (%u) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo->Entry, cInfo->unit_class);
         const_cast<CreatureInfo*>(cInfo)->unit_class = UNIT_CLASS_WARRIOR;
     }
 
     if (cInfo->dmgschool >= MAX_SPELL_SCHOOL)
     {
-        sLog.outErrorDb("Creature (Entry: %u) has invalid spell school value (%u) in `dmgschool`",cInfo->Entry,cInfo->dmgschool);
+        sLog.outErrorDb("Creature (Entry: %u) has invalid spell school value (%u) in `dmgschool`.", cInfo->Entry, cInfo->dmgschool);
         const_cast<CreatureInfo*>(cInfo)->dmgschool = SPELL_SCHOOL_NORMAL;
     }
 
@@ -713,29 +714,29 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
     if (cInfo->npcflag & UNIT_NPC_FLAG_SPELLCLICK)
     {
-        sLog.outErrorDb("Creature (Entry: %u) has dynamic flag UNIT_NPC_FLAG_SPELLCLICK (%u) set, it expect to be set by code base at `npc_spellclick_spells` content.",cInfo->Entry,UNIT_NPC_FLAG_SPELLCLICK);
+        sLog.outErrorDb("Creature (Entry: %u) has dynamic flag UNIT_NPC_FLAG_SPELLCLICK (%u) set, it is expected to be set by code handling `npc_spellclick_spells` content.", cInfo->Entry, UNIT_NPC_FLAG_SPELLCLICK);
         const_cast<CreatureInfo*>(cInfo)->npcflag &= ~UNIT_NPC_FLAG_SPELLCLICK;
     }
 
     if ((cInfo->npcflag & UNIT_NPC_FLAG_TRAINER) && cInfo->trainer_type >= MAX_TRAINER_TYPE)
-        sLog.outErrorDb("Creature (Entry: %u) has wrong trainer type %u",cInfo->Entry,cInfo->trainer_type);
+        sLog.outErrorDb("Creature (Entry: %u) has wrong trainer type %u.", cInfo->Entry, cInfo->trainer_type);
 
     if (cInfo->type && !sCreatureTypeStore.LookupEntry(cInfo->type))
     {
-        sLog.outErrorDb("Creature (Entry: %u) has invalid creature type (%u) in `type`",cInfo->Entry,cInfo->type);
+        sLog.outErrorDb("Creature (Entry: %u) has invalid creature type (%u) in `type`.", cInfo->Entry, cInfo->type);
         const_cast<CreatureInfo*>(cInfo)->type = CREATURE_TYPE_HUMANOID;
     }
 
     // must exist or used hidden but used in data horse case
     if (cInfo->family && !sCreatureFamilyStore.LookupEntry(cInfo->family) && cInfo->family != CREATURE_FAMILY_HORSE_CUSTOM)
     {
-        sLog.outErrorDb("Creature (Entry: %u) has invalid creature family (%u) in `family`",cInfo->Entry,cInfo->family);
+        sLog.outErrorDb("Creature (Entry: %u) has invalid creature family (%u) in `family`.", cInfo->Entry, cInfo->family);
         const_cast<CreatureInfo*>(cInfo)->family = 0;
     }
 
     if (cInfo->InhabitType <= 0 || cInfo->InhabitType > INHABIT_ANYWHERE)
     {
-        sLog.outErrorDb("Creature (Entry: %u) has wrong value (%u) in `InhabitType`, creature will not correctly walk/swim/fly",cInfo->Entry,cInfo->InhabitType);
+        sLog.outErrorDb("Creature (Entry: %u) has wrong value (%u) in `InhabitType`, creature will not correctly walk/swim/fly.", cInfo->Entry, cInfo->InhabitType);
         const_cast<CreatureInfo*>(cInfo)->InhabitType = INHABIT_ANYWHERE;
     }
 
@@ -750,21 +751,21 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
     {
         CreatureSpellDataEntry const* spellDataId = sCreatureSpellDataStore.LookupEntry(cInfo->PetSpellDataId);
         if (!spellDataId)
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing PetSpellDataId (%u)", cInfo->Entry, cInfo->PetSpellDataId);
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing PetSpellDataId (%u).", cInfo->Entry, cInfo->PetSpellDataId);
     }
 
     for (uint8 j = 0; j < CREATURE_MAX_SPELLS; ++j)
     {
         if (cInfo->spells[j] && !sSpellStore.LookupEntry(cInfo->spells[j]))
         {
-            sLog.outErrorDb("Creature (Entry: %u) has non-existing Spell%d (%u), set to 0", cInfo->Entry, j+1,cInfo->spells[j]);
+            sLog.outErrorDb("Creature (Entry: %u) has non-existing Spell%d (%u), set to 0.", cInfo->Entry, j+1, cInfo->spells[j]);
             const_cast<CreatureInfo*>(cInfo)->spells[j] = 0;
         }
     }
 
     if (cInfo->MovementType >= MAX_DB_MOTION_TYPE)
     {
-        sLog.outErrorDb("Creature (Entry: %u) has wrong movement generator type (%u), ignore and set to IDLE.",cInfo->Entry,cInfo->MovementType);
+        sLog.outErrorDb("Creature (Entry: %u) has wrong movement generator type (%u), ignored and set to IDLE.", cInfo->Entry, cInfo->MovementType);
         const_cast<CreatureInfo*>(cInfo)->MovementType = IDLE_MOTION_TYPE;
     }
 
@@ -772,7 +773,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
     {
         if (!GetEquipmentInfo(cInfo->equipmentId))
         {
-            sLog.outErrorDb("Table `creature_template` have creature (Entry: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", cInfo->Entry, cInfo->equipmentId);
+            sLog.outErrorDb("Table `creature_template` lists creature (Entry: %u) with `equipment_id` %u not found in table `creature_equip_template`, set to no equipment.", cInfo->Entry, cInfo->equipmentId);
             const_cast<CreatureInfo*>(cInfo)->equipmentId = 0;
         }
     }
@@ -788,7 +789,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureInfo const* cInfo)
 
     if (cInfo->expansion > (MAX_CREATURE_BASE_HP - 1))
     {
-        sLog.outErrorDb("Table `creature_template` have creature (Entry: %u) with expansion %u ignore and set to NULL.", cInfo->expansion);
+        sLog.outErrorDb("Table `creature_template` lists creature (Entry: %u) with expansion %u. Ignored and set to 0.", cInfo->expansion);
         const_cast<CreatureInfo*>(cInfo)->expansion = 0;
     }
 
