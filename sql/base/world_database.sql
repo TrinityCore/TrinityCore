@@ -1715,6 +1715,36 @@ LOCK TABLES `creature_template_addon` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `creature_transport`
+--
+
+DROP TABLE IF EXISTS `creature_transport`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS `creature_transport` (
+  `guid` int(16) NOT NULL AUTO_INCREMENT COMMENT 'GUID of NPC on transport - not the same as creature.guid',
+  `transport_entry` int(8) NOT NULL COMMENT 'Transport entry',
+  `npc_entry` int(8) NOT NULL COMMENT 'NPC entry',
+  `TransOffsetX` float NOT NULL DEFAULT '0',
+  `TransOffsetY` float NOT NULL DEFAULT '0',
+  `TransOffsetZ` float NOT NULL DEFAULT '0',
+  `TransOffsetO` float NOT NULL DEFAULT '0',
+  `emote` int(16) NOT NULL,
+  PRIMARY KEY (`transport_entry`,`guid`),
+  UNIQUE KEY `entry` (`transport_entry`,`guid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `creature_transport`
+--
+
+LOCK TABLES `creature_transport` WRITE;
+/*!40000 ALTER TABLE `creature_transport` DISABLE KEYS */;
+/*!40000 ALTER TABLE `creature_transport` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `custom_texts`
 --
 
