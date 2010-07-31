@@ -311,7 +311,7 @@ int Master::Run()
             if(SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
                 sLog.outString("TrinityCore process priority class set to HIGH");
             else
-                sLog.outError("ERROR: Can't set Trinityd process priority class.");
+                sLog.outError("Can't set Trinityd process priority class.");
             sLog.outString("");
         }
     }

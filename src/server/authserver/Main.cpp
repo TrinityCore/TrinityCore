@@ -281,7 +281,7 @@ extern int main(int argc, char **argv)
             if (SetPriorityClass(hProcess,HIGH_PRIORITY_CLASS))
                 sLog.outString("TrinityRealm process priority class set to HIGH");
             else
-                sLog.outError("ERROR: Can't set realmd process priority class.");
+                sLog.outError("Can't set realmd process priority class.");
             sLog.outString();
         }
     }
