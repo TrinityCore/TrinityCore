@@ -42,7 +42,7 @@
 #include <map>
 #include "GlobalEvents.h"
 #include "OutdoorPvPMgr.h"
-
+#include "Transport.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
 
@@ -1004,6 +1004,29 @@ bool ChatHandler::HandleNpcAddCommand(const char* args)
     float z = chr->GetPositionZ();
     float o = chr->GetOrientation();
     Map *map = chr->GetMap();
+
+    if (chr->GetTransport())
+    {
+        uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+        if (tguid > 0)
+        {
+            WorldDatabase.PQuery("INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f, %u)", tguid, id, chr->GetTransport()->GetEntry(), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+
+            TransportCreatureProto *transportCreatureProto = new TransportCreatureProto;
+            transportCreatureProto->guid = tguid;
+            transportCreatureProto->npc_entry = id;
+            uint32 transportEntry = chr->GetTransport()->GetEntry();
+            transportCreatureProto->TransOffsetX = chr->GetTransOffsetX();
+            transportCreatureProto->TransOffsetY = chr->GetTransOffsetY();
+            transportCreatureProto->TransOffsetZ = chr->GetTransOffsetZ();
+            transportCreatureProto->TransOffsetO = chr->GetTransOffsetO();
+            transportCreatureProto->emote = 0;
+
+            sMapMgr.m_TransportNPCMap[transportEntry].insert(transportCreatureProto);
+            sMapMgr.m_TransportNPCs.insert(transportCreatureProto);
+        }
+        return true;
+    }
 
     Creature* pCreature = new Creature;
     if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))

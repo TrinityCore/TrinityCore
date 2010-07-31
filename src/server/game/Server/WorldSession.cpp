@@ -43,6 +43,7 @@
 #include "zlib.h"
 #include "ScriptMgr.h"
 #include "LFGMgr.h"
+#include "Transport.h"
 
 /// WorldSession constructor
 WorldSession::WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale) :
@@ -729,6 +730,10 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
         data >> mi->t_o;
         data >> mi->t_time;
         data >> mi->t_seat;
+
+        if(mi->x != mi->t_x)
+            if(GetPlayer()->GetTransport())
+                GetPlayer()->GetTransport()->UpdatePosition(mi);
     }
 
     if ((mi->flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (mi->unk1 & 0x20))

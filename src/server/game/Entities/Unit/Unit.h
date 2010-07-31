@@ -722,42 +722,6 @@ enum MonsterMovementFlags
 };
 */
 
-struct MovementInfo
-{
-    // common
-    uint64 guid;
-    uint32  flags;
-    uint16  unk1;
-    uint32  time;
-    float   x, y, z, o;
-    // transport
-    uint64  t_guid;
-    float   t_x, t_y, t_z, t_o;
-    uint32  t_time;
-    int8    t_seat;
-    // swimming and unknown
-    float   s_pitch;
-    // last fall time
-    uint32  fallTime;
-    // jumping
-    float   j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
-    // spline
-    float   u_unk1;
-
-    MovementInfo()
-    {
-        flags = 0;
-        time = t_time = fallTime = 0;
-        unk1 = 0;
-        x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
-        t_guid = 0;
-    }
-
-    uint32 GetMovementFlags() { return flags; }
-    void AddMovementFlag(uint32 flag) { flags |= flag; }
-    bool HasMovementFlag(uint32 flag) const { return flags & flag; }
-};
-
 enum UnitTypeMask
 {
     UNIT_MASK_NONE                  = 0x00000000,
@@ -1936,7 +1900,6 @@ class Unit : public WorldObject
         Unit *GetMisdirectionTarget() { return m_misdirectionTargetGUID ? GetUnit(*this, m_misdirectionTargetGUID) : NULL; }
 
         bool IsAIEnabled, NeedChangeAI;
-        MovementInfo m_movementInfo;
         bool CreateVehicleKit(uint32 id);
         void RemoveVehicleKit();
         Vehicle *GetVehicleKit()const { return m_vehicleKit; }
@@ -1958,10 +1921,6 @@ class Unit : public WorldObject
         void EnterVehicle(Vehicle *vehicle, int8 seatId = -1);
         void ExitVehicle();
         void ChangeSeat(int8 seatId, bool next = true);
-
-        // Transports
-        Transport * GetTransport() const { return m_transport; }
-        void SetTransport(Transport * t) { m_transport = t; }
 
         void BuildMovementPacket(ByteBuffer *data) const;
 
@@ -1987,9 +1946,6 @@ class Unit : public WorldObject
         explicit Unit ();
 
         UnitAI *i_AI, *i_disabledAI;
-
-        // Transports
-        Transport * m_transport;
 
         void _UpdateSpells(uint32 time);
         void _DeleteRemovedAuras();
