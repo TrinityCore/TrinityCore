@@ -1647,18 +1647,21 @@ update creature_template set AIName='TurretAI',scriptname='' where entry=33139;
 update creature_template set ScriptName='boss_kologarn' where entry=32930;
 update creature_template set scriptname="boss_flame_leviathan_safety_container" where entry=33218;
 
-DELETE FROM spell_script_names WHERE spell_id=11958 AND ScriptName='spell_mage_cold_snap';
-DELETE FROM spell_script_names WHERE spell_id=32826 AND ScriptName='spell_mage_polymorph_visual';
-DELETE FROM spell_script_names WHERE spell_id=31687 AND ScriptName='spell_mage_summon_water_elemental';
-DELETE FROM spell_script_names WHERE spell_id=-47540 AND ScriptName='spell_pri_penance';
-DELETE FROM spell_script_names WHERE spell_id=31231 AND ScriptName='spell_rog_cheat_death';
-DELETE FROM spell_script_names WHERE spell_id=51662 AND ScriptName='spell_rog_hunger_for_blood';
-DELETE FROM spell_script_names WHERE spell_id=14185 AND ScriptName='spell_rog_preparation';
-DELETE FROM spell_script_names WHERE spell_id=5938 AND ScriptName='spell_rog_shiv';
-DELETE FROM spell_script_names WHERE spell_id=53271 AND ScriptName='spell_hun_masters_call';
-DELETE FROM spell_script_names WHERE spell_id=53478 AND ScriptName='spell_hun_last_stand_pet';
-DELETE FROM spell_script_names WHERE spell_id=23989 AND ScriptName='spell_hun_readiness';
-INSERT INTO spell_script_names (spell_id, ScriptName) VALUES 
+DELETE FROM `spell_script_names` WHERE `spell_id`=11958 AND `ScriptName`='spell_mage_cold_snap';
+DELETE FROM `spell_script_names` WHERE `spell_id`=32826 AND `ScriptName`='spell_mage_polymorph_visual';
+DELETE FROM `spell_script_names` WHERE `spell_id`=31687 AND `ScriptName`='spell_mage_summon_water_elemental';
+DELETE FROM `spell_script_names` WHERE `spell_id`=-47540 AND `ScriptName`='spell_pri_penance';
+DELETE FROM `spell_script_names` WHERE `spell_id`=31231 AND `ScriptName`='spell_rog_cheat_death';
+DELETE FROM `spell_script_names` WHERE `spell_id`=51662 AND `ScriptName`='spell_rog_hunger_for_blood';
+DELETE FROM `spell_script_names` WHERE `spell_id`=14185 AND `ScriptName`='spell_rog_preparation';
+DELETE FROM `spell_script_names` WHERE `spell_id`=5938 AND `ScriptName`='spell_rog_shiv';
+DELETE FROM `spell_script_names` WHERE `spell_id`=53271 AND `ScriptName`='spell_hun_masters_call';
+DELETE FROM `spell_script_names` WHERE `spell_id`=53478 AND `ScriptName`='spell_hun_last_stand_pet';
+DELETE FROM `spell_script_names` WHERE `spell_id`=23989 AND `ScriptName`='spell_hun_readiness';
+DELETE FROM `spell_script_names` WHERE `spell_id`=37877 AND `ScriptName`='spell_pal_blessing_of_faith';
+DELETE FROM `spell_script_names` WHERE `spell_id`=-20473 AND `ScriptName`='spell_pal_holy_shock';
+DELETE FROM `spell_script_names` WHERE `spell_id`=20425 AND `ScriptName`='spell_pal_judgement_of_command';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES 
 (11958,'spell_mage_cold_snap'),
 (32826,'spell_mage_polymorph_visual'),
 (31687,'spell_mage_summon_water_elemental'),
@@ -1669,4 +1672,7 @@ INSERT INTO spell_script_names (spell_id, ScriptName) VALUES
 (5938,'spell_rog_shiv'),
 (53271,'spell_hun_masters_call'),
 (53478,'spell_hun_last_stand_pet'),
-(23989,'spell_hun_readiness');
+(23989,'spell_hun_readiness'),
+(37877,'spell_pal_blessing_of_faith'),
+(-20473,'spell_pal_holy_shock'),
+(20425,'spell_pal_judgement_of_command');
