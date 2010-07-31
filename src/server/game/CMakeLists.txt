@@ -23,7 +23,6 @@ file(GLOB_RECURSE sources_AuctionHouse AuctionHouse/*.cpp AuctionHouse/*.h)
 file(GLOB_RECURSE sources_BattleGrounds BattleGrounds/*.cpp BattleGrounds/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
-file(GLOB_RECURSE sources_CMakeLists.txt CMakeLists.txt/*.cpp CMakeLists.txt/*.h)
 file(GLOB_RECURSE sources_Combat Combat/*.cpp Combat/*.h)
 file(GLOB_RECURSE sources_Conditions Conditions/*.cpp Conditions/*.h)
 file(GLOB_RECURSE sources_DataStores DataStores/*.cpp DataStores/*.h)
@@ -62,7 +61,6 @@ set(game_STAT_SRCS
   ${sources_BattleGrounds}
   ${sources_Calendar}
   ${sources_Chat}
-  ${sources_CMakeLists.txt}
   ${sources_Combat}
   ${sources_Conditions}
   ${sources_DataStores}
@@ -195,4 +193,3 @@ if(PCH)
     add_native_precompiled_header(game ${CMAKE_SOURCE_DIR}/src/server/game/PrecompiledHeaders/gamePCH)
   endif()
 endif()
-
