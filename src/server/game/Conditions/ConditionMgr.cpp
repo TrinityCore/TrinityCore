@@ -838,10 +838,10 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
                         for (int j = 0; j < 3; ++j)
                         {
-                            if (pSpellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_TARGET_ENEMY ||
-                                pSpellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_TARGET_ENEMY ||
-                                pSpellInfo->EffectImplicitTargetA[i] == TARGET_UNIT_TARGET_ANY ||
-                                pSpellInfo->EffectImplicitTargetB[i] == TARGET_UNIT_TARGET_ANY)
+                            if (pSpellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY ||
+                                pSpellInfo->EffectImplicitTargetB[j] == TARGET_UNIT_TARGET_ENEMY ||
+                                pSpellInfo->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ANY ||
+                                pSpellInfo->EffectImplicitTargetB[j] == TARGET_UNIT_TARGET_ANY)
                             {
                                 bIsItemSpellValid = true;
                                 break;
@@ -855,7 +855,8 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
 
             if (!bIsItemSpellValid)
             {
-                sLog.outErrorDb("Conditions:ITEM_REQUIRED_TARGET used by item %u does not have implicit target TARGET_CHAIN_DAMAGE(6), TARGET_DUELVSPLAYER(25), already listed in scriptTargets or doesn't have item spelltrigger.", cond->mSourceEntry);
+                sLog.outErrorDb("Conditions: CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET for item %u, which either doesn't have item spelltrigger or its spells don't have implicit target "
+                                "TARGET_UNIT_TARGET_ENEMY(6), TARGET_UNIT_TARGET_ANY(25), or the spells are already listed in CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET conditions.", cond->mSourceEntry);
                 break;
             }
             break;
