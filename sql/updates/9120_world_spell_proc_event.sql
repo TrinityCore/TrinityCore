@@ -1,3 +1,4 @@
+DELETE FROM `spell_proc_event` WHERE `entry` IN (51459,51462,51463,51464,51465,49219,49627,49628);
 INSERT INTO `spell_proc_event`(`entry`,`SchoolMask`,`SpellFamilyName`,`SpellFamilyMask0`,`SpellFamilyMask1`,`SpellFamilyMask2`,`procFlags`,`procEx`,`ppmRate`,`CustomChance`,`Cooldown`) VALUES
 (51459,0,0,0,0,0,4,0,0,0,0), --Necrosis Rank 1
 (51462,0,0,0,0,0,4,0,0,0,0), --Necrosis Rank 2
