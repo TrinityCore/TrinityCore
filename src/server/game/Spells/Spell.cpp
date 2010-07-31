@@ -1441,9 +1441,13 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
                 duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive);
 
-                //mod duration of channeled aura by spell haste
+                // Haste modifies duration of channeled spells
                 if (IsChanneledSpell(m_spellInfo))
                     m_originalCaster->ModSpellCastTime(aurSpellInfo, duration, this);
+
+                // and duration of auras affected by SPELL_AURA_PERIODIC_HASTE
+                if (m_originalCaster->HasAuraTypeWithAffectMask(SPELL_AURA_PERIODIC_HASTE, aurSpellInfo))
+                    duration *= m_originalCaster->GetFloatValue(UNIT_MOD_CAST_SPEED);
 
                 if (duration != m_spellAura->GetMaxDuration())
                 {
