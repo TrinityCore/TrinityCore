@@ -2252,7 +2252,7 @@ void AuraEffect::TriggerSpell(Unit * target, Unit * caster) const
                     case 53303:
                     case 53304:
                         // We are standing at the moment
-                        if (GetAmount() != -1)
+                        if (GetAmount() > -1)
                             return;
 
                         triggerSpellId = 64418 + auraId - 53302;
