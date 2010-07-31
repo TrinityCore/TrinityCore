@@ -13851,15 +13851,6 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit * pTarget, uint32 procFlag,
                 // If not trigger by default and spellProcEvent == NULL - skip
                 if (!isTriggerAura[aurEff->GetAuraType()] && triggerData.spellProcEvent == NULL)
                     continue;
-                uint32 triggered_spell_id = aurEff->GetSpellProto()->EffectTriggerSpell[i];
-                                // check for positive auras that proc with charge drop
-                bool positive = (!triggered_spell_id && IsPositiveSpell(aurEff->GetId()) && aurEff->GetBase()->GetCharges()) ||
-                                // check for positive auras that triggers unknown spells (Blessing Recovery, etc...)
-                                (!sSpellStore.LookupEntry(triggered_spell_id) && IsPositiveSpell(aurEff->GetId())) ||
-                                // final check for positive triggered spell
-                                IsPositiveSpell(triggered_spell_id);
-                if (!damage && (procExtra & PROC_EX_ABSORB) && isVictim && positive)
-                    continue;
                 // Some spells must always trigger
                 if (!triggered || isAlwaysTriggeredAura[aurEff->GetAuraType()])
                     triggerData.effMask |= 1<<i;
