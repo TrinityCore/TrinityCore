@@ -601,7 +601,16 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
     recv_data >> auctionSlotID >> auctionMainCategory >> auctionSubCategory;
     recv_data >> quality >> usable;
 
-    recv_data.read_skip(16);                                // unknown 16 bytes: 00 07 01 00 00 01 05 00 06 00 09 01 08 00 03 00
+    recv_data.read_skip<uint8>();                           // unk
+
+    // this block looks like it uses some lame byte packing or similar...
+    uint8 unkCnt;
+    recv_data >> unkCnt;
+    for (uint8 i = 0; i < unkCnt; i++)
+    {
+        recv_data.read_skip<uint8>();
+        recv_data.read_skip<uint8>();
+    }
 
     Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(guid,UNIT_NPC_FLAG_AUCTIONEER);
     if (!pCreature)
