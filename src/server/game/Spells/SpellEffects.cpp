@@ -1682,53 +1682,9 @@ void Spell::EffectDummy(uint32 i)
                 m_caster->CastCustomSpell(unitTarget, 54171, &dmg, 0, 0, true);
                 return;
             }
-            switch(m_spellInfo->SpellIconID)
-            {
-                case 156:                                   // Holy Shock
-                {
-                    if (!unitTarget)
-                        return;
-
-                    int hurt = 0;
-                    int heal = 0;
-
-                    switch(m_spellInfo->Id)
-                    {
-                        case 20473: hurt = 25912; heal = 25914; break;
-                        case 20929: hurt = 25911; heal = 25913; break;
-                        case 20930: hurt = 25902; heal = 25903; break;
-                        case 27174: hurt = 27176; heal = 27175; break;
-                        case 33072: hurt = 33073; heal = 33074; break;
-                        case 48824: hurt = 48822; heal = 48820; break;
-                        case 48825: hurt = 48823; heal = 48821; break;
-                        default:
-                            sLog.outError("Spell::EffectDummy: Spell %u not handled in HS",m_spellInfo->Id);
-                            return;
-                    }
-
-                    if (m_caster->IsFriendlyTo(unitTarget))
-                        m_caster->CastSpell(unitTarget, heal, true, 0);
-                    else
-                        m_caster->CastSpell(unitTarget, hurt, true, 0);
-
-                    return;
-                }
-            }
 
             switch(m_spellInfo->Id)
             {
-                case 20425:                                   // Judgement of command
-                {
-                    if (!unitTarget)
-                        return;
-
-                    SpellEntry const* spell_proto = sSpellStore.LookupEntry(damage);
-                    if (!spell_proto)
-                        return;
-
-                    m_caster->CastSpell(unitTarget, spell_proto, true, NULL);
-                    return;
-                }
                 case 31789:                                 // Righteous Defense (step 1)
                 {
                     // Clear targets for eff 1
@@ -1748,24 +1704,6 @@ void Spell::EffectDummy(uint32 i)
                     }
 
                     // now let next effect cast spell at each target.
-                    return;
-                }
-                case 37877:                                 // Blessing of Faith
-                {
-                    if (!unitTarget)
-                        return;
-
-                    uint32 spell_id = 0;
-                    switch(unitTarget->getClass())
-                    {
-                        case CLASS_DRUID:   spell_id = 37878; break;
-                        case CLASS_PALADIN: spell_id = 37879; break;
-                        case CLASS_PRIEST:  spell_id = 37880; break;
-                        case CLASS_SHAMAN:  spell_id = 37881; break;
-                        default: return;                    // ignore for not healing classes
-                    }
-
-                    m_caster->CastSpell(m_caster, spell_id, true);
                     return;
                 }
             }
