@@ -7886,7 +7886,7 @@ void Player::CastItemCombatSpell(Unit *target, WeaponAttackType attType, uint32 
             ApplySpellMod(pEnchant->spellid[s],SPELLMOD_CHANCE_OF_SUCCESS,chance);
             
             // Shiv has 100% chance to apply the poison
-            if (FindCurrentSpellBySpellId(5938))
+            if (FindCurrentSpellBySpellId(5938) && e_slot == TEMP_ENCHANTMENT_SLOT)
                 chance = 100.0f;
 
             if (roll_chance_f(chance))
