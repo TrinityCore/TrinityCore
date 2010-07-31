@@ -68,8 +68,8 @@ length(SUBSTRING_INDEX(`data`,' ',22))+2,
 length(SUBSTRING_INDEX(`data`,' ',57+1))-length(SUBSTRING_INDEX(data,' ',22))-1),
 
 `randomPropertyId` = uint32toint32(SUBSTRING(`data`,
-length(SUBSTRING_INDEX(`data`,' ',58))+2,
-length(SUBSTRING_INDEX(`data`,' ',58+1))-length(SUBSTRING_INDEX(data,' ',58))-1)),
+length(SUBSTRING_INDEX(`data`,' ',59))+2,
+length(SUBSTRING_INDEX(`data`,' ',59+1))-length(SUBSTRING_INDEX(data,' ',59))-1)),
 
 `durability` = SUBSTRING(`data`,
 length(SUBSTRING_INDEX(`data`,' ',60))+2,
