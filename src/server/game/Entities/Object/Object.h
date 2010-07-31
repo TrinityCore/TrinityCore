@@ -115,8 +115,45 @@ class Vehicle;
 class CreatureAI;
 class ZoneScript;
 class Unit;
+class Transport;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
+
+struct MovementInfo
+{
+    // common
+    uint64 guid;
+    uint32  flags;
+    uint16  unk1;
+    uint32  time;
+    float   x, y, z, o;
+    // transport
+    uint64  t_guid;
+    float   t_x, t_y, t_z, t_o;
+    uint32  t_time;
+    int8    t_seat;
+    // swimming and unknown
+    float   s_pitch;
+    // last fall time
+    uint32  fallTime;
+    // jumping
+    float   j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
+    // spline
+    float   u_unk1;
+
+    MovementInfo()
+    {
+        flags = 0;
+        time = t_time = fallTime = 0;
+        unk1 = 0;
+        x = y = z = o = t_x = t_y = t_z = t_o = s_pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = u_unk1 = 0.0f;
+        t_guid = 0;
+    }
+
+    uint32 GetMovementFlags() { return flags; }
+    void AddMovementFlag(uint32 flag) { flags |= flag; }
+    bool HasMovementFlag(uint32 flag) const { return flags & flag; }
+};
 
 class Object
 {
@@ -696,11 +733,20 @@ class WorldObject : public Object, public WorldLocation
 
         bool m_isWorldObject;
         uint32  LastUsedScriptID;
+
+        // Transports
+        Transport *GetTransport() const { return m_transport; }
+        void SetTransport(Transport *t) { m_transport = t; }
+
+        MovementInfo m_movementInfo;
     protected:
         explicit WorldObject();
         std::string m_name;
         bool m_isActive;
         ZoneScript *m_zoneScript;
+
+        // transports
+        Transport *m_transport;
 
         //these functions are used mostly for Relocate() and Corpse/Player specific stuff...
         //use them ONLY in LoadFromDB()/Create() funcs and nowhere else!

@@ -27,6 +27,18 @@
 #include <set>
 #include <string>
 
+struct TransportCreatureProto
+{
+    uint32 guid;
+    uint32 transport_entry;
+    uint32 npc_entry;
+    float TransOffsetX;
+    float TransOffsetY;
+    float TransOffsetZ;
+    float TransOffsetO;
+    uint32 emote;
+};
+
 class Transport : public GameObject
 {
     public:
@@ -41,6 +53,12 @@ class Transport : public GameObject
         typedef std::set<Player*> PlayerSet;
         PlayerSet const& GetPassengers() const { return m_passengers; }
 
+        mutable std::set<uint64> m_NPCPassengerSet;
+        uint32 AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
+        void UpdatePosition(MovementInfo *mi);
+        void UpdateNPCPositions();
+        void BuildStartMovePacket(Map const *targetMap);
+        void BuildStopMovePacket(Map const *targetMap);
     private:
         struct WayPoint
         {
@@ -70,6 +88,7 @@ class Transport : public GameObject
 
         PlayerSet m_passengers;
 
+        uint32 currenttguid;
     public:
         WayPointMap m_WayPoints;
         uint32 m_nextNodeTime;

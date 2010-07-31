@@ -57,6 +57,7 @@
 #include "DBCEnums.h"
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
+#include "Transport.h"
 
 bool ChatHandler::HandleAHBotOptionsCommand(const char *args)
 {
@@ -4800,6 +4801,10 @@ bool ChatHandler::HandleNpcPlayEmoteCommand(const char *args)
         SetSentErrorMessage(true);
         return false;
     }
+
+    if (target->GetTransport())
+        if (target->GetGUIDTransport())
+            WorldDatabase.PQuery("UPDATE creature_transport SET emote=%u WHERE transport_entry=%u AND guid=%u", emote, target->GetTransport()->GetEntry(), target->GetGUIDTransport());
 
     target->SetUInt32Value(UNIT_NPC_EMOTESTATE,emote);
 

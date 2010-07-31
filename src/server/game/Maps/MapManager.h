@@ -30,6 +30,7 @@
 #include "MapUpdater.h"
 
 class Transport;
+struct TransportCreatureProto;
 
 class MapManager
 {
@@ -125,12 +126,18 @@ class MapManager
         void DoDelayedMovesAndRemoves();
 
         void LoadTransports();
+        void LoadTransportNPCs();
 
         typedef std::set<Transport *> TransportSet;
         TransportSet m_Transports;
 
         typedef std::map<uint32, TransportSet> TransportMap;
         TransportMap m_TransportsByMap;
+
+        typedef std::set<TransportCreatureProto *> TransportNPCSet;
+        TransportNPCSet m_TransportNPCs;
+        typedef std::map<uint32, TransportNPCSet> TransportNPCMap;
+        TransportNPCMap m_TransportNPCMap;
 
         bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
         void RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y);

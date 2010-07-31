@@ -667,6 +667,8 @@ class Creature : public Unit, public GridObject<Creature>
 
         float m_SightDistance, m_CombatDistance;
 
+        void SetGUIDTransport(uint32 guid) { guid_transport=guid; }
+        uint32 GetGUIDTransport() { return guid_transport; }
     protected:
         bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData *data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
@@ -714,7 +716,7 @@ class Creature : public Unit, public GridObject<Creature>
         CreatureData const* m_creatureData;
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
-
+        uint32 guid_transport;
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;
