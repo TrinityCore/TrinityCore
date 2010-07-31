@@ -1587,6 +1587,7 @@ class Unit : public WorldObject
         bool HasAura(uint32 spellId, uint64 caster = 0, uint8 reqEffMask = 0) const;
         bool HasAuraType(AuraType auraType) const;
         bool HasAuraTypeWithMiscvalue(AuraType auratype, int32 miscvalue) const;
+        bool HasAuraTypeWithAffectMask(AuraType auratype, SpellEntry const * affectedSpell) const;
         bool HasAuraTypeWithValue(AuraType auratype, int32 value) const;
         bool HasNegativeAuraWithInterruptFlag(uint32 flag, uint64 guid = 0);
 
@@ -1608,6 +1609,11 @@ class Unit : public WorldObject
         float GetTotalAuraMultiplierByMiscValue(AuraType auratype, int32 misc_value) const;
         int32 GetMaxPositiveAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
         int32 GetMaxNegativeAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const;
+
+        int32 GetTotalAuraModifierByAffectMask(AuraType auratype, SpellEntry const * affectedSpell) const;
+        float GetTotalAuraMultiplierByAffectMask(AuraType auratype, SpellEntry const * affectedSpell) const;
+        int32 GetMaxPositiveAuraModifierByAffectMask(AuraType auratype, SpellEntry const * affectedSpell) const;
+        int32 GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellEntry const * affectedSpell) const;
 
         float GetResistanceBuffMods(SpellSchools school, bool positive) const { return GetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school); }
         void SetResistanceBuffMods(SpellSchools school, bool positive, float val) { SetFloatValue(positive ? UNIT_FIELD_RESISTANCEBUFFMODSPOSITIVE+school : UNIT_FIELD_RESISTANCEBUFFMODSNEGATIVE+school,val); }
