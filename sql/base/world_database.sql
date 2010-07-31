@@ -5205,6 +5205,7 @@ INSERT INTO `spell_bonus_data` (`entry`,`direct_bonus`,`dot_bonus`,`ap_bonus`,`a
 (379, 0, 0, 0, 0, 'Shaman - Earth Shield Triggered'),
 (8042, 0.3858, -1, -1, -1, 'Shaman - Earth Shock'),
 (8050, 0.2142, 0.1, -1, -1, 'Shaman - Flame Shock'),
+(10444, 0, 0, 0, 0, 'Shaman - Flametongue Trigger'),
 (8026, 0.1, -1, -1, -1, 'Shaman - Flametongue Weapon Proc Rank 1'),
 (58788, 0.1, -1, -1, -1, 'Shaman - Flametongue Weapon Proc Rank 10'),
 (8028, 0.1, -1, -1, -1, 'Shaman - Flametongue Weapon Proc Rank 2'),
