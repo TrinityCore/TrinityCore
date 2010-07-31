@@ -85,14 +85,14 @@ class DBCStorage
             Field *fields = NULL;
             QueryResult_AutoPtr result = QueryResult_AutoPtr(NULL);
             // Load data from sql
-            if (false/*sql*/)
+            if (sql)
             {
                 std::string query = "SELECT * FROM " + sql->sqlTableName;
                 if (sql->indexPos >= 0)
                     query +=" ORDER BY " + *sql->indexName + " DESC";
                 query += ";";
 
-                /*
+                
                 result = WorldDatabase.Query(query.c_str());
                 if (result)
                 {
@@ -108,7 +108,7 @@ class DBCStorage
                         sLog.outError("Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
                         return false;
                     }
-                }*/
+                }
             }
             char * sqlDataTable;
             fieldCount = dbc.GetCols();
