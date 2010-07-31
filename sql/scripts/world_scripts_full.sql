@@ -7,7 +7,7 @@ UPDATE `creature_template` SET `ScriptName`='';
 UPDATE `gameobject_template` SET `ScriptName`='';
 
 /* AREA TRIGGERS */
-DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340);
+DELETE FROM `areatrigger_scripts` WHERE `entry` IN (5284,5285,5286,5287,4871,4872,4873,5108,5332,5338,5334,5340,5369,5423);
 DELETE FROM `areatrigger_scripts` WHERE `entry` BETWEEN 1726 AND 1740;
 INSERT INTO `areatrigger_scripts` (`entry`,`ScriptName`) VALUES 
 (5284, 'at_aldurthar_gate'),
@@ -1647,7 +1647,7 @@ update creature_template set AIName='TurretAI',scriptname='' where entry=33139;
 update creature_template set ScriptName='boss_kologarn' where entry=32930;
 update creature_template set scriptname="boss_flame_leviathan_safety_container" where entry=33218;
 
-DELETE FROM spell_script_names WHERE spell_id=19958 AND ScriptName='spell_mage_cold_snap';
+DELETE FROM spell_script_names WHERE spell_id=11958 AND ScriptName='spell_mage_cold_snap';
 DELETE FROM spell_script_names WHERE spell_id=32826 AND ScriptName='spell_mage_polymorph_visual';
 DELETE FROM spell_script_names WHERE spell_id=31687 AND ScriptName='spell_mage_summon_water_elemental';
 DELETE FROM spell_script_names WHERE spell_id=-47540 AND ScriptName='spell_pri_penance';
