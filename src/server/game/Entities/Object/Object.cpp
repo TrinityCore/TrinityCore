@@ -1151,6 +1151,7 @@ WorldObject::WorldObject()
     , m_name("")
     , m_notifyflags(0), m_executed_notifies(0)
 {
+    m_transport = NULL;
 }
 
 void WorldObject::SetWorldObject(bool on)
@@ -1235,6 +1236,22 @@ float WorldObject::GetDistanceZ(const WorldObject* obj) const
 
 bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const
 {
+    float sizefactor = GetObjectSize() + obj->GetObjectSize();
+    float maxdist = dist2compare + sizefactor;
+
+    if (m_transport && obj->GetTransport() &&  obj->GetTransport()->GetGUIDLow() == m_transport->GetGUIDLow())
+    {
+        float dtx = m_movementInfo.t_x - obj->m_movementInfo.t_x;
+        float dty = m_movementInfo.t_y - obj->m_movementInfo.t_y;
+        float disttsq = dtx * dtx + dty * dty;
+        if (is3D)
+        {
+            float dtz = m_movementInfo.t_z - obj->m_movementInfo.t_z;
+            disttsq += dtz * dtz;
+        }
+        return disttsq < (maxdist * maxdist);
+    }
+
     float dx = GetPositionX() - obj->GetPositionX();
     float dy = GetPositionY() - obj->GetPositionY();
     float distsq = dx*dx + dy*dy;
@@ -1243,8 +1260,6 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
         float dz = GetPositionZ() - obj->GetPositionZ();
         distsq += dz*dz;
     }
-    float sizefactor = GetObjectSize() + obj->GetObjectSize();
-    float maxdist = dist2compare + sizefactor;
 
     return distsq < maxdist * maxdist;
 }

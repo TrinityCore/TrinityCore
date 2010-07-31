@@ -52,6 +52,9 @@ MapManager::~MapManager()
     for (TransportSet::iterator i = m_Transports.begin(); i != m_Transports.end(); ++i)
          delete *i;
 
+    for (TransportNPCSet::iterator i = m_TransportNPCs.begin(); i != m_TransportNPCs.end(); ++i)
+        delete *i;
+
     Map::DeleteStateMachine();
 }
 
