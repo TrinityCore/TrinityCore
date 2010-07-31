@@ -681,6 +681,14 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                     amount = -value;
                 }
             }
+            // Hand of Salvation
+            else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellProto->SpellFamilyFlags[0] & 0x00000100)
+            {
+                //Glyph of Salvation
+                if (caster->GetGUID() == GetBase()->GetUnitOwner()->GetGUID())
+                    if (AuraEffect const * aurEff = caster->GetAuraEffect(63225, 0))
+                        amount = -aurEff->GetAmount();
+            }
             break;
         case SPELL_AURA_MOD_THREAT:
         {
