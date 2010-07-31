@@ -7020,9 +7020,12 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if (zone->flags & AREA_FLAG_CAPITAL)                     // in capital city
     {
-        SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        SetRestType(REST_TYPE_IN_CITY);
-        InnEnter(time(0),GetMapId(),0,0,0);
+        if (!pvpInfo.inHostileArea || zone->IsSanctuary())
+        {
+            SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+            SetRestType(REST_TYPE_IN_CITY);
+            InnEnter(time(0),GetMapId(),0,0,0);
+        }
         pvpInfo.inNoPvPArea = true;
     }
     else                                                    // anywhere else
@@ -19967,10 +19970,8 @@ void Player::UpdatePvP(bool state, bool override)
     }
     else
     {
-        if (pvpInfo.endTimer != 0)
-            pvpInfo.endTimer = time(NULL);
-        else
-            SetPvP(state);
+        pvpInfo.endTimer = time(NULL);
+        SetPvP(state);
     }
 }
 
