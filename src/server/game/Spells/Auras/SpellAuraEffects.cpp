@@ -622,6 +622,13 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                         amount += int32(amount * SpellMgr::CalculateSpellEffectAmount(m_spellProto, 2, caster) / 100.0f);
                 }
             }
+            // Unholy Blight damage over time effect
+            else if (GetId() == 50536)
+            {
+                m_canBeRecalculated = false;
+                // we're getting total damage on aura apply, change it to be damage per tick
+                amount = (float)amount / GetTotalTicks();
+            }
             break;
         case SPELL_AURA_PERIODIC_ENERGIZE:
             if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_GENERIC)
