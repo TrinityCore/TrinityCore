@@ -1938,6 +1938,25 @@ void Unit::CalcAbsorbResist(Unit *pVictim, SpellSchoolMask schoolMask, DamageEff
                             RemainingDamage -= absorbed;
                         }
                         continue;
+                    case 52284: // Will of the Necropolis
+                    case 52285:
+                    case 52286:
+                    {
+                        int32 remainingHp = (int32)pVictim->GetHealth() - RemainingDamage;
+
+                        // min pct of hp is stored in effect 0 of talent spell
+                        uint32 rank = spellmgr.GetSpellRank(spellProto->Id);
+                        SpellEntry const * talentProto = sSpellStore.LookupEntry(spellmgr.GetSpellWithRank(49189, rank));
+
+                        int32 minHp = (float)pVictim->GetMaxHealth() * (float)SpellMgr::CalculateSpellEffectAmount(talentProto, 0, (*i)->GetCaster())  / 100.0f;
+                        // Damage that would take you below [effect0] health or taken while you are at [effect0]
+                        if (remainingHp < minHp)
+                        {
+                            uint32 absorbed = uint32(currentAbsorb * RemainingDamage * 0.01f);
+                            RemainingDamage -= absorbed;
+                        }
+                        continue;
+                    }
                     case 48707: // Anti-Magic Shell (on self)
                     {
                         // damage absorbed by Anti-Magic Shell energizes the DK with additional runic power.

@@ -682,7 +682,7 @@ int32 AuraEffect::CalculateAmount(Unit * caster)
                 }
             }
             // Hand of Salvation
-            else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellProto->SpellFamilyFlags[0] & 0x00000100)
+            else if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_PALADIN && GetSpellProto()->SpellFamilyFlags[0] & 0x00000100)
             {
                 //Glyph of Salvation
                 if (caster->GetGUID() == GetBase()->GetUnitOwner()->GetGUID())
