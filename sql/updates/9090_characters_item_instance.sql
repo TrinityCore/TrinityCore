@@ -15,7 +15,7 @@ ALTER TABLE `item_instance`
 DELIMITER ||
 
 -- Function to convert ints from unsigned to signed
-DROP FUNCTION IF EXISTS `uint32toint32`;
+DROP FUNCTION IF EXISTS `uint32toint32`||
 CREATE FUNCTION `uint32toint32`(input INT(10) UNSIGNED) RETURNS INT(11) SIGNED DETERMINISTIC
 BEGIN
   RETURN input;
