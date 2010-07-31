@@ -37,7 +37,7 @@ class ByteBufferException
 
         void PrintPosError() const
         {
-            sLog.outError("ERROR: Attempted to %s in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") value with size: " SIZEFMTD,
+            sLog.outError("Attempted to %s in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") value with size: " SIZEFMTD,
                 (add ? "put" : "get"), pos, size, esize);
         }
     private:

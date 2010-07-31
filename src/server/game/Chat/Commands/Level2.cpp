@@ -3947,7 +3947,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
 
     if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
     {
-        sLog.outError("ERROR: InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+        sLog.outError("InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
         PSendSysMessage("Error 2");
         delete pet;
         return false;
