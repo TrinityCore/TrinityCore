@@ -4523,7 +4523,7 @@ CREATE TABLE `quest_template` (
   `SpecialFlags` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `CharTitleId` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `PlayersSlain` tinyint(3) unsigned NOT NULL DEFAULT '0',
-  `BonusTalents` tinyint(3) unsigned unsigned NULL DEFAULT '0',
+  `BonusTalents` tinyint(3) unsigned NULL DEFAULT '0',
   `RewardArenaPoints` smallint(5) unsigned NOT NULL DEFAULT '0',
   `PrevQuestId` mediumint(9) NOT NULL DEFAULT '0',
   `NextQuestId` mediumint(9) NOT NULL DEFAULT '0',
