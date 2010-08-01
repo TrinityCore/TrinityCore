@@ -1110,13 +1110,16 @@ class SpellMgr
             return spell_id;
         }
 
-        uint32 GetSpellWithRank(uint32 spell_id, uint32 rank) const
+        // not strict check returns provided spell if rank not avalible
+        uint32 GetSpellWithRank(uint32 spell_id, uint32 rank, bool strict = false) const
         {
             if (SpellChainNode const* node = GetSpellChainNode(spell_id))
             {
                 if (rank != node->rank)
-                    return GetSpellWithRank(node->rank < rank ? node->next : node->prev, rank);
+                    return GetSpellWithRank(node->rank < rank ? node->next : node->prev, rank, strict);
             }
+            else if (strict && rank > 1)
+                return 0;
             return spell_id;
         }
 
