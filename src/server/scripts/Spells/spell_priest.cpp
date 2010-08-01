@@ -28,15 +28,6 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE_R1                      = 47540,
     PRIEST_SPELL_PENANCE_R1_DAMAGE               = 47758,
     PRIEST_SPELL_PENANCE_R1_HEAL                 = 47757,
-    PRIEST_SPELL_PENANCE_R2                      = 53005,
-    PRIEST_SPELL_PENANCE_R2_DAMAGE               = 53001,
-    PRIEST_SPELL_PENANCE_R2_HEAL                 = 52986,
-    PRIEST_SPELL_PENANCE_R3                      = 53006,
-    PRIEST_SPELL_PENANCE_R3_DAMAGE               = 53002,
-    PRIEST_SPELL_PENANCE_R3_HEAL                 = 52987,
-    PRIEST_SPELL_PENANCE_R4                      = 53007,
-    PRIEST_SPELL_PENANCE_R4_DAMAGE               = 53003,
-    PRIEST_SPELL_PENANCE_R4_HEAL                 = 52988,
 };
 
 class spell_pri_penance_SpellScript : public SpellScript
@@ -45,30 +36,14 @@ class spell_pri_penance_SpellScript : public SpellScript
     {
         if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1))
             return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1_HEAL))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R2))
-            return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R2_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R2_HEAL))
+        // can't use other spell than this penance due to spell_ranks dependency
+        if (spellmgr.GetFirstSpellInChain(PRIEST_SPELL_PENANCE_R1) != spellmgr.GetFirstSpellInChain(spellEntry->Id))
             return false;
 
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R3))
+        uint8 rank = spellmgr.GetSpellRank(spellEntry->Id);
+        if (!spellmgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank, true))
             return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R3_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R3_HEAL))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R4))
-            return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R4_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R4_HEAL))
+        if (!spellmgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank, true))
             return false;
 
         return true;
@@ -81,37 +56,13 @@ class spell_pri_penance_SpellScript : public SpellScript
             return;
 
         Unit *caster = GetCaster();
-        SpellEntry const *spellInfo = GetSpellInfo();
 
-        int hurt = 0;
-        int heal = 0;
-        switch(spellInfo->Id)
-        {
-            case PRIEST_SPELL_PENANCE_R1:
-                hurt = PRIEST_SPELL_PENANCE_R1_DAMAGE;
-                heal = PRIEST_SPELL_PENANCE_R1_HEAL;
-                break;
-            case PRIEST_SPELL_PENANCE_R2:
-                hurt = PRIEST_SPELL_PENANCE_R2_DAMAGE;
-                heal = PRIEST_SPELL_PENANCE_R2_HEAL;
-                break;
-            case PRIEST_SPELL_PENANCE_R3:
-                hurt = PRIEST_SPELL_PENANCE_R3_DAMAGE;
-                heal = PRIEST_SPELL_PENANCE_R3_HEAL;
-                break;
-            case PRIEST_SPELL_PENANCE_R4:
-                hurt = PRIEST_SPELL_PENANCE_R4_DAMAGE;
-                heal = PRIEST_SPELL_PENANCE_R4_HEAL;
-                break;
-            default:
-                sLog.outError("spell_pri_penance_SpellScript::HandleDummy: Spell %u Penance need set correct heal/damage spell", spellInfo->Id);
-                return;
-        }
+        uint8 rank = spellmgr.GetSpellRank(GetSpellInfo()->Id);
 
         if (caster->IsFriendlyTo(unitTarget))
-            caster->CastSpell(unitTarget, heal, false, 0);
+            caster->CastSpell(unitTarget, spellmgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_HEAL, rank), false, 0);
         else
-            caster->CastSpell(unitTarget, hurt, false, 0);
+            caster->CastSpell(unitTarget, spellmgr.GetSpellWithRank(PRIEST_SPELL_PENANCE_R1_DAMAGE, rank), false, 0);
     }
 
     void Register()

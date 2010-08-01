@@ -13940,6 +13940,8 @@ INSERT INTO spell_ranks (`first_spell_id`, `spell_id`, `rank`) VALUES
  -- Penance
 (47757, 47757, 1),
 (47757, 52986, 2),
+(47757, 52987, 3),
+(47757, 52988, 4),
  -- Savage Rend
 (50498, 50498, 1),
 (50498, 53578, 2),
