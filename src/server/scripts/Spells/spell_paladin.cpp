@@ -28,24 +28,6 @@ enum PaladinSpells
     PALADIN_SPELL_HOLY_SHOCK_R1                  = 20473,
     PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE           = 25912,
     PALADIN_SPELL_HOLY_SHOCK_R1_HEALING          = 25914,
-    PALADIN_SPELL_HOLY_SHOCK_R2                  = 20929,
-    PALADIN_SPELL_HOLY_SHOCK_R2_DAMAGE           = 25911,
-    PALADIN_SPELL_HOLY_SHOCK_R2_HEALING          = 25913,
-    PALADIN_SPELL_HOLY_SHOCK_R3                  = 20930,
-    PALADIN_SPELL_HOLY_SHOCK_R3_DAMAGE           = 25902,
-    PALADIN_SPELL_HOLY_SHOCK_R3_HEALING          = 25903,
-    PALADIN_SPELL_HOLY_SHOCK_R4                  = 27174,
-    PALADIN_SPELL_HOLY_SHOCK_R4_DAMAGE           = 27176,
-    PALADIN_SPELL_HOLY_SHOCK_R4_HEALING          = 27175,
-    PALADIN_SPELL_HOLY_SHOCK_R5                  = 33072,
-    PALADIN_SPELL_HOLY_SHOCK_R5_DAMAGE           = 33073,
-    PALADIN_SPELL_HOLY_SHOCK_R5_HEALING          = 33074,
-    PALADIN_SPELL_HOLY_SHOCK_R6                  = 48824,
-    PALADIN_SPELL_HOLY_SHOCK_R6_DAMAGE           = 48822,
-    PALADIN_SPELL_HOLY_SHOCK_R6_HEALING          = 48820,
-    PALADIN_SPELL_HOLY_SHOCK_R7                  = 48825,
-    PALADIN_SPELL_HOLY_SHOCK_R7_DAMAGE           = 48823,
-    PALADIN_SPELL_HOLY_SHOCK_R7_HEALING          = 48821,
 
     SPELL_BLESSING_OF_LOWER_CITY_DRUID           = 37878,
     SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
@@ -104,51 +86,14 @@ class spell_pal_holy_shock_SpellScript : public SpellScript
     {
         if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1))
             return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R2))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R2_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R2_HEALING))
+        // can't use other spell than holy shock due to spell_ranks dependency
+        if (spellmgr.GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != spellmgr.GetFirstSpellInChain(spellEntry->Id))
             return false;
 
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R3))
+        uint8 rank = spellmgr.GetSpellRank(spellEntry->Id);
+        if (!spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank, true))
             return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R3_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R3_HEALING))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R4))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R4_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R4_HEALING))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R5))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R5_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R5_HEALING))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R6))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R6_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R6_HEALING))
-            return false;
-
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R7))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R7_DAMAGE))
-            return false;
-        if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R7_HEALING))
+        if (!spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank, true))
             return false;
 
         return true;
@@ -160,48 +105,12 @@ class spell_pal_holy_shock_SpellScript : public SpellScript
         {
             Unit *caster = GetCaster();
 
-            int hurt = 0;
-            int heal = 0;
-
-            switch(GetSpellInfo()->Id)
-            {
-                case PALADIN_SPELL_HOLY_SHOCK_R1:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R1_HEALING;
-                    break;
-                case PALADIN_SPELL_HOLY_SHOCK_R2:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R2_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R2_HEALING;
-                    break;
-                case PALADIN_SPELL_HOLY_SHOCK_R3:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R3_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R3_HEALING;
-                    break;
-                case PALADIN_SPELL_HOLY_SHOCK_R4:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R4_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R4_HEALING;
-                    break;
-                case PALADIN_SPELL_HOLY_SHOCK_R5:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R5_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R5_HEALING;
-                    break;
-                case PALADIN_SPELL_HOLY_SHOCK_R6:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R6_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R6_HEALING;
-                    break;
-                case PALADIN_SPELL_HOLY_SHOCK_R7:
-                    hurt = PALADIN_SPELL_HOLY_SHOCK_R7_DAMAGE;
-                    heal = PALADIN_SPELL_HOLY_SHOCK_R7_HEALING;
-                    break;
-                default:
-                    sLog.outError("spell_pal_holy_shock_SpellScript::HandleDummy: Spell %u not handled in HS",GetSpellInfo()->Id);
-                    return;
-            }
+            uint8 rank = spellmgr.GetSpellRank(GetSpellInfo()->Id);
 
             if (caster->IsFriendlyTo(unitTarget))
-                caster->CastSpell(unitTarget, heal, true, 0);
+                caster->CastSpell(unitTarget, spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_HEALING, rank), true, 0);
             else
-                caster->CastSpell(unitTarget, hurt, true, 0);
+                caster->CastSpell(unitTarget, spellmgr.GetSpellWithRank(PALADIN_SPELL_HOLY_SHOCK_R1_DAMAGE, rank), true, 0);
         }
     }
 
