@@ -567,6 +567,9 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
     if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->ToCreature()->IsAIEnabled)
         pVictim->ToCreature()->AI()->DamageTaken(this, damage);
 
+    if (GetTypeId() == TYPEID_UNIT && this->ToCreature()->IsAIEnabled)
+        this->ToCreature()->AI()->DamageDealt(pVictim, damage);
+
     if (damagetype != NODAMAGE)
     {
         // interrupting auras with AURA_INTERRUPT_FLAG_DAMAGE before checking !damage (absorbed damage breaks that type of auras)
