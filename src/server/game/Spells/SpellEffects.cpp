@@ -1571,21 +1571,6 @@ void Spell::EffectDummy(uint32 i)
             }
             switch(m_spellInfo->Id)
             {
-                // Warrior's Wrath
-                case 21977:
-                {
-                    if (!unitTarget)
-                        return;
-                    m_caster->CastSpell(unitTarget, 21887, true);// spell mod
-                    return;
-                }
-                // Last Stand
-                case 12975:
-                {
-                    int32 healthModSpellBasePoints0 = int32(m_caster->GetMaxHealth()*0.3);
-                    m_caster->CastCustomSpell(m_caster, 12976, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-                    return;
-                }
                 // Bloodthirst
                 case 23881:
                 {

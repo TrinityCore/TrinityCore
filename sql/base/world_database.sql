@@ -14683,6 +14683,8 @@ LOCK TABLES `spell_script_names` WRITE;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 -- warrior
+( 12975,'spell_warr_last_stand'),
+( 21977,'spell_warr_warriors_wrath'),
 -- paladin
 ( 20425, 'spell_pal_judgement_of_command'),
 (-20473, 'spell_pal_holy_shock'),

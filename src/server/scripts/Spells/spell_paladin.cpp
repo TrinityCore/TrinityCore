@@ -37,7 +37,7 @@ enum PaladinSpells
 
 class spell_pal_blessing_of_faith_SpellScript : public SpellScript
 {
-    bool Validate(SpellEntry const * spellEntry)
+    bool Validate(SpellEntry const *spellEntry)
     {
         if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
             return false;
@@ -82,10 +82,11 @@ SpellScript * GetSpellScript_spell_pal_blessing_of_faith()
 
 class spell_pal_holy_shock_SpellScript : public SpellScript
 {
-    bool Validate(SpellEntry const * spellEntry)
+    bool Validate(SpellEntry const *spellEntry)
     {
         if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1))
             return false;
+
         // can't use other spell than holy shock due to spell_ranks dependency
         if (spellmgr.GetFirstSpellInChain(PALADIN_SPELL_HOLY_SHOCK_R1) != spellmgr.GetFirstSpellInChain(spellEntry->Id))
             return false;
