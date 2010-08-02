@@ -4384,11 +4384,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     // the player was uninvited already on logout so just remove from group
     QueryResult_AutoPtr resultGroup = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", guid);
     if (resultGroup)
-    {
-        uint64 guid = MAKE_NEW_GUID((*resultGroup)[0].GetUInt32(), 0, HIGHGUID_GROUP);
-        if (Group* group = objmgr.GetGroupByGUID(guid))
+        if (Group* group = objmgr.GetGroupByGUID((*resultGroup)[0].GetUInt32()))
             RemoveFromGroup(group, playerguid);
-    }
 
     // Remove signs from petitions (also remove petitions if owner);
     RemovePetitionsAndSigns(playerguid, 10);
@@ -17203,8 +17200,7 @@ void Player::_LoadGroup(QueryResult_AutoPtr result)
     //QueryResult *result = CharacterDatabase.PQuery("SELECT guid FROM group_member WHERE memberGuid=%u", GetGUIDLow());
     if (result)
     {
-        uint64 guid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_GROUP);
-        if (Group* group = objmgr.GetGroupByGUID(guid))
+        if (Group* group = objmgr.GetGroupByGUID((*result)[0].GetUInt32()))
         {
             uint8 subgroup = group->GetMemberGroup(GetGUID());
             SetGroup(group, subgroup);
