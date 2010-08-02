@@ -1551,7 +1551,7 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
 {
     // get the template BG
     BattleGround *bg_template = GetBattleGroundTemplate(bgTypeId);
-    BattleGroundTypeIdList *enabledBGsOrArenas = NULL;
+    BattleGroundSelectionWeightMap *selectionWeights = NULL;
 
     if (!bg_template)
     {
@@ -1561,19 +1561,39 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
     bool isRandom = false;
 
     if (bg_template->isArena())
-        enabledBGsOrArenas = &m_EnabledArenas;
+        selectionWeights = &m_ArenaSelectionWeights;
     else if (bgTypeId == BATTLEGROUND_RB)
     {
-        enabledBGsOrArenas = &m_EnabledBGs;
+        selectionWeights = &m_BGSelectionWeights;
         isRandom = true;
     }
 
-    if (enabledBGsOrArenas)
+    if (selectionWeights)
     {
-        if (!enabledBGsOrArenas->size())
+        if (!selectionWeights->size())
            return NULL;
-        uint8 size = enabledBGsOrArenas->size() - 1;
-        bgTypeId = enabledBGsOrArenas->at(urand(0,size));
+        uint32 Weight = 0;
+        uint32 selectedWeight = 0;
+        bgTypeId = BATTLEGROUND_TYPE_NONE;
+        // Get sum of all weights
+        for (BattleGroundSelectionWeightMap::const_iterator it = selectionWeights->begin(); it != selectionWeights->end(); ++it)
+            Weight += it->second;
+        if (!Weight)
+            return NULL;
+        // Select a random value
+        selectedWeight = urand(0, Weight);
+
+        // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
+        Weight = 0;
+        for (BattleGroundSelectionWeightMap::const_iterator it = selectionWeights->begin(); it != selectionWeights->end(); ++it)
+        {
+            Weight += it->second;
+            if (selectedWeight < Weight)
+            {
+                bgTypeId = it->first;
+                break;
+            }
+        }
         bg_template = GetBattleGroundTemplate(bgTypeId);
         if (!bg_template)
         {
@@ -1701,14 +1721,15 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
     float AStartLoc[4];
     float HStartLoc[4];
     uint32 MaxPlayersPerTeam, MinPlayersPerTeam, MinLvl, MaxLvl, start1, start2;
+    uint8 selectionWeight;
     BattlemasterListEntry const *bl;
     WorldSafeLocsEntry const *start;
     bool IsArena;
 
     uint32 count = 0;
 
-    //                                                       0   1                 2                 3      4      5                6              7             8
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO FROM battleground_template");
+    //                                                       0   1                 2                 3      4      5                6              7             8           9
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT id, MinPlayersPerTeam,MaxPlayersPerTeam,MinLvl,MaxLvl,AllianceStartLoc,AllianceStartO,HordeStartLoc,HordeStartO,Weight FROM battleground_template");
 
     if (!result)
     {
@@ -1806,6 +1827,7 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
             continue;
         }
 
+        selectionWeight = fields[9].GetUInt8();
         //sLog.outDetail("Creating battleground %s, %u-%u", bl->name[sWorld.GetDBClang()], MinLvl, MaxLvl);
         if (!CreateBattleGround(bgTypeID, IsArena, MinPlayersPerTeam, MaxPlayersPerTeam, MinLvl, MaxLvl, bl->name[sWorld.GetDefaultDbcLocale()], bl->mapid[0], AStartLoc[0], AStartLoc[1], AStartLoc[2], AStartLoc[3], HStartLoc[0], HStartLoc[1], HStartLoc[2], HStartLoc[3]))
             continue;
@@ -1813,10 +1835,10 @@ void BattleGroundMgr::CreateInitialBattleGrounds()
         if (IsArena)
         {
             if (bgTypeID != BATTLEGROUND_AA)
-                m_EnabledArenas.push_back(bgTypeID);
+                m_ArenaSelectionWeights[bgTypeID] = selectionWeight;
         }
         else if (bgTypeID != BATTLEGROUND_RB)
-                m_EnabledBGs.push_back(bgTypeID);
+            m_BGSelectionWeights[bgTypeID] = selectionWeight;
         ++count;
     } while (result->NextRow());
 
