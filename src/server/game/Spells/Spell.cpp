@@ -200,82 +200,72 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
     if (m_targetMask == TARGET_FLAG_SELF)
         return true;
 
-    // TARGET_FLAG_UNK2 is used for non-combat pets, maybe other?
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNK2))
+    for (uint8 i = 0; i < MAX_TARGET_FLAGS;++i)
     {
-        if (!data->readPackGUID(m_unitTargetGUID))
-            return false;
-        if (m_targetMask & TARGET_FLAG_UNIT)
-            m_intTargetFlags |= FLAG_INT_UNIT;
-    }
-
-    if (m_targetMask & (TARGET_FLAG_OBJECT))
-    {
-        if (!data->readPackGUID(m_GOTargetGUID))
-            return false;
-        m_intTargetFlags |= FLAG_INT_OBJECT;
-    }
-
-    if ((m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM)) && caster->GetTypeId() == TYPEID_PLAYER)
-        if (!data->readPackGUID(m_itemTargetGUID))
-            return false;
-
-    if (m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
-        if (!data->readPackGUID(m_CorpseTargetGUID))
-            return false;
-
-    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
-    {
-        if (data->rpos() + 1 + 4 + 4 + 4 > data->size())
-            return false;
-
-        if (!data->readPackGUID(m_unitTargetGUID))
-            return false;
-
-        *data >> m_srcPos.m_positionX >> m_srcPos.m_positionY >> m_srcPos.m_positionZ;
-        if (!m_srcPos.IsPositionValid())
-            return false;
-         m_intTargetFlags |= FLAG_INT_SRC_LOC;
-    }
-    else
-        m_srcPos.Relocate(caster);
-
-    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        if (data->rpos() + 1 + 4 + 4 + 4 > data->size())
-            return false;
-
-        if (!data->readPackGUID(m_unitTargetGUID))
-            return false;
-
-        *data >> m_dstPos.m_positionX >> m_dstPos.m_positionY >> m_dstPos.m_positionZ;
-        if (!m_dstPos.IsPositionValid())
-            return false;
-
-        m_intTargetFlags |= FLAG_INT_DST_LOC;
-
-        if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
+        if (!(m_targetMask & (1<<i)))
+            continue;
+        switch (1<<i)
         {
-            if (data->rpos() + 4 + 4 <= data->size())
+            case TARGET_FLAG_UNIT:
+            case TARGET_FLAG_UNK17: // used for non-combat pets, maybe other?
+                if (!data->readPackGUID(m_unitTargetGUID))
+                    return false;
+                if (m_targetMask & TARGET_FLAG_UNIT)
+                    m_intTargetFlags |= FLAG_INT_UNIT;
+                break;
+            case TARGET_FLAG_OBJECT:
+                if (!data->readPackGUID(m_GOTargetGUID))
+                    return false;
+                m_intTargetFlags |= FLAG_INT_OBJECT;
+                break;
+            case TARGET_FLAG_CORPSE:
+            case TARGET_FLAG_PVP_CORPSE:
+                if (!data->readPackGUID(m_CorpseTargetGUID))
+                    return false;
+                break;
+            case TARGET_FLAG_ITEM:
+            case TARGET_FLAG_TRADE_ITEM:
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return false;
+                if (!data->readPackGUID(m_itemTargetGUID))
+                    return false;
+                break;
+            case TARGET_FLAG_SOURCE_LOCATION:
             {
-                *data >> m_elevation >> m_speed;
-                // TODO: should also read
+                uint64 relativePositionObjGUID;
+                if (!data->readPackGUID(relativePositionObjGUID))
+                    return false;
+                *data >> m_srcPos.m_positionX >> m_srcPos.m_positionY >> m_srcPos.m_positionZ;
                 m_srcPos.m_orientation = caster->GetOrientation();
-                //*data >> uint16 >> uint8 >> uint32 >> uint32;
-                //*data >> float >> float >> float >> float...
+                if (!m_srcPos.IsPositionValid())
+                    return false;
+                m_intTargetFlags |= FLAG_INT_SRC_LOC;
+                break;
             }
+            case TARGET_FLAG_DEST_LOCATION:
+            {
+                uint64 relativePositionObjGUID;
+                if (!data->readPackGUID(relativePositionObjGUID))
+                    return false;
+                *data >> m_dstPos.m_positionX >> m_dstPos.m_positionY >> m_dstPos.m_positionZ;
+                if (!m_dstPos.IsPositionValid())
+                    return false;
+                m_intTargetFlags |= FLAG_INT_DST_LOC;
+                break;
+            }
+            case TARGET_FLAG_STRING:
+                if (data->rpos() + 1 > data->size())
+                    return false;
+                *data >> m_strTarget;
+                break;
         }
     }
-    else
+
+    if (!(m_targetMask & TARGET_FLAG_SOURCE_LOCATION))
+        m_srcPos.Relocate(caster);
+
+    if (!(m_targetMask & TARGET_FLAG_DEST_LOCATION)
         m_dstPos.Relocate(caster);
-
-    if (m_targetMask & TARGET_FLAG_STRING)
-    {
-        if (data->rpos() + 1 > data->size())
-            return false;
-
-        *data >> m_strTarget;
-    }
 
     // find real units/GOs
     Update(caster);
@@ -287,50 +277,51 @@ void SpellCastTargets::write (WorldPacket * data)
     *data << uint32(m_targetMask);
     //sLog.outDebug("Spell write, target mask = %u", m_targetMask);
 
-    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK2))
+    for (uint8 i = 0; i < MAX_TARGET_FLAGS;++i)
     {
-        if (m_targetMask & TARGET_FLAG_UNIT)
+        if (!(m_targetMask & (1<<i)))
+            continue;
+        switch (1<<i)
         {
-            if (m_unitTarget)
-                data->append(m_unitTarget->GetPackGUID());
-            else
+            case TARGET_FLAG_UNIT:
+                if (m_unitTarget)
+                    data->append(m_unitTarget->GetPackGUID());
+                else
+                    *data << uint8(0);
+                break;
+            case TARGET_FLAG_OBJECT:
+                if (m_GOTarget)
+                    data->append(m_GOTarget->GetPackGUID());
+                else
+                    *data << uint8(0);
+                break;
+            case TARGET_FLAG_CORPSE:
+            case TARGET_FLAG_PVP_CORPSE:
+                data->appendPackGUID(m_CorpseTargetGUID);
+                break;
+            case TARGET_FLAG_UNK17:
                 *data << uint8(0);
+                break;
+            case TARGET_FLAG_ITEM:
+            case TARGET_FLAG_TRADE_ITEM:
+                if (m_itemTarget)
+                    data->append(m_itemTarget->GetPackGUID());
+                else
+                    *data << uint8(0);
+                break;
+            case TARGET_FLAG_SOURCE_LOCATION:
+                *data << uint8(0); // relative position guid here - transport for example
+                *data << m_srcPos.m_positionX << m_srcPos.m_positionY << m_srcPos.m_positionZ;
+                break;
+            case TARGET_FLAG_DEST_LOCATION:
+                *data << uint8(0); // relative position guid here - transport for example
+                *data << m_dstPos.m_positionX << m_dstPos.m_positionY << m_dstPos.m_positionZ;
+                break;
+            case TARGET_FLAG_STRING:
+                *data << m_strTarget;
+                break;
         }
-        else if (m_targetMask & TARGET_FLAG_OBJECT)
-        {
-            if (m_GOTarget)
-                data->append(m_GOTarget->GetPackGUID());
-            else
-                *data << uint8(0);
-        }
-        else if (m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
-            data->appendPackGUID(m_CorpseTargetGUID);
-        else
-            *data << uint8(0);
     }
-
-    if (m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-    {
-        if (m_itemTarget)
-            data->append(m_itemTarget->GetPackGUID());
-        else
-            *data << uint8(0);
-    }
-
-    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
-    {
-        *data << uint8(0); // It seems the client doesn't like unit target GUID being sent here, we must send 0
-        *data << m_srcPos.m_positionX << m_srcPos.m_positionY << m_srcPos.m_positionZ;
-    }
-
-    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
-    {
-        *data << uint8(0); // It seems the client doesn't like unit target GUID being sent here, we must send 0
-        *data << m_dstPos.m_positionX << m_dstPos.m_positionY << m_dstPos.m_positionZ;
-    }
-
-    if (m_targetMask & TARGET_FLAG_STRING)
-        *data << m_strTarget;
 }
 
 Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck)
