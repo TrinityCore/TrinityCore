@@ -181,7 +181,6 @@ DROP TABLE IF EXISTS `areatrigger_teleport`;
 CREATE TABLE `areatrigger_teleport` (
   `id` mediumint(8) unsigned NOT NULL DEFAULT '0' COMMENT 'Identifier',
   `name` text,
-  `access_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `target_map` smallint(5) unsigned NOT NULL DEFAULT '0',
   `target_position_x` float NOT NULL DEFAULT '0',
   `target_position_y` float NOT NULL DEFAULT '0',
@@ -14675,6 +14674,40 @@ CREATE TABLE `spell_script_names` (
   UNIQUE (`spell_id`, `ScriptName`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `spell_script_names`
+--
+
+LOCK TABLES `spell_script_names` WRITE;
+/*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+-- warrior
+-- paladin
+( 20425, 'spell_pal_judgement_of_command'),
+(-20473, 'spell_pal_holy_shock'),
+( 37877, 'spell_pal_blessing_of_faith'),
+-- hunter
+( 23989, 'spell_hun_readiness'),
+( 53271, 'spell_hun_masters_call'),
+( 53478, 'spell_hun_last_stand_pet'),
+-- rogue
+( 5938, 'spell_rog_shiv'),
+( 14185, 'spell_rog_preparation'),
+( 31231, 'spell_rog_cheat_death'),
+( 51662, 'spell_rog_hunger_for_blood'),
+-- priest
+(-47540, 'spell_pri_penance'),
+-- death knight
+-- shaman
+-- mage
+( 11958, 'spell_mage_cold_snap'),
+( 31687, 'spell_mage_summon_water_elemental'),
+( 32826, 'spell_mage_polymorph_visual');
+-- warlock
+-- druid
+/*!40000 ALTER TABLE `spell_script_names` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Table structure for table `transports`
