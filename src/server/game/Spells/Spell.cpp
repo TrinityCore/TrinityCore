@@ -264,7 +264,7 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
     if (!(m_targetMask & TARGET_FLAG_SOURCE_LOCATION))
         m_srcPos.Relocate(caster);
 
-    if (!(m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    if (!(m_targetMask & TARGET_FLAG_DEST_LOCATION))
         m_dstPos.Relocate(caster);
 
     // find real units/GOs

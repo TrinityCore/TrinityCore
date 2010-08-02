@@ -98,6 +98,21 @@ class ObjectAccessor
 
         // TODO: override these template functions for each holder type and add assertions
 
+        template<class T> static T* GetObjectInOrOutOfWorld(uint64 guid, T* /*typeSpecifier*/)
+        {
+            return HashMapHolder<T>::Find(guid);
+        }
+        static Unit* GetObjectInOrOutOfWorld(uint64 guid, Unit* /*typeSpecifier*/)
+        {
+            if (IS_PLAYER_GUID(guid))
+                return (Unit*)GetObjectInOrOutOfWorld(guid, (Player*)NULL);
+
+            if (IS_PET_GUID(guid))
+                return (Unit*)GetObjectInOrOutOfWorld(guid, (Pet*)NULL);
+
+            return (Unit*)GetObjectInOrOutOfWorld(guid, (Creature*)NULL);
+        }
+
         // returns object if is in world
         template<class T> static T* GetObjectInWorld(uint64 guid, T* /*typeSpecifier*/)
         {
