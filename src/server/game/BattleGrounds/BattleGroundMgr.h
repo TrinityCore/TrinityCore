@@ -260,11 +260,11 @@ class BattleGroundMgr
     private:
         BattleMastersMap    mBattleMastersMap;
 
-        typedef std::vector<BattleGroundTypeId> BattleGroundTypeIdList;
+        typedef std::map<BattleGroundTypeId, uint8> BattleGroundSelectionWeightMap; // TypeId and its selectionWeight
         /* Battlegrounds */
         BattleGroundSet m_BattleGrounds[MAX_BATTLEGROUND_TYPE_ID];
-        BattleGroundTypeIdList m_EnabledArenas;
-        BattleGroundTypeIdList m_EnabledBGs;
+        BattleGroundSelectionWeightMap m_ArenaSelectionWeights;
+        BattleGroundSelectionWeightMap m_BGSelectionWeights;
         std::vector<uint64> m_QueueUpdateScheduler;
         std::set<uint32> m_ClientBattleGroundIds[MAX_BATTLEGROUND_TYPE_ID][MAX_BATTLEGROUND_BRACKETS]; //the instanceids just visible for the client
         uint32 m_NextRatingDiscardUpdate;
