@@ -15409,6 +15409,7 @@ INSERT INTO `trinity_string` (`entry`,`content_default`,`content_loc1`,`content_
 (1127, 'Talents of %s''s pet reset.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1128, '%d - |cffffffff|Htaxinode:%u|h[%s %s]|h|r (Map:%u X:%f Y:%f Z:%f)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1129, '%d - %s %s (Map:%u X:%f Y:%f Z:%f)', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+(1130, 'Can''t dump deleted characters, aborting.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1200, 'You try to view cinemitic %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1201, 'You try to view movie %u but it doesn''t exist.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
 (1300, 'Alliance', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

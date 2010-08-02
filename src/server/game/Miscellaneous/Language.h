@@ -792,7 +792,8 @@ enum TrinityStrings
     LANG_RESET_PET_TALENTS_ONLINE       = 1127,
     LANG_TAXINODE_ENTRY_LIST_CHAT       = 1128,
     LANG_TAXINODE_ENTRY_LIST_CONSOLE    = 1129,
-    // Room for more level 3              1130-1199 not used
+    LANG_COMMAND_EXPORT_DELETED_CHAR    = 1130,
+    // Room for more level 3              1131-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,

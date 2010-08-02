@@ -6574,6 +6574,10 @@ bool ChatHandler::HandlePDumpWriteCommand(const char *args)
             PSendSysMessage(LANG_FILE_OPEN_FAIL,file);
             SetSentErrorMessage(true);
             return false;
+        case DUMP_CHARACTER_DELETED:
+            PSendSysMessage(LANG_COMMAND_EXPORT_DELETED_CHAR);
+            SetSentErrorMessage(true);
+            return false;
         default:
             PSendSysMessage(LANG_COMMAND_EXPORT_FAILED);
             SetSentErrorMessage(true);
