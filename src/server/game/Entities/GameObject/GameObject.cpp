@@ -63,7 +63,7 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
     m_rotation = 0;
 
     m_groupLootTimer = 0;
-    lootingGroupGUID = 0;
+    lootingGroupLowGUID = 0;
 
     ResetLootMode(); // restore default loot mode
 }
@@ -444,11 +444,11 @@ void GameObject::Update(uint32 diff)
                     {
                         if (m_groupLootTimer <= diff)
                         {
-                            Group* group = objmgr.GetGroupByGUID(lootingGroupGUID);
+                            Group* group = objmgr.GetGroupByGUID(lootingGroupLowGUID);
                             if (group)
                                 group->EndRoll(&loot);
                             m_groupLootTimer = 0;
-                            lootingGroupGUID = 0;
+                            lootingGroupLowGUID = 0;
                         }
                         else m_groupLootTimer -= diff;
                     }

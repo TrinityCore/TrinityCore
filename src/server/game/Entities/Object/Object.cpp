@@ -628,7 +628,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
                             dynamicFlags &= ~UNIT_DYNFLAG_TAPPED_BY_PLAYER;
                         }
 
-                        if (!target->isAllowedToLoot(ToCreature()))
+                        if (!target->isAllowedToLoot(creature))
                             dynamicFlags &= ~UNIT_DYNFLAG_LOOTABLE;
                     }
 
