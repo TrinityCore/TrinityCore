@@ -764,7 +764,8 @@ bool Aura::IsVisible() const
 void Aura::UnregisterSingleTarget()
 {
     ASSERT(m_isSingleTarget);
-    Unit * caster = GetCaster();
+    Unit * caster = ObjectAccessor::GetObjectInOrOutOfWorld(GetCasterGUID(), (Unit*)NULL);//GetCaster();
+    assert(caster);
     caster->GetSingleCastAuras().remove(this);
     SetIsSingleTarget(false);
 }
