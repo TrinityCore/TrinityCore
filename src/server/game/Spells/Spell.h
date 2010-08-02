@@ -33,15 +33,6 @@ class Aura;
 struct SpellEntry;
 class SpellScript;
 
-// These flags represent the inner states of the targeting system
-enum SpellInternalTargetFlags
-{
-    FLAG_INT_UNIT               = 0x00000002,
-    FLAG_INT_SRC_LOC            = 0x00000020,
-    FLAG_INT_DST_LOC            = 0x00000040,
-    FLAG_INT_OBJECT             = 0x00000800
-};
-
 // These flags are used in client - server communication only
 enum SpellCastTargetFlags
 {
@@ -166,14 +157,12 @@ class SpellCastTargets
             m_strTarget = target.m_strTarget;
 
             m_targetMask = target.m_targetMask;
-            m_intTargetFlags = target.getIntTargetFlags();
 
             return *this;
         }
 
         uint32 getTargetMask() const { return m_targetMask; }
         void setTargetMask(uint32 newMask) { m_targetMask = newMask; }
-        uint32 getIntTargetFlags() const { return m_intTargetFlags; }
 
         uint64 getUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit *getUnitTarget() const { return m_unitTarget; }
@@ -204,8 +193,8 @@ class SpellCastTargets
         }
 
         bool IsEmpty() const { return m_GOTargetGUID == 0 && m_unitTargetGUID == 0 && m_itemTarget == 0 && m_CorpseTargetGUID == 0; }
-        bool HasSrc() const { return m_intTargetFlags & FLAG_INT_SRC_LOC; }
-        bool HasDst() const { return m_intTargetFlags & FLAG_INT_DST_LOC; }
+        bool HasSrc() const { return getTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
+        bool HasDst() const { return getTargetMask() & TARGET_FLAG_DEST_LOCATION; }
         bool HasTraj() const { return m_speed != 0; }
 
         float GetDist2d() const { return m_srcPos.GetExactDist2d(&m_dstPos); }
