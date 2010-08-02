@@ -61,6 +61,7 @@ enum DumpReturn
     DUMP_TOO_MANY_CHARS,
     DUMP_UNEXPECTED_END,
     DUMP_FILE_BROKEN,
+    DUMP_CHARACTER_DELETED
 };
 
 class PlayerDump
@@ -74,12 +75,12 @@ class PlayerDumpWriter : public PlayerDump
     public:
         PlayerDumpWriter() {}
 
-        std::string GetDump(uint32 guid);
+        bool GetDump(uint32 guid, std::string& dump);
         DumpReturn WriteDump(const std::string& file, uint32 guid);
     private:
         typedef std::set<uint32> GUIDs;
 
-        void DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type);
+        bool DumpTable(std::string& dump, uint32 guid, char const*tableFrom, char const*tableTo, DumpTableType type);
         std::string GenerateWhereStr(char const* field, GUIDs const& guids, GUIDs::const_iterator& itr);
         std::string GenerateWhereStr(char const* field, uint32 guid);
 
