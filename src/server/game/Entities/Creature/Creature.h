@@ -611,7 +611,7 @@ class Creature : public Unit, public GridObject<Creature>
         const CreatureData* GetLinkedRespawnCreatureData() const;
 
         uint32 m_groupLootTimer;                            // (msecs)timer used for group loot
-        uint64 lootingGroupGUID;                            // used to find group which is looting corpse
+        uint32 lootingGroupLowGUID;                         // used to find group which is looting corpse
 
         void SendZoneUnderAttackMessage(Player* attacker);
 

@@ -140,7 +140,7 @@ bool ForcedDespawnDelayEvent::Execute(uint64 /*e_time*/, uint32 /*p_time*/)
 
 Creature::Creature() :
 Unit(),
-lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupGUID(0),
+lootForPickPocketed(false), lootForBody(false), m_groupLootTimer(0), lootingGroupLowGUID(0),
 m_lootMoney(0), m_lootRecipient(0),
 m_deathTimer(0), m_respawnTime(0), m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
@@ -472,18 +472,18 @@ void Creature::Update(uint32 diff)
             if (m_isDeadByDefault)
                 break;
 
-            if (m_groupLootTimer && lootingGroupGUID)
+            if (m_groupLootTimer && lootingGroupLowGUID)
             {
                 // for delayed spells
                 m_Events.Update(diff);
 
                 if (m_groupLootTimer <= diff)
                 {
-                    Group* group = objmgr.GetGroupByGUID(lootingGroupGUID);
+                    Group* group = objmgr.GetGroupByGUID(lootingGroupLowGUID);
                     if (group)
                         group->EndRoll(&loot);
                     m_groupLootTimer = 0;
-                    lootingGroupGUID = 0;
+                    lootingGroupLowGUID = 0;
                 }
                 else m_groupLootTimer -= diff;
             }

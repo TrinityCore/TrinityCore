@@ -132,31 +132,22 @@ bool Group::Create(const uint64 &guid, const char * name)
     return true;
 }
 
-bool Group::LoadGroupFromDB(const uint64 &groupGuid, QueryResult_AutoPtr result, bool loadMembers)
+bool Group::LoadGroupFromDB(const uint32 &groupGuid, QueryResult_AutoPtr result, bool loadMembers)
 {
     if (isBGGroup())
         return false;
 
-    uint32 groupLowGuid = GUID_LOPART(groupGuid);
-    if (!result)
-    {
-        //                                        0           1           2           3              4      5      6      7      8      9      10     11     12         13          14
-        result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6, icon7, icon8, groupType, difficulty, raiddifficulty FROM groups WHERE guid=%u", groupLowGuid);
-
-        if (!result)
-            return false;
-    }
     Field *fields = result->Fetch();
-    m_guid = groupGuid;
+    m_guid = MAKE_NEW_GUID(groupGuid, 0, HIGHGUID_GROUP);
     m_leaderGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
 
     // group leader not exist
     if (!objmgr.GetPlayerNameByGUID(fields[0].GetUInt32(), m_leaderName))
         return false;
 
-    m_lootMethod = (LootMethod)fields[1].GetUInt8();
+    m_lootMethod = LootMethod(fields[1].GetUInt8());
     m_looterGuid = MAKE_NEW_GUID(fields[2].GetUInt32(), 0, HIGHGUID_PLAYER);
-    m_lootThreshold = (ItemQualities)fields[3].GetUInt16();
+    m_lootThreshold = ItemQualities(fields[3].GetUInt16());
 
     for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
         m_targetIcons[i] = fields[4+i].GetUInt64();
@@ -177,7 +168,7 @@ bool Group::LoadGroupFromDB(const uint64 &groupGuid, QueryResult_AutoPtr result,
 
     if (loadMembers)
     {
-        result = CharacterDatabase.PQuery("SELECT memberGuid, memberFlags, subgroup FROM group_member WHERE guid=%u", groupLowGuid);
+        result = CharacterDatabase.PQuery("SELECT memberGuid, memberFlags, subgroup FROM group_member WHERE guid=%u", groupGuid);
         if (!result)
             return false;
 
@@ -684,12 +675,12 @@ void Group::GroupLoot(Loot *loot, WorldObject* pLootedObject)
                 if (Creature* creature = dynamic_cast<Creature *>(pLootedObject))
                 {
                     creature->m_groupLootTimer = 60000;
-                    creature->lootingGroupGUID = GetGUID();
+                    creature->lootingGroupLowGUID = GetLowGUID();
                 }
                 else if (GameObject* go = dynamic_cast<GameObject *>(pLootedObject))
                 {
                     go->m_groupLootTimer = 60000;
-                    go->lootingGroupGUID = GetGUID();
+                    go->lootingGroupLowGUID = GetLowGUID();
                 }
             }
             else
@@ -778,7 +769,7 @@ void Group::NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject)
                 if (Creature* creature = dynamic_cast<Creature *>(pLootedObject))
                 {
                     creature->m_groupLootTimer = 60000;
-                    creature->lootingGroupGUID = GetGUID();
+                    creature->lootingGroupLowGUID = GetLowGUID();
                 }
             }
             else

@@ -377,7 +377,7 @@ class ObjectMgr
     public:
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
-        typedef std::set< Group * > GroupSet;
+        typedef UNORDERED_MAP<uint32, Group *> GroupMap;
 
         typedef UNORDERED_MAP<uint32, Guild *> GuildMap;
 
@@ -410,9 +410,9 @@ class ObjectMgr
         void LoadGameobjectInfo();
         void AddGameobjectInfo(GameObjectInfo *goinfo);
 
-        Group * GetGroupByGUID(const uint64 &guid) const;
-        void AddGroup(Group* group) { mGroupSet.insert(group); }
-        void RemoveGroup(Group* group) { mGroupSet.erase(group); }
+        Group * GetGroupByGUID(const uint32 &guid) const;
+        void AddGroup(Group* group) { mGroupMap[group->GetLowGUID()] = group; }
+        void RemoveGroup(Group* group) { mGroupMap.erase(group->GetLowGUID()); }
 
         Guild* GetGuildByLeader(uint64 const&guid) const;
         Guild* GetGuildById(uint32 GuildId) const;
@@ -1012,7 +1012,7 @@ class ObjectMgr
         typedef std::set<uint32> TavernAreaTriggerSet;
         typedef std::set<uint32> GameObjectForQuestSet;
 
-        GroupSet            mGroupSet;
+        GroupMap            mGroupMap;
         GuildMap            mGuildMap;
         ArenaTeamMap        mArenaTeamMap;
 
