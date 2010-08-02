@@ -60,13 +60,14 @@ enum SpellCastTargetFlags
     TARGET_FLAG_OBJECT          = 0x00000800,               // pguid, 2 spells
     TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid, 0 spells
     TARGET_FLAG_STRING          = 0x00002000,               // string, 0 spells
-    TARGET_FLAG_UNK1            = 0x00004000,               // 199 spells, opening object/lock
+    TARGET_FLAG_UNK15           = 0x00004000,               // 199 spells, opening object/lock
     TARGET_FLAG_CORPSE          = 0x00008000,               // pguid, resurrection spells
-    TARGET_FLAG_UNK2            = 0x00010000,               // pguid, not used in any spells as of 3.2.2a (can be set dynamically)
+    TARGET_FLAG_UNK17           = 0x00010000,               // pguid, not used in any spells as of 3.2.2a (can be set dynamically)
     TARGET_FLAG_GLYPH           = 0x00020000,               // used in glyph spells
-    TARGET_FLAG_UNK3            = 0x00040000,               //
-    TARGET_FLAG_UNK4            = 0x00080000                // uint32, loop { vec3, guid -> if guid == 0 break }
+    TARGET_FLAG_UNK19            = 0x00040000,               //
+    TARGET_FLAG_UNK20            = 0x00080000                // uint32, loop { vec3, guid -> if guid == 0 break }
 };
+#define MAX_TARGET_FLAGS 21
 
 enum SpellCastFlags
 {
@@ -93,7 +94,16 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_20         = 0x00080000,
     CAST_FLAG_UNKNOWN_21         = 0x00100000,
     CAST_FLAG_RUNE_LIST          = 0x00200000,
-    CAST_FLAG_UNKNOWN_23         = 0x04000000
+    CAST_FLAG_UNKNOWN_23         = 0x00400000,
+    CAST_FLAG_UNKNOWN_24         = 0x00800000,
+    CAST_FLAG_UNKNOWN_25         = 0x01000000,
+    CAST_FLAG_UNKNOWN_26         = 0x02000000,
+    CAST_FLAG_UNKNOWN_27         = 0x04000000,
+    CAST_FLAG_UNKNOWN_28         = 0x08000000,
+    CAST_FLAG_UNKNOWN_29         = 0x10000000,
+    CAST_FLAG_UNKNOWN_30         = 0x20000000,
+    CAST_FLAG_UNKNOWN_31         = 0x40000000,
+    CAST_FLAG_UNKNOWN_32         = 0x80000000,
 };
 
 enum SpellRangeFlag
