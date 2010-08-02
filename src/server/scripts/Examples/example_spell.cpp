@@ -108,6 +108,7 @@ SpellScript * GetSpellScript_spell_ex_()
 // this function has to be added to function set in ScriptLoader.cpp
 void AddSC_example_spell_scripts()
 {
+/* Commented out to prevent loading errors
     Script *newscript;
 
     newscript = new Script;
@@ -116,4 +117,5 @@ void AddSC_example_spell_scripts()
     // assign create function to the script
     newscript->GetSpellScript = &GetSpellScript_spell_ex_49375;
     newscript->RegisterSelf();
+*/
 }
