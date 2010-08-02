@@ -83,7 +83,6 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
     m_dstPos.Relocate(0,0,0,0);
     m_strTarget = "";
     m_targetMask = 0;
-    m_intTargetFlags = 0;
 }
 
 SpellCastTargets::~SpellCastTargets()
@@ -97,13 +96,13 @@ void SpellCastTargets::setUnitTarget(Unit *target)
 
     m_unitTarget = target;
     m_unitTargetGUID = target->GetGUID();
-    m_intTargetFlags |= FLAG_INT_UNIT;
+    m_targetMask |= TARGET_FLAG_UNIT;
 }
 
 void SpellCastTargets::setSrc(float x, float y, float z)
 {
     m_srcPos.Relocate(x, y, z);
-    m_intTargetFlags |= FLAG_INT_SRC_LOC;
+    m_targetMask |= TARGET_FLAG_SOURCE_LOCATION;
 }
 
 void SpellCastTargets::setSrc(Position *pos)
@@ -111,14 +110,14 @@ void SpellCastTargets::setSrc(Position *pos)
     if (pos)
     {
         m_srcPos.Relocate(pos);
-        m_intTargetFlags |= FLAG_INT_SRC_LOC;
+        m_targetMask |= TARGET_FLAG_SOURCE_LOCATION;
     }
 }
 
 void SpellCastTargets::setDst(float x, float y, float z, float orientation, uint32 mapId)
 {
     m_dstPos.Relocate(x, y, z, orientation);
-    m_intTargetFlags |= FLAG_INT_DST_LOC;
+    m_targetMask |= TARGET_FLAG_DEST_LOCATION;
     if (mapId != MAPID_INVALID)
         m_dstPos.m_mapId = mapId;
 }
@@ -128,7 +127,7 @@ void SpellCastTargets::setDst(Position *pos)
     if (pos)
     {
         m_dstPos.Relocate(pos);
-        m_intTargetFlags |= FLAG_INT_DST_LOC;
+        m_targetMask |= TARGET_FLAG_DEST_LOCATION;
     }
 }
 
@@ -136,7 +135,7 @@ void SpellCastTargets::setGOTarget(GameObject *target)
 {
     m_GOTarget = target;
     m_GOTargetGUID = target->GetGUID();
-    m_intTargetFlags |= FLAG_INT_OBJECT;
+    m_targetMask |= TARGET_FLAG_OBJECT;
 }
 
 void SpellCastTargets::setItemTarget(Item* item)
@@ -210,13 +209,10 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
             case TARGET_FLAG_UNK17: // used for non-combat pets, maybe other?
                 if (!data->readPackGUID(m_unitTargetGUID))
                     return false;
-                if (m_targetMask & TARGET_FLAG_UNIT)
-                    m_intTargetFlags |= FLAG_INT_UNIT;
                 break;
             case TARGET_FLAG_OBJECT:
                 if (!data->readPackGUID(m_GOTargetGUID))
                     return false;
-                m_intTargetFlags |= FLAG_INT_OBJECT;
                 break;
             case TARGET_FLAG_CORPSE:
             case TARGET_FLAG_PVP_CORPSE:
@@ -239,7 +235,6 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
                 m_srcPos.m_orientation = caster->GetOrientation();
                 if (!m_srcPos.IsPositionValid())
                     return false;
-                m_intTargetFlags |= FLAG_INT_SRC_LOC;
                 break;
             }
             case TARGET_FLAG_DEST_LOCATION:
@@ -250,7 +245,6 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
                 *data >> m_dstPos.m_positionX >> m_dstPos.m_positionY >> m_dstPos.m_positionZ;
                 if (!m_dstPos.IsPositionValid())
                     return false;
-                m_intTargetFlags |= FLAG_INT_DST_LOC;
                 break;
             }
             case TARGET_FLAG_STRING:
@@ -3253,7 +3247,7 @@ uint64 Spell::handle_delayed(uint64 t_offset)
         m_immediateHandled = true;
     }
 
-    bool single_missile = (m_targets.getIntTargetFlags() & FLAG_INT_DST_LOC);
+    bool single_missile = (m_targets.HasDst());
 
     // now recheck units targeting correctness (need before any effects apply to prevent adding immunity at first effect not allow apply second spell effect and similar cases)
     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
@@ -3741,19 +3735,6 @@ void Spell::SendSpellStart()
     data << uint32(castFlags);                              // cast flags
     data << uint32(m_timer);                                // delay?
 
-    // Preliminary setting of the target mask for the SMSG_SPELL_START packet. This will be
-    // adjusted again later in SendSpellGo() based on the real targets obtained in SelectSpellTargets()
-    if (m_spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
-        m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_SOURCE_LOCATION);
-
-    if (m_spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
-        m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_DEST_LOCATION);
-
-    if (m_targets.getTargetMask() & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION))
-        m_targets.setTargetMask(m_targets.getTargetMask() & ~TARGET_FLAG_UNIT);
-    else if (m_targets.getIntTargetFlags() & FLAG_INT_UNIT)
-        m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_UNIT);
-
     m_targets.write(&data);
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
@@ -3821,21 +3802,14 @@ void Spell::SendSpellGo()
     data << uint32(castFlags);                              // cast flags
     data << uint32(getMSTime());                            // timestamp
 
-    if ((m_spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION) && m_targets.HasSrc())
-        m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_SOURCE_LOCATION);
-    else
-        m_targets.setTargetMask(m_targets.getTargetMask() & ~TARGET_FLAG_SOURCE_LOCATION);
-
-    if ((m_spellInfo->Targets & TARGET_FLAG_DEST_LOCATION) && m_targets.HasDst())
-        m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_DEST_LOCATION);
-    else
-        m_targets.setTargetMask(m_targets.getTargetMask() & ~TARGET_FLAG_DEST_LOCATION);
-
+    /*
+    // statement below seems to be wrong - i've seen spells with both unit and dest target
     // Can't have TARGET_FLAG_UNIT when *_LOCATION is present - it breaks missile visuals
     if (m_targets.getTargetMask() & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION))
         m_targets.setTargetMask(m_targets.getTargetMask() & ~TARGET_FLAG_UNIT);
     else if (m_targets.getIntTargetFlags() & FLAG_INT_UNIT)
         m_targets.setTargetMask(m_targets.getTargetMask() | TARGET_FLAG_UNIT);
+    */
 
     WriteSpellGoTargets(&data);
 
