@@ -530,8 +530,9 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
 
     if (sLog.IsOutCharDump())                                // optimize GetPlayerDump call
     {
-        std::string dump = PlayerDumpWriter().GetDump(GUID_LOPART(guid));
-        sLog.outCharDump(dump.c_str(),GetAccountId(),GUID_LOPART(guid),name.c_str());
+        std::string dump;
+        if (PlayerDumpWriter().GetDump(GUID_LOPART(guid), dump))
+            sLog.outCharDump(dump.c_str(),GetAccountId(),GUID_LOPART(guid),name.c_str());
     }
 
     Player::DeleteFromDB(guid, GetAccountId());
