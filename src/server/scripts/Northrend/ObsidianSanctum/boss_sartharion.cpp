@@ -133,6 +133,8 @@ enum eEnums
     H_ACHIEV_TWILIGHT_ZONE                      = 2054
 };
 
+#define DATA_CAN_LOOT   0
+
 struct Waypoint
 {
     float m_fX, m_fY, m_fZ;
@@ -297,7 +299,7 @@ struct boss_sartharionAI : public ScriptedAI
                     {
                         pTenebron->Respawn();
                         pTenebron->GetMotionMaster()->MoveTargetedHome();
-                        pTenebron->SetLootRecipient(NULL);
+                        pTenebron->AI()->SetData(DATA_CAN_LOOT,0);
                     }
                 }
             }
@@ -315,7 +317,7 @@ struct boss_sartharionAI : public ScriptedAI
                     {
                         pShadron->Respawn();
                         pShadron->GetMotionMaster()->MoveTargetedHome();
-                        pShadron->SetLootRecipient(NULL);
+                        pShadron->AI()->SetData(DATA_CAN_LOOT,0);
                     }
                 }
             }
@@ -333,7 +335,7 @@ struct boss_sartharionAI : public ScriptedAI
                     {
                         pVesperon->Respawn();
                         pVesperon->GetMotionMaster()->MoveTargetedHome();
-                        pVesperon->SetLootRecipient(NULL);
+                        pVesperon->AI()->SetData(DATA_CAN_LOOT,0);
                     }
                 }
             }
@@ -750,6 +752,7 @@ struct dummy_dragonAI : public ScriptedAI
     uint32 m_uiMoveNextTimer;
     int32 m_iPortalRespawnTime;
     bool m_bCanMoveFree;
+    bool m_bCanLoot;
 
     void Reset()
     {
@@ -760,6 +763,13 @@ struct dummy_dragonAI : public ScriptedAI
         m_uiMoveNextTimer = 500;
         m_iPortalRespawnTime = 30000;
         m_bCanMoveFree = false;
+        m_bCanLoot = true;
+    }
+
+    void SetData(uint32 type, uint32 value)
+    {
+        if (type == DATA_CAN_LOOT)
+            m_bCanLoot = value;
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -904,6 +914,9 @@ struct dummy_dragonAI : public ScriptedAI
 
     void JustDied(Unit* pKiller)
     {
+        if (!m_bCanLoot)
+            me->SetLootRecipient(NULL);
+
         int32 iTextId = 0;
         uint32 uiSpellId = 0;
 
