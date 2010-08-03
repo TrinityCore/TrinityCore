@@ -1581,7 +1581,7 @@ BattleGround * BattleGroundMgr::CreateNewBattleGround(BattleGroundTypeId bgTypeI
         if (!Weight)
             return NULL;
         // Select a random value
-        selectedWeight = urand(0, Weight);
+        selectedWeight = urand(0, Weight-1);
 
         // Select the correct bg (if we have in DB A(10), B(20), C(10), D(15) --> [0---A---9|10---B---29|30---C---39|40---D---54])
         Weight = 0;
