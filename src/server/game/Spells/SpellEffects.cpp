@@ -717,7 +717,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                     }
 
                 }
-                else if (m_spellInfo->ID == 53508)
+                else if (m_spellInfo->Id == 53508)
                     damage *= m_caster->getLevel();
                 break;
             }
