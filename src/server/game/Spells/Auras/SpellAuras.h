@@ -163,6 +163,7 @@ class Aura
 
         void SetNeedClientUpdateForTargets() const;
         void HandleAuraSpecificMods(AuraApplication const * aurApp, Unit * caster, bool apply);
+        bool CanBeAppliedOn(Unit *target);
         bool CheckAreaTarget(Unit *target);
     private:
         void _DeleteRemovedApplications();

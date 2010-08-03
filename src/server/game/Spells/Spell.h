@@ -33,7 +33,6 @@ class Aura;
 struct SpellEntry;
 class SpellScript;
 
-// These flags are used in client - server communication only
 enum SpellCastTargetFlags
 {
     TARGET_FLAG_SELF            = 0x00000000,
@@ -210,7 +209,6 @@ class SpellCastTargets
 
     private:
         uint32 m_targetMask;
-        uint32 m_intTargetFlags;
         // objects (can be used at spell creating and after Update at casting
         Unit *m_unitTarget;
         GameObject *m_GOTarget;
