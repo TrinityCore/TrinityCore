@@ -186,7 +186,10 @@ endif()
 
 if( DEBUG )
   message("* Build in debug-mode   : Yes")
-  add_definitions(-g -DTRINITY_DEBUG)
+  add_definitions(-DTRINITY_DEBUG)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    add_definitions(-g)
+  endif()  
 else()
   message("* Build in debug-mode   : No  (default)")
 endif()
@@ -225,8 +228,6 @@ else()
 endif()
 
 message("")
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 # Little tweak for OS X
 if( CMAKE_SYSTEM_NAME MATCHES "Darwin" )
