@@ -49,11 +49,10 @@ struct StringTextData
     uint32 uiEmote;
 };
 
-#define pSystemMgr SystemMgr::Instance()
-
 class SystemMgr
 {
     public:
+
         SystemMgr();
         ~SystemMgr() {}
 
@@ -93,8 +92,11 @@ class SystemMgr
         }
 
     protected:
+
         TextDataMap     m_mTextDataMap;                     //additional data for text strings
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
 };
+
+#define pSystemMgr SystemMgr::Instance()
 
 #endif
