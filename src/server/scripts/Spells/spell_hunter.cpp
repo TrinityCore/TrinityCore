@@ -137,10 +137,9 @@ class spell_hun_pet_heart_of_the_phoenix : public SpellScript
 
     void HandleScript(SpellEffIndex effIndex)
     {
+        Unit *caster = GetCaster();
         if (caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
             return;
-        Unit *caster = GetCaster();
-        int32 bp0healPercent = 100;
         caster->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
         caster->CastSpell(caster, HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
     }
