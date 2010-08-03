@@ -50,6 +50,7 @@ file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
 file(GLOB_RECURSE sources_Tools Tools/*.cpp Tools/*.h)
 file(GLOB_RECURSE sources_Weather Weather/*.cpp Weather/*.h)
 file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
+file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
 
 # Create game-libary
 set(game_STAT_SRCS
@@ -89,6 +90,13 @@ set(game_STAT_SRCS
   ${sources_Weather}
   ${sources_World}
 )
+
+if( MSVC )
+  set(game_STAT_SRCS
+    ${game_STAT_SRCS}
+    ${sources_PrecompiledHeaders}
+  )
+endif()
 
 include_directories(
   ${CMAKE_BINARY_DIR}
