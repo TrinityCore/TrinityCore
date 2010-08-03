@@ -3637,7 +3637,7 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
     aura->SetIsSingleTarget(caster && IsSingleTargetSpell(aura->GetSpellProto()));
     if (aura->IsSingleTarget())
     {
-        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (GetCasterGUID() == GetGUID()));
+        ASSERT((IsInWorld() && !IsDuringRemoveFromWorld()) || (aura->GetCasterGUID() == GetGUID()));
         // register single target aura
         caster->GetSingleCastAuras().push_back(aura);
         // remove other single target auras
