@@ -185,6 +185,7 @@ Unit::Unit()
         m_reactiveTimer[i] = 0;
 
     m_cleanupDone = false;
+    m_duringRemoveFromWorld = false;
 }
 
 Unit::~Unit()
@@ -206,6 +207,7 @@ Unit::~Unit()
     delete m_charmInfo;
     delete m_vehicleKit;
 
+    ASSERT(!m_duringRemoveFromWorld);
     ASSERT(!m_attacking);
     ASSERT(m_attackers.empty());
     ASSERT(m_sharedVision.empty());
@@ -3635,6 +3637,7 @@ void Unit::_AddAura(UnitAura * aura, Unit * caster)
     aura->SetIsSingleTarget(caster && IsSingleTargetSpell(aura->GetSpellProto()));
     if (aura->IsSingleTarget())
     {
+        ASSERT(IsInWorld() && !IsDuringRemoveFromWorld());
         // register single target aura
         caster->GetSingleCastAuras().push_back(aura);
         // remove other single target auras
@@ -4216,10 +4219,10 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit 
                 newAura = Aura::TryCreate(aura->GetSpellProto(), effMask, stealer, NULL, &baseDamage[0], NULL, aura->GetCasterGUID());
                 if (!newAura)
                     return;
-                newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), aura->GetStackAmount(), recalculateMask, &damage[0]);
                 // strange but intended behaviour: Stolen single target auras won't be treated as single targeted
                 if (newAura->IsSingleTarget())
                     newAura->UnregisterSingleTarget();
+                newAura->SetLoadedState(dur, dur, stealCharge ? 1 : aura->GetCharges(), aura->GetStackAmount(), recalculateMask, &damage[0]);
                 newAura->ApplyForTargets();
             }
             return;
@@ -4386,43 +4389,35 @@ void Unit::RemoveAurasWithMechanic(uint32 mechanic_mask, AuraRemoveMode removemo
 
 void Unit::RemoveAreaAurasDueToLeaveWorld()
 {
-    bool cleanRun;
-    do
+    // make sure that all area auras not applied on self are removed - prevent access to deleted pointer later
+    for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
     {
-        cleanRun = true;
-        // make sure that all area auras not applied on self are removed - prevent access to deleted pointer later
-        for (AuraMap::iterator iter = m_ownedAuras.begin(); iter != m_ownedAuras.end();)
+        Aura * aura = iter->second;
+        ++iter;
+        Aura::ApplicationMap const & appMap = aura->GetApplicationMap();
+        for (Aura::ApplicationMap::const_iterator itr = appMap.begin(); itr!= appMap.end();)
         {
-            Aura * aura = iter->second;
-            ++iter;
-            Aura::ApplicationMap const & appMap = aura->GetApplicationMap();
-            for (Aura::ApplicationMap::const_iterator itr = appMap.begin(); itr!= appMap.end();)
-            {
-                AuraApplication * aurApp = itr->second;
-                ++itr;
-                Unit * target = aurApp->GetTarget();
-                if (target == this)
-                    continue;
-                target->RemoveAura(aurApp);
-                cleanRun = false;
-                // things linked on aura remove may apply new area aura - so start from the beginning
-                iter = m_ownedAuras.begin();
-            }
-        }
-
-        // remove area auras owned by others
-        for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
-        {
-            if (iter->second->GetBase()->GetOwner() != this)
-            {
-                RemoveAura(iter);
-                cleanRun = false;
-            }
-            else
-                ++iter;
+            AuraApplication * aurApp = itr->second;
+            ++itr;
+            Unit * target = aurApp->GetTarget();
+            if (target == this)
+                continue;
+            target->RemoveAura(aurApp);
+            // things linked on aura remove may apply new area aura - so start from the beginning
+            iter = m_ownedAuras.begin();
         }
     }
-    while (!cleanRun);
+
+    // remove area auras owned by others
+    for (AuraApplicationMap::iterator iter = m_appliedAuras.begin(); iter != m_appliedAuras.end();)
+    {
+        if (iter->second->GetBase()->GetOwner() != this)
+        {
+            RemoveAura(iter);
+        }
+        else
+            ++iter;
+    }
 }
 
 void Unit::RemoveAllAuras()
@@ -13369,6 +13364,7 @@ void Unit::RemoveFromWorld()
 
     if (IsInWorld())
     {
+        m_duringRemoveFromWorld = true;
         if (IsVehicle())
             GetVehicleKit()->Uninstall();
 
@@ -13401,6 +13397,7 @@ void Unit::RemoveFromWorld()
         }
 
         WorldObject::RemoveFromWorld();
+        m_duringRemoveFromWorld = false;
     }
 }
 
