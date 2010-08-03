@@ -199,8 +199,8 @@ ObjectMgr::~ObjectMgr()
             delete[] playerInfo[race][class_].levelInfo;
 
     // free group and guild objects
-    for (GroupMap::iterator itr = mGroupMap.begin(); itr != mGroupMap.end(); ++itr)
-        delete itr->second;
+    for (GroupSet::iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+        delete *itr;
 
     for (GuildMap::iterator itr = mGuildMap.begin(); itr != mGuildMap.end(); ++itr)
         delete itr->second;
@@ -215,11 +215,11 @@ ObjectMgr::~ObjectMgr()
         itr->second.Clear();
 }
 
-Group * ObjectMgr::GetGroupByGUID(const uint32 &guid) const
+Group * ObjectMgr::GetGroupByGUID(uint32 guid) const
 {
-    GroupMap::const_iterator itr = mGroupMap.find(guid);
-    if (itr != mGroupMap.end())
-        return itr->second;
+    for (GroupSet::const_iterator itr = mGroupSet.begin(); itr != mGroupSet.end(); ++itr)
+        if ((*itr)->GetLowGUID() == guid)
+            return *itr;
 
     return NULL;
 }
