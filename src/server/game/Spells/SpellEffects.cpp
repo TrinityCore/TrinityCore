@@ -3254,7 +3254,10 @@ void Spell::EffectOpenLock(uint32 effIndex)
         return;
     }
 
-    SendLoot(guid, LOOT_SKINNING);
+    if (gameObjTarget)
+        SendLoot(guid, LOOT_SKINNING);
+    else
+        itemTarget->SetFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_UNLOCKED);
 
     // not allow use skill grow at item base open
     if (!m_CastItem && skillId != SKILL_NONE)
@@ -3885,7 +3888,7 @@ void Spell::EffectEnchantItemPerm(uint32 effect_idx)
     else
     {
         // do not increase skill if vellum used
-        if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_FLAGS_TRIGGERED_CAST))
+        if (!(m_CastItem && m_CastItem->GetProto()->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST))
             p_caster->UpdateCraftSkill(m_spellInfo->Id);
 
         uint32 enchant_id = m_spellInfo->EffectMiscValue[effect_idx];
@@ -7271,7 +7274,7 @@ void Spell::EffectProspecting(uint32 /*i*/)
         return;
 
     Player* p_caster = (Player*)m_caster;
-    if (!itemTarget || !(itemTarget->GetProto()->BagFamily & BAG_FAMILY_MASK_MINING_SUPP))
+    if (!itemTarget || !(itemTarget->GetProto()->Flags & ITEM_PROTO_FLAG_PROSPECTABLE))
         return;
 
     if (itemTarget->GetCount() < 5)
@@ -7293,7 +7296,7 @@ void Spell::EffectMilling(uint32 /*i*/)
         return;
 
     Player* p_caster = (Player*)m_caster;
-    if (!itemTarget || !(itemTarget->GetProto()->BagFamily & BAG_FAMILY_MASK_HERBS))
+    if (!itemTarget || !(itemTarget->GetProto()->Flags & ITEM_PROTO_FLAG_MILLABLE))
         return;
 
     if (itemTarget->GetCount() < 5)

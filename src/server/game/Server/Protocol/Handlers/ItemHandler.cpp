@@ -263,7 +263,7 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_INDESTRUCTIBLE))
+    if (pItem->GetProto()->Flags & ITEM_PROTO_FLAG_INDESTRUCTIBLE)
     {
         _player->SendEquipError(EQUIP_ERR_CANT_DROP_SOULBOUND, NULL, NULL);
         return;
@@ -1049,7 +1049,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
         return;
     }
 
-    if (!gift->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPER))// cheating: non-wrapper wrapper
+    if (!(gift->GetProto()->Flags & ITEM_PROTO_FLAG_WRAPPER)) // cheating: non-wrapper wrapper
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, gift, NULL);
         return;
@@ -1120,7 +1120,7 @@ void WorldSession::HandleWrapItemOpcode(WorldPacket& recv_data)
         case 21830: item->SetEntry(21831); break;
     }
     item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, _player->GetGUID());
-    item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAGS_WRAPPED);
+    item->SetUInt32Value(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED);
     item->SetState(ITEM_CHANGED, _player);
 
     if (item->GetState() == ITEM_NEW)                          // save new item, to have alway for `character_gifts` record in `item_instance`
@@ -1219,7 +1219,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
         ItemPrototype const* iGemProto = Gems[i]->GetProto();
 
         // unique item (for new and already placed bit removed enchantments
-        if (iGemProto->Flags & ITEM_FLAGS_UNIQUE_EQUIPPED)
+        if (iGemProto->Flags & ITEM_PROTO_FLAG_UNIQUE_EQUIPPED)
         {
             for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
             {
