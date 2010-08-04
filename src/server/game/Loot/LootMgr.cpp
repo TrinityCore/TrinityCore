@@ -330,7 +330,7 @@ LootItem::LootItem(LootStoreItem const& li)
     conditions   = li.conditions;
     
     ItemPrototype const* proto = objmgr.GetItemPrototype(itemid);
-    freeforall  = proto && (proto->Flags & ITEM_FLAGS_PARTY_LOOT);
+    freeforall  = proto && (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT);
 
     needs_quest = li.needs_quest;
 
@@ -352,6 +352,10 @@ bool LootItem::AllowedForPlayer(Player const * player) const
 
     ItemPrototype const *pProto = ObjectMgr::GetItemPrototype(itemid);
     if (!pProto)
+        return false;
+
+    // not show loot for players without profession or those who already know the recipe
+    if ((pProto->Flags & ITEM_PROTO_FLAG_SMART_LOOT) && (!player->HasSkill(pProto->RequiredSkill) || player->HasSpell(pProto->Spells[1].SpellId)))
         return false;
 
     // not show loot for not own team
@@ -399,7 +403,7 @@ void Loot::AddItem(LootStoreItem const & item)
         if (item.conditions.empty())
         {
             ItemPrototype const* proto = objmgr.GetItemPrototype(item.itemid);
-            if (!proto || (proto->Flags & ITEM_FLAGS_PARTY_LOOT) == 0)
+            if (!proto || (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT) == 0)
                 ++unlootedCount;
         }
     }
@@ -1470,7 +1474,7 @@ void LoadLootTemplates_Item()
     // remove real entries and check existence loot
     for (uint32 i = 1; i < sItemStorage.MaxEntry; ++i)
         if (ItemPrototype const *proto = sItemStorage.LookupEntry<ItemPrototype>(i))
-            if (ids_set.find(proto->ItemId) != ids_set.end())
+            if (ids_set.find(proto->ItemId) != ids_set.end() && proto->Flags & ITEM_PROTO_FLAG_OPENABLE)
                 ids_set.erase(proto->ItemId);
 
     // output error for any still listed (not referenced from appropriate table) ids
@@ -1489,7 +1493,7 @@ void LoadLootTemplates_Milling()
         if (!proto)
             continue;
 
-        if ((proto->BagFamily & BAG_FAMILY_MASK_HERBS) == 0)
+        if (!(proto->Flags & ITEM_PROTO_FLAG_MILLABLE))
             continue;
 
         if (ids_set.find(proto->ItemId) != ids_set.end())
@@ -1538,7 +1542,7 @@ void LoadLootTemplates_Prospecting()
         if (!proto)
             continue;
 
-        if ((proto->BagFamily & BAG_FAMILY_MASK_MINING_SUPP) == 0)
+        if (!(proto->Flags & ITEM_PROTO_FLAG_PROSPECTABLE))
             continue;
 
         if (ids_set.find(proto->ItemId) != ids_set.end())

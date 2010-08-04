@@ -239,7 +239,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         return;
     }
 
-    if (it->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAGS_CONJURED) || it->GetUInt32Value(ITEM_FIELD_DURATION))
+    if (it->GetProto()->Flags & ITEM_PROTO_FLAG_CONJURED || it->GetUInt32Value(ITEM_FIELD_DURATION))
     {
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
         return;
