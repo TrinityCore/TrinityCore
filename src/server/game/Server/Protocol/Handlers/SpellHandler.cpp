@@ -43,13 +43,12 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         return;
 
     uint8 bagIndex, slot;
-    uint8 unk_flags;                                        // flags (if 0x02 - some additional data are received)
     uint8 cast_count;                                       // next cast if exists (single or not)
     uint64 item_guid;
     uint32 glyphIndex;                                      // something to do with glyphs?
     uint32 spellid;                                         // casted spell id
 
-    recvPacket >> bagIndex >> slot >> cast_count >> spellid >> item_guid >> glyphIndex >> unk_flags;
+    recvPacket >> bagIndex >> slot >> cast_count >> spellid >> item_guid >> glyphIndex;
 
     if (glyphIndex >= MAX_GLYPH_SLOT_INDEX)
     {
@@ -70,7 +69,7 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    sLog.outDetail("WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, cast_count: %u, spellid: %u, Item: %u, glyphIndex: %u, unk_flags: %u, data length = %i", bagIndex, slot, cast_count, spellid, pItem->GetEntry(), glyphIndex, unk_flags, (uint32)recvPacket.size());
+    sLog.outDetail("WORLD: CMSG_USE_ITEM packet, bagIndex: %u, slot: %u, cast_count: %u, spellid: %u, Item: %u, glyphIndex: %u, data length = %i", bagIndex, slot, cast_count, spellid, pItem->GetEntry(), glyphIndex, (uint32)recvPacket.size());
 
     ItemPrototype const *proto = pItem->GetProto();
     if (!proto)
@@ -297,7 +296,7 @@ void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
 void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 {
     uint32 spellId;
-    uint8  cast_count, unk_flags;
+    uint8  cast_count;
     recvPacket >> cast_count;
     recvPacket >> spellId;
 
@@ -309,7 +308,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, unk_flags %u, data length = %i", spellId, cast_count, unk_flags, (uint32)recvPacket.size());
+    sLog.outDebug("WORLD: got cast spell packet, spellId - %u, cast_count: %u, data length = %i", spellId, cast_count, (uint32)recvPacket.size());
 
     SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
 
