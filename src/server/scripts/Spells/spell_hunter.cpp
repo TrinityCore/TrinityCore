@@ -31,6 +31,7 @@ enum HunterSpells
     HUNTER_PET_HEART_OF_THE_PHOENIX              = 55709,
     HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED    = 54114,
     HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF       = 55711,
+    HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED    = 54045,
 };
 
 class spell_hun_last_stand_pet_SpellScript : public SpellScript
@@ -163,6 +164,42 @@ SpellScript * GetSpellScript_spell_hun_pet_heart_of_the_phoenix()
     return new spell_hun_pet_heart_of_the_phoenix();
 }
 
+class spell_hun_pet_carrion_feeder : public SpellScript
+{
+    bool Validate(SpellEntry const * spellEntry)
+    {
+        if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
+            return false;
+        return true;
+    }
+
+    void HandleDummy(SpellEffIndex effIndex)
+    {
+        if (!GetHitUnit())
+            return;
+        Unit *caster = GetCaster();
+        caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
+    }
+
+    void Register()
+    {
+        // add dummy effect spell handler to pet's Last Stand
+        EffectHandlers += EffectHandlerFn(spell_hun_pet_carrion_feeder::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+
+    bool Load()
+    {
+        if (!GetCaster()->isPet())
+            return false;
+        return true;
+    }
+};
+
+SpellScript * GetSpellScript_spell_hun_pet_carrion_feeder()
+{
+    return new spell_hun_pet_carrion_feeder();
+}
+
 void AddSC_hunter_spell_scripts()
 {
     Script *newscript;
@@ -185,5 +222,10 @@ void AddSC_hunter_spell_scripts()
     newscript = new Script;
     newscript->Name = "spell_hun_pet_heart_of_the_phoenix";
     newscript->GetSpellScript = &GetSpellScript_spell_hun_pet_heart_of_the_phoenix;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "spell_hun_pet_carrion_feeder";
+    newscript->GetSpellScript = &GetSpellScript_spell_hun_pet_carrion_feeder;
     newscript->RegisterSelf();
 }

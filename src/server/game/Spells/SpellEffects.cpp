@@ -715,10 +715,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                             damage += m_caster->ToPlayer()->GetAmmoDPS()*item->GetProto()->Delay*0.001f;
                         }
                     }
-
                 }
-                else if (m_spellInfo->Id == 53508)
-                    damage *= m_caster->getLevel();
                 break;
             }
             case SPELLFAMILY_PALADIN:
