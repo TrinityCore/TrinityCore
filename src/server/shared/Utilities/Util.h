@@ -325,6 +325,11 @@ class HookList
             m_list.push_back(t);
             return *this;
         }
+        HookList<T> & operator-=(T t)
+        {
+            m_list.remove(t);
+            return *this;
+        }
         ListIterator begin()
         {
             return m_list.begin();
