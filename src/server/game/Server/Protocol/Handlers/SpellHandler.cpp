@@ -300,7 +300,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     uint8  cast_count, unk_flags;
     recvPacket >> cast_count;
     recvPacket >> spellId;
-    recvPacket >> unk_flags;                                // flags (if 0x02 - some additional data are received)
 
     // ignore for remote control state (for player case)
     Unit* mover = _player->m_mover;
@@ -358,25 +357,6 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
     {
         recvPacket.rpos(recvPacket.wpos());                 // prevent spam at ignore packet
         return;
-    }
-
-    // some spell cast packet including more data (for projectiles?)
-    if (unk_flags & 0x02)
-    {
-        //recvPacket.read_skip<float>();                      // unk1, coords?
-        //recvPacket.read_skip<float>();                      // unk1, coords?
-        uint8 unk1;
-        recvPacket >> unk1;                                 // >> 1 or 0
-        if (unk1)
-        {
-            recvPacket.read_skip<uint32>();                 // >> MSG_MOVE_STOP
-            uint64 guid;                                    // guid - unused
-            if (!recvPacket.readPackGUID(guid))
-                return;
-
-            MovementInfo movementInfo;
-            ReadMovementInfo(recvPacket, &movementInfo);
-        }
     }
 
     // auto-selection buff level base at target level (in spellInfo)

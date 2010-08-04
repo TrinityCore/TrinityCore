@@ -694,11 +694,10 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     uint64 guid;
     uint32 spellid;
     uint8  cast_count;
-    uint8  unk_flags;                                       // flags (if 0x02 - some additional data are received)
 
-    recvPacket >> guid >> cast_count >> spellid >> unk_flags;
+    recvPacket >> guid >> cast_count >> spellid;
 
-    sLog.outDebug("WORLD: CMSG_PET_CAST_SPELL, cast_count: %u, spellid %u, unk_flags %u", cast_count, spellid, unk_flags);
+    sLog.outDebug("WORLD: CMSG_PET_CAST_SPELL, cast_count: %u, spellid %u", cast_count, spellid);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())

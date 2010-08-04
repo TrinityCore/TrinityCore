@@ -3230,7 +3230,7 @@ bool CanSpellPierceImmuneAura(SpellEntry const * pierceSpell, SpellEntry const *
     // these spells (Cyclone for example) can pierce all...
     if ((pierceSpell->AttributesEx & SPELL_ATTR_EX_UNAFFECTED_BY_SCHOOL_IMMUNE)
         // ...but not these (Divine shield for example)
-        && !(aura && aura->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
+        && !(aura && (aura->AttributesEx & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY)))
         return true;
 
     return false;
@@ -3784,7 +3784,7 @@ void SpellMgr::LoadSpellCustomAttr()
             break;
         // some dummy spell only has dest, should push caster in this case
         case 62324: // Throw Passenger
-            spellInfo->Targets |= TARGET_FLAG_CASTER;
+            spellInfo->Targets |= TARGET_FLAG_UNIT_CASTER;
             count++;
             break;
         case 51735: // Ebon Plague
