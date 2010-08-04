@@ -324,7 +324,7 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
 
 void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ)
 {
-    uint32 moveFlag = MOVEFLAG_JUMP | MOVEFLAG_WALK;
+    uint32 moveFlag = SPLINEFLAG_TRAJECTORY | SPLINEFLAG_WALKING;
     uint32 time = speedZ * 100;
 
     i_owner->addUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);

@@ -644,17 +644,14 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     pCreature->SetTransport(this);
     pCreature->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     pCreature->m_movementInfo.guid = GetGUID();
-    pCreature->m_movementInfo.t_x = x;
-    pCreature->m_movementInfo.t_y = y;
-    pCreature->m_movementInfo.t_z = z;
-    pCreature->m_movementInfo.t_o = o;
+    pCreature->m_movementInfo.t_pos.Relocate(x, y, z, o);
     pCreature->setActive(true);
 
     if (anim > 0)
         pCreature->SetUInt32Value(UNIT_NPC_EMOTESTATE,anim);
 
     pCreature->Relocate(
-        GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + 3.14159f)),
+        GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + M_PI)),
         GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation())),
         z + GetPositionZ() , 
         o + GetOrientation());
@@ -684,10 +681,10 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
 
 void Transport::UpdatePosition(MovementInfo* mi)
 {
-    float transport_o = mi->o - mi->t_o;
-    float transport_x = mi->x - (mi->t_x*cos(transport_o) - mi->t_y*sin(transport_o));
-    float transport_y = mi->y - (mi->t_y*cos(transport_o) + mi->t_x*sin(transport_o));
-    float transport_z = mi->z - mi->t_z;
+    float transport_o = mi->pos.m_orientation - mi->t_pos.m_orientation;
+    float transport_x = mi->pos.m_positionX - (mi->t_pos.m_positionX * cos(transport_o) - mi->t_pos.m_positionY*sin(transport_o));
+    float transport_y = mi->pos.m_positionY - (mi->t_pos.m_positionY * cos(transport_o) + mi->t_pos.m_positionX*sin(transport_o));
+    float transport_z = mi->pos.m_positionZ - mi->t_pos.m_positionZ;
 
     Relocate(transport_x,transport_y,transport_z,transport_o);
     UpdateNPCPositions();
@@ -707,10 +704,10 @@ void Transport::UpdateNPCPositions()
             if (Creature* npc = Creature::GetCreature(*this, guid))
             {
                 float x, y, z, o;
-                o = GetOrientation() + npc->m_movementInfo.t_o;
-                x = GetPositionX() + (npc->m_movementInfo.t_x * cos(GetOrientation()) + npc->m_movementInfo.t_y * sin(GetOrientation() + 3.14159f));
-                y = GetPositionY() + (npc->m_movementInfo.t_y * cos(GetOrientation()) + npc->m_movementInfo.t_x * sin(GetOrientation()));
-                z = GetPositionZ() + npc->m_movementInfo.t_z;
+                o = GetOrientation() + npc->m_movementInfo.t_pos.m_orientation;
+                x = GetPositionX() + (npc->m_movementInfo.t_pos.m_positionX * cos(GetOrientation()) + npc->m_movementInfo.t_pos.m_positionY * sin(GetOrientation() + M_PI));
+                y = GetPositionY() + (npc->m_movementInfo.t_pos.m_positionY * cos(GetOrientation()) + npc->m_movementInfo.t_pos.m_positionX * sin(GetOrientation()));
+                z = GetPositionZ() + npc->m_movementInfo.t_pos.m_positionZ;
                 npc->SetPosition(x, y, z,o);
                 npc->SetHomePosition(x,y,z,o);
             }

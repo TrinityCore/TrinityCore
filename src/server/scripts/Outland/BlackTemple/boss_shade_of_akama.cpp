@@ -318,7 +318,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
             if (Sorcerer)
             {
                 CAST_AI(mob_ashtongue_sorcererAI, Sorcerer->AI())->ShadeGUID = me->GetGUID();
-                Sorcerer->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                Sorcerer->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 Sorcerer->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                 Sorcerer->SetUInt64Value(UNIT_FIELD_TARGET, me->GetGUID());
                 Sorcerers.push_back(Sorcerer->GetGUID());
@@ -333,7 +333,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
                 Creature* Spawn = me->SummonCreature(spawnEntries[i], X, Y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
                 if (Spawn)
                 {
-                    Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    Spawn->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     Spawn->GetMotionMaster()->MovePoint(0, AGGRO_X, AGGRO_Y, AGGRO_Z);
                     Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
                     Spawn->AI()->AttackStart(pTarget);
@@ -394,7 +394,7 @@ struct boss_shade_of_akamaAI : public ScriptedAI
                 Creature* Defender = me->SummonCreature(CREATURE_DEFENDER, SpawnLocations[ran].x, SpawnLocations[ran].y, Z_SPAWN, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000);
                 if (Defender)
                 {
-                    Defender->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    Defender->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     bool move = true;
                     if (AkamaGUID)
                     {
@@ -686,7 +686,7 @@ struct npc_akamaAI : public ScriptedAI
                     {
                         ShadeHasDied = true;
                         WayPointId = 0;
-                        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         me->GetMotionMaster()->MovePoint(WayPointId, AkamaWP[0].x, AkamaWP[0].y, AkamaWP[0].z);
                     }
                     if (Shade && Shade->isAlive())

@@ -269,7 +269,7 @@ struct boss_uromAI : public ScriptedAI
 
                 me->NearTeleportTo(pPos.GetPositionX(),pPos.GetPositionY(),pPos.GetPositionZ(),pPos.GetOrientation());
                 me->GetMotionMaster()->MoveChase(me->getVictim(),0,0);
-                me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
 
                 bCanCast = false;
                 bCanGoBack = false;
@@ -332,7 +332,7 @@ struct boss_uromAI : public ScriptedAI
                 LeaveCombat();
                 break;
             case SPELL_TELEPORT:
-                me->AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE); // with out it the npc will fall down while is casting
+                me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY); // with out it the npc will fall down while is casting
                 bCanCast = true;      
                 break;
             default:

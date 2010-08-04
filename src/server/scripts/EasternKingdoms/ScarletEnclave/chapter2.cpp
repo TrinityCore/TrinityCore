@@ -376,7 +376,7 @@ struct mob_scarlet_courierAI : public ScriptedAI
                 switch(uiStage)
                 {
                 case 1:
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     if (GameObject* tree = me->FindNearestGameObject(GO_INCONSPICUOUS_TREE, 40.0f))
                     {
                         DoScriptText(SAY_TREE1, me);

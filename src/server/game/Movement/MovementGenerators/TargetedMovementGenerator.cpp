@@ -154,7 +154,7 @@ void
 TargetedMovementGenerator<T>::Initialize(T &owner)
 {
     if (owner.isInCombat())
-        owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
     _setTargetLocation(owner);
 }

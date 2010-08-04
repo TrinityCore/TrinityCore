@@ -192,7 +192,7 @@ struct boss_jedoga_shadowseekerAI : public ScriptedAI
 /*      me->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
         me->SendMonsterMove(JedogaPosition[1], MOVEFLAG_JUMP, 0);
         me->Relocate(JedogaPosition[1][0], JedogaPosition[1][1], JedogaPosition[1][2], JedogaPosition[1][3]);
-        me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
 */
         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, false);
         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, false);

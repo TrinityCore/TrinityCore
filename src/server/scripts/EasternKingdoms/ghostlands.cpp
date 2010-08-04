@@ -178,8 +178,8 @@ struct npc_ranger_lilathaAI : public npc_escortAI
             me->AI()->AttackStart(Summ1);
             break;
             }
-        case 19: me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
-        case 25: me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+        case 19: me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
+        case 25: me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
         case 30:
             if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
                 CAST_PLR(pPlayer)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS,me);

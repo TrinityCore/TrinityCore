@@ -30,7 +30,7 @@ HomeMovementGenerator<Creature>::Initialize(Creature & owner)
 {
     float x, y, z;
     owner.GetHomePosition(x, y, z, ori);
-    owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    owner.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
     owner.addUnitState(UNIT_STAT_EVADE);
     _setTargetLocation(owner);
 }
@@ -67,7 +67,7 @@ HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32& time_diff
 
     if (time_diff > i_travel_timer)
     {
-        owner.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        owner.AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
         // restore orientation of not moving creature at returning to home
         if (owner.GetDefaultMovementType() == IDLE_MOTION_TYPE)

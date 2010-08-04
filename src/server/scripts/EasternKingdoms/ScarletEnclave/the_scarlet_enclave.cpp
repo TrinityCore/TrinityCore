@@ -62,7 +62,7 @@ struct npc_valkyr_battle_maidenAI : public PassiveAI
             switch(phase)
             {
                 case 0:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     me->HandleEmoteCommand(EMOTE_STATE_FLYGRABCLOSED);
                     FlyBackTimer = 500;
                     break;

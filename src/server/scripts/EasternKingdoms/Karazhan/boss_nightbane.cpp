@@ -112,7 +112,7 @@ struct boss_nightbaneAI : public ScriptedAI
 
         me->SetSpeed(MOVE_RUN, 2.0f);
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         me->setActive(true);
 
         if (pInstance)

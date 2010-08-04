@@ -291,7 +291,7 @@ struct instance_zulfarrak : public ScriptedInstance
        {
            if (npc->isAlive())
            {
-                npc->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                npc->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 npc->GetMotionMaster()->MovePoint(1,x,y,z);
                 npc->SetHomePosition(x,y,z,o);
            }

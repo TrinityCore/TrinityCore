@@ -420,7 +420,7 @@ bool Creature::UpdateEntry(uint32 Entry, uint32 team, const CreatureData *data)
 
     // TODO: In fact monster move flags should be set - not movement flags.
     if (cInfo->InhabitType & INHABIT_AIR)
-        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
 
     if (cInfo->InhabitType & INHABIT_WATER)
         AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
@@ -784,7 +784,7 @@ bool Creature::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, 
         if (GetCreatureInfo()->InhabitType & INHABIT_AIR)
         {
             if (GetDefaultMovementType() == IDLE_MOTION_TYPE)
-                AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE);
+                AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY);
             else
                 SetFlying(true);
         }
@@ -1515,9 +1515,9 @@ void Creature::setDeathState(DeathState s)
         SetLootRecipient(NULL);
         ResetPlayerDamageReq();
         CreatureInfo const *cinfo = GetCreatureInfo();
-        AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         if (GetCreatureInfo()->InhabitType & INHABIT_AIR)
-            AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+            AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
         if (GetCreatureInfo()->InhabitType & INHABIT_WATER)
             AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
         SetUInt32Value(UNIT_NPC_FLAGS, cinfo->npcflag);

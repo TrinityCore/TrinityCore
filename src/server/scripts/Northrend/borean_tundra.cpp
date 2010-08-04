@@ -945,16 +945,16 @@ struct npc_thassarianAI : public npc_escortAI
                     uiArthas = pArthas->GetGUID();
                     pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     pArthas->SetReactState(REACT_PASSIVE);
-                    pArthas->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pArthas->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pArthas->GetMotionMaster()->MovePoint(0, 3737.374756,3564.841309,477.433014);
                 }
                 if (Creature *pTalbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23, 3614.936, 473.321, 4.462012, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                 {
                     uiTalbot = pTalbot->GetGUID();
-                    pTalbot->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTalbot->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977,3568.882080,477.433014);
                 }
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 break;
 
             case 4:
@@ -1033,13 +1033,13 @@ struct npc_thassarianAI : public npc_escortAI
                     if (Creature* pArlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100, 3615.655029, 473.321533, 4.447805, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                     {
                         uiArlos = pArlos->GetGUID();
-                        pArlos->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        pArlos->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         pArlos->GetMotionMaster()->MovePoint(0, 3735.570068, 3572.419922, 477.441010);
                     }
                     if (Creature *pLeryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541, 3614.959717, 473.323486, 4.524959, TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
                     {
                         uiLeryssa = pLeryssa->GetGUID();
-                        pLeryssa->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        pLeryssa->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         pLeryssa->SetReactState(REACT_PASSIVE);
                         pLeryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pLeryssa->GetMotionMaster()->MovePoint(0, 3741.969971, 3571.439941, 477.441010);
@@ -1342,7 +1342,7 @@ struct npc_counselor_talbotAI : public ScriptedAI
         pArlos->Kill(pArlos, false);
         pLeryssa->RemoveAura(SPELL_STUN);
         pLeryssa->clearUnitState(UNIT_STAT_STUNNED);
-        pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         pLeryssa->GetMotionMaster()->MovePoint(0,3722.114502, 3564.201660, 477.441437);
 
         if (pKiller->GetTypeId() == TYPEID_PLAYER)

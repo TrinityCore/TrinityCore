@@ -480,8 +480,8 @@ struct boss_sartharionAI : public ScriptedAI
             {
                 if (pTemp->isAlive() && !pTemp->getVictim())
                 {
-                    if (pTemp->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
-                        pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    if (pTemp->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
+                        pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
                     if (pTemp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                         pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

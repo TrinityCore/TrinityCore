@@ -628,7 +628,7 @@ struct npc_injured_patientAI : public ScriptedAI
             DoScriptText(RAND(SAY_DOC1,SAY_DOC2,SAY_DOC3), me);
 
             uint32 mobId = me->GetEntry();
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
             switch (mobId)
             {
@@ -1840,7 +1840,7 @@ struct npc_ebon_gargoyleAI : CasterAI
         me->SetReactState(REACT_PASSIVE);
 
         // Fly Away
-        me->AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE|MOVEMENTFLAG_ASCEND|MOVEMENTFLAG_FLYING);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY|MOVEMENTFLAG_ASCENDING|MOVEMENTFLAG_FLYING);
         me->SetSpeed(MOVE_FLIGHT, 0.75f, true);
         me->SetSpeed(MOVE_RUN, 0.75f, true);
         float x = me->GetPositionX() + 20 * cos(me->GetOrientation());

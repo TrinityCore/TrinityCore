@@ -184,7 +184,7 @@ struct boss_four_horsemenAI : public BossAI
     {
         movementStarted = true;
         me->SetReactState(REACT_PASSIVE);
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN), true);
 
         switch(id)

@@ -712,33 +712,32 @@ void WorldSession::SaveTutorialsData()
 void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
 {
     data >> mi->flags;
-    data >> mi->unk1;
+    data >> mi->flags2;
     data >> mi->time;
-    data >> mi->x;
-    data >> mi->y;
-    data >> mi->z;
-    data >> mi->o;
+    data >> mi->pos.PositionXYZOStream();
 
     if (mi->flags & MOVEMENTFLAG_ONTRANSPORT)
     {
         if (!data.readPackGUID(mi->t_guid))
             return;
 
-        data >> mi->t_x;
-        data >> mi->t_y;
-        data >> mi->t_z;
-        data >> mi->t_o;
+        data >> mi->t_pos.PositionXYZOStream();
         data >> mi->t_time;
         data >> mi->t_seat;
 
-        if(mi->x != mi->t_x)
+        if (mi->flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
+        {
+            data >> mi->t_time2;
+        }
+
+        if(mi->pos.m_positionX != mi->t_pos.m_positionX)
             if(GetPlayer()->GetTransport())
                 GetPlayer()->GetTransport()->UpdatePosition(mi);
     }
 
-    if ((mi->flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (mi->unk1 & 0x20))
+    if ((mi->flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (mi->flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
     {
-        data >> mi->s_pitch;
+        data >> mi->pitch;
     }
 
     data >> mi->fallTime;
@@ -751,9 +750,9 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
         data >> mi->j_xyspeed;
     }
 
-    if (mi->flags & MOVEMENTFLAG_SPLINE)
+    if (mi->flags & MOVEMENTFLAG_SPLINE_ELEVATION)
     {
-        data >> mi->u_unk1;
+        data >> mi->splineElevation;
     }
 }
 
@@ -762,28 +761,22 @@ void WorldSession::WriteMovementInfo(WorldPacket *data, MovementInfo *mi)
     data->appendPackGUID(mi->guid);
 
     *data << mi->flags;
-    *data << mi->unk1;
+    *data << mi->flags2;
     *data << mi->time;
-    *data << mi->x;
-    *data << mi->y;
-    *data << mi->z;
-    *data << mi->o;
+    *data << mi->pos.PositionXYZOStream();
 
     if (mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT))
     {
        data->appendPackGUID(mi->t_guid);
 
-        *data << mi->t_x;
-        *data << mi->t_y;
-        *data << mi->t_z;
-        *data << mi->t_o;
-        *data << mi->t_time;
-        *data << mi->t_seat;
+       *data << mi->t_pos.PositionXYZOStream();
+       *data << mi->t_time;
+       *data << mi->t_seat;
     }
 
-    if ((mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))) || (mi->unk1 & 0x20))
+    if ((mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))) || (mi->flags & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
     {
-        *data << mi->s_pitch;
+        *data << mi->pitch;
     }
 
     *data << mi->fallTime;
@@ -796,9 +789,9 @@ void WorldSession::WriteMovementInfo(WorldPacket *data, MovementInfo *mi)
         *data << mi->j_xyspeed;
     }
 
-    if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE))
+    if (mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION))
     {
-        *data << mi->u_unk1;
+        *data << mi->splineElevation;
     }
 }
 
