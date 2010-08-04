@@ -43,19 +43,19 @@ enum SpellCastTargetFlags
     TARGET_FLAG_ITEM            = 0x00000010,               // pguid
     TARGET_FLAG_SOURCE_LOCATION = 0x00000020,               // 3 float
     TARGET_FLAG_DEST_LOCATION   = 0x00000040,               // 3 float
-    TARGET_FLAG_OBJECT_UNK      = 0x00000080,               // used in 7 spells only
-    TARGET_FLAG_CASTER          = 0x00000100,               // looks like self target (480 spells)
+    TARGET_FLAG_OBJECT_CASTER   = 0x00000080,               // used in 7 spells only
+    TARGET_FLAG_UNIT_CASTER     = 0x00000100,               // looks like self target (480 spells)
     TARGET_FLAG_PVP_CORPSE      = 0x00000200,               // pguid
     TARGET_FLAG_UNIT_CORPSE     = 0x00000400,               // 10 spells (gathering professions)
     TARGET_FLAG_OBJECT          = 0x00000800,               // pguid, 2 spells
     TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid, 0 spells
     TARGET_FLAG_STRING          = 0x00002000,               // string, 0 spells
-    TARGET_FLAG_UNK15           = 0x00004000,               // 199 spells, opening object/lock
+    TARGET_FLAG_OPEN_LOCK       = 0x00004000,               // 199 spells, opening object/lock
     TARGET_FLAG_CORPSE          = 0x00008000,               // pguid, resurrection spells
     TARGET_FLAG_UNK17           = 0x00010000,               // pguid, not used in any spells as of 3.2.2a (can be set dynamically)
     TARGET_FLAG_GLYPH           = 0x00020000,               // used in glyph spells
-    TARGET_FLAG_UNK19            = 0x00040000,               //
-    TARGET_FLAG_UNK20            = 0x00080000                // uint32, loop { vec3, guid -> if guid == 0 break }
+    TARGET_FLAG_UNK19           = 0x00040000,               //
+    TARGET_FLAG_UNUSED20        = 0x00080000                // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
 };
 #define MAX_TARGET_FLAGS 21
 
