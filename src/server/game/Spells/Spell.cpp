@@ -267,7 +267,7 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
         if (hasMovementInfo)
         {
             data->read_skip<uint32>(); // MSG_MOVE_STOP - hardcoded in client
-            uint64 guid;               // guid - unused
+            uint64 guid = 0;               // guid - unused
             if (!data->readPackGUID(guid))
                 return false;
 
