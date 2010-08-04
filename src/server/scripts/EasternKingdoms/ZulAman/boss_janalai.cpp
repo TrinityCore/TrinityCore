@@ -481,7 +481,7 @@ struct mob_amanishi_hatcherAI : public ScriptedAI
 
     void Reset()
     {
-        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         side =(me->GetPositionY() < 1150);
         waypoint = 0;
         isHatching = false;

@@ -636,91 +636,128 @@ enum NPCFlags
     UNIT_NPC_FLAG_OUTDOORPVP            = 0x20000000,       // custom flag for outdoor pvp creatures
 };
 
-enum MoveFlags
-{
-    MOVEFLAG_JUMP               = 0x00000800,
-    MOVEFLAG_WALK               = 0x00001000,
-    MOVEFLAG_FLY                = 0x00002000,
-    MOVEFLAG_GLIDE              = 0x00003000, // dragon
-    MOVEFLAG_ENTER_TRANSPORT    = 0x00800000,
-};
-
 enum MovementFlags
 {
-    MOVEMENTFLAG_NONE           = 0x00000000,
-    MOVEMENTFLAG_FORWARD        = 0x00000001,
-    MOVEMENTFLAG_BACKWARD       = 0x00000002,
-    MOVEMENTFLAG_STRAFE_LEFT    = 0x00000004,
-    MOVEMENTFLAG_STRAFE_RIGHT   = 0x00000008,
-    MOVEMENTFLAG_LEFT           = 0x00000010,
-    MOVEMENTFLAG_RIGHT          = 0x00000020,
-    MOVEMENTFLAG_PITCH_UP       = 0x00000040,
-    MOVEMENTFLAG_PITCH_DOWN     = 0x00000080,
-    MOVEMENTFLAG_WALK_MODE      = 0x00000100,               // Walking
-    MOVEMENTFLAG_ONTRANSPORT    = 0x00000200,               // Used for flying on some creatures
-    MOVEMENTFLAG_LEVITATING     = 0x00000400,
-    MOVEMENTFLAG_ROOT           = 0x00000800,
-    MOVEMENTFLAG_JUMPING        = 0x00001000,
-    MOVEMENTFLAG_FALL_DAMAGE    = 0x00002000,               // newZ < oldZ
-    MOVEMENTFLAG_FALLING        = 0x00004000,
-    // 0x8000, 0x10000, 0x20000, 0x40000, 0x80000, 0x100000
-    MOVEMENTFLAG_SWIMMING       = 0x00200000,               // appears with fly flag also
-    MOVEMENTFLAG_ASCEND         = 0x00400000,               // press "space" when flying
-    MOVEMENTFLAG_CAN_FLY        = 0x00800000,
-    MOVEMENTFLAG_FLY_MODE       = 0x01000000,               // can fly
-    MOVEMENTFLAG_FLYING         = 0x02000000,               // hover
-    MOVEMENTFLAG_SPLINE         = 0x04000000,               // used for flight paths
-    MOVEMENTFLAG_SPLINE2        = 0x08000000,               // used for flight paths
-    MOVEMENTFLAG_WATERWALKING   = 0x10000000,               // prevent unit from falling through water
-    MOVEMENTFLAG_SAFE_FALL      = 0x20000000,               // active rogue safe fall spell (passive)
-    MOVEMENTFLAG_HOVER          = 0x40000000,               // hover, cannot jump
+    MOVEMENTFLAG_NONE                  = 0x00000000,
+    MOVEMENTFLAG_FORWARD               = 0x00000001,
+    MOVEMENTFLAG_BACKWARD              = 0x00000002,
+    MOVEMENTFLAG_STRAFE_LEFT           = 0x00000004,
+    MOVEMENTFLAG_STRAFE_RIGHT          = 0x00000008,
+    MOVEMENTFLAG_LEFT                  = 0x00000010,
+    MOVEMENTFLAG_RIGHT                 = 0x00000020,
+    MOVEMENTFLAG_PITCH_UP              = 0x00000040,
+    MOVEMENTFLAG_PITCH_DOWN            = 0x00000080,
+    MOVEMENTFLAG_WALKING               = 0x00000100,               // Walking
+    MOVEMENTFLAG_ONTRANSPORT           = 0x00000200,               // Used for flying on some creatures
+    MOVEMENTFLAG_LEVITATING            = 0x00000400,
+    MOVEMENTFLAG_ROOT                  = 0x00000800,
+    MOVEMENTFLAG_JUMPING               = 0x00001000,
+    MOVEMENTFLAG_FALLING               = 0x00002000,               // damage dealt on that type of falling
+    MOVEMENTFLAG_PENDING_STOP          = 0x00004000,
+    MOVEMENTFLAG_PENDING_STRAFE_STOP   = 0x00008000,
+    MOVEMENTFLAG_PENDING_FORWARD       = 0x00010000,
+    MOVEMENTFLAG_PENDING_BACKWARD      = 0x00020000,
+    MOVEMENTFLAG_PENDING_STRAFE_LEFT   = 0x00040000,
+    MOVEMENTFLAG_PENDING_STRAFE_RIGHT  = 0x00080000,
+    MOVEMENTFLAG_PENDING_ROOT          = 0x00100000,
+    MOVEMENTFLAG_SWIMMING              = 0x00200000,               // appears with fly flag also
+    MOVEMENTFLAG_ASCENDING             = 0x00400000,               // press "space" when flying
+    MOVEMENTFLAG_DESCENDING            = 0x00800000,
+    MOVEMENTFLAG_CAN_FLY               = 0x01000000,               // can fly
+    MOVEMENTFLAG_FLYING                = 0x02000000,               // hover
+    MOVEMENTFLAG_SPLINE_ELEVATION      = 0x04000000,               // used for flight paths
+    MOVEMENTFLAG_SPLINE_ENABLED        = 0x08000000,               // used for flight paths
+    MOVEMENTFLAG_WATERWALKING          = 0x10000000,               // prevent unit from falling through water
+    MOVEMENTFLAG_FALLING_SLOW          = 0x20000000,               // active rogue safe fall spell (passive)
+    MOVEMENTFLAG_HOVER                 = 0x40000000,               // hover, cannot jump
 
     MOVEMENTFLAG_MOVING         =
         MOVEMENTFLAG_FORWARD |MOVEMENTFLAG_BACKWARD  |MOVEMENTFLAG_STRAFE_LEFT|MOVEMENTFLAG_STRAFE_RIGHT|
-        MOVEMENTFLAG_PITCH_UP|MOVEMENTFLAG_PITCH_DOWN|MOVEMENTFLAG_FALL_DAMAGE|
-        MOVEMENTFLAG_JUMPING |MOVEMENTFLAG_FALLING   |MOVEMENTFLAG_ASCEND     |
-        MOVEMENTFLAG_SPLINE,
+        MOVEMENTFLAG_PITCH_UP|MOVEMENTFLAG_PITCH_DOWN|MOVEMENTFLAG_JUMPING
+        |MOVEMENTFLAG_FALLING|MOVEMENTFLAG_ASCENDING| MOVEMENTFLAG_SPLINE_ELEVATION,
     MOVEMENTFLAG_TURNING        =
         MOVEMENTFLAG_LEFT | MOVEMENTFLAG_RIGHT,
 };
-
-/*
-enum MonsterMovementFlags
+enum MovementFlags2
 {
-    MONSTER_MOVE_NONE           = 0x00000000,
-    MONSTER_MOVE_FORWARD        = 0x00000001,
-    MONSTER_MOVE_BACKWARD       = 0x00000002,
-    MONSTER_MOVE_STRAFE_LEFT    = 0x00000004,
-    MONSTER_MOVE_STRAFE_RIGHT   = 0x00000008,
-    MONSTER_MOVE_LEFT           = 0x00000010,               // turn
-    MONSTER_MOVE_RIGHT          = 0x00000020,               // turn
-    MONSTER_MOVE_PITCH_UP       = 0x00000040,
-    MONSTER_MOVE_PITCH_DOWN     = 0x00000080,
-    MONSTER_MOVE_TELEPORT       = 0x00000100,
-    MONSTER_MOVE_TELEPORT2      = 0x00000200,
-    MONSTER_MOVE_LEVITATING     = 0x00000400,
-    MONSTER_MOVE_UNK1           = 0x00000800,               // float+uint32
-    MONSTER_MOVE_WALK           = 0x00001000,               // run2?
-    MONSTER_MOVE_SPLINE         = 0x00002000,               // spline n*(float x,y,z)
-    // 0x4000, 0x8000, 0x10000, 0x20000 run
-    MONSTER_MOVE_SPLINE2        = 0x00040000,               // spline n*(float x,y,z)
-    MONSTER_MOVE_UNK2           = 0x00080000,               // used for flying mobs
-    MONSTER_MOVE_UNK3           = 0x00100000,               // used for flying mobs
-    MONSTER_MOVE_UNK4           = 0x00200000,               // uint8+uint32
-    MONSTER_MOVE_UNK5           = 0x00400000,               // run in place, then teleport to final point
-    MONSTER_MOVE_UNK6           = 0x00800000,               // teleport
-    MONSTER_MOVE_UNK7           = 0x01000000,               // run
-    MONSTER_MOVE_FLY            = 0x02000000,               // swimming/flying (depends on mob?)
-    MONSTER_MOVE_UNK9           = 0x04000000,               // run
-    MONSTER_MOVE_UNK10          = 0x08000000,               // run
-    MONSTER_MOVE_UNK11          = 0x10000000,               // run
-    MONSTER_MOVE_UNK12          = 0x20000000,               // run
-    MONSTER_MOVE_UNK13          = 0x40000000,               // levitating
+    MOVEMENTFLAG2_NONE                     = 0x00000000,
+    MOVEMENTFLAG2_UNK1                     = 0x00000001,
+    MOVEMENTFLAG2_UNK2                     = 0x00000002,
+    MOVEMENTFLAG2_UNK3                     = 0x00000004,
+    MOVEMENTFLAG2_FULL_SPEED_TURNING       = 0x00000008,
+    MOVEMENTFLAG2_FULL_SPEED_PITCHING      = 0x00000010,
+    MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING    = 0x00000020,
+    MOVEMENTFLAG2_UNK7                     = 0x00000040,
+    MOVEMENTFLAG2_UNK8                     = 0x00000080,
+    MOVEMENTFLAG2_UNK9                     = 0x00000100,
+    MOVEMENTFLAG2_UNK10                    = 0x00000200,
+    MOVEMENTFLAG2_INTERPOLATED_MOVEMENT    = 0x00000400, 
+    MOVEMENTFLAG2_INTERPOLATED_TURNING     = 0x00000800,
+    MOVEMENTFLAG2_INTERPOLATED_PITCHING    = 0x00001000,
+    MOVEMENTFLAG2_UNK14                    = 0x00002000,
+    MOVEMENTFLAG2_UNK15                    = 0x00004000,
+    MOVEMENTFLAG2_UNK16                    = 0x00008000,
 
-    // masks
-    MONSTER_MOVE_SPLINE_FLY     = 0x00003000,               // fly by points
+    // player only?
+    MOVEMENTFLAG2_INTERPOLATED = 
+        MOVEMENTFLAG2_INTERPOLATED_MOVEMENT |
+        MOVEMENTFLAG2_INTERPOLATED_TURNING |
+        MOVEMENTFLAG2_INTERPOLATED_PITCHING
 };
-*/
+enum SplineFlags
+{
+    SPLINEFLAG_NONE           = 0x00000000,
+    SPLINEFLAG_FORWARD        = 0x00000001,
+    SPLINEFLAG_BACKWARD       = 0x00000002,
+    SPLINEFLAG_STRAFE_LEFT    = 0x00000004,
+    SPLINEFLAG_STRAFE_RIGHT   = 0x00000008,
+    SPLINEFLAG_LEFT           = 0x00000010,
+    SPLINEFLAG_RIGHT          = 0x00000020,
+    SPLINEFLAG_PITCH_UP       = 0x00000040,
+    SPLINEFLAG_PITCH_DOWN     = 0x00000080,
+    SPLINEFLAG_DONE           = 0x00000100,
+    SPLINEFLAG_FALLING        = 0x00000200,
+    SPLINEFLAG_NO_SPLINE      = 0x00000400,
+    SPLINEFLAG_TRAJECTORY     = 0x00000800,
+    SPLINEFLAG_WALKING        = 0x00001000,
+    SPLINEFLAG_FLYING         = 0x00002000,
+    SPLINEFLAG_KNOCKBACK      = 0x00004000,
+    SPLINEFLAG_FINAL_POINT    = 0x00008000,
+    SPLINEFLAG_FINAL_TARGET   = 0x00010000,
+    SPLINEFLAG_FINAL_FACING   = 0x00020000,
+    SPLINEFLAG_CATMULL_ROM    = 0x00040000,
+    SPLINEFLAG_UNKNOWN20      = 0x00080000,
+    SPLINEFLAG_UNKNOWN21      = 0x00100000,
+    SPLINEFLAG_UNKNOWN22      = 0x00200000,
+    SPLINEFLAG_UNKNOWN23      = 0x00400000,
+    SPLINEFLAG_TRANSPORT      = 0x00800000,
+    SPLINEFLAG_UNKNOWN25      = 0x01000000,
+    SPLINEFLAG_UNKNOWN26      = 0x02000000,
+    SPLINEFLAG_UNKNOWN27      = 0x04000000,
+    SPLINEFLAG_UNKNOWN28      = 0x08000000,
+    SPLINEFLAG_UNKNOWN29      = 0x10000000,
+    SPLINEFLAG_ANIMATION      = 0x20000000,
+    SPLINEFLAG_UNKNOWN31      = 0x40000000,
+    SPLINEFLAG_UNKNOWN32      = 0x80000000,
+
+    SPLINEFLAG_GLIDE = SPLINEFLAG_WALKING | SPLINEFLAG_FLYING,
+};
+
+enum SplineMode
+{
+    SPLINEMODE_LINEAR       = 0,
+    SPLINEMODE_CATMULL_ROM  = 1,
+    SPLINEMODE_BEZIER3      = 2
+};
+
+enum SplineType
+{
+    SPLINETYPE_NORMAL        = 0,
+    SPLINETYPE_STOP          = 1,
+    SPLINETYPE_FACING_SPOT   = 2,
+    SPLINETYPE_FACING_TARGET = 3,
+    SPLINETYPE_FACING_ANGLE  = 4
+};
 
 enum UnitTypeMask
 {
@@ -1424,7 +1461,6 @@ class Unit : public WorldObject
         void SendThreatListUpdate();
 
         void BuildHeartBeatMsg(WorldPacket *data) const;
-        void OutMovementInfo() const;
 
         bool isAlive() const { return (m_deathState == ALIVE); };
         bool isDead() const { return (m_deathState == DEAD || m_deathState == CORPSE); };
@@ -1913,10 +1949,10 @@ class Unit : public WorldObject
         bool IsOnVehicle(const Unit *vehicle) const { return m_vehicle && m_vehicle == vehicle->GetVehicleKit(); }
         Unit *GetVehicleBase()  const;
         Creature *GetVehicleCreatureBase() const;
-        float GetTransOffsetX() const { return m_movementInfo.t_x; }
-        float GetTransOffsetY() const { return m_movementInfo.t_y; }
-        float GetTransOffsetZ() const { return m_movementInfo.t_z; }
-        float GetTransOffsetO() const { return m_movementInfo.t_o; }
+        float GetTransOffsetX() const { return m_movementInfo.t_pos.GetPositionX(); }
+        float GetTransOffsetY() const { return m_movementInfo.t_pos.GetPositionY(); }
+        float GetTransOffsetZ() const { return m_movementInfo.t_pos.GetPositionZ(); }
+        float GetTransOffsetO() const { return m_movementInfo.t_pos.GetOrientation(); }
         uint32 GetTransTime()   const { return m_movementInfo.t_time; }
         int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
 
@@ -1932,7 +1968,7 @@ class Unit : public WorldObject
 
         bool isMoving() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_MOVING); }
         bool isTurning() const  { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_TURNING); }
-        bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLY_MODE); }
+        bool canFly() const     { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_CAN_FLY); }
         bool IsFlying() const   { return m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FLYING); }
         void SetFlying(bool apply);
 
@@ -2111,7 +2147,7 @@ inline void Unit::SendMonsterMoveByPath(Path<Elem,Node> const& path, uint32 star
     data << GetPositionZ();
     data << uint32(getMSTime());
     data << uint8(0);
-    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight()) ? (MOVEFLAG_FLY|MOVEFLAG_WALK) : MOVEFLAG_WALK);
+    data << uint32(((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) || isInFlight()) ? (SPLINEFLAG_FLYING|SPLINEFLAG_WALKING) : SPLINEFLAG_WALKING);
     data << uint32(traveltime);
     data << uint32(pathSize);
     

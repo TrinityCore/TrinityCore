@@ -1134,7 +1134,7 @@ struct npc_akama_illidanAI : public ScriptedAI
 
     void BeginWalk()
     {
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         me->SetSpeed(MOVE_RUN, 1.0f);
         me->GetMotionMaster()->MovePoint(0, AkamaWP[WalkCount].x, AkamaWP[WalkCount].y, AkamaWP[WalkCount].z);
     }
@@ -1925,7 +1925,7 @@ void boss_illidan_stormrageAI::HandleTalkSequence()
         // Equip our warglaives!
         SetEquipmentSlots(false, EQUIP_ID_MAIN_HAND, EQUIP_ID_OFF_HAND, EQUIP_NO_CHANGE);
         me->SetByteValue(UNIT_FIELD_BYTES_2, 0, SHEATH_STATE_MELEE);
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         break;
     case 9:
         if (GETCRE(Akama, AkamaGUID))
@@ -2029,7 +2029,7 @@ void boss_illidan_stormrageAI::CastEyeBlast()
     if (!Trigger) return;
 
     Trigger->SetSpeed(MOVE_WALK, 3);
-    Trigger->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    Trigger->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
     Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
 
     //Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

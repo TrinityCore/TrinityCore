@@ -148,7 +148,7 @@ struct instance_deadmines : public ScriptedInstance
 
     void MoveCreatureInside(Creature* pCreature)
     {
-        pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        pCreature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         pCreature->GetMotionMaster()->MovePoint(0, -102.7,-655.9, pCreature->GetPositionZ());
     }
 

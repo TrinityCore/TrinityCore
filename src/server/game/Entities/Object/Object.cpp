@@ -301,7 +301,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
 
             FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(player->GetMotionMaster()->top());
 
-            uint32 flags3 = MOVEFLAG_GLIDE;
+            uint32 flags3 = SPLINEFLAG_GLIDE;
 
             *data << uint32(flags3);                        // splines flag?
 
@@ -1144,6 +1144,37 @@ bool Position::HasInLine(const Unit * const target, float distance, float width)
     return abs(sin(angle)) * GetExactDist2d(target->GetPositionX(), target->GetPositionY()) < width;
 }
 
+ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer)
+{
+    float x, y, z, o;
+    buf >> x >> y >> z >> o;
+    streamer.m_pos->Relocate(x, y, z, o);
+    return buf;
+}
+ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer)
+{
+    float x, y, z;
+    streamer.m_pos->GetPosition(x, y, z);
+    buf << x << y << z;
+    return buf;
+}
+
+ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer)
+{
+    float x, y, z;
+    buf >> x >> y >> z;
+    streamer.m_pos->Relocate(x, y, z);
+    return buf;
+}
+
+ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer)
+{
+    float x, y, z, o;
+    streamer.m_pos->GetPosition(x, y, z, o);
+    buf << x << y << z << o;
+    return buf;
+}
+
 WorldObject::WorldObject()
     : WorldLocation(), m_InstanceId(0), m_phaseMask(PHASEMASK_NORMAL), m_currMap(NULL)
     , m_zoneScript(NULL)
@@ -1241,12 +1272,12 @@ bool WorldObject::_IsWithinDist(WorldObject const* obj, float dist2compare, bool
 
     if (m_transport && obj->GetTransport() &&  obj->GetTransport()->GetGUIDLow() == m_transport->GetGUIDLow())
     {
-        float dtx = m_movementInfo.t_x - obj->m_movementInfo.t_x;
-        float dty = m_movementInfo.t_y - obj->m_movementInfo.t_y;
+        float dtx = m_movementInfo.t_pos.m_positionX - obj->m_movementInfo.t_pos.m_positionX;
+        float dty = m_movementInfo.t_pos.m_positionY - obj->m_movementInfo.t_pos.m_positionY;
         float disttsq = dtx * dtx + dty * dty;
         if (is3D)
         {
-            float dtz = m_movementInfo.t_z - obj->m_movementInfo.t_z;
+            float dtz = m_movementInfo.t_pos.m_positionZ - obj->m_movementInfo.t_pos.m_positionZ;
             disttsq += dtz * dtz;
         }
         return disttsq < (maxdist * maxdist);

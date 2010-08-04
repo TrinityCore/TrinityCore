@@ -549,7 +549,7 @@ struct npc_dark_rider_of_acherusAI : public ScriptedAI
             return;
 
         TargetGUID = who->GetGUID();
-        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         me->SetSpeed(MOVE_RUN, 0.4f);
         me->GetMotionMaster()->MoveChase(who);
         me->SetUInt64Value(UNIT_FIELD_TARGET, TargetGUID);
@@ -819,7 +819,7 @@ struct npc_scarlet_miner_cartAI : public PassiveAI
         if (Creature *miner = Unit::GetCreature(*me, minerGUID))
         {
             // very bad visual effect
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             //me->SetSpeed(MOVE_WALK, miner->GetSpeed(MOVE_WALK));
             me->SetSpeed(MOVE_RUN, miner->GetSpeed(MOVE_RUN));
             me->GetMotionMaster()->MoveFollow(miner, 1.0f, 0);

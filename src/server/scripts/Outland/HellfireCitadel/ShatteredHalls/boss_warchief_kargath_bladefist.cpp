@@ -77,7 +77,7 @@ struct boss_warchief_kargath_bladefistAI : public ScriptedAI
         removeAdds();
 
         me->SetSpeed(MOVE_RUN,2);
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
         summoned = 2;
         InBlade = false;

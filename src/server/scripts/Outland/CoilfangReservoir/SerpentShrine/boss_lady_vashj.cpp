@@ -624,7 +624,7 @@ struct mob_enchanted_elementalAI : public ScriptedAI
 
         if (move <= diff)
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
             if (phase == 1)
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
             if (phase == 1 && me->IsWithinDist3d(x,y,z, 0.1))

@@ -254,7 +254,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
         Phase = NORMAL;
 
         DoTeleportTo(296.632, -346.075, 90.6307);
-        me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
 
         summons.DespawnAll();
 
@@ -315,7 +315,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                         DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
                         //Spell doesn't teleport
                         DoTeleportPlayer(pSacrificeTarget, 296.632, -346.075, 90.63, 4.6);
-                        me->SetUnitMovementFlags(MOVEMENTFLAG_FLY_MODE);
+                        me->SetUnitMovementFlags(MOVEMENTFLAG_CAN_FLY);
                         DoTeleportTo(296.632, -346.075, 120.85);
                         Phase = SACRIFICING;
                         if (pInstance)
@@ -344,7 +344,7 @@ struct boss_svala_sorrowgraveAI : public ScriptedAI
                 //go down
                 Phase = NORMAL;
                 pSacrificeTarget = NULL;
-                me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+                me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
                 if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     me->GetMotionMaster()->MoveChase(pTarget);
 

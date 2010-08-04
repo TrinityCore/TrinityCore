@@ -301,7 +301,7 @@ struct npc_thrall_old_hillsbradAI : public npc_escortAI
                 SetRun();
                 break;
             case 91:
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 SetRun(false);
                 break;
             case 93:

@@ -291,10 +291,10 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const *veSeat = seat->second.seatInfo;
-    unit->m_movementInfo.t_x = veSeat->m_attachmentOffsetX;
-    unit->m_movementInfo.t_y = veSeat->m_attachmentOffsetY;
-    unit->m_movementInfo.t_z = veSeat->m_attachmentOffsetZ;
-    unit->m_movementInfo.t_o = 0;
+    unit->m_movementInfo.t_pos.m_positionX = veSeat->m_attachmentOffsetX;
+    unit->m_movementInfo.t_pos.m_positionY = veSeat->m_attachmentOffsetY;
+    unit->m_movementInfo.t_pos.m_positionZ = veSeat->m_attachmentOffsetZ;
+    unit->m_movementInfo.t_pos.m_orientation = 0;
     unit->m_movementInfo.t_time = 0; // 1 for player
     unit->m_movementInfo.t_seat = seat->first;
 
@@ -378,10 +378,10 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
     for (SeatMap::const_iterator itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
         if (Unit *passenger = itr->second.passenger)
         {
-            float px = x + passenger->m_movementInfo.t_x;
-            float py = y + passenger->m_movementInfo.t_y;
-            float pz = z + passenger->m_movementInfo.t_z;
-            float po = ang + passenger->m_movementInfo.t_o;
+            float px = x + passenger->m_movementInfo.t_pos.m_positionX;
+            float py = y + passenger->m_movementInfo.t_pos.m_positionY;
+            float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
+            float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
 
             passenger->SetPosition(px, py, pz, po);
         }
