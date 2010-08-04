@@ -12185,9 +12185,12 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     if (slow)
     {
         speed *=(100.0f + slow)/100.0f;
-        float min_speed = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED) / 100.0f;
-        if (speed < min_speed)
-            speed = min_speed;
+        if (float minSpeedMod = GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
+        {
+            float min_speed = minSpeedMod / 100.0f;
+            if (speed < min_speed)
+                speed = min_speed;
+        }
     }
     SetSpeed(mtype, speed, forced);
 }
