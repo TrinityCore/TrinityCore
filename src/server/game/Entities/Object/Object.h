@@ -493,13 +493,15 @@ struct MovementInfo
 
     MovementInfo()
     {
+        pos.Relocate(0,0,0,0);
         guid = 0;
         flags = 0;
         flags2 = 0;
-        time = t_time = fallTime = 0;
+        time = t_time = t_time2 = fallTime = 0;
         splineElevation = 0;
         pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
         t_guid = 0;
+        t_pos.Relocate(0,0,0,0);
         t_seat = -1;
     }
 
