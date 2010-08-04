@@ -196,7 +196,7 @@ void initBlyCrewMember(ScriptedInstance* pInstance, uint32 entry,float x,float y
    if (Creature* crew = pInstance->instance->GetCreature(pInstance->GetData64(entry)))
    {
         crew->SetReactState(REACT_AGGRESSIVE);
-        crew->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+        crew->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
         crew->SetHomePosition(x,y,z,0);
         crew->GetMotionMaster()->MovePoint(1,x,y,z);
         crew->setFaction(FACTION_FREED);

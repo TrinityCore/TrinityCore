@@ -443,7 +443,7 @@ struct npc_isla_starmaneAI : public npc_escortAI
             me->SetInFront(pPlayer); break;
         case 30: me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
         case 31: DoCast(me, SPELL_CAT);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE); break;
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
         }
     }
 

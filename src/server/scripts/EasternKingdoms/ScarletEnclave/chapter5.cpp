@@ -466,7 +466,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
         switch (i)
         {
             case 0:
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 SetHoldState(true);
                 break;
             case 1:
@@ -501,7 +501,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                 bIsBattle = true;
                 break;
             case 2:
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 DoCast(me, SPELL_THE_LIGHT_OF_DAWN);
                 break;
             case 3:
@@ -515,30 +515,30 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                 {
                     if (pTemp->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
                         pTemp->RemoveAurasDueToSpell(SPELL_THE_LIGHT_OF_DAWN);
-                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[19].x, LightofDawnLoc[19].y, LightofDawnLoc[19].z);
                 }
                 if (Creature* pTemp = Unit::GetCreature(*me, uiThassarianGUID))
                 {
                     if (pTemp->HasAura(SPELL_THE_LIGHT_OF_DAWN, 0))
                         pTemp->RemoveAurasDueToSpell(SPELL_THE_LIGHT_OF_DAWN);
-                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[21].x, LightofDawnLoc[21].y, LightofDawnLoc[21].z);
                 }
                 if (Creature* pTemp = Unit::GetCreature(*me, uiKorfaxGUID))
                 {
-                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[10].x, LightofDawnLoc[10].y, LightofDawnLoc[10].z);
                 }
                 if (Creature* pTemp = Unit::GetCreature(*me, uiMaxwellGUID))
                 {
-                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[13].x, LightofDawnLoc[13].y, LightofDawnLoc[13].z);
                 }
                 if (Creature* pTemp = Unit::GetCreature(*me, uiEligorGUID))
                 {
-                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[16].x, LightofDawnLoc[16].y, LightofDawnLoc[16].z);
                 }
                 JumpToNextStep(10000);
@@ -628,7 +628,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         if (uiSummon_counter < ENCOUNTER_GHOUL_NUMBER)
                         {
                             Unit* pTemp = me->SummonCreature(NPC_ACHERUS_GHOUL, (me->GetPositionX()-20)+rand()%40, (me->GetPositionY()-20)+rand()%40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->setFaction(2084);
                             uiGhoulGUID[uiSummon_counter] = pTemp->GetGUID();
                             ++uiSummon_counter;
@@ -646,7 +646,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         if (uiSummon_counter < ENCOUNTER_ABOMINATION_NUMBER)
                         {
                             Unit* pTemp = me->SummonCreature(NPC_RAMPAGING_ABOMINATION, (me->GetPositionX()-20)+rand()%40, (me->GetPositionY()-20)+rand()%40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->setFaction(2084);
                             uiAbominationGUID[uiSummon_counter] = pTemp->GetGUID();
                             ++uiSummon_counter;
@@ -664,7 +664,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         if (uiSummon_counter < ENCOUNTER_WARRIOR_NUMBER)
                         {
                             Unit* pTemp = me->SummonCreature(NPC_WARRIOR_OF_THE_FROZEN_WASTES, (me->GetPositionX()-20)+rand()%40, (me->GetPositionY()-20)+rand()%40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->setFaction(2084);
                             uiWarriorGUID[uiSummon_counter] = pTemp->GetGUID();
                             ++uiSummon_counter;
@@ -682,7 +682,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         if (uiSummon_counter < ENCOUNTER_BEHEMOTH_NUMBER)
                         {
                             Unit* pTemp = me->SummonCreature(NPC_FLESH_BEHEMOTH, (me->GetPositionX()-20)+rand()%40, (me->GetPositionY()-20)+rand()%40, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000);
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->setFaction(2084);
                             uiBehemothGUID[uiSummon_counter] = pTemp->GetGUID();
                             ++uiSummon_counter;
@@ -703,17 +703,17 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         SetHoldState(false);
                         if (Creature* pTemp = Unit::GetCreature(*me, uiKoltiraGUID))
                         {
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
                         }
                         if (Creature* pTemp = Unit::GetCreature(*me, uiOrbazGUID))
                         {
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
                         }
                         if (Creature* pTemp = Unit::GetCreature(*me, uiThassarianGUID))
                         {
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[0].x+rand()%30, LightofDawnLoc[0].y+rand()%30, LightofDawnLoc[0].z);
                         }
                         for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
@@ -788,7 +788,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         if (Unit* pTemp = me->SummonCreature(NPC_DARION_MOGRAINE, LightofDawnLoc[24].x, LightofDawnLoc[24].y, LightofDawnLoc[24].z, LightofDawnLoc[24].o, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                         {
                             DoScriptText(SAY_LIGHT_OF_DAWN35, pTemp);
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             uiDarionGUID = pTemp->GetGUID();
                         }
                         JumpToNextStep(4000);
@@ -904,7 +904,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                             DoCast(me, SPELL_MOGRAINE_CHARGE); // jumping charge
 //   doesn't make it looks well, so workarounds, Darion charges, looks better
                         me->SetSpeed(MOVE_RUN, 3.0f);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         SetHoldState(false);
                         JumpToNextStep(0);
                         break;
@@ -977,7 +977,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                                 Unit* pTemp;
                                 pTemp = me->SummonCreature(NPC_DEFENDER_OF_THE_LIGHT, LightofDawnLoc[0].x+rand()%10, LightofDawnLoc[0].y+rand()%10, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
                                 pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_ATTACK_UNARMED);
-                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 pTemp->SetSpeed(MOVE_RUN, 2.0f);
                                 pTemp->setFaction(me->getFaction());
                                 pTemp->GetMotionMaster()->MovePoint(0, fLichPositionX, fLichPositionY, fLichPositionZ);
@@ -985,7 +985,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
 
                                 pTemp = me->SummonCreature(NPC_RIMBLAT_EARTHSHATTER, LightofDawnLoc[0].x+rand()%10, LightofDawnLoc[0].y+rand()%10, LightofDawnLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
                                 pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_ATTACK_UNARMED);
-                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 pTemp->SetSpeed(MOVE_RUN, 2.0f);
                                 pTemp->setFaction(me->getFaction());
                                 pTemp->GetMotionMaster()->MovePoint(0, fLichPositionX, fLichPositionY, fLichPositionZ);
@@ -994,7 +994,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                             if (Creature* pTemp = Unit::GetCreature(*me, uiMaxwellGUID))
                             {
                                 pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_ATTACK_UNARMED);
-                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 pTemp->SetSpeed(MOVE_RUN, 2.0f);
                                 pTemp->GetMotionMaster()->MovePoint(0, fLichPositionX, fLichPositionY, fLichPositionZ);
                                 DoScriptText(SAY_LIGHT_OF_DAWN50, pTemp);
@@ -1002,7 +1002,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                             if (Creature* pTemp = Unit::GetCreature(*me, uiKorfaxGUID))
                             {
                                 pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_ATTACK_UNARMED);
-                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 pTemp->SetSpeed(MOVE_RUN, 2.0f);
                                 pTemp->HandleEmoteCommand(EMOTE_STATE_ATTACK_UNARMED);
                                 pTemp->GetMotionMaster()->MovePoint(0, fLichPositionX, fLichPositionY, fLichPositionZ);
@@ -1010,7 +1010,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                             if (Creature* pTemp = Unit::GetCreature(*me, uiEligorGUID))
                             {
                                 pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_ATTACK_UNARMED);
-                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                 pTemp->SetSpeed(MOVE_RUN, 2.0f);
                                 pTemp->GetMotionMaster()->MovePoint(0, fLichPositionX, fLichPositionY, fLichPositionZ);
                             }
@@ -1075,7 +1075,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
 
                     case 46: // Darion stand up, "not today"
                         me->SetSpeed(MOVE_RUN, 1.0f);
-                        me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                         me->SetStandState(UNIT_STAND_STATE_STAND);
                         DoScriptText(SAY_LIGHT_OF_DAWN53, me);
                         SetHoldState(false); // Darion throws sword
@@ -1135,7 +1135,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                             pTemp->CastSpell(pTemp, SPELL_TIRION_CHARGE, false); // jumping charge
                             pTemp->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);
                             pTemp->SetSpeed(MOVE_RUN, 3.0f); // workarounds, make Tirion still running
-                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[2].x, LightofDawnLoc[2].y, LightofDawnLoc[2].z);
                             if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
                                 pTemp->Relocate(LightofDawnLoc[28].x, LightofDawnLoc[28].y, LightofDawnLoc[28].z); // workarounds, he should kick back by Tirion, but here we relocate him
@@ -1153,7 +1153,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                         if (Creature* pTemp = Unit::GetCreature(*me, uiLichKingGUID))
                         {
                             pTemp->SetSpeed(MOVE_RUN, 1.0f);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[29].x, LightofDawnLoc[29].y, LightofDawnLoc[29].z); // 26
                         }
                         JumpToNextStep(4000);
@@ -1213,7 +1213,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                     case 62:
                         if (Creature* pTemp = Unit::GetCreature(*me, uiTirionGUID))
                         {
-                            pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                            pTemp->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[7].x, LightofDawnLoc[7].y, LightofDawnLoc[7].z);
                         }
                         JumpToNextStep(5500);
@@ -1394,7 +1394,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                 me->DeleteThreatList();
                 me->CombatStop(true);
                 me->InterruptNonMeleeSpells(false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
                 for (uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
                     DespawnNPC(uiDefenderGUID[i]);
@@ -1416,7 +1416,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                     pTemp->CombatStop(true);
                     pTemp->AttackStop();
                     pTemp->setFaction(me->getFaction());
-                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[9].x, LightofDawnLoc[9].y, LightofDawnLoc[9].z);
                 }
 
@@ -1427,7 +1427,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                     pTemp->CombatStop(true);
                     pTemp->AttackStop();
                     pTemp->setFaction(me->getFaction());
-                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[12].x, LightofDawnLoc[12].y, LightofDawnLoc[12].z);
                 }
 
@@ -1438,7 +1438,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                     pTemp->CombatStop(true);
                     pTemp->AttackStop();
                     pTemp->setFaction(me->getFaction());
-                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[15].x, LightofDawnLoc[15].y, LightofDawnLoc[15].z);
                 }
                 DespawnNPC(uiRayneGUID);
@@ -1450,7 +1450,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                     pTemp->CombatStop(true);
                     pTemp->AttackStop();
                     pTemp->setFaction(me->getFaction());
-                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[18].x, LightofDawnLoc[18].y, LightofDawnLoc[18].z);
                     pTemp->CastSpell(pTemp, SPELL_THE_LIGHT_OF_DAWN, false);
                 }
@@ -1465,7 +1465,7 @@ struct npc_highlord_darion_mograineAI : public npc_escortAI
                     pTemp->CombatStop(true);
                     pTemp->AttackStop();
                     pTemp->setFaction(me->getFaction());
-                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                    pTemp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                     pTemp->GetMotionMaster()->MovePoint(0, LightofDawnLoc[20].x, LightofDawnLoc[20].y, LightofDawnLoc[20].z);
                     pTemp->CastSpell(pTemp, SPELL_THE_LIGHT_OF_DAWN, false);
                 }

@@ -326,7 +326,7 @@ void Unit::SendMonsterStop(bool on_death)
     if (on_death == true)
     {
         data << uint8(0);
-        data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
+        data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? SPLINEFLAG_FLYING : SPLINEFLAG_WALKING);
         data << uint32(0);                                      // Time in between points
         data << uint32(1);                                      // 1 single waypoint
         data << GetPositionX() << GetPositionY() << GetPositionZ();
@@ -349,7 +349,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 T
     data << getMSTime();
 
     data << uint8(0);
-    data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? MOVEFLAG_FLY : MOVEFLAG_WALK);
+    data << uint32((GetUnitMovementFlags() & MOVEMENTFLAG_LEVITATING) ? SPLINEFLAG_FLYING : SPLINEFLAG_WALKING);
     data << Time;                                           // Time in between points
     data << uint32(1);                                      // 1 single waypoint
     data << NewPosX << NewPosY << NewPosZ;                  // the single waypoint Point B
@@ -374,7 +374,7 @@ void Unit::SendMonsterMove(float NewPosX, float NewPosY, float NewPosZ, uint32 M
     data << uint8(0);
     data << MoveFlags;
 
-    if (MoveFlags & MOVEFLAG_JUMP)
+    if (MoveFlags & SPLINEFLAG_TRAJECTORY)
     {
         data << time;
         data << speedZ;
@@ -452,7 +452,7 @@ void Unit::SendMonsterMoveTransport(Unit *vehicleOwner)
     data << uint32(getMSTime());
     data << uint8(4);
     data << GetTransOffsetO();
-    data << uint32(MOVEFLAG_ENTER_TRANSPORT);
+    data << uint32(SPLINEFLAG_TRANSPORT);
     data << uint32(0);// move time
     data << uint32(0);//GetTransOffsetX();
     data << uint32(0);//GetTransOffsetY();
@@ -9752,9 +9752,9 @@ void Unit::SetCharm(Unit* charm, bool apply)
         if (!charm->AddUInt64Value(UNIT_FIELD_CHARMEDBY, GetGUID()))
             sLog.outCrash("Unit %u is being charmed, but it already has a charmer %u", charm->GetEntry(), charm->GetCharmerGUID());
 
-        if (charm->HasUnitMovementFlag(MOVEMENTFLAG_WALK_MODE))
+        if (charm->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
         {
-            charm->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            charm->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             charm->SendMovementFlagUpdate();
         }
 
@@ -16411,10 +16411,7 @@ void Unit::ExitVehicle()
     SetControlled(false, UNIT_STAT_ROOT);
 
     RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
-    m_movementInfo.t_x = 0;
-    m_movementInfo.t_y = 0;
-    m_movementInfo.t_z = 0;
-    m_movementInfo.t_o = 0;
+    m_movementInfo.t_pos.Relocate(0, 0, 0, 0);
     m_movementInfo.t_time = 0;
     m_movementInfo.t_seat = 0;
 
@@ -16446,17 +16443,17 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
             break;
         case TYPEID_PLAYER:
             // remove unknown, unused etc flags for now
-            const_cast<Unit*>(this)->RemoveUnitMovementFlag(MOVEMENTFLAG_SPLINE2);
+            const_cast<Unit*>(this)->RemoveUnitMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED);
             if (isInFlight())
             {
                 WPAssert(const_cast<Unit*>(this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
-                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE2);
+                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE_ENABLED);
             }
             break;
     }
 
     *data << uint32(GetUnitMovementFlags()); // movement flags
-    *data << uint16(m_movementInfo.unk1);    // 2.3.0
+    *data << uint16(m_movementInfo.flags2);    // 2.3.0
     *data << uint32(getMSTime());            // time
     *data << GetPositionX();
     *data << GetPositionY();
@@ -16485,8 +16482,8 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
 
     // 0x02200000
     if ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (m_movementInfo.unk1 & 0x20))
-        *data << (float)m_movementInfo.s_pitch;
+        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+        *data << (float)m_movementInfo.pitch;
 
     *data << (uint32)m_movementInfo.fallTime;
 
@@ -16500,8 +16497,8 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     }
 
     // 0x04000000
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE)
-        *data << (float)m_movementInfo.u_unk1;
+    if (GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION)
+        *data << (float)m_movementInfo.splineElevation;
 
     /*if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -16510,30 +16507,17 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     }*/
 }
 
-void Unit::OutMovementInfo() const
-{
-    sLog.outString("MovementInfo for %u: Flag %u, Unk1 %u, Time %u, Pos %f %f %f %f, Fall %u", GetEntry(), m_movementInfo.flags, (uint32)m_movementInfo.unk1, m_movementInfo.time, GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation(), m_movementInfo.fallTime);
-    if (m_movementInfo.flags & MOVEMENTFLAG_ONTRANSPORT)
-        sLog.outString("Transport: GUID " UI64FMTD ", Pos %f %f %f %f, Time %u, Seat %d", m_movementInfo.t_guid, m_movementInfo.t_x, m_movementInfo.t_y, m_movementInfo.t_z, m_movementInfo.t_o, m_movementInfo.t_time, (int32)m_movementInfo.t_seat);
-    if ((m_movementInfo.flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.unk1 & 0x20))
-        sLog.outString("Pitch: %f", m_movementInfo.s_pitch);
-    if (m_movementInfo.flags & MOVEMENTFLAG_JUMPING)
-        sLog.outString("Jump: speedz %f, sin %f, cos %f, speedxy %f", m_movementInfo.j_zspeed, m_movementInfo.j_sinAngle, m_movementInfo.j_cosAngle, m_movementInfo.j_xyspeed);
-    if (m_movementInfo.flags & MOVEMENTFLAG_SPLINE)
-        sLog.outString("Spline: %f", m_movementInfo.u_unk1);
-}
-
 void Unit::SetFlying(bool apply)
 {
     if (apply)
     {
         SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        AddUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+        AddUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
     }
     else
     {
         RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x02);
-        RemoveUnitMovementFlag(MOVEMENTFLAG_FLY_MODE | MOVEMENTFLAG_FLYING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_CAN_FLY | MOVEMENTFLAG_FLYING);
     }
 }
 

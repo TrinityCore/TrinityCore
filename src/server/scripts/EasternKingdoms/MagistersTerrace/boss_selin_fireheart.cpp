@@ -159,7 +159,7 @@ struct boss_selin_fireheartAI : public ScriptedAI
             float x, y, z;                                  // coords that we move to, close to the crystal.
             CrystalChosen->GetClosePoint(x, y, z, me->GetObjectSize(), CONTACT_DISTANCE);
 
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             me->GetMotionMaster()->MovePoint(1, x, y, z);
             DrainingCrystal = true;
         }

@@ -340,7 +340,7 @@ struct mob_dragonmaw_peonAI : public ScriptedAI
             float x, y, z;
             caster->GetClosePoint(x, y, z, me->GetObjectSize());
 
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             me->GetMotionMaster()->MovePoint(1, x, y, z);
         }
     }

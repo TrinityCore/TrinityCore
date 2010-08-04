@@ -256,7 +256,7 @@ struct npc_emilyAI : public npc_escortAI
                     pPlayer->GroupEventHappens(QUEST_PERILOUS_ADVENTURE, me);
                     DoScriptText(SAY_QUEST_COMPLETE, me, pPlayer);
                 }
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 break;
             case 25:
                 DoScriptText(SAY_VICTORY4, me);

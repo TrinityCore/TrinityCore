@@ -280,7 +280,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     /*    return;
     }*/
 
-    if (!Trinity::IsValidMapCoord(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o))
+    if (!movementInfo.pos.IsPositionValid())
     {
         recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
         return;
@@ -291,14 +291,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     {
         // transports size limited
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
-        if (movementInfo.t_x > 50 || movementInfo.t_y > 50 || movementInfo.t_z > 50)
+        if (movementInfo.t_pos.GetPositionX() > 50 || movementInfo.t_pos.GetPositionY() > 50 || movementInfo.t_pos.GetPositionZ() > 50)
         {
             recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
             return;
         }
 
-        if (!Trinity::IsValidMapCoord(movementInfo.x+movementInfo.t_x, movementInfo.y + movementInfo.t_y,
-            movementInfo.z + movementInfo.t_z, movementInfo.o + movementInfo.t_o))
+        if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.t_pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.t_pos.GetPositionY(),
+            movementInfo.pos.GetPositionZ() + movementInfo.t_pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.t_pos.GetOrientation()))
         {
             recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
             return;
@@ -330,10 +330,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     {
         plMover->m_transport->RemovePassenger(plMover);
         plMover->m_transport = NULL;
-        movementInfo.t_x = 0.0f;
-        movementInfo.t_y = 0.0f;
-        movementInfo.t_z = 0.0f;
-        movementInfo.t_o = 0.0f;
+        movementInfo.t_pos.Relocate(0.0f, 0.0f, 0.0f, 0.0f);
         movementInfo.t_time = 0;
         movementInfo.t_seat = -1;
     }
@@ -345,7 +342,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     if (plMover && ((movementInfo.flags & MOVEMENTFLAG_SWIMMING) != 0) != plMover->IsInWater())
     {
         // now client not include swimming flag in case jumping under water
-        plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.x, movementInfo.y, movementInfo.z));
+        plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
     /*----------------------*/
@@ -362,17 +359,17 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     // this is almost never true (not sure why it is sometimes, but it is), normally use mover->IsVehicle()
     if (mover->GetVehicle())
     {
-        mover->SetOrientation(movementInfo.o);
+        mover->SetOrientation(movementInfo.pos.GetOrientation());
         return;
     }
 
-    mover->SetPosition(movementInfo.x, movementInfo.y, movementInfo.z, movementInfo.o);
+    mover->Relocate(movementInfo.pos);
 
     if (plMover)                                            // nothing is charmed, or player charmed
     {
         plMover->UpdateFallInformationIfNeed(movementInfo, opcode);
 
-        if (movementInfo.z < -500.0f)
+        if (movementInfo.pos.GetPositionZ() < -500.0f)
         {
             if (plMover->InBattleGround()
                 && plMover->GetBattleGround()

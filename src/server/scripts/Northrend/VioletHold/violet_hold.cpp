@@ -308,7 +308,7 @@ struct npc_sinclariAI : public ScriptedAI
                             {
                                 if (Creature* pGuard = *itr)
                                 {
-                                    pGuard->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+                                    pGuard->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                                     pGuard->GetMotionMaster()->MovePoint(0, MovePosition);
                                 }
                             }

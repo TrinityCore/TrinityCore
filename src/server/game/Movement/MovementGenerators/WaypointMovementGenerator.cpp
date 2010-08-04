@@ -80,8 +80,8 @@ void WaypointMovementGenerator<Player>::Reset(Player & /*unit*/){}
 template<>
 void WaypointMovementGenerator<Creature>::InitTraveller(Creature &unit, const WaypointData &node)
 {
-    node.run ? unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE):
-        unit.AddUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+    node.run ? unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING):
+        unit.AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
     unit.SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
     unit.SetUInt32Value(UNIT_FIELD_BYTES_1, 0);

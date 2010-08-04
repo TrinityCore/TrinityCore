@@ -174,7 +174,7 @@ struct npc_plaguehound_trackerAI : public npc_escortAI
         if (!pPlayer)
             return;
 
-        me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
         Start(false, false, pPlayer->GetGUID());
     }
 

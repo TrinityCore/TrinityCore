@@ -230,7 +230,7 @@ struct boss_skadiAI : public ScriptedAI
             m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
             m_pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALK_MODE);
+            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             m_uiMountTimer = 1000;
             Summons.DespawnEntry(CREATURE_GRAUF);
         }

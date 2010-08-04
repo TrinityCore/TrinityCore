@@ -312,7 +312,7 @@ struct boss_taldaramAI : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
-        me->SetUnitMovementFlags(MOVEMENTFLAG_WALK_MODE);
+        me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
         me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
         uint64 prison_GUID = pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
         pInstance->HandleGameObject(prison_GUID,true);
