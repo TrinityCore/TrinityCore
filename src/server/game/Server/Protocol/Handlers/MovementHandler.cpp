@@ -363,7 +363,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         return;
     }
 
-    mover->Relocate(movementInfo.pos);
+    mover->SetPosition(movementInfo.pos);
 
     if (plMover)                                            // nothing is charmed, or player charmed
     {

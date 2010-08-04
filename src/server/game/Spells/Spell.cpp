@@ -247,7 +247,7 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
     {
         if (data->rpos() + 1 > data->size())
             return false;
-        *data << m_strTarget;
+        *data >> m_strTarget;
     }
 
     // some spell cast packet including more data (for projectiles?)
