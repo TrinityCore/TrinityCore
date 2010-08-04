@@ -7717,22 +7717,22 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, AuraEffect* trigger
             }
             break;
         }
-         case SPELLFAMILY_PET:
+        case SPELLFAMILY_PET:
         {
-            // improved cower
-            if (dummySpell->SpellIconID == 958 && procSpell->SpellIconID == 958)
+            switch (dummySpell->SpellIconID)
             {
-                triggered_spell_id = dummySpell->Id == 53180 ? 54200 : 54201;
-                target = this;
-                break;
-            }
-            // guard dog
-            if (dummySpell->SpellIconID == 201 && procSpell->SpellIconID == 201)
-            {
-                triggered_spell_id = 54445;
-                target = this;
-                pVictim->AddThreat(this,procSpell->EffectBasePoints[0]*triggerAmount/100.0f);
-                break;
+                // Guard Dog
+                case 201:
+                    triggered_spell_id = 54445;
+                    target = this;
+                    float addThreat = SpellMgr::CalculateSpellEffectAmount(procSpell, 0, this) * triggerAmount / 100.f;
+                    pVictim->AddThreat(this, addThreat);
+                    break;
+                // Silverback
+                case 1582:
+                    triggered_spell_id = dummySpell->Id == 62765 ? 62801 : 62800;
+                    target = this;
+                    break;
             }
             break;
         }
