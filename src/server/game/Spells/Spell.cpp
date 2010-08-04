@@ -199,15 +199,21 @@ bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
     if (m_targetMask == TARGET_FLAG_SELF)
         return true;
 
-    if(m_targetMask & ( TARGET_FLAG_OBJECT))
+    if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNK17))
+    {
+        if (!data->readPackGUID(m_unitTargetGUID))
+            return false;
+    }
+
+    if(m_targetMask & (TARGET_FLAG_OBJECT))
     {
         if (!data->readPackGUID(m_GOTargetGUID))
             return false;
     }
 
-    if(m_targetMask & ( TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
+    if(m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
-        if(caster->GetTypeId() == TYPEID_PLAYER)
+        if (caster->GetTypeId() != TYPEID_PLAYER)
             return false;
         if (!data->readPackGUID(m_itemTargetGUID))
             return false;
