@@ -517,6 +517,15 @@ class Map : public GridRefManager<NGridType>
         ActiveNonPlayers::iterator m_activeNonPlayersIter;
 
     private:
+        Player* _GetScriptPlayerSourceOrTarget(Object* source, Object* target, uint32 unScriptID, const char *sCommandName) const;
+        Creature* _GetScriptCreatureSourceOrTarget(Object* source, Object* target, uint32 unScriptID, const char *sCommandName, bool bReverse = false) const;
+        Unit* _GetScriptUnit(Object* obj, bool isSource, uint32 unScriptID, const char *sCommandName) const;
+        Player* _GetScriptPlayer(Object* obj, bool isSource, uint32 unScriptID, const char *sCommandName) const;
+        Creature* _GetScriptCreature(Object* obj, bool isSource, uint32 unScriptID, const char *sCommandName) const;
+        WorldObject* _GetScriptWorldObject(Object* obj, bool isSource, uint32 unScriptID, const char *sCommandName) const;
+        void _ScriptProcessDoor(Object* source, Object* target, bool bOpen, uint32 guid, int32 nTimeToToggle, uint32 unScriptID) const;
+        GameObject* _FindGameObject(WorldObject* pWorldObject, uint32 guid) const;
+
         time_t i_gridExpiry;
 
         //used for fast base_map (e.g. MapInstanced class object) search for
