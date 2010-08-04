@@ -271,6 +271,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
             continue;
 
         uint32 pzoneid = itr->second->GetZoneId();
+        uint8 gender = itr->second->getGender();
 
         bool z_show = true;
         for (uint32 i = 0; i < zones_count; ++i)
@@ -326,12 +327,12 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
         if (!s_show)
             continue;
 
-        data << pname;                                      // player name
-        data << gname;                                      // guild name
+        data << pname;                                    // player name
+        data << gname;                                    // guild name
         data << uint32(lvl);                              // player level
         data << uint32(class_);                           // player class
         data << uint32(race);                             // player race
-        data << uint8(0);                                   // new 2.4.0
+        data << uint8(gender);                            // player gender
         data << uint32(pzoneid);                          // player zone id
 
         // 49 is maximum player count sent to client - can be overridden
