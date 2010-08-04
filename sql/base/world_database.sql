@@ -14694,8 +14694,9 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 53271, 'spell_hun_masters_call'),
 ( 53478, 'spell_hun_last_stand_pet'),
 ( 55709, 'spell_hun_pet_heart_of_the_phoenix'),
+( 54044, 'spell_hun_pet_carrion_feeder'),
 -- rogue
-( 5938, 'spell_rog_shiv'),
+(  5938, 'spell_rog_shiv'),
 ( 14185, 'spell_rog_preparation'),
 ( 31231, 'spell_rog_cheat_death'),
 ( 51662, 'spell_rog_hunger_for_blood'),

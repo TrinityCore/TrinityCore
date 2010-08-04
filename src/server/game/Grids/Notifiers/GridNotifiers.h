@@ -562,6 +562,32 @@ namespace Trinity
             float i_range;
     };
 
+    class CarrionFeederObjectCheck
+    {
+        public:
+            CarrionFeederObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
+            bool operator()(Player* u)
+            {
+                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight())
+                    return false;
+
+                return i_funit->IsWithinDistInMap(u, i_range);
+            }
+            bool operator()(Corpse* u);
+            bool operator()(Creature* u)
+            {
+                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() ||
+                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) != 0)
+                    return false;
+
+                return i_funit->IsWithinDistInMap(u, i_range);
+            }
+            template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
+        private:
+            Unit* const i_funit;
+            float i_range;
+    };
+
     // WorldObject do classes
 
     class RespawnDo

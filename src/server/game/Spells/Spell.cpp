@@ -542,8 +542,13 @@ void Spell::SelectSpellTargets()
                     switch(m_spellInfo->Id)
                     {
                         case 20577:                         // Cannibalize
+                        case 54044:                         // Carrion Feeder
                         {
-                            WorldObject* result = FindCorpseUsing<Trinity::CannibalizeObjectCheck> ();
+                            WorldObject* result = NULL;
+                            if (m_spellInfo->Id == 20577)
+                                result = FindCorpseUsing<Trinity::CannibalizeObjectCheck>();
+                            else
+                                result = FindCorpseUsing<Trinity::CarrionFeederObjectCheck>();
 
                             if (result)
                             {
