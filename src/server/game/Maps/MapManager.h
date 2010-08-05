@@ -140,7 +140,6 @@ class MapManager
         TransportNPCMap m_TransportNPCMap;
 
         bool CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck = false);
-        void RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y);
         uint32 GenerateInstanceId() { return ++i_MaxInstanceId; }
         void InitMaxInstanceId();
         void InitializeVisibilityDistanceInfo();

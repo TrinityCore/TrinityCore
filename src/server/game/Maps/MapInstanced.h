@@ -38,7 +38,6 @@ class MapInstanced : public Map
         void Update(const uint32&);
         void DelayedUpdate(const uint32 diff);
         //void RelocationNotify();
-        bool RemoveBones(uint64 guid, float x, float y);
         void UnloadAll();
         bool CanEnter(Player* player);
 

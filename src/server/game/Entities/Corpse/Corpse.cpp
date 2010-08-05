@@ -217,3 +217,10 @@ bool Corpse::isVisibleForInState(Player const* u, bool inVisibleList) const
     return IsInWorld() && u->IsInWorld() && IsWithinDistInMap(u->m_seer, World::GetMaxVisibleDistanceForObject() + (inVisibleList ? World::GetVisibleObjectGreyDistance() : 0.0f), false);
 }
 
+bool Corpse::IsExpired(time_t t) const
+{
+    if (m_type == CORPSE_BONES)
+        return m_time < t - 60 * MINUTE;
+    else
+        return m_time < t - 3 * DAY;
+}

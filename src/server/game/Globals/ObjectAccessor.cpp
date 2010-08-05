@@ -343,6 +343,22 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool /*insign
     */
 }
 
+void ObjectAccessor::RemoveOldCorpses()
+{
+    time_t now = time(NULL);
+    Player2CorpsesMapType::iterator next;
+    for (Player2CorpsesMapType::iterator itr = i_player2corpse.begin(); itr != i_player2corpse.end(); itr = next)
+    {
+        next = itr;
+        ++next;
+
+        if (!itr->second->IsExpired(now))
+            continue;
+
+        ConvertCorpseForPlayer(itr->first);
+    }
+}
+
 void ObjectAccessor::Update(uint32 /*diff*/)
 {
     UpdateDataMapType update_players;

@@ -1264,14 +1264,6 @@
 			Name="Globals"
 			>
 			<File
-				RelativePath="..\..\src\server\game\Globals\GlobalEvents.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Globals\GlobalEvents.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\server\game\Globals\ObjectAccessor.cpp"
 				>
 			</File>
