@@ -6097,7 +6097,7 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const * aurApp, uint8 mo
         if (msg != EQUIP_ERR_OK)
         {
             count-=noSpaceForCount;
-            plCaster->SendEquipError(msg, NULL, NULL);
+            plCaster->SendEquipError(msg, NULL, NULL, GetSpellProto()->EffectItemType[m_effIndex]);
             if (count == 0)
                 return;
         }

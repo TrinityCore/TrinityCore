@@ -96,13 +96,14 @@ bool ItemUse_item_draenei_fishing_net(Player* pPlayer, Item* /*pItem*/, SpellCas
         else
         {
             ItemPosCountVec dest;
-            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 23614, 1);
+            uint32 itemId = 23614;
+            uint8 msg = pPlayer->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
             if (msg == EQUIP_ERR_OK)
             {
-                if (Item* item = pPlayer->StoreNewItem(dest,23614,true))
-                    pPlayer->SendNewItem(item,1,false,true);
+                if (Item* item = pPlayer->StoreNewItem(dest, itemId, true))
+                    pPlayer->SendNewItem(item, 1, false, true);
             } else
-                pPlayer->SendEquipError(msg,NULL,NULL);
+                pPlayer->SendEquipError(msg, NULL, NULL, itemId);
         }
     }
     //}

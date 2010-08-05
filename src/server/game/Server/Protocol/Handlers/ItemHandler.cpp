@@ -47,13 +47,13 @@ void WorldSession::HandleSplitItemOpcode(WorldPacket & recv_data)
     if (count == 0)
         return;                                             //check count - if zero it's fake packet
 
-    if (!_player->IsValidPos(srcbag,srcslot))
+    if (!_player->IsValidPos(srcbag, srcslot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (!_player->IsValidPos(dstbag,dstslot))
+    if (!_player->IsValidPos(dstbag, dstslot, false))       // can be autostore pos
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
         return;
@@ -74,13 +74,13 @@ void WorldSession::HandleSwapInvItemOpcode(WorldPacket & recv_data)
     if (srcslot == dstslot)
         return;
 
-    if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0,srcslot))
+    if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0, srcslot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0,dstslot))
+    if (!_player->IsValidPos(INVENTORY_SLOT_BAG_0, dstslot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
         return;
@@ -126,13 +126,13 @@ void WorldSession::HandleSwapItem(WorldPacket & recv_data)
     if (src == dst)
         return;
 
-    if (!_player->IsValidPos(srcbag,srcslot))
+    if (!_player->IsValidPos(srcbag, srcslot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    if (!_player->IsValidPos(dstbag,dstslot))
+    if (!_player->IsValidPos(dstbag, dstslot, true))
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
         return;
@@ -739,7 +739,11 @@ void WorldSession::SendListInventory(uint64 vendorguid)
     VendorItemData const* vItems = pCreature->GetVendorItems();
     if (!vItems)
     {
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
+        WorldPacket data(SMSG_LIST_INVENTORY, (8+1+1));
+        data << uint64(vendorguid);
+        data << uint8(0);                                   // count==0, next will be error code
+        data << uint8(0);                                   // "Vendor has no inventory"
+        SendPacket(&data);
         return;
     }
 
@@ -786,8 +790,12 @@ void WorldSession::SendListInventory(uint64 vendorguid)
         }
     }
 
-    if (count == 0 || data.size() != 8 + 1 + size_t(count) * 8 * 4)
+    if (count == 0)
+    {
+        data << uint8(0);
+        SendPacket(&data);
         return;
+    }
 
     data.put<uint8>(count_pos, count);
     SendPacket(&data);
@@ -805,7 +813,7 @@ void WorldSession::HandleAutoStoreBagItemOpcode(WorldPacket & recv_data)
     if (!pItem)
         return;
 
-    if (!_player->IsValidPos(dstbag,NULL_SLOT))
+    if (!_player->IsValidPos(dstbag, NULL_SLOT, false))      // can be autostore pos
     {
         _player->SendEquipError(EQUIP_ERR_ITEM_DOESNT_GO_TO_SLOT, NULL, NULL);
         return;
@@ -914,6 +922,12 @@ void WorldSession::HandleAutoBankItemOpcode(WorldPacket& recvPacket)
     if (msg != EQUIP_ERR_OK)
     {
         _player->SendEquipError(msg, pItem, NULL);
+        return;
+    }
+
+    if (dest.size() == 1 && dest[0].pos == pItem->GetPos())
+    {
+        _player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
         return;
     }
 
@@ -1255,6 +1269,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
         {
             if (ItemLimitCategoryEntry const* limitEntry = sItemLimitCategoryStore.LookupEntry(iGemProto->ItemLimitCategory))
             {
+                // NOTE: limitEntry->mode is not checked because if item has limit then it is applied in equip case
                 for (int j = 0; j < MAX_GEM_SOCKETS; ++j)
                 {
                     if (Gems[j])
