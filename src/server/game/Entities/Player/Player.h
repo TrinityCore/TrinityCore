@@ -2347,6 +2347,8 @@ class Player : public Unit, public GridObject<Player>
         void SetChampioningFaction(uint32 faction) { m_ChampioningFaction = faction; }
         Spell * m_spellModTakingSpell;
 
+        float GetAverageItemLevel();
+
     protected:
         uint32 m_AreaID;
         uint32 m_regenTimerCount;
