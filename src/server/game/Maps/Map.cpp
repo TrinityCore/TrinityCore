@@ -2800,7 +2800,7 @@ void Map::ScriptsStart(ScriptMapMap const& scripts, uint32 id, Object* source, O
     // prepare static data
     uint64 sourceGUID = source ? source->GetGUID() : (uint64)0; //some script commands doesn't have source
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
-    uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
+    uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? source->ToItem()->GetOwnerGUID() : (uint64)0;
 
     ///- Schedule script execution for all scripts in the script map
     ScriptMap const *s2 = &(s->second);
@@ -2835,7 +2835,7 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
     // prepare static data
     uint64 sourceGUID = source ? source->GetGUID() : (uint64)0;
     uint64 targetGUID = target ? target->GetGUID() : (uint64)0;
-    uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? ((Item*)source)->GetOwnerGUID() : (uint64)0;
+    uint64 ownerGUID  = (source->GetTypeId() == TYPEID_ITEM) ? source->ToItem()->GetOwnerGUID() : (uint64)0;
 
     ScriptAction sa;
     sa.sourceGUID = sourceGUID;
