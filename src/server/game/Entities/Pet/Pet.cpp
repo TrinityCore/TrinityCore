@@ -301,6 +301,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         m_charmInfo->LoadPetActionBar(fields[13].GetCppString());
 
         _LoadSpells();
+        InitTalentForLevel();                               // re-init to check talent count
         _LoadSpellCooldowns();
         LearnPetPassives();
         InitLevelupSpellsForLevel();
