@@ -193,13 +193,13 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
                 case TYPEID_ITEM:
                 case TYPEID_CONTAINER:
                 {
-                    sScriptMgr.ItemQuestAccept(_player, ((Item*)pObject), qInfo);
+                    sScriptMgr.ItemQuestAccept(_player, pObject->ToItem(), qInfo);
 
                     // destroy not required for quest finish quest starting item
                     bool destroyItem = true;
                     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
                     {
-                        if ((qInfo->ReqItemId[i] == ((Item*)pObject)->GetEntry()) && (((Item*)pObject)->GetProto()->MaxCount > 0))
+                        if (qInfo->ReqItemId[i] == pObject->ToItem()->GetEntry() && pObject->ToItem()->GetProto()->MaxCount > 0)
                         {
                             destroyItem = false;
                             break;
@@ -207,7 +207,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
                     }
 
                     if (destroyItem)
-                        _player->DestroyItem(((Item*)pObject)->GetBagSlot(),((Item*)pObject)->GetSlot(),true);
+                        _player->DestroyItem(pObject->ToItem()->GetBagSlot(), pObject->ToItem()->GetSlot(),true);
 
                     break;
                 }
