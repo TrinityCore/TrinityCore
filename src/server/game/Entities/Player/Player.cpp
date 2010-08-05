@@ -4834,10 +4834,8 @@ void Player::CreateCorpse()
         }
     }
 
-    // we don't SaveToDB for players in battlegrounds so don't do it for corpses either
-    const MapEntry *entry = sMapStore.LookupEntry(corpse->GetMapId());
-    ASSERT(entry);
-    if (entry->map_type != MAP_BATTLEGROUND)
+    // we do not need to save corpses for BG/arenas
+    if (!GetMap()->IsBattleGroundOrArena())
         corpse->SaveToDB();
 
     // register for player, but not show

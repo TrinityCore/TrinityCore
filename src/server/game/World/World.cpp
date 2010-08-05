@@ -54,7 +54,6 @@
 #include "AuctionHouseBot.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
-#include "GlobalEvents.h"
 #include "GameEventMgr.h"
 #include "PoolMgr.h"
 #include "DatabaseImpl.h"
@@ -1284,8 +1283,8 @@ void World::SetInitialWorldSettings()
     uint32 realm_zone = getConfig(CONFIG_REALM_ZONE);
     LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmID);
 
-    ///- Remove the bones after a restart
-    CharacterDatabase.Execute("DELETE FROM corpse WHERE corpse_type = '0'");
+    ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
+    CharacterDatabase.PExecute("DELETE FROM corpse WHERE corpse_type = '0' OR time < (UNIX_TIMESTAMP()-'%u')", 3 * DAY);
 
     ///- Load the DBC files
     sLog.outString("Initialize data stores...");
@@ -1655,7 +1654,7 @@ void World::SetInitialWorldSettings()
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
     m_timers[WUPDATE_UPTIME].SetInterval(m_configs[CONFIG_UPTIME_UPDATE]*MINUTE*IN_MILLISECONDS);
                                                             //Update "uptime" table based on configuration entry in minutes.
-    m_timers[WUPDATE_CORPSES].SetInterval(20*MINUTE*IN_MILLISECONDS);
+    m_timers[WUPDATE_CORPSES].SetInterval(3 * HOUR * IN_MILLISECONDS);
                                                             //erase corpses every 20 minutes
     m_timers[WUPDATE_CLEANDB].SetInterval(m_configs[CONFIG_LOGDB_CLEARINTERVAL]*MINUTE*IN_MILLISECONDS);
                                                             // clean logs table every 14 days by default
@@ -2004,7 +2003,7 @@ void World::Update(uint32 diff)
     {
         m_timers[WUPDATE_CORPSES].Reset();
 
-        CorpsesErase();
+        sObjectAccessor.RemoveOldCorpses();
     }
 
     ///- Process Game events when necessary
