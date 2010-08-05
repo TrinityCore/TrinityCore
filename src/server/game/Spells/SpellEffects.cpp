@@ -2878,7 +2878,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
         else
         {
             // if not created by another reason from full inventory or unique items amount limitation
-            player->SendEquipError(msg, NULL, NULL);
+            player->SendEquipError(msg, NULL, NULL, newitemid);
             return;
         }
     }

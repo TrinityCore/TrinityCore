@@ -155,7 +155,7 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
         player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, item->itemid, item->count);
     }
     else
-        player->SendEquipError(msg, NULL, NULL);
+        player->SendEquipError(msg, NULL, NULL, item->itemid);
 }
 
 void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
@@ -526,8 +526,9 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
     uint8 msg = target->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item.itemid, item.count);
     if (msg != EQUIP_ERR_OK)
     {
-        target->SendEquipError(msg, NULL, NULL);
-        _player->SendEquipError(msg, NULL, NULL);         // send duplicate of error massage to master looter
+        target->SendEquipError(msg, NULL, NULL, item.itemid);
+        // send duplicate of error massage to master looter
+        _player->SendEquipError(msg, NULL, NULL, item.itemid);
         return;
     }
 
