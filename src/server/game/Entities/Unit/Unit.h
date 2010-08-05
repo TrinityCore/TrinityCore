@@ -1980,10 +1980,12 @@ class Unit : public WorldObject
         virtual bool isBeingLoaded() const { return false;}
         bool IsDuringRemoveFromWorld() const {return m_duringRemoveFromWorld;}
 
-        Pet* ToPet(){ if (isPet()) return reinterpret_cast<Pet*>(this); else return NULL; }
-        Totem* ToTotem(){ if (isTotem()) return reinterpret_cast<Totem*>(this); else return NULL; }
-        TempSummon* ToTempSummon() { if (isSummon()) return reinterpret_cast<TempSummon*>(this); else return NULL; }
-        const TempSummon* ToTempSummon() const { if (isSummon()) return reinterpret_cast<const TempSummon*>(this); else return NULL; }
+        Pet* ToPet();
+        const Pet* ToPet() const;
+        Totem* ToTotem();
+        const Totem* ToTotem() const;
+        TempSummon* ToTempSummon();
+        const TempSummon* ToTempSummon() const;
 
     protected:
         explicit Unit ();
