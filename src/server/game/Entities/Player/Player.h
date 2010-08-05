@@ -1120,6 +1120,7 @@ class Player : public Unit, public GridObject<Player>
         void SetSheath(SheathState sheathed);             // overwrite Unit version
         uint8 FindEquipSlot(ItemPrototype const* proto, uint32 slot, bool swap) const;
         uint32 GetItemCount(uint32 item, bool inBankAlso = false, Item* skipItem = NULL) const;
+        uint32 GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
         Item* GetItemByGuid(uint64 guid) const;
         Item* GetItemByEntry(uint32 entry) const;
         Item* GetItemByPos(uint16 pos) const;
@@ -1141,8 +1142,8 @@ class Player : public Unit, public GridObject<Player>
         static bool IsBagPos(uint16 pos);
         static bool IsBankPos(uint16 pos) { return IsBankPos(pos >> 8,pos & 255); }
         static bool IsBankPos(uint8 bag, uint8 slot);
-        bool IsValidPos(uint16 pos) { return IsBankPos(pos >> 8,pos & 255); }
-        bool IsValidPos(uint8 bag, uint8 slot);
+        bool IsValidPos(uint16 pos, bool explicit_pos) { return IsValidPos(pos >> 8, pos & 255, explicit_pos); }
+        bool IsValidPos(uint8 bag, uint8 slot, bool explicit_pos);
         uint8 GetBankBagSlotCount() const { return GetByteValue(PLAYER_BYTES_2, 2); }
         void SetBankBagSlotCount(uint8 count) { SetByteValue(PLAYER_BYTES_2, 2, count); }
         bool HasItemCount(uint32 item, uint32 count, bool inBankAlso = false) const;
@@ -1150,7 +1151,6 @@ class Player : public Unit, public GridObject<Player>
         bool CanNoReagentCast(SpellEntry const* spellInfo) const;
         bool HasItemOrGemWithIdEquipped(uint32 item, uint32 count, uint8 except_slot = NULL_SLOT) const;
         bool HasItemOrGemWithLimitCategoryEquipped(uint32 limitCategory, uint32 count, uint8 except_slot = NULL_SLOT) const;
-        uint8 CountItemWithLimitCategory(uint32 limitCategory, Item* skipItem = NULL) const;
         uint8 CanTakeMoreSimilarItems(Item* pItem) const { return _CanTakeMoreSimilarItems(pItem->GetEntry(),pItem->GetCount(),pItem); }
         uint8 CanTakeMoreSimilarItems(uint32 entry, uint32 count) const { return _CanTakeMoreSimilarItems(entry,count,NULL); }
         uint8 CanStoreNewItem(uint8 bag, uint8 slot, ItemPosCountVec& dest, uint32 item, uint32 count, uint32* no_space_count = NULL) const
@@ -1223,7 +1223,7 @@ class Player : public Unit, public GridObject<Player>
         Item* GetItemFromBuyBackSlot(uint32 slot);
         void RemoveItemFromBuyBackSlot(uint32 slot, bool del);
         uint32 GetMaxKeyringSize() const { return KEYRING_SLOT_END-KEYRING_SLOT_START; }
-        void SendEquipError(uint8 msg, Item* pItem, Item *pItem2);
+        void SendEquipError(uint8 msg, Item* pItem, Item *pItem2 = NULL, uint32 itemid = 0);
         void SendBuyError(uint8 msg, Creature* pCreature, uint32 item, uint32 param);
         void SendSellError(uint8 msg, Creature* pCreature, uint64 guid, uint32 param);
         void AddWeaponProficiency(uint32 newflag) { m_WeaponProficiency |= newflag; }

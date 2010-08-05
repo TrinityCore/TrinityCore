@@ -120,10 +120,15 @@ enum InventoryChangeFailure
     EQUIP_ERR_NOT_DURING_ARENA_MATCH             = 78,
     EQUIP_ERR_CANNOT_TRADE_THAT                  = 79,
     EQUIP_ERR_PERSONAL_ARENA_RATING_TOO_LOW      = 80,
-    // no output                                 = 81,
+    EQUIP_ERR_EVENT_AUTOEQUIP_BIND_CONFIRM       = 81,
     EQUIP_ERR_ARTEFACTS_ONLY_FOR_OWN_CHARACTERS  = 82,
     // no output                                 = 83,
-    // crash client                              = 84,
+    EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_COUNT_EXCEEDED     = 84,
+    EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_SOCKETED_EXCEEDED  = 85,
+    EQUIP_ERR_SCALING_STAT_ITEM_LEVEL_EXCEEDED           = 86,
+    EQUIP_ERR_PURCHASE_LEVEL_TOO_LOW                     = 87,
+    EQUIP_ERR_CANT_EQUIP_NEED_TALENT                     = 88,
+    EQUIP_ERR_ITEM_MAX_LIMIT_CATEGORY_EQUIPPED_EXCEEDED  = 89
 };
 
 enum BuyFailure
