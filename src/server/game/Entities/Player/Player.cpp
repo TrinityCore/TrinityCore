@@ -23806,6 +23806,9 @@ void Player::ActivateSpec(uint8 spec)
 
 
     ResummonPetTemporaryUnSummonedIfAny();
+    if (Pet* pPet = GetPet())
+        pPet->InitTalentForLevel();  // not processed with aura removal because pet was not active
+
     SendActionButtons(1);
 
     Powers pw = getPowerType();
