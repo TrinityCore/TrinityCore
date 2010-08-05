@@ -87,6 +87,8 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void Whisper(int32 textId,uint64 receiver) { MonsterWhisper(textId,receiver); }
         void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
 
+        bool IsExpired(time_t t) const;
+
     private:
         CorpseType m_type;
         time_t m_time;

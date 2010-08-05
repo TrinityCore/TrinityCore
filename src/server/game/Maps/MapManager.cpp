@@ -256,16 +256,6 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
     return player->Satisfy(objmgr.GetAccessRequirement(mapid, targetDifficulty), mapid, true);
 }
 
-void MapManager::RemoveBonesFromMap(uint32 mapid, uint64 guid, float x, float y)
-{
-    bool remove_result = _createBaseMap(mapid)->RemoveBones(guid, x, y);
-
-    if (!remove_result)
-    {
-        sLog.outDebug("Bones %u not found in world. Delete from DB also.", GUID_LOPART(guid));
-    }
-}
-
 void MapManager::Update(uint32 diff)
 {
     i_timer.Update(diff);
