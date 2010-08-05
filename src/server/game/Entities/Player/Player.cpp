@@ -24003,3 +24003,23 @@ void Player::_LoadRandomBGStatus(QueryResult_AutoPtr result)
     if (result)
         m_IsBGRandomWinner = true;
 }
+
+float Player::GetAverageItemLevel()
+{
+    uint32 sum = 0;
+    uint32 count = 0;
+
+    for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
+    {
+        // don't check tabard, ranged, offhand or chest
+        if (i == EQUIPMENT_SLOT_TABARD || i == EQUIPMENT_SLOT_RANGED || i == EQUIPMENT_SLOT_OFFHAND || i == EQUIPMENT_SLOT_CHEST)
+            continue;
+
+        if (m_items[i] && m_items[i]->GetProto())
+            sum += m_items[i]->GetProto()->ItemLevel;
+
+        count++;
+    }
+
+    return ((float)sum) / count;
+}
