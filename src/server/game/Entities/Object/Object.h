@@ -116,6 +116,7 @@ class CreatureAI;
 class ZoneScript;
 class Unit;
 class Transport;
+class Item;
 
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
@@ -320,10 +321,14 @@ class Object
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
 
-    Player* ToPlayer(){ if (GetTypeId() == TYPEID_PLAYER)  return reinterpret_cast<Player*>(this); else return NULL;  }
-    const Player* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER)  return (const Player*)((Player*)this); else return NULL;  }
-    Creature* ToCreature(){ if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
-    const Creature* ToCreature() const {if (GetTypeId() == TYPEID_UNIT) return (const Creature*)((Creature*)this); else return NULL; }
+        Unit* ToUnit();
+        const Unit* ToUnit() const;
+        Player* ToPlayer();
+        const Player* ToPlayer() const;
+        Creature* ToCreature();
+        const Creature* ToCreature() const;
+        Item* ToItem();
+        const Item* ToItem() const;
 
     protected:
 

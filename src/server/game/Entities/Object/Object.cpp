@@ -1135,6 +1135,46 @@ bool Object::PrintIndexError(uint32 index, bool set) const
     return false;
 }
 
+inline Unit* Object::ToUnit()
+{
+    return dynamic_cast<Unit*>(this);
+}
+
+inline const Unit* Object::ToUnit() const
+{
+    return dynamic_cast<const Unit*>(this);
+}
+
+inline Player* Object::ToPlayer()
+{
+    return dynamic_cast<Player*>(this);
+}
+
+inline const Player* Object::ToPlayer() const
+{
+    return dynamic_cast<const Player*>(this);
+}
+
+inline Creature* Object::ToCreature()
+{
+    return dynamic_cast<Creature*>(this);
+}
+
+inline const Creature* Object::ToCreature() const
+{
+    return dynamic_cast<const Creature*>(this);
+}
+
+inline Item* Object::ToItem()
+{
+    return dynamic_cast<Item*>(this);
+}
+
+inline const Item* Object::ToItem() const
+{
+    return dynamic_cast<const Item*>(this);
+}
+
 bool Position::HasInLine(const Unit * const target, float distance, float width) const
 {
     if (!HasInArc(M_PI, target) || !target->IsWithinDist3d(m_positionX, m_positionY, m_positionZ, distance))
