@@ -101,7 +101,7 @@ Object::~Object()
     {
         sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
         if (isType(TYPEMASK_ITEM))
-            sLog.outCrash("Item slot %u", ((Item*)this)->GetSlot());
+            sLog.outCrash("Item slot %u", this->ToItem()->GetSlot());
         ASSERT(false);
         RemoveFromWorld();
     }
