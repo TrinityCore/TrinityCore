@@ -8750,6 +8750,8 @@ void ObjectMgr::LoadScriptNames()
       "UNION "
       "SELECT DISTINCT(ScriptName) FROM conditions WHERE ScriptName <> '' "
       "UNION "
+      "SELECT DISTINCT(ScriptName) FROM outdoorpvp_template WHERE ScriptName <> '' "
+      "UNION "
       "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)
@@ -8772,7 +8774,8 @@ void ObjectMgr::LoadScriptNames()
         bar.step();
         m_scriptNames.push_back((*result)[0].GetString());
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     std::sort(m_scriptNames.begin(), m_scriptNames.end());
     sLog.outString();

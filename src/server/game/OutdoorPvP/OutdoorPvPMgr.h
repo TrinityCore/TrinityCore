@@ -30,6 +30,12 @@ class Creature;
 class ZoneScript;
 struct GossipMenuItems;
 
+struct OutdoorPvPData
+{
+    OutdoorPvPTypes TypeId;
+    uint32 ScriptId;
+};
+
 // class to handle player enter / leave / areatrigger / GO use events
 class OutdoorPvPMgr
 {
@@ -43,6 +49,9 @@ class OutdoorPvPMgr
 
         // create outdoor pvp events
         void InitOutdoorPvP();
+
+        // loads outdoorpvp_template
+        void LoadTemplates();
 
         // called when a player enters an outdoor pvp area
         void HandlePlayerEnterZone(Player * plr, uint32 areaflag);
@@ -76,6 +85,7 @@ class OutdoorPvPMgr
 
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
         typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
+        typedef std::vector<OutdoorPvPData*> OutdoorPvPDataSet;
 
     private:
 
@@ -86,6 +96,9 @@ class OutdoorPvPMgr
         // maps the zone ids to an outdoor pvp event
         // used in player event handling
         OutdoorPvPMap   m_OutdoorPvPMap;
+
+        // Holds the outdoor PvP templates
+        OutdoorPvPDataSet m_OutdoorPvPDatas;
 
         // update interval
         uint32 m_UpdateTimer;

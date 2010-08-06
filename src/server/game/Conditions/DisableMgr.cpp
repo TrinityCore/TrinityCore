@@ -22,6 +22,7 @@
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
 #include "DisableMgr.h"
+#include "OutdoorPvP.h"
 
 DisableMgr::DisableMgr()
 {
@@ -31,6 +32,7 @@ DisableMgr::~DisableMgr()
 {
     for (DisableMap::iterator itr = m_DisableMap.begin(); itr != m_DisableMap.end(); ++itr)
         itr->second.clear();
+
     m_DisableMap.clear();
 }
 
@@ -39,6 +41,7 @@ void DisableMgr::LoadDisables()
     // reload case
     for (DisableMap::iterator itr = m_DisableMap.begin(); itr != m_DisableMap.end(); ++itr)
         itr->second.clear();
+
     m_DisableMap.clear();
 
     QueryResult_AutoPtr result = WorldDatabase.Query("SELECT sourceType,entry,flags FROM disables");
@@ -132,6 +135,15 @@ void DisableMgr::LoadDisables()
                 if (flags)
                     sLog.outErrorDb("Disable flags specified for battleground %u, useless data.", entry);
                 break;
+            case DISABLE_TYPE_OUTDOORPVP:
+                if (entry > MAX_OUTDOORPVP_TYPES)
+                {
+                    sLog.outErrorDb("OutdoorPvPTypes value %u from `disables` is invalid, skipped.", entry);
+                    continue;
+                }
+                if (flags)
+                    sLog.outErrorDb("Disable flags specified for outdoor PvP %u, useless data.", entry);
+                break;
             case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
                 if (!sAchievementCriteriaStore.LookupEntry(entry))
                 {
@@ -142,9 +154,11 @@ void DisableMgr::LoadDisables()
                     sLog.outErrorDb("Disable flags specified for Achievement Criteria %u, useless data.", entry);
                 break;
         }
+
         m_DisableMap[type].insert(DisableTypeMap::value_type(entry, flags));
         ++total_count;
-   } while (result->NextRow());
+   }
+    while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u disables.", total_count);
@@ -248,6 +262,7 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit
                     return false;
             return true;
         case DISABLE_TYPE_BATTLEGROUND:
+        case DISABLE_TYPE_OUTDOORPVP:
         case DISABLE_TYPE_ACHIEVEMENT_CRITERIA:
             return true;
     }

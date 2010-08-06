@@ -28,14 +28,15 @@ class GameObject;
 enum OutdoorPvPTypes
 {
     OUTDOOR_PVP_HP = 1,
-    OUTDOOR_PVP_NA,
-    OUTDOOR_PVP_TF,
-    OUTDOOR_PVP_ZM,
-    OUTDOOR_PVP_SI,
-    OUTDOOR_PVP_EP,
-    OUTDOOR_PVP_WG,
-    OUTDOOR_PVP_NR,
+    OUTDOOR_PVP_NA = 2,
+    OUTDOOR_PVP_TF = 3,
+    OUTDOOR_PVP_ZM = 4,
+    OUTDOOR_PVP_SI = 5,
+    OUTDOOR_PVP_EP = 6,
+    OUTDOOR_PVP_NR = 7,
 };
+
+#define MAX_OUTDOORPVP_TYPES 8
 
 const uint8 CapturePointArtKit[3] = {2, 1, 21};
 

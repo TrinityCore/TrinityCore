@@ -25,6 +25,8 @@
 #include "OutdoorPvPEP.h"
 #include "ObjectMgr.h"
 #include "Player.h"
+#include "ProgressBar.h"
+#include "DisableMgr.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
@@ -37,10 +39,15 @@ OutdoorPvPMgr::~OutdoorPvPMgr()
     //sLog.outDebug("Deleting OutdoorPvPMgr");
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
         delete *itr;
+
+    for (OutdoorPvPDataSet::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
+        delete *itr;
 }
 
 void OutdoorPvPMgr::InitOutdoorPvP()
 {
+    LoadTemplates();
+
     // create new opvp
     OutdoorPvP * pOP = new OutdoorPvPHP;
     // respawn, init variables
@@ -119,6 +126,56 @@ void OutdoorPvPMgr::InitOutdoorPvP()
         m_OutdoorPvPSet.push_back(pOP);
         sLog.outDebug("OutdoorPvP : EP successfully initiated.");
     }
+}
+
+void OutdoorPvPMgr::LoadTemplates()
+{
+    uint32 typeId = 0;
+    uint32 count = 0;
+
+    //                                                       0       1
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
+
+    if (!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outErrorDb(">> Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
+        return;
+    }
+
+    barGoLink bar(result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        typeId = fields[0].GetUInt32();
+
+        if (sDisableMgr.IsDisabledFor(DISABLE_TYPE_OUTDOORPVP, typeId, NULL))
+            continue;
+
+        if (typeId >= MAX_OUTDOORPVP_TYPES)
+        {
+            sLog.outError("Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
+            continue;
+        }
+
+        OutdoorPvPData data;
+        data.TypeId = OutdoorPvPTypes(typeId);
+        data.ScriptId = objmgr.GetScriptId(fields[1].GetString());
+        m_OutdoorPvPDatas.push_back(&data);
+
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog.outString();
+    sLog.outString(">> Loaded %u outdoor PvP definitions.", count);
 }
 
 void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP *handle)
