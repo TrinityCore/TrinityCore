@@ -487,7 +487,7 @@ class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
         virtual uint32 OnDialogStatus(Player* player, Creature* creature) { return 0; }
 
         // Called when a CreatureAI object is needed for the creature.
-        virtual CreatureAI* OnGetAI() { return NULL; }
+        virtual CreatureAI* OnGetAI(Creature* creature) const { return NULL; }
 };
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
