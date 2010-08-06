@@ -302,9 +302,10 @@ struct WeatherSeasonChances
     uint32 stormChance;
 };
 
-struct WeatherZoneChances
+struct WeatherData
 {
     WeatherSeasonChances data[WEATHER_SEASONS];
+    uint32 ScriptId;
 };
 
 struct GraveYardData
@@ -397,7 +398,7 @@ class ObjectMgr
 
         typedef UNORDERED_MAP<uint32, PointOfInterest> PointOfInterestMap;
 
-        typedef UNORDERED_MAP<uint32, WeatherZoneChances> WeatherZoneMap;
+        typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
 
         typedef std::vector<std::string> ScriptNameMap;
 
@@ -687,7 +688,7 @@ class ObjectMgr
 
         void LoadNPCSpellClickSpells();
 
-        void LoadWeatherZoneChances();
+        void LoadWeatherData();
         void LoadGameTele();
 
         void LoadNpcTextId();
@@ -740,7 +741,7 @@ class ObjectMgr
             return NULL;
         }
 
-        WeatherZoneChances const* GetWeatherChances(uint32 zone_id) const
+        WeatherData const* GetWeatherChances(uint32 zone_id) const
         {
             WeatherZoneMap::const_iterator itr = mWeatherZoneMap.find(zone_id);
             if (itr != mWeatherZoneMap.end())
