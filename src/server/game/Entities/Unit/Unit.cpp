@@ -16740,36 +16740,6 @@ uint32 Unit::GetRemainingDotDamage(uint64 caster, uint32 spellId, uint8 effectIn
     return amount;
 }
 
-inline Pet* Unit::ToPet()
-{
-    return dynamic_cast<Pet*>(this);
-}
-
-inline const Pet* Unit::ToPet() const
-{
-    return dynamic_cast<const Pet*>(this);
-}
-
-inline Totem* Unit::ToTotem()
-{
-    return dynamic_cast<Totem*>(this);
-}
-
-inline const Totem* Unit::ToTotem() const
-{
-    return dynamic_cast<const Totem*>(this);
-}
-
-inline TempSummon* Unit::ToTempSummon()
-{
-    return dynamic_cast<TempSummon*>(this);
-}
-
-inline const TempSummon* Unit::ToTempSummon() const
-{
-    return dynamic_cast<const TempSummon*>(this);
-}
-
 void CharmInfo::SetIsCommandAttack(bool val)
 {
     m_isCommandAttack = val;
