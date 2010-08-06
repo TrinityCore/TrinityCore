@@ -5928,25 +5928,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
             }
             break;
         }
-        case SPELLFAMILY_PRIEST:
-        {
-            switch(m_spellInfo->Id)
-            {
-                // Pain and Suffering
-                case 47948:
-                {
-                    if (!unitTarget)
-                        return;
-                    // Refresh Shadow Word: Pain on target
-                    if (AuraEffect * aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, m_caster->GetGUID()))
-                        aur->GetBase()->RefreshDuration();
-                    return;
-                }
-                default:
-                    break;
-            }
-            break;
-        }
         case SPELLFAMILY_HUNTER:
         {
             switch(m_spellInfo->Id)

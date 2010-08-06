@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "SpellAuraEffects.h"
 
 enum PriestSpells
 {
@@ -29,6 +30,28 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE_R1_DAMAGE               = 47758,
     PRIEST_SPELL_PENANCE_R1_HEAL                 = 47757,
 };
+
+// 47948 Pain and Suffering (proc)
+class spell_pri_pain_and_suffering_proc_SpellScript : public SpellScript
+{
+    void HandleEffectScriptEffect(SpellEffIndex effIndex)
+    {
+        // Refresh Shadow Word: Pain on target
+        if (Unit *unitTarget = GetHitUnit())
+            if (AuraEffect* aur = unitTarget->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x8000, 0, 0, GetCaster()->GetGUID()))
+                aur->GetBase()->RefreshDuration();
+    }
+
+    void Register()
+    {
+        EffectHandlers += EffectHandlerFn(spell_pri_pain_and_suffering_proc_SpellScript::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
+SpellScript *GetSpellScript_spell_pri_pain_and_suffering_proc()
+{
+    return new spell_pri_pain_and_suffering_proc_SpellScript();
+}
 
 class spell_pri_penance_SpellScript : public SpellScript
 {
@@ -80,6 +103,11 @@ SpellScript *GetSpellScript_spell_pri_penance()
 void AddSC_priest_spell_scripts()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "spell_pri_pain_and_suffering_proc";
+    newscript->GetSpellScript = &GetSpellScript_spell_pri_pain_and_suffering_proc;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "spell_pri_penance";
