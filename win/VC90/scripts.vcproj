@@ -415,10 +415,6 @@
 				RelativePath="..\..\src\server\scripts\Custom\npc_wyrmresttempel_taxi.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\scripts\Custom\on_events.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Eastern Kingdoms"
