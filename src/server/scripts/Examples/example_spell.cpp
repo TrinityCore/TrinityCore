@@ -24,98 +24,108 @@
 
 #include "ScriptPCH.h"
 
-class spell_ex_49375SpellScript : public SpellScript
+class spell_ex_49375 : public SpellHandlerScript
 {
-    std::string localVariable;
-    char * localVariable2;
+    public:
+        spell_ex_49375() : SpellHandlerScript("spell_ex_49375") { }
 
-    // effect handler hook - effIndex - effIndex of handled effect of a spell
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-         // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
-        sLog.outError("WE ARE HANDLING DUMMY!");
-        sLog.outError(localVariable.c_str());
-        // make caster cast a spell on a unit target of effect
-        if (Unit * target = GetHitUnit())
-            GetCaster()->CastSpell(target, 70522, true);
-    };
-    void Register()
-    {
-        // we're registering our function here
-        // function HandleDummy will be called when unit is hit by spell, just before default effect 0 handler
-        EffectHandlers += EffectHandlerFn(spell_ex_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-        // this will prompt an error on startup because effect 0 of spell 49375 is set to SPELL_EFFECT_DUMMY, not SPELL_EFFECT_APPLY_AURA
-        //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
-        // this will make HandleDummy function to be called on first != 0 effect of spell 49375 
-        //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
-        // this will make HandleDummy function to be called on all != 0 effect of spell 49375 
-        //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
-    };
-    // function called on server startup
-    // checks if script has data required for it to work
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        // check if spellid 1 exists in dbc
-        if (!sSpellStore.LookupEntry(70522))
-            return false;
-        return true;
-    };
-    // function called just after script is added to spell
-    // we initialize local variables if needed
-    bool Load()
-    {
-        localVariable = "WE'RE USING LOCAL VARIABLE";
-        localVariable2 = new char;
-        return true;
-        // script will be immediately removed from the spell
-        // for example - we don't want this script to be executed on a creature
-        // if (GetCaster()->GetTypeID() != TYPEID_PLAYER)
-        //     return false; 
-    }
-    // function called just before script delete
-    // we free allocated memory
-    void Unload()
-    {
-        delete localVariable2;
-    }
+        class spell_ex_49375SpellScript : public SpellScript
+        {
+            std::string localVariable;
+            char * localVariable2;
+
+            // effect handler hook - effIndex - effIndex of handled effect of a spell
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
+                sLog.outError("WE ARE HANDLING DUMMY!");
+                sLog.outError(localVariable.c_str());
+                // make caster cast a spell on a unit target of effect
+                if (Unit * target = GetHitUnit())
+                    GetCaster()->CastSpell(target, 70522, true);
+            };
+
+            void Register()
+            {
+                // we're registering our function here
+                // function HandleDummy will be called when unit is hit by spell, just before default effect 0 handler
+                EffectHandlers += EffectHandlerFn(spell_ex_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // this will prompt an error on startup because effect 0 of spell 49375 is set to SPELL_EFFECT_DUMMY, not SPELL_EFFECT_APPLY_AURA
+                //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                // this will make HandleDummy function to be called on first != 0 effect of spell 49375 
+                //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
+                // this will make HandleDummy function to be called on all != 0 effect of spell 49375 
+                //EffectHandlers += EffectHandlerFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+            };
+
+            // function called on server startup
+            // checks if script has data required for it to work
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                // check if spellid 1 exists in dbc
+                if (!sSpellStore.LookupEntry(70522))
+                    return false;
+                return true;
+            };
+
+            // function called just after script is added to spell
+            // we initialize local variables if needed
+            bool Load()
+            {
+                localVariable = "WE'RE USING LOCAL VARIABLE";
+                localVariable2 = new char;
+                return true;
+                // script will be immediately removed from the spell
+                // for example - we don't want this script to be executed on a creature
+                // if (GetCaster()->GetTypeID() != TYPEID_PLAYER)
+                //     return false; 
+            }
+
+            // function called just before script delete
+            // we free allocated memory
+            void Unload()
+            {
+                delete localVariable2;
+            }
+        };
+
+        // function which creates SpellScript
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_ex_49375SpellScript();
+        }
 };
-
-// function which creates SpellScript
-SpellScript * GetSpellScript_spell_ex_49375()
-{
-    return new spell_ex_49375SpellScript();
-}
-
 /* empty script for copypasting
-class spell_ex_SpellScript : public SpellScript
+class spell_ex : public SpellHandlerScript
 {
-    void Function(SpellEffIndex effIndex){}
-    void Register()
-    {
-        //EffectHandlers += EffectHandlerFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_EFFECT_ANY);
-    }
+    public: 
+        spell_ex() : SpellHandlerScript("spell_ex") { }
 
-    //bool Load(){return true;}
-    //void Unload(){}
-    //bool Validate(SpellEntry const * spellEntry){return true;}
+        class spell_ex_SpellScript : public SpellScript
+        {
+            void Function(SpellEffIndex effIndex){}
+            void Register()
+            {
+                //EffectHandlers += EffectHandlerFn(spell_ex_SpellScript::Function, EFFECT_ANY, SPELL_EFFECT_ANY);
+            }
+
+            //bool Load(){return true;}
+            //void Unload(){}
+            //bool Validate(SpellEntry const * spellEntry){return true;}
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_ex_SpellScript();
+        }
 };
-SpellScript * GetSpellScript_spell_ex_()
-{
-    return new spell_ex_SpellScript();
-}
+
 */
 
 // this function has to be added to function set in ScriptLoader.cpp
 void AddSC_example_spell_scripts()
 {
 /* Commented out to prevent loading errors
-    Script *newscript;
-
-    newscript = new Script;
-    // name to be put in `spell_script_names`
-    newscript->Name = "spell_ex_49375";
-    // assign create function to the script
-    newscript->GetSpellScript = &GetSpellScript_spell_ex_49375;
-    newscript->RegisterSelf();
+    new spell_ex_49375;
 */
 }
