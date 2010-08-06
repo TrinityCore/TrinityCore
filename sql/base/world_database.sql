@@ -15657,7 +15657,7 @@ AVG_ROW_LENGTH=0;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `version`
+-- Dumping data for table `vehicle_accessory`
 --
 
 LOCK TABLES `vehicle_accessory` WRITE;
