@@ -313,7 +313,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
 
     uint32 count = 0;
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId FROM conditions");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
     {
@@ -344,6 +344,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond->mConditionValue2           = fields[6].GetUInt32();
         cond->mConditionValue3           = fields[7].GetUInt32();
         cond->ErrorTextd                 = fields[8].GetUInt32();
+        cond->mScriptId                  = objmgr.GetScriptId(fields[9].GetString());
 
         if (iConditionTypeOrReference >= 0)
             cond->mConditionType = ConditionType(iConditionTypeOrReference);
