@@ -23,8 +23,6 @@
 
 #include "SharedDefines.h"
 
-#include "AuctionHouseBot.h"
-
 class Item;
 class Player;
 class WorldPacket;

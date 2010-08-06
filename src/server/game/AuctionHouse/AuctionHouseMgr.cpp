@@ -216,7 +216,7 @@ void AuctionHouseMgr::SendAuctionSuccessfulMail(AuctionEntry * auction)
         uint32 profit = auction->bid + auction->deposit - auctionCut;
 
         //FIXME: what do if owner offline
-        if (owner && owner->GetGUIDLow() != auctionbot.GetAHBplayerGUID())
+        if (owner)
         {
             owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_GOLD_EARNED_BY_AUCTIONS, profit);
             owner->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_AUCTION_SOLD, auction->bid);
@@ -245,7 +245,7 @@ void AuctionHouseMgr::SendAuctionExpiredMail(AuctionEntry * auction)
         std::ostringstream subject;
         subject << auction->item_template << ":0:" << AUCTION_EXPIRED << ":0:0";
 
-        if (owner && owner->GetGUIDLow() != auctionbot.GetAHBplayerGUID())
+        if (owner)
             owner->GetSession()->SendAuctionOwnerNotification(auction);
 
         MailDraft(subject.str(), "")                        // TODO: fix body
@@ -472,17 +472,16 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
 
     return sAuctionHouseStore.LookupEntry(houseid);
 }
-    void AuctionHouseObject::AddAuction(AuctionEntry *ah)
-    {
-        ASSERT(ah);
-        AuctionsMap[ah->Id] = ah;
-        auctionbot.IncrementItemCounts(ah);
-    }
 
-    bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
-    {
-        auctionbot.DecrementItemCounts(auction, item_template);
-        bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
+void AuctionHouseObject::AddAuction(AuctionEntry *ah)
+{
+    ASSERT(ah);
+    AuctionsMap[ah->Id] = ah;
+}
+
+bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
+{
+    bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
 
 	// we need to delete the entry, it is not referenced any more
 	delete auction;
