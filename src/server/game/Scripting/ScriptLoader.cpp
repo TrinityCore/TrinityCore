@@ -15,6 +15,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "ScriptLoader.h"
 
 #ifdef SCRIPTS
 //custom
