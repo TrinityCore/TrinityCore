@@ -33,7 +33,7 @@
 
 void MapManager::LoadTransports()
 {
-    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, name, period FROM transports");
+    QueryResult_AutoPtr result = WorldDatabase.Query("SELECT entry, name, period, ScriptName FROM transports");
 
     uint32 count = 0;
 
@@ -60,6 +60,7 @@ void MapManager::LoadTransports()
         uint32 entry = fields[0].GetUInt32();
         std::string name = fields[1].GetCppString();
         t->m_period = fields[2].GetUInt32();
+        t->ScriptId = objmgr.GetScriptId(fields[3].GetString());
 
         const GameObjectInfo *goinfo = objmgr.GetGameObjectInfo(entry);
 
@@ -182,6 +183,7 @@ void MapManager::LoadTransportNPCs()
 Transport::Transport() : GameObject()
 {
     m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_ROTATION);
+    ScriptId = 0;
 }
 
 bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)

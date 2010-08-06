@@ -59,6 +59,7 @@ class Transport : public GameObject
         void UpdateNPCPositions();
         void BuildStartMovePacket(Map const *targetMap);
         void BuildStopMovePacket(Map const *targetMap);
+        uint32 GetScriptId() const { return ScriptId; }
     private:
         struct WayPoint
         {
@@ -89,6 +90,7 @@ class Transport : public GameObject
         PlayerSet m_passengers;
 
         uint32 currenttguid;
+        uint32 ScriptId;
     public:
         WayPointMap m_WayPoints;
         uint32 m_nextNodeTime;
