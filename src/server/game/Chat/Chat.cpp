@@ -35,6 +35,7 @@
 #include "Player.h"
 #include "UpdateMask.h"
 #include "SpellMgr.h"
+#include "ScriptMgr.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
@@ -958,6 +959,15 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
+bool ChatHandler::ExecuteCommandInTables(std::vector<ChatCommand*>& tables, const char* text, const std::string& fullcmd)
+{
+    for (std::vector<ChatCommand*>::iterator it = tables.begin(); it != tables.end(); ++it)
+        if (ExecuteCommandInTable((*it), text, fullcmd))
+            return true;
+
+    return false;
+}
+
 bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcmd)
 {
     char const* oldtext = text;
@@ -1091,10 +1101,7 @@ int ChatHandler::ParseCommands(const char* text)
     std::string fullcmd = text;
 
     if (m_session && m_session->GetSecurity() <= SEC_PLAYER && sWorld.getConfig(CONFIG_ALLOW_PLAYER_COMMANDS) == 0)
-     return 0;
-
-    if (m_session && !m_session->HandleOnPlayerChat(text))
-        return 0;
+       return 0;
 
     /// chat case (.command or !command format)
     if (m_session)
@@ -1118,9 +1125,13 @@ int ChatHandler::ParseCommands(const char* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (m_session && m_session->GetSecurity() == SEC_PLAYER)
-            return 0;
-        SendSysMessage(LANG_NO_CMD);
+        if (!ExecuteCommandInTables(sScriptMgr.GetChatCommands(), text, fullcmd))
+        {
+            if (m_session && m_session->GetSecurity() == SEC_PLAYER)
+                return 0;
+
+            SendSysMessage(LANG_NO_CMD);
+        }
     }
     return 1;
 }

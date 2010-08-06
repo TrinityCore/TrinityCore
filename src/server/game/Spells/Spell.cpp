@@ -4553,9 +4553,6 @@ void Spell::HandleThreatSpells(uint32 spellId)
 
 void Spell::HandleEffects(Unit *pUnitTarget,Item *pItemTarget,GameObject *pGOTarget,uint32 i)
 {
-    if (!sScriptMgr.OnSpellCast(pUnitTarget,pItemTarget,pGOTarget,i,m_spellInfo))
-        return;
-
     //effect has been handled, skip it
     if (m_effectMask & (1<<i))
         return;

@@ -85,7 +85,7 @@ class OutdoorPvPMgr
 
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
         typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
-        typedef std::vector<OutdoorPvPData*> OutdoorPvPDataSet;
+        typedef std::map<OutdoorPvPTypes, OutdoorPvPData*> OutdoorPvPDataMap;
 
     private:
 
@@ -98,7 +98,7 @@ class OutdoorPvPMgr
         OutdoorPvPMap   m_OutdoorPvPMap;
 
         // Holds the outdoor PvP templates
-        OutdoorPvPDataSet m_OutdoorPvPDatas;
+        OutdoorPvPDataMap m_OutdoorPvPDatas;
 
         // update interval
         uint32 m_UpdateTimer;

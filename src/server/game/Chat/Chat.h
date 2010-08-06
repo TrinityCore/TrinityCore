@@ -23,6 +23,8 @@
 
 #include "SharedDefines.h"
 
+#include <vector>
+
 class ChatHandler;
 class WorldSession;
 class Creature;
@@ -96,7 +98,8 @@ class ChatHandler
         void SendGlobalGMSysMessage(const char *str);
 
         static bool SetDataForCommandInTable(ChatCommand *table, const char* text, uint32 security, std::string const& help, std::string const& fullcommand);
-        bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcommand);
+        bool ExecuteCommandInTables(std::vector<ChatCommand*>& tables, const char* text, const std::string& fullcmd);
+        bool ExecuteCommandInTable(ChatCommand *table, const char* text, const std::string& fullcmd);
         bool ShowHelpForCommand(ChatCommand *table, const char* cmd);
         bool ShowHelpForSubCommands(ChatCommand *table, char const* cmd, char const* subcmd);
 

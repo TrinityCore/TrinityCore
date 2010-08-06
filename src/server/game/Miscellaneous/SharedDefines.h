@@ -2812,4 +2812,13 @@ enum TradeStatus
     TRADE_STATUS_ONLY_CONJURED  = 22                        // You can only trade conjured items... (cross realm BG related).
 };
 
+enum XPColorChar
+{
+    XP_RED,
+    XP_ORANGE,
+    XP_YELLOW,
+    XP_GREEN,
+    XP_GRAY
+};
+
 #endif

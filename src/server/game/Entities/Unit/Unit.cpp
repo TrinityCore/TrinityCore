@@ -724,13 +724,11 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
         {
             Player *killer = this->ToPlayer();
             Player *killed = pVictim->ToPlayer();
-            killer->GetSession()->HandleOnPVPKill(killed);
         }
         if (pVictim->GetTypeId() == TYPEID_UNIT && this->GetTypeId() == TYPEID_PLAYER)
         {
             Player *killer = this->ToPlayer();
             Creature *pCreature = (pVictim->ToCreature());
-            killer->GetSession()->HandleOnCreatureKill(pCreature);
         }
     }
     else                                                    // if (health <= damage)
