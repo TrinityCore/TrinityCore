@@ -14731,6 +14731,7 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 31231, 'spell_rog_cheat_death'),
 ( 51662, 'spell_rog_hunger_for_blood'),
 -- priest
+( 47948, 'spell_pri_pain_and_suffering_proc'),
 (-47540, 'spell_pri_penance'),
 -- death knight
 -- shaman
