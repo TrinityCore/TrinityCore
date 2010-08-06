@@ -257,3 +257,8 @@ class instance_deadmines : public InstanceMapScript
             return new instance_deadmines_InstanceMapScript(pMap);
         }
 };
+
+void AddSC_instance_deadmines()
+{
+    new instance_deadmines();
+}
