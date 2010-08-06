@@ -102,7 +102,8 @@ class spell_mage_polymorph_cast_visual_SpellScript : public SpellScript
     }
 };
 
-const uint32 spell_mage_polymorph_cast_visual_SpellScript::spell_list[6] = {
+const uint32 spell_mage_polymorph_cast_visual_SpellScript::spell_list[6] =
+{
     SPELL_MAGE_SQUIRREL_FORM,
     SPELL_MAGE_GIRAFFE_FORM,
     SPELL_MAGE_SERPENT_FORM,

@@ -34,198 +34,227 @@ enum HunterSpells
     HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED    = 54045,
 };
 
-class spell_hun_last_stand_pet_SpellScript : public SpellScript
+class spell_hun_last_stand_pet : public SpellHandlerScript
 {
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
-            return false;
-        return true;
-    }
+    public:
 
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        int32 healthModSpellBasePoints0 = int32(caster->GetMaxHealth()*0.3);
-        caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-    }
-
-    void Register()
-    {
-        // add dummy effect spell handler to pet's Last Stand
-        EffectHandlers += EffectHandlerFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-SpellScript * GetSpellScript_spell_hun_last_stand_pet()
-{
-    return new spell_hun_last_stand_pet_SpellScript();
-}
-
-class spell_hun_masters_call_SpellScript : public SpellScript
-{
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        Unit *unitTarget = GetHitUnit();
-
-        if (caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
-            return;
-
-        if (Pet *pet = caster->ToPlayer()->GetPet())
-            if (pet->isAlive())
-                pet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), effIndex), true);
-    }
-
-    void Register()
-    {
-        // add dummy effect spell handler to Master's Call
-        EffectHandlers += EffectHandlerFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-SpellScript * GetSpellScript_spell_hun_masters_call()
-{
-    return new spell_hun_masters_call_SpellScript();
-}
-
-class spell_hun_readiness_SpellScript : public SpellScript
-{
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        if (caster->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
-        const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
-        for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+        spell_hun_last_stand_pet()
+            : SpellHandlerScript("spell_hun_last_stand_pet")
         {
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-
-            if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
-                spellInfo->Id != HUNTER_SPELL_READINESS &&
-                spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
-                GetSpellRecoveryTime(spellInfo) > 0)
-                caster->ToPlayer()->RemoveSpellCooldown((itr++)->first,true);
-            else
-                ++itr;
         }
-    }
 
-    void Register()
-    {
-        // add dummy effect spell handler to Readiness
-        EffectHandlers += EffectHandlerFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
+        class spell_hun_last_stand_pet_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_LAST_STAND_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                int32 healthModSpellBasePoints0 = int32(caster->GetMaxHealth()*0.3);
+                caster->CastCustomSpell(caster, HUNTER_PET_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to pet's Last Stand
+                EffectHandlers += EffectHandlerFn(spell_hun_last_stand_pet_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_last_stand_pet_SpellScript();
+        }
 };
 
-SpellScript * GetSpellScript_spell_hun_readiness()
+class spell_hun_masters_call : public SpellHandlerScript
 {
-    return new spell_hun_readiness_SpellScript();
-}
+    public:
 
-class spell_hun_pet_heart_of_the_phoenix : public SpellScript
-{
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED))
-            return false;
-        if (!sSpellStore.LookupEntry(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
-            return false;
-        return true;
-    }
+        spell_hun_masters_call()
+            : SpellHandlerScript("spell_hun_masters_call")
+        {
+        }
 
-    void HandleScript(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        if (caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
-            return;
-        caster->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
-        caster->CastSpell(caster, HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
-    }
+        class spell_hun_masters_call_SpellScript : public SpellScript
+        {
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                Unit *unitTarget = GetHitUnit();
 
-    void Register()
-    {
-        // add dummy effect spell handler to pet's Last Stand
-        EffectHandlers += EffectHandlerFn(spell_hun_pet_heart_of_the_phoenix::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-    }
+                if (caster->GetTypeId() != TYPEID_PLAYER || !unitTarget)
+                    return;
 
-    bool Load()
-    {
-        if (!GetCaster()->isPet())
-            return false;
-        return true;
-    }
+                if (Pet *pet = caster->ToPlayer()->GetPet())
+                    if (pet->isAlive())
+                        pet->CastSpell(unitTarget, SpellMgr::CalculateSpellEffectAmount(GetSpellInfo(), effIndex), true);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Master's Call
+                EffectHandlers += EffectHandlerFn(spell_hun_masters_call_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_masters_call_SpellScript();
+        }
 };
 
-SpellScript * GetSpellScript_spell_hun_pet_heart_of_the_phoenix()
+class spell_hun_readiness : public SpellHandlerScript
 {
-    return new spell_hun_pet_heart_of_the_phoenix();
-}
+    public:
 
-class spell_hun_pet_carrion_feeder : public SpellScript
-{
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
-            return false;
-        return true;
-    }
+        spell_hun_readiness()
+            : SpellHandlerScript("spell_hun_readiness")
+        {
+        }
 
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        if (!GetHitUnit())
-            return;
-        Unit *caster = GetCaster();
-        caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
-    }
+        class spell_hun_readiness_SpellScript : public SpellScript
+        {
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-    void Register()
-    {
-        // add dummy effect spell handler to pet's Last Stand
-        EffectHandlers += EffectHandlerFn(spell_hun_pet_carrion_feeder::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
+                // immediately finishes the cooldown on your other Hunter abilities except Bestial Wrath
+                const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
+                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+                {
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
 
-    bool Load()
-    {
-        if (!GetCaster()->isPet())
-            return false;
-        return true;
-    }
+                    if (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER &&
+                        spellInfo->Id != HUNTER_SPELL_READINESS &&
+                        spellInfo->Id != HUNTER_SPELL_BESTIAL_WRATH &&
+                        GetSpellRecoveryTime(spellInfo) > 0)
+                        caster->ToPlayer()->RemoveSpellCooldown((itr++)->first,true);
+                    else
+                        ++itr;
+                }
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Readiness
+                EffectHandlers += EffectHandlerFn(spell_hun_readiness_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_readiness_SpellScript();
+        }
 };
 
-SpellScript * GetSpellScript_spell_hun_pet_carrion_feeder()
+class spell_hun_pet_heart_of_the_phoenix : public SpellHandlerScript
 {
-    return new spell_hun_pet_carrion_feeder();
-}
+    public:
+
+        spell_hun_pet_heart_of_the_phoenix()
+            : SpellHandlerScript("spell_hun_pet_heart_of_the_phoenix")
+        {
+        }
+
+        class spell_hun_pet_heart_of_the_phoenix_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED))
+                    return false;
+                if (!sSpellStore.LookupEntry(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                if (caster->HasAura(HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF))
+                    return;
+                caster->CastCustomSpell(HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED, SPELLVALUE_BASE_POINT0, 100, caster, true);
+                caster->CastSpell(caster, HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF, true);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to pet's Last Stand
+                EffectHandlers += EffectHandlerFn(spell_hun_pet_heart_of_the_phoenix_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+
+            bool Load()
+            {
+                if (!GetCaster()->isPet())
+                    return false;
+                return true;
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_pet_heart_of_the_phoenix_SpellScript();
+        }
+};
+
+class spell_hun_pet_carrion_feeder : public SpellHandlerScript
+{
+    public:
+
+        spell_hun_pet_carrion_feeder()
+            : SpellHandlerScript("spell_hun_pet_carrion_feeder")
+        {
+        }
+
+        class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (!GetHitUnit())
+                    return;
+                Unit *caster = GetCaster();
+                caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to pet's Last Stand
+                EffectHandlers += EffectHandlerFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+            bool Load()
+            {
+                if (!GetCaster()->isPet())
+                    return false;
+                return true;
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_hun_pet_carrion_feeder_SpellScript();
+        }
+};
 
 void AddSC_hunter_spell_scripts()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "spell_hun_last_stand_pet";
-    newscript->GetSpellScript = &GetSpellScript_spell_hun_last_stand_pet;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_hun_masters_call";
-    newscript->GetSpellScript = &GetSpellScript_spell_hun_masters_call;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_hun_readiness";
-    newscript->GetSpellScript = &GetSpellScript_spell_hun_readiness;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_hun_pet_heart_of_the_phoenix";
-    newscript->GetSpellScript = &GetSpellScript_spell_hun_pet_heart_of_the_phoenix;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_hun_pet_carrion_feeder";
-    newscript->GetSpellScript = &GetSpellScript_spell_hun_pet_carrion_feeder;
-    newscript->RegisterSelf();
+    new spell_hun_last_stand_pet();
+    new spell_hun_masters_call();
+    new spell_hun_readiness();
+    new spell_hun_pet_heart_of_the_phoenix();
+    new spell_hun_pet_carrion_feeder();
 }
