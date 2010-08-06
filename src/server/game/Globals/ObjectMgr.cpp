@@ -8765,8 +8765,6 @@ void ObjectMgr::LoadScriptNames()
 
     barGoLink bar(result->GetRowCount());
 
-    //OnEvent Changes
-    m_scriptNames.push_back("scripted_on_events");
     uint32 count = 1;
 
     do

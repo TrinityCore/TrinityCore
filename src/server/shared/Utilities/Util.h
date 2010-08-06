@@ -330,6 +330,10 @@ class HookList
             m_list.remove(t);
             return *this;
         }
+        size_t size()
+        {
+            return m_list.size();
+        }
         ListIterator begin()
         {
             return m_list.begin();

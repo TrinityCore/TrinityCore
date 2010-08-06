@@ -196,6 +196,8 @@ bool WorldSession::Update(uint32 diff)
             sLog.outError("SESSION: received non-existed opcode %s (0x%.4X)",
                 LookupOpcodeName(packet->GetOpcode()),
                 packet->GetOpcode());
+
+            sScriptMgr.OnUnknownPacketReceive(m_Socket, WorldPacket(*packet));
         }
         else
         {
@@ -213,6 +215,7 @@ bool WorldSession::Update(uint32 diff)
                         }
                         else if (_player->IsInWorld())
                         {
+                            sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                                 LogUnprocessedTail(packet);
@@ -227,6 +230,7 @@ bool WorldSession::Update(uint32 diff)
                         else
                         {
                             // not expected _player or must checked in packet hanlder
+                            sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                                 LogUnprocessedTail(packet);
@@ -239,6 +243,7 @@ bool WorldSession::Update(uint32 diff)
                             LogUnexpectedOpcode(packet, "the player is still in world");
                         else
                         {
+                            sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                                 LogUnprocessedTail(packet);
@@ -256,7 +261,8 @@ bool WorldSession::Update(uint32 diff)
                         // and before other STATUS_LOGGEDIN_OR_RECENTLY_LOGGOUT opcodes.
                         if (packet->GetOpcode() != CMSG_SET_ACTIVE_VOICE_CHANNEL)
                             m_playerRecentlyLogout = false;
-
+                        
+                        sScriptMgr.OnPacketReceive(m_Socket, WorldPacket(*packet));
                         (this->*opHandle.handler)(*packet);
                         if (sLog.IsOutDebug() && packet->rpos() < packet->wpos())
                             LogUnprocessedTail(packet);
@@ -470,9 +476,6 @@ void WorldSession::LogoutPlayer(bool Save)
             GetAccountId());
         sLog.outDebug("SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
     }
-
-    //Hook for OnLogout Event
-    sScriptMgr.OnLogout(_player);
 
     m_playerLogout = false;
     m_playerSave = false;

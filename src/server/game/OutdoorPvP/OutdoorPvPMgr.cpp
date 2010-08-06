@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "ProgressBar.h"
 #include "DisableMgr.h"
+#include "ScriptMgr.h"
 
 OutdoorPvPMgr::OutdoorPvPMgr()
 {
@@ -40,91 +41,39 @@ OutdoorPvPMgr::~OutdoorPvPMgr()
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
         delete *itr;
 
-    for (OutdoorPvPDataSet::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
-        delete *itr;
+    for (OutdoorPvPDataMap::iterator itr = m_OutdoorPvPDatas.begin(); itr != m_OutdoorPvPDatas.end(); ++itr)
+        delete itr->second;
 }
 
 void OutdoorPvPMgr::InitOutdoorPvP()
 {
     LoadTemplates();
 
-    // create new opvp
-    OutdoorPvP * pOP = new OutdoorPvPHP;
-    // respawn, init variables
-    if (!pOP->SetupOutdoorPvP())
+    OutdoorPvP* pvp;
+    for (uint8 i = 0; i < MAX_OUTDOORPVP_TYPES; ++i)
     {
-        sLog.outDebug("OutdoorPvP : HP init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : HP successfully initiated.");
-    }
+        OutdoorPvPDataMap::iterator iter = m_OutdoorPvPDatas.find(OutdoorPvPTypes(i));
+        if (iter == m_OutdoorPvPDatas.end())
+        {
+            sLog.outErrorDb("Could not initialize OutdoorPvP object for type ID %u; no entry in database.", uint32(iter->first));
+            continue;
+        }
 
-    pOP = new OutdoorPvPNA;
-    // respawn, init variables
-    if (!pOP->SetupOutdoorPvP())
-    {
-        sLog.outDebug("OutdoorPvP : NA init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : NA successfully initiated.");
-    }
+        pvp = sScriptMgr.CreateOutdoorPvP(iter->second);
+        if (!pvp)
+        {
+            sLog.outError("Could not initialize OutdoorPvP object for type ID %u; got NULL pointer from script.", uint32(iter->first));
+            continue;
+        }
 
-    pOP = new OutdoorPvPTF;
-    // respawn, init variables
-    if (!pOP->SetupOutdoorPvP())
-    {
-        sLog.outDebug("OutdoorPvP : TF init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : TF successfully initiated.");
-    }
+        if (!pvp->SetupOutdoorPvP())
+        {
+            sLog.outError("Could not initialize OutdoorPvP object for type ID %u; SetupOutdoorPvP failed.", uint32(iter->first));
+            delete pvp;
+            continue;
+        }
 
-    pOP = new OutdoorPvPZM;
-    // respawn, init variables
-    if (!pOP->SetupOutdoorPvP())
-    {
-        sLog.outDebug("OutdoorPvP : ZM init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : ZM successfully initiated.");
-    }
-
-    pOP = new OutdoorPvPSI;
-    // respawn, init variables
-    if (!pOP->SetupOutdoorPvP())
-    {
-        sLog.outDebug("OutdoorPvP : SI init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : SI successfully initiated.");
-    }
-
-    pOP = new OutdoorPvPEP;
-    // respawn, init variables
-    if (!pOP->SetupOutdoorPvP())
-    {
-        sLog.outDebug("OutdoorPvP : EP init failed.");
-        delete pOP;
-    }
-    else
-    {
-        m_OutdoorPvPSet.push_back(pOP);
-        sLog.outDebug("OutdoorPvP : EP successfully initiated.");
+        m_OutdoorPvPSet.push_back(pvp);
     }
 }
 
@@ -161,14 +110,15 @@ void OutdoorPvPMgr::LoadTemplates()
 
         if (typeId >= MAX_OUTDOORPVP_TYPES)
         {
-            sLog.outError("Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
+            sLog.outErrorDb("Invalid OutdoorPvPTypes value %u in outdoorpvp_template; skipped.", typeId);
             continue;
         }
 
         OutdoorPvPData data;
-        data.TypeId = OutdoorPvPTypes(typeId);
+        OutdoorPvPTypes realTypeId = OutdoorPvPTypes(typeId);
+        data.TypeId = realTypeId;
         data.ScriptId = objmgr.GetScriptId(fields[1].GetString());
-        m_OutdoorPvPDatas.push_back(&data);
+        m_OutdoorPvPDatas[realTypeId] = &data;
 
         ++count;
     }

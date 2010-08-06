@@ -588,6 +588,8 @@ void Creature::Update(uint32 diff)
         default:
             break;
     }
+
+    sScriptMgr.OnCreatureUpdate(this, diff);
 }
 
 void Creature::RegenerateMana()

@@ -1443,7 +1443,6 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetMoney() { return GetUInt32Value (PLAYER_FIELD_COINAGE); }
         void ModifyMoney(int32 d)
         {
-            d = GetSession()->HandleOnGetMoney(d);
             if (d < 0)
                 SetMoney (GetMoney() > uint32(-d) ? GetMoney() + d : 0);
             else

@@ -525,10 +525,10 @@ class World
         void RemoveWeather(uint32 zone_id);
 
         /// Deny clients?
-        bool IsClosed() { return m_isClosed; }
+        bool IsClosed() const;
 
         /// Close world
-        void SetClosed(bool val) { m_isClosed = val; }
+        void SetClosed(bool val);
 
         /// Get the active session server limit (or security level limitations)
         uint32 GetPlayerAmountLimit() const { return m_playerLimit >= 0 ? m_playerLimit : 0; }
@@ -553,9 +553,9 @@ class World
         void SetAllowMovement(bool allow) { m_allowMovement = allow; }
 
         /// Set a new Message of the Day
-        void SetMotd(const std::string& motd) { m_motd = motd; }
+        void SetMotd(const std::string& motd);
         /// Get the current Message of the Day
-        const char* GetMotd() const { return m_motd.c_str(); }
+        const char* GetMotd() const;
 
         /// Set the string for new characters (first login)
         void SetNewCharString(std::string str) { m_newCharString = str; }
@@ -688,11 +688,11 @@ class World
 
         void UpdateAreaDependentAuras();
 
-     void ProcessStartEvent();
-     void ProcessStopEvent();
-     bool GetEventKill() { return isEventKillStart; }
+        void ProcessStartEvent();
+        void ProcessStopEvent();
+        bool GetEventKill() { return isEventKillStart; }
 
-     bool isEventKillStart;
+        bool isEventKillStart;
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

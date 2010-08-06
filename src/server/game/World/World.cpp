@@ -70,6 +70,7 @@
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
 #include "CharacterDatabaseCleaner.h"
+#include "ScriptMgr.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -163,6 +164,31 @@ Player* World::FindPlayerInZone(uint32 zone)
         }
     }
     return NULL;
+}
+
+bool World::IsClosed() const
+{
+    return m_isClosed;
+}
+
+void World::SetClosed(bool val)
+{
+    m_isClosed = val;
+
+    // Invert the value, for simplicity for scripters.
+    sScriptMgr.OnOpenStateChange(!val);
+}
+
+void World::SetMotd(const std::string& motd)
+{
+    m_motd = motd;
+
+    sScriptMgr.OnMotdChange(m_motd);
+}
+
+const char* World::GetMotd() const
+{
+    return m_motd.c_str();
 }
 
 /// Find a session by its id
@@ -1223,7 +1249,6 @@ void World::LoadConfigSettings(bool reload)
     if (m_configs[CONFIG_PVP_TOKEN_COUNT] < 1)
         m_configs[CONFIG_PVP_TOKEN_COUNT] = 1;
 
-
     m_configs[CONFIG_NO_RESET_TALENT_COST] = sConfig.GetBoolDefault("NoResetTalentsCost", false);
     m_configs[CONFIG_SHOW_KICK_IN_WORLD] = sConfig.GetBoolDefault("ShowKickInWorld", false);
     m_configs[CONFIG_INTERVAL_LOG_UPDATE] = sConfig.GetIntDefault("RecordUpdateTimeDiffInterval", 60000);
@@ -1240,6 +1265,8 @@ void World::LoadConfigSettings(bool reload)
     m_configs[CONFIG_CHATLOG_PUBLIC] = sConfig.GetBoolDefault("ChatLogs.Public", false);
     m_configs[CONFIG_CHATLOG_ADDON] = sConfig.GetBoolDefault("ChatLogs.Addon", false);
     m_configs[CONFIG_CHATLOG_BGROUND] = sConfig.GetBoolDefault("ChatLogs.BattleGround", false);
+
+    sScriptMgr.OnConfigLoad(reload);
 }
 
 /// Initialize the World
@@ -1624,7 +1651,7 @@ void World::SetInitialWorldSettings()
     objmgr.LoadSpellScriptNames();
 
     sLog.outString("Initializing Scripts...");
-    sScriptMgr.ScriptsInit();
+    sScriptMgr.Initialize();
 
     sLog.outString("Validating spell scripts...");
     objmgr.ValidateSpellScripts();
@@ -1733,7 +1760,6 @@ void World::SetInitialWorldSettings()
     else
         sLog.SetLogDB(false);
 
-    sScriptMgr.OnServerStartup();
     sLog.outString("WORLD: World initialized");
 }
 
@@ -1847,7 +1873,8 @@ void World::LoadAutobroadcasts()
 /// Update the World !
 void World::Update(uint32 diff)
 {
-    m_updateTime = uint32(diff);
+    m_updateTime = diff;
+
     if (m_configs[CONFIG_INTERVAL_LOG_UPDATE])
     {
         if (m_updateTimeSum > m_configs[CONFIG_INTERVAL_LOG_UPDATE])
@@ -1867,7 +1894,8 @@ void World::Update(uint32 diff)
     for (int i = 0; i < WUPDATE_COUNT; ++i)
         if (m_timers[i].GetCurrent() >= 0)
             m_timers[i].Update(diff);
-    else m_timers[i].SetCurrent(0);
+        else
+            m_timers[i].SetCurrent(0);
 
     ///- Update the game time and check for shutdown time
     _UpdateGameTime();
@@ -1928,6 +1956,7 @@ void World::Update(uint32 diff)
             }
         }
     }
+
     /// <li> Update uptime table
     if (m_timers[WUPDATE_UPTIME].Passed())
     {
@@ -1955,12 +1984,6 @@ void World::Update(uint32 diff)
     /// <li> Handle all other objects
     ///- Update objects when the timer has passed (maps, transport, creatures,...)
     sMapMgr.Update(diff);                // As interval = 0
-
-    /*if (m_timers[WUPDATE_OBJECTS].Passed())
-    {
-        m_timers[WUPDATE_OBJECTS].Reset();
-        sMapMgr.DoDelayedMovesAndRemoves();
-    }*/
 
     static uint32 autobroadcaston = 0;
     autobroadcaston = sConfig.GetIntDefault("AutoBroadcast.On", 0);
@@ -2015,6 +2038,8 @@ void World::Update(uint32 diff)
 
     // And last, but not least handle the issued cli commands
     ProcessCliCommands();
+
+    sScriptMgr.OnWorldUpdate(diff);
 }
 
 void World::ForceGameEventUpdate()
@@ -2361,7 +2386,7 @@ void World::ShutdownServ(uint32 time, uint32 options, uint8 exitcode)
         ShutdownMsg(true);
     }
 
-    sScriptMgr.OnServerShutdown();
+    sScriptMgr.OnShutdown(ShutdownExitCode(exitcode), ShutdownMask(options));
 }
 
 /// Display a shutdown message to the user(s)
@@ -2409,6 +2434,8 @@ void World::ShutdownCancel()
     SendServerMessage(msgid);
 
     DEBUG_LOG("Server %s cancelled.",(m_ShutdownMask & SHUTDOWN_MASK_RESTART ? "restart" : "shuttingdown"));
+
+    sScriptMgr.OnShutdownCancel();
 }
 
 /// Send a server message to the user(s)
