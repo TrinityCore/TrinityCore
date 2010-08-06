@@ -744,6 +744,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void EventInform(uint32 eventId);
 
         uint64 GetRotation() const { return m_rotation; }
+        virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
     protected:
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),

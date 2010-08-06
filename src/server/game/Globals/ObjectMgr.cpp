@@ -8740,6 +8740,8 @@ void ObjectMgr::LoadScriptNames()
       "UNION "
       "SELECT DISTINCT(ScriptName) FROM spell_script_names WHERE ScriptName <> '' "
       "UNION "
+      "SELECT DISTINCT(ScriptName) FROM transports WHERE ScriptName <> '' "
+      "UNION "
       "SELECT DISTINCT(script) FROM instance_template WHERE script <> ''");
 
     if (!result)
