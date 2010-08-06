@@ -46,9 +46,8 @@ enum Misc
 class instance_deadmines : public InstanceMapScript
 {
     public:
-
         instance_deadmines()
-            : InstanceMapScript("instance_deadmines");
+            : InstanceMapScript("instance_deadmines")
         {
         }
 
@@ -252,7 +251,7 @@ class instance_deadmines : public InstanceMapScript
             }
         };
 
-        InstanceData* OnGetInstanceData(InstanceMap* map)
+        InstanceData* OnGetInstanceData(InstanceMap* pMap)
         {
             return new instance_deadmines_InstanceMapScript(pMap);
         }

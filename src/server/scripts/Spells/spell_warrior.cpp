@@ -26,7 +26,6 @@
 enum WarriorSpells
 {
     WARRIOR_SPELL_LAST_STAND_TRIGGERED           = 12976,
-    WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED       = 21887,
 };
 
 class spell_warr_last_stand : public SpellHandlerScript
@@ -62,41 +61,7 @@ class spell_warr_last_stand : public SpellHandlerScript
         }
 };
 
-class spell_warr_warriors_wrath : public SpellHandlerScript
-{
-    public:
-        spell_warr_warriors_wrath() : SpellHandlerScript("spell_warr_warriors_wrath") { }
-
-        class spell_warr_warriors_wrath_SpellScript : public SpellScript
-        {
-            bool Validate(SpellEntry const *spellEntry)
-            {
-                if (!sSpellStore.LookupEntry(WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex effIndex)
-            {
-                if (Unit *unitTarget = GetHitUnit())
-                    GetCaster()->CastSpell(unitTarget, WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED, true);
-            }
-
-            void Register()
-            {
-                // add dummy effect spell handler to Warrior's Wrath
-                EffectHandlers += EffectHandlerFn(spell_warr_warriors_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript *GetSpellScript() const
-        {
-            return new spell_warr_warriors_wrath_SpellScript();
-        }
-};
-
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_last_stand;
-    new spell_warr_warriors_wrath;
 }

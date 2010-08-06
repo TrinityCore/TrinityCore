@@ -27,7 +27,6 @@
 class spell_gen_remove_flight_auras : public SpellHandlerScript
 {
     public:
-
         spell_gen_remove_flight_auras() : SpellHandlerScript("spell_gen_remove_flight_auras") {}
 
         class spell_gen_remove_flight_auras_SpellScript : public SpellScript
@@ -51,7 +50,7 @@ class spell_gen_remove_flight_auras : public SpellHandlerScript
         {
             return new spell_gen_remove_flight_auras_SpellScript;
         }
-}
+};
 
 void AddSC_generic_spell_scripts()
 {

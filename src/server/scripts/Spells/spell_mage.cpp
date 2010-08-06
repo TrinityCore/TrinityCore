@@ -113,20 +113,20 @@ class spell_mage_polymorph_cast_visual : public SpellHandlerScript
             }
         };
 
-        const uint32 spell_mage_polymorph_cast_visual_SpellScript::spell_list[6] =
-        {
-            SPELL_MAGE_SQUIRREL_FORM,
-            SPELL_MAGE_GIRAFFE_FORM,
-            SPELL_MAGE_SERPENT_FORM,
-            SPELL_MAGE_DRAGONHAWK_FORM,
-            SPELL_MAGE_WORGEN_FORM,
-            SPELL_MAGE_SHEEP_FORM
-        };
-
         SpellScript* GetSpellScript() const
         {
             return new spell_mage_polymorph_cast_visual_SpellScript();
         }
+};
+
+const uint32 spell_mage_polymorph_cast_visual::spell_mage_polymorph_cast_visual_SpellScript::spell_list[6] =
+{
+    SPELL_MAGE_SQUIRREL_FORM,
+    SPELL_MAGE_GIRAFFE_FORM,
+    SPELL_MAGE_SERPENT_FORM,
+    SPELL_MAGE_DRAGONHAWK_FORM,
+    SPELL_MAGE_WORGEN_FORM,
+    SPELL_MAGE_SHEEP_FORM
 };
 
 class spell_mage_summon_water_elemental : public SpellHandlerScript
