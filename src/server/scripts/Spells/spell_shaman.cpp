@@ -25,12 +25,5 @@
 
 void AddSC_shaman_spell_scripts()
 {
-    //Script *newscript;
-
-    /*
-    newscript = new Script;
-    newscript->Name = "spell_sha_";
-    newscript->GetSpellScript = &GetSpellScript_spell_sha_;
-    newscript->RegisterSelf();
-    */
+    
 }

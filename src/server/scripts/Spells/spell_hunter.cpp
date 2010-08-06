@@ -252,9 +252,9 @@ class spell_hun_pet_carrion_feeder : public SpellHandlerScript
 
 void AddSC_hunter_spell_scripts()
 {
-    new spell_hun_last_stand_pet();
-    new spell_hun_masters_call();
-    new spell_hun_readiness();
-    new spell_hun_pet_heart_of_the_phoenix();
-    new spell_hun_pet_carrion_feeder();
+    new spell_hun_last_stand_pet;
+    new spell_hun_masters_call;
+    new spell_hun_readiness;
+    new spell_hun_pet_heart_of_the_phoenix;
+    new spell_hun_pet_carrion_feeder;
 }

@@ -31,168 +31,175 @@ enum RogueSpells
     ROGUE_SPELL_GLYPH_OF_PREPARATION             = 56819,
 };
 
-class spell_rog_cheat_death_SpellScript : public SpellScript
+class spell_rog_cheat_death : public SpellHandlerScript
 {
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(ROGUE_SPELL_CHEATING_DEATH))
-            return false;
-        return true;
-    }
+    public:
+        spell_rog_cheat_death() : SpellHandlerScript("spell_rog_cheat_death") { }
 
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        caster->CastSpell(caster, ROGUE_SPELL_CHEATING_DEATH, true);
-    }
-
-    void Register()
-    {
-        // add dummy effect spell handler to Cheat Death
-        EffectHandlers += EffectHandlerFn(spell_rog_cheat_death_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-SpellScript *GetSpellScript_spell_rog_cheat_death()
-{
-    return new spell_rog_cheat_death_SpellScript();
-}
-
-class spell_rog_hunger_for_blood_SpellScript : public SpellScript
-{
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF))
-            return false;
-        return true;
-    }
-
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        caster->CastSpell(caster, ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF, true);
-    }
-
-    void Register()
-    {
-        // add dummy effect spell handler to Hunger for Blood
-        EffectHandlers += EffectHandlerFn(spell_rog_hunger_for_blood_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
-};
-
-SpellScript *GetSpellScript_spell_rog_hunger_for_blood()
-{
-    return new spell_rog_hunger_for_blood_SpellScript();
-}
-
-class spell_rog_preparation_SpellScript : public SpellScript
-{
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(ROGUE_SPELL_GLYPH_OF_PREPARATION))
-            return false;
-        return true;
-    }
-
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        if (caster->GetTypeId() != TYPEID_PLAYER)
-            return;
-
-        //immediately finishes the cooldown on certain Rogue abilities
-        const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
-        for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
+        class spell_rog_cheat_death_SpellScript : public SpellScript
         {
-            SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
-    
-            if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
+            bool Validate(SpellEntry const * spellEntry)
             {
-                if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||      // Cold Blood, Shadowstep
-                    spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT)           // Vanish, Evasion, Sprint
-                    caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
-                else if (caster->HasAura(ROGUE_SPELL_GLYPH_OF_PREPARATION))
+                if (!sSpellStore.LookupEntry(ROGUE_SPELL_CHEATING_DEATH))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                caster->CastSpell(caster, ROGUE_SPELL_CHEATING_DEATH, true);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Cheat Death
+                EffectHandlers += EffectHandlerFn(spell_rog_cheat_death_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_rog_cheat_death_SpellScript;
+        }
+};
+
+class spell_rog_hunger_for_blood : public SpellHandlerScript
+{
+    public:
+        spell_rog_hunger_for_blood() : SpellHandlerScript("spell_rog_hunger_for_blood") { }
+
+        class spell_rog_hunger_for_blood_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                caster->CastSpell(caster, ROGUE_SPELL_HUNGER_FOR_BLOOD_BUFF, true);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Hunger for Blood
+                EffectHandlers += EffectHandlerFn(spell_rog_hunger_for_blood_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_rog_hunger_for_blood_SpellScript();
+        }
+};
+
+class spell_rog_preparation : public SpellHandlerScript
+{
+    public:
+        spell_rog_preparation() : SpellHandlerScript("spell_rog_preparation") { }
+
+        class spell_rog_preparation_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(ROGUE_SPELL_GLYPH_OF_PREPARATION))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                //immediately finishes the cooldown on certain Rogue abilities
+                const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
+                for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE ||         // Dismantle
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||               // Kick
-                        (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY &&     // Blade Flurry
-                         spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY))
-                        caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+    
+                    if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
+                    {
+                        if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_COLDB_SHADOWSTEP ||      // Cold Blood, Shadowstep
+                            spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_VAN_EVAS_SPRINT)           // Vanish, Evasion, Sprint
+                            caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
+                        else if (caster->HasAura(ROGUE_SPELL_GLYPH_OF_PREPARATION))
+                        {
+                            if (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE ||         // Dismantle
+                                spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_KICK ||               // Kick
+                                (spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_ROGUE_BLADE_FLURRY &&     // Blade Flurry
+                                spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_BLADE_FLURRY))
+                                caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
+                            else
+                                ++itr;
+                        }
+                        else
+                            ++itr;
+                    }
                     else
                         ++itr;
                 }
-                else
-                    ++itr;
             }
-            else
-                ++itr;
+
+            void Register()
+            {
+                // add dummy effect spell handler to Preparation
+                EffectHandlers += EffectHandlerFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_rog_preparation_SpellScript();
         }
-    }
-
-    void Register()
-    {
-        // add dummy effect spell handler to Preparation
-        EffectHandlers += EffectHandlerFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
 };
 
-SpellScript *GetSpellScript_spell_rog_preparation()
+class spell_rog_shiv : public SpellHandlerScript
 {
-    return new spell_rog_preparation_SpellScript();
-}
+    public:
+        spell_rog_shiv() : SpellHandlerScript("spell_rog_shiv") { }
 
-class spell_rog_shiv_SpellScript : public SpellScript
-{
-    bool Validate(SpellEntry const * spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(ROGUE_SPELL_SHIV_TRIGGERED))
-            return false;
-        return true;
-    }
+        class spell_rog_shiv_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const * spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(ROGUE_SPELL_SHIV_TRIGGERED))
+                    return false;
+                return true;
+            }
 
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        Unit *caster = GetCaster();
-        if (caster->GetTypeId() != TYPEID_PLAYER)
-            return;
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                Unit *caster = GetCaster();
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
 
-        if (Unit *unitTarget = GetHitUnit())
-            caster->CastSpell(unitTarget, ROGUE_SPELL_SHIV_TRIGGERED, true);
-    }
+                if (Unit *unitTarget = GetHitUnit())
+                    caster->CastSpell(unitTarget, ROGUE_SPELL_SHIV_TRIGGERED, true);
+            }
 
-    void Register()
-    {
-        // add dummy effect spell handler to Shiv
-        EffectHandlers += EffectHandlerFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
+            void Register()
+            {
+                // add dummy effect spell handler to Shiv
+                EffectHandlers += EffectHandlerFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_rog_shiv_SpellScript();
+        }
 };
-
-SpellScript *GetSpellScript_spell_rog_shiv()
-{
-    return new spell_rog_shiv_SpellScript();
-}
 
 void AddSC_rogue_spell_scripts()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "spell_rog_cheat_death";
-    newscript->GetSpellScript = &GetSpellScript_spell_rog_cheat_death;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_rog_hunger_for_blood";
-    newscript->GetSpellScript = &GetSpellScript_spell_rog_hunger_for_blood;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_rog_preparation";
-    newscript->GetSpellScript = &GetSpellScript_spell_rog_preparation;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_rog_shiv";
-    newscript->GetSpellScript = &GetSpellScript_spell_rog_shiv;
-    newscript->RegisterSelf();
+    new spell_rog_cheat_death;
+    new spell_rog_hunger_for_blood;
+    new spell_rog_preparation;
+    new spell_rog_shiv;
 }
