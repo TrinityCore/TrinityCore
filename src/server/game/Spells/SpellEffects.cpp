@@ -968,15 +968,6 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastSpell(unitTarget, effect, true);
                     return;     
                 }
-                case 15998:                                 // Capture Worg Pup
-                case 29435:                                 // Capture Female Kaliri Hatchling
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
-                        return;
-
-                    unitTarget->ToCreature()->ForcedDespawn();
-                    return;
-                }
                 case 16589:                                 // Noggenfogger Elixir
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
@@ -1068,13 +1059,6 @@ void Spell::EffectDummy(uint32 i)
                         m_caster->CastSpell(m_caster, 23441, true);
                     else                                    // Gadgetzan Transporter Failure - failure
                         m_caster->CastSpell(m_caster, 23446, true);
-                    return;
-                case 23645:                                 // Hourglass Sand
-                    m_caster->RemoveAurasDueToSpell(23170); // Brood Affliction: Bronze
-                    return;
-                case 23725:                                 // Gift of Life (warrior bwl trinket)
-                    m_caster->CastSpell(m_caster, 23782, true);
-                    m_caster->CastSpell(m_caster, 23783, true);
                     return;
                 case 25860:                                 // Reindeer Transformation
                 {
@@ -1204,11 +1188,6 @@ void Spell::EffectDummy(uint32 i)
                     m_caster->CastCustomSpell(unitTarget, 37675, &basepoints0, NULL, NULL, true);
                     return;
                 }
-                case 40109:                                 // Knockdown Fel Cannon: The Bolt
-                {
-                    unitTarget->CastSpell(unitTarget, 40075, true);
-                    return;
-                }
                 case 40802:                                 // Mingo's Fortune Generator (Mingo's Fortune Giblets)
                 {
                     // selecting one from Bloodstained Fortune item
@@ -1331,10 +1310,6 @@ void Spell::EffectDummy(uint32 i)
                             m_caster->CastSpell(m_caster, 49378, true);
                     }
                     return;
-                // Magic Pull
-                case 51336:
-                    m_caster->CastSpell(unitTarget,50770,true);
-                    break;
                 case 52845:                                 // Brewfest Mount Transformation (Faction Swap)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -1399,14 +1374,6 @@ void Spell::EffectDummy(uint32 i)
                         bg->EventPlayerDroppedFlag(m_caster->ToPlayer());
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
-                    return;
-                }
-                case 51592:                                 // Pickup Primordial Hatchling
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
-                        return;
-
-                    unitTarget->ToCreature()->ForcedDespawn();
                     return;
                 }
                 case 52308:                                 // Take Sputum Sample
@@ -4812,12 +4779,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     return;
                 }
-                // Dispelling Analysis
-                case 37028:
-                {
-                    unitTarget->RemoveAurasDueToSpell(36904);
-                    return;
-                }
                 case 45204: // Clone Me!
                 case 41055: // Copy Weapon
                 case 45206: // Copy Off-hand Weapon
@@ -4827,14 +4788,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 41054: // Copy Weapon
                     m_caster->CastSpell(unitTarget, damage, false);
                     break;
-                // Despawn Horse
-                case 52267:
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
-                        return;
-                    unitTarget->ToCreature()->ForcedDespawn();
-                    return;
-                }
                 case 55693:                                 // Remove Collapsing Cave Aura
                     if (!unitTarget)
                         return;
@@ -4881,37 +4834,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                 case 26465:
                     unitTarget->RemoveAuraFromStack(26464);
                     return;
-                // Orb teleport spells
-                case 25140:
-                case 25143:
-                case 25650:
-                case 25652:
-                case 29128:
-                case 29129:
-                case 35376:
-                case 35727:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    uint32 spellid;
-                    switch(m_spellInfo->Id)
-                    {
-                        case 25140: spellid =  32571; break;
-                        case 25143: spellid =  32572; break;
-                        case 25650: spellid =  30140; break;
-                        case 25652: spellid =  30141; break;
-                        case 29128: spellid =  32568; break;
-                        case 29129: spellid =  32569; break;
-                        case 35376: spellid =  25649; break;
-                        case 35727: spellid =  35730; break;
-                        default:
-                            return;
-                    }
-
-                    unitTarget->CastSpell(unitTarget,spellid,false);
-                    return;
-                }
                 // Shadow Flame (All script effects, not just end ones to prevent player from dodging the last triggered spell)
                 case 22539:
                 case 22972:
@@ -5012,11 +4934,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     cTarget->RemoveCorpse();
                     break;
                 }
-                // Tidal Surge
-                case 38358:
-                    if (unitTarget)
-                        m_caster->CastSpell(unitTarget, 38353, true);
-                    return;
                 /*// Flame Crash
                 case 41126:
                 {
@@ -5026,15 +4943,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     unitTarget->CastSpell(unitTarget, 41131, true);
                     break;
                 }*/
-                // Draw Soul
-                case 40904:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(m_caster, 40903, true);
-                    break;
-                }
                 case 48025:                                     // Headless Horseman's Mount
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -5156,15 +5064,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     }
                     break;
                 }
-                // Force Cast - Portal Effect: Sunwell Isle
-                case 44876:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 44870, true);
-                    break;
-                }
                 // Brutallus - Burn
                 case 45141:
                 case 45151:
@@ -5174,25 +5073,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER && unitTarget->GetDistance(m_caster) >= radius && !unitTarget->HasAura(46394) && unitTarget != m_caster)
                         unitTarget->CastSpell(unitTarget, 46394, true);
 
-                    break;
-                }
-                // spell of Brutallus - Stomp
-                case 45185:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->RemoveAurasDueToSpell(46394);
-
-                    break;
-                }
-                // Negative Energy
-                case 46289:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    m_caster->CastSpell(unitTarget, 46285, true);
                     break;
                 }
                 // Goblin Weather Machine
@@ -5334,11 +5214,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                     if (unitTarget->GetTypeId() == TYPEID_UNIT && unitTarget->ToCreature()->isSummon())
                         unitTarget->ToTempSummon()->UnSummon();
                     return;
-                // Sky Darkener Assault
-                case 52124:
-                    if (unitTarget)
-                        m_caster->CastSpell(unitTarget, 52125, false);
-                    return;
                 case 52479: // Gift of the Harvester
                     if (unitTarget && m_originalCaster)
                         m_originalCaster->CastSpell(unitTarget, urand(0, 1) ? damage : 52505, true);
@@ -5388,45 +5263,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         unitTarget->CastSpell(unitTarget, spellID, true);
 
                     return;
-                }
-                // Gigantic Feast
-                case 58466:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58648, true);
-                    unitTarget->CastSpell(unitTarget, 58467, true);
-                    break;
-                }
-                // Small Feast
-                case 58475:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58648, true);
-                    unitTarget->CastSpell(unitTarget, 58477, true);
-                    break;
-                }
-                // Great Feast
-                case 57337:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58067, true);
-                    break;
-                }
-                //Fish Feast
-                case 57397:
-                {
-                    if (!unitTarget)
-                        return;
-
-                    unitTarget->CastSpell(unitTarget, 58648, true);
-                    unitTarget->CastSpell(unitTarget, 57398, true);
-                    break;
                 }
                 case 58941:                                 // Rock Shards
                     if (unitTarget && m_originalCaster)
@@ -5759,11 +5595,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
                         basepoints0 *= aur->GetAmount();
                         m_caster->CastCustomSpell(unitTarget, 55277, &basepoints0, NULL, NULL, true);
                     }
-                    break;
-                }
-                case 67751:// Ghoul Explode
-                {
-                    unitTarget->CastSpell(unitTarget,67729,false); //Explode
                     break;
                 }
                 case 66545: //Summon Memory
@@ -6100,14 +5931,6 @@ void Spell::EffectScriptEffect(uint32 effIndex)
         {
             switch(m_spellInfo->Id)
             {
-                // Dreaming Glory
-                case 28698:
-                {
-                    if (!unitTarget)
-                        return;
-                    unitTarget->CastSpell(unitTarget, 28694, true);
-                    break;
-                }
                 // Netherbloom
                 case 28702:
                 {
