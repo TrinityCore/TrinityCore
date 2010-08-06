@@ -5113,7 +5113,7 @@ void ObjectMgr::LoadInstanceTemplate()
 
     for (uint32 i = 0; i < sInstanceTemplate.MaxEntry; i++)
     {
-        InstanceTemplate* temp = (InstanceTemplate*)GetInstanceTemplate(i);
+        InstanceTemplate* temp = const_cast<InstanceTemplate*>(GetInstanceTemplate(i));
         if (!temp)
             continue;
 

@@ -42,7 +42,7 @@ struct TransportCreatureProto
 class Transport : public GameObject
 {
     public:
-        explicit Transport();
+        Transport(uint32 period, uint32 script);
 
         bool Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags);
         bool GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids);
@@ -90,11 +90,11 @@ class Transport : public GameObject
         PlayerSet m_passengers;
 
         uint32 currenttguid;
+        uint32 m_period;
         uint32 ScriptId;
     public:
         WayPointMap m_WayPoints;
         uint32 m_nextNodeTime;
-        uint32 m_period;
 
     private:
         void TeleportTransport(uint32 newMapid, float x, float y, float z);
