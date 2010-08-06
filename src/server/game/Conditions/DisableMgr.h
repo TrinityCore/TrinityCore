@@ -27,10 +27,11 @@ enum DisableType
     DISABLE_TYPE_QUEST                  = 1,
     DISABLE_TYPE_MAP                    = 2,
     DISABLE_TYPE_BATTLEGROUND           = 3,
-    DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4
+    DISABLE_TYPE_ACHIEVEMENT_CRITERIA   = 4,
+    DISABLE_TYPE_OUTDOORPVP             = 5,
 };
 
-#define MAX_DISABLE_TYPES 5
+#define MAX_DISABLE_TYPES 6
 
 typedef std::map<uint32, uint8> DisableTypeMap;             // single disables here with optional data
 typedef std::map<DisableType, DisableTypeMap> DisableMap;   // global disable map by source
@@ -39,15 +40,16 @@ class DisableMgr
 {
     friend class ACE_Singleton<DisableMgr, ACE_Null_Mutex>;
     DisableMgr();
+    ~DisableMgr();
 
     public:
-        ~DisableMgr();
 
         void LoadDisables();
         bool IsDisabledFor(DisableType type, uint32 entry, Unit const* pUnit);
         void CheckQuestDisables();
 
     protected:
+
         DisableMap m_DisableMap;
 };
 

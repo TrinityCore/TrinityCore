@@ -3841,6 +3841,30 @@ LOCK TABLES `npc_vendor` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `outdoorpvp_template`
+--
+
+DROP TABLE IF EXISTS `outdoorpvp_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `outdoorpvp_template` (
+  `TypeId` tinyint(2) unsigned NOT NULL,
+  `ScriptName` char(64) NOT NULL DEFAULT '',
+  `comment` text,
+  PRIMARY KEY (`TypeId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='OutdoorPvP Templates';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `outdoorpvp_template`
+--
+
+LOCK TABLES `outdoorpvp_template` WRITE;
+/*!40000 ALTER TABLE `outdoorpvp_template` DISABLE KEYS */;
+/*!40000 ALTER TABLE `outdoorpvp_template` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `page_text`
 --
 
