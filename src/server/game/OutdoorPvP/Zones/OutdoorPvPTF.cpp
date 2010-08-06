@@ -18,6 +18,7 @@
 
 #include "OutdoorPvPTF.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvP.h"
 #include "WorldPacket.h"
 #include "Player.h"
 #include "ObjectMgr.h"
