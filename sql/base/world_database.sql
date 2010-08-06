@@ -14712,6 +14712,8 @@ CREATE TABLE `spell_script_names` (
 LOCK TABLES `spell_script_names` WRITE;
 /*!40000 ALTER TABLE `spell_script_names` DISABLE KEYS */;
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+-- generic
+( 58601, 'spell_gen_remove_flight_auras'),
 -- warrior
 ( 12975,'spell_warr_last_stand'),
 ( 21977,'spell_warr_warriors_wrath'),

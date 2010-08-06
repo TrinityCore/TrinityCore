@@ -5715,6 +5715,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const * aurApp, uint8 mode, boo
                         case 60244:  // Blood Parrot Despawn Aura
                             target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                             break;
+                        case 58600: // Restricted Flight Area
+                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
+                                target->CastSpell(target, 58601, true);
+                            break;
                         case 68839: // Corrupt Soul
                             target->CastSpell(target, 68846, true, NULL, this, GetCasterGUID());
                             break;

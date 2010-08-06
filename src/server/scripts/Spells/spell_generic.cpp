@@ -24,14 +24,36 @@
 
 #include "ScriptPCH.h"
 
+class spell_gen_remove_flight_auras : public SpellHandlerScript
+{
+    public:
+
+        spell_gen_remove_flight_auras() : SpellHandlerScript("spell_gen_remove_flight_auras") {}
+
+        class spell_gen_remove_flight_auras_SpellScript : public SpellScript
+        {
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                Unit *target = GetHitUnit();
+                if (!target)
+                    return;
+                target->RemoveAurasByType(SPELL_AURA_FLY);
+                target->RemoveAurasByType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED);
+            }
+
+            void Register()
+            {
+                EffectHandlers += EffectHandlerFn(spell_gen_remove_flight_auras_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_remove_flight_auras_SpellScript;
+        }
+}
+
 void AddSC_generic_spell_scripts()
 {
-    //Script *newscript;
-
-    /*
-    newscript = new Script;
-    newscript->Name = "spell_gen_";
-    newscript->GetSpellScript = &GetSpellScript_spell_gen_;
-    newscript->RegisterSelf();
-    */
+    new spell_gen_remove_flight_auras;
 }
