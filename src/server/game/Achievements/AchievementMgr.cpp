@@ -1447,6 +1447,20 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->GetMoney(), PROGRESS_HIGHEST);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
+            {
+                if (!miscvalue1)
+                {
+                    uint32 points = 0;
+                    for (CompletedAchievementMap::iterator itr =  m_completedAchievements.begin(); itr != m_completedAchievements.end(); ++itr)
+                        if (AchievementEntry const* pAchievement = sAchievementStore.LookupEntry(itr->first))
+                            points += pAchievement->points;
+                    SetCriteriaProgress(achievementCriteria, points, PROGRESS_SET);
+                }
+                else
+                    SetCriteriaProgress(achievementCriteria, miscvalue1, PROGRESS_ACCUMULATE);
+                break;
+            }
             // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
@@ -1470,7 +1484,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
-            case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
             case ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS:
                 break;                                   // Not implemented yet :(
         }
@@ -1614,6 +1627,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->learn_skill_line.spellCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             return progress->counter >= achievementCriteria->honorable_kill.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS:
+            return progress->counter >= 9000;
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
         case ACHIEVEMENT_CRITERIA_TYPE_DEATH_AT_MAP:
@@ -1794,7 +1809,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
 
     if (entry->timeLimit)
     {
-        //has to exist else we wouldn't be here
+        // has to exist else we wouldn't be here
         timedCompleted = IsCompletedCriteria(entry, sAchievementStore.LookupEntry(entry->referredAchievement));
         // Client expects this in packet
         timeElapsed = entry->timeLimit - (timedIter->second/IN_MILLISECONDS);
@@ -1818,7 +1833,10 @@ void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
             {
                 AchievementCriteriaEntry const *entry = sAchievementCriteriaStore.LookupEntry(itr->first);
                 SetCriteriaProgress(entry, 0, PROGRESS_SET);
+                CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find(itr->first);
                 m_timedAchievements.erase(itr++);
+                if (criteriaProgress != m_criteriaProgress.end())
+                    m_criteriaProgress.erase(criteriaProgress);
             }
             else
             {
@@ -1862,8 +1880,11 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
         if (timedIter == m_timedAchievements.end())
             continue;
 
-        // 0 the progress to avoid saving to db
+        // SetCriteriaProgress for packet send, then remove progress
         SetCriteriaProgress(*i, 0, PROGRESS_SET);
+        CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find((*i)->ID);
+        if (criteriaProgress != m_criteriaProgress.end())
+            m_criteriaProgress.erase(criteriaProgress);
 
         // Remove the timer
         m_timedAchievements.erase(timedIter);
@@ -1891,6 +1912,7 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         achievementmgr.SetRealmCompleted(achievement);
 
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_ACHIEVEMENT);
+    UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS, achievement->points);
 
     // reward items and titles if any
     AchievementReward const* reward = achievementmgr.GetAchievementReward(achievement);
@@ -1901,10 +1923,8 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
 
     // titles
     if (uint32 titleId = reward->titleId[GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1])
-    {
         if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
             GetPlayer()->SetTitle(titleEntry);
-    }
 
     // mail
     if (reward->sender)
