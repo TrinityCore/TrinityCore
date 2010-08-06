@@ -61,7 +61,6 @@ Vehicle::Vehicle(Unit *unit, VehicleEntry const *vehInfo) : me(unit), m_vehicleI
         default:
             break;
     }
-    ASSERT(!m_Seats.empty());
 }
 
 Vehicle::~Vehicle()
@@ -72,39 +71,39 @@ Vehicle::~Vehicle()
 
 void Vehicle::Install()
 {
-    if (Creature *cre = dynamic_cast<Creature*>(me))
+    if (Creature *pCreature = me->ToCreature())
     {
-        if (m_vehicleInfo->m_powerType == POWER_STEAM)
+        switch (m_vehicleInfo->m_powerType)
         {
-            me->setPowerType(POWER_ENERGY);
-            me->SetMaxPower(POWER_ENERGY, 100);
-        }
-        else if (m_vehicleInfo->m_powerType == POWER_PYRITE)
-        {
-            me->setPowerType(POWER_ENERGY);
-            me->SetMaxPower(POWER_ENERGY, 50);
-        }
-        else
-        {
-            for (uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
-            {
-                if (!cre->m_spells[i])
-                    continue;
-
-                SpellEntry const *spellInfo = sSpellStore.LookupEntry(cre->m_spells[i]);
-                if (!spellInfo)
-                    continue;
-
-                if (spellInfo->powerType == POWER_MANA)
-                    break;
-
-                if (spellInfo->powerType == POWER_ENERGY)
+            case POWER_STEAM:
+                me->setPowerType(POWER_ENERGY);
+                me->SetMaxPower(POWER_ENERGY, 100);
+                break;
+            case POWER_PYRITE:
+                me->setPowerType(POWER_ENERGY);
+                me->SetMaxPower(POWER_ENERGY, 50);
+                break;
+            default:
+                for (uint32 i = 0; i < MAX_SPELL_VEHICLE; ++i)
                 {
-                    me->setPowerType(POWER_ENERGY);
-                    me->SetMaxPower(POWER_ENERGY, 100);
-                    break;
+                    if (!pCreature->m_spells[i])
+                        continue;
+
+                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(pCreature->m_spells[i]);
+                    if (!spellInfo)
+                        continue;
+
+                    if (spellInfo->powerType == POWER_MANA)
+                        break;
+
+                    if (spellInfo->powerType == POWER_ENERGY)
+                    {
+                        me->setPowerType(POWER_ENERGY);
+                        me->SetMaxPower(POWER_ENERGY, 100);
+                        break;
+                    }
                 }
-            }
+                break;
         }
     }
 
