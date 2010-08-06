@@ -19,7 +19,7 @@
 #ifndef OUTDOOR_PVP_SI_
 #define OUTDOOR_PVP_SI_
 
-#include "OutdoorPvPImpl.h"
+#include "OutdoorPvP.h"
 
 enum OutdoorPvPSISpells
 {
@@ -45,7 +45,8 @@ const uint32 SI_TURNIN_QUEST_CM_H = 18199;
 
 const uint32 SI_SILITHYST_MOUND = 181597;
 
-enum SI_WorldStates{
+enum SI_WorldStates
+{
     SI_GATHERED_A = 2313,
     SI_GATHERED_H = 2314,
     SI_SILITHYST_MAX = 2317
@@ -53,23 +54,35 @@ enum SI_WorldStates{
 
 class OutdoorPvPSI : public OutdoorPvP
 {
-public:
-    OutdoorPvPSI();
-    bool SetupOutdoorPvP();
-    void HandlePlayerEnterZone(Player *plr, uint32 zone);
-    void HandlePlayerLeaveZone(Player *plr, uint32 zone);
-    bool Update(uint32 diff);
-    void FillInitialWorldStates(WorldPacket &data);
-    void SendRemoveWorldStates(Player * plr);
-    bool HandleAreaTrigger(Player * plr, uint32 trigger);
-    bool HandleDropFlag(Player * plr, uint32 spellId);
-    bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject *go);
-    void UpdateWorldState();
-private:
-    uint32 m_Gathered_A;
-    uint32 m_Gathered_H;
-    uint32 m_LastController;
+    public:
+
+        OutdoorPvPSI();
+
+        bool SetupOutdoorPvP();
+
+        void HandlePlayerEnterZone(Player *plr, uint32 zone);
+        void HandlePlayerLeaveZone(Player *plr, uint32 zone);
+
+        bool Update(uint32 diff);
+
+        void FillInitialWorldStates(WorldPacket &data);
+
+        void SendRemoveWorldStates(Player * plr);
+
+        bool HandleAreaTrigger(Player * plr, uint32 trigger);
+
+        bool HandleDropFlag(Player * plr, uint32 spellId);
+
+        bool HandleCustomSpell(Player * plr, uint32 spellId, GameObject *go);
+
+        void UpdateWorldState();
+
+    private:
+
+        uint32 m_Gathered_A;
+        uint32 m_Gathered_H;
+
+        uint32 m_LastController;
 };
 
 #endif
-
