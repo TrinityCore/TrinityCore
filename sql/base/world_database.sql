@@ -241,6 +241,7 @@ CREATE TABLE `battleground_template` (
   `HordeStartLoc` mediumint(8) unsigned NOT NULL,
   `HordeStartO` float NOT NULL,
   `Weight` tinyint(2) unsigned NOT NULL DEFAULT 1,
+  `ScriptName` char(64) NOT NULL DEFAULT '',
   `Comment` char(32) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
