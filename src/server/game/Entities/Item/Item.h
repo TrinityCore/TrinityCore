@@ -347,9 +347,6 @@ class Item : public Object
 
         void BuildUpdate(UpdateDataMapType&);
 
-        Bag* ToBag();
-        const Bag* ToBag() const;
-
     private:
         std::string m_text;
         uint8 m_slot;
