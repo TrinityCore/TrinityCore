@@ -13491,9 +13491,8 @@ CharmInfo::CharmInfo(Unit* unit)
 CharmInfo::~CharmInfo()
 {
     if (m_unit->GetTypeId() == TYPEID_UNIT)
-    {
-        m_unit->ToCreature()->SetReactState(m_oldReactState);
-    }
+        if (Creature *pCreature = m_unit->ToCreature())
+            pCreature->SetReactState(m_oldReactState);
 }
 
 void CharmInfo::InitPetActionBar()
