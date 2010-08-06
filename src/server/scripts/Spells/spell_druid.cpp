@@ -25,12 +25,5 @@
 
 void AddSC_druid_spell_scripts()
 {
-    //Script *newscript;
-
-    /*
-    newscript = new Script;
-    newscript->Name = "spell_dru_";
-    newscript->GetSpellScript = &GetSpellScript_spell_dru_;
-    newscript->RegisterSelf();
-    */
+    
 }

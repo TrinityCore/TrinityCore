@@ -29,71 +29,74 @@ enum WarriorSpells
     WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED       = 21887,
 };
 
-class spell_warr_last_stand_SpellScript : public SpellScript
+class spell_warr_last_stand : public SpellHandlerScript
 {
-    bool Validate(SpellEntry const *spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
-            return false;
-        return true;
-    }
+    public:
+        spell_warr_last_stand() : SpellHandlerScript("spell_warr_last_stand") { }
 
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        int32 healthModSpellBasePoints0 = int32(GetCaster()->GetMaxHealth() * 0.3);
-        GetCaster()->CastCustomSpell(GetCaster(), WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
-    }
+        class spell_warr_last_stand_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const *spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
+                    return false;
+                return true;
+            }
 
-    void Register()
-    {
-        // add dummy effect spell handler to Last Stand
-        EffectHandlers += EffectHandlerFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                int32 healthModSpellBasePoints0 = int32(GetCaster()->GetMaxHealth() * 0.3);
+                GetCaster()->CastCustomSpell(GetCaster(), WARRIOR_SPELL_LAST_STAND_TRIGGERED, &healthModSpellBasePoints0, NULL, NULL, true, NULL);
+            }
+
+            void Register()
+            {
+                // add dummy effect spell handler to Last Stand
+                EffectHandlers += EffectHandlerFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_warr_last_stand_SpellScript();
+        }
 };
 
-SpellScript * GetSpellScript_spell_warr_last_stand()
+class spell_warr_warriors_wrath : public SpellHandlerScript
 {
-    return new spell_warr_last_stand_SpellScript();
-}
+    public:
+        spell_warr_warriors_wrath() : SpellHandlerScript("spell_warr_warriors_wrath") { }
 
-class spell_warr_warriors_wrath_SpellScript : public SpellScript
-{
-    bool Validate(SpellEntry const *spellEntry)
-    {
-        if (!sSpellStore.LookupEntry(WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED))
-            return false;
-        return true;
-    }
+        class spell_warr_warriors_wrath_SpellScript : public SpellScript
+        {
+            bool Validate(SpellEntry const *spellEntry)
+            {
+                if (!sSpellStore.LookupEntry(WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED))
+                    return false;
+                return true;
+            }
 
-    void HandleDummy(SpellEffIndex effIndex)
-    {
-        if (Unit *unitTarget = GetHitUnit())
-            GetCaster()->CastSpell(unitTarget, WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED, true);
-    }
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                if (Unit *unitTarget = GetHitUnit())
+                    GetCaster()->CastSpell(unitTarget, WARRIOR_SPELL_WARRIORS_WRATH_TRIGGERED, true);
+            }
 
-    void Register()
-    {
-        // add dummy effect spell handler to Warrior's Wrath
-        EffectHandlers += EffectHandlerFn(spell_warr_warriors_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-    }
+            void Register()
+            {
+                // add dummy effect spell handler to Warrior's Wrath
+                EffectHandlers += EffectHandlerFn(spell_warr_warriors_wrath_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript *GetSpellScript() const
+        {
+            return new spell_warr_warriors_wrath_SpellScript();
+        }
 };
-
-SpellScript * GetSpellScript_spell_warr_warriors_wrath()
-{
-    return new spell_warr_warriors_wrath_SpellScript();
-}
 
 void AddSC_warrior_spell_scripts()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "spell_warr_last_stand";
-    newscript->GetSpellScript = &GetSpellScript_spell_warr_last_stand;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "spell_warr_warriors_wrath";
-    newscript->GetSpellScript = &GetSpellScript_spell_warr_warriors_wrath;
-    newscript->RegisterSelf();
+    new spell_warr_last_stand;
+    new spell_warr_warriors_wrath;
 }

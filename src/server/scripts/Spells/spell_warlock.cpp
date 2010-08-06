@@ -25,12 +25,5 @@
 
 void AddSC_warlock_spell_scripts()
 {
-    //Script *newscript;
-
-    /*
-    newscript = new Script;
-    newscript->Name = "spell_warl_";
-    newscript->GetSpellScript = &GetSpellScript_spell_warl_;
-    newscript->RegisterSelf();
-    */
+    
 }
