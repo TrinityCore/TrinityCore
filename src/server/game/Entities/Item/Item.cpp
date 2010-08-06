@@ -257,16 +257,6 @@ Item::Item()
     m_paidExtendedCost = 0;
 }
 
-inline Bag* Item::ToBag()
-{
-    return dynamic_cast<Bag*>(this);
-}
-
-inline const Bag* Item::ToBag() const
-{
-    return dynamic_cast<const Bag*>(this);
-}
-
 bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
 {
     Object::_Create(guidlow, 0, HIGHGUID_ITEM);

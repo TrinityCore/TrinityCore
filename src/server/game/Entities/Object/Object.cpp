@@ -101,7 +101,7 @@ Object::~Object()
     {
         sLog.outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
         if (isType(TYPEMASK_ITEM))
-            sLog.outCrash("Item slot %u", this->ToItem()->GetSlot());
+            sLog.outCrash("Item slot %u", ((Item*)this)->GetSlot());
         ASSERT(false);
         RemoveFromWorld();
     }
@@ -1133,46 +1133,6 @@ bool Object::PrintIndexError(uint32 index, bool set) const
 
     // ASSERT must fail after function call
     return false;
-}
-
-inline Unit* Object::ToUnit()
-{
-    return dynamic_cast<Unit*>(this);
-}
-
-inline const Unit* Object::ToUnit() const
-{
-    return dynamic_cast<const Unit*>(this);
-}
-
-inline Player* Object::ToPlayer()
-{
-    return dynamic_cast<Player*>(this);
-}
-
-inline const Player* Object::ToPlayer() const
-{
-    return dynamic_cast<const Player*>(this);
-}
-
-inline Creature* Object::ToCreature()
-{
-    return dynamic_cast<Creature*>(this);
-}
-
-inline const Creature* Object::ToCreature() const
-{
-    return dynamic_cast<const Creature*>(this);
-}
-
-inline Item* Object::ToItem()
-{
-    return dynamic_cast<Item*>(this);
-}
-
-inline const Item* Object::ToItem() const
-{
-    return dynamic_cast<const Item*>(this);
 }
 
 bool Position::HasInLine(const Unit * const target, float distance, float width) const
