@@ -1863,14 +1863,6 @@
 				RelativePath="..\..\src\server\game\Tools\PlayerDump.h"
 				>
 			</File>
-			<File
-				RelativePath="..\..\src\server\game\Tools\Tools.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\server\game\Tools\Tools.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Weather"
