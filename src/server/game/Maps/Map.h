@@ -212,7 +212,6 @@ struct InstanceTemplate
 {
     uint32 map;
     uint32 parent;
-    uint32 access_id;
     float startLocX;
     float startLocY;
     float startLocZ;
