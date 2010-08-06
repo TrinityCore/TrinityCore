@@ -347,6 +347,7 @@ class Item : public Object
 
         void BuildUpdate(UpdateDataMapType&);
 
+        uint32 GetScriptId() const { return GetProto()->ScriptId; }
     private:
         std::string m_text;
         uint8 m_slot;
