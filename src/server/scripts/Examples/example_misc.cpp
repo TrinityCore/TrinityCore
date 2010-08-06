@@ -31,41 +31,57 @@ enum eSay
     SAY_HI  = -1999925
 };
 
-bool AT_example_areatrigger(Player* pPlayer, const AreaTriggerEntry * /*pAt*/)
+class AT_example_areatrigger : public AreaTriggerScript
 {
-    DoScriptText(SAY_HI, pPlayer);
-    return true;
-}
+    public:
 
-extern void LoadDatabase();
-bool ItemUse_example_item(Player* /*pPlayer*/, Item* /*pItem*/, SpellCastTargets const& /*scTargets*/)
-{
-    sScriptMgr.LoadDatabase();
-    return true;
-}
+        AT_example_areatrigger()
+            : AreaTriggerScript("example_areatrigger")
+        {
+        }
 
-bool GOHello_example_go_teleporter(Player* pPlayer, GameObject* /*pGo*/)
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            DoScriptText(SAY_HI, player);
+            return true;
+        }
+};
+
+class ItemUse_example_item : public ItemScript
 {
-    pPlayer->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
-    return false;
-}
+    public:
+
+        ItemUse_example_item()
+            : ItemScript("example_item")
+        {
+        }
+
+        bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
+        {
+            sScriptMgr.LoadDatabase();
+            return true;
+        }
+};
+
+class GOHello_example_go_teleporter : public GameObjectScript
+{
+    public:
+
+        GOHello_example_go_teleporter()
+            : GameObjectScript("example_go_teleporter")
+        {
+        }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            player->TeleportTo(0, 1807.07f, 336.105f, 70.3975f, 0.0f);
+            return false;
+        }
+};
 
 void AddSC_example_misc()
 {
-    Script* newscript;
-
-    newscript = new Script;
-    newscript->Name = "example_areatrigger";
-    newscript->pAreaTrigger = &AT_example_areatrigger;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "example_item";
-    newscript->pItemUse = &ItemUse_example_item;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "example_go_teleporter";
-    newscript->pGOHello = &GOHello_example_go_teleporter;
-    newscript->RegisterSelf();
+    new AT_example_areatrigger();
+    new ItemUse_example_item();
+    new GOHello_example_go_teleporter();
 }
