@@ -417,7 +417,7 @@ void World::RemoveWeather(uint32 id)
 /// Add a Weather object to the list
 Weather* World::AddWeather(uint32 zone_id)
 {
-    WeatherZoneChances const* weatherChances = objmgr.GetWeatherChances(zone_id);
+    WeatherData const* weatherChances = objmgr.GetWeatherChances(zone_id);
 
     // zone not have weather, ignore
     if (!weatherChances)
@@ -1429,7 +1429,7 @@ void World::SetInitialWorldSettings()
     gameeventmgr.LoadFromDB();
 
     sLog.outString("Loading Weather Data...");
-    objmgr.LoadWeatherZoneChances();
+    objmgr.LoadWeatherData();
 
     sLog.outString("Loading Quests...");
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
