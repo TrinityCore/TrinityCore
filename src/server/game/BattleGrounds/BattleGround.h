@@ -311,6 +311,8 @@ enum BGHonorMode
     BG_HONOR_MODE_NUM
 };
 
+#define BG_AWARD_ARENA_POINTS_MIN_LEVEL 71
+
 /*
 This class is used to:
 1. Add player to battleground
@@ -574,6 +576,7 @@ class BattleGround
         int32 m_TeamScores[BG_TEAMS_COUNT];
 
         void RewardXPAtKill(Player* plr, Player* victim);
+        bool CanAwardArenaPoints() const { return m_LevelMin >= BG_AWARD_ARENA_POINTS_MIN_LEVEL; }
 
     protected:
         //this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends BattleGround
