@@ -53,14 +53,13 @@ void MapManager::LoadTransports()
     {
         bar.step();
 
-        Transport *t = new Transport;
-
         Field *fields = result->Fetch();
-
         uint32 entry = fields[0].GetUInt32();
         std::string name = fields[1].GetCppString();
-        t->m_period = fields[2].GetUInt32();
-        t->ScriptId = objmgr.GetScriptId(fields[3].GetString());
+        uint32 period = fields[2].GetUInt32();
+        uint32 scriptId = objmgr.GetScriptId(fields[3].GetString());
+
+        Transport *t = new Transport(period, scriptId);
 
         const GameObjectInfo *goinfo = objmgr.GetGameObjectInfo(entry);
 
@@ -180,10 +179,9 @@ void MapManager::LoadTransportNPCs()
     sLog.outString(">> Loaded %u transport npcs", count);
 }
 
-Transport::Transport() : GameObject()
+Transport::Transport(uint32 period, uint32 script) : m_period(period), ScriptId(script), GameObject()
 {
     m_updateFlag = (UPDATEFLAG_TRANSPORT | UPDATEFLAG_HIGHGUID | UPDATEFLAG_HAS_POSITION | UPDATEFLAG_ROTATION);
-    ScriptId = 0;
 }
 
 bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, float ang, uint32 animprogress, uint32 dynflags)

@@ -2715,7 +2715,6 @@ DROP TABLE IF EXISTS `instance_template`;
 CREATE TABLE `instance_template` (
   `map` smallint(5) unsigned NOT NULL,
   `parent` int(10) unsigned NOT NULL,
-  `access_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `startLocX` float DEFAULT NULL,
   `startLocY` float DEFAULT NULL,
   `startLocZ` float DEFAULT NULL,
