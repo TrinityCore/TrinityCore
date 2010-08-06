@@ -1936,11 +1936,11 @@ void Spell::EffectDummy(uint32 i)
     // Script based implementation. Must be used only for not good for implementation in core spell effects
     // So called only for not proccessed cases
     if (gameObjTarget)
-        sScriptMgr.EffectDummyGameObj(m_caster, m_spellInfo->Id, i, gameObjTarget);
+        sScriptMgr.OnDummyEffect(m_caster, m_spellInfo->Id, SpellEffIndex(i), gameObjTarget);
     else if (unitTarget && unitTarget->GetTypeId() == TYPEID_UNIT)
-        sScriptMgr.EffectDummyCreature(m_caster, m_spellInfo->Id, i, unitTarget->ToCreature());
+        sScriptMgr.OnDummyEffect(m_caster, m_spellInfo->Id, SpellEffIndex(i), unitTarget->ToCreature());
     else if (itemTarget)
-        sScriptMgr.EffectDummyItem(m_caster, m_spellInfo->Id, i, itemTarget);
+        sScriptMgr.OnDummyEffect(m_caster, m_spellInfo->Id, SpellEffIndex(i), itemTarget);
 }
 
 void Spell::EffectTriggerSpellWithValue(uint32 i)
@@ -3128,7 +3128,7 @@ void Spell::SendLoot(uint64 guid, LootType loottype)
 
     if (gameObjTarget)
     {
-        if (sScriptMgr.GOHello(player, gameObjTarget))
+        if (sScriptMgr.OnGossipHello(player, gameObjTarget))
             return;
 
         switch (gameObjTarget->GetGoType())

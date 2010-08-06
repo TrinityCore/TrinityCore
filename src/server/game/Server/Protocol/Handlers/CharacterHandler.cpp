@@ -806,8 +806,6 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     m_playerLoading = false;
 
-    //Hook for OnLogin Event
-    sScriptMgr.OnLogin(pCurrChar);
     delete holder;
 }
 
@@ -1359,49 +1357,4 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
     WorldPacket data(SMSG_EQUIPMENT_SET_USE_RESULT, 1);
     data << uint8(0);                                       // 4 - equipment swap failed - inventory is full
     SendPacket(&data);
-}
-
-void WorldSession::HandleOnPVPKill(Player *killed)
-{
-    sScriptMgr.OnPVPKill(GetPlayer(), killed);
-}
-
-bool WorldSession::HandleOnPlayerChat(const char *text)
-{
-    return sScriptMgr.OnPlayerChat(GetPlayer(), text);
-}
-
-uint32 WorldSession::HandleOnGetXP(uint32 amount)
-{
-    return sScriptMgr.OnGetXP(GetPlayer(), amount);
-}
-
-int32 WorldSession::HandleOnGetMoney(int32 amount)
-{
-    return sScriptMgr.OnGetMoney(GetPlayer(), amount);
-}
-
-void WorldSession::HandleOnAreaChange(AreaTableEntry const *pArea)
-{
-    sScriptMgr.OnAreaChange(GetPlayer(), pArea);
-}
-
-bool WorldSession::HandleOnItemClick(Item *pItem)
-{
-    return sScriptMgr.OnItemClick(GetPlayer(), pItem);
-}
-
-bool WorldSession::HandleOnItemOpen(Item *pItem)
-{
-    return sScriptMgr.OnItemOpen(GetPlayer(), pItem);
-}
-
-bool WorldSession::HandleOnGoClick(GameObject *pGameObject)
-{
-    return sScriptMgr.OnGoClick(GetPlayer(), pGameObject);
-}
-
-void WorldSession::HandleOnCreatureKill(Creature *pCreature)
-{
-    sScriptMgr.OnCreatureKill(GetPlayer(), pCreature);
 }

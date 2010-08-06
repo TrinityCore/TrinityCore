@@ -97,6 +97,6 @@ class SystemMgr
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
 };
 
-#define pSystemMgr SystemMgr::Instance()
+#define sScriptSystemMgr SystemMgr::Instance()
 
 #endif

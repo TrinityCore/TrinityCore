@@ -22,6 +22,8 @@
 #define TRINITY_FORMULAS_H
 
 #include "World.h"
+#include "SharedDefines.h"
+#include "ScriptMgr.h"
 
 namespace Trinity
 {
@@ -29,71 +31,108 @@ namespace Trinity
     {
         inline float hk_honor_at_level_f(uint8 level, uint32 count = 1)
         {
-            return count * level * 1.55f;
+            float honor = count * level * 1.55f;
+            sScriptMgr.OnHonorCalculation(honor, level, count);
+            return honor;
         }
         
         inline uint32 hk_honor_at_level(uint8 level, uint32 count = 1)
         {
-            return ceil(hk_honor_at_level_f(level, count));
+            uint32 honor = ceil(hk_honor_at_level_f(level, count));
+            sScriptMgr.OnHonorCalculation(honor, level, count);
+            return honor;
         }
     }
     namespace XP
     {
-        enum XPColorChar { RED, ORANGE, YELLOW, GREEN, GRAY };
-
         inline uint8 GetGrayLevel(uint8 pl_level)
         {
+            uint8 level;
+
             if (pl_level <= 5)
-                return 0;
+                level = 0;
             else if (pl_level <= 39)
-                return pl_level - 5 - pl_level/10;
+                level = pl_level - 5 - pl_level / 10;
             else if (pl_level <= 59)
-                return pl_level - 1 - pl_level/5;
+                level = pl_level - 1 - pl_level / 5;
             else
-                return pl_level - 9;
+                level = pl_level - 9;
+
+            sScriptMgr.OnGetGrayLevel(level, pl_level);
+            return level;
         }
 
         inline XPColorChar GetColorCode(uint8 pl_level, uint8 mob_level)
         {
+            XPColorChar color;
+
             if (mob_level >= pl_level + 5)
-                return RED;
+                color = XP_RED;
             else if (mob_level >= pl_level + 3)
-                return ORANGE;
+                color = XP_ORANGE;
             else if (mob_level >= pl_level - 2)
-                return YELLOW;
+                color = XP_YELLOW;
             else if (mob_level > GetGrayLevel(pl_level))
-                return GREEN;
+                color = XP_GREEN;
             else
-                return GRAY;
+                color = XP_GRAY;
+
+            sScriptMgr.OnGetColorCode(color, pl_level, mob_level);
+            return color;
         }
 
         inline uint8 GetZeroDifference(uint8 pl_level)
         {
-            if (pl_level < 8)  return 5;
-            if (pl_level < 10) return 6;
-            if (pl_level < 12) return 7;
-            if (pl_level < 16) return 8;
-            if (pl_level < 20) return 9;
-            if (pl_level < 30) return 11;
-            if (pl_level < 40) return 12;
-            if (pl_level < 45) return 13;
-            if (pl_level < 50) return 14;
-            if (pl_level < 55) return 15;
-            if (pl_level < 60) return 16;
-            return 17;
+            uint8 diff;
+
+            if (pl_level < 8)
+                diff = 5;
+            else if (pl_level < 10)
+                diff = 6;
+            else if (pl_level < 12)
+                diff = 7;
+            else if (pl_level < 16)
+                diff = 8;
+            else if (pl_level < 20)
+                diff = 9;
+            else if (pl_level < 30)
+                diff = 11;
+            else if (pl_level < 40)
+                diff = 12;
+            else if (pl_level < 45)
+                diff = 13;
+            else if (pl_level < 50)
+                diff = 14;
+            else if (pl_level < 55)
+                diff = 15;
+            else if (pl_level < 60)
+                diff = 16;
+            else
+                diff = 17;
+
+            return diff;
         }
 
         inline uint32 BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels content)
         {
+            uint32 baseGain;
             uint32 nBaseExp;
+
             switch (content)
             {
-                case CONTENT_1_60:  nBaseExp = 45;  break;
-                case CONTENT_61_70: nBaseExp = 235; break;
-                case CONTENT_71_80: nBaseExp = 580; break;
+                case CONTENT_1_60:
+                    nBaseExp = 45;
+                    break;
+                case CONTENT_61_70:
+                    nBaseExp = 235;
+                    break;
+                case CONTENT_71_80:
+                    nBaseExp = 580;
+                    break;
                 default:
                     sLog.outError("BaseGain: Unsupported content level %u",content);
-                    nBaseExp = 45;  break;
+                    nBaseExp = 45;
+                    break;
             }
 
             if (mob_level >= pl_level)
@@ -101,7 +140,8 @@ namespace Trinity
                 uint8 nLevelDiff = mob_level - pl_level;
                 if (nLevelDiff > 4)
                     nLevelDiff = 4;
-                return ((pl_level*5 + nBaseExp) * (20 + nLevelDiff)/10 + 1)/2;
+
+                baseGain = ((pl_level * 5 + nBaseExp) * (20 + nLevelDiff) / 10 + 1) / 2;
             }
             else
             {
@@ -109,41 +149,51 @@ namespace Trinity
                 if (mob_level > gray_level)
                 {
                     uint8 ZD = GetZeroDifference(pl_level);
-                    return (pl_level*5 + nBaseExp) * (ZD + mob_level - pl_level)/ZD;
+                    baseGain = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
                 }
-                return 0;
+                else
+                    baseGain = 0;
             }
+
+            sScriptMgr.OnGetBaseGain(baseGain, pl_level, mob_level, content);
+            return baseGain;
         }
 
         inline uint32 Gain(Player *pl, Unit *u)
         {
-            if (u->GetTypeId() == TYPEID_UNIT && (
-                ((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
+            uint32 gain;
+
+            if (u->GetTypeId() == TYPEID_UNIT &&
+                (((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
                 (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL)))
-                return 0;
-
-            uint32 xp_gain = BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(),u->GetZoneId()));
-            if (xp_gain == 0)
-                return 0;
-
-            //elites in instances have a 2.75x xp bonus instead of the regular 2x world bonus
-            if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
+                gain = 0;
+            else
             {
-                if(u->GetMap() && u->GetMap()->IsDungeon())
-                    xp_gain *= 2.75;
-                else
-                    xp_gain *= 2;
+                gain = BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+
+                if (gain != 0 && u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
+                {
+                    // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
+                    if (u->GetMap() && u->GetMap()->IsDungeon())
+                       gain *= 2.75;
+                    else
+                        gain *= 2;
+                }
             }
 
-            return uint32(xp_gain*sWorld.getRate(RATE_XP_KILL));
+            gain *= sWorld.getRate(RATE_XP_KILL);
+            sScriptMgr.OnGetGain(gain, pl, u);
+            return gain;
         }
 
         inline float xp_in_group_rate(uint32 count, bool isRaid)
         {
+            float rate;
+
             if (isRaid)
             {
-                // FIX ME: must apply decrease modifiers dependent from raid size
-                return 1.0f;
+                // FIXME: Must apply decrease modifiers depending on raid size.
+                rate = 1.0f;
             }
             else
             {
@@ -152,18 +202,21 @@ namespace Trinity
                     case 0:
                     case 1:
                     case 2:
-                        return 1.0f;
+                        rate = 1.0f;
                     case 3:
-                        return 1.166f;
+                        rate = 1.166f;
                     case 4:
-                        return 1.3f;
+                        rate = 1.3f;
                     case 5:
                     default:
-                        return 1.4f;
+                        rate = 1.4f;
                 }
             }
+
+            sScriptMgr.OnGetGroupRate(rate, count, isRaid);
+            return rate;
         }
     }
 }
-#endif
 
+#endif

@@ -45,6 +45,7 @@
 #include "WorldSocketMgr.h"
 #include "Log.h"
 #include "WorldLog.h"
+#include "ScriptMgr.h"
 
 #if defined(__GNUC__)
 #pragma pack(1)
@@ -185,6 +186,9 @@ int WorldSocket::SendPacket (const WorldPacket& pct)
         }
         sWorldLog.outLog("\n");
     }
+
+    // Create a copy of the original packet; this is to avoid issues if a hook modifies it.
+    sScriptMgr.OnPacketSend(this, WorldPacket(pct));
 
     ServerPktHeader header(pct.size()+2, pct.GetOpcode());
     m_Crypt.EncryptSend ((uint8*)header.header, header.getHeaderLength());
@@ -705,7 +709,8 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
         sWorldLog.outLog ("\n");
     }
 
-    try {
+    try
+    {
         switch(opcode)
         {
             case CMSG_PING:
@@ -716,11 +721,12 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                     sLog.outError ("WorldSocket::ProcessIncoming: Player send CMSG_AUTH_SESSION again");
                     return -1;
                 }
-
+                
+                sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession (*new_pct);
             case CMSG_KEEP_ALIVE:
                 DEBUG_LOG ("CMSG_KEEP_ALIVE ,size: %d", new_pct->size());
-
+                sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             default:
             {
@@ -747,7 +753,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
             }
         }
     }
-    catch(ByteBufferException &)
+    catch (ByteBufferException &)
     {
         sLog.outError("WorldSocket::ProcessIncoming ByteBufferException occured while parsing an instant handled packet (opcode: %u) from client %s, accountid=%i. Disconnected client.",
                 opcode, GetRemoteAddress().c_str(), m_Session?m_Session->GetAccountId():-1);

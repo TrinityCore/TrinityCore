@@ -896,8 +896,8 @@ bool ChatHandler::HandleDebugItemExpireCommand(const char* args)
     if (!i)
         return false;
 
-    m_session->GetPlayer()->DestroyItem(i->GetBagSlot(),i->GetSlot(), true);
-    sScriptMgr.ItemExpire(m_session->GetPlayer(),i->GetProto());
+    m_session->GetPlayer()->DestroyItem(i->GetBagSlot(), i->GetSlot(), true);
+    sScriptMgr.OnItemExpire(m_session->GetPlayer(), i->GetProto());
 
     return true;
 }

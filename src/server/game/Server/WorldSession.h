@@ -785,15 +785,6 @@ class WorldSession
         void HandleReadyForAccountDataTimes(WorldPacket& recv_data);
         void HandleQueryQuestsCompleted(WorldPacket& recv_data);
         void HandleQuestPOIQuery(WorldPacket& recv_data);
-        void HandleOnPVPKill(Player *killed);
-        bool HandleOnPlayerChat(const char *text);
-        uint32 HandleOnGetXP(uint32 amount);
-        int32 HandleOnGetMoney(int32 amount);
-        void HandleOnAreaChange(AreaTableEntry const *pArea);
-        bool HandleOnItemClick(Item *pItem);
-        bool HandleOnItemOpen(Item *pItem);
-        bool HandleOnGoClick(GameObject *pGameObject);
-        void HandleOnCreatureKill(Creature *pCreature);
         void HandleEjectPasenger(WorldPacket &data);
         void HandleEnterPlayerVehicle(WorldPacket &data);
     private:

@@ -23,7 +23,7 @@
 #include "Unit.h"
 #include "Util.h"
 #include "WorldPacket.h"
-
+#include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "ZoneScript.h"
 
@@ -108,6 +108,8 @@ void Vehicle::Install()
     }
 
     Reset();
+
+    sScriptMgr.OnInstall(this);
 }
 
 void Vehicle::InstallAllAccessories()
@@ -127,7 +129,10 @@ void Vehicle::Uninstall()
         if (Unit *passenger = itr->second.passenger)
             if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 passenger->ToTempSummon()->UnSummon();
+
     RemoveAllPassengers();
+
+    sScriptMgr.OnUninstall(this);
 }
 
 void Vehicle::Die()
@@ -137,7 +142,10 @@ void Vehicle::Die()
         if (Unit *passenger = itr->second.passenger)
             if (passenger->HasUnitTypeMask(UNIT_MASK_ACCESSORY))
                 passenger->setDeathState(JUST_DIED);
+
     RemoveAllPassengers();
+
+    sScriptMgr.OnDie(this);
 }
 
 void Vehicle::Reset()
@@ -154,6 +162,8 @@ void Vehicle::Reset()
         if (m_usableSeatNum)
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
     }
+
+    sScriptMgr.OnReset(this);
 }
 
 void Vehicle::RemoveAllPassengers()
@@ -237,6 +247,8 @@ void Vehicle::InstallAccessory(uint32 entry, int8 seatId, bool minion)
         accessory->EnterVehicle(this, seatId);
         // This is not good, we have to send update twice
         accessory->SendMovementFlagUpdate();
+
+        sScriptMgr.OnInstallAccessory(this, accessory);
     }
 }
 
@@ -317,9 +329,7 @@ bool Vehicle::AddPassenger(Unit *unit, int8 seatId)
         }
     }
 
-    //if (unit->GetTypeId() == TYPEID_PLAYER)
-    //    unit->ToPlayer()->SendTeleportAckPacket();
-    //unit->SendMovementFlagUpdate();
+    sScriptMgr.OnAddPassenger(this, unit, seatId);
 
     return true;
 }
@@ -366,6 +376,8 @@ void Vehicle::RemovePassenger(Unit *unit)
     // only for flyable vehicles
     if (unit->HasUnitMovementFlag(MOVEMENTFLAG_FLYING))
         me->CastSpell(unit, 45472, true);                           // Parachute
+
+    sScriptMgr.OnRemovePassenger(this, unit);
 }
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)

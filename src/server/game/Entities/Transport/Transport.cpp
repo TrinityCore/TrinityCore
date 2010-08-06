@@ -19,16 +19,14 @@
  */
 
 #include "Common.h"
-
 #include "Transport.h"
 #include "MapManager.h"
 #include "ObjectMgr.h"
 #include "Path.h"
-
+#include "ScriptMgr.h"
 #include "WorldPacket.h"
 #include "DBCStores.h"
 #include "ProgressBar.h"
-
 #include "World.h"
 
 void MapManager::LoadTransports()
@@ -115,7 +113,8 @@ void MapManager::LoadTransports()
         }
 
         ++count;
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     sLog.outString();
     sLog.outString(">> Loaded %u transports", count);
@@ -529,6 +528,8 @@ bool Transport::AddPassenger(Player* passenger)
 {
     if (m_passengers.insert(passenger).second)
         sLog.outDetail("Player %s boarded transport %s.", passenger->GetName(), GetName());
+
+    sScriptMgr.OnAddPassenger(this, passenger);
     return true;
 }
 
@@ -536,10 +537,12 @@ bool Transport::RemovePassenger(Player* passenger)
 {
     if (m_passengers.erase(passenger))
         sLog.outDetail("Player %s removed from transport %s.", passenger->GetName(), GetName());
+
+    sScriptMgr.OnRemovePassenger(this, passenger);
     return true;
 }
 
-void Transport::Update(uint32 /*p_time*/)
+void Transport::Update(uint32 p_diff)
 {
     if (m_WayPoints.size() <= 1)
         return;
@@ -572,6 +575,8 @@ void Transport::Update(uint32 /*p_time*/)
 
         if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES) == 0)
             sLog.outDetail("%s moved to %d %f %f %f %d", this->m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
+
+        sScriptMgr.OnTransportUpdate(this, p_diff);
     }
 }
 
@@ -676,6 +681,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         currenttguid = std::max(tguid,currenttguid);
 
     pCreature->SetGUIDTransport(tguid);
+    sScriptMgr.OnAddCreaturePassenger(this, pCreature);
     return tguid;
 }
 

@@ -16,7 +16,7 @@ struct TSpellSummary
 {
     uint8 Targets;                                          // set of enum SelectTarget
     uint8 Effects;                                          // set of enum SelectEffect
-} *SpellSummary;
+} extern *SpellSummary;
 
 void SummonList::DoZoneInCombat(uint32 entry)
 {
@@ -307,91 +307,6 @@ bool ScriptedAI::CanCast(Unit* pTarget, SpellEntry const* pSpell, bool bTriggere
         return false;
 
     return true;
-}
-
-void FillSpellSummary()
-{
-    SpellSummary = new TSpellSummary[GetSpellStore()->GetNumRows()];
-
-    SpellEntry const* pTempSpell;
-
-    for (uint32 i = 0; i < GetSpellStore()->GetNumRows(); ++i)
-    {
-        SpellSummary[i].Effects = 0;
-        SpellSummary[i].Targets = 0;
-
-        pTempSpell = GetSpellStore()->LookupEntry(i);
-        //This spell doesn't exist
-        if (!pTempSpell)
-            continue;
-
-        for (uint32 j = 0; j < 3; ++j)
-        {
-            //Spell targets self
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SELF-1);
-
-            //Spell targets a single enemy
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DST_TARGET_ENEMY)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_ENEMY-1);
-
-            //Spell targets AoE at enemy
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_SRC ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_DST ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_SRC_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DEST_DYNOBJ_ENEMY)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_ENEMY-1);
-
-            //Spell targets an enemy
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ENEMY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DST_TARGET_ENEMY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_SRC ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_AREA_ENEMY_DST ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_SRC_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_DEST_DYNOBJ_ENEMY)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_ENEMY-1);
-
-            //Spell targets a single friend(or self)
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ALLY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_PARTY)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_FRIEND-1);
-
-            //Spell targets aoe friends
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_PARTY_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_PARTY_TARGET ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_SRC_CASTER)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_FRIEND-1);
-
-            //Spell targets any friend(or self)
-            if (pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_ALLY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_TARGET_PARTY ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_PARTY_CASTER ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_UNIT_PARTY_TARGET ||
-                pTempSpell->EffectImplicitTargetA[j] == TARGET_SRC_CASTER)
-                SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_FRIEND-1);
-
-            //Make sure that this spell includes a damage effect
-            if (pTempSpell->Effect[j] == SPELL_EFFECT_SCHOOL_DAMAGE ||
-                pTempSpell->Effect[j] == SPELL_EFFECT_INSTAKILL ||
-                pTempSpell->Effect[j] == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE ||
-                pTempSpell->Effect[j] == SPELL_EFFECT_HEALTH_LEECH)
-                SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_DAMAGE-1);
-
-            //Make sure that this spell includes a healing effect (or an apply aura with a periodic heal)
-            if (pTempSpell->Effect[j] == SPELL_EFFECT_HEAL ||
-                pTempSpell->Effect[j] == SPELL_EFFECT_HEAL_MAX_HEALTH ||
-                pTempSpell->Effect[j] == SPELL_EFFECT_HEAL_MECHANICAL ||
-                (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA  && pTempSpell->EffectApplyAuraName[j] == 8))
-                SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
-
-            //Make sure that this spell applies an aura
-            if (pTempSpell->Effect[j] == SPELL_EFFECT_APPLY_AURA)
-                SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_AURA-1);
-        }
-    }
 }
 
 void ScriptedAI::DoResetThreat()
@@ -700,25 +615,6 @@ void BossAI::JustSummoned(Creature *summon)
 void BossAI::SummonedCreatureDespawn(Creature *summon)
 {
     summons.Despawn(summon);
-}
-
-#define GOBJECT(x) (const_cast<GameObjectInfo*>(GetGameObjectInfo(x)))
-
-void LoadOverridenSQLData()
-{
-    GameObjectInfo *goInfo;
-
-    // Sunwell Plateau : Kalecgos : Spectral Rift
-    goInfo = GOBJECT(187055);
-    if (goInfo)
-        if (goInfo->type == GAMEOBJECT_TYPE_GOOBER)
-            goInfo->goober.lockId = 57; // need LOCKTYPE_QUICK_OPEN
-
-    // Naxxramas : Sapphiron Birth
-    goInfo = GOBJECT(181356);
-    if (goInfo)
-        if (goInfo->type == GAMEOBJECT_TYPE_TRAP)
-            goInfo->trap.radius = 50;
 }
 
 // SD2 grid searchers.
