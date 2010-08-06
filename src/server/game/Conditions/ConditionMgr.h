@@ -95,6 +95,7 @@ struct Condition
     uint32                  mConditionValue3;
     uint32                  ErrorTextd;
     uint32                  mReferenceId;
+    uint32                  mScriptId;
 
     Condition()
     {
@@ -108,6 +109,7 @@ struct Condition
         mConditionValue3    = 0;
         mReferenceId        = 0;
         ErrorTextd          = 0;
+        mScriptId           = 0;
     }
     bool Meets(Player * player, Unit* targetOverride = NULL);
     bool isLoaded() { return mConditionType > CONDITION_NONE || mReferenceId; }
