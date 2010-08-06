@@ -14716,7 +14716,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 ( 58601, 'spell_gen_remove_flight_auras'),
 -- warrior
 ( 12975,'spell_warr_last_stand'),
-( 21977,'spell_warr_warriors_wrath'),
 -- paladin
 ( 20425, 'spell_pal_judgement_of_command'),
 (-20473, 'spell_pal_holy_shock'),
