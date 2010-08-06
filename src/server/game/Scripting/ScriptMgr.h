@@ -914,11 +914,11 @@ class ScriptMgr
                 // Gets a script by its ID (assigned by ObjectMgr).
                 static TScript* GetScriptById(uint32 id)
                 {
-                    for (ScriptMap::iterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
-                        if (it->first == id)
-                            return it->second;
+                    ScriptMap::iterator it = ScriptPointerList.find(id);
+                    if (it == ScriptPointerList.end())
+                        return NULL;
 
-                    return NULL;
+                    return it->second;
                 }
 
                 // Attempts to add a new script to the list.

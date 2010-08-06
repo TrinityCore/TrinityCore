@@ -959,9 +959,9 @@ void ChatHandler::PSendSysMessage(const char *format, ...)
     SendSysMessage(str);
 }
 
-bool ChatHandler::ExecuteCommandInTables(std::vector<ChatCommand*>& tables, const char* text, const std::string& fullcmd)
+bool ChatHandler::ExecuteCommandInTables(std::vector<ChatCommand*> const& tables, const char* text, const std::string& fullcmd)
 {
-    for (std::vector<ChatCommand*>::iterator it = tables.begin(); it != tables.end(); ++it)
+    for (std::vector<ChatCommand*>::const_iterator it = tables.begin(); it != tables.end(); ++it)
         if (ExecuteCommandInTable((*it), text, fullcmd))
             return true;
 
@@ -1125,7 +1125,8 @@ int ChatHandler::ParseCommands(const char* text)
 
     if (!ExecuteCommandInTable(getCommandTable(), text, fullcmd))
     {
-        if (!ExecuteCommandInTables(sScriptMgr.GetChatCommands(), text, fullcmd))
+        std::vector<ChatCommand*> const& tables = sScriptMgr.GetChatCommands();
+        if (!ExecuteCommandInTables(tables, text, fullcmd))
         {
             if (m_session && m_session->GetSecurity() == SEC_PLAYER)
                 return 0;
