@@ -743,13 +743,13 @@ class ScriptMgr
     ~ScriptMgr();
 
     uint32 _scriptCount;
-    
-    void LoadDatabase();
-    void FillSpellSummary();
 
     public: /* Initialization */
 
         void Initialize();
+        void LoadDatabase();
+        void FillSpellSummary();
+
         const char* ScriptsVersion() const { return "Integrated Trinity Scripts"; }
 
         void IncrementScriptCount() { ++_scriptCount; }

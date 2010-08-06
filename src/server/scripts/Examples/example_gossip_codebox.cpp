@@ -39,63 +39,64 @@ enum eEnums
 #define GOSSIP_ITEM_1       "A quiz: what's your name?"
 #define GOSSIP_ITEM_2       "I'm not interested"
 
-//This function is called when the player opens the gossip menubool
-bool GossipHello_example_gossip_codebox(Player* pPlayer, Creature* pCreature)
+class example_gossip_codebox : public CreatureScript
 {
-    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+    public:
 
-    pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
-
-    return true;
-}
-
-//This function is called when the player clicks an option on the gossip menubool
-bool GossipSelect_example_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
-    {
-        DoScriptText(SAY_NOT_INTERESTED, pCreature);
-        pPlayer->CLOSE_GOSSIP_MENU();
-    }
-
-    return true;
-}
-
-bool GossipSelectWithCode_example_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* sCode)
-{
-    if (uiSender == GOSSIP_SENDER_MAIN)
-    {
-        switch (uiAction)
+        example_gossip_codebox()
+            : CreatureScript("example_gossip_codebox")
         {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            if (std::strcmp(sCode, pPlayer->GetName()) != 0)
-            {
-                DoScriptText(SAY_WRONG, pCreature);
-                pCreature->CastSpell(pPlayer, SPELL_POLYMORPH, true);
-            }
-            else
-            {
-                DoScriptText(SAY_CORRECT, pCreature);
-                pCreature->CastSpell(pPlayer, SPELL_MARK_OF_THE_WILD, true);
-            }
-            pPlayer->CLOSE_GOSSIP_MENU();
+        }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            player->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+
+            player->PlayerTalkClass->SendGossipMenu(907, creature->GetGUID());
 
             return true;
         }
-    }
 
-    return false;
-}
+        bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+        {
+            if (action == GOSSIP_ACTION_INFO_DEF+2)
+            {
+                DoScriptText(SAY_NOT_INTERESTED, creature);
+                player->CLOSE_GOSSIP_MENU();
+            }
+
+            return true;
+        }
+
+        bool OnGossipSelectCode(Player* player, Creature* creature, uint32 sender, uint32 action, const char* code)
+        {
+            if (sender == GOSSIP_SENDER_MAIN)
+            {
+                switch (action)
+                {
+                case GOSSIP_ACTION_INFO_DEF+1:
+                    if (std::strcmp(code, player->GetName()) != 0)
+                    {
+                        DoScriptText(SAY_WRONG, creature);
+                        creature->CastSpell(player, SPELL_POLYMORPH, true);
+                    }
+                    else
+                    {
+                        DoScriptText(SAY_CORRECT, creature);
+                        creature->CastSpell(player, SPELL_MARK_OF_THE_WILD, true);
+                    }
+                    player->CLOSE_GOSSIP_MENU();
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+};
 
 void AddSC_example_gossip_codebox()
 {
-    Script* newscript;
-
-    newscript = new Script;
-    newscript->Name = "example_gossip_codebox";
-    newscript->pGossipHello = &GossipHello_example_gossip_codebox;
-    newscript->pGossipSelect = &GossipSelect_example_gossip_codebox;
-    newscript->pGossipSelectWithCode = &GossipSelectWithCode_example_gossip_codebox;
-    newscript->RegisterSelf();
+    new example_gossip_codebox();
 }
