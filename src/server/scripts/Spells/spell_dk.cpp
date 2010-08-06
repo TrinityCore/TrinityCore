@@ -25,12 +25,5 @@
 
 void AddSC_deathknight_spell_scripts()
 {
-    //Script *newscript;
-
-    /*
-    newscript = new Script;
-    newscript->Name = "spell_dk_";
-    newscript->GetSpellScript = &GetSpellScript_spell_dk_;
-    newscript->RegisterSelf();
-    */
+    
 }
