@@ -154,7 +154,7 @@ struct ScriptedAI : public CreatureAI
     //Selects a unit from the creature's current aggro list
     Unit* SelectUnit(SelectAggroTarget pTarget, uint32 uiPosition);
 
-    bool HealthBelowPct(uint32 pct) const { return me->GetHealth() * 100 < me->GetMaxHealth() * pct; }
+    bool HealthBelowPct(uint64 pct) const { return me->GetHealth() * 100 < me->GetMaxHealth() * pct; }
 
     //Returns spells that meet the specified criteria from the creatures spell list
     SpellEntry const* SelectSpell(Unit* Target, uint32 School, uint32 Mechanic, SelectTargetType Targets,  uint32 PowerCostMin, uint32 PowerCostMax, float RangeMin, float RangeMax, SelectEffect Effect);
