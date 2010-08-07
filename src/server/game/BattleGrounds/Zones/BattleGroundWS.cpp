@@ -765,9 +765,11 @@ void BattleGroundWS::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
     {
         case SCORE_FLAG_CAPTURES:                           // flags captured
             ((BattleGroundWGScore*)itr->second)->FlagCaptures += value;
+            Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_CAPTURE_FLAG);
             break;
         case SCORE_FLAG_RETURNS:                            // flags returned
             ((BattleGroundWGScore*)itr->second)->FlagReturns += value;
+            Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, WS_OBJECTIVE_RETURN_FLAG);
             break;
         default:
             BattleGround::UpdatePlayerScore(Source, type, value, doAddHonor);

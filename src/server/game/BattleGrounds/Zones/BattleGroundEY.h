@@ -240,6 +240,11 @@ enum EYBattleGroundPointState
     EY_POINT_UNDER_CONTROL      = 3
 };
 
+enum BG_EY_Objectives
+{
+    EY_OBJECTIVE_CAPTURE_FLAG   = 183
+};
+
 struct BattleGroundEYPointIconsStruct
 {
     BattleGroundEYPointIconsStruct(uint32 _WorldStateControlIndex, uint32 _WorldStateAllianceControlledIndex, uint32 _WorldStateHordeControlledIndex)

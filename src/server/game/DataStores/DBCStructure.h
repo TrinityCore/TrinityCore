@@ -90,10 +90,6 @@ struct AchievementCriteriaEntry
         {
             uint32  bgMapID;                                // 3
             uint32  winCount;                               // 4
-            uint32  additionalRequirement1_type;            // 5 additional requirement 1 type
-            uint32  additionalRequirement1_value;           // 6 additional requirement 1 value
-            uint32  additionalRequirement2_type;            // 7 additional requirement 2 type
-            uint32  additionalRequirement2_value;           // 8 additional requirement 1 value
         } win_bg;
 
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL            = 5
@@ -210,6 +206,13 @@ struct AchievementCriteriaEntry
             uint32  castCount;                              // 4
         } cast_spell;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE
+        struct
+        {
+            uint32 objectiveId;                             // 3
+            uint32 completeCount;                           // 4
+        } bg_objective;
+
         // ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA = 31
         struct
         {
@@ -247,7 +250,6 @@ struct AchievementCriteriaEntry
         {
             uint32  unused;                                 // 3
             uint32  count;                                  // 4
-            uint32  flag;                                   // 5 4=in a row
         } win_rated_arena;
 
         // ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING    = 38
@@ -375,8 +377,6 @@ struct AchievementCriteriaEntry
         {
             uint32  unused;                                 // 3
             uint32  count;                                  // 4
-            uint32  flag;                                   // 5 =3 for battleground healing
-            uint32  mapid;                                  // 6
         } healing_done;
 
         // ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM             = 57
@@ -485,12 +485,15 @@ struct AchievementCriteriaEntry
         {
             uint32  field3;                                 // 3 main requirement
             uint32  count;                                  // 4 main requirement count
-            uint32  additionalRequirement1_type;            // 5 additional requirement 1 type
-            uint32  additionalRequirement1_value;           // 6 additional requirement 1 value
-            uint32  additionalRequirement2_type;            // 7 additional requirement 2 type
-            uint32  additionalRequirement2_value;           // 8 additional requirement 1 value
         } raw;
     };
+
+    struct
+    {
+        uint32  additionalRequirement_type;
+        uint32  additionalRequirement_value;
+    } additionalRequrements[MAX_CRITERIA_REQUIREMENTS];
+
     //char*  name[16];                                      // 9-24
     //uint32 name_flags;                                    // 25
     uint32  completionFlag;                                 // 26

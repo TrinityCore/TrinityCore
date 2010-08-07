@@ -138,6 +138,12 @@ enum BG_WS_CarrierDebuffs
     WS_SPELL_BRUTAL_ASSAULT    = 46393
 };
 
+enum BG_WS_Objectives
+{
+    WS_OBJECTIVE_CAPTURE_FLAG   = 42,
+    WS_OBJECTIVE_RETURN_FLAG    = 44
+};
+
 class BattleGroundWGScore : public BattleGroundScore
 {
     public:

@@ -172,6 +172,12 @@ enum BG_AB_Sounds
     BG_AB_SOUND_NEAR_VICTORY            = 8456
 };
 
+enum BG_AB_Objectives
+{
+    AB_OBJECTIVE_ASSAULT_BASE           = 122,
+    AB_OBJECTIVE_DEFEND_BASE            = 123
+};
+
 #define BG_AB_NotABBGWeekendHonorTicks      330
 #define BG_AB_ABBGWeekendHonorTicks         200
 #define BG_AB_NotABBGWeekendReputationTicks 200

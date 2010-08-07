@@ -27,6 +27,12 @@ enum Buffs
     QUARRY            = 68720
 };
 
+enum BG_IC_Objectives
+{
+    IC_OBJECTIVE_ASSAULT_BASE   = 245,
+    IC_OBJECTIVE_DEFEND_BASE    = 246
+};
+
 class BattleGroundICScore : public BattleGroundScore
 {
     public:

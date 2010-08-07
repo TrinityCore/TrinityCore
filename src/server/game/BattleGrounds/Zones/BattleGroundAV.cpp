@@ -541,15 +541,19 @@ void BattleGroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     {
         case SCORE_GRAVEYARDS_ASSAULTED:
             ((BattleGroundAVScore*)itr->second)->GraveyardsAssaulted += value;
+            Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_GRAVEYARD);
             break;
         case SCORE_GRAVEYARDS_DEFENDED:
             ((BattleGroundAVScore*)itr->second)->GraveyardsDefended += value;
+            Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_GRAVEYARD);
             break;
         case SCORE_TOWERS_ASSAULTED:
             ((BattleGroundAVScore*)itr->second)->TowersAssaulted += value;
+            Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_ASSAULT_TOWER);
             break;
         case SCORE_TOWERS_DEFENDED:
             ((BattleGroundAVScore*)itr->second)->TowersDefended += value;
+            Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, AV_OBJECTIVE_DEFEND_TOWER);
             break;
         case SCORE_MINES_CAPTURED:
             ((BattleGroundAVScore*)itr->second)->MinesCaptured += value;
