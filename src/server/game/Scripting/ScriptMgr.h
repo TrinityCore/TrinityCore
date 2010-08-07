@@ -381,7 +381,7 @@ class WorldMapScript : public ScriptObject, public MapScript<Map>
     protected:
 
         WorldMapScript(const char* name, uint32 mapId)
-            : ScriptObject(name), MapScript(mapId)
+            : ScriptObject(name), MapScript<Map>(mapId)
         {
             if (GetEntry() && !GetEntry()->IsContinent())
                 sLog.outError("WorldMapScript for map %u is invalid.", mapId);
@@ -395,7 +395,7 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
     protected:
 
         InstanceMapScript(const char* name, uint32 mapId = 0)
-            : ScriptObject(name), MapScript(mapId)
+            : ScriptObject(name), MapScript<InstanceMap>(mapId)
         {
             if (GetEntry() && !GetEntry()->IsDungeon())
                 sLog.outError("InstanceMapScript for map %u is invalid.", mapId);
@@ -416,7 +416,7 @@ class BattlegroundMapScript : public ScriptObject, public MapScript<BattleGround
     protected:
 
         BattlegroundMapScript(const char* name, uint32 mapId)
-            : ScriptObject(name), MapScript(mapId)
+            : ScriptObject(name), MapScript<BattleGroundMap>(mapId)
         {
             if (GetEntry() && !GetEntry()->IsBattleGround())
                 sLog.outError("BattlegroundMapScript for map %u is invalid.", mapId);
@@ -910,30 +910,30 @@ class ScriptMgr
 
     public: /* ScriptRegistry */
 
-        // This is the global static registry of scripts.
-        template<class TScript> class ScriptRegistry
+        template<class TScript>
+        class ScriptRegistry
         {
             // Counter used for code-only scripts.
-            static uint32 _scriptIdCounter;
-
+            static int _scriptIdCounter;
+ 
             public:
-
-                typedef std::map<uint32, TScript*> ScriptMap;
-
+ 
+                typedef std::map<int, TScript*> ScriptMap;
+ 
                 // The actual list of scripts. This will be accessed concurrently, so it must not be modified
                 // after server startup.
                 static ScriptMap ScriptPointerList;
-
+ 
                 // Gets a script by its ID (assigned by ObjectMgr).
-                static TScript* GetScriptById(uint32 id)
+                static TScript* GetScriptById(int id)
                 {
-                    ScriptMap::iterator it = ScriptPointerList.find(id);
-                    if (it == ScriptPointerList.end())
-                        return NULL;
-
-                    return it->second;
+                    ScriptMap it = ScriptPointerList.find(id);
+                    if (it != ScriptPointerList.end())
+                        return it->second;
+ 
+                    return NULL;
                 }
-
+ 
                 // Attempts to add a new script to the list.
                 static void AddScript(TScript* const script);
         };
