@@ -352,181 +352,187 @@ bool HasAlchemySpell(Player* pPlayer)
     return false;
 }
 
-bool GossipHello_npc_prof_alchemy(Player* pPlayer, Creature* pCreature)
+class npc_prof_alchemy : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-    if (pCreature->isVendor())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-    if (pCreature->isTrainer())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+public:
+    npc_prof_alchemy() : CreatureScript("npc_prof_alchemy") { }
 
-    uint32 eCreature = pCreature->GetEntry();
-
-    if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetBaseSkillValue(SKILL_ALCHEMY) >= 350 && pPlayer->getLevel() > 67)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pPlayer->GetQuestRewardStatus(10899) || pPlayer->GetQuestRewardStatus(10902) || pPlayer->GetQuestRewardStatus(10897))
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        if (pCreature->isTrainer())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+        uint32 eCreature = pCreature->GetEntry();
+
+        if (pPlayer->HasSkill(SKILL_ALCHEMY) && pPlayer->GetBaseSkillValue(SKILL_ALCHEMY) >= 350 && pPlayer->getLevel() > 67)
         {
-            switch (eCreature)
+            if (pPlayer->GetQuestRewardStatus(10899) || pPlayer->GetQuestRewardStatus(10902) || pPlayer->GetQuestRewardStatus(10897))
             {
-                case 22427:                                 //Zarevhi
-                    if (!HasAlchemySpell(pPlayer))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_TRANSMUTE,    GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 1);
-                    if (pPlayer->HasSpell(S_TRANSMUTE))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_TRANSMUTE,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 4);
+                switch (eCreature)
+                {
+                    case 22427:                                 //Zarevhi
+                        if (!HasAlchemySpell(pPlayer))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_TRANSMUTE,    GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 1);
+                        if (pPlayer->HasSpell(S_TRANSMUTE))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_TRANSMUTE,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 4);
+                        break;
+                    case 19052:                                 //Lorokeem
+                        if (!HasAlchemySpell(pPlayer))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_ELIXIR,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 2);
+                        if (pPlayer->HasSpell(S_ELIXIR))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_ELIXIR,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 5);
+                        break;
+                    case 17909:                                 //Lauranna Thar'well
+                        if (!HasAlchemySpell(pPlayer))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_POTION,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 3);
+                        if (pPlayer->HasSpell(S_POTION))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_POTION,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 6);
+                        break;
+                }
+            }
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                break;
+                //Learn Alchemy
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                if (!pPlayer->HasSpell(S_TRANSMUTE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_TRANSMUTE, true);
+                    pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                if (!pPlayer->HasSpell(S_ELIXIR) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_ELIXIR, true);
+                    pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                if (!pPlayer->HasSpell(S_POTION) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_POTION, true);
+                    pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+                //Unlearn Alchemy
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                {
+                    pCreature->CastSpell(pPlayer, S_UNLEARN_TRANSMUTE, true);
+                    pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                {
+                    pCreature->CastSpell(pPlayer, S_UNLEARN_ELIXIR, true);
+                    pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 6:
+                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                {
+                    pCreature->CastSpell(pPlayer, S_UNLEARN_POTION, true);
+                    pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+    }
+
+    void SendConfirmLearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        if (uiAction)
+        {
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 22427:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     break;
-                case 19052:                                 //Lorokeem
-                    if (!HasAlchemySpell(pPlayer))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_ELIXIR,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 2);
-                    if (pPlayer->HasSpell(S_ELIXIR))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_ELIXIR,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 5);
+                case 19052:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_ELIXIR,    GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     break;
-                case 17909:                                 //Lauranna Thar'well
-                    if (!HasAlchemySpell(pPlayer))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_POTION,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 3);
-                    if (pPlayer->HasSpell(S_POTION))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_POTION,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 6);
+                case 17909:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_POTION,    GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     break;
             }
         }
     }
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-void SendActionMenu_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    switch(uiAction)
+    void SendConfirmUnlearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
     {
-        case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
-            break;
-            //Learn Alchemy
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            if (!pPlayer->HasSpell(S_TRANSMUTE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_TRANSMUTE, true);
-                pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            if (!pPlayer->HasSpell(S_ELIXIR) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_ELIXIR, true);
-                pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            if (!pPlayer->HasSpell(S_POTION) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_POTION, true);
-                pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-            //Unlearn Alchemy
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
-            {
-                pCreature->CastSpell(pPlayer, S_UNLEARN_TRANSMUTE, true);
-                pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
-            {
-                pCreature->CastSpell(pPlayer, S_UNLEARN_ELIXIR, true);
-                pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
-            {
-                pCreature->CastSpell(pPlayer, S_UNLEARN_POTION, true);
-                pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-    }
-}
-
-void SendConfirmLearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
-    {
-        uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
+        if (uiAction)
         {
-            case 22427:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 19052:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_ELIXIR,    GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 17909:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_POTION,    GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 22427:                                     //Zarevhi
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 19052:                                     //Lorokeem
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 17909:                                     //Lauranna Thar'well
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+            }
         }
     }
-}
 
-void SendConfirmUnlearn_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
     {
-        uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
+        switch(uiSender)
         {
-            case 22427:                                     //Zarevhi
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRANSMUTE, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 19052:                                     //Lorokeem
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELIXIR, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 17909:                                     //Lauranna Thar'well
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_POTION, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_ALCHEMY_SPEC, DoHighUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_LEARN:   SendConfirmLearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_CHECK:   SendActionMenu(pPlayer, pCreature, uiAction); break;
         }
+        return true;
     }
-}
-
-bool GossipSelect_npc_prof_alchemy(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    switch(uiSender)
-    {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_alchemy(pPlayer, pCreature, uiAction); break;
-    }
-    return true;
-}
+};
 
 /*###
 # start menues blacksmith
@@ -539,279 +545,274 @@ bool HasWeaponSub(Player* pPlayer)
     return false;
 }
 
-bool GossipHello_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature)
+class npc_prof_blacksmith : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-    if (pCreature->isVendor())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-    if (pCreature->isTrainer())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+public:
+    npc_prof_blacksmith() : CreatureScript("npc_prof_blacksmith") { }
 
-    uint32 eCreature = pCreature->GetEntry();
-    //WEAPONSMITH & ARMORSMITH
-    if (pPlayer->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 225)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        switch (eCreature)
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        if (pCreature->isTrainer())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+        uint32 eCreature = pCreature->GetEntry();
+        //WEAPONSMITH & ARMORSMITH
+        if (pPlayer->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 225)
         {
-            case 11145:                                     //Myolor Sunderfury
-            case 11176:                                     //Krathok Moltenfist
-                if (!pPlayer->HasSpell(S_ARMOR) && !pPlayer->HasSpell(S_WEAPON) && pPlayer->GetReputationRank(REP_ARMOR) >= REP_FRIENDLY)
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARMOR_LEARN,   GOSSIP_SENDER_MAIN,          GOSSIP_ACTION_INFO_DEF + 1);
-                if (!pPlayer->HasSpell(S_WEAPON) && !pPlayer->HasSpell(S_ARMOR) && pPlayer->GetReputationRank(REP_WEAPON) >= REP_FRIENDLY)
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEAPON_LEARN,  GOSSIP_SENDER_MAIN,          GOSSIP_ACTION_INFO_DEF + 2);
-                break;
-            case 11146:                                     //Ironus Coldsteel
-            case 11178:                                     //Borgosh Corebender
-                if (pPlayer->HasSpell(S_WEAPON))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEAPON_UNLEARN,    GOSSIP_SENDER_UNLEARN,   GOSSIP_ACTION_INFO_DEF + 3);
-                break;
-            case 5164:                                      //Grumnus Steelshaper
-            case 11177:                                     //Okothos Ironrager
-                if (pPlayer->HasSpell(S_ARMOR))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARMOR_UNLEARN,     GOSSIP_SENDER_UNLEARN,   GOSSIP_ACTION_INFO_DEF + 4);
-                break;
+            switch (eCreature)
+            {
+                case 11145:                                     //Myolor Sunderfury
+                case 11176:                                     //Krathok Moltenfist
+                    if (!pPlayer->HasSpell(S_ARMOR) && !pPlayer->HasSpell(S_WEAPON) && pPlayer->GetReputationRank(REP_ARMOR) >= REP_FRIENDLY)
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARMOR_LEARN,   GOSSIP_SENDER_MAIN,          GOSSIP_ACTION_INFO_DEF + 1);
+                    if (!pPlayer->HasSpell(S_WEAPON) && !pPlayer->HasSpell(S_ARMOR) && pPlayer->GetReputationRank(REP_WEAPON) >= REP_FRIENDLY)
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEAPON_LEARN,  GOSSIP_SENDER_MAIN,          GOSSIP_ACTION_INFO_DEF + 2);
+                    break;
+                case 11146:                                     //Ironus Coldsteel
+                case 11178:                                     //Borgosh Corebender
+                    if (pPlayer->HasSpell(S_WEAPON))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_WEAPON_UNLEARN,    GOSSIP_SENDER_UNLEARN,   GOSSIP_ACTION_INFO_DEF + 3);
+                    break;
+                case 5164:                                      //Grumnus Steelshaper
+                case 11177:                                     //Okothos Ironrager
+                    if (pPlayer->HasSpell(S_ARMOR))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARMOR_UNLEARN,     GOSSIP_SENDER_UNLEARN,   GOSSIP_ACTION_INFO_DEF + 4);
+                    break;
+            }
         }
-    }
-    //WEAPONSMITH SPEC
-    if (pPlayer->HasSpell(S_WEAPON) && pPlayer->getLevel() > 49 && pPlayer->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
-    {
-        switch (eCreature)
+        //WEAPONSMITH SPEC
+        if (pPlayer->HasSpell(S_WEAPON) && pPlayer->getLevel() > 49 && pPlayer->GetBaseSkillValue(SKILL_BLACKSMITHING) >= 250)
         {
-            case 11191:                                     //Lilith the Lithe
-                if (!HasWeaponSub(pPlayer))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 5);
-                if (pPlayer->HasSpell(S_HAMMER))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_HAMMER,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 8);
-                break;
-            case 11192:                                     //Kilram
-                if (!HasWeaponSub(pPlayer))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,          GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 6);
-                if (pPlayer->HasSpell(S_AXE))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_AXE,        GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 9);
-                break;
-            case 11193:                                     //Seril Scourgebane
-                if (!HasWeaponSub(pPlayer))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,        GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 7);
-                if (pPlayer->HasSpell(S_SWORD))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SWORD,      GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 10);
-                break;
+            switch (eCreature)
+            {
+                case 11191:                                     //Lilith the Lithe
+                    if (!HasWeaponSub(pPlayer))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER,       GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 5);
+                    if (pPlayer->HasSpell(S_HAMMER))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_HAMMER,     GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 8);
+                    break;
+                case 11192:                                     //Kilram
+                    if (!HasWeaponSub(pPlayer))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,          GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 6);
+                    if (pPlayer->HasSpell(S_AXE))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_AXE,        GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 9);
+                    break;
+                case 11193:                                     //Seril Scourgebane
+                    if (!HasWeaponSub(pPlayer))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,        GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 7);
+                    if (pPlayer->HasSpell(S_SWORD))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SWORD,      GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 10);
+                    break;
+            }
         }
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-void SendActionMenu_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    switch(uiAction)
+    void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
     {
-        case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
-            break;
-            //Learn Armor/Weapon
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            if (!pPlayer->HasSpell(S_ARMOR))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_ARMOR, true);
-                //_Creature->CastSpell(pPlayer, S_REP_ARMOR, true);
-            }
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            if (!pPlayer->HasSpell(S_WEAPON))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_WEAPON, true);
-                //_Creature->CastSpell(pPlayer, S_REP_WEAPON, true);
-            }
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-            //Unlearn Armor/Weapon
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            if (HasWeaponSub(pPlayer))
-            {
-                                                            //unknown textID (TALK_MUST_UNLEARN_WEAPON)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-            }
-            else if (EquippedOk(pPlayer,S_UNLEARN_WEAPON))
-            {
-                if (pPlayer->GetMoney() >= DoLowUnlearnCost(pPlayer))
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                break;
+                //Learn Armor/Weapon
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                if (!pPlayer->HasSpell(S_ARMOR))
                 {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_WEAPON, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_WEAPON);
-                    pPlayer->ModifyMoney(-DoLowUnlearnCost(pPlayer));
-                    pCreature->CastSpell(pPlayer, S_REP_ARMOR, true);
-                    pPlayer->CLOSE_GOSSIP_MENU();
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            }
-            else
-            {
-                pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                    pPlayer->CastSpell(pPlayer, S_LEARN_ARMOR, true);
+                    //_Creature->CastSpell(pPlayer, S_REP_ARMOR, true);
+                }
                 pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                if (!pPlayer->HasSpell(S_WEAPON))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_WEAPON, true);
+                    //_Creature->CastSpell(pPlayer, S_REP_WEAPON, true);
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+                //Unlearn Armor/Weapon
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                if (HasWeaponSub(pPlayer))
+                {
+                                                                //unknown textID (TALK_MUST_UNLEARN_WEAPON)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                }
+                else if (EquippedOk(pPlayer,S_UNLEARN_WEAPON))
+                {
+                    if (pPlayer->GetMoney() >= DoLowUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_WEAPON, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_WEAPON);
+                        pPlayer->ModifyMoney(-DoLowUnlearnCost(pPlayer));
+                        pCreature->CastSpell(pPlayer, S_REP_ARMOR, true);
+                        pPlayer->CLOSE_GOSSIP_MENU();
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                }
+                else
+                {
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                    pPlayer->CLOSE_GOSSIP_MENU();
+                }
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                if (EquippedOk(pPlayer,S_UNLEARN_ARMOR))
+                {
+                    if (pPlayer->GetMoney() >= DoLowUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_ARMOR, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_ARMOR);
+                        pPlayer->ModifyMoney(-DoLowUnlearnCost(pPlayer));
+                        pCreature->CastSpell(pPlayer, S_REP_WEAPON, true);
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+                //Learn Hammer/Axe/Sword
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                pPlayer->CastSpell(pPlayer, S_LEARN_HAMMER, true);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 6:
+                pPlayer->CastSpell(pPlayer, S_LEARN_AXE, true);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 7:
+                pPlayer->CastSpell(pPlayer, S_LEARN_SWORD, true);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+                //Unlearn Hammer/Axe/Sword
+            case GOSSIP_ACTION_INFO_DEF + 8:
+                if (EquippedOk(pPlayer,S_UNLEARN_HAMMER))
+                {
+                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_HAMMER, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_HAMMER);
+                        pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 9:
+                if (EquippedOk(pPlayer,S_UNLEARN_AXE))
+                {
+                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_AXE, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_AXE);
+                        pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 10:
+                if (EquippedOk(pPlayer,S_UNLEARN_SWORD))
+                {
+                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_SWORD, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SWORD);
+                        pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+    }
+
+    void SendConfirmLearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        if (uiAction)
+        {
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 11191:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID (TALK_HAMMER_LEARN)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 11192:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,    GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID (TALK_AXE_LEARN)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 11193:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,  GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID (TALK_SWORD_LEARN)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
             }
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            if (EquippedOk(pPlayer,S_UNLEARN_ARMOR))
-            {
-                if (pPlayer->GetMoney() >= DoLowUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_ARMOR, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_ARMOR);
-                    pPlayer->ModifyMoney(-DoLowUnlearnCost(pPlayer));
-                    pCreature->CastSpell(pPlayer, S_REP_WEAPON, true);
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-            //Learn Hammer/Axe/Sword
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            pPlayer->CastSpell(pPlayer, S_LEARN_HAMMER, true);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            pPlayer->CastSpell(pPlayer, S_LEARN_AXE, true);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 7:
-            pPlayer->CastSpell(pPlayer, S_LEARN_SWORD, true);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-            //Unlearn Hammer/Axe/Sword
-        case GOSSIP_ACTION_INFO_DEF + 8:
-            if (EquippedOk(pPlayer,S_UNLEARN_HAMMER))
-            {
-                if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_HAMMER, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_HAMMER);
-                    pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 9:
-            if (EquippedOk(pPlayer,S_UNLEARN_AXE))
-            {
-                if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_AXE, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_AXE);
-                    pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 10:
-            if (EquippedOk(pPlayer,S_UNLEARN_SWORD))
-            {
-                if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_SWORD, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SWORD);
-                    pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-    }
-}
-
-void SendConfirmLearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
-    {
-        uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
-        {
-            case 11191:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID (TALK_HAMMER_LEARN)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 11192:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_AXE,    GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID (TALK_AXE_LEARN)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 11193:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SWORD,  GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID (TALK_SWORD_LEARN)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
         }
     }
-}
 
-void SendConfirmUnlearn_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
+    void SendConfirmUnlearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
     {
-        uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
+        if (uiAction)
         {
-            case 11146:                                     //Ironus Coldsteel
-            case 11178:                                     //Borgosh Corebender
-            case 5164:                                      //Grumnus Steelshaper
-            case 11177:                                     //Okothos Ironrager
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(pPlayer),false);
-                                                            //unknown textID (TALK_UNLEARN_AXEORWEAPON)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 11146:                                     //Ironus Coldsteel
+                case 11178:                                     //Borgosh Corebender
+                case 5164:                                      //Grumnus Steelshaper
+                case 11177:                                     //Okothos Ironrager
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SMITH_SPEC, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_ARMORORWEAPON, DoLowUnlearnCost(pPlayer),false);
+                                                                //unknown textID (TALK_UNLEARN_AXEORWEAPON)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
 
-            case 11191:
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
-                                                            //unknown textID (TALK_HAMMER_UNLEARN)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 11192:
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, uiAction,       BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
-                                                            //unknown textID (TALK_AXE_UNLEARN)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 11193:
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, uiAction,     BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
-                                                            //unknown textID (TALK_SWORD_UNLEARN)
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
+                case 11191:
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_HAMMER, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
+                                                                //unknown textID (TALK_HAMMER_UNLEARN)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 11192:
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_AXE, GOSSIP_SENDER_CHECK, uiAction,       BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
+                                                                //unknown textID (TALK_AXE_UNLEARN)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 11193:
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SWORD, GOSSIP_SENDER_CHECK, uiAction,     BOX_UNLEARN_WEAPON_SPEC, DoMedUnlearnCost(pPlayer),false);
+                                                                //unknown textID (TALK_SWORD_UNLEARN)
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+            }
         }
     }
-}
 
-bool GossipSelect_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    switch(uiSender)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_blacksmith(pPlayer, pCreature, uiAction); break;
+        switch(uiSender)
+        {
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_LEARN:   SendConfirmLearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_CHECK:   SendActionMenu(pPlayer, pCreature, uiAction); break;
+        }
+        return true;
     }
-    return true;
-}
-
-/*bool QuestComplete_npc_prof_blacksmith(Player* pPlayer, Creature* pCreature, Quest const *_Quest)
-{
-    if ((_Quest->GetQuestId() == 5283) || (_Quest->GetQuestId() == 5301))             //armorsmith
-        pCreature->CastSpell(pPlayer, 17451, true);
-
-    if ((_Quest->GetQuestId() == 5284) || (_Quest->GetQuestId() == 5302))             //weaponsmith
-        pCreature->CastSpell(pPlayer, 17452, true);
-
-    return true;
-}*/
+};
 
 /*###
 # engineering trinkets
@@ -843,244 +844,256 @@ enum eEngineeringTrinkets
 #define GOSSIP_ITEM_KABLAM      "[PH] Unknown"
 #define GOSSIP_ITEM_SMILES      "[PH] Unknown"
 
-bool GossipHello_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreature)
+class npc_engineering_tele_trinket : public CreatureScript
 {
-    uint32 NpcTextId = 0;
-    std::string GossipItem;
-    bool CanLearn = false;
+public:
+    npc_engineering_tele_trinket() : CreatureScript("npc_engineering_tele_trinket") { }
 
-    if (pPlayer->HasSkill(SKILL_ENGINERING))
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        switch(pCreature->GetEntry())
+        uint32 NpcTextId = 0;
+        std::string GossipItem;
+        bool CanLearn = false;
+
+        if (pPlayer->HasSkill(SKILL_ENGINERING))
+        {
+            switch(pCreature->GetEntry())
+            {
+                case NPC_ZAP:
+                    NpcTextId = 7249;
+                    if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 260 && pPlayer->HasSpell(S_GOBLIN))
+                    {
+                        if (!pPlayer->HasSpell(SPELL_TO_EVERLOOK))
+                        {
+                            CanLearn = true;
+                            GossipItem = GOSSIP_ITEM_ZAP;
+                        }
+                        else if (pPlayer->HasSpell(SPELL_TO_EVERLOOK))
+                            NpcTextId = 0;
+                    }
+                    break;
+                case NPC_JHORDY:
+                    NpcTextId = 7251;
+                    if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 260 && pPlayer->HasSpell(S_GNOMISH))
+                    {
+                        if (!pPlayer->HasSpell(SPELL_TO_GADGET))
+                        {
+                            CanLearn = true;
+                            GossipItem = GOSSIP_ITEM_JHORDY;
+                        }
+                        else if (pPlayer->HasSpell(SPELL_TO_GADGET))
+                            NpcTextId = 7252;
+                    }
+                    break;
+                case NPC_KABLAM:
+                    NpcTextId = 10365;
+                    if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 350 && pPlayer->HasSpell(S_GOBLIN))
+                    {
+                        if (!pPlayer->HasSpell(SPELL_TO_AREA52))
+                        {
+                            CanLearn = true;
+                            GossipItem = GOSSIP_ITEM_KABLAM;
+                        }
+                        else if (pPlayer->HasSpell(SPELL_TO_AREA52))
+                            NpcTextId = 0;
+                    }
+                    break;
+                case NPC_SMILES:
+                    NpcTextId = 10363;
+                    if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 350 && pPlayer->HasSpell(S_GNOMISH))
+                    {
+                        if (!pPlayer->HasSpell(SPELL_TO_TOSHLEY))
+                        {
+                            CanLearn = true;
+                            GossipItem = GOSSIP_ITEM_SMILES;
+                        }
+                        else if (pPlayer->HasSpell(SPELL_TO_TOSHLEY))
+                            NpcTextId = 0;
+                    }
+                    break;
+            }
+        }
+
+        if (CanLearn)
+        {
+            if (pPlayer->HasItemCount(ITEM_GOBLIN_CARD,1) || pPlayer->HasItemCount(ITEM_GNOMISH_CARD,1))
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GossipItem, pCreature->GetEntry(), GOSSIP_ACTION_INFO_DEF+1);
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(NpcTextId ? NpcTextId : pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            pPlayer->CLOSE_GOSSIP_MENU();
+
+        if (uiSender != pCreature->GetEntry())
+            return true;
+
+        switch(uiSender)
         {
             case NPC_ZAP:
-                NpcTextId = 7249;
-                if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 260 && pPlayer->HasSpell(S_GOBLIN))
-                {
-                    if (!pPlayer->HasSpell(SPELL_TO_EVERLOOK))
-                    {
-                        CanLearn = true;
-                        GossipItem = GOSSIP_ITEM_ZAP;
-                    }
-                    else if (pPlayer->HasSpell(SPELL_TO_EVERLOOK))
-                        NpcTextId = 0;
-                }
+                pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_EVERLOOK, false);
                 break;
             case NPC_JHORDY:
-                NpcTextId = 7251;
-                if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 260 && pPlayer->HasSpell(S_GNOMISH))
-                {
-                    if (!pPlayer->HasSpell(SPELL_TO_GADGET))
-                    {
-                        CanLearn = true;
-                        GossipItem = GOSSIP_ITEM_JHORDY;
-                    }
-                    else if (pPlayer->HasSpell(SPELL_TO_GADGET))
-                        NpcTextId = 7252;
-                }
+                pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_GADGET, false);
                 break;
             case NPC_KABLAM:
-                NpcTextId = 10365;
-                if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 350 && pPlayer->HasSpell(S_GOBLIN))
-                {
-                    if (!pPlayer->HasSpell(SPELL_TO_AREA52))
-                    {
-                        CanLearn = true;
-                        GossipItem = GOSSIP_ITEM_KABLAM;
-                    }
-                    else if (pPlayer->HasSpell(SPELL_TO_AREA52))
-                        NpcTextId = 0;
-                }
+                pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_AREA52, false);
                 break;
             case NPC_SMILES:
-                NpcTextId = 10363;
-                if (pPlayer->GetBaseSkillValue(SKILL_ENGINERING) >= 350 && pPlayer->HasSpell(S_GNOMISH))
-                {
-                    if (!pPlayer->HasSpell(SPELL_TO_TOSHLEY))
-                    {
-                        CanLearn = true;
-                        GossipItem = GOSSIP_ITEM_SMILES;
-                    }
-                    else if (pPlayer->HasSpell(SPELL_TO_TOSHLEY))
-                        NpcTextId = 0;
-                }
+                pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_TOSHLEY, false);
                 break;
         }
-    }
 
-    if (CanLearn)
-    {
-        if (pPlayer->HasItemCount(ITEM_GOBLIN_CARD,1) || pPlayer->HasItemCount(ITEM_GNOMISH_CARD,1))
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GossipItem, pCreature->GetEntry(), GOSSIP_ACTION_INFO_DEF+1);
-    }
-
-    pPlayer->SEND_GOSSIP_MENU(NpcTextId ? NpcTextId : pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_engineering_tele_trinket(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        pPlayer->CLOSE_GOSSIP_MENU();
-
-    if (uiSender != pCreature->GetEntry())
         return true;
-
-    switch(uiSender)
-    {
-        case NPC_ZAP:
-            pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_EVERLOOK, false);
-            break;
-        case NPC_JHORDY:
-            pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_GADGET, false);
-            break;
-        case NPC_KABLAM:
-            pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_AREA52, false);
-            break;
-        case NPC_SMILES:
-            pPlayer->CastSpell(pPlayer, SPELL_LEARN_TO_TOSHLEY, false);
-            break;
     }
-
-    return true;
-}
+};
 
 /*###
 # start menues leatherworking
 ###*/
 
-bool GossipHello_npc_prof_leather(Player* pPlayer, Creature* pCreature)
+class npc_prof_leather : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-    if (pCreature->isVendor())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-    if (pCreature->isTrainer())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+public:
+    npc_prof_leather() : CreatureScript("npc_prof_leather") { }
 
-    uint32 eCreature = pCreature->GetEntry();
-
-    if (pPlayer->HasSkill(SKILL_LEATHERWORKING) && pPlayer->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 250 && pPlayer->getLevel() > 49)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        switch (eCreature)
-        {
-            case 7866:                                      //Peter Galen
-            case 7867:                                      //Thorkaf Dragoneye
-                if (pPlayer->HasSpell(S_DRAGON))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_DRAGON,      GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 1);
-                break;
-            case 7868:                                      //Sarah Tanner
-            case 7869:                                      //Brumn Winterhoof
-                if (pPlayer->HasSpell(S_ELEMENTAL))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_ELEMENTAL,   GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 2);
-                break;
-            case 7870:                                      //Caryssia Moonhunter
-            case 7871:                                      //Se'Jib
-                if (pPlayer->HasSpell(S_TRIBAL))
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_TRIBAL,      GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 3);
-                break;
-        }
-    }
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        if (pCreature->isTrainer())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-void SendActionMenu_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    switch(uiAction)
-    {
-        case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
-            break;
-            //Unlearn Leather
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            if (EquippedOk(pPlayer,S_UNLEARN_DRAGON))
-            {
-                if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_DRAGON, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_DRAGON);
-                    pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            if (EquippedOk(pPlayer,S_UNLEARN_ELEMENTAL))
-            {
-                if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_ELEMENTAL, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_ELEMENTAL);
-                    pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            if (EquippedOk(pPlayer,S_UNLEARN_TRIBAL))
-            {
-                if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_TRIBAL, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_TRIBAL);
-                    pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-    }
-}
-
-void SendConfirmUnlearn_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
-    {
         uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
+
+        if (pPlayer->HasSkill(SKILL_LEATHERWORKING) && pPlayer->GetBaseSkillValue(SKILL_LEATHERWORKING) >= 250 && pPlayer->getLevel() > 49)
         {
-            case 7866:                                      //Peter Galen
-            case 7867:                                      //Thorkaf Dragoneye
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            switch (eCreature)
+            {
+                case 7866:                                      //Peter Galen
+                case 7867:                                      //Thorkaf Dragoneye
+                    if (pPlayer->HasSpell(S_DRAGON))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_DRAGON,      GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 1);
+                    break;
+                case 7868:                                      //Sarah Tanner
+                case 7869:                                      //Brumn Winterhoof
+                    if (pPlayer->HasSpell(S_ELEMENTAL))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_ELEMENTAL,   GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 2);
+                    break;
+                case 7870:                                      //Caryssia Moonhunter
+                case 7871:                                      //Se'Jib
+                    if (pPlayer->HasSpell(S_TRIBAL))
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_TRIBAL,      GOSSIP_SENDER_UNLEARN, GOSSIP_ACTION_INFO_DEF + 3);
+                    break;
+            }
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
                 break;
-            case 7868:                                      //Sarah Tanner
-            case 7869:                                      //Brumn Winterhoof
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
                 break;
-            case 7870:                                      //Caryssia Moonhunter
-            case 7871:                                      //Se'Jib
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                //Unlearn Leather
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                if (EquippedOk(pPlayer,S_UNLEARN_DRAGON))
+                {
+                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_DRAGON, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_DRAGON);
+                        pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                if (EquippedOk(pPlayer,S_UNLEARN_ELEMENTAL))
+                {
+                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_ELEMENTAL, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_ELEMENTAL);
+                        pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                if (EquippedOk(pPlayer,S_UNLEARN_TRIBAL))
+                {
+                    if (pPlayer->GetMoney() >= DoMedUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_TRIBAL, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_TRIBAL);
+                        pPlayer->ModifyMoney(-DoMedUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
                 break;
         }
     }
-}
 
-bool GossipSelect_npc_prof_leather(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    switch(uiSender)
+    void SendConfirmUnlearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
     {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_leather(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_leather(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_leather(pPlayer, pCreature, uiAction); break;
+        if (uiAction)
+        {
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 7866:                                      //Peter Galen
+                case 7867:                                      //Thorkaf Dragoneye
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_DRAGON, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 7868:                                      //Sarah Tanner
+                case 7869:                                      //Brumn Winterhoof
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_ELEMENTAL, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 7870:                                      //Caryssia Moonhunter
+                case 7871:                                      //Se'Jib
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_TRIBAL, GOSSIP_SENDER_CHECK, uiAction,    BOX_UNLEARN_LEATHER_SPEC, DoMedUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+            }
+        }
     }
-    return true;
-}
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        switch(uiSender)
+        {
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_CHECK:   SendActionMenu(pPlayer, pCreature, uiAction); break;
+        }
+        return true;
+    }
+};
 
 /*###
 # start menues tailoring
@@ -1093,209 +1106,202 @@ bool HasTailorSpell(Player* pPlayer)
     return false;
 }
 
-bool GossipHello_npc_prof_tailor(Player* pPlayer, Creature* pCreature)
+class npc_prof_tailor : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
-    if (pCreature->isVendor())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-    if (pCreature->isTrainer())
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+public:
+    npc_prof_tailor() : CreatureScript("npc_prof_tailor") { }
 
-    uint32 eCreature = pCreature->GetEntry();
-                                                            //TAILORING SPEC
-    if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 350 && pPlayer->getLevel() > 59)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        if (pPlayer->GetQuestRewardStatus(10831) || pPlayer->GetQuestRewardStatus(10832) || pPlayer->GetQuestRewardStatus(10833))
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+        if (pCreature->isVendor())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+        if (pCreature->isTrainer())
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
+
+        uint32 eCreature = pCreature->GetEntry();
+                                                                //TAILORING SPEC
+        if (pPlayer->HasSkill(SKILL_TAILORING) && pPlayer->GetBaseSkillValue(SKILL_TAILORING) >= 350 && pPlayer->getLevel() > 59)
         {
-            switch (eCreature)
+            if (pPlayer->GetQuestRewardStatus(10831) || pPlayer->GetQuestRewardStatus(10832) || pPlayer->GetQuestRewardStatus(10833))
             {
-                case 22213:                                 //Gidge Spellweaver
-                    if (!HasTailorSpell(pPlayer))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SPELLFIRE,    GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 1);
-                    if (pPlayer->HasSpell(S_SPELLFIRE))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SPELLFIRE,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 4);
+                switch (eCreature)
+                {
+                    case 22213:                                 //Gidge Spellweaver
+                        if (!HasTailorSpell(pPlayer))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SPELLFIRE,    GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 1);
+                        if (pPlayer->HasSpell(S_SPELLFIRE))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SPELLFIRE,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 4);
+                        break;
+                    case 22208:                                 //Nasmara Moonsong
+                        if (!HasTailorSpell(pPlayer))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_MOONCLOTH,    GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 2);
+                        if (pPlayer->HasSpell(S_MOONCLOTH))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_MOONCLOTH,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 5);
+                        break;
+                    case 22212:                                 //Andrion Darkspinner
+                        if (!HasTailorSpell(pPlayer))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SHADOWEAVE,   GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 3);
+                        if (pPlayer->HasSpell(S_SHADOWEAVE))
+                            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 6);
+                        break;
+                }
+            }
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TRAIN:
+                pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
+                break;
+                //Learn Tailor
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                if (!pPlayer->HasSpell(S_SPELLFIRE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_SPELLFIRE, true);
+                    pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                if (!pPlayer->HasSpell(S_MOONCLOTH) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_MOONCLOTH, true);
+                    pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                if (!pPlayer->HasSpell(S_SHADOWEAVE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
+                {
+                    pPlayer->CastSpell(pPlayer, S_LEARN_SHADOWEAVE, true);
+                    pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
+                } else
+                    pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+                //Unlearn Tailor
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                if (EquippedOk(pPlayer,S_UNLEARN_SPELLFIRE))
+                {
+                    if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_SPELLFIRE, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SPELLFIRE);
+                        pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 5:
+                if (EquippedOk(pPlayer,S_UNLEARN_MOONCLOTH))
+                {
+                    if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_MOONCLOTH, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_MOONCLOTH);
+                        pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 6:
+                if (EquippedOk(pPlayer,S_UNLEARN_SHADOWEAVE))
+                {
+                    if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
+                    {
+                        pPlayer->CastSpell(pPlayer, S_UNLEARN_SHADOWEAVE, true);
+                        ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SHADOWEAVE);
+                        pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
+                    } else
+                        pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
+                } else
+                    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+    }
+
+    void SendConfirmLearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
+    {
+        if (uiAction)
+        {
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 22213:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     break;
-                case 22208:                                 //Nasmara Moonsong
-                    if (!HasTailorSpell(pPlayer))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_MOONCLOTH,    GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 2);
-                    if (pPlayer->HasSpell(S_MOONCLOTH))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_MOONCLOTH,  GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 5);
+                case 22208:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_MOONCLOTH,    GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     break;
-                case 22212:                                 //Andrion Darkspinner
-                    if (!HasTailorSpell(pPlayer))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SHADOWEAVE,   GOSSIP_SENDER_LEARN,    GOSSIP_ACTION_INFO_DEF + 3);
-                    if (pPlayer->HasSpell(S_SHADOWEAVE))
-                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_UNLEARN,  GOSSIP_ACTION_INFO_DEF + 6);
+                case 22212:
+                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SHADOWEAVE,  GOSSIP_SENDER_CHECK, uiAction);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
                     break;
             }
         }
     }
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-void SendActionMenu_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    switch(uiAction)
+    void SendConfirmUnlearn(Player* pPlayer, Creature* pCreature, uint32 uiAction)
     {
-        case GOSSIP_ACTION_TRADE:
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_TRAIN:
-            pPlayer->SEND_TRAINERLIST(pCreature->GetGUID());
-            break;
-            //Learn Tailor
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            if (!pPlayer->HasSpell(S_SPELLFIRE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_SPELLFIRE, true);
-                pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            if (!pPlayer->HasSpell(S_MOONCLOTH) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_MOONCLOTH, true);
-                pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-            if (!pPlayer->HasSpell(S_SHADOWEAVE) && pPlayer->GetMoney() >= DoLearnCost(pPlayer))
-            {
-                pPlayer->CastSpell(pPlayer, S_LEARN_SHADOWEAVE, true);
-                pPlayer->ModifyMoney(-DoLearnCost(pPlayer));
-            } else
-            pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-            //Unlearn Tailor
-        case GOSSIP_ACTION_INFO_DEF + 4:
-            if (EquippedOk(pPlayer,S_UNLEARN_SPELLFIRE))
-            {
-                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_SPELLFIRE, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SPELLFIRE);
-                    pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 5:
-            if (EquippedOk(pPlayer,S_UNLEARN_MOONCLOTH))
-            {
-                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_MOONCLOTH, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_MOONCLOTH);
-                    pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 6:
-            if (EquippedOk(pPlayer,S_UNLEARN_SHADOWEAVE))
-            {
-                if (pPlayer->GetMoney() >= DoHighUnlearnCost(pPlayer))
-                {
-                    pPlayer->CastSpell(pPlayer, S_UNLEARN_SHADOWEAVE, true);
-                    ProfessionUnlearnSpells(pPlayer, S_UNLEARN_SHADOWEAVE);
-                    pPlayer->ModifyMoney(-DoHighUnlearnCost(pPlayer));
-                } else
-                pPlayer->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, 0, 0);
-            } else
-            pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,NULL,NULL);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
-    }
-}
-
-void SendConfirmLearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
-    {
-        uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
+        if (uiAction)
         {
-            case 22213:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 22208:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_MOONCLOTH,    GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 22212:
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LEARN_SHADOWEAVE,  GOSSIP_SENDER_CHECK, uiAction);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
+            uint32 eCreature = pCreature->GetEntry();
+            switch(eCreature)
+            {
+                case 22213:                                     //Gidge Spellweaver
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 22208:                                     //Nasmara Moonsong
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+                case 22212:                                     //Andrion Darkspinner
+                    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, uiAction,BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
+                                                                //unknown textID ()
+                    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+                    break;
+            }
         }
     }
-}
 
-void SendConfirmUnlearn_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiAction)
-{
-    if (uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
     {
-        uint32 eCreature = pCreature->GetEntry();
-        switch(eCreature)
+        switch(uiSender)
         {
-            case 22213:                                     //Gidge Spellweaver
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SPELLFIRE, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 22208:                                     //Nasmara Moonsong
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_MOONCLOTH, GOSSIP_SENDER_CHECK, uiAction, BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
-            case 22212:                                     //Andrion Darkspinner
-                pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_UNLEARN_SHADOWEAVE, GOSSIP_SENDER_CHECK, uiAction,BOX_UNLEARN_TAILOR_SPEC, DoHighUnlearnCost(pPlayer),false);
-                                                            //unknown textID ()
-                pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-                break;
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_LEARN:   SendConfirmLearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn(pPlayer, pCreature, uiAction); break;
+            case GOSSIP_SENDER_CHECK:   SendActionMenu(pPlayer, pCreature, uiAction); break;
         }
+        return true;
     }
-}
-
-bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    switch(uiSender)
-    {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_LEARN:   SendConfirmLearn_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_UNLEARN: SendConfirmUnlearn_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
-        case GOSSIP_SENDER_CHECK:   SendActionMenu_npc_prof_tailor(pPlayer, pCreature, uiAction); break;
-    }
-    return true;
-}
-
-/*###
-# start menues for GO (engineering and leatherworking)
-###*/
-
-/*bool GOHello_go_soothsaying_for_dummies(Player* pPlayer, GameObject* pGo)
-{
-    pPlayer->PlayerTalkClass->GetGossipMenu()->AddMenuItem(0,GOSSIP_LEARN_DRAGON, GOSSIP_SENDER_INFO, GOSSIP_ACTION_INFO_DEF, "", 0);
-
-    pPlayer->SEND_GOSSIP_MENU(5584, pGo->GetGUID());
-
-    return true;
-}*/
+};
 
 /*###
 #
@@ -1303,42 +1309,9 @@ bool GossipSelect_npc_prof_tailor(Player* pPlayer, Creature* pCreature, uint32 u
 
 void AddSC_npc_professions()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_prof_alchemy";
-    newscript->pGossipHello =  &GossipHello_npc_prof_alchemy;
-    newscript->pGossipSelect = &GossipSelect_npc_prof_alchemy;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_prof_blacksmith";
-    newscript->pGossipHello =  &GossipHello_npc_prof_blacksmith;
-    newscript->pGossipSelect = &GossipSelect_npc_prof_blacksmith;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_engineering_tele_trinket";
-    newscript->pGossipHello =  &GossipHello_npc_engineering_tele_trinket;
-    newscript->pGossipSelect = &GossipSelect_npc_engineering_tele_trinket;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_prof_leather";
-    newscript->pGossipHello =  &GossipHello_npc_prof_leather;
-    newscript->pGossipSelect = &GossipSelect_npc_prof_leather;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_prof_tailor";
-    newscript->pGossipHello =  &GossipHello_npc_prof_tailor;
-    newscript->pGossipSelect = &GossipSelect_npc_prof_tailor;
-    newscript->RegisterSelf();
-
-    /*newscript = new Script;
-    newscript->Name = "go_soothsaying_for_dummies";
-    newscript->pGOHello =  &GOHello_go_soothsaying_for_dummies;
-    //newscript->pGossipSelect = &GossipSelect_go_soothsaying_for_dummies;
-    newscript->RegisterSelf();*/
+    new npc_prof_alchemy;
+    new npc_prof_blacksmith;
+    new npc_engineering_tele_trinket;
+    new npc_prof_leather;
+    new npc_prof_tailor;
 }
-
