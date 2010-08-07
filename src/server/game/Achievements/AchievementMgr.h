@@ -53,7 +53,7 @@ enum AchievementCriteriaDataType
     ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE               = 8, // minvalue                     value provided with achievement update must be not less that limit
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL             = 9, // minlevel                     minlevel of target
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_GENDER            = 10,// gender                       0=male; 1=female
-    ACHIEVEMENT_CRITERIA_DATA_TYPE_REUSE               = 11,// TO BE REUSED
+    ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT              = 11,// scripted requirement
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY      = 12,// difficulty                   normal/heroic difficulty for current event map
     ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT    = 13,// count                        "with less than %u people in the zone"
     ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM              = 14,// team                         HORDE(67), ALLIANCE(469)
@@ -123,7 +123,7 @@ struct AchievementCriteriaData
         {
             uint32 gender;
         } gender;
-        // ACHIEVEMENT_CRITERIA_DATA_TYPE_DISABLED          = 11 (no data)
+        // ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT            = 11 (no data)
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY    = 12
         struct
         {
@@ -169,17 +169,20 @@ struct AchievementCriteriaData
             uint32 value2;
         } raw;
     };
+    uint32 ScriptId;
 
     AchievementCriteriaData() : dataType(ACHIEVEMENT_CRITERIA_DATA_TYPE_NONE)
     {
         raw.value1 = 0;
         raw.value2 = 0;
+        ScriptId = 0;
     }
 
-    AchievementCriteriaData(uint32 _dataType, uint32 _value1, uint32 _value2) : dataType(AchievementCriteriaDataType(_dataType))
+    AchievementCriteriaData(uint32 _dataType, uint32 _value1, uint32 _value2, uint32 _scriptId) : dataType(AchievementCriteriaDataType(_dataType))
     {
         raw.value1 = _value1;
         raw.value2 = _value2;
+        ScriptId = _scriptId;
     }
 
     bool IsValid(AchievementCriteriaEntry const* criteria);

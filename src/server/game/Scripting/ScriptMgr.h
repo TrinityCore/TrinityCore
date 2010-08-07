@@ -753,6 +753,25 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
         virtual void OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z) { }
 };
 
+class AchievementCriteriaScript : public ScriptObject
+{
+    protected:
+
+        AchievementCriteriaScript(const char* name)
+            : ScriptObject(name)
+        {
+        }
+
+        void RegisterSelf();
+
+    public:
+
+        bool IsDatabaseBound() const { return true; }
+
+        // Called when additional criteria is checked
+        virtual bool OnCheck(Player* source, Unit* target) = 0;
+};
+
 // Placed here due to ScriptRegistry::AddScript dependency.
 #define sScriptMgr (*ACE_Singleton<ScriptMgr, ACE_Null_Mutex>::instance())
 
@@ -920,6 +939,10 @@ class ScriptMgr
         void OnRemovePassenger(Transport* transport, Player* player);
         void OnTransportUpdate(Transport* transport, uint32 diff);
         void OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z);
+
+    public: /* AchievementCriteriaScript */
+
+        bool OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target);
 
     public: /* ScriptRegistry */
 
