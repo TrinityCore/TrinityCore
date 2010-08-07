@@ -13,18 +13,19 @@
 
 // Utility macros to refer to the script registry.
 #define SCR_REG_MAP(T) ScriptRegistry<T>::ScriptMap
+#define SCR_REG_ITR(T) ScriptRegistry<T>::ScriptMapIterator
 #define SCR_REG_LST(T) ScriptRegistry<T>::ScriptPointerList
 
 // Utility macros for looping over scripts.
 #define FOR_SCRIPTS(T,C,E) \
     if (SCR_REG_LST(T).empty()) \
         return; \
-    for (SCR_REG_MAP(T)::iterator C = SCR_REG_LST(T).begin(); \
+    for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
         C != SCR_REG_LST(T).end(); ++C)
 #define FOR_SCRIPTS_RET(T,C,E,R) \
     if (SCR_REG_LST(T).empty()) \
         return R; \
-    for (SCR_REG_MAP(T)::iterator C = SCR_REG_LST(T).begin(); \
+    for (SCR_REG_ITR(T) C = SCR_REG_LST(T).begin(); \
         C != SCR_REG_LST(T).end(); ++C)
 #define FOREACH_SCRIPT(T) \
     FOR_SCRIPTS(T, itr, end) \
@@ -586,7 +587,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     ASSERT(caster);
     ASSERT(target);
 
-    GET_SCRIPT_RET(ItemScript, target->GetProto()->ScriptId, tmpscript, false);
+    GET_SCRIPT_RET(ItemScript, target->GetScriptId(), tmpscript, false);
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
@@ -596,7 +597,7 @@ bool ScriptMgr::OnQuestAccept(Player* player, Item* item, Quest const* quest)
     ASSERT(item);
     ASSERT(quest);
 
-    GET_SCRIPT_RET(ItemScript, item->GetProto()->ScriptId, tmpscript, false);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     player->PlayerTalkClass->ClearMenus();
     return tmpscript->OnQuestAccept(player, item, quest);
 }
@@ -606,7 +607,7 @@ bool ScriptMgr::OnItemUse(Player* player, Item* item, SpellCastTargets const& ta
     ASSERT(player);
     ASSERT(item);
 
-    GET_SCRIPT_RET(ItemScript, item->GetProto()->ScriptId, tmpscript, false);
+    GET_SCRIPT_RET(ItemScript, item->GetScriptId(), tmpscript, false);
     return tmpscript->OnUse(player, item, targets);
 }
 
@@ -914,53 +915,67 @@ bool ScriptMgr::OnConditionCheck(Condition* condition, Player* player, Unit* tar
 void ScriptMgr::OnInstall(Vehicle* veh)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
 
-    FOREACH_SCRIPT(VehicleScript)->OnInstall(veh);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnInstall(veh);
 }
 
 void ScriptMgr::OnUninstall(Vehicle* veh)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
 
-    FOREACH_SCRIPT(VehicleScript)->OnUninstall(veh);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnUninstall(veh);
 }
 
 void ScriptMgr::OnDie(Vehicle* veh)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
 
-    FOREACH_SCRIPT(VehicleScript)->OnDie(veh);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnDie(veh);
 }
 
 void ScriptMgr::OnReset(Vehicle* veh)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
 
-    FOREACH_SCRIPT(VehicleScript)->OnReset(veh);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnReset(veh);
 }
 
 void ScriptMgr::OnInstallAccessory(Vehicle* veh, Creature* accessory)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
     ASSERT(accessory);
 
-    FOREACH_SCRIPT(VehicleScript)->OnInstallAccessory(veh, accessory);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnInstallAccessory(veh, accessory);
 }
 
 void ScriptMgr::OnAddPassenger(Vehicle* veh, Unit* passenger, int8 seatId)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
     ASSERT(passenger);
 
-    FOREACH_SCRIPT(VehicleScript)->OnAddPassenger(veh, passenger, seatId);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnAddPassenger(veh, passenger, seatId);
 }
 
 void ScriptMgr::OnRemovePassenger(Vehicle* veh, Unit* passenger)
 {
     ASSERT(veh);
+    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
     ASSERT(passenger);
 
-    FOREACH_SCRIPT(VehicleScript)->OnRemovePassenger(veh, passenger);
+    GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
+    tmpscript->OnRemovePassenger(veh, passenger);
 }
 
 void ScriptMgr::OnDynamicObjectUpdate(DynamicObject* dynobj, uint32 diff)
@@ -1145,47 +1160,50 @@ void ScriptMgr::ScriptRegistry<TScript>::AddScript(TScript* const script)
         }
     }
 
-    // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
-    // through a script name (or similar).
-    uint32 id = GetScriptId(script->ToString());
-    if (id)
+    if (script->IsDatabaseBound())
     {
-        // Try to find an existing script.
-        bool existing = false;
-        for (ScriptMap::iterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+        // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
+        // through a script name (or similar).
+        uint32 id = GetScriptId(script->ToString());
+        if (id)
         {
-            // If the script names match...
-            if (it->second->GetName() == script->GetName())
+            // Try to find an existing script.
+            bool existing = false;
+            for (ScriptMap::iterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
             {
-                // ... It exists.
-                existing = true;
-                break;
+                // If the script names match...
+                if (it->second->GetName() == script->GetName())
+                {
+                    // ... It exists.
+                    existing = true;
+                    break;
+                }
             }
-        }
 
-        // If the script isn't assigned -> assign it!
-        if (!existing)
-        {
-            ScriptPointerList[id] = script;
-            sScriptMgr.IncrementScriptCount();
+            // If the script isn't assigned -> assign it!
+            if (!existing)
+            {
+                ScriptPointerList[id] = script;
+                sScriptMgr.IncrementScriptCount();
+            }
+            else
+            {
+                // If the script is already assigned -> delete it!
+                sLog.outError("Script '%s' already assigned with the same script name, so the script can't work.",
+                    script->ToString());
+
+                delete script;
+            }
         }
         else
         {
-            // If the script is already assigned -> delete it!
-            sLog.outError("Script '%s' already assigned with the same script name, so the script can't work.",
-                script->ToString());
+            // The script uses a script name from database, but isn't assigned to anything.
+            if (script->GetName().find("example") == std::string::npos)
+                sLog.outErrorDb("Script named '%s' does not have a script name assigned in database.",
+                    script->ToString());
 
             delete script;
         }
-    }
-    else if (script->IsDatabaseBound())
-    {
-        // The script uses a script name from database, but isn't assigned to anything.
-        if (script->GetName().find("example") == std::string::npos)
-            sLog.outErrorDb("Script named '%s' does not have a script name assigned in database.",
-            script->ToString());
-
-        delete script;
     }
     else
     {
@@ -1229,4 +1247,5 @@ template class ScriptMgr::ScriptRegistry<TransportScript>;
 #undef FOR_SCRIPTS_RET
 #undef FOR_SCRIPTS
 #undef SCR_REG_LST
+#undef SCR_REG_ITR
 #undef SCR_REG_MAP
