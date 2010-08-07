@@ -17,12 +17,6 @@
  */
 
 #include "OutdoorPvPMgr.h"
-#include "OutdoorPvPHP.h"
-#include "OutdoorPvPNA.h"
-#include "OutdoorPvPTF.h"
-#include "OutdoorPvPZM.h"
-#include "OutdoorPvPSI.h"
-#include "OutdoorPvPEP.h"
 #include "ObjectMgr.h"
 #include "Player.h"
 #include "ProgressBar.h"

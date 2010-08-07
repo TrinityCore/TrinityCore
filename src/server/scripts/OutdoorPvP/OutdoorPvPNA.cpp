@@ -662,3 +662,23 @@ void OPvPCapturePointNA::UpdateWyvernRoostWorldState(uint32 roost)
         break;
     }
 }
+
+class OutdoorPvP_nagrand : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_nagrand()
+            : OutdoorPvPScript("outdoorpvp_na")
+        {
+        }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPNA();
+        }
+};
+
+void AddSC_outdoorpvp_na()
+{
+    new OutdoorPvP_nagrand();
+}

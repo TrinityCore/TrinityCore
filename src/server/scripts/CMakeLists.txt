@@ -15,6 +15,7 @@ file(GLOB_RECURSE scripts_outland Outland/*.cpp Outland/*.h)
 file(GLOB_RECURSE scripts_world World/*.cpp World/*.h)
 file(GLOB_RECURSE scripts_spells Spells/*.cpp Spells/*.h)
 file(GLOB_RECURSE scripts_examples Examples/*.cpp Examples/*.h)
+file(GLOB_RECURSE scripts_outdoorpvp OutdoorPvP/*.cpp OutdoorPvP/*.h)
 
 # Enable precompiled headers when using the GCC compiler.
 if(PCH)
@@ -31,6 +32,7 @@ set(scripts_STAT_SRCS
   ${scripts_world}
   ${scripts_spells}
   ${scripts_examples}
+  ${scripts_outdoorpvp}
   ../game/AI/ScriptedAI/ScriptedEscortAI.cpp
   ../game/AI/ScriptedAI/ScriptedCreature.cpp
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
@@ -38,7 +40,7 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
 )
 
-message("-- Added Scriptengine to SCRIPTS lib")
+message("-- Added Script Library to SCRIPTS lib")
 
 include_directories(
   ${ACE_INCLUDE_DIR}

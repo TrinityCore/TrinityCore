@@ -251,7 +251,7 @@ class instance_deadmines : public InstanceMapScript
             }
         };
 
-        InstanceData* OnGetInstanceData(InstanceMap* pMap)
+        InstanceData* GetInstanceData(InstanceMap* pMap) const
         {
             return new instance_deadmines_InstanceMapScript(pMap);
         }

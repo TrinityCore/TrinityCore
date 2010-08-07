@@ -330,3 +330,23 @@ void OutdoorPvPHP::HandleKillImpl(Player *plr, Unit * killed)
     else if (plr->GetTeam() == HORDE && killed->ToPlayer()->GetTeam() != HORDE)
         plr->CastSpell(plr,HordePlayerKillReward,true);
 }
+
+class OutdoorPvP_hellfire_peninsula : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_hellfire_peninsula()
+            : OutdoorPvPScript("outdoorpvp_hp")
+        {
+        }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPHP();
+        }
+};
+
+void AddSC_outdoorpvp_hp()
+{
+    new OutdoorPvP_hellfire_peninsula();
+}
