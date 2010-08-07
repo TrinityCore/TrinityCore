@@ -39,28 +39,34 @@ enum eEnums
 
 #define GOSSIP_ITEM_WHAT_HAPPENED   "Alexstrasza, can you show me what happened here?"
 
-bool GossipHello_npc_alexstrasza_wr_gate(Player* pPlayer, Creature* pCreature)
+class npc_alexstrasza_wr_gate : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_alexstrasza_wr_gate() : CreatureScript("npc_alexstrasza_wr_gate") { }
 
-    if (pPlayer->GetQuestRewardStatus(QUEST_RETURN_TO_AG_A) || pPlayer->GetQuestRewardStatus(QUEST_RETURN_TO_AG_H))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WHAT_HAPPENED, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_alexstrasza_wr_gate(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pPlayer->SendMovieStart(MOVIE_ID_GATES);
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pPlayer->GetQuestRewardStatus(QUEST_RETURN_TO_AG_A) || pPlayer->GetQuestRewardStatus(QUEST_RETURN_TO_AG_H))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_WHAT_HAPPENED, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
     }
 
-    return true;
-}
+    bool OnGossipSelect(Player* pPlayer, Creature* /*pCreature*/, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->SendMovieStart(MOVIE_ID_GATES);
+        }
+
+        return true;
+    }
+};
 
 /*######
 ## npc_inquisitor_hallard. Quest 12321
@@ -104,171 +110,165 @@ enum eInquisitor
 
 #define QUEST_A_RIGHTEOUS_SERMON     12321
 
-struct npc_inquisitor_hallardAI : public npc_escortAI
-{    
-    npc_inquisitor_hallardAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+class npc_inquisitor_hallard : public CreatureScript
+{
+public:
+    npc_inquisitor_hallard() : CreatureScript("npc_inquisitor_hallard") { }
 
-    bool Completed;
+    struct npc_inquisitor_hallardAI : public npc_escortAI
+    {    
+        npc_inquisitor_hallardAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
-    void WaypointReached(uint32 i)
-    {
-        Player* pPlayer = GetPlayerForEscort();
-        if (!pPlayer)
-            return;
-        Creature* Godfrey = me->FindNearestCreature(NPC_GODFREY, 50, true);
-        if (!Godfrey)
-            return;  
-        switch (i)
+        bool Completed;
+
+        void WaypointReached(uint32 i)
         {
-            case 1:                
-                DoScriptText(SAY_WP_1, me, Godfrey);
-                me->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
-                me->HandleEmoteCommand(5);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
-                me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);                
-                break;
-            case 2:
-                Godfrey->HandleEmoteCommand(434);
-                DoScriptText(SAY_WP_2, me, Godfrey);
-                me->HandleEmoteCommand(15);
-                break;
-            case 3:                
-                DoScriptText(SAY_WP_3, me, Godfrey);
-                me->HandleEmoteCommand(1);
-                break;
-            case 4:
-                DoScriptText(SAY_WP_4, Godfrey);
-                break;
-            case 5:
-                DoScriptText(SAY_WP_5, Godfrey);
-                break;
-            case 6:
-                DoScriptText(SAY_WP_6, Godfrey);
-                break;
-            case 7:
-                DoScriptText(SAY_WP_7, me, Godfrey);
-                me->HandleEmoteCommand(1);
-                break;
-            case 8:
-                DoScriptText(SAY_WP_8, me, Godfrey);
-                me->HandleEmoteCommand(16);
-                break;
-            case 9:
-                DoScriptText(SAY_WP_9, me, Godfrey);                
-                me->HandleEmoteCommand(5);
-                break;
-            case 10:
-                DoScriptText(SAY_WP_10, me, Godfrey);
-                DoCast(Godfrey, SPELL_HOLY_FIRE);
-                break;
-            case 11:
-                Godfrey->HandleEmoteCommand(434);
-                DoScriptText(SAY_WP_11, Godfrey);
-                break;
-            case 12:
-                DoScriptText(SAY_WP_12, me, Godfrey);
-                DoCast(Godfrey, SPELL_HOLY_FIRE);
-                break;
-            case 13:
-                DoScriptText(SAY_WP_13, me, Godfrey);
-                DoCast(Godfrey, SPELL_HOLY_FIRE);
-                break;
-            case 14:
-                Godfrey->HandleEmoteCommand(434);
-                DoScriptText(SAY_WP_14, Godfrey);
-                break;
-            case 15:
-                DoScriptText(SAY_WP_15, me, Godfrey);
-                DoCast(Godfrey, SPELL_HOLY_FIRE);
-                break;
-            case 16:
-                DoScriptText(SAY_WP_16, me, Godfrey);
-                break;
-            case 17:
-                DoScriptText(SAY_WP_17, me, Godfrey);
-                break;
-            case 18:
-                DoScriptText(SAY_WP_18, Godfrey);
-                break;
-            case 19:
-                DoScriptText(SAY_WP_19, me, Godfrey);
-                break;
-            case 20:
-                DoScriptText(SAY_WP_20, Godfrey);
-                break;
-            case 21:
-                DoScriptText(SAY_WP_21, Godfrey);
-                break;
-            case 22:
-                DoScriptText(SAY_WP_22, me, Godfrey);
-                break;
-            case 23:
-                DoScriptText(SAY_WP_23, Godfrey);
-                break;
-            case 24:
-                DoScriptText(SAY_WP_24, Godfrey);
-                break;
-            case 25:
-                DoScriptText(SAY_WP_25, me, Godfrey);
-                break;
-            case 26:
-                DoScriptText(SAY_WP_26, me);
-                me->SetUInt64Value(UNIT_FIELD_TARGET, pPlayer->GetGUID());
-                break;
-            case 27:
-                DoScriptText(SAY_WP_27, me, Godfrey);
-                me->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
-                Completed = true;                
-                if (pPlayer)
-                    pPlayer->GroupEventHappens(QUEST_A_RIGHTEOUS_SERMON, me);
-                break;                          
+            Player* pPlayer = GetPlayerForEscort();
+            if (!pPlayer)
+                return;
+            Creature* Godfrey = me->FindNearestCreature(NPC_GODFREY, 50, true);
+            if (!Godfrey)
+                return;  
+            switch (i)
+            {
+                case 1:                
+                    DoScriptText(SAY_WP_1, me, Godfrey);
+                    me->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
+                    me->HandleEmoteCommand(5);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
+                    me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);                
+                    break;
+                case 2:
+                    Godfrey->HandleEmoteCommand(434);
+                    DoScriptText(SAY_WP_2, me, Godfrey);
+                    me->HandleEmoteCommand(15);
+                    break;
+                case 3:                
+                    DoScriptText(SAY_WP_3, me, Godfrey);
+                    me->HandleEmoteCommand(1);
+                    break;
+                case 4:
+                    DoScriptText(SAY_WP_4, Godfrey);
+                    break;
+                case 5:
+                    DoScriptText(SAY_WP_5, Godfrey);
+                    break;
+                case 6:
+                    DoScriptText(SAY_WP_6, Godfrey);
+                    break;
+                case 7:
+                    DoScriptText(SAY_WP_7, me, Godfrey);
+                    me->HandleEmoteCommand(1);
+                    break;
+                case 8:
+                    DoScriptText(SAY_WP_8, me, Godfrey);
+                    me->HandleEmoteCommand(16);
+                    break;
+                case 9:
+                    DoScriptText(SAY_WP_9, me, Godfrey);                
+                    me->HandleEmoteCommand(5);
+                    break;
+                case 10:
+                    DoScriptText(SAY_WP_10, me, Godfrey);
+                    DoCast(Godfrey, SPELL_HOLY_FIRE);
+                    break;
+                case 11:
+                    Godfrey->HandleEmoteCommand(434);
+                    DoScriptText(SAY_WP_11, Godfrey);
+                    break;
+                case 12:
+                    DoScriptText(SAY_WP_12, me, Godfrey);
+                    DoCast(Godfrey, SPELL_HOLY_FIRE);
+                    break;
+                case 13:
+                    DoScriptText(SAY_WP_13, me, Godfrey);
+                    DoCast(Godfrey, SPELL_HOLY_FIRE);
+                    break;
+                case 14:
+                    Godfrey->HandleEmoteCommand(434);
+                    DoScriptText(SAY_WP_14, Godfrey);
+                    break;
+                case 15:
+                    DoScriptText(SAY_WP_15, me, Godfrey);
+                    DoCast(Godfrey, SPELL_HOLY_FIRE);
+                    break;
+                case 16:
+                    DoScriptText(SAY_WP_16, me, Godfrey);
+                    break;
+                case 17:
+                    DoScriptText(SAY_WP_17, me, Godfrey);
+                    break;
+                case 18:
+                    DoScriptText(SAY_WP_18, Godfrey);
+                    break;
+                case 19:
+                    DoScriptText(SAY_WP_19, me, Godfrey);
+                    break;
+                case 20:
+                    DoScriptText(SAY_WP_20, Godfrey);
+                    break;
+                case 21:
+                    DoScriptText(SAY_WP_21, Godfrey);
+                    break;
+                case 22:
+                    DoScriptText(SAY_WP_22, me, Godfrey);
+                    break;
+                case 23:
+                    DoScriptText(SAY_WP_23, Godfrey);
+                    break;
+                case 24:
+                    DoScriptText(SAY_WP_24, Godfrey);
+                    break;
+                case 25:
+                    DoScriptText(SAY_WP_25, me, Godfrey);
+                    break;
+                case 26:
+                    DoScriptText(SAY_WP_26, me);
+                    me->SetUInt64Value(UNIT_FIELD_TARGET, pPlayer->GetGUID());
+                    break;
+                case 27:
+                    DoScriptText(SAY_WP_27, me, Godfrey);
+                    me->SetUInt64Value(UNIT_FIELD_TARGET, Godfrey->GetGUID());
+                    Completed = true;                
+                    if (pPlayer)
+                        pPlayer->GroupEventHappens(QUEST_A_RIGHTEOUS_SERMON, me);
+                    break;                          
+            }
         }
+
+        void Reset()
+        {  
+            Completed = false;
+        }    
+
+        void UpdateAI(const uint32 diff)
+        {          
+            npc_escortAI::UpdateAI(diff);             
+        }
+    };
+
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == QUEST_A_RIGHTEOUS_SERMON)
+        {        
+            DoScriptText(SAY_WP_0, pCreature, pPlayer);
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_inquisitor_hallardAI, pCreature->AI()))
+            {
+                pEscortAI->Start(true, false, pPlayer->GetGUID(), 0, true);
+                pCreature->GetMotionMaster()->MovePoint(0, 3801.543, -679.350, 213.75);            
+            }
+        }
+        return true;
     }
 
-    void Reset()
-    {  
-        Completed = false;
-    }    
-
-    void UpdateAI(const uint32 diff)
-    {          
-        npc_escortAI::UpdateAI(diff);             
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_inquisitor_hallardAI(creature);
     }
 };
 
-bool QuestAccept_npc_inquisitor_hallard(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{
-    if (quest->GetQuestId() == QUEST_A_RIGHTEOUS_SERMON)
-    {        
-        DoScriptText(SAY_WP_0, pCreature, pPlayer);
-        if (npc_escortAI* pEscortAI = CAST_AI(npc_inquisitor_hallardAI, pCreature->AI()))
-        {
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), 0, true);
-            pCreature->GetMotionMaster()->MovePoint(0, 3801.543, -679.350, 213.75);            
-        }
-    }
-    return true;
-}
-
-CreatureAI* GetAI_npc_inquisitor_hallard(Creature* pCreature)
-{
-    return new npc_inquisitor_hallardAI(pCreature);
-}
-
 void AddSC_dragonblight()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_alexstrasza_wr_gate";
-    newscript->pGossipHello = &GossipHello_npc_alexstrasza_wr_gate;
-    newscript->pGossipSelect = &GossipSelect_npc_alexstrasza_wr_gate;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_inquisitor_hallard";
-    newscript->GetAI = &GetAI_npc_inquisitor_hallard;
-    newscript->pQuestAccept = &QuestAccept_npc_inquisitor_hallard;
-    newscript->RegisterSelf();
-
+    new npc_alexstrasza_wr_gate;
+    new npc_inquisitor_hallard;
 }
