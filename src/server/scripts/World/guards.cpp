@@ -38,19 +38,31 @@ EndContentData */
  * guard_generic
  *******************************************************/
 
-CreatureAI* GetAI_guard_generic(Creature* pCreature)
+class guard_generic : public CreatureScript
 {
-    return new guardAI (pCreature);
-}
+public:
+    guard_generic() : CreatureScript("guard_generic") { }
+
+    CreatureAI *OnGetAI(Creature *creature) const
+    {
+        return new guardAI(creature);
+    }
+};
 
 /*******************************************************
  * guard_orgrimmar
  *******************************************************/
 
-CreatureAI* GetAI_guard_orgrimmar(Creature* pCreature)
+class guard_orgrimmar : public CreatureScript
 {
-    return new guardAI_orgrimmar (pCreature);
-}
+public:
+    guard_orgrimmar() : CreatureScript("guard_orgrimmar") { }
+
+    CreatureAI *OnGetAI(Creature *creature) const
+    {
+        return new guardAI_orgrimmar(creature);
+    }
+};
 
 /*******************************************************
  * guard_shattrath_aldor
@@ -61,138 +73,156 @@ CreatureAI* GetAI_guard_orgrimmar(Creature* pCreature)
 #define SPELL_BANISH_TELEPORT       36643
 #define SPELL_EXILE                 39533
 
-struct guard_shattrath_aldorAI : public guardAI
+class guard_shattrath_aldor : public CreatureScript
 {
-    guard_shattrath_aldorAI(Creature *c) : guardAI(c) {}
+public:
+    guard_shattrath_aldor() : CreatureScript("guard_shattrath_aldor") { }
 
-    uint32 Exile_Timer;
-    uint32 Banish_Timer;
-    uint64 PlayerGUID;
-    bool CanTeleport;
-
-    void Reset()
+    struct guard_shattrath_aldorAI : public guardAI
     {
-        Banish_Timer = 5000;
-        Exile_Timer = 8500;
-        PlayerGUID = 0;
-        CanTeleport = false;
-    }
+        guard_shattrath_aldorAI(Creature *c) : guardAI(c) {}
 
-    void EnterCombat(Unit * /*who*/) {}
+        uint32 Exile_Timer;
+        uint32 Banish_Timer;
+        uint64 PlayerGUID;
+        bool CanTeleport;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (CanTeleport)
+        void Reset()
         {
-            if (Exile_Timer <= diff)
-            {
-                if (Unit* temp = Unit::GetUnit(*me,PlayerGUID))
-                {
-                    temp->CastSpell(temp,SPELL_EXILE,true);
-                    temp->CastSpell(temp,SPELL_BANISH_TELEPORT,true);
-                }
-                PlayerGUID = 0;
-                Exile_Timer = 8500;
-                CanTeleport = false;
-            } else Exile_Timer -= diff;
+            Banish_Timer = 5000;
+            Exile_Timer = 8500;
+            PlayerGUID = 0;
+            CanTeleport = false;
         }
-        else if (Banish_Timer <= diff)
-        {
-            Unit* temp = me->getVictim();
-            if (temp && temp->GetTypeId() == TYPEID_PLAYER)
-            {
-                DoCast(temp, SPELL_BANISHED_SHATTRATH_A);
-                Banish_Timer = 9000;
-                PlayerGUID = temp->GetGUID();
-                if (PlayerGUID)
-                    CanTeleport = true;
-            }
-        } else Banish_Timer -= diff;
 
-        DoMeleeAttackIfReady();
+        void EnterCombat(Unit * /*who*/) {}
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (CanTeleport)
+            {
+                if (Exile_Timer <= diff)
+                {
+                    if (Unit* temp = Unit::GetUnit(*me,PlayerGUID))
+                    {
+                        temp->CastSpell(temp,SPELL_EXILE,true);
+                        temp->CastSpell(temp,SPELL_BANISH_TELEPORT,true);
+                    }
+                    PlayerGUID = 0;
+                    Exile_Timer = 8500;
+                    CanTeleport = false;
+                } else Exile_Timer -= diff;
+            }
+            else if (Banish_Timer <= diff)
+            {
+                Unit* temp = me->getVictim();
+                if (temp && temp->GetTypeId() == TYPEID_PLAYER)
+                {
+                    DoCast(temp, SPELL_BANISHED_SHATTRATH_A);
+                    Banish_Timer = 9000;
+                    PlayerGUID = temp->GetGUID();
+                    if (PlayerGUID)
+                        CanTeleport = true;
+                }
+            } else Banish_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *OnGetAI(Creature *creature) const
+    {
+        return new guard_shattrath_aldorAI(creature);
     }
 };
-
-CreatureAI* GetAI_guard_shattrath_aldor(Creature* pCreature)
-{
-    return new guard_shattrath_aldorAI (pCreature);
-}
 
 /*******************************************************
  * guard_shattrath_scryer
  *******************************************************/
 
-struct guard_shattrath_scryerAI : public guardAI
+class guard_shattrath_scryer : public CreatureScript
 {
-    guard_shattrath_scryerAI(Creature *c) : guardAI(c) {}
+public:
+    guard_shattrath_scryer() : CreatureScript("guard_shattrath_scryer") { }
 
-    uint32 Exile_Timer;
-    uint32 Banish_Timer;
-    uint64 PlayerGUID;
-    bool CanTeleport;
-
-    void Reset()
+    struct guard_shattrath_scryerAI : public guardAI
     {
-        Banish_Timer = 5000;
-        Exile_Timer = 8500;
-        PlayerGUID = 0;
-        CanTeleport = false;
-    }
+        guard_shattrath_scryerAI(Creature *c) : guardAI(c) {}
 
-    void EnterCombat(Unit * /*who*/) {}
+        uint32 Exile_Timer;
+        uint32 Banish_Timer;
+        uint64 PlayerGUID;
+        bool CanTeleport;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (CanTeleport)
+        void Reset()
         {
-            if (Exile_Timer <= diff)
-            {
-                if (Unit* temp = Unit::GetUnit(*me,PlayerGUID))
-                {
-                    temp->CastSpell(temp,SPELL_EXILE,true);
-                    temp->CastSpell(temp,SPELL_BANISH_TELEPORT,true);
-                }
-                PlayerGUID = 0;
-                Exile_Timer = 8500;
-                CanTeleport = false;
-            } else Exile_Timer -= diff;
+            Banish_Timer = 5000;
+            Exile_Timer = 8500;
+            PlayerGUID = 0;
+            CanTeleport = false;
         }
-        else if (Banish_Timer <= diff)
-        {
-            Unit* temp = me->getVictim();
-            if (temp && temp->GetTypeId() == TYPEID_PLAYER)
-            {
-                DoCast(temp, SPELL_BANISHED_SHATTRATH_S);
-                Banish_Timer = 9000;
-                PlayerGUID = temp->GetGUID();
-                if (PlayerGUID)
-                    CanTeleport = true;
-            }
-        } else Banish_Timer -= diff;
 
-        DoMeleeAttackIfReady();
+        void EnterCombat(Unit * /*who*/) {}
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (CanTeleport)
+            {
+                if (Exile_Timer <= diff)
+                {
+                    if (Unit* temp = Unit::GetUnit(*me,PlayerGUID))
+                    {
+                        temp->CastSpell(temp,SPELL_EXILE,true);
+                        temp->CastSpell(temp,SPELL_BANISH_TELEPORT,true);
+                    }
+                    PlayerGUID = 0;
+                    Exile_Timer = 8500;
+                    CanTeleport = false;
+                } else Exile_Timer -= diff;
+            }
+            else if (Banish_Timer <= diff)
+            {
+                Unit* temp = me->getVictim();
+                if (temp && temp->GetTypeId() == TYPEID_PLAYER)
+                {
+                    DoCast(temp, SPELL_BANISHED_SHATTRATH_S);
+                    Banish_Timer = 9000;
+                    PlayerGUID = temp->GetGUID();
+                    if (PlayerGUID)
+                        CanTeleport = true;
+                }
+            } else Banish_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *OnGetAI(Creature *creature) const
+    {
+        return new guard_shattrath_scryerAI(creature);
     }
 };
-
-CreatureAI* GetAI_guard_shattrath_scryer(Creature* pCreature)
-{
-    return new guard_shattrath_scryerAI (pCreature);
-}
 
 /*******************************************************
  * guard_stormwind
  *******************************************************/
 
-CreatureAI* GetAI_guard_stormwind(Creature* pCreature)
+class guard_stormwind : public CreatureScript
 {
-    return new guardAI_stormwind (pCreature);
-}
+public:
+    guard_stormwind() : CreatureScript("guard_stormwind") { }
+
+    CreatureAI *OnGetAI(Creature *creature) const
+    {
+        return new guardAI_stormwind(creature);
+    }
+};
 
 /*******************************************************
  * AddSC
@@ -200,30 +230,9 @@ CreatureAI* GetAI_guard_stormwind(Creature* pCreature)
 
 void AddSC_guards()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "guard_generic";
-    newscript->GetAI = &GetAI_guard_generic;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "guard_orgrimmar";
-    newscript->GetAI = &GetAI_guard_orgrimmar;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "guard_shattrath_aldor";
-    newscript->GetAI = &GetAI_guard_shattrath_aldor;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "guard_shattrath_scryer";
-    newscript->GetAI = &GetAI_guard_shattrath_scryer;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "guard_stormwind";
-    newscript->GetAI = &GetAI_guard_stormwind;
-    newscript->RegisterSelf();
+    new guard_generic;
+    new guard_orgrimmar;
+    new guard_shattrath_aldor;
+    new guard_shattrath_scryer;
+    new guard_stormwind;
 }
