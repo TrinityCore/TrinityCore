@@ -30,87 +30,95 @@ EndScriptData */
 
 #define DOOR_NETHEKURSE     1
 
-struct instance_shattered_halls : public ScriptedInstance
+class instance_shattered_halls : public InstanceMapScript
 {
-    instance_shattered_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
-    uint64 nethekurseGUID;
-    uint64 nethekurseDoorGUID;
-
-    void Initialize()
-    {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-        nethekurseGUID = 0;
-        nethekurseDoorGUID = 0;
-    }
-
-    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
-    {
-        switch(pGo->GetEntry())
+    public:
+        instance_shattered_halls()
+            : InstanceMapScript("instance_shattered_halls")
         {
-            case DOOR_NETHEKURSE: nethekurseDoorGUID = pGo->GetGUID(); break;
         }
-    }
-
-    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
-    {
-        switch(pCreature->GetEntry())
+        struct instance_shattered_halls_InstanceMapScript : public ScriptedInstance
         {
-            case 16807: nethekurseGUID = pCreature->GetGUID(); break;
-        }
-    }
+            instance_shattered_halls_InstanceMapScript(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-    void SetData(uint32 type, uint32 data)
-    {
-        switch(type)
-        {
-            case TYPE_NETHEKURSE:
-                m_auiEncounter[0] = data;
-                break;
-            case TYPE_OMROGG:
-                m_auiEncounter[1] = data;
-                break;
-        }
-    }
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+            uint64 nethekurseGUID;
+            uint64 nethekurseDoorGUID;
 
-    uint32 GetData(uint32 type)
-    {
-        switch(type)
-        {
-            case TYPE_NETHEKURSE:
-                return m_auiEncounter[0];
-            case TYPE_OMROGG:
-                return m_auiEncounter[1];
-        }
-        return 0;
-    }
+            void Initialize()
+            {
+                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-    uint64 GetData64(uint32 data)
-    {
-        switch(data)
+                nethekurseGUID = 0;
+                nethekurseDoorGUID = 0;
+            }
+
+            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            {
+                switch(pGo->GetEntry())
+                {
+                    case DOOR_NETHEKURSE: 
+                        nethekurseDoorGUID = pGo->GetGUID(); 
+                        break;
+                }
+            }
+
+            void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+            {
+                switch(pCreature->GetEntry())
+                {
+                    case 16807: 
+                        nethekurseGUID = pCreature->GetGUID(); 
+                        break;
+                }
+            }
+
+            void SetData(uint32 type, uint32 data)
+            {
+                switch(type)
+                {
+                    case TYPE_NETHEKURSE:
+                        m_auiEncounter[0] = data;
+                        break;
+                    case TYPE_OMROGG:
+                        m_auiEncounter[1] = data;
+                        break;
+                }
+            }
+
+            uint32 GetData(uint32 type)
+            {
+                switch(type)
+                {
+                    case TYPE_NETHEKURSE:
+                        return m_auiEncounter[0];
+                    case TYPE_OMROGG:
+                        return m_auiEncounter[1];
+                }
+                return 0;
+            }
+
+            uint64 GetData64(uint32 data)
+            {
+                switch(data)
+                {
+                    case DATA_NETHEKURSE:
+                        return nethekurseGUID;
+                    case DATA_NETHEKURSE_DOOR:
+                        return nethekurseDoorGUID;
+                }
+                return 0;
+            }
+        };
+
+        InstanceData* GetInstanceData(Map* pMap) const
         {
-            case DATA_NETHEKURSE:
-                return nethekurseGUID;
-            case DATA_NETHEKURSE_DOOR:
-                return nethekurseDoorGUID;
+            return new instance_shattered_halls_InstanceMapScript(pMap);
         }
-        return 0;
-    }
 };
-
-InstanceData* GetInstanceData_instance_shattered_halls(Map* pMap)
-{
-    return new instance_shattered_halls(pMap);
-}
 
 void AddSC_instance_shattered_halls()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_shattered_halls";
-    newscript->GetInstanceData = &GetInstanceData_instance_shattered_halls;
-    newscript->RegisterSelf();
+    new instance_shattered_halls();
 }
 
