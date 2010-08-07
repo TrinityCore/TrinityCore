@@ -41,114 +41,126 @@ enum eEnums
     SPELL_DOMINATION            = 25772                     // ???
 };
 
-struct boss_the_makerAI : public ScriptedAI
+class boss_the_maker : public CreatureScript
 {
-    boss_the_makerAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
+    public:
 
-    ScriptedInstance* pInstance;
-
-    uint32 AcidSpray_Timer;
-    uint32 ExplodingBreaker_Timer;
-    uint32 Domination_Timer;
-    uint32 Knockdown_Timer;
-
-    void Reset()
-    {
-        AcidSpray_Timer = 15000;
-        ExplodingBreaker_Timer = 6000;
-        Domination_Timer = 120000;
-        Knockdown_Timer = 10000;
-
-        if (!pInstance)
-            return;
-
-        pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
-        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
-
-        if (!pInstance)
-            return;
-
-        pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
-        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), false);
-    }
-
-    void KilledUnit(Unit* /*victim*/)
-    {
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
-    }
-
-    void JustDied(Unit* /*Killer*/)
-    {
-        DoScriptText(SAY_DIE, me);
-
-        if (!pInstance)
-            return;
-
-        pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
-        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
-        pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR3), true);
-
-     }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (AcidSpray_Timer <= diff)
+        boss_the_maker()
+            : CreatureScript("boss_the_maker")
         {
-            DoCast(me->getVictim(), SPELL_ACID_SPRAY);
-            AcidSpray_Timer = 15000+rand()%8000;
-        } else AcidSpray_Timer -=diff;
+        }
 
-        if (ExplodingBreaker_Timer <= diff)
+        struct boss_the_makerAI : public ScriptedAI
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-                DoCast(pTarget, SPELL_EXPLODING_BREAKER);
-            ExplodingBreaker_Timer = 4000+rand()%8000;
-        } else ExplodingBreaker_Timer -=diff;
+            boss_the_makerAI(Creature* pCreature) : ScriptedAI(pCreature)
+            {
+                pInstance = pCreature->GetInstanceData();
+            }
 
-        /* // Disabled until Core Support for mind control
-        if (domination_timer_timer <= diff)
+            ScriptedInstance* pInstance;
+
+            uint32 AcidSpray_Timer;
+            uint32 ExplodingBreaker_Timer;
+            uint32 Domination_Timer;
+            uint32 Knockdown_Timer;
+
+            void Reset()
+            {
+                AcidSpray_Timer = 15000;
+                ExplodingBreaker_Timer = 6000;
+                Domination_Timer = 120000;
+                Knockdown_Timer = 10000;
+
+                if (!pInstance)
+                    return;
+
+                pInstance->SetData(TYPE_THE_MAKER_EVENT, NOT_STARTED);
+                pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
+            }
+
+            void EnterCombat(Unit * /*who*/)
+            {
+                DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+
+                if (!pInstance)
+                    return;
+
+                pInstance->SetData(TYPE_THE_MAKER_EVENT, IN_PROGRESS);
+                pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), false);
+            }
+
+            void KilledUnit(Unit* /*victim*/)
+            {
+                DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+            }
+
+            void JustDied(Unit* /*Killer*/)
+            {
+                DoScriptText(SAY_DIE, me);
+
+                if (!pInstance)
+                    return;
+
+                pInstance->SetData(TYPE_THE_MAKER_EVENT, DONE);
+                pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR2), true);
+                pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR3), true);
+
+             }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (AcidSpray_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_ACID_SPRAY);
+                    AcidSpray_Timer = 15000+rand()%8000;
+                }
+                else
+                    AcidSpray_Timer -=diff;
+
+                if (ExplodingBreaker_Timer <= diff)
+                {
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                        DoCast(pTarget, SPELL_EXPLODING_BREAKER);
+                    ExplodingBreaker_Timer = 4000+rand()%8000;
+                } 
+                else 
+                    ExplodingBreaker_Timer -=diff;
+
+                /* // Disabled until Core Support for mind control
+                if (domination_timer_timer <= diff)
+                {
+                Unit *pTarget;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+
+                DoCast(pTarget, SPELL_DOMINATION);
+
+                domination_timer = 120000;
+                } else domination_timer -=diff;
+                */
+
+                if (Knockdown_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                    Knockdown_Timer = 4000+rand()%8000;
+                } 
+                else 
+                    Knockdown_Timer -=diff;
+
+                DoMeleeAttackIfReady();
+            }
+        };
+
+        CreatureAI* GetAI(Creature* Creature) const
         {
-        Unit *pTarget;
-        pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-
-        DoCast(pTarget, SPELL_DOMINATION);
-
-        domination_timer = 120000;
-        } else domination_timer -=diff;
-        */
-
-        if (Knockdown_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_KNOCKDOWN);
-            Knockdown_Timer = 4000+rand()%8000;
-        } else Knockdown_Timer -=diff;
-
-        DoMeleeAttackIfReady();
-    }
+            return new boss_the_makerAI (Creature);
+        }
 };
-
-CreatureAI* GetAI_boss_the_makerAI(Creature* pCreature)
-{
-    return new boss_the_makerAI (pCreature);
-}
 
 void AddSC_boss_the_maker()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_the_maker";
-    newscript->GetAI = &GetAI_boss_the_makerAI;
-    newscript->RegisterSelf();
+    new boss_the_maker();
 }
 
