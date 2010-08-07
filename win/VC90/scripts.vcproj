@@ -3044,6 +3044,58 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="OutdoorPvP"
+			>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPEP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPEP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPHP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPHP.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPNA.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPNA.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPSI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPSI.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPTF.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPTF.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPZM.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\server\scripts\OutdoorPvP\OutdoorPvPZM.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
