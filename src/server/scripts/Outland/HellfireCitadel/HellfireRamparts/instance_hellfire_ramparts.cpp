@@ -26,61 +26,70 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "hellfire_ramparts.h"
 
-struct instance_ramparts : public ScriptedInstance
+class instance_ramparts : public InstanceMapScript
 {
-    instance_ramparts(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
-
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
-    uint64 m_uiChestNGUID;
-    uint64 m_uiChestHGUID;
-
-    void Initialize()
-    {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-        m_uiChestNGUID = 0;
-        m_uiChestHGUID = 0;
-    }
-
-    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
-    {
-        switch(pGo->GetEntry())
+    public:
+        instance_ramparts()
+            : InstanceMapScript("instance_ramparts")
         {
-            case 185168: m_uiChestNGUID = pGo->GetGUID(); break;
-            case 185169: m_uiChestHGUID = pGo->GetGUID(); break;
-        }
-    }
+        }            
 
-    void SetData(uint32 uiType, uint32 uiData)
-    {
-        sLog.outDebug("TSCR: Instance Ramparts: SetData received for type %u with data %u",uiType,uiData);
-
-        switch(uiType)
+        struct instance_ramparts_InstanceMapScript : public ScriptedInstance
         {
-            case TYPE_VAZRUDEN:
-                if (uiData == DONE && m_auiEncounter[1] == DONE)
-                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
-                m_auiEncounter[0] = uiData;
-                break;
-            case TYPE_NAZAN:
-                if (uiData == DONE && m_auiEncounter[0] == DONE)
-                    DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
-                m_auiEncounter[1] = uiData;
-                break;
+            instance_ramparts_InstanceMapScript(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
+
+            uint32 m_auiEncounter[MAX_ENCOUNTER];
+            uint64 m_uiChestNGUID;
+            uint64 m_uiChestHGUID;
+
+            void Initialize()
+            {
+                memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+                m_uiChestNGUID = 0;
+                m_uiChestHGUID = 0;
+            }
+
+            void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+            {
+                switch(pGo->GetEntry())
+                {
+                    case 185168: 
+                        m_uiChestNGUID = pGo->GetGUID(); 
+                        break;
+                    case 185169: 
+                        m_uiChestHGUID = pGo->GetGUID(); 
+                        break;
+                }
+            }
+
+            void SetData(uint32 uiType, uint32 uiData)
+            {
+                sLog.outDebug("TSCR: Instance Ramparts: SetData received for type %u with data %u",uiType,uiData);
+
+                switch(uiType)
+                {
+                    case TYPE_VAZRUDEN:
+                        if (uiData == DONE && m_auiEncounter[1] == DONE)
+                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                        m_auiEncounter[0] = uiData;
+                        break;
+                    case TYPE_NAZAN:
+                        if (uiData == DONE && m_auiEncounter[0] == DONE)
+                            DoRespawnGameObject(instance->IsHeroic() ? m_uiChestHGUID : m_uiChestNGUID, HOUR*IN_MILLISECONDS);
+                        m_auiEncounter[1] = uiData;
+                        break;
+                }
+            }
+        };
+
+        InstanceData* GetInstanceData(Map* pMap) const
+        {
+            return new instance_ramparts_InstanceMapScript(pMap);
         }
-    }
 };
-
-InstanceData* GetInstanceData_instance_ramparts(Map* pMap)
-{
-    return new instance_ramparts(pMap);
-}
 
 void AddSC_instance_ramparts()
 {
-    Script* pNewScript;
-    pNewScript = new Script;
-    pNewScript->Name = "instance_ramparts";
-    pNewScript->GetInstanceData = &GetInstanceData_instance_ramparts;
-    pNewScript->RegisterSelf();
+    new instance_ramparts;
 }
