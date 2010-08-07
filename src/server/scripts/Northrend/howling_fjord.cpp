@@ -43,108 +43,116 @@ enum Entries
     SPELL_COSMETIC_LOW_POLY_FIRE = 56274
 };
 
-bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, Quest const* quest)
+class npc_apothecary_hanes : public CreatureScript
 {
-    if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
+public:
+    npc_apothecary_hanes() : CreatureScript("npc_apothecary_hanes") { }
+
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
     {
-        switch (pPlayer->GetTeam())
+        if (quest->GetQuestId() == QUEST_TRAIL_OF_FIRE)
         {
-            case ALLIANCE:
-                pCreature->setFaction(FACTION_ESCORTEE_A);
-                break;
-            case HORDE:
-                pCreature->setFaction(FACTION_ESCORTEE_H);
-                break;
-        }
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
-    }
-    return true;
-}
-
-struct npc_Apothecary_HanesAI : public npc_escortAI
-{
-    npc_Apothecary_HanesAI(Creature* pCreature) : npc_escortAI(pCreature){}
-    uint32 PotTimer;
-
-    void Reset ()
-    {
-        SetDespawnAtFar(false);
-        PotTimer = 10000; //10 sec cooldown on potion
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (Player* pPlayer = GetPlayerForEscort())
-            pPlayer->FailQuest(QUEST_TRAIL_OF_FIRE);
-    }
-
-    void UpdateEscortAI(const uint32 diff)
-    {
-        if (HealthBelowPct(75))
-        {
-            if (PotTimer <= diff)
+            switch (pPlayer->GetTeam())
             {
-                DoCast(me, 17534, true);
-                PotTimer = 10000;
-            } else PotTimer -= diff;
+                case ALLIANCE:
+                    pCreature->setFaction(FACTION_ESCORTEE_A);
+                    break;
+                case HORDE:
+                    pCreature->setFaction(FACTION_ESCORTEE_H);
+                    break;
+            }
+            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
         }
-        if (GetAttack() && UpdateVictim())
-            DoMeleeAttackIfReady();
+        return true;
     }
 
-    void WaypointReached(uint32 i)
+    struct npc_Apothecary_HanesAI : public npc_escortAI
     {
-        Player* pPlayer = GetPlayerForEscort();
-        if (!pPlayer)
-            return;
-        switch(i)
+        npc_Apothecary_HanesAI(Creature* pCreature) : npc_escortAI(pCreature){}
+        uint32 PotTimer;
+
+        void Reset ()
         {
-            case 1:
-                me->SetReactState(REACT_AGGRESSIVE);
-                SetRun(true);
-                break;
-            case 23:
-                if (pPlayer)
-                    pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
-                me->ForcedDespawn();
-                break;
-            case 5:
-                if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
-                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                SetRun(false);
-                break;
-            case 6:
-                if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
-                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                SetRun(true);
-                break;
-            case 8:
-                if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
-                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                SetRun(false);
-                break;
-            case 9:
-                if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
-                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                break;
-            case 10:
-                SetRun(true);
-                break;
-            case 13:
-                SetRun(false);
-                break;
-            case 14:
-                if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
-                    Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
-                SetRun(true);
-                break;
+            SetDespawnAtFar(false);
+            PotTimer = 10000; //10 sec cooldown on potion
         }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Player* pPlayer = GetPlayerForEscort())
+                pPlayer->FailQuest(QUEST_TRAIL_OF_FIRE);
+        }
+
+        void UpdateEscortAI(const uint32 diff)
+        {
+            if (HealthBelowPct(75))
+            {
+                if (PotTimer <= diff)
+                {
+                    DoCast(me, 17534, true);
+                    PotTimer = 10000;
+                } else PotTimer -= diff;
+            }
+            if (GetAttack() && UpdateVictim())
+                DoMeleeAttackIfReady();
+        }
+
+        void WaypointReached(uint32 i)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+            if (!pPlayer)
+                return;
+            switch(i)
+            {
+                case 1:
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    SetRun(true);
+                    break;
+                case 23:
+                    if (pPlayer)
+                        pPlayer->GroupEventHappens(QUEST_TRAIL_OF_FIRE, me);
+                    me->ForcedDespawn();
+                    break;
+                case 5:
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                    SetRun(false);
+                    break;
+                case 6:
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                    SetRun(true);
+                    break;
+                case 8:
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                    SetRun(false);
+                    break;
+                case 9:
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                    break;
+                case 10:
+                    SetRun(true);
+                    break;
+                case 13:
+                    SetRun(false);
+                    break;
+                case 14:
+                    if (Unit* Trigger = me->FindNearestCreature(NPC_HANES_FIRE_TRIGGER,10.0f))
+                        Trigger->CastSpell(Trigger, SPELL_COSMETIC_LOW_POLY_FIRE, false);
+                    SetRun(true);
+                    break;
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_Apothecary_HanesAI(creature);
     }
 };
-CreatureAI* GetAI_npc_apothecary_hanes(Creature* pCreature)
-{
-    return new npc_Apothecary_HanesAI(pCreature);
-}
+
 /*######
 ## npc_plaguehound_tracker
 ######*/
@@ -154,54 +162,60 @@ enum ePlaguehound
     QUEST_SNIFF_OUT_ENEMY        = 11253
 };
 
-struct npc_plaguehound_trackerAI : public npc_escortAI
+class npc_plaguehound_tracker : public CreatureScript
 {
-    npc_plaguehound_trackerAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+public:
+    npc_plaguehound_tracker() : CreatureScript("npc_plaguehound_tracker") { }
 
-    void Reset()
+    struct npc_plaguehound_trackerAI : public npc_escortAI
     {
-        InitScriptData();
-    }
+        npc_plaguehound_trackerAI(Creature* pCreature) : npc_escortAI(pCreature) { }
 
-    void InitScriptData()
-    {
-        Player* pPlayer = NULL;
-        if (me->isSummon())
-            if (Unit* summoner = CAST_SUM(me)->GetSummoner())
-                if (summoner->GetTypeId() == TYPEID_PLAYER)
-                    pPlayer = CAST_PLR(summoner);
-
-        if (!pPlayer)
-            return;
-
-        me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
-        Start(false, false, pPlayer->GetGUID());
-    }
-
-    void WaypointReached(uint32 i)
-    {
-        Player* pPlayer = NULL;
-        if (me->isSummon())
-            if (Unit* summoner = CAST_SUM(me)->GetSummoner())
-                if (summoner->GetTypeId() == TYPEID_PLAYER)
-                    pPlayer = CAST_PLR(summoner);
-
-        if (!pPlayer)
-            return;
-
-        switch(i)
+        void Reset()
         {
-        case 26:
-            me->ForcedDespawn();
-            break;
+            InitScriptData();
         }
+
+        void InitScriptData()
+        {
+            Player* pPlayer = NULL;
+            if (me->isSummon())
+                if (Unit* summoner = CAST_SUM(me)->GetSummoner())
+                    if (summoner->GetTypeId() == TYPEID_PLAYER)
+                        pPlayer = CAST_PLR(summoner);
+
+            if (!pPlayer)
+                return;
+
+            me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+            Start(false, false, pPlayer->GetGUID());
+        }
+
+        void WaypointReached(uint32 i)
+        {
+            Player* pPlayer = NULL;
+            if (me->isSummon())
+                if (Unit* summoner = CAST_SUM(me)->GetSummoner())
+                    if (summoner->GetTypeId() == TYPEID_PLAYER)
+                        pPlayer = CAST_PLR(summoner);
+
+            if (!pPlayer)
+                return;
+
+            switch(i)
+            {
+            case 26:
+                me->ForcedDespawn();
+                break;
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_plaguehound_trackerAI(creature);
     }
 };
-
-CreatureAI* GetAI_npc_plaguehound_tracker(Creature* pCreature)
-{
-    return new npc_plaguehound_trackerAI(pCreature);
-}
 
 /*######
 ## npc_razael_and_lyana
@@ -221,50 +235,56 @@ enum eRazael
     GOSSIP_TEXTID_LYANA2 = 11588
 };
 
-bool GossipHello_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature)
+class npc_razael_and_lyana : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_razael_and_lyana() : CreatureScript("npc_razael_and_lyana") { }
 
-    if (pPlayer->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
-        switch (pCreature->GetEntry())
-        {
-            case NPC_RAZAEL:
-                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
-                {
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-                    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL1, pCreature->GetGUID());
-                    return true;
-                }
-            break;
-            case NPC_LYANA:
-                if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
-                {
-                    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA1, pCreature->GetGUID());
-                    return true;
-                }
-            break;
-        }
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_razael_and_lyana(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch (uiAction)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL2, pCreature->GetGUID());
-            pPlayer->TalkedToCreature(NPC_RAZAEL, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA2, pCreature->GetGUID());
-            pPlayer->TalkedToCreature(NPC_LYANA, pCreature->GetGUID());
-            break;
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pPlayer->GetQuestStatus(QUEST_REPORTS_FROM_THE_FIELD) == QUEST_STATUS_INCOMPLETE)
+            switch (pCreature->GetEntry())
+            {
+                case NPC_RAZAEL:
+                    if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_RAZAEL))
+                    {
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_RAZAEL_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL1, pCreature->GetGUID());
+                        return true;
+                    }
+                break;
+                case NPC_LYANA:
+                    if (!pPlayer->GetReqKillOrCastCurrentCount(QUEST_REPORTS_FROM_THE_FIELD, NPC_LYANA))
+                    {
+                        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LYANA_REPORT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA1, pCreature->GetGUID());
+                        return true;
+                    }
+                break;
+            }
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
     }
-    return true;
-}
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch (uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_RAZAEL2, pCreature->GetGUID());
+                pPlayer->TalkedToCreature(NPC_RAZAEL, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_LYANA2, pCreature->GetGUID());
+                pPlayer->TalkedToCreature(NPC_LYANA, pCreature->GetGUID());
+                break;
+        }
+        return true;
+    }
+};
 
 /*######
 ## npc_mcgoyver
@@ -283,56 +303,42 @@ enum eMcGoyver
     GOSSIP_TEXTID_MCGOYVER              = 12193
 };
 
-bool GossipHello_npc_mcgoyver(Player* pPlayer, Creature* pCreature)
+class npc_mcgoyver : public CreatureScript
 {
-    if (pPlayer->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+public:
+    npc_mcgoyver() : CreatureScript("npc_mcgoyver") { }
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_mcgoyver(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch(uiAction)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, pCreature->GetGUID());
-            pPlayer->CastSpell(pPlayer, SPELL_CREATURE_DARK_IRON_INGOTS, true);
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->CastSpell(pPlayer, SPELL_TAXI_EXPLORERS_LEAGUE, true);
-            pPlayer->CLOSE_GOSSIP_MENU();
-            break;
+        if (pPlayer->GetQuestStatus(QUEST_WE_CAN_REBUILD_IT) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
     }
-    return true;
-}
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_MG_II, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_MCGOYVER, pCreature->GetGUID());
+                pPlayer->CastSpell(pPlayer, SPELL_CREATURE_DARK_IRON_INGOTS, true);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                pPlayer->CastSpell(pPlayer, SPELL_TAXI_EXPLORERS_LEAGUE, true);
+                pPlayer->CLOSE_GOSSIP_MENU();
+                break;
+        }
+        return true;
+    }
+};
 
 void AddSC_howling_fjord()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_apothecary_hanes";
-    newscript->GetAI = &GetAI_npc_apothecary_hanes;
-    newscript->pQuestAccept = &QuestAccept_npc_apothecary_hanes;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_plaguehound_tracker";
-    newscript->GetAI = &GetAI_npc_plaguehound_tracker;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_razael_and_lyana";
-    newscript->pGossipHello =  &GossipHello_npc_razael_and_lyana;
-    newscript->pGossipSelect = &GossipSelect_npc_razael_and_lyana;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_mcgoyver";
-    newscript->pGossipHello = &GossipHello_npc_mcgoyver;
-    newscript->pGossipSelect = &GossipSelect_npc_mcgoyver;
-    newscript->RegisterSelf();
+    new npc_apothecary_hanes;
+    new npc_plaguehound_tracker;
+    new npc_razael_and_lyana;
+    new npc_mcgoyver;
  }

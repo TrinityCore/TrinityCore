@@ -54,58 +54,64 @@ enum eArete
     QUEST_THE_STORY_THUS_FAR    = 12807
 };
 
-bool GossipHello_npc_arete(Player* pPlayer, Creature* pCreature)
+class npc_arete : public CreatureScript
 {
-    if (pCreature->isQuestGiver())
-        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+public:
+    npc_arete() : CreatureScript("npc_arete") { }
 
-    if (pPlayer->GetQuestStatus(QUEST_THE_STORY_THUS_FAR) == QUEST_STATUS_INCOMPLETE)
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE1, pCreature->GetGUID());
+        if (pCreature->isQuestGiver())
+            pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+        if (pPlayer->GetQuestStatus(QUEST_THE_STORY_THUS_FAR) == QUEST_STATUS_INCOMPLETE)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE1, pCreature->GetGUID());
+            return true;
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
         return true;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_arete(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    switch(uiAction)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        case GOSSIP_ACTION_INFO_DEF+1:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE2, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+2:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE3, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+3:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE4, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+4:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE5, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+5:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE6, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+6:
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
-            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE7, pCreature->GetGUID());
-            break;
-        case GOSSIP_ACTION_INFO_DEF+7:
-            pPlayer->CLOSE_GOSSIP_MENU();
-            pPlayer->AreaExploredOrEventHappens(QUEST_THE_STORY_THUS_FAR);
-            break;
-    }
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE2, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE3, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE4, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE5, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE6, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+6:
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 7);
+                pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ARETE7, pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+7:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->AreaExploredOrEventHappens(QUEST_THE_STORY_THUS_FAR);
+                break;
+        }
 
-    return true;
-}
+        return true;
+    }
+};
 
 /*######
 ## npc_dame_evniki_kapsalis
@@ -116,21 +122,27 @@ enum eDameEnvikiKapsalis
     TITLE_CRUSADER    = 123
 };
 
-bool GossipHello_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature)
+class npc_dame_evniki_kapsalis : public CreatureScript
 {
-    if (pPlayer->HasTitle(TITLE_CRUSADER))
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+public:
+    npc_dame_evniki_kapsalis() : CreatureScript("npc_dame_evniki_kapsalis") { }
 
-    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
-    return true;
-}
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pPlayer->HasTitle(TITLE_CRUSADER))
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
-bool GossipSelect_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
-    return true;
-}
+        pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature), pCreature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_TRADE)
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+        return true;
+    }
+};
 
 /*######
 ## npc_squire_david
@@ -149,30 +161,34 @@ enum eSquireDavid
 #define GOSSIP_SQUIRE_ITEM_1 "I am ready to fight!"
 #define GOSSIP_SQUIRE_ITEM_2 "How do the Argent Crusader raiders fight?"
 
-bool GossipHello_npc_squire_david(Player* pPlayer, Creature* pCreature)
+class npc_squire_david : public CreatureScript
 {
-    if (pPlayer->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE ||
-        pPlayer->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
+public:
+    npc_squire_david() : CreatureScript("npc_squire_david") { }
+
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        if (pPlayer->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_H) == QUEST_STATUS_INCOMPLETE ||
+            pPlayer->GetQuestStatus(QUEST_THE_ASPIRANT_S_CHALLENGE_A) == QUEST_STATUS_INCOMPLETE)//We need more info about it.
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SQUIRE_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        }
+
+        pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE, pCreature->GetGUID());
+        return true;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_SQUIRE, pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_squire_david(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->SummonCreature(NPC_ARGENT_VALIANT,8575.451,952.472,547.554,0.38);
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pCreature->SummonCreature(NPC_ARGENT_VALIANT,8575.451,952.472,547.554,0.38);
+        }
+        return true;
     }
-    //else
-        //pPlayer->SEND_GOSSIP_MENU(???, pCreature->GetGUID()); Missing text
-    return true;
-}
+};
 
 /*######
 ## npc_argent_valiant
@@ -186,69 +202,75 @@ enum eArgentValiant
     NPC_ARGENT_VALIANT_CREDIT   = 24108
 };
 
-struct npc_argent_valiantAI : public ScriptedAI
+class npc_argent_valiant : public CreatureScript
 {
-    npc_argent_valiantAI(Creature* pCreature) : ScriptedAI(pCreature)
+public:
+    npc_argent_valiant() : CreatureScript("npc_argent_valiant") { }
+
+    struct npc_argent_valiantAI : public ScriptedAI
     {
-        pCreature->GetMotionMaster()->MovePoint(0,8599.258,963.951,547.553);
-        pCreature->setFaction(35); //wrong faction in db?
-    }
-
-    uint32 uiChargeTimer;
-    uint32 uiShieldBreakerTimer;
-
-    void Reset()
-    {
-        uiChargeTimer = 7000;
-        uiShieldBreakerTimer = 10000;
-    }
-
-    void MovementInform(uint32 uiType, uint32 /*uiId*/)
-    {
-        if (uiType != POINT_MOTION_TYPE)
-            return;
-
-        me->setFaction(14);
-    }
-
-    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
-    {
-        if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        npc_argent_valiantAI(Creature* pCreature) : ScriptedAI(pCreature)
         {
-            uiDamage = 0;
-            CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
-            me->setFaction(35);
-            me->ForcedDespawn(5000);
-            me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
-            EnterEvadeMode();
+            pCreature->GetMotionMaster()->MovePoint(0,8599.258,963.951,547.553);
+            pCreature->setFaction(35); //wrong faction in db?
         }
-    }
 
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!UpdateVictim())
-            return;
+        uint32 uiChargeTimer;
+        uint32 uiShieldBreakerTimer;
 
-        if (uiChargeTimer <= uiDiff)
+        void Reset()
         {
-            DoCastVictim(SPELL_CHARGE);
             uiChargeTimer = 7000;
-        } else uiChargeTimer -= uiDiff;
-
-        if (uiShieldBreakerTimer <= uiDiff)
-        {
-            DoCastVictim(SPELL_SHIELD_BREAKER);
             uiShieldBreakerTimer = 10000;
-        } else uiShieldBreakerTimer -= uiDiff;
+        }
 
-        DoMeleeAttackIfReady();
+        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        {
+            if (uiType != POINT_MOTION_TYPE)
+                return;
+
+            me->setFaction(14);
+        }
+
+        void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+        {
+            if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiDamage = 0;
+                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT,0);
+                me->setFaction(35);
+                me->ForcedDespawn(5000);
+                me->SetHomePosition(me->GetPositionX(),me->GetPositionY(),me->GetPositionZ(),me->GetOrientation());
+                EnterEvadeMode();
+            }
+        }
+
+        void UpdateAI(const uint32 uiDiff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiChargeTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_CHARGE);
+                uiChargeTimer = 7000;
+            } else uiChargeTimer -= uiDiff;
+
+            if (uiShieldBreakerTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_SHIELD_BREAKER);
+                uiShieldBreakerTimer = 10000;
+            } else uiShieldBreakerTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_argent_valiantAI(creature);
     }
 };
-
-CreatureAI* GetAI_npc_argent_valiant(Creature* pCreature)
-{
-    return new npc_argent_valiantAI (pCreature);
-}
 
 /*######
 ## npc_argent_tournament_post
@@ -261,30 +283,36 @@ enum eArgentTournamentPost
     NPC_ICEHOWL                     = 35470
 };
 
-struct npc_argent_tournament_postAI : public ScriptedAI
+class npc_argent_tournament_post : public CreatureScript
 {
-    npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+public:
+    npc_argent_tournament_post() : CreatureScript("npc_argent_tournament_post") { }
 
-    void UpdateAI(const uint32 /*uiDiff*/)
+    struct npc_argent_tournament_postAI : public ScriptedAI
     {
-        if (me->IsNonMeleeSpellCasted(false))
-            return;
+        npc_argent_tournament_postAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-        if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
-            DoCast(pTarget, SPELL_ROPE_BEAM);
+        void UpdateAI(const uint32 /*uiDiff*/)
+        {
+            if (me->IsNonMeleeSpellCasted(false))
+                return;
 
-        if (Creature* pTarget2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
-            DoCast(pTarget2, SPELL_ROPE_BEAM);
+            if (Creature* pTarget = me->FindNearestCreature(NPC_GORMOK_THE_IMPALER, 6.0f))
+                DoCast(pTarget, SPELL_ROPE_BEAM);
 
-        if (!UpdateVictim())
-            return;
+            if (Creature* pTarget2 = me->FindNearestCreature(NPC_ICEHOWL, 6.0f))
+                DoCast(pTarget2, SPELL_ROPE_BEAM);
+
+            if (!UpdateVictim())
+                return;
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_argent_tournament_postAI(creature);
     }
 };
-
-CreatureAI* GetAI_npc_argent_tournament_post(Creature* pCreature)
-{
-    return new npc_argent_tournament_postAI (pCreature);
-}
 
 /*######
 ## npc_alorah_and_grimmin
@@ -299,45 +327,51 @@ enum ealorah_and_grimmin
     NPC_PRIEST_GRIMMIN              = 36102
 };
 
-struct npc_alorah_and_grimminAI : public ScriptedAI
+class npc_alorah_and_grimmin : public CreatureScript
 {
-    npc_alorah_and_grimminAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+public:
+    npc_alorah_and_grimmin() : CreatureScript("npc_alorah_and_grimmin") { }
 
-    bool uiCast;
-
-    void Reset()
+    struct npc_alorah_and_grimminAI : public ScriptedAI
     {
-        uiCast = false;
-    }
+        npc_alorah_and_grimminAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-    void UpdateAI(const uint32 /*uiDiff*/)
-    {
-        if (uiCast)
-            return;
-        uiCast = true;
-        Creature* pTarget = NULL;
+        bool uiCast;
 
-        switch(me->GetEntry())
+        void Reset()
         {
-            case NPC_PRIESTESS_ALORAH:
-                pTarget = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
-                break;
-            case NPC_PRIEST_GRIMMIN:
-                pTarget = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
-                break;
+            uiCast = false;
         }
-        if (pTarget)
-            DoCast(pTarget, SPELL_CHAIN);
 
-        if (!UpdateVictim())
-            return;
+        void UpdateAI(const uint32 /*uiDiff*/)
+        {
+            if (uiCast)
+                return;
+            uiCast = true;
+            Creature* pTarget = NULL;
+
+            switch(me->GetEntry())
+            {
+                case NPC_PRIESTESS_ALORAH:
+                    pTarget = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
+                    break;
+                case NPC_PRIEST_GRIMMIN:
+                    pTarget = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
+                    break;
+            }
+            if (pTarget)
+                DoCast(pTarget, SPELL_CHAIN);
+
+            if (!UpdateVictim())
+                return;
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_alorah_and_grimminAI(creature);
     }
 };
-
-CreatureAI* GetAI_npc_alorah_and_grimmin(Creature* pCreature)
-{
-    return new npc_alorah_and_grimminAI (pCreature);
-}
 
 /*######
 ## npc_guardian_pavilion
@@ -352,73 +386,47 @@ enum eGuardianPavilion
     SPELL_TRESPASSER_A                            = 63986,
 };
 
-struct npc_guardian_pavilionAI : public Scripted_NoMovementAI
+class npc_guardian_pavilion : public CreatureScript
 {
-    npc_guardian_pavilionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) {}
+public:
+    npc_guardian_pavilion() : CreatureScript("npc_guardian_pavilion") { }
 
-    void MoveInLineOfSight(Unit* pWho)
+    struct npc_guardian_pavilionAI : public Scripted_NoMovementAI
     {
-        if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
-            return;
+        npc_guardian_pavilionAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature) {}
 
-        if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(pWho) || !me->isInBackInMap(pWho, 5.0f))
-            return;
+        void MoveInLineOfSight(Unit* pWho)
+        {
+            if (me->GetAreaId() != AREA_SUNREAVER_PAVILION && me->GetAreaId() != AREA_SILVER_COVENANT_PAVILION)
+                return;
 
-        if (pWho->HasAura(SPELL_TRESPASSER_H) || pWho->HasAura(SPELL_TRESPASSER_A))
-            return;
+            if (!pWho || pWho->GetTypeId() != TYPEID_PLAYER || !me->IsHostileTo(pWho) || !me->isInBackInMap(pWho, 5.0f))
+                return;
 
-        if (pWho->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
-            pWho->CastSpell(pWho, SPELL_TRESPASSER_H, true);
-        else
-            pWho->CastSpell(pWho, SPELL_TRESPASSER_A, true);
+            if (pWho->HasAura(SPELL_TRESPASSER_H) || pWho->HasAura(SPELL_TRESPASSER_A))
+                return;
 
+            if (pWho->ToPlayer()->GetTeamId() == TEAM_ALLIANCE)
+                pWho->CastSpell(pWho, SPELL_TRESPASSER_H, true);
+            else
+                pWho->CastSpell(pWho, SPELL_TRESPASSER_A, true);
+
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_guardian_pavilionAI(creature);
     }
 };
 
-CreatureAI* GetAI_npc_guardian_pavilion(Creature* pCreature)
-{
-    return new npc_guardian_pavilionAI (pCreature);
-}
-
 void AddSC_icecrown()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_arete";
-    newscript->pGossipHello = &GossipHello_npc_arete;
-    newscript->pGossipSelect = &GossipSelect_npc_arete;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_dame_evniki_kapsalis";
-    newscript->pGossipHello = &GossipHello_npc_dame_evniki_kapsalis;
-    newscript->pGossipSelect = &GossipSelect_npc_dame_evniki_kapsalis;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_squire_david";
-    newscript->pGossipHello = &GossipHello_npc_squire_david;
-    newscript->pGossipSelect = &GossipSelect_npc_squire_david;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_argent_valiant";
-    newscript->GetAI = &GetAI_npc_argent_valiant;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_argent_tournament_post";
-    newscript->GetAI = &GetAI_npc_argent_tournament_post;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_alorah_and_grimmin";
-    newscript->GetAI = &GetAI_npc_alorah_and_grimmin;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_guardian_pavilion";
-    newscript->GetAI = &GetAI_npc_guardian_pavilion;
-    newscript->RegisterSelf();
+    new npc_arete;
+    new npc_dame_evniki_kapsalis;
+    new npc_squire_david;
+    new npc_argent_valiant;
+    new npc_argent_tournament_post;
+    new npc_alorah_and_grimmin;
+    new npc_guardian_pavilion;
 }
