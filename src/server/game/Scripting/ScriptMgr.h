@@ -910,22 +910,23 @@ class ScriptMgr
 
     public: /* ScriptRegistry */
 
+        // This is the global static registry of scripts.
         template<class TScript>
         class ScriptRegistry
         {
             // Counter used for code-only scripts.
-            static int _scriptIdCounter;
+            static uint32 _scriptIdCounter;
  
             public:
  
-                typedef std::map<int, TScript*> ScriptMap;
+                typedef std::map<uint32, TScript*> ScriptMap;
  
                 // The actual list of scripts. This will be accessed concurrently, so it must not be modified
                 // after server startup.
                 static ScriptMap ScriptPointerList;
  
                 // Gets a script by its ID (assigned by ObjectMgr).
-                static TScript* GetScriptById(int id)
+                static TScript* GetScriptById(uint32 id)
                 {
                     ScriptMap it = ScriptPointerList.find(id);
                     if (it != ScriptPointerList.end())
