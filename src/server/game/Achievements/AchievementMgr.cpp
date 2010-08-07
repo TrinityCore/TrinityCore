@@ -22,8 +22,6 @@
 #include "World.h"
 #include "WorldPacket.h"
 #include "DatabaseEnv.h"
-
-
 #include "AchievementMgr.h"
 #include "ArenaTeam.h"
 #include "CellImpl.h"
@@ -35,7 +33,7 @@
 #include "ProgressBar.h"
 #include "SpellMgr.h"
 #include "DisableMgr.h"
-
+#include "ScriptMgr.h"
 #include "MapManager.h"
 #include "BattleGround.h"
 #include "BattleGroundAB.h"
@@ -314,7 +312,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             return target->getGender() == gender.gender;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
-            return sScriptMgr.OnCriteriaCheck(source, target);
+            return sScriptMgr.OnCriteriaCheck(this, const_cast<Player*>(source), const_cast<Unit*>(target));
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             return source->GetMap()->GetSpawnMode() == difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:

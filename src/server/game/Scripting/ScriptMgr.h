@@ -35,6 +35,7 @@
 #include "ConditionMgr.h"
 #include "Vehicle.h"
 #include "Transport.h"
+#include "AchievementMgr.h"
 
 class Player;
 class Creature;
@@ -768,7 +769,7 @@ class AchievementCriteriaScript : public ScriptObject
 
         bool IsDatabaseBound() const { return true; }
 
-        // Called when additional criteria is checked
+        // Called when an additional criteria is checked.
         virtual bool OnCheck(Player* source, Unit* target) = 0;
 };
 
@@ -813,9 +814,9 @@ class ScriptMgr
         void OnNetworkStop();
         void OnSocketOpen(WorldSocket* socket);
         void OnSocketClose(WorldSocket* socket, bool wasNew);
-        void OnPacketReceive(WorldSocket* socket, WorldPacket& packet);
-        void OnPacketSend(WorldSocket* socket, WorldPacket& packet);
-        void OnUnknownPacketReceive(WorldSocket* socket, WorldPacket& packet);
+        void OnPacketReceive(WorldSocket* socket, WorldPacket packet);
+        void OnPacketSend(WorldSocket* socket, WorldPacket packet);
+        void OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet);
 
     public: /* WorldScript */
 
