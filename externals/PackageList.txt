@@ -28,14 +28,6 @@ SFMT (SIMD-oriented Fast Mersenne Twister)
   http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/SFMT/index.html
   Version: 1.3.3
 
-MySQL (the world's most popular open source database software)
-  http://www.mysql.com/about/
-  Version: 6.0.2
-
-OpenSSL (an opensource toolkit implementing SSL v2/v3 and TLS v1 protocols)
-  http://www.openssl.org/
-  Version: UNKNOWN
-
 sockets (a GPL licensed C++ class library wrapping the berkeley sockets C API)
   http://www.alhem.net/Sockets/
   Version: UNKNOWN
