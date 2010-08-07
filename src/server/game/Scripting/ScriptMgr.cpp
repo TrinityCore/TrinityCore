@@ -1006,6 +1006,12 @@ void ScriptMgr::OnTransportUpdate(Transport* transport, uint32 diff)
     tmpscript->OnUpdate(transport, diff);
 }
 
+void ScriptMgr::OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z)
+{
+    GET_SCRIPT(TransportScript, transport->GetScriptId(), tmpscript);
+    tmpscript->OnRelocate(transport, mapId, x, y, z);
+}
+
 void SpellHandlerScript::RegisterSelf()
 {
     ScriptMgr::ScriptRegistry<SpellHandlerScript>::AddScript(this);

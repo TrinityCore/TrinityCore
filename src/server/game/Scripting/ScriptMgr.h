@@ -729,6 +729,9 @@ class TransportScript : public ScriptObject, public UpdatableScript<Transport>
 
         // Called when a player exits the transport.
         virtual void OnRemovePassenger(Transport* transport, Player* player) { }
+
+        // Called when a transport moves.
+        virtual void OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z) { }
 };
 
 // Placed here due to ScriptRegistry::AddScript dependency.
@@ -895,6 +898,7 @@ class ScriptMgr
         void OnAddCreaturePassenger(Transport* transport, Creature* creature);
         void OnRemovePassenger(Transport* transport, Player* player);
         void OnTransportUpdate(Transport* transport, uint32 diff);
+        void OnRelocate(Transport* transport, uint32 mapId, float x, float y, float z);
 
     public: /* ScriptRegistry */
 
