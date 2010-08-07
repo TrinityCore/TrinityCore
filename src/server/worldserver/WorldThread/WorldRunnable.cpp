@@ -27,7 +27,7 @@
 #include "World.h"
 #include "WorldSocketMgr.h"
 #include "Database/DatabaseEnv.h"
-
+#include "ScriptMgr.h"
 #include "BattleGroundMgr.h"
 #include "MapManager.h"
 #include "Timer.h"
@@ -53,6 +53,8 @@ void WorldRunnable::run()
 
     uint32 prevSleepTime = 0;                               // used for balanced full tick time length near WORLD_SLEEP_CONST
 
+    sScriptMgr.OnStartup();
+
     ///- While we have not World::m_stopEvent, update the world
     while (!World::IsStopped())
     {
@@ -77,10 +79,15 @@ void WorldRunnable::run()
             prevSleepTime = 0;
 
         #ifdef _WIN32
-            if (m_ServiceStatus == 0) World::StopNow(SHUTDOWN_EXIT_CODE);
-            while (m_ServiceStatus == 2) Sleep(1000);
+            if (m_ServiceStatus == 0)
+                World::StopNow(SHUTDOWN_EXIT_CODE);
+
+            while (m_ServiceStatus == 2)
+                Sleep(1000);
         #endif
     }
+
+    sScriptMgr.OnShutdown();
 
     sWorld.KickAll();                                       // save and kick all players
     sWorld.UpdateSessions( 1 );                             // real players unload required UpdateSessions call

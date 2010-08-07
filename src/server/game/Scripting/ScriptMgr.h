@@ -292,6 +292,12 @@ class WorldScript : public ScriptObject, public UpdatableScript<void>
 
         // Called on every world tick (don't execute too heavy code here).
         virtual void OnUpdate(void* null, uint32 diff) { }
+
+        // Called when the world is started.
+        virtual void OnStartup() { }
+
+        // Called when the world is actually shut down.
+        virtual void OnShutdown() { }
 };
 
 class FormulaScript : public ScriptObject
@@ -787,6 +793,8 @@ class ScriptMgr
         void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask);
         void OnShutdownCancel();
         void OnWorldUpdate(uint32 diff);
+        void OnStartup();
+        void OnShutdown();
 
     public: /* FormulaScript */
 
