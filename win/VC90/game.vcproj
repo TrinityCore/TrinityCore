@@ -607,58 +607,6 @@
 				RelativePath="..\..\src\server\game\OutdoorPvP\OutdoorPvPMgr.h"
 				>
 			</File>
-			<Filter
-				Name="Zones"
-				>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPEP.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPEP.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPHP.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPHP.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPNA.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPNA.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPSI.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPSI.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPTF.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPTF.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPZM.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\server\game\OutdoorPvP\Zones\OutdoorPvPZM.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Scripting"
