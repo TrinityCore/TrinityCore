@@ -142,7 +142,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new boss_ysondreAI(creature);
     }
@@ -183,7 +183,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new mob_dementeddruidsAI(creature);
     }

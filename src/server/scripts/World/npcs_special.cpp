@@ -255,7 +255,7 @@ public:
     };
 
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_air_force_botsAI(creature);
     }
@@ -372,7 +372,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_chicken_cluckAI(creature);
     }
@@ -472,7 +472,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_dancing_flamesAI(creature);
     }
@@ -681,7 +681,7 @@ public:
         return true;
     }
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_doctorAI(creature);
     }
@@ -801,7 +801,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature)
+    CreatureAI *GetAI(Creature *creature)
     {
         return new npc_injured_patientAI(creature);
     }
@@ -1073,7 +1073,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_garments_of_questsAI(creature);
     }
@@ -1116,7 +1116,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature)
+    CreatureAI *GetAI(Creature *creature)
     {
         return new npc_guardianAI(creature);
     }
@@ -1526,7 +1526,7 @@ public:
 
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_steam_tonkAI(creature);
     }
@@ -1568,7 +1568,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_tonk_mineAI(creature);
     }
@@ -1596,7 +1596,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_brewfest_revelerAI(creature);
     }
@@ -1636,7 +1636,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_winter_revelerAI(creature);
     }
@@ -1758,7 +1758,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_snake_trap_serpentsAI(creature);
     }
@@ -1843,7 +1843,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature)
+    CreatureAI *GetAI(Creature *creature)
     {
         return new mob_mojoAI(creature);
     }
@@ -1889,7 +1889,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_mirror_imageAI(creature);
     }
@@ -1981,7 +1981,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_ebon_gargoyleAI(creature);
     }
@@ -2002,7 +2002,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_lightwellAI(creature);
     }
@@ -2081,7 +2081,7 @@ public:
         void MoveInLineOfSight(Unit * /*who*/){return;}
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_training_dummyAI(creature);
     }
@@ -2119,7 +2119,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new npc_shadowfiendAI(creature);
     }

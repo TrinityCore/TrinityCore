@@ -84,7 +84,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new mob_water_elementalAI(creature);
     }
@@ -195,7 +195,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new boss_balindaAI(creature);
     }

@@ -258,7 +258,7 @@ class example_creature : public CreatureScript
             }
         };
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new example_creatureAI(creature);
         }

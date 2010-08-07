@@ -178,7 +178,7 @@ class example_escort : public CreatureScript
             }
         };
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new example_escortAI(creature);
         }
