@@ -527,7 +527,6 @@ void AddSC_shaman_spell_scripts();
 void AddSC_warlock_spell_scripts();
 void AddSC_warrior_spell_scripts();
 void AddSC_example_spell_scripts();
-
 #endif
 
 void AddScripts()
@@ -546,14 +545,17 @@ void AddScripts()
 
 void AddExampleScripts()
 {
+#ifdef SCRIPTS
     AddSC_example_creature();
     AddSC_example_escort();
     AddSC_example_gossip_codebox();
     AddSC_example_misc();
+#endif
 }
 
 void AddSpellScripts()
 {
+#ifdef SCRIPTS
     AddSC_deathknight_spell_scripts();
     AddSC_druid_spell_scripts();
     AddSC_generic_spell_scripts();
@@ -566,10 +568,12 @@ void AddSpellScripts()
     AddSC_warlock_spell_scripts();
     AddSC_warrior_spell_scripts();
     AddSC_example_spell_scripts();
+#endif
 }
 
 void AddWorldScripts()
 {
+#ifdef SCRIPTS
     AddSC_areatrigger_scripts();
     AddSC_boss_emeriss();
     AddSC_boss_taerar();
@@ -582,10 +586,12 @@ void AddWorldScripts()
     AddSC_npc_innkeeper();
     AddSC_npcs_special();
     AddSC_npc_taxi();
+#endif
 }
 
 void AddEasternKingdomsScripts()
 {
+#ifdef SCRIPTS
     AddSC_alterac_valley();                 //Alterac Valley
     AddSC_boss_balinda();
     AddSC_boss_drekthar();
@@ -767,10 +773,12 @@ void AddEasternKingdomsScripts()
     AddSC_western_plaguelands();
     AddSC_westfall();
     AddSC_wetlands();
+#endif
 }
 
 void AddKalimdorScripts()
 {
+#ifdef SCRIPTS
     AddSC_blackfathom_deeps();              //Blackfathom Depths
     AddSC_boss_gelihast();
     AddSC_boss_kelris();
@@ -855,10 +863,12 @@ void AddKalimdorScripts()
     AddSC_thunder_bluff();
     AddSC_ungoro_crater();
     AddSC_winterspring();
+#endif
 }
 
 void AddOutlandScripts()
 {
+#ifdef SCRIPTS
     AddSC_boss_exarch_maladaar();           //Auchindoun Auchenai Crypts
     AddSC_boss_shirrak_the_dead_watcher();
     AddSC_boss_nexusprince_shaffar();       //Auchindoun Mana Tombs
@@ -940,10 +950,12 @@ void AddOutlandScripts()
     AddSC_terokkar_forest();
     AddSC_zangarmarsh();
     AddSC_onevents();
+#endif
 }
 
 void AddNorthrendScripts()
 {
+#ifdef SCRIPTS
     AddSC_boss_slad_ran();               //Gundrak
     AddSC_boss_moorabi();
     AddSC_boss_drakkari_colossus();
@@ -1064,9 +1076,12 @@ void AddNorthrendScripts()
     AddSC_storm_peaks();
     AddSC_zuldrak();
     AddSC_crystalsong_forest();
+#endif
 }
 
 void AddCustomScripts()
 {
+#ifdef SCRIPTS
     /* This is where custom scripts should be added. */
+#endif
 }
