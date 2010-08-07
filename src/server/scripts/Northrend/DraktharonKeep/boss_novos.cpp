@@ -63,157 +63,168 @@ static Position AddSpawnPoint = { -379.20, -816.76, 59.70 };
 static Position CrystalHandlerSpawnPoint = { -326.626343, -709.956604, 27.813314 };
 static Position AddDestinyPoint = { -379.314545, -772.577637, 28.58837 };
 
-struct boss_novosAI : public Scripted_NoMovementAI
+class boss_novos : public CreatureScript
 {
-    boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
+public:
+    boss_novos() : CreatureScript("boss_novos") { }
+
+    struct boss_novosAI : public Scripted_NoMovementAI
     {
-        pInstance = c->GetInstanceData();
-    }
-
-    uint32 uiTimer;
-    uint32 uiCrystalHandlerTimer;
-
-    bool bAchiev;
-
-    SummonList lSummons;
-
-    std::list<uint64> luiCrystals;
-
-    CombatPhase Phase;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
-    {
-        Phase = IDLE;
-        luiCrystals.clear();
-        bAchiev = true;
-        me->CastStop();
-        lSummons.DespawnAll();
-
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-
-        if (pInstance)
+        boss_novosAI(Creature *c) : Scripted_NoMovementAI(c), lSummons(me)
         {
-            pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
-            luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_1));
-            luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_2));
-            luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_3));
-            luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_4));
-            for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
-            {
-                if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
-                    pTemp->SetGoState(GO_STATE_READY);
-            }
+            pInstance = c->GetInstanceData();
         }
-    }
 
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        Phase = PHASE_1;
-        uiCrystalHandlerTimer = 30*IN_MILLISECONDS;
-        uiTimer = 1*IN_MILLISECONDS;
-        DoCast(SPELL_ARCANE_FIELD);
-        if (pInstance)
+        uint32 uiTimer;
+        uint32 uiCrystalHandlerTimer;
+
+        bool bAchiev;
+
+        SummonList lSummons;
+
+        std::list<uint64> luiCrystals;
+
+        CombatPhase Phase;
+
+        ScriptedInstance* pInstance;
+
+        void Reset()
         {
-            for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
-            {
-                if (GameObject *pTemp = pInstance->instance->GetGameObject(*itr))
-                    pTemp->SetGoState(GO_STATE_ACTIVE);
-            }
-            pInstance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
-        }
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        switch (Phase)
-        {
-            case PHASE_1:
-                if (uiTimer <= diff)
-                {
-                    Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
-                    pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
-                    //If spell is casted stops casting arcane field so no spell casting
-                    //DoCast(me, SPELL_SUMMON_MINIONS);
-                    uiTimer = 3*IN_MILLISECONDS;
-                } else uiTimer -= diff;
-                if (uiCrystalHandlerTimer <= diff)
-                {
-                    DoScriptText(SAY_NECRO_ADD, me);
-                    Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
-                    pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
-                    uiCrystalHandlerTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
-                } else uiCrystalHandlerTimer -= diff;
-                break;
-            case PHASE_2:
-                if (uiTimer <= diff)
-                {
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
-                                                     RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
-                    uiTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
-                } else uiTimer -= diff;
-                break;
-        }
-    }
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        if (pInstance)
-        {
-            pInstance->SetData(DATA_NOVOS_EVENT, DONE);
-
-            if (IsHeroic() && bAchiev)
-                pInstance->DoCompleteAchievement(ACHIEV_OH_NOVOS);
-        }
-        lSummons.DespawnAll();
-    }
-
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-        DoScriptText(SAY_KILL, me);
-    }
-
-    void JustSummoned(Creature *summon)
-    {
-        lSummons.Summon(summon);
-    }
-
-    void RemoveCrystal()
-    {
-        if (!luiCrystals.empty())
-        {
-            if (pInstance)
-                if (GameObject *pTemp = pInstance->instance->GetGameObject(luiCrystals.back()))
-                    pTemp->SetGoState(GO_STATE_READY);
-            luiCrystals.pop_back();
-        }
-        if (luiCrystals.empty())
-        {
+            Phase = IDLE;
+            luiCrystals.clear();
+            bAchiev = true;
             me->CastStop();
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            Phase = PHASE_2;
-            uiTimer = 1*IN_MILLISECONDS;
-        }
-    }
+            lSummons.DespawnAll();
 
-    Unit* GetRandomTarget()
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
+                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_1));
+                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_2));
+                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_3));
+                luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_4));
+                for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
+                {
+                    if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
+                        pTemp->SetGoState(GO_STATE_READY);
+                }
+            }
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+            Phase = PHASE_1;
+            uiCrystalHandlerTimer = 30*IN_MILLISECONDS;
+            uiTimer = 1*IN_MILLISECONDS;
+            DoCast(SPELL_ARCANE_FIELD);
+            if (pInstance)
+            {
+                for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
+                {
+                    if (GameObject *pTemp = pInstance->instance->GetGameObject(*itr))
+                        pTemp->SetGoState(GO_STATE_ACTIVE);
+                }
+                pInstance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
+            }
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            switch (Phase)
+            {
+                case PHASE_1:
+                    if (uiTimer <= diff)
+                    {
+                        Creature *pSummon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE,CREATURE_HULKING_CORPSE,CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                        pSummon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
+                        //If spell is casted stops casting arcane field so no spell casting
+                        //DoCast(me, SPELL_SUMMON_MINIONS);
+                        uiTimer = 3*IN_MILLISECONDS;
+                    } else uiTimer -= diff;
+                    if (uiCrystalHandlerTimer <= diff)
+                    {
+                        DoScriptText(SAY_NECRO_ADD, me);
+                        Creature *pCrystalHandler = me->SummonCreature(CREATURE_CRYSTAL_HANDLER, CrystalHandlerSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN,20*IN_MILLISECONDS);
+                        pCrystalHandler->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
+                        uiCrystalHandlerTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+                    } else uiCrystalHandlerTimer -= diff;
+                    break;
+                case PHASE_2:
+                    if (uiTimer <= diff)
+                    {
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                            DoCast(pTarget, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST,SPELL_BLIZZARD,SPELL_FROSTBOLT,SPELL_WRATH_OF_MISERY),
+                                                         RAND(H_SPELL_ARCANE_BLAST,H_SPELL_BLIZZARD,H_SPELL_FROSTBOLT,H_SPELL_WRATH_OF_MISERY)));
+                        uiTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
+                    } else uiTimer -= diff;
+                    break;
+            }
+        }
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_NOVOS_EVENT, DONE);
+
+                if (IsHeroic() && bAchiev)
+                    pInstance->DoCompleteAchievement(ACHIEV_OH_NOVOS);
+            }
+            lSummons.DespawnAll();
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+            DoScriptText(SAY_KILL, me);
+        }
+
+        void JustSummoned(Creature *summon)
+        {
+            lSummons.Summon(summon);
+        }
+
+        void RemoveCrystal()
+        {
+            if (!luiCrystals.empty())
+            {
+                if (pInstance)
+                    if (GameObject *pTemp = pInstance->instance->GetGameObject(luiCrystals.back()))
+                        pTemp->SetGoState(GO_STATE_READY);
+                luiCrystals.pop_back();
+            }
+            if (luiCrystals.empty())
+            {
+                me->CastStop();
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                Phase = PHASE_2;
+                uiTimer = 1*IN_MILLISECONDS;
+            }
+        }
+
+        Unit* GetRandomTarget()
+        {
+            return SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
     {
-        return SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
+        return new boss_novosAI(creature);
     }
 };
 
@@ -223,105 +234,99 @@ enum CrystalHandlerSpells
     H_SPELL_FLASH_OF_DARKNESS                     = 59004
 };
 
-struct mob_crystal_handlerAI : public ScriptedAI
+class mob_crystal_handler : public CreatureScript
 {
-    mob_crystal_handlerAI(Creature *c) : ScriptedAI(c)
+public:
+    mob_crystal_handler() : CreatureScript("mob_crystal_handler") { }
+
+    struct mob_crystal_handlerAI : public ScriptedAI
     {
-        pInstance = c->GetInstanceData();
-    }
-
-    uint32 uiFlashOfDarknessTimer;
-
-    ScriptedInstance *pInstance;
-
-    void Reset()
-    {
-        uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-            CAST_AI(boss_novosAI,pNovos->AI())->RemoveCrystal();
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (uiFlashOfDarknessTimer <= diff)
+        mob_crystal_handlerAI(Creature *c) : ScriptedAI(c)
         {
-            DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
-            uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
-        } else uiFlashOfDarknessTimer -= diff;
-
-        DoMeleeAttackIfReady();
-    }
-
-    void MovementInform(uint32 type, uint32 id)
-    {
-        if (type != POINT_MOTION_TYPE || id != 0)
-            return;
-        if (Creature *pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-            if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
-                AttackStart(pTarget);
-    }
-};
-
-struct mob_novos_minionAI : public ScriptedAI
-{
-    mob_novos_minionAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance *pInstance;
-
-    void MovementInform(uint32 type, uint32 id)
-    {
-        if (type != POINT_MOTION_TYPE || id !=0)
-            return;
-        if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
-        {
-            CAST_AI(boss_novosAI, pNovos->AI())->bAchiev = false;
-            if (Unit *pTarget = CAST_AI(boss_novosAI, pNovos->AI())->GetRandomTarget())
-                AttackStart(pTarget);
+            pInstance = c->GetInstanceData();
         }
+
+        uint32 uiFlashOfDarknessTimer;
+
+        ScriptedInstance *pInstance;
+
+        void Reset()
+        {
+            uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+                CAST_AI(boss_novos::boss_novosAI,pNovos->AI())->RemoveCrystal();
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (uiFlashOfDarknessTimer <= diff)
+            {
+                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS,H_SPELL_FLASH_OF_DARKNESS));
+                uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
+            } else uiFlashOfDarknessTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE || id != 0)
+                return;
+            if (Creature *pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+                if (Unit *pTarget = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
+                    AttackStart(pTarget);
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new mob_crystal_handlerAI(creature);
     }
 };
 
-CreatureAI* GetAI_boss_novos(Creature* pCreature)
+class mob_novos_minion : public CreatureScript
 {
-    return new boss_novosAI (pCreature);
-}
+public:
+    mob_novos_minion() : CreatureScript("mob_novos_minion") { }
 
-CreatureAI* GetAI_mob_crystal_handler(Creature* pCreature)
-{
-    return new mob_crystal_handlerAI (pCreature);
-}
+    struct mob_novos_minionAI : public ScriptedAI
+    {
+        mob_novos_minionAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceData();
+        }
 
-CreatureAI* GetAI_mob_novos_minion(Creature* pCreature)
-{
-    return new mob_novos_minionAI (pCreature);
-}
+        ScriptedInstance *pInstance;
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE || id !=0)
+                return;
+            if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            {
+                CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->bAchiev = false;
+                if (Unit *pTarget = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
+                    AttackStart(pTarget);
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new mob_novos_minionAI(creature);
+    }
+};
 
 void AddSC_boss_novos()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_novos";
-    newscript->GetAI = &GetAI_boss_novos;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_crystal_handler";
-    newscript->GetAI = &GetAI_mob_crystal_handler;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_novos_minion";
-    newscript->GetAI = &GetAI_mob_novos_minion;
-    newscript->RegisterSelf();
+    new boss_novos;
+    new mob_crystal_handler;
+    new mob_novos_minion;
 }

@@ -46,224 +46,229 @@ enum Creatures
     NPC_RAPTOR_2                                  = 26628
 };
 
-struct boss_dredAI : public ScriptedAI
+class boss_dred : public CreatureScript
 {
-    boss_dredAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_dred() : CreatureScript("boss_dred") { }
+
+    struct boss_dredAI : public ScriptedAI
     {
-        pInstance = c->GetInstanceData();
-    }
-
-    uint32 uiBellowingRoarTimer;
-    uint32 uiGrievousBiteTimer;
-    uint32 uiManglingSlashTimer;
-    uint32 uiFearsomeRoarTimer;
-    uint32 uiPiercingSlashTimer;
-    uint32 uiRaptorCallTimer;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
-    {
-        if (pInstance)
+        boss_dredAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance->SetData(DATA_DRED_EVENT,NOT_STARTED);
-            pInstance->SetData(DATA_KING_DRED_ACHIEV, 0);
+            pInstance = c->GetInstanceData();
         }
 
-        uiBellowingRoarTimer = 33*IN_MILLISECONDS;
-        uiGrievousBiteTimer  = 20*IN_MILLISECONDS;
-        uiManglingSlashTimer = 18.5*IN_MILLISECONDS;
-        uiFearsomeRoarTimer  = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
-        uiPiercingSlashTimer = 17*IN_MILLISECONDS;
-        uiRaptorCallTimer    = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);
-    }
+        uint32 uiBellowingRoarTimer;
+        uint32 uiGrievousBiteTimer;
+        uint32 uiManglingSlashTimer;
+        uint32 uiFearsomeRoarTimer;
+        uint32 uiPiercingSlashTimer;
+        uint32 uiRaptorCallTimer;
 
-    void EnterCombat(Unit* /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_DRED_EVENT,IN_PROGRESS);
-    }
+        ScriptedInstance* pInstance;
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (uiBellowingRoarTimer < diff)
+        void Reset()
         {
-            DoCastAOE(SPELL_BELLOWING_ROAR, false);
-            uiBellowingRoarTimer = 40*IN_MILLISECONDS;
-        } else uiBellowingRoarTimer -=diff;
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_DRED_EVENT,NOT_STARTED);
+                pInstance->SetData(DATA_KING_DRED_ACHIEV, 0);
+            }
 
-        if (uiGrievousBiteTimer < diff)
-        {
-            DoCastVictim(SPELL_GRIEVOUS_BITE ,false);
-            uiGrievousBiteTimer = 20*IN_MILLISECONDS;
-        } else uiGrievousBiteTimer -=diff;
-
-        if (uiManglingSlashTimer < diff)
-        {
-            DoCastVictim(SPELL_MANGLING_SLASH,false);
-            uiManglingSlashTimer = 20*IN_MILLISECONDS;
-        } else uiManglingSlashTimer -=diff;
-
-        if (uiFearsomeRoarTimer < diff)
-        {
-            DoCastAOE(SPELL_FEARSOME_ROAR,false);
-            uiFearsomeRoarTimer = urand(16*IN_MILLISECONDS,18*IN_MILLISECONDS);
-        } else uiFearsomeRoarTimer -=diff;
-
-        if (uiPiercingSlashTimer < diff)
-        {
-            DoCastVictim(SPELL_PIERCING_SLASH,false);
-            uiPiercingSlashTimer = 20*IN_MILLISECONDS;
-        } else uiPiercingSlashTimer -=diff;
-
-        if (uiRaptorCallTimer < diff)
-        {
-            DoCastVictim(SPELL_RAPTOR_CALL,false);
-
-            float x,y,z;
-
-            me->GetClosePoint(x,y,z,me->GetObjectSize()/3,10.0f);
-            me->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILLISECONDS);
-
-            uiRaptorCallTimer = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);
-        } else uiRaptorCallTimer -=diff;
-
-        DoMeleeAttackIfReady();
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (pInstance)
-        {
-            pInstance->SetData(DATA_DRED_EVENT,DONE);
-
-            if (IsHeroic() && pInstance->GetData(DATA_KING_DRED_ACHIEV) == 6)
-                pInstance->DoCompleteAchievement(ACHIEV_BETTER_OFF_DRED);
+            uiBellowingRoarTimer = 33*IN_MILLISECONDS;
+            uiGrievousBiteTimer  = 20*IN_MILLISECONDS;
+            uiManglingSlashTimer = 18.5*IN_MILLISECONDS;
+            uiFearsomeRoarTimer  = urand(10*IN_MILLISECONDS,20*IN_MILLISECONDS);
+            uiPiercingSlashTimer = 17*IN_MILLISECONDS;
+            uiRaptorCallTimer    = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);
         }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_DRED_EVENT,IN_PROGRESS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (uiBellowingRoarTimer < diff)
+            {
+                DoCastAOE(SPELL_BELLOWING_ROAR, false);
+                uiBellowingRoarTimer = 40*IN_MILLISECONDS;
+            } else uiBellowingRoarTimer -=diff;
+
+            if (uiGrievousBiteTimer < diff)
+            {
+                DoCastVictim(SPELL_GRIEVOUS_BITE ,false);
+                uiGrievousBiteTimer = 20*IN_MILLISECONDS;
+            } else uiGrievousBiteTimer -=diff;
+
+            if (uiManglingSlashTimer < diff)
+            {
+                DoCastVictim(SPELL_MANGLING_SLASH,false);
+                uiManglingSlashTimer = 20*IN_MILLISECONDS;
+            } else uiManglingSlashTimer -=diff;
+
+            if (uiFearsomeRoarTimer < diff)
+            {
+                DoCastAOE(SPELL_FEARSOME_ROAR,false);
+                uiFearsomeRoarTimer = urand(16*IN_MILLISECONDS,18*IN_MILLISECONDS);
+            } else uiFearsomeRoarTimer -=diff;
+
+            if (uiPiercingSlashTimer < diff)
+            {
+                DoCastVictim(SPELL_PIERCING_SLASH,false);
+                uiPiercingSlashTimer = 20*IN_MILLISECONDS;
+            } else uiPiercingSlashTimer -=diff;
+
+            if (uiRaptorCallTimer < diff)
+            {
+                DoCastVictim(SPELL_RAPTOR_CALL,false);
+
+                float x,y,z;
+
+                me->GetClosePoint(x,y,z,me->GetObjectSize()/3,10.0f);
+                me->SummonCreature(RAND(NPC_RAPTOR_1,NPC_RAPTOR_2),x,y,z,0,TEMPSUMMON_DEAD_DESPAWN,1*IN_MILLISECONDS);
+
+                uiRaptorCallTimer = urand(20*IN_MILLISECONDS,25*IN_MILLISECONDS);
+            } else uiRaptorCallTimer -=diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_DRED_EVENT,DONE);
+
+                if (IsHeroic() && pInstance->GetData(DATA_KING_DRED_ACHIEV) == 6)
+                    pInstance->DoCompleteAchievement(ACHIEV_BETTER_OFF_DRED);
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new boss_dredAI(creature);
     }
 };
 
-CreatureAI* GetAI_boss_dred(Creature* pCreature)
+class npc_drakkari_gutripper : public CreatureScript
 {
-    return new boss_dredAI (pCreature);
-}
+public:
+    npc_drakkari_gutripper() : CreatureScript("npc_drakkari_gutripper") { }
 
-struct npc_drakkari_gutripperAI : public ScriptedAI
-{
-    npc_drakkari_gutripperAI(Creature *c) : ScriptedAI(c)
+    struct npc_drakkari_gutripperAI : public ScriptedAI
     {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance* pInstance;
-
-    uint32 GutRipTimer;
-
-    void Reset()
-    {
-        GutRipTimer = urand(10000,15000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (GutRipTimer < diff)
+        npc_drakkari_gutripperAI(Creature *c) : ScriptedAI(c)
         {
-            DoCastVictim(SPELL_GUT_RIP,false);
+            pInstance = c->GetInstanceData();
+        }
+
+        ScriptedInstance* pInstance;
+
+        uint32 GutRipTimer;
+
+        void Reset()
+        {
             GutRipTimer = urand(10000,15000);
-        }else GutRipTimer -=diff;
+        }
 
-        DoMeleeAttackIfReady();
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (pInstance)
+        void UpdateAI(const uint32 diff)
         {
-            if (IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (GutRipTimer < diff)
             {
-                pInstance->SetData(DATA_KING_DRED_ACHIEV, pInstance->GetData(DATA_KING_DRED_ACHIEV) + 1);
+                DoCastVictim(SPELL_GUT_RIP,false);
+                GutRipTimer = urand(10000,15000);
+            }else GutRipTimer -=diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (pInstance)
+            {
+                if (IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
+                {
+                    pInstance->SetData(DATA_KING_DRED_ACHIEV, pInstance->GetData(DATA_KING_DRED_ACHIEV) + 1);
+                }
             }
         }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_drakkari_gutripperAI(creature);
     }
 };
 
-CreatureAI* GetAI_npc_drakkari_gutripper(Creature* pCreature)
+class npc_drakkari_scytheclaw : public CreatureScript
 {
-    return new npc_drakkari_gutripperAI (pCreature);
-}
+public:
+    npc_drakkari_scytheclaw() : CreatureScript("npc_drakkari_scytheclaw") { }
 
-struct npc_drakkari_scytheclawAI : public ScriptedAI
-{
-    npc_drakkari_scytheclawAI(Creature *c) : ScriptedAI(c)
+    struct npc_drakkari_scytheclawAI : public ScriptedAI
     {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance* pInstance;
-
-    uint32 uiRendTimer;
-
-    void Reset()
-    {
-        uiRendTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (uiRendTimer < diff)
+        npc_drakkari_scytheclawAI(Creature *c) : ScriptedAI(c)
         {
-            DoCastVictim(SPELL_REND,false);
+            pInstance = c->GetInstanceData();
+        }
+
+        ScriptedInstance* pInstance;
+
+        uint32 uiRendTimer;
+
+        void Reset()
+        {
             uiRendTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
-        }else uiRendTimer -=diff;
+        }
 
-        DoMeleeAttackIfReady();
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (pInstance)
+        void UpdateAI(const uint32 diff)
         {
-            if (IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (uiRendTimer < diff)
             {
-                pInstance->SetData(DATA_KING_DRED_ACHIEV, pInstance->GetData(DATA_KING_DRED_ACHIEV) + 1);
+                DoCastVictim(SPELL_REND,false);
+                uiRendTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
+            }else uiRendTimer -=diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (pInstance)
+            {
+                if (IsHeroic() && pInstance->GetData(DATA_DRED_EVENT) == IN_PROGRESS && pInstance->GetData(DATA_KING_DRED_ACHIEV) < 6)
+                {
+                    pInstance->SetData(DATA_KING_DRED_ACHIEV, pInstance->GetData(DATA_KING_DRED_ACHIEV) + 1);
+                }
             }
         }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_drakkari_scytheclawAI(creature);
     }
 };
-
-CreatureAI* GetAI_npc_drakkari_scytheclaw(Creature* pCreature)
-{
-    return new npc_drakkari_scytheclawAI (pCreature);
-}
 
 void AddSC_boss_dred()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_drakkari_gutripper";
-    newscript->GetAI = &GetAI_npc_drakkari_gutripper;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_drakkari_scytheclaw";
-    newscript->GetAI = &GetAI_npc_drakkari_scytheclaw;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "boss_dred";
-    newscript->GetAI = &GetAI_boss_dred;
-    newscript->RegisterSelf();
+    new npc_drakkari_gutripper;
+    new npc_drakkari_scytheclaw;
+    new boss_dred;
 }
