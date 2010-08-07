@@ -3573,6 +3573,11 @@ void Spell::EffectDispel(uint32 i)
     // Create dispel mask by dispel type
     uint32 dispel_type = m_spellInfo->EffectMiscValue[i];
     uint32 dispelMask  = GetDispellMask(DispelType(dispel_type));
+
+    // we should not be able to dispel diseases if the target is affected by unholy blight
+    if (dispelMask & (1 << DISPEL_DISEASE) && unitTarget->HasAura(50536))
+        dispelMask &= ~(1 << DISPEL_DISEASE);
+
     Unit::AuraMap const& auras = unitTarget->GetOwnedAuras();
     for (Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
     {
