@@ -484,7 +484,7 @@ bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_templa
 {
     bool wasInMap = AuctionsMap.erase(auction->Id) ? true : false;
 
-    sScriptMgr.OnRemoveAuction(this, auction);
+    sScriptMgr.OnAuctionRemove(this, auction);
 
 	// we need to delete the entry, it is not referenced any more
 	delete auction;
