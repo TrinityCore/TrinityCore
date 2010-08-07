@@ -135,10 +135,11 @@ class ScriptObject
 
     public:
 
-        // Called when the script is initialized. Use it to initialize any properties of the script.
+        // Called when the script is initialized. Use it to initialize any properties of the script. Do not use
+        // the constructor for this.
         virtual void OnInitialize() { }
 
-        // Called when the script is deleted. Use it to free memory, etc.
+        // Called when the script is deleted. Use it to free memory, etc. Do not use the destructor for this.
         virtual void OnTeardown() { }
 
         // Do not override this in scripts; it should be overridden by the various script type classes. It indicates
@@ -284,7 +285,7 @@ class WorldScript : public ScriptObject, public UpdatableScript<void>
         virtual void OnMotdChange(std::string& newMotd) { }
 
         // Called when a world shutdown is initiated.
-        virtual void OnShutdown(ShutdownExitCode code, ShutdownMask mask) { }
+        virtual void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask) { }
 
         // Called when a world shutdown is cancelled.
         virtual void OnShutdownCancel() { }
@@ -312,21 +313,21 @@ class FormulaScript : public ScriptObject
         virtual void OnHonorCalculation(uint32& honor, uint8 level, uint32 count) { }
 
         // Called after gray level calculation.
-        virtual void OnGetGrayLevel(uint8& grayLevel, uint8 playerLevel) { }
+        virtual void OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel) { }
 
         // Called after calculating experience color.
-        virtual void OnGetColorCode(XPColorChar& color, uint8 playerLevel, uint8 mobLevel) { }
+        virtual void OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel) { }
 
         // Called after calculating zero difference.
-        virtual void OnGetZeroDifference(uint8& diff, uint8 playerLevel) { }
+        virtual void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel) { }
 
         // Called after calculating base experience gain.
-        virtual void OnGetBaseGain(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content) { }
+        virtual void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content) { }
 
         // Called after calculating experience gain.
-        virtual void OnGetGain(uint32& gain, Player* player, Unit* unit) { }
+        virtual void OnGainCalculation(uint32& gain, Player* player, Unit* unit) { }
 
-        virtual void OnGetGroupRate(float& rate, uint32 count, bool isRaid) { }
+        virtual void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid) { }
 };
 
 template<class TMap> class MapScript : public UpdatableScript<TMap>
@@ -354,10 +355,10 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
         virtual void OnDestroy(TMap* map) { }
 
         // Called when a grid map is loaded.
-        virtual void OnLoadGridMap(TMap* map, uint32 gx, uint32 gy) { }
+        virtual void OnLoadGridMap(TMap* map, GridMap* gmap, uint32 gx, uint32 gy) { }
 
         // Called when a grid map is unloaded.
-        virtual void OnUnloadGridMap(TMap* map, uint32 gx, uint32 gy)  { }
+        virtual void OnUnloadGridMap(TMap* map, GridMap* gmap, uint32 gx, uint32 gy)  { }
 
         // Called when a player enters the map.
         virtual void OnPlayerEnter(TMap* map, Player* player) { }
@@ -401,7 +402,7 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
         bool IsDatabaseBound() const { return true; }
 
         // Gets an InstanceData object for this instance.
-        virtual InstanceData* OnGetInstanceData(InstanceMap* map) { return NULL; }
+        virtual InstanceData* GetInstanceData(InstanceMap* map) { return NULL; }
 };
 
 class BattlegroundMapScript : public ScriptObject, public MapScript<BattleGroundMap>
@@ -484,10 +485,10 @@ class CreatureScript : public ScriptObject, public UpdatableScript<Creature>
         virtual bool OnQuestReward(Player* player, Creature* creature, Quest const* quest, uint32 opt) { return false; }
 
         // Called when the dialog status between a player and the creature is requested.
-        virtual uint32 OnDialogStatus(Player* player, Creature* creature) { return 0; }
+        virtual uint32 GetDialogStatus(Player* player, Creature* creature) { return 0; }
 
         // Called when a CreatureAI object is needed for the creature.
-        virtual CreatureAI* OnGetAI(Creature* creature) const { return NULL; }
+        virtual CreatureAI* GetAI(Creature* creature) const { return NULL; }
 };
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -523,7 +524,7 @@ class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
         virtual bool OnQuestReward(Player* player, GameObject* go, Quest const* quest, uint32 opt) { return false; }
         
         // Called when the dialog status between a player and the gameobject is requested.
-        virtual uint32 OnDialogStatus(Player* player, GameObject* go) { return 0; }
+        virtual uint32 GetDialogStatus(Player* player, GameObject* go) { return 0; }
 
         // Called when the gameobject is destroyed (destructible buildings only).
         virtual void OnDestroyed(Player* player, GameObject* go, uint32 eventId) { }
@@ -562,7 +563,7 @@ class BattlegroundScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Should return a fully valid BattleGround object for the type ID.
-        virtual BattleGround* OnGetBattleground() = 0;
+        virtual BattleGround* GetBattleground() = 0;
 };
 
 class OutdoorPvPScript : public ScriptObject
@@ -580,7 +581,7 @@ class OutdoorPvPScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Should return a fully valid OutdoorPvP object for the type ID.
-        virtual OutdoorPvP* OnGetOutdoorPvP() = 0;
+        virtual OutdoorPvP* GetOutdoorPvP() = 0;
 };
 
 class CommandScript : public ScriptObject
@@ -596,7 +597,7 @@ class CommandScript : public ScriptObject
     public:
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual ChatCommand* OnGetCommands() = 0;
+        virtual ChatCommand* GetCommands() = 0;
 };
 
 class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
@@ -780,7 +781,7 @@ class ScriptMgr
         void OnOpenStateChange(bool open);
         void OnConfigLoad(bool reload);
         void OnMotdChange(std::string& newMotd);
-        void OnShutdown(ShutdownExitCode code, ShutdownMask mask);
+        void OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask);
         void OnShutdownCancel();
         void OnWorldUpdate(uint32 diff);
 
@@ -788,21 +789,21 @@ class ScriptMgr
 
         void OnHonorCalculation(float& honor, uint8 level, uint32 count);
         void OnHonorCalculation(uint32& honor, uint8 level, uint32 count);
-        void OnGetGrayLevel(uint8& grayLevel, uint8 playerLevel);
-        void OnGetColorCode(XPColorChar& color, uint8 playerLevel, uint8 mobLevel);
-        void OnGetZeroDifference(uint8& diff, uint8 playerLevel);
-        void OnGetBaseGain(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content);
-        void OnGetGain(uint32& gain, Player* player, Unit* unit);
-        void OnGetGroupRate(float& rate, uint32 count, bool isRaid);
+        void OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel);
+        void OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel);
+        void OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel);
+        void OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content);
+        void OnGainCalculation(uint32& gain, Player* player, Unit* unit);
+        void OnGroupRateCalculation(float& rate, uint32 count, bool isRaid);
 
     public: /* MapScript */
 
         void OnCreateMap(Map* map);
         void OnDestroyMap(Map* map);
-        void OnLoadGridMap(Map* map, uint32 gx, uint32 gy);
-        void OnUnloadGridMap(Map* map, uint32 gx, uint32 gy);
-        void OnPlayerEnter(Map* map, Player* player);
-        void OnPlayerLeave(Map* map, Player* player);
+        void OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy);
+        void OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy);
+        void OnPlayerEnterMap(Map* map, Player* player);
+        void OnPlayerLeaveMap(Map* map, Player* player);
         void OnMapUpdate(Map* map, uint32 diff);
 
     public: /* InstanceMapScript */
@@ -844,7 +845,7 @@ class ScriptMgr
 
     public: /* AreaTriggerScript */
 
-        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger);
+        bool OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger);
 
     public: /* BattlegroundScript */
 
