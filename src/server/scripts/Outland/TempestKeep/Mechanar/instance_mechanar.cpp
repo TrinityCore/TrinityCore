@@ -79,7 +79,7 @@ class instance_mechanar : public InstanceMapScript
                 }
             }
         };
-            InstanceData* OnGetInstanceData(InstanceMap* pMap)
+            InstanceData* GetInstanceData(InstanceMap* pMap) const
             {
                 return new instance_mechanar_InstanceMapScript(pMap);
             }

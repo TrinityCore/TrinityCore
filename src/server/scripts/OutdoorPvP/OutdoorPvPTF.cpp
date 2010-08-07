@@ -309,3 +309,22 @@ void OPvPCapturePointTF::SendChangePhase()
     SendUpdateWorldState(TF_UI_TOWER_SLIDER_N, m_neutralValuePct);
 }
 
+class OutdoorPvP_terokkar_forest : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_terokkar_forest()
+            : OutdoorPvPScript("outdoorpvp_tf")
+        {
+        }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPTF();
+        }
+};
+
+void AddSC_outdoorpvp_tf()
+{
+    new OutdoorPvP_terokkar_forest();
+}
