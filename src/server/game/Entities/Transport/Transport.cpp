@@ -564,20 +564,22 @@ void Transport::Update(uint32 p_diff)
         }
         else
         {
-            Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z, GetAngle(m_next->second.x,m_next->second.y) + 3.1415926f);
+            Relocate(m_curr->second.x, m_curr->second.y, m_curr->second.z, GetAngle(m_next->second.x,m_next->second.y) + float(M_PI));
             UpdateNPCPositions(); // COME BACK MARKER
         }
+
+        sScriptMgr.OnRelocate(this, m_curr->second.mapid, m_curr->second.x, m_curr->second.y, m_curr->second.z);
 
         m_nextNodeTime = m_curr->first;
 
         if (m_curr == m_WayPoints.begin() && (sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES) == 0)
-            sLog.outDetail(" ************ BEGIN ************** %s", this->m_name.c_str());
+            sLog.outDetail(" ************ BEGIN ************** %s", m_name.c_str());
 
         if ((sLog.getLogFilter() & LOG_FILTER_TRANSPORT_MOVES) == 0)
-            sLog.outDetail("%s moved to %d %f %f %f %d", this->m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
-
-        sScriptMgr.OnTransportUpdate(this, p_diff);
+            sLog.outDetail("%s moved to %d %f %f %f %d", m_name.c_str(), m_curr->second.id, m_curr->second.x, m_curr->second.y, m_curr->second.z, m_curr->second.mapid);
     }
+
+    sScriptMgr.OnTransportUpdate(this, p_diff);
 }
 
 void Transport::UpdateForMap(Map const* targetMap)
