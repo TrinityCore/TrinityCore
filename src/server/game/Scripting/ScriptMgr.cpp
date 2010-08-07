@@ -168,6 +168,7 @@ ScriptMgr::~ScriptMgr()
     SCR_CLEAR(VehicleScript);
     SCR_CLEAR(DynamicObjectScript);
     SCR_CLEAR(TransportScript);
+    SCR_CLEAR(AchievementCriteriaScript);
 
     #undef SCR_CLEAR
 }
@@ -355,21 +356,21 @@ void ScriptMgr::OnSocketClose(WorldSocket* socket, bool wasNew)
     FOREACH_SCRIPT(ServerScript)->OnSocketClose(socket, wasNew);
 }
 
-void ScriptMgr::OnPacketReceive(WorldSocket* socket, WorldPacket& packet)
+void ScriptMgr::OnPacketReceive(WorldSocket* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnPacketReceive(socket, packet);
 }
 
-void ScriptMgr::OnPacketSend(WorldSocket* socket, WorldPacket& packet)
+void ScriptMgr::OnPacketSend(WorldSocket* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
     FOREACH_SCRIPT(ServerScript)->OnPacketSend(socket, packet);
 }
 
-void ScriptMgr::OnUnknownPacketReceive(WorldSocket* socket, WorldPacket& packet)
+void ScriptMgr::OnUnknownPacketReceive(WorldSocket* socket, WorldPacket packet)
 {
     ASSERT(socket);
 
@@ -503,6 +504,7 @@ void ScriptMgr::OnDestroyMap(Map* map)
 void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
 {
     ASSERT(map);
+    ASSERT(gmap);
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
         itr->second->OnLoadGridMap(map, gmap, gx, gy);
@@ -520,6 +522,7 @@ void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
 void ScriptMgr::OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
 {
     ASSERT(map);
+    ASSERT(gmap);
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
         itr->second->OnUnloadGridMap(map, gmap, gx, gy);
@@ -923,6 +926,7 @@ bool ScriptMgr::OnConditionCheck(Condition* condition, Player* player, Unit* tar
 {
     ASSERT(condition);
     ASSERT(player);
+    // targetOverride can be NULL.
 
     GET_SCRIPT_RET(ConditionScript, condition->mScriptId, tmpscript, true);
     return tmpscript->OnConditionCheck(condition, player, targetOverride);
@@ -1056,7 +1060,7 @@ void ScriptMgr::OnShutdown()
 bool ScriptMgr::OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target)
 {
     ASSERT(source);
-    // target can be NULL
+    // target can be NULL.
 
     GET_SCRIPT_RET(AchievementCriteriaScript, data->ScriptId, tmpscript, false);
     return tmpscript->OnCheck(source, target);
