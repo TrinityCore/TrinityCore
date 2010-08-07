@@ -37,97 +37,109 @@ enum eEnums
     SPELL_POISON            = 30914
 };
 
-struct boss_broggokAI : public ScriptedAI
+class boss_broggok : public CreatureScript
 {
-    boss_broggokAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
+    public:
 
-    ScriptedInstance* pInstance;
-
-    uint32 AcidSpray_Timer;
-    uint32 PoisonSpawn_Timer;
-    uint32 PoisonBolt_Timer;
-
-    void Reset()
-    {
-        AcidSpray_Timer = 10000;
-        PoisonSpawn_Timer = 5000;
-        PoisonBolt_Timer = 7000;
-        if (pInstance)
+        boss_broggok()
+            : CreatureScript("boss_broggok")
         {
-            pInstance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
         }
-    }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-        if (pInstance)
+        struct boss_broggokAI : public ScriptedAI
         {
-            pInstance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), false);
+            boss_broggokAI(Creature* pCreature) : ScriptedAI(pCreature)
+            {
+                pInstance = pCreature->GetInstanceData();
+            }
+
+            ScriptedInstance* pInstance;
+
+            uint32 AcidSpray_Timer;
+            uint32 PoisonSpawn_Timer;
+            uint32 PoisonBolt_Timer;
+
+            void Reset()
+            {
+                AcidSpray_Timer = 10000;
+                PoisonSpawn_Timer = 5000;
+                PoisonBolt_Timer = 7000;
+                if (pInstance)
+                {
+                    pInstance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
+                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
+                }
+            }
+
+            void EnterCombat(Unit * /*who*/)
+            {
+                DoScriptText(SAY_AGGRO, me);
+                if (pInstance)
+                {
+                    pInstance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
+                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), false);
+                }
+            }
+
+            void JustSummoned(Creature *summoned)
+            {
+                summoned->setFaction(16);
+                summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                summoned->CastSpell(summoned,SPELL_POISON,false,0,0,me->GetGUID());
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                if (AcidSpray_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_SLIME_SPRAY);
+                    AcidSpray_Timer = 4000+rand()%8000;
+                } 
+                else
+                    AcidSpray_Timer -=diff;
+
+                if (PoisonBolt_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_POISON_BOLT);
+                    PoisonBolt_Timer = 4000+rand()%8000;
+                } 
+                else 
+                    PoisonBolt_Timer -=diff;
+
+                if (PoisonSpawn_Timer <= diff)
+                {
+                    DoCast(me, SPELL_POISON_CLOUD);
+                    PoisonSpawn_Timer = 20000;
+                } 
+                else 
+                    PoisonSpawn_Timer -=diff;
+
+                DoMeleeAttackIfReady();
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                if (pInstance)
+                {
+                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
+                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR5), true);
+                    pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
+                }
+            }
+
+        };
+
+        CreatureAI* GetAI(Creature* Creature) const
+        {
+            return new boss_broggokAI (Creature);
         }
-    }
-
-    void JustSummoned(Creature *summoned)
-    {
-        summoned->setFaction(16);
-        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        summoned->CastSpell(summoned,SPELL_POISON,false,0,0,me->GetGUID());
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (AcidSpray_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_SLIME_SPRAY);
-            AcidSpray_Timer = 4000+rand()%8000;
-        } else AcidSpray_Timer -=diff;
-
-        if (PoisonBolt_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_POISON_BOLT);
-            PoisonBolt_Timer = 4000+rand()%8000;
-        } else PoisonBolt_Timer -=diff;
-
-        if (PoisonSpawn_Timer <= diff)
-        {
-            DoCast(me, SPELL_POISON_CLOUD);
-            PoisonSpawn_Timer = 20000;
-        } else PoisonSpawn_Timer -=diff;
-
-        DoMeleeAttackIfReady();
-    }
-
-    void JustDied(Unit* /*who*/)
-    {
-        if (pInstance)
-        {
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR5), true);
-            pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
-        }
-    }
-
 };
-
-CreatureAI* GetAI_boss_broggok(Creature* pCreature)
-{
-    return new boss_broggokAI (pCreature);
-}
 
 void AddSC_boss_broggok()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_broggok";
-    newscript->GetAI = &GetAI_boss_broggok;
-    newscript->RegisterSelf();
+    new boss_broggok();
 }
