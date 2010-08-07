@@ -54,143 +54,144 @@ enum Creatures
 
 Position AddSpawnPoint = { -260.493011, -622.968018, 26.605301, 3.036870 };
 
-struct boss_trollgoreAI : public ScriptedAI
+class boss_trollgore : public CreatureScript
 {
-    boss_trollgoreAI(Creature *c) : ScriptedAI(c), lSummons(me)
+public:
+    boss_trollgore() : CreatureScript("boss_trollgore") { }
+
+    struct boss_trollgoreAI : public ScriptedAI
     {
-        pInstance = c->GetInstanceData();
-    }
-
-    uint32 uiConsumeTimer;
-    uint32 uiAuraCountTimer;
-    uint32 uiCrushTimer;
-    uint32 uiInfectedWoundTimer;
-    uint32 uiExplodeCorpseTimer;
-    uint32 uiSpawnTimer;
-
-    bool bAchiev;
-
-    SummonList lSummons;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
-    {
-        uiConsumeTimer = 15*IN_MILLISECONDS;
-        uiAuraCountTimer = 15.5*IN_MILLISECONDS;
-        uiCrushTimer = urand(1*IN_MILLISECONDS,5*IN_MILLISECONDS);
-        uiInfectedWoundTimer = urand(60*IN_MILLISECONDS,10*IN_MILLISECONDS);
-        uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
-        uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
-
-        bAchiev = IsHeroic();
-
-        lSummons.DespawnAll();
-
-        me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
-
-        if (pInstance)
-            pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-
-        if (pInstance)
-            pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (uiSpawnTimer <= diff)
+        boss_trollgoreAI(Creature *c) : ScriptedAI(c), lSummons(me)
         {
-            uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
-            for (uint8 i = 0; i < spawnNumber; ++i)
-                DoSummon(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
-            uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
-        } else uiSpawnTimer -= diff;
+            pInstance = c->GetInstanceData();
+        }
 
-        if (uiConsumeTimer <= diff)
+        uint32 uiConsumeTimer;
+        uint32 uiAuraCountTimer;
+        uint32 uiCrushTimer;
+        uint32 uiInfectedWoundTimer;
+        uint32 uiExplodeCorpseTimer;
+        uint32 uiSpawnTimer;
+
+        bool bAchiev;
+
+        SummonList lSummons;
+
+        ScriptedInstance* pInstance;
+
+        void Reset()
         {
-            DoScriptText(SAY_CONSUME, me);
-            DoCast(SPELL_CONSUME);
             uiConsumeTimer = 15*IN_MILLISECONDS;
-        } else uiConsumeTimer -= diff;
+            uiAuraCountTimer = 15.5*IN_MILLISECONDS;
+            uiCrushTimer = urand(1*IN_MILLISECONDS,5*IN_MILLISECONDS);
+            uiInfectedWoundTimer = urand(60*IN_MILLISECONDS,10*IN_MILLISECONDS);
+            uiExplodeCorpseTimer = 3*IN_MILLISECONDS;
+            uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
 
-        if (bAchiev)
-        {
-            Aura *pConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
-            if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
-                bAchiev = false;
+            bAchiev = IsHeroic();
+
+            lSummons.DespawnAll();
+
+            me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+
+            if (pInstance)
+                pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
         }
 
-        if (uiCrushTimer <= diff)
+        void EnterCombat(Unit* /*who*/)
         {
-            DoCastVictim(SPELL_CRUSH);
-            uiCrushTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
-        } else uiCrushTimer -= diff;
+            DoScriptText(SAY_AGGRO, me);
 
-        if (uiInfectedWoundTimer <= diff)
+            if (pInstance)
+                pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
+        }
+
+        void UpdateAI(const uint32 diff)
         {
-            DoCastVictim(SPELL_INFECTED_WOUND);
-            uiInfectedWoundTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
-        } else uiInfectedWoundTimer -= diff;
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        if (uiExplodeCorpseTimer <= diff)
-        {
-            DoCast(SPELL_CORPSE_EXPLODE);
-            DoScriptText(SAY_EXPLODE, me);
-            uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
-        } else uiExplodeCorpseTimer -= diff;
+            if (uiSpawnTimer <= diff)
+            {
+                uint32 spawnNumber = urand(2,DUNGEON_MODE(3,5));
+                for (uint8 i = 0; i < spawnNumber; ++i)
+                    DoSummon(RAND(NPC_DRAKKARI_INVADER_1,NPC_DRAKKARI_INVADER_2), AddSpawnPoint, 0, TEMPSUMMON_DEAD_DESPAWN);
+                uiSpawnTimer = urand(30*IN_MILLISECONDS,40*IN_MILLISECONDS);
+            } else uiSpawnTimer -= diff;
 
-        DoMeleeAttackIfReady();
-    }
+            if (uiConsumeTimer <= diff)
+            {
+                DoScriptText(SAY_CONSUME, me);
+                DoCast(SPELL_CONSUME);
+                uiConsumeTimer = 15*IN_MILLISECONDS;
+            } else uiConsumeTimer -= diff;
 
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-
-        lSummons.DespawnAll();
-
-        if (pInstance)
-        {
             if (bAchiev)
-                pInstance->DoCompleteAchievement(ACHIEV_CONSUMPTION_JUNCTION);
-            pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
+            {
+                Aura *pConsumeAura = me->GetAura(DUNGEON_MODE(SPELL_CONSUME_AURA,H_SPELL_CONSUME_AURA));
+                if (pConsumeAura && pConsumeAura->GetStackAmount() > 9)
+                    bAchiev = false;
+            }
+
+            if (uiCrushTimer <= diff)
+            {
+                DoCastVictim(SPELL_CRUSH);
+                uiCrushTimer = urand(10*IN_MILLISECONDS,15*IN_MILLISECONDS);
+            } else uiCrushTimer -= diff;
+
+            if (uiInfectedWoundTimer <= diff)
+            {
+                DoCastVictim(SPELL_INFECTED_WOUND);
+                uiInfectedWoundTimer = urand(25*IN_MILLISECONDS,35*IN_MILLISECONDS);
+            } else uiInfectedWoundTimer -= diff;
+
+            if (uiExplodeCorpseTimer <= diff)
+            {
+                DoCast(SPELL_CORPSE_EXPLODE);
+                DoScriptText(SAY_EXPLODE, me);
+                uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
+            } else uiExplodeCorpseTimer -= diff;
+
+            DoMeleeAttackIfReady();
         }
-    }
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-        DoScriptText(SAY_KILL, me);
-    }
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
 
-    void JustSummoned(Creature* summon)
+            lSummons.DespawnAll();
+
+            if (pInstance)
+            {
+                if (bAchiev)
+                    pInstance->DoCompleteAchievement(ACHIEV_CONSUMPTION_JUNCTION);
+                pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
+            }
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+            DoScriptText(SAY_KILL, me);
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            lSummons.push_back(summon->GetGUID());
+            if (summon->AI())
+                summon->AI()->AttackStart(me);
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
     {
-        lSummons.push_back(summon->GetGUID());
-        if (summon->AI())
-            summon->AI()->AttackStart(me);
+        return new boss_trollgoreAI(creature);
     }
 };
 
-CreatureAI* GetAI_boss_trollgore(Creature* pCreature)
-{
-    return new boss_trollgoreAI (pCreature);
-}
-
 void AddSC_boss_trollgore()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_trollgore";
-    newscript->GetAI = &GetAI_boss_trollgore;
-    newscript->RegisterSelf();
+    new boss_trollgore;
 }
