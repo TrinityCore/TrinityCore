@@ -126,5 +126,5 @@ public:
 
 void AddSC_boss_vanndar()
 {
-    new boss_vandar;
+    new boss_vanndar;
 }
