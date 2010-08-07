@@ -169,7 +169,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
             }
         };  
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_nethermancer_sepethreaAI(creature);
         }
@@ -256,7 +256,7 @@ class mob_ragin_flames : public CreatureScript
                 }
 
             };
-            CreatureAI* OnGetAI(Creature* creature) const
+            CreatureAI* GetAI(Creature* creature) const
             {
                 return new mob_ragin_flamesAI(creature);
             }        

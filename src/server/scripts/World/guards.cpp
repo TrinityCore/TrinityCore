@@ -43,7 +43,7 @@ class guard_generic : public CreatureScript
 public:
     guard_generic() : CreatureScript("guard_generic") { }
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new guardAI(creature);
     }
@@ -58,7 +58,7 @@ class guard_orgrimmar : public CreatureScript
 public:
     guard_orgrimmar() : CreatureScript("guard_orgrimmar") { }
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new guardAI_orgrimmar(creature);
     }
@@ -133,7 +133,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new guard_shattrath_aldorAI(creature);
     }
@@ -203,7 +203,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new guard_shattrath_scryerAI(creature);
     }
@@ -218,7 +218,7 @@ class guard_stormwind : public CreatureScript
 public:
     guard_stormwind() : CreatureScript("guard_stormwind") { }
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new guardAI_stormwind(creature);
     }

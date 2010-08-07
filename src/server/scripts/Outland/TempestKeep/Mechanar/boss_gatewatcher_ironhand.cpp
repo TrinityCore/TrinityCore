@@ -137,7 +137,7 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                 }
             };
 
-            CreatureAI* OnGetAI(Creature* creature) const
+            CreatureAI* GetAI(Creature* creature) const
             {
                 return new boss_gatewatcher_iron_handAI(creature);
             }        
