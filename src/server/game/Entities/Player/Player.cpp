@@ -7217,13 +7217,6 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
     if (!proto)
         return;
 
-    // don't apply/remove mods if the weapon is disarmed
-    if (item->GetSlot() == EQUIPMENT_SLOT_MAINHAND && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISARMED))
-        return;
-
-    if (proto->Socket[0].Color)                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
-        CorrectMetaGemEnchants(slot, apply);
-
     // not apply/remove mods for broken item
     if (item->IsBroken())
         return;
@@ -7235,6 +7228,9 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
     // check disarm only on mod apply to allow remove item mods
     if (!CanUseAttackType(attacktype))
         return;
+
+    if (proto->Socket[0].Color)                              //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
+        CorrectMetaGemEnchants(slot, apply);
 
     if (attacktype < MAX_ATTACK)
         _ApplyWeaponDependentAuraMods(item,WeaponAttackType(attacktype),apply);
