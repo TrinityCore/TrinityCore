@@ -175,7 +175,7 @@ class mob_av_marshal_or_warmaster : public CreatureScript
             }
         };
 
-        CreatureAI* OnGetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_av_marshal_or_warmasterAI(creature);
         }

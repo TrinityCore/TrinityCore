@@ -118,7 +118,7 @@ public:
         }
     };
 
-    CreatureAI *OnGetAI(Creature *creature) const
+    CreatureAI *GetAI(Creature *creature) const
     {
         return new boss_vanndarAI(creature);
     }
