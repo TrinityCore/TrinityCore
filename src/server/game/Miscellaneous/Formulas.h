@@ -58,7 +58,7 @@ namespace Trinity
             else
                 level = pl_level - 9;
 
-            sScriptMgr.OnGetGrayLevel(level, pl_level);
+            sScriptMgr.OnGrayLevelCalculation(level, pl_level);
             return level;
         }
 
@@ -77,7 +77,7 @@ namespace Trinity
             else
                 color = XP_GRAY;
 
-            sScriptMgr.OnGetColorCode(color, pl_level, mob_level);
+            sScriptMgr.OnColorCodeCalculation(color, pl_level, mob_level);
             return color;
         }
 
@@ -110,6 +110,7 @@ namespace Trinity
             else
                 diff = 17;
 
+            sScriptMgr.OnZeroDifferenceCalculation(diff, pl_level);
             return diff;
         }
 
@@ -155,7 +156,7 @@ namespace Trinity
                     baseGain = 0;
             }
 
-            sScriptMgr.OnGetBaseGain(baseGain, pl_level, mob_level, content);
+            sScriptMgr.OnBaseGainCalculation(baseGain, pl_level, mob_level, content);
             return baseGain;
         }
 
@@ -182,7 +183,7 @@ namespace Trinity
             }
 
             gain *= sWorld.getRate(RATE_XP_KILL);
-            sScriptMgr.OnGetGain(gain, pl, u);
+            sScriptMgr.OnGainCalculation(gain, pl, u);
             return gain;
         }
 
@@ -213,7 +214,7 @@ namespace Trinity
                 }
             }
 
-            sScriptMgr.OnGetGroupRate(rate, count, isRaid);
+            sScriptMgr.OnGroupRateCalculation(rate, count, isRaid);
             return rate;
         }
     }

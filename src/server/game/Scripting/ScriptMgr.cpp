@@ -374,9 +374,9 @@ void ScriptMgr::OnMotdChange(std::string& newMotd)
     FOREACH_SCRIPT(WorldScript)->OnMotdChange(newMotd);
 }
 
-void ScriptMgr::OnShutdown(ShutdownExitCode code, ShutdownMask mask)
+void ScriptMgr::OnShutdownInitiate(ShutdownExitCode code, ShutdownMask mask)
 {
-    FOREACH_SCRIPT(WorldScript)->OnShutdown(code, mask);
+    FOREACH_SCRIPT(WorldScript)->OnShutdownInitiate(code, mask);
 }
 
 void ScriptMgr::OnShutdownCancel()
@@ -399,37 +399,37 @@ void ScriptMgr::OnHonorCalculation(uint32& honor, uint8 level, uint32 count)
     FOREACH_SCRIPT(FormulaScript)->OnHonorCalculation(honor, level, count);
 }
 
-void ScriptMgr::OnGetGrayLevel(uint8& grayLevel, uint8 playerLevel)
+void ScriptMgr::OnGrayLevelCalculation(uint8& grayLevel, uint8 playerLevel)
 {
-    FOREACH_SCRIPT(FormulaScript)->OnGetGrayLevel(grayLevel, playerLevel);
+    FOREACH_SCRIPT(FormulaScript)->OnGrayLevelCalculation(grayLevel, playerLevel);
 }
 
-void ScriptMgr::OnGetColorCode(XPColorChar& color, uint8 playerLevel, uint8 mobLevel)
+void ScriptMgr::OnColorCodeCalculation(XPColorChar& color, uint8 playerLevel, uint8 mobLevel)
 {
-    FOREACH_SCRIPT(FormulaScript)->OnGetColorCode(color, playerLevel, mobLevel);
+    FOREACH_SCRIPT(FormulaScript)->OnColorCodeCalculation(color, playerLevel, mobLevel);
 }
 
-void ScriptMgr::OnGetZeroDifference(uint8& diff, uint8 playerLevel)
+void ScriptMgr::OnZeroDifferenceCalculation(uint8& diff, uint8 playerLevel)
 {
-    FOREACH_SCRIPT(FormulaScript)->OnGetZeroDifference(diff, playerLevel);
+    FOREACH_SCRIPT(FormulaScript)->OnZeroDifferenceCalculation(diff, playerLevel);
 }
 
-void ScriptMgr::OnGetBaseGain(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content)
+void ScriptMgr::OnBaseGainCalculation(uint32& gain, uint8 playerLevel, uint8 mobLevel, ContentLevels content)
 {
-    FOREACH_SCRIPT(FormulaScript)->OnGetBaseGain(gain, playerLevel, mobLevel, content);
+    FOREACH_SCRIPT(FormulaScript)->OnBaseGainCalculation(gain, playerLevel, mobLevel, content);
 }
 
-void ScriptMgr::OnGetGain(uint32& gain, Player* player, Unit* unit)
+void ScriptMgr::OnGainCalculation(uint32& gain, Player* player, Unit* unit)
 {
     ASSERT(player);
     ASSERT(unit);
 
-    FOREACH_SCRIPT(FormulaScript)->OnGetGain(gain, player, unit);
+    FOREACH_SCRIPT(FormulaScript)->OnGainCalculation(gain, player, unit);
 }
 
-void ScriptMgr::OnGetGroupRate(float& rate, uint32 count, bool isRaid)
+void ScriptMgr::OnGroupRateCalculation(float& rate, uint32 count, bool isRaid)
 {
-    FOREACH_SCRIPT(FormulaScript)->OnGetGroupRate(rate, count, isRaid);
+    FOREACH_SCRIPT(FormulaScript)->OnGroupRateCalculation(rate, count, isRaid);
 }
 
 #define SCR_MAP_BGN(M,V,I,E,C,T) \
@@ -483,41 +483,41 @@ void ScriptMgr::OnDestroyMap(Map* map)
     SCR_MAP_END;
 }
 
-void ScriptMgr::OnLoadGridMap(Map* map, uint32 gx, uint32 gy)
+void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
 {
     ASSERT(map);
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
-        itr->second->OnLoadGridMap(map, gx, gy);
+        itr->second->OnLoadGridMap(map, gmap, gx, gy);
     SCR_MAP_END;
 
     SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnLoadGridMap((InstanceMap*)map, gx, gy);
+        itr->second->OnLoadGridMap((InstanceMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnLoadGridMap((BattleGroundMap*)map, gx, gy);
+        itr->second->OnLoadGridMap((BattleGroundMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 }
 
-void ScriptMgr::OnUnloadGridMap(Map* map, uint32 gx, uint32 gy)
+void ScriptMgr::OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
 {
     ASSERT(map);
 
     SCR_MAP_BGN(WorldMapScript, map, itr, end, entry, IsContinent);
-        itr->second->OnUnloadGridMap(map, gx, gy);
+        itr->second->OnUnloadGridMap(map, gmap, gx, gy);
     SCR_MAP_END;
 
     SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
-        itr->second->OnUnloadGridMap((InstanceMap*)map, gx, gy);
+        itr->second->OnUnloadGridMap((InstanceMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 
     SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnUnloadGridMap((BattleGroundMap*)map, gx, gy);
+        itr->second->OnUnloadGridMap((BattleGroundMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 }
 
-void ScriptMgr::OnPlayerEnter(Map* map, Player* player)
+void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
 {
     ASSERT(map);
     ASSERT(player);
@@ -535,7 +535,7 @@ void ScriptMgr::OnPlayerEnter(Map* map, Player* player)
     SCR_MAP_END;
 }
 
-void ScriptMgr::OnPlayerLeave(Map* map, Player* player)
+void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
 {
     ASSERT(map);
     ASSERT(player);
@@ -578,7 +578,7 @@ InstanceData* ScriptMgr::CreateInstanceData(InstanceMap* map)
     ASSERT(map);
 
     GET_SCRIPT_RET(InstanceMapScript, map->GetScriptId(), tmpscript, NULL);
-    return tmpscript->OnGetInstanceData(map);
+    return tmpscript->GetInstanceData(map);
 }
 
 bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effIndex, Item* target)
@@ -711,7 +711,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, Creature* creature)
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, 100);
     player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnDialogStatus(player, creature);
+    return tmpscript->GetDialogStatus(player, creature);
 }
 
 CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
@@ -719,7 +719,7 @@ CreatureAI* ScriptMgr::GetCreatureAI(Creature* creature)
     ASSERT(creature);
 
     GET_SCRIPT_RET(CreatureScript, creature->GetScriptId(), tmpscript, NULL);
-    return tmpscript->OnGetAI(creature);
+    return tmpscript->GetAI(creature);
 }
 
 void ScriptMgr::OnCreatureUpdate(Creature* creature, uint32 diff)
@@ -791,7 +791,7 @@ uint32 ScriptMgr::GetDialogStatus(Player* player, GameObject* go)
     // TODO: 100 is a funny magic number to have hanging around here...
     GET_SCRIPT_RET(GameObjectScript, go->GetScriptId(), tmpscript, 100);
     player->PlayerTalkClass->ClearMenus();
-    return tmpscript->OnDialogStatus(player, go);
+    return tmpscript->GetDialogStatus(player, go);
 }
 
 void ScriptMgr::OnGameObjectDestroyed(Player* player, GameObject* go, uint32 eventId)
@@ -820,7 +820,7 @@ bool ScriptMgr::OnDummyEffect(Unit* caster, uint32 spellId, SpellEffIndex effInd
     return tmpscript->OnDummyEffect(caster, spellId, effIndex, target);
 }
 
-bool ScriptMgr::OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
 {
     ASSERT(player);
     ASSERT(trigger);
@@ -841,7 +841,7 @@ OutdoorPvP* ScriptMgr::CreateOutdoorPvP(OutdoorPvPData const* data)
     ASSERT(data);
 
     GET_SCRIPT_RET(OutdoorPvPScript, data->ScriptId, tmpscript, NULL);
-    return tmpscript->OnGetOutdoorPvP();
+    return tmpscript->GetOutdoorPvP();
 }
 
 std::vector<ChatCommand*> ScriptMgr::GetChatCommands()
@@ -849,7 +849,7 @@ std::vector<ChatCommand*> ScriptMgr::GetChatCommands()
     std::vector<ChatCommand*> table;
 
     FOR_SCRIPTS_RET(CommandScript, itr, end, table)
-        table.push_back(itr->second->OnGetCommands());
+        table.push_back(itr->second->GetCommands());
 
     return table;
 }
