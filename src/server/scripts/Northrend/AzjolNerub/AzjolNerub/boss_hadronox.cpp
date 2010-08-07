@@ -44,162 +44,162 @@ enum Spells
     H_SPELL_WEB_GRAB                              = 59421
 };
 
-struct boss_hadronoxAI : public ScriptedAI
+class boss_hadronox : public CreatureScript
 {
-    boss_hadronoxAI(Creature* c) : ScriptedAI(c)
+public:
+    boss_hadronox() : CreatureScript("boss_hadronox") { }
+
+    struct boss_hadronoxAI : public ScriptedAI
     {
-        pInstance = c->GetInstanceData();
-        fMaxDistance = 50.0f;
-        bFirstTime = true;
-    }
-
-    ScriptedInstance* pInstance;
-
-    uint32 uiAcidTimer;
-    uint32 uiLeechTimer;
-    uint32 uiPierceTimer;
-    uint32 uiGrabTimer;
-    uint32 uiDoorsTimer;
-    uint32 uiCheckDistanceTimer;
-
-    bool bFirstTime;
-
-    float fMaxDistance;
-
-    void Reset()
-    {
-        me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
-        me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
-
-        uiAcidTimer = urand(10*IN_MILLISECONDS,14*IN_MILLISECONDS);
-        uiLeechTimer = urand(3*IN_MILLISECONDS,9*IN_MILLISECONDS);
-        uiPierceTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
-        uiGrabTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
-        uiDoorsTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
-        uiCheckDistanceTimer = 2*IN_MILLISECONDS;
-
-        if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
-            pInstance->SetData(DATA_HADRONOX_EVENT, FAIL);
-
-        bFirstTime = false;
-    }
-
-    //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
-    void KilledUnit(Unit* Victim)
-    {
-        // not sure if this aura check is correct, I think it is though
-        if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->isAlive())
-            return;
-
-        uint32 health = me->GetMaxHealth()/10;
-
-        if ((me->GetHealth()+health) >= me->GetMaxHealth())
-            me->SetHealth(me->GetMaxHealth());
-        else
-            me->SetHealth(me->GetHealth()+health);
-    }
-
-    void JustDied(Unit* /*Killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_HADRONOX_EVENT, DONE);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
-        me->SetInCombatWithZone();
-    }
-
-    void CheckDistance(float dist, const uint32 uiDiff)
-    {
-        if (!me->isInCombat())
-            return;
-
-        float x=0.0f, y=0.0f, z=0.0f;
-        me->GetRespawnCoord(x,y,z);
-
-        if (uiCheckDistanceTimer <= uiDiff)
-            uiCheckDistanceTimer = 5*IN_MILLISECONDS;
-        else
+        boss_hadronoxAI(Creature* c) : ScriptedAI(c)
         {
-            uiCheckDistanceTimer -= uiDiff;
-            return;
+            pInstance = c->GetInstanceData();
+            fMaxDistance = 50.0f;
+            bFirstTime = true;
         }
-        if (me->IsInEvadeMode() || !me->getVictim())
-            return;
-        if (me->GetDistance(x,y,z) > dist)
-            EnterEvadeMode();
-    }
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim()) return;
+        ScriptedInstance* pInstance;
 
-        // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
-        CheckDistance(fMaxDistance, diff);
+        uint32 uiAcidTimer;
+        uint32 uiLeechTimer;
+        uint32 uiPierceTimer;
+        uint32 uiGrabTimer;
+        uint32 uiDoorsTimer;
+        uint32 uiCheckDistanceTimer;
 
-        if (me->HasAura(SPELL_WEB_FRONT_DOORS) || me->HasAura(SPELL_WEB_SIDE_DOORS))
+        bool bFirstTime;
+
+        float fMaxDistance;
+
+        void Reset()
         {
-            if (IsCombatMovement())
-                SetCombatMovement(false);
+            me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 9.0f);
+            me->SetFloatValue(UNIT_FIELD_COMBATREACH, 9.0f);
+
+            uiAcidTimer = urand(10*IN_MILLISECONDS,14*IN_MILLISECONDS);
+            uiLeechTimer = urand(3*IN_MILLISECONDS,9*IN_MILLISECONDS);
+            uiPierceTimer = urand(1*IN_MILLISECONDS,3*IN_MILLISECONDS);
+            uiGrabTimer = urand(15*IN_MILLISECONDS,19*IN_MILLISECONDS);
+            uiDoorsTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+            uiCheckDistanceTimer = 2*IN_MILLISECONDS;
+
+            if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
+                pInstance->SetData(DATA_HADRONOX_EVENT, FAIL);
+
+            bFirstTime = false;
         }
-        else if (!IsCombatMovement())
-            SetCombatMovement(true);
 
-        if (uiPierceTimer <= diff)
+        //when Hadronox kills any enemy (that includes a party member) she will regain 10% of her HP if the target had Leech Poison on
+        void KilledUnit(Unit* Victim)
         {
-            DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
-            uiPierceTimer = 8*IN_MILLISECONDS;
-        } else uiPierceTimer -= diff;
+            // not sure if this aura check is correct, I think it is though
+            if (!Victim || !Victim->HasAura(DUNGEON_MODE(SPELL_LEECH_POISON, H_SPELL_LEECH_POISON)) || !me->isAlive())
+                return;
 
-        if (uiAcidTimer <= diff)
+            uint32 health = me->GetMaxHealth()/10;
+
+            if ((me->GetHealth()+health) >= me->GetMaxHealth())
+                me->SetHealth(me->GetMaxHealth());
+            else
+                me->SetHealth(me->GetHealth()+health);
+        }
+
+        void JustDied(Unit* /*Killer*/)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_ACID_CLOUD);
+            if (pInstance)
+                pInstance->SetData(DATA_HADRONOX_EVENT, DONE);
+        }
 
-            uiAcidTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
-        } else uiAcidTimer -= diff;
-
-        if (uiLeechTimer <= diff)
+        void EnterCombat(Unit* /*who*/)
         {
-            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_LEECH_POISON);
+            if (pInstance)
+                pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+            me->SetInCombatWithZone();
+        }
 
-            uiLeechTimer = urand(11*IN_MILLISECONDS,14*IN_MILLISECONDS);
-        } else uiLeechTimer -= diff;
-
-        if (uiGrabTimer <= diff)
+        void CheckDistance(float dist, const uint32 uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
-                DoCast(pTarget, SPELL_WEB_GRAB);
+            if (!me->isInCombat())
+                return;
 
-            uiGrabTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
-        } else uiGrabTimer -= diff;
+            float x=0.0f, y=0.0f, z=0.0f;
+            me->GetRespawnCoord(x,y,z);
 
-        if (uiDoorsTimer <= diff)
+            if (uiCheckDistanceTimer <= uiDiff)
+                uiCheckDistanceTimer = 5*IN_MILLISECONDS;
+            else
+            {
+                uiCheckDistanceTimer -= uiDiff;
+                return;
+            }
+            if (me->IsInEvadeMode() || !me->getVictim())
+                return;
+            if (me->GetDistance(x,y,z) > dist)
+                EnterEvadeMode();
+        }
+
+        void UpdateAI(const uint32 diff)
         {
-            //DoCast(me, RAND(SPELL_WEB_FRONT_DOORS, SPELL_WEB_SIDE_DOORS));
-            uiDoorsTimer = urand(30*IN_MILLISECONDS,60*IN_MILLISECONDS);
-        } else uiDoorsTimer -= diff;
+            //Return since we have no target
+            if (!UpdateVictim()) return;
 
-        DoMeleeAttackIfReady();
+            // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
+            CheckDistance(fMaxDistance, diff);
+
+            if (me->HasAura(SPELL_WEB_FRONT_DOORS) || me->HasAura(SPELL_WEB_SIDE_DOORS))
+            {
+                if (IsCombatMovement())
+                    SetCombatMovement(false);
+            }
+            else if (!IsCombatMovement())
+                SetCombatMovement(true);
+
+            if (uiPierceTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
+                uiPierceTimer = 8*IN_MILLISECONDS;
+            } else uiPierceTimer -= diff;
+
+            if (uiAcidTimer <= diff)
+            {
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_ACID_CLOUD);
+
+                uiAcidTimer = urand(20*IN_MILLISECONDS,30*IN_MILLISECONDS);
+            } else uiAcidTimer -= diff;
+
+            if (uiLeechTimer <= diff)
+            {
+                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_LEECH_POISON);
+
+                uiLeechTimer = urand(11*IN_MILLISECONDS,14*IN_MILLISECONDS);
+            } else uiLeechTimer -= diff;
+
+            if (uiGrabTimer <= diff)
+            {
+                if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
+                    DoCast(pTarget, SPELL_WEB_GRAB);
+
+                uiGrabTimer = urand(15*IN_MILLISECONDS,30*IN_MILLISECONDS);
+            } else uiGrabTimer -= diff;
+
+            if (uiDoorsTimer <= diff)
+            {
+                uiDoorsTimer = urand(30*IN_MILLISECONDS,60*IN_MILLISECONDS);
+            } else uiDoorsTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new boss_hadronoxAI(creature);
     }
 };
 
-CreatureAI* GetAI_boss_hadronox(Creature* pCreature)
-{
-    return new boss_hadronoxAI (pCreature);
-}
-
 void AddSC_boss_hadronox()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_hadronox";
-    newscript->GetAI = &GetAI_boss_hadronox;
-    newscript->RegisterSelf();
+    new boss_hadronox;
 }
