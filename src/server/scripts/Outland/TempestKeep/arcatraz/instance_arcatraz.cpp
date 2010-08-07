@@ -229,7 +229,7 @@ class instance_arcatraz : public InstanceMapScript
             }
         };
 
-        InstanceData* OnGetInstanceData(InstanceMap* pMap)
+        InstanceData* GetInstanceData(InstanceMap* pMap) const
         {
             return new instance_arcatraz_InstanceMapScript(pMap);
         }

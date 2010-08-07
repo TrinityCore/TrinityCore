@@ -763,3 +763,22 @@ void OutdoorPvPEP::SendRemoveWorldStates(Player *plr)
     plr->SendUpdateWorldState(EP_CGT_N_H,0);
 }
 
+class OutdoorPvP_eastern_plaguelands : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_eastern_plaguelands()
+            : OutdoorPvPScript("outdoorpvp_ep")
+        {
+        }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPEP();
+        }
+};
+
+void AddSC_outdoorpvp_ep()
+{
+    new OutdoorPvP_eastern_plaguelands();
+}

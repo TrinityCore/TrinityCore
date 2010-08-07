@@ -18,7 +18,6 @@
 #include "ScriptLoader.h"
 
 #ifdef SCRIPTS
-//custom
 
 //examples
 void AddSC_example_creature();
@@ -527,6 +526,17 @@ void AddSC_shaman_spell_scripts();
 void AddSC_warlock_spell_scripts();
 void AddSC_warrior_spell_scripts();
 void AddSC_example_spell_scripts();
+
+// battlegrounds
+
+// outdoor pvp
+void AddSC_outdoorpvp_ep();
+void AddSC_outdoorpvp_hp();
+void AddSC_outdoorpvp_na();
+void AddSC_outdoorpvp_si();
+void AddSC_outdoorpvp_tf();
+void AddSC_outdoorpvp_zm();
+
 #endif
 
 void AddScripts()
@@ -539,6 +549,8 @@ void AddScripts()
     AddKalimdorScripts();
     AddOutlandScripts();
     AddNorthrendScripts();
+    AddBattlegroundScripts();
+    AddOutdoorPvPScripts();
     AddCustomScripts();
 #endif
 }
@@ -1079,9 +1091,33 @@ void AddNorthrendScripts()
 #endif
 }
 
+void AddOutdoorPvPScripts()
+{
+#ifdef SCRIPTS
+    AddSC_outdoorpvp_ep();
+    AddSC_outdoorpvp_hp();
+    AddSC_outdoorpvp_na();
+    AddSC_outdoorpvp_si();
+    AddSC_outdoorpvp_tf();
+    AddSC_outdoorpvp_zm();
+#endif SCRIPTS
+}
+
+void AddBattlegroundScripts()
+{
+#ifdef SCRIPTS
+#endif SCRIPTS
+}
+
+#ifdef SCRIPTS
+/* This is where custom scripts' loading functions should be declared. */
+
+#endif SCRIPTS
+
 void AddCustomScripts()
 {
 #ifdef SCRIPTS
     /* This is where custom scripts should be added. */
+
 #endif
 }

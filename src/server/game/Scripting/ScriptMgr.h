@@ -1,9 +1,22 @@
-/* Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+/*
+ * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
- * Thanks to the original authors: ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
  *
- * This program is free software licensed under GPL version 2
- * Please see the included DOCS/LICENSE.TXT for more information */
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
 
 #ifndef SC_SCRIPTMGR_H
 #define SC_SCRIPTMGR_H
@@ -408,7 +421,7 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
         bool IsDatabaseBound() const { return true; }
 
         // Gets an InstanceData object for this instance.
-        virtual InstanceData* GetInstanceData(InstanceMap* map) { return NULL; }
+        virtual InstanceData* GetInstanceData(InstanceMap* map) const { return NULL; }
 };
 
 class BattlegroundMapScript : public ScriptObject, public MapScript<BattleGroundMap>
@@ -569,7 +582,7 @@ class BattlegroundScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Should return a fully valid BattleGround object for the type ID.
-        virtual BattleGround* GetBattleground() = 0;
+        virtual BattleGround* GetBattleground() const = 0;
 };
 
 class OutdoorPvPScript : public ScriptObject
@@ -587,7 +600,7 @@ class OutdoorPvPScript : public ScriptObject
         bool IsDatabaseBound() const { return true; }
 
         // Should return a fully valid OutdoorPvP object for the type ID.
-        virtual OutdoorPvP* GetOutdoorPvP() = 0;
+        virtual OutdoorPvP* GetOutdoorPvP() const = 0;
 };
 
 class CommandScript : public ScriptObject
@@ -603,7 +616,7 @@ class CommandScript : public ScriptObject
     public:
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual ChatCommand* GetCommands() = 0;
+        virtual ChatCommand* GetCommands() const = 0;
 };
 
 class WeatherScript : public ScriptObject, public UpdatableScript<Weather>

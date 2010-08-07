@@ -225,3 +225,22 @@ bool OutdoorPvPSI::HandleCustomSpell(Player *plr, uint32 spellId, GameObject *go
     return true;
 }
 
+class OutdoorPvP_silithus : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_silithus()
+            : OutdoorPvPScript("outdoorpvp_si")
+        {
+        }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPSI();
+        }
+};
+
+void AddSC_outdoorpvp_si()
+{
+    new OutdoorPvP_silithus();
+}

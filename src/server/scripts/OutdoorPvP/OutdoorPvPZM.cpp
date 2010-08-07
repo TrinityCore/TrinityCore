@@ -421,3 +421,22 @@ void OutdoorPvPZM::SendRemoveWorldStates(Player *plr)
     plr->SendUpdateWorldState(ZM_MAP_ALLIANCE_FLAG_READY,0);
 }
 
+class OutdoorPvP_zangarmarsh : public OutdoorPvPScript
+{
+    public:
+
+        OutdoorPvP_zangarmarsh()
+            : OutdoorPvPScript("outdoorpvp_zm")
+        {
+        }
+
+        OutdoorPvP* GetOutdoorPvP() const
+        {
+            return new OutdoorPvPZM();
+        }
+};
+
+void AddSC_outdoorpvp_zm()
+{
+    new OutdoorPvP_zangarmarsh();
+}
