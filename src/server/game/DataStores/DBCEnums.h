@@ -69,12 +69,14 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_REALM_FIRST_KILL  = 0x00000200,        //
 };
 
+#define MAX_CRITERIA_REQUIREMENTS 2
+
 enum AchievementCriteriaCondition
 {
     ACHIEVEMENT_CRITERIA_CONDITION_NONE      = 0,
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH  = 1,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH  = 1,           // reset progress on death
     ACHIEVEMENT_CRITERIA_CONDITION_UNK1      = 2,           // only used in "Complete a daily quest every day for five consecutive days"
-    ACHIEVEMENT_CRITERIA_CONDITION_MAP       = 3,           // requires you to be on specific map
+    ACHIEVEMENT_CRITERIA_CONDITION_MAP       = 3,           // requires you to be on specific map, reset at change
     ACHIEVEMENT_CRITERIA_CONDITION_NO_LOOSE  = 4,           // only used in "Win 10 arenas without losing"
     ACHIEVEMENT_CRITERIA_CONDITION_UNK2      = 9,           // unk
     ACHIEVEMENT_CRITERIA_CONDITION_UNK3      = 13,          // unk
