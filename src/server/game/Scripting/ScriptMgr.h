@@ -866,7 +866,7 @@ class ScriptMgr
     public: /* AuctionHouseScript */
 
         void OnAuctionAdd(AuctionHouseObject* ah, AuctionEntry* entry);
-        void OnRemoveAuction(AuctionHouseObject* ah, AuctionEntry* entry);
+        void OnAuctionRemove(AuctionHouseObject* ah, AuctionEntry* entry);
         void OnAuctionSuccessful(AuctionHouseObject* ah, AuctionEntry* entry);
         void OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry);
 
