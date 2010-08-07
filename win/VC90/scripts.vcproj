@@ -2988,6 +2988,10 @@
 			Name="World"
 			>
 			<File
+				RelativePath="..\..\src\server\scripts\World\achievement_scripts.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\server\scripts\World\areatrigger_scripts.cpp"
 				>
 			</File>

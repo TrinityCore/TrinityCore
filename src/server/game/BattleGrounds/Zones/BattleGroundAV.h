@@ -1499,6 +1499,14 @@ enum BG_AV_QuestIds
     AV_QUEST_H_RIDER_TAME   = 7001
 };
 
+enum BG_AV_Objectives
+{
+    AV_OBJECTIVE_ASSAULT_TOWER      = 61,
+    AV_OBJECTIVE_ASSAULT_GRAVEYARD  = 63,
+    AV_OBJECTIVE_DEFEND_TOWER       = 64,
+    AV_OBJECTIVE_DEFEND_GRAVEYARD   = 65
+};
+
 struct BG_AV_NodeInfo
 {
     uint16       TotalOwner;

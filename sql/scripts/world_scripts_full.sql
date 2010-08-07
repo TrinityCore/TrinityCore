@@ -1658,4 +1658,8 @@ UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_zm' WHERE `TypeId`=4;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_si' WHERE `TypeId`=5;
 UPDATE `outdoorpvp_template` SET `ScriptName`='outdoorpvp_ep' WHERE `TypeId`=6;
 
+/* ACHIEVEMENTS */
+UPDATE `achievement_criteria_data` SET `ScriptName`='achievement_school_of_hard_knocks' WHERE `criteria_id` IN (6641,6642,6643,6644);
+UPDATE `achievement_criteria_data` SET `ScriptName`='achievement_storm_glory' WHERE `criteria_id`=3693;
+
 /* EOF */
