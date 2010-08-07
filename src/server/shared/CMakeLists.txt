@@ -92,6 +92,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
+  ${OPENSSL_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )
 
