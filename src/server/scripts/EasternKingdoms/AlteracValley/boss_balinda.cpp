@@ -132,7 +132,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            CAST_AI(mob_water_elementalAI, summoned->AI())->uiBalindaGUID = me->GetGUID();
+            CAST_AI(mob_water_elemental::mob_water_elementalAI, summoned->AI())->uiBalindaGUID = me->GetGUID();
             summoned->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM,0, 50, true));
             summoned->setFaction(me->getFaction());
             Summons.Summon(summoned);
