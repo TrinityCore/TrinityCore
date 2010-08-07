@@ -42,68 +42,69 @@ enum NPCs
     NPC_WARMAGE_ILSUDRIA         = 32372
 };
 
-struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
+class npc_warmage_violetstand : public CreatureScript
 {
-    npc_warmage_violetstandAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature){}
+public:
+    npc_warmage_violetstand() : CreatureScript("npc_warmage_violetstand") { }
 
-    uint64 uiTargetGUID;
-
-    void Reset()
+    struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
     {
-        uiTargetGUID = 0;
-    }
+        npc_warmage_violetstandAI(Creature* pCreature) : Scripted_NoMovementAI(pCreature){}
 
-    void UpdateAI(const uint32 /*uiDiff*/)
-    {
-        if (me->IsNonMeleeSpellCasted(false))
-            return;
+        uint64 uiTargetGUID;
 
-        if (me->GetEntry() == NPC_WARMAGE_SARINA)
+        void Reset()
         {
-            if (!uiTargetGUID)
+            uiTargetGUID = 0;
+        }
+
+        void UpdateAI(const uint32 /*uiDiff*/)
+        {
+            if (me->IsNonMeleeSpellCasted(false))
+                return;
+
+            if (me->GetEntry() == NPC_WARMAGE_SARINA)
             {
-                std::list<Creature*> orbList;
-                GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
-                if (!orbList.empty())
+                if (!uiTargetGUID)
                 {
-                    for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
+                    std::list<Creature*> orbList;
+                    GetCreatureListWithEntryInGrid(orbList, me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f);
+                    if (!orbList.empty())
                     {
-                        if (Creature* pOrb = *itr)
+                        for (std::list<Creature*>::const_iterator itr = orbList.begin(); itr != orbList.end(); ++itr)
                         {
-                            if (pOrb->GetPositionY() < 1000)
+                            if (Creature* pOrb = *itr)
                             {
-                                uiTargetGUID = pOrb->GetGUID();
-                                break;
+                                if (pOrb->GetPositionY() < 1000)
+                                {
+                                    uiTargetGUID = pOrb->GetGUID();
+                                    break;
+                                }
                             }
                         }
                     }
                 }
+            }else
+            {
+                if (!uiTargetGUID)
+                    if (Creature* pOrb = GetClosestCreatureWithEntry(me,NPC_TRANSITUS_SHIELD_DUMMY,32.0f))
+                        uiTargetGUID = pOrb->GetGUID();
+
             }
-        }else
-        {
-            if (!uiTargetGUID)
-                if (Creature* pOrb = GetClosestCreatureWithEntry(me,NPC_TRANSITUS_SHIELD_DUMMY,32.0f))
-                    uiTargetGUID = pOrb->GetGUID();
+
+            if (Creature* pOrb = me->GetCreature(*me,uiTargetGUID))
+                DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
 
         }
+    };
 
-        if (Creature* pOrb = me->GetCreature(*me,uiTargetGUID))
-            DoCast(pOrb,SPELL_TRANSITUS_SHIELD_BEAM);
-
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_warmage_violetstandAI(creature);
     }
 };
 
-CreatureAI* GetAI_npc_warmage_violetstand(Creature* pCreature)
-{
-    return new npc_warmage_violetstandAI(pCreature);
-}
-
 void AddSC_crystalsong_forest()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_warmage_violetstand";
-    newscript->GetAI = &GetAI_npc_warmage_violetstand;
-    newscript->RegisterSelf();
+    new npc_warmage_violetstand;
 }
