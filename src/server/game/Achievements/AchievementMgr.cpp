@@ -202,6 +202,14 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
+            if (!ScriptId)
+            {
+                sLog.outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT (%u) does not have ScriptName set, ignored.",
+                    criteria->ID, criteria->requiredType, dataType);
+                return false;
+            }
+            return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             if (difficulty.difficulty >= MAX_DIFFICULTY)
             {
@@ -305,6 +313,8 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             if (!target)
                 return false;
             return target->getGender() == gender.gender;
+        case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
+            return sScriptMgr.OnCriteriaCheck(source, target);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
             return source->GetMap()->GetSpawnMode() == difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
@@ -2119,12 +2129,21 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
             continue;
         }
 
-        AchievementCriteriaData data(fields[1].GetUInt32(),fields[2].GetUInt32(),fields[3].GetUInt32());
+        uint32 dataType = fields[1].GetUInt32();
+        const char* scriptName = fields[4].GetString();
+        uint32 scriptId = 0;
+        if (scriptName)
+        {
+            if (dataType != ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT)
+                sLog.outErrorDb("Table `achievement_criteria_data` has ScriptName set for non-scripted data type (Entry: %u, type %u), useless data.", criteria_id, dataType);
+            else
+                scriptId = objmgr.GetScriptId(scriptName);
+        }
+
+        AchievementCriteriaData data(dataType, fields[2].GetUInt32(), fields[3].GetUInt32(), scriptId);
 
         if (!data.IsValid(criteria))
-        {
             continue;
-        }
 
         // this will allocate empty data set storage
         AchievementCriteriaDataSet& dataSet = m_criteriaDataMap[criteria_id];

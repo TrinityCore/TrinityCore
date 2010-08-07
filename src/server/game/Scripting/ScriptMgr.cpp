@@ -1053,6 +1053,15 @@ void ScriptMgr::OnShutdown()
     FOREACH_SCRIPT(WorldScript)->OnShutdown();
 }
 
+bool ScriptMgr::OnCriteriaCheck(AchievementCriteriaData const* data, Player* source, Unit* target)
+{
+    ASSERT(source);
+    // target can be NULL
+
+    GET_SCRIPT_RET(AchievementCriteriaScript, data->ScriptId, tmpscript, false);
+    return tmpscript->OnCheck(source, target);
+}
+
 void SpellHandlerScript::RegisterSelf()
 {
     ScriptMgr::ScriptRegistry<SpellHandlerScript>::AddScript(this);
@@ -1158,6 +1167,11 @@ void TransportScript::RegisterSelf()
     ScriptMgr::ScriptRegistry<TransportScript>::AddScript(this);
 }
 
+void AchievementCriteriaScript::RegisterSelf()
+{
+    ScriptMgr::ScriptRegistry<AchievementCriteriaScript>::AddScript(this);
+}
+
 template<class TScript>
 void ScriptMgr::ScriptRegistry<TScript>::AddScript(TScript* const script)
 {
@@ -1255,6 +1269,7 @@ template class ScriptMgr::ScriptRegistry<ConditionScript>;
 template class ScriptMgr::ScriptRegistry<VehicleScript>;
 template class ScriptMgr::ScriptRegistry<DynamicObjectScript>;
 template class ScriptMgr::ScriptRegistry<TransportScript>;
+template class ScriptMgr::ScriptRegistry<AchievementCriteriaScript>;
 
 // Undefine utility macros.
 #undef GET_SCRIPT_RET
