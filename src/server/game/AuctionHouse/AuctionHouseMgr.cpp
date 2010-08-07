@@ -473,11 +473,12 @@ AuctionHouseEntry const* AuctionHouseMgr::GetAuctionHouseEntry(uint32 factionTem
     return sAuctionHouseStore.LookupEntry(houseid);
 }
 
-void AuctionHouseObject::AddAuction(AuctionEntry *ah)
+void AuctionHouseObject::AddAuction(AuctionEntry *auction)
 {
-    ASSERT(ah);
+    ASSERT(auction);
 
-    AuctionsMap[ah->Id] = ah;
+    AuctionsMap[auction->Id] = auction;
+    sScriptMgr.OnAuctionAdd(this, auction);
 }
 
 bool AuctionHouseObject::RemoveAuction(AuctionEntry *auction, uint32 item_template)
