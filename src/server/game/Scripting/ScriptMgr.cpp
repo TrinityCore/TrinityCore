@@ -1012,6 +1012,16 @@ void ScriptMgr::OnRelocate(Transport* transport, uint32 mapId, float x, float y,
     tmpscript->OnRelocate(transport, mapId, x, y, z);
 }
 
+void ScriptMgr::OnStartup()
+{
+    FOREACH_SCRIPT(WorldScript)->OnStartup();
+}
+
+void ScriptMgr::OnShutdown()
+{
+    FOREACH_SCRIPT(WorldScript)->OnShutdown();
+}
+
 void SpellHandlerScript::RegisterSelf()
 {
     ScriptMgr::ScriptRegistry<SpellHandlerScript>::AddScript(this);
