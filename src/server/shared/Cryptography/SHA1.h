@@ -27,11 +27,11 @@
 
 class BigNumber;
 
-class Sha1Hash
+class SHA1Hash
 {
     public:
-        Sha1Hash();
-        ~Sha1Hash();
+        SHA1Hash();
+        ~SHA1Hash();
 
         void UpdateFinalizeBigNumbers(BigNumber *bn0, ...);
         void UpdateBigNumbers(BigNumber *bn0, ...);
