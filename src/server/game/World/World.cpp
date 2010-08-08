@@ -30,7 +30,6 @@
 #include "Opcodes.h"
 #include "WorldSession.h"
 #include "WorldPacket.h"
-#include "Weather.h"
 #include "Player.h"
 #include "Vehicle.h"
 #include "SkillExtraItems.h"
@@ -71,6 +70,7 @@
 #include "DisableMgr.h"
 #include "CharacterDatabaseCleaner.h"
 #include "ScriptMgr.h"
+#include "WeatherMgr.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -127,12 +127,6 @@ World::~World()
         delete m_sessions.begin()->second;
         m_sessions.erase(m_sessions.begin());
     }
-
-    ///- Empty the WeatherMap
-    for (WeatherMap::const_iterator itr = m_weathers.begin(); itr != m_weathers.end(); ++itr)
-        delete itr->second;
-
-    m_weathers.clear();
 
     CliCommandHolder* command;
     while (cliCmdQueue.next(command))
@@ -414,46 +408,6 @@ bool World::RemoveQueuedPlayer(WorldSession* sess)
         (*iter)->SendAuthWaitQue(position);
 
     return found;
-}
-
-/// Find a Weather object by the given zoneid
-Weather* World::FindWeather(uint32 id) const
-{
-    WeatherMap::const_iterator itr = m_weathers.find(id);
-
-    if (itr != m_weathers.end())
-        return itr->second;
-    else
-        return 0;
-}
-
-/// Remove a Weather object for the given zoneid
-void World::RemoveWeather(uint32 id)
-{
-    // not called at the moment. Kept for completeness
-    WeatherMap::iterator itr = m_weathers.find(id);
-
-    if (itr != m_weathers.end())
-    {
-        delete itr->second;
-        m_weathers.erase(itr);
-    }
-}
-
-/// Add a Weather object to the list
-Weather* World::AddWeather(uint32 zone_id)
-{
-    WeatherData const* weatherChances = objmgr.GetWeatherChances(zone_id);
-
-    // zone not have weather, ignore
-    if (!weatherChances)
-        return NULL;
-
-    Weather* w = new Weather(zone_id,weatherChances);
-    m_weathers[w->GetZone()] = w;
-    w->ReGenerate();
-    w->UpdateWeather();
-    return w;
 }
 
 /// Initialize config values
@@ -1456,7 +1410,7 @@ void World::SetInitialWorldSettings()
     gameeventmgr.LoadFromDB();
 
     sLog.outString("Loading Weather Data...");
-    objmgr.LoadWeatherData();
+    sWeatherMgr.LoadWeatherData();
 
     sLog.outString("Loading Quests...");
     objmgr.LoadQuests();                                    // must be loaded after DBCs, creature_template, item_template, gameobject tables
@@ -1939,22 +1893,7 @@ void World::Update(uint32 diff)
     if (m_timers[WUPDATE_WEATHERS].Passed())
     {
         m_timers[WUPDATE_WEATHERS].Reset();
-
-        ///- Send an update signal to Weather objects
-        WeatherMap::iterator itr, next;
-        for (itr = m_weathers.begin(); itr != m_weathers.end(); itr = next)
-        {
-            next = itr;
-            ++next;
-
-            ///- and remove Weather objects for zones with no player
-                                                            //As interval > WorldTick
-            if (!itr->second->Update(m_timers[WUPDATE_WEATHERS].GetInterval()))
-            {
-                delete itr->second;
-                m_weathers.erase(itr);
-            }
-        }
+        sWeatherMgr.Update(m_timers[WUPDATE_WEATHERS].GetInterval());
     }
 
     /// <li> Update uptime table

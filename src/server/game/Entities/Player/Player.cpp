@@ -68,6 +68,7 @@
 #include "SpellAuraEffects.h"
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
+#include "WeatherMgr.h"
 #include <cmath>
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
@@ -6965,12 +6966,12 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if (sWorld.getConfig(CONFIG_WEATHER))
     {
-        Weather *wth = sWorld.FindWeather(zone->ID);
+        Weather *wth = sWeatherMgr.FindWeather(zone->ID);
         if (wth)
             wth->SendWeatherUpdateToPlayer(this);
         else
         {
-            if (!sWorld.AddWeather(zone->ID))
+            if (!sWeatherMgr.AddWeather(zone->ID))
             {
                 // send fine weather packet to remove old zone's weather
                 Weather::SendFineWeatherUpdateToPlayer(this);

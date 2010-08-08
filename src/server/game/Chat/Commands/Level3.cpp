@@ -57,6 +57,7 @@
 #include "ConditionMgr.h"
 #include "DisableMgr.h"
 #include "Transport.h"
+#include "WeatherMgr.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -4656,10 +4657,10 @@ bool ChatHandler::HandleChangeWeather(const char *args)
     Player *player = m_session->GetPlayer();
     uint32 zoneid = player->GetZoneId();
 
-    Weather* wth = sWorld.FindWeather(zoneid);
+    Weather* wth = sWeatherMgr.FindWeather(zoneid);
 
     if (!wth)
-        wth = sWorld.AddWeather(zoneid);
+        wth = sWeatherMgr.AddWeather(zoneid);
     if (!wth)
     {
         SendSysMessage(LANG_NO_WEATHER);

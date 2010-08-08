@@ -40,7 +40,6 @@ class Object;
 class WorldPacket;
 class WorldSession;
 class Player;
-class Weather;
 struct ScriptAction;
 struct ScriptInfo;
 class SqlResultQueue;
@@ -520,9 +519,6 @@ class World
         inline void DecreasePlayerCount() { m_PlayerCount--; }
 
         Player* FindPlayerInZone(uint32 zone);
-        Weather* FindWeather(uint32 id) const;
-        Weather* AddWeather(uint32 zone_id);
-        void RemoveWeather(uint32 zone_id);
 
         /// Deny clients?
         bool IsClosed() const;
@@ -724,8 +720,6 @@ class World
         uint32 m_updateTimeCount;
         uint32 m_currentTime;
 
-        typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
-        WeatherMap m_weathers;
         typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
         SessionMap m_sessions;
         typedef UNORDERED_MAP<uint32, time_t> DisconnectMap;
