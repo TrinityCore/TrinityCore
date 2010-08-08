@@ -24,6 +24,7 @@
 #include "World.h"
 #include "ObjectMgr.h"
 #include "Language.h"
+#include "ScriptPCH.h"
 
 const uint32 HP_LANG_LOOSE_A[HP_TOWER_NUM] = {LANG_OPVP_HP_LOOSE_BROKENHILL_A,LANG_OPVP_HP_LOOSE_OVERLOOK_A,LANG_OPVP_HP_LOOSE_STADIUM_A};
 
