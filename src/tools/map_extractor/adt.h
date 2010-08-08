@@ -55,7 +55,7 @@ public:
         uint32 light;
         float  height;
     } liquid[ADT_CELL_SIZE+1][ADT_CELL_SIZE+1];
-    
+
     // 1<<0 - ochen
     // 1<<1 - lava/slime
     // 1<<2 - water
@@ -197,7 +197,7 @@ public:
         return 0;
     }
 
-    float *getLiquidHeightMap(adt_liquid_header *h) 
+    float *getLiquidHeightMap(adt_liquid_header *h)
     {
         if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
             return 0;
@@ -206,7 +206,7 @@ public:
         return 0;
     }
 
-    uint8 *getLiquidLightMap(adt_liquid_header *h) 
+    uint8 *getLiquidLightMap(adt_liquid_header *h)
     {
         if (h->formatFlags&ADT_LIQUID_HEADER_FULL_LIGHT)
             return 0;
@@ -219,7 +219,7 @@ public:
         return 0;
     }
 
-    uint32 *getLiquidFullLightMap(adt_liquid_header *h) 
+    uint32 *getLiquidFullLightMap(adt_liquid_header *h)
     {
         if (!(h->formatFlags&ADT_LIQUID_HEADER_FULL_LIGHT))
             return 0;
@@ -232,7 +232,7 @@ public:
         return 0;
     }
 
-    uint64 getLiquidShowMap(adt_liquid_header *h)   
+    uint64 getLiquidShowMap(adt_liquid_header *h)
     {
         if (h->offsData2a)
             return *((uint64 *)((uint8*)this + 8 + h->offsData2a));
@@ -255,12 +255,12 @@ class adt_MHDR
 
     uint32 pad;
     uint32 offsMCIN;           // MCIN
-    uint32 offsTex;	           // MTEX
-    uint32 offsModels;	       // MMDX	
-    uint32 offsModelsIds;	   // MMID	
-    uint32 offsMapObejcts;	   // MWMO	
-    uint32 offsMapObejctsIds;  // MWID		
-    uint32 offsDoodsDef;       // MDDF	
+    uint32 offsTex;               // MTEX
+    uint32 offsModels;           // MMDX    
+    uint32 offsModelsIds;       // MMID    
+    uint32 offsMapObejcts;       // MWMO    
+    uint32 offsMapObejctsIds;  // MWID        
+    uint32 offsDoodsDef;       // MDDF    
     uint32 offsObjectsDef;     // MODF
     uint32 offsMFBO;           // MFBO
     uint32 offsMH2O;           // MH2O

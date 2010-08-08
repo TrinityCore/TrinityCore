@@ -28,7 +28,7 @@ npc_aged_dying_ancient_kodo
 EndContentData */
 
 #include "ScriptPCH.h"
-#include "ScriptedEscortAI.h" 
+#include "ScriptedEscortAI.h"
 
 enum eDyingKodo
 {
@@ -200,7 +200,7 @@ public:
     bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_RETURN_TO_VAHLARRIEL)
-       {    
+       {
             if (npc_escortAI* pEscortAI = CAST_AI(npc_dalinda::npc_dalindaAI, pCreature->AI()))
             {
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
@@ -217,8 +217,8 @@ public:
 
     struct npc_dalindaAI : public npc_escortAI
     {
-        npc_dalindaAI(Creature* pCreature) : npc_escortAI(pCreature) { }   
-        
+        npc_dalindaAI(Creature* pCreature) : npc_escortAI(pCreature) { }
+
         void WaypointReached(uint32 i)
         {
             Player* pPlayer = GetPlayerForEscort();
@@ -226,11 +226,11 @@ public:
             {
                 case 1:
                     me->IsStandState();
-                    break;        
-                case 15:            
+                    break;
+                case 15:
                     if (pPlayer)
                     pPlayer->GroupEventHappens(QUEST_RETURN_TO_VAHLARRIEL, me);
-                    break;        
+                    break;
             }
         }
 
@@ -247,7 +247,7 @@ public:
         }
 
         void UpdateAI(const uint32 uiDiff)
-        {    
+        {
             npc_escortAI::UpdateAI(uiDiff);
             if (!UpdateVictim())
                 return;

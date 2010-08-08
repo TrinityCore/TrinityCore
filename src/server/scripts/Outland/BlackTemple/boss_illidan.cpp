@@ -722,10 +722,10 @@ public:
         void CastEyeBlast()
         {
             me->InterruptNonMeleeSpells(false);
-    
+
             me->MonsterYell(SAY_EYE_BLAST, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(me, SOUND_EYE_BLAST);
-    
+
             float distx, disty, dist[2];
             for (uint8 i = 0; i < 2; ++i)
             {
@@ -741,17 +741,17 @@ public:
                 dist[i] = distx * distx + disty * disty;
             }
             Locations final = GlaivePosition[dist[0] < dist[1] ? 0 : 1];
-    
+
             final.x = 2 * final.x - initial.x;
             final.y = 2 * final.y - initial.y;
-    
+
             Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
             if (!Trigger) return;
-    
+
             Trigger->SetSpeed(MOVE_WALK, 3);
             Trigger->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
             Trigger->GetMotionMaster()->MovePoint(0, final.x, final.y, final.z);
-    
+
             //Trigger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetUInt64Value(UNIT_FIELD_TARGET, Trigger->GetGUID());
             DoCast(Trigger, SPELL_EYE_BLAST);
@@ -760,7 +760,7 @@ public:
         {
             me->MonsterYell(SAY_SUMMONFLAMES, LANG_UNIVERSAL, 0);
             DoPlaySoundToSet(me, SOUND_SUMMONFLAMES);
-    
+
             for (uint8 i = 0; i < 2; ++i)
             {
                 if (GETUNIT(Glaive, GlaiveGUID[i]))

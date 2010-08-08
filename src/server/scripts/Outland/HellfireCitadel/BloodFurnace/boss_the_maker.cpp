@@ -125,8 +125,8 @@ class boss_the_maker : public CreatureScript
                     if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                         DoCast(pTarget, SPELL_EXPLODING_BREAKER);
                     ExplodingBreaker_Timer = 4000+rand()%8000;
-                } 
-                else 
+                }
+                else
                     ExplodingBreaker_Timer -=diff;
 
                 /* // Disabled until Core Support for mind control
@@ -145,8 +145,8 @@ class boss_the_maker : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_KNOCKDOWN);
                     Knockdown_Timer = 4000+rand()%8000;
-                } 
-                else 
+                }
+                else
                     Knockdown_Timer -=diff;
 
                 DoMeleeAttackIfReady();

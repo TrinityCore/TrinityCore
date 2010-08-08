@@ -146,11 +146,11 @@ EAIErrorLevel = 2
 #        Default: 900000 (15 min)
 #
 #    PlayerSave.Stats.MinLevel
-#        Minimum level for saving character stats for external usage in database	
-#        Default: 0  (do not save character stats)	
-#                 1+ (save stats for characters with level 1+)	
+#        Minimum level for saving character stats for external usage in database    
+#        Default: 0  (do not save character stats)    
+#                 1+ (save stats for characters with level 1+)    
 #
-#    PlayerSave.Stats.SaveOnlyOnLogout	
+#    PlayerSave.Stats.SaveOnlyOnLogout    
 #        Enable/Disable saving of character stats only on logout
 #        Default: 1 (only save on logout)
 #                 0 (save on every player save)
@@ -171,12 +171,12 @@ EAIErrorLevel = 2
 #    vmap.ignoreSpellIds
 #        These spells are ignored for LoS calculation
 #         List of ids with delimiter ','
-#        
+#
 #    vmap.petLOS
 #        Check LOS for pets, to avoid them going through walls etc.
 #                 0 (disable, somewhat less CPU usage)
 #        Default: 1 (enable, each pet attack command will check for LOS)
-#    
+#
 #    vmap.enableIndoorCheck
 #        Enable/Disable VMap based indoor check to remove outdoor-only auras (mounts etc.)
 #                 0 (disabled, somewhat less CPU usage)
@@ -224,8 +224,8 @@ EAIErrorLevel = 2
 #                 0 (do not permit addon channel)
 #
 #    MapUpdate.Threads
-#	Number of threads to update maps.
-#	Default: 1
+#    Number of threads to update maps.
+#    Default: 1
 #
 #    CleanCharacterDB
 #        Perform character db clean ups on start up
@@ -1745,12 +1745,12 @@ Battleground.Random.ResetHour = 6
 #                 0 (finished)
 #
 #    Arena.ArenaStartRating
-#	 Start arena team command rating
-#	 Default: 1500 
+#     Start arena team command rating
+#     Default: 1500
 #
 #    Arena.StartPersonalRating
-#	 Start personal rating on entry in team
-#	 Default: 1500
+#     Start personal rating on entry in team
+#     Default: 1500
 #
 ###############################################################################
 

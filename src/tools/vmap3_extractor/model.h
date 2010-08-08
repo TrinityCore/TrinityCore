@@ -35,7 +35,7 @@ private:
     char outfilename;
 };
 
-class ModelInstance 
+class ModelInstance
 {
 public:
     Model *model;

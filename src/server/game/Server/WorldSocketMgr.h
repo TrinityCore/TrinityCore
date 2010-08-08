@@ -53,7 +53,7 @@ public:
 
   /// Make this class singleton .
   static WorldSocketMgr* Instance();
-  
+
 private:
   int OnSocketOpen(WorldSocket* sock);
 

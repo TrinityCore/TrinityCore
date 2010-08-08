@@ -2202,9 +2202,9 @@ public:
     }
 };
 
-/*###### 
-## npc_pet_trainer 
-######*/ 
+/*######
+## npc_pet_trainer
+######*/
 
 enum ePetTrainer
 {
@@ -2373,174 +2373,174 @@ public:
     }
 };
 
-/*###### 
-## npc_tabard_vendor 
-######*/ 
- 
-enum 
-{ 
-    QUEST_TRUE_MASTERS_OF_LIGHT = 9737, 
-    QUEST_THE_UNWRITTEN_PROPHECY = 9762, 
-    QUEST_INTO_THE_BREACH = 10259, 
-    QUEST_BATTLE_OF_THE_CRIMSON_WATCH = 10781, 
-    QUEST_SHARDS_OF_AHUNE = 11972, 
- 
-    ACHIEVEMENT_EXPLORE_NORTHREND = 45, 
-    ACHIEVEMENT_TWENTYFIVE_TABARDS = 1021, 
-    ACHIEVEMENT_THE_LOREMASTER_A = 1681, 
-    ACHIEVEMENT_THE_LOREMASTER_H = 1682, 
- 
-    ITEM_TABARD_OF_THE_HAND = 24344, 
-    ITEM_TABARD_OF_THE_BLOOD_KNIGHT = 25549, 
-    ITEM_TABARD_OF_THE_PROTECTOR = 28788, 
-    ITEM_OFFERING_OF_THE_SHATAR = 31408, 
-    ITEM_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI = 31404, 
-    ITEM_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI = 31405, 
-    ITEM_TABARD_OF_THE_SUMMER_SKIES = 35279, 
-    ITEM_TABARD_OF_THE_SUMMER_FLAMES = 35280, 
-    ITEM_TABARD_OF_THE_ACHIEVER = 40643, 
-    ITEM_LOREMASTERS_COLORS = 43300, 
-    ITEM_TABARD_OF_THE_EXPLORER = 43348, 
- 
-    SPELL_TABARD_OF_THE_BLOOD_KNIGHT = 54974, 
-    SPELL_TABARD_OF_THE_HAND = 54976, 
-    SPELL_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI = 54977, 
-    SPELL_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI = 54982, 
-    SPELL_TABARD_OF_THE_ACHIEVER = 55006, 
-    SPELL_TABARD_OF_THE_PROTECTOR = 55008, 
-    SPELL_LOREMASTERS_COLORS = 58194, 
-    SPELL_TABARD_OF_THE_EXPLORER = 58224, 
-    SPELL_TABARD_OF_SUMMER_SKIES = 62768, 
-    SPELL_TABARD_OF_SUMMER_FLAMES = 62769 
-}; 
+/*######
+## npc_tabard_vendor
+######*/
 
-#define GOSSIP_LOST_TABARD_OF_BLOOD_KNIGHT "I've lost my Tabard of Blood Knight." 
-#define GOSSIP_LOST_TABARD_OF_THE_HAND "I've lost my Tabard of the Hand." 
-#define GOSSIP_LOST_TABARD_OF_THE_PROTECTOR "I've lost my Tabard of the Protector." 
-#define GOSSIP_LOST_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI "I've lost my Green Trophy Tabard of the Illidari." 
-#define GOSSIP_LOST_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI "I've lost my Purple Trophy Tabard of the Illidari." 
-#define GOSSIP_LOST_TABARD_OF_SUMMER_SKIES "I've lost my Tabard of Summer Skies." 
-#define GOSSIP_LOST_TABARD_OF_SUMMER_FLAMES "I've lost my Tabard of Summer Flames." 
-#define GOSSIP_LOST_LOREMASTERS_COLORS "I've lost my Loremaster's Colors." 
-#define GOSSIP_LOST_TABARD_OF_THE_EXPLORER "I've lost my Tabard of the Explorer." 
-#define GOSSIP_LOST_TABARD_OF_THE_ACHIEVER "I've lost my Tabard of the Achiever." 
- 
+enum
+{
+    QUEST_TRUE_MASTERS_OF_LIGHT = 9737,
+    QUEST_THE_UNWRITTEN_PROPHECY = 9762,
+    QUEST_INTO_THE_BREACH = 10259,
+    QUEST_BATTLE_OF_THE_CRIMSON_WATCH = 10781,
+    QUEST_SHARDS_OF_AHUNE = 11972,
+
+    ACHIEVEMENT_EXPLORE_NORTHREND = 45,
+    ACHIEVEMENT_TWENTYFIVE_TABARDS = 1021,
+    ACHIEVEMENT_THE_LOREMASTER_A = 1681,
+    ACHIEVEMENT_THE_LOREMASTER_H = 1682,
+
+    ITEM_TABARD_OF_THE_HAND = 24344,
+    ITEM_TABARD_OF_THE_BLOOD_KNIGHT = 25549,
+    ITEM_TABARD_OF_THE_PROTECTOR = 28788,
+    ITEM_OFFERING_OF_THE_SHATAR = 31408,
+    ITEM_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI = 31404,
+    ITEM_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI = 31405,
+    ITEM_TABARD_OF_THE_SUMMER_SKIES = 35279,
+    ITEM_TABARD_OF_THE_SUMMER_FLAMES = 35280,
+    ITEM_TABARD_OF_THE_ACHIEVER = 40643,
+    ITEM_LOREMASTERS_COLORS = 43300,
+    ITEM_TABARD_OF_THE_EXPLORER = 43348,
+
+    SPELL_TABARD_OF_THE_BLOOD_KNIGHT = 54974,
+    SPELL_TABARD_OF_THE_HAND = 54976,
+    SPELL_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI = 54977,
+    SPELL_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI = 54982,
+    SPELL_TABARD_OF_THE_ACHIEVER = 55006,
+    SPELL_TABARD_OF_THE_PROTECTOR = 55008,
+    SPELL_LOREMASTERS_COLORS = 58194,
+    SPELL_TABARD_OF_THE_EXPLORER = 58224,
+    SPELL_TABARD_OF_SUMMER_SKIES = 62768,
+    SPELL_TABARD_OF_SUMMER_FLAMES = 62769
+};
+
+#define GOSSIP_LOST_TABARD_OF_BLOOD_KNIGHT "I've lost my Tabard of Blood Knight."
+#define GOSSIP_LOST_TABARD_OF_THE_HAND "I've lost my Tabard of the Hand."
+#define GOSSIP_LOST_TABARD_OF_THE_PROTECTOR "I've lost my Tabard of the Protector."
+#define GOSSIP_LOST_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI "I've lost my Green Trophy Tabard of the Illidari."
+#define GOSSIP_LOST_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI "I've lost my Purple Trophy Tabard of the Illidari."
+#define GOSSIP_LOST_TABARD_OF_SUMMER_SKIES "I've lost my Tabard of Summer Skies."
+#define GOSSIP_LOST_TABARD_OF_SUMMER_FLAMES "I've lost my Tabard of Summer Flames."
+#define GOSSIP_LOST_LOREMASTERS_COLORS "I've lost my Loremaster's Colors."
+#define GOSSIP_LOST_TABARD_OF_THE_EXPLORER "I've lost my Tabard of the Explorer."
+#define GOSSIP_LOST_TABARD_OF_THE_ACHIEVER "I've lost my Tabard of the Achiever."
+
 class npc_tabard_vendor : public CreatureScript
 {
 public:
     npc_tabard_vendor() : CreatureScript("npc_tabard_vendor") { }
 
-    bool OnGossipHello(Player* pPlayer, Creature* pCreature) 
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        bool m_bLostBloodKnight = false; 
-        bool m_bLostHand = false; 
-        bool m_bLostProtector = false; 
-        bool m_bLostIllidari = false; 
-        bool m_bLostSummer = false; 
-     
-        //Tabard of the Blood Knight 
-        if (pPlayer->GetQuestRewardStatus(QUEST_TRUE_MASTERS_OF_LIGHT) && !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_BLOOD_KNIGHT, 1, true)) 
-            m_bLostBloodKnight = true; 
-     
-        //Tabard of the Hand 
-        if (pPlayer->GetQuestRewardStatus(QUEST_THE_UNWRITTEN_PROPHECY) && !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_HAND, 1, true)) 
-            m_bLostHand = true; 
-     
-        //Tabard of the Protector 
-        if (pPlayer->GetQuestRewardStatus(QUEST_INTO_THE_BREACH) && !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_PROTECTOR, 1, true)) 
-            m_bLostProtector = true; 
-     
-        //Green Trophy Tabard of the Illidari 
-        //Purple Trophy Tabard of the Illidari 
-        if (pPlayer->GetQuestRewardStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) && 
-            (!pPlayer->HasItemCount(ITEM_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI, 1, true) && 
-            !pPlayer->HasItemCount(ITEM_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI, 1, true) && 
-            !pPlayer->HasItemCount(ITEM_OFFERING_OF_THE_SHATAR, 1, true))) 
-            m_bLostIllidari = true; 
-     
-        //Tabard of Summer Skies 
-        //Tabard of Summer Flames 
-        if (pPlayer->GetQuestRewardStatus(QUEST_SHARDS_OF_AHUNE) && 
-            !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_SUMMER_SKIES, 1, true) && 
-            !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_SUMMER_FLAMES, 1, true)) 
-            m_bLostSummer = true; 
-     
-        if (m_bLostBloodKnight || m_bLostHand || m_bLostProtector || m_bLostIllidari || m_bLostSummer) 
-        { 
-            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE); 
-     
-            if (m_bLostBloodKnight) 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_BLOOD_KNIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +1); 
-     
-            if (m_bLostHand) 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_THE_HAND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +2); 
-     
-            if (m_bLostProtector) 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_THE_PROTECTOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3); 
-     
-            if (m_bLostIllidari) 
-            { 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4); 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5); 
-            } 
-     
-            if (m_bLostSummer) 
-            { 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_SUMMER_SKIES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6); 
-                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_SUMMER_FLAMES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7); 
-            } 
-     
-            pPlayer->SEND_GOSSIP_MENU(13583, pCreature->GetGUID()); 
-        } 
-        else 
-            pPlayer->SEND_VENDORLIST(pCreature->GetGUID()); 
-     
-        return true; 
-    } 
-     
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction) 
-    { 
-        switch(uiAction) 
-        { 
-            case GOSSIP_ACTION_TRADE: 
-                pPlayer->SEND_VENDORLIST(pCreature->GetGUID()); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+1: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_THE_BLOOD_KNIGHT, false); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+2: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_THE_HAND, false); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+3: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_THE_PROTECTOR, false); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+4: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI, false); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+5: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI, false); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+6: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_SUMMER_SKIES, false); 
-                break; 
-            case GOSSIP_ACTION_INFO_DEF+7: 
-                pPlayer->CLOSE_GOSSIP_MENU(); 
-                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_SUMMER_FLAMES, false); 
-                break; 
-        } 
-        return true; 
+        bool m_bLostBloodKnight = false;
+        bool m_bLostHand = false;
+        bool m_bLostProtector = false;
+        bool m_bLostIllidari = false;
+        bool m_bLostSummer = false;
+
+        //Tabard of the Blood Knight
+        if (pPlayer->GetQuestRewardStatus(QUEST_TRUE_MASTERS_OF_LIGHT) && !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_BLOOD_KNIGHT, 1, true))
+            m_bLostBloodKnight = true;
+
+        //Tabard of the Hand
+        if (pPlayer->GetQuestRewardStatus(QUEST_THE_UNWRITTEN_PROPHECY) && !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_HAND, 1, true))
+            m_bLostHand = true;
+
+        //Tabard of the Protector
+        if (pPlayer->GetQuestRewardStatus(QUEST_INTO_THE_BREACH) && !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_PROTECTOR, 1, true))
+            m_bLostProtector = true;
+
+        //Green Trophy Tabard of the Illidari
+        //Purple Trophy Tabard of the Illidari
+        if (pPlayer->GetQuestRewardStatus(QUEST_BATTLE_OF_THE_CRIMSON_WATCH) &&
+            (!pPlayer->HasItemCount(ITEM_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI, 1, true) &&
+            !pPlayer->HasItemCount(ITEM_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI, 1, true) &&
+            !pPlayer->HasItemCount(ITEM_OFFERING_OF_THE_SHATAR, 1, true)))
+            m_bLostIllidari = true;
+
+        //Tabard of Summer Skies
+        //Tabard of Summer Flames
+        if (pPlayer->GetQuestRewardStatus(QUEST_SHARDS_OF_AHUNE) &&
+            !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_SUMMER_SKIES, 1, true) &&
+            !pPlayer->HasItemCount(ITEM_TABARD_OF_THE_SUMMER_FLAMES, 1, true))
+            m_bLostSummer = true;
+
+        if (m_bLostBloodKnight || m_bLostHand || m_bLostProtector || m_bLostIllidari || m_bLostSummer)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+            if (m_bLostBloodKnight)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_BLOOD_KNIGHT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +1);
+
+            if (m_bLostHand)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_THE_HAND, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF +2);
+
+            if (m_bLostProtector)
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_THE_PROTECTOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+
+            if (m_bLostIllidari)
+            {
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            }
+
+            if (m_bLostSummer)
+            {
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_SUMMER_SKIES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+                pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_LOST_TABARD_OF_SUMMER_FLAMES, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+            }
+
+            pPlayer->SEND_GOSSIP_MENU(13583, pCreature->GetGUID());
+        }
+        else
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_TRADE:
+                pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+1:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_THE_BLOOD_KNIGHT, false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_THE_HAND, false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_THE_PROTECTOR, false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_GREEN_TROPHY_TABARD_OF_THE_ILLIDARI, false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_PURPLE_TROPHY_TABARD_OF_THE_ILLIDARI, false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+6:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_SUMMER_SKIES, false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF+7:
+                pPlayer->CLOSE_GOSSIP_MENU();
+                pPlayer->CastSpell(pPlayer, SPELL_TABARD_OF_SUMMER_FLAMES, false);
+                break;
+        }
+        return true;
     }
 };
 
-/*###### 
-## npc_experience 
-######*/ 
+/*######
+## npc_experience
+######*/
 
 #define EXP_COST                100000//10 00 00 copper (10golds)
 #define GOSSIP_TEXT_EXP         14736
@@ -2628,7 +2628,7 @@ void AddSC_npcs_special()
     new npc_wormhole;
     new npc_pet_trainer;
     new npc_locksmith;
-    new npc_tabard_vendor; 
+    new npc_tabard_vendor;
     new npc_experience;
 }
 

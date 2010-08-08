@@ -418,11 +418,11 @@ struct Position
 
     Position::PositionXYZStreamer PositionXYZStream()
     {
-        return Position::PositionXYZStreamer(*this); 
+        return Position::PositionXYZStreamer(*this);
     }
     Position::PositionXYZOStreamer PositionXYZOStream()
     {
-        return Position::PositionXYZOStreamer(*this); 
+        return Position::PositionXYZOStreamer(*this);
     }
 
     bool IsPositionValid() const;
@@ -808,7 +808,7 @@ namespace Trinity
             _list.erase(itr);
         }
     }
-      
+
     // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
     class ObjectDistanceOrderPred
     {

@@ -114,7 +114,7 @@ m_OverSpeedPings(0),
 m_LastPingTime(ACE_Time_Value::zero)
 {
     reference_counting_policy().value (ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
-    
+
     msg_queue()->high_water_mark(8*1024*1024);
     msg_queue()->low_water_mark(8*1024*1024);
 }
@@ -265,7 +265,7 @@ int WorldSocket::open (void *a)
     }
 
     m_Address = remote_addr.get_host_addr();
-    
+
     // Send startup packet.
     WorldPacket packet (SMSG_AUTH_CHALLENGE, 24);
     packet << uint32(1);                                    // 1...31
@@ -281,14 +281,14 @@ int WorldSocket::open (void *a)
 
     if (SendPacket(packet) == -1)
         return -1;
-    
+
     // Register with ACE Reactor
     if (reactor()->register_handler(this, ACE_Event_Handler::READ_MASK | ACE_Event_Handler::WRITE_MASK) == -1)
     {
         sLog.outError ("WorldSocket::open: unable to register client handler errno = %s", ACE_OS::strerror (errno));
         return -1;
     }
-    
+
     // reactor takes care of the socket from now on
     remove_reference();
 
@@ -721,7 +721,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                     sLog.outError ("WorldSocket::ProcessIncoming: Player send CMSG_AUTH_SESSION again");
                     return -1;
                 }
-                
+
                 sScriptMgr.OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession (*new_pct);
             case CMSG_KEEP_ALIVE:
@@ -737,7 +737,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                     // Our Idle timer will reset on any non PING opcodes.
                     // Catches people idling on the login screen and any lingering ingame connections.
                     m_Session->ResetTimeOutTime();
-                    
+
                     // OK ,give the packet to WorldSession
                     aptr.release();
                     // WARNINIG here we call it with locks held.
@@ -997,7 +997,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(recvPacket);
 
-    // Sleep this Network thread for 
+    // Sleep this Network thread for
     uint32 sleepTime = sWorld.getConfig(CONFIG_SESSION_ADD_DELAY);
     ACE_OS::sleep (ACE_Time_Value (0, sleepTime));
 

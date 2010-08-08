@@ -479,6 +479,6 @@ bool PetAI::_CheckTargetCC(Unit *target)
 {
     if (me->GetOwnerGUID() && target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE, me->GetOwnerGUID()))
         return true;
-    
+
     return false;
 }

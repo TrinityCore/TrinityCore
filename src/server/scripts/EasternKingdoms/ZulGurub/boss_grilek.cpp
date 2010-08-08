@@ -38,7 +38,7 @@ class boss_grilek : public CreatureScript
         {
         }
 
-		struct boss_grilekAI : public ScriptedAI
+        struct boss_grilekAI : public ScriptedAI
         {
             boss_grilekAI(Creature *c) : ScriptedAI(c) {}
 

@@ -219,7 +219,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectTriggerRitualOfSummoning,                 //151 SPELL_EFFECT_TRIGGER_SPELL_2
     &Spell::EffectNULL,                                     //152 SPELL_EFFECT_152                      summon Refer-a-Friend
     &Spell::EffectCreateTamedPet,                           //153 SPELL_EFFECT_CREATE_TAMED_PET         misc value is creature entry
-    &Spell::EffectDiscoverTaxi,                             //154 SPELL_EFFECT_DISCOVER_TAXI 
+    &Spell::EffectDiscoverTaxi,                             //154 SPELL_EFFECT_DISCOVER_TAXI
     &Spell::EffectTitanGrip,                                //155 SPELL_EFFECT_TITAN_GRIP Allows you to equip two-handed axes, maces and swords in one hand, but you attack $49152s1% slower than normal.
     &Spell::EffectEnchantItemPrismatic,                     //156 SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC
     &Spell::EffectCreateItem2,                              //157 SPELL_EFFECT_CREATE_ITEM_2            create item or create item template and replace by some randon spell loot item
@@ -431,7 +431,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
                         break;
                     }
-                    
+
                     // Loken Pulsing Shockwave
                     case 59837:
                     case 52942:
@@ -439,7 +439,7 @@ void Spell::SpellDamageSchoolDmg(uint32 effect_idx)
                         // don't damage self and only players
                         if(unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
                             return;
-                        
+
                         float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[0]));
                         if (!radius)
                             return;
@@ -929,15 +929,15 @@ void Spell::EffectDummy(uint32 i)
                     return;
                 }
                 case 14537:                                 // Six Demon Bag
-                { 
-                    if( !unitTarget || !unitTarget->isAlive()) return; 
+                {
+                    if( !unitTarget || !unitTarget->isAlive()) return;
 
-                    uint32 ClearSpellId[6] = 
-                    { 
-                        15662,   // Fireball  
-                        11538,   // Frostball  
-                        21179,   // Chain Lightning  
-                        14621,   // Polymorph  
+                    uint32 ClearSpellId[6] =
+                    {
+                        15662,   // Fireball
+                        11538,   // Frostball
+                        21179,   // Chain Lightning
+                        14621,   // Polymorph
                         25189,   // Enveloping Winds
                         14642    // Summon Felhund minion
                     };
@@ -956,7 +956,7 @@ void Spell::EffectDummy(uint32 i)
                         effect = ClearSpellId[3];
                         if (urand(0, 100) <= 30)        // 30% chance to self-cast
                             unitTarget = m_caster;
-                    } 
+                    }
                     else if (rand >=80 && rand < 95)    // Enveloping Winds (15% chance)
                          effect = ClearSpellId[4];
                     else                                // Summon Felhund minion (5% chance)
@@ -966,7 +966,7 @@ void Spell::EffectDummy(uint32 i)
                     }
 
                     m_caster->CastSpell(unitTarget, effect, true);
-                    return;     
+                    return;
                 }
                 case 16589:                                 // Noggenfogger Elixir
                 {
@@ -1553,7 +1553,7 @@ void Spell::EffectDummy(uint32 i)
                 switch (m_spellInfo->Id)
                 {
                     case 11689: spFactor = 0.2; break;
-                    case 27222: 
+                    case 27222:
                     case 57946: spFactor = 0.5; break;
                     default:    spFactor = 0; break;
                 }
@@ -2297,7 +2297,7 @@ void Spell::EffectTeleportUnits(uint32 /*i*/)
         case 60321:  // Scroll of Recal III
             if (!uiMaxSafeLevel)
                 uiMaxSafeLevel = 80;
-            
+
             if (unitTarget->getLevel() > uiMaxSafeLevel)
             {
                 unitTarget->AddAura(60444,unitTarget); //Apply Lost! Aura
@@ -6714,7 +6714,7 @@ void Spell::EffectKnockBack(uint32 i)
     else //if (m_spellInfo->Effect[i] == SPELL_EFFECT_KNOCK_BACK)
     {
         m_caster->GetPosition(x, y);
-    } 
+    }
 
     unitTarget->KnockbackFrom(x, y, speedxy, speedz);
 }
@@ -6742,7 +6742,7 @@ void Spell::EffectQuestClear(uint32 i)
         pPlayer = m_caster->ToPlayer();
     else if (unitTarget && unitTarget->GetTypeId() == TYPEID_PLAYER)
         pPlayer = unitTarget->ToPlayer();
-    
+
     if (!pPlayer)
         return;
 

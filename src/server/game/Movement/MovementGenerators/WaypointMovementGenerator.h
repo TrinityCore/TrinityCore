@@ -54,7 +54,7 @@ class PathMovementBase
         void LoadPath(T &);
         void ReloadPath(T &);
         uint32 GetCurrentNode() const { return i_currentNode; }
-        
+
         bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x,y,z); return true; }
         bool GetPosition(float& x, float& y, float& z) const { i_destinationHolder.GetLocationNowNoMicroMovement(x,y,z); return true; }
 

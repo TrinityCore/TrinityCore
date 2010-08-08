@@ -193,7 +193,7 @@ public:
             uiSaboteurPortal = 0;
 
             trashMobs.clear();
-        
+
             uiRemoveNpc = 0;
 
             uiDoorIntegrity = 100;

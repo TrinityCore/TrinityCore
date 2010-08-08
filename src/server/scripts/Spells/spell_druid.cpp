@@ -25,5 +25,5 @@
 
 void AddSC_druid_spell_scripts()
 {
-    
+
 }

@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptPCH.h"
 
 enum eSpells
-{    
+{
     SPELL_ALLERGIC_REACTION    = 34697,
     SPELL_TELEPORT_SELF        = 34673,
 
@@ -177,8 +177,8 @@ class boss_laj : public CreatureScript
                         DoScriptText(EMOTE_SUMMON, me);
                         DoSummons();
                         Summon_Timer = 2500;
-                    } 
-                    else 
+                    }
+                    else
                         Summon_Timer -= diff;
                 }
 
@@ -186,8 +186,8 @@ class boss_laj : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_ALLERGIC_REACTION);
                     Allergic_Timer = 25000+rand()%15000;
-                } 
-                else 
+                }
+                else
                     Allergic_Timer -= diff;
 
                 if (Teleport_Timer <= diff)
@@ -195,16 +195,16 @@ class boss_laj : public CreatureScript
                     DoCast(me, SPELL_TELEPORT_SELF);
                     Teleport_Timer = 30000+rand()%10000;
                     CanSummon = true;
-                } 
-                else 
+                }
+                else
                     Teleport_Timer -= diff;
 
                 if (Transform_Timer <= diff)
                 {
                     DoTransform();
                     Transform_Timer = 25000+rand()%15000;
-                } 
-                else 
+                }
+                else
                     Transform_Timer -= diff;
 
                 DoMeleeAttackIfReady();

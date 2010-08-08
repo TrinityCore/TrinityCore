@@ -49,7 +49,7 @@ void CharacterDatabaseCleaner::CleanDatabase()
     CharacterDatabase.Query("UPDATE worldstates SET value = 0 WHERE entry=20004");
 }
 
-void CharacterDatabaseCleaner::CheckUnique(const char* column, const 
+void CharacterDatabaseCleaner::CheckUnique(const char* column, const
 char* table, bool (*check)(uint32))
 {
     QueryResult_AutoPtr result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);

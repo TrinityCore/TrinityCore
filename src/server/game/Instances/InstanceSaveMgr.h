@@ -122,9 +122,9 @@ class InstanceSaveManager
     friend class ACE_Singleton<InstanceSaveManager, ACE_Null_Mutex>;
     friend class InstanceSave;
     public:
-        InstanceSaveManager() : lock_instLists(false) {};        
+        InstanceSaveManager() : lock_instLists(false) {};
         ~InstanceSaveManager();
-        
+
         typedef UNORDERED_MAP<uint32 /*InstanceId*/, InstanceSave*> InstanceSaveHashMap;
         typedef UNORDERED_MAP<uint32 /*mapId*/, InstanceSaveHashMap> InstanceSaveMapMap;
 
@@ -177,7 +177,7 @@ class InstanceSaveManager
         uint32 GetNumBoundGroupsTotal();
 
     private:
-        
+
         void _ResetOrWarnAll(uint32 mapid, Difficulty difficulty, bool warn, uint32 timeleft);
         void _ResetInstance(uint32 mapid, uint32 instanceId);
         void _ResetSave(InstanceSaveHashMap::iterator &itr);

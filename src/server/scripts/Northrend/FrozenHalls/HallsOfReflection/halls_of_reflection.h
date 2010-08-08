@@ -83,11 +83,11 @@ struct boss_horAI : ScriptedAI
     {
         pInstance = me->GetInstanceScript();
     }
-    
+
     InstanceScript* pInstance;
     EventMap events;
     SummonList summons;
-    
+
     void Reset()
     {
         events.Reset();
@@ -121,11 +121,11 @@ struct boss_horAI : ScriptedAI
                 break;
         }
     }
-    
+
     void JustSummoned(Creature *pSummoned)
     {
         summons.Summon(pSummoned);
-        
+
         if (Unit *pUnit = pSummoned->SelectNearestTarget())
         {
             if (pSummoned->AI())

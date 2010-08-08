@@ -42,7 +42,7 @@ class instance_mechanar : public InstanceMapScript
             : InstanceMapScript("instance_mechanar")
         {
         }
-        
+
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
             instance_the_eye_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
@@ -87,30 +87,30 @@ class instance_mechanar : public InstanceMapScript
             {
                 switch(pCreature->GetEntry())
                 {
-                case 20064: 
-                    ThaladredTheDarkener = pCreature->GetGUID(); 
+                case 20064:
+                    ThaladredTheDarkener = pCreature->GetGUID();
                     break;
-                case 20063: 
-                    MasterEngineerTelonicus = pCreature->GetGUID(); 
+                case 20063:
+                    MasterEngineerTelonicus = pCreature->GetGUID();
                     break;
-                case 20062: 
-                    GrandAstromancerCapernian = pCreature->GetGUID(); 
+                case 20062:
+                    GrandAstromancerCapernian = pCreature->GetGUID();
                     break;
-                case 20060: 
-                    LordSanguinar = pCreature->GetGUID(); 
+                case 20060:
+                    LordSanguinar = pCreature->GetGUID();
                     break;
-                case 19622: 
-                    Kaelthas = pCreature->GetGUID(); 
+                case 19622:
+                    Kaelthas = pCreature->GetGUID();
                     break;
-                case 18805: 
-                    Astromancer = pCreature->GetGUID(); 
+                case 18805:
+                    Astromancer = pCreature->GetGUID();
                     break;
-                case 19514: 
-                    Alar = pCreature->GetGUID(); 
+                case 19514:
+                    Alar = pCreature->GetGUID();
                     break;
                 }
             }
-            
+
             uint64 GetData64(uint32 identifier)
             {
                 switch(identifier)
@@ -130,19 +130,19 @@ class instance_mechanar : public InstanceMapScript
             {
                 switch(type)
                 {
-                case DATA_ALAREVENT:    
-                    AlarEventPhase = data;  
-                    m_auiEncounter[0] = data;           
+                case DATA_ALAREVENT:
+                    AlarEventPhase = data;
+                    m_auiEncounter[0] = data;
                     break;
-                case DATA_HIGHASTROMANCERSOLARIANEVENT: 
-                    m_auiEncounter[1] = data;                  
+                case DATA_HIGHASTROMANCERSOLARIANEVENT:
+                    m_auiEncounter[1] = data;
                     break;
-                case DATA_VOIDREAVEREVENT:  
-                    m_auiEncounter[2] = data; 
+                case DATA_VOIDREAVEREVENT:
+                    m_auiEncounter[2] = data;
                     break;
-                case DATA_KAELTHASEVENT:  
-                    KaelthasEventPhase = data; 
-                    m_auiEncounter[3] = data;  
+                case DATA_KAELTHASEVENT:
+                    KaelthasEventPhase = data;
+                    m_auiEncounter[3] = data;
                     break;
                 }
                 if (data == DONE)
@@ -184,7 +184,7 @@ class instance_mechanar : public InstanceMapScript
                     return;
                 }
                 OUT_LOAD_INST_DATA(in);
-                
+
                 std::istringstream stream(in);
                 stream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)

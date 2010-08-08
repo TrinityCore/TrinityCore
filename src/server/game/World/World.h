@@ -468,7 +468,7 @@ struct CliCommandHolder
 {
     typedef void Print(void*, const char*);
     typedef void CommandFinished(void*, bool success);
-      
+
     void* m_callbackArg;
     char *m_command;
     Print* m_print;
@@ -482,7 +482,7 @@ struct CliCommandHolder
         m_command = new char[len];
         memcpy(m_command, command, len);
     }
-    
+
     ~CliCommandHolder() { delete[] m_command; }
 };
 

@@ -326,9 +326,9 @@ bool LootStoreItem::IsValid(LootStore const& store, uint32 entry) const
 // Constructor, copies most fields from LootStoreItem and generates random count
 LootItem::LootItem(LootStoreItem const& li)
 {
-    itemid      = li.itemid; 
+    itemid      = li.itemid;
     conditions   = li.conditions;
-    
+
     ItemPrototype const* proto = sObjectMgr.GetItemPrototype(itemid);
     freeforall  = proto && (proto->Flags & ITEM_PROTO_FLAG_PARTY_LOOT);
 
@@ -392,7 +392,7 @@ void Loot::AddItem(LootStoreItem const & item)
     {
         if (quest_items.size() < MAX_NR_QUEST_ITEMS)
             quest_items.push_back(LootItem(item));
-    } 
+    }
     else if (items.size() < MAX_NR_LOOT_ITEMS)              // Non-quest drop
     {
         items.push_back(LootItem(item));
@@ -1342,7 +1342,7 @@ bool LootTemplate::addConditionItem(Condition* cond)
                 {
                     if ((*i).itemid == cond->mSourceEntry)
                     {
-                        (*i).conditions.push_back(cond); 
+                        (*i).conditions.push_back(cond);
                         return true;
                     }
                 }

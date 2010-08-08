@@ -40,7 +40,7 @@ class BattlegroundMgr
     /* Construction */
     friend class ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>;
     BattlegroundMgr();
-    
+
     public:
         ~BattlegroundMgr();
         void Update(uint32 diff);

@@ -53,7 +53,7 @@ static Say PeonDies[]=
 };
 
 enum eSays
-{   
+{
     SAY_INTRO          = -1540000,
     SAY_TAUNT_1        = -1540009,
     SAY_TAUNT_2        = -1540010,
@@ -67,7 +67,7 @@ enum eSays
 };
 
 enum eSpells
-{   
+{
     SPELL_DEATH_COIL           = 30500,
     SPELL_DARK_SPIN            = 30502, // core bug spell attack caster :D
     SPELL_SHADOW_FISSURE       = 30496, // Summon the ShadowFissure NPC
@@ -269,8 +269,8 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     {
                         DoCast(me->getVictim(), SPELL_SHADOW_CLEAVE);
                         Cleave_Timer = 6000+rand()%2500;
-                    } 
-                    else 
+                    }
+                    else
                         Cleave_Timer -= diff;
                 }
                 else
@@ -280,8 +280,8 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                             DoCast(pTarget, SPELL_SHADOW_FISSURE);
                         ShadowFissure_Timer = urand(7500,15000);
-                    } 
-                    else 
+                    }
+                    else
                         ShadowFissure_Timer -= diff;
 
                     if (DeathCoil_Timer <= diff)
@@ -289,8 +289,8 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                         if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
                             DoCast(pTarget, SPELL_DEATH_COIL);
                         DeathCoil_Timer = urand(15000,20000);
-                    } 
-                    else 
+                    }
+                    else
                         DeathCoil_Timer -= diff;
 
                     if ((me->GetHealth()*100) / me->GetMaxHealth() <= 20)

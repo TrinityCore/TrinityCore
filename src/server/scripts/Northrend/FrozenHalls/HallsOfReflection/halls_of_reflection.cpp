@@ -71,7 +71,7 @@ enum Yells
 enum Events
 {
     EVENT_NONE,
-    
+
     EVENT_START_INTRO,
     EVENT_SKIP_INTRO,
 
@@ -133,7 +133,7 @@ enum eEnum
     QUEST_DELIVRANCE_FROM_THE_PIT_H2              = 24712,
     QUEST_WRATH_OF_THE_LICH_KING_A2               = 24500,
     QUEST_WRATH_OF_THE_LICH_KING_H2               = 24802,
-}; 
+};
 
 static Position HallsofReflectionLocs[]=
 {
@@ -201,7 +201,7 @@ public:
     // AI of Part1: handle the intro till start of gauntlet event.
     struct npc_jaina_or_sylvanas_horAI : public ScriptedAI
     {
-        npc_jaina_or_sylvanas_horAI(Creature *pCreature) : ScriptedAI(pCreature) 
+        npc_jaina_or_sylvanas_horAI(Creature *pCreature) : ScriptedAI(pCreature)
         {
             pInstance = me->GetInstanceScript();
         }
@@ -224,7 +224,7 @@ public:
             me->SetVisibility(VISIBILITY_ON);
         }
 
-        void DoAction(const int32 actionId) 
+        void DoAction(const int32 actionId)
         {
             switch(actionId)
             {
@@ -276,7 +276,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_5, 2000);
                     break;
                 case EVENT_INTRO_A2_5:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_1, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_6, 3000);
                     break;
@@ -285,7 +285,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_7, 6000);
                     break;
                 case EVENT_INTRO_A2_7:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_2, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_8, 6500);
                     break;
@@ -294,7 +294,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_9, 2000);
                     break;
                 case EVENT_INTRO_A2_9:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_3, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_10, 9000);
                     break;
@@ -303,7 +303,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_11, 5000);
                     break;
                 case EVENT_INTRO_A2_11:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_4, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_12, 11000);
                     break;
@@ -312,7 +312,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_13, 4000);
                     break;
                 case EVENT_INTRO_A2_13:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_5, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_14, 12500);
                     break;
@@ -321,12 +321,12 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_15, 10000);
                     break;
                 case EVENT_INTRO_A2_15:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_6, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_16, 22000);
                     break;
                 case EVENT_INTRO_A2_16:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_A2_7, pUther);
                     events.ScheduleEvent(EVENT_INTRO_A2_17, 4000);
                     break;
@@ -335,7 +335,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_A2_18, 2000);
                     break;
                 case EVENT_INTRO_A2_18:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                     {
                         pUther->HandleEmoteCommand(EMOTE_ONESHOT_NO);
                         DoScriptText(SAY_UTHER_INTRO_A2_8, pUther);
@@ -372,7 +372,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_H2_5, 2000);
                     break;
                 case EVENT_INTRO_H2_5:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_H2_1, pUther);
                     events.ScheduleEvent(EVENT_INTRO_H2_6, 11000);
                     break;
@@ -381,7 +381,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_H2_7, 3000);
                     break;
                 case EVENT_INTRO_H2_7:
-                    if (Creature* pUther = me->GetCreature(*me, uiUther)) 
+                    if (Creature* pUther = me->GetCreature(*me, uiUther))
                         DoScriptText(SAY_UTHER_INTRO_H2_2, pUther);
                     events.ScheduleEvent(EVENT_INTRO_H2_8, 6000);
                     break;
@@ -424,7 +424,7 @@ public:
                     DoScriptText(SAY_SYLVANAS_INTRO_8, me);
                     events.ScheduleEvent(EVENT_INTRO_LK_1, 2000);
                     break;
-                    
+
             // Remaining Intro Events common for both faction
                 case EVENT_INTRO_LK_1:
                     // Spawn LK in front of door, and make him move to the sword.
@@ -451,40 +451,40 @@ public:
                      break;
 
                 case EVENT_INTRO_LK_3:
-                     // The Lich King banishes Uther to the abyss. 
+                     // The Lich King banishes Uther to the abyss.
                      if (Creature* pUther = me->GetCreature(*me, uiUther))
                      {
                          pUther->DisappearAndDie();
                          uiUther = 0;
                      }
-                     
-                     // He steps forward and removes the runeblade from the heap of skulls. 
-                     
+
+                     // He steps forward and removes the runeblade from the heap of skulls.
+
                      events.ScheduleEvent(EVENT_INTRO_LK_4, 4000);
                      break;
-                     
+
                 case EVENT_INTRO_LK_4:
                       if (Creature* pLichKing = me->GetCreature(*me, uiLichKing))
                           DoScriptText(SAY_LK_INTRO_2, pLichKing);
                     events.ScheduleEvent(EVENT_INTRO_LK_5, 10000);
                     break;
-                           
+
                 case EVENT_INTRO_LK_5:
                     // summon Falric and Marwyn. then go back to the door
                     if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
                         pFalric->SetVisibility(VISIBILITY_ON);
                     if (Creature* pMarwyn = me->GetCreature(*me, pInstance->GetData64(DATA_MARWYN)))
                         pMarwyn->SetVisibility(VISIBILITY_ON);
-                    
+
                     if (Creature* pLichKing = me->GetCreature(*me, uiLichKing))
                     {
                         pLichKing->GetMotionMaster()->MovePoint(0, LichKingSpawnPos);
                         DoScriptText(SAY_LK_INTRO_3, pLichKing);
                     }
-                    
+
                     events.ScheduleEvent(EVENT_INTRO_LK_6, 8000);
                     break;
-                    
+
                 case EVENT_INTRO_LK_6:
                     if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
                         DoScriptText(SAY_FALRIC_INTRO_1, pFalric);
@@ -498,7 +498,7 @@ public:
 
                     events.ScheduleEvent(EVENT_INTRO_LK_8, 2000);
                     break;
-                    
+
                 case EVENT_INTRO_LK_8:
                     if (Creature* pFalric = me->GetCreature(*me, pInstance->GetData64(DATA_FALRIC)))
                         DoScriptText(SAY_FALRIC_INTRO_2, pFalric);
@@ -516,7 +516,7 @@ public:
                     // TODO: Loralen/Koreln shall run also
                     events.ScheduleEvent(EVENT_INTRO_END, 10000);
                     break;
-                
+
                 case EVENT_INTRO_END:
                     if (pInstance)
                         pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);   // start first wave

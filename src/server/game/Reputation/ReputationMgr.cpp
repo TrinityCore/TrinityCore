@@ -149,7 +149,7 @@ void ReputationMgr::SendState(FactionState const* faction) const
 
         size_t p_count = data.wpos();
         data << (uint32) count;                             // placeholder
- 
+
         data << (uint32) faction->ReputationListID;
         data << (uint32) faction->Standing;
 

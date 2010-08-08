@@ -411,7 +411,7 @@ class mob_zealot_lorkhan : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-        };		
+        };        
 
         CreatureAI* GetAI(Creature* creature) const
         {
@@ -429,7 +429,7 @@ class mob_zealot_zath : public CreatureScript
         {
         }
 
-		struct mob_zealot_zathAI : public ScriptedAI
+        struct mob_zealot_zathAI : public ScriptedAI
         {
             mob_zealot_zathAI(Creature *c) : ScriptedAI(c)
             {

@@ -83,7 +83,7 @@ public:
                     pGO->SetGoState(GO_STATE_ACTIVE);
                 else
                     pGO->SetGoState(GO_STATE_READY);
-        
+
                 GameObjectList.push_back(pGO->GetGUID());
             }
         }
@@ -141,7 +141,7 @@ public:
 
             return 0;
         }
-    
+
         void OpenCageDoors()
         {
             if (GameObjectList.empty())

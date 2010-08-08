@@ -25,5 +25,5 @@
 
 void AddSC_warlock_spell_scripts()
 {
-    
+
 }

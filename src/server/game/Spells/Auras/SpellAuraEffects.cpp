@@ -1498,7 +1498,7 @@ void AuraEffect::PeriodicTick(Unit * target, Unit * caster) const
                 float maxval = target->GetMaxPositiveAuraModifier(SPELL_AURA_MOD_HEALING_PCT);
                 if (maxval)
                     TakenTotalMod *= (100.0f + maxval) / 100.0f;
-                
+
                 // Healing over time taken percent
                 float minval_hot = target->GetMaxNegativeAuraModifier(SPELL_AURA_MOD_HOT_PCT);
                 if (minval_hot)
@@ -6287,5 +6287,5 @@ void AuraEffect::HandleAuraOpenStable(AuraApplication const * aurApp, uint8 mode
     if (apply)
         target->ToPlayer()->GetSession()->SendStablePet(target->GetGUID());
 
- 	// client auto close stable dialog at !apply aura
+     // client auto close stable dialog at !apply aura
 }

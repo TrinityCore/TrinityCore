@@ -268,8 +268,8 @@ namespace Trinity
         public:
             ThreatOrderPred(bool ascending = false) : m_ascending(ascending) {}
             bool operator() (const HostileReference *a, const HostileReference *b) const
-            { 
-                return m_ascending ? a->getThreat() < b->getThreat() : a->getThreat() > b->getThreat();  
+            {
+                return m_ascending ? a->getThreat() < b->getThreat() : a->getThreat() > b->getThreat();
             }
         private:
             const bool m_ascending;

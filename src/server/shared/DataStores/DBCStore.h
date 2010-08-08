@@ -92,7 +92,7 @@ class DBCStorage
                     query +=" ORDER BY " + *sql->indexName + " DESC";
                 query += ";";
 
-                
+
                 result = WorldDatabase.Query(query.c_str());
                 if (result)
                 {

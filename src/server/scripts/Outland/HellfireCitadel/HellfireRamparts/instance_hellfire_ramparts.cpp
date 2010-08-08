@@ -32,7 +32,7 @@ class instance_ramparts : public InstanceMapScript
         instance_ramparts()
             : InstanceMapScript("instance_ramparts")
         {
-        }            
+        }
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
@@ -54,11 +54,11 @@ class instance_ramparts : public InstanceMapScript
             {
                 switch(pGo->GetEntry())
                 {
-                    case 185168: 
-                        m_uiChestNGUID = pGo->GetGUID(); 
+                    case 185168:
+                        m_uiChestNGUID = pGo->GetGUID();
                         break;
-                    case 185169: 
-                        m_uiChestHGUID = pGo->GetGUID(); 
+                    case 185169:
+                        m_uiChestHGUID = pGo->GetGUID();
                         break;
                 }
             }

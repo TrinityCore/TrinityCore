@@ -292,7 +292,7 @@ bool FlightPathMovementGenerator::Update(Player &player, const uint32 &diff)
                         // do not send movement, it was sent already
                         i_destinationHolder.SetDestination(traveller, (*i_path)[i_currentNode].x, (*i_path)[i_currentNode].y, (*i_path)[i_currentNode].z, false);
                     }
-                    
+
                      // check if it's time to preload the flightmaster grid at path end
                     if (i_currentNode == m_preloadTargetNode)
                         PreloadEndGrid();

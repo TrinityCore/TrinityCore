@@ -818,7 +818,7 @@ void Battleground::EndBattleground(uint32 winner)
         {
             if (IsRandom() || BattlegroundMgr::IsBGWeekend(GetTypeID()))
                 UpdatePlayerScore(plr, SCORE_BONUS_HONOR, GetBonusHonorFromKill(loos_kills));
-        }           
+        }
 
 
         plr->SetHealth(plr->GetMaxHealth());
@@ -1657,7 +1657,7 @@ void Battleground::SendWarningToAll(int32 entry, ...)
     data << (uint64)0;
     data << (uint32)0;                                     // 2.1.0
     data << (uint32)1;
-    data << (uint8)0; 
+    data << (uint8)0;
     data << (uint64)0;
     data << (uint32)(strlen(msg.c_str())+1);
     data << msg.c_str();
@@ -1754,7 +1754,7 @@ void Battleground::HandleKillPlayer(Player *player, Player *killer)
     }
 
     // to be able to remove insignia -- ONLY IN Battlegrounds
-    // give xp only in Battlegrounds 
+    // give xp only in Battlegrounds
     if (!isArena())
     {
         player->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
@@ -1909,7 +1909,7 @@ void Battleground::RewardXPAtKill(Player* plr, Player* victim)
             if (victim->getLevel() > gray_level && (!not_gray_member_with_max_level
                || not_gray_member_with_max_level->getLevel() < member->getLevel()))
                 not_gray_member_with_max_level = member;
-        }        
+        }
 
         if (member_with_max_level)
         {
@@ -1964,5 +1964,5 @@ void Battleground::RewardXPAtKill(Player* plr, Player* victim)
 
         if (Pet* pet = plr->GetPet())
             pet->GivePetXP(xp);
-    }    
+    }
 }

@@ -482,8 +482,8 @@ void Aura::UpdateTargetMap(Unit * caster, bool apply)
     for (std::map<Unit *, uint8>::iterator itr = targets.begin(); itr!= targets.end();)
     {
         bool addUnit = true;
-        // check target immunities 
-        if (itr->first->IsImmunedToSpell(GetSpellProto()) 
+        // check target immunities
+        if (itr->first->IsImmunedToSpell(GetSpellProto())
             || !CanBeAppliedOn(itr->first))
             addUnit = false;
 

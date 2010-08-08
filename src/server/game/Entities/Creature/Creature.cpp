@@ -1265,7 +1265,7 @@ bool Creature::LoadFromDB(uint32 guid, Map *map)
     }
 
     uint32 curhealth;
-    
+
     if (!m_regenHealth)
     {
         curhealth = data->curhealth;
@@ -1609,7 +1609,7 @@ void Creature::Respawn(bool force)
         uint16 poolid = GetDBTableGUIDLow() ? sPoolMgr.IsPartOfAPool<Creature>(GetDBTableGUIDLow()) : 0;
         if (poolid)
             sPoolMgr.UpdatePool<Creature>(poolid, GetDBTableGUIDLow());
-            
+
         //Re-initialize reactstate that could be altered by movementgenerators
         InitializeReactState();
     }

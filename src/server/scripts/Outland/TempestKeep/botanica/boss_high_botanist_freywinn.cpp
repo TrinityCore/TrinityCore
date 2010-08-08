@@ -36,7 +36,7 @@ enum eSays
 };
 
 enum eSpells
-{   
+{
     SPELL_TRANQUILITY          = 34550,
     SPELL_TREE_FORM            = 34551,
     SPELL_SUMMON_FRAYER        = 34557,
@@ -134,8 +134,8 @@ class boss_high_botanist_freywinn : public CreatureScript
                     MoveFree = false;
 
                     TreeForm_Timer = 75000;
-                } 
-                else 
+                }
+                else
                     TreeForm_Timer -= diff;
 
                 if (!MoveFree)
@@ -173,7 +173,7 @@ class boss_high_botanist_freywinn : public CreatureScript
                         }
                         MoveCheck_Timer = 500;
                     }
-                    else 
+                    else
                         MoveCheck_Timer -= diff;
 
                     return;
@@ -187,8 +187,8 @@ class boss_high_botanist_freywinn : public CreatureScript
                 {
                     DoSummonSeedling();
                     SummonSeedling_Timer = 6000;
-                } 
-                else 
+                }
+                else
                     SummonSeedling_Timer -= diff;
 
                 DoMeleeAttackIfReady();

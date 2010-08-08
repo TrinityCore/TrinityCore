@@ -207,7 +207,7 @@ extern int main(int argc, char **argv)
     sLog.SetLogDBLater(sConfig.GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog.SetLogDB(false);
     sLog.SetRealmID(0);                                               // ensure we've set realm to 0 (realmd realmid)
- 
+
     ///- Get the list of realms for the server
     sRealmList->Initialize(sConfig.GetIntDefault("RealmsStateUpdateDelay", 20));
     if (sRealmList->size() == 0)
@@ -347,7 +347,7 @@ bool StartDB()
         return false;
     }
     LoginDatabase.ThreadStart();
-    
+
     uint32 count = 0;
     sPreparedStatement.LoadAuthserver(&LoginDatabase, count);
     sLog.outString("Loaded %u prepared MySQL statements for auth DB.", count);

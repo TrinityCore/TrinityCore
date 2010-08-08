@@ -319,7 +319,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         triggerSpawnID = AV_CPLACE_TRIGGER17;
         newFaction = 84;
     }
-    else if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN][0])        
+    else if (creature->GetEntry() == BG_AV_CreatureInfo[AV_NPC_H_CAPTAIN][0])
     {
         triggerSpawnID = AV_CPLACE_TRIGGER18;
         newFaction = 83;
@@ -335,7 +335,7 @@ Creature* BattlegroundAV::AddAVCreature(uint16 cinfoid, uint16 type)
         {
             trigger->setFaction(newFaction);
             trigger->CastSpell(trigger, SPELL_HONORABLE_DEFENDER_25Y, false);
-        }        
+        }
     }
 
     return creature;
@@ -790,7 +790,7 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
     if (!IsTower(node) && m_BgCreatures[node])
         DelCreature(node);
 
-    //remove bonus honor aura trigger creature when node is lost    
+    //remove bonus honor aura trigger creature when node is lost
     if(node < BG_AV_NODES_MAX)//fail safe
         DelCreature(node + 302);//NULL checks are in DelCreature! 0-302 spirit guides
 }

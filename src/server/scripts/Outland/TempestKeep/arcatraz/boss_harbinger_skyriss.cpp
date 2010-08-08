@@ -96,7 +96,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 IsImage66 = false;
 
                 Intro_Phase = 1;
-                Intro_Timer = 5000;       
+                Intro_Timer = 5000;
                 MindRend_Timer = 3000;
                 Fear_Timer = 15000;
                 Domination_Timer = 30000;
@@ -107,10 +107,10 @@ class boss_harbinger_skyriss : public CreatureScript
             {
                 if (!Intro)
                     return;
-                
+
                 ScriptedAI::MoveInLineOfSight(who);
             }
-            
+
             void EnterCombat(Unit * /*who*/) {}
 
             void JustDied(Unit* /*Killer*/)
@@ -189,7 +189,7 @@ class boss_harbinger_skyriss : public CreatureScript
                             Intro = true;
                             break;
                         }
-                    } 
+                    }
                     else
                         Intro_Timer -=diff;
                 }
@@ -271,7 +271,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
-        
+
         CreatureAI* GetAI(Creature* pCreature) const
         {
             return new boss_harbinger_skyrissAI (pCreature);
@@ -295,7 +295,7 @@ class boss_harbinger_skyriss_illusion : public CreatureScript
             boss_harbinger_skyriss_illusionAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
             void Reset() { }
-            
+
             void EnterCombat(Unit * /*who*/) { }
         };
 

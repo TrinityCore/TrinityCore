@@ -98,7 +98,7 @@ class boss_broggok : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_SLIME_SPRAY);
                     AcidSpray_Timer = 4000+rand()%8000;
-                } 
+                }
                 else
                     AcidSpray_Timer -=diff;
 
@@ -106,16 +106,16 @@ class boss_broggok : public CreatureScript
                 {
                     DoCast(me->getVictim(), SPELL_POISON_BOLT);
                     PoisonBolt_Timer = 4000+rand()%8000;
-                } 
-                else 
+                }
+                else
                     PoisonBolt_Timer -=diff;
 
                 if (PoisonSpawn_Timer <= diff)
                 {
                     DoCast(me, SPELL_POISON_CLOUD);
                     PoisonSpawn_Timer = 20000;
-                } 
-                else 
+                }
+                else
                     PoisonSpawn_Timer -=diff;
 
                 DoMeleeAttackIfReady();

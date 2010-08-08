@@ -120,7 +120,7 @@ class AuctionHouseMgr
     friend class ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>;
     AuctionHouseMgr();
     ~AuctionHouseMgr();
-    
+
     public:
 
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;

@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptPCH.h"
 
 enum eSays
-{   
+{
     SAY_AGGRO_1                = -1543009,
     SAY_AGGRO_2                = -1543010,
     SAY_AGGRO_3                = -1543011,
@@ -38,7 +38,7 @@ enum eSays
 };
 
 enum eSpells
-{   
+{
     SPELL_ORBITAL_STRIKE       = 30637,
     SPELL_SHADOW_WHIP          = 30638,
     SPELL_TREACHEROUS_AURA     = 30695,
@@ -131,8 +131,8 @@ class boss_omor_the_unscarred : public CreatureScript
                         me->InterruptNonMeleeSpells(false);
                         DoCast(me, SPELL_SUMMON_FIENDISH_HOUND);
                         Summon_Timer = 15000+rand()%15000;
-                    } 
-                    else 
+                    }
+                    else
                         Summon_Timer -= diff;
                 }
 
@@ -152,11 +152,11 @@ class boss_omor_the_unscarred : public CreatureScript
                         PlayerGUID = 0;
                         ShadowWhip_Timer = 2000;
                         CanPullBack = false;
-                    } 
+                    }
                     else
                         ShadowWhip_Timer -= diff;
                 }
-                else 
+                else
                     if (OrbitalStrike_Timer <= diff)
                     {
                         Unit* temp = NULL;
@@ -173,8 +173,8 @@ class boss_omor_the_unscarred : public CreatureScript
                             if (PlayerGUID)
                                 CanPullBack = true;
                         }
-                    } 
-                    else 
+                    }
+                    else
                         OrbitalStrike_Timer -= diff;
 
                 if ((me->GetHealth()*100) / me->GetMaxHealth() < 20)
@@ -183,8 +183,8 @@ class boss_omor_the_unscarred : public CreatureScript
                     {
                         DoCast(me, SPELL_DEMONIC_SHIELD);
                         DemonicShield_Timer = 15000;
-                    } 
-                    else 
+                    }
+                    else
                         DemonicShield_Timer -= diff;
                 }
 
@@ -197,7 +197,7 @@ class boss_omor_the_unscarred : public CreatureScript
                         DoCast(pTarget, SPELL_TREACHEROUS_AURA);
                         Aura_Timer = 8000+rand()%8000;
                     }
-                } 
+                }
                 else
                     Aura_Timer -= diff;
 
@@ -211,8 +211,8 @@ class boss_omor_the_unscarred : public CreatureScript
                         DoCast(pTarget, SPELL_SHADOW_BOLT);
                         Shadowbolt_Timer = 4000+rand()%2500;
                     }
-                } 
-                else 
+                }
+                else
                     Shadowbolt_Timer -= diff;
 
                 DoMeleeAttackIfReady();
