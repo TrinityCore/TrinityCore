@@ -40,6 +40,14 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedSimpleAI.cpp
 )
 
+if(MSVC)
+  set(scripts_STAT_SRCS
+    ${scripts_STAT_SRCS}
+    PrecompiledHeaders/scriptPCH.cpp
+    PrecompiledHeaders/scriptPCH.h
+  )
+endif()
+
 message("-- Added Script Library to SCRIPTS lib")
 
 include_directories(
@@ -125,15 +133,9 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Tools
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
+  ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${MYSQL_INCLUDE_DIR}
 )
-
-# Add ScriptPCH.cpp to project on Windows
-if(MSVC)
-set(scripts_STAT_SRCS
-    ../game/PrecompiledHeaders/ScriptPCH.cpp
-    ${scripts_STAT_SRCS})
-endif()
 
 add_library(scripts STATIC ${scripts_STAT_SRCS})
 

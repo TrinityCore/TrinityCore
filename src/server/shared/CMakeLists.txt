@@ -39,15 +39,6 @@ set(shared_STAT_SRCS
   ${sources_localdir}
 )
 
-# Windows specific files
-if(WIN32)
-  set(shared_STAT_SRCS
-    ${shared_STAT_SRCS}
-    Debugging/WheatyExceptionReport.cpp
-    Utilities/ServiceWin32.cpp
-  )
-endif()
-
 include_directories(
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
