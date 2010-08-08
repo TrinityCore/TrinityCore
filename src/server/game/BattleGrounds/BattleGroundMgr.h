@@ -22,161 +22,17 @@
 #define __BATTLEGROUNDMGR_H
 
 #include "Common.h"
-#include "ace/Singleton.h"
-
 #include "DBCEnums.h"
 #include "BattleGround.h"
+#include "BattleGroundQueue.h"
+#include "ace/Singleton.h"
 
 typedef std::map<uint32, BattleGround*> BattleGroundSet;
-
-//this container can't be deque, because deque doesn't like removing the last element - if you remove it, it invalidates next iterator and crash appears
-typedef std::list<BattleGround*> BGFreeSlotQueueType;
 
 typedef UNORDERED_MAP<uint32, BattleGroundTypeId> BattleMastersMap;
 
 #define BATTLEGROUND_ARENA_POINT_DISTRIBUTION_DAY 86400     // seconds in a day
-#define COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME 10
 #define WS_ARENA_DISTRIBUTION_TIME 20001                    // Custom worldstate
-
-struct GroupQueueInfo;                                      // type predefinition
-struct PlayerQueueInfo                                      // stores information for players in queue
-{
-    uint32  LastOnlineTime;                                 // for tracking and removing offline players from queue after 5 minutes
-    GroupQueueInfo * GroupInfo;                             // pointer to the associated groupqueueinfo
-};
-
-struct GroupQueueInfo                                       // stores information about the group in queue (also used when joined as solo!)
-{
-    std::map<uint64, PlayerQueueInfo*> Players;             // player queue info map
-    uint32  Team;                                           // Player team (ALLIANCE/HORDE)
-    BattleGroundTypeId BgTypeId;                            // battleground type id
-    bool    IsRated;                                        // rated
-    uint8   ArenaType;                                      // 2v2, 3v3, 5v5 or 0 when BG
-    uint32  ArenaTeamId;                                    // team id if rated match
-    uint32  JoinTime;                                       // time when group was added
-    uint32  RemoveInviteTime;                               // time when we will remove invite for players in group
-    uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
-    uint32  ArenaTeamRating;                                // if rated match, inited to the rating of the team
-    uint32  OpponentsTeamRating;                            // for rated arena matches
-};
-
-enum BattleGroundQueueGroupTypes
-{
-    BG_QUEUE_PREMADE_ALLIANCE   = 0,
-    BG_QUEUE_PREMADE_HORDE      = 1,
-    BG_QUEUE_NORMAL_ALLIANCE    = 2,
-    BG_QUEUE_NORMAL_HORDE       = 3
-};
-#define BG_QUEUE_GROUP_TYPES_COUNT 4
-
-class BattleGround;
-class BattleGroundQueue
-{
-    public:
-        BattleGroundQueue();
-        ~BattleGroundQueue();
-
-        void Update(BattleGroundTypeId bgTypeId, BattleGroundBracketId bracket_id, uint8 arenaType = 0, bool isRated = false, uint32 minRating = 0);
-
-        void FillPlayersToBG(BattleGround* bg, BattleGroundBracketId bracket_id);
-        bool CheckPremadeMatch(BattleGroundBracketId bracket_id, uint32 MinPlayersPerTeam, uint32 MaxPlayersPerTeam);
-        bool CheckNormalMatch(BattleGround* bg_template, BattleGroundBracketId bracket_id, uint32 minPlayers, uint32 maxPlayers);
-        bool CheckSkirmishForSameFaction(BattleGroundBracketId bracket_id, uint32 minPlayersPerTeam);
-        GroupQueueInfo * AddGroup(Player* leader, Group* group, BattleGroundTypeId bgTypeId, PvPDifficultyEntry const*  backetEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 ArenaTeamId = 0);
-        void RemovePlayer(const uint64& guid, bool decreaseInvitedCount);
-        bool IsPlayerInvited(const uint64& pl_guid, const uint32 bgInstanceGuid, const uint32 removeTime);
-        bool GetPlayerGroupInfoData(const uint64& guid, GroupQueueInfo* ginfo);
-        void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo* ginfo, BattleGroundBracketId bracket_id);
-        uint32 GetAverageQueueWaitTime(GroupQueueInfo* ginfo, BattleGroundBracketId bracket_id);
-
-        typedef std::map<uint64, PlayerQueueInfo> QueuedPlayersMap;
-        QueuedPlayersMap m_QueuedPlayers;
-
-        //we need constant add to begin and constant remove / add from the end, therefore deque suits our problem well
-        typedef std::list<GroupQueueInfo*> GroupsQueueType;
-
-        /*
-        This two dimensional array is used to store All queued groups
-        First dimension specifies the bgTypeId
-        Second dimension specifies the player's group types -
-             BG_QUEUE_PREMADE_ALLIANCE  is used for premade alliance groups and alliance rated arena teams
-             BG_QUEUE_PREMADE_HORDE     is used for premade horde groups and horde rated arena teams
-             BG_QUEUE_NORMAL_ALLIANCE   is used for normal (or small) alliance groups or non-rated arena matches
-             BG_QUEUE_NORMAL_HORDE      is used for normal (or small) horde groups or non-rated arena matches
-        */
-        GroupsQueueType m_QueuedGroups[MAX_BATTLEGROUND_BRACKETS][BG_QUEUE_GROUP_TYPES_COUNT];
-
-        // class to select and invite groups to bg
-        class SelectionPool
-        {
-        public:
-            void Init();
-            bool AddGroup(GroupQueueInfo *ginfo, uint32 desiredCount);
-            bool KickGroup(uint32 size);
-            uint32 GetPlayerCount() const {return PlayerCount;}
-        public:
-            GroupsQueueType SelectedGroups;
-        private:
-            uint32 PlayerCount;
-        };
-
-        //one selection pool for horde, other one for alliance
-        SelectionPool m_SelectionPools[BG_TEAMS_COUNT];
-
-    private:
-
-        bool InviteGroupToBG(GroupQueueInfo * ginfo, BattleGround * bg, uint32 side);
-        uint32 m_WaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS][COUNT_OF_PLAYERS_TO_AVERAGE_WAIT_TIME];
-        uint32 m_WaitTimeLastPlayer[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
-        uint32 m_SumOfWaitTimes[BG_TEAMS_COUNT][MAX_BATTLEGROUND_BRACKETS];
-};
-
-/*
-    This class is used to invite player to BG again, when minute lasts from his first invitation
-    it is capable to solve all possibilities
-*/
-class BGQueueInviteEvent : public BasicEvent
-{
-    public:
-        BGQueueInviteEvent(const uint64& pl_guid, uint32 BgInstanceGUID, BattleGroundTypeId BgTypeId, uint8 arenaType, uint32 removeTime) :
-          m_PlayerGuid(pl_guid), m_BgInstanceGUID(BgInstanceGUID), m_BgTypeId(BgTypeId), m_ArenaType(arenaType), m_RemoveTime(removeTime)
-          {
-          };
-        virtual ~BGQueueInviteEvent() {};
-
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
-    private:
-        uint64 m_PlayerGuid;
-        uint32 m_BgInstanceGUID;
-        BattleGroundTypeId m_BgTypeId;
-        uint8  m_ArenaType;
-        uint32 m_RemoveTime;
-};
-
-/*
-    This class is used to remove player from BG queue after 1 minute 20 seconds from first invitation
-    We must store removeInvite time in case player left queue and joined and is invited again
-    We must store bgQueueTypeId, because battleground can be deleted already, when player entered it
-*/
-class BGQueueRemoveEvent : public BasicEvent
-{
-    public:
-        BGQueueRemoveEvent(const uint64& pl_guid, uint32 bgInstanceGUID, BattleGroundTypeId BgTypeId, BattleGroundQueueTypeId bgQueueTypeId, uint32 removeTime)
-            : m_PlayerGuid(pl_guid), m_BgInstanceGUID(bgInstanceGUID), m_RemoveTime(removeTime), m_BgTypeId(BgTypeId), m_BgQueueTypeId(bgQueueTypeId)
-        {}
-
-        virtual ~BGQueueRemoveEvent() {}
-
-        virtual bool Execute(uint64 e_time, uint32 p_time);
-        virtual void Abort(uint64 e_time);
-    private:
-        uint64 m_PlayerGuid;
-        uint32 m_BgInstanceGUID;
-        uint32 m_RemoveTime;
-        BattleGroundTypeId m_BgTypeId;
-        BattleGroundQueueTypeId m_BgQueueTypeId;
-};
 
 class BattleGroundMgr
 {
