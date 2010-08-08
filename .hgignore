@@ -1,26 +1,12 @@
 # use glob syntax.
 syntax: glob
 
-src/server/shared/revision.h
 build/
-bin/
 .directory
 *.orig
 *.rej
 *~
 .git/
-VC90/*/
-win/VC90/*/
-src/tools/bin/*/
-src/tools/map_extractor/VC90/*/
-src/tools/vmap3_assembler/VC90/*/
-src/tools/vmap3_extractor/VC90/*/
-externals/lib/*/
-*.ncb
-*.suo
-*.*-*
 
 # use regexp syntax.
 syntax: regexp
-
-^src/shared/server/shared/revision\.h
