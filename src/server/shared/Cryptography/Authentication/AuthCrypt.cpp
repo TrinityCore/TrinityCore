@@ -43,13 +43,13 @@ void AuthCrypt::Init(BigNumber *K)
     HmacHash clientDecryptHmac(SEED_KEY_SIZE, (uint8*)ServerDecryptionKey);
     uint8 *decryptHash = clientDecryptHmac.ComputeHash(K);
 
-    //SARC4 _serverDecrypt(encryptHash);
+    //ARC4 _serverDecrypt(encryptHash);
     _clientDecrypt.Init(decryptHash);
     _serverEncrypt.Init(encryptHash);
-    //SARC4 _clientEncrypt(decryptHash);
+    //ARC4 _clientEncrypt(decryptHash);
 
+    // Drop first 1024 bytes, as WoW uses ARC4-drop1024.
     uint8 syncBuf[1024];
-
     memset(syncBuf, 0, 1024);
 
     _serverEncrypt.UpdateData(1024, syncBuf);
