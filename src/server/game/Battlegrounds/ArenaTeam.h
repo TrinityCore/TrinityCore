@@ -21,6 +21,10 @@
 #ifndef TRINITYCORE_ARENATEAM_H
 #define TRINITYCORE_ARENATEAM_H
 
+#include "QueryResult.h"
+
+class WorldSession;
+
 enum ArenaTeamCommandTypes
 {
     ERR_ARENA_TEAM_CREATE_S                 = 0x00,

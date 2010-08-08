@@ -22,11 +22,13 @@
 #define TRINITYCORE_CHAT_H
 
 #include "SharedDefines.h"
+#include "Player.h"
 
 #include <vector>
 
 class ChatHandler;
 class WorldSession;
+class WorldObject;
 class Creature;
 class Player;
 class Unit;

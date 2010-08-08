@@ -22,6 +22,8 @@
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
 #include "Chat.h"
+#include "ObjectMgr.h"
+#include "Log.h"
 
 /*********************************************************/
 /***            BATTLEGROUND QUEUE SYSTEM              ***/
