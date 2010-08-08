@@ -1815,11 +1815,11 @@ void Spell::EffectDummy(uint32 i)
 
                 if (m_targets.HasDst())
                 {
-                    targets.setDst(&m_targets.m_dstPos);
+                    targets.setDst(m_targets.m_dstPos);
                 }
                 else
                 {
-                    targets.setDst(m_caster);
+                    targets.setDst(*m_caster);
                     // Corpse not found - take reagents (only not triggered cast can take them)
                     triggered = false;
                 }
@@ -1831,7 +1831,7 @@ void Spell::EffectDummy(uint32 i)
             else if (m_spellInfo->Id == 48289)
             {
                 if (m_targets.HasDst())
-                    targets.setDst(&m_targets.m_dstPos);
+                    targets.setDst(m_targets.m_dstPos);
 
                 spell_id = CalculateDamage(0, NULL);
             }

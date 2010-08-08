@@ -47,6 +47,7 @@ class WorldSocket;
 class QueryResult;
 class LoginQueryHolder;
 class CharacterHandler;
+class SpellCastTargets;
 struct AreaTableEntry;
 
 enum AccountDataType
@@ -211,7 +212,10 @@ class WorldSession
 
         void SendPetitionQueryOpcode(uint64 petitionguid);
 
-        //pet
+        // Spell
+        void HandleClientCastFlags(WorldPacket& recvPacket, uint8 castFlags, SpellCastTargets & targets);
+
+        // Pet
         void SendPetNameQuery(uint64 guid, uint32 petnumber);
         void SendStablePet(uint64 guid);
         void SendStableResult(uint8 guid);

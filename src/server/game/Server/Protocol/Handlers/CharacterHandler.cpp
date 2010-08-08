@@ -1257,8 +1257,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
     sLog.outDebug("CMSG_EQUIPMENT_SET_SAVE");
 
     uint64 setGuid;
-    if (!recv_data.readPackGUID(setGuid))
-        return;
+    recv_data.readPackGUID(setGuid);
 
     uint32 index;
     recv_data >> index;
@@ -1281,8 +1280,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
-        if (!recv_data.readPackGUID(itemGuid))
-            return;
+        recv_data.readPackGUID(itemGuid);
 
         Item *item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
@@ -1303,8 +1301,7 @@ void WorldSession::HandleEquipmentSetDelete(WorldPacket &recv_data)
     sLog.outDebug("CMSG_EQUIPMENT_SET_DELETE");
 
     uint64 setGuid;
-    if (!recv_data.readPackGUID(setGuid))
-        return;
+    recv_data.readPackGUID(setGuid);
 
     _player->DeleteEquipmentSet(setGuid);
 }
@@ -1317,8 +1314,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
-        if (!recv_data.readPackGUID(itemGuid))
-            return;
+        recv_data.readPackGUID(itemGuid);
 
         uint8 srcbag, srcslot;
         recv_data >> srcbag >> srcslot;

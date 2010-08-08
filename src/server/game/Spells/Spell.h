@@ -29,9 +29,11 @@ class Unit;
 class Player;
 class GameObject;
 class DynamicObject;
+class WorldObject;
 class Aura;
-struct SpellEntry;
 class SpellScript;
+
+struct SpellEntry;
 
 enum SpellCastTargetFlags
 {
@@ -131,9 +133,6 @@ class SpellCastTargets
         SpellCastTargets();
         ~SpellCastTargets();
 
-        bool read (WorldPacket * data, Unit *caster);
-        void write (WorldPacket * data);
-
         SpellCastTargets& operator=(const SpellCastTargets &target)
         {
             m_unitTarget = target.m_unitTarget;
@@ -147,7 +146,12 @@ class SpellCastTargets
 
             m_itemTargetEntry  = target.m_itemTargetEntry;
 
+            m_srcTransGUID = target.m_srcTransGUID;
+            m_srcTransOffset = target.m_srcTransOffset;
             m_srcPos = target.m_srcPos;
+
+            m_dstTransGUID = target.m_dstTransGUID;
+            m_dstTransOffset = target.m_dstTransOffset;
             m_dstPos.Relocate(target.m_dstPos);
 
             m_elevation = target.m_elevation;
@@ -159,6 +163,8 @@ class SpellCastTargets
 
             return *this;
         }
+        void read (ByteBuffer & data, Unit * caster);
+        void write (ByteBuffer & data);
 
         uint32 getTargetMask() const { return m_targetMask; }
         void setTargetMask(uint32 newMask) { m_targetMask = newMask; }
@@ -167,9 +173,13 @@ class SpellCastTargets
         Unit *getUnitTarget() const { return m_unitTarget; }
         void setUnitTarget(Unit *target);
         void setSrc(float x, float y, float z);
-        void setSrc(Position *pos);
+        void setSrc(Position &pos);
+        void setSrc(WorldObject &wObj);
+        void modSrc(Position &pos);
         void setDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
-        void setDst(Position *pos);
+        void setDst(Position &pos);
+        void setDst(WorldObject &wObj);
+        void modDst(Position &pos);
 
         uint64 getGOTargetGUID() const { return m_GOTargetGUID; }
         GameObject *getGOTarget() const { return m_GOTarget; }
@@ -201,8 +211,13 @@ class SpellCastTargets
         float GetSpeedZ() const { return m_speed * sin(m_elevation); }
 
         void Update(Unit* caster);
+        void OutDebug();
 
+        uint64 m_srcTransGUID;
+        Position m_srcTransOffset;
         Position m_srcPos;
+        uint64 m_dstTransGUID;
+        Position m_dstTransOffset;
         WorldLocation m_dstPos;
         float m_elevation, m_speed;
         std::string m_strTarget;
@@ -451,8 +466,8 @@ class Spell
 
         bool CheckTarget(Unit* target, uint32 eff);
         bool CanAutoCast(Unit* target);
-        void CheckSrc() { if (!m_targets.HasSrc()) m_targets.setSrc(m_caster); }
-        void CheckDst() { if (!m_targets.HasDst()) m_targets.setDst(m_caster); }
+        void CheckSrc() { if (!m_targets.HasSrc()) m_targets.setSrc(*m_caster); }
+        void CheckDst() { if (!m_targets.HasDst()) m_targets.setDst(*m_caster); }
 
         static void  SendCastResult(Player* caster, SpellEntry const* spellInfo, uint8 cast_count, SpellCastResult result);
         void SendCastResult(SpellCastResult result);

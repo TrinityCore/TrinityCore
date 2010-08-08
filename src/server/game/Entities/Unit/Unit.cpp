@@ -15642,6 +15642,16 @@ Creature *Unit::GetVehicleCreatureBase() const
     return NULL;
 }
 
+uint64 Unit::GetTransGUID() const
+{
+    if (GetVehicle())
+        return GetVehicle()->GetBase()->GetGUID();
+    if (GetTransport())
+        return GetTransport()->GetGUID();
+
+    return 0;
+}
+
 bool Unit::IsInPartyWith(Unit const *unit) const
 {
     if (this == unit)

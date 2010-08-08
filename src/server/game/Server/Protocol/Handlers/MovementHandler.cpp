@@ -195,8 +195,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     sLog.outDebug("MSG_MOVE_TELEPORT_ACK");
     uint64 guid;
 
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     uint32 flags, time;
     recv_data >> flags >> time;
@@ -264,8 +263,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     /* extract packet */
     uint64 guid;
 
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     MovementInfo movementInfo;
     movementInfo.guid = guid;
@@ -424,8 +422,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
     uint32 unk1;
     float  newspeed;
 
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     // now can skip not our packet
     if (_player->GetGUID() != guid)
@@ -525,8 +522,7 @@ void WorldSession::HandleMoveNotActiveMover(WorldPacket &recv_data)
     sLog.outDebug("WORLD: Recvd CMSG_MOVE_NOT_ACTIVE_MOVER");
 
     uint64 old_mover_guid;
-    if (!recv_data.readPackGUID(old_mover_guid))
-        return;
+    recv_data.readPackGUID(old_mover_guid);
 
     /*if (_player->m_mover->GetGUID() == old_mover_guid)
     {
@@ -558,8 +554,7 @@ void WorldSession::HandleDismissControlledVehicle(WorldPacket &recv_data)
 
     uint64 guid;
 
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     MovementInfo mi;
     mi.guid = guid;
@@ -592,14 +587,12 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     case CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE:
         {
             uint64 guid;        // current vehicle guid
-            if (!recv_data.readPackGUID(guid))
-                return;
+            recv_data.readPackGUID(guid);
 
             ReadMovementInfo(recv_data, &vehicle_base->m_movementInfo);
 
             uint64 accessory;        //  accessory guid
-            if (!recv_data.readPackGUID(accessory))
-                return;
+            recv_data.readPackGUID(accessory);
 
             int8 seatId;
             recv_data >> seatId;
@@ -620,8 +613,7 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
     case CMSG_REQUEST_VEHICLE_SWITCH_SEAT:
         {
             uint64 guid;        // current vehicle guid
-            if (!recv_data.readPackGUID(guid))
-                return;
+            recv_data.readPackGUID(guid);
 
             int8 seatId;
             recv_data >> seatId;
@@ -693,8 +685,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
     sLog.outDebug("CMSG_MOVE_KNOCK_BACK_ACK");
 
     uint64 guid;                                            // guid - unused
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     recv_data.read_skip<uint32>();                          // unk
 
@@ -707,8 +698,7 @@ void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)
     sLog.outDebug("CMSG_MOVE_HOVER_ACK");
 
     uint64 guid;                                            // guid - unused
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     recv_data.read_skip<uint32>();                          // unk
 
@@ -723,8 +713,7 @@ void WorldSession::HandleMoveWaterWalkAck(WorldPacket& recv_data)
     sLog.outDebug("CMSG_MOVE_WATER_WALK_ACK");
 
     uint64 guid;                                            // guid - unused
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     recv_data.read_skip<uint32>();                          // unk
 

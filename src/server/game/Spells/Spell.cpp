@@ -79,8 +79,12 @@ SpellCastTargets::SpellCastTargets() : m_elevation(0), m_speed(0)
     m_itemTargetGUID   = 0;
     m_itemTargetEntry  = 0;
 
-    m_srcPos.Relocate(0,0,0,0);
-    m_dstPos.Relocate(0,0,0,0);
+    m_srcTransGUID = 0;
+    m_srcTransOffset.Relocate(0, 0, 0, 0);
+    m_srcPos.Relocate(0, 0, 0, 0);
+    m_dstTransGUID = 0;
+    m_dstTransOffset.Relocate(0, 0, 0, 0);
+    m_dstPos.Relocate(0, 0, 0, 0);
     m_strTarget = "";
     m_targetMask = 0;
 }
@@ -102,33 +106,75 @@ void SpellCastTargets::setUnitTarget(Unit *target)
 void SpellCastTargets::setSrc(float x, float y, float z)
 {
     m_srcPos.Relocate(x, y, z);
+    m_srcTransGUID = 0;
     m_targetMask |= TARGET_FLAG_SOURCE_LOCATION;
 }
 
-void SpellCastTargets::setSrc(Position *pos)
+void SpellCastTargets::setSrc(Position &pos)
 {
-    if (pos)
+    m_srcPos.Relocate(pos);
+    m_srcTransGUID = 0;
+    m_targetMask |= TARGET_FLAG_SOURCE_LOCATION;
+}
+
+void SpellCastTargets::setSrc(WorldObject &wObj)
+{
+    uint64 guid = wObj.GetTransGUID();
+    m_srcTransGUID = guid;
+    m_srcTransOffset.Relocate(wObj.GetTransOffsetX(), wObj.GetTransOffsetY(), wObj.GetTransOffsetZ(), wObj.GetTransOffsetO());
+    m_srcPos.Relocate(wObj);
+    m_targetMask |= TARGET_FLAG_SOURCE_LOCATION;
+}
+
+void SpellCastTargets::modSrc(Position &pos)
+{
+    ASSERT(m_targetMask & TARGET_FLAG_SOURCE_LOCATION);
+
+    if (m_srcTransGUID)
     {
-        m_srcPos.Relocate(pos);
-        m_targetMask |= TARGET_FLAG_SOURCE_LOCATION;
+        Position offset;
+        m_srcPos.GetPositionOffsetTo(pos, offset);
+        m_srcTransOffset.RelocateOffset(offset);
     }
+    m_srcPos.Relocate(pos);
 }
 
 void SpellCastTargets::setDst(float x, float y, float z, float orientation, uint32 mapId)
 {
     m_dstPos.Relocate(x, y, z, orientation);
+    m_dstTransGUID = 0;
     m_targetMask |= TARGET_FLAG_DEST_LOCATION;
     if (mapId != MAPID_INVALID)
         m_dstPos.m_mapId = mapId;
 }
 
-void SpellCastTargets::setDst(Position *pos)
+void SpellCastTargets::setDst(Position &pos)
 {
-    if (pos)
+    m_dstPos.Relocate(pos);
+    m_dstTransGUID = 0;
+    m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+}
+
+void SpellCastTargets::setDst(WorldObject &wObj)
+{
+    uint64 guid = wObj.GetTransGUID();
+    m_dstTransGUID = guid;
+    m_dstTransOffset.Relocate(wObj.GetTransOffsetX(), wObj.GetTransOffsetY(), wObj.GetTransOffsetZ(), wObj.GetTransOffsetO());
+    m_dstPos.Relocate(wObj);
+    m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+}
+
+void SpellCastTargets::modDst(Position &pos)
+{
+    ASSERT(m_targetMask & TARGET_FLAG_DEST_LOCATION);
+
+    if (m_dstTransGUID)
     {
-        m_dstPos.Relocate(pos);
-        m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+        Position offset;
+        m_dstPos.GetPositionOffsetTo(pos, offset);
+        m_dstTransOffset.RelocateOffset(offset);
     }
+    m_dstPos.Relocate(pos);
 }
 
 void SpellCastTargets::setGOTarget(GameObject *target)
@@ -184,153 +230,187 @@ void SpellCastTargets::Update(Unit* caster)
         if (m_itemTarget)
             m_itemTargetEntry = m_itemTarget->GetEntry();
     }
+    // update positions by transport move
+    if (m_srcTransGUID)
+    {
+        if (WorldObject * transport = ObjectAccessor::GetWorldObject(*caster, m_srcTransGUID))
+        {
+            m_srcPos.Relocate(transport);
+            m_srcPos.RelocateOffset(m_srcTransOffset);
+        }
+    }
+    if (m_dstTransGUID)
+    {
+        if (WorldObject * transport = ObjectAccessor::GetWorldObject(*caster, m_dstTransGUID))
+        {
+            m_dstPos.Relocate(transport);
+            m_dstPos.RelocateOffset(m_dstTransOffset);
+        }
+    }
 }
 
-bool SpellCastTargets::read (WorldPacket * data, Unit *caster)
+void SpellCastTargets::OutDebug()
 {
-    if (data->rpos() + 4 > data->size())
-        return false;
+    if (!m_targetMask)
+        sLog.outString("TARGET_FLAG_SELF");
 
-    uint8 clientCastFlags;
-    *data >> clientCastFlags;
-    *data >> m_targetMask;
-    //sLog.outDebug("Spell read, target mask = %u", m_targetMask);
+    if (m_targetMask & TARGET_FLAG_UNIT)
+    {
+        sLog.outString("TARGET_FLAG_UNIT: " UI64FMTD, m_unitTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_UNK17)
+    {
+        sLog.outString("TARGET_FLAG_UNK17: " UI64FMTD, m_unitTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_OBJECT)
+    {
+        sLog.outString("TARGET_FLAG_OBJECT: " UI64FMTD, m_GOTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_CORPSE)
+    {
+        sLog.outString("TARGET_FLAG_CORPSE: " UI64FMTD, m_CorpseTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_PVP_CORPSE)
+    {
+        sLog.outString("TARGET_FLAG_PVP_CORPSE: " UI64FMTD, m_CorpseTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_ITEM)
+    {
+        sLog.outString("TARGET_FLAG_ITEM: " UI64FMTD, m_itemTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_TRADE_ITEM)
+    {
+        sLog.outString("TARGET_FLAG_TRADE_ITEM: " UI64FMTD, m_itemTargetGUID);
+    }
+    if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
+    {
+        sLog.outString("TARGET_FLAG_SOURCE_LOCATION: transport guid:" UI64FMTD " trans offset: %s position: %s", m_srcTransGUID, m_srcTransOffset.ToString().c_str(), m_srcPos.ToString().c_str());
+    }
+    if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
+    {
+        sLog.outString("TARGET_FLAG_DEST_LOCATION: transport guid:" UI64FMTD " trans offset: %s position: %s", m_dstTransGUID, m_dstTransOffset.ToString().c_str(), m_dstPos.ToString().c_str());
+    }
+    if (m_targetMask & TARGET_FLAG_STRING)
+    {
+        sLog.outString("TARGET_FLAG_STRING: %s", m_strTarget);
+    }
+    sLog.outString("speed: %f", m_speed);
+    sLog.outString("elevation: %f", m_elevation);
+}
+
+void SpellCastTargets::read (ByteBuffer & data, Unit * caster)
+{
+    data >> m_targetMask;
 
     if (m_targetMask == TARGET_FLAG_SELF)
-        return true;
+        return;
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNK17))
-    {
-        if (!data->readPackGUID(m_unitTargetGUID))
-            return false;
-    }
+        data.readPackGUID(m_unitTargetGUID);
 
-    if(m_targetMask & (TARGET_FLAG_OBJECT))
-    {
-        if (!data->readPackGUID(m_GOTargetGUID))
-            return false;
-    }
+    if (m_targetMask & (TARGET_FLAG_OBJECT))
+        data.readPackGUID(m_GOTargetGUID);
 
     if(m_targetMask & (TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
-    {
-        if (caster->GetTypeId() != TYPEID_PLAYER)
-            return false;
-        if (!data->readPackGUID(m_itemTargetGUID))
-            return false;
-    }
+        data.readPackGUID(m_itemTargetGUID);
 
     if(m_targetMask & (TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
-    {
-        if (!data->readPackGUID(m_CorpseTargetGUID))
-            return false;
-    }
+        data.readPackGUID(m_CorpseTargetGUID);
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        uint64 relativePositionObjGUID;
-        if (!data->readPackGUID(relativePositionObjGUID))
-            return false;
-        *data >> m_srcPos.PositionXYZStream();
-        if (!m_srcPos.IsPositionValid())
-            return false;
+        data.readPackGUID(m_srcTransGUID);
+        if (m_srcTransGUID)
+            data >> m_srcTransOffset.PositionXYZStream();
+        else
+            data >> m_srcPos.PositionXYZStream();
     }
     else
-        m_srcPos.Relocate(caster);
+    {
+        m_srcTransGUID = caster->GetTransGUID();
+        if (m_srcTransGUID)
+            m_srcTransOffset.Relocate(caster->GetTransOffsetX(), caster->GetTransOffsetY(), caster->GetTransOffsetZ(), caster->GetTransOffsetO());
+        else
+            m_srcPos.Relocate(caster);
+    }
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        uint64 relativePositionObjGUID;
-        if (!data->readPackGUID(relativePositionObjGUID))
-            return false;
-        *data >> m_dstPos.PositionXYZStream();
-        if (!m_dstPos.IsPositionValid())
-            return false;
+        data.readPackGUID(m_dstTransGUID);
+        if (m_dstTransGUID)
+            data >> m_dstTransOffset.PositionXYZStream();
+        else
+            data >> m_dstPos.PositionXYZStream();
     }
     else
-        m_dstPos.Relocate(caster);
+    {
+        m_dstTransGUID = caster->GetTransGUID();
+        if (m_dstTransGUID)
+            m_dstTransOffset.Relocate(caster->GetTransOffsetX(), caster->GetTransOffsetY(), caster->GetTransOffsetZ(), caster->GetTransOffsetO());
+        else
+            m_dstPos.Relocate(caster);
+    }
 
     if(m_targetMask & TARGET_FLAG_STRING)
-    {
-        if (data->rpos() + 1 > data->size())
-            return false;
-        *data >> m_strTarget;
-    }
+        data >> m_strTarget;
 
-    // some spell cast packet including more data (for projectiles?)
-    if (clientCastFlags & 0x02)
-    {
-        // not sure about these two
-        *data >> m_elevation;
-        *data >> m_speed;
-        uint8 hasMovementInfo;
-        *data >> hasMovementInfo; // bool
-        if (hasMovementInfo)
-        {
-            data->read_skip<uint32>(); // MSG_MOVE_STOP - hardcoded in client
-            uint64 guid = 0;               // guid - unused
-            if (!data->readPackGUID(guid))
-                return false;
-
-            data->rpos(data->wpos()); // prevent spam at ignore packet
-            //MovementInfo movementInfo;
-            //ReadMovementInfo(*data, &movementInfo);
-        }
-    }
-
-    // find real units/GOs
     Update(caster);
-    return true;
 }
 
-void SpellCastTargets::write (WorldPacket * data)
+void SpellCastTargets::write (ByteBuffer & data)
 {
-    *data << uint32(m_targetMask);
-    //sLog.outDebug("Spell write, target mask = %u", m_targetMask);
+    data << uint32(m_targetMask);
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_PVP_CORPSE | TARGET_FLAG_OBJECT | TARGET_FLAG_CORPSE | TARGET_FLAG_UNK17))
     {
         if (m_targetMask & TARGET_FLAG_UNIT)
         {
             if (m_unitTarget)
-                data->append(m_unitTarget->GetPackGUID());
+                data.append(m_unitTarget->GetPackGUID());
             else
-                *data << uint8(0);
+                data << uint8(0);
         }
         else if (m_targetMask & TARGET_FLAG_OBJECT)
         {
             if(m_GOTarget)
-                data->append(m_GOTarget->GetPackGUID());
+                data.append(m_GOTarget->GetPackGUID());
             else
-                *data << uint8(0);
+                data << uint8(0);
         }
         else if (m_targetMask & ( TARGET_FLAG_CORPSE | TARGET_FLAG_PVP_CORPSE))
-            data->appendPackGUID(m_CorpseTargetGUID);
+            data.appendPackGUID(m_CorpseTargetGUID);
         else
-            *data << uint8(0);
+            data << uint8(0);
     }
 
     if (m_targetMask & ( TARGET_FLAG_ITEM | TARGET_FLAG_TRADE_ITEM))
     {
         if(m_itemTarget)
-            data->append(m_itemTarget->GetPackGUID());
+            data.append(m_itemTarget->GetPackGUID());
         else
-            *data << uint8(0);
+            data << uint8(0);
     }
 
     if (m_targetMask & TARGET_FLAG_SOURCE_LOCATION)
     {
-        *data << uint8(0); // relative position guid here - transport for example
-        *data << m_srcPos.PositionXYZStream();
+        data.appendPackGUID(m_srcTransGUID); // relative position guid here - transport for example
+        if (m_srcTransGUID)
+            data << m_srcTransOffset.PositionXYZStream();
+        else
+            data << m_srcPos.PositionXYZStream();
     }
 
     if (m_targetMask & TARGET_FLAG_DEST_LOCATION)
     {
-        *data << uint8(0); // relative position guid here - transport for example
-        *data << m_dstPos.PositionXYZStream();
+        data.appendPackGUID(m_dstTransGUID); // relative position guid here - transport for example
+        if (m_dstTransGUID)
+            data << m_dstTransOffset.PositionXYZStream();
+        else
+            data << m_dstPos.PositionXYZStream();
     }
 
     if (m_targetMask & TARGET_FLAG_STRING)
-        *data << m_strTarget;
+        data << m_strTarget;
 }
 
 Spell::Spell(Unit* Caster, SpellEntry const *info, bool triggered, uint64 originalCasterGUID, Spell** triggeringContainer, bool skipCheck)
@@ -1919,7 +1999,6 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     break;
                 case TARGET_UNIT_CASTER_FISHING:
                 {
-                    //AddUnitTarget(m_caster, i);
                     float min_dis = GetSpellMinRange(m_spellInfo, true);
                     float max_dis = GetSpellMaxRange(m_spellInfo, true);
                     float dis = rand_norm() * (max_dis - min_dis) + min_dis;
@@ -2065,12 +2144,12 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
         {
             if (cur == TARGET_SRC_CASTER)
             {
-                m_targets.setSrc(m_caster);
+                m_targets.setSrc(*m_caster);
                 break;
             }
             else if (cur == TARGET_DST_CASTER)
             {
-                m_targets.setDst(m_caster);
+                m_targets.setDst(*m_caster);
                 break;
             }
 
@@ -2104,7 +2183,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 m_caster->GetFirstCollisionPosition(pos, dist, angle);
             else
                 m_caster->GetNearPosition(pos, dist, angle);
-            m_targets.setDst(&pos); // also flag
+            m_targets.setDst(*m_caster);
+            m_targets.modDst(pos);
             break;
         }
 
@@ -2119,7 +2199,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             if (cur == TARGET_DST_TARGET_ENEMY || cur == TARGET_DEST_TARGET_ANY)
             {
-                m_targets.setDst(target);
+                m_targets.setDst(*target);
                 break;
             }
 
@@ -2147,7 +2227,8 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
 
             Position pos;
             target->GetNearPosition(pos, dist, angle);
-            m_targets.setDst(&pos);
+            m_targets.setDst(*target);
+            m_targets.modDst(pos);
             break;
         }
 
@@ -2187,7 +2268,9 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                 dist *= rand_norm();
 
             // must has dst, no need to set flag
-            m_caster->MovePosition(m_targets.m_dstPos, dist, angle);
+            Position pos = m_targets.m_dstPos;
+            m_caster->MovePosition(pos, dist, angle);
+            m_targets.modDst(pos);
             break;
         }
 
@@ -2212,7 +2295,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                         Unit *target = NULL;
                         if (uint64 guid = m_caster->GetUInt64Value(UNIT_FIELD_TARGET))
                             target = ObjectAccessor::GetUnit(*m_caster, guid);
-                        m_targets.setDst(target ? target : m_caster);
+                        m_targets.setDst(target ? *target : *m_caster);
                     }
                     break;
                 case TARGET_DST_HOME:
@@ -2225,7 +2308,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
 
                     if (WorldObject *target = SearchNearbyTarget(range, SPELL_TARGETS_ENTRY))
-                        m_targets.setDst(target);
+                        m_targets.setDst(*target);
                     break;
                 }
             }
@@ -2253,7 +2336,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                     if (m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.HasDst())
                         m_targets = m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets;
                     else if (Unit* target = Unit::GetUnit(*m_caster, m_originalCaster->GetCurrentSpell(CURRENT_CHANNELED_SPELL)->m_targets.getUnitTargetGUID()))
-                        m_targets.setDst(target);
+                        m_targets.setDst(*target);
                     else
                         sLog.outError("SPELL: cannot find channel spell destination for spell ID %u", m_spellInfo->Id);
                     break;
@@ -2418,7 +2501,7 @@ void Spell::SelectEffectTargets(uint32 i, uint32 cur)
                                 switch(result->GetTypeId())
                                 {
                                     case TYPEID_UNIT:
-                                        m_targets.setDst(result);
+                                        m_targets.setDst(*result);
                                 }
                             }
                             break;
@@ -2774,7 +2857,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
         }
     }
     if (!m_targets.HasSrc() && m_spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
-        m_targets.setSrc(m_caster);
+        m_targets.setSrc(*m_caster);
 
     if (!m_targets.HasDst() && m_spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
     {
@@ -2788,7 +2871,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const * triggere
         }
 
         if (target)
-            m_targets.setDst(target);
+            m_targets.setDst(*target);
         else
         {
             SendCastResult(SPELL_FAILED_BAD_TARGETS);
@@ -3358,7 +3441,7 @@ void Spell::_handle_immediate_phase()
         if (EffectTargetType[m_spellInfo->Effect[j]] == SPELL_REQUIRE_DEST)
         {
             if (!m_targets.HasDst()) // FIXME: this will ignore dest set in effect
-                m_targets.setDst(m_caster);
+                m_targets.setDst(*m_caster);
             HandleEffects(m_originalCaster, NULL, NULL, j);
             m_effectMask |= (1<<j);
         }
@@ -3755,7 +3838,7 @@ void Spell::SendSpellStart()
     data << uint32(castFlags);                              // cast flags
     data << uint32(m_timer);                                // delay?
 
-    m_targets.write(&data);
+    m_targets.write(data);
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->powerType));
@@ -3833,7 +3916,7 @@ void Spell::SendSpellGo()
 
     WriteSpellGoTargets(&data);
 
-    m_targets.write(&data);
+    m_targets.write(data);
 
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->powerType));
@@ -4693,7 +4776,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->isMoving())
     {
         // skip stuck spell to allow use it in falling case and apply spell limitations at movement
-        if ((!m_caster->ToPlayer()->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
+        if ((!m_caster->HasUnitMovementFlag(MOVEMENTFLAG_FALLING) || m_spellInfo->Effect[0] != SPELL_EFFECT_STUCK) &&
             (IsAutoRepeat() || (m_spellInfo->AuraInterruptFlags & AURA_INTERRUPT_FLAG_NOT_SEATED) != 0))
             return SPELL_FAILED_MOVING;
     }
@@ -5542,9 +5625,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
                 if (m_caster->IsInWater())
                     return SPELL_FAILED_ONLY_ABOVEWATER;
-
-                if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetTransport())
-                    return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 // Ignore map check if spell have AreaId. AreaId already checked and this prevent special mount spells
                 bool AllowMount = !m_caster->GetMap()->IsDungeon() || m_caster->GetMap()->IsBattlegroundOrArena();
@@ -7168,7 +7248,9 @@ void Spell::SelectTrajTargets()
             }
         }
 
-        m_targets.setDst(x, y, z, m_caster->GetOrientation());
+        Position trajDst;
+        trajDst.Relocate(x, y, z, m_caster->GetOrientation());
+        m_targets.modDst(trajDst);
     }
 }
 
