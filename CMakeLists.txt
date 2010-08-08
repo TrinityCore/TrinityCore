@@ -104,25 +104,32 @@ if( PREFIX )
   set(CMAKE_INSTALL_PREFIX ${PREFIX})
 endif()
 
-set(GENREV_SRC
-  src/genrevision/genrevision.cpp
-)
-
 # Handle debugmode compiles (this will require further work for proper WIN32-setups)
 if( DEBUG )
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
+if( MSVC )
+  # Set up MSVC to dump binaries in the <builddir>/bin/<buildtype>/ folder
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+endif()
+
 #
 # Generate revision-extractor
 #
+
+set(GENREV_SRC
+  src/genrevision/genrevision.cpp
+)
 add_executable(genrev
   ${GENREV_SRC}
 )
 
 if( CMAKE_GENERATOR MATCHES "Visual Studio" )
   add_custom_target("revision.h" ALL
-    COMMAND "${CMAKE_BINARY_DIR}/$(ConfigurationName)/genrev"
+    COMMAND "${CMAKE_BINARY_DIR}/bin/$(Configuration)/genrev"
     ${CMAKE_SOURCE_DIR}
     WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
     DEPENDS genrev
