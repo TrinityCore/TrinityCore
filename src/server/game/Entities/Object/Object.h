@@ -31,6 +31,7 @@
 
 #include <set>
 #include <string>
+#include <sstream>
 
 #define CONTACT_DISTANCE            0.5f
 #define INTERACTION_DISTANCE        5.0f
@@ -396,6 +397,7 @@ struct Position
         { m_positionX = pos.m_positionX; m_positionY = pos.m_positionY; m_positionZ = pos.m_positionZ; m_orientation = pos.m_orientation; }
     void Relocate(const Position *pos)
         { m_positionX = pos->m_positionX; m_positionY = pos->m_positionY; m_positionZ = pos->m_positionZ; m_orientation = pos->m_orientation; }
+    void RelocateOffset(const Position &offset);
     void SetOrientation(float orientation)
         { m_orientation = orientation; }
 
@@ -444,6 +446,8 @@ struct Position
     float GetExactDist(const Position *pos) const
         { return sqrt(GetExactDistSq(pos)); }
 
+    void GetPositionOffsetTo(const Position & endPos, Position & retOffset) const;
+
     float GetAngle(const Position *pos) const;
     float GetAngle(float x, float y) const;
     float GetRelativeAngle(const Position *pos) const
@@ -461,6 +465,7 @@ struct Position
         { return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position *pos) const;
     bool HasInLine(const Unit *target, float distance, float width) const;
+    std::string ToString() const;
 };
 ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer);
 ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer);
@@ -507,6 +512,7 @@ struct MovementInfo
     uint32 GetMovementFlags() { return flags; }
     void AddMovementFlag(uint32 flag) { flags |= flag; }
     bool HasMovementFlag(uint32 flag) const { return flags & flag; }
+    void OutDebug();
 };
 
 #define MAPID_INVALID 0xFFFFFFFF
@@ -536,6 +542,8 @@ class GridObject
 
 class WorldObject : public Object, public WorldLocation
 {
+    protected:
+        explicit WorldObject();
     public:
         virtual ~WorldObject();
 
@@ -767,11 +775,17 @@ class WorldObject : public Object, public WorldLocation
 
         // Transports
         Transport *GetTransport() const { return m_transport; }
+        virtual float GetTransOffsetX() const { return 0; }
+        virtual float GetTransOffsetY() const { return 0; }
+        virtual float GetTransOffsetZ() const { return 0; }
+        virtual float GetTransOffsetO() const { return 0; }
+        virtual uint32 GetTransTime()   const { return 0; }
+        virtual int8 GetTransSeat()     const { return -1; }
+        virtual uint64 GetTransGUID()   const;
         void SetTransport(Transport *t) { m_transport = t; }
 
         MovementInfo m_movementInfo;
     protected:
-        explicit WorldObject();
         std::string m_name;
         bool m_isActive;
         ZoneScript *m_zoneScript;

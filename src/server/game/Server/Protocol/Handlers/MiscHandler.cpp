@@ -1090,11 +1090,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
     DEBUG_LOG("WORLD: Time Lag/Synchronization Resent/Update");
 
     uint64 guid;
-    if (!recv_data.readPackGUID(guid))
-    {
-        recv_data.rpos(recv_data.wpos());
-        return;
-    }
+    recv_data.readPackGUID(guid);
     recv_data.read_skip<uint32>();
     /*
         uint64 guid;
@@ -1651,8 +1647,8 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket & recv_data)
     //recv_data.hexlike();
 
     uint64 guid;                                            // guid - unused
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
+
 
     recv_data.read_skip<uint32>();                          // unk
 
@@ -1684,8 +1680,7 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode(WorldPacket & recv_data)
 void WorldSession::HandleQueryInspectAchievements(WorldPacket & recv_data)
 {
     uint64 guid;
-    if (!recv_data.readPackGUID(guid))
-        return;
+    recv_data.readPackGUID(guid);
 
     Player *player = sObjectMgr.GetPlayer(guid);
     if (!player)

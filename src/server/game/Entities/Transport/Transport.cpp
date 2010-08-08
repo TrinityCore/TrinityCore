@@ -105,6 +105,7 @@ void MapManager::LoadTransports()
 
         //If we someday decide to use the grid to track transports, here:
         t->SetMap(sMapMgr.CreateMap(mapid, t, 0));
+        t->AddToWorld();
 
         for (TransportNPCSet::const_iterator i = m_TransportNPCMap[entry].begin(); i != m_TransportNPCMap[entry].end(); ++i)
         {
@@ -506,10 +507,12 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     }
     m_NPCPassengerSet.clear();
 
+    RemoveFromWorld();
     ResetMap();
     Map * newMap = sMapMgr.CreateMap(newMapid, this, 0);
     SetMap(newMap);
     ASSERT (GetMap());
+    AddToWorld();
 
     if (oldMap != newMap)
     {

@@ -1144,6 +1144,13 @@ bool Position::HasInLine(const Unit * const target, float distance, float width)
     return abs(sin(angle)) * GetExactDist2d(target->GetPositionX(), target->GetPositionY()) < width;
 }
 
+std::string Position::ToString() const
+{
+    std::stringstream sstr;
+    sstr << "X: " << m_positionX << " Y: " << m_positionY << " Z: " << m_positionZ << " O: " << m_orientation;
+    return sstr.str();
+}
+
 ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer)
 {
     float x, y, z, o;
@@ -1173,6 +1180,39 @@ ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const & 
     streamer.m_pos->GetPosition(x, y, z, o);
     buf << x << y << z << o;
     return buf;
+}
+
+void MovementInfo::OutDebug()
+{
+    sLog.outString("MOVEMENT INFO");
+    sLog.outString("guid " UI64FMTD, guid);
+    sLog.outString("flags %u", flags);
+    sLog.outString("flags2 %u", flags2);
+    sLog.outString("time %u current time %u", flags2, ::time(NULL));
+    sLog.outString("position: `%s`", pos.ToString().c_str());
+    if (flags & MOVEMENTFLAG_ONTRANSPORT)
+    {
+        sLog.outString("TRANSPORT:");
+        sLog.outString("guid: " UI64FMTD, t_guid);
+        sLog.outString("position: `%s`", t_pos.ToString().c_str());
+        sLog.outString("seat: %i", t_seat);
+        sLog.outString("time: %u", t_time);
+        if (flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
+            sLog.outString("time2: %u", t_time2);
+    }
+    if ((flags & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+    {
+        sLog.outString("pitch: %f", pitch);
+    }
+    sLog.outString("fallTime: %u", fallTime);
+    if (flags & MOVEMENTFLAG_JUMPING)
+    {
+        sLog.outString("j_zspeed: %f j_sinAngle: %f j_cosAngle: %f j_xyspeed: %f", j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed);
+    }
+    if (flags & MOVEMENTFLAG_SPLINE_ELEVATION)
+    {
+        sLog.outString("splineElevation: %f", splineElevation);
+    }
 }
 
 WorldObject::WorldObject()
@@ -1398,6 +1438,25 @@ bool WorldObject::IsInRange3d(float x, float y, float z, float minRange, float m
 
     float maxdist = maxRange + sizefactor;
     return distsq < maxdist * maxdist;
+}
+
+void Position::RelocateOffset(const Position & offset) 
+{
+    m_positionX = GetPositionX() + (offset.GetPositionX() * cos(GetOrientation()) + offset.GetPositionY() * sin(GetOrientation() + M_PI));
+    m_positionY = GetPositionY() + (offset.GetPositionY() * cos(GetOrientation()) + offset.GetPositionX() * sin(GetOrientation()));
+    m_positionZ = GetPositionZ() + offset.GetPositionZ();
+    m_orientation = GetOrientation() + offset.GetOrientation();
+}
+
+void Position::GetPositionOffsetTo(const Position & endPos, Position & retOffset) const
+{
+    float dx = endPos.GetPositionX() - GetPositionX();
+    float dy = endPos.GetPositionY() - GetPositionY();
+
+    retOffset.m_positionX = dx * cos(GetOrientation()) + dy * sin(GetOrientation());
+    retOffset.m_positionY = dy * cos(GetOrientation()) - dx * sin(GetOrientation());
+    retOffset.m_positionZ = endPos.GetPositionZ() - GetPositionZ();
+    retOffset.m_orientation = endPos.GetOrientation() - GetOrientation();
 }
 
 float Position::GetAngle(const Position *obj) const
@@ -2472,4 +2531,11 @@ void WorldObject::BuildUpdate(UpdateDataMapType& data_map)
     cell.Visit(p, player_notifier, map, *this, map.GetVisibilityDistance());
 
     ClearUpdateMask(false);
+}
+
+uint64 WorldObject::GetTransGUID() const
+{
+    if (GetTransport())
+        return GetTransport()->GetGUID();
+    return 0;
 }

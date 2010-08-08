@@ -202,9 +202,8 @@ void WorldSession::HandleMoveSplineDoneOpcode(WorldPacket& recv_data)
 {
     sLog.outDebug("WORLD: Received CMSG_MOVE_SPLINE_DONE");
 
-    uint64 guid;                                            // used only for proper packet read
-    if (!recv_data.readPackGUID(guid))
-        return;
+    uint64 guid; // used only for proper packet read
+    recv_data.readPackGUID(guid);
 
     MovementInfo movementInfo;                              // used only for proper packet read
     ReadMovementInfo(recv_data, &movementInfo);

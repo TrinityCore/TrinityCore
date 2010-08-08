@@ -59,14 +59,14 @@ WorldObject* ObjectAccessor::GetWorldObject(WorldObject const& p, uint64 guid)
     switch (GUID_HIPART(guid))
     {
         case HIGHGUID_PLAYER:        return GetPlayer(p, guid);
+        case HIGHGUID_TRANSPORT:
+        case HIGHGUID_MO_TRANSPORT:
         case HIGHGUID_GAMEOBJECT:    return GetGameObject(p, guid);
         case HIGHGUID_VEHICLE:
         case HIGHGUID_UNIT:          return GetCreature(p, guid);
         case HIGHGUID_PET:           return GetPet(p, guid);
         case HIGHGUID_DYNAMICOBJECT: return GetDynamicObject(p, guid);
-        case HIGHGUID_TRANSPORT:     return NULL;
         case HIGHGUID_CORPSE:        return GetCorpse(p,guid);
-        case HIGHGUID_MO_TRANSPORT:  return NULL;
         default:                     return NULL;
     }
 }
@@ -83,6 +83,8 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
             if (typemask & TYPEMASK_PLAYER)
                 return GetPlayer(p, guid);
             break;
+        case HIGHGUID_TRANSPORT:
+        case HIGHGUID_MO_TRANSPORT:
         case HIGHGUID_GAMEOBJECT:
             if (typemask & TYPEMASK_GAMEOBJECT)
                 return GetGameObject(p, guid);
@@ -100,9 +102,7 @@ Object* ObjectAccessor::GetObjectByTypeMask(WorldObject const& p, uint64 guid, u
             if (typemask & TYPEMASK_DYNAMICOBJECT)
                 return GetDynamicObject(p, guid);
             break;
-        case HIGHGUID_TRANSPORT:
         case HIGHGUID_CORPSE:
-        case HIGHGUID_MO_TRANSPORT:
             break;
     }
 

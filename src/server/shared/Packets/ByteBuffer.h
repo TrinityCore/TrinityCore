@@ -254,6 +254,11 @@ class ByteBuffer
             return _rpos;
         }
 
+        void rfinish()
+        {
+            _rpos = wpos();
+        }
+
         size_t wpos() const { return _wpos; }
 
         size_t wpos(size_t wpos_)
@@ -296,10 +301,10 @@ class ByteBuffer
             _rpos += len;
         }
 
-        bool readPackGUID(uint64& guid)
+        void readPackGUID(uint64& guid)
         {
             if(rpos() + 1 > size())
-                return false;
+                throw ByteBufferException(false, _rpos, 1, size());
 
             guid = 0;
 
@@ -311,15 +316,13 @@ class ByteBuffer
                 if(guidmark & (uint8(1) << i))
                 {
                     if(rpos() + 1 > size())
-                        return false;
+                        throw ByteBufferException(false, _rpos, 1, size());
 
                     uint8 bit;
                     (*this) >> bit;
                     guid |= (uint64(bit) << (i * 8));
                 }
             }
-
-            return true;
         }
 
         const uint8 *contents() const { return &_storage[0]; }
