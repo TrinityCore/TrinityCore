@@ -364,7 +364,7 @@ bool IsAutocastableSpell(uint32 spellId)
 
 bool IsHigherHankOfSpell(uint32 spellId_1, uint32 spellId_2)
 {
-    return spellmgr.GetSpellRank(spellId_1)<spellmgr.GetSpellRank(spellId_2);
+    return sSpellMgr.GetSpellRank(spellId_1)<sSpellMgr.GetSpellRank(spellId_2);
 }
 
 uint32 CalculatePowerCost(SpellEntry const * spellInfo, Unit const * caster, SpellSchoolMask schoolMask)
@@ -540,7 +540,7 @@ SpellSpecific GetSpellSpecific(SpellEntry const * spellInfo)
             // scrolls effects
             else
             {
-                uint32 firstSpell = spellmgr.GetFirstSpellInChain(spellInfo->Id);
+                uint32 firstSpell = sSpellMgr.GetFirstSpellInChain(spellInfo->Id);
                 switch (firstSpell)
                 {
                     case 8118: // Strength
@@ -981,7 +981,7 @@ bool IsPositiveSpell(uint32 spellId)
 {
     if (!sSpellStore.LookupEntry(spellId)) // non-existing spells
         return false;
-    return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE);
+    return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE);
 }
 
 bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
@@ -991,9 +991,9 @@ bool IsPositiveEffect(uint32 spellId, uint32 effIndex)
     switch(effIndex)
     {
         default:
-        case 0: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF0);
-        case 1: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF1);
-        case 2: return !(spellmgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF2);
+        case 0: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF0);
+        case 1: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF1);
+        case 2: return !(sSpellMgr.GetSpellCustomAttr(spellId) & SPELL_ATTR_CU_NEGATIVE_EFF2);
     }
 }
 
@@ -1225,7 +1225,7 @@ void SpellMgr::LoadSpellTargetPositions()
         }
         if (found)
         {
-//            if (!spellmgr.GetSpellTargetPosition(i))
+//            if (!sSpellMgr.GetSpellTargetPosition(i))
 //                sLog.outDebug("Spell (ID: %u) does not have record in `spell_target_position`", i);
         }
     }
@@ -1701,7 +1701,7 @@ bool SpellMgr::canStackSpellRanks(SpellEntry const *spellInfo)
     if (IsProfessionOrRidingSpell(spellInfo->Id))
         return false;
 
-    if (spellmgr.IsSkillBonusSpell(spellInfo->Id))
+    if (sSpellMgr.IsSkillBonusSpell(spellInfo->Id))
         return false;
 
     // All stance spells. if any better way, change it.
@@ -2229,7 +2229,7 @@ bool LoadPetDefaultSpells_helper(CreatureInfo const* cInfo, PetDefaultSpellsEntr
         return false;
 
     // remove duplicates with levelupSpells if any
-    if (PetLevelupSpellSet const *levelupSpells = cInfo->family ? spellmgr.GetPetLevelupSpellList(cInfo->family) : NULL)
+    if (PetLevelupSpellSet const *levelupSpells = cInfo->family ? sSpellMgr.GetPetLevelupSpellList(cInfo->family) : NULL)
     {
         for (uint8 j = 0; j < MAX_CREATURE_SPELL_DATA_SLOT; ++j)
         {
@@ -2527,7 +2527,7 @@ void SpellMgr::LoadSpellAreas()
             continue;
         }
 
-        if (spellArea.questStart && !objmgr.GetQuestTemplate(spellArea.questStart))
+        if (spellArea.questStart && !sObjectMgr.GetQuestTemplate(spellArea.questStart))
         {
             sLog.outErrorDb("Spell %u listed in `spell_area` have wrong start quest (%u) requirement", spell,spellArea.questStart);
             continue;
@@ -2535,7 +2535,7 @@ void SpellMgr::LoadSpellAreas()
 
         if (spellArea.questEnd)
         {
-            if (!objmgr.GetQuestTemplate(spellArea.questEnd))
+            if (!sObjectMgr.GetQuestTemplate(spellArea.questEnd))
             {
                 sLog.outErrorDb("Spell %u listed in `spell_area` have wrong end quest (%u) requirement", spell,spellArea.questEnd);
                 continue;
@@ -2683,7 +2683,7 @@ SpellCastResult SpellMgr::GetSpellAllowedInLocationError(SpellEntry const *spell
     }
 
     // DB base check (if non empty then must fit at least single for allow)
-    SpellAreaMapBounds saBounds = spellmgr.GetSpellAreaMapBounds(spellInfo->Id);
+    SpellAreaMapBounds saBounds = sSpellMgr.GetSpellAreaMapBounds(spellInfo->Id);
     if (saBounds.first != saBounds.second)
     {
         for (SpellAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)

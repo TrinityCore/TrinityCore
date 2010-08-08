@@ -119,9 +119,9 @@ class AuctionHouseMgr
 {
     friend class ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>;
     AuctionHouseMgr();
+    ~AuctionHouseMgr();
     
     public:
-        ~AuctionHouseMgr();
 
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
@@ -132,9 +132,8 @@ class AuctionHouseMgr
         {
             ItemMap::const_iterator itr = mAitems.find(id);
             if (itr != mAitems.end())
-            {
                 return itr->second;
-            }
+
             return NULL;
         }
 
@@ -147,7 +146,8 @@ class AuctionHouseMgr
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
 
     public:
-    //load first auction items, because of check if item exists, when loading
+
+        //load first auction items, because of check if item exists, when loading
         void LoadAuctionItems();
         void LoadAuctions();
 
@@ -157,6 +157,7 @@ class AuctionHouseMgr
         void Update();
 
     private:
+
         AuctionHouseObject mHordeAuctions;
         AuctionHouseObject mAllianceAuctions;
         AuctionHouseObject mNeutralAuctions;
@@ -164,6 +165,6 @@ class AuctionHouseMgr
         ItemMap mAitems;
 };
 
-#define auctionmgr (*ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>::instance())
+#define sAuctionMgr (*ACE_Singleton<AuctionHouseMgr, ACE_Null_Mutex>::instance())
 
 #endif

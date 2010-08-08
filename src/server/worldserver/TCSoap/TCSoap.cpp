@@ -97,20 +97,20 @@ int ns1__executeCommand(soap* soap, char* command, char** result)
         return 401;
     }
 
-    uint32 accountId = accmgr.GetId(soap->userid);
+    uint32 accountId = sAccountMgr.GetId(soap->userid);
     if(!accountId)
     {
         sLog.outDebug("TCSoap: Client used invalid username '%s'", soap->userid);
         return 401;
     }
 
-    if(!accmgr.CheckPassword(accountId, soap->passwd))
+    if(!sAccountMgr.CheckPassword(accountId, soap->passwd))
     {
         sLog.outDebug("TCSoap: invalid password for account '%s'", soap->userid);
         return 401;
     }
 
-    if(accmgr.GetSecurity(accountId) < SEC_ADMINISTRATOR)
+    if(sAccountMgr.GetSecurity(accountId) < SEC_ADMINISTRATOR)
     {
         sLog.outDebug("TCSoap: %s's gmlevel is too low", soap->userid);
         return 403;

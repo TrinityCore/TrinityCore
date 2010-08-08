@@ -777,7 +777,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     uint32 id = (uint32)atoi(i);
 
-    CreatureInfo const *ci = objmgr.GetCreatureTemplate(entry);
+    CreatureInfo const *ci = sObjectMgr.GetCreatureTemplate(entry);
 
     if (!ci)
         return false;
@@ -791,7 +791,7 @@ bool ChatHandler::HandleDebugSpawnVehicle(const char* args)
 
     Map *map = m_session->GetPlayer()->GetMap();
 
-    if (!v->Create(objmgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam(), x, y, z, o))
+    if (!v->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_VEHICLE), map, m_session->GetPlayer()->GetPhaseMask(), entry, id, m_session->GetPlayer()->GetTeam(), x, y, z, o))
     {
         delete v;
         return false;
