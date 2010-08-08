@@ -721,8 +721,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
 
     if (mi->flags & MOVEMENTFLAG_ONTRANSPORT)
     {
-        if (!data.readPackGUID(mi->t_guid))
-            return;
+        data.readPackGUID(mi->t_guid);
 
         data >> mi->t_pos.PositionXYZOStream();
         data >> mi->t_time;

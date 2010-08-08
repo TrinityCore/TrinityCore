@@ -692,12 +692,13 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     sLog.outDetail("WORLD: CMSG_PET_CAST_SPELL");
 
     uint64 guid;
-    uint32 spellid;
-    uint8  cast_count;
+    uint8  castCount;
+    uint32 spellId;
+    uint8  castFlags;
 
-    recvPacket >> guid >> cast_count >> spellid;
+    recvPacket >> guid >> castCount >> spellId >> castFlags;
 
-    sLog.outDebug("WORLD: CMSG_PET_CAST_SPELL, cast_count: %u, spellid %u", cast_count, spellid);
+    sLog.outDebug("WORLD: CMSG_PET_CAST_SPELL, guid: " UI64FMTD ", castCount: %u, spellId %u, castFlags %u", guid, castCount, spellId, castFlags);
 
     // This opcode is also sent from charmed and possessed units (players and creatures)
     if (!_player->GetGuardianPet() && !_player->GetCharm())
@@ -711,32 +712,32 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellid);
+    SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellId);
     if (!spellInfo)
     {
-        sLog.outError("WORLD: unknown PET spell id %i", spellid);
+        sLog.outError("WORLD: unknown PET spell id %i", spellId);
         return;
     }
 
-    if (spellInfo->StartRecoveryCategory > 0) //Check if spell is affected by GCD
+    if (spellInfo->StartRecoveryCategory > 0) // Check if spell is affected by GCD
         if (caster->GetTypeId() == TYPEID_UNIT && caster->ToCreature()->GetGlobalCooldown() > 0)
         {
-            caster->SendPetCastFail(spellid, SPELL_FAILED_NOT_READY);
+            caster->SendPetCastFail(spellId, SPELL_FAILED_NOT_READY);
             return;
         }
 
     // do not cast not learned spells
-    if (!caster->HasSpell(spellid) || IsPassiveSpell(spellid))
+    if (!caster->HasSpell(spellId) || IsPassiveSpell(spellId))
         return;
 
     SpellCastTargets targets;
-    if (!targets.read(&recvPacket,caster))
-        return;
+    targets.read(recvPacket, caster);
+    HandleClientCastFlags(recvPacket, castFlags, targets);
 
     caster->clearUnitState(UNIT_STAT_FOLLOW);
 
-    Spell *spell = new Spell(caster, spellInfo, spellid == 33395); // water elemental can cast freeze as triggered
-    spell->m_cast_count = spellid == 33395 ? 0 : cast_count;                       // probably pending spell cast
+    Spell *spell = new Spell(caster, spellInfo, spellId == 33395); // water elemental can cast freeze as triggered
+    spell->m_cast_count = spellId == 33395 ? 0 : castCount;                       // probably pending spell cast
     spell->m_targets = targets;
 
     // TODO: need to check victim?
@@ -750,7 +751,7 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
         if (caster->GetTypeId() == TYPEID_UNIT)
         {
             Creature* pet = caster->ToCreature();
-            pet->AddCreatureSpellCooldown(spellid);
+            pet->AddCreatureSpellCooldown(spellId);
             if (pet->isPet())
             {
                 Pet* p = (Pet*)pet;
@@ -767,16 +768,16 @@ void WorldSession::HandlePetCastSpellOpcode(WorldPacket& recvPacket)
     }
     else
     {
-        caster->SendPetCastFail(spellid, result);
+        caster->SendPetCastFail(spellId, result);
         if (caster->GetTypeId() == TYPEID_PLAYER)
         {
-            if (!caster->ToPlayer()->HasSpellCooldown(spellid))
-                GetPlayer()->SendClearCooldown(spellid, caster);
+            if (!caster->ToPlayer()->HasSpellCooldown(spellId))
+                GetPlayer()->SendClearCooldown(spellId, caster);
         }
         else
         {
-            if (!caster->ToCreature()->HasSpellCooldown(spellid))
-                GetPlayer()->SendClearCooldown(spellid, caster);
+            if (!caster->ToCreature()->HasSpellCooldown(spellId))
+                GetPlayer()->SendClearCooldown(spellId, caster);
         }
 
         spell->finish(false);

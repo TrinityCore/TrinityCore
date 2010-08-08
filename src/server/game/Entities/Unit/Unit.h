@@ -1534,7 +1534,7 @@ class Unit : public WorldObject
 
         CharmInfo* GetCharmInfo() { return m_charmInfo; }
         CharmInfo* InitCharmInfo();
-        void       DeleteCharmInfo();
+        void DeleteCharmInfo();
         void UpdateCharmAI();
         //Player * GetMoverSource() const;
         Player * m_movedPlayer;
@@ -1955,6 +1955,7 @@ class Unit : public WorldObject
         float GetTransOffsetO() const { return m_movementInfo.t_pos.GetOrientation(); }
         uint32 GetTransTime()   const { return m_movementInfo.t_time; }
         int8 GetTransSeat()     const { return m_movementInfo.t_seat; }
+        uint64 GetTransGUID()   const;
 
         bool m_ControlledByPlayer;
 
