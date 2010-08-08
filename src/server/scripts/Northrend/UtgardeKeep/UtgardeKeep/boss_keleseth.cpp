@@ -59,7 +59,8 @@ float SkeletonSpawnPoint[5][5]=
 float AttackLoc[3]={197.636, 194.046, 40.8164};
 
 bool ShatterFrostTomb; // needed for achievement: On The Rocks(1919)
-class mob_frost_tomb : public CreatureScript
+
+class mob_frost_tomb : public CreatureScript
 {
 public:
     mob_frost_tomb() : CreatureScript("mob_frost_tomb") { }
@@ -110,7 +111,8 @@ public:
     };
 
 };
-class boss_keleseth : public CreatureScript
+
+class boss_keleseth : public CreatureScript
 {
 public:
     boss_keleseth() : CreatureScript("boss_keleseth") { }
@@ -250,7 +252,8 @@ public:
     };
 
 };
-class mob_vrykul_skeleton : public CreatureScript
+
+class mob_vrykul_skeleton : public CreatureScript
 {
 public:
     mob_vrykul_skeleton() : CreatureScript("mob_vrykul_skeleton") { }

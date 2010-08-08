@@ -42,7 +42,8 @@ EndContentData */
 #define GOSSIP_DEMITRIAN5 "<Nod>"
 #define GOSSIP_DEMITRIAN6 "Caught unaware? How?"
 #define GOSSIP_DEMITRIAN7 "So what did Ragnaros do next?"
-class npc_highlord_demitrian : public CreatureScript
+
+class npc_highlord_demitrian : public CreatureScript
 {
 public:
     npc_highlord_demitrian() : CreatureScript("npc_highlord_demitrian") { }
@@ -126,7 +127,8 @@ public:
 //trigger creatures to kill
 #define TRIGGER_RUTGAR 15222
 #define TRIGGER_FRANKAL 15221
-class npcs_rutgar_and_frankal : public CreatureScript
+
+class npcs_rutgar_and_frankal : public CreatureScript
 {
 public:
     npcs_rutgar_and_frankal() : CreatureScript("npcs_rutgar_and_frankal") { }
@@ -481,7 +483,8 @@ static SpawnSpells SpawnCast[]=//
 };
 /*#####
 # npc_anachronos_the_ancient
-######*/class npc_anachronos_the_ancient : public CreatureScript
+######*/
+class npc_anachronos_the_ancient : public CreatureScript
 {
 public:
     npc_anachronos_the_ancient() : CreatureScript("npc_anachronos_the_ancient") { }
@@ -808,7 +811,8 @@ public:
 /*######
 # mob_qiraj_war_spawn
 ######*/
-class mob_qiraj_war_spawn : public CreatureScript
+
+class mob_qiraj_war_spawn : public CreatureScript
 {
 public:
     mob_qiraj_war_spawn() : CreatureScript("mob_qiraj_war_spawn") { }
@@ -922,7 +926,8 @@ public:
 /*#####
 # npc_anachronos_quest_trigger
 #####*/
-class npc_anachronos_quest_trigger : public CreatureScript
+
+class npc_anachronos_quest_trigger : public CreatureScript
 {
 public:
     npc_anachronos_quest_trigger() : CreatureScript("npc_anachronos_quest_trigger") { }
@@ -1085,7 +1090,8 @@ void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
 /*#####
 # go_crystalline_tear
 ######*/
-class go_crystalline_tear : public GameObjectScript
+
+class go_crystalline_tear : public GameObjectScript
 {
 public:
     go_crystalline_tear() : GameObjectScript("go_crystalline_tear") { }

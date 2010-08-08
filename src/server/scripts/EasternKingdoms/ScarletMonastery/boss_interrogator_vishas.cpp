@@ -36,7 +36,8 @@ enum eEnums
 
     SPELL_SHADOWWORDPAIN    = 2767,
 };
-class boss_interrogator_vishas : public CreatureScript
+
+class boss_interrogator_vishas : public CreatureScript
 {
 public:
     boss_interrogator_vishas() : CreatureScript("boss_interrogator_vishas") { }

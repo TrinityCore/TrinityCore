@@ -34,7 +34,8 @@ EndScriptData */
 #define SPELL_SUMMON_SPORE_STRIDER 38755
 
 #define ENTRY_SPORE_STRIDER        22299
-class boss_the_black_stalker : public CreatureScript
+
+class boss_the_black_stalker : public CreatureScript
 {
 public:
     boss_the_black_stalker() : CreatureScript("boss_the_black_stalker") { }

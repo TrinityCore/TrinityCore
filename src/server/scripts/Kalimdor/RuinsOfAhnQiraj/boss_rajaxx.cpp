@@ -44,7 +44,8 @@ enum Yells
     SAY_KILLS_ANDOROV         = -1509016,
     SAY_COMPLETE_QUEST        = -1509017                        //Yell when realm complete quest 8743 for world event
 };
-class boss_rajaxx : public CreatureScript
+
+class boss_rajaxx : public CreatureScript
 {
 public:
     boss_rajaxx() : CreatureScript("boss_rajaxx") { }

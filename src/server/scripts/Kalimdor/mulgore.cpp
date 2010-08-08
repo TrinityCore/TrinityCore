@@ -37,7 +37,8 @@ EndContentData */
 ######*/
 
 #define GOSSIP_SW "Tell me a story, Skorn."
-class npc_skorn_whitecloud : public CreatureScript
+
+class npc_skorn_whitecloud : public CreatureScript
 {
 public:
     npc_skorn_whitecloud() : CreatureScript("npc_skorn_whitecloud") { }
@@ -82,7 +83,8 @@ enum eKyleFrenzied
     NPC_KYLE_FRIENDLY       = 23622,
     POINT_ID                = 1
 };
-class npc_kyle_frenzied : public CreatureScript
+
+class npc_kyle_frenzied : public CreatureScript
 {
 public:
     npc_kyle_frenzied() : CreatureScript("npc_kyle_frenzied") { }
@@ -255,7 +257,8 @@ float wp_plain_vision[50][3] =
     {-1511.39,  362.537,    62.4539},
     {-1508.68,  366.822,    62.733}
 };
-class npc_plains_vision : public CreatureScript
+
+class npc_plains_vision : public CreatureScript
 {
 public:
     npc_plains_vision() : CreatureScript("npc_plains_vision") { }

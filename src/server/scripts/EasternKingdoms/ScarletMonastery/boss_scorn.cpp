@@ -29,7 +29,8 @@ EndScriptData */
 #define SPELL_FROSTBOLTVOLLEY           8398
 #define SPELL_MINDFLAY                  17313
 #define SPELL_FROSTNOVA                 15531
-class boss_scorn : public CreatureScript
+
+class boss_scorn : public CreatureScript
 {
 public:
     boss_scorn() : CreatureScript("boss_scorn") { }

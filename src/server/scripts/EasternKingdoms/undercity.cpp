@@ -56,7 +56,8 @@ float HighborneLoc[4][3]=
 
 #define HIGHBORNE_LOC_Y             -61.00
 #define HIGHBORNE_LOC_Y_NEW         -55.50
-class npc_lady_sylvanas_windrunner : public CreatureScript
+
+class npc_lady_sylvanas_windrunner : public CreatureScript
 {
 public:
     npc_lady_sylvanas_windrunner() : CreatureScript("npc_lady_sylvanas_windrunner") { }
@@ -145,7 +146,8 @@ public:
 /*######
 ## npc_highborne_lamenter
 ######*/
-class npc_highborne_lamenter : public CreatureScript
+
+class npc_highborne_lamenter : public CreatureScript
 {
 public:
     npc_highborne_lamenter() : CreatureScript("npc_highborne_lamenter") { }
@@ -208,7 +210,8 @@ public:
 #define GOSSIP_HPF1 "Gul'dan"
 #define GOSSIP_HPF2 "Kel'Thuzad"
 #define GOSSIP_HPF3 "Ner'zhul"
-class npc_parqual_fintallas : public CreatureScript
+
+class npc_parqual_fintallas : public CreatureScript
 {
 public:
     npc_parqual_fintallas() : CreatureScript("npc_parqual_fintallas") { }

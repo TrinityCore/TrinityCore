@@ -23,7 +23,8 @@ enum Spells
     SPELL_POISON_CLOUD                                     = 3815,
     SPELL_FRENZIED_RAGE                                    = 3490
 };
-class boss_aku_mai : public CreatureScript
+
+class boss_aku_mai : public CreatureScript
 {
 public:
     boss_aku_mai() : CreatureScript("boss_aku_mai") { }

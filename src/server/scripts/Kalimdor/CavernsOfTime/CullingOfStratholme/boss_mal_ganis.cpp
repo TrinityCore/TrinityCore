@@ -66,7 +66,8 @@ enum CombatPhases
     COMBAT,
     OUTRO
 };
-class boss_mal_ganis : public CreatureScript
+
+class boss_mal_ganis : public CreatureScript
 {
 public:
     boss_mal_ganis() : CreatureScript("boss_mal_ganis") { }

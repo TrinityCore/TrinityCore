@@ -33,7 +33,8 @@ EndScriptData */
 
 #define MODEL_NORMAL            10433
 #define MODEL_HUMAN             3637
-class boss_magistrate_barthilas : public CreatureScript
+
+class boss_magistrate_barthilas : public CreatureScript
 {
 public:
     boss_magistrate_barthilas() : CreatureScript("boss_magistrate_barthilas") { }

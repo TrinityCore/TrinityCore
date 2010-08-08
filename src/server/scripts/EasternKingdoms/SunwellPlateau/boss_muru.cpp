@@ -100,7 +100,8 @@ float Humanoides[6][5] =
     {CREATURE_BERSERKER, 1842.91,    599.93,    71.23,    2.44}
 };
 
-uint32 EnrageTimer = 600000;class boss_entropius : public CreatureScript
+uint32 EnrageTimer = 600000;
+class boss_entropius : public CreatureScript
 {
 public:
     boss_entropius() : CreatureScript("boss_entropius") { }
@@ -200,7 +201,8 @@ public:
 
 };
 
-class boss_muru : public CreatureScript
+
+class boss_muru : public CreatureScript
 {
 public:
     boss_muru() : CreatureScript("boss_muru") { }
@@ -365,7 +367,8 @@ public:
 
 };
 
-class npc_muru_portal : public CreatureScript
+
+class npc_muru_portal : public CreatureScript
 {
 public:
     npc_muru_portal() : CreatureScript("npc_muru_portal") { }
@@ -449,7 +452,8 @@ public:
 
 };
 
-class npc_dark_fiend : public CreatureScript
+
+class npc_dark_fiend : public CreatureScript
 {
 public:
     npc_dark_fiend() : CreatureScript("npc_dark_fiend") { }
@@ -512,7 +516,8 @@ public:
 
 };
 
-class npc_void_sentinel : public CreatureScript
+
+class npc_void_sentinel : public CreatureScript
 {
 public:
     npc_void_sentinel() : CreatureScript("npc_void_sentinel") { }
@@ -568,7 +573,8 @@ public:
 
 };
 
-class npc_blackhole : public CreatureScript
+
+class npc_blackhole : public CreatureScript
 {
 public:
     npc_blackhole() : CreatureScript("npc_blackhole") { }

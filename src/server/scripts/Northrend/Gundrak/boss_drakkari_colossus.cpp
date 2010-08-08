@@ -34,7 +34,8 @@ enum Spells
     SPELL_MOJO_WAVE                               = 55626,
     H_SPELL_MOJO_WAVE                             = 58993
 };
-class boss_drakkari_colossus : public CreatureScript
+
+class boss_drakkari_colossus : public CreatureScript
 {
 public:
     boss_drakkari_colossus() : CreatureScript("boss_drakkari_colossus") { }
@@ -145,7 +146,8 @@ public:
     };
 
 };
-class boss_drakkari_elemental : public CreatureScript
+
+class boss_drakkari_elemental : public CreatureScript
 {
 public:
     boss_drakkari_elemental() : CreatureScript("boss_drakkari_elemental") { }
@@ -229,7 +231,8 @@ public:
     };
 
 };
-class npc_living_mojo : public CreatureScript
+
+class npc_living_mojo : public CreatureScript
 {
 public:
     npc_living_mojo() : CreatureScript("npc_living_mojo") { }

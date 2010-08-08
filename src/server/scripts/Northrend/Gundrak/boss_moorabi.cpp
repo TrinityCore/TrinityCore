@@ -47,7 +47,8 @@ enum eSays
     SAY_QUAKE                                     = -1604016,
     EMOTE_TRANSFORM                               = -1604017
 };
-class boss_moorabi : public CreatureScript
+
+class boss_moorabi : public CreatureScript
 {
 public:
     boss_moorabi() : CreatureScript("boss_moorabi") { }

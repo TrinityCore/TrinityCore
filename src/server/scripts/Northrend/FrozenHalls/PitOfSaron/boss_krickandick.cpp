@@ -118,7 +118,8 @@ enum Misc
 // Krick is the Gnome.
 // Ick is the Mount
 // Common Events are handled/triggered by Ick that "drive" Krick through DoAction.
-class boss_ick : public CreatureScript
+
+class boss_ick : public CreatureScript
 {
 public:
     boss_ick() : CreatureScript("boss_ick") { }
@@ -272,7 +273,8 @@ public:
     };
 
 };
-class boss_krick : public CreatureScript
+
+class boss_krick : public CreatureScript
 {
 public:
     boss_krick() : CreatureScript("boss_krick") { }

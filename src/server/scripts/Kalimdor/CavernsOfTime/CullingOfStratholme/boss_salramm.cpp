@@ -56,7 +56,8 @@ enum Yells
     SAY_SUMMON_GHOULS_1                         = -1595043,
     SAY_SUMMON_GHOULS_2                         = -1595044
 };
-class boss_salramm : public CreatureScript
+
+class boss_salramm : public CreatureScript
 {
 public:
     boss_salramm() : CreatureScript("boss_salramm") { }

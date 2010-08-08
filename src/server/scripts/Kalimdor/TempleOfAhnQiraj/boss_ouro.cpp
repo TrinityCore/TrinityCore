@@ -32,7 +32,8 @@ EndScriptData */
 #define SPELL_BIRTH             26262                       //The Birth Animation
 
 #define SPELL_DIRTMOUND_PASSIVE 26092
-class boss_ouro : public CreatureScript
+
+class boss_ouro : public CreatureScript
 {
 public:
     boss_ouro() : CreatureScript("boss_ouro") { }

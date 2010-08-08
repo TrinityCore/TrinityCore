@@ -65,7 +65,8 @@ enum Misc
 /*######
 ## Boss Ionar
 ######*/
-class boss_ionar : public CreatureScript
+
+class boss_ionar : public CreatureScript
 {
 public:
     boss_ionar() : CreatureScript("boss_ionar") { }
@@ -304,7 +305,8 @@ public:
 /*######
 ## mob_spark_of_ionar
 ######*/
-class mob_spark_of_ionar : public CreatureScript
+
+class mob_spark_of_ionar : public CreatureScript
 {
 public:
     mob_spark_of_ionar() : CreatureScript("mob_spark_of_ionar") { }

@@ -40,7 +40,8 @@ EndContentData */
 #define SPELL_WITHERING_HEAT        19367
 #define SPELL_ANCIENT_DESPAIR       19369
 #define SPELL_ANCIENT_HYSTERIA      19372
-class mob_ancient_core_hound : public CreatureScript
+
+class mob_ancient_core_hound : public CreatureScript
 {
 public:
     mob_ancient_core_hound() : CreatureScript("mob_ancient_core_hound") { }

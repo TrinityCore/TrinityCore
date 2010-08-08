@@ -50,7 +50,8 @@ EndScriptData */
 #define DATA_CRYSTALS                   6
 
 #define CREATURE_FEL_CRYSTAL            24722
-class boss_selin_fireheart : public CreatureScript
+
+class boss_selin_fireheart : public CreatureScript
 {
 public:
     boss_selin_fireheart() : CreatureScript("boss_selin_fireheart") { }
@@ -318,7 +319,8 @@ public:
 
 };
 
-class mob_fel_crystal : public CreatureScript
+
+class mob_fel_crystal : public CreatureScript
 {
 public:
     mob_fel_crystal() : CreatureScript("mob_fel_crystal") { }

@@ -35,7 +35,8 @@ EndContentData */
 //id8530 - cannibal ghoul
 //id8531 - gibbering ghoul
 //id8532 - diseased flayer
-class mobs_ghoul_flayer : public CreatureScript
+
+class mobs_ghoul_flayer : public CreatureScript
 {
 public:
     mobs_ghoul_flayer() : CreatureScript("mobs_ghoul_flayer") { }
@@ -66,7 +67,8 @@ public:
 /*######
 ## npc_augustus_the_touched
 ######*/
-class npc_augustus_the_touched : public CreatureScript
+
+class npc_augustus_the_touched : public CreatureScript
 {
 public:
     npc_augustus_the_touched() : CreatureScript("npc_augustus_the_touched") { }
@@ -98,7 +100,8 @@ public:
 ######*/
 
 #define SPELL_SPIRIT_SPAWNIN    17321
-class npc_darrowshire_spirit : public CreatureScript
+
+class npc_darrowshire_spirit : public CreatureScript
 {
 public:
     npc_darrowshire_spirit() : CreatureScript("npc_darrowshire_spirit") { }
@@ -141,7 +144,8 @@ public:
 #define GOSSIP_SELECT1  "Thank you, Tirion.  What of your identity?"
 #define GOSSIP_SELECT2  "That is terrible."
 #define GOSSIP_SELECT3  "I will, Tirion."
-class npc_tirion_fordring : public CreatureScript
+
+class npc_tirion_fordring : public CreatureScript
 {
 public:
     npc_tirion_fordring() : CreatureScript("npc_tirion_fordring") { }

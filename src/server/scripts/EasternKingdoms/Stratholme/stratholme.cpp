@@ -36,7 +36,8 @@ EndContentData */
 /*######
 ## go_gauntlet_gate (this is the _first_ of the gauntlet gates, two exist)
 ######*/
-class go_gauntlet_gate : public GameObjectScript
+
+class go_gauntlet_gate : public GameObjectScript
 {
 public:
     go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
@@ -84,7 +85,8 @@ public:
 #define SAY_ZAPPED1 -1329001
 #define SAY_ZAPPED2 -1329002
 #define SAY_ZAPPED3 -1329003
-class mob_freed_soul : public CreatureScript
+
+class mob_freed_soul : public CreatureScript
 {
 public:
     mob_freed_soul() : CreatureScript("mob_freed_soul") { }
@@ -118,7 +120,8 @@ public:
 #define QUEST_RESTLESS_SOUL 5282
 #define ENTRY_RESTLESS      11122
 #define ENTRY_FREED         11136
-class mob_restless_soul : public CreatureScript
+
+class mob_restless_soul : public CreatureScript
 {
 public:
     mob_restless_soul() : CreatureScript("mob_restless_soul") { }
@@ -196,7 +199,8 @@ enum eGhostlyCitizenSpells
     SPELL_HAUNTING_PHANTOM  = 16336,
     SPELL_SLAP              = 6754
 };
-class mobs_spectral_ghostly_citizen : public CreatureScript
+
+class mobs_spectral_ghostly_citizen : public CreatureScript
 {
 public:
     mobs_spectral_ghostly_citizen() : CreatureScript("mobs_spectral_ghostly_citizen") { }

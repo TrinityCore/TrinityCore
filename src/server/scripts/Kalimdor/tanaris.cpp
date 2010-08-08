@@ -45,7 +45,8 @@ EndContentData */
 
 #define SPELL_AQUA_JET      13586
 #define SPELL_FROST_SHOCK   15089
-class mob_aquementas : public CreatureScript
+
+class mob_aquementas : public CreatureScript
 {
 public:
     mob_aquementas() : CreatureScript("mob_aquementas") { }
@@ -156,7 +157,8 @@ public:
 #define WHISPER_CUSTODIAN_12    -1000228
 #define WHISPER_CUSTODIAN_13    -1000229
 #define WHISPER_CUSTODIAN_14    -1000230
-class npc_custodian_of_time : public CreatureScript
+
+class npc_custodian_of_time : public CreatureScript
 {
 public:
     npc_custodian_of_time() : CreatureScript("npc_custodian_of_time") { }
@@ -237,7 +239,8 @@ public:
 /*######
 ## npc_marin_noggenfogger
 ######*/
-class npc_marin_noggenfogger : public CreatureScript
+
+class npc_marin_noggenfogger : public CreatureScript
 {
 public:
     npc_marin_noggenfogger() : CreatureScript("npc_marin_noggenfogger") { }
@@ -271,7 +274,8 @@ public:
 ######*/
 
 #define GOSSIP_ITEM_FLIGHT  "Please take me to the master's lair."
-class npc_steward_of_time : public CreatureScript
+
+class npc_steward_of_time : public CreatureScript
 {
 public:
     npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
@@ -322,7 +326,8 @@ public:
 #define GOSSIP_ITEM_NORGANNON_4     "Excuse me? We've been \"reschedueled for visitations\"? What does that mean?!"
 #define GOSSIP_ITEM_NORGANNON_5     "So, what's inside Uldum?"
 #define GOSSIP_ITEM_NORGANNON_6     "I will return when i have the Plates of Uldum."
-class npc_stone_watcher_of_norgannon : public CreatureScript
+
+class npc_stone_watcher_of_norgannon : public CreatureScript
 {
 public:
     npc_stone_watcher_of_norgannon() : CreatureScript("npc_stone_watcher_of_norgannon") { }
@@ -394,7 +399,8 @@ enum e00X17
     SPAWN_SECOND_1          = 5617,
     SPAWN_SECOND_2          = 7805
 };
-class npc_OOX17 : public CreatureScript
+
+class npc_OOX17 : public CreatureScript
 {
 public:
     npc_OOX17() : CreatureScript("npc_OOX17") { }
@@ -498,7 +504,8 @@ enum eTooga
 };
 
 const float m_afToWaterLoc[] = {-7032.664551, -4906.199219, -1.606446};
-class npc_tooga : public CreatureScript
+
+class npc_tooga : public CreatureScript
 {
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }

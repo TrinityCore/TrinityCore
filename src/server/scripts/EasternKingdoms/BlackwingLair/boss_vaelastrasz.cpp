@@ -39,7 +39,8 @@ EndScriptData */
 #define SPELL_TAILSWIPE             15847
 #define SPELL_BURNINGADRENALINE     23620
 #define SPELL_CLEAVE                20684                   //Chain cleave is most likely named something different and contains a dummy effect
-class boss_vaelastrasz : public CreatureScript
+
+class boss_vaelastrasz : public CreatureScript
 {
 public:
     boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }

@@ -34,7 +34,8 @@ EndContentData */
 ######*/
 
 #define SAY_HEAL -1100280
-class npc_henze_faulk : public CreatureScript
+
+class npc_henze_faulk : public CreatureScript
 {
 public:
     npc_henze_faulk() : CreatureScript("npc_henze_faulk") { }

@@ -47,7 +47,8 @@ EndContentData */
 #define H_SPELL_ENRAGE              1                       //corrent enrage spell not known
 
 #define ENTRY_STREAMRIGGER_MECHANIC 17951
-class boss_mekgineer_steamrigger : public CreatureScript
+
+class boss_mekgineer_steamrigger : public CreatureScript
 {
 public:
     boss_mekgineer_steamrigger() : CreatureScript("boss_mekgineer_steamrigger") { }
@@ -191,7 +192,8 @@ public:
 
 #define MAX_REPAIR_RANGE            (13.0f)                 //we should be at least at this range for repair
 #define MIN_REPAIR_RANGE            (7.0f)                  //we can stop movement at this range to repair but not required
-class mob_steamrigger_mechanic : public CreatureScript
+
+class mob_steamrigger_mechanic : public CreatureScript
 {
 public:
     mob_steamrigger_mechanic() : CreatureScript("mob_steamrigger_mechanic") { }

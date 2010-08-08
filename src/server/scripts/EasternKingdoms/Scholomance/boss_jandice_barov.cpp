@@ -30,7 +30,8 @@ EndScriptData */
 
 //Spells of Illusion of Jandice Barov
 #define SPELL_CLEAVE                15584
-class boss_jandice_barov : public CreatureScript
+
+class boss_jandice_barov : public CreatureScript
 {
 public:
     boss_jandice_barov() : CreatureScript("boss_jandice_barov") { }
@@ -151,7 +152,8 @@ public:
 };
 
 // Illusion of Jandice Barov Script
-class mob_illusionofjandicebarov : public CreatureScript
+
+class mob_illusionofjandicebarov : public CreatureScript
 {
 public:
     mob_illusionofjandicebarov() : CreatureScript("mob_illusionofjandicebarov") { }

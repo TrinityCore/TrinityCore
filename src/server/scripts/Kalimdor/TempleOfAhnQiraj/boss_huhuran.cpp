@@ -34,7 +34,8 @@ EndScriptData */
 #define SPELL_NOXIOUSPOISON 26053
 #define SPELL_WYVERNSTING 26180
 #define SPELL_ACIDSPIT 26050
-class boss_huhuran : public CreatureScript
+
+class boss_huhuran : public CreatureScript
 {
 public:
     boss_huhuran() : CreatureScript("boss_huhuran") { }

@@ -42,7 +42,8 @@ enum eCalvin
     QUEST_590           = 590,
     FACTION_HOSTILE     = 168
 };
-class npc_calvin_montague : public CreatureScript
+
+class npc_calvin_montague : public CreatureScript
 {
 public:
     npc_calvin_montague() : CreatureScript("npc_calvin_montague") { }
@@ -165,7 +166,8 @@ enum eMausoleum
     GO_TRIGGER      = 104593,
     GO_DOOR         = 176594
 };
-class go_mausoleum_door : public GameObjectScript
+
+class go_mausoleum_door : public GameObjectScript
 {
 public:
     go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
@@ -186,7 +188,8 @@ public:
     }
 
 };
-class go_mausoleum_trigger : public GameObjectScript
+
+class go_mausoleum_trigger : public GameObjectScript
 {
 public:
     go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }

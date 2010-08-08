@@ -31,7 +31,8 @@ enum eSpells
 #define GOSSIP_ITEM_MORRIDUNE "Please port me to Darnassus"
 
 const Position HomePosition = {-815.817,-145.299,-25.870, 0};
-class go_blackfathom_altar : public GameObjectScript
+
+class go_blackfathom_altar : public GameObjectScript
 {
 public:
     go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
@@ -44,7 +45,8 @@ public:
     }
 
 };
-class go_blackfathom_fire : public GameObjectScript
+
+class go_blackfathom_fire : public GameObjectScript
 {
 public:
     go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
@@ -64,7 +66,8 @@ public:
     }
 
 };
-class npc_blackfathom_deeps_event : public CreatureScript
+
+class npc_blackfathom_deeps_event : public CreatureScript
 {
 public:
     npc_blackfathom_deeps_event() : CreatureScript("npc_blackfathom_deeps_event") { }
@@ -193,7 +196,8 @@ enum eMorridune
     SAY_MORRIDUNE_1 = -1048003,
     SAY_MORRIDUNE_2 = -1048004
 };
-class npc_morridune : public CreatureScript
+
+class npc_morridune : public CreatureScript
 {
 public:
     npc_morridune() : CreatureScript("npc_morridune") { }

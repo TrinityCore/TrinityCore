@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_BANSHEECURSE    16867
 #define SPELL_SILENCE    18327
 //#define SPELL_POSSESS   17244
-class boss_baroness_anastari : public CreatureScript
+
+class boss_baroness_anastari : public CreatureScript
 {
 public:
     boss_baroness_anastari() : CreatureScript("boss_baroness_anastari") { }

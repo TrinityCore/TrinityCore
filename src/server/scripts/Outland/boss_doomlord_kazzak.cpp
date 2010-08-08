@@ -46,7 +46,8 @@ EndScriptData */
 #define SPELL_ENRAGE                    32964
 #define SPELL_CAPTURESOUL               32966
 #define SPELL_TWISTEDREFLECTION         21063
-class boss_doomlord_kazzak : public CreatureScript
+
+class boss_doomlord_kazzak : public CreatureScript
 {
 public:
     boss_doomlord_kazzak() : CreatureScript("boss_doomlord_kazzak") { }

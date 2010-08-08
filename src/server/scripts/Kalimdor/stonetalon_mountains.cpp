@@ -40,7 +40,8 @@ EndContentData */
 #define GOSSIP_HBD3 "Nozdormu"
 #define GOSSIP_HBD4 "Alexstrasza"
 #define GOSSIP_HBD5 "Malygos"
-class npc_braug_dimspirit : public CreatureScript
+
+class npc_braug_dimspirit : public CreatureScript
 {
 public:
     npc_braug_dimspirit() : CreatureScript("npc_braug_dimspirit") { }
@@ -103,7 +104,8 @@ enum eKaya
 
     QUEST_PROTECT_KAYA          = 6523
 };
-class npc_kaya_flathoof : public CreatureScript
+
+class npc_kaya_flathoof : public CreatureScript
 {
 public:
     npc_kaya_flathoof() : CreatureScript("npc_kaya_flathoof") { }

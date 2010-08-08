@@ -101,7 +101,8 @@ void SummonCroneIfReady(InstanceScript* pInstance, Creature* pCreature)
         }
     }
 };
-class boss_dorothee : public CreatureScript
+
+class boss_dorothee : public CreatureScript
 {
 public:
     boss_dorothee() : CreatureScript("boss_dorothee") { }
@@ -215,7 +216,8 @@ public:
     };
 
 };
-class mob_tito : public CreatureScript
+
+class mob_tito : public CreatureScript
 {
 public:
     mob_tito() : CreatureScript("mob_tito") { }
@@ -281,7 +283,8 @@ void boss_dorothee::boss_dorotheeAI::SummonTito()
         TitoDied = false;
     }
 }
-class boss_strawman : public CreatureScript
+
+class boss_strawman : public CreatureScript
 {
 public:
     boss_strawman() : CreatureScript("boss_strawman") { }
@@ -395,7 +398,8 @@ public:
     };
 
 };
-class boss_tinhead : public CreatureScript
+
+class boss_tinhead : public CreatureScript
 {
 public:
     boss_tinhead() : CreatureScript("boss_tinhead") { }
@@ -504,7 +508,8 @@ public:
     };
 
 };
-class boss_roar : public CreatureScript
+
+class boss_roar : public CreatureScript
 {
 public:
     boss_roar() : CreatureScript("boss_roar") { }
@@ -612,7 +617,8 @@ public:
     };
 
 };
-class boss_crone : public CreatureScript
+
+class boss_crone : public CreatureScript
 {
 public:
     boss_crone() : CreatureScript("boss_crone") { }
@@ -693,7 +699,8 @@ public:
     };
 
 };
-class mob_cyclone : public CreatureScript
+
+class mob_cyclone : public CreatureScript
 {
 public:
     mob_cyclone() : CreatureScript("mob_cyclone") { }
@@ -763,7 +770,8 @@ public:
 
 /**** The Wolf's Entry ****/
 #define CREATURE_BIG_BAD_WOLF           17521
-class npc_grandmother : public CreatureScript
+
+class npc_grandmother : public CreatureScript
 {
 public:
     npc_grandmother() : CreatureScript("npc_grandmother") { }
@@ -791,7 +799,8 @@ public:
 
 };
 
-class boss_bigbadwolf : public CreatureScript
+
+class boss_bigbadwolf : public CreatureScript
 {
 public:
     boss_bigbadwolf() : CreatureScript("boss_bigbadwolf") { }
@@ -990,7 +999,8 @@ void Resurrect(Creature *pTarget)
         else
             pTarget->GetMotionMaster()->Initialize();
 };
-class boss_julianne : public CreatureScript
+
+class boss_julianne : public CreatureScript
 {
 public:
     boss_julianne() : CreatureScript("boss_julianne") { }
@@ -1112,7 +1122,8 @@ public:
     };
 
 };
-class boss_romulo : public CreatureScript
+
+class boss_romulo : public CreatureScript
 {
 public:
     boss_romulo() : CreatureScript("boss_romulo") { }

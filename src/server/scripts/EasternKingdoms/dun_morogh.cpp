@@ -35,7 +35,8 @@ EndContentData */
 
 // signed for 6172
 #define SAY_HEAL -1100280
-class npc_narm_faulk : public CreatureScript
+
+class npc_narm_faulk : public CreatureScript
 {
 public:
     npc_narm_faulk() : CreatureScript("npc_narm_faulk") { }

@@ -133,7 +133,8 @@ bool IsEncounterComplete(InstanceScript* pInstance, Creature* me)
     }
     return true;
 }
-class boss_steelbreaker : public CreatureScript
+
+class boss_steelbreaker : public CreatureScript
 {
 public:
     boss_steelbreaker() : CreatureScript("boss_steelbreaker") { }
@@ -257,7 +258,8 @@ public:
     };
 
 };
-class boss_runemaster_molgeim : public CreatureScript
+
+class boss_runemaster_molgeim : public CreatureScript
 {
 public:
     boss_runemaster_molgeim() : CreatureScript("boss_runemaster_molgeim") { }
@@ -389,7 +391,8 @@ public:
     };
 
 };
-class mob_lightning_elemental : public CreatureScript
+
+class mob_lightning_elemental : public CreatureScript
 {
 public:
     mob_lightning_elemental() : CreatureScript("mob_lightning_elemental") { }
@@ -432,7 +435,8 @@ public:
     };
 
 };
-class mob_rune_of_summoning : public CreatureScript
+
+class mob_rune_of_summoning : public CreatureScript
 {
 public:
     mob_rune_of_summoning() : CreatureScript("mob_rune_of_summoning") { }
@@ -457,7 +461,8 @@ public:
     };
 
 };
-class boss_stormcaller_brundir : public CreatureScript
+
+class boss_stormcaller_brundir : public CreatureScript
 {
 public:
     boss_stormcaller_brundir() : CreatureScript("boss_stormcaller_brundir") { }

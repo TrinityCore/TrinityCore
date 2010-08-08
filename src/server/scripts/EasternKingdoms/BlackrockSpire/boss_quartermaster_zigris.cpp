@@ -29,7 +29,8 @@ EndScriptData */
 #define SPELL_STUNBOMB          16497
 #define SPELL_HEALING_POTION    15504
 #define SPELL_HOOKEDNET         15609
-class quartermaster_zigris : public CreatureScript
+
+class quartermaster_zigris : public CreatureScript
 {
 public:
     quartermaster_zigris() : CreatureScript("quartermaster_zigris") { }

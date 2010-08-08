@@ -57,7 +57,8 @@ enum eEnums
 /*######
 ## Boss Loken
 ######*/
-class boss_loken : public CreatureScript
+
+class boss_loken : public CreatureScript
 {
 public:
     boss_loken() : CreatureScript("boss_loken") { }

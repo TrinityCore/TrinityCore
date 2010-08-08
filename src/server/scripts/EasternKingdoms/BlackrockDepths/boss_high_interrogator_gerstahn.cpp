@@ -32,7 +32,8 @@ enum Spells
     SPELL_PSYCHICSCREAM                                    = 8122,
     SPELL_SHADOWSHIELD                                     = 22417
 };
-class boss_high_interrogator_gerstahn : public CreatureScript
+
+class boss_high_interrogator_gerstahn : public CreatureScript
 {
 public:
     boss_high_interrogator_gerstahn() : CreatureScript("boss_high_interrogator_gerstahn") { }

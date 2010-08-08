@@ -39,7 +39,8 @@ EndScriptData */
 #define ADD_2Y -511.896942
 #define ADD_2Z 88.195160
 #define ADD_2O 4.613114
-class boss_overlord_wyrmthalak : public CreatureScript
+
+class boss_overlord_wyrmthalak : public CreatureScript
 {
 public:
     boss_overlord_wyrmthalak() : CreatureScript("boss_overlord_wyrmthalak") { }

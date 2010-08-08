@@ -52,7 +52,8 @@ enum eEnums
     SPELL_HEAL                   = 12039,
     SPELL_POWERWORDSHIELD        = 22187
 };
-class boss_scarlet_commander_mograine : public CreatureScript
+
+class boss_scarlet_commander_mograine : public CreatureScript
 {
 public:
     boss_scarlet_commander_mograine() : CreatureScript("boss_scarlet_commander_mograine") { }
@@ -216,7 +217,8 @@ public:
     };
 
 };
-class boss_high_inquisitor_whitemane : public CreatureScript
+
+class boss_high_inquisitor_whitemane : public CreatureScript
 {
 public:
     boss_high_inquisitor_whitemane() : CreatureScript("boss_high_inquisitor_whitemane") { }

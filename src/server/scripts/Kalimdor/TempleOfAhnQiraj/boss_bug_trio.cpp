@@ -36,7 +36,8 @@ EndScriptData */
 
 #define SPELL_HEAL      25807
 #define SPELL_FEAR      19408
-class boss_kri : public CreatureScript
+
+class boss_kri : public CreatureScript
 {
 public:
     boss_kri() : CreatureScript("boss_kri") { }
@@ -132,7 +133,8 @@ public:
     };
 
 };
-class boss_vem : public CreatureScript
+
+class boss_vem : public CreatureScript
 {
 public:
     boss_vem() : CreatureScript("boss_vem") { }
@@ -224,7 +226,8 @@ public:
     };
 
 };
-class boss_yauj : public CreatureScript
+
+class boss_yauj : public CreatureScript
 {
 public:
     boss_yauj() : CreatureScript("boss_yauj") { }

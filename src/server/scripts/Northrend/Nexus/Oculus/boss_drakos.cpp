@@ -51,7 +51,8 @@ enum
 {
     ACHIEV_TIMED_START_EVENT                      = 18153,
 };
-class boss_drakos : public CreatureScript
+
+class boss_drakos : public CreatureScript
 {
 public:
     boss_drakos() : CreatureScript("boss_drakos") { }
@@ -171,7 +172,8 @@ public:
 
 };
 
-class npc_unstable_sphere : public CreatureScript
+
+class npc_unstable_sphere : public CreatureScript
 {
 public:
     npc_unstable_sphere() : CreatureScript("npc_unstable_sphere") { }

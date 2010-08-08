@@ -46,7 +46,8 @@ enum Misc
 #define GOSSIP_ITEM_TEACH_2 "Continue..."
 #define GOSSIP_ITEM_TEACH_3 "[PH] Continue..."
 #define GOSSIP_ITEM_TRIBUTE "I want to pay tribute"
-class boss_gloomrel : public CreatureScript
+
+class boss_gloomrel : public CreatureScript
 {
 public:
     boss_gloomrel() : CreatureScript("boss_gloomrel") { }
@@ -105,7 +106,8 @@ enum DoomrelSpells
 
 #define GOSSIP_ITEM_CHALLENGE   "Your bondage is at an end, Doom'rel. I challenge you!"
 #define GOSSIP_SELECT_DOOMREL   "[PH] Continue..."
-class boss_doomrel : public CreatureScript
+
+class boss_doomrel : public CreatureScript
 {
 public:
     boss_doomrel() : CreatureScript("boss_doomrel") { }

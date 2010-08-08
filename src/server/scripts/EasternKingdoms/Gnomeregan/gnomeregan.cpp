@@ -84,7 +84,8 @@ const Position SpawnPosition[] =
     {-495.240,-90.808,-149.493,3.238},
     {-494.195,-89.553,-149.131,3.254}
 };
-class npc_blastmaster_emi_shortfuse : public CreatureScript
+
+class npc_blastmaster_emi_shortfuse : public CreatureScript
 {
 public:
     npc_blastmaster_emi_shortfuse() : CreatureScript("npc_blastmaster_emi_shortfuse") { }
@@ -543,7 +544,8 @@ public:
 
 
 
-class boss_grubbis : public CreatureScript
+
+class boss_grubbis : public CreatureScript
 {
 public:
     boss_grubbis() : CreatureScript("boss_grubbis") { }

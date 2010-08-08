@@ -74,7 +74,8 @@ enum eEnums
     GO_SPECTRAL_CHALICE     = 164869,
     GO_CHEST_SEVEN          = 169243
 };
-class instance_blackrock_depths : public InstanceMapScript
+
+class instance_blackrock_depths : public InstanceMapScript
 {
 public:
     instance_blackrock_depths() : InstanceMapScript("instance_blackrock_depths") { }

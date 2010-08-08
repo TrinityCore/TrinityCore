@@ -32,7 +32,8 @@ EndScriptData */
 #define SPELL_VOIDBOLT              21066
 #define SPELL_RAGE                  21340
 #define SPELL_CAPTURESOUL           21054
-class boss_kruul : public CreatureScript
+
+class boss_kruul : public CreatureScript
 {
 public:
     boss_kruul() : CreatureScript("boss_kruul") { }

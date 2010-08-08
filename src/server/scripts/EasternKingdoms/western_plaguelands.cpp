@@ -43,7 +43,8 @@ EndContentData */
 #define GOSSIP_HDA4 "What does the Gahrron's Withering Cauldron need?"
 
 #define GOSSIP_SDA1 "Thanks, i need a Vitreous Focuser"
-class npcs_dithers_and_arbington : public CreatureScript
+
+class npcs_dithers_and_arbington : public CreatureScript
 {
 public:
     npcs_dithers_and_arbington() : CreatureScript("npcs_dithers_and_arbington") { }
@@ -114,7 +115,8 @@ enum eMyranda
 };
 
 #define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
-class npc_myranda_the_hag : public CreatureScript
+
+class npc_myranda_the_hag : public CreatureScript
 {
 public:
     npc_myranda_the_hag() : CreatureScript("npc_myranda_the_hag") { }
@@ -153,7 +155,8 @@ public:
 /*######
 ## npc_the_scourge_cauldron
 ######*/
-class npc_the_scourge_cauldron : public CreatureScript
+
+class npc_the_scourge_cauldron : public CreatureScript
 {
 public:
     npc_the_scourge_cauldron() : CreatureScript("npc_the_scourge_cauldron") { }
@@ -237,7 +240,8 @@ enum eAndorhalTower
 {
     GO_BEACON_TORCH                             = 176093
 };
-class npc_andorhal_tower : public CreatureScript
+
+class npc_andorhal_tower : public CreatureScript
 {
 public:
     npc_andorhal_tower() : CreatureScript("npc_andorhal_tower") { }
@@ -284,7 +288,8 @@ enum eTruuen
     SAY_WP_5                    = -1999986,  //Please, rise my friend. Keep the Blessing as a symbol of the strength of the Light and how heroes long gone might once again rise in each of us to inspire.
     SAY_WP_6                    = -1999987   //Thank you my friend for making this possible. This is a day that I shall never forget! I think I will stay a while. Please return to High Priestess MacDonnell at the camp. I know that she'll be keenly interested to know of what has transpired here.
 };
-class npc_anchorite_truuen : public CreatureScript
+
+class npc_anchorite_truuen : public CreatureScript
 {
 public:
     npc_anchorite_truuen() : CreatureScript("npc_anchorite_truuen") { }

@@ -32,7 +32,8 @@ EndScriptData */
 #define SPELL_PANIC                 19408
 #define SPELL_LAVABOMB              19411                   //This calls a dummy server side effect that isn't implemented yet
 #define SPELL_LAVABOMB_ALT          19428                   //This is the spell that the lava bomb casts
-class boss_magmadar : public CreatureScript
+
+class boss_magmadar : public CreatureScript
 {
 public:
     boss_magmadar() : CreatureScript("boss_magmadar") { }

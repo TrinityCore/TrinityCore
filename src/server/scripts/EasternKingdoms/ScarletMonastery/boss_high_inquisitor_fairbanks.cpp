@@ -34,7 +34,8 @@ enum eSpells
     SPELL_POWERWORDSHIELD           = 11647,
     SPELL_SLEEP                     = 8399
 };
-class boss_high_inquisitor_fairbanks : public CreatureScript
+
+class boss_high_inquisitor_fairbanks : public CreatureScript
 {
 public:
     boss_high_inquisitor_fairbanks() : CreatureScript("boss_high_inquisitor_fairbanks") { }

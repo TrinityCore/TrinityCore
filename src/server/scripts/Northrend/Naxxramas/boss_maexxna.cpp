@@ -55,7 +55,8 @@ enum Events
     EVENT_SUMMON,
     EVENT_FRENZY,
 };
-class boss_maexxna : public CreatureScript
+
+class boss_maexxna : public CreatureScript
 {
 public:
     boss_maexxna() : CreatureScript("boss_maexxna") { }
@@ -145,7 +146,8 @@ public:
     };
 
 };
-class mob_webwrap : public CreatureScript
+
+class mob_webwrap : public CreatureScript
 {
 public:
     mob_webwrap() : CreatureScript("mob_webwrap") { }

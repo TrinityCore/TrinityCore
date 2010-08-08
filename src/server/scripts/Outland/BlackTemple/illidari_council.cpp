@@ -108,7 +108,8 @@ static CouncilYells CouncilEnrage[]=
 #define SPELL_VANISH               41479
 
 #define SPELL_BERSERK              45078
-class mob_blood_elf_council_voice_trigger : public CreatureScript
+
+class mob_blood_elf_council_voice_trigger : public CreatureScript
 {
 public:
     mob_blood_elf_council_voice_trigger() : CreatureScript("mob_blood_elf_council_voice_trigger") { }
@@ -202,7 +203,8 @@ public:
     };
 
 };
-class mob_illidari_council : public CreatureScript
+
+class mob_illidari_council : public CreatureScript
 {
 public:
     mob_illidari_council() : CreatureScript("mob_illidari_council") { }
@@ -459,7 +461,8 @@ struct boss_illidari_councilAI : public ScriptedAI
         LoadedGUIDs = true;
     }
 };
-class boss_gathios_the_shatterer : public CreatureScript
+
+class boss_gathios_the_shatterer : public CreatureScript
 {
 public:
     boss_gathios_the_shatterer() : CreatureScript("boss_gathios_the_shatterer") { }
@@ -585,7 +588,8 @@ public:
     };
 
 };
-class boss_high_nethermancer_zerevor : public CreatureScript
+
+class boss_high_nethermancer_zerevor : public CreatureScript
 {
 public:
     boss_high_nethermancer_zerevor() : CreatureScript("boss_high_nethermancer_zerevor") { }
@@ -688,7 +692,8 @@ public:
     };
 
 };
-class boss_lady_malande : public CreatureScript
+
+class boss_lady_malande : public CreatureScript
 {
 public:
     boss_lady_malande() : CreatureScript("boss_lady_malande") { }
@@ -765,7 +770,8 @@ public:
     };
 
 };
-class boss_veras_darkshadow : public CreatureScript
+
+class boss_veras_darkshadow : public CreatureScript
 {
 public:
     boss_veras_darkshadow() : CreatureScript("boss_veras_darkshadow") { }

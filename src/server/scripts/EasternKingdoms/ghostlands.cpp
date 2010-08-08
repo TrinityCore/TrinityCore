@@ -38,7 +38,8 @@ EndContentData */
 ######*/
 
 #define GOSSIP_H_BKD "Take Blood Knight Insignia"
-class npc_blood_knight_dawnstar : public CreatureScript
+
+class npc_blood_knight_dawnstar : public CreatureScript
 {
 public:
     npc_blood_knight_dawnstar() : CreatureScript("npc_blood_knight_dawnstar") { }
@@ -76,7 +77,8 @@ public:
 ######*/
 
 #define GOSSIP_HBN "You gave the crew disguises?"
-class npc_budd_nedreck : public CreatureScript
+
+class npc_budd_nedreck : public CreatureScript
 {
 public:
     npc_budd_nedreck() : CreatureScript("npc_budd_nedreck") { }
@@ -109,7 +111,8 @@ public:
 /*######
 ## npc_rathis_tomber
 ######*/
-class npc_rathis_tomber : public CreatureScript
+
+class npc_rathis_tomber : public CreatureScript
 {
 public:
     npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") { }
@@ -158,7 +161,8 @@ enum eEnums
     NPC_CAPTAIN_HELIOS  = 16220,
     FACTION_SMOON_E     = 1603,
 };
-class npc_ranger_lilatha : public CreatureScript
+
+class npc_ranger_lilatha : public CreatureScript
 {
 public:
     npc_ranger_lilatha() : CreatureScript("npc_ranger_lilatha") { }

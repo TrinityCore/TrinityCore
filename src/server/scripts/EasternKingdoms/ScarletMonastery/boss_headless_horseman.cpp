@@ -127,7 +127,8 @@ static const char* Text[]=
 };
 
 #define EMOTE_LAUGHS    "Headless Horseman laughs"
-class mob_wisp_invis : public CreatureScript
+
+class mob_wisp_invis : public CreatureScript
 {
 public:
     mob_wisp_invis() : CreatureScript("mob_wisp_invis") { }
@@ -213,7 +214,8 @@ public:
     };
 
 };
-class mob_head : public CreatureScript
+
+class mob_head : public CreatureScript
 {
 public:
     mob_head() : CreatureScript("mob_head") { }
@@ -309,7 +311,8 @@ public:
                 me->GetMotionMaster()->MoveFleeing(caster->getVictim());
             }
         }
-        void Disappear();
+
+        void Disappear();
         void UpdateAI(const uint32 diff)
         {
             if (!withbody)
@@ -350,7 +353,8 @@ public:
     };
 
 };
-class boss_headless_horseman : public CreatureScript
+
+class boss_headless_horseman : public CreatureScript
 {
 public:
     boss_headless_horseman() : CreatureScript("boss_headless_horseman") { }
@@ -758,7 +762,8 @@ public:
 };
 
 
-class mob_pulsing_pumpkin : public CreatureScript
+
+class mob_pulsing_pumpkin : public CreatureScript
 {
 public:
     mob_pulsing_pumpkin() : CreatureScript("mob_pulsing_pumpkin") { }
@@ -839,7 +844,8 @@ public:
     };
 
 };
-class go_loosely_turned_soil : public GameObjectScript
+
+class go_loosely_turned_soil : public GameObjectScript
 {
 public:
     go_loosely_turned_soil() : GameObjectScript("go_loosely_turned_soil") { }

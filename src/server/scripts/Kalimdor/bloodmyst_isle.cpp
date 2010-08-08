@@ -36,7 +36,8 @@ EndContentData */
 
 //possible creatures to be spawned
 const uint32 possibleSpawns[32] = {17322, 17661, 17496, 17522, 17340, 17352, 17333, 17524, 17654, 17348, 17339, 17345, 17359, 17353, 17336, 17550, 17330, 17701, 17321, 17680, 17325, 17320, 17683, 17342, 17715, 17334, 17341, 17338, 17337, 17346, 17344, 17327};
-class mob_webbed_creature : public CreatureScript
+
+class mob_webbed_creature : public CreatureScript
 {
 public:
     mob_webbed_creature() : CreatureScript("mob_webbed_creature") { }
@@ -94,7 +95,8 @@ public:
 #define GOSSIP_SELECT_CSA3   "[PH] "
 #define GOSSIP_SELECT_CSA4   "[PH] "
 #define GOSSIP_SELECT_CSA5   "[PH] "
-class npc_captured_sunhawk_agent : public CreatureScript
+
+class npc_captured_sunhawk_agent : public CreatureScript
 {
 public:
     npc_captured_sunhawk_agent() : CreatureScript("npc_captured_sunhawk_agent") { }

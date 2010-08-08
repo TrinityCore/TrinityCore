@@ -60,7 +60,8 @@ static Wave RiftWaves[]=
     {RIFT_BOSS, 120000},
     {C_AEONUS, 0}
 };
-class instance_dark_portal : public InstanceMapScript
+
+class instance_dark_portal : public InstanceMapScript
 {
 public:
     instance_dark_portal() : InstanceMapScript("instance_dark_portal") { }

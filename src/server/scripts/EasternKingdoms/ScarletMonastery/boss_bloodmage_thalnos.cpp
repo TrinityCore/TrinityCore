@@ -36,7 +36,8 @@ enum eEnums
     SPELL_FLAMESPIKE        = 8814,
     SPELL_FIRENOVA          = 16079,
 };
-class boss_bloodmage_thalnos : public CreatureScript
+
+class boss_bloodmage_thalnos : public CreatureScript
 {
 public:
     boss_bloodmage_thalnos() : CreatureScript("boss_bloodmage_thalnos") { }

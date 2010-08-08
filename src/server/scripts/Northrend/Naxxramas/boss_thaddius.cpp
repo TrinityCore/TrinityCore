@@ -93,7 +93,8 @@ enum Events
     EVENT_CHAIN,
     EVENT_BERSERK,
 };
-class boss_thaddius : public CreatureScript
+
+class boss_thaddius : public CreatureScript
 {
 public:
     boss_thaddius() : CreatureScript("boss_thaddius") { }
@@ -253,7 +254,8 @@ public:
 
 };
 
-class mob_stalagg : public CreatureScript
+
+class mob_stalagg : public CreatureScript
 {
 public:
     mob_stalagg() : CreatureScript("mob_stalagg") { }
@@ -339,7 +341,8 @@ public:
 
 };
 
-class mob_feugen : public CreatureScript
+
+class mob_feugen : public CreatureScript
 {
 public:
     mob_feugen() : CreatureScript("mob_feugen") { }

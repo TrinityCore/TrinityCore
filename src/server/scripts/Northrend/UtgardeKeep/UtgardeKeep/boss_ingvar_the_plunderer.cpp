@@ -70,7 +70,8 @@ enum Spells
     ENTRY_THROW_TARGET                          = 23996,
     SPELL_SHADOW_AXE_SUMMON                     = 42749
 };
-class boss_ingvar_the_plunderer : public CreatureScript
+
+class boss_ingvar_the_plunderer : public CreatureScript
 {
 public:
     boss_ingvar_the_plunderer() : CreatureScript("boss_ingvar_the_plunderer") { }
@@ -281,7 +282,8 @@ enum eSpells
     SPELL_SCOURG_RESURRECTION_DUMMY             = 42862, //Some Emote Dummy?
     SPELL_INGVAR_TRANSFORM                      = 42796
 };
-class mob_annhylde_the_caller : public CreatureScript
+
+class mob_annhylde_the_caller : public CreatureScript
 {
 public:
     mob_annhylde_the_caller() : CreatureScript("mob_annhylde_the_caller") { }
@@ -394,7 +396,8 @@ enum eShadowAxe
     SPELL_SHADOW_AXE_DAMAGE                     = 42750,
     H_SPELL_SHADOW_AXE_DAMAGE                   = 59719
 };
-class mob_ingvar_throw_dummy : public CreatureScript
+
+class mob_ingvar_throw_dummy : public CreatureScript
 {
 public:
     mob_ingvar_throw_dummy() : CreatureScript("mob_ingvar_throw_dummy") { }

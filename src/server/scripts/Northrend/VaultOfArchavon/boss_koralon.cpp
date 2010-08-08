@@ -62,7 +62,8 @@ enum Spells
     SPELL_FW_METEOR_FISTS_B                     = 67331,
     SPELL_FW_METEOR_FISTS_B_H                   = 68160,
 };
-class boss_koralon : public CreatureScript
+
+class boss_koralon : public CreatureScript
 {
 public:
     boss_koralon() : CreatureScript("boss_koralon") { }
@@ -157,7 +158,8 @@ public:
 
 /*######
 ##  Mob Flame Warder
-######*/class mob_flame_warder : public CreatureScript
+######*/
+class mob_flame_warder : public CreatureScript
 {
 public:
     mob_flame_warder() : CreatureScript("mob_flame_warder") { }

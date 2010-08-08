@@ -24,7 +24,8 @@ enum Spells
     SPELL_CORROSIVE_SALIVA                     = 54527,
     SPELL_OPTIC_LINK                           = 54396
 };
-class boss_moragg : public CreatureScript
+
+class boss_moragg : public CreatureScript
 {
 public:
     boss_moragg() : CreatureScript("boss_moragg") { }

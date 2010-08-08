@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_CLEAVE            20691
 #define SPELL_SUNDERINCLEAVE    25174
 #define SPELL_KNOCKAWAY         10101
-class boss_the_ravenian : public CreatureScript
+
+class boss_the_ravenian : public CreatureScript
 {
 public:
     boss_the_ravenian() : CreatureScript("boss_the_ravenian") { }

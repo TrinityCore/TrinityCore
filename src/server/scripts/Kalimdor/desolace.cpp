@@ -51,7 +51,8 @@ enum eDyingKodo
     SPELL_KODO_KOMBO_GOSSIP         = 18362
 
 };
-class npc_aged_dying_ancient_kodo : public CreatureScript
+
+class npc_aged_dying_ancient_kodo : public CreatureScript
 {
 public:
     npc_aged_dying_ancient_kodo() : CreatureScript("npc_aged_dying_ancient_kodo") { }
@@ -172,7 +173,8 @@ public:
 /*######
 ## go_iruxos. Quest 5381
 ######*/
-class go_iruxos : public GameObjectScript
+
+class go_iruxos : public GameObjectScript
 {
 public:
     go_iruxos() : GameObjectScript("go_iruxos") { }
@@ -192,7 +194,8 @@ public:
 ######*/
 
 #define QUEST_RETURN_TO_VAHLARRIEL     1440
-class npc_dalinda : public CreatureScript
+
+class npc_dalinda : public CreatureScript
 {
 public:
     npc_dalinda() : CreatureScript("npc_dalinda") { }

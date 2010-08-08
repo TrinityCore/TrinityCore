@@ -382,7 +382,8 @@ struct boss_twinemperorsAI : public ScriptedAI
         } else EnrageTimer-=diff;
     }
 };
-class boss_veknilash : public CreatureScript
+
+class boss_veknilash : public CreatureScript
 {
 public:
     boss_veknilash() : CreatureScript("boss_veknilash") { }
@@ -467,7 +468,8 @@ public:
     };
 
 };
-class boss_veklor : public CreatureScript
+
+class boss_veklor : public CreatureScript
 {
 public:
     boss_veklor() : CreatureScript("boss_veklor") { }

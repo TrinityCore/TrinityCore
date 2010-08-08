@@ -37,7 +37,8 @@ EndContentData */
 /*######
 ## mobs_spitelashes
 ######*/
-class mobs_spitelashes : public CreatureScript
+
+class mobs_spitelashes : public CreatureScript
 {
 public:
     mobs_spitelashes() : CreatureScript("mobs_spitelashes") { }
@@ -113,7 +114,8 @@ public:
 #define GOSSIP_SELECT_LT3   "Indeed"
 #define GOSSIP_SELECT_LT4   "I will do this with or your help, Loramus"
 #define GOSSIP_SELECT_LT5   "Yes"
-class npc_loramus_thalipedes : public CreatureScript
+
+class npc_loramus_thalipedes : public CreatureScript
 {
 public:
     npc_loramus_thalipedes() : CreatureScript("npc_loramus_thalipedes") { }
@@ -257,7 +259,8 @@ float WPs[58][4] =
 {1927.09, -3679.56, 33.9118, 3.42},
 {1873.57, -3695.32, 33.9118, 3.44}
 };
-class mob_rizzle_sprysprocket : public CreatureScript
+
+class mob_rizzle_sprysprocket : public CreatureScript
 {
 public:
     mob_rizzle_sprysprocket() : CreatureScript("mob_rizzle_sprysprocket") { }
@@ -456,7 +459,8 @@ public:
 /*####
 # mob_depth_charge
 ####*/
-class mob_depth_charge : public CreatureScript
+
+class mob_depth_charge : public CreatureScript
 {
 public:
     mob_depth_charge() : CreatureScript("mob_depth_charge") { }

@@ -40,7 +40,8 @@ enum eEnums
 3 - Azgalor event
 4 - Archimonde event
 */
-class instance_hyjal : public InstanceMapScript
+
+class instance_hyjal : public InstanceMapScript
 {
 public:
     instance_hyjal() : InstanceMapScript("instance_hyjal") { }

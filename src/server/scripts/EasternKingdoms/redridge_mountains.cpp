@@ -37,7 +37,8 @@ enum eCorporalKeeshan
     SPELL_MOCKING_BLOW  = 21008,
     SPELL_SHIELD_BASH   = 11972,
 };
-class npc_corporal_keeshan : public CreatureScript
+
+class npc_corporal_keeshan : public CreatureScript
 {
 public:
     npc_corporal_keeshan() : CreatureScript("npc_corporal_keeshan") { }

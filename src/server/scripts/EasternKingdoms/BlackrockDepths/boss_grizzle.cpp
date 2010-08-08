@@ -35,7 +35,8 @@ enum Spells
     SPELL_GROUNDTREMOR                                     = 6524,
     SPELL_FRENZY                                           = 28371
 };
-class boss_grizzle : public CreatureScript
+
+class boss_grizzle : public CreatureScript
 {
 public:
     boss_grizzle() : CreatureScript("boss_grizzle") { }

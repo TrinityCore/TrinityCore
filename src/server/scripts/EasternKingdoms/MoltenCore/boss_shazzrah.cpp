@@ -29,7 +29,8 @@ EndScriptData */
 #define SPELL_SHAZZRAHCURSE             19713
 #define SPELL_DEADENMAGIC               19714
 #define SPELL_COUNTERSPELL              19715
-class boss_shazzrah : public CreatureScript
+
+class boss_shazzrah : public CreatureScript
 {
 public:
     boss_shazzrah() : CreatureScript("boss_shazzrah") { }

@@ -50,7 +50,8 @@ EndScriptData */
 
 #define CREATURE_DOOM_BLOSSOM           23123
 #define CREATURE_SHADOWY_CONSTRUCT      23111
-class mob_doom_blossom : public CreatureScript
+
+class mob_doom_blossom : public CreatureScript
 {
 public:
     mob_doom_blossom() : CreatureScript("mob_doom_blossom") { }
@@ -115,7 +116,8 @@ public:
     };
 
 };
-class mob_shadowy_construct : public CreatureScript
+
+class mob_shadowy_construct : public CreatureScript
 {
 public:
     mob_shadowy_construct() : CreatureScript("mob_shadowy_construct") { }
@@ -204,7 +206,8 @@ public:
     };
 
 };
-class boss_teron_gorefiend : public CreatureScript
+
+class boss_teron_gorefiend : public CreatureScript
 {
 public:
     boss_teron_gorefiend() : CreatureScript("boss_teron_gorefiend") { }

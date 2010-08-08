@@ -42,7 +42,8 @@ EndScriptData */
 #define SPELL_EVOCATION                 30254
 #define SPELL_ENRAGE                    30403               //Arcane Infusion: Transforms Curator and adds damage.
 #define SPELL_BERSERK                   26662
-class boss_curator : public CreatureScript
+
+class boss_curator : public CreatureScript
 {
 public:
     boss_curator() : CreatureScript("boss_curator") { }

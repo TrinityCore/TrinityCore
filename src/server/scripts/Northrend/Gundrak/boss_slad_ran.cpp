@@ -64,7 +64,8 @@ static Position SpawnLoc[]=
   {1765.66, 646.542, 134.02,  5.11381},
   {1716.76, 635.159, 129.282, 0.191986}
 };
-class boss_slad_ran : public CreatureScript
+
+class boss_slad_ran : public CreatureScript
 {
 public:
     boss_slad_ran() : CreatureScript("boss_slad_ran") { }
@@ -188,7 +189,8 @@ public:
     };
 
 };
-class mob_slad_ran_constrictor : public CreatureScript
+
+class mob_slad_ran_constrictor : public CreatureScript
 {
 public:
     mob_slad_ran_constrictor() : CreatureScript("mob_slad_ran_constrictor") { }
@@ -224,7 +226,8 @@ public:
     };
 
 };
-class mob_slad_ran_viper : public CreatureScript
+
+class mob_slad_ran_viper : public CreatureScript
 {
 public:
     mob_slad_ran_viper() : CreatureScript("mob_slad_ran_viper") { }

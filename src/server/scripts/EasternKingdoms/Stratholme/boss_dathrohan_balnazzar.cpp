@@ -64,7 +64,8 @@ SummonDef m_aSummonPoint[]=
     {3460.975, -3078.901, 135.002, 3.784},                  //G2 back left
     {3457.338, -3073.979, 135.002, 3.784}                   //G2 back, right
 };
-class boss_dathrohan_balnazzar : public CreatureScript
+
+class boss_dathrohan_balnazzar : public CreatureScript
 {
 public:
     boss_dathrohan_balnazzar() : CreatureScript("boss_dathrohan_balnazzar") { }

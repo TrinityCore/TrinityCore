@@ -81,7 +81,8 @@ static Locations PipeLocations[] =
 };
 
 static Locations CenterPoint = {1295.21, 667.157, 189.691};
-class boss_sjonnir : public CreatureScript
+
+class boss_sjonnir : public CreatureScript
 {
 public:
     boss_sjonnir() : CreatureScript("boss_sjonnir") { }
@@ -244,7 +245,8 @@ public:
 
 };
 
-class mob_malformed_ooze : public CreatureScript
+
+class mob_malformed_ooze : public CreatureScript
 {
 public:
     mob_malformed_ooze() : CreatureScript("mob_malformed_ooze") { }
@@ -287,7 +289,8 @@ public:
 
 };
 
-class mob_iron_sludge : public CreatureScript
+
+class mob_iron_sludge : public CreatureScript
 {
 public:
     mob_iron_sludge() : CreatureScript("mob_iron_sludge") { }

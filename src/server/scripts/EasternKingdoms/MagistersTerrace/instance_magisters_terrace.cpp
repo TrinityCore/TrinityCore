@@ -34,7 +34,8 @@ EndScriptData */
 2  - Priestess Delrissa
 3  - Kael'thas Sunstrider
 */
-class instance_magisters_terrace : public InstanceMapScript
+
+class instance_magisters_terrace : public InstanceMapScript
 {
 public:
     instance_magisters_terrace() : InstanceMapScript("instance_magisters_terrace") { }

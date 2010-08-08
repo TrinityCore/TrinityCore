@@ -68,7 +68,8 @@ EndScriptData */
 //and allow players to start the event over
 //If nefarian dies then he will kill himself then he will kill himself in his hiding place
 //To prevent players from doing the event twice
-class boss_victor_nefarius : public CreatureScript
+
+class boss_victor_nefarius : public CreatureScript
 {
 public:
     boss_victor_nefarius() : CreatureScript("boss_victor_nefarius") { }

@@ -33,7 +33,8 @@ enum Spells
     SPELL_DEMONARMOR                                       = 11735,
     SPELL_ENVELOPINGWEB                                    = 15471
 };
-class boss_anubshiah : public CreatureScript
+
+class boss_anubshiah : public CreatureScript
 {
 public:
     boss_anubshiah() : CreatureScript("boss_anubshiah") { }

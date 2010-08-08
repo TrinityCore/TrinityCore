@@ -41,7 +41,8 @@ EndScriptData */
 #define SPELL_IMPENDING_DEATH       31916
 #define SPELL_MAGIC_DISRUPTION_AURA 33834
 #define SPELL_WING_BUFFET           31475
-class boss_epoch_hunter : public CreatureScript
+
+class boss_epoch_hunter : public CreatureScript
 {
 public:
     boss_epoch_hunter() : CreatureScript("boss_epoch_hunter") { }

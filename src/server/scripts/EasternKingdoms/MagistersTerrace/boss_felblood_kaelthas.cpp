@@ -76,7 +76,8 @@ float KaelLocations[3][2]=
 };
 
 #define LOCATION_Z                  -16.727455
-class boss_felblood_kaelthas : public CreatureScript
+
+class boss_felblood_kaelthas : public CreatureScript
 {
 public:
     boss_felblood_kaelthas() : CreatureScript("boss_felblood_kaelthas") { }
@@ -427,7 +428,8 @@ public:
     };
 
 };
-class mob_felkael_flamestrike : public CreatureScript
+
+class mob_felkael_flamestrike : public CreatureScript
 {
 public:
     mob_felkael_flamestrike() : CreatureScript("mob_felkael_flamestrike") { }
@@ -468,7 +470,8 @@ public:
     };
 
 };
-class mob_felkael_phoenix : public CreatureScript
+
+class mob_felkael_phoenix : public CreatureScript
 {
 public:
     mob_felkael_phoenix() : CreatureScript("mob_felkael_phoenix") { }
@@ -587,7 +590,8 @@ public:
     };
 
 };
-class mob_felkael_phoenix_egg : public CreatureScript
+
+class mob_felkael_phoenix_egg : public CreatureScript
 {
 public:
     mob_felkael_phoenix_egg() : CreatureScript("mob_felkael_phoenix_egg") { }
@@ -623,7 +627,8 @@ public:
     };
 
 };
-class mob_arcane_sphere : public CreatureScript
+
+class mob_arcane_sphere : public CreatureScript
 {
 public:
     mob_arcane_sphere() : CreatureScript("mob_arcane_sphere") { }

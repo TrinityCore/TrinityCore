@@ -41,7 +41,8 @@ EndScriptData */
 #define SPELL_WARLORDS_RAGE_NAGA    31543
 
 #define SPELL_WARLORDS_RAGE_PROC    36453
-class mob_naga_distiller : public CreatureScript
+
+class mob_naga_distiller : public CreatureScript
 {
 public:
     mob_naga_distiller() : CreatureScript("mob_naga_distiller") { }
@@ -98,7 +99,8 @@ public:
     };
 
 };
-class boss_warlord_kalithresh : public CreatureScript
+
+class boss_warlord_kalithresh : public CreatureScript
 {
 public:
     boss_warlord_kalithresh() : CreatureScript("boss_warlord_kalithresh") { }

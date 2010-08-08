@@ -31,7 +31,8 @@ enum Yells
     SAY_SLEEP                                              = -1048001,
     SAY_DEATH                                              = -1048000
 };
-class boss_kelris : public CreatureScript
+
+class boss_kelris : public CreatureScript
 {
 public:
     boss_kelris() : CreatureScript("boss_kelris") { }

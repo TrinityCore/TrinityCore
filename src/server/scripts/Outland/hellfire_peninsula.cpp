@@ -53,7 +53,8 @@ enum eAeranas
 
     C_AERANAS               = 17085
 };
-class npc_aeranas : public CreatureScript
+
+class npc_aeranas : public CreatureScript
 {
 public:
     npc_aeranas() : CreatureScript("npc_aeranas") { }
@@ -141,7 +142,8 @@ enum eAncestralWolf
 
     NPC_RYGA                        = 17123
 };
-class npc_ancestral_wolf : public CreatureScript
+
+class npc_ancestral_wolf : public CreatureScript
 {
 public:
     npc_ancestral_wolf() : CreatureScript("npc_ancestral_wolf") { }
@@ -204,7 +206,8 @@ public:
 /*######
 ## go_haaleshi_altar
 ######*/
-class go_haaleshi_altar : public GameObjectScript
+
+class go_haaleshi_altar : public GameObjectScript
 {
 public:
     go_haaleshi_altar() : GameObjectScript("go_haaleshi_altar") { }
@@ -227,7 +230,8 @@ enum eNaladu
 {
     GOSSIP_TEXTID_NALADU1   = 9788
 };
-class npc_naladu : public CreatureScript
+
+class npc_naladu : public CreatureScript
 {
 public:
     npc_naladu() : CreatureScript("npc_naladu") { }
@@ -266,7 +270,8 @@ enum eTracy
     GOSSIP_TEXTID_TRACY_PROUDWELL1       = 10689,
     QUEST_DIGGING_FOR_PRAYER_BEADS       = 10916
 };
-class npc_tracy_proudwell : public CreatureScript
+
+class npc_tracy_proudwell : public CreatureScript
 {
 public:
     npc_tracy_proudwell() : CreatureScript("npc_tracy_proudwell") { }
@@ -322,7 +327,8 @@ enum eTrollbane
     GOSSIP_TEXTID_TROLLBANE2        = 9933,
     GOSSIP_TEXTID_TROLLBANE3        = 8772
 };
-class npc_trollbane : public CreatureScript
+
+class npc_trollbane : public CreatureScript
 {
 public:
     npc_trollbane() : CreatureScript("npc_trollbane") { }
@@ -375,7 +381,8 @@ enum eWoundedBloodElf
 
     QUEST_ROAD_TO_FALCON_WATCH  = 9375
 };
-class npc_wounded_blood_elf : public CreatureScript
+
+class npc_wounded_blood_elf : public CreatureScript
 {
 public:
     npc_wounded_blood_elf() : CreatureScript("npc_wounded_blood_elf") { }
@@ -466,7 +473,8 @@ enum eFelGuard
 
     NPC_DERANGED_HELBOAR                          = 16863
 };
-class npc_fel_guard_hound : public CreatureScript
+
+class npc_fel_guard_hound : public CreatureScript
 {
 public:
     npc_fel_guard_hound() : CreatureScript("npc_fel_guard_hound") { }

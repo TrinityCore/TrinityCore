@@ -25,7 +25,8 @@
 1 - Varos Cloudstrider
 2 - Mage-Lord Urom
 3 - Ley-Guardian Eregos */
-class instance_oculus : public InstanceMapScript
+
+class instance_oculus : public InstanceMapScript
 {
 public:
     instance_oculus() : InstanceMapScript("instance_oculus") { }

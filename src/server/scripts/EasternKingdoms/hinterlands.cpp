@@ -51,7 +51,8 @@ enum eOOX
     FACTION_ESCORTEE_A      = 774,
     FACTION_ESCORTEE_H      = 775
 };
-class npc_00x09hl : public CreatureScript
+
+class npc_00x09hl : public CreatureScript
 {
 public:
     npc_00x09hl() : CreatureScript("npc_00x09hl") { }
@@ -186,7 +187,8 @@ Location m_afAmbushMoveTo[] =
     {166.630386, -2824.780273, 108.153},
     {70.886589,  -2874.335449, 116.675}
 };
-class npc_rinji : public CreatureScript
+
+class npc_rinji : public CreatureScript
 {
 public:
     npc_rinji() : CreatureScript("npc_rinji") { }

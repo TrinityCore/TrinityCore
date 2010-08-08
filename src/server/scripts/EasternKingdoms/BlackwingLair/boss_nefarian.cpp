@@ -59,7 +59,8 @@ EndScriptData */
 #define SPELL_WARLOCK               23427                   //infernals
 #define SPELL_HUNTER                23436                   //bow broke
 #define SPELL_ROGUE                 23414                   //Paralise
-class boss_nefarian : public CreatureScript
+
+class boss_nefarian : public CreatureScript
 {
 public:
     boss_nefarian() : CreatureScript("boss_nefarian") { }

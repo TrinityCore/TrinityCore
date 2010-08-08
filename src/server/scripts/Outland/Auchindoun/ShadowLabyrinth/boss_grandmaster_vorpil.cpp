@@ -61,7 +61,8 @@ float VoidPortalCoords[5][3] =
     {-209.3401, -262.7564, 17.1},
     {-261.4533, -297.3298, 17.1}
 };
-class mob_voidtraveler : public CreatureScript
+
+class mob_voidtraveler : public CreatureScript
 {
 public:
     mob_voidtraveler() : CreatureScript("mob_voidtraveler") { }
@@ -133,7 +134,8 @@ public:
     };
 
 };
-class boss_grandmaster_vorpil : public CreatureScript
+
+class boss_grandmaster_vorpil : public CreatureScript
 {
 public:
     boss_grandmaster_vorpil() : CreatureScript("boss_grandmaster_vorpil") { }

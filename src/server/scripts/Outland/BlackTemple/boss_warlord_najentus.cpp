@@ -59,7 +59,8 @@ enum eEnums
     GCD_CAST                        = 1,
     GCD_YELL                        = 2
 };
-class boss_najentus : public CreatureScript
+
+class boss_najentus : public CreatureScript
 {
 public:
     boss_najentus() : CreatureScript("boss_najentus") { }
@@ -205,7 +206,8 @@ public:
     };
 
 };
-class go_najentus_spine : public GameObjectScript
+
+class go_najentus_spine : public GameObjectScript
 {
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }

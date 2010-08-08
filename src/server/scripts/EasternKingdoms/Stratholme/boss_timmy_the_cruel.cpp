@@ -28,7 +28,8 @@ EndScriptData */
 #define SAY_SPAWN   "TIMMY!"
 
 #define SPELL_RAVENOUSCLAW    17470
-class boss_timmy_the_cruel : public CreatureScript
+
+class boss_timmy_the_cruel : public CreatureScript
 {
 public:
     boss_timmy_the_cruel() : CreatureScript("boss_timmy_the_cruel") { }

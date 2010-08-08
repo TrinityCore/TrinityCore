@@ -42,7 +42,8 @@ EndScriptData */
 #define SPELL_ENRAGE                33653
 #define SPELL_MARK_DEATH            37128
 #define SPELL_AURA_DEATH            37131
-class boss_doomwalker : public CreatureScript
+
+class boss_doomwalker : public CreatureScript
 {
 public:
     boss_doomwalker() : CreatureScript("boss_doomwalker") { }

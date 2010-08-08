@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_SHADOWSHOCK       20603
 #define SPELL_SILENCE           15487
 #define SPELL_FEAR              6215
-class boss_illucia_barov : public CreatureScript
+
+class boss_illucia_barov : public CreatureScript
 {
 public:
     boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }

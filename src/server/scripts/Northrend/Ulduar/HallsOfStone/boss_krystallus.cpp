@@ -51,7 +51,8 @@ enum Yells
     SAY_DEATH                                   = -1599009,
     SAY_SHATTER                                 = -1599010
 };
-class boss_krystallus : public CreatureScript
+
+class boss_krystallus : public CreatureScript
 {
 public:
     boss_krystallus() : CreatureScript("boss_krystallus") { }

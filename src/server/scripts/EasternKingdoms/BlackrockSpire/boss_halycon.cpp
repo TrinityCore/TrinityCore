@@ -32,7 +32,8 @@ EndScriptData */
 #define ADD_1Y                  -324.961395
 #define ADD_1Z                  64.401443
 #define ADD_1O                  3.124724
-class boss_halycon : public CreatureScript
+
+class boss_halycon : public CreatureScript
 {
 public:
     boss_halycon() : CreatureScript("boss_halycon") { }

@@ -49,7 +49,8 @@ enum Drakes
     NPC_BELGARISTRASZ                             = 27658,
     NPC_ETERNOS                                   = 27659
 };
-class npc_oculus_drake : public CreatureScript
+
+class npc_oculus_drake : public CreatureScript
 {
 public:
     npc_oculus_drake() : CreatureScript("npc_oculus_drake") { }

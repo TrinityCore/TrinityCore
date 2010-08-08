@@ -24,7 +24,8 @@ uint32 entry_search[3] =
     186610,
     186611
 };
-class npc_dragonflayer_forge_master : public CreatureScript
+
+class npc_dragonflayer_forge_master : public CreatureScript
 {
 public:
     npc_dragonflayer_forge_master() : CreatureScript("npc_dragonflayer_forge_master") { }

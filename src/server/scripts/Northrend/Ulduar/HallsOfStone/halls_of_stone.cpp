@@ -131,7 +131,8 @@ static Position SpawnLocations[]=
     {946.992, 397.016, 208.374},
     {960.748, 382.944, 208.374},
 };
-class mob_tribuna_controller : public CreatureScript
+
+class mob_tribuna_controller : public CreatureScript
 {
 public:
     mob_tribuna_controller() : CreatureScript("mob_tribuna_controller") { }
@@ -263,7 +264,8 @@ public:
     };
 
 };
-class npc_brann_hos : public CreatureScript
+
+class npc_brann_hos : public CreatureScript
 {
 public:
     npc_brann_hos() : CreatureScript("npc_brann_hos") { }

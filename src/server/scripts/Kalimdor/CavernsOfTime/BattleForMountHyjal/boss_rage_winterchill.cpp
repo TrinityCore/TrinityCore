@@ -45,7 +45,8 @@
 
 #define SAY_ONAGGRO "The Legion's final conquest has begun! Once again the subjugation of this world is within our grasp. Let none survive!"
 #define SOUND_ONAGGRO 11022
-class boss_rage_winterchill : public CreatureScript
+
+class boss_rage_winterchill : public CreatureScript
 {
 public:
     boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }

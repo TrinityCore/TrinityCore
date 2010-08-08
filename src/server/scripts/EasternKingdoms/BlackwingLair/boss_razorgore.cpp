@@ -36,7 +36,8 @@ EndScriptData */
 #define SPELL_WARSTOMP          24375
 #define SPELL_FIREBALLVOLLEY    22425
 #define SPELL_CONFLAGRATION     23023
-class boss_razorgore : public CreatureScript
+
+class boss_razorgore : public CreatureScript
 {
 public:
     boss_razorgore() : CreatureScript("boss_razorgore") { }

@@ -38,7 +38,8 @@ enum eEnums
     EMOTE_LOWHP             = -1409002,
     SPELL_MANGLE            = 19820
 };
-class boss_golemagg : public CreatureScript
+
+class boss_golemagg : public CreatureScript
 {
 public:
     boss_golemagg() : CreatureScript("boss_golemagg") { }
@@ -129,7 +130,8 @@ public:
     };
 
 };
-class mob_core_rager : public CreatureScript
+
+class mob_core_rager : public CreatureScript
 {
 public:
     mob_core_rager() : CreatureScript("mob_core_rager") { }

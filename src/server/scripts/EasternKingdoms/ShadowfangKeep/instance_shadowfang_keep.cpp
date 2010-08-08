@@ -53,7 +53,8 @@ const Position SpawnLocation[] =
     {-145.905,2180.520,128.448,4.183},
     {-140.794,2178.037,128.448,4.090},
     {-138.640,2170.159,136.577,2.737}
-};class instance_shadowfang_keep : public InstanceMapScript
+};
+class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
     instance_shadowfang_keep() : InstanceMapScript("instance_shadowfang_keep") { }

@@ -84,7 +84,8 @@ enum Misc
 {
     SEAT_TYRANNUS = 0
 };
-class boss_tyrannus : public CreatureScript
+
+class boss_tyrannus : public CreatureScript
 {
 public:
     boss_tyrannus() : CreatureScript("boss_tyrannus") { }
@@ -188,7 +189,8 @@ public:
     };
 
 };
-class boss_rimefang : public CreatureScript
+
+class boss_rimefang : public CreatureScript
 {
 public:
     boss_rimefang() : CreatureScript("boss_rimefang") { }

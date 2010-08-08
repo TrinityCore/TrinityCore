@@ -31,7 +31,8 @@ EndScriptData */
 #define SPELL_FLASHHEAL            10917
 #define SPELL_RENEW                10929
 #define SPELL_HEALINGTOUCH         9889
-class boss_instructor_malicia : public CreatureScript
+
+class boss_instructor_malicia : public CreatureScript
 {
 public:
     boss_instructor_malicia() : CreatureScript("boss_instructor_malicia") { }

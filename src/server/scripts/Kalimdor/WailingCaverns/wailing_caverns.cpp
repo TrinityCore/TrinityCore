@@ -74,7 +74,8 @@ enum eEnums
 #define GOSSIP_ID_START_2       699  //The fanglords are dead!
 #define GOSSIP_ITEM_NARALEX     "Let the event begin!"
 #define ACHIEVEMENT_WAILING_CAVERNS 630
-class npc_disciple_of_naralex : public CreatureScript
+
+class npc_disciple_of_naralex : public CreatureScript
 {
 public:
     npc_disciple_of_naralex() : CreatureScript("npc_disciple_of_naralex") { }

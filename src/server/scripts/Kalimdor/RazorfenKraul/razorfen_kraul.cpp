@@ -46,7 +46,8 @@ EndContentData */
 #define QUEST_WILLIX_THE_IMPORTER 1144
 #define ENTRY_BOAR 4514
 #define SPELL_QUILLBOAR_CHANNELING 7083
-class npc_willix : public CreatureScript
+
+class npc_willix : public CreatureScript
 {
 public:
     npc_willix() : CreatureScript("npc_willix") { }
@@ -145,7 +146,8 @@ public:
 
 };
 
-class npc_deaths_head_ward_keeper : public CreatureScript
+
+class npc_deaths_head_ward_keeper : public CreatureScript
 {
 public:
     npc_deaths_head_ward_keeper() : CreatureScript("npc_deaths_head_ward_keeper") { }

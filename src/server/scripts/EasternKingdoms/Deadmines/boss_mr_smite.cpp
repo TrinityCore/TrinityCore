@@ -36,7 +36,8 @@ enum eSpels
 
     SAY_AGGRO               = -1036001
 };
-class boss_mr_smite : public CreatureScript
+
+class boss_mr_smite : public CreatureScript
 {
 public:
     boss_mr_smite() : CreatureScript("boss_mr_smite") { }

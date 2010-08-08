@@ -32,7 +32,8 @@
 #define EVENT_SPRAY     4
 
 #define MOB_FALLOUT_SLIME   16290
-class boss_grobbulus : public CreatureScript
+
+class boss_grobbulus : public CreatureScript
 {
 public:
     boss_grobbulus() : CreatureScript("boss_grobbulus") { }
@@ -103,7 +104,8 @@ public:
     };
 
 };
-class npc_grobbulus_poison_cloud : public CreatureScript
+
+class npc_grobbulus_poison_cloud : public CreatureScript
 {
 public:
     npc_grobbulus_poison_cloud() : CreatureScript("npc_grobbulus_poison_cloud") { }

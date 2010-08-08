@@ -38,7 +38,8 @@ The teleporter appears to be active and stable.
 #define ANTECHAMBER  204
 #define WALKWAY      205
 #define CONSERVATORY 206
-class ulduar_teleporter : public GameObjectScript
+
+class ulduar_teleporter : public GameObjectScript
 {
 public:
     ulduar_teleporter() : GameObjectScript("ulduar_teleporter") { }

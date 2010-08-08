@@ -53,7 +53,8 @@ enum
 {
     ACHIEV_DISARMED_START_EVENT                   = 21687,
 };
-class boss_kologarn : public CreatureScript
+
+class boss_kologarn : public CreatureScript
 {
 public:
     boss_kologarn() : CreatureScript("boss_kologarn") { }

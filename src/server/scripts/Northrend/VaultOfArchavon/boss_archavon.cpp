@@ -52,7 +52,8 @@ UPDATE `creature_template` SET `ScriptName`='mob_archavon_warder' WHERE `entry`=
 #define EVENT_ROCK_SHOWER        5  //set = 20s cd,unkown cd
 #define EVENT_SHIELD_CRUSH       6  //set = 30s cd
 #define EVENT_WHIRL              8  //set= 10s cd
-class boss_archavon : public CreatureScript
+
+class boss_archavon : public CreatureScript
 {
 public:
     boss_archavon() : CreatureScript("boss_archavon") { }
@@ -149,7 +150,8 @@ public:
 
 /*######
 ##  Mob Archavon Warder
-######*/class mob_archavon_warder : public CreatureScript
+######*/
+class mob_archavon_warder : public CreatureScript
 {
 public:
     mob_archavon_warder() : CreatureScript("mob_archavon_warder") { }

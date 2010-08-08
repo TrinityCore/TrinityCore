@@ -224,7 +224,8 @@ float RiftAndSpawnsLocations[ENCOUNTER_CHRONO_SPAWNS][5]=
 #define GOSSIP_ITEM_ARTHAS_3 "I'm ready."
 #define GOSSIP_ITEM_ARTHAS_4 "For Lordaeron!"
 #define GOSSIP_ITEM_ARTHAS_5 "I'm ready to battle the dreadlord, sire."
-class npc_arthas : public CreatureScript
+
+class npc_arthas : public CreatureScript
 {
 public:
     npc_arthas() : CreatureScript("npc_arthas") { }

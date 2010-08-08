@@ -86,7 +86,8 @@ const uint32 m_auiAddEntries[] =
     24553,                                                  //Apoko
     24556,                                                  //Zelfan
 };
-class boss_priestess_delrissa : public CreatureScript
+
+class boss_priestess_delrissa : public CreatureScript
 {
 public:
     boss_priestess_delrissa() : CreatureScript("boss_priestess_delrissa") { }
@@ -483,7 +484,8 @@ enum eRogueSpells
     SPELL_BACKSTAB          = 15657,
     SPELL_EVISCERATE        = 27611
 };
-class boss_kagani_nightstrike : public CreatureScript
+
+class boss_kagani_nightstrike : public CreatureScript
 {
 public:
     boss_kagani_nightstrike() : CreatureScript("boss_kagani_nightstrike") { }
@@ -588,7 +590,8 @@ enum eWarlockSpells
     SPELL_IMP_FIREBALL          = 44164,
     SPELL_SUMMON_IMP            = 44163
 };
-class boss_ellris_duskhallow : public CreatureScript
+
+class boss_ellris_duskhallow : public CreatureScript
 {
 public:
     boss_ellris_duskhallow() : CreatureScript("boss_ellris_duskhallow") { }
@@ -679,7 +682,8 @@ enum eKickDown
     SPELL_KNOCKDOWN     = 11428,
     SPELL_SNAP_KICK     = 46182
 };
-class boss_eramas_brightblaze : public CreatureScript
+
+class boss_eramas_brightblaze : public CreatureScript
 {
 public:
     boss_eramas_brightblaze() : CreatureScript("boss_eramas_brightblaze") { }
@@ -740,7 +744,8 @@ enum eMageSpells
     SPELL_FROSTBOLT         = 15043,
     SPELL_BLINK             = 14514
 };
-class boss_yazzai : public CreatureScript
+
+class boss_yazzai : public CreatureScript
 {
 public:
     boss_yazzai() : CreatureScript("boss_yazzai") { }
@@ -870,7 +875,8 @@ enum eWarriorSpells
     SPELL_BATTLE_SHOUT          = 27578,
     SPELL_MORTAL_STRIKE         = 44268
 };
-class boss_warlord_salaris : public CreatureScript
+
+class boss_warlord_salaris : public CreatureScript
 {
 public:
     boss_warlord_salaris() : CreatureScript("boss_warlord_salaris") { }
@@ -990,7 +996,8 @@ enum eHunterSpells
 
     NPC_SLIVER                  = 24552
 };
-class boss_garaxxas : public CreatureScript
+
+class boss_garaxxas : public CreatureScript
 {
 public:
     boss_garaxxas() : CreatureScript("boss_garaxxas") { }
@@ -1109,7 +1116,8 @@ enum Spells
     SPELL_FIRE_NOVA_TOTEM       = 44257,
     SPELL_EARTHBIND_TOTEM       = 15786
 };
-class boss_apoko : public CreatureScript
+
+class boss_apoko : public CreatureScript
 {
 public:
     boss_apoko() : CreatureScript("boss_apoko") { }
@@ -1207,7 +1215,8 @@ enum eEngineerSpells
     SPELL_FEL_IRON_BOMB         = 46024,
     SPELL_SHEEP_EXPLOSION       = 44279
 };
-class boss_zelfan : public CreatureScript
+
+class boss_zelfan : public CreatureScript
 {
 public:
     boss_zelfan() : CreatureScript("boss_zelfan") { }
@@ -1291,7 +1300,9 @@ public:
     };
 
 };
-/*class mob_high_explosive_sheep : public CreatureScript
+
+/*
+class mob_high_explosive_sheep : public CreatureScript
 {
 public:
     mob_high_explosive_sheep() : CreatureScript("mob_high_explosive_sheep") { }

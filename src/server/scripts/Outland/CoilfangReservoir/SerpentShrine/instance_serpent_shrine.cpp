@@ -46,7 +46,8 @@ EndScriptData */
 4 - Morogrim Tidewalker Event
 5 - Lady Vashj Event
 */
-class go_bridge_console : public GameObjectScript
+
+class go_bridge_console : public GameObjectScript
 {
 public:
     go_bridge_console() : GameObjectScript("go_bridge_console") { }
@@ -65,7 +66,8 @@ public:
     }
 
 };
-class instance_serpent_shrine : public InstanceMapScript
+
+class instance_serpent_shrine : public InstanceMapScript
 {
 public:
     instance_serpent_shrine() : InstanceMapScript("instance_serpent_shrine") { }

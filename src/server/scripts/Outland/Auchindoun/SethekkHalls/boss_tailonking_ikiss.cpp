@@ -51,7 +51,8 @@ EndScriptData */
 
 #define SPELL_ARCANE_EXPLOSION      38197
 #define H_SPELL_ARCANE_EXPLOSION    40425
-class boss_talon_king_ikiss : public CreatureScript
+
+class boss_talon_king_ikiss : public CreatureScript
 {
 public:
     boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }

@@ -39,7 +39,8 @@ EndScriptData */
 #define SPELL_FOCUS_FIRE_VISUAL     42075 //need to find better visual
 
 #define EMOTE_FOCUSES_ON            "focuses on "
-class boss_shirrak_the_dead_watcher : public CreatureScript
+
+class boss_shirrak_the_dead_watcher : public CreatureScript
 {
 public:
     boss_shirrak_the_dead_watcher() : CreatureScript("boss_shirrak_the_dead_watcher") { }
@@ -159,7 +160,8 @@ public:
 
 };
 
-class mob_focus_fire : public CreatureScript
+
+class mob_focus_fire : public CreatureScript
 {
 public:
     mob_focus_fire() : CreatureScript("mob_focus_fire") { }

@@ -49,7 +49,8 @@ enum
 {
     ACHIEV_MAKE_QUICK_WERK_OF_HIM_STARTING_EVENT  = 10286,
 };
-class boss_patchwerk : public CreatureScript
+
+class boss_patchwerk : public CreatureScript
 {
 public:
     boss_patchwerk() : CreatureScript("boss_patchwerk") { }
