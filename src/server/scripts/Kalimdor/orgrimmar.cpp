@@ -38,7 +38,8 @@ EndContentData */
 #define QUEST_5727  5727
 
 #define GOSSIP_HNF "You may speak frankly, Neeru..."
-#define GOSSIP_SNF "[PH] ..."class npc_neeru_fireblade : public CreatureScript
+#define GOSSIP_SNF "[PH] ..."
+class npc_neeru_fireblade : public CreatureScript
 {
 public:
     npc_neeru_fireblade() : CreatureScript("npc_neeru_fireblade") { }
@@ -82,7 +83,8 @@ enum eShenthul
 {
     QUEST_SHATTERED_SALUTE  = 2460
 };
-class npc_shenthul : public CreatureScript
+
+class npc_shenthul : public CreatureScript
 {
 public:
     npc_shenthul() : CreatureScript("npc_shenthul") { }
@@ -188,7 +190,8 @@ public:
 #define GOSSIP_STW5 "I live only to serve, Warchief! My life is empty and meaningless without your guidance."
 #define GOSSIP_STW6 "Of course, Warchief!"
 
-//TODO: verify abilities/timersclass npc_thrall_warchief : public CreatureScript
+//TODO: verify abilities/timers
+class npc_thrall_warchief : public CreatureScript
 {
 public:
     npc_thrall_warchief() : CreatureScript("npc_thrall_warchief") { }

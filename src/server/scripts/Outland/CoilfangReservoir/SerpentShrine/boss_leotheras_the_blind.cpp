@@ -66,7 +66,8 @@ EndScriptData */
 #define SAY_FINAL_FORM          -1548018
 #define SAY_FREE                -1548019
 #define SAY_DEATH               -1548020
-class mob_inner_demon : public CreatureScript
+
+class mob_inner_demon : public CreatureScript
 {
 public:
     mob_inner_demon() : CreatureScript("mob_inner_demon") { }
@@ -156,7 +157,8 @@ public:
 
 };
 
-//Original Leotheras the Blind AIclass boss_leotheras_the_blind : public CreatureScript
+//Original Leotheras the Blind AI
+class boss_leotheras_the_blind : public CreatureScript
 {
 public:
     boss_leotheras_the_blind() : CreatureScript("boss_leotheras_the_blind") { }
@@ -581,7 +583,8 @@ public:
 
 };
 
-//Leotheras the Blind Demon Form AIclass boss_leotheras_the_blind_demonform : public CreatureScript
+//Leotheras the Blind Demon Form AI
+class boss_leotheras_the_blind_demonform : public CreatureScript
 {
 public:
     boss_leotheras_the_blind_demonform() : CreatureScript("boss_leotheras_the_blind_demonform") { }
@@ -651,9 +654,10 @@ public:
 
             //Do NOT deal any melee damage to the target.
         }
-    };class mob_greyheart_spellbinder : public CreatureScript
-
+    };
 };
+
+class mob_greyheart_spellbinder : public CreatureScript
 {
 public:
     mob_greyheart_spellbinder() : CreatureScript("mob_greyheart_spellbinder") { }

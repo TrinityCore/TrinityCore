@@ -196,7 +196,8 @@ const Position PosDemolisher[5] =
     {-756.01,-219.23,430.50,2.369},
     {-798.01,-227.24,429.84,1.446},
 };
-class boss_flame_leviathan : public CreatureScript
+
+class boss_flame_leviathan : public CreatureScript
 {
 public:
     boss_flame_leviathan() : CreatureScript("boss_flame_leviathan") { }
@@ -525,7 +526,8 @@ public:
 };
 
 //#define BOSS_DEBUG
-class boss_flame_leviathan_seat : public CreatureScript
+
+class boss_flame_leviathan_seat : public CreatureScript
 {
 public:
     boss_flame_leviathan_seat() : CreatureScript("boss_flame_leviathan_seat") { }
@@ -593,7 +595,8 @@ public:
     };
 
 };
-class boss_flame_leviathan_defense_turret : public CreatureScript
+
+class boss_flame_leviathan_defense_turret : public CreatureScript
 {
 public:
     boss_flame_leviathan_defense_turret() : CreatureScript("boss_flame_leviathan_defense_turret") { }
@@ -622,7 +625,8 @@ public:
     };
 
 };
-class boss_flame_leviathan_overload_device : public CreatureScript
+
+class boss_flame_leviathan_overload_device : public CreatureScript
 {
 public:
     boss_flame_leviathan_overload_device() : CreatureScript("boss_flame_leviathan_overload_device") { }
@@ -663,7 +667,8 @@ public:
     };
 
 };
-class boss_flame_leviathan_safety_container : public CreatureScript
+
+class boss_flame_leviathan_safety_container : public CreatureScript
 {
 public:
     boss_flame_leviathan_safety_container() : CreatureScript("boss_flame_leviathan_safety_container") { }
@@ -691,7 +696,8 @@ public:
         void UpdateAI(const uint32 diff)
         {
         }
-    };};
+    };
+};
 
 class npc_mechanolift : public CreatureScript
 {
@@ -761,7 +767,8 @@ public:
 
 };
 
-class spell_pool_of_tar : public CreatureScript
+
+class spell_pool_of_tar : public CreatureScript
 {
 public:
     spell_pool_of_tar() : CreatureScript("spell_pool_of_tar") { }
@@ -791,7 +798,8 @@ public:
     };
 
 };
-class npc_colossus : public CreatureScript
+
+class npc_colossus : public CreatureScript
 {
 public:
     npc_colossus() : CreatureScript("npc_colossus") { }
@@ -828,7 +836,8 @@ public:
     };
 
 };
-class npc_thorims_hammer : public CreatureScript
+
+class npc_thorims_hammer : public CreatureScript
 {
 public:
     npc_thorims_hammer() : CreatureScript("npc_thorims_hammer") { }
@@ -870,7 +879,8 @@ public:
     };
 
 };
-class npc_mimirons_inferno : public CreatureScript
+
+class npc_mimirons_inferno : public CreatureScript
 {
 public:
     npc_mimirons_inferno() : CreatureScript("npc_mimirons_inferno") { }
@@ -929,7 +939,8 @@ public:
 
 };
 
-class npc_hodirs_fury : public CreatureScript
+
+class npc_hodirs_fury : public CreatureScript
 {
 public:
     npc_hodirs_fury() : CreatureScript("npc_hodirs_fury") { }
@@ -971,7 +982,8 @@ public:
     };
 
 };
-class npc_freyas_ward : public CreatureScript
+
+class npc_freyas_ward : public CreatureScript
 {
 public:
     npc_freyas_ward() : CreatureScript("npc_freyas_ward") { }
@@ -1015,7 +1027,8 @@ public:
     };
 
 };
-class npc_freya_ward_summon : public CreatureScript
+
+class npc_freya_ward_summon : public CreatureScript
 {
 public:
     npc_freya_ward_summon() : CreatureScript("npc_freya_ward_summon") { }
@@ -1060,7 +1073,8 @@ public:
 
 //npc lore keeper
 #define GOSSIP_ITEM_1  "Activate secondary defensive systems"
-#define GOSSIP_ITEM_2  "Confirmed"class npc_lorekeeper : public CreatureScript
+#define GOSSIP_ITEM_2  "Confirmed"
+class npc_lorekeeper : public CreatureScript
 {
 public:
     npc_lorekeeper() : CreatureScript("npc_lorekeeper") { }
@@ -1154,7 +1168,9 @@ public:
 ////npc_brann_bronzebeard this requires more work involving area triggers. if reached this guy speaks through his radio..
 //#define GOSSIP_ITEM_1  "xxxxx"
 //#define GOSSIP_ITEM_2  "xxxxx"
-///*class npc_brann_bronzebeard : public CreatureScript
+//
+/*
+class npc_brann_bronzebeard : public CreatureScript
 {
 public:
     npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
@@ -1193,7 +1209,11 @@ public:
     //    }
     //    return true;
     //}
-    //}*/class go_ulduar_tower : public GameObjectScript
+    //
+}
+*/
+
+class go_ulduar_tower : public GameObjectScript
 {
 public:
     go_ulduar_tower() : GameObjectScript("go_ulduar_tower") { }
@@ -1222,7 +1242,8 @@ public:
     }
 
 };
-class at_RX_214_repair_o_matic_station : public AreaTriggerScript
+
+class at_RX_214_repair_o_matic_station : public AreaTriggerScript
 {
 public:
     at_RX_214_repair_o_matic_station() : AreaTriggerScript("at_RX_214_repair_o_matic_station") { }

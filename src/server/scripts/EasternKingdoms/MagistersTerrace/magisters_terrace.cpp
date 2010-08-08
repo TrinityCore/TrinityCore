@@ -50,7 +50,8 @@ const float afKaelLandPoint[] = {225.045, -276.236, -5.434};
 #define GOSSIP_ITEM_KAEL_5      "What would Kil'jaeden want with a mortal woman?"
 
 // This is friendly keal that appear after used Orb.
-// If we assume DB handle summon, summon appear somewhere outside the platform where Orb isclass npc_kalecgos : public CreatureScript
+// If we assume DB handle summon, summon appear somewhere outside the platform where Orb is
+class npc_kalecgos : public CreatureScript
 {
 public:
     npc_kalecgos() : CreatureScript("npc_kalecgos") { }

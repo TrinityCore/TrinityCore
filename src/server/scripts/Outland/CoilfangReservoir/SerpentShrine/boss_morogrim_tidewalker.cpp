@@ -97,7 +97,8 @@ float MurlocCords[10][5] =
 #define WATER_GLOBULE               21913
 #define TIDEWALKER_LURKER           21920
 
-//Morogrim Tidewalker AIclass boss_morogrim_tidewalker : public CreatureScript
+//Morogrim Tidewalker AI
+class boss_morogrim_tidewalker : public CreatureScript
 {
 public:
     boss_morogrim_tidewalker() : CreatureScript("boss_morogrim_tidewalker") { }
@@ -301,7 +302,8 @@ public:
 
 //Water Globule AI
 #define SPELL_GLOBULE_EXPLOSION 37871
-class mob_water_globule : public CreatureScript
+
+class mob_water_globule : public CreatureScript
 {
 public:
     mob_water_globule() : CreatureScript("mob_water_globule") { }

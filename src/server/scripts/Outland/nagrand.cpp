@@ -41,7 +41,8 @@ EndContentData */
 /*######
 ## mob_shattered_rumbler - this should be done with ACID
 ######*/
-class mob_shattered_rumbler : public CreatureScript
+
+class mob_shattered_rumbler : public CreatureScript
 {
 public:
     mob_shattered_rumbler() : CreatureScript("mob_shattered_rumbler") { }
@@ -100,7 +101,8 @@ public:
 #define GOSSIP_SL1 "Why are Boulderfist out this far? You know that this is Kurenai territory."
 #define GOSSIP_SL2 "And you think you can just eat anything you want? You're obviously trying to eat the Broken of Telaar."
 #define GOSSIP_SL3 "This means war, Lump! War I say!"
-class mob_lump : public CreatureScript
+
+class mob_lump : public CreatureScript
 {
 public:
     mob_lump() : CreatureScript("mob_lump") { }
@@ -246,7 +248,8 @@ public:
 /*####
 # mob_sunspring_villager - should be done with ACID
 ####*/
-class mob_sunspring_villager : public CreatureScript
+
+class mob_sunspring_villager : public CreatureScript
 {
 public:
     mob_sunspring_villager() : CreatureScript("mob_sunspring_villager") { }
@@ -294,7 +297,8 @@ public:
 #define GOSSIP_SATS4 "Forge camps?"
 #define GOSSIP_SATS5 "Ok."
 #define GOSSIP_SATS6 "[PH] Story done"
-class npc_altruis_the_sufferer : public CreatureScript
+
+class npc_altruis_the_sufferer : public CreatureScript
 {
 public:
     npc_altruis_the_sufferer() : CreatureScript("npc_altruis_the_sufferer") { }
@@ -399,7 +403,8 @@ public:
 #define GOSSIP_SGG10 "It is my Warchief, Greatmother. The leader of my people. From my world. He ... He is the son of Durotan. He is your grandchild."
 #define GOSSIP_SGG11 "I will return to Azeroth at once, Greatmother."
 
-//all the textId's for the below is unknown, but i do believe the gossip item texts are proper.class npc_greatmother_geyah : public CreatureScript
+//all the textId's for the below is unknown, but i do believe the gossip item texts are proper.
+class npc_greatmother_geyah : public CreatureScript
 {
 public:
     npc_greatmother_geyah() : CreatureScript("npc_greatmother_geyah") { }
@@ -502,7 +507,8 @@ public:
 #define GOSSIP_SLB5 "My people ask that you pull back your Boulderfist ogres and cease all attacks on our territories. In return, we will also pull back our forces."
 #define GOSSIP_SLB6 "We will fight you until the end, then, Lantresor. We will not stand idly by as you pillage our towns and kill our people."
 #define GOSSIP_SLB7 "What do I need to do?"
-class npc_lantresor_of_the_blade : public CreatureScript
+
+class npc_lantresor_of_the_blade : public CreatureScript
 {
 public:
     npc_lantresor_of_the_blade() : CreatureScript("npc_lantresor_of_the_blade") { }
@@ -595,7 +601,8 @@ enum eMagharCaptive
 
 static float m_afAmbushA[]= {-1568.805786, 8533.873047, 1.958};
 static float m_afAmbushB[]= {-1491.554321, 8506.483398, 1.248};
-class npc_maghar_captive : public CreatureScript
+
+class npc_maghar_captive : public CreatureScript
 {
 public:
     npc_maghar_captive() : CreatureScript("npc_maghar_captive") { }
@@ -741,7 +748,8 @@ public:
 /*######
 ## npc_creditmarker_visist_with_ancestors
 ######*/
-class npc_creditmarker_visit_with_ancestors : public CreatureScript
+
+class npc_creditmarker_visit_with_ancestors : public CreatureScript
 {
 public:
     npc_creditmarker_visit_with_ancestors() : CreatureScript("npc_creditmarker_visit_with_ancestors") { }
@@ -789,7 +797,8 @@ public:
 
 #define SPELL_SPARROWHAWK_NET 39810
 #define SPELL_ITEM_CAPTIVE_SPARROWHAWK 39812
-class mob_sparrowhawk : public CreatureScript
+
+class mob_sparrowhawk : public CreatureScript
 {
 public:
     mob_sparrowhawk() : CreatureScript("mob_sparrowhawk") { }

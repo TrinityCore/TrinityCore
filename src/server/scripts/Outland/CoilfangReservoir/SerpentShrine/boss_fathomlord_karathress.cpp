@@ -93,7 +93,8 @@ EndScriptData */
 #define OLUM_Z                     -7.54773f
 #define OLUM_O                     0.401581f
 
-//Fathom-Lord Karathress AIclass boss_fathomlord_karathress : public CreatureScript
+//Fathom-Lord Karathress AI
+class boss_fathomlord_karathress : public CreatureScript
 {
 public:
     boss_fathomlord_karathress() : CreatureScript("boss_fathomlord_karathress") { }
@@ -303,7 +304,8 @@ public:
 
 };
 
-//Fathom-Guard Sharkkis AIclass boss_fathomguard_sharkkis : public CreatureScript
+//Fathom-Guard Sharkkis AI
+class boss_fathomguard_sharkkis : public CreatureScript
 {
 public:
     boss_fathomguard_sharkkis() : CreatureScript("boss_fathomguard_sharkkis") { }
@@ -456,7 +458,8 @@ public:
 
 };
 
-//Fathom-Guard Tidalvess AIclass boss_fathomguard_tidalvess : public CreatureScript
+//Fathom-Guard Tidalvess AI
+class boss_fathomguard_tidalvess : public CreatureScript
 {
 public:
     boss_fathomguard_tidalvess() : CreatureScript("boss_fathomguard_tidalvess") { }
@@ -582,7 +585,8 @@ public:
 
 };
 
-//Fathom-Guard Caribdis AIclass boss_fathomguard_caribdis : public CreatureScript
+//Fathom-Guard Caribdis AI
+class boss_fathomguard_caribdis : public CreatureScript
 {
 public:
     boss_fathomguard_caribdis() : CreatureScript("boss_fathomguard_caribdis") { }

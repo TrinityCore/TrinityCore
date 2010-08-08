@@ -51,7 +51,8 @@ enum eHuskSpirit
     NPC_RISEN_SPIRIT                    = 23554,
     NPC_RESTLESS_APPARITION             = 23861
 };
-class mobs_risen_husk_spirit : public CreatureScript
+
+class mobs_risen_husk_spirit : public CreatureScript
 {
 public:
     mobs_risen_husk_spirit() : CreatureScript("mobs_risen_husk_spirit") { }
@@ -126,7 +127,8 @@ enum eRestlessApparition
     SAY_RESTLESS_2      = -1000470,
     SAY_RESTLESS_3      = -1000471
 };
-class npc_restless_apparition : public CreatureScript
+
+class npc_restless_apparition : public CreatureScript
 {
 public:
     npc_restless_apparition() : CreatureScript("npc_restless_apparition") { }
@@ -158,7 +160,8 @@ enum eAgitator
     QUEST_TRAITORS_AMONG_US = 11126,
     FACTION_THER_DESERTER   = 1883
 };
-class npc_deserter_agitator : public CreatureScript
+
+class npc_deserter_agitator : public CreatureScript
 {
 public:
     npc_deserter_agitator() : CreatureScript("npc_deserter_agitator") { }
@@ -206,7 +209,8 @@ enum eLadyJaina
 };
 
 #define GOSSIP_ITEM_JAINA "I know this is rather silly but i have a young ward who is a bit shy and would like your autograph."
-class npc_lady_jaina_proudmoore : public CreatureScript
+
+class npc_lady_jaina_proudmoore : public CreatureScript
 {
 public:
     npc_lady_jaina_proudmoore() : CreatureScript("npc_lady_jaina_proudmoore") { }
@@ -245,7 +249,8 @@ enum eNatPagle
 {
     QUEST_NATS_MEASURING_TAPE = 8227
 };
-class npc_nat_pagle : public CreatureScript
+
+class npc_nat_pagle : public CreatureScript
 {
 public:
     npc_nat_pagle() : CreatureScript("npc_nat_pagle") { }
@@ -298,7 +303,8 @@ enum eHendel
     NPC_TERVOSH                 = 4967
 };
 
-//TODO: develop this further, end event not createdclass npc_private_hendel : public CreatureScript
+//TODO: develop this further, end event not created
+class npc_private_hendel : public CreatureScript
 {
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
@@ -366,7 +372,8 @@ enum eZelfrax
     SAY_ZELFRAX     = -1000472,
     SAY_ZELFRAX_2   = -1000473
 };
-class npc_zelfrax : public CreatureScript
+
+class npc_zelfrax : public CreatureScript
 {
 public:
     npc_zelfrax() : CreatureScript("npc_zelfrax") { }

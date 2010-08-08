@@ -95,7 +95,8 @@ static InfernalPoint InfernalPoints[] =
 
 #define EQUIP_ID_AXE                33542                      //Axes info
 
-//---------Infernal code firstclass netherspite_infernal : public CreatureScript
+//---------Infernal code first
+class netherspite_infernal : public CreatureScript
 {
 public:
     netherspite_infernal() : CreatureScript("netherspite_infernal") { }
@@ -161,17 +162,12 @@ public:
                 damage = 0;
         }
 
-        void Cleanup()
-        {
-            Unit *pMalchezaar = Unit::GetUnit(*me, malchezaar);
-
-            if (pMalchezaar && pMalchezaar->isAlive())
-                CAST_AI(boss_malchezaar::boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(me, point);
-        }                                         //below ...
+        void Cleanup();
     };
 
 };
-class boss_malchezaar : public CreatureScript
+
+class boss_malchezaar : public CreatureScript
 {
 public:
     boss_malchezaar() : CreatureScript("boss_malchezaar") { }
@@ -599,6 +595,14 @@ public:
     };
 
 };
+
+void netherspite_infernal::netherspite_infernalAI::Cleanup()
+{
+    Unit *pMalchezaar = Unit::GetUnit(*me, malchezaar);
+
+    if (pMalchezaar && pMalchezaar->isAlive())
+        CAST_AI(boss_malchezaar::boss_malchezaarAI, CAST_CRE(pMalchezaar)->AI())->Cleanup(me, point);
+}
 
 void AddSC_boss_malchezaar()
 {

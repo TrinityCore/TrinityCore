@@ -300,6 +300,7 @@ static float m_fVorshaCoord[]={3633.056885, 1172.924072, -5.388};
 class npc_muglash : public CreatureScript
 {
     public:
+        npc_muglash() : CreatureScript("npc_muglash") { }
 
         struct npc_muglashAI : public npc_escortAI
         {
@@ -425,7 +426,7 @@ class npc_muglash : public CreatureScript
             }
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* pCreature) const
         {
             return new npc_muglashAI(pCreature);
         }
@@ -455,11 +456,11 @@ class go_naga_brazier : public GameObjectScript
         {
         }
 
-        bool GOHello_go_naga_brazier(Player* player, GameObject* go)
+        bool OnGossipHello(Player* player, GameObject* go)
         {
             if (Creature* creature = GetClosestCreatureWithEntry(go, NPC_MUGLASH, INTERACTION_DISTANCE*2))
             {
-                if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglashAI, creature->AI()))
+                if (npc_muglash::npc_muglashAI* pEscortAI = CAST_AI(npc_muglash::npc_muglashAI, creature->AI()))
                 {
                     DoScriptText(SAY_MUG_BRAZIER_WAIT, creature);
 
