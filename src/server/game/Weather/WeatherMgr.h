@@ -29,6 +29,7 @@
 #include "SharedDefines.h"
 #include "Timer.h"
 #include "Weather.h"
+#include <ace/Singleton.h>
 
 class WeatherMgr
 {
