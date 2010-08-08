@@ -23,6 +23,7 @@
 #include "WorldPacket.h"
 #include "Language.h"
 #include "World.h"
+#include "ScriptPCH.h"
 
 OutdoorPvPNA::OutdoorPvPNA()
 {
