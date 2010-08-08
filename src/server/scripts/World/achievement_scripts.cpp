@@ -42,10 +42,10 @@ class achievement_storm_glory : public AchievementCriteriaScript
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {
-            if (source->GetBattleGroundTypeId() != BATTLEGROUND_EY)
+            if (source->GetBattlegroundTypeId() != BATTLEGROUND_EY)
                 return false;
 
-            BattleGround *pEotS = source->GetBattleGround();
+            Battleground *pEotS = source->GetBattleground();
             if (!pEotS)
                 return false;
 
