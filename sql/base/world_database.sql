@@ -3863,11 +3863,11 @@ CREATE TABLE `outdoorpvp_template` (
 LOCK TABLES `outdoorpvp_template` WRITE;
 /*!40000 ALTER TABLE `outdoorpvp_template` DISABLE KEYS */;
 INSERT INTO `outdoorpvp_template` (`TypeId`, `Comment`) VALUES
-(1, 'Hellfire Peninsula');
-(2, 'Nagrand');
-(3, 'Terokkar Forest');
-(4, 'Zangarmarsh');
-(5, 'Silithus');
+(1, 'Hellfire Peninsula'),
+(2, 'Nagrand'),
+(3, 'Terokkar Forest'),
+(4, 'Zangarmarsh'),
+(5, 'Silithus'),
 (6, 'Eastern Plaguelands');
 /*!40000 ALTER TABLE `outdoorpvp_template` ENABLE KEYS */;
 UNLOCK TABLES;
