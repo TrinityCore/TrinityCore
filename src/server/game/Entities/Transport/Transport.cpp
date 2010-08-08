@@ -55,11 +55,11 @@ void MapManager::LoadTransports()
         uint32 entry = fields[0].GetUInt32();
         std::string name = fields[1].GetCppString();
         uint32 period = fields[2].GetUInt32();
-        uint32 scriptId = objmgr.GetScriptId(fields[3].GetString());
+        uint32 scriptId = sObjectMgr.GetScriptId(fields[3].GetString());
 
         Transport *t = new Transport(period, scriptId);
 
-        const GameObjectInfo *goinfo = objmgr.GetGameObjectInfo(entry);
+        const GameObjectInfo *goinfo = sObjectMgr.GetGameObjectInfo(entry);
 
         if (!goinfo)
         {
@@ -197,7 +197,7 @@ bool Transport::Create(uint32 guidlow, uint32 mapid, float x, float y, float z, 
 
     Object::_Create(guidlow, 0, HIGHGUID_MO_TRANSPORT);
 
-    GameObjectInfo const* goinfo = objmgr.GetGameObjectInfo(guidlow);
+    GameObjectInfo const* goinfo = sObjectMgr.GetGameObjectInfo(guidlow);
 
     if (!goinfo)
     {
@@ -642,7 +642,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     Map* map = GetMap();
     Creature* pCreature = new Creature;
 
-    if (!pCreature->Create(objmgr.GenerateLowGuid(HIGHGUID_UNIT), GetMap(), this->GetPhaseMask(), entry, 0, (uint32)(this->GetGOInfo()->faction), 0, 0, 0, 0))
+    if (!pCreature->Create(sObjectMgr.GenerateLowGuid(HIGHGUID_UNIT), GetMap(), this->GetPhaseMask(), entry, 0, (uint32)(this->GetGOInfo()->faction), 0, 0, 0, 0))
     {
         delete pCreature;
         return 0;

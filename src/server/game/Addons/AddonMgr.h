@@ -69,9 +69,9 @@ class AddonMgr
 {
     friend class ACE_Singleton<AddonMgr, ACE_Null_Mutex>;
     AddonMgr();
-    public:
+    ~AddonMgr();
 
-        ~AddonMgr();
+    public:
 
         void LoadFromDB();
         void SaveAddon(AddonInfo const& addon);

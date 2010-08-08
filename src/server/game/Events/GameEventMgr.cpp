@@ -521,7 +521,7 @@ void GameEventMgr::LoadFromDB()
 
             if (newModelEquipSet.equipment_id > 0)
             {
-                if (!objmgr.GetEquipmentInfo(newModelEquipSet.equipment_id))
+                if (!sObjectMgr.GetEquipmentInfo(newModelEquipSet.equipment_id))
                 {
                     sLog.outErrorDb("Table `game_event_model_equip` have creature (Guid: %u) with equipment_id %u not found in table `creature_equip_template`, set to no equipment.", guid, newModelEquipSet.equipment_id);
                     continue;
@@ -870,11 +870,11 @@ void GameEventMgr::LoadFromDB()
             // get creature entry
             newEntry.entry = 0;
 
-            if (CreatureData const* data = objmgr.GetCreatureData(guid))
+            if (CreatureData const* data = sObjectMgr.GetCreatureData(guid))
                 newEntry.entry = data->id;
 
             // check validity with event's npcflag
-            if (!objmgr.IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, NULL, NULL, event_npc_flag))
+            if (!sObjectMgr.IsVendorItemValid(newEntry.entry, newEntry.item, newEntry.maxcount, newEntry.incrtime, newEntry.ExtendedCost, NULL, NULL, event_npc_flag))
                 continue;
             ++count;
             vendors.push_back(newEntry);
@@ -1015,7 +1015,7 @@ void GameEventMgr::LoadFromDB()
                 continue;
             }
 
-            if (!poolhandler.CheckPool(entry))
+            if (!sPoolMgr.CheckPool(entry))
             {
                 sLog.outErrorDb("Pool Id (%u) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
                 continue;
@@ -1212,7 +1212,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
     for (NPCFlagList::iterator itr = mGameEventNPCFlags[event_id].begin(); itr != mGameEventNPCFlags[event_id].end(); ++itr)
     {
         // get the creature data from the low guid to get the entry, to be able to find out the whole guid
-        if (CreatureData const* data = objmgr.GetCreatureData(itr->first))
+        if (CreatureData const* data = sObjectMgr.GetCreatureData(itr->first))
         {
             Creature * cr = HashMapHolder<Creature>::Find(MAKE_NEW_GUID(itr->first,data->id,HIGHGUID_UNIT));
             // if we found the creature, modify its npcflag
@@ -1243,9 +1243,9 @@ void GameEventMgr::UpdateEventNPCVendor(uint16 event_id, bool activate)
     for (NPCVendorList::iterator itr = mGameEventVendors[event_id].begin(); itr != mGameEventVendors[event_id].end(); ++itr)
     {
         if (activate)
-            objmgr.AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, false);
+            sObjectMgr.AddVendorItem(itr->entry, itr->item, itr->maxcount, itr->incrtime, itr->ExtendedCost, false);
         else
-            objmgr.RemoveVendorItem(itr->entry, itr->item, false);
+            sObjectMgr.RemoveVendorItem(itr->entry, itr->item, false);
     }
 }
 
@@ -1262,9 +1262,9 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin(); itr != mGameEventCreatureGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        if (CreatureData const* data = objmgr.GetCreatureData(*itr))
+        if (CreatureData const* data = sObjectMgr.GetCreatureData(*itr))
         {
-            objmgr.AddCreatureToGrid(*itr, data);
+            sObjectMgr.AddCreatureToGrid(*itr, data);
 
             // Spawn if necessary (loaded grids only)
             Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(data->mapid));
@@ -1290,9 +1290,9 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin(); itr != mGameEventGameobjectGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        if (GameObjectData const* data = objmgr.GetGOData(*itr))
+        if (GameObjectData const* data = sObjectMgr.GetGOData(*itr))
         {
-            objmgr.AddGameobjectToGrid(*itr, data);
+            sObjectMgr.AddGameobjectToGrid(*itr, data);
             // Spawn if necessary (loaded grids only)
             // this base map checked as non-instanced and then only existed
             Map* map = const_cast<Map*>(sMapMgr.CreateBaseMap(data->mapid));
@@ -1319,7 +1319,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     }
 
     for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
-        poolhandler.SpawnPool(*itr);
+        sPoolMgr.SpawnPool(*itr);
 }
 
 void GameEventMgr::GameEventUnspawn(int16 event_id)
@@ -1338,9 +1338,9 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         if (event_id > 0 && hasCreatureActiveEventExcept(*itr,event_id))
             continue;
         // Remove the creature from grid
-        if (CreatureData const* data = objmgr.GetCreatureData(*itr))
+        if (CreatureData const* data = sObjectMgr.GetCreatureData(*itr))
         {
-            objmgr.RemoveCreatureFromGrid(*itr, data);
+            sObjectMgr.RemoveCreatureFromGrid(*itr, data);
 
             if (Creature* pCreature = sObjectAccessor.GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_UNIT), (Creature*)NULL))
                 pCreature->AddObjectToRemoveList();
@@ -1359,9 +1359,9 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
         if (event_id >0 && hasGameObjectActiveEventExcept(*itr,event_id))
             continue;
         // Remove the gameobject from grid
-        if (GameObjectData const* data = objmgr.GetGOData(*itr))
+        if (GameObjectData const* data = sObjectMgr.GetGOData(*itr))
         {
-            objmgr.RemoveGameobjectFromGrid(*itr, data);
+            sObjectMgr.RemoveGameobjectFromGrid(*itr, data);
 
             if (GameObject* pGameobject = sObjectAccessor.GetObjectInWorld(MAKE_NEW_GUID(*itr, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
                 pGameobject->AddObjectToRemoveList();
@@ -1375,7 +1375,7 @@ void GameEventMgr::GameEventUnspawn(int16 event_id)
 
     for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
     {
-        poolhandler.DespawnPool(*itr);
+        sPoolMgr.DespawnPool(*itr);
     }
 }
 
@@ -1384,7 +1384,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
     for (ModelEquipList::iterator itr = mGameEventModelEquip[event_id].begin(); itr != mGameEventModelEquip[event_id].end(); ++itr)
     {
         // Remove the creature from grid
-        CreatureData const* data = objmgr.GetCreatureData(itr->first);
+        CreatureData const* data = sObjectMgr.GetCreatureData(itr->first);
         if (!data)
             continue;
 
@@ -1399,7 +1399,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 pCreature->LoadEquipment(itr->second.equipment_id, true);
                 if (itr->second.modelid >0 && itr->second.modelid_prev != itr->second.modelid)
                 {
-                    CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(itr->second.modelid);
+                    CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelInfo(itr->second.modelid);
                     if (minfo)
                     {
                         pCreature->SetDisplayId(itr->second.modelid);
@@ -1414,7 +1414,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
                 pCreature->LoadEquipment(itr->second.equipement_id_prev, true);
                 if (itr->second.modelid_prev >0 && itr->second.modelid_prev != itr->second.modelid)
                 {
-                    CreatureModelInfo const *minfo = objmgr.GetCreatureModelInfo(itr->second.modelid_prev);
+                    CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelInfo(itr->second.modelid_prev);
                     if (minfo)
                     {
                         pCreature->SetDisplayId(itr->second.modelid_prev);
@@ -1427,12 +1427,12 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
         }
         else                                                // If not spawned
         {
-            CreatureData const* data2 = objmgr.GetCreatureData(itr->first);
+            CreatureData const* data2 = sObjectMgr.GetCreatureData(itr->first);
             if (data2 && activate)
             {
-                CreatureInfo const *cinfo = objmgr.GetCreatureTemplate(data2->id);
-                uint32 display_id = objmgr.ChooseDisplayId(0,cinfo,data2);
-                CreatureModelInfo const *minfo = objmgr.GetCreatureModelRandomGender(display_id);
+                CreatureInfo const *cinfo = sObjectMgr.GetCreatureTemplate(data2->id);
+                uint32 display_id = sObjectMgr.ChooseDisplayId(0,cinfo,data2);
+                CreatureModelInfo const *minfo = sObjectMgr.GetCreatureModelRandomGender(display_id);
                 if (minfo)
                     display_id = minfo->modelid;
 
@@ -1445,7 +1445,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
         }
         // now last step: put in data
                                                             // just to have write access to it
-        CreatureData& data2 = objmgr.NewOrExistCreatureData(itr->first);
+        CreatureData& data2 = sObjectMgr.NewOrExistCreatureData(itr->first);
         if (activate)
         {
             data2.displayid = itr->second.modelid;
@@ -1524,7 +1524,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
     QuestRelList::iterator itr;
     for (itr = mGameEventCreatureQuests[event_id].begin(); itr != mGameEventCreatureQuests[event_id].end(); ++itr)
     {
-        QuestRelations &CreatureQuestMap = objmgr.mCreatureQuestRelations;
+        QuestRelations &CreatureQuestMap = sObjectMgr.mCreatureQuestRelations;
         if (activate)                                       // Add the pair(id,quest) to the multimap
             CreatureQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
@@ -1549,7 +1549,7 @@ void GameEventMgr::UpdateEventQuests(uint16 event_id, bool activate)
     }
     for (itr = mGameEventGameObjectQuests[event_id].begin(); itr != mGameEventGameObjectQuests[event_id].end(); ++itr)
     {
-        QuestRelations &GameObjectQuestMap = objmgr.mGOQuestRelations;
+        QuestRelations &GameObjectQuestMap = sObjectMgr.mGOQuestRelations;
         if (activate)                                       // Add the pair(id,quest) to the multimap
             GameObjectQuestMap.insert(QuestRelations::value_type(itr->first, itr->second));
         else
@@ -1701,8 +1701,8 @@ bool IsHolidayActive(HolidayIds id)
     if (id == HOLIDAY_NONE)
         return false;
 
-    GameEventMgr::GameEventDataMap const& events = gameeventmgr.GetEventMap();
-    GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
+    GameEventMgr::GameEventDataMap const& events = sGameEventMgr.GetEventMap();
+    GameEventMgr::ActiveEvents const& ae = sGameEventMgr.GetActiveEventList();
 
     for (GameEventMgr::ActiveEvents::const_iterator itr = ae.begin(); itr != ae.end(); ++itr)
         if (events[*itr].holiday_id == uint32(id))
@@ -1713,6 +1713,6 @@ bool IsHolidayActive(HolidayIds id)
 
  bool IsEventActive(uint16 event_id)
 {
-    GameEventMgr::ActiveEvents const& ae = gameeventmgr.GetActiveEventList();
+    GameEventMgr::ActiveEvents const& ae = sGameEventMgr.GetActiveEventList();
     return ae.find(event_id) != ae.end();
 }

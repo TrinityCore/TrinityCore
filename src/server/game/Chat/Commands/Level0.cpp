@@ -205,7 +205,7 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
     std::string password_new = new_pass;
     std::string password_new_c = new_pass_c;
 
-    if (!accmgr.CheckPassword(m_session->GetAccountId(), password_old))
+    if (!sAccountMgr.CheckPassword(m_session->GetAccountId(), password_old))
     {
         SendSysMessage(LANG_COMMAND_WRONGOLDPASSWORD);
         SetSentErrorMessage(true);
@@ -219,7 +219,7 @@ bool ChatHandler::HandleAccountPasswordCommand(const char* args)
         return false;
     }
 
-    AccountOpResult result = accmgr.ChangePassword(m_session->GetAccountId(), password_new);
+    AccountOpResult result = sAccountMgr.ChangePassword(m_session->GetAccountId(), password_new);
     switch(result)
     {
         case AOR_OK:

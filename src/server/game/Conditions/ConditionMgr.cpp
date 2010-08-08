@@ -114,7 +114,7 @@ bool Condition::Meets(Player * player, Unit* targetOverride)
             condMeets = !player->HasAuraEffect(mConditionValue1, mConditionValue2);
             break;
         case CONDITION_ACTIVE_EVENT:
-            condMeets = gameeventmgr.IsActiveEvent(mConditionValue1);
+            condMeets = sGameEventMgr.IsActiveEvent(mConditionValue1);
             break;
         case CONDITION_INSTANCE_DATA:
         {
@@ -315,10 +315,10 @@ void ConditionMgr::LoadConditions(bool isReload)
         LootTemplates_Spell.ResetConditions();
 
         sLog.outString("Re-Loading `gossip_menu` Table for Conditions!");
-        objmgr.LoadGossipMenu();
+        sObjectMgr.LoadGossipMenu();
 
         sLog.outString("Re-Loading `gossip_menu_option` Table for Conditions!");
-        objmgr.LoadGossipMenuItems();
+        sObjectMgr.LoadGossipMenuItems();
     }
 
     uint32 count = 0;
@@ -353,7 +353,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond->mConditionValue2           = fields[6].GetUInt32();
         cond->mConditionValue3           = fields[7].GetUInt32();
         cond->ErrorTextd                 = fields[8].GetUInt32();
-        cond->mScriptId                  = objmgr.GetScriptId(fields[9].GetString());
+        cond->mScriptId                  = sObjectMgr.GetScriptId(fields[9].GetString());
 
         if (iConditionTypeOrReference >= 0)
             cond->mConditionType = ConditionType(iConditionTypeOrReference);
@@ -523,7 +523,7 @@ bool ConditionMgr::addToLootTemplate(Condition* cond, LootTemplate* loot)
 
 bool ConditionMgr::addToGossipMenus(Condition* cond)
 {
-    GossipMenusMapBoundsNonConst pMenuBounds = objmgr.GetGossipMenusMapBoundsNonConst(cond->mSourceGroup);
+    GossipMenusMapBoundsNonConst pMenuBounds = sObjectMgr.GetGossipMenusMapBoundsNonConst(cond->mSourceGroup);
 
     if (pMenuBounds.first != pMenuBounds.second)
     {
@@ -543,7 +543,7 @@ bool ConditionMgr::addToGossipMenus(Condition* cond)
 
 bool ConditionMgr::addToGossipMenuItems(Condition* cond)
 {
-    GossipMenuItemsMapBoundsNonConst pMenuItemBounds = objmgr.GetGossipMenuItemsMapBoundsNonConst(cond->mSourceGroup);
+    GossipMenuItemsMapBoundsNonConst pMenuItemBounds = sObjectMgr.GetGossipMenuItemsMapBoundsNonConst(cond->mSourceGroup);
     if (pMenuItemBounds.first != pMenuItemBounds.second)
     {
         for (GossipMenuItemsMap::iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
@@ -849,7 +849,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
 
-            ItemPrototype const *pItemProto = objmgr.GetItemPrototype(cond->mSourceEntry);
+            ItemPrototype const *pItemProto = sObjectMgr.GetItemPrototype(cond->mSourceEntry);
             if (!pItemProto)
             {
                 sLog.outErrorDb("SourceEntry %u in `condition` table, does not exist in `item_tamplate`, ignoring.", cond->mSourceEntry);
@@ -929,7 +929,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM:
         {
-            ItemPrototype const *proto = objmgr.GetItemPrototype(cond->mConditionValue1);
+            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(cond->mConditionValue1);
             if (!proto)
             {
                 sLog.outErrorDb("Item condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -945,7 +945,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ITEM_EQUIPPED:
         {
-            ItemPrototype const *proto = objmgr.GetItemPrototype(cond->mConditionValue1);
+            ItemPrototype const *proto = sObjectMgr.GetItemPrototype(cond->mConditionValue1);
             if (!proto)
             {
                 sLog.outErrorDb("ItemEquipped condition has non existing item (%u), skipped", cond->mConditionValue1);
@@ -1017,7 +1017,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUEST_NONE:
         {
-            Quest const *Quest = objmgr.GetQuestTemplate(cond->mConditionValue1);
+            Quest const *Quest = sObjectMgr.GetQuestTemplate(cond->mConditionValue1);
             if (!Quest)
             {
                 sLog.outErrorDb("Quest condition specifies non-existing quest (%u), skipped", cond->mConditionValue1);
@@ -1054,7 +1054,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_ACTIVE_EVENT:
         {
-            GameEventMgr::GameEventDataMap const& events = gameeventmgr.GetEventMap();
+            GameEventMgr::GameEventDataMap const& events = sGameEventMgr.GetEventMap();
             if (cond->mConditionValue1 >=events.size() || !events[cond->mConditionValue1].isValid())
             {
                 sLog.outErrorDb("Active event condition has non existing event id (%u), skipped", cond->mConditionValue1);

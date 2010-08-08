@@ -89,7 +89,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
     p_counter = data.wpos();
     data << uint32(counter);                                // raid reset count
 
-    ResetTimeByMapDifficultyMap const& resets = sInstanceSaveManager.GetResetTimeMap();
+    ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr.GetResetTimeMap();
     for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
     {
         uint32 mapid = PAIR32_LOPART(itr->first);
