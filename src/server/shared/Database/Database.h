@@ -28,11 +28,11 @@
 #include "ace/Guard_T.h"
 
 #ifdef _WIN32
-#define FD_SETSIZE 1024
-#include <winsock2.h>
-#include <mysql/mysql.h>
+  #define FD_SETSIZE 1024
+  #include <winsock2.h>
+  #include <mysql.h>
 #else
-#include <mysql.h>
+  #include <mysql/mysql.h>
 #endif
 
 class SqlTransaction;

@@ -40,6 +40,7 @@
 #include "ace/Singleton.h"
 #include "SQLStorage.h"
 #include "Vehicle.h"
+#include "Weather.h"
 #include "ObjectMgr.h"
 #include <string>
 #include <map>
@@ -293,20 +294,6 @@ struct QuestPOI
 
 typedef std::vector<QuestPOI> QuestPOIVector;
 typedef UNORDERED_MAP<uint32, QuestPOIVector> QuestPOIMap;
-
-#define WEATHER_SEASONS 4
-struct WeatherSeasonChances
-{
-    uint32 rainChance;
-    uint32 snowChance;
-    uint32 stormChance;
-};
-
-struct WeatherData
-{
-    WeatherSeasonChances data[WEATHER_SEASONS];
-    uint32 ScriptId;
-};
 
 struct GraveYardData
 {

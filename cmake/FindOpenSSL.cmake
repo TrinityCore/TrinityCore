@@ -12,7 +12,7 @@
 
   set(OPENSSL_FOUND 0)
 
-  if(WIN32)
+  if( MSVC )
     if(PLATFORM MATCHES X64)
       set(TMP_OPENSSL_INCLUDE_DIR
         "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;InstallLocation]/include"
@@ -38,12 +38,12 @@
     NAMES
       openssl/ssl.h
     PATHS
+      ${TMP_OPENSSL_INCLUDE_DIR}
       /usr/include
       /usr/include/openssl
       /usr/local/include
       /usr/local/include/openssl
       /usr/local/openssl/include
-      ${TMP_OPENSSL_INCLUDE_DIR}
     DOC
       "Specify the directory containing openssl.h."
   )
@@ -53,12 +53,12 @@
       ssleay32
       ssl
     PATHS
+      ${TMP_OPENSSL_LIBRARIES}
       /usr/lib
       /usr/lib/ssl
       /usr/local/lib
       /usr/local/lib/ssl
       /usr/local/ssl/lib
-      ${TMP_OPENSSL_LIBRARIES}
     DOC "Specify the OpenSSL library here."
   )
 
