@@ -1356,9 +1356,9 @@ void AddSC_blackrock_depths()
     new mob_phalanx();
     new npc_kharan_mighthammer();
     new npc_lokhtos_darkbargainer();
-    new npc_dughal_stormwing();
-    new npc_tobias_seecher();
-    new npc_marshal_windsor();
-    new npc_marshal_reginald_windsor();
+    //new npc_dughal_stormwing();
+    //new npc_tobias_seecher();
+    //new npc_marshal_windsor();
+    //new npc_marshal_reginald_windsor();
     new npc_rocknot();
 }
