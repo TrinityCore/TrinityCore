@@ -39,8 +39,8 @@ class AuthCrypt
         bool IsInitialized() { return _initialized; }
 
     private:
-        SARC4 _clientDecrypt;
-        SARC4 _serverEncrypt;
+        ARC4 _clientDecrypt;
+        ARC4 _serverEncrypt;
         bool _initialized;
 };
 #endif
