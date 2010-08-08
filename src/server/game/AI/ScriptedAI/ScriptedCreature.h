@@ -14,7 +14,6 @@
 #include "InstanceData.h"
 
 #define SCRIPT_CAST_TYPE dynamic_cast
-//#define SCRIPT_CAST_TYPE static_cast
 
 #define CAST_PLR(a)     (SCRIPT_CAST_TYPE<Player*>(a))
 #define CAST_CRE(a)     (SCRIPT_CAST_TYPE<Creature*>(a))
