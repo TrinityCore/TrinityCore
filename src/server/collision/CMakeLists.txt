@@ -8,10 +8,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-file(GLOB_RECURSE sources *.cpp *.h)
+file(GLOB_RECURSE sources_Management Management/*.cpp Management/*.h)
+file(GLOB_RECURSE sources_Maps Maps/*.cpp Maps/*.h)
+file(GLOB_RECURSE sources_Models Models/*.cpp Models/*.h)
+file(GLOB sources_localdir *.cpp *.h)
 
 set(collision_STAT_SRCS
-  ${sources}
+  ${sources_Management}
+  ${sources_Maps}
+  ${sources_Models}
+  ${sources_localdir}
 )
 
 include_directories(

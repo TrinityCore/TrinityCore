@@ -13,12 +13,13 @@
 file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
 file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
 file(GLOB_RECURSE sources_server Server/*.cpp Server/*.h)
+file(GLOB sources_localdir *.cpp *.h)
 
 set(authserver_SRCS
   ${sources_authentication}
   ${sources_realms}
   ${sources_server}
-  Main.cpp
+  ${sources_localdir}
 )
 
 if( WIN32 )
