@@ -35,8 +35,8 @@
 #include "DisableMgr.h"
 #include "ScriptMgr.h"
 #include "MapManager.h"
-#include "BattleGround.h"
-#include "BattleGroundAB.h"
+#include "Battleground.h"
+#include "BattlegroundAB.h"
 #include "Map.h"
 #include "InstanceData.h"
 
@@ -328,7 +328,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return IsHolidayActive(HolidayIds(holiday.id));
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE:
         {
-            BattleGround* bg = source->GetBattleGround();
+            Battleground* bg = source->GetBattleground();
             if (!bg)
                 return false;
             return bg->IsTeamScoreInRange(source->GetTeam() == ALLIANCE ? HORDE : ALLIANCE,bg_loss_team_score.min_score,bg_loss_team_score.max_score);
@@ -796,7 +796,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // some hardcoded requirements
                 else
                 {
-                    BattleGround* bg = GetPlayer()->GetBattleGround();
+                    Battleground* bg = GetPlayer()->GetBattleground();
                     if (!bg)
                         continue;
 
@@ -806,7 +806,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         {
                             if (bg->GetTypeID(true) != BATTLEGROUND_AB)
                                 continue;
-                            if (!((BattleGroundAB*)bg)->IsTeamScores500Disadvantage(GetPlayer()->GetTeam()))
+                            if (!((BattlegroundAB*)bg)->IsTeamScores500Disadvantage(GetPlayer()->GetTeam()))
                                 continue;
                             break;
                         }
@@ -945,7 +945,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 {
                     if (achievIdByArenaSlot[j] == achievement->ID)
                     {
-                        BattleGround* bg = GetPlayer()->GetBattleGround();
+                        Battleground* bg = GetPlayer()->GetBattleground();
                         if (!bg || !bg->isArena() || ArenaTeam::GetSlotByType(bg->GetArenaType()) != j)
                             notfit = true;
 

@@ -203,7 +203,7 @@ class WorldSession
 
         void SendAttackStop(Unit const* enemy);
 
-        void SendBattlegGroundList(uint64 guid, BattleGroundTypeId bgTypeId);
+        void SendBattlegGroundList(uint64 guid, BattlegroundTypeId bgTypeId);
 
         void SendTradeStatus(TradeStatus status);
         void SendUpdateTrade(bool trader_data = true);
@@ -669,10 +669,10 @@ class WorldSession
         void HandleTotemDestroyed(WorldPacket& recv_data);
         void HandleDismissCritter(WorldPacket& recv_data);
 
-        //BattleGround
+        //Battleground
         void HandleBattlemasterHelloOpcode(WorldPacket &recv_data);
         void HandleBattlemasterJoinOpcode(WorldPacket &recv_data);
-        void HandleBattleGroundPlayerPositionsOpcode(WorldPacket& recv_data);
+        void HandleBattlegroundPlayerPositionsOpcode(WorldPacket& recv_data);
         void HandlePVPLogDataOpcode(WorldPacket &recv_data);
         void HandleBattleFieldPortOpcode(WorldPacket &recv_data);
         void HandleBattlefieldListOpcode(WorldPacket &recv_data);

@@ -35,10 +35,10 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "InstanceData.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "Util.h"
 #include "OutdoorPvPMgr.h"
-#include "BattleGroundAV.h"
+#include "BattlegroundAV.h"
 #include "ScriptMgr.h"
 
 GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue)
@@ -348,7 +348,7 @@ void GameObject::Update(uint32 diff)
                     Unit* owner = GetOwner();
                     Unit* ok = NULL;                            // pointer to appropriate target if found any
 
-                    bool IsBattleGroundTrap = false;
+                    bool IsBattlegroundTrap = false;
                     //FIXME: this is activation radius (in different casting radius that must be selected from spell data)
                     //TODO: move activated state code (cast itself) to GO_ACTIVATED, in this place only check activating and set state
                     float radius = (goInfo->trap.radius)/2; // TODO rename radius to diameter (goInfo->trap.radius) should be (goInfo->trap.diameter)
@@ -362,7 +362,7 @@ void GameObject::Update(uint32 diff)
                                 break;
 
                             radius = goInfo->trap.cooldown;       // battlegrounds gameobjects has data2 == 0 && data5 == 3
-                            IsBattleGroundTrap = true;
+                            IsBattlegroundTrap = true;
 
                             if (!radius)
                                 return;
@@ -400,11 +400,11 @@ void GameObject::Update(uint32 diff)
                         if (owner)  // || goInfo->trap.charges == 1)
                             SetLootState(GO_JUST_DEACTIVATED);
 
-                        if (IsBattleGroundTrap && ok->GetTypeId() == TYPEID_PLAYER)
+                        if (IsBattlegroundTrap && ok->GetTypeId() == TYPEID_PLAYER)
                         {
-                            //BattleGround gameobjects case
-                            if (ok->ToPlayer()->InBattleGround())
-                                if (BattleGround *bg = ok->ToPlayer()->GetBattleGround())
+                            //Battleground gameobjects case
+                            if (ok->ToPlayer()->InBattleground())
+                                if (Battleground *bg = ok->ToPlayer()->GetBattleground())
                                     bg->HandleTriggerBuff(GetGUID());
                         }
                     }
@@ -860,8 +860,8 @@ bool GameObject::ActivateToQuest(Player *pTarget) const
                 //TODO: fix this hack
                 //look for battlegroundAV for some objects which are only activated after mine gots captured by own team
                 if (GetEntry() == BG_AV_OBJECTID_MINE_N || GetEntry() == BG_AV_OBJECTID_MINE_S)
-                    if (BattleGround *bg = pTarget->GetBattleGround())
-                        if (bg->GetTypeID(true) == BATTLEGROUND_AV && !(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
+                    if (Battleground *bg = pTarget->GetBattleground())
+                        if (bg->GetTypeID(true) == BATTLEGROUND_AV && !(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
                             return false;
                 return true;
             }
@@ -1151,7 +1151,7 @@ void GameObject::Use(Unit* user)
                         break;
                 }
 
-                if (BattleGround* bg = player->GetBattleGround())
+                if (Battleground* bg = player->GetBattleground())
                     bg->EventPlayerUsedGO(player, this);
 
                 player->CastedCreatureOrGO(info->id, GetGUID(), 0);
@@ -1387,10 +1387,10 @@ void GameObject::Use(Unit* user)
 
             Player* player = (Player*)user;
 
-            if (player->CanUseBattleGroundObject())
+            if (player->CanUseBattlegroundObject())
             {
                 // in battleground check
-                BattleGround *bg = player->GetBattleGround();
+                Battleground *bg = player->GetBattleground();
                 if (!bg)
                     return;
                 if (player->GetVehicle())
@@ -1414,10 +1414,10 @@ void GameObject::Use(Unit* user)
 
             Player* player = (Player*)user;
 
-            if (player->CanUseBattleGroundObject())
+            if (player->CanUseBattlegroundObject())
             {
                 // in battleground check
-                BattleGround *bg = player->GetBattleGround();
+                Battleground *bg = player->GetBattleground();
                 if (!bg)
                     return;
                 if( player->GetVehicle())
@@ -1601,13 +1601,13 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->building.destroyedDisplayId);
             EventInform(m_goInfo->building.destroyedEvent);
             if (pwho)
-                if (BattleGround* bg = pwho->GetBattleGround())
+                if (Battleground* bg = pwho->GetBattleground())
                     bg->DestroyGate(pwho, this, m_goInfo->building.destroyedEvent);
             hitType = BG_OBJECT_DMG_HIT_TYPE_JUST_DESTROYED;
             sScriptMgr.OnGameObjectDestroyed(pwho, this, m_goInfo->building.destroyedEvent);
         }
         if (pwho)
-            if (BattleGround* bg = pwho->GetBattleGround())
+            if (Battleground* bg = pwho->GetBattleground())
                 bg->EventPlayerDamagedGO(pwho, this, hitType, m_goInfo->building.destroyedEvent);
     }
     else // from intact to damaged
@@ -1629,7 +1629,7 @@ void GameObject::TakenDamage(uint32 damage, Unit *who)
             hitType = BG_OBJECT_DMG_HIT_TYPE_JUST_HIGH_DAMAGED;
         }
         if (pwho)
-            if (BattleGround* bg = pwho->GetBattleGround())
+            if (Battleground* bg = pwho->GetBattleground())
                  bg->EventPlayerDamagedGO(pwho, this, hitType, m_goInfo->building.destroyedEvent);
     }
     SetGoAnimProgress(m_goValue->building.health*255/(m_goInfo->building.intactNumHits + m_goInfo->building.damagedNumHits));

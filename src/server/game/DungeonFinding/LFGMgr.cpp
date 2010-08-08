@@ -249,7 +249,7 @@ void LFGMgr::Join(Player *plr)
 
     // Previous checks before joining
     LfgJoinResult result = LFG_JOIN_OK;
-    if (plr->InBattleGround() || plr->InArena())
+    if (plr->InBattleground() || plr->InArena())
         result = LFG_JOIN_USING_BG_SYSTEM;
     else if (plr->HasAura(LFG_SPELL_DESERTER))
         result = LFG_JOIN_DESERTER;

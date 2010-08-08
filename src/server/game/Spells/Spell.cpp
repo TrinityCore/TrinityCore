@@ -44,7 +44,7 @@
 #include "SharedDefines.h"
 #include "LootMgr.h"
 #include "VMapFactory.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "Util.h"
 #include "TemporarySummon.h"
 #include "Vehicle.h"
@@ -4614,7 +4614,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // only allow triggered spells if at an ended battleground
     if (!m_IsTriggeredSpell && m_caster->GetTypeId() == TYPEID_PLAYER)
-        if (BattleGround * bg = m_caster->ToPlayer()->GetBattleGround())
+        if (Battleground * bg = m_caster->ToPlayer()->GetBattleground())
             if (bg->GetStatus() == STATUS_WAIT_LEAVE)
                 return SPELL_FAILED_DONT_REPORT;
 
@@ -4876,7 +4876,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     // Spell casted only on battleground
     if ((m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_BATTLEGROUND) &&  m_caster->GetTypeId() == TYPEID_PLAYER)
-        if (!m_caster->ToPlayer()->InBattleGround())
+        if (!m_caster->ToPlayer()->InBattleground())
             return SPELL_FAILED_ONLY_BATTLEGROUNDS;
 
     // do not allow spells to be cast in arenas
@@ -5275,8 +5275,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 if (m_spellInfo->Id != 1842 || m_targets.getGOTarget() && 
                     m_targets.getGOTarget()->GetGOInfo()->type != GAMEOBJECT_TYPE_TRAP)
-                    if (m_caster->ToPlayer()->InBattleGround() && // In BattleGround players can use only flags and banners
-                        !m_caster->ToPlayer()->CanUseBattleGroundObject())
+                    if (m_caster->ToPlayer()->InBattleground() && // In Battleground players can use only flags and banners
+                        !m_caster->ToPlayer()->CanUseBattlegroundObject())
                         return SPELL_FAILED_TRY_AGAIN;
 
                 // get the lock entry
@@ -5398,7 +5398,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             {
               //Do not allow to cast it before BG starts.
                 if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                    if (BattleGround const *bg = m_caster->ToPlayer()->GetBattleGround())
+                    if (Battleground const *bg = m_caster->ToPlayer()->GetBattleground())
                         if (bg->GetStatus() != STATUS_IN_PROGRESS)
                             return SPELL_FAILED_TRY_AGAIN;
                 break;
@@ -5547,7 +5547,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_NO_MOUNTS_ALLOWED;
 
                 // Ignore map check if spell have AreaId. AreaId already checked and this prevent special mount spells
-                bool AllowMount = !m_caster->GetMap()->IsDungeon() || m_caster->GetMap()->IsBattleGroundOrArena();
+                bool AllowMount = !m_caster->GetMap()->IsDungeon() || m_caster->GetMap()->IsBattlegroundOrArena();
                 InstanceTemplate const *it = objmgr.GetInstanceTemplate(m_caster->GetMapId());
                 if (it)
                     AllowMount = it->allowMount;

@@ -19,11 +19,11 @@
  */
 
 #include "Player.h"
-#include "BattleGround.h"
-#include "BattleGroundRB.h"
+#include "Battleground.h"
+#include "BattlegroundRB.h"
 #include "Language.h"
 
-BattleGroundRB::BattleGroundRB()
+BattlegroundRB::BattlegroundRB()
 {
     //TODO FIX ME!
     m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = 0;
@@ -32,50 +32,50 @@ BattleGroundRB::BattleGroundRB()
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 }
 
-BattleGroundRB::~BattleGroundRB()
+BattlegroundRB::~BattlegroundRB()
 {
 
 }
 
-void BattleGroundRB::Update(uint32 diff)
+void BattlegroundRB::Update(uint32 diff)
 {
-    BattleGround::Update(diff);
+    Battleground::Update(diff);
 }
 
-void BattleGroundRB::StartingEventCloseDoors()
-{
-}
-
-void BattleGroundRB::StartingEventOpenDoors()
+void BattlegroundRB::StartingEventCloseDoors()
 {
 }
 
-void BattleGroundRB::AddPlayer(Player *plr)
+void BattlegroundRB::StartingEventOpenDoors()
 {
-    BattleGround::AddPlayer(plr);
+}
+
+void BattlegroundRB::AddPlayer(Player *plr)
+{
+    Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
-    BattleGroundRBScore* sc = new BattleGroundRBScore;
+    BattlegroundRBScore* sc = new BattlegroundRBScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
 }
 
-void BattleGroundRB::RemovePlayer(Player* /*plr*/,uint64 /*guid*/)
+void BattlegroundRB::RemovePlayer(Player* /*plr*/,uint64 /*guid*/)
 {
 }
 
-void BattleGroundRB::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattlegroundRB::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 }
 
-void BattleGroundRB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundRB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    std::map<uint64, BattleGroundScore*>::iterator itr = m_PlayerScores.find(Source->GetGUID());
+    std::map<uint64, BattlegroundScore*>::iterator itr = m_PlayerScores.find(Source->GetGUID());
 
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
-    BattleGround::UpdatePlayerScore(Source,type,value, doAddHonor);
+    Battleground::UpdatePlayerScore(Source,type,value, doAddHonor);
 }

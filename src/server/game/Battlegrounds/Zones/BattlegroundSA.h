@@ -19,13 +19,13 @@
 #ifndef __BATTLEGROUNDSA_H
 #define __BATTLEGROUNDSA_H
 
-class BattleGround;
+class Battleground;
 
-class BattleGroundSAScore : public BattleGroundScore
+class BattlegroundSAScore : public BattlegroundScore
 {
     public:
-        BattleGroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) {};
-        virtual ~BattleGroundSAScore() {};
+        BattlegroundSAScore(): demolishers_destroyed(0), gates_destroyed(0) {};
+        virtual ~BattlegroundSAScore() {};
     uint8 demolishers_destroyed;
     uint8 gates_destroyed;
 };
@@ -399,20 +399,20 @@ struct BG_SA_RoundScore
   uint32 time;
 };
 
-class BattleGroundSA : public BattleGround
+class BattlegroundSA : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
-        BattleGroundSA();
-        ~BattleGroundSA();
+        BattlegroundSA();
+        ~BattlegroundSA();
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
-    virtual bool SetupBattleGround();
+    virtual bool SetupBattleground();
     virtual void Reset();
     virtual void FillInitialWorldStates(WorldPacket& data);
     virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint8 hitType, uint32 destroyedEvent);
@@ -448,7 +448,7 @@ class BattleGroundSA : public BattleGround
             }
             return uws;
         }
-    void EndBattleGround(uint32 winner);
+    void EndBattleground(uint32 winner);
 
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);

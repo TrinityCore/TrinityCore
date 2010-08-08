@@ -18,12 +18,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "BattleGround.h"
-#include "BattleGroundAA.h"
+#include "Battleground.h"
+#include "BattlegroundAA.h"
 #include "Language.h"
 #include "Player.h"
 
-BattleGroundAA::BattleGroundAA()
+BattlegroundAA::BattlegroundAA()
 {
 
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
@@ -37,47 +37,47 @@ BattleGroundAA::BattleGroundAA()
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
 
-BattleGroundAA::~BattleGroundAA()
+BattlegroundAA::~BattlegroundAA()
 {
 
 }
 
-void BattleGroundAA::Update(uint32 diff)
+void BattlegroundAA::Update(uint32 diff)
 {
-    BattleGround::Update(diff);
+    Battleground::Update(diff);
 }
 
-void BattleGroundAA::StartingEventCloseDoors()
-{
-}
-
-void BattleGroundAA::StartingEventOpenDoors()
+void BattlegroundAA::StartingEventCloseDoors()
 {
 }
 
-void BattleGroundAA::AddPlayer(Player *plr)
+void BattlegroundAA::StartingEventOpenDoors()
 {
-    BattleGround::AddPlayer(plr);
+}
+
+void BattlegroundAA::AddPlayer(Player *plr)
+{
+    Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
-    BattleGroundAAScore* sc = new BattleGroundAAScore;
+    BattlegroundAAScore* sc = new BattlegroundAAScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
 }
 
-void BattleGroundAA::RemovePlayer(Player * /*plr*/, uint64 /*guid*/)
+void BattlegroundAA::RemovePlayer(Player * /*plr*/, uint64 /*guid*/)
 {
 }
 
-void BattleGroundAA::HandleKillPlayer(Player* player, Player* killer)
+void BattlegroundAA::HandleKillPlayer(Player* player, Player* killer)
 {
-    BattleGround::HandleKillPlayer(player, killer);
+    Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattleGroundAA::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattlegroundAA::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
 }
 
-bool BattleGroundAA::SetupBattleGround()
+bool BattlegroundAA::SetupBattleground()
 {
     return true;
 }

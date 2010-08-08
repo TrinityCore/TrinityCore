@@ -29,7 +29,7 @@
 #include "Unit.h"
 #include "GossipDef.h"
 #include "Language.h"
-#include "BattleGroundMgr.h"
+#include "BattlegroundMgr.h"
 #include <fstream>
 #include "ObjectMgr.h"
 #include "Cell.h"
@@ -649,13 +649,13 @@ bool ChatHandler::HandleDebugGetItemStateCommand(const char* args)
 
 bool ChatHandler::HandleDebugBattlegroundCommand(const char * /*args*/)
 {
-    sBattleGroundMgr.ToggleTesting();
+    sBattlegroundMgr.ToggleTesting();
     return true;
 }
 
 bool ChatHandler::HandleDebugArenaCommand(const char * /*args*/)
 {
-    sBattleGroundMgr.ToggleArenaTesting();
+    sBattlegroundMgr.ToggleArenaTesting();
     return true;
 }
 

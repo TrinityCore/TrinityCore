@@ -50,7 +50,7 @@ class CreatureGroup;
 struct ScriptInfo;
 struct ScriptAction;
 struct Position;
-class BattleGround;
+class Battleground;
 class MapInstanced;
 class InstanceMap;
 
@@ -369,9 +369,9 @@ class Map : public GridRefManager<NGridType>
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || i_spawnMode > DUNGEON_DIFFICULTY_NORMAL; }
         bool IsHeroic() const { return IsRaid() ? i_spawnMode >= RAID_DIFFICULTY_10MAN_HEROIC : i_spawnMode >= DUNGEON_DIFFICULTY_HEROIC; }
-        bool IsBattleGround() const { return i_mapEntry && i_mapEntry->IsBattleGround(); }
+        bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
-        bool IsBattleGroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattleGroundOrArena(); }
+        bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
         bool GetEntrancePos(int32 &mapid, float &x, float &y)
         {
             if (!i_mapEntry)
@@ -520,7 +520,7 @@ class Map : public GridRefManager<NGridType>
         time_t i_gridExpiry;
 
         //used for fast base_map (e.g. MapInstanced class object) search for
-        //InstanceMaps and BattleGroundMaps...
+        //InstanceMaps and BattlegroundMaps...
         Map* m_parentMap;
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
@@ -610,11 +610,11 @@ class InstanceMap : public Map
         uint32 i_script_id;
 };
 
-class BattleGroundMap : public Map
+class BattlegroundMap : public Map
 {
     public:
-        BattleGroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
-        ~BattleGroundMap();
+        BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
+        ~BattlegroundMap();
 
         bool Add(Player *);
         void Remove(Player *, bool);
@@ -624,10 +624,10 @@ class BattleGroundMap : public Map
         void RemoveAllPlayers();
 
         virtual void InitVisibilityDistance();
-        BattleGround* GetBG() { return m_bg; }
-        void SetBG(BattleGround* bg) { m_bg = bg; }
+        Battleground* GetBG() { return m_bg; }
+        void SetBG(Battleground* bg) { m_bg = bg; }
     private:
-        BattleGround* m_bg;
+        Battleground* m_bg;
 };
 
 /*inline

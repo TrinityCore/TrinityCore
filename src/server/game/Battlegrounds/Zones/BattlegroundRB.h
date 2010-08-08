@@ -21,22 +21,22 @@
 #ifndef __BATTLEGROUNDRB_H
 #define __BATTLEGROUNDRB_H
 
-class BattleGround;
+class Battleground;
 
-class BattleGroundRBScore : public BattleGroundScore
+class BattlegroundRBScore : public BattlegroundScore
 {
     public:
-        BattleGroundRBScore() {};
-        virtual ~BattleGroundRBScore() {};
+        BattlegroundRBScore() {};
+        virtual ~BattlegroundRBScore() {};
 };
 
-class BattleGroundRB : public BattleGround
+class BattlegroundRB : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
-        BattleGroundRB();
-        ~BattleGroundRB();
+        BattlegroundRB();
+        ~BattlegroundRB();
         void Update(uint32 diff);
 
         virtual void AddPlayer(Player *plr);

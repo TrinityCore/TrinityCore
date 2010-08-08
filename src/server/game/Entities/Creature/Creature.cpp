@@ -38,7 +38,7 @@
 #include "Formulas.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceData.h"
-#include "BattleGroundMgr.h"
+#include "BattlegroundMgr.h"
 #include "Util.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
@@ -892,7 +892,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* pPlayer, bool msg) const
     if (!isBattleMaster())
         return false;
 
-    BattleGroundTypeId bgTypeId = sBattleGroundMgr.GetBattleMasterBG(GetEntry());
+    BattlegroundTypeId bgTypeId = sBattlegroundMgr.GetBattleMasterBG(GetEntry());
     if (!msg)
         return pPlayer->GetBGAccessByLevel(bgTypeId);
 

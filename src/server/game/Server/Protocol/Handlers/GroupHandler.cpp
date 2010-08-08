@@ -369,7 +369,7 @@ void WorldSession::HandleGroupDisbandOpcode(WorldPacket & /*recv_data*/)
     if (!GetPlayer()->GetGroup())
         return;
 
-    if (_player->InBattleGround())
+    if (_player->InBattleground())
     {
         SendPartyResult(PARTY_OP_INVITE, "", ERR_INVITE_RESTRICTED);
         return;
@@ -522,7 +522,7 @@ void WorldSession::HandleGroupRaidConvertOpcode(WorldPacket & /*recv_data*/)
     if (!group)
         return;
 
-    if (_player->InBattleGround())
+    if (_player->InBattleground())
         return;
 
     /** error handling **/

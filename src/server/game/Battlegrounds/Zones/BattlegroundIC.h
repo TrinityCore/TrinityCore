@@ -19,7 +19,7 @@
 #ifndef __BATTLEGROUNDIC_H
 #define __BATTLEGROUNDIC_H
 
-class BattleGround;
+class Battleground;
 
 enum Buffs
 {
@@ -33,20 +33,20 @@ enum BG_IC_Objectives
     IC_OBJECTIVE_DEFEND_BASE    = 246
 };
 
-class BattleGroundICScore : public BattleGroundScore
+class BattlegroundICScore : public BattlegroundScore
 {
     public:
-        BattleGroundICScore() {};
-        virtual ~BattleGroundICScore() {};
+        BattlegroundICScore() {};
+        virtual ~BattlegroundICScore() {};
 };
 
-class BattleGroundIC : public BattleGround
+class BattlegroundIC : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
-        BattleGroundIC();
-        ~BattleGroundIC();
+        BattlegroundIC();
+        ~BattlegroundIC();
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
@@ -56,10 +56,10 @@ class BattleGroundIC : public BattleGround
 
         void RemovePlayer(Player *plr,uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleGround();
+        bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
         void HandleKillUnit(Creature *unit, Player *killer);
-        void EndBattleGround(uint32 winner);
+        void EndBattleground(uint32 winner);
         void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
 
         /* Scorekeeping */

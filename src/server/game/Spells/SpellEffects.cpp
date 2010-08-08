@@ -45,10 +45,10 @@
 #include "Creature.h"
 #include "Totem.h"
 #include "CreatureAI.h"
-#include "BattleGroundMgr.h"
-#include "BattleGround.h"
-#include "BattleGroundEY.h"
-#include "BattleGroundWS.h"
+#include "BattlegroundMgr.h"
+#include "Battleground.h"
+#include "BattlegroundEY.h"
+#include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
 #include "Language.h"
 #include "SocialMgr.h"
@@ -1370,7 +1370,7 @@ void Spell::EffectDummy(uint32 i)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
 
-                    if (BattleGround* bg = m_caster->ToPlayer()->GetBattleGround())
+                    if (Battleground* bg = m_caster->ToPlayer()->GetBattleground())
                         bg->EventPlayerDroppedFlag(m_caster->ToPlayer());
 
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
@@ -2879,7 +2879,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
     // for battleground marks send by mail if not add all expected
     if (no_space > 0 && bgType)
     {
-        if (BattleGround* bg = sBattleGroundMgr.GetBattleGroundTemplate(BattleGroundTypeId(bgType)))
+        if (Battleground* bg = sBattlegroundMgr.GetBattlegroundTemplate(BattlegroundTypeId(bgType)))
             bg->SendRewardMarkByMail(player, newitemid, no_space);
     }
 */
@@ -3165,9 +3165,9 @@ void Spell::EffectOpenLock(uint32 effIndex)
         if (goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune ||
             goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK)
         {
-            //CanUseBattleGroundObject() already called in CheckCast()
+            //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
-            if (BattleGround *bg = player->GetBattleGround())
+            if (Battleground *bg = player->GetBattleground())
           {
         bg->EventPlayerClickedOnFlag(player, gameObjTarget);
         return;
@@ -3175,9 +3175,9 @@ void Spell::EffectOpenLock(uint32 effIndex)
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {
-            //CanUseBattleGroundObject() already called in CheckCast()
+            //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
-            if (BattleGround *bg = player->GetBattleGround())
+            if (Battleground *bg = player->GetBattleground())
             {
                 if (bg->GetTypeID(true) == BATTLEGROUND_EY)
                     bg->EventPlayerClickedOnFlag(player, gameObjTarget);
@@ -4657,7 +4657,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
     if (pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
         Player *pl = m_caster->ToPlayer();
-        BattleGround* bg = pl->GetBattleGround();
+        Battleground* bg = pl->GetBattleground();
 
         switch(pGameObj->GetMapId())
         {
@@ -4670,7 +4670,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
                     if (pl->GetTeam() == team)
                         team = HORDE;
 
-                    ((BattleGroundWS*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID(),team);
+                    ((BattlegroundWS*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID(),team);
                 }
                 break;
             }
@@ -4678,7 +4678,7 @@ void Spell::EffectSummonObjectWild(uint32 i)
             {
                 if (bg && bg->GetTypeID(true) == BATTLEGROUND_EY && bg->GetStatus() == STATUS_IN_PROGRESS)
                 {
-                    ((BattleGroundEY*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID());
+                    ((BattlegroundEY*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID());
                 }
                 break;
             }
@@ -7123,7 +7123,7 @@ void Spell::EffectSkill(uint32 /*i*/)
     sLog.outDebug("WORLD: SkillEFFECT");
 }
 
-/* There is currently no need for this effect. We handle it in BattleGround.cpp
+/* There is currently no need for this effect. We handle it in Battleground.cpp
    If we would handle the resurrection here, the spiritguide would instantly disappear as the
    player revives, and so we wouldn't see the spirit heal visual effect on the npc.
    This is why we use a half sec delay between the visual effect and the resurrection itself */
