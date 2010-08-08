@@ -3,6 +3,7 @@
 // MSDN Magazine, 2002
 // FILE: WheatyExceptionReport.CPP
 //==========================================
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #pragma warning(disable:4996)
 #pragma warning(disable:4312)
@@ -1037,3 +1038,4 @@ int __cdecl WheatyExceptionReport::_tprintf(const TCHAR * format, ...)
     return retValue;
 }
 
+#endif  // _WIN32

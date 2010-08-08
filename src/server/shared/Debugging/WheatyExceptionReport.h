@@ -1,6 +1,8 @@
 #ifndef _WHEATYEXCEPTIONREPORT_
 #define _WHEATYEXCEPTIONREPORT_
 
+#ifdef _WIN32
+
 #include <dbghelp.h>
 
 #if _MSC_VER < 1400
@@ -116,5 +118,6 @@ class WheatyExceptionReport
 };
 
 extern WheatyExceptionReport g_WheatyExceptionReport;       //  global instance of class
-#endif                                                      //WheatyExceptionReport
+#endif                                                      // _WIN32
+#endif                                                      // _WHEATYEXCEPTIONREPORT_
 
