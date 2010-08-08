@@ -43,8 +43,8 @@ set(scripts_STAT_SRCS
 if(MSVC)
   set(scripts_STAT_SRCS
     ${scripts_STAT_SRCS}
-    PrecompiledHeaders/scriptPCH.cpp
-    PrecompiledHeaders/scriptPCH.h
+    PrecompiledHeaders/ScriptPCH.cpp
+    PrecompiledHeaders/ScriptPCH.h
   )
 endif()
 
