@@ -20,9 +20,9 @@
 #ifndef __BATTLEGROUNDNA_H
 #define __BATTLEGROUNDNA_H
 
-class BattleGround;
+class Battleground;
 
-enum BattleGroundNAObjectTypes
+enum BattlegroundNAObjectTypes
 {
     BG_NA_OBJECT_DOOR_1         = 0,
     BG_NA_OBJECT_DOOR_2         = 1,
@@ -33,7 +33,7 @@ enum BattleGroundNAObjectTypes
     BG_NA_OBJECT_MAX            = 6
 };
 
-enum BattleGroundNAObjects
+enum BattlegroundNAObjects
 {
     BG_NA_OBJECT_TYPE_DOOR_1    = 183978,
     BG_NA_OBJECT_TYPE_DOOR_2    = 183980,
@@ -43,21 +43,21 @@ enum BattleGroundNAObjects
     BG_NA_OBJECT_TYPE_BUFF_2    = 184664
 };
 
-class BattleGroundNAScore : public BattleGroundScore
+class BattlegroundNAScore : public BattlegroundScore
 {
     public:
-        BattleGroundNAScore() {};
-        virtual ~BattleGroundNAScore() {};
+        BattlegroundNAScore() {};
+        virtual ~BattlegroundNAScore() {};
         //TODO fix me
 };
 
-class BattleGroundNA : public BattleGround
+class BattlegroundNA : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
-        BattleGroundNA();
-        ~BattleGroundNA();
+        BattlegroundNA();
+        ~BattlegroundNA();
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
@@ -67,7 +67,7 @@ class BattleGroundNA : public BattleGround
 
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleGround();
+        bool SetupBattleground();
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
         void HandleKillPlayer(Player* player, Player *killer);

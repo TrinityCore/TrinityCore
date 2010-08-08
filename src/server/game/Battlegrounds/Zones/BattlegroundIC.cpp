@@ -17,11 +17,11 @@
  */
 
 #include "Player.h"
-#include "BattleGround.h"
-#include "BattleGroundIC.h"
+#include "Battleground.h"
+#include "BattlegroundIC.h"
 #include "Language.h"
 
-BattleGroundIC::BattleGroundIC()
+BattlegroundIC::BattlegroundIC()
 {
     m_BgCreatures.resize(2);
     m_BgObjects.resize(5);
@@ -32,57 +32,57 @@ BattleGroundIC::BattleGroundIC()
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
 }
 
-BattleGroundIC::~BattleGroundIC()
+BattlegroundIC::~BattlegroundIC()
 {
 
 }
 
-void BattleGroundIC::Update(uint32 diff)
+void BattlegroundIC::Update(uint32 diff)
 {
-    BattleGround::Update(diff);
+    Battleground::Update(diff);
 }
 
-void BattleGroundIC::StartingEventCloseDoors()
-{
-}
-
-void BattleGroundIC::StartingEventOpenDoors()
+void BattlegroundIC::StartingEventCloseDoors()
 {
 }
 
-void BattleGroundIC::AddPlayer(Player *plr)
+void BattlegroundIC::StartingEventOpenDoors()
 {
-    BattleGround::AddPlayer(plr);
+}
+
+void BattlegroundIC::AddPlayer(Player *plr)
+{
+    Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
-    BattleGroundICScore* sc = new BattleGroundICScore;
+    BattlegroundICScore* sc = new BattlegroundICScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
 }
 
-void BattleGroundIC::RemovePlayer(Player* /*plr*/,uint64 /*guid*/)
+void BattlegroundIC::RemovePlayer(Player* /*plr*/,uint64 /*guid*/)
 {
 
 }
 
-void BattleGroundIC::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattlegroundIC::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 }
 
-void BattleGroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
 
-    std::map<uint64, BattleGroundScore*>::iterator itr = m_PlayerScores.find(Source->GetGUID());
+    std::map<uint64, BattlegroundScore*>::iterator itr = m_PlayerScores.find(Source->GetGUID());
 
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
-    BattleGround::UpdatePlayerScore(Source,type,value, doAddHonor);
+    Battleground::UpdatePlayerScore(Source,type,value, doAddHonor);
 }
 
-bool BattleGroundIC::SetupBattleGround()
+bool BattlegroundIC::SetupBattleground()
 {
     AddObject(0, 195157, 459.72f, -419.93f, 42.55f, 0, 0, 0, 0.9996573f, 0.02617699f, 10*MINUTE);
     AddObject(1, 195158, 797.72f, -1009.48f, 138.52f, 0, 0, 0, 0.9996573f, 0.02617699f, 10*MINUTE);
@@ -94,7 +94,7 @@ bool BattleGroundIC::SetupBattleGround()
     return true;
 }
 
-void BattleGroundIC::SpawnLeader(uint32 teamid)
+void BattlegroundIC::SpawnLeader(uint32 teamid)
 {
     if (teamid == ALLIANCE)
         AddCreature(34924, 0, ALLIANCE, 307.03f, -833.04f, 48.91f, 6.23f, 10*MINUTE);
@@ -102,7 +102,7 @@ void BattleGroundIC::SpawnLeader(uint32 teamid)
         AddCreature(34922, 1, HORDE, 1264.42f, -766.80f, 48.91f, 3.28f, 10*MINUTE);
 }
 
-void BattleGroundIC::HandleKillUnit(Creature *unit, Player * /*killer*/)
+void BattlegroundIC::HandleKillUnit(Creature *unit, Player * /*killer*/)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
        return;
@@ -111,21 +111,21 @@ void BattleGroundIC::HandleKillUnit(Creature *unit, Player * /*killer*/)
     if (entry == 34924)
     {
         RewardHonorToTeam(500,HORDE);
-        EndBattleGround(HORDE);
+        EndBattleground(HORDE);
     }
     else if (entry == 34922)
     {
         RewardHonorToTeam(500,ALLIANCE);
-        EndBattleGround(ALLIANCE);
+        EndBattleground(ALLIANCE);
     }
 }
 
-void BattleGroundIC::EndBattleGround(uint32 winner)
+void BattlegroundIC::EndBattleground(uint32 winner)
 {
-    BattleGround::EndBattleGround(winner);
+    Battleground::EndBattleground(winner);
 }
 
-void BattleGroundIC::EventPlayerClickedOnFlag(Player * /*source*/, GameObject* /*target_obj*/)
+void BattlegroundIC::EventPlayerClickedOnFlag(Player * /*source*/, GameObject* /*target_obj*/)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

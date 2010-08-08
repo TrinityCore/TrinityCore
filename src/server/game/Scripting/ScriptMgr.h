@@ -26,7 +26,7 @@
 #include "DBCStructure.h"
 #include "Config.h"
 #include "ObjectMgr.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "OutdoorPvPMgr.h"
 #include "SharedDefines.h"
 #include "Chat.h"
@@ -425,14 +425,14 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
         virtual InstanceData* GetInstanceData(InstanceMap* map) const { return NULL; }
 };
 
-class BattlegroundMapScript : public ScriptObject, public MapScript<BattleGroundMap>
+class BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
 {
     protected:
 
         BattlegroundMapScript(const char* name, uint32 mapId)
-            : ScriptObject(name), MapScript<BattleGroundMap>(mapId)
+            : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
         {
-            if (GetEntry() && !GetEntry()->IsBattleGround())
+            if (GetEntry() && !GetEntry()->IsBattleground())
                 sLog.outError("BattlegroundMapScript for map %u is invalid.", mapId);
         }
 
@@ -582,8 +582,8 @@ class BattlegroundScript : public ScriptObject
 
         bool IsDatabaseBound() const { return true; }
 
-        // Should return a fully valid BattleGround object for the type ID.
-        virtual BattleGround* GetBattleground() const = 0;
+        // Should return a fully valid Battleground object for the type ID.
+        virtual Battleground* GetBattleground() const = 0;
 };
 
 class OutdoorPvPScript : public ScriptObject
@@ -893,7 +893,7 @@ class ScriptMgr
 
     public: /* BattlegroundScript */
 
-        BattleGround* CreateBattleground(BattleGroundTypeId typeId);
+        Battleground* CreateBattleground(BattlegroundTypeId typeId);
 
     public: /* OutdoorPvPScript */
 

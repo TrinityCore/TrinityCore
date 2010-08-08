@@ -52,9 +52,9 @@
 #include "Util.h"
 #include "Transport.h"
 #include "Weather.h"
-#include "BattleGround.h"
-#include "BattleGroundAV.h"
-#include "BattleGroundMgr.h"
+#include "Battleground.h"
+#include "BattlegroundAV.h"
+#include "BattlegroundMgr.h"
 #include "OutdoorPvP.h"
 #include "OutdoorPvPMgr.h"
 #include "ArenaTeam.h"
@@ -482,8 +482,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     for (uint8 j = 0; j < PLAYER_MAX_BATTLEGROUND_QUEUES; ++j)
     {
-        m_bgBattleGroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
-        m_bgBattleGroundQueueID[j].invitedToInstance = 0;
+        m_bgBattlegroundQueueID[j].bgQueueTypeId  = BATTLEGROUND_QUEUE_NONE;
+        m_bgBattlegroundQueueID[j].invitedToInstance = 0;
     }
 
     m_logintime = time(NULL);
@@ -1731,7 +1731,7 @@ bool Player::ToggleAFK()
     bool state = HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_AFK);
 
     // afk player not allowed in battleground
-    if (state && InBattleGround())
+    if (state && InBattleground())
         LeaveBattleground();
 
     return state;
@@ -1822,7 +1822,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
     // don't let enter battlegrounds without assigned battleground id (for example through areatrigger)...
     // don't let gm level > 1 either
-    if (!InBattleGround() && mEntry->IsBattleGroundOrArena())
+    if (!InBattleground() && mEntry->IsBattlegroundOrArena())
         return false;
 
     // client without expansion support
@@ -1949,7 +1949,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             ResetContestedPvP();
 
             // remove player from battleground on far teleport (when changing maps)
-            if (BattleGround const* bg = GetBattleGround())
+            if (Battleground const* bg = GetBattleground())
             {
                 // Note: at battleground join battleground id set before teleport
                 // and we already will found "current" battleground
@@ -4811,7 +4811,7 @@ void Player::CreateCorpse()
         flags |= CORPSE_FLAG_HIDE_HELM;
     if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_HIDE_CLOAK))
         flags |= CORPSE_FLAG_HIDE_CLOAK;
-    if (InBattleGround() && !InArena())
+    if (InBattleground() && !InArena())
         flags |= CORPSE_FLAG_LOOTABLE;                      // to be able to remove insignia
     corpse->SetUInt32Value(CORPSE_FIELD_FLAGS, flags);
 
@@ -4835,7 +4835,7 @@ void Player::CreateCorpse()
     }
 
     // we do not need to save corpses for BG/arenas
-    if (!GetMap()->IsBattleGroundOrArena())
+    if (!GetMap()->IsBattlegroundOrArena())
         corpse->SaveToDB();
 
     // register for player, but not show
@@ -5086,7 +5086,7 @@ void Player::RepopAtGraveyard()
     WorldSafeLocsEntry const *ClosestGrave = NULL;
 
     // Special handle for battleground maps
-    if (BattleGround *bg = GetBattleGround())
+    if (Battleground *bg = GetBattleground())
         ClosestGrave = bg->GetClosestGraveYard(this);
     else
         ClosestGrave = objmgr.GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam());
@@ -6686,7 +6686,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
     UpdateHonorFields();
 
     // do not reward honor in arenas, but return true to enable onkill spellproc
-    if (InBattleGround() && GetBattleGround() && GetBattleGround()->isArena())
+    if (InBattleground() && GetBattleground() && GetBattleground()->isArena())
         return true;
 
     // Promote to float for calculations
@@ -6783,9 +6783,9 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
 
     ApplyModUInt32Value(PLAYER_FIELD_TODAY_CONTRIBUTION, honor, true);
 
-    if (InBattleGround() && honor > 0)
+    if (InBattleground() && honor > 0)
     {
-        if (BattleGround *bg = GetBattleGround())
+        if (Battleground *bg = GetBattleground())
         {
             bg->UpdatePlayerScore(this, SCORE_BONUS_HONOR, honor, false); //false: prevent looping
         }
@@ -6800,9 +6800,9 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
         {
             // Check if allowed to receive it in current map
             uint8 MapType = sWorld.getConfig(CONFIG_PVP_TOKEN_MAP_TYPE);
-            if ((MapType == 1 && !InBattleGround() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
+            if ((MapType == 1 && !InBattleground() && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
                 || (MapType == 2 && !HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-                || (MapType == 3 && !InBattleGround()))
+                || (MapType == 3 && !InBattleground()))
                 return true;
 
             uint32 noSpaceForCount = 0;
@@ -6990,7 +6990,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             break;
         case AREATEAM_NONE:
             // overwrite for battlegrounds, maybe batter some zone flags but current known not 100% fit to this
-            pvpInfo.inHostileArea = sWorld.IsPvPRealm() || InBattleGround() || zone->flags & AREA_FLAG_OUTDOOR_PVP;
+            pvpInfo.inHostileArea = sWorld.IsPvPRealm() || InBattleground() || zone->flags & AREA_FLAG_OUTDOOR_PVP;
             break;
         default:                                            // 6 in fact
             pvpInfo.inHostileArea = false;
@@ -8155,7 +8155,7 @@ bool Player::CheckAmmoCompatibility(const ItemPrototype *ammo_proto) const
     Called by remove insignia spell effect    */
 void Player::RemovedInsignia(Player* looterPlr)
 {
-    if (!GetBattleGroundId())
+    if (!GetBattlegroundId())
         return;
 
     // If not released spirit, do it !
@@ -8223,9 +8223,9 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
 
             //TODO: fix this big hack
             if ((go->GetEntry() == BG_AV_OBJECTID_MINE_N || go->GetEntry() == BG_AV_OBJECTID_MINE_S))
-                if (BattleGround *bg = GetBattleGround())
+                if (Battleground *bg = GetBattleground())
                     if (bg->GetTypeID(true) == BATTLEGROUND_AV)
-                        if (!(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(),GetTeam())))
+                        if (!(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(go->GetEntry(),GetTeam())))
                         {
                             SendLootRelease(guid);
                             return;
@@ -8351,7 +8351,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
             bones->lootForBody = true;
             uint32 pLevel = bones->loot.gold;
             bones->loot.clear();
-            if (BattleGround *bg = GetBattleGround())
+            if (Battleground *bg = GetBattleground())
                 if (bg->GetTypeID(true) == BATTLEGROUND_AV)
                     loot->FillLoot(1, LootTemplates_Creature, this, true);
             // It may need a better formula
@@ -8526,7 +8526,7 @@ void Player::SendUpdateWorldState(uint32 Field, uint32 Value)
 void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
 {
     // data depends on zoneid/mapid...
-    BattleGround* bg = GetBattleGround();
+    Battleground* bg = GetBattleground();
     uint16 NumberOfFields = 0;
     uint32 mapid = GetMapId();
     OutdoorPvP * pvp = sOutdoorPvPMgr.GetOutdoorPvPToZoneId(zoneid);
@@ -9107,7 +9107,7 @@ void Player::SendBGWeekendWorldStates()
         BattlemasterListEntry const * bl = sBattlemasterListStore.LookupEntry(i);
         if (bl && bl->HolidayWorldStateId)
         {
-            if (BattleGroundMgr::IsBGWeekend((BattleGroundTypeId)bl->id))
+            if (BattlegroundMgr::IsBGWeekend((BattlegroundTypeId)bl->id))
                 SendUpdateWorldState(bl->HolidayWorldStateId, 1);
             else
                 SendUpdateWorldState(bl->HolidayWorldStateId, 0);
@@ -10892,7 +10892,7 @@ uint8 Player::CanEquipItem(uint8 slot, uint16 &dest, Item *pItem, bool swap, boo
                     if (isInCombat())
                         return EQUIP_ERR_NOT_IN_COMBAT;
 
-                    if (BattleGround* bg = GetBattleGround())
+                    if (Battleground* bg = GetBattleground())
                         if (bg->isArena() && bg->GetStatus() == STATUS_IN_PROGRESS)
                             return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
                 }
@@ -11024,7 +11024,7 @@ uint8 Player::CanUnequipItem(uint16 pos, bool swap) const
         if (isInCombat())
             return EQUIP_ERR_NOT_IN_COMBAT;
 
-        if (BattleGround* bg = GetBattleGround())
+        if (Battleground* bg = GetBattleground())
             if (bg->isArena() && bg->GetStatus() == STATUS_IN_PROGRESS)
                 return EQUIP_ERR_NOT_DURING_ARENA_MATCH;
     }
@@ -13702,7 +13702,7 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             break;
         case GOSSIP_OPTION_BATTLEFIELD:
         {
-            BattleGroundTypeId bgTypeId = sBattleGroundMgr.GetBattleMasterBG(pSource->GetEntry());
+            BattlegroundTypeId bgTypeId = sBattlegroundMgr.GetBattleMasterBG(pSource->GetEntry());
 
             if (bgTypeId == BATTLEGROUND_TYPE_NONE)
             {
@@ -15469,7 +15469,7 @@ bool Player::HasQuestForItem(uint32 itemid) const
 
             // hide quest if player is in raid-group and quest is no raid quest
             if (GetGroup() && GetGroup()->isRaidGroup() && !qinfo->IsAllowedInRaid())
-                if (!InBattleGround()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
+                if (!InBattleground()) //there are two ways.. we can make every bg-quest a raidquest, or add this code here.. i don't know if this can be exploited by other quests, but i think all other quests depend on a specific area.. but keep this in mind, if something strange happens later
                     continue;
 
             // There should be no mixed ReqItem/ReqSource drop
@@ -15971,18 +15971,18 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
         RelocateToHomebind();
     }
     // Player was saved in Arena or Bg
-    else if (mapEntry && mapEntry->IsBattleGroundOrArena())
+    else if (mapEntry && mapEntry->IsBattlegroundOrArena())
     {
-        BattleGround *currentBg = NULL;
-        if (m_bgData.bgInstanceID)                                                //saved in BattleGround
-            currentBg = sBattleGroundMgr.GetBattleGround(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
+        Battleground *currentBg = NULL;
+        if (m_bgData.bgInstanceID)                                                //saved in Battleground
+            currentBg = sBattlegroundMgr.GetBattleground(m_bgData.bgInstanceID, BATTLEGROUND_TYPE_NONE);
 
-        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleGround(GetGUID());
+        bool player_at_bg = currentBg && currentBg->IsPlayerInBattleground(GetGUID());
 
         if (player_at_bg && currentBg->GetStatus() != STATUS_WAIT_LEAVE)
         {
-            BattleGroundQueueTypeId bgQueueTypeId = sBattleGroundMgr.BGQueueTypeId(currentBg->GetTypeID(true), currentBg->GetArenaType());
-            AddBattleGroundQueueId(bgQueueTypeId);
+            BattlegroundQueueTypeId bgQueueTypeId = sBattlegroundMgr.BGQueueTypeId(currentBg->GetTypeID(true), currentBg->GetArenaType());
+            AddBattlegroundQueueId(bgQueueTypeId);
 
             m_bgData.bgTypeID = currentBg->GetTypeID(true);
 
@@ -15990,7 +15990,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
             currentBg->EventPlayerLoggedIn(this, GetGUID());
             currentBg->AddOrSetPlayerToCorrectBgGroup(this, GetGUID(), m_bgData.bgTeam);
 
-            SetInviteForBattleGroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
+            SetInviteForBattlegroundQueueType(bgQueueTypeId,currentBg->GetInstanceID());
         }
         // Bg was not found - go to Entry Point
         else
@@ -16000,7 +16000,7 @@ bool Player::LoadFromDB(uint32 guid, SqlQueryHolder *holder)
                 currentBg->RemovePlayerAtLeave(GetGUID(), false, true);
 
             // Do not look for instance if bg not found
-            const WorldLocation& _loc = GetBattleGroundEntryPoint();
+            const WorldLocation& _loc = GetBattlegroundEntryPoint();
             mapId = _loc.GetMapId(); instanceId = 0;
 
             if (mapId == MAPID_INVALID) // Battleground Entry Point not found (???)
@@ -18462,7 +18462,7 @@ void Player::RemovePet(Pet* pet, PetSaveMode mode, bool returnreagent)
             return;
     }
 
-    if (returnreagent && (pet || m_temporaryUnsummonedPetNumber) && !InBattleGround())
+    if (returnreagent && (pet || m_temporaryUnsummonedPetNumber) && !InBattleground())
     {
         //returning of reagents only for players, so best done here
         uint32 spellId = pet ? pet->GetUInt32Value(UNIT_CREATED_BY_SPELL) : m_oldpetspell;
@@ -20205,7 +20205,7 @@ void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
     }
 }
 
-void Player::SetBattleGroundEntryPoint()
+void Player::SetBattlegroundEntryPoint()
 {
     // Taxi path store
     if (!m_taxi.empty())
@@ -20241,10 +20241,10 @@ void Player::SetBattleGroundEntryPoint()
                 return;
             }
             else
-                sLog.outError("SetBattleGroundEntryPoint: Dungeon map %u has no linked graveyard, setting home location as entry point.", GetMapId());
+                sLog.outError("SetBattlegroundEntryPoint: Dungeon map %u has no linked graveyard, setting home location as entry point.", GetMapId());
         }
         // If new entry point is not BG or arena set it
-        else if (!GetMap()->IsBattleGroundOrArena())
+        else if (!GetMap()->IsBattlegroundOrArena())
         {
             m_bgData.joinPos = WorldLocation(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
             return;
@@ -20257,12 +20257,12 @@ void Player::SetBattleGroundEntryPoint()
 
 void Player::LeaveBattleground(bool teleportToEntryPoint)
 {
-    if (BattleGround *bg = GetBattleGround())
+    if (Battleground *bg = GetBattleground())
     {
         bg->RemovePlayerAtLeave(GetGUID(), teleportToEntryPoint, true);
 
         // call after remove to be sure that player resurrected for correct cast
-        if (bg->isBattleGround() && !isGameMaster() && sWorld.getConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
+        if (bg->isBattleground() && !isGameMaster() && sWorld.getConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
         {
             if (bg->GetStatus() == STATUS_IN_PROGRESS || bg->GetStatus() == STATUS_WAIT_JOIN)
             {
@@ -20300,8 +20300,8 @@ bool Player::CanReportAfkDueToLimit()
 ///This player has been blamed to be inactive in a battleground
 void Player::ReportedAfkBy(Player* reporter)
 {
-    BattleGround *bg = GetBattleGround();
-    if (!bg || bg != reporter->GetBattleGround() || GetTeam() != reporter->GetTeam())
+    Battleground *bg = GetBattleground();
+    if (!bg || bg != reporter->GetBattleground() || GetTeam() != reporter->GetTeam())
         return;
 
     // check if player has 'Idle' or 'Inactive' debuff
@@ -20461,7 +20461,7 @@ bool Player::IsVisibleInGridForPlayer(Player const * pl) const
         return true;
 
     // It seems in battleground everyone sees everyone, except the enemy-faction ghosts
-    if (InBattleGround())
+    if (InBattleground())
     {
         if (!(isAlive() || m_deathTimer > 0) && !IsFriendlyTo(pl))
             return false;
@@ -21284,27 +21284,27 @@ void Player::ResetWeeklyQuestStatus()
     m_WeeklyQuestChanged = false;
 }
 
-BattleGround* Player::GetBattleGround() const
+Battleground* Player::GetBattleground() const
 {
-    if (GetBattleGroundId() == 0)
+    if (GetBattlegroundId() == 0)
         return NULL;
 
-    return sBattleGroundMgr.GetBattleGround(GetBattleGroundId(), m_bgData.bgTypeID);
+    return sBattlegroundMgr.GetBattleground(GetBattlegroundId(), m_bgData.bgTypeID);
 }
 
 bool Player::InArena() const
 {
-    BattleGround *bg = GetBattleGround();
+    Battleground *bg = GetBattleground();
     if (!bg || !bg->isArena())
         return false;
 
     return true;
 }
 
-bool Player::GetBGAccessByLevel(BattleGroundTypeId bgTypeId) const
+bool Player::GetBGAccessByLevel(BattlegroundTypeId bgTypeId) const
 {
     // get a template bg instead of running one
-    BattleGround *bg = sBattleGroundMgr.GetBattleGroundTemplate(bgTypeId);
+    Battleground *bg = sBattlegroundMgr.GetBattlegroundTemplate(bgTypeId);
     if (!bg)
         return false;
 
@@ -21451,7 +21451,7 @@ void Player::SummonIfPossible(bool agree)
 
     // drop flag at summon
     // this code can be reached only when GM is summoning player who carries flag, because player should be immune to summoning spells when he carries flag
-    if (BattleGround *bg = GetBattleGround())
+    if (Battleground *bg = GetBattleground())
         bg->EventPlayerDroppedFlag(this);
 
     m_summon_expire = 0;
@@ -22043,13 +22043,13 @@ PartyResult Player::CanUninviteFromGroup() const
     if (!grp->IsLeader(GetGUID()) && !grp->IsAssistant(GetGUID()))
         return ERR_NOT_LEADER;
 
-    if (InBattleGround())
+    if (InBattleground())
         return ERR_INVITE_RESTRICTED;
 
     return ERR_PARTY_RESULT_OK;
 }
 
-void Player::SetBattleGroundRaid(Group* group, int8 subgroup)
+void Player::SetBattlegroundRaid(Group* group, int8 subgroup)
 {
     //we must move references from m_group to m_originalGroup
     SetOriginalGroup(GetGroup(), GetSubGroup());
@@ -22059,7 +22059,7 @@ void Player::SetBattleGroundRaid(Group* group, int8 subgroup)
     m_group.setSubGroup((uint8)subgroup);
 }
 
-void Player::RemoveFromBattleGroundRaid()
+void Player::RemoveFromBattlegroundRaid()
 {
     //remove existing reference
     m_group.unlink();
@@ -22219,12 +22219,12 @@ WorldObject* Player::GetViewpoint() const
     return NULL;
 }
 
-bool Player::CanUseBattleGroundObject()
+bool Player::CanUseBattlegroundObject()
 {
     // TODO : some spells gives player ForceReaction to one faction (ReputationMgr::ApplyForceReaction)
     // maybe gameobject code should handle that ForceReaction usage
     // BUG: sometimes when player clicks on flag in AB - client won't send gameobject_use, only gameobject_report_use packet
-    return (//InBattleGround() &&                          // in battleground - not need, check in other cases
+    return (//InBattleground() &&                          // in battleground - not need, check in other cases
              //!IsMounted() && - not correct, player is dismounted when he clicks on flag
              //player cannot use object when he is invulnerable (immune)
              !isTotalImmune() &&                            // not totally immune
@@ -23653,7 +23653,7 @@ void Player::ActivateSpec(uint8 spec)
 
     // TODO:
     // HACK: this shouldn't be checked at such a low level function but rather at the moment the spell is casted
-    if (GetMap()->IsBattleGround() && !HasAura(44521)) // In BattleGround with no Preparation buff
+    if (GetMap()->IsBattleground() && !HasAura(44521)) // In Battleground with no Preparation buff
         return;
 
     if (IsNonMeleeSpellCasted(false))

@@ -20,9 +20,9 @@
 #ifndef __BATTLEGROUNDRV_H
 #define __BATTLEGROUNDRV_H
 
-class BattleGround;
+class Battleground;
 
-enum BattleGroundRVObjectTypes
+enum BattlegroundRVObjectTypes
 {
     BG_RV_OBJECT_BUFF_1,
     BG_RV_OBJECT_BUFF_2,
@@ -53,7 +53,7 @@ enum BattleGroundRVObjectTypes
     BG_RV_OBJECT_MAX,
 };
 
-enum BattleGroundRVObjects
+enum BattlegroundRVObjects
 {
     BG_RV_OBJECT_TYPE_BUFF_1                     = 184663,
     BG_RV_OBJECT_TYPE_BUFF_2                     = 184664,
@@ -82,7 +82,7 @@ enum BattleGroundRVObjects
     BG_RV_OBJECT_TYPE_PILAR_4                    = 194587, // ivory
 };
 
-enum BattleGroundRVData
+enum BattlegroundRVData
 {
     BG_RV_STATE_OPEN_FENCES,
     BG_RV_STATE_OPEN_PILARS,
@@ -97,20 +97,20 @@ enum BattleGroundRVData
     BG_RV_WORLD_STATE                            = 0xe1a,
 };
 
-class BattleGroundRVScore : public BattleGroundScore
+class BattlegroundRVScore : public BattlegroundScore
 {
     public:
-        BattleGroundRVScore() {};
-        virtual ~BattleGroundRVScore() {};
+        BattlegroundRVScore() {};
+        virtual ~BattlegroundRVScore() {};
 };
 
-class BattleGroundRV : public BattleGround
+class BattlegroundRV : public Battleground
 {
-    friend class BattleGroundMgr;
+    friend class BattlegroundMgr;
 
     public:
-        BattleGroundRV();
-        ~BattleGroundRV();
+        BattlegroundRV();
+        ~BattlegroundRV();
         void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
@@ -122,7 +122,7 @@ class BattleGroundRV : public BattleGround
 
         void RemovePlayer(Player *plr, uint64 guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
-        bool SetupBattleGround();
+        bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player *killer);
         bool HandlePlayerUnderMap(Player * plr);
 

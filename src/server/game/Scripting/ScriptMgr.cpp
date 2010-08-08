@@ -479,8 +479,8 @@ void ScriptMgr::OnCreateMap(Map* map)
         itr->second->OnCreate((InstanceMap*)map);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnCreate((BattleGroundMap*)map);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnCreate((BattlegroundMap*)map);
     SCR_MAP_END;
 }
 
@@ -496,8 +496,8 @@ void ScriptMgr::OnDestroyMap(Map* map)
         itr->second->OnDestroy((InstanceMap*)map);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnDestroy((BattleGroundMap*)map);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnDestroy((BattlegroundMap*)map);
     SCR_MAP_END;
 }
 
@@ -514,8 +514,8 @@ void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
         itr->second->OnLoadGridMap((InstanceMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnLoadGridMap((BattleGroundMap*)map, gmap, gx, gy);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnLoadGridMap((BattlegroundMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 }
 
@@ -532,8 +532,8 @@ void ScriptMgr::OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
         itr->second->OnUnloadGridMap((InstanceMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnUnloadGridMap((BattleGroundMap*)map, gmap, gx, gy);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnUnloadGridMap((BattlegroundMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 }
 
@@ -550,8 +550,8 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
         itr->second->OnPlayerEnter((InstanceMap*)map, player);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnPlayerEnter((BattleGroundMap*)map, player);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnPlayerEnter((BattlegroundMap*)map, player);
     SCR_MAP_END;
 }
 
@@ -568,8 +568,8 @@ void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
         itr->second->OnPlayerLeave((InstanceMap*)map, player);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnPlayerLeave((BattleGroundMap*)map, player);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnPlayerLeave((BattlegroundMap*)map, player);
     SCR_MAP_END;
 }
 
@@ -585,8 +585,8 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
         itr->second->OnUpdate((InstanceMap*)map, diff);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleGround);
-        itr->second->OnUpdate((BattleGroundMap*)map, diff);
+    SCR_MAP_BGN(BattlegroundMapScript, map, itr, end, entry, IsBattleground);
+        itr->second->OnUpdate((BattlegroundMap*)map, diff);
     SCR_MAP_END;
 }
 
@@ -849,7 +849,7 @@ bool ScriptMgr::OnAreaTrigger(Player* player, AreaTriggerEntry const* trigger)
     return tmpscript->OnTrigger(player, trigger);
 }
 
-BattleGround* ScriptMgr::CreateBattleground(BattleGroundTypeId typeId)
+Battleground* ScriptMgr::CreateBattleground(BattlegroundTypeId typeId)
 {
     // TODO: Implement script-side battlegrounds.
     ASSERT(false);

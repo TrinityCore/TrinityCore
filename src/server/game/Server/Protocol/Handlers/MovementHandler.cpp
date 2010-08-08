@@ -29,7 +29,7 @@
 #include "SpellAuras.h"
 #include "MapManager.h"
 #include "Transport.h"
-#include "BattleGround.h"
+#include "Battleground.h"
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
@@ -102,20 +102,20 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
     // battleground state prepare (in case join to BG), at relogin/tele player not invited
     // only add to bg group and object, if the player was invited (else he entered through command)
-    if (_player->InBattleGround())
+    if (_player->InBattleground())
     {
         // cleanup setting if outdated
-        if (!mEntry->IsBattleGroundOrArena())
+        if (!mEntry->IsBattlegroundOrArena())
         {
             // We're not in BG
-            _player->SetBattleGroundId(0, BATTLEGROUND_TYPE_NONE);
+            _player->SetBattlegroundId(0, BATTLEGROUND_TYPE_NONE);
             // reset destination bg team
             _player->SetBGTeam(0);
         }
         // join to bg case
-        else if (BattleGround *bg = _player->GetBattleGround())
+        else if (Battleground *bg = _player->GetBattleground())
         {
-            if (_player->IsInvitedForBattleGroundInstance(_player->GetBattleGroundId()))
+            if (_player->IsInvitedForBattlegroundInstance(_player->GetBattlegroundId()))
                 bg->AddPlayer(_player);
         }
     }
@@ -125,7 +125,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     // flight fast teleport case
     if (GetPlayer()->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE)
     {
-        if (!_player->InBattleGround())
+        if (!_player->InBattleground())
         {
             // short preparations to continue flight
             FlightPathMovementGenerator* flight = (FlightPathMovementGenerator*)(GetPlayer()->GetMotionMaster()->top());
@@ -149,7 +149,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         }
     }
 
-    bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattleGroundOrArena();
+    bool allowMount = !mEntry->IsDungeon() || mEntry->IsBattlegroundOrArena();
     if (mInstance)
     {
         Difficulty diff = GetPlayer()->GetDifficulty(mEntry->IsRaid());
@@ -371,9 +371,9 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
         if (movementInfo.pos.GetPositionZ() < -500.0f)
         {
-            if (plMover->InBattleGround()
-                && plMover->GetBattleGround()
-                && plMover->GetBattleGround()->HandlePlayerUnderMap(_player))
+            if (plMover->InBattleground()
+                && plMover->GetBattleground()
+                && plMover->GetBattleground()->HandlePlayerUnderMap(_player))
             {
                 // do nothing, the handle already did if returned true
             }

@@ -30,7 +30,7 @@
 #include "Unit.h"
 #include "Language.h"
 #include "DBCStores.h"
-#include "BattleGroundMgr.h"
+#include "BattlegroundMgr.h"
 #include "Item.h"
 #include "AuctionHouseMgr.h"
 
@@ -926,7 +926,7 @@ void MailDraft::SendMailTo(MailReceiver const& receiver, MailSender const& sende
     if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !m_money)
         expire_delay = sWorld.getConfig(CONFIG_MAIL_DELIVERY_DELAY);
     // mail from battlemaster (rewardmarks) should last only one day
-    else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattleGroundMgr.GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
+    else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr.GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;
      // default case: expire time if COD 3 days, if no COD 30 days
     else
