@@ -34,7 +34,8 @@ enum eEnums
     SPELL_BACKHAND              = 18103,
     SPELL_FRENZY                = 8269
 };
-class boss_doctor_theolen_krastinov : public CreatureScript
+
+class boss_doctor_theolen_krastinov : public CreatureScript
 {
 public:
     boss_doctor_theolen_krastinov() : CreatureScript("boss_doctor_theolen_krastinov") { }

@@ -31,7 +31,8 @@ enum eGameObjects
     GO_LEVIATHAN_DOOR       = 194905,
     GO_LEVIATHAN_GATE       = 194630
 };
-class instance_ulduar : public InstanceMapScript
+
+class instance_ulduar : public InstanceMapScript
 {
 public:
     instance_ulduar() : InstanceMapScript("instance_ulduar") { }

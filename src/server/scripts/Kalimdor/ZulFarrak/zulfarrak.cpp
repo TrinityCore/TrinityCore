@@ -55,7 +55,8 @@ enum blySpells
 };
 
 #define GOSSIP_BLY                  "[PH] In that case, I will take my reward!"
-class npc_sergeant_bly : public CreatureScript
+
+class npc_sergeant_bly : public CreatureScript
 {
 public:
     npc_sergeant_bly() : CreatureScript("npc_sergeant_bly") { }
@@ -211,7 +212,8 @@ void initBlyCrewMember(InstanceScript* pInstance, uint32 entry,float x,float y, 
         crew->setFaction(FACTION_FREED);
     }
 }
-class go_troll_cage : public GameObjectScript
+
+class go_troll_cage : public GameObjectScript
 {
 public:
     go_troll_cage() : GameObjectScript("go_troll_cage") { }
@@ -252,7 +254,8 @@ enum weegliSays
 };
 
 #define GOSSIP_WEEGLI               "[PH] Please blow up the door."
-class npc_weegli_blastfuse : public CreatureScript
+
+class npc_weegli_blastfuse : public CreatureScript
 {
 public:
     npc_weegli_blastfuse() : CreatureScript("npc_weegli_blastfuse") { }
@@ -404,7 +407,8 @@ enum
     ZOMBIE_CHANCE = 65,
     DEAD_HERO_CHANCE = 10
 };
-class go_shallow_grave : public GameObjectScript
+
+class go_shallow_grave : public GameObjectScript
 {
 public:
     go_shallow_grave() : GameObjectScript("go_shallow_grave") { }
@@ -436,7 +440,8 @@ enum zumrahConsts
     ZUMRAH_ID = 7271,
     ZUMRAH_HOSTILE_FACTION = 37
 };
-class at_zumrah : public AreaTriggerScript
+
+class at_zumrah : public AreaTriggerScript
 {
 public:
     at_zumrah() : AreaTriggerScript("at_zumrah") { }

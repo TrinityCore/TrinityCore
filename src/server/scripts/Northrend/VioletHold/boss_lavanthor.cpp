@@ -28,7 +28,8 @@ enum Spells
   SPELL_LAVA_BURN                               = 54249,
   H_SPELL_LAVA_BURN                             = 59594
 };
-class boss_lavanthor : public CreatureScript
+
+class boss_lavanthor : public CreatureScript
 {
 public:
     boss_lavanthor() : CreatureScript("boss_lavanthor") { }

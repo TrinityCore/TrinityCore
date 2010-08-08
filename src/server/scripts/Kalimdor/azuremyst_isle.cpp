@@ -29,7 +29,8 @@ npc_engineer_spark_overgrind
 npc_injured_draenei
 npc_magwin
 npc_geezle
-mob_nestlewood_owlkingo_ravager_cage
+mob_nestlewood_owlkin
+go_ravager_cage
 npc_death_ravager
 EndContentData */
 
@@ -56,7 +57,8 @@ enum eEnums
     SPELL_IRRIDATION    = 35046,
     SPELL_STUNNED       = 28630
 };
-class npc_draenei_survivor : public CreatureScript
+
+class npc_draenei_survivor : public CreatureScript
 {
 public:
     npc_draenei_survivor() : CreatureScript("npc_draenei_survivor") { }
@@ -188,7 +190,8 @@ enum eOvergrind
 };
 
 #define GOSSIP_FIGHT "Traitor! You will be brought to justice!"
-class npc_engineer_spark_overgrind : public CreatureScript
+
+class npc_engineer_spark_overgrind : public CreatureScript
 {
 public:
     npc_engineer_spark_overgrind() : CreatureScript("npc_engineer_spark_overgrind") { }
@@ -288,7 +291,8 @@ public:
 /*######
 ## npc_injured_draenei
 ######*/
-class npc_injured_draenei : public CreatureScript
+
+class npc_injured_draenei : public CreatureScript
 {
 public:
     npc_injured_draenei() : CreatureScript("npc_injured_draenei") { }
@@ -342,7 +346,8 @@ enum eMagwin
 
     QUEST_A_CRY_FOR_SAY_HELP    = 9528
 };
-class npc_magwin : public CreatureScript
+
+class npc_magwin : public CreatureScript
 {
 public:
     npc_magwin() : CreatureScript("npc_magwin") { }
@@ -429,7 +434,8 @@ enum eGeezle
 };
 
 static float SparkPos[3] = {-5029.91, -11291.79, 8.096};
-class npc_geezle : public CreatureScript
+
+class npc_geezle : public CreatureScript
 {
 public:
     npc_geezle() : CreatureScript("npc_geezle") { }
@@ -579,7 +585,8 @@ enum eOwlkin
     ENTRY_OWLKIN            = 16518,
     ENTRY_OWLKIN_INOC       = 16534
 };
-class npc_nestlewood_owlkin : public CreatureScript
+
+class npc_nestlewood_owlkin : public CreatureScript
 {
 public:
     npc_nestlewood_owlkin() : CreatureScript("npc_nestlewood_owlkin") { }
@@ -671,7 +678,8 @@ public:
         return true ;
     }
 };
-class npc_death_ravager : public CreatureScript
+
+class npc_death_ravager : public CreatureScript
 {
 public:
     npc_death_ravager() : CreatureScript("npc_death_ravager") { }
@@ -734,7 +742,8 @@ enum BristlelimbCage
     CAPITIVE_SAY_2                      = -1000475,
     CAPITIVE_SAY_3                      = -1000476
 };
-class npc_stillpine_capitive : public CreatureScript
+
+class npc_stillpine_capitive : public CreatureScript
 {
 public:
     npc_stillpine_capitive() : CreatureScript("npc_stillpine_capitive") { }
@@ -770,7 +779,8 @@ public:
     }
 
 };
-class go_bristlelimb_cage : public GameObjectScript
+
+class go_bristlelimb_cage : public GameObjectScript
 {
 public:
     go_bristlelimb_cage() : GameObjectScript("go_bristlelimb_cage") { }

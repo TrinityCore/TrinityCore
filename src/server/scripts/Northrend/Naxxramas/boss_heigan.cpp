@@ -41,7 +41,8 @@ enum Phases
     PHASE_FIGHT = 1,
     PHASE_DANCE,
 };
-class boss_heigan : public CreatureScript
+
+class boss_heigan : public CreatureScript
 {
 public:
     boss_heigan() : CreatureScript("boss_heigan") { }

@@ -46,7 +46,8 @@ enum eEnums
 
 #define GOSSIP_ITEM_TEA     "Teach me the cooking recipe"
 #define GOSSIP_ITEM_POTION  "Teach me the alchemy recipe"
-class npc_henry_stern : public CreatureScript
+
+class npc_henry_stern : public CreatureScript
 {
 public:
     npc_henry_stern() : CreatureScript("npc_henry_stern") { }
@@ -86,7 +87,8 @@ public:
 /*######
 ## go_gong
 ######*/
-class go_gong : public GameObjectScript
+
+class go_gong : public GameObjectScript
 {
 public:
     go_gong() : GameObjectScript("go_gong") { }
@@ -111,7 +113,8 @@ enum eTombCreature
 {
     SPELL_WEB                   = 745
 };
-class npc_tomb_creature : public CreatureScript
+
+class npc_tomb_creature : public CreatureScript
 {
 public:
     npc_tomb_creature() : CreatureScript("npc_tomb_creature") { }

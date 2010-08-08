@@ -44,7 +44,8 @@ enum eTapokeSlim
     NPC_SLIMS_FRIEND            = 4971,
     NPC_TAPOKE_SLIM_JAHN        = 4962
 };
-class npc_tapoke_slim_jahn : public CreatureScript
+
+class npc_tapoke_slim_jahn : public CreatureScript
 {
 public:
     npc_tapoke_slim_jahn() : CreatureScript("npc_tapoke_slim_jahn") { }
@@ -138,7 +139,8 @@ public:
 /*######
 ## npc_mikhail
 ######*/
-class npc_mikhail : public CreatureScript
+
+class npc_mikhail : public CreatureScript
 {
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }

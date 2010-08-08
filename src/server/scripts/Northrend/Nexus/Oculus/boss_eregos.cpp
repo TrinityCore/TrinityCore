@@ -74,7 +74,8 @@ enum EmeraldDrake
     // you do not have access to until you kill the Mage-Lord Urom
     SPELL_EMERALD_DREAM_FUNNEL                    = 50344         //(60 yds) - Channeled - Transfers 5% of the caster's max health to a friendly drake every second for 10 seconds as long as the caster channels.
 };
-class boss_eregos : public CreatureScript
+
+class boss_eregos : public CreatureScript
 {
 public:
     boss_eregos() : CreatureScript("boss_eregos") { }

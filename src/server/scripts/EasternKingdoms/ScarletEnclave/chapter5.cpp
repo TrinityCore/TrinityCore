@@ -282,7 +282,8 @@ static Locations LightofDawnLoc[]=
     {2272.709, -5255.552, 78.226, 0},     // 28 Lich king kicked
     {2273.972, -5257.676, 78.862, 0}      // 29 Lich king moves forward
 };
-class npc_highlord_darion_mograine : public CreatureScript
+
+class npc_highlord_darion_mograine : public CreatureScript
 {
 public:
     npc_highlord_darion_mograine() : CreatureScript("npc_highlord_darion_mograine") { }
@@ -1658,7 +1659,8 @@ public:
 
 /*######
 ## npc the lich king in dawn of light
-######*/class npc_the_lich_king_tirion_dawn : public CreatureScript
+######*/
+class npc_the_lich_king_tirion_dawn : public CreatureScript
 {
 public:
     npc_the_lich_king_tirion_dawn() : CreatureScript("npc_the_lich_king_tirion_dawn") { }

@@ -31,7 +31,8 @@ EndScriptData */
 #define SPELL_IGNITEMANA            19659
 #define SPELL_LIVINGBOMB            20475
 #define SPELL_ARMAGEDDOM            20479
-class boss_baron_geddon : public CreatureScript
+
+class boss_baron_geddon : public CreatureScript
 {
 public:
     boss_baron_geddon() : CreatureScript("boss_baron_geddon") { }

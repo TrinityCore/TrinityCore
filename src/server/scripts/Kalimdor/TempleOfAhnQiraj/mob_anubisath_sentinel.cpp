@@ -54,7 +54,8 @@ EndScriptData */
 
 #define SPELL_STORM_BUFF        2148
 #define SPELL_STORM             26546
-class mob_anubisath_sentinel : public CreatureScript
+
+class mob_anubisath_sentinel : public CreatureScript
 {
 public:
     mob_anubisath_sentinel() : CreatureScript("mob_anubisath_sentinel") { }

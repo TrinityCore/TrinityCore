@@ -32,7 +32,8 @@ EndContentData */
 /*######
 ## mob_yenniku
 ######*/
-class mob_yenniku : public CreatureScript
+
+class mob_yenniku : public CreatureScript
 {
 public:
     mob_yenniku() : CreatureScript("mob_yenniku") { }

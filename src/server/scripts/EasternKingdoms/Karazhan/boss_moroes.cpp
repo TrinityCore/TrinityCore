@@ -59,7 +59,8 @@ const uint32 Adds[6]=
     19875,
     19876,
 };
-class boss_moroes : public CreatureScript
+
+class boss_moroes : public CreatureScript
 {
 public:
     boss_moroes() : CreatureScript("boss_moroes") { }
@@ -402,7 +403,8 @@ struct boss_moroes_guestAI : public ScriptedAI
 #define SPELL_HEROICSTRIKE      29567
 #define SPELL_SHIELDBASH        11972
 #define SPELL_SHIELDWALL        29390
-class boss_baroness_dorothea_millstipe : public CreatureScript
+
+class boss_baroness_dorothea_millstipe : public CreatureScript
 {
 public:
     boss_baroness_dorothea_millstipe() : CreatureScript("boss_baroness_dorothea_millstipe") { }
@@ -465,7 +467,8 @@ public:
     };
 
 };
-class boss_baron_rafe_dreuger : public CreatureScript
+
+class boss_baron_rafe_dreuger : public CreatureScript
 {
 public:
     boss_baron_rafe_dreuger() : CreatureScript("boss_baron_rafe_dreuger") { }
@@ -522,7 +525,8 @@ public:
     };
 
 };
-class boss_lady_catriona_von_indi : public CreatureScript
+
+class boss_lady_catriona_von_indi : public CreatureScript
 {
 public:
     boss_lady_catriona_von_indi() : CreatureScript("boss_lady_catriona_von_indi") { }
@@ -592,7 +596,8 @@ public:
     };
 
 };
-class boss_lady_keira_berrybuck : public CreatureScript
+
+class boss_lady_keira_berrybuck : public CreatureScript
 {
 public:
     boss_lady_keira_berrybuck() : CreatureScript("boss_lady_keira_berrybuck") { }
@@ -666,7 +671,8 @@ public:
     };
 
 };
-class boss_lord_robin_daris : public CreatureScript
+
+class boss_lord_robin_daris : public CreatureScript
 {
 public:
     boss_lord_robin_daris() : CreatureScript("boss_lord_robin_daris") { }
@@ -722,7 +728,8 @@ public:
     };
 
 };
-class boss_lord_crispin_ference : public CreatureScript
+
+class boss_lord_crispin_ference : public CreatureScript
 {
 public:
     boss_lord_crispin_ference() : CreatureScript("boss_lord_crispin_ference") { }

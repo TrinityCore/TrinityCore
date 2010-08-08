@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_CORROSIVEACID      20667
 #define SPELL_FREEZE             18763
 #define SPELL_FLAMEBREATH        20712
-class boss_gyth : public CreatureScript
+
+class boss_gyth : public CreatureScript
 {
 public:
     boss_gyth() : CreatureScript("boss_gyth") { }

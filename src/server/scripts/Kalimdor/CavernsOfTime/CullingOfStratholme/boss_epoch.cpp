@@ -48,7 +48,8 @@ enum Yells
     SAY_SLAY_3                                  = -1595007, //"You were destined to fail. "
     SAY_DEATH                                   = -1595008 //"*gurgles*"
 };
-class boss_epoch : public CreatureScript
+
+class boss_epoch : public CreatureScript
 {
 public:
     boss_epoch() : CreatureScript("boss_epoch") { }

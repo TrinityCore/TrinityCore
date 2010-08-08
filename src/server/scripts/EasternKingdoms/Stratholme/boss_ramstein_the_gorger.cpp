@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_KNOCKOUT    17307
 
  #define C_MINDLESS_UNDEAD   11030
-class boss_ramstein_the_gorger : public CreatureScript
+
+class boss_ramstein_the_gorger : public CreatureScript
 {
 public:
     boss_ramstein_the_gorger() : CreatureScript("boss_ramstein_the_gorger") { }

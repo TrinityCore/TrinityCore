@@ -42,7 +42,8 @@ enum eEnums
     SPELL_SAND_BREATH   = 31473,
     H_SPELL_SAND_BREATH = 39049
 };
-class boss_aeonus : public CreatureScript
+
+class boss_aeonus : public CreatureScript
 {
 public:
     boss_aeonus() : CreatureScript("boss_aeonus") { }

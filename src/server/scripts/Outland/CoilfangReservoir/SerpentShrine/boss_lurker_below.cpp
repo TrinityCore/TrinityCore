@@ -65,7 +65,8 @@ float AddPos[9][3] =
     {14.388216, -423.468018, -19.625271},   //MOVE_GUARDIAN_2 X, Y, Z
     {42.471519, -445.115295, -19.769423}    //MOVE_GUARDIAN_3 X, Y, Z
 };
-class boss_the_lurker_below : public CreatureScript
+
+class boss_the_lurker_below : public CreatureScript
 {
 public:
     boss_the_lurker_below() : CreatureScript("boss_the_lurker_below") { }
@@ -360,7 +361,8 @@ public:
         }
      };
 };
-class mob_coilfang_guardian : public CreatureScript
+
+class mob_coilfang_guardian : public CreatureScript
 {
 public:
     mob_coilfang_guardian() : CreatureScript("mob_coilfang_guardian") { }
@@ -385,7 +387,8 @@ public:
     }
 
 };
-class mob_coilfang_ambusher : public CreatureScript
+
+class mob_coilfang_ambusher : public CreatureScript
 {
 public:
     mob_coilfang_ambusher() : CreatureScript("mob_coilfang_ambusher") { }

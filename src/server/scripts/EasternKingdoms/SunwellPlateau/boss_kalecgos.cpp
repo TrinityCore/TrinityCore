@@ -102,7 +102,8 @@ enum SWPActions
 #define MAX_PLAYERS_IN_SPECTRAL_REALM 0 //over this, teleport object won't work, 0 disables check
 
 uint32 WildMagic[] = { 44978, 45001, 45002, 45004, 45006, 45010 };
-class boss_kalecgos : public CreatureScript
+
+class boss_kalecgos : public CreatureScript
 {
 public:
     boss_kalecgos() : CreatureScript("boss_kalecgos") { }
@@ -434,7 +435,8 @@ public:
     };
 
 };
-class boss_kalec : public CreatureScript
+
+class boss_kalec : public CreatureScript
 {
 public:
     boss_kalec() : CreatureScript("boss_kalec") { }
@@ -535,7 +537,8 @@ public:
     };
 
 };
-class kalecgos_teleporter : public GameObjectScript
+
+class kalecgos_teleporter : public GameObjectScript
 {
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
@@ -559,7 +562,8 @@ public:
     }
 
 };
-class boss_sathrovarr : public CreatureScript
+
+class boss_sathrovarr : public CreatureScript
 {
 public:
     boss_sathrovarr() : CreatureScript("boss_sathrovarr") { }

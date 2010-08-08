@@ -35,7 +35,8 @@ EndScriptData */
 #define SPELL_FROSTBOLT         15530
 #define SPELL_FROST_NOVA        15531
 #define SPELL_FROST_SPECTRES    12642
-class boss_amnennar_the_coldbringer : public CreatureScript
+
+class boss_amnennar_the_coldbringer : public CreatureScript
 {
 public:
     boss_amnennar_the_coldbringer() : CreatureScript("boss_amnennar_the_coldbringer") { }

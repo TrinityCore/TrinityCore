@@ -52,7 +52,8 @@ EndScriptData */
 #define SPELL_ARCANE_BUFFET         DUNGEON_MODE(33527, 38138)
 #define SPELL_FROST_BUFFET          DUNGEON_MODE(33528, 38142)
 #define SPELL_SHADOW_BUFFET         DUNGEON_MODE(33529, 38143)
-class boss_darkweaver_syth : public CreatureScript
+
+class boss_darkweaver_syth : public CreatureScript
 {
 public:
     boss_darkweaver_syth() : CreatureScript("boss_darkweaver_syth") { }
@@ -251,7 +252,9 @@ public:
     {
         return new mob_syth_fireAI (pCreature);
     }
-};class mob_syth_arcane : public CreatureScript
+};
+
+class mob_syth_arcane : public CreatureScript
 {
 public:
     mob_syth_arcane() : CreatureScript("mob_syth_arcane") { }
@@ -305,7 +308,8 @@ public:
     };
 };
 
-class mob_syth_frost : public CreatureScript
+
+class mob_syth_frost : public CreatureScript
 {
 public:
     mob_syth_frost() : CreatureScript("mob_syth_frost") { }
@@ -360,7 +364,8 @@ public:
 
 };
 
-class mob_syth_shadow : public CreatureScript
+
+class mob_syth_shadow : public CreatureScript
 {
 public:
     mob_syth_shadow() : CreatureScript("mob_syth_shadow") { }

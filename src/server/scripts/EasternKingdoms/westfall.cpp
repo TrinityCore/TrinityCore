@@ -48,7 +48,8 @@ enum eEnums
     NPC_DEFIAS_RAIDER   = 6180,
     EQUIP_ID_RIFLE      = 2511
 };
-class npc_daphne_stilwell : public CreatureScript
+
+class npc_daphne_stilwell : public CreatureScript
 {
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
@@ -200,7 +201,8 @@ public:
 #define SAY_AGGRO_2                 -1000105
 
 #define QUEST_DEFIAS_BROTHERHOOD    155
-class npc_defias_traitor : public CreatureScript
+
+class npc_defias_traitor : public CreatureScript
 {
 public:
     npc_defias_traitor() : CreatureScript("npc_defias_traitor") { }

@@ -54,7 +54,8 @@ enum Achievements
 };
 
 const Position  CenterOfRoom = {504.80, 89.07, -16.12, 6.27};
-class boss_magus_telestra : public CreatureScript
+
+class boss_magus_telestra : public CreatureScript
 {
 public:
     boss_magus_telestra() : CreatureScript("boss_magus_telestra") { }

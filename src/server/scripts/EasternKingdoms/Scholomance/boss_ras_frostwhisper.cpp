@@ -31,7 +31,8 @@ EndScriptData */
 #define SPELL_FEAR              26070
 #define SPELL_CHILLNOVA         18099
 #define SPELL_FROSTVOLLEY       8398
-class boss_boss_ras_frostwhisper : public CreatureScript
+
+class boss_boss_ras_frostwhisper : public CreatureScript
 {
 public:
     boss_boss_ras_frostwhisper() : CreatureScript("boss_boss_ras_frostwhisper") { }

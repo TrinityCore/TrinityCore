@@ -49,7 +49,8 @@ enum Misc
 {
     DATA_CONTAINMENT_SPHERES                      = 3
 };
-class boss_keristrasza : public CreatureScript
+
+class boss_keristrasza : public CreatureScript
 {
 public:
     boss_keristrasza() : CreatureScript("boss_keristrasza") { }
@@ -222,7 +223,8 @@ public:
 
 };
 
-class containment_sphere : public GameObjectScript
+
+class containment_sphere : public GameObjectScript
 {
 public:
     containment_sphere() : GameObjectScript("containment_sphere") { }

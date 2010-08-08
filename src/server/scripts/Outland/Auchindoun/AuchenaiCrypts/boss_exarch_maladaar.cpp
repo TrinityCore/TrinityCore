@@ -40,7 +40,8 @@ EndContentData */
 #define SPELL_MORTAL_STRIKE     37335
 #define SPELL_FREEZING_TRAP     37368
 #define SPELL_HAMMER_OF_JUSTICE 37369
-class mob_stolen_soul : public CreatureScript
+
+class mob_stolen_soul : public CreatureScript
 {
 public:
     mob_stolen_soul() : CreatureScript("mob_stolen_soul") { }
@@ -149,7 +150,8 @@ public:
 #define SPELL_SUMMON_AVATAR         32424
 
 #define ENTRY_STOLEN_SOUL           18441
-class boss_exarch_maladaar : public CreatureScript
+
+class boss_exarch_maladaar : public CreatureScript
 {
 public:
     boss_exarch_maladaar() : CreatureScript("boss_exarch_maladaar") { }
@@ -306,7 +308,8 @@ public:
 
 #define SPELL_AV_MORTAL_STRIKE          16856
 #define SPELL_AV_SUNDER_ARMOR           16145
-class mob_avatar_of_martyred : public CreatureScript
+
+class mob_avatar_of_martyred : public CreatureScript
 {
 public:
     mob_avatar_of_martyred() : CreatureScript("mob_avatar_of_martyred") { }

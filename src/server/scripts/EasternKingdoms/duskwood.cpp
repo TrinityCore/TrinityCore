@@ -28,7 +28,8 @@ EndScriptData */
 /*######
 # at_twilight_grove
 ######*/
-class at_twilight_grove : public AreaTriggerScript
+
+class at_twilight_grove : public AreaTriggerScript
 {
 public:
     at_twilight_grove() : AreaTriggerScript("at_twilight_grove") { }
@@ -61,7 +62,8 @@ public:
 #define SPELL_SOUL_CORRUPTION 25805
 #define SPELL_CREATURE_OF_NIGHTMARE 25806
 #define SPELL_LEVEL_UP 24312
-class boss_twilight_corrupter : public CreatureScript
+
+class boss_twilight_corrupter : public CreatureScript
 {
 public:
     boss_twilight_corrupter() : CreatureScript("boss_twilight_corrupter") { }

@@ -68,7 +68,8 @@ enum Events
 };
 
 typedef std::map<uint64, uint64> IceBlockMap;
-class boss_sapphiron : public CreatureScript
+
+class boss_sapphiron : public CreatureScript
 {
 public:
     boss_sapphiron() : CreatureScript("boss_sapphiron") { }

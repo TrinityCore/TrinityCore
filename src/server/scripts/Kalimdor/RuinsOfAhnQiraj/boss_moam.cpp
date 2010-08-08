@@ -51,7 +51,8 @@ enum CombatPhase
     NORMAL,
     STONE
 };
-class boss_moam : public CreatureScript
+
+class boss_moam : public CreatureScript
 {
 public:
     boss_moam() : CreatureScript("boss_moam") { }

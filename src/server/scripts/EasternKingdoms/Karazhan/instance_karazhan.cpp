@@ -42,7 +42,8 @@ EndScriptData */
 10 - Prince Malchezzar
 11 - Nightbane
 */
-class instance_karazhan : public InstanceMapScript
+
+class instance_karazhan : public InstanceMapScript
 {
 public:
     instance_karazhan() : InstanceMapScript("instance_karazhan") { }

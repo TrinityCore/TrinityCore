@@ -30,7 +30,8 @@ enum Spells
     SPELL_WHIRLWIND                                        = 15589,
     SPELL_MORTALSTRIKE                                     = 24573
 };
-class boss_gorosh_the_dervish : public CreatureScript
+
+class boss_gorosh_the_dervish : public CreatureScript
 {
 public:
     boss_gorosh_the_dervish() : CreatureScript("boss_gorosh_the_dervish") { }

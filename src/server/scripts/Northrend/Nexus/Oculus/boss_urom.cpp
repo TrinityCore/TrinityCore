@@ -85,7 +85,8 @@ static int32 SayAggro[]=
 {
     SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3,SAY_AGGRO_4
 };
-class boss_urom : public CreatureScript
+
+class boss_urom : public CreatureScript
 {
 public:
     boss_urom() : CreatureScript("boss_urom") { }

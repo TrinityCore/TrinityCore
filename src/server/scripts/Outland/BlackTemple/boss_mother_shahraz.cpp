@@ -77,7 +77,8 @@ static Locations TeleportPoint[]=
     {930.548, 284.888, 193.367},
     {965.997, 278.398, 195.777}
 };
-class boss_mother_shahraz : public CreatureScript
+
+class boss_mother_shahraz : public CreatureScript
 {
 public:
     boss_mother_shahraz() : CreatureScript("boss_mother_shahraz") { }

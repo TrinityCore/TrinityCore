@@ -36,7 +36,8 @@ EndScriptData */
 //Guard Spell
 #define SPELL_WHIRLWINDADD                           26038
 #define SPELL_KNOCKBACK                              26027
-class boss_sartura : public CreatureScript
+
+class boss_sartura : public CreatureScript
 {
 public:
     boss_sartura() : CreatureScript("boss_sartura") { }
@@ -180,7 +181,8 @@ public:
     };
 
 };
-class mob_sartura_royal_guard : public CreatureScript
+
+class mob_sartura_royal_guard : public CreatureScript
 {
 public:
     mob_sartura_royal_guard() : CreatureScript("mob_sartura_royal_guard") { }

@@ -37,7 +37,8 @@ EndScriptData */
 3 - Grandmaster Vorpil event
 4 - Murmur event
 */
-class instance_shadow_labyrinth : public InstanceMapScript
+
+class instance_shadow_labyrinth : public InstanceMapScript
 {
 public:
     instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth") { }

@@ -28,7 +28,8 @@ enum Spells
 };
 
 static Position EckSpawnPoint = { 1643.877930, 936.278015, 107.204948, 0.668432 };
-class boss_eck : public CreatureScript
+
+class boss_eck : public CreatureScript
 {
 public:
     boss_eck() : CreatureScript("boss_eck") { }
@@ -132,7 +133,8 @@ public:
 
 };
 
-class npc_ruins_dweller : public CreatureScript
+
+class npc_ruins_dweller : public CreatureScript
 {
 public:
     npc_ruins_dweller() : CreatureScript("npc_ruins_dweller") { }

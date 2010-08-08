@@ -41,7 +41,8 @@ enum eEnums
     H_SPELL_WING_BUFFET     = 38593,
     SPELL_REFLECT           = 38592                       //Not Implemented (Heroic mod)
 };
-class boss_temporus : public CreatureScript
+
+class boss_temporus : public CreatureScript
 {
 public:
     boss_temporus() : CreatureScript("boss_temporus") { }

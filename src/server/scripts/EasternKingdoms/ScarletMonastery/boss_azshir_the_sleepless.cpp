@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_CALLOFTHEGRAVE            17831
 #define SPELL_TERRIFY                   7399
 #define SPELL_SOULSIPHON                7290
-class boss_azshir_the_sleepless : public CreatureScript
+
+class boss_azshir_the_sleepless : public CreatureScript
 {
 public:
     boss_azshir_the_sleepless() : CreatureScript("boss_azshir_the_sleepless") { }

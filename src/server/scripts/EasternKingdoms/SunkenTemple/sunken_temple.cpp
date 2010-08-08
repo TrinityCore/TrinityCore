@@ -33,7 +33,8 @@ EndContentData */
 /*#####
 # at_malfurion_Stormrage_trigger
 #####*/
-class at_malfurion_stormrage : public AreaTriggerScript
+
+class at_malfurion_stormrage : public AreaTriggerScript
 {
 public:
     at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
@@ -53,7 +54,8 @@ public:
 /*#####
 # go_atalai_statue
 #####*/
-class go_atalai_statue : public GameObjectScript
+
+class go_atalai_statue : public GameObjectScript
 {
 public:
     go_atalai_statue() : GameObjectScript("go_atalai_statue") { }

@@ -44,7 +44,8 @@ enum Events
     EVENT_CORRUPTED_FLESH,
     EVENT_SHARED_SUFFERING,
 };
-class boss_marwyn : public CreatureScript
+
+class boss_marwyn : public CreatureScript
 {
 public:
     boss_marwyn() : CreatureScript("boss_marwyn") { }

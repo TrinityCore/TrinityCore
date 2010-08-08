@@ -57,7 +57,8 @@ float IntroWay[8][3] =
     {-11140   , -1915  ,122},
     {-11163   , -1903  ,91.473}
 };
-class boss_nightbane : public CreatureScript
+
+class boss_nightbane : public CreatureScript
 {
 public:
     boss_nightbane() : CreatureScript("boss_nightbane") { }

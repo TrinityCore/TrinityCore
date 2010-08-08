@@ -31,7 +31,8 @@ enum eEnums
     NPC_ANZU   = 23035,
     IKISS_DOOR = 177203,
 };
-class instance_sethekk_halls : public InstanceMapScript
+
+class instance_sethekk_halls : public InstanceMapScript
 {
 public:
     instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls") { }

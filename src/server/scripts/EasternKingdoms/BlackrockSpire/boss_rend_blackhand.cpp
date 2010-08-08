@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_WHIRLWIND                 26038
 #define SPELL_CLEAVE                    20691
 #define SPELL_THUNDERCLAP               23931               //Not sure if he cast this spell
-class boss_rend_blackhand : public CreatureScript
+
+class boss_rend_blackhand : public CreatureScript
 {
 public:
     boss_rend_blackhand() : CreatureScript("boss_rend_blackhand") { }

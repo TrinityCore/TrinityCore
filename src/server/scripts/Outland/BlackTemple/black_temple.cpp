@@ -36,7 +36,8 @@ EndContentData */
 
 #define SPELL_TELEPORT      41566                           // s41566 - Teleport to Ashtongue NPC's
 #define GOSSIP_OLUM1        "Teleport me to the other Ashtongue Deathsworn"
-class npc_spirit_of_olum : public CreatureScript
+
+class npc_spirit_of_olum : public CreatureScript
 {
 public:
     npc_spirit_of_olum() : CreatureScript("npc_spirit_of_olum") { }

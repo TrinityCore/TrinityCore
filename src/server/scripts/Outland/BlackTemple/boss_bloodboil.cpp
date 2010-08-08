@@ -54,7 +54,8 @@ EndScriptData */
 #define SPELL_BERSERK            45078
 
 //This is used to sort the players by distance in preparation for the Bloodboil cast.
-class boss_gurtogg_bloodboil : public CreatureScript
+
+class boss_gurtogg_bloodboil : public CreatureScript
 {
 public:
     boss_gurtogg_bloodboil() : CreatureScript("boss_gurtogg_bloodboil") { }

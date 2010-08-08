@@ -59,7 +59,8 @@ EndScriptData */
 #define SAY_SALUTE      "Move out Soldier!"
 
 //This is the GetAI method used by all scripts that involve AI
-//It is called every time a new Creature using this script is createdclass custom_example : public CreatureScript
+//It is called every time a new Creature using this script is created
+class custom_example : public CreatureScript
 {
 public:
     custom_example() : CreatureScript("custom_example") { }

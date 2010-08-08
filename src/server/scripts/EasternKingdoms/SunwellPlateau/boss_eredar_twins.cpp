@@ -84,7 +84,8 @@ enum Spells
     SPELL_BLAZE_SUMMON      =   45236, //187366 GO
     SPELL_BLAZE_BURN        =   45246
 };
-class boss_sacrolash : public CreatureScript
+
+class boss_sacrolash : public CreatureScript
 {
 public:
     boss_sacrolash() : CreatureScript("boss_sacrolash") { }
@@ -346,7 +347,8 @@ public:
 
 };
 
-class boss_alythess : public CreatureScript
+
+class boss_alythess : public CreatureScript
 {
 public:
     boss_alythess() : CreatureScript("boss_alythess") { }
@@ -680,7 +682,8 @@ public:
 
 };
 
-class mob_shadow_image : public CreatureScript
+
+class mob_shadow_image : public CreatureScript
 {
 public:
     mob_shadow_image() : CreatureScript("mob_shadow_image") { }

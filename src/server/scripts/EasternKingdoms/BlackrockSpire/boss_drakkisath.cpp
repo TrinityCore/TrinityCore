@@ -29,7 +29,8 @@ EndScriptData */
 #define SPELL_CLEAVE                    20691
 #define SPELL_CONFLIGURATION            16805
 #define SPELL_THUNDERCLAP               15548               //Not sure if right ID. 23931 would be a harder possibility.
-class boss_drakkisath : public CreatureScript
+
+class boss_drakkisath : public CreatureScript
 {
 public:
     boss_drakkisath() : CreatureScript("boss_drakkisath") { }

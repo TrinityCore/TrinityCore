@@ -32,7 +32,8 @@ enum Yells
     SAY_DEATH                                   = -1603053,
     SAY_BERSERK                                 = -1603054,
 };
-class boss_auriaya : public CreatureScript
+
+class boss_auriaya : public CreatureScript
 {
 public:
     boss_auriaya() : CreatureScript("boss_auriaya") { }

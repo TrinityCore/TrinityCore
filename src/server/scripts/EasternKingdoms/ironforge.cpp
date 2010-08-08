@@ -38,7 +38,8 @@ EndContentData */
 #define GOSSIP_ITEM_ROYAL_2 "Interesting, continue please."
 #define GOSSIP_ITEM_ROYAL_3 "Unbelievable! How dare they??"
 #define GOSSIP_ITEM_ROYAL_4 "Of course I will help!"
-class npc_royal_historian_archesonus : public CreatureScript
+
+class npc_royal_historian_archesonus : public CreatureScript
 {
 public:
     npc_royal_historian_archesonus() : CreatureScript("npc_royal_historian_archesonus") { }

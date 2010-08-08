@@ -33,7 +33,8 @@ EndScriptData */
 //Add spells
 #define SPELL_ERUPTION              19497
 #define SPELL_IMMOLATE              20294
-class boss_garr : public CreatureScript
+
+class boss_garr : public CreatureScript
 {
 public:
     boss_garr() : CreatureScript("boss_garr") { }
@@ -88,7 +89,8 @@ public:
     };
 
 };
-class mob_firesworn : public CreatureScript
+
+class mob_firesworn : public CreatureScript
 {
 public:
     mob_firesworn() : CreatureScript("mob_firesworn") { }

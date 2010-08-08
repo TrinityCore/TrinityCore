@@ -44,7 +44,8 @@ enum Yells
     SAY_SPECIAL_ATTACK_1                        = -1608008,
     SAY_SPECIAL_ATTACK_2                        = -1608009
 };
-class boss_cyanigosa : public CreatureScript
+
+class boss_cyanigosa : public CreatureScript
 {
 public:
     boss_cyanigosa() : CreatureScript("boss_cyanigosa") { }

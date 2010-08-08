@@ -36,7 +36,8 @@ enum eEnums
     SPELL_FIREAOE               = 9435,
     SPELL_ARCANEBUBBLE          = 9438,
 };
-class boss_arcanist_doan : public CreatureScript
+
+class boss_arcanist_doan : public CreatureScript
 {
 public:
     boss_arcanist_doan() : CreatureScript("boss_arcanist_doan") { }

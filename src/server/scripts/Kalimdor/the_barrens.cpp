@@ -45,7 +45,8 @@ enum eQuests
 {
     QUEST_LOST_IN_BATTLE    = 4921
 };
-class npc_beaten_corpse : public CreatureScript
+
+class npc_beaten_corpse : public CreatureScript
 {
 public:
     npc_beaten_corpse() : CreatureScript("npc_beaten_corpse") { }
@@ -94,7 +95,8 @@ enum eGilthares
     AREA_MERCHANT_COAST         = 391,
     FACTION_ESCORTEE            = 232                       //guessed, possible not needed for this quest
 };
-class npc_gilthares : public CreatureScript
+
+class npc_gilthares : public CreatureScript
 {
 public:
     npc_gilthares() : CreatureScript("npc_gilthares") { }
@@ -180,7 +182,8 @@ public:
 ######*/
 
 #define GOSSIP_SPUTTERVALVE "Can you tell me about this shard?"
-class npc_sputtervalve : public CreatureScript
+
+class npc_sputtervalve : public CreatureScript
 {
 public:
     npc_sputtervalve() : CreatureScript("npc_sputtervalve") { }
@@ -220,7 +223,8 @@ enum eEnums
     SPELL_FLARE         = 10113,
     SPELL_FOLLY         = 10137,
 };
-class npc_taskmaster_fizzule : public CreatureScript
+
+class npc_taskmaster_fizzule : public CreatureScript
 {
 public:
     npc_taskmaster_fizzule() : CreatureScript("npc_taskmaster_fizzule") { }
@@ -336,7 +340,8 @@ float AffrayChallengerLoc[6][4]=
     {-1674, -4326, 2.79, 3.49},
     {-1677, -4334, 2.79, 1.66}
 };
-class npc_twiggy_flathead : public CreatureScript
+
+class npc_twiggy_flathead : public CreatureScript
 {
 public:
     npc_twiggy_flathead() : CreatureScript("npc_twiggy_flathead") { }
@@ -557,7 +562,8 @@ enum eEnums_Wizzlecrank
     NPC_PILOT_WIZZ      = 3451,
     NPC_MERCENARY       = 3282,
 };
-class npc_wizzlecrank_shredder : public CreatureScript
+
+class npc_wizzlecrank_shredder : public CreatureScript
 {
 public:
     npc_wizzlecrank_shredder() : CreatureScript("npc_wizzlecrank_shredder") { }

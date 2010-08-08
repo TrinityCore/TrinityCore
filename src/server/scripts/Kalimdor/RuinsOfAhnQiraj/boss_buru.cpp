@@ -30,7 +30,8 @@ enum Yells
 {
     EMOTE_TARGET               = -1509002
 };
-class boss_buru : public CreatureScript
+
+class boss_buru : public CreatureScript
 {
 public:
     boss_buru() : CreatureScript("boss_buru") { }

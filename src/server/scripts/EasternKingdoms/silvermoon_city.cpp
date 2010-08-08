@@ -38,7 +38,8 @@ EndContentData */
 #define QUEST_REDEEMING_THE_DEAD        9685
 #define SPELL_SHIMMERING_VESSEL         31225
 #define SPELL_REVIVE_SELF               32343
-class npc_blood_knight_stillblade : public CreatureScript
+
+class npc_blood_knight_stillblade : public CreatureScript
 {
 public:
     npc_blood_knight_stillblade() : CreatureScript("npc_blood_knight_stillblade") { }

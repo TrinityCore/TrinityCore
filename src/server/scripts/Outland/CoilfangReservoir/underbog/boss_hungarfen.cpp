@@ -27,7 +27,8 @@ EndScriptData */
 
 #define SPELL_FOUL_SPORES   31673
 #define SPELL_ACID_GEYSER   38739
-class boss_hungarfen : public CreatureScript
+
+class boss_hungarfen : public CreatureScript
 {
 public:
     boss_hungarfen() : CreatureScript("boss_hungarfen") { }
@@ -98,7 +99,8 @@ public:
 #define SPELL_SPORE_CLOUD       34168
 #define SPELL_PUTRID_MUSHROOM   31690
 #define SPELL_GROW              31698
-class mob_underbog_mushroom : public CreatureScript
+
+class mob_underbog_mushroom : public CreatureScript
 {
 public:
     mob_underbog_mushroom() : CreatureScript("mob_underbog_mushroom") { }

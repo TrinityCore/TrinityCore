@@ -34,7 +34,8 @@ EndScriptData */
 #define SPELL_REFLECT            22067
 #define SPELL_CLEAVE              8255                      //Perhaps not right ID
 #define SPELL_ENRAGE             23537
-class boss_azuregos : public CreatureScript
+
+class boss_azuregos : public CreatureScript
 {
 public:
     boss_azuregos() : CreatureScript("boss_azuregos") { }

@@ -83,7 +83,8 @@ static Position RitualChannelerPos[]=
 };
 static Position ArthasPos = { 295.81, -366.16, 92.57, 1.58 };
 static Position SvalaPos = { 296.632, -346.075, 90.6307, 1.58 };
-class boss_svala : public CreatureScript
+
+class boss_svala : public CreatureScript
 {
 public:
     boss_svala() : CreatureScript("boss_svala") { }
@@ -205,7 +206,8 @@ public:
     };
 
 };
-class mob_ritual_channeler : public CreatureScript
+
+class mob_ritual_channeler : public CreatureScript
 {
 public:
     mob_ritual_channeler() : CreatureScript("mob_ritual_channeler") { }
@@ -243,7 +245,8 @@ public:
     };
 
 };
-class boss_svala_sorrowgrave : public CreatureScript
+
+class boss_svala_sorrowgrave : public CreatureScript
 {
 public:
     boss_svala_sorrowgrave() : CreatureScript("boss_svala_sorrowgrave") { }

@@ -49,7 +49,8 @@ EndScriptData */
 #define ADD_4Y 99.373
 #define ADD_4Z 104.732
 #define ADD_4O 3.16
-class boss_darkmaster_gandling : public CreatureScript
+
+class boss_darkmaster_gandling : public CreatureScript
 {
 public:
     boss_darkmaster_gandling() : CreatureScript("boss_darkmaster_gandling") { }

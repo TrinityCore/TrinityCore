@@ -44,7 +44,8 @@ enum Yells
     SAY_SPAWN                                   = -1595030,
     SAY_DEATH                                   = -1595031
 };
-class boss_meathook : public CreatureScript
+
+class boss_meathook : public CreatureScript
 {
 public:
     boss_meathook() : CreatureScript("boss_meathook") { }

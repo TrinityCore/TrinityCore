@@ -61,7 +61,8 @@ enum eEnums
     EQUIP_ID_MACE                               = 49344,
     ACHIEV_DOESNT_GO_TO_ELEVEN                  = 4524,
 };
-class boss_garfrost : public CreatureScript
+
+class boss_garfrost : public CreatureScript
 {
 public:
     boss_garfrost() : CreatureScript("boss_garfrost") { }

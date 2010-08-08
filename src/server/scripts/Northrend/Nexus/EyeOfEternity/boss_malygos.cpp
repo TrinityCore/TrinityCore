@@ -104,7 +104,8 @@ enum
 {
     ACHIEV_TIMED_START_EVENT                      = 20387,
 };
-class boss_malygos : public CreatureScript
+
+class boss_malygos : public CreatureScript
 {
 public:
     boss_malygos() : CreatureScript("boss_malygos") { }

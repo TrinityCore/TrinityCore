@@ -45,7 +45,8 @@ EndContentData */
 
 #define SPELL_WATER_BOLT_VOLLEY     34449
 #define H_SPELL_WATER_BOLT_VOLLEY   37924
-class boss_hydromancer_thespia : public CreatureScript
+
+class boss_hydromancer_thespia : public CreatureScript
 {
 public:
     boss_hydromancer_thespia() : CreatureScript("boss_hydromancer_thespia") { }
@@ -144,7 +145,8 @@ public:
     };
 
 };
-class mob_coilfang_waterelemental : public CreatureScript
+
+class mob_coilfang_waterelemental : public CreatureScript
 {
 public:
     mob_coilfang_waterelemental() : CreatureScript("mob_coilfang_waterelemental") { }

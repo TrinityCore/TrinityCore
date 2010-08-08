@@ -19,7 +19,8 @@
 #include "razorfen_downs.h"
 
 #define    MAX_ENCOUNTER  1
-class instance_razorfen_downs : public InstanceMapScript
+
+class instance_razorfen_downs : public InstanceMapScript
 {
 public:
     instance_razorfen_downs() : InstanceMapScript("instance_razorfen_downs") { }

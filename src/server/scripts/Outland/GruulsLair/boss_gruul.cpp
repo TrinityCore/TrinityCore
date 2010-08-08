@@ -53,7 +53,8 @@ enum eEnums
     SPELL_MAGNETIC_PULL         = 28337,
     SPELL_KNOCK_BACK            = 24199,                    //Knockback spell until correct implementation is made
 };
-class boss_gruul : public CreatureScript
+
+class boss_gruul : public CreatureScript
 {
 public:
     boss_gruul() : CreatureScript("boss_gruul") { }

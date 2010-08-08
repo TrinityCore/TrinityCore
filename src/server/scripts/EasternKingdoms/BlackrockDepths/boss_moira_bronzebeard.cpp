@@ -34,7 +34,8 @@ enum Spells
     SPELL_SHADOWWORDPAIN                                   = 10894,
     SPELL_SMITE                                            = 10934
 };
-class boss_moira_bronzebeard : public CreatureScript
+
+class boss_moira_bronzebeard : public CreatureScript
 {
 public:
     boss_moira_bronzebeard() : CreatureScript("boss_moira_bronzebeard") { }

@@ -28,7 +28,8 @@ EndScriptData */
 #define SPELL_WRATH                 21807
 #define SPELL_ENTANGLINGROOTS       12747
 #define SPELL_CORRUPT_FORCES        21968
-class celebras_the_cursed : public CreatureScript
+
+class celebras_the_cursed : public CreatureScript
 {
 public:
     celebras_the_cursed() : CreatureScript("celebras_the_cursed") { }

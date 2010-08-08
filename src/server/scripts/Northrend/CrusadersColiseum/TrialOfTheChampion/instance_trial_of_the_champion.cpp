@@ -26,7 +26,8 @@ EndScriptData */
 #include "trial_of_the_champion.h"
 
 #define MAX_ENCOUNTER  4
-class instance_trial_of_the_champion : public InstanceMapScript
+
+class instance_trial_of_the_champion : public InstanceMapScript
 {
 public:
     instance_trial_of_the_champion() : InstanceMapScript("instance_trial_of_the_champion") { }

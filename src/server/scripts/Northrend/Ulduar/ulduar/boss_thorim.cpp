@@ -39,7 +39,8 @@ enum Yells
     SAY_END_HARD_3                              = -1603286,
     SAY_YS_HELP                                 = -1603287,
 };
-class boss_thorim : public CreatureScript
+
+class boss_thorim : public CreatureScript
 {
 public:
     boss_thorim() : CreatureScript("boss_thorim") { }

@@ -75,7 +75,8 @@ EndScriptData */
 #define SPAWN_Y_DIFF3               -4.72702
 #define SPAWN_X_DIFF4               12.577011
 #define SPAWN_Y_DIFF4               4.72702
-class boss_hydross_the_unstable : public CreatureScript
+
+class boss_hydross_the_unstable : public CreatureScript
 {
 public:
     boss_hydross_the_unstable() : CreatureScript("boss_hydross_the_unstable") { }

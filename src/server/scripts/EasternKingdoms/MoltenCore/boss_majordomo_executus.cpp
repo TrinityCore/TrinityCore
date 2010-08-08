@@ -52,7 +52,8 @@ EndScriptData */
 
 #define ENTRY_FLAMEWALKER_HEALER    11663
 #define ENTRY_FLAMEWALKER_ELITE     11664
-class boss_majordomo : public CreatureScript
+
+class boss_majordomo : public CreatureScript
 {
 public:
     boss_majordomo() : CreatureScript("boss_majordomo") { }

@@ -38,7 +38,8 @@ enum Spells
     SPELL_SUMMONSWARMER                = 25844,  //might be 25708
     SPELL_PARALYZE                     = 23414   //doesnt work correct (core)
 };
-class boss_ayamiss : public CreatureScript
+
+class boss_ayamiss : public CreatureScript
 {
 public:
     boss_ayamiss() : CreatureScript("boss_ayamiss") { }

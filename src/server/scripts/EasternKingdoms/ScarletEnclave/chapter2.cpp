@@ -43,7 +43,8 @@ enum win_friends
     SAY_PERSUADED6                    = -1609519,
     SPELL_PERSUASIVE_STRIKE           = 52781
 };
-class npc_crusade_persuaded : public CreatureScript
+
+class npc_crusade_persuaded : public CreatureScript
 {
 public:
     npc_crusade_persuaded() : CreatureScript("npc_crusade_persuaded") { }
@@ -171,7 +172,8 @@ enum eKoltira
     //NPC_DEATH_KNIGHT_MOUNT          = 29201,
     MODEL_DEATH_KNIGHT_MOUNT        = 25278
 };
-class npc_koltira_deathweaver : public CreatureScript
+
+class npc_koltira_deathweaver : public CreatureScript
 {
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
@@ -351,7 +353,8 @@ enum ScarletCourierEnum
     GO_INCONSPICUOUS_TREE              = 191144,
     NPC_SCARLET_COURIER                = 29076
 };
-class mob_scarlet_courier : public CreatureScript
+
+class mob_scarlet_courier : public CreatureScript
 {
 public:
     mob_scarlet_courier() : CreatureScript("mob_scarlet_courier") { }
@@ -445,7 +448,8 @@ enum valroth
     SPELL_VALROTH_SMITE               = 52926,
     SPELL_SUMMON_VALROTH_REMAINS      = 52929
 };
-class mob_high_inquisitor_valroth : public CreatureScript
+
+class mob_high_inquisitor_valroth : public CreatureScript
 {
 public:
     mob_high_inquisitor_valroth() : CreatureScript("mob_high_inquisitor_valroth") { }
@@ -581,7 +585,8 @@ enum SpecialSurprise
 
     NPC_PLAGUEFIST              = 29053
 };
-class npc_a_special_surprise : public CreatureScript
+
+class npc_a_special_surprise : public CreatureScript
 {
 public:
     npc_a_special_surprise() : CreatureScript("npc_a_special_surprise") { }

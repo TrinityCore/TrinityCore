@@ -31,7 +31,8 @@ enum eEnums
     SPELL_SUMMONSCARLETHOUND        = 17164,
     SPELL_BLOODLUST                 = 6742
 };
-class boss_houndmaster_loksey : public CreatureScript
+
+class boss_houndmaster_loksey : public CreatureScript
 {
 public:
     boss_houndmaster_loksey() : CreatureScript("boss_houndmaster_loksey") { }

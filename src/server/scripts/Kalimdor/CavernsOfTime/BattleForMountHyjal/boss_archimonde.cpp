@@ -73,7 +73,8 @@ EndScriptData */
 #define NORDRASSIL_X        5503.713
 #define NORDRASSIL_Y       -3523.436
 #define NORDRASSIL_Z        1608.781
-class mob_ancient_wisp : public CreatureScript
+
+class mob_ancient_wisp : public CreatureScript
 {
 public:
     mob_ancient_wisp() : CreatureScript("mob_ancient_wisp") { }
@@ -128,7 +129,8 @@ public:
 };
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
-   MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */class mob_doomfire : public CreatureScript
+   MoveChase the Doomfire Spirit always, until despawn (AttackStart is called upon it's spawn) */
+class mob_doomfire : public CreatureScript
 {
 public:
     mob_doomfire() : CreatureScript("mob_doomfire") { }
@@ -152,7 +154,8 @@ public:
 };
 
 /* This is the script for the Doomfire Spirit Mob. This mob simply follow players or
-   travels in random directions if pTarget cannot be found. */class mob_doomfire_targetting : public CreatureScript
+   travels in random directions if pTarget cannot be found. */
+class mob_doomfire_targetting : public CreatureScript
 {
 public:
     mob_doomfire_targetting() : CreatureScript("mob_doomfire_targetting") { }
@@ -217,7 +220,8 @@ public:
    is NOT the main tank (creature's victim), then we aggro that player and they become the new victim.
    For Doomfire, we summon a mob (Doomfire Spirit) for the Doomfire mob to follow. It's spirit will
    randomly select it's pTarget to follow and then we create the random movement making it unpredictable. */
-class boss_archimonde : public CreatureScript
+
+class boss_archimonde : public CreatureScript
 {
 public:
     boss_archimonde() : CreatureScript("boss_archimonde") { }

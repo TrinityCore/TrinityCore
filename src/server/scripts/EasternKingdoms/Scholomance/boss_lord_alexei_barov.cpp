@@ -28,7 +28,8 @@ EndScriptData */
 
 #define SPELL_IMMOLATE             20294                    // Old ID  was 15570
 #define SPELL_VEILOFSHADOW         17820
-class boss_lord_alexei_barov : public CreatureScript
+
+class boss_lord_alexei_barov : public CreatureScript
 {
 public:
     boss_lord_alexei_barov() : CreatureScript("boss_lord_alexei_barov") { }

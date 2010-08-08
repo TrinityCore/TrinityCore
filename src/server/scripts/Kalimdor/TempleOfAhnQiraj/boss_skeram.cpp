@@ -50,7 +50,8 @@ class ov_mycoordinates
             x = cx; y = cy; z = cz; r = cr;
         }
 };
-class boss_skeram : public CreatureScript
+
+class boss_skeram : public CreatureScript
 {
 public:
     boss_skeram() : CreatureScript("boss_skeram") { }

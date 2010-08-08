@@ -23,7 +23,8 @@
 /* Obsidian Sanctum encounters:
 0 - Sartharion
 */
-class instance_obsidian_sanctum : public InstanceMapScript
+
+class instance_obsidian_sanctum : public InstanceMapScript
 {
 public:
     instance_obsidian_sanctum() : InstanceMapScript("instance_obsidian_sanctum") { }

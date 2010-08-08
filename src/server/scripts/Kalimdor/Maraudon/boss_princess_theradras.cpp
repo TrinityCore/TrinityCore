@@ -29,7 +29,8 @@ EndScriptData */
 #define SPELL_BOULDER               21832
 #define SPELL_THRASH                3391
 #define SPELL_REPULSIVEGAZE         21869
-class boss_princess_theradras : public CreatureScript
+
+class boss_princess_theradras : public CreatureScript
 {
 public:
     boss_princess_theradras() : CreatureScript("boss_princess_theradras") { }

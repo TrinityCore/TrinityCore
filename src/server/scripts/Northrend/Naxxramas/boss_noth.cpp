@@ -62,7 +62,8 @@ enum Events
     EVENT_WAVE,
     EVENT_GROUND,
 };
-class boss_noth : public CreatureScript
+
+class boss_noth : public CreatureScript
 {
 public:
     boss_noth() : CreatureScript("boss_noth") { }

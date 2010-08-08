@@ -36,7 +36,8 @@ EndScriptData */
 #define SPELL_HEAL                  19775
 #define SPELL_SHADOWWORDPAIN        19776
 #define SPELL_IMMOLATE              20294
-class boss_sulfuron : public CreatureScript
+
+class boss_sulfuron : public CreatureScript
 {
 public:
     boss_sulfuron() : CreatureScript("boss_sulfuron") { }
@@ -130,7 +131,8 @@ public:
     };
 
 };
-class mob_flamewaker_priest : public CreatureScript
+
+class mob_flamewaker_priest : public CreatureScript
 {
 public:
     mob_flamewaker_priest() : CreatureScript("mob_flamewaker_priest") { }

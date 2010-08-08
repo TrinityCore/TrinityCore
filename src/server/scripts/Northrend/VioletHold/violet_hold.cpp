@@ -247,7 +247,8 @@ const float SaboteurFinalPos6[5][3] =
 const Position MovePosition = {1806.955566, 803.851807, 44.363323};
 const Position playerTeleportPosition = {1830.531006, 803.939758, 44.340508, 6.281611};
 const Position sinclariOutsidePosition = {1817.315674, 804.060608, 44.363998};
-class npc_sinclari_vh : public CreatureScript
+
+class npc_sinclari_vh : public CreatureScript
 {
 public:
     npc_sinclari_vh() : CreatureScript("npc_sinclari_vh") { }
@@ -414,7 +415,8 @@ public:
 
 
 
-class mob_azure_saboteur : public CreatureScript
+
+class mob_azure_saboteur : public CreatureScript
 {
 public:
     mob_azure_saboteur() : CreatureScript("mob_azure_saboteur") { }
@@ -535,7 +537,8 @@ public:
 
 };
 
-class npc_teleportation_portal_vh : public CreatureScript
+
+class npc_teleportation_portal_vh : public CreatureScript
 {
 public:
     npc_teleportation_portal_vh() : CreatureScript("npc_teleportation_portal_vh") { }
@@ -792,7 +795,8 @@ struct violet_hold_trashAI : public npc_escortAI
     }
 
 };
-class mob_azure_invader : public CreatureScript
+
+class mob_azure_invader : public CreatureScript
 {
 public:
     mob_azure_invader() : CreatureScript("mob_azure_invader") { }
@@ -869,7 +873,8 @@ public:
     };
 
 };
-class mob_azure_binder : public CreatureScript
+
+class mob_azure_binder : public CreatureScript
 {
 public:
     mob_azure_binder() : CreatureScript("mob_azure_binder") { }
@@ -946,7 +951,8 @@ public:
     };
 
 };
-class mob_azure_mage_slayer : public CreatureScript
+
+class mob_azure_mage_slayer : public CreatureScript
 {
 public:
     mob_azure_mage_slayer() : CreatureScript("mob_azure_mage_slayer") { }
@@ -1005,7 +1011,8 @@ public:
     };
 
 };
-class mob_azure_raider : public CreatureScript
+
+class mob_azure_raider : public CreatureScript
 {
 public:
     mob_azure_raider() : CreatureScript("mob_azure_raider") { }
@@ -1056,7 +1063,8 @@ public:
     };
 
 };
-class mob_azure_stalker : public CreatureScript
+
+class mob_azure_stalker : public CreatureScript
 {
 public:
     mob_azure_stalker() : CreatureScript("mob_azure_stalker") { }
@@ -1197,7 +1205,9 @@ public:
     {
         return new mob_azure_spellbreakerAI (pCreature);
     }
-};class mob_azure_captain : public CreatureScript
+};
+
+class mob_azure_captain : public CreatureScript
 {
 public:
     mob_azure_captain() : CreatureScript("mob_azure_captain") { }
@@ -1248,7 +1258,8 @@ public:
     };
 
 };
-class mob_azure_sorceror : public CreatureScript
+
+class mob_azure_sorceror : public CreatureScript
 {
 public:
     mob_azure_sorceror() : CreatureScript("mob_azure_sorceror") { }

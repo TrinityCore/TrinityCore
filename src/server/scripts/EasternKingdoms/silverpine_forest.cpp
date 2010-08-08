@@ -38,7 +38,8 @@ EndContentData */
 
 #define GOSSIP_HAH "You're Astor Hadren, right?"
 #define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
-class npc_astor_hadren : public CreatureScript
+
+class npc_astor_hadren : public CreatureScript
 {
 public:
     npc_astor_hadren() : CreatureScript("npc_astor_hadren") { }
@@ -125,7 +126,8 @@ enum eErland
     NPC_RANE            = 1950,
     NPC_QUINN           = 1951
 };
-class npc_deathstalker_erland : public CreatureScript
+
+class npc_deathstalker_erland : public CreatureScript
 {
 public:
     npc_deathstalker_erland() : CreatureScript("npc_deathstalker_erland") { }
@@ -220,7 +222,8 @@ static float PyrewoodSpawnPoints[3][4] =
 };
 
 #define WAIT_SECS 6000
-class pyrewood_ambush : public CreatureScript
+
+class pyrewood_ambush : public CreatureScript
 {
 public:
     pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }

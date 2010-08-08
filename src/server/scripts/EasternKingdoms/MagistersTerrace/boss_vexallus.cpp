@@ -58,7 +58,8 @@ enum eEnums
     INTERVAL_MODIFIER               = 15,
     INTERVAL_SWITCH                 = 6
 };
-class boss_vexallus : public CreatureScript
+
+class boss_vexallus : public CreatureScript
 {
 public:
     boss_vexallus() : CreatureScript("boss_vexallus") { }
@@ -193,7 +194,8 @@ public:
 
 };
 
-class mob_pure_energy : public CreatureScript
+
+class mob_pure_energy : public CreatureScript
 {
 public:
     mob_pure_energy() : CreatureScript("mob_pure_energy") { }

@@ -30,7 +30,8 @@ enum Yells
     SAY_YS_HELP                                 = -1603217,
     SAY_HARD_MODE_MISSED                        = -1603218,
 };
-class boss_hodir : public CreatureScript
+
+class boss_hodir : public CreatureScript
 {
 public:
     boss_hodir() : CreatureScript("boss_hodir") { }

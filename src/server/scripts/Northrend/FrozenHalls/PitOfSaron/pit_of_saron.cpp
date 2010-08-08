@@ -149,7 +149,8 @@ enum eEvents
 };
 
 /****************************************AI****************************************/
-class mob_ymirjar_wrathbringer : public CreatureScript
+
+class mob_ymirjar_wrathbringer : public CreatureScript
 {
 public:
     mob_ymirjar_wrathbringer() : CreatureScript("mob_ymirjar_wrathbringer") { }
@@ -205,7 +206,8 @@ public:
     };
 
 };
-class mob_ymirjar_skycaller : public CreatureScript
+
+class mob_ymirjar_skycaller : public CreatureScript
 {
 public:
     mob_ymirjar_skycaller() : CreatureScript("mob_ymirjar_skycaller") { }
@@ -265,7 +267,8 @@ public:
     };
 
 };
-class mob_ymirjar_flamebearer : public CreatureScript
+
+class mob_ymirjar_flamebearer : public CreatureScript
 {
 public:
     mob_ymirjar_flamebearer() : CreatureScript("mob_ymirjar_flamebearer") { }
@@ -333,7 +336,8 @@ public:
     };
 
 };
-class mob_ymirjar_deathbringer : public CreatureScript
+
+class mob_ymirjar_deathbringer : public CreatureScript
 {
 public:
     mob_ymirjar_deathbringer() : CreatureScript("mob_ymirjar_deathbringer") { }
@@ -389,7 +393,8 @@ public:
     };
 
 };
-class mob_wrathbone_laborer : public CreatureScript
+
+class mob_wrathbone_laborer : public CreatureScript
 {
 public:
     mob_wrathbone_laborer() : CreatureScript("mob_wrathbone_laborer") { }
@@ -456,7 +461,8 @@ public:
     };
 
 };
-class mob_wrathbone_coldwraith : public CreatureScript
+
+class mob_wrathbone_coldwraith : public CreatureScript
 {
 public:
     mob_wrathbone_coldwraith() : CreatureScript("mob_wrathbone_coldwraith") { }
@@ -518,7 +524,8 @@ public:
     };
 
 };
-class mob_stonespine_gargoyle : public CreatureScript
+
+class mob_stonespine_gargoyle : public CreatureScript
 {
 public:
     mob_stonespine_gargoyle() : CreatureScript("mob_stonespine_gargoyle") { }
@@ -578,7 +585,8 @@ public:
     };
 
 };
-class mob_plagueborn_horror : public CreatureScript
+
+class mob_plagueborn_horror : public CreatureScript
 {
 public:
     mob_plagueborn_horror() : CreatureScript("mob_plagueborn_horror") { }
@@ -644,7 +652,8 @@ public:
     };
 
 };
-class mob_iceborn_protodrake : public CreatureScript
+
+class mob_iceborn_protodrake : public CreatureScript
 {
 public:
     mob_iceborn_protodrake() : CreatureScript("mob_iceborn_protodrake") { }
@@ -699,7 +708,8 @@ public:
     };
 
 };
-class mob_hungering_ghoul : public CreatureScript
+
+class mob_hungering_ghoul : public CreatureScript
 {
 public:
     mob_hungering_ghoul() : CreatureScript("mob_hungering_ghoul") { }
@@ -754,7 +764,8 @@ public:
     };
 
 };
-class mob_fallen_warrior : public CreatureScript
+
+class mob_fallen_warrior : public CreatureScript
 {
 public:
     mob_fallen_warrior() : CreatureScript("mob_fallen_warrior") { }
@@ -819,7 +830,8 @@ public:
     };
 
 };
-class mob_deathwhisper_torturer : public CreatureScript
+
+class mob_deathwhisper_torturer : public CreatureScript
 {
 public:
     mob_deathwhisper_torturer() : CreatureScript("mob_deathwhisper_torturer") { }
@@ -881,7 +893,8 @@ public:
     };
 
 };
-class mob_deathwhisper_shadowcaster : public CreatureScript
+
+class mob_deathwhisper_shadowcaster : public CreatureScript
 {
 public:
     mob_deathwhisper_shadowcaster() : CreatureScript("mob_deathwhisper_shadowcaster") { }
@@ -937,7 +950,8 @@ public:
     };
 
 };
-class mob_deathwhisper_necrolyte : public CreatureScript
+
+class mob_deathwhisper_necrolyte : public CreatureScript
 {
 public:
     mob_deathwhisper_necrolyte() : CreatureScript("mob_deathwhisper_necrolyte") { }
@@ -999,7 +1013,8 @@ public:
     };
 
 };
-class mob_wrathbone_sorcerer : public CreatureScript
+
+class mob_wrathbone_sorcerer : public CreatureScript
 {
 public:
     mob_wrathbone_sorcerer() : CreatureScript("mob_wrathbone_sorcerer") { }
@@ -1055,7 +1070,8 @@ public:
     };
 
 };
-class mob_geist_ambusher : public CreatureScript
+
+class mob_geist_ambusher : public CreatureScript
 {
 public:
     mob_geist_ambusher() : CreatureScript("mob_geist_ambusher") { }

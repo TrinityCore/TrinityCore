@@ -47,7 +47,8 @@ enum eProspectorAnvilward
     SAY_ANVIL2                                  = -1000210,
     QUEST_THE_DWARVEN_SPY                       = 8483,
 };
-class npc_prospector_anvilward : public CreatureScript
+
+class npc_prospector_anvilward : public CreatureScript
 {
 public:
     npc_prospector_anvilward() : CreatureScript("npc_prospector_anvilward") { }
@@ -176,7 +177,8 @@ static uint32 PaladinEntry[] = {CHAMPION_BLOODWRATH, CHAMPION_LIGHTREND, CHAMPIO
 /*######
 ## npc_second_trial_paladin
 ######*/
-class npc_second_trial_paladin : public CreatureScript
+
+class npc_second_trial_paladin : public CreatureScript
 {
 public:
     npc_second_trial_paladin() : CreatureScript("npc_second_trial_paladin") { }
@@ -328,7 +330,8 @@ public:
 /*######
 ## npc_second_trial_controller
 ######*/
-class npc_second_trial_controller : public CreatureScript
+
+class npc_second_trial_controller : public CreatureScript
 {
 public:
     npc_second_trial_controller() : CreatureScript("npc_second_trial_controller") { }
@@ -512,7 +515,8 @@ public:
 #define QUEST_UNEXPECTED_RESULT 8488
 #define MOB_GHARZUL     15958
 #define MOB_ANGERSHADE  15656
-class npc_apprentice_mirveda : public CreatureScript
+
+class npc_apprentice_mirveda : public CreatureScript
 {
 public:
     npc_apprentice_mirveda() : CreatureScript("npc_apprentice_mirveda") { }
@@ -613,7 +617,8 @@ static Location SpawnLocations[] =
     {8278.51, -7242.13, 139.162},
     {8267.97, -7239.17, 139.517}
 };
-class npc_infused_crystal : public CreatureScript
+
+class npc_infused_crystal : public CreatureScript
 {
 public:
     npc_infused_crystal() : CreatureScript("npc_infused_crystal") { }

@@ -30,7 +30,8 @@ EndScriptData */
 #define SPELL_DARKPLAGUE             18270
 #define SPELL_CORROSIVEACID          23313
 #define SPELL_NOXIOUSCATALYST        18151
-class boss_lorekeeper_polkelt : public CreatureScript
+
+class boss_lorekeeper_polkelt : public CreatureScript
 {
 public:
     boss_lorekeeper_polkelt() : CreatureScript("boss_lorekeeper_polkelt") { }

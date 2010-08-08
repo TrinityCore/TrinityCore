@@ -70,7 +70,8 @@ static Position SpawnLoc[MAX_SPAWN_LOC]=
     {1918.97, 850.645, 47.225, 4.136},
     {1935.50, 796.224, 52.492, 4.224},
 };
-class boss_ichoron : public CreatureScript
+
+class boss_ichoron : public CreatureScript
 {
 public:
     boss_ichoron() : CreatureScript("boss_ichoron") { }
@@ -329,7 +330,8 @@ public:
 
 };
 
-class mob_ichor_globule : public CreatureScript
+
+class mob_ichor_globule : public CreatureScript
 {
 public:
     mob_ichor_globule() : CreatureScript("mob_ichor_globule") { }

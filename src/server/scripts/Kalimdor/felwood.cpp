@@ -34,7 +34,8 @@ EndContentData */
 ######*/
 
 #define GOSSIP_ITEM_BEACON  "Please make me a Cenarion Beacon"
-class npcs_riverbreeze_and_silversky : public CreatureScript
+
+class npcs_riverbreeze_and_silversky : public CreatureScript
 {
 public:
     npcs_riverbreeze_and_silversky() : CreatureScript("npcs_riverbreeze_and_silversky") { }

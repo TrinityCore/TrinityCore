@@ -42,7 +42,8 @@ enum eEnums
     SPELL_TIME_LAPSE            = 31467,
     SPELL_ATTRACTION            = 38540                       //Not Implemented (Heroic mode)
 };
-class boss_chrono_lord_deja : public CreatureScript
+
+class boss_chrono_lord_deja : public CreatureScript
 {
 public:
     boss_chrono_lord_deja() : CreatureScript("boss_chrono_lord_deja") { }

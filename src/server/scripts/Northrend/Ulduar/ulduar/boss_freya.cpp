@@ -63,7 +63,8 @@ enum
     ACHIEV_LUMBERJACKED                           = 21686,
     SPELL_LUMBERJACKED_ACHIEVEMENT_CHECK          = 65296,
 };
-class boss_freya : public CreatureScript
+
+class boss_freya : public CreatureScript
 {
 public:
     boss_freya() : CreatureScript("boss_freya") { }

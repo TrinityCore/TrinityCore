@@ -96,7 +96,8 @@ static ActiveBoatStruct ActiveBot[4] =
     {CREATURE_RANULF_VISUAL, SAY_SUMMON_RANULF, 381.546, -314.362, 104.756, 370.841, -314.426, 107.995, 6.232},
     {CREATURE_TORGYN_VISUAL, SAY_SUMMON_TORGYN, 404.310, -314.761, 104.756, 413.992, -314.703, 107.995, 3.157}
 };
-class boss_ymiron : public CreatureScript
+
+class boss_ymiron : public CreatureScript
 {
 public:
     boss_ymiron() : CreatureScript("boss_ymiron") { }
