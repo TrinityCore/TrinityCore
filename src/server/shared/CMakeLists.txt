@@ -74,6 +74,8 @@ endif()
 
 include_directories(
   ${ACE_INCLUDE_DIR}
+  ${MYSQL_INCLUDE_DIR}
+  ${OPENSSL_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}/externals/mersennetwister
   ${CMAKE_SOURCE_DIR}/externals/SFMT
@@ -92,11 +94,12 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/shared/Threading
   ${CMAKE_SOURCE_DIR}/src/server/shared/Utilities
   ${CMAKE_SOURCE_DIR}/src/server/game/Entities/Object
-  ${OPENSSL_INCLUDE_DIR}
-  ${MYSQL_INCLUDE_DIR}
 )
 
+
 add_library(shared STATIC ${shared_STAT_SRCS})
+
+add_dependencies(shared revision.h)
 
 if(WIN32)
   target_link_libraries(shared

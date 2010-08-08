@@ -38,7 +38,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/externals/gsoap
   ${CMAKE_SOURCE_DIR}/externals/sockets/include
   ${CMAKE_SOURCE_DIR}/externals/mersennetwister
-  ${CMAKE_SOURCE_DIR}/dep/include
   ${CMAKE_SOURCE_DIR}/src/server/collision
   ${CMAKE_SOURCE_DIR}/src/server/collision/Management
   ${CMAKE_SOURCE_DIR}/src/server/shared
