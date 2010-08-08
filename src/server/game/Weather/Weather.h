@@ -61,8 +61,6 @@ enum WeatherState
     WEATHER_STATE_BLACKRAIN         = 90
 };
 
-struct WeatherZoneChances;
-
 /// Weather for one zone
 class Weather
 {
