@@ -22,27 +22,27 @@
 #include "BigNumber.h"
 #include <stdarg.h>
 
-Sha1Hash::Sha1Hash()
+SHA1Hash::SHA1Hash()
 {
     SHA1_Init(&mC);
 }
 
-Sha1Hash::~Sha1Hash()
+SHA1Hash::~SHA1Hash()
 {
     SHA1_Init(&mC);
 }
 
-void Sha1Hash::UpdateData(const uint8 *dta, int len)
+void SHA1Hash::UpdateData(const uint8 *dta, int len)
 {
     SHA1_Update(&mC, dta, len);
 }
 
-void Sha1Hash::UpdateData(const std::string &str)
+void SHA1Hash::UpdateData(const std::string &str)
 {
     UpdateData((uint8 const*)str.c_str(), str.length());
 }
 
-void Sha1Hash::UpdateBigNumbers(BigNumber *bn0, ...)
+void SHA1Hash::UpdateBigNumbers(BigNumber *bn0, ...)
 {
     va_list v;
     BigNumber *bn;
@@ -57,12 +57,12 @@ void Sha1Hash::UpdateBigNumbers(BigNumber *bn0, ...)
     va_end(v);
 }
 
-void Sha1Hash::Initialize()
+void SHA1Hash::Initialize()
 {
     SHA1_Init(&mC);
 }
 
-void Sha1Hash::Finalize(void)
+void SHA1Hash::Finalize(void)
 {
     SHA1_Final(mDigest, &mC);
 }
