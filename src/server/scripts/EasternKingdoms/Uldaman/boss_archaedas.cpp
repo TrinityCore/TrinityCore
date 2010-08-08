@@ -374,12 +374,12 @@ EndScriptData */
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 
-class go_altar_of_archaedas : public CreatureScript
+class go_altar_of_archaedas : public GameObjectScript
 {
     public:
 
         go_altar_of_archaedas()
-            : CreatureScript("go_altar_of_archaedas")
+            : GameObjectScript("go_altar_of_archaedas")
         {
         }
 
@@ -406,12 +406,12 @@ EndScriptData */
 
 #define SPELL_BOSS_OBJECT_VISUAL    11206
 
-class go_altar_of_the_keepers : public CreatureScript
+class go_altar_of_the_keepers : public GameObjectScript
 {
     public:
 
         go_altar_of_the_keepers()
-            : CreatureScript("go_altar_of_the_keepers")
+            : GameObjectScript("go_altar_of_the_keepers")
         {
         }
 
