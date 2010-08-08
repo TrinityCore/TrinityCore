@@ -36,7 +36,7 @@ private:
 
 	// The following are for the "ray slope" optimization from
 	//  "Fast Ray / Axis-Aligned Bounding Box Overlap Tests using Ray Slopes" 
-	//  by Martin Eisemann, Thorsten Grosch, Stefan Müller and Marcus Magnor
+	//  by Martin Eisemann, Thorsten Grosch, Stefan MÃ¼ller and Marcus Magnor
 	//  Computer Graphics Lab, TU Braunschweig, Germany and
 	//  University of Koblenz-Landau, Germany*/
 	enum Classification {MMM, MMP, MPM, MPP, PMM, PMP, PPM, PPP, POO, MOO, OPO, OMO, OOP, OOM, OMM, OMP, OPM, OPP, MOM, MOP, POM, POP, MMO, MPO, PMO, PPO};	Classification classification;

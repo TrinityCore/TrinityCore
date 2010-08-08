@@ -35,11 +35,11 @@ EndScriptData */
 3 - Void Reaver event
 */
 
-class instance_mechanar : public InstanceMapScript
+class instance_the_eye : public InstanceMapScript
 {
     public:
-        instance_mechanar()
-            : InstanceMapScript("instance_mechanar")
+        instance_the_eye()
+            : InstanceMapScript("instance_the_eye")
         {
         }
 
@@ -201,6 +201,6 @@ class instance_mechanar : public InstanceMapScript
 };
 void AddSC_instance_the_eye()
 {
-    new instance_mechanar;
+    new instance_the_eye;
 }
 
