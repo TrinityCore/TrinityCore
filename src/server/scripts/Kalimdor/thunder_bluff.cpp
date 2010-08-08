@@ -36,7 +36,8 @@ EndScriptData */
 #define SPELL_UPPERCUT          22916
 
 #define GOSSIP_HCB "I know this is rather silly but a young ward who is a bit shy would like your hoofprint."
-//TODO: verify abilities/timersclass npc_cairne_bloodhoof : public CreatureScript
+//TODO: verify abilities/timers
+class npc_cairne_bloodhoof : public CreatureScript
 {
 public:
     npc_cairne_bloodhoof() : CreatureScript("npc_cairne_bloodhoof") { }

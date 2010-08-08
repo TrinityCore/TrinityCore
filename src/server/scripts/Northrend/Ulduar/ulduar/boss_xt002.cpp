@@ -574,7 +574,8 @@ public:
  *
  *        XS-013 SCRAPBOT
  *
- *///----------------------------------------------------class mob_scrapbot : public CreatureScript
+ *///----------------------------------------------------
+class mob_scrapbot : public CreatureScript
 {
 public:
     mob_scrapbot() : CreatureScript("mob_scrapbot") { }
@@ -626,7 +627,8 @@ public:
  *
  *        XM-024 PUMMELLER
  *
- *///----------------------------------------------------class mob_pummeller : public CreatureScript
+ *///----------------------------------------------------
+class mob_pummeller : public CreatureScript
 {
 public:
     mob_pummeller() : CreatureScript("mob_pummeller") { }
@@ -692,7 +694,8 @@ public:
  *
  *        XE-321 BOOMBOT
  *
- *///----------------------------------------------------class mob_boombot : public CreatureScript
+ *///----------------------------------------------------
+class mob_boombot : public CreatureScript
 {
 public:
     mob_boombot() : CreatureScript("mob_boombot") { }
@@ -747,7 +750,8 @@ public:
  *
  *        VOID ZONE
  *
- *///----------------------------------------------------class mob_void_zone : public CreatureScript
+ *///----------------------------------------------------
+class mob_void_zone : public CreatureScript
 {
 public:
     mob_void_zone() : CreatureScript("mob_void_zone") { }
@@ -810,7 +814,8 @@ public:
  *
  *        LIFE SPARK
  *
- *///----------------------------------------------------class mob_life_spark : public CreatureScript
+ *///----------------------------------------------------
+class mob_life_spark : public CreatureScript
 {
 public:
     mob_life_spark() : CreatureScript("mob_life_spark") { }

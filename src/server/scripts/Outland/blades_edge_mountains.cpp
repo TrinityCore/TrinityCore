@@ -47,7 +47,8 @@ bool     obelisk_one, obelisk_two, obelisk_three, obelisk_four, obelisk_five;
 ## mobs_bladespire_ogre
 ######*/
 
-//TODO: add support for quest 10512 + Creature abilitiesclass mobs_bladespire_ogre : public CreatureScript
+//TODO: add support for quest 10512 + Creature abilities
+class mobs_bladespire_ogre : public CreatureScript
 {
 public:
     mobs_bladespire_ogre() : CreatureScript("mobs_bladespire_ogre") { }
@@ -98,7 +99,8 @@ enum eNetherdrake
     SPELL_MANA_BURN             = 38884,
     SPELL_INTANGIBLE_PRESENCE   = 36513
 };
-class mobs_nether_drake : public CreatureScript
+
+class mobs_nether_drake : public CreatureScript
 {
 public:
     mobs_nether_drake() : CreatureScript("mobs_nether_drake") { }
@@ -263,7 +265,8 @@ enum eDaranelle
     SAY_SPELL_INFLUENCE     = -1000174,
     SPELL_LASHHAN_CHANNEL   = 36904
 };
-class npc_daranelle : public CreatureScript
+
+class npc_daranelle : public CreatureScript
 {
 public:
     npc_daranelle() : CreatureScript("npc_daranelle") { }
@@ -305,7 +308,8 @@ public:
 ######*/
 
 #define GOSSIP_HELLO_ON "Overseer, I am here to negotiate on behalf of the Cenarion Expedition."
-class npc_overseer_nuaar : public CreatureScript
+
+class npc_overseer_nuaar : public CreatureScript
 {
 public:
     npc_overseer_nuaar() : CreatureScript("npc_overseer_nuaar") { }
@@ -339,7 +343,8 @@ public:
 
 #define GOSSIP_HELLO_STE    "Yes... yes, it's me."
 #define GOSSIP_SELECT_STE   "Yes elder. Tell me more of the book."
-class npc_saikkal_the_elder : public CreatureScript
+
+class npc_saikkal_the_elder : public CreatureScript
 {
 public:
     npc_saikkal_the_elder() : CreatureScript("npc_saikkal_the_elder") { }
@@ -376,7 +381,8 @@ public:
 /*######
 ## go_legion_obelisk
 ######*/
-class go_legion_obelisk : public GameObjectScript
+
+class go_legion_obelisk : public GameObjectScript
 {
 public:
     go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
@@ -433,7 +439,8 @@ enum eBloodmaul
     NPC_QUEST_CREDIT      = 21241,
     GO_KEG                = 184315
 };
-class npc_bloodmaul_brutebane : public CreatureScript
+
+class npc_bloodmaul_brutebane : public CreatureScript
 {
 public:
     npc_bloodmaul_brutebane() : CreatureScript("npc_bloodmaul_brutebane") { }
@@ -470,7 +477,8 @@ public:
 /*######
 ## npc_ogre_brute
 ######*/
-class npc_ogre_brute : public CreatureScript
+
+class npc_ogre_brute : public CreatureScript
 {
 public:
     npc_ogre_brute() : CreatureScript("npc_ogre_brute") { }
