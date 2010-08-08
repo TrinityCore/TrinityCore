@@ -39,64 +39,67 @@ enum Yells
     SAY_END_HARD_3                              = -1603286,
     SAY_YS_HELP                                 = -1603287,
 };
-
-struct boss_thorimAI : public BossAI
+class boss_thorim : public CreatureScript
 {
-    boss_thorimAI(Creature* pCreature) : BossAI(pCreature, TYPE_THORIM)
+public:
+    boss_thorim() : CreatureScript("boss_thorim") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
+        return new boss_thorimAI(pCreature);
     }
 
-    void Reset()
+    struct boss_thorimAI : public BossAI
     {
-        _Reset();
-    }
+        boss_thorimAI(Creature* pCreature) : BossAI(pCreature, TYPE_THORIM)
+        {
+        }
 
-    void EnterEvadeMode()
-    {
-        DoScriptText(SAY_WIPE, me);
-        _EnterEvadeMode();
-    }
+        void Reset()
+        {
+            _Reset();
+        }
 
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
+        void EnterEvadeMode()
+        {
+            DoScriptText(SAY_WIPE, me);
+            _EnterEvadeMode();
+        }
 
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        _JustDied();
-    }
+        void KilledUnit(Unit * /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
 
-    void EnterCombat(Unit* /*pWho*/)
-    {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me);
-        _EnterCombat();
-    }
+        void JustDied(Unit * /*victim*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            _JustDied();
+        }
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-//SPELLS TODO:
+        void EnterCombat(Unit* /*pWho*/)
+        {
+            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2), me);
+            _EnterCombat();
+        }
 
-//
-        DoMeleeAttackIfReady();
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+    //SPELLS TODO:
 
-        EnterEvadeIfOutOfCombatArea(diff);
-    }
+    //
+            DoMeleeAttackIfReady();
+
+            EnterEvadeIfOutOfCombatArea(diff);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_thorim(Creature* pCreature)
-{
-    return new boss_thorimAI(pCreature);
-}
 
 void AddSC_boss_thorim()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_thorim";
-    newscript->GetAI = &GetAI_boss_thorim;
-    newscript->RegisterSelf();
+    new boss_thorim();
 }

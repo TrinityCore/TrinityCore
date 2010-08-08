@@ -52,85 +52,87 @@ EndScriptData */
 
 #define ENTRY_FLAMEWALKER_HEALER    11663
 #define ENTRY_FLAMEWALKER_ELITE     11664
-
-struct boss_majordomoAI : public ScriptedAI
+class boss_majordomo : public CreatureScript
 {
-    boss_majordomoAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_majordomo() : CreatureScript("boss_majordomo") { }
 
-    uint32 MagicReflection_Timer;
-    uint32 DamageReflection_Timer;
-    uint32 Blastwave_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        MagicReflection_Timer =  30000;                     //Damage reflection first so we alternate
-        DamageReflection_Timer = 15000;
-        Blastwave_Timer = 10000;
+        return new boss_majordomoAI (pCreature);
     }
 
-    void KilledUnit(Unit* /*victim*/)
+    struct boss_majordomoAI : public ScriptedAI
     {
-        if (rand()%5)
-            return;
+        boss_majordomoAI(Creature *c) : ScriptedAI(c) {}
 
-        DoScriptText(SAY_SLAY, me);
-    }
+        uint32 MagicReflection_Timer;
+        uint32 DamageReflection_Timer;
+        uint32 Blastwave_Timer;
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //Cast Ageis if less than 50% hp
-        if (me->GetHealth()*100 / me->GetMaxHealth() < 50)
+        void Reset()
         {
-            DoCast(me, SPELL_AEGIS);
+            MagicReflection_Timer =  30000;                     //Damage reflection first so we alternate
+            DamageReflection_Timer = 15000;
+            Blastwave_Timer = 10000;
         }
 
-        //MagicReflection_Timer
-        //        if (MagicReflection_Timer <= diff)
-        //        {
-        //            DoCast(me, SPELL_MAGICREFLECTION);
-
-        //60 seconds until we should cast this agian
-        //            MagicReflection_Timer = 30000;
-        //        } else MagicReflection_Timer -= diff;
-
-        //DamageReflection_Timer
-        //        if (DamageReflection_Timer <= diff)
-        //        {
-        //            DoCast(me, SPELL_DAMAGEREFLECTION);
-
-        //60 seconds until we should cast this agian
-        //            DamageReflection_Timer = 30000;
-        //        } else DamageReflection_Timer -= diff;
-
-        //Blastwave_Timer
-        if (Blastwave_Timer <= diff)
+        void KilledUnit(Unit* /*victim*/)
         {
-            DoCast(me->getVictim(), SPELL_BLASTWAVE);
-            Blastwave_Timer = 10000;
-        } else Blastwave_Timer -= diff;
+            if (rand()%5)
+                return;
 
-        DoMeleeAttackIfReady();
-    }
+            DoScriptText(SAY_SLAY, me);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //Cast Ageis if less than 50% hp
+            if (me->GetHealth()*100 / me->GetMaxHealth() < 50)
+            {
+                DoCast(me, SPELL_AEGIS);
+            }
+
+            //MagicReflection_Timer
+            //        if (MagicReflection_Timer <= diff)
+            //        {
+            //            DoCast(me, SPELL_MAGICREFLECTION);
+
+            //60 seconds until we should cast this agian
+            //            MagicReflection_Timer = 30000;
+            //        } else MagicReflection_Timer -= diff;
+
+            //DamageReflection_Timer
+            //        if (DamageReflection_Timer <= diff)
+            //        {
+            //            DoCast(me, SPELL_DAMAGEREFLECTION);
+
+            //60 seconds until we should cast this agian
+            //            DamageReflection_Timer = 30000;
+            //        } else DamageReflection_Timer -= diff;
+
+            //Blastwave_Timer
+            if (Blastwave_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_BLASTWAVE);
+                Blastwave_Timer = 10000;
+            } else Blastwave_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_majordomo(Creature* pCreature)
-{
-    return new boss_majordomoAI (pCreature);
-}
 
 void AddSC_boss_majordomo()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_majordomo";
-    newscript->GetAI = &GetAI_boss_majordomo;
-    newscript->RegisterSelf();
+    new boss_majordomo();
 }
-

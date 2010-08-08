@@ -41,110 +41,113 @@ enum Phases
     PHASE_FIGHT = 1,
     PHASE_DANCE,
 };
-
-struct boss_heiganAI : public BossAI
+class boss_heigan : public CreatureScript
 {
-    boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
+public:
+    boss_heigan() : CreatureScript("boss_heigan") { }
 
-    uint32 eruptSection;
-    bool eruptDirection;
-    Phases phase;
-
-    void KilledUnit(Unit* /*Victim*/)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (!(rand()%5))
-            DoScriptText(SAY_SLAY, me);
+        return new boss_heiganAI (pCreature);
     }
 
-    void JustDied(Unit* /*Killer*/)
+    struct boss_heiganAI : public BossAI
     {
-        _JustDied();
-        DoScriptText(SAY_DEATH, me);
-    }
+        boss_heiganAI(Creature *c) : BossAI(c, BOSS_HEIGAN) {}
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        _EnterCombat();
-        DoScriptText(SAY_AGGRO, me);
-        EnterPhase(PHASE_FIGHT);
-    }
+        uint32 eruptSection;
+        bool eruptDirection;
+        Phases phase;
 
-    void EnterPhase(Phases newPhase)
-    {
-        phase = newPhase;
-        events.Reset();
-        eruptSection = 3;
-        if (phase == PHASE_FIGHT)
+        void KilledUnit(Unit* /*Victim*/)
         {
-            events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
-            events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-            events.ScheduleEvent(EVENT_PHASE, 90000);
-            events.ScheduleEvent(EVENT_ERUPT, 15000);
+            if (!(rand()%5))
+                DoScriptText(SAY_SLAY, me);
         }
-        else
+
+        void JustDied(Unit* /*Killer*/)
         {
-            float x, y, z, o;
-            me->GetHomePosition(x, y, z, o);
-            me->NearTeleportTo(x, y, z, o);
-            DoCastAOE(SPELL_PLAGUE_CLOUD);
-            events.ScheduleEvent(EVENT_PHASE, 45000);
-            events.ScheduleEvent(EVENT_ERUPT, 8000);
+            _JustDied();
+            DoScriptText(SAY_DEATH, me);
         }
-    }
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim() || !CheckInRoom())
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void EnterCombat(Unit * /*who*/)
         {
-            switch(eventId)
+            _EnterCombat();
+            DoScriptText(SAY_AGGRO, me);
+            EnterPhase(PHASE_FIGHT);
+        }
+
+        void EnterPhase(Phases newPhase)
+        {
+            phase = newPhase;
+            events.Reset();
+            eruptSection = 3;
+            if (phase == PHASE_FIGHT)
             {
-                case EVENT_DISRUPT:
-                    DoCastAOE(SPELL_SPELL_DISRUPTION);
-                    events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
-                    break;
-                case EVENT_FEVER:
-                    DoCastAOE(SPELL_DECREPIT_FEVER);
-                    events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
-                    break;
-                case EVENT_PHASE:
-                    // TODO : Add missing texts for both phase switches
-                    EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
-                    break;
-                case EVENT_ERUPT:
-                    instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
-                    TeleportCheaters();
-
-                    if (eruptSection == 0)
-                        eruptDirection = true;
-                    else if (eruptSection == 3)
-                        eruptDirection = false;
-
-                    eruptDirection ? ++eruptSection : --eruptSection;
-
-                    events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
-                    break;
+                events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
+                events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
+                events.ScheduleEvent(EVENT_PHASE, 90000);
+                events.ScheduleEvent(EVENT_ERUPT, 15000);
+            }
+            else
+            {
+                float x, y, z, o;
+                me->GetHomePosition(x, y, z, o);
+                me->NearTeleportTo(x, y, z, o);
+                DoCastAOE(SPELL_PLAGUE_CLOUD);
+                events.ScheduleEvent(EVENT_PHASE, 45000);
+                events.ScheduleEvent(EVENT_ERUPT, 8000);
             }
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim() || !CheckInRoom())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_DISRUPT:
+                        DoCastAOE(SPELL_SPELL_DISRUPTION);
+                        events.ScheduleEvent(EVENT_DISRUPT, urand(5000, 10000));
+                        break;
+                    case EVENT_FEVER:
+                        DoCastAOE(SPELL_DECREPIT_FEVER);
+                        events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
+                        break;
+                    case EVENT_PHASE:
+                        // TODO : Add missing texts for both phase switches
+                        EnterPhase(phase == PHASE_FIGHT ? PHASE_DANCE : PHASE_FIGHT);
+                        break;
+                    case EVENT_ERUPT:
+                        instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
+                        TeleportCheaters();
+
+                        if (eruptSection == 0)
+                            eruptDirection = true;
+                        else if (eruptSection == 3)
+                            eruptDirection = false;
+
+                        eruptDirection ? ++eruptSection : --eruptSection;
+
+                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_FIGHT ? 10000 : 3000);
+                        break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_heigan(Creature* pCreature)
-{
-    return new boss_heiganAI (pCreature);
-}
 
 void AddSC_boss_heigan()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_heigan";
-    newscript->GetAI = &GetAI_boss_heigan;
-    newscript->RegisterSelf();
+    new boss_heigan();
 }

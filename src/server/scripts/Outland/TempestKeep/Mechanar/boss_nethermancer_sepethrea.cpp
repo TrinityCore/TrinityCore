@@ -63,10 +63,10 @@ class boss_nethermancer_sepethrea : public CreatureScript
         {
             boss_nethermancer_sepethreaAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
             
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
             
             uint32 frost_attack_Timer;
             uint32 arcane_blast_Timer;
@@ -186,10 +186,10 @@ class mob_ragin_flames : public CreatureScript
             {
                 mob_ragin_flamesAI(Creature* pCreature) : ScriptedAI(pCreature)
                 {
-                    pInstance = pCreature->GetInstanceData();
+                    pInstance = pCreature->GetInstanceScript();
                 }
 
-                ScriptedInstance *pInstance;
+                InstanceScript *pInstance;
 
                 uint32 inferno_Timer;
                 uint32 flame_timer;

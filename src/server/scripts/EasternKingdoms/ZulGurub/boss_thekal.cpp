@@ -68,7 +68,7 @@ class boss_thekal : public CreatureScript
         {
             boss_thekalAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
             uint32 MortalCleave_Timer;
@@ -81,7 +81,7 @@ class boss_thekal : public CreatureScript
             uint32 Check_Timer;
             uint32 Resurrect_Timer;
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
             bool Enraged;
             bool PhaseTwo;
             bool WasDead;
@@ -276,7 +276,7 @@ class mob_zealot_lorkhan : public CreatureScript
         {
             mob_zealot_lorkhanAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
             uint32 Shield_Timer;
@@ -287,7 +287,7 @@ class mob_zealot_lorkhan : public CreatureScript
 
             bool FakeDeath;
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             void Reset()
             {
@@ -433,7 +433,7 @@ class mob_zealot_zath : public CreatureScript
         {
             mob_zealot_zathAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
             uint32 SweepingStrikes_Timer;
@@ -445,7 +445,7 @@ class mob_zealot_zath : public CreatureScript
 
             bool FakeDeath;
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             void Reset()
             {

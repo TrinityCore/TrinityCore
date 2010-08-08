@@ -51,88 +51,91 @@ enum Events
     EVENT_KNIFE,
     EVENT_COMMAND,
 };
-
-struct boss_razuviousAI : public BossAI
+class boss_razuvious : public CreatureScript
 {
-    boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
+public:
+    boss_razuvious() : CreatureScript("boss_razuvious") { }
 
-    void KilledUnit(Unit* /*victim*/)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (!(rand()%3))
-            DoPlaySoundToSet(me, SOUND_SLAY);
+        return new boss_razuviousAI (pCreature);
     }
 
-    void DamageTaken(Unit* pDone_by, uint32& uiDamage)
+    struct boss_razuviousAI : public BossAI
     {
-        // Damage done by the controlled Death Knight understudies should also count toward damage done by players
-        if (pDone_by->GetTypeId() == TYPEID_UNIT && (pDone_by->GetEntry() == 16803 || pDone_by->GetEntry() == 29941))
+        boss_razuviousAI(Creature *c) : BossAI(c, BOSS_RAZUVIOUS) {}
+
+        void KilledUnit(Unit* /*victim*/)
         {
-            me->LowerPlayerDamageReq(uiDamage);
+            if (!(rand()%3))
+                DoPlaySoundToSet(me, SOUND_SLAY);
         }
-    }
 
-    void JustDied(Unit* /*killer*/)
-    {
-        _JustDied();
-        DoPlaySoundToSet(me, SOUND_DEATH);
-        me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        _EnterCombat();
-        DoPlaySoundToSet(me, SOUND_AGGRO);
-        events.ScheduleEvent(EVENT_STRIKE, 30000);
-        events.ScheduleEvent(EVENT_SHOUT, 25000);
-        events.ScheduleEvent(EVENT_COMMAND, 40000);
-        events.ScheduleEvent(EVENT_KNIFE, 10000);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        events.Update(diff);
-
-        while (uint32 eventId = events.ExecuteEvent())
+        void DamageTaken(Unit* pDone_by, uint32& uiDamage)
         {
-            switch(eventId)
+            // Damage done by the controlled Death Knight understudies should also count toward damage done by players
+            if (pDone_by->GetTypeId() == TYPEID_UNIT && (pDone_by->GetEntry() == 16803 || pDone_by->GetEntry() == 29941))
             {
-                case EVENT_STRIKE:
-                    DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
-                    events.ScheduleEvent(EVENT_STRIKE, 30000);
-                    return;
-                case EVENT_SHOUT:
-                    DoCastAOE(SPELL_DISRUPTING_SHOUT);
-                    events.ScheduleEvent(EVENT_SHOUT, 25000);
-                    return;
-                case EVENT_KNIFE:
-                    if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
-                        DoCast(pTarget, SPELL_JAGGED_KNIFE);
-                    events.ScheduleEvent(EVENT_KNIFE, 10000);
-                    return;
-                case EVENT_COMMAND:
-                    DoPlaySoundToSet(me, SOUND_COMMND);
-                    events.ScheduleEvent(EVENT_COMMAND, 40000);
-                    return;
+                me->LowerPlayerDamageReq(uiDamage);
             }
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void JustDied(Unit* /*killer*/)
+        {
+            _JustDied();
+            DoPlaySoundToSet(me, SOUND_DEATH);
+            me->CastSpell(me, SPELL_HOPELESS, true); // TODO: this may affect other creatures
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            _EnterCombat();
+            DoPlaySoundToSet(me, SOUND_AGGRO);
+            events.ScheduleEvent(EVENT_STRIKE, 30000);
+            events.ScheduleEvent(EVENT_SHOUT, 25000);
+            events.ScheduleEvent(EVENT_COMMAND, 40000);
+            events.ScheduleEvent(EVENT_KNIFE, 10000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch(eventId)
+                {
+                    case EVENT_STRIKE:
+                        DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                        events.ScheduleEvent(EVENT_STRIKE, 30000);
+                        return;
+                    case EVENT_SHOUT:
+                        DoCastAOE(SPELL_DISRUPTING_SHOUT);
+                        events.ScheduleEvent(EVENT_SHOUT, 25000);
+                        return;
+                    case EVENT_KNIFE:
+                        if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
+                            DoCast(pTarget, SPELL_JAGGED_KNIFE);
+                        events.ScheduleEvent(EVENT_KNIFE, 10000);
+                        return;
+                    case EVENT_COMMAND:
+                        DoPlaySoundToSet(me, SOUND_COMMND);
+                        events.ScheduleEvent(EVENT_COMMAND, 40000);
+                        return;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_razuvious(Creature* pCreature)
-{
-    return new boss_razuviousAI (pCreature);
-}
 
 void AddSC_boss_razuvious()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_razuvious";
-    newscript->GetAI = &GetAI_boss_razuvious;
-    newscript->RegisterSelf();
+    new boss_razuvious();
 }

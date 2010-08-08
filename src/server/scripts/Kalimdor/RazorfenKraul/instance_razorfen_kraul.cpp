@@ -27,80 +27,83 @@ EndScriptData */
 #include "razorfen_kraul.h"
 
 #define WARD_KEEPERS_NR 2
-
-struct instance_razorfen_kraul : public ScriptedInstance
+class instance_razorfen_kraul : public InstanceMapScript
 {
-    instance_razorfen_kraul(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+public:
+    instance_razorfen_kraul() : InstanceMapScript("instance_razorfen_kraul") { }
 
-    uint64 DoorWardGUID;
-    uint32 WardCheck_Timer;
-    int WardKeeperAlive;
-
-    void Initialize()
+    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {
-        WardKeeperAlive = 1;
-        WardCheck_Timer = 4000;
-        DoorWardGUID = 0;
+        return new instance_razorfen_kraul_InstanceMapScript(pMap);
     }
 
-    Player* GetPlayerInMap()
+    struct instance_razorfen_kraul_InstanceMapScript : public InstanceScript
     {
-        Map::PlayerList const& players = instance->GetPlayers();
+        instance_razorfen_kraul_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
-        if (!players.isEmpty())
+        uint64 DoorWardGUID;
+        uint32 WardCheck_Timer;
+        int WardKeeperAlive;
+
+        void Initialize()
         {
-            for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+            WardKeeperAlive = 1;
+            WardCheck_Timer = 4000;
+            DoorWardGUID = 0;
+        }
+
+        Player* GetPlayerInMap()
+        {
+            Map::PlayerList const& players = instance->GetPlayers();
+
+            if (!players.isEmpty())
             {
-                if (Player* plr = itr->getSource())
-                    return plr;
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                {
+                    if (Player* plr = itr->getSource())
+                        return plr;
+                }
+            }
+            sLog.outDebug("TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
+            return NULL;
+        }
+
+        void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
+        {
+            switch(pGo->GetEntry())
+            {
+            case 21099: DoorWardGUID = pGo->GetGUID(); break;
             }
         }
-        sLog.outDebug("TSCR: Instance Razorfen Kraul: GetPlayerInMap, but PlayerList is empty!");
-        return NULL;
-    }
 
-    void OnGameObjectCreate(GameObject* pGo, bool /*apply*/)
-    {
-        switch(pGo->GetEntry())
+        void Update(uint32 diff)
         {
-        case 21099: DoorWardGUID = pGo->GetGUID(); break;
+            if (WardCheck_Timer <= diff)
+            {
+                HandleGameObject(DoorWardGUID, WardKeeperAlive);
+                WardKeeperAlive = 0;
+                WardCheck_Timer = 4000;
+            }else
+                WardCheck_Timer -= diff;
         }
-    }
 
-    void Update(uint32 diff)
-    {
-        if (WardCheck_Timer <= diff)
+        void SetData(uint32 type, uint32 data)
         {
-            HandleGameObject(DoorWardGUID, WardKeeperAlive);
-            WardKeeperAlive = 0;
-            WardCheck_Timer = 4000;
-        }else
-            WardCheck_Timer -= diff;
-    }
-
-    void SetData(uint32 type, uint32 data)
-    {
-        switch(type)
-        {
-            case TYPE_WARD_KEEPERS:
-                if (data == NOT_STARTED)
-                    WardKeeperAlive = 1;
-                break;
+            switch(type)
+            {
+                case TYPE_WARD_KEEPERS:
+                    if (data == NOT_STARTED)
+                        WardKeeperAlive = 1;
+                    break;
+            }
         }
-    }
+
+    };
 
 };
 
-InstanceData* GetInstanceData_instance_razorfen_kraul(Map* pMap)
-{
-    return new instance_razorfen_kraul(pMap);
-}
 
 void AddSC_instance_razorfen_kraul()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_razorfen_kraul";
-    newscript->GetInstanceData = &GetInstanceData_instance_razorfen_kraul;
-    newscript->RegisterSelf();
+    new instance_razorfen_kraul();
 }

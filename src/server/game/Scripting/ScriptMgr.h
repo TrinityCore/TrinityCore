@@ -40,7 +40,7 @@
 class Player;
 class Creature;
 class CreatureAI;
-class InstanceData;
+class InstanceScript;
 class SpellScript;
 class Quest;
 class Item;
@@ -421,8 +421,8 @@ class InstanceMapScript : public ScriptObject, public MapScript<InstanceMap>
 
         bool IsDatabaseBound() const { return true; }
 
-        // Gets an InstanceData object for this instance.
-        virtual InstanceData* GetInstanceData(InstanceMap* map) const { return NULL; }
+        // Gets an InstanceScript object for this instance.
+        virtual InstanceScript* GetInstanceScript(InstanceMap* map) const { return NULL; }
 };
 
 class BattlegroundMapScript : public ScriptObject, public MapScript<BattlegroundMap>
@@ -852,7 +852,7 @@ class ScriptMgr
 
     public: /* InstanceMapScript */
 
-        InstanceData* CreateInstanceData(InstanceMap* map);
+        InstanceScript* CreateInstanceData(InstanceMap* map);
 
     public: /* ItemScript */
 

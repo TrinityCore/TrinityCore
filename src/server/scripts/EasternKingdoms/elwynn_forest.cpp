@@ -34,70 +34,72 @@ EndContentData */
 ######*/
 
 #define SAY_HEAL -1100280
-
-struct npc_henze_faulkAI : public ScriptedAI
+class npc_henze_faulk : public CreatureScript
 {
-    uint32 lifeTimer;
-    bool spellHit;
+public:
+    npc_henze_faulk() : CreatureScript("npc_henze_faulk") { }
 
-    npc_henze_faulkAI(Creature *c) : ScriptedAI(c) {}
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        lifeTimer = 120000;
-        me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
-        me->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
-        spellHit = false;
+        return new npc_henze_faulkAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct npc_henze_faulkAI : public ScriptedAI
     {
-    }
+        uint32 lifeTimer;
+        bool spellHit;
 
-    void MoveInLineOfSight(Unit * /*who*/)
-    {
-        return;
-    }
+        npc_henze_faulkAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (me->IsStandState())
+        void Reset()
         {
-            if (lifeTimer <= diff)
+            lifeTimer = 120000;
+            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
+            me->SetStandState(UNIT_STAND_STATE_DEAD);   // lay down
+            spellHit = false;
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void MoveInLineOfSight(Unit * /*who*/)
+        {
+            return;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (me->IsStandState())
             {
-                EnterEvadeMode();
-                return;
+                if (lifeTimer <= diff)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+                else
+                    lifeTimer -= diff;
             }
-            else
-                lifeTimer -= diff;
         }
-    }
 
-    void SpellHit(Unit * /*Hitter*/, const SpellEntry *Spellkind)
-    {
-        if (Spellkind->Id == 8593 && !spellHit)
+        void SpellHit(Unit * /*Hitter*/, const SpellEntry *Spellkind)
         {
-            DoCast(me, 32343);
-            me->SetStandState(UNIT_STAND_STATE_STAND);
-            me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
-            //me->RemoveAllAuras();
-            DoScriptText(SAY_HEAL, me);
-            spellHit = true;
+            if (Spellkind->Id == 8593 && !spellHit)
+            {
+                DoCast(me, 32343);
+                me->SetStandState(UNIT_STAND_STATE_STAND);
+                me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
+                //me->RemoveAllAuras();
+                DoScriptText(SAY_HEAL, me);
+                spellHit = true;
+            }
         }
-    }
+
+    };
 
 };
-CreatureAI* GetAI_npc_henze_faulk(Creature* pCreature)
-{
-    return new npc_henze_faulkAI (pCreature);
-}
 
 void AddSC_elwynn_forest()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "npc_henze_faulk";
-    newscript->GetAI = &GetAI_npc_henze_faulk;
-    newscript->RegisterSelf();
+    new npc_henze_faulk();
 }

@@ -114,7 +114,7 @@ class boss_janalai : public CreatureScript
         {
             boss_janalaiAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance =c->GetInstanceData();
+                pInstance =c->GetInstanceScript();
 
                 SpellEntry *TempSpell = GET_SPELL(SPELL_HATCH_EGG);
                 if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
@@ -124,7 +124,7 @@ class boss_janalai : public CreatureScript
                 }
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint32 FireBreathTimer;
             uint32 BombTimer;
@@ -493,12 +493,12 @@ class mob_janalai_hatcher : public CreatureScript
 
         struct mob_janalai_hatcherAI : public ScriptedAI
         {
-            mob_amanishi_hatcherAI(Creature *c) : ScriptedAI(c)
+            mob_janalai_hatcherAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance =c->GetInstanceData();
+                pInstance =c->GetInstanceScript();
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             uint32 waypoint;
             uint32 HatchNum;
@@ -628,10 +628,10 @@ class mob_janalai_hatchling : public CreatureScript
         {
             mob_janalai_hatchlingAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance =c->GetInstanceData();
+                pInstance =c->GetInstanceScript();
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
             uint32 BuffetTimer;
 
             void Reset()
@@ -676,38 +676,37 @@ class mob_janalai_hatchling : public CreatureScript
 
 class mob_janalai_egg : public CreatureScript
 {
-    public:
+public:
 
-        mob_janalai_egg()
-            : CreatureScript("mob_janalai_egg")
-        {
-        }
-
-		
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return new mob_janalai_eggAI(creature);
-        }
-};
-
-struct mob_eggAI : public ScriptedAI
-{
-    mob_eggAI(Creature *c) : ScriptedAI(c){}
-    void Reset() {}
-    void EnterCombat(Unit* /*who*/) {}
-    void AttackStart(Unit* /*who*/) {}
-    void MoveInLineOfSight(Unit* /*who*/) {}
-    void UpdateAI(const uint32 /*diff*/) {}
-
-    void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+    mob_janalai_egg()
+        : CreatureScript("mob_janalai_egg")
     {
-        if (spell->Id == SPELL_HATCH_EGG)
-        {
-            DoSpawnCreature(MOB_HATCHLING, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
-            me->SetDisplayId(11686);
-        }
     }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new mob_janalai_eggAI(creature);
+    }
+
+    struct mob_janalai_eggAI : public ScriptedAI
+    {
+        mob_janalai_eggAI(Creature *c) : ScriptedAI(c){}
+        void Reset() {}
+        void EnterCombat(Unit* /*who*/) {}
+        void AttackStart(Unit* /*who*/) {}
+        void MoveInLineOfSight(Unit* /*who*/) {}
+        void UpdateAI(const uint32 /*diff*/) {}
+
+        void SpellHit(Unit * /*caster*/, const SpellEntry *spell)
+        {
+            if (spell->Id == SPELL_HATCH_EGG)
+            {
+                DoSpawnCreature(MOB_HATCHLING, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SetDisplayId(11686);
+            }
+        }
+    };
+
 };
 
 void AddSC_boss_janalai()

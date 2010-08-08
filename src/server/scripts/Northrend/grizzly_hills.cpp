@@ -318,7 +318,7 @@ public:
                 Mrfloppy->GetMotionMaster()->MoveFollow(pCreature, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
             }
 
-            if (npc_escortAI* pEscortAI = CAST_AI(npc_emilyAI, (pCreature->AI())))
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_emily::npc_emilyAI, (pCreature->AI())))
                 pEscortAI->Start(true, false, pPlayer->GetGUID());
         }
         return true;

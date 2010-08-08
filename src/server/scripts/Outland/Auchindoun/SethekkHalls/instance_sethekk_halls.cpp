@@ -31,63 +31,65 @@ enum eEnums
     NPC_ANZU   = 23035,
     IKISS_DOOR = 177203,
 };
-
-struct instance_sethekk_halls : public ScriptedInstance
+class instance_sethekk_halls : public InstanceMapScript
 {
-    instance_sethekk_halls(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+public:
+    instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls") { }
 
-    uint32 AnzuEncounter;
-    uint64 m_uiIkissDoorGUID;
-
-    void Initialize()
+    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
     {
-        AnzuEncounter = NOT_STARTED;
-        m_uiIkissDoorGUID = 0;
+        return new instance_sethekk_halls_InstanceMapScript(pMap);
     }
 
-    void OnCreatureCreate(Creature* pCreature, bool /*add*/)
+    struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
     {
-        if (pCreature->GetEntry() == NPC_ANZU)
+        instance_sethekk_halls_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+
+        uint32 AnzuEncounter;
+        uint64 m_uiIkissDoorGUID;
+
+        void Initialize()
         {
-            if (AnzuEncounter >= IN_PROGRESS)
-                pCreature->DisappearAndDie();
-            else
-                AnzuEncounter = IN_PROGRESS;
+            AnzuEncounter = NOT_STARTED;
+            m_uiIkissDoorGUID = 0;
         }
-    }
 
-    void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
-    {
-         if (pGo->GetEntry() == IKISS_DOOR)
-            m_uiIkissDoorGUID = pGo->GetGUID();
-    }
-
-    void SetData(uint32 type, uint32 data)
-    {
-        switch(type)
+        void OnCreatureCreate(Creature* pCreature, bool /*add*/)
         {
-            case DATA_IKISSDOOREVENT:
-                if (data == DONE)
-                    DoUseDoorOrButton(m_uiIkissDoorGUID,DAY*IN_MILLISECONDS);
-                break;
-            case TYPE_ANZU_ENCOUNTER:
-                AnzuEncounter = data;
-                break;
+            if (pCreature->GetEntry() == NPC_ANZU)
+            {
+                if (AnzuEncounter >= IN_PROGRESS)
+                    pCreature->DisappearAndDie();
+                else
+                    AnzuEncounter = IN_PROGRESS;
+            }
         }
-    }
+
+        void OnGameObjectCreate(GameObject* pGo, bool /*add*/)
+        {
+             if (pGo->GetEntry() == IKISS_DOOR)
+                m_uiIkissDoorGUID = pGo->GetGUID();
+        }
+
+        void SetData(uint32 type, uint32 data)
+        {
+            switch(type)
+            {
+                case DATA_IKISSDOOREVENT:
+                    if (data == DONE)
+                        DoUseDoorOrButton(m_uiIkissDoorGUID,DAY*IN_MILLISECONDS);
+                    break;
+                case TYPE_ANZU_ENCOUNTER:
+                    AnzuEncounter = data;
+                    break;
+            }
+        }
+    };
+
 };
 
-InstanceData* GetInstanceData_instance_sethekk_halls(Map* pMap)
-{
-    return new instance_sethekk_halls(pMap);
-}
 
 void AddSC_instance_sethekk_halls()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_sethekk_halls";
-    newscript->GetInstanceData = &GetInstanceData_instance_sethekk_halls;
-    newscript->RegisterSelf();
+    new instance_sethekk_halls();
 }
-

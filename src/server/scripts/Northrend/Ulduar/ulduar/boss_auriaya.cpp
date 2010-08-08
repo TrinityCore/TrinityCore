@@ -32,74 +32,75 @@ enum Yells
     SAY_DEATH                                   = -1603053,
     SAY_BERSERK                                 = -1603054,
 };
-
-struct boss_auriaya_AI : public BossAI
+class boss_auriaya : public CreatureScript
 {
-    boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, TYPE_AURIAYA)
+public:
+    boss_auriaya() : CreatureScript("boss_auriaya") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
+        return new boss_auriaya_AI (pCreature);
     }
 
-    uint32 TERRIFYING_SCREECH_Timer;
-    uint32 SONIC_SCREECH_Timer;
-
-    void Reset()
+    struct boss_auriaya_AI : public BossAI
     {
-        _Reset();
-        TERRIFYING_SCREECH_Timer = 180000;
-        SONIC_SCREECH_Timer = 30000;
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        _EnterCombat();
-        DoScriptText(SAY_AGGRO,me);
-    }
-
-    void KilledUnit(Unit* /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
-
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-        _JustDied();
-    }
-
-    void MoveInLineOfSight(Unit* /*who*/) {}
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (TERRIFYING_SCREECH_Timer <= diff)
+        boss_auriaya_AI(Creature *pCreature) : BossAI(pCreature, TYPE_AURIAYA)
         {
-            DoCast(SPELL_TERRIFYING_SCREECH);
+        }
+
+        uint32 TERRIFYING_SCREECH_Timer;
+        uint32 SONIC_SCREECH_Timer;
+
+        void Reset()
+        {
+            _Reset();
             TERRIFYING_SCREECH_Timer = 180000;
-        } else TERRIFYING_SCREECH_Timer -= diff;
-
-        if (SONIC_SCREECH_Timer <= diff)
-        {
-            DoCastVictim(SPELL_SONIC_SCREECH);
             SONIC_SCREECH_Timer = 30000;
-        } else SONIC_SCREECH_Timer -= diff;
+        }
 
-        DoMeleeAttackIfReady();
-    }
+        void EnterCombat(Unit* /*who*/)
+        {
+            _EnterCombat();
+            DoScriptText(SAY_AGGRO,me);
+        }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void JustDied(Unit * /*victim*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+            _JustDied();
+        }
+
+        void MoveInLineOfSight(Unit* /*who*/) {}
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (TERRIFYING_SCREECH_Timer <= diff)
+            {
+                DoCast(SPELL_TERRIFYING_SCREECH);
+                TERRIFYING_SCREECH_Timer = 180000;
+            } else TERRIFYING_SCREECH_Timer -= diff;
+
+            if (SONIC_SCREECH_Timer <= diff)
+            {
+                DoCastVictim(SPELL_SONIC_SCREECH);
+                SONIC_SCREECH_Timer = 30000;
+            } else SONIC_SCREECH_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-
-CreatureAI* GetAI_boss_auriaya(Creature* pCreature)
-{
-    return new boss_auriaya_AI (pCreature);
-}
 
 void AddSC_boss_auriaya()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_auriaya";
-    newscript->GetAI = &GetAI_boss_auriaya;
-    newscript->RegisterSelf();
+    new boss_auriaya();
 }

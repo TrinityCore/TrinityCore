@@ -34,9 +34,9 @@ enum GameObjects
     ENTRY_GORK_PALEHOOF_SPHERE                    = 188593
 };
 
-struct instance_pinnacle : public ScriptedInstance
+struct instance_pinnacle : public InstanceScript
 {
-    instance_pinnacle(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+    instance_pinnacle(Map* pMap) : InstanceScript(pMap) {Initialize();};
 
     uint64 uiSvalaSorrowgrave;
     uint64 uiGortokPalehoof;
@@ -242,17 +242,20 @@ struct instance_pinnacle : public ScriptedInstance
         OUT_LOAD_INST_DATA_COMPLETE;
     }
 };
-
-InstanceData* GetInstanceData_instance_utgarde_pinnacle(Map* pMap)
+class instance_utgarde_pinnacle : public InstanceMapScript
 {
-    return new instance_pinnacle(pMap);
-}
+public:
+    instance_utgarde_pinnacle() : InstanceMapScript("instance_utgarde_pinnacle") { }
+
+    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    {
+        return new instance_pinnacle(pMap);
+    }
+
+
+};
 
 void AddSC_instance_utgarde_pinnacle()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_utgarde_pinnacle";
-    newscript->GetInstanceData = &GetInstanceData_instance_utgarde_pinnacle;
-    newscript->RegisterSelf();
+    new instance_utgarde_pinnacle();
 }

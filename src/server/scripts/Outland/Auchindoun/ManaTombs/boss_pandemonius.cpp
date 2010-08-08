@@ -40,89 +40,91 @@ EndScriptData */
 #define H_SPELL_VOID_BLAST              38760
 #define SPELL_DARK_SHELL                32358
 #define H_SPELL_DARK_SHELL              38759
-
-struct boss_pandemoniusAI : public ScriptedAI
+class boss_pandemonius : public CreatureScript
 {
-    boss_pandemoniusAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_pandemonius() : CreatureScript("boss_pandemonius") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
+        return new boss_pandemoniusAI (pCreature);
     }
 
-    uint32 VoidBlast_Timer;
-    uint32 DarkShell_Timer;
-    uint32 VoidBlast_Counter;
-
-    void Reset()
+    struct boss_pandemoniusAI : public ScriptedAI
     {
-        VoidBlast_Timer = 8000+rand()%15000;
-        DarkShell_Timer = 20000;
-        VoidBlast_Counter = 0;
-    }
-
-    void JustDied(Unit* /*Killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-    }
-
-    void KilledUnit(Unit* /*victim*/)
-    {
-        DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        if (VoidBlast_Timer <= diff)
+        boss_pandemoniusAI(Creature *c) : ScriptedAI(c)
         {
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-            {
-                DoCast(pTarget, SPELL_VOID_BLAST);
-                VoidBlast_Timer = 500;
-                ++VoidBlast_Counter;
-            }
-
-            if (VoidBlast_Counter == 5)
-            {
-                VoidBlast_Timer = 15000+rand()%10000;
-                VoidBlast_Counter = 0;
-            }
-        } else VoidBlast_Timer -= diff;
-
-        if (!VoidBlast_Counter)
-        {
-            if (DarkShell_Timer <= diff)
-            {
-                if (me->IsNonMeleeSpellCasted(false))
-                    me->InterruptNonMeleeSpells(true);
-
-                DoScriptText(EMOTE_DARK_SHELL, me);
-
-                DoCast(me, SPELL_DARK_SHELL);
-                DarkShell_Timer = 20000;
-            } else DarkShell_Timer -= diff;
         }
 
-        DoMeleeAttackIfReady();
-    }
+        uint32 VoidBlast_Timer;
+        uint32 DarkShell_Timer;
+        uint32 VoidBlast_Counter;
+
+        void Reset()
+        {
+            VoidBlast_Timer = 8000+rand()%15000;
+            DarkShell_Timer = 20000;
+            VoidBlast_Counter = 0;
+        }
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+        }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            DoScriptText(RAND(SAY_KILL_1,SAY_KILL_2), me);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (VoidBlast_Timer <= diff)
+            {
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+                {
+                    DoCast(pTarget, SPELL_VOID_BLAST);
+                    VoidBlast_Timer = 500;
+                    ++VoidBlast_Counter;
+                }
+
+                if (VoidBlast_Counter == 5)
+                {
+                    VoidBlast_Timer = 15000+rand()%10000;
+                    VoidBlast_Counter = 0;
+                }
+            } else VoidBlast_Timer -= diff;
+
+            if (!VoidBlast_Counter)
+            {
+                if (DarkShell_Timer <= diff)
+                {
+                    if (me->IsNonMeleeSpellCasted(false))
+                        me->InterruptNonMeleeSpells(true);
+
+                    DoScriptText(EMOTE_DARK_SHELL, me);
+
+                    DoCast(me, SPELL_DARK_SHELL);
+                    DarkShell_Timer = 20000;
+                } else DarkShell_Timer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_pandemonius(Creature* pCreature)
-{
-    return new boss_pandemoniusAI (pCreature);
-}
 
 void AddSC_boss_pandemonius()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_pandemonius";
-    newscript->GetAI = &GetAI_boss_pandemonius;
-    newscript->RegisterSelf();
+    new boss_pandemonius();
 }
-

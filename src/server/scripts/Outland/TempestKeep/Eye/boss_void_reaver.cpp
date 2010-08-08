@@ -55,10 +55,10 @@ class boss_void_reaver : public CreatureScript
         {
             boss_void_reaverAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 Pounding_Timer;
             uint32 ArcaneOrb_Timer;

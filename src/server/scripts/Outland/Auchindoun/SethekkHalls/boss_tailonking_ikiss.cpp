@@ -51,165 +51,167 @@ EndScriptData */
 
 #define SPELL_ARCANE_EXPLOSION      38197
 #define H_SPELL_ARCANE_EXPLOSION    40425
-
-struct boss_talon_king_ikissAI : public ScriptedAI
+class boss_talon_king_ikiss : public CreatureScript
 {
-    boss_talon_king_ikissAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_talon_king_ikiss() : CreatureScript("boss_talon_king_ikiss") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_talon_king_ikissAI (pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    uint32 ArcaneVolley_Timer;
-    uint32 Sheep_Timer;
-    uint32 Blink_Timer;
-    uint32 Slow_Timer;
-
-    bool ManaShield;
-    bool Blink;
-    bool Intro;
-
-    void Reset()
+    struct boss_talon_king_ikissAI : public ScriptedAI
     {
-        ArcaneVolley_Timer = 5000;
-        Sheep_Timer = 8000;
-        Blink_Timer = 35000;
-        Slow_Timer = 15000+rand()%15000;
-        Blink = false;
-        Intro = false;
-        ManaShield = false;
-    }
-
-    void MoveInLineOfSight(Unit *who)
-    {
-        if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
+        boss_talon_king_ikissAI(Creature *c) : ScriptedAI(c)
         {
-            if (!Intro && me->IsWithinDistInMap(who, 100))
-            {
-                Intro = true;
-                DoScriptText(SAY_INTRO, me);
-            }
+            pInstance = c->GetInstanceScript();
+        }
 
-            if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+        InstanceScript* pInstance;
+
+        uint32 ArcaneVolley_Timer;
+        uint32 Sheep_Timer;
+        uint32 Blink_Timer;
+        uint32 Slow_Timer;
+
+        bool ManaShield;
+        bool Blink;
+        bool Intro;
+
+        void Reset()
+        {
+            ArcaneVolley_Timer = 5000;
+            Sheep_Timer = 8000;
+            Blink_Timer = 35000;
+            Slow_Timer = 15000+rand()%15000;
+            Blink = false;
+            Intro = false;
+            ManaShield = false;
+        }
+
+        void MoveInLineOfSight(Unit *who)
+        {
+            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
+            {
+                if (!Intro && me->IsWithinDistInMap(who, 100))
+                {
+                    Intro = true;
+                    DoScriptText(SAY_INTRO, me);
+                }
+
+                if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
+                    return;
+
+                float attackRadius = me->GetAttackDistance(who);
+                if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
+                {
+                    //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
+                    AttackStart(who);
+                }
+            }
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
+        }
+
+        void JustDied(Unit* /*Killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_IKISSDOOREVENT, DONE);
+        }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
                 return;
 
-            float attackRadius = me->GetAttackDistance(who);
-            if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
+            if (Blink)
             {
-                //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
-                AttackStart(who);
+                DoCast(me, SPELL_ARCANE_EXPLOSION);
+                DoCast(me, SPELL_ARCANE_BUBBLE, true);
+                Blink = false;
             }
-        }
-    }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(RAND(SAY_AGGRO_1,SAY_AGGRO_2,SAY_AGGRO_3), me);
-    }
+            if (ArcaneVolley_Timer <= diff)
+            {
+                DoCast(me, SPELL_ARCANE_VOLLEY);
+                ArcaneVolley_Timer = 7000+rand()%5000;
+            } else ArcaneVolley_Timer -= diff;
 
-    void JustDied(Unit* /*Killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+            if (Sheep_Timer <= diff)
+            {
+                Unit *pTarget;
 
-        if (pInstance)
-            pInstance->SetData(DATA_IKISSDOOREVENT, DONE);
-    }
+                //second top aggro target in normal, random target in heroic correct?
+                if (IsHeroic())
+                    pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                else
+                    pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
 
-    void KilledUnit(Unit* /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2), me);
-    }
+                if (pTarget)
+                    DoCast(pTarget, SPELL_POLYMORPH);
+                Sheep_Timer = 15000+rand()%2500;
+            } else Sheep_Timer -= diff;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
+            //may not be correct time to cast
+            if (!ManaShield && ((me->GetHealth()*100) / me->GetMaxHealth() < 20))
+            {
+                DoCast(me, SPELL_MANA_SHIELD);
+                ManaShield = true;
+            }
 
-        if (Blink)
-        {
-            DoCast(me, SPELL_ARCANE_EXPLOSION);
-            DoCast(me, SPELL_ARCANE_BUBBLE, true);
-            Blink = false;
-        }
-
-        if (ArcaneVolley_Timer <= diff)
-        {
-            DoCast(me, SPELL_ARCANE_VOLLEY);
-            ArcaneVolley_Timer = 7000+rand()%5000;
-        } else ArcaneVolley_Timer -= diff;
-
-        if (Sheep_Timer <= diff)
-        {
-            Unit *pTarget;
-
-            //second top aggro target in normal, random target in heroic correct?
             if (IsHeroic())
-                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            else
-                pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO,1);
-
-            if (pTarget)
-                DoCast(pTarget, SPELL_POLYMORPH);
-            Sheep_Timer = 15000+rand()%2500;
-        } else Sheep_Timer -= diff;
-
-        //may not be correct time to cast
-        if (!ManaShield && ((me->GetHealth()*100) / me->GetMaxHealth() < 20))
-        {
-            DoCast(me, SPELL_MANA_SHIELD);
-            ManaShield = true;
-        }
-
-        if (IsHeroic())
-        {
-            if (Slow_Timer <= diff)
             {
-                DoCast(me, H_SPELL_SLOW);
-                Slow_Timer = 15000+rand()%25000;
-            } else Slow_Timer -= diff;
-        }
-
-        if (Blink_Timer <= diff)
-        {
-            DoScriptText(EMOTE_ARCANE_EXP, me);
-
-            if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
-            {
-                if (me->IsNonMeleeSpellCasted(false))
-                    me->InterruptNonMeleeSpells(false);
-
-                //Spell doesn't work, but we use for visual effect at least
-                DoCast(pTarget, SPELL_BLINK);
-
-                float X = pTarget->GetPositionX();
-                float Y = pTarget->GetPositionY();
-                float Z = pTarget->GetPositionZ();
-
-                DoTeleportTo(X,Y,Z);
-
-                DoCast(pTarget, SPELL_BLINK_TELEPORT);
-                Blink = true;
+                if (Slow_Timer <= diff)
+                {
+                    DoCast(me, H_SPELL_SLOW);
+                    Slow_Timer = 15000+rand()%25000;
+                } else Slow_Timer -= diff;
             }
-            Blink_Timer = 35000+rand()%5000;
-        } else Blink_Timer -= diff;
 
-        if (!Blink)
-            DoMeleeAttackIfReady();
-    }
+            if (Blink_Timer <= diff)
+            {
+                DoScriptText(EMOTE_ARCANE_EXP, me);
+
+                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                {
+                    if (me->IsNonMeleeSpellCasted(false))
+                        me->InterruptNonMeleeSpells(false);
+
+                    //Spell doesn't work, but we use for visual effect at least
+                    DoCast(pTarget, SPELL_BLINK);
+
+                    float X = pTarget->GetPositionX();
+                    float Y = pTarget->GetPositionY();
+                    float Z = pTarget->GetPositionZ();
+
+                    DoTeleportTo(X,Y,Z);
+
+                    DoCast(pTarget, SPELL_BLINK_TELEPORT);
+                    Blink = true;
+                }
+                Blink_Timer = 35000+rand()%5000;
+            } else Blink_Timer -= diff;
+
+            if (!Blink)
+                DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_talon_king_ikiss(Creature* pCreature)
-{
-    return new boss_talon_king_ikissAI (pCreature);
-}
 
 void AddSC_boss_talon_king_ikiss()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_talon_king_ikiss";
-    newscript->GetAI = &GetAI_boss_talon_king_ikiss;
-    newscript->RegisterSelf();
+    new boss_talon_king_ikiss();
 }
-

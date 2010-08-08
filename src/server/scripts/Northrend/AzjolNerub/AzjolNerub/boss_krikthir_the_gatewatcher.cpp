@@ -101,10 +101,10 @@ public:
     {
         boss_krik_thirAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiMindFlayTimer;
         uint32 uiCurseFatigueTimer;

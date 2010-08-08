@@ -45,164 +45,167 @@
 
 #define SAY_ONAGGRO "The Legion's final conquest has begun! Once again the subjugation of this world is within our grasp. Let none survive!"
 #define SOUND_ONAGGRO 11022
-
-struct boss_rage_winterchillAI : public hyjal_trashAI
+class boss_rage_winterchill : public CreatureScript
 {
-    boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
+public:
+    boss_rage_winterchill() : CreatureScript("boss_rage_winterchill") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
-        pGo = false;
-        pos = 0;
+        return new boss_rage_winterchillAI (pCreature);
     }
 
-    uint32 FrostArmorTimer;
-    uint32 DecayTimer;
-    uint32 NovaTimer;
-    uint32 IceboltTimer;
-    bool pGo;
-    uint32 pos;
-
-    void Reset()
+    struct boss_rage_winterchillAI : public hyjal_trashAI
     {
-        damageTaken = 0;
-        FrostArmorTimer = 37000;
-        DecayTimer = 45000;
-        NovaTimer = 15000;
-        IceboltTimer = 10000;
-
-        if (pInstance && IsEvent)
-            pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance && IsEvent)
-            pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
-        DoPlaySoundToSet(me, SOUND_ONAGGRO);
-        me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
-    }
-
-    void KilledUnit(Unit * /*victim*/)
-    {
-        switch (urand(0,1))
+        boss_rage_winterchillAI(Creature *c) : hyjal_trashAI(c)
         {
-            case 0:
-                DoPlaySoundToSet(me, SOUND_ONSLAY1);
-                me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
-                break;
-            case 1:
-                DoPlaySoundToSet(me, SOUND_ONSLAY2);
-                me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
-                break;
+            pInstance = c->GetInstanceScript();
+            pGo = false;
+            pos = 0;
         }
-    }
 
-    void WaypointReached(uint32 i)
-    {
-        pos = i;
-        if (i == 7 && pInstance)
+        uint32 FrostArmorTimer;
+        uint32 DecayTimer;
+        uint32 NovaTimer;
+        uint32 IceboltTimer;
+        bool pGo;
+        uint32 pos;
+
+        void Reset()
         {
-            Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
-            if (pTarget && pTarget->isAlive())
-                me->AddThreat(pTarget,0.0f);
+            damageTaken = 0;
+            FrostArmorTimer = 37000;
+            DecayTimer = 45000;
+            NovaTimer = 15000;
+            IceboltTimer = 10000;
+
+            if (pInstance && IsEvent)
+                pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, NOT_STARTED);
         }
-    }
 
-    void JustDied(Unit *victim)
-    {
-        hyjal_trashAI::JustDied(victim);
-        if (pInstance && IsEvent)
-            pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
-        DoPlaySoundToSet(me, SOUND_ONDEATH);
-        me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, NULL);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (IsEvent)
+        void EnterCombat(Unit * /*who*/)
         {
-            //Must update npc_escortAI
-            npc_escortAI::UpdateAI(diff);
-            if (!pGo)
+            if (pInstance && IsEvent)
+                pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, IN_PROGRESS);
+            DoPlaySoundToSet(me, SOUND_ONAGGRO);
+            me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
+        }
+
+        void KilledUnit(Unit * /*victim*/)
+        {
+            switch (urand(0,1))
             {
-                pGo = true;
-                if (pInstance)
+                case 0:
+                    DoPlaySoundToSet(me, SOUND_ONSLAY1);
+                    me->MonsterYell(SAY_ONSLAY1, LANG_UNIVERSAL, NULL);
+                    break;
+                case 1:
+                    DoPlaySoundToSet(me, SOUND_ONSLAY2);
+                    me->MonsterYell(SAY_ONSLAY2, LANG_UNIVERSAL, NULL);
+                    break;
+            }
+        }
+
+        void WaypointReached(uint32 i)
+        {
+            pos = i;
+            if (i == 7 && pInstance)
+            {
+                Unit *pTarget = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                if (pTarget && pTarget->isAlive())
+                    me->AddThreat(pTarget,0.0f);
+            }
+        }
+
+        void JustDied(Unit *victim)
+        {
+            hyjal_trashAI::JustDied(victim);
+            if (pInstance && IsEvent)
+                pInstance->SetData(DATA_RAGEWINTERCHILLEVENT, DONE);
+            DoPlaySoundToSet(me, SOUND_ONDEATH);
+            me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, NULL);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (IsEvent)
+            {
+                //Must update npc_escortAI
+                npc_escortAI::UpdateAI(diff);
+                if (!pGo)
                 {
-                    AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
-                    AddWaypoint(1, 4898.68,    -1615.02,    1329.48);
-                    AddWaypoint(2, 4907.12,    -1667.08,    1321.00);
-                    AddWaypoint(3, 4963.18,    -1699.35,    1340.51);
-                    AddWaypoint(4, 4989.16,    -1716.67,    1335.74);
-                    AddWaypoint(5, 5026.27,    -1736.89,    1323.02);
-                    AddWaypoint(6, 5037.77,    -1770.56,    1324.36);
-                    AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
-                    Start(false, true);
-                    SetDespawnAtEnd(false);
+                    pGo = true;
+                    if (pInstance)
+                    {
+                        AddWaypoint(0, 4896.08,    -1576.35,    1333.65);
+                        AddWaypoint(1, 4898.68,    -1615.02,    1329.48);
+                        AddWaypoint(2, 4907.12,    -1667.08,    1321.00);
+                        AddWaypoint(3, 4963.18,    -1699.35,    1340.51);
+                        AddWaypoint(4, 4989.16,    -1716.67,    1335.74);
+                        AddWaypoint(5, 5026.27,    -1736.89,    1323.02);
+                        AddWaypoint(6, 5037.77,    -1770.56,    1324.36);
+                        AddWaypoint(7, 5067.23,    -1789.95,    1321.17);
+                        Start(false, true);
+                        SetDespawnAtEnd(false);
+                    }
                 }
             }
+
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            if (FrostArmorTimer <= diff)
+            {
+                DoCast(me, SPELL_FROST_ARMOR);
+                FrostArmorTimer = 40000+rand()%20000;
+            } else FrostArmorTimer -= diff;
+            if (DecayTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_DEATH_AND_DECAY);
+                DecayTimer = 60000+rand()%20000;
+                switch (urand(0,1))
+                {
+                    case 0:
+                        DoPlaySoundToSet(me, SOUND_DECAY1);
+                        me->MonsterYell(SAY_DECAY1, LANG_UNIVERSAL, NULL);
+                        break;
+                    case 1:
+                        DoPlaySoundToSet(me, SOUND_DECAY2);
+                        me->MonsterYell(SAY_DECAY2, LANG_UNIVERSAL, NULL);
+                        break;
+                }
+            } else DecayTimer -= diff;
+            if (NovaTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FROST_NOVA);
+                NovaTimer = 30000+rand()%15000;
+                switch (urand(0,1))
+                {
+                    case 0:
+                        DoPlaySoundToSet(me, SOUND_NOVA1);
+                        me->MonsterYell(SAY_NOVA1, LANG_UNIVERSAL, NULL);
+                        break;
+                    case 1:
+                        DoPlaySoundToSet(me, SOUND_NOVA2);
+                        me->MonsterYell(SAY_NOVA2, LANG_UNIVERSAL, NULL);
+                        break;
+                }
+            } else NovaTimer -= diff;
+            if (IceboltTimer <= diff)
+            {
+                DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,40,true), SPELL_ICEBOLT);
+                IceboltTimer = 11000+rand()%20000;
+            } else IceboltTimer -= diff;
+
+            DoMeleeAttackIfReady();
         }
+    };
 
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (FrostArmorTimer <= diff)
-        {
-            DoCast(me, SPELL_FROST_ARMOR);
-            FrostArmorTimer = 40000+rand()%20000;
-        } else FrostArmorTimer -= diff;
-        if (DecayTimer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_DEATH_AND_DECAY);
-            DecayTimer = 60000+rand()%20000;
-            switch (urand(0,1))
-            {
-                case 0:
-                    DoPlaySoundToSet(me, SOUND_DECAY1);
-                    me->MonsterYell(SAY_DECAY1, LANG_UNIVERSAL, NULL);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(me, SOUND_DECAY2);
-                    me->MonsterYell(SAY_DECAY2, LANG_UNIVERSAL, NULL);
-                    break;
-            }
-        } else DecayTimer -= diff;
-        if (NovaTimer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_FROST_NOVA);
-            NovaTimer = 30000+rand()%15000;
-            switch (urand(0,1))
-            {
-                case 0:
-                    DoPlaySoundToSet(me, SOUND_NOVA1);
-                    me->MonsterYell(SAY_NOVA1, LANG_UNIVERSAL, NULL);
-                    break;
-                case 1:
-                    DoPlaySoundToSet(me, SOUND_NOVA2);
-                    me->MonsterYell(SAY_NOVA2, LANG_UNIVERSAL, NULL);
-                    break;
-            }
-        } else NovaTimer -= diff;
-        if (IceboltTimer <= diff)
-        {
-            DoCast(SelectTarget(SELECT_TARGET_RANDOM,0,40,true), SPELL_ICEBOLT);
-            IceboltTimer = 11000+rand()%20000;
-        } else IceboltTimer -= diff;
-
-        DoMeleeAttackIfReady();
-    }
 };
 
-CreatureAI* GetAI_boss_rage_winterchill(Creature* pCreature)
-{
-    return new boss_rage_winterchillAI (pCreature);
-}
 
 void AddSC_boss_rage_winterchill()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_rage_winterchill";
-    newscript->GetAI = &GetAI_boss_rage_winterchill;
-    newscript->RegisterSelf();
+    new boss_rage_winterchill();
 }

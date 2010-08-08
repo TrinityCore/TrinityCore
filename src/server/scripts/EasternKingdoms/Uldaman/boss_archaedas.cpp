@@ -64,7 +64,7 @@ class boss_archaedas : public CreatureScript
         {
             boss_archaedasAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = me->GetInstanceData();
+                pInstance = me->GetInstanceScript();
             }
 
             uint32 Tremor_Timer;
@@ -74,7 +74,7 @@ class boss_archaedas : public CreatureScript
 
             bool guardiansAwake;
             bool vaultWalkersAwake;
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -226,7 +226,7 @@ class mob_archaedas_minions : public CreatureScript
         {
             mob_archaedas_minionsAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = me->GetInstanceData();
+                pInstance = me->GetInstanceScript();
             }
 
             uint32 Arcing_Timer;
@@ -234,7 +234,7 @@ class mob_archaedas_minions : public CreatureScript
             bool wakingUp;
 
             bool amIAwake;
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -322,10 +322,10 @@ class mob_stonekeepers : public CreatureScript
         {
             mob_stonekeepersAI(Creature *c) : ScriptedAI(c)
             {
-                pInstance = (me->GetInstanceData());
+                pInstance = (me->GetInstanceScript());
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             void Reset()
             {
@@ -385,7 +385,7 @@ class go_altar_of_archaedas : public GameObjectScript
 
         bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
         {
-            ScriptedInstance* pInstance = pPlayer->GetInstanceData();
+            InstanceScript* pInstance = pPlayer->GetInstanceScript();
             if (!pInstance)
                 return false;
 
@@ -417,7 +417,7 @@ class go_altar_of_the_keepers : public GameObjectScript
 
         bool OnGossipHello(Player* pPlayer, GameObject* /*pGo*/)
         {
-            ScriptedInstance* pInstance = pPlayer->GetInstanceData();
+            InstanceScript* pInstance = pPlayer->GetInstanceScript();
             if (!pInstance)
                 return false;
 

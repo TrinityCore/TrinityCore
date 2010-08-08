@@ -44,44 +44,47 @@ enum Yells
     SAY_KILLS_ANDOROV         = -1509016,
     SAY_COMPLETE_QUEST        = -1509017                        //Yell when realm complete quest 8743 for world event
 };
-
-struct boss_rajaxxAI : public ScriptedAI
+class boss_rajaxx : public CreatureScript
 {
-    boss_rajaxxAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_rajaxx() : CreatureScript("boss_rajaxx") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_rajaxxAI (pCreature);
     }
 
-    ScriptedInstance *pInstance;
-
-    void Reset()
+    struct boss_rajaxxAI : public ScriptedAI
     {
-        if (pInstance)
-            pInstance->SetData(DATA_RAJAXX_EVENT, NOT_STARTED);
-    }
+        boss_rajaxxAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_RAJAXX_EVENT, IN_PROGRESS);
-    }
+        InstanceScript *pInstance;
 
-    void JustDied(Unit * /*killer*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_RAJAXX_EVENT, DONE);
-    }
+        void Reset()
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_RAJAXX_EVENT, NOT_STARTED);
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_RAJAXX_EVENT, IN_PROGRESS);
+        }
+
+        void JustDied(Unit * /*killer*/)
+        {
+            if (pInstance)
+                pInstance->SetData(DATA_RAJAXX_EVENT, DONE);
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_rajaxx(Creature* pCreature)
-{
-    return new boss_rajaxxAI (pCreature);
-}
 
 void AddSC_boss_rajaxx()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_rajaxx";
-    newscript->GetAI = &GetAI_boss_rajaxx;
-    newscript->RegisterSelf();
+    new boss_rajaxx();
 }

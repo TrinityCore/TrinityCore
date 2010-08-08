@@ -57,7 +57,7 @@ class boss_mandokir : public CreatureScript
         {
             boss_mandokirAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
             uint32 KillCount;
@@ -72,7 +72,7 @@ class boss_mandokir : public CreatureScript
             float targetY;
             float targetZ;
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             bool endWatch;
             bool someWatched;
@@ -296,11 +296,11 @@ class mob_ohgan : public CreatureScript
         {
             mob_ohganAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
             uint32 SunderArmor_Timer;
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             void Reset()
             {

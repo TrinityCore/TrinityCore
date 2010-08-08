@@ -48,207 +48,235 @@ EndContentData */
 
 #define SPELL_PULVERIZE                 2676
 //#define SPELL_QUID9889                32174
-
-struct mob_unkor_the_ruthlessAI : public ScriptedAI
+class mob_unkor_the_ruthless : public CreatureScript
 {
-    mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) {}
+public:
+    mob_unkor_the_ruthless() : CreatureScript("mob_unkor_the_ruthless") { }
 
-    bool CanDoQuest;
-    uint32 UnkorUnfriendly_Timer;
-    uint32 Pulverize_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        CanDoQuest = false;
-        UnkorUnfriendly_Timer = 0;
-        Pulverize_Timer = 3000;
-        me->SetStandState(UNIT_STAND_STATE_STAND);
-        me->setFaction(FACTION_HOSTILE);
+        return new mob_unkor_the_ruthlessAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/) {}
-
-    void DoNice()
+    struct mob_unkor_the_ruthlessAI : public ScriptedAI
     {
-        DoScriptText(SAY_SUBMIT, me);
-        me->setFaction(FACTION_FRIENDLY);
-        me->SetStandState(UNIT_STAND_STATE_SIT);
-        me->RemoveAllAuras();
-        me->DeleteThreatList();
-        me->CombatStop(true);
-        UnkorUnfriendly_Timer = 60000;
-    }
+        mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) {}
 
-    void DamageTaken(Unit *done_by, uint32 &damage)
-    {
-        if (done_by->GetTypeId() == TYPEID_PLAYER)
-            if ((me->GetHealth()-damage)*100 / me->GetMaxHealth() < 30)
+        bool CanDoQuest;
+        uint32 UnkorUnfriendly_Timer;
+        uint32 Pulverize_Timer;
+
+        void Reset()
         {
-            if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
+            CanDoQuest = false;
+            UnkorUnfriendly_Timer = 0;
+            Pulverize_Timer = 3000;
+            me->SetStandState(UNIT_STAND_STATE_STAND);
+            me->setFaction(FACTION_HOSTILE);
+        }
+
+        void EnterCombat(Unit * /*who*/) {}
+
+        void DoNice()
+        {
+            DoScriptText(SAY_SUBMIT, me);
+            me->setFaction(FACTION_FRIENDLY);
+            me->SetStandState(UNIT_STAND_STATE_SIT);
+            me->RemoveAllAuras();
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            UnkorUnfriendly_Timer = 60000;
+        }
+
+        void DamageTaken(Unit *done_by, uint32 &damage)
+        {
+            if (done_by->GetTypeId() == TYPEID_PLAYER)
+                if ((me->GetHealth()-damage)*100 / me->GetMaxHealth() < 30)
             {
-                for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
                 {
-                    Player *pGroupie = itr->getSource();
-                    if (pGroupie &&
-                        pGroupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
-                        pGroupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
+                    for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
-                        pGroupie->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
-                        if (!CanDoQuest)
-                            CanDoQuest = true;
+                        Player *pGroupie = itr->getSource();
+                        if (pGroupie &&
+                            pGroupie->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
+                            pGroupie->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
+                        {
+                            pGroupie->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
+                            if (!CanDoQuest)
+                                CanDoQuest = true;
+                        }
                     }
-                }
-            } else
-            if (CAST_PLR(done_by)->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
-                CAST_PLR(done_by)->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
-            {
-                CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
-                CanDoQuest = true;
-            }
-        }
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (CanDoQuest)
-        {
-            if (!UnkorUnfriendly_Timer)
-            {
-                //DoCast(me, SPELL_QUID9889);        //not using spell for now
-                DoNice();
-            }
-            else
-            {
-                if (UnkorUnfriendly_Timer <= diff)
+                } else
+                if (CAST_PLR(done_by)->GetQuestStatus(QUEST_DONTKILLTHEFATONE) == QUEST_STATUS_INCOMPLETE &&
+                    CAST_PLR(done_by)->GetReqKillOrCastCurrentCount(QUEST_DONTKILLTHEFATONE, 18260) == 10)
                 {
-                    EnterEvadeMode();
-                    return;
-                } else UnkorUnfriendly_Timer -= diff;
+                    CAST_PLR(done_by)->AreaExploredOrEventHappens(QUEST_DONTKILLTHEFATONE);
+                    CanDoQuest = true;
+                }
             }
         }
 
-        if (!UpdateVictim())
-            return;
-
-        if (Pulverize_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            DoCast(me, SPELL_PULVERIZE);
-            Pulverize_Timer = 9000;
-        } else Pulverize_Timer -= diff;
+            if (CanDoQuest)
+            {
+                if (!UnkorUnfriendly_Timer)
+                {
+                    //DoCast(me, SPELL_QUID9889);        //not using spell for now
+                    DoNice();
+                }
+                else
+                {
+                    if (UnkorUnfriendly_Timer <= diff)
+                    {
+                        EnterEvadeMode();
+                        return;
+                    } else UnkorUnfriendly_Timer -= diff;
+                }
+            }
 
-        DoMeleeAttackIfReady();
-    }
+            if (!UpdateVictim())
+                return;
+
+            if (Pulverize_Timer <= diff)
+            {
+                DoCast(me, SPELL_PULVERIZE);
+                Pulverize_Timer = 9000;
+            } else Pulverize_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_mob_unkor_the_ruthless(Creature* pCreature)
-{
-    return new mob_unkor_the_ruthlessAI (pCreature);
-}
 
 /*######
 ## mob_infested_root_walker
 ######*/
-
-struct mob_infested_root_walkerAI : public ScriptedAI
+class mob_infested_root_walker : public CreatureScript
 {
-    mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
+public:
+    mob_infested_root_walker() : CreatureScript("mob_infested_root_walker") { }
 
-    void Reset() { }
-    void EnterCombat(Unit * /*who*/) { }
-
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
-            if (me->GetHealth() <= damage)
-                if (rand()%100 < 75)
-                    //Summon Wood Mites
-                    DoCast(me, 39130, true);
+        return new mob_infested_root_walkerAI (pCreature);
     }
+
+    struct mob_infested_root_walkerAI : public ScriptedAI
+    {
+        mob_infested_root_walkerAI(Creature *c) : ScriptedAI(c) {}
+
+        void Reset() { }
+        void EnterCombat(Unit * /*who*/) { }
+
+        void DamageTaken(Unit *done_by, uint32 &damage)
+        {
+            if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
+                if (me->GetHealth() <= damage)
+                    if (rand()%100 < 75)
+                        //Summon Wood Mites
+                        DoCast(me, 39130, true);
+        }
+    };
+
 };
-CreatureAI* GetAI_mob_infested_root_walker(Creature* pCreature)
-{
-    return new mob_infested_root_walkerAI (pCreature);
-}
 
 /*######
 ## mob_skywing
 ######*/
-struct npc_skywingAI : public npc_escortAI
+class npc_skywing : public CreatureScript
 {
 public:
-    npc_skywingAI(Creature *c) : npc_escortAI(c) {}
+    npc_skywing() : CreatureScript("npc_skywing") { }
 
-    void WaypointReached(uint32 i)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        Player* pPlayer = GetPlayerForEscort();
-        if (!pPlayer)
-            return;
-
-        switch(i)
-        {
-            case 8:
-                pPlayer->AreaExploredOrEventHappens(10898);
-                break;
-        }
+        return new npc_skywingAI(pCreature);
     }
 
-    void EnterCombat(Unit* /*who*/) {}
-
-    void MoveInLineOfSight(Unit *who)
+    struct npc_skywingAI : public npc_escortAI
     {
-        if (HasEscortState(STATE_ESCORT_ESCORTING))
-            return;
+    public:
+        npc_skywingAI(Creature *c) : npc_escortAI(c) {}
 
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        void WaypointReached(uint32 i)
         {
-            if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
+            Player* pPlayer = GetPlayerForEscort();
+            if (!pPlayer)
+                return;
+
+            switch(i)
             {
-                float Radius = 10.0;
-                if (me->IsWithinDistInMap(who, Radius))
+                case 8:
+                    pPlayer->AreaExploredOrEventHappens(10898);
+                    break;
+            }
+        }
+
+        void EnterCombat(Unit* /*who*/) {}
+
+        void MoveInLineOfSight(Unit *who)
+        {
+            if (HasEscortState(STATE_ESCORT_ESCORTING))
+                return;
+
+            if (who->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (CAST_PLR(who)->GetQuestStatus(10898) == QUEST_STATUS_INCOMPLETE)
                 {
-                    Start(false, false, who->GetGUID());
+                    float Radius = 10.0;
+                    if (me->IsWithinDistInMap(who, Radius))
+                    {
+                        Start(false, false, who->GetGUID());
+                    }
                 }
             }
         }
-    }
 
-    void Reset() {}
+        void Reset() {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        npc_escortAI::UpdateAI(diff);
-    }
+        void UpdateAI(const uint32 diff)
+        {
+            npc_escortAI::UpdateAI(diff);
+        }
+    };
+
 };
-
-CreatureAI* GetAI_npc_skywingAI(Creature* pCreature)
-{
-    return new npc_skywingAI(pCreature);
-}
 
 /*######
 ## mob_rotting_forest_rager
 ######*/
-
-struct mob_rotting_forest_ragerAI : public ScriptedAI
+class mob_rotting_forest_rager : public CreatureScript
 {
-    mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
+public:
+    mob_rotting_forest_rager() : CreatureScript("mob_rotting_forest_rager") { }
 
-    void Reset() { }
-    void EnterCombat(Unit * /*who*/) { }
-
-    void DamageTaken(Unit *done_by, uint32 &damage)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (done_by->GetTypeId() == TYPEID_PLAYER)
-            if (me->GetHealth() <= damage)
-                if (rand()%100 < 75)
-                    //Summon Lots of Wood Mights
-                    DoCast(me, 39134, true);
+        return new mob_rotting_forest_ragerAI (pCreature);
     }
+
+    struct mob_rotting_forest_ragerAI : public ScriptedAI
+    {
+        mob_rotting_forest_ragerAI(Creature *c) : ScriptedAI(c) {}
+
+        void Reset() { }
+        void EnterCombat(Unit * /*who*/) { }
+
+        void DamageTaken(Unit *done_by, uint32 &damage)
+        {
+            if (done_by->GetTypeId() == TYPEID_PLAYER)
+                if (me->GetHealth() <= damage)
+                    if (rand()%100 < 75)
+                        //Summon Lots of Wood Mights
+                        DoCast(me, 39134, true);
+        }
+    };
+
 };
-CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
-{
-    return new mob_rotting_forest_ragerAI (pCreature);
-}
 
 /*######
 ## mob_netherweb_victim
@@ -260,40 +288,47 @@ CreatureAI* GetAI_mob_rotting_forest_rager(Creature* pCreature)
 const uint32 netherwebVictims[6] =
 {
     18470, 16805, 21242, 18452, 22482, 21285
-};
-struct mob_netherweb_victimAI : public ScriptedAI
+};class mob_netherweb_victim : public CreatureScript
 {
-    mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
+public:
+    mob_netherweb_victim() : CreatureScript("mob_netherweb_victim") { }
 
-    void Reset() { }
-    void EnterCombat(Unit * /*who*/) { }
-    void MoveInLineOfSight(Unit * /*who*/) { }
-
-    void JustDied(Unit* Killer)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (Killer->GetTypeId() == TYPEID_PLAYER)
-        {
-            if (CAST_PLR(Killer)->GetQuestStatus(10873) == QUEST_STATUS_INCOMPLETE)
-            {
-                if (rand()%100 < 25)
-                {
-                    me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                    CAST_PLR(Killer)->KilledMonsterCredit(QUEST_TARGET, me->GetGUID());
-                }
-                else
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        return new mob_netherweb_victimAI (pCreature);
+    }
 
-                if (rand()%100 < 75)
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f,0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
-                me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+    struct mob_netherweb_victimAI : public ScriptedAI
+    {
+        mob_netherweb_victimAI(Creature *c) : ScriptedAI(c) {}
+
+        void Reset() { }
+        void EnterCombat(Unit * /*who*/) { }
+        void MoveInLineOfSight(Unit * /*who*/) { }
+
+        void JustDied(Unit* Killer)
+        {
+            if (Killer->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (CAST_PLR(Killer)->GetQuestStatus(10873) == QUEST_STATUS_INCOMPLETE)
+                {
+                    if (rand()%100 < 25)
+                    {
+                        me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                        CAST_PLR(Killer)->KilledMonsterCredit(QUEST_TARGET, me->GetGUID());
+                    }
+                    else
+                        me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+
+                    if (rand()%100 < 75)
+                        me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f,0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                }
             }
         }
-    }
+    };
+
 };
-CreatureAI* GetAI_mob_netherweb_victim(Creature* pCreature)
-{
-    return new mob_netherweb_victimAI (pCreature);
-}
 
 /*######
 ## npc_floon
@@ -313,87 +348,96 @@ enum eFloon
     FACTION_HOSTILE_FL      = 1738,
     QUEST_CRACK_SKULLS      = 10009
 };
-
-struct npc_floonAI : public ScriptedAI
+class npc_floon : public CreatureScript
 {
-    npc_floonAI(Creature* c) : ScriptedAI(c)
+public:
+    npc_floon() : CreatureScript("npc_floon") { }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        m_uiNormFaction = c->getFaction();
+        if (uiAction == GOSSIP_ACTION_INFO_DEF)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            pPlayer->SEND_GOSSIP_MENU(9443, pCreature->GetGUID());
+        }
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pCreature->setFaction(FACTION_HOSTILE_FL);
+            DoScriptText(SAY_FLOON_ATTACK, pCreature, pPlayer);
+            pCreature->AI()->AttackStart(pPlayer);
+        }
+        return true;
     }
 
-    uint32 m_uiNormFaction;
-    uint32 Silence_Timer;
-    uint32 Frostbolt_Timer;
-    uint32 FrostNova_Timer;
-
-    void Reset()
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
     {
-        Silence_Timer = 2000;
-        Frostbolt_Timer = 4000;
-        FrostNova_Timer = 9000;
-        if (me->getFaction() != m_uiNormFaction)
-            me->setFaction(m_uiNormFaction);
+        if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+        pPlayer->SEND_GOSSIP_MENU(9442, pCreature->GetGUID());
+        return true;
     }
 
-    void EnterCombat(Unit * /*who*/) {}
-
-    void UpdateAI(const uint32 diff)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        if (!UpdateVictim())
-            return;
-
-        if (Silence_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_SILENCE);
-            Silence_Timer = 30000;
-        } else Silence_Timer -= diff;
-
-        if (FrostNova_Timer <= diff)
-        {
-            DoCast(me, SPELL_FROST_NOVA);
-            FrostNova_Timer = 20000;
-        } else FrostNova_Timer -= diff;
-
-        if (Frostbolt_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_FROSTBOLT);
-            Frostbolt_Timer = 5000;
-        } else Frostbolt_Timer -= diff;
-
-        DoMeleeAttackIfReady();
+        return new npc_floonAI (pCreature);
     }
+
+    struct npc_floonAI : public ScriptedAI
+    {
+        npc_floonAI(Creature* c) : ScriptedAI(c)
+        {
+            m_uiNormFaction = c->getFaction();
+        }
+
+        uint32 m_uiNormFaction;
+        uint32 Silence_Timer;
+        uint32 Frostbolt_Timer;
+        uint32 FrostNova_Timer;
+
+        void Reset()
+        {
+            Silence_Timer = 2000;
+            Frostbolt_Timer = 4000;
+            FrostNova_Timer = 9000;
+            if (me->getFaction() != m_uiNormFaction)
+                me->setFaction(m_uiNormFaction);
+        }
+
+        void EnterCombat(Unit * /*who*/) {}
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (Silence_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SILENCE);
+                Silence_Timer = 30000;
+            } else Silence_Timer -= diff;
+
+            if (FrostNova_Timer <= diff)
+            {
+                DoCast(me, SPELL_FROST_NOVA);
+                FrostNova_Timer = 20000;
+            } else FrostNova_Timer -= diff;
+
+            if (Frostbolt_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                Frostbolt_Timer = 5000;
+            } else Frostbolt_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_npc_floon(Creature* pCreature)
-{
-    return new npc_floonAI (pCreature);
-}
 
-bool GossipHello_npc_floon(Player* pPlayer, Creature* pCreature)
-{
-    if (pPlayer->GetQuestStatus(QUEST_CRACK_SKULLS) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
-    pPlayer->SEND_GOSSIP_MENU(9442, pCreature->GetGUID());
-    return true;
-}
-
-bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF)
-    {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_FLOON2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-        pPlayer->SEND_GOSSIP_MENU(9443, pCreature->GetGUID());
-    }
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-    {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        pCreature->setFaction(FACTION_HOSTILE_FL);
-        DoScriptText(SAY_FLOON_ATTACK, pCreature, pPlayer);
-        pCreature->AI()->AttackStart(pPlayer);
-    }
-    return true;
-}
 
 /*######
 ## npc_isla_starmane
@@ -408,76 +452,83 @@ bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 /*uiSen
 #define QUEST_EFTW_A    10051
 #define GO_CAGE         182794
 #define SPELL_CAT       32447
-
-struct npc_isla_starmaneAI : public npc_escortAI
+class npc_isla_starmane : public CreatureScript
 {
-    npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {}
+public:
+    npc_isla_starmane() : CreatureScript("npc_isla_starmane") { }
 
-    void WaypointReached(uint32 i)
+    struct npc_isla_starmaneAI : public npc_escortAI
     {
-        Player* pPlayer = GetPlayerForEscort();
+        npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {}
 
-        if (!pPlayer)
-            return;
-
-        switch(i)
+        void WaypointReached(uint32 i)
         {
-        case 0:
+            Player* pPlayer = GetPlayerForEscort();
+
+            if (!pPlayer)
+                return;
+
+            switch(i)
             {
-            GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 10);
-            if (Cage)
-                Cage->SetGoState(GO_STATE_ACTIVE);
+            case 0:
+                {
+                GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 10);
+                if (Cage)
+                    Cage->SetGoState(GO_STATE_ACTIVE);
+                }
+                break;
+            case 2: DoScriptText(SAY_PROGRESS_1, me, pPlayer); break;
+            case 5: DoScriptText(SAY_PROGRESS_2, me, pPlayer); break;
+            case 6: DoScriptText(SAY_PROGRESS_3, me, pPlayer); break;
+            case 29:DoScriptText(SAY_PROGRESS_4, me, pPlayer);
+                if (pPlayer)
+                {
+                    if (pPlayer->GetTeam() == ALLIANCE)
+                        pPlayer->GroupEventHappens(QUEST_EFTW_A, me);
+                    else if (pPlayer->GetTeam() == HORDE)
+                        pPlayer->GroupEventHappens(QUEST_EFTW_H, me);
+                }
+                me->SetInFront(pPlayer); break;
+            case 30: me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
+            case 31: DoCast(me, SPELL_CAT);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
             }
-            break;
-        case 2: DoScriptText(SAY_PROGRESS_1, me, pPlayer); break;
-        case 5: DoScriptText(SAY_PROGRESS_2, me, pPlayer); break;
-        case 6: DoScriptText(SAY_PROGRESS_3, me, pPlayer); break;
-        case 29:DoScriptText(SAY_PROGRESS_4, me, pPlayer);
-            if (pPlayer)
+        }
+
+        void Reset()
+        {
+            me->RestoreFaction();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (Player* pPlayer = GetPlayerForEscort())
             {
                 if (pPlayer->GetTeam() == ALLIANCE)
-                    pPlayer->GroupEventHappens(QUEST_EFTW_A, me);
+                    pPlayer->FailQuest(QUEST_EFTW_A);
                 else if (pPlayer->GetTeam() == HORDE)
-                    pPlayer->GroupEventHappens(QUEST_EFTW_H, me);
+                    pPlayer->FailQuest(QUEST_EFTW_H);
             }
-            me->SetInFront(pPlayer); break;
-        case 30: me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-        case 31: DoCast(me, SPELL_CAT);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
         }
-    }
+    };
 
-    void Reset()
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* quest)
     {
-        me->RestoreFaction();
-    }
-
-    void JustDied(Unit* /*killer*/)
-    {
-        if (Player* pPlayer = GetPlayerForEscort())
+        if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
         {
-            if (pPlayer->GetTeam() == ALLIANCE)
-                pPlayer->FailQuest(QUEST_EFTW_A);
-            else if (pPlayer->GetTeam() == HORDE)
-                pPlayer->FailQuest(QUEST_EFTW_H);
+            CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
+            pCreature->setFaction(113);
         }
+        return true;
     }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new npc_isla_starmaneAI(pCreature);
+    }
+
 };
 
-bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, Quest const* quest)
-{
-    if (quest->GetQuestId() == QUEST_EFTW_H || quest->GetQuestId() == QUEST_EFTW_A)
-    {
-        CAST_AI(npc_escortAI, (pCreature->AI()))->Start(true, false, pPlayer->GetGUID());
-        pCreature->setFaction(113);
-    }
-    return true;
-}
-
-CreatureAI* GetAI_npc_isla_starmaneAI(Creature* pCreature)
-{
-    return new npc_isla_starmaneAI(pCreature);
-}
 
 /*######
 ## go_skull_pile
@@ -486,48 +537,53 @@ CreatureAI* GetAI_npc_isla_starmaneAI(Creature* pCreature)
 #define GOSSIP_S_KARROG         "Summon Karrog"
 #define GOSSIP_S_GEZZARAK_THE_HUNTRESS         "Summon Gezzarak the Huntress"
 #define GOSSIP_S_VAKKIZ_THE_WINDRAGER         "Summon Vakkiz the Windrager"
-
-bool GossipHello_go_skull_pile(Player* pPlayer, GameObject* pGo)
+class go_skull_pile : public GameObjectScript
 {
-    if ((pPlayer->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE) || pPlayer->GetQuestRewardStatus(11885))
+public:
+    go_skull_pile() : GameObjectScript("go_skull_pile") { }
+
+    bool OnGossipSelect(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_KARROG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+        switch(uiSender)
+        {
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(pPlayer, pGo, uiAction); break;
+        }
+        return true;
     }
 
-    pPlayer->SEND_GOSSIP_MENU(pGo->GetGOInfo()->questgiver.gossipID, pGo->GetGUID());
-    return true;
-}
-
-void SendActionMenu_go_skull_pile(Player* pPlayer, GameObject* /*pGo*/, uint32 uiAction)
-{
-    switch(uiAction)
+    bool OnGossipHello(Player* pPlayer, GameObject* pGo)
     {
-        case GOSSIP_ACTION_INFO_DEF + 1:
-              pPlayer->CastSpell(pPlayer,40642,false);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 2:
-              pPlayer->CastSpell(pPlayer,40640,false);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 3:
-              pPlayer->CastSpell(pPlayer,40632,false);
-            break;
-        case GOSSIP_ACTION_INFO_DEF + 4:
-              pPlayer->CastSpell(pPlayer,40644,false);
-            break;
-    }
-}
+        if ((pPlayer->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE) || pPlayer->GetQuestRewardStatus(11885))
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_DARKSCREECHER_AKKARAI, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_KARROG, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_GEZZARAK_THE_HUNTRESS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
+        }
 
-bool GossipSelect_go_skull_pile(Player* pPlayer, GameObject* pGo, uint32 uiSender, uint32 uiAction)
-{
-    switch(uiSender)
-    {
-        case GOSSIP_SENDER_MAIN:    SendActionMenu_go_skull_pile(pPlayer, pGo, uiAction); break;
+        pPlayer->SEND_GOSSIP_MENU(pGo->GetGOInfo()->questgiver.gossipID, pGo->GetGUID());
+        return true;
     }
-    return true;
-}
+
+    void SendActionMenu(Player* pPlayer, GameObject* /*pGo*/, uint32 uiAction)
+    {
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF + 1:
+                  pPlayer->CastSpell(pPlayer,40642,false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 2:
+                  pPlayer->CastSpell(pPlayer,40640,false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 3:
+                  pPlayer->CastSpell(pPlayer,40632,false);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 4:
+                  pPlayer->CastSpell(pPlayer,40644,false);
+                break;
+        }
+    }
+};
 
 /*######
 ## npc_slim
@@ -537,27 +593,34 @@ enum eSlim
 {
     FACTION_CONSORTIUM  = 933
 };
-
-bool GossipHello_npc_slim(Player* pPlayer, Creature* pCreature)
+class npc_slim : public CreatureScript
 {
-    if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+public:
+    npc_slim() : CreatureScript("npc_slim") { }
+
+    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
     {
-        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-        pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetGUID());
+        if (uiAction == GOSSIP_ACTION_TRADE)
+            pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+
+        return true;
     }
-    else
-        pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetGUID());
 
-    return true;
-}
+    bool OnGossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        if (pCreature->isVendor() && pPlayer->GetReputationRank(FACTION_CONSORTIUM) >= REP_FRIENDLY)
+        {
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            pPlayer->SEND_GOSSIP_MENU(9896, pCreature->GetGUID());
+        }
+        else
+            pPlayer->SEND_GOSSIP_MENU(9895, pCreature->GetGUID());
 
-bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 /*uiSender*/, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_TRADE)
-        pPlayer->SEND_VENDORLIST(pCreature->GetGUID());
+        return true;
+    }
 
-    return true;
-}
+};
+
 
 /*########
 ####npc_akuno
@@ -568,115 +631,73 @@ enum eAkuno
     QUEST_ESCAPING_THE_TOMB = 10887,
     NPC_CABAL_SKRIMISHER    = 21661
 };
-
-struct npc_akunoAI : public npc_escortAI
+class npc_akuno : public CreatureScript
 {
-    npc_akunoAI(Creature *c) : npc_escortAI(c) {}
+public:
+    npc_akuno() : CreatureScript("npc_akuno") { }
 
-    void WaypointReached(uint32 i)
+    bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
     {
-        Player* pPlayer = GetPlayerForEscort();
-
-        if (!pPlayer)
-            return;
-
-        switch(i)
+        if (pQuest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
         {
-            case 3:
-                me->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                me->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                break;
-            case 11:
-                if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
-                    pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB,me);
-                break;
+            if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, pCreature->AI()))
+                pEscortAI->Start(false, false, pPlayer->GetGUID());
+
+            if (pPlayer->GetTeamId() == TEAM_ALLIANCE)
+                pCreature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
+            else
+                pCreature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
         }
+        return true;
     }
 
-    void JustSummoned(Creature* summon)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        summon->AI()->AttackStart(me);
+        return new npc_akunoAI(pCreature);
     }
+
+    struct npc_akunoAI : public npc_escortAI
+    {
+        npc_akunoAI(Creature *c) : npc_escortAI(c) {}
+
+        void WaypointReached(uint32 i)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+
+            if (!pPlayer)
+                return;
+
+            switch(i)
+            {
+                case 3:
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2795.99,5420.33,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER,-2793.55,5412.79,-34.53,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    break;
+                case 11:
+                    if (pPlayer && pPlayer->GetTypeId() == TYPEID_PLAYER)
+                        pPlayer->GroupEventHappens(QUEST_ESCAPING_THE_TOMB,me);
+                    break;
+            }
+        }
+
+        void JustSummoned(Creature* summon)
+        {
+            summon->AI()->AttackStart(me);
+        }
+    };
+
 };
-
-bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, Quest const* pQuest)
-{
-    if (pQuest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
-    {
-        if (npc_akunoAI* pEscortAI = CAST_AI(npc_akunoAI, pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID());
-
-        if (pPlayer->GetTeamId() == TEAM_ALLIANCE)
-            pCreature->setFaction(FACTION_ESCORT_A_NEUTRAL_PASSIVE);
-        else
-            pCreature->setFaction(FACTION_ESCORT_H_NEUTRAL_PASSIVE);
-    }
-    return true;
-}
-
-CreatureAI* GetAI_npc_akuno(Creature* pCreature)
-{
-    return new npc_akunoAI(pCreature);
-}
 
 void AddSC_terokkar_forest()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "mob_unkor_the_ruthless";
-    newscript->GetAI = &GetAI_mob_unkor_the_ruthless;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_infested_root_walker";
-    newscript->GetAI = &GetAI_mob_infested_root_walker;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_rotting_forest_rager";
-    newscript->GetAI = &GetAI_mob_rotting_forest_rager;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_netherweb_victim";
-    newscript->GetAI = &GetAI_mob_netherweb_victim;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_floon";
-    newscript->GetAI = &GetAI_npc_floon;
-    newscript->pGossipHello =  &GossipHello_npc_floon;
-    newscript->pGossipSelect = &GossipSelect_npc_floon;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_isla_starmane";
-    newscript->GetAI = &GetAI_npc_isla_starmaneAI;
-    newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "go_skull_pile";
-    newscript->pGOHello  = &GossipHello_go_skull_pile;
-    newscript->pGOSelect = &GossipSelect_go_skull_pile;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_skywing";
-    newscript->GetAI = &GetAI_npc_skywingAI;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_slim";
-    newscript->pGossipHello =  &GossipHello_npc_slim;
-    newscript->pGossipSelect = &GossipSelect_npc_slim;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "npc_akuno";
-    newscript->GetAI = &GetAI_npc_akuno;
-    newscript->pQuestAccept = &QuestAccept_npc_akuno;
-    newscript->RegisterSelf();
+    new mob_unkor_the_ruthless();
+    new mob_infested_root_walker();
+    new mob_rotting_forest_rager();
+    new mob_netherweb_victim();
+    new npc_floon();
+    new npc_isla_starmane();
+    new go_skull_pile();
+    new npc_skywing();
+    new npc_slim();
+    new npc_akuno();
 }
-

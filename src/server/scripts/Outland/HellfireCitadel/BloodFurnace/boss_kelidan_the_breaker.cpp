@@ -80,12 +80,12 @@ class boss_kelidan_the_breaker : public CreatureScript
         {
             boss_kelidan_the_breakerAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
                 for (uint8 i=0; i<5; ++i)
                     Channelers[i] = 0;
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 ShadowVolley_Timer;
             uint32 BurningNova_Timer;

@@ -128,12 +128,12 @@ public:
     {
         boss_devourer_of_soulsAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         bool bThreeFaceAchievement;
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
         EventMap events;
 
         // wailing soul event

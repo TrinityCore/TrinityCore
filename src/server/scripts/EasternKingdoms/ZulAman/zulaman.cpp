@@ -51,10 +51,10 @@ class npc_forest_frog : public CreatureScript
         {
             npc_forest_frogAI(Creature* c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceData();
+                pInstance = c->GetInstanceScript();
             }
 
-            ScriptedInstance *pInstance;
+            InstanceScript *pInstance;
 
             void Reset() {}
 
@@ -166,7 +166,7 @@ class npc_zulaman_hostage : public CreatureScript
                 return true;
             pCreature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            ScriptedInstance* pInstance = pCreature->GetInstanceData();
+            InstanceScript* pInstance = pCreature->GetInstanceScript();
             if (pInstance)
             {
                 //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);

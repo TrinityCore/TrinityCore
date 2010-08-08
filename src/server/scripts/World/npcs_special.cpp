@@ -380,7 +380,7 @@ public:
     bool OnQuestAccept(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest)
     {
         if (_Quest->GetQuestId() == QUEST_CLUCK)
-            CAST_AI(npc_chicken_cluckAI, pCreature->AI())->Reset();
+            CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, pCreature->AI())->Reset();
 
         return true;
     }
@@ -388,7 +388,7 @@ public:
     bool OnQuestComplete(Player* /*pPlayer*/, Creature* pCreature, const Quest *_Quest)
     {
         if (_Quest->GetQuestId() == QUEST_CLUCK)
-            CAST_AI(npc_chicken_cluckAI, pCreature->AI())->Reset();
+            CAST_AI(npc_chicken_cluck::npc_chicken_cluckAI, pCreature->AI())->Reset();
 
         return true;
     }
@@ -676,7 +676,7 @@ public:
     bool OnQuestAccept(Player* pPlayer, Creature* pCreature, Quest const *quest)
     {
         if ((quest->GetQuestId() == 6624) || (quest->GetQuestId() == 6622))
-            CAST_AI(npc_doctorAI, pCreature->AI())->BeginEvent(pPlayer);
+            CAST_AI(npc_doctor::npc_doctorAI, pCreature->AI())->BeginEvent(pPlayer);
 
         return true;
     }

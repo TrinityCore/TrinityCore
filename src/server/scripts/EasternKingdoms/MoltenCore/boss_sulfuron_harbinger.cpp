@@ -36,172 +36,176 @@ EndScriptData */
 #define SPELL_HEAL                  19775
 #define SPELL_SHADOWWORDPAIN        19776
 #define SPELL_IMMOLATE              20294
-
-struct boss_sulfuronAI : public ScriptedAI
+class boss_sulfuron : public CreatureScript
 {
-    boss_sulfuronAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_sulfuron() : CreatureScript("boss_sulfuron") { }
 
-    uint32 Darkstrike_Timer;
-    uint32 DemoralizingShout_Timer;
-    uint32 Inspire_Timer;
-    uint32 Knockdown_Timer;
-    uint32 Flamespear_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        Darkstrike_Timer=10000;                             //These times are probably wrong
-        DemoralizingShout_Timer = 15000;
-        Inspire_Timer = 13000;
-        Knockdown_Timer = 6000;
-        Flamespear_Timer = 2000;
+        return new boss_sulfuronAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_sulfuronAI : public ScriptedAI
     {
-    }
+        boss_sulfuronAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
+        uint32 Darkstrike_Timer;
+        uint32 DemoralizingShout_Timer;
+        uint32 Inspire_Timer;
+        uint32 Knockdown_Timer;
+        uint32 Flamespear_Timer;
 
-        //DemoralizingShout_Timer
-        if (DemoralizingShout_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
-            DemoralizingShout_Timer = 15000 + rand()%5000;
-        } else DemoralizingShout_Timer -= diff;
+            Darkstrike_Timer=10000;                             //These times are probably wrong
+            DemoralizingShout_Timer = 15000;
+            Inspire_Timer = 13000;
+            Knockdown_Timer = 6000;
+            Flamespear_Timer = 2000;
+        }
 
-        //Inspire_Timer
-        if (Inspire_Timer <= diff)
+        void EnterCombat(Unit * /*who*/)
         {
-            Creature *pTarget = NULL;
-            std::list<Creature*> pList = DoFindFriendlyMissingBuff(45.0f,SPELL_INSPIRE);
-            if (!pList.empty())
-            {
-                std::list<Creature*>::const_iterator i = pList.begin();
-                advance(i, (rand()%pList.size()));
-                pTarget = (*i);
-            }
+        }
 
-            if (pTarget)
-                DoCast(pTarget, SPELL_INSPIRE);
-
-            DoCast(me, SPELL_INSPIRE);
-
-            Inspire_Timer = 20000 + rand()%6000;
-        } else Inspire_Timer -= diff;
-
-        //Knockdown_Timer
-        if (Knockdown_Timer <= diff)
+        void UpdateAI(const uint32 diff)
         {
-            DoCast(me->getVictim(), SPELL_KNOCKDOWN);
-            Knockdown_Timer = 12000 + rand()%3000;
-        } else Knockdown_Timer -= diff;
-
-        //Flamespear_Timer
-        if (Flamespear_Timer <= diff)
-        {
-            Unit *pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget, SPELL_FLAMESPEAR);
-
-            Flamespear_Timer = 12000 + rand()%4000;
-        } else Flamespear_Timer -= diff;
-
-        //DarkStrike_Timer
-        if (Darkstrike_Timer <= diff)
-        {
-            DoCast(me, SPELL_DARKSTRIKE);
-            Darkstrike_Timer = 15000 + rand()%3000;
-        } else Darkstrike_Timer -= diff;
-
-        DoMeleeAttackIfReady();
-    }
-};
-
-struct mob_flamewaker_priestAI : public ScriptedAI
-{
-    mob_flamewaker_priestAI(Creature *c) : ScriptedAI(c) {}
-
-    uint32 Heal_Timer;
-    uint32 ShadowWordPain_Timer;
-    uint32 Immolate_Timer;
-
-    void Reset()
-    {
-        Heal_Timer = 15000+rand()%15000;
-        ShadowWordPain_Timer = 2000;
-        Immolate_Timer = 8000;
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //Casting Heal to Sulfuron or other Guards.
-        if (Heal_Timer <= diff)
-        {
-            Unit* pUnit = DoSelectLowestHpFriendly(60.0f, 1);
-            if (!pUnit)
+            if (!UpdateVictim())
                 return;
 
-            DoCast(pUnit, SPELL_HEAL);
+            //DemoralizingShout_Timer
+            if (DemoralizingShout_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_DEMORALIZINGSHOUT);
+                DemoralizingShout_Timer = 15000 + rand()%5000;
+            } else DemoralizingShout_Timer -= diff;
 
-            Heal_Timer = 15000+rand()%5000;
-        } else Heal_Timer -= diff;
+            //Inspire_Timer
+            if (Inspire_Timer <= diff)
+            {
+                Creature *pTarget = NULL;
+                std::list<Creature*> pList = DoFindFriendlyMissingBuff(45.0f,SPELL_INSPIRE);
+                if (!pList.empty())
+                {
+                    std::list<Creature*>::const_iterator i = pList.begin();
+                    advance(i, (rand()%pList.size()));
+                    pTarget = (*i);
+                }
 
-        //ShadowWordPain_Timer
-        if (ShadowWordPain_Timer <= diff)
-        {
-            Unit *pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget, SPELL_SHADOWWORDPAIN);
+                if (pTarget)
+                    DoCast(pTarget, SPELL_INSPIRE);
 
-            ShadowWordPain_Timer = 18000+rand()%8000;
-        } else ShadowWordPain_Timer -= diff;
+                DoCast(me, SPELL_INSPIRE);
 
-        //Immolate_Timer
-        if (Immolate_Timer <= diff)
-        {
-            Unit *pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget, SPELL_IMMOLATE);
+                Inspire_Timer = 20000 + rand()%6000;
+            } else Inspire_Timer -= diff;
 
-            Immolate_Timer = 15000+rand()%10000;
-        } else Immolate_Timer -= diff;
+            //Knockdown_Timer
+            if (Knockdown_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                Knockdown_Timer = 12000 + rand()%3000;
+            } else Knockdown_Timer -= diff;
 
-        DoMeleeAttackIfReady();
+            //Flamespear_Timer
+            if (Flamespear_Timer <= diff)
+            {
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (pTarget) DoCast(pTarget, SPELL_FLAMESPEAR);
+
+                Flamespear_Timer = 12000 + rand()%4000;
+            } else Flamespear_Timer -= diff;
+
+            //DarkStrike_Timer
+            if (Darkstrike_Timer <= diff)
+            {
+                DoCast(me, SPELL_DARKSTRIKE);
+                Darkstrike_Timer = 15000 + rand()%3000;
+            } else Darkstrike_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+class mob_flamewaker_priest : public CreatureScript
+{
+public:
+    mob_flamewaker_priest() : CreatureScript("mob_flamewaker_priest") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new mob_flamewaker_priestAI (pCreature);
     }
+
+    struct mob_flamewaker_priestAI : public ScriptedAI
+    {
+        mob_flamewaker_priestAI(Creature *c) : ScriptedAI(c) {}
+
+        uint32 Heal_Timer;
+        uint32 ShadowWordPain_Timer;
+        uint32 Immolate_Timer;
+
+        void Reset()
+        {
+            Heal_Timer = 15000+rand()%15000;
+            ShadowWordPain_Timer = 2000;
+            Immolate_Timer = 8000;
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //Casting Heal to Sulfuron or other Guards.
+            if (Heal_Timer <= diff)
+            {
+                Unit* pUnit = DoSelectLowestHpFriendly(60.0f, 1);
+                if (!pUnit)
+                    return;
+
+                DoCast(pUnit, SPELL_HEAL);
+
+                Heal_Timer = 15000+rand()%5000;
+            } else Heal_Timer -= diff;
+
+            //ShadowWordPain_Timer
+            if (ShadowWordPain_Timer <= diff)
+            {
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (pTarget) DoCast(pTarget, SPELL_SHADOWWORDPAIN);
+
+                ShadowWordPain_Timer = 18000+rand()%8000;
+            } else ShadowWordPain_Timer -= diff;
+
+            //Immolate_Timer
+            if (Immolate_Timer <= diff)
+            {
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (pTarget) DoCast(pTarget, SPELL_IMMOLATE);
+
+                Immolate_Timer = 15000+rand()%10000;
+            } else Immolate_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_sulfuron(Creature* pCreature)
-{
-    return new boss_sulfuronAI (pCreature);
-}
 
-CreatureAI* GetAI_mob_flamewaker_priest(Creature* pCreature)
-{
-    return new mob_flamewaker_priestAI (pCreature);
-}
 
 void AddSC_boss_sulfuron()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_sulfuron";
-    newscript->GetAI = &GetAI_boss_sulfuron;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "mob_flamewaker_priest";
-    newscript->GetAI = &GetAI_mob_flamewaker_priest;
-    newscript->RegisterSelf();
+    new boss_sulfuron();
+    new mob_flamewaker_priest();
 }
-

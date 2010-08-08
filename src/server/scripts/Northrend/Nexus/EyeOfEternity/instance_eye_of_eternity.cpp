@@ -17,22 +17,25 @@
 
 #include "ScriptPCH.h"
 #include "eye_of_eternity.h"
-
-struct instance_eye_of_eternity : public ScriptedInstance
+class instance_eye_of_eternity : public InstanceMapScript
 {
-    instance_eye_of_eternity(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
+public:
+    instance_eye_of_eternity() : InstanceMapScript("instance_eye_of_eternity") { }
+
+    InstanceScript* GetInstanceData_InstanceMapScript(Map* pMap)
+    {
+        return new instance_eye_of_eternity_InstanceMapScript(pMap);
+    }
+
+    struct instance_eye_of_eternity_InstanceMapScript : public InstanceScript
+    {
+        instance_eye_of_eternity_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {Initialize();};
+    };
+
 };
 
-InstanceData* GetInstanceData_instance_eye_of_eternity(Map* pMap)
-{
-    return new instance_eye_of_eternity(pMap);
-}
 
 void AddSC_instance_eye_of_eternity()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "instance_eye_of_eternity";
-    newscript->GetInstanceData = &GetInstanceData_instance_eye_of_eternity;
-    newscript->RegisterSelf();
+    new instance_eye_of_eternity();
 }

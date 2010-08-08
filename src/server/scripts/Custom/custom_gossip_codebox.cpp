@@ -33,59 +33,59 @@ EndScriptData */
 #define SAY_WRONG               "Wrong!"
 #define SAY_RIGHT               "You're right, you are allowed to see my inner secrets."
 
-//This function is called when the player opens the gossip menubool
-bool GossipHello_custom_gossip_codebox(Player* pPlayer, Creature* pCreature)
+//This function is called when the player opens the gossip menuboolclass custom_gossip_codebox : public GameObjectScript
 {
-    pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+public:
+    custom_gossip_codebox() : GameObjectScript("custom_gossip_codebox") { }
 
-    pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
-    return true;
-}
+    bool GossipSelectWithCode(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* sCode)
+    {
+        if (uiSender == GOSSIP_SENDER_MAIN)
+        {
+            if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+            {
+                if (std::strcmp(sCode, pPlayer->GetName())!=0)
+                {
+                    pCreature->Say(SAY_WRONG, LANG_UNIVERSAL, 0);
+                    pCreature->CastSpell(pPlayer, 12826, true);
+                }
+                else
+                {
+                    pCreature->Say(SAY_RIGHT, LANG_UNIVERSAL, 0);
+                    pCreature->CastSpell(pPlayer, 26990, true);
+                }
+                pPlayer->CLOSE_GOSSIP_MENU();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool GossipSelect(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+    {
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
+        {
+            pCreature->Say(SAY_NOT_INTERESTED, LANG_UNIVERSAL, 0);
+            pPlayer->CLOSE_GOSSIP_MENU();
+        }
+        return true;
+    }
+
+    bool GossipHello(Player* pPlayer, Creature* pCreature)
+    {
+        pPlayer->ADD_GOSSIP_ITEM_EXTENDED(0, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1, "", 0, true);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+
+        pPlayer->PlayerTalkClass->SendGossipMenu(907, pCreature->GetGUID());
+        return true;
+    }
+
+};
 
 //This function is called when the player clicks an option on the gossip menubool
-bool GossipSelect_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
-    {
-        pCreature->Say(SAY_NOT_INTERESTED, LANG_UNIVERSAL, 0);
-        pPlayer->CLOSE_GOSSIP_MENU();
-    }
-    return true;
-}
 
-bool GossipSelectWithCode_custom_gossip_codebox(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction, const char* sCode)
-{
-    if (uiSender == GOSSIP_SENDER_MAIN)
-    {
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            if (std::strcmp(sCode, pPlayer->GetName())!=0)
-            {
-                pCreature->Say(SAY_WRONG, LANG_UNIVERSAL, 0);
-                pCreature->CastSpell(pPlayer, 12826, true);
-            }
-            else
-            {
-                pCreature->Say(SAY_RIGHT, LANG_UNIVERSAL, 0);
-                pCreature->CastSpell(pPlayer, 26990, true);
-            }
-            pPlayer->CLOSE_GOSSIP_MENU();
-            return true;
-        }
-    }
-    return false;
-}
 
 void AddSC_custom_gossip_codebox()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name="custom_gossip_codebox";
-    newscript->pGossipHello =           &GossipHello_custom_gossip_codebox;
-    newscript->pGossipSelect =          &GossipSelect_custom_gossip_codebox;
-    newscript->pGossipSelectWithCode =  &GossipSelectWithCode_custom_gossip_codebox;
-    newscript->RegisterSelf();
+    new custom_gossip_codebox();
 }
-

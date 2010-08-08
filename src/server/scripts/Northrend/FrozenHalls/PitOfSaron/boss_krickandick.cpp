@@ -118,366 +118,372 @@ enum Misc
 // Krick is the Gnome.
 // Ick is the Mount
 // Common Events are handled/triggered by Ick that "drive" Krick through DoAction.
-
-struct boss_ickAI : public ScriptedAI
+class boss_ick : public CreatureScript
 {
-    boss_ickAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_ick() : CreatureScript("boss_ick") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_ickAI(pCreature);
     }
 
-    ScriptedInstance* pInstance;
-
-    EventMap events;
-
-    void Reset()
+    struct boss_ickAI : public ScriptedAI
     {
-        events.Reset();
-
-        if (pInstance)
-            pInstance->SetData(DATA_KRICKANDICK_EVENT, NOT_STARTED);
-    }
-
-    Creature* GetKrick()
-    {
-        return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KRICK) : 0);
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-        if (pInstance)
-            pInstance->SetData(DATA_KRICKANDICK_EVENT, IN_PROGRESS);
-
-        Creature* pKrick = GetKrick();
-        if (!pKrick)
-            pKrick = me->SummonCreature(CREATURE_KRICK, *me, TEMPSUMMON_MANUAL_DESPAWN);
-
-        if (pKrick)
-            DoScriptText(SAY_KRICK_AGGRO, pKrick);
-
-        events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000, GCD_1);
-        events.ScheduleEvent(EVENT_PURSUE, 30000, GCD_1);
-        events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
-        events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 35000);
-        events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
-        events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
-    }
-
-    void EnterEvadeMode()
-    {
-        me->GetMotionMaster()->Clear();
-        ScriptedAI::EnterEvadeMode();
-    }
-
-    void JustDied(Unit* /*pKiller*/)
-    {
-        if (Creature* pKrick = GetKrick())
+        boss_ickAI(Creature *c) : ScriptedAI(c)
         {
-            if (pKrick->AI())
-                pKrick->AI()->DoAction(ACTION_OUTRO);
+            pInstance = c->GetInstanceScript();
         }
 
-        if (pInstance)
-            pInstance->SetData(DATA_KRICKANDICK_EVENT, DONE);
-    }
+        InstanceScript* pInstance;
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (!me->isInCombat())
-            return;
+        EventMap events;
 
-        if (!me->getVictim() && me->getThreatManager().isThreatListEmpty())
+        void Reset()
         {
-            EnterEvadeMode();
-            return;
+            events.Reset();
+
+            if (pInstance)
+                pInstance->SetData(DATA_KRICKANDICK_EVENT, NOT_STARTED);
         }
 
-        events.Update(diff);
-
-        if (me->hasUnitState(UNIT_STAT_CASTING))
-            return;
-
-        switch(events.ExecuteEvent())
+        Creature* GetKrick()
         {
-            case EVENT_PURSUE:
-                if (Creature* pKrick = GetKrick())
-                    DoScriptText(RAND(SAY_KRICK_CHASE_1,SAY_KRICK_CHASE_2,SAY_KRICK_CHASE_3), pKrick);
-
-                if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                {
-                    me->Attack(pTarget,false);
-                    DoScriptText(SAY_ICK_CHASE_1, me, pTarget);
-                    DoCast(pTarget, SPELL_PURSUED);
-                }
-
-                DoCast(SPELL_CONFUSION);
-                events.ScheduleEvent(EVENT_PURSUE, 30000, GCD_1);
-                return;
-
-            case EVENT_MIGHTY_KICK:
-                DoCast(me->getVictim(), SPELL_MIGHTY_KICK);
-                events.ScheduleEvent(EVENT_MIGHTY_KICK, 25000, GCD_1);
-                return;
-
-            case EVENT_POISON_NOVA:
-                if (Creature* pKrick = GetKrick())
-                    DoScriptText(SAY_KRICK_POISON_NOVA, pKrick);
-
-                DoScriptText(SAY_ICK_POISON_NOVA, me);
-                DoCastAOE(SPELL_POISON_NOVA);
-                events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
-                return;
-
-            case EVENT_TOXIC_WASTE:
-                DoCast(me->getVictim(), SPELL_TOXIC_WASTE);
-                events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
-                return;
-
-            case EVENT_SHADOW_BOLT:
-                DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
-                events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
-                return;
-
-            case EVENT_EXPLOSIVE_BARRAGE:
-                if (Creature *pKrick = GetKrick())
-                {
-                    DoScriptText(SAY_KRICK_BARRAGE_1, pKrick);
-                    DoScriptText(SAY_KRICK_BARRAGE_2, pKrick);
-                }
-
-                DoCastAOE(SPELL_EXPLOSIVE_BARRAGE);
-                me->GetMotionMaster()->MoveIdle();
-                events.DelayEvents(20000, GCD_1); // 2 sec cast + 18 sec
-                events.ScheduleEvent(EVENT_END_EXPLOSIVE_BARRAGE, 20000);
-                return;
-
-            case EVENT_END_EXPLOSIVE_BARRAGE:
-                me->GetMotionMaster()->Clear();
-                me->GetMotionMaster()->MoveChase(me->getVictim());
-                events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 25000);
-                break;
+            return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_KRICK) : 0);
         }
 
-        DoMeleeAttackIfReady();
-    }
-};
-
-struct boss_krickAI : public ScriptedAI
-{
-    boss_krickAI(Creature *c) : ScriptedAI(c)
-    {
-        pInstance = c->GetInstanceData();
-    }
-
-    ScriptedInstance* pInstance;
-    EventMap events;
-
-    KrickPhase  phase;
-    uint64 uiNpcOutroDialog;
-    uint64 uiTyrannus;
-
-    void Reset()
-    {
-        uiNpcOutroDialog = 0;
-        uiTyrannus = 0;
-        phase = PHASE_COMBAT;
-
-        me->SetReactState(REACT_PASSIVE);
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        me->SetVisibility(VISIBILITY_OFF);
-    }
-
-    Creature* GetIck()
-    {
-        return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ICK) : 0);
-    }
-
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
-
-        DoScriptText(RAND(SAY_KRICK_SLAY_1,SAY_KRICK_SLAY_2), me);
-    }
-
-    void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
-    {
-        // if killed whatever the reason, it breaks the outro
-        uiDamage = 0;
-    }
-
-    void DoAction(const int32 actionId)
-    {
-        switch(actionId)
+        void EnterCombat(Unit * /*who*/)
         {
-            case ACTION_OUTRO:
+            if (pInstance)
+                pInstance->SetData(DATA_KRICKANDICK_EVENT, IN_PROGRESS);
+
+            Creature* pKrick = GetKrick();
+            if (!pKrick)
+                pKrick = me->SummonCreature(CREATURE_KRICK, *me, TEMPSUMMON_MANUAL_DESPAWN);
+
+            if (pKrick)
+                DoScriptText(SAY_KRICK_AGGRO, pKrick);
+
+            events.ScheduleEvent(EVENT_MIGHTY_KICK, 20000, GCD_1);
+            events.ScheduleEvent(EVENT_PURSUE, 30000, GCD_1);
+            events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
+            events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 35000);
+            events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
+            events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+        }
+
+        void EnterEvadeMode()
+        {
+            me->GetMotionMaster()->Clear();
+            ScriptedAI::EnterEvadeMode();
+        }
+
+        void JustDied(Unit* /*pKiller*/)
+        {
+            if (Creature* pKrick = GetKrick())
             {
-                Position pos;
-                if (Creature* pIck = GetIck())
-                {
-                    // TODO: tele on Ick then run some distance.
-                    pIck->GetNearPosition(pos, 5.0f, 3.14);
-                    me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0.0f);
-                }
-                me->SetVisibility(VISIBILITY_ON);
-
-                Creature* pJainaOrSylvanas = me->GetCreature(*me, pInstance->GetData64(DATA_JAINA_SYLVANAS_1));
-                if (pJainaOrSylvanas) {
-                    Position pos;
-                    me->GetNearPosition(pos, 5.0f, 0);
-                    pJainaOrSylvanas->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(),
-                        pos.GetAngle(me->GetPositionX(), me->GetPositionY()));
-                }
-                else {
-                    if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
-                        pJainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, *me, TEMPSUMMON_MANUAL_DESPAWN);
-                    else
-                        pJainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, *me, TEMPSUMMON_MANUAL_DESPAWN);
-                }
-
-                if (pJainaOrSylvanas)
-                {
-                    pJainaOrSylvanas->SetOrientation(pJainaOrSylvanas->GetAngle(me->GetPositionX(), me->GetPositionY()));
-                    me->SetOrientation(me->GetAngle(pJainaOrSylvanas->GetPositionX(), pJainaOrSylvanas->GetPositionY()));
-                    uiNpcOutroDialog = pJainaOrSylvanas->GetGUID();
-                }
-
-                phase = PHASE_OUTRO;
-                events.Reset();
-                events.ScheduleEvent(EVENT_OUTRO_1, 1000);
-                break;
+                if (pKrick->AI())
+                    pKrick->AI()->DoAction(ACTION_OUTRO);
             }
-        }
-    }
 
-    void UpdateAI(const uint32 diff)
-    {
-        if (phase == PHASE_OUTRO)
+            if (pInstance)
+                pInstance->SetData(DATA_KRICKANDICK_EVENT, DONE);
+        }
+
+        void UpdateAI(const uint32 diff)
         {
-            if (!pInstance)
+            if (!me->isInCombat())
                 return;
+
+            if (!me->getVictim() && me->getThreatManager().isThreatListEmpty())
+            {
+                EnterEvadeMode();
+                return;
+            }
 
             events.Update(diff);
+
+            if (me->hasUnitState(UNIT_STAT_CASTING))
+                return;
+
             switch(events.ExecuteEvent())
             {
-                case EVENT_OUTRO_1:
-                {
-                    DoScriptText(SAY_KRICK_OUTRO_1, me);
-                    events.ScheduleEvent(EVENT_OUTRO_2, 14000);
-                    break;
-                }
-                case EVENT_OUTRO_2:
-                {
-                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
-                    if (pNpcDialog)
-                    {
-                        if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
-                            DoScriptText(SAY_JAYNA_OUTRO_2, pNpcDialog);
-                        else
-                            DoScriptText(SAY_SYLVANAS_OUTRO_2, pNpcDialog);
-                    }
-                    events.ScheduleEvent(EVENT_OUTRO_3, 8500);
-                    break;
-                }
-                case EVENT_OUTRO_3:
-                    DoScriptText(SAY_KRICK_OUTRO_3, me);
-                    events.ScheduleEvent(EVENT_OUTRO_4, 12000);
-                    break;
-                case EVENT_OUTRO_4:
-                {
-                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
-                    if (pNpcDialog)
-                    {
-                        if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
-                            DoScriptText(SAY_JAYNA_OUTRO_4, pNpcDialog);
-                        else
-                            DoScriptText(SAY_SYLVANAS_OUTRO_4, pNpcDialog);
-                    }
-                    events.ScheduleEvent(EVENT_OUTRO_5, 8000);
-                    break;
-                }
-                case EVENT_OUTRO_5:
-                    DoScriptText(SAY_KRICK_OUTRO_5, me);
-                    events.ScheduleEvent(EVENT_OUTRO_6, 4000);
-                    break;
-                case EVENT_OUTRO_6:
-                    // TODO spawn Tyrannus at some distance and MovePoint near-by (flying on rimefang)
-                    // store uiTyrannus
-                    // Adjust timer so tyrannus has time to come
-                    uiTyrannus = (pInstance ? pInstance->GetData64(DATA_TYRANNUS) : 0);
-                    events.ScheduleEvent(EVENT_OUTRO_7, 1);
-                    break;
-                case EVENT_OUTRO_7:
-                    if (Creature *pTyrannus = me->GetCreature(*me, uiTyrannus))
-                        DoScriptText(SAY_TYRANNUS_OUTRO_7, pTyrannus);
-                    events.ScheduleEvent(EVENT_OUTRO_8, 7000);
-                    break;
-                case EVENT_OUTRO_8:
-                    DoScriptText(SAY_KRICK_OUTRO_8, me);
-                    // TODO: Tyrannus starts killing Krick.
-                    // there shall be some visual spell effect
-                    events.ScheduleEvent(EVENT_OUTRO_9, 6000);
-                    break;
-                case EVENT_OUTRO_9:
-                    // tyrannus kills krick
-                    me->SetStandState(UNIT_STAND_STATE_DEAD);
-                    me->SetHealth(0);
+                case EVENT_PURSUE:
+                    if (Creature* pKrick = GetKrick())
+                        DoScriptText(RAND(SAY_KRICK_CHASE_1,SAY_KRICK_CHASE_2,SAY_KRICK_CHASE_3), pKrick);
 
-                    if (Creature *pTyrannus = me->GetCreature(*me, uiTyrannus))
-                        DoScriptText(SAY_TYRANNUS_OUTRO_9, pTyrannus);
-
-                    events.ScheduleEvent(EVENT_OUTRO_10, 12000);
-                    break;
-                case EVENT_OUTRO_10:
-                {
-                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
-                    if (pNpcDialog)
+                    if (Unit *pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
-                            DoScriptText(SAY_JAYNA_OUTRO_10, pNpcDialog);
-                        else
-                            DoScriptText(SAY_SYLVANAS_OUTRO_10, pNpcDialog);
+                        me->Attack(pTarget,false);
+                        DoScriptText(SAY_ICK_CHASE_1, me, pTarget);
+                        DoCast(pTarget, SPELL_PURSUED);
                     }
 
-                    // End of OUTRO. for now...
-                    events.ScheduleEvent(EVENT_OUTRO_END, 8000);
-                    break;
-                }
-                case EVENT_OUTRO_END:
-                {
-                    Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
-                    if (pNpcDialog)
-                        pNpcDialog->DisappearAndDie();
+                    DoCast(SPELL_CONFUSION);
+                    events.ScheduleEvent(EVENT_PURSUE, 30000, GCD_1);
+                    return;
 
-                    me->DisappearAndDie();
+                case EVENT_MIGHTY_KICK:
+                    DoCast(me->getVictim(), SPELL_MIGHTY_KICK);
+                    events.ScheduleEvent(EVENT_MIGHTY_KICK, 25000, GCD_1);
+                    return;
+
+                case EVENT_POISON_NOVA:
+                    if (Creature* pKrick = GetKrick())
+                        DoScriptText(SAY_KRICK_POISON_NOVA, pKrick);
+
+                    DoScriptText(SAY_ICK_POISON_NOVA, me);
+                    DoCastAOE(SPELL_POISON_NOVA);
+                    events.ScheduleEvent(EVENT_POISON_NOVA, 30000, GCD_1);
+                    return;
+
+                case EVENT_TOXIC_WASTE:
+                    DoCast(me->getVictim(), SPELL_TOXIC_WASTE);
+                    events.ScheduleEvent(EVENT_TOXIC_WASTE, 5000);
+                    return;
+
+                case EVENT_SHADOW_BOLT:
+                    DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
+                    events.ScheduleEvent(EVENT_SHADOW_BOLT, 15000);
+                    return;
+
+                case EVENT_EXPLOSIVE_BARRAGE:
+                    if (Creature *pKrick = GetKrick())
+                    {
+                        DoScriptText(SAY_KRICK_BARRAGE_1, pKrick);
+                        DoScriptText(SAY_KRICK_BARRAGE_2, pKrick);
+                    }
+
+                    DoCastAOE(SPELL_EXPLOSIVE_BARRAGE);
+                    me->GetMotionMaster()->MoveIdle();
+                    events.DelayEvents(20000, GCD_1); // 2 sec cast + 18 sec
+                    events.ScheduleEvent(EVENT_END_EXPLOSIVE_BARRAGE, 20000);
+                    return;
+
+                case EVENT_END_EXPLOSIVE_BARRAGE:
+                    me->GetMotionMaster()->Clear();
+                    me->GetMotionMaster()->MoveChase(me->getVictim());
+                    events.ScheduleEvent(EVENT_EXPLOSIVE_BARRAGE, 25000);
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+class boss_krick : public CreatureScript
+{
+public:
+    boss_krick() : CreatureScript("boss_krick") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
+    {
+        return new boss_krickAI(pCreature);
+    }
+
+    struct boss_krickAI : public ScriptedAI
+    {
+        boss_krickAI(Creature *c) : ScriptedAI(c)
+        {
+            pInstance = c->GetInstanceScript();
+        }
+
+        InstanceScript* pInstance;
+        EventMap events;
+
+        KrickPhase  phase;
+        uint64 uiNpcOutroDialog;
+        uint64 uiTyrannus;
+
+        void Reset()
+        {
+            uiNpcOutroDialog = 0;
+            uiTyrannus = 0;
+            phase = PHASE_COMBAT;
+
+            me->SetReactState(REACT_PASSIVE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            me->SetVisibility(VISIBILITY_OFF);
+        }
+
+        Creature* GetIck()
+        {
+            return me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ICK) : 0);
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+
+            DoScriptText(RAND(SAY_KRICK_SLAY_1,SAY_KRICK_SLAY_2), me);
+        }
+
+        void DamageTaken(Unit * /*pDoneBy*/, uint32 &uiDamage)
+        {
+            // if killed whatever the reason, it breaks the outro
+            uiDamage = 0;
+        }
+
+        void DoAction(const int32 actionId)
+        {
+            switch(actionId)
+            {
+                case ACTION_OUTRO:
+                {
+                    Position pos;
+                    if (Creature* pIck = GetIck())
+                    {
+                        // TODO: tele on Ick then run some distance.
+                        pIck->GetNearPosition(pos, 5.0f, 3.14);
+                        me->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), 0.0f);
+                    }
+                    me->SetVisibility(VISIBILITY_ON);
+
+                    Creature* pJainaOrSylvanas = me->GetCreature(*me, pInstance->GetData64(DATA_JAINA_SYLVANAS_1));
+                    if (pJainaOrSylvanas) {
+                        Position pos;
+                        me->GetNearPosition(pos, 5.0f, 0);
+                        pJainaOrSylvanas->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(),
+                            pos.GetAngle(me->GetPositionX(), me->GetPositionY()));
+                    }
+                    else {
+                        if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                            pJainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, *me, TEMPSUMMON_MANUAL_DESPAWN);
+                        else
+                            pJainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, *me, TEMPSUMMON_MANUAL_DESPAWN);
+                    }
+
+                    if (pJainaOrSylvanas)
+                    {
+                        pJainaOrSylvanas->SetOrientation(pJainaOrSylvanas->GetAngle(me->GetPositionX(), me->GetPositionY()));
+                        me->SetOrientation(me->GetAngle(pJainaOrSylvanas->GetPositionX(), pJainaOrSylvanas->GetPositionY()));
+                        uiNpcOutroDialog = pJainaOrSylvanas->GetGUID();
+                    }
+
+                    phase = PHASE_OUTRO;
+                    events.Reset();
+                    events.ScheduleEvent(EVENT_OUTRO_1, 1000);
                     break;
                 }
             }
-            return;
         }
-    }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (phase == PHASE_OUTRO)
+            {
+                if (!pInstance)
+                    return;
+
+                events.Update(diff);
+                switch(events.ExecuteEvent())
+                {
+                    case EVENT_OUTRO_1:
+                    {
+                        DoScriptText(SAY_KRICK_OUTRO_1, me);
+                        events.ScheduleEvent(EVENT_OUTRO_2, 14000);
+                        break;
+                    }
+                    case EVENT_OUTRO_2:
+                    {
+                        Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
+                        if (pNpcDialog)
+                        {
+                            if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                                DoScriptText(SAY_JAYNA_OUTRO_2, pNpcDialog);
+                            else
+                                DoScriptText(SAY_SYLVANAS_OUTRO_2, pNpcDialog);
+                        }
+                        events.ScheduleEvent(EVENT_OUTRO_3, 8500);
+                        break;
+                    }
+                    case EVENT_OUTRO_3:
+                        DoScriptText(SAY_KRICK_OUTRO_3, me);
+                        events.ScheduleEvent(EVENT_OUTRO_4, 12000);
+                        break;
+                    case EVENT_OUTRO_4:
+                    {
+                        Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
+                        if (pNpcDialog)
+                        {
+                            if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                                DoScriptText(SAY_JAYNA_OUTRO_4, pNpcDialog);
+                            else
+                                DoScriptText(SAY_SYLVANAS_OUTRO_4, pNpcDialog);
+                        }
+                        events.ScheduleEvent(EVENT_OUTRO_5, 8000);
+                        break;
+                    }
+                    case EVENT_OUTRO_5:
+                        DoScriptText(SAY_KRICK_OUTRO_5, me);
+                        events.ScheduleEvent(EVENT_OUTRO_6, 4000);
+                        break;
+                    case EVENT_OUTRO_6:
+                        // TODO spawn Tyrannus at some distance and MovePoint near-by (flying on rimefang)
+                        // store uiTyrannus
+                        // Adjust timer so tyrannus has time to come
+                        uiTyrannus = (pInstance ? pInstance->GetData64(DATA_TYRANNUS) : 0);
+                        events.ScheduleEvent(EVENT_OUTRO_7, 1);
+                        break;
+                    case EVENT_OUTRO_7:
+                        if (Creature *pTyrannus = me->GetCreature(*me, uiTyrannus))
+                            DoScriptText(SAY_TYRANNUS_OUTRO_7, pTyrannus);
+                        events.ScheduleEvent(EVENT_OUTRO_8, 7000);
+                        break;
+                    case EVENT_OUTRO_8:
+                        DoScriptText(SAY_KRICK_OUTRO_8, me);
+                        // TODO: Tyrannus starts killing Krick.
+                        // there shall be some visual spell effect
+                        events.ScheduleEvent(EVENT_OUTRO_9, 6000);
+                        break;
+                    case EVENT_OUTRO_9:
+                        // tyrannus kills krick
+                        me->SetStandState(UNIT_STAND_STATE_DEAD);
+                        me->SetHealth(0);
+
+                        if (Creature *pTyrannus = me->GetCreature(*me, uiTyrannus))
+                            DoScriptText(SAY_TYRANNUS_OUTRO_9, pTyrannus);
+
+                        events.ScheduleEvent(EVENT_OUTRO_10, 12000);
+                        break;
+                    case EVENT_OUTRO_10:
+                    {
+                        Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
+                        if (pNpcDialog)
+                        {
+                            if (pInstance->GetData(DATA_TEAM_IN_INSTANCE) == TEAM_ALLIANCE)
+                                DoScriptText(SAY_JAYNA_OUTRO_10, pNpcDialog);
+                            else
+                                DoScriptText(SAY_SYLVANAS_OUTRO_10, pNpcDialog);
+                        }
+
+                        // End of OUTRO. for now...
+                        events.ScheduleEvent(EVENT_OUTRO_END, 8000);
+                        break;
+                    }
+                    case EVENT_OUTRO_END:
+                    {
+                        Creature* pNpcDialog = me->GetCreature(*me, uiNpcOutroDialog);
+                        if (pNpcDialog)
+                            pNpcDialog->DisappearAndDie();
+
+                        me->DisappearAndDie();
+                        break;
+                    }
+                }
+                return;
+            }
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_ick(Creature* pCreature)
-{
-    return new boss_ickAI(pCreature);
-}
 
-CreatureAI* GetAI_boss_krick(Creature* pCreature)
-{
-    return new boss_krickAI(pCreature);
-}
 
 void AddSC_boss_ick()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_ick";
-    newscript->GetAI = &GetAI_boss_ick;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "boss_krick";
-    newscript->GetAI = &GetAI_boss_krick;
-    newscript->RegisterSelf();
+    new boss_ick();
+    new boss_krick();
 }

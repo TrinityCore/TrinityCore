@@ -52,10 +52,10 @@ class boss_venoxis : public CreatureScript
         {
             boss_venoxisAI(Creature *c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceData();
+                m_pInstance = c->GetInstanceScript();
             }
 
-            ScriptedInstance *m_pInstance;
+            InstanceScript *m_pInstance;
 
             uint32 HolyFire_Timer;
             uint32 HolyWrath_Timer;

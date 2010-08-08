@@ -152,69 +152,70 @@ struct TRINITY_DLL_DECL npc_testAI : public npc_escortAI
             }
         }
 };
-
-CreatureAI* GetAI_test(Creature* pCreature)
+class test : public CreatureScript
 {
-    npc_testAI* testAI = new npc_testAI(pCreature);
+public:
+    test() : CreatureScript("test") { }
 
-    testAI->AddWaypoint(0, 1231, -4419, 23);
-    testAI->AddWaypoint(1, 1198, -4440, 23, 0);
-    testAI->AddWaypoint(2, 1208, -4392, 23);
-    testAI->AddWaypoint(3, 1231, -4419, 23, 5000);
-    testAI->AddWaypoint(4, 1208, -4392, 23, 5000);
-
-    return (CreatureAI*)testAI;
-}
-
-bool GossipHello_npc_test(Player* pPlayer, Creature* pCreature)
-{
-    pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
-    pCreature->prepareGossipMenu(pPlayer,0);
-
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-    pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
-
-    pCreature->sendPreparedGossip(pPlayer);
-    return true;
-}
-
-bool GossipSelect_npc_test(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
-{
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+    bool GossipSelect_npc(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            ((npc_escortAI*)(pCreature->AI()))->Start(true, true, pPlayer->GetGUID());
 
-        return true;                                        // prevent Trinity core handling
+            return true;                                        // prevent Trinity core handling
+        }
+
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            ((npc_escortAI*)(pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+
+            return true;                                        // prevent Trinity core handling
+        }
+
+        if (uiAction == GOSSIP_ACTION_INFO_DEF+3)
+        {
+            pPlayer->CLOSE_GOSSIP_MENU();
+            ((npc_escortAI*)(pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+
+            return true;                                        // prevent Trinity core handling
+        }
+        return false;
     }
 
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
+    bool GossipHello_npc(Player* pPlayer, Creature* pCreature)
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+        pPlayer->TalkedToCreature(pCreature->GetEntry(), pCreature->GetGUID());
+        pCreature->prepareGossipMenu(pPlayer,0);
 
-        return true;                                        // prevent Trinity core handling
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+
+        pCreature->sendPreparedGossip(pPlayer);
+        return true;
     }
 
-    if (uiAction == GOSSIP_ACTION_INFO_DEF+3)
+    CreatureAI* GetAI(Creature* pCreature)
     {
-        pPlayer->CLOSE_GOSSIP_MENU();
-        ((npc_escortAI*)(pCreature->AI()))->Start(false, false, pPlayer->GetGUID());
+        npcAI* testAI = new npcAI(pCreature);
 
-        return true;                                        // prevent Trinity core handling
+        testAI->AddWaypoint(0, 1231, -4419, 23);
+        testAI->AddWaypoint(1, 1198, -4440, 23, 0);
+        testAI->AddWaypoint(2, 1208, -4392, 23);
+        testAI->AddWaypoint(3, 1231, -4419, 23, 5000);
+        testAI->AddWaypoint(4, 1208, -4392, 23, 5000);
+
+        return (CreatureAI*)testAI;
     }
-    return false;
-}
+
+};
+
+
 
 void AddSC_test()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name="test";
-    newscript->GetAI = &GetAI_test;
-    newscript->pGossipHello          = &GossipHello_npc_test;
-    newscript->pGossipSelect         = &GossipSelect_npc_test;
-    newscript->RegisterSelf();
+    new test();
 }
-

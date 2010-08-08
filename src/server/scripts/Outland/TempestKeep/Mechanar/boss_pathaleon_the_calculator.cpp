@@ -192,7 +192,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
             }
         };
 
-            CreatureAI* GetAI_boss_pathaleon_the_calculator(Creature* pCreature)
+            CreatureAI* GetAI(Creature* pCreature) const
             {
                 return new boss_pathaleon_the_calculatorAI (pCreature);
             }
@@ -267,7 +267,7 @@ class mob_nether_wraith : public CreatureScript
             }
         };    
 
-        CreatureAI* GetAI_mob_nether_wraith(Creature* pCreature)
+        CreatureAI* GetAI(Creature* pCreature) const
         {
             return new mob_nether_wraithAI (pCreature);
         }

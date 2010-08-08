@@ -73,7 +73,7 @@ public:
     {
         boss_tharon_jaAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiPhaseTimer;
@@ -86,7 +86,7 @@ public:
 
         CombatPhase Phase;
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

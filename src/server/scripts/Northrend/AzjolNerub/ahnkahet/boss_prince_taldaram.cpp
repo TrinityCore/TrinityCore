@@ -81,7 +81,7 @@ public:
     {
         boss_taldaramAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -98,7 +98,7 @@ public:
 
         CombatPhase Phase;
 
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -339,11 +339,11 @@ public:
     {
         mob_taldaram_flamesphereAI(Creature *c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceData();
+            pInstance = c->GetInstanceScript();
         }
 
         uint32 uiDespawnTimer;
-        ScriptedInstance* pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -387,7 +387,7 @@ public:
 
     bool OnGossipHello(Player * /*pPlayer*/, GameObject *pGO)
     {
-        ScriptedInstance *pInstance = pGO->GetInstanceData();
+        InstanceScript *pInstance = pGO->GetInstanceScript();
 
         Creature *pPrinceTaldaram = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_PRINCE_TALDARAM) : 0);
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())

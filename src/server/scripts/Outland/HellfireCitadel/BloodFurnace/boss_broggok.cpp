@@ -50,10 +50,10 @@ class boss_broggok : public CreatureScript
         {
             boss_broggokAI(Creature* pCreature) : ScriptedAI(pCreature)
             {
-                pInstance = pCreature->GetInstanceData();
+                pInstance = pCreature->GetInstanceScript();
             }
 
-            ScriptedInstance* pInstance;
+            InstanceScript* pInstance;
 
             uint32 AcidSpray_Timer;
             uint32 PoisonSpawn_Timer;

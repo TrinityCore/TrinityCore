@@ -35,62 +35,65 @@ enum Spells
     SPELL_GROUNDTREMOR                                     = 6524,
     SPELL_FRENZY                                           = 28371
 };
-
-struct boss_grizzleAI : public ScriptedAI
+class boss_grizzle : public CreatureScript
 {
-    boss_grizzleAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_grizzle() : CreatureScript("boss_grizzle") { }
 
-    uint32 GroundTremor_Timer;
-    uint32 Frenzy_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        GroundTremor_Timer = 12000;
-        Frenzy_Timer =0;
+        return new boss_grizzleAI (pCreature);
     }
 
-    void EnterCombat(Unit * /*who*/)
+    struct boss_grizzleAI : public ScriptedAI
     {
-    }
+        boss_grizzleAI(Creature *c) : ScriptedAI(c) {}
 
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
+        uint32 GroundTremor_Timer;
+        uint32 Frenzy_Timer;
 
-        //GroundTremor_Timer
-        if (GroundTremor_Timer <= diff)
+        void Reset()
         {
-            DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
-            GroundTremor_Timer = 8000;
-        } else GroundTremor_Timer -= diff;
-
-        //Frenzy_Timer
-        if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
-        {
-            if (Frenzy_Timer <= diff)
-            {
-                DoCast(me, SPELL_FRENZY);
-                DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
-
-                Frenzy_Timer = 15000;
-            } else Frenzy_Timer -= diff;
+            GroundTremor_Timer = 12000;
+            Frenzy_Timer =0;
         }
 
-        DoMeleeAttackIfReady();
-    }
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
+
+            //GroundTremor_Timer
+            if (GroundTremor_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
+                GroundTremor_Timer = 8000;
+            } else GroundTremor_Timer -= diff;
+
+            //Frenzy_Timer
+            if (me->GetHealth()*100 / me->GetMaxHealth() < 51)
+            {
+                if (Frenzy_Timer <= diff)
+                {
+                    DoCast(me, SPELL_FRENZY);
+                    DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
+
+                    Frenzy_Timer = 15000;
+                } else Frenzy_Timer -= diff;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_grizzle(Creature* pCreature)
-{
-    return new boss_grizzleAI (pCreature);
-}
 
 void AddSC_boss_grizzle()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_grizzle";
-    newscript->GetAI = &GetAI_boss_grizzle;
-    newscript->RegisterSelf();
+    new boss_grizzle();
 }

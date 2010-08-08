@@ -48,108 +48,110 @@ enum Yells
     SAY_SLAY_3                                  = -1595007, //"You were destined to fail. "
     SAY_DEATH                                   = -1595008 //"*gurgles*"
 };
-
-struct boss_epochAI : public ScriptedAI
+class boss_epoch : public CreatureScript
 {
-    boss_epochAI(Creature *c) : ScriptedAI(c)
+public:
+    boss_epoch() : CreatureScript("boss_epoch") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        pInstance = c->GetInstanceData();
+        return new boss_epochAI (pCreature);
     }
 
-    uint8 uiStep;
-
-    uint32 uiStepTimer;
-    uint32 uiWoundingStrikeTimer;
-    uint32 uiTimeWarpTimer;
-    uint32 uiTimeStopTimer;
-    uint32 uiCurseOfExertionTimer;
-
-    ScriptedInstance* pInstance;
-
-    void Reset()
+    struct boss_epochAI : public ScriptedAI
     {
-        uiStep = 1;
-        uiStepTimer = 26000;
-        uiCurseOfExertionTimer = 9300;
-        uiTimeWarpTimer = 25300;
-        uiTimeStopTimer = 21300;
-        uiWoundingStrikeTimer = 5300;
-
-        if (pInstance)
-            pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
-    }
-
-    void EnterCombat(Unit* /*who*/)
-    {
-        DoScriptText(SAY_AGGRO, me);
-
-        if (pInstance)
-            pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        //Return since we have no target
-        if (!UpdateVictim())
-            return;
-
-        if (uiCurseOfExertionTimer < diff)
+        boss_epochAI(Creature *c) : ScriptedAI(c)
         {
-            if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
+            pInstance = c->GetInstanceScript();
+        }
+
+        uint8 uiStep;
+
+        uint32 uiStepTimer;
+        uint32 uiWoundingStrikeTimer;
+        uint32 uiTimeWarpTimer;
+        uint32 uiTimeStopTimer;
+        uint32 uiCurseOfExertionTimer;
+
+        InstanceScript* pInstance;
+
+        void Reset()
+        {
+            uiStep = 1;
+            uiStepTimer = 26000;
             uiCurseOfExertionTimer = 9300;
-        } else uiCurseOfExertionTimer -= diff;
-
-        if (uiWoundingStrikeTimer < diff)
-        {
-            DoCastVictim(SPELL_WOUNDING_STRIKE);
-            uiWoundingStrikeTimer = 5300;
-        } else uiWoundingStrikeTimer -= diff;
-
-        if (uiTimeStopTimer < diff)
-        {
-            DoCastAOE(SPELL_TIME_STOP);
-            uiTimeStopTimer = 21300;
-        } else uiTimeStopTimer -= diff;
-
-        if (uiTimeWarpTimer < diff)
-        {
-            DoScriptText(RAND(SAY_TIME_WARP_1,SAY_TIME_WARP_2,SAY_TIME_WARP_3), me);
-            DoCastAOE(SPELL_TIME_WARP);
             uiTimeWarpTimer = 25300;
-        } else uiTimeWarpTimer -= diff;
+            uiTimeStopTimer = 21300;
+            uiWoundingStrikeTimer = 5300;
 
-        DoMeleeAttackIfReady();
-    }
+            if (pInstance)
+                pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
+        }
 
-    void JustDied(Unit* /*killer*/)
-    {
-        DoScriptText(SAY_DEATH, me);
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoScriptText(SAY_AGGRO, me);
 
-        if (pInstance)
-            pInstance->SetData(DATA_EPOCH_EVENT, DONE);
-    }
+            if (pInstance)
+                pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
+        }
 
-    void KilledUnit(Unit * victim)
-    {
-        if (victim == me)
-            return;
+        void UpdateAI(const uint32 diff)
+        {
+            //Return since we have no target
+            if (!UpdateVictim())
+                return;
 
-        DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
-    }
+            if (uiCurseOfExertionTimer < diff)
+            {
+                if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                    DoCast(pTarget, SPELL_CURSE_OF_EXERTION);
+                uiCurseOfExertionTimer = 9300;
+            } else uiCurseOfExertionTimer -= diff;
+
+            if (uiWoundingStrikeTimer < diff)
+            {
+                DoCastVictim(SPELL_WOUNDING_STRIKE);
+                uiWoundingStrikeTimer = 5300;
+            } else uiWoundingStrikeTimer -= diff;
+
+            if (uiTimeStopTimer < diff)
+            {
+                DoCastAOE(SPELL_TIME_STOP);
+                uiTimeStopTimer = 21300;
+            } else uiTimeStopTimer -= diff;
+
+            if (uiTimeWarpTimer < diff)
+            {
+                DoScriptText(RAND(SAY_TIME_WARP_1,SAY_TIME_WARP_2,SAY_TIME_WARP_3), me);
+                DoCastAOE(SPELL_TIME_WARP);
+                uiTimeWarpTimer = 25300;
+            } else uiTimeWarpTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoScriptText(SAY_DEATH, me);
+
+            if (pInstance)
+                pInstance->SetData(DATA_EPOCH_EVENT, DONE);
+        }
+
+        void KilledUnit(Unit * victim)
+        {
+            if (victim == me)
+                return;
+
+            DoScriptText(RAND(SAY_SLAY_1,SAY_SLAY_2,SAY_SLAY_3), me);
+        }
+    };
+
 };
 
-CreatureAI* GetAI_boss_epoch(Creature* pCreature)
-{
-    return new boss_epochAI (pCreature);
-}
 
 void AddSC_boss_epoch()
 {
-    Script *newscript;
-
-    newscript = new Script;
-    newscript->Name = "boss_epoch";
-    newscript->GetAI = &GetAI_boss_epoch;
-    newscript->RegisterSelf();
+    new boss_epoch();
 }

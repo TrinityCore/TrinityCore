@@ -54,245 +54,247 @@ EndScriptData */
 
 #define SPELL_STORM_BUFF        2148
 #define SPELL_STORM             26546
-
-struct aqsentinelAI : public ScriptedAI
+class mob_anubisath_sentinel : public CreatureScript
 {
-    uint32 ability;
-    int abselected;
+public:
+    mob_anubisath_sentinel() : CreatureScript("mob_anubisath_sentinel") { }
 
-    void selectAbility(int asel)
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        switch (asel)
+        return new aqsentinelAI (pCreature);
+    }
+
+    struct aqsentinelAI : public ScriptedAI
+    {
+        uint32 ability;
+        int abselected;
+
+        void selectAbility(int asel)
         {
-            case 0: ability = SPELL_MENDING_BUFF;break;
-            case 1: ability = SPELL_KNOCK_BUFF;break;
-            case 2: ability = SPELL_MANAB_BUFF;break;
-            case 3: ability = SPELL_REFLECTAF_BUFF;break;
-            case 4: ability = SPELL_REFLECTSFr_BUFF;break;
-            case 5: ability = SPELL_THORNS_BUFF;break;
-            case 6: ability = SPELL_THUNDER_BUFF;break;
-            case 7: ability = SPELL_MSTRIKE_BUFF;break;
-            case 8: ability = SPELL_STORM_BUFF;break;
-        }
-    }
-
-    aqsentinelAI(Creature *c) : ScriptedAI(c)
-    {
-        ClearBuddyList();
-        abselected = 0;                                     // just initialization of variable
-    }
-
-    uint64 NearbyGUID[3];
-
-    void ClearBuddyList()
-    {
-        NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
-    }
-
-    void AddBuddyToList(uint64 CreatureGUID)
-    {
-        if (CreatureGUID == me->GetGUID())
-            return;
-
-        for (int i=0; i<3; ++i)
-        {
-            if (NearbyGUID[i] == CreatureGUID)
-                return;
-            if (!NearbyGUID[i])
+            switch (asel)
             {
-                NearbyGUID[i] = CreatureGUID;
-                return;
+                case 0: ability = SPELL_MENDING_BUFF;break;
+                case 1: ability = SPELL_KNOCK_BUFF;break;
+                case 2: ability = SPELL_MANAB_BUFF;break;
+                case 3: ability = SPELL_REFLECTAF_BUFF;break;
+                case 4: ability = SPELL_REFLECTSFr_BUFF;break;
+                case 5: ability = SPELL_THORNS_BUFF;break;
+                case 6: ability = SPELL_THUNDER_BUFF;break;
+                case 7: ability = SPELL_MSTRIKE_BUFF;break;
+                case 8: ability = SPELL_STORM_BUFF;break;
             }
         }
-    }
 
-    void GiveBuddyMyList(Creature *c)
-    {
-        aqsentinelAI *cai = CAST_AI(aqsentinelAI, (c)->AI());
-        for (int i=0; i<3; ++i)
-            if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
-                cai->AddBuddyToList(NearbyGUID[i]);
-        cai->AddBuddyToList(me->GetGUID());
-    }
-
-    void SendMyListToBuddies()
-    {
-        for (int i=0; i<3; ++i)
-            if (Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[i]))
-                GiveBuddyMyList(pNearby);
-    }
-
-    void CallBuddiesToAttack(Unit *who)
-    {
-        for (int i=0; i<3; ++i)
+        aqsentinelAI(Creature *c) : ScriptedAI(c)
         {
-            Creature *c = Unit::GetCreature(*me, NearbyGUID[i]);
-            if (c)
+            ClearBuddyList();
+            abselected = 0;                                     // just initialization of variable
+        }
+
+        uint64 NearbyGUID[3];
+
+        void ClearBuddyList()
+        {
+            NearbyGUID[0] = NearbyGUID[1] = NearbyGUID[2] = 0;
+        }
+
+        void AddBuddyToList(uint64 CreatureGUID)
+        {
+            if (CreatureGUID == me->GetGUID())
+                return;
+
+            for (int i=0; i<3; ++i)
             {
-                if (!c->isInCombat())
+                if (NearbyGUID[i] == CreatureGUID)
+                    return;
+                if (!NearbyGUID[i])
                 {
-                    c->SetNoCallAssistance(true);
-                    if (c->AI())
-                        c->AI()->AttackStart(who);
+                    NearbyGUID[i] = CreatureGUID;
+                    return;
                 }
             }
         }
-    }
 
-    void AddSentinelsNear(Unit * /*nears*/)
-    {
-        std::list<Creature*> assistList;
-        me->GetCreatureListWithEntryInGrid(assistList,15264,70.0f);
-
-        if (assistList.empty())
-            return;
-
-        for (std::list<Creature*>::const_iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
-            AddBuddyToList((*iter)->GetGUID());
-    }
-
-    int pickAbilityRandom(bool *chosenAbilities)
-    {
-        for (int t = 0; t < 2; ++t)
+        void GiveBuddyMyList(Creature *c)
         {
-            for (int i = !t ? (rand()%9) : 0; i < 9; ++i)
-            {
-                if (!chosenAbilities[i])
-                {
-                    chosenAbilities[i] = true;
-                    return i;
-                }
-            }
+            aqsentinelAI *cai = CAST_AI(aqsentinelAI, (c)->AI());
+            for (int i=0; i<3; ++i)
+                if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
+                    cai->AddBuddyToList(NearbyGUID[i]);
+            cai->AddBuddyToList(me->GetGUID());
         }
-        return 0;                                           // should never happen
-    }
 
-    void GetOtherSentinels(Unit *who)
-    {
-        bool *chosenAbilities = new bool[9];
-        memset(chosenAbilities, 0, 9*sizeof(bool));
-        selectAbility(pickAbilityRandom(chosenAbilities));
-
-        ClearBuddyList();
-        AddSentinelsNear(me);
-        int bli;
-        for (bli = 0; bli < 3; ++bli)
+        void SendMyListToBuddies()
         {
-            if (!NearbyGUID[bli])
-                break;
-
-            Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[bli]);
-            if (!pNearby)
-                break;
-
-            AddSentinelsNear(pNearby);
-            CAST_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
-            CAST_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+            for (int i=0; i<3; ++i)
+                if (Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[i]))
+                    GiveBuddyMyList(pNearby);
         }
-        /*if (bli < 3)
-            DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
-        SendMyListToBuddies();
-        CallBuddiesToAttack(who);
 
-        delete[] chosenAbilities;
-    }
-
-    bool gatherOthersWhenAggro;
-
-    void Reset()
-    {
-        if (!me->isDead())
+        void CallBuddiesToAttack(Unit *who)
         {
             for (int i=0; i<3; ++i)
             {
-                if (!NearbyGUID[i])
-                    continue;
-                if (Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[i]))
+                Creature *c = Unit::GetCreature(*me, NearbyGUID[i]);
+                if (c)
                 {
-                    if (pNearby->isDead())
-                        pNearby->Respawn();
+                    if (!c->isInCombat())
+                    {
+                        c->SetNoCallAssistance(true);
+                        if (c->AI())
+                            c->AI()->AttackStart(who);
+                    }
                 }
             }
         }
-        ClearBuddyList();
-        gatherOthersWhenAggro = true;
-    }
 
-    void GainSentinelAbility(uint32 id)
-    {
-        me->AddAura(id, me);
-    }
-
-    void EnterCombat(Unit * who)
-    {
-        if (gatherOthersWhenAggro)
-            GetOtherSentinels(who);
-
-        GainSentinelAbility(ability);
-        DoZoneInCombat();
-    }
-
-    void JustDied(Unit* /*who*/)
-    {
-        for (int ni=0; ni<3; ++ni)
+        void AddSentinelsNear(Unit * /*nears*/)
         {
-            Creature *sent = Unit::GetCreature(*me, NearbyGUID[ni]);
-            if (!sent)
-                continue;
-            if (sent->isDead())
-                continue;
-            int h = sent->GetHealth() + (sent->GetMaxHealth() / 2);
-            if (h > sent->GetMaxHealth())
-                h = sent->GetMaxHealth();
-            sent->SetHealth(h);
-            CAST_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
-        }
-    }
+            std::list<Creature*> assistList;
+            me->GetCreatureListWithEntryInGrid(assistList,15264,70.0f);
 
-    Unit *GetHatedManaUser() const
-    {
-        std::list<HostileReference*>::const_iterator i;
-        for (i = me->getThreatManager().getThreatList().begin(); i != me->getThreatManager().getThreatList().end(); ++i)
+            if (assistList.empty())
+                return;
+
+            for (std::list<Creature*>::const_iterator iter = assistList.begin(); iter != assistList.end(); ++iter)
+                AddBuddyToList((*iter)->GetGUID());
+        }
+
+        int pickAbilityRandom(bool *chosenAbilities)
         {
-            Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-            if (pUnit->getPowerType() == POWER_MANA)
-                return pUnit;
+            for (int t = 0; t < 2; ++t)
+            {
+                for (int i = !t ? (rand()%9) : 0; i < 9; ++i)
+                {
+                    if (!chosenAbilities[i])
+                    {
+                        chosenAbilities[i] = true;
+                        return i;
+                    }
+                }
+            }
+            return 0;                                           // should never happen
         }
-        return NULL;
-    }
 
-    Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 /*effIndex*/) const
-    {
-        switch (spellId)
+        void GetOtherSentinels(Unit *who)
         {
-            case SPELL_KNOCK_BUFF:
-            case SPELL_THUNDER_BUFF:
-            case SPELL_MSTRIKE_BUFF:
-            case SPELL_STORM_BUFF:
-                return me->getVictim();
+            bool *chosenAbilities = new bool[9];
+            memset(chosenAbilities, 0, 9*sizeof(bool));
+            selectAbility(pickAbilityRandom(chosenAbilities));
 
-            case SPELL_MANAB_BUFF:
-                return GetHatedManaUser();
+            ClearBuddyList();
+            AddSentinelsNear(me);
+            int bli;
+            for (bli = 0; bli < 3; ++bli)
+            {
+                if (!NearbyGUID[bli])
+                    break;
 
-            case SPELL_MENDING_BUFF:
-            case SPELL_REFLECTAF_BUFF:
-            case SPELL_REFLECTSFr_BUFF:
-            case SPELL_THORNS_BUFF:
-            default:
-                return me;
+                Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[bli]);
+                if (!pNearby)
+                    break;
+
+                AddSentinelsNear(pNearby);
+                CAST_AI(aqsentinelAI, pNearby->AI())->gatherOthersWhenAggro = false;
+                CAST_AI(aqsentinelAI, pNearby->AI())->selectAbility(pickAbilityRandom(chosenAbilities));
+            }
+            /*if (bli < 3)
+                DoYell("I dont have enough buddies.", LANG_NEUTRAL, 0);*/
+            SendMyListToBuddies();
+            CallBuddiesToAttack(who);
+
+            delete[] chosenAbilities;
         }
-    }
+
+        bool gatherOthersWhenAggro;
+
+        void Reset()
+        {
+            if (!me->isDead())
+            {
+                for (int i=0; i<3; ++i)
+                {
+                    if (!NearbyGUID[i])
+                        continue;
+                    if (Creature *pNearby = Unit::GetCreature(*me, NearbyGUID[i]))
+                    {
+                        if (pNearby->isDead())
+                            pNearby->Respawn();
+                    }
+                }
+            }
+            ClearBuddyList();
+            gatherOthersWhenAggro = true;
+        }
+
+        void GainSentinelAbility(uint32 id)
+        {
+            me->AddAura(id, me);
+        }
+
+        void EnterCombat(Unit * who)
+        {
+            if (gatherOthersWhenAggro)
+                GetOtherSentinels(who);
+
+            GainSentinelAbility(ability);
+            DoZoneInCombat();
+        }
+
+        void JustDied(Unit* /*who*/)
+        {
+            for (int ni=0; ni<3; ++ni)
+            {
+                Creature *sent = Unit::GetCreature(*me, NearbyGUID[ni]);
+                if (!sent)
+                    continue;
+                if (sent->isDead())
+                    continue;
+                int h = sent->GetHealth() + (sent->GetMaxHealth() / 2);
+                if (h > sent->GetMaxHealth())
+                    h = sent->GetMaxHealth();
+                sent->SetHealth(h);
+                CAST_AI(aqsentinelAI, sent->AI())->GainSentinelAbility(ability);
+            }
+        }
+
+        Unit *GetHatedManaUser() const
+        {
+            std::list<HostileReference*>::const_iterator i;
+            for (i = me->getThreatManager().getThreatList().begin(); i != me->getThreatManager().getThreatList().end(); ++i)
+            {
+                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (pUnit->getPowerType() == POWER_MANA)
+                    return pUnit;
+            }
+            return NULL;
+        }
+
+        Unit* GetAuraEffectTriggerTarget(uint32 spellId, uint8 /*effIndex*/) const
+        {
+            switch (spellId)
+            {
+                case SPELL_KNOCK_BUFF:
+                case SPELL_THUNDER_BUFF:
+                case SPELL_MSTRIKE_BUFF:
+                case SPELL_STORM_BUFF:
+                    return me->getVictim();
+
+                case SPELL_MANAB_BUFF:
+                    return GetHatedManaUser();
+
+                case SPELL_MENDING_BUFF:
+                case SPELL_REFLECTAF_BUFF:
+                case SPELL_REFLECTSFr_BUFF:
+                case SPELL_THORNS_BUFF:
+                default:
+                    return me;
+            }
+        }
+    };
 };
-CreatureAI* GetAI_mob_anubisath_sentinelAI(Creature* pCreature)
-{
-    return new aqsentinelAI (pCreature);
-}
 
 void AddSC_mob_anubisath_sentinel()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "mob_anubisath_sentinel";
-    newscript->GetAI = &GetAI_mob_anubisath_sentinelAI;
-    newscript->RegisterSelf();
+    new mob_anubisath_sentinel();
 }

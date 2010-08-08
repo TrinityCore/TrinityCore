@@ -30,90 +30,92 @@ EndScriptData */
 #define SPELL_SHADOWSHOCK       20603
 #define SPELL_SILENCE           15487
 #define SPELL_FEAR              6215
-
-struct boss_illuciabarovAI : public ScriptedAI
+class boss_illucia_barov : public CreatureScript
 {
-    boss_illuciabarovAI(Creature *c) : ScriptedAI(c) {}
+public:
+    boss_illucia_barov() : CreatureScript("boss_illucia_barov") { }
 
-    uint32 CurseOfAgony_Timer;
-    uint32 ShadowShock_Timer;
-    uint32 Silence_Timer;
-    uint32 Fear_Timer;
-
-    void Reset()
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        CurseOfAgony_Timer = 18000;
-        ShadowShock_Timer = 9000;
-        Silence_Timer = 5000;
-        Fear_Timer = 30000;
+        return new boss_illuciabarovAI (pCreature);
     }
 
-    void JustDied(Unit * /*killer*/)
+    struct boss_illuciabarovAI : public ScriptedAI
     {
-        ScriptedInstance *pInstance = me->GetInstanceData();
-        if (pInstance)
+        boss_illuciabarovAI(Creature *c) : ScriptedAI(c) {}
+
+        uint32 CurseOfAgony_Timer;
+        uint32 ShadowShock_Timer;
+        uint32 Silence_Timer;
+        uint32 Fear_Timer;
+
+        void Reset()
         {
-            pInstance->SetData(DATA_LADYILLUCIABAROV_DEATH, 0);
-
-            if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
-                me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
-        }
-    }
-
-    void EnterCombat(Unit * /*who*/)
-    {
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!UpdateVictim())
-            return;
-
-        //CurseOfAgony_Timer
-        if (CurseOfAgony_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_CURSEOFAGONY);
-            CurseOfAgony_Timer = 30000;
-        } else CurseOfAgony_Timer -= diff;
-
-        //ShadowShock_Timer
-        if (ShadowShock_Timer <= diff)
-        {
-            Unit *pTarget = NULL;
-            pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
-            if (pTarget) DoCast(pTarget, SPELL_SHADOWSHOCK);
-
-            ShadowShock_Timer = 12000;
-        } else ShadowShock_Timer -= diff;
-
-        //Silence_Timer
-        if (Silence_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_SILENCE);
-            Silence_Timer = 14000;
-        } else Silence_Timer -= diff;
-
-        //Fear_Timer
-        if (Fear_Timer <= diff)
-        {
-            DoCast(me->getVictim(), SPELL_FEAR);
+            CurseOfAgony_Timer = 18000;
+            ShadowShock_Timer = 9000;
+            Silence_Timer = 5000;
             Fear_Timer = 30000;
-        } else Fear_Timer -= diff;
+        }
 
-        DoMeleeAttackIfReady();
-    }
+        void JustDied(Unit * /*killer*/)
+        {
+            InstanceScript *pInstance = me->GetInstanceScript();
+            if (pInstance)
+            {
+                pInstance->SetData(DATA_LADYILLUCIABAROV_DEATH, 0);
+
+                if (pInstance->GetData(TYPE_GANDLING) == IN_PROGRESS)
+                    me->SummonCreature(1853, 180.73, -9.43856, 75.507, 1.61399, TEMPSUMMON_DEAD_DESPAWN, 0);
+            }
+        }
+
+        void EnterCombat(Unit * /*who*/)
+        {
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            //CurseOfAgony_Timer
+            if (CurseOfAgony_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_CURSEOFAGONY);
+                CurseOfAgony_Timer = 30000;
+            } else CurseOfAgony_Timer -= diff;
+
+            //ShadowShock_Timer
+            if (ShadowShock_Timer <= diff)
+            {
+                Unit *pTarget = NULL;
+                pTarget = SelectUnit(SELECT_TARGET_RANDOM,0);
+                if (pTarget) DoCast(pTarget, SPELL_SHADOWSHOCK);
+
+                ShadowShock_Timer = 12000;
+            } else ShadowShock_Timer -= diff;
+
+            //Silence_Timer
+            if (Silence_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_SILENCE);
+                Silence_Timer = 14000;
+            } else Silence_Timer -= diff;
+
+            //Fear_Timer
+            if (Fear_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_FEAR);
+                Fear_Timer = 30000;
+            } else Fear_Timer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
-CreatureAI* GetAI_boss_illuciabarov(Creature* pCreature)
-{
-    return new boss_illuciabarovAI (pCreature);
-}
 
 void AddSC_boss_illuciabarov()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_illucia_barov";
-    newscript->GetAI = &GetAI_boss_illuciabarov;
-    newscript->RegisterSelf();
+    new boss_illucia_barov();
 }
-

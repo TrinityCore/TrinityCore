@@ -43,166 +43,168 @@ enum eEnums
     SPELL_FEAR              = 33547,
     SPELL_ENRAGE            = 34970
 };
-
-struct boss_ambassador_hellmawAI : public npc_escortAI
+class boss_ambassador_hellmaw : public CreatureScript
 {
-    boss_ambassador_hellmawAI(Creature* pCreature) : npc_escortAI(pCreature)
+public:
+    boss_ambassador_hellmaw() : CreatureScript("boss_ambassador_hellmaw") { }
+
+    CreatureAI* GetAI(Creature* pCreature) const
     {
-        m_pInstance = pCreature->GetInstanceData();
+        return new boss_ambassador_hellmawAI(pCreature);
     }
 
-    ScriptedInstance* m_pInstance;
-
-    uint32 EventCheck_Timer;
-    uint32 CorrosiveAcid_Timer;
-    uint32 Fear_Timer;
-    uint32 Enrage_Timer;
-    bool Intro;
-    bool IsBanished;
-    bool Enraged;
-
-    void Reset()
+    struct boss_ambassador_hellmawAI : public npc_escortAI
     {
-        EventCheck_Timer = 5000;
-        CorrosiveAcid_Timer = 5000 + rand()%5000;
-        Fear_Timer = 25000 + rand()%5000;
-        Enrage_Timer = 180000;
-        Intro = false;
-        IsBanished = true;
-        Enraged = false;
-
-        if (m_pInstance && me->isAlive())
+        boss_ambassador_hellmawAI(Creature* pCreature) : npc_escortAI(pCreature)
         {
-            if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
-                DoCast(me, SPELL_BANISH, true);
+            m_pInstance = pCreature->GetInstanceScript();
         }
-    }
 
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_HELLMAW, FAIL);
-    }
+        InstanceScript* m_pInstance;
 
-    void MoveInLineOfSight(Unit* pWho)
-    {
-        if (me->HasAura(SPELL_BANISH))
-            return;
+        uint32 EventCheck_Timer;
+        uint32 CorrosiveAcid_Timer;
+        uint32 Fear_Timer;
+        uint32 Enrage_Timer;
+        bool Intro;
+        bool IsBanished;
+        bool Enraged;
 
-        npc_escortAI::MoveInLineOfSight(pWho);
-    }
-
-    void WaypointReached(uint32 /*i*/)
-    {
-    }
-
-    void DoIntro()
-    {
-        if (me->HasAura(SPELL_BANISH))
-            me->RemoveAurasDueToSpell(SPELL_BANISH);
-
-        IsBanished = false;
-        Intro = true;
-
-        if (m_pInstance)
+        void Reset()
         {
-            if (m_pInstance->GetData(TYPE_HELLMAW) != FAIL)
+            EventCheck_Timer = 5000;
+            CorrosiveAcid_Timer = 5000 + rand()%5000;
+            Fear_Timer = 25000 + rand()%5000;
+            Enrage_Timer = 180000;
+            Intro = false;
+            IsBanished = true;
+            Enraged = false;
+
+            if (m_pInstance && me->isAlive())
             {
-                DoScriptText(SAY_INTRO, me);
-                Start(true, false, 0, NULL, false, true);
+                if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
+                    DoCast(me, SPELL_BANISH, true);
             }
-
-            m_pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
         }
-    }
 
-    void EnterCombat(Unit * /*who*/)
-    {
-        DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
-    }
-
-    void KilledUnit(Unit * /*victim*/)
-    {
-        DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
-    }
-
-    void JustDied(Unit * /*victim*/)
-    {
-        DoScriptText(SAY_DEATH, me);
-
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_HELLMAW, DONE);
-    }
-
-    void UpdateAI(const uint32 diff)
-    {
-        if (!Intro && !HasEscortState(STATE_ESCORT_ESCORTING))
+        void JustReachedHome()
         {
-            if (EventCheck_Timer <= diff)
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_HELLMAW, FAIL);
+        }
+
+        void MoveInLineOfSight(Unit* pWho)
+        {
+            if (me->HasAura(SPELL_BANISH))
+                return;
+
+            npc_escortAI::MoveInLineOfSight(pWho);
+        }
+
+        void WaypointReached(uint32 /*i*/)
+        {
+        }
+
+        void DoIntro()
+        {
+            if (me->HasAura(SPELL_BANISH))
+                me->RemoveAurasDueToSpell(SPELL_BANISH);
+
+            IsBanished = false;
+            Intro = true;
+
+            if (m_pInstance)
             {
-                if (m_pInstance)
+                if (m_pInstance->GetData(TYPE_HELLMAW) != FAIL)
                 {
-                    if (m_pInstance->GetData(TYPE_OVERSEER) == DONE)
-                    {
-                        DoIntro();
-                        return;
-                    }
+                    DoScriptText(SAY_INTRO, me);
+                    Start(true, false, 0, NULL, false, true);
                 }
-                EventCheck_Timer = 5000;
-                return;
-            }
-            else
-            {
-                EventCheck_Timer -= diff;
-                return;
+
+                m_pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
             }
         }
 
-        npc_escortAI::UpdateAI(diff);
-
-        if (!UpdateVictim())
-            return;
-
-        if (me->HasAura(SPELL_BANISH, 0))
+        void EnterCombat(Unit * /*who*/)
         {
-            EnterEvadeMode();
-            return;
+            DoScriptText(RAND(SAY_AGGRO1,SAY_AGGRO2,SAY_AGGRO3), me);
         }
 
-        if (CorrosiveAcid_Timer <= diff)
+        void KilledUnit(Unit * /*victim*/)
         {
-            DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
-            CorrosiveAcid_Timer = 15000 + rand()%10000;
-        } else CorrosiveAcid_Timer -= diff;
+            DoScriptText(RAND(SAY_SLAY1,SAY_SLAY2), me);
+        }
 
-        if (Fear_Timer <= diff)
+        void JustDied(Unit * /*victim*/)
         {
-            DoCast(me, SPELL_FEAR);
-            Fear_Timer = 20000 + rand()%15000;
-        } else Fear_Timer -= diff;
+            DoScriptText(SAY_DEATH, me);
 
-        if (IsHeroic())
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_HELLMAW, DONE);
+        }
+
+        void UpdateAI(const uint32 diff)
         {
-            if (!Enraged && Enrage_Timer <= diff)
+            if (!Intro && !HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                DoCast(me, SPELL_ENRAGE);
-                Enraged = true;
-            } else Enrage_Timer -= diff;
+                if (EventCheck_Timer <= diff)
+                {
+                    if (m_pInstance)
+                    {
+                        if (m_pInstance->GetData(TYPE_OVERSEER) == DONE)
+                        {
+                            DoIntro();
+                            return;
+                        }
+                    }
+                    EventCheck_Timer = 5000;
+                    return;
+                }
+                else
+                {
+                    EventCheck_Timer -= diff;
+                    return;
+                }
+            }
+
+            npc_escortAI::UpdateAI(diff);
+
+            if (!UpdateVictim())
+                return;
+
+            if (me->HasAura(SPELL_BANISH, 0))
+            {
+                EnterEvadeMode();
+                return;
+            }
+
+            if (CorrosiveAcid_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
+                CorrosiveAcid_Timer = 15000 + rand()%10000;
+            } else CorrosiveAcid_Timer -= diff;
+
+            if (Fear_Timer <= diff)
+            {
+                DoCast(me, SPELL_FEAR);
+                Fear_Timer = 20000 + rand()%15000;
+            } else Fear_Timer -= diff;
+
+            if (IsHeroic())
+            {
+                if (!Enraged && Enrage_Timer <= diff)
+                {
+                    DoCast(me, SPELL_ENRAGE);
+                    Enraged = true;
+                } else Enrage_Timer -= diff;
+            }
         }
-    }
+    };
+
 };
 
-CreatureAI* GetAI_boss_ambassador_hellmaw(Creature* pCreature)
-{
-    return new boss_ambassador_hellmawAI(pCreature);
-}
 
 void AddSC_boss_ambassador_hellmaw()
 {
-    Script *newscript;
-    newscript = new Script;
-    newscript->Name = "boss_ambassador_hellmaw";
-    newscript->GetAI = &GetAI_boss_ambassador_hellmaw;
-    newscript->RegisterSelf();
+    new boss_ambassador_hellmaw();
 }
-

@@ -38,7 +38,7 @@
 #include "Battleground.h"
 #include "BattlegroundAB.h"
 #include "Map.h"
-#include "InstanceData.h"
+#include "InstanceScript.h"
 
 namespace Trinity
 {
@@ -344,7 +344,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                     ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT, criteria_id, map->GetId());
                     return false;
             }
-            InstanceData* data = ((InstanceMap*)map)->GetInstanceData();
+            InstanceScript* data = ((InstanceMap*)map)->GetInstanceScript();
             if (!data)
             {
                 sLog.outErrorDb("Achievement system call ACHIEVEMENT_CRITERIA_DATA_INSTANCE_SCRIPT (%u) for achievement criteria %u for map %u but map does not have a instance script",
